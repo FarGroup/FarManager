@@ -135,14 +135,14 @@ namespace os::version
 	{
 		file_version Version;
 		if (!Version.read(Name))
-			return L"Unknown"s;
+			return last_error().Win32ErrorStr();
 
 		if (const auto Str = Version.get_string(L"FileVersion"sv))
 			return Str;
 
 		const auto FixedInfo = Version.get_fixed_info();
 		if (!FixedInfo)
-			return L"Unknown"s;
+			return last_error().Win32ErrorStr();
 
 		return format(FSTR(L"{}.{}.{}.{}"sv),
 			extract_integer<WORD, 1>(FixedInfo->dwFileVersionMS),
@@ -207,7 +207,7 @@ WARNING_POP()
 	{
 		OSVERSIONINFOEX Info{ sizeof(Info) };
 		if (!get_os_version(Info))
-			return L"Unknown"s;
+			return last_error().Win32ErrorStr();
 
 		DWORD ProductType;
 		if (!imports.GetProductInfo || !imports.GetProductInfo(-1, -1, -1, -1, &ProductType))

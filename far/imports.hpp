@@ -117,6 +117,7 @@ public: \
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, void,  NTAPI, void,     RtlReleaseResource, PRTL_RESOURCE Res); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, void,  NTAPI, void,     RtlDeleteResource, PRTL_RESOURCE Res); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQueryInformationProcess, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength); // NT4
+	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQueryInformationThread, HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength, PULONG ReturnLength); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQuerySystemInformation, SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, zero,  NTAPI, WORD,     RtlCaptureStackBackTrace, DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, RtlGetVersion, PRTL_OSVERSIONINFOW VersionInformation); // 2k

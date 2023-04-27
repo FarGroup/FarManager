@@ -1,10 +1,8 @@
 .SILENT:
 
 !if !defined(VC)
-!if "$(_NMAKE_VER)">"14.20"
-VC = 16
-!elseif "$(_NMAKE_VER)">"14.10"
-VC = 15
+!if "$(_NMAKE_VER)">="14.30"
+VC = 17
 !else
 #default
 VC = 16
@@ -74,6 +72,12 @@ CFLAGS = $(CFLAGS)\
 	/D "PSAPI_VERSION=1"\
 	/D "_CRT_SECURE_NO_WARNINGS"\
 
+!if "$(VC)">="17"
+CFLAGS = $(CFLAGS)\
+	/Zc:__STDC__,enumTypes,templateScope\
+
+!endif
+
 !ifndef ANSI
 CFLAGS = $(CFLAGS)\
 	/D "UNICODE"\
@@ -86,7 +90,6 @@ CPPFLAGS = $(CPPFLAGS)\
 	/EHsc\
 	/std:c++latest\
 	/Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew\
-	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1"\

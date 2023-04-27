@@ -1688,7 +1688,10 @@ bool TreeList::ReadTreeFile()
 	{
 		ReadLines(TreeFile, [&](const string_view Name)
 		{
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wmaybe-uninitialized") // Rubbish
 			m_ListData.emplace_back(string_view(m_Root).substr(0, RootLength) + Name);
+WARNING_POP()
 		});
 	}
 	catch (std::exception const& e)

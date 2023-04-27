@@ -832,7 +832,12 @@ Zeichenketten markieren, damit sie in der History immer zur Verfügung stehen.
  Delete the current item in a dialog edit line history    #Shift+Del#
  (if it is not locked)
 
- Set the dialog focus to the default element                   #PgDn#
+ Set the dialog focus to the first element                     #Home#
+
+ Set the dialog focus to the default element              #PgDn, End#
+
+ The #Home# and #End# keys move the focus if it is currently not
+on a control which handles these keys internally, like edit control.
 
  Diese Tastenkombination gilt für alle Eingabefelder außer für
 die Kommandozeile und den ~internen Editor~@Editor@.

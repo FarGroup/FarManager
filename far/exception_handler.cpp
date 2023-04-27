@@ -177,8 +177,15 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 		Number      << 0;
 }
 
+static constexpr NTSTATUS visual_cpp_exception(unsigned const Severity, unsigned const Error)
+{
+	return Severity | FACILITY_VISUALCPP << 16 | Error;
+}
+
 static constexpr NTSTATUS
 	EH_EXCEPTION_NUMBER           = os::debug::EH_EXCEPTION_NUMBER,
+	EH_DELAYLOAD_MODULE           = visual_cpp_exception(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND),
+	EH_DELAYLOAD_PROCEDURE        = visual_cpp_exception(ERROR_SEVERITY_ERROR, ERROR_PROC_NOT_FOUND),
 	EH_CLR_EXCEPTION              = 0xE0434352, // 'CCR'
 	EH_SANITIZER                  = 0xE073616E, // 'san'
 	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
@@ -187,30 +194,25 @@ static constexpr NTSTATUS
 	STATUS_FAR_ABORT              = make_far_ntstatus(0),
 	STATUS_FAR_THREAD_RETHROW     = make_far_ntstatus(1);
 
-static const auto Separator = L"----------------------------------------------------------------------"sv;
+static const auto DoubleSeparator = L"======================================================================"sv;
+static const auto Separator       = L"----------------------------------------------------------------------"sv;
 
 static void make_header(string_view const Message, function_ref<void(string_view)> const Consumer)
+{
+	Consumer({});
+
+	Consumer(DoubleSeparator);
+	Consumer(Message);
+	Consumer(DoubleSeparator);
+}
+
+static void make_subheader(string_view const Message, function_ref<void(string_view)> const Consumer)
 {
 	Consumer({});
 
 	Consumer(Separator);
 	Consumer(Message);
 	Consumer(Separator);
-}
-
-static void get_backtrace(string_view const Module, span<os::debug::stack_frame const> const Stack, span<os::debug::stack_frame const> const NestedStack, function_ref<void(string_view)> const Consumer)
-{
-	make_header(L"Exception stack"sv, Consumer);
-	if (!NestedStack.empty())
-	{
-		tracer.get_symbols(Module, NestedStack, Consumer);
-		make_header(L"Rethrow stack"sv, Consumer);
-	}
-
-	tracer.get_symbols(Module, Stack, Consumer);
-
-	make_header(L"Exception handler stack"sv, Consumer);
-	tracer.current_stacktrace(Module, Consumer);
 }
 
 static string get_report_location()
@@ -277,6 +279,11 @@ static bool write_report(string_view const Data, string_view const FullPath)
 
 static bool write_minidump(const exception_context& Context, string_view const FullPath, MINIDUMP_TYPE const Type)
 {
+#ifdef _DEBUG
+	if (Type & MiniDumpWithFullMemory)
+		return false;
+#endif
+
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
@@ -420,11 +427,17 @@ static string file_timestamp()
 
 	if (!os::fs::get_find_data(ModuleName, Data))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, os::last_error());
-		return {};
+		const auto LastError = os::last_error();
+		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, LastError);
+		return LastError.Win32ErrorStr();
 	}
 
 	return timestamp(Data.LastWriteTime);
+}
+
+static string system_timestamp()
+{
+	return timestamp(os::chrono::nt_clock::now());
 }
 
 static string kernel_version()
@@ -613,85 +626,114 @@ private:
 };
 WARNING_POP()
 
-static void read_disassembly(string& To, string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
+class debug_client
 {
-	if (Stack.empty())
-		return;
-
-	if (!imports.DebugCreate)
-		return;
-
-	try
+public:
+	explicit debug_client(string& To):
+		m_To(&To),
+		m_Callbacks(m_To)
 	{
-		DebugOutputCallbacks Callbacks(&To);
+	}
 
-		os::com::ptr<IDebugClient> DebugClient;
-		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient))));
+	void disassembly(string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
+	{
+		if (Stack.empty())
+			return;
 
-		COM_INVOKE(DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+		try
+		{
+			if (!m_DebugControl)
+				initialize();
 
-		os::com::ptr<IDebugControl> DebugControl;
-		COM_INVOKE(DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(DebugControl))));
+			const auto DisassembleFlags =
+				DEBUG_DISASM_EFFECTIVE_ADDRESS |
+				DEBUG_DISASM_MATCHING_SYMBOLS |
+				DEBUG_DISASM_SOURCE_LINE_NUMBER |
+				DEBUG_DISASM_SOURCE_FILE_NAME;
 
-		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
+			const auto MaxFrames = 10;
+			auto Frames = 0;
+
+			for (const auto i: Stack)
+			{
+				if (os::debug::is_inline_frame(i.InlineContext))
+					continue;
+
+				tracer.get_symbols(Module, { &i, 1 }, [&](string_view const Line)
+				{
+					append(*m_To, Line, L':', Eol);
+				});
+
+				const auto PrevLines = 10;
+				if (const auto Result = m_DebugControl->OutputDisassemblyLines(
+					DEBUG_OUTCTL_THIS_CLIENT,
+					PrevLines,
+					PrevLines + 1,
+					i.Address,
+					DisassembleFlags,
+					{},
+					{},
+					{},
+					{}
+				); FAILED(Result))
+				{
+					LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
+				}
+
+				if (++Frames == MaxFrames)
+					break;
+
+				*m_To += Eol;
+			}
+		}
+		catch (os::com::exception const& e)
+		{
+			LOGWARNING(L"{}"sv, e);
+		}
+
+	}
+
+private:
+	void initialize()
+	{
+		if (m_DebugControl)
+			return;
+
+		if (!imports.DebugCreate)
+			return;
+
+		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient))));
+
+		COM_INVOKE(m_DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+
+		COM_INVOKE(m_DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugControl))));
+
+		if (const auto Result = m_DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
 
-		if (const auto Result = DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
+		if (const auto Result = m_DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
-		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
-			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&Callbacks));
+		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(m_DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
+			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&m_Callbacks));
 		else
-			COM_INVOKE(DebugClient->SetOutputCallbacks, (&Callbacks));
-
-		const auto DisassembleFlags =
-			DEBUG_DISASM_EFFECTIVE_ADDRESS |
-			DEBUG_DISASM_MATCHING_SYMBOLS |
-			DEBUG_DISASM_SOURCE_LINE_NUMBER |
-			DEBUG_DISASM_SOURCE_FILE_NAME;
-
-		const auto MaxFrames = 10;
-		auto Frames = 0;
-
-		for (const auto i: Stack)
-		{
-			if (os::debug::is_inline_frame(i.InlineContext))
-				continue;
-
-			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
-			{
-				append(To, Line, L':', Eol);
-			});
-
-			const auto PrevLines = 10;
-			if (const auto Result = DebugControl->OutputDisassemblyLines(
-				DEBUG_OUTCTL_THIS_CLIENT,
-				PrevLines,
-				PrevLines + 1,
-				i.Address,
-				DisassembleFlags,
-				{},
-				{},
-				{},
-				{}
-			); FAILED(Result))
-			{
-				LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
-			}
-
-			if (++Frames == MaxFrames)
-				break;
-
-			To += Eol;
-		}
+			COM_INVOKE(m_DebugClient->SetOutputCallbacks, (&m_Callbacks));
 	}
-	catch (os::com::exception const& e)
-	{
-		LOGWARNING(L"{}"sv, e);
-	}
-}
 
-static bool ExcDialog(string const& ReportLocation, string const& PluginInformation)
+	string* m_To;
+	DebugOutputCallbacks m_Callbacks;
+	os::com::ptr<IDebugClient> m_DebugClient;
+	os::com::ptr<IDebugControl> m_DebugControl;
+};
+
+enum class handler_result
+{
+	execute_handler,
+	continue_execution,
+	continue_search,
+};
+
+static handler_result ExcDialog(bool const CanContinue, string const& ReportLocation, string const& PluginInformation)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
@@ -707,30 +749,46 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 	Builder.AddConstEditField(ReportLocation, 70);
 	Builder.AddSeparator();
 
+	std::vector<lng> Buttons;
+	std::optional<intptr_t> ContinueId, UnloadId;
+
+	intptr_t const TerminateId = Buttons.size();
+	Buttons.emplace_back(lng::MExcTerminate);
+
 	if (!PluginInformation.empty())
 	{
-		Builder.AddButtons({ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore });
+		UnloadId = Buttons.size();
+		Buttons.emplace_back(lng::MExcUnload);
 	}
-	else
+
+	if (CanContinue)
 	{
-		Builder.AddButtons({ lng::MExcTerminate, lng::MIgnore });
+		ContinueId = Buttons.size();
+		Buttons.emplace_back(lng::MExcContinue);
 	}
+
+	Buttons.emplace_back(lng::MIgnore);
+
+	Builder.AddButtons(Buttons);
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE | DMODE_NOPLUGINS);
 	Builder.SetScrObjFlags(FSCROBJ_SPECIAL);
 
-	switch (Builder.ShowDialogEx())
+	const auto Result = Builder.ShowDialogEx();
+
+	if (Result == TerminateId)
 	{
-	case 0: // Terminate
 		UseTerminateHandler = true;
-		return true;
-
-	case 1: // Unload / Ignore
-		return !PluginInformation.empty();
-
-	default:
-		return false;
+		return handler_result::execute_handler;
 	}
+
+	if (Result == UnloadId)
+		return handler_result::execute_handler;
+
+	if (Result == ContinueId)
+		return handler_result::continue_execution;
+
+	return handler_result::continue_search;
 }
 
 static void print_exception_message(string const& ReportLocation, string const& PluginInformation)
@@ -757,6 +815,7 @@ static void print_exception_message(string const& ReportLocation, string const& 
 	std::wcerr <<
 		Eol <<
 		Eol <<
+		DoubleSeparator << Eol <<
 		LngMsgs[0] << Eol <<
 		Separator << Eol;
 
@@ -775,24 +834,82 @@ static void print_exception_message(string const& ReportLocation, string const& 
 		Separator << Eol;
 }
 
-static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
+static handler_result ExcConsole(bool const CanContinue, string const& ReportLocation, string const& PluginInformation)
 {
-	if (!ConsoleYesNo(L"Terminate the process"sv, true, [&]{ print_exception_message(ReportLocation, PluginInformation); }))
-		return false;
+	string Message;
+	string Keys;
+	std::optional<intptr_t> ContinueId, UnloadId;
 
-	UseTerminateHandler = true;
-	return true;
+	intptr_t const TerminateId = Keys.size();
+	Keys += L'T';
+	Message += L"Terminate Far (T)\n"sv;
+
+	if (!PluginInformation.empty())
+	{
+		UnloadId = Keys.size();
+		Keys += L'U';
+		Message += L"Unload plugin (U)\n"sv;
+	}
+
+	if (CanContinue)
+	{
+		ContinueId = Keys.size();
+		Keys += L'C';
+		Message += L"Continue (C)\n"sv;
+	}
+
+	Keys += L'I';
+	Message += L"Ignore (I)\n"sv;
+
+	Message += L"\nChoose one"sv;
+
+	intptr_t const Result = ConsoleChoice(Message, Keys, TerminateId, [&]{ print_exception_message(ReportLocation, PluginInformation); });
+
+	if (Result == TerminateId)
+	{
+		UseTerminateHandler = true;
+		return handler_result::execute_handler;
+	}
+
+	if (Result == UnloadId)
+		return handler_result::execute_handler;
+
+	if (Result == ContinueId)
+		return handler_result::continue_execution;
+
+	return handler_result::continue_search;
+}
+
+static string get_locale()
+{
+	wchar_t NameBuffer[LOCALE_NAME_MAX_LENGTH];
+	string_view Name;
+
+	if (size_t const SizeWith0 = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SNAME, NameBuffer, static_cast<int>(std::size(NameBuffer))))
+		Name = { NameBuffer, SizeWith0 - 1 };
+	else
+		Name = L"Unknown"sv;
+
+	const auto LocaleId = GetUserDefaultLCID();
+	const auto LanguageId = LANGIDFROMLCID(LocaleId);
+	return format(FSTR(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}"sv),
+		Name,
+		LocaleId,
+		LanguageId,
+		PRIMARYLANGID(LanguageId),
+		SUBLANGID(LanguageId),
+		SORTIDFROMLCID(LocaleId),
+		SORTVERSIONFROMLCID(LocaleId),
+		encoding::codepage::ansi(),
+		encoding::codepage::oem()
+	);
 }
 
 static string get_console_host()
 {
-	if (!imports.NtQueryInformationProcess)
-		return {};
-
 	ULONG_PTR ConsoleHostProcess;
-	const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {});
-	if (!NT_SUCCESS(Status))
-		return {};
+	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
+		return os::format_ntstatus(Status);
 
 	const auto ConsoleHostProcessId = ConsoleHostProcess & ~0b11;
 
@@ -823,12 +940,9 @@ static auto parent_process_id(process_basic_information_t const& Info)
 
 static string get_parent_process()
 {
-	if (!imports.NtQueryInformationProcess)
-		return {};
-
 	PROCESS_BASIC_INFORMATION ProcessInfo;
-	if (!NT_SUCCESS(imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {})))
-		return {};
+	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}); !NT_SUCCESS(Status))
+		return os::format_ntstatus(Status);
 
 	const auto ParentProcessId = parent_process_id(ProcessInfo);
 
@@ -845,7 +959,7 @@ static string get_uptime()
 {
 	os::chrono::time_point CreationTime;
 	if (!os::chrono::get_process_creation_time(GetCurrentProcess(), CreationTime))
-		return {};
+		return os::last_error().Win32ErrorStr();
 
 	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
 }
@@ -884,6 +998,30 @@ namespace detail
 		int          pCatchableTypeArray;  // Image relative offset of CatchableTypeArray
 	};
 
+	using PCImgDelayDescr = void*;
+
+	struct DelayLoadProc
+	{
+		BOOL       fImportByName;
+		union
+		{
+			LPCSTR szProcName;
+			DWORD  dwOrdinal;
+		};
+	};
+
+	struct DelayLoadInfo
+	{
+		DWORD           cb;          // size of structure
+		PCImgDelayDescr pidd;        // raw form of data (everything is there)
+		FARPROC*        ppfn;        // points to address of function to load
+		LPCSTR          szDll;       // name of dll
+		DelayLoadProc   dlp;         // name or ordinal of procedure
+		HMODULE         hmodCur;     // the hInstance of the library we have loaded
+		FARPROC         pfnCur;      // the actual function that will be called
+		DWORD           dwLastError; // error received (if an error notification)
+	};
+
 	// https://github.com/microsoft/onefuzz/blob/main/src/agent/input-tester/src/test_result/asan.rs
 	// All pointers are probably 64-bit in the original definition, but we don't care here since it's all within the same process.
 	struct EXCEPTION_ASAN_ERROR
@@ -914,6 +1052,16 @@ namespace detail
 			EXCEPTION_ASAN_ERROR Asan;
 		}
 		u;
+	};
+
+	struct THREAD_BASIC_INFORMATION
+	{
+		NTSTATUS  ExitStatus;
+		PVOID     TebBaseAddress;
+		CLIENT_ID ClientId;
+		KAFFINITY AffinityMask;
+		KPRIORITY Priority;
+		KPRIORITY BasePriority;
 	};
 }
 
@@ -1026,10 +1174,13 @@ static string_view exception_name(NTSTATUS const Code)
 	CASE_STR(STATUS_POSSIBLE_DEADLOCK)
 	CASE_STR(STATUS_CONTROL_C_EXIT)
 	CASE_STR(STATUS_HEAP_CORRUPTION)
+	CASE_STR(STATUS_NO_MEMORY)
 	CASE_STR(STATUS_ASSERTION_FAILURE)
 #undef CASE_STR
 
 	case EH_EXCEPTION_NUMBER:           return L"C++ exception"sv;
+	case EH_DELAYLOAD_MODULE:           return L"Delayload LoadLibrary error"sv;
+	case EH_DELAYLOAD_PROCEDURE:        return L"Delayload GetProcAddress error"sv;
 	case EH_CLR_EXCEPTION:              return L"CLR exception"sv;
 	case EH_SANITIZER:                  return L"Sanitizer"sv;
 	case STATUS_FAR_ABORT:              return L"std::abort"sv;
@@ -1065,50 +1216,89 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message, string& ExtraDetails)
 {
+	const auto default_details = [&]
+	{
+		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
+	};
+
 	switch (const auto NtStatus = static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case STATUS_ACCESS_VIOLATION:
 	case STATUS_IN_PAGE_ERROR:
-	{
-		const auto Mode = [](ULONG_PTR Code)
 		{
-			switch (Code)
+			if (!ExceptionRecord.NumberParameters)
+				break;
+
+			const auto Mode = [](ULONG_PTR Code)
 			{
-			default:
-			case EXCEPTION_READ_FAULT:    return L"read"sv;
-			case EXCEPTION_WRITE_FAULT:   return L"written"sv;
-			case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
-			}
-		}(ExceptionRecord.ExceptionInformation[0]);
+				switch (Code)
+				{
+				default:
+				case EXCEPTION_READ_FAULT:    return L"read"sv;
+				case EXCEPTION_WRITE_FAULT:   return L"written"sv;
+				case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
+				}
+			}(ExceptionRecord.ExceptionInformation[0]);
 
-		string Symbol;
-		tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
+			string Symbol;
+			tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
+			{
+				Symbol = std::move(Line);
+			});
+
+			if (Symbol.empty())
+				Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+
+			auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters > 2)
+				append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+
+			return Result;
+		}
+
+	case STATUS_NO_MEMORY:
 		{
-			Symbol = std::move(Line);
-		});
+			if (!ExceptionRecord.NumberParameters)
+				break;
 
-		if (Symbol.empty())
-			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+			return format(FSTR(L"Unable to allocate {} bytes: {}"sv), ExceptionRecord.ExceptionInformation[0], default_details());
+		}
 
-		auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
-		if (NtStatus == EXCEPTION_IN_PAGE_ERROR)
-			append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+	case EH_DELAYLOAD_MODULE:
+	case EH_DELAYLOAD_PROCEDURE:
+		{
+			if (!ExceptionRecord.NumberParameters)
+				return {};
 
-		return Result;
-	}
+			const auto& Info = *reinterpret_cast<detail::DelayLoadInfo const*>(ExceptionRecord.ExceptionInformation[0]);
+			return concat(
+				encoding::ansi::get_chars(Info.szDll),
+				L"::"sv,
+				Info.dlp.fImportByName?
+					encoding::ansi::get_chars(Info.dlp.szProcName) :
+					str(Info.dlp.dwOrdinal),
+				L": "sv,
+				os::format_error(Info.dwLastError)
+			);
+		}
 
 	case EH_EXCEPTION_NUMBER:
 	case STATUS_FAR_ABORT:
 		return string(Message);
 
 	case EH_CLR_EXCEPTION:
-		if (ExceptionRecord.NumberParameters)
+		{
+			if (!ExceptionRecord.NumberParameters)
+				return {};
+
 			return os::format_error(ExceptionRecord.ExceptionInformation[0]);
-		return {};
+		}
 
 	case EH_SANITIZER:
-		if (ExceptionRecord.NumberParameters && ExceptionRecord.ExceptionInformation[0])
 		{
+			if (!ExceptionRecord.NumberParameters || !ExceptionRecord.ExceptionInformation[0])
+				return {};
+
 			const auto& Record = view_as<detail::EXCEPTION_SANITIZER_ERROR>(ExceptionRecord.ExceptionInformation[0]);
 			if (Record.cbSize < sizeof(Record))
 				return L"Unrecognized sanitizer record size"s;
@@ -1127,18 +1317,42 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				return L"Unrecognized sanitizer kind"s;
 			}
 		}
-		return {};
-
-	default:
-		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
 	}
+
+	return default_details();
+}
+
+struct thread_status
+{
+	NTSTATUS Result;
+
+	DWORD LastError;
+	NTSTATUS LastStatus;
+};
+
+static thread_status get_thread_status(HANDLE const Thread)
+{
+	if (!imports.NtQueryInformationThread)
+		return { STATUS_NOT_IMPLEMENTED };
+
+	constexpr auto ThreadBasicInformation = static_cast<THREADINFOCLASS>(0);
+	detail::THREAD_BASIC_INFORMATION BasicInformation;
+
+	if (const auto Status = imports.NtQueryInformationThread(Thread, ThreadBasicInformation, &BasicInformation, sizeof(BasicInformation), {}); !NT_SUCCESS(Status))
+		return { Status };
+
+	return
+	{
+		STATUS_SUCCESS,
+		os::get_last_error(BasicInformation.TebBaseAddress),
+		os::get_last_nt_status(BasicInformation.TebBaseAddress)
+	};
 }
 
 static string collect_information(
 	exception_context const& Context,
 	std::string_view const Function,
 	string_view const Location,
-	Plugin const* const PluginModule,
 	string_view const PluginInfo,
 	string_view ModuleName,
 	string_view const Type,
@@ -1175,79 +1389,124 @@ static string collect_information(
 	if (Source.empty())
 		Source = Location;
 
-	const auto FunctionWide = encoding::utf8::get_chars(Function);
 	const auto Errno = ErrorState.ErrnoStr();
 	const auto LastError = ErrorState.Win32ErrorStr();
 	const auto LastNtStatus = ErrorState.NtErrorStr();
+	const auto FunctionWide = encoding::utf8::get_chars(Function);
+	const auto PluginInfoStr = PluginInfo.empty()? L"N/A"sv : PluginInfo;
+
 	const auto Version = self_version();
 	const auto Compiler = build::compiler();
 	const auto PeTime = pe_timestamp();
 	const auto FileTime = file_timestamp();
+	const auto SystemTime = system_timestamp();
+	const auto Uptime = get_uptime();
 	const auto OsVersion = os::version::os_version();
 	const auto KernelVersion = kernel_version();
+	const auto Locale = get_locale();
 	const auto ConsoleHost = get_console_host();
 	const auto Parent = get_parent_process();
 	const auto Command = GetCommandLine();
-	const auto Uptime = get_uptime();
+	const auto AccessLevel = os::security::is_admin()? L"Administrator"sv : L"User"sv;
 
-	std::pair<string_view, string_view> const BasicInfo[]
+	const auto
+		LastErrorTitle = L"LastError:"sv,
+		NtStatusTitle = L"NTSTATUS: "sv;
+
+	using info_block = std::pair<string_view, string_view>;
+
+	info_block const ExceptionInfo[]
 	{
 		{ L"Exception:"sv, Exception,     },
 		{ L"Details:  "sv, Details,       },
 		{ L"errno:    "sv, Errno,         },
-		{ L"LastError:"sv, LastError,     },
-		{ L"NTSTATUS: "sv, LastNtStatus,  },
+		{ LastErrorTitle,  LastError,     },
+		{ NtStatusTitle,   LastNtStatus,  },
 		{ L"Address:  "sv, Address,       },
 		{ L"Function: "sv, FunctionWide,  },
 		{ L"Source:   "sv, Source,        },
 		{ L"File:     "sv, ModuleName,    },
-		{ L"Plugin:   "sv, PluginInfo,    },
-		{},
+		{ L"Plugin:   "sv, PluginInfoStr, },
+	},
+	SystemInfo[]
+	{
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
 		{ L"PE time:  "sv, PeTime,        },
 		{ L"File time:"sv, FileTime,      },
+		{ L"Time:     "sv, SystemTime,    },
+		{ L"Uptime:   "sv, Uptime,        },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Locale:   "sv, Locale,        },
 		{ L"Host:     "sv, ConsoleHost,   },
 		{ L"Parent:   "sv, Parent,        },
 		{ L"Command:  "sv, Command,       },
-		{ L"Uptime:   "sv, Uptime,        },
+		{ L"Access:   "sv, AccessLevel,   },
 	};
 
-	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
-
-	const auto log_message = [&]
+	const auto log_message = [](span<info_block const> const Info)
 	{
-		auto LogMessage = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
+		auto LogMessage = join(L"\n"sv, select(Info, [](auto const& Pair)
 		{
 			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
 		}));
 
 		LogMessage += L"\n\n"sv;
 
-		get_backtrace(ModuleName, Stack, NestedStack, [&](string_view const Line)
-		{
-			append(LogMessage, Line, L'\n');
-		});
-
 		return LogMessage;
 	};
 
-	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
+	LOGERROR(L"\n{}\n"sv, log_message(ExceptionInfo));
 
-	for (const auto& [Label, Value]: BasicInfo)
+	const auto print_info_block = [&](span<info_block const> const Info)
 	{
-		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
-	}
+		for (const auto& [Label, Value] : Info)
+		{
+			format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
+		}
+	};
+
+	make_header(L"Summary"sv, append_line);
+	print_info_block(ExceptionInfo);
+
+	make_header(L"System information"sv, append_line);
+	print_info_block(SystemInfo);
+
+	const auto
+		StackTitle = L"Stack"sv,
+		DisassemblyTitle = L"Disassembly"sv,
+		RegistersTitle = L"Registers"sv;
+
+	make_header(L"Exception"sv, append_line);
 
 	if (!ExtraDetails.empty())
 	{
-		make_header(L"Details"sv, append_line);
+		make_subheader(L"Details"sv, append_line);
 		append_line(ExtraDetails);
 	}
 
-	get_backtrace(ModuleName, Stack, NestedStack, append_line);
+	make_subheader(StackTitle, append_line);
+	if (!NestedStack.empty())
+	{
+		tracer.get_symbols(ModuleName, NestedStack, append_line);
+		make_subheader(L"Rethrow stack"sv, append_line);
+	}
+	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
+	tracer.get_symbols(ModuleName, Stack, append_line);
+
+	make_subheader(RegistersTitle, append_line);
+	read_registers(Strings, Context.context_record(), Eol);
+
+	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
+	make_subheader(DisassemblyTitle, append_line);
+	debug_client DebugClient(Strings);
+	DebugClient.disassembly(ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);
+
+	make_header(L"Exception handler thread"sv, append_line);
+
+	make_subheader(StackTitle, append_line);
+	tracer.current_stacktrace(ModuleName, append_line);
 
 	{
 		os::process::enum_processes const Enum;
@@ -1262,44 +1521,62 @@ static string collect_information(
 				if (Tid == CurrentThreadId)
 					continue;
 
+				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
+
 				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
 				if (!Thread)
+				{
+					make_header(ThreadTitle, append_line);
+					append_line(format(FSTR(L"Error opening thread {}: {}"sv), Tid, os::last_error()));
 					continue;
+				}
 
 				SuspendThread(Thread.native_handle());
 				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
 
-				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
 				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
 					append(ThreadTitle, L" ("sv, ThreadName, L')');
-				append(ThreadTitle, L" stack"sv);
 
 				make_header(ThreadTitle, append_line);
+
+				if (const auto ThreadStatus = get_thread_status(Thread.native_handle()); NT_SUCCESS(ThreadStatus.Result))
+				{
+					append_line(concat(LastErrorTitle, ' ', os::format_error(ThreadStatus.LastError)));
+					append_line(concat(NtStatusTitle, ' ', os::format_ntstatus(ThreadStatus.LastStatus)));
+				}
+				else
+				{
+					append_line(format(FSTR(L"Error getting thread status: {}"sv), os::format_ntstatus(ThreadStatus.Result)));
+				}
 
 				CONTEXT ThreadContext{};
 				ThreadContext.ContextFlags = CONTEXT_ALL;
 				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
+				{
+					append_line(format(FSTR(L"Error getting thread context: {}"sv), os::last_error()));
 					continue;
+				}
 
-				tracer.stacktrace(ModuleName, append_line, ThreadContext, Thread.native_handle());
+				make_subheader(StackTitle, append_line);
+				const auto ThreadStack = tracer.stacktrace(ModuleName, ThreadContext, Thread.native_handle());
+				tracer.get_symbols(ModuleName, ThreadStack, append_line);
+
+				make_subheader(DisassemblyTitle, append_line);
+				DebugClient.disassembly(ModuleName, ThreadStack, Eol);
+
+				make_subheader(RegistersTitle, append_line);
+				read_registers(Strings, ThreadContext, Eol);
 			}
 		}
 	}
 
-	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
-	make_header(L"Disassembly"sv, append_line);
-	read_disassembly(Strings, ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);
-
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
-
-	make_header(L"Registers"sv, append_line);
-	read_registers(Strings, Context.context_record(), Eol);
 
 	return Strings;
 }
 
-static bool handle_generic_exception(
+static handler_result handle_generic_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	string_view const Location,
@@ -1312,10 +1589,10 @@ static bool handle_generic_exception(
 {
 	static bool ExceptionHandlingIgnored = false;
 	if (ExceptionHandlingIgnored)
-		return false;
+		return handler_result::continue_search;
 
 	if (s_ExceptionHandlingInprogress)
-		return true;
+		return handler_result::execute_handler;
 
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
@@ -1327,6 +1604,10 @@ static bool handle_generic_exception(
 			os::fs::get_current_process_file_name();
 
 	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
+
+	const auto ReportLocation = get_report_location();
+
+	LOGERROR(L"Unhandled exception, see {} for details"sv, ReportLocation);
 
 	const auto PluginInfo = PluginModule?
 	format(FSTR(L"{} {} ({}, {})"sv),
@@ -1352,10 +1633,9 @@ static bool handle_generic_exception(
 		MiniDumpIgnoreInaccessibleMemory
 	);
 
-	const auto ReportLocation = get_report_location();
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
-	const auto BugReport = collect_information(Context, Function, Location, PluginModule, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
+	const auto BugReport = collect_information(Context, Function, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
@@ -1365,27 +1645,35 @@ static bool handle_generic_exception(
 		OpenFolderInShell(ReportLocation);
 
 	const auto UseDialog = !ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown();
+	const auto CanContinue = !(Context.exception_record().ExceptionFlags & EXCEPTION_NONCONTINUABLE);
 
-	const auto InvokeHandler = AnythingOnDisk || ReportInClipboard?
+	const auto Result = AnythingOnDisk || ReportInClipboard?
 		(UseDialog? ExcDialog : ExcConsole)(
+			CanContinue,
 			AnythingOnDisk?
 				ReportLocation :
 				msg(lng::MExceptionDialogClipboard),
 			PluginInfo
 		) :
 		// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-		ExcConsole(BugReport, PluginInfo);
+		ExcConsole(CanContinue, BugReport, PluginInfo);
 
-	if (!InvokeHandler)
+	switch (Result)
 	{
+	case handler_result::continue_execution:
+		break;
+
+	case handler_result::execute_handler:
+		if (!PluginModule && Global)
+			Global->CriticalInternalError = true;
+		break;
+
+	case handler_result::continue_search:
 		ExceptionHandlingIgnored = true;
-		return false;
+		break;
 	}
 
-	if (!PluginModule && Global)
-		Global->CriticalInternalError = true;
-
-	return true;
+	return Result;
 }
 
 void restore_system_exception_handler()
@@ -1494,10 +1782,10 @@ static bool handle_std_exception(
 			return Wrapper? Wrapper->get_stack() : span<os::debug::stack_frame const>{};
 		}();
 
-		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
+		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;
 	}
 
-	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError);
+	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError) == handler_result::execute_handler;
 }
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
@@ -1556,7 +1844,7 @@ seh_exception::seh_exception_impl const& seh_exception::get() const
 	return *m_Impl;
 }
 
-static bool handle_seh_exception(
+static handler_result handle_seh_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	Plugin const* const PluginModule
@@ -1575,7 +1863,9 @@ static bool handle_seh_exception(
 	for (const auto& i : enum_catchable_objects(Record))
 	{
 		if (std::strstr(i, "std::exception"))
-			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule)?
+				handler_result::execute_handler :
+				handler_result::continue_search;
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {}, LastError);
@@ -1583,7 +1873,7 @@ static bool handle_seh_exception(
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
 {
-	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module);
+	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module) == handler_result::execute_handler;
 }
 
 bool use_terminate_handler()
@@ -1605,7 +1895,7 @@ static void seh_abort_handler_impl()
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = os::debug::exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
-		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
+		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}) == handler_result::execute_handler)
 			os::process::terminate_by_user();
 	}
 
@@ -1632,7 +1922,7 @@ static void seh_abort_handler_impl()
 	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 
-	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError))
+	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError) == handler_result::execute_handler)
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1719,7 +2009,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv,
 		LastError
-	))
+	) == handler_result::execute_handler)
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1841,10 +2131,10 @@ namespace detail
 
 		set_fp_exceptions(false);
 		const exception_context Context(*Info);
+		auto Result = handler_result::continue_search;
 
 		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
 		{
-			bool Result = false;
 			{
 				os::thread(os::thread::mode::join, [&]
 				{
@@ -1854,20 +2144,27 @@ namespace detail
 			}
 
 			StackOverflowHappened = true;
-
-			if (Result)
-			{
-				return EXCEPTION_EXECUTE_HANDLER;
-			}
 		}
 		else
 		{
-			if (handle_seh_exception(Context, Function, Module))
-				return EXCEPTION_EXECUTE_HANDLER;
+			Result = handle_seh_exception(Context, Function, Module);
 		}
 
-		restore_system_exception_handler();
-		return EXCEPTION_CONTINUE_SEARCH;
+		switch (Result)
+		{
+		case handler_result::continue_execution:
+			return EXCEPTION_CONTINUE_EXECUTION;
+
+		case handler_result::execute_handler:
+			return EXCEPTION_EXECUTE_HANDLER;
+
+		case handler_result::continue_search:
+			restore_system_exception_handler();
+			return EXCEPTION_CONTINUE_SEARCH;
+
+		default:
+			UNREACHABLE;
+		}
 	}
 
 	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* const Info)

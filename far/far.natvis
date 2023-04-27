@@ -94,7 +94,7 @@
 	<Type Name="os::detail::handle_t&lt;*&gt;">
 		<Intrinsic Name="get" Expression="_Mypair._Myval2" />
 		<DisplayString Condition="!get()">empty</DisplayString>
-		<DisplayString>{get()}</DisplayString>
+		<DisplayString>{get(),handle}</DisplayString>
 	</Type>
 
 	<Type Name="array_ptr&lt;*,*&gt;">
@@ -138,119 +138,127 @@
 	</Type>
 
 	<Type Name="error_state_ex">
-		<DisplayString>{{{(*(os::error_state*)this)} What={What}}}</DisplayString>
+		<DisplayString>{{{(*(os::error_state*)this)} errno={Errno} What={What}}}</DisplayString>
 		<Expand>
 			<ExpandedItem>(*(os::error_state*)this)</ExpandedItem>
+			<Item Name="errno">Errno</Item>
 			<Item Name="What">What</Item>
 		</Expand>
 	</Type>
 
+
+	<Type Name="color_index">
+		<Intrinsic Name="index_red"   Expression="(i - 16) / 36"/>
+		<Intrinsic Name="index_green" Expression="(i - 16) % 36 / 6"/>
+		<Intrinsic Name="index_blue"  Expression="(i - 16) % 6"/>
+		<Intrinsic Name="index_grey"  Expression="23 - (255 - i)"/>
+
+		<DisplayString Condition="i == 0x0">{{{i,nvo} (black) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x1">{{{i,nvo} (navy) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x2">{{{i,nvo} (green) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x3">{{{i,nvo} (teal) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x4">{{{i,nvo} (maroon) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x5">{{{i,nvo} (purple) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x6">{{{i,nvo} (olive) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x7">{{{i,nvo} (silver) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x8">{{{i,nvo} (gray) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0x9">{{{i,nvo} (blue) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xa">{{{i,nvo} (lime) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xb">{{{i,nvo} (aqua) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xc">{{{i,nvo} (red) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xd">{{{i,nvo} (fuchsia) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xe">{{{i,nvo} (yellow) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i == 0xf">{{{i,nvo} (white) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i&gt;0xe7">{{{i,nvo} (grey {index_grey()}) {a,nvo}}}</DisplayString>
+		<DisplayString Condition="i&gt;0xf">{{{i,nvo}  ({index_red()} {index_green()} {index_blue()}) {a,nvo}}}</DisplayString>
+		<Expand>
+			<Item      Name="index" Condition="i&lt;0x10">i,nvo</Item>
+			<Synthetic Name="index" Condition="i&gt;0xf">
+				<DisplayString>{i,nvo}</DisplayString>
+				<Expand>
+					<Item Name="index">i,nvo</Item>
+					<Item Name="red"   Condition="i&lt;0xe8">index_red()</Item>
+					<Item Name="green" Condition="i&lt;0xe8">index_green()</Item>
+					<Item Name="blue"  Condition="i&lt;0xe8">index_blue()</Item>
+					<Item Name="grey"  Condition="i&gt;0xe7">index_grey()</Item>
+				</Expand>
+			</Synthetic>
+			<Item Name="alpha">a,nvo</Item>
+		</Expand>
+	</Type>
+
 	<Type Name="rgba">
-		<DisplayString>{short(r)} {short(g)} {short(b)} {short(a)}</DisplayString>
+		<DisplayString>{{{r,nvo} {g,nvo} {b,nvo} {a,nvo}}}</DisplayString>
+		<Expand>
+			<Item Name="red"  >r,nvo</Item>
+			<Item Name="green">g,nvo</Item>
+			<Item Name="blue" >b,nvo</Item>
+			<Item Name="alpha">a,nvo</Item>
+		</Expand>
 	</Type>
 
 	<Type Name="FarColor">
 		<!-- BUGBUG VS debugger can't inspect "constexpr inline" constants -->
-		<Intrinsic Name="FCF_FG_INDEX"      Expression="0x0000000000000001"/>
-		<Intrinsic Name="FCF_BG_INDEX"      Expression="0x0000000000000002"/>
-		<Intrinsic Name="FCF_INHERIT_STYLE" Expression="0x0000000000000004"/>
-		<Intrinsic Name="FCF_RAWATTR_MASK"  Expression="0x000000000000FF00"/>
-		<Intrinsic Name="FCF_FG_BOLD"       Expression="0x1000000000000000"/>
-		<Intrinsic Name="FCF_FG_ITALIC"     Expression="0x2000000000000000"/>
-		<Intrinsic Name="FCF_FG_UNDERLINE"  Expression="0x4000000000000000"/>
-		<Intrinsic Name="FCF_FG_UNDERLINE2" Expression="0x8000000000000000"/>
-		<Intrinsic Name="FCF_FG_OVERLINE"   Expression="0x0100000000000000"/>
-		<Intrinsic Name="FCF_FG_STRIKEOUT"  Expression="0x0200000000000000"/>
-		<Intrinsic Name="FCF_FG_FAINT"      Expression="0x0400000000000000"/>
-		<Intrinsic Name="FCF_FG_BLINK"      Expression="0x0800000000000000"/>
-		<Intrinsic Name="FCF_FG_INVERSE"    Expression="0x0010000000000000"/>
-		<Intrinsic Name="FCF_FG_INVISIBLE"  Expression="0x0020000000000000"/>
-
-		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_INDEX()) == 0"/>
-		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_INDEX()) == 0"/>
-		<Intrinsic Name="is_f_index" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xff) == Index">
-			<Parameter Type="int" Name="Index"/>
-		</Intrinsic>
-		<Intrinsic Name="is_f_index256" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xff) &gt; 15"/>
-		<Intrinsic Name="is_b_index" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xff) == Index">
-			<Parameter Type="int" Name="Index"/>
-		</Intrinsic>
-		<Intrinsic Name="is_b_index256" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xff) &gt; 15"/>
+		<Intrinsic Name="is_f_index"    Expression="(Flags &amp; 0x0000000000000001) != 0"/>
+		<Intrinsic Name="is_b_index"    Expression="(Flags &amp; 0x0000000000000002) != 0"/>
+		<Intrinsic Name="is_inherit"    Expression="(Flags &amp; 0x0000000000000004) != 0"/>
+		<Intrinsic Name="is_bold"       Expression="(Flags &amp; 0x1000000000000000) != 0"/>
+		<Intrinsic Name="is_italic"     Expression="(Flags &amp; 0x2000000000000000) != 0"/>
+		<Intrinsic Name="is_underline"  Expression="(Flags &amp; 0x4000000000000000) != 0"/>
+		<Intrinsic Name="is_underline2" Expression="(Flags &amp; 0x8000000000000000) != 0"/>
+		<Intrinsic Name="is_overline"   Expression="(Flags &amp; 0x0100000000000000) != 0"/>
+		<Intrinsic Name="is_strikeout"  Expression="(Flags &amp; 0x0200000000000000) != 0"/>
+		<Intrinsic Name="is_faint"      Expression="(Flags &amp; 0x0400000000000000) != 0"/>
+		<Intrinsic Name="is_blink"      Expression="(Flags &amp; 0x0800000000000000) != 0"/>
+		<Intrinsic Name="is_inverse"    Expression="(Flags &amp; 0x0010000000000000) != 0"/>
+		<Intrinsic Name="is_invisible"  Expression="(Flags &amp; 0x0020000000000000) != 0"/>
 
 		<Expand>
 			<Synthetic Name="Foreground">
-				<DisplayString Condition="is_f_rgb()">{ForegroundRGBA}</DisplayString>
-				<DisplayString Condition="is_f_index(0x0)">black</DisplayString>
-				<DisplayString Condition="is_f_index(0x1)">navy</DisplayString>
-				<DisplayString Condition="is_f_index(0x2)">green</DisplayString>
-				<DisplayString Condition="is_f_index(0x3)">teal</DisplayString>
-				<DisplayString Condition="is_f_index(0x4)">maroon</DisplayString>
-				<DisplayString Condition="is_f_index(0x5)">purple</DisplayString>
-				<DisplayString Condition="is_f_index(0x6)">olive</DisplayString>
-				<DisplayString Condition="is_f_index(0x7)">silver</DisplayString>
-				<DisplayString Condition="is_f_index(0x8)">gray</DisplayString>
-				<DisplayString Condition="is_f_index(0x9)">blue</DisplayString>
-				<DisplayString Condition="is_f_index(0xa)">lime</DisplayString>
-				<DisplayString Condition="is_f_index(0xb)">aqua</DisplayString>
-				<DisplayString Condition="is_f_index(0xc)">red</DisplayString>
-				<DisplayString Condition="is_f_index(0xd)">fuchsia</DisplayString>
-				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
-				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
-				<DisplayString Condition="is_f_index256()">{short(ForegroundIndex.i),xb}</DisplayString>
+				<DisplayString Condition="is_f_index()">{ForegroundIndex}</DisplayString>
+				<DisplayString Condition="!is_f_index()">{ForegroundRGBA}</DisplayString>
 				<Expand>
-					<Item Name="index" Condition="!is_f_rgb()">short(ForegroundIndex.i),xb</Item>
-					<Item Name="alpha" Condition="!is_f_rgb()">short(ForegroundIndex.a)</Item>
-					<Item Name="red"   Condition="is_f_rgb()">short(ForegroundRGBA.r),xb</Item>
-					<Item Name="green" Condition="is_f_rgb()">short(ForegroundRGBA.g),xb</Item>
-					<Item Name="blue"  Condition="is_f_rgb()">short(ForegroundRGBA.b),xb</Item>
-					<Item Name="alpha" Condition="is_f_rgb()">short(ForegroundRGBA.a)</Item>
+					<ExpandedItem Condition="is_f_index()">ForegroundIndex</ExpandedItem>
+					<ExpandedItem Condition="!is_f_index()">ForegroundRGBA</ExpandedItem>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
-				<DisplayString Condition="is_b_rgb()">{BackgroundRGBA}</DisplayString>
-				<DisplayString Condition="is_b_index(0x0)">black</DisplayString>
-				<DisplayString Condition="is_b_index(0x1)">navy</DisplayString>
-				<DisplayString Condition="is_b_index(0x2)">green</DisplayString>
-				<DisplayString Condition="is_b_index(0x3)">teal</DisplayString>
-				<DisplayString Condition="is_b_index(0x4)">maroon</DisplayString>
-				<DisplayString Condition="is_b_index(0x5)">purple</DisplayString>
-				<DisplayString Condition="is_b_index(0x6)">olive</DisplayString>
-				<DisplayString Condition="is_b_index(0x7)">silver</DisplayString>
-				<DisplayString Condition="is_b_index(0x8)">gray</DisplayString>
-				<DisplayString Condition="is_b_index(0x9)">blue</DisplayString>
-				<DisplayString Condition="is_b_index(0xa)">lime</DisplayString>
-				<DisplayString Condition="is_b_index(0xb)">aqua</DisplayString>
-				<DisplayString Condition="is_b_index(0xc)">red</DisplayString>
-				<DisplayString Condition="is_b_index(0xd)">fuchsia</DisplayString>
-				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
-				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
-				<DisplayString Condition="is_b_index256()">{short(BackgroundIndex.i),xb}</DisplayString>
+				<DisplayString Condition="is_f_index()">{BackgroundIndex}</DisplayString>
+				<DisplayString Condition="!is_f_index()">{BackgroundRGBA}</DisplayString>
 				<Expand>
-					<Item Name="index" Condition="!is_b_rgb()">short(BackgroundIndex.i),xb</Item>
-					<Item Name="alpha" Condition="!is_b_rgb()">short(BackgroundIndex.a)</Item>
-					<Item Name="red"   Condition="is_b_rgb()">short(BackgroundRGBA.r),xb</Item>
-					<Item Name="green" Condition="is_b_rgb()">short(BackgroundRGBA.g),xb</Item>
-					<Item Name="blue"  Condition="is_b_rgb()">short(BackgroundRGBA.b),xb</Item>
-					<Item Name="alpha" Condition="is_b_rgb()">short(BackgroundRGBA.a)</Item>
+					<ExpandedItem Condition="is_f_index()">BackgroundIndex</ExpandedItem>
+					<ExpandedItem Condition="!is_f_index()">BackgroundRGBA</ExpandedItem>
 				</Expand>
 			</Synthetic>
-			<Synthetic Name="Flags">
-				<DisplayString>{Flags,h}</DisplayString>
+			<Synthetic Name="Style">
+				<DisplayString>
+					{int(is_inherit())}|
+					{int(is_bold())}|
+					{int(is_italic())}|
+					{int(is_underline())}|
+					{int(is_underline2())}|
+					{int(is_overline())}|
+					{int(is_strikeout())}|
+					{int(is_faint())}|
+					{int(is_blink())}|
+					{int(is_inverse())}|
+					{int(is_invisible())}
+				</DisplayString>
 				<Expand>
-					<Item Name="inherit">bool(Flags &amp; FCF_INHERIT_STYLE())</Item>
-					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD())</Item>
-					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC())</Item>
-					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE())</Item>
-					<Item Name="underline2">bool(Flags &amp; FCF_FG_UNDERLINE2())</Item>
-					<Item Name="overline">bool(Flags &amp; FCF_FG_OVERLINE())</Item>
-					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT())</Item>
-					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT())</Item>
-					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK())</Item>
-					<Item Name="inverse">bool(Flags &amp; FCF_FG_INVERSE())</Item>
-					<Item Name="invisible">bool(Flags &amp; FCF_FG_INVISIBLE())</Item>
-					<Item Name="raw">short((Flags &amp; FCF_RAWATTR_MASK()) &gt;&gt; 8),h</Item>
+					<Item Name="inherit">is_inherit()</Item>
+					<Item Name="bold">is_bold()</Item>
+					<Item Name="italic">is_italic()</Item>
+					<Item Name="underline">is_underline()</Item>
+					<Item Name="underline2">is_underline2()</Item>
+					<Item Name="overline">is_overline()</Item>
+					<Item Name="strikeout">is_strikeout()</Item>
+					<Item Name="faint">is_faint()</Item>
+					<Item Name="blink">is_blink()</Item>
+					<Item Name="inverse">is_inverse()</Item>
+					<Item Name="invisible">is_invisible()</Item>
 				</Expand>
 			</Synthetic>
+			<Item Name="LVB">char((Flags &amp; 0x000000000000FF00) &gt;&gt; 8),nvoh</Item>
 		</Expand>
 	</Type>
 
@@ -260,42 +268,111 @@
 
 	<Type Name="std::chrono::duration&lt;*, std::ratio&lt;*,*&gt;&gt;">
 		<Intrinsic Name="ticks_in_second"       Expression="$T1(1) * $T3 / $T2"/>
-		<Intrinsic Name="ticks_in_nanosecond"   Expression="ticks_in_second() / 1000000000"/>
-		<Intrinsic Name="ticks_in_microsecond"  Expression="ticks_in_second() / 1000000"/>
-		<Intrinsic Name="ticks_in_millisecond"  Expression="ticks_in_second() / 1000"/>
-		<Intrinsic Name="ticks_in_minute"       Expression="ticks_in_second() * 60"/>
-		<Intrinsic Name="ticks_in_hour"         Expression="ticks_in_minute() * 60"/>
-		<Intrinsic Name="ticks_in_day"          Expression="ticks_in_hour() * 24"/>
+		<Intrinsic Name="ticks_in_nanosecond"   Expression="ticks_in_second()? ticks_in_second() / 1000000000 : 0"/>
+		<Intrinsic Name="ticks_in_microsecond"  Expression="ticks_in_second()? ticks_in_second() / 1000000    : 0"/>
+		<Intrinsic Name="ticks_in_millisecond"  Expression="ticks_in_second()? ticks_in_second() / 1000       : 0"/>
+		<Intrinsic Name="ticks_in_minute"       Expression="ticks_in_second()? ticks_in_second() * 60         :           60 * $T1(1) * $T3 / $T2"/>
+		<Intrinsic Name="ticks_in_hour"         Expression="ticks_in_minute()? ticks_in_minute() * 60         :      60 * 60 * $T1(1) * $T3 / $T2"/>
+		<Intrinsic Name="ticks_in_day"          Expression="ticks_in_hour()?   ticks_in_hour()   * 24         : 24 * 60 * 60 * $T1(1) * $T3 / $T2"/>
 
 		<Intrinsic Name="count"        Expression="_MyRep"/>
 
-		<Intrinsic Name="days"         Expression="count()                                       / ticks_in_day()"/>
-		<Intrinsic Name="hours"        Expression="count() % ticks_in_day()                      / ticks_in_hour()"/>
-		<Intrinsic Name="minutes"      Expression="count() % ticks_in_hour()                     / ticks_in_minute()"/>
-		<Intrinsic Name="seconds"      Expression="count() % ticks_in_minute()                   / ticks_in_second()"/>
-		<Intrinsic Name="milliseconds" Expression="count() % ticks_in_second()      * 1000       / ticks_in_second()"/>
-		<Intrinsic Name="microseconds" Expression="count() % ticks_in_millisecond() * 1000000    / ticks_in_second()"/>
-		<Intrinsic Name="nanoseconds"  Expression="count() % ticks_in_microsecond() * 1000000000 / ticks_in_second()"/>
+		<Intrinsic Name="days"         Expression="                                                     count()                          / ticks_in_day()"/>
+		<Intrinsic Name="hours"        Expression="                             ticks_in_hour()?        count() % ticks_in_day()         / ticks_in_hour()        : count() % ticks_in_day()         * 24   / ticks_in_day()"/>
+		<Intrinsic Name="minutes"      Expression="!ticks_in_hour()?        0 : ticks_in_minute()?      count() % ticks_in_hour()        / ticks_in_minute()      : count() % ticks_in_hour()        * 60   / ticks_in_hour()"/>
+		<Intrinsic Name="seconds"      Expression="!ticks_in_minute()?      0 : ticks_in_second()?      count() % ticks_in_minute()      / ticks_in_second()      : count() % ticks_in_minute()      * 60   / ticks_in_minute()"/>
+		<Intrinsic Name="milliseconds" Expression="!ticks_in_second()?      0 : ticks_in_millisecond()? count() % ticks_in_second()      / ticks_in_millisecond() : count() % ticks_in_second()      * 1000 / ticks_in_second()"/>
+		<Intrinsic Name="microseconds" Expression="!ticks_in_millisecond()? 0 : ticks_in_microsecond()? count() % ticks_in_millisecond() / ticks_in_microsecond() : count() % ticks_in_millisecond() * 1000 / ticks_in_millisecond()"/>
+		<Intrinsic Name="nanoseconds"  Expression="!ticks_in_microsecond()? 0 : ticks_in_nanosecond()?  count() % ticks_in_microsecond() / ticks_in_nanosecond()  : count() % ticks_in_microsecond() * 1000 / ticks_in_microsecond()"/>
 
 		<DisplayString>[{days()}d {hours()}h {minutes()}m {seconds()}s]</DisplayString>
 
 		<Expand>
-			<Item Name="days">days()</Item>
-			<Item Name="hours">hours()</Item>
-			<Item Name="minutes">minutes()</Item>
-			<Item Name="seconds">seconds()</Item>
-			<Item Name="milliseconds">milliseconds()</Item>
-			<Item Name="microseconds">microseconds()</Item>
-			<Item Name="nanoseconds">nanoseconds()</Item>
+			<Item Name="days"         ExcludeView="timepoint"           >days()</Item>
+			<Item Name="hours"                                          >hours()</Item>
+			<Item Name="minutes"      Condition="ticks_in_hour()"       >minutes()</Item>
+			<Item Name="seconds"      Condition="ticks_in_minute()"     >seconds()</Item>
+			<Item Name="milliseconds" Condition="ticks_in_second()"     >milliseconds()</Item>
+			<Item Name="microseconds" Condition="ticks_in_millisecond()">microseconds()</Item>
+			<Item Name="nanoseconds"  Condition="ticks_in_microsecond()">nanoseconds()</Item>
+		</Expand>
+	</Type>
+
+
+	<Type Name="std::chrono::time_point&lt;os::chrono::nt_clock, std::chrono::duration&lt;*, std::ratio&lt;*,*&gt;&gt;&gt;">
+		<Intrinsic Name="count"                 Expression="_MyDur.count()"/>
+
+		<Intrinsic Name="days"                  Expression="count() / _MyDur.ticks_in_day()"/>
+		<Intrinsic Name="y400"                  Expression="days() / 146097"/>
+		<Intrinsic Name="y100"                  Expression="((days() - y400() * 146097) * 100 + 75) / 3652425"/>
+		<Intrinsic Name="y4"                    Expression="(days() - y400() * 146097 - y100() * 36524) / 1461"/>
+		<Intrinsic Name="years"                 Expression="1601 + y400() * 400 + y100() * 100 + y4() * 4 + ((days() - y400() * 146097 - y100() * 36524 - y4() * 1461) * 100 + 75) / 36525"/>
+		<Intrinsic Name="years_to_days"         Expression="years * 365 + years / 4 - years / 100 + years / 400">
+			<Parameter Type="int" Name="years"/>
+		</Intrinsic>
+		<Intrinsic Name="is_leap"               Expression="!(years % 400) || ((years % 100) &amp;&amp; !(years % 4))">
+			<Parameter Type="int" Name="years"/>
+		</Intrinsic>
+		<Intrinsic Name="days_y"                Expression="1 + days() - years_to_days(years() - 1601)"/>
+
+		<Intrinsic Name="m01" Expression="31"/>
+		<Intrinsic Name="m02" Expression="28 + m01() + is_leap(years())"/>
+		<Intrinsic Name="m03" Expression="31 + m02()"/>
+		<Intrinsic Name="m04" Expression="30 + m03()"/>
+		<Intrinsic Name="m05" Expression="31 + m04()"/>
+		<Intrinsic Name="m06" Expression="30 + m05()"/>
+		<Intrinsic Name="m07" Expression="31 + m06()"/>
+		<Intrinsic Name="m08" Expression="31 + m07()"/>
+		<Intrinsic Name="m09" Expression="30 + m08()"/>
+		<Intrinsic Name="m10" Expression="31 + m09()"/>
+		<Intrinsic Name="m11" Expression="30 + m10()"/>
+
+		<Intrinsic Name="month" Expression="
+			days_y() &lt;= m01()?  1 :
+			days_y() &lt;= m02()?  2 :
+			days_y() &lt;= m03()?  3 :
+			days_y() &lt;= m04()?  4 :
+			days_y() &lt;= m05()?  5 :
+			days_y() &lt;= m06()?  6 :
+			days_y() &lt;= m07()?  7 :
+			days_y() &lt;= m08()?  8 :
+			days_y() &lt;= m09()?  9 :
+			days_y() &lt;= m10()? 10 :
+			days_y() &lt;= m11()? 11 :
+			                      12
+		"/>
+
+		<Intrinsic Name="day" Expression="
+			days_y() &lt;= m01()? days_y() :
+			days_y() &lt;= m02()? days_y() - m01() :
+			days_y() &lt;= m03()? days_y() - m02() :
+			days_y() &lt;= m04()? days_y() - m03() :
+			days_y() &lt;= m05()? days_y() - m04() :
+			days_y() &lt;= m06()? days_y() - m05() :
+			days_y() &lt;= m07()? days_y() - m06() :
+			days_y() &lt;= m08()? days_y() - m07() :
+			days_y() &lt;= m09()? days_y() - m08() :
+			days_y() &lt;= m10()? days_y() - m09() :
+			days_y() &lt;= m11()? days_y() - m10() :
+			                      days_y() - m11()
+		"/>
+
+		<DisplayString>[{years()}-{month()}-{day()} {_MyDur.hours()}:{_MyDur.minutes()}:{_MyDur.seconds()}]</DisplayString>
+
+		<Expand>
+			<Item Name="year">years()</Item>
+			<Item Name="month">month()</Item>
+			<Item Name="day">day()</Item>
+			<ExpandedItem>_MyDur,view(timepoint)</ExpandedItem>
 		</Expand>
 	</Type>
 
 	<Type Name="_FILETIME">
-		<Intrinsic Name="as_nt_duration" Expression="*(os::chrono::duration*)(this)"/>
-		<DisplayString>{as_nt_duration()}</DisplayString>
+		<Intrinsic Name="as_nt_timepoint" Expression="*(os::chrono::time_point*)(this)"/>
+		<DisplayString>{as_nt_timepoint()}</DisplayString>
 		<Expand>
 			<!-- Same 64-bit representation, save typing -->
-			<ExpandedItem>as_nt_duration()</ExpandedItem>
+			<ExpandedItem>as_nt_timepoint()</ExpandedItem>
 		</Expand>
 	</Type>
 

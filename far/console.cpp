@@ -1320,9 +1320,9 @@ WARNING_PUSH()
 WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 
 						if (Cell.Char == *LeadingChar)
-WARNING_POP()
 					{
 						if (Cell.Char == encoding::replace_char && !char_width::is_wide(encoding::replace_char))
+WARNING_POP()
 						{
 							// As of 13 Jul 2022 ReadConsoleOutputW doesn't work with surrogate pairs (see microsoft/terminal#10810)
 							// It returns two FFFDs instead with leading and trailing flags.

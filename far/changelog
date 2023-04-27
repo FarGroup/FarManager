@@ -1,4 +1,55 @@
 --------------------------------------------------------------------------------
+drkns 2023-04-14 00:24:32+01:00 - build 6132
+
+1. Exception handling improvements.
+
+2. Warnings.
+
+--------------------------------------------------------------------------------
+drkns 2023-04-13 00:55:13+01:00 - build 6131
+
+1. Exception handling improvements.
+
+--------------------------------------------------------------------------------
+w17 2023-04-12 03:32:44+03:00 - build 6130
+
+1. Continue 6124 -- Don't show Disk/Sort menu if [ ] Show sort mode letter
+
+--------------------------------------------------------------------------------
+drkns 2023-04-08 16:10:54+01:00 - build 6129
+
+1. Exception handling improvements.
+
+--------------------------------------------------------------------------------
+w17 2023-04-02 10:03:32+03:00 - build 6128
+
+1. Avoid far crash when lua script calls far.Host.GetFiles() for passive panel
+   and active panel is not plugin panel.
+   https://sourceforge.net/p/farplugs/tickets/205/
+
+--------------------------------------------------------------------------------
+MZK 2023-03-31 22:22:52-07:00 - build 6127
+
+1. Continuation of 6122. Follow-up on the discussion in gh-662.
+   Swapped buttons on the Search / Replace dialog and removed vertical separator.
+
+--------------------------------------------------------------------------------
+drkns 2023-03-31 21:11:07+01:00 - build 6126
+
+1. Correction of 6101.
+
+--------------------------------------------------------------------------------
+w17 2023-03-31 10:49:36+03:00 - build 6125
+
+1. Correct 6124
+
+--------------------------------------------------------------------------------
+w17 2023-03-31 09:21:17+03:00 - build 6124
+
+1. Forum: Mouse click on Sort order mark letter didn't work if [ ] Show column titles
+   https://forum.farmanager.com/viewtopic.php?t=13178
+
+--------------------------------------------------------------------------------
 drkns 2023-03-28 19:17:03+01:00 - build 6123
 
 1. gh-665: Crash after an unexpected panel update.

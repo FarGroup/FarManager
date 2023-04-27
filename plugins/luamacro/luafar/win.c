@@ -438,6 +438,14 @@ static int win_GetSystemTime(lua_State *L)
 	return 1;
 }
 
+static int win_GetLocalTime(lua_State *L)
+{
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	pushSystemTime(L, &st);
+	return 1;
+}
+
 static int win_GetSystemTimeAsFileTime(lua_State *L)
 {
 	FILETIME ft;
@@ -799,31 +807,31 @@ int win_IsWinVersion(lua_State *L)
 	if (lua_type(L,1) == LUA_TSTRING)
 	{
 		const char *str = lua_tostring(L,1);
-		if (!stricmp("XP", str))
+		if (!_stricmp("XP", str))
 			lua_pushboolean(L, IsWindowsXPOrGreater());
-		else if (!stricmp("XPSP1", str))
+		else if (!_stricmp("XPSP1", str))
 			lua_pushboolean(L, IsWindowsXPSP1OrGreater());
-		else if (!stricmp("XPSP2", str))
+		else if (!_stricmp("XPSP2", str))
 			lua_pushboolean(L, IsWindowsXPSP2OrGreater());
-		else if (!stricmp("XPSP3", str))
+		else if (!_stricmp("XPSP3", str))
 			lua_pushboolean(L, IsWindowsXPSP3OrGreater());
-		else if (!stricmp("Vista", str))
+		else if (!_stricmp("Vista", str))
 			lua_pushboolean(L, IsWindowsVistaOrGreater());
-		else if (!stricmp("VistaSP1", str))
+		else if (!_stricmp("VistaSP1", str))
 			lua_pushboolean(L, IsWindowsVistaSP1OrGreater());
-		else if (!stricmp("VistaSP2", str))
+		else if (!_stricmp("VistaSP2", str))
 			lua_pushboolean(L, IsWindowsVistaSP2OrGreater());
-		else if (!stricmp("W7", str))
+		else if (!_stricmp("W7", str))
 			lua_pushboolean(L, IsWindows7OrGreater());
-		else if (!stricmp("W7SP1", str))
+		else if (!_stricmp("W7SP1", str))
 			lua_pushboolean(L, IsWindows7SP1OrGreater());
-		else if (!stricmp("W8", str))
+		else if (!_stricmp("W8", str))
 			lua_pushboolean(L, IsWindows8OrGreater());
-		else if (!stricmp("W8.1", str))
+		else if (!_stricmp("W8.1", str))
 			lua_pushboolean(L, IsWindows8Point1OrGreater());
-		else if (!stricmp("W10", str))
+		else if (!_stricmp("W10", str))
 			lua_pushboolean(L, IsWindows10OrGreater());
-		else if (!stricmp("Server", str))
+		else if (!_stricmp("Server", str))
 			lua_pushboolean(L, IsWindowsServer());
 		else
 			luaL_argerror(L, 1, "invalid argument value");
@@ -951,6 +959,7 @@ const luaL_Reg win_funcs[] =
 	{"GetFileTimes",        win_GetFileTimes},
 	{"GetRegKey",           win_GetRegKey},
 	{"GetSystemTime",       win_GetSystemTime},
+	{"GetLocalTime",        win_GetLocalTime},
 	{"GetSystemTimeAsFileTime", win_GetSystemTimeAsFileTime},
 	{"GetVirtualKeys",      win_GetVirtualKeys},
 	{"IsProcess64bit",      win_IsProcess64bit},

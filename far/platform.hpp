@@ -228,6 +228,12 @@ namespace os
 	void unset_error_mode(unsigned Mask);
 
 	[[nodiscard]]
+	NTSTATUS get_last_nt_status(void const* Teb);
+
+	[[nodiscard]]
+	DWORD get_last_error(void const* Teb);
+
+	[[nodiscard]]
 	NTSTATUS get_last_nt_status();
 
 	void set_last_nt_status(NTSTATUS Status);

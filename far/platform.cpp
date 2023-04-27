@@ -135,6 +135,33 @@ namespace os
 		SetErrorMode(SetErrorMode(0) & ~Mask);
 	}
 
+constexpr struct
+{
+	size_t
+		LastError,
+		LastStatus;
+}
+pdb_offsets
+{
+#ifdef _WIN64
+	0x68,
+	0x1250,
+#else
+	0x34,
+	0x0BF4,
+#endif
+};
+
+NTSTATUS get_last_nt_status(void const* Teb)
+{
+	return view_as<NTSTATUS>(Teb, pdb_offsets.LastStatus);
+}
+
+DWORD get_last_error(void const* const Teb)
+{
+	return view_as<DWORD>(Teb, pdb_offsets.LastError);
+}
+
 NTSTATUS get_last_nt_status()
 {
 	if (imports.RtlGetLastNtStatus)
@@ -145,15 +172,7 @@ WARNING_DISABLE_GCC("-Warray-bounds")
 	const auto Teb = NtCurrentTeb();
 WARNING_POP()
 
-	constexpr auto Offset =
-#ifdef _WIN64
-		0x1250
-#else
-		0x0BF4
-#endif
-		;
-
-	return view_as<NTSTATUS>(Teb, Offset);
+	return get_last_nt_status(Teb);
 }
 
 void set_last_nt_status(NTSTATUS const Status)

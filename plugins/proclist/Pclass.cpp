@@ -1295,6 +1295,32 @@ static bool is_alttab_window(HWND const Window)
 	return true;
 }
 
+static constexpr auto
+	none_pressed = 0,
+	any_ctrl_pressed = LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED,
+	any_alt_pressed = LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED,
+	any_shift_pressed = SHIFT_PRESSED;
+
+constexpr auto check_control(unsigned const ControlState, unsigned const Mask)
+{
+	constexpr auto ValidMask = any_ctrl_pressed | any_alt_pressed | any_shift_pressed;
+
+	const auto FilteredControlState = ControlState & ValidMask;
+	const auto OtherKeys = ValidMask & ~Mask;
+
+	return ((FilteredControlState & Mask) || !Mask) && !(FilteredControlState & OtherKeys);
+};
+
+static_assert(check_control(0, 0));
+static_assert(check_control(NUMLOCK_ON, 0));
+static_assert(check_control(NUMLOCK_ON | SHIFT_PRESSED, any_shift_pressed));
+static_assert(check_control(NUMLOCK_ON | SHIFT_PRESSED | LEFT_ALT_PRESSED, any_shift_pressed | any_alt_pressed));
+static_assert(!check_control(NUMLOCK_ON | SHIFT_PRESSED | LEFT_ALT_PRESSED, any_shift_pressed));
+static_assert(!check_control(0, SHIFT_PRESSED));
+static_assert(!check_control(NUMLOCK_ON, SHIFT_PRESSED));
+static_assert(!check_control(NUMLOCK_ON | SHIFT_PRESSED, 0));
+
+
 int Plist::ProcessKey(const INPUT_RECORD* Rec)
 {
 	const std::scoped_lock b(m_RefreshLock);
@@ -1305,26 +1331,19 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	const auto Key = Rec->Event.KeyEvent.wVirtualKeyCode;
 	const auto ControlState = Rec->Event.KeyEvent.dwControlKeyState;
 
-	const auto check_control = [ControlState](unsigned const Mask)
-	{
-		constexpr auto ValidMask =
-			RIGHT_ALT_PRESSED | LEFT_ALT_PRESSED |
-			RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED |
-			SHIFT_PRESSED;
+	const auto
+		NonePressed = check_control(ControlState, none_pressed),
+		OnlyAnyCtrlPressed = check_control(ControlState, any_ctrl_pressed),
+		OnlyAnyAltPressed = check_control(ControlState, any_alt_pressed),
+		OnlyAnyShiftPressed = check_control(ControlState, any_shift_pressed);
 
-		const auto FilteredControlState = ControlState & ValidMask;
-		const auto OtherKeys = ValidMask & ~Mask;
-
-		return (FilteredControlState & Mask) && !(FilteredControlState & OtherKeys);
-	};
-
-	if (check_control(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) && Key == L'R')
+	if (OnlyAnyCtrlPressed && Key == L'R')
 	{
 		pPerfThread->SmartReread();
 		return FALSE;
 	}
 
-	if (ControlState == 0 && Key == VK_RETURN)
+	if (NonePressed && Key == VK_RETURN)
 	{
 		//check for the command line; if it's not empty, don't process Enter
 		if (PsInfo.PanelControl(this, FCTL_GETCMDLINE, 0, {}) > 1)
@@ -1357,7 +1376,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 		return TRUE;
 	}
-	else if (check_control(SHIFT_PRESSED) && Key == VK_F3)
+
+	if (OnlyAnyShiftPressed && Key == VK_F3)
 	{
 		PanelInfo pi{ sizeof(PanelInfo) };
 		PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
@@ -1412,7 +1432,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 		return TRUE;
 	}
-	else if (check_control(0) && Key == VK_F6)
+
+	if (NonePressed && Key == VK_F6)
 	{
 		{
 			wchar_t Host[1024] = {};
@@ -1465,7 +1486,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		Reread();
 		return TRUE;
 	}
-	else if (check_control(SHIFT_PRESSED) && Key == VK_F6)
+
+	if (OnlyAnyShiftPressed && Key == VK_F6)
 	{
 		// go to local host
 		pPerfThread = {};
@@ -1477,7 +1499,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	}
 
 #if 0
-	else if ((ControlState & (RIGHT_ALT_PRESSED | LEFT_ALT_PRESSED)) && Key == VK_F6)
+	if (OnlyAnyAltPressed && Key == VK_F6)
 	{
 		if (!Opt.EnableWMI)
 			return TRUE;
@@ -1519,7 +1541,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	}
 
 #endif
-	else if (check_control(SHIFT_PRESSED) && (Key == VK_F1 || Key == VK_F2) && (HostName.empty() || Opt.EnableWMI))
+
+	if (OnlyAnyShiftPressed && (Key == VK_F1 || Key == VK_F2) && (HostName.empty() || Opt.EnableWMI))
 	{
 		//lower/raise priority class
 		PanelInfo PInfo = { sizeof(PanelInfo) };
@@ -1663,7 +1686,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		Config();
 		return TRUE;*/
 	}
-	else if (check_control(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) && Key == L'F')
+
+	if (OnlyAnyCtrlPressed && Key == L'F')
 	{
 		PanelInfo pi = { sizeof(PanelInfo) };
 		PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
@@ -1687,7 +1711,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 		return TRUE;
 	}
-	else if (check_control(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) && (Key >= VK_F3 && Key <= VK_F12))
+
+	if (OnlyAnyCtrlPressed && (Key >= VK_F3 && Key <= VK_F12))
 	{
 		if (
 			Key == VK_F5 || // Write time

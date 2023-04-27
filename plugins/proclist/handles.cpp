@@ -94,7 +94,7 @@ static std::unique_ptr<char[]> query_object(HANDLE Handle, OBJECT_INFORMATION_CL
 
 static std::wstring GetFileName(HANDLE Handle)
 {
-	if (GetFileType(Handle) == FILE_TYPE_PIPE)
+	if (const auto FileType = GetFileType(Handle); FileType != FILE_TYPE_DISK)
 	{
 		// Check if it's possible to get the file name info
 		struct test
@@ -115,7 +115,14 @@ static std::wstring GetFileName(HANDLE Handle)
 		if (WaitForSingleObject(Thread.get(), 100) == WAIT_TIMEOUT)
 		{
 			TerminateThread(Thread.get(), 0);
-			return L"<pipe>"s;
+			switch (FileType)
+			{
+			case FILE_TYPE_PIPE:     return L"<pipe>"s;
+			case FILE_TYPE_CHAR:     return L"<char>"s;
+			case FILE_TYPE_REMOTE:   return L"<remote>"s;
+			case FILE_TYPE_UNKNOWN:  return L"<unknown>"s;
+			default:                 return format(L"<unknown> ({})"s, FileType);
+			}
 		}
 	}
 

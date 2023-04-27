@@ -841,7 +841,13 @@ sztringek mindig megmaradnak.
  Párbeszédablak szerkesztési előzmény aktuális elemének   #Shift+Del#
  törlése (ha az elem nincs rögzítve)
 
- A párbeszédablak alapértelmezett elemére állítja a kurzort    #PgDn#
+ Set the dialog focus to the first element                     #Home#
+
+ A párbeszédablak alapértelmezett                         #PgDn, End#
+ elemére állítja a kurzort
+
+ The #Home# and #End# keys move the focus if it is currently not
+on a control which handles these keys internally, like edit control.
 
  Ez a billentyűkombináció minden szerkesztett sornál működik,
 beleértve a párbeszédablakokat és a ~belső szerkesztőt~@Editor@ is, kivéve a parancssort.
