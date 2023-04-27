@@ -1254,8 +1254,8 @@ local function EnumScripts (ScriptType)
   local function copy(source)
     local t={}
     for k,v in pairs(source) do
-      if type(v) == "table" and k ~= "data" then
-        v = copy(v)
+      if type(v) == "table" then
+        v = k=="data" and v or copy(v)
       end
       t[k]=v
     end

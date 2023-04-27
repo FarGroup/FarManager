@@ -498,7 +498,7 @@ local function MenuLoop()
             if Shared.MacroCallFar(MCODE_F_CHECKALL, area, m.flags, m.callback, m.callbackId) then
               if not m.keyregex then
                 local key1 = m.key:match("%S+")
-                if (not m.condition or m.condition(key1)) then
+                if (not m.condition or m.condition(key1, m.data)) then
                   Shared.keymacro.PostNewMacro(m, m.flags, key1, true)
                   break
                 else Message("condition() check failed")

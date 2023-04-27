@@ -1,3 +1,7 @@
+shmuel 2023-04-27 14:58:49+0300 - build 776
+
+1. Macrobrowser could not run macros that used the extra "data" argument.
+
 shmuel 2023-03-30 22:07:32+03:00 - build 775
 
 1. LuaFAR: add function win.GetLocalTime
