@@ -246,12 +246,10 @@ TEST_CASE("algorithm.contains")
 	{
 		constexpr std::array Data{ 1, 2, 3 };
 
-		// TODO: STATIC_REQUIRE
-		// GCC stdlib isn't constexpr yet :(
-		REQUIRE(contains(Data, 1));
-		REQUIRE(contains(Data, 2));
-		REQUIRE(contains(Data, 3));
-		REQUIRE(!contains(Data, 4));
+		STATIC_REQUIRE(contains(Data, 1));
+		STATIC_REQUIRE(contains(Data, 2));
+		STATIC_REQUIRE(contains(Data, 3));
+		STATIC_REQUIRE(!contains(Data, 4));
 	}
 
 	{
@@ -325,6 +323,9 @@ TEST_CASE("base64.incomplete")
 	}
 	Tests[]
 	{
+		{ "="sv,        {},            },
+		{ "=="sv,       {},            },
+		{ "==="sv,      {},            },
 		{ "Z"sv,        {},            },
 		{ "Zg"sv,       "f"_bv,        },
 		{ "Zg="sv,      "f"_bv,        },
@@ -361,18 +362,18 @@ TEST_CASE("base64.rubbish")
 	static const struct
 	{
 		std::string_view Src;
-		bytes_view Decoded;
 	}
 	Tests[]
 	{
-		{ "!!!"sv,              {},            },
-		{ "<Z:m!9;v>"sv,        "foo"_bv,      },
-		{ "_Z!m:9,v Y;m>F<y"sv, "foobar"_bv,   },
+		{ "?"sv,         },
+		{ "!!!"sv,       },
+		{ "<Z:m!9;v>"sv, },
+		{ "だもの"sv,    },
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(base64::decode(i.Src) == i.Decoded);
+		REQUIRE_THROWS_AS(base64::decode(i.Src), std::runtime_error);
 	}
 }
 

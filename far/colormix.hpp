@@ -55,6 +55,7 @@ namespace colors
 		constexpr inline auto
 			nt_mask = 0xf,
 			nt_last = 15,
+			nt_size = nt_last + 1,
 			cube_first = nt_last + 1,
 			cube_size = 6,
 			cube_last = cube_first + cube_size * cube_size * cube_size - 1,
@@ -97,7 +98,8 @@ namespace colors
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 
-	std::array<COLORREF, 16> nt_palette();
+	using nt_palette_t = std::array<COLORREF, index::nt_size>;
+	nt_palette_t nt_palette();
 
 	WORD FarColorToConsoleColor(const FarColor& Color);
 	FarColor NtColorToFarColor(WORD Color);

@@ -344,9 +344,17 @@ decltype(auto) edit_as(unsigned long long const Address)
 }
 
 template<typename T> requires std::is_trivially_copyable_v<T>
+auto view_as_opt(void const* const Begin, void const* const End, size_t const Offset = 0)
+{
+	return static_cast<char const*>(Begin) + Offset + sizeof(T) <= static_cast<char const*>(End)?
+		view_as<T const*>(Begin, Offset) :
+		nullptr;
+}
+
+template<typename T> requires std::is_trivially_copyable_v<T>
 auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
 {
-	return Size >= Offset + sizeof(T)? view_as<T const*>(Buffer, Offset) : nullptr;
+	return view_as_opt<T>(Buffer, static_cast<char const*>(Buffer) + Size, Offset);
 }
 
 template<typename T>

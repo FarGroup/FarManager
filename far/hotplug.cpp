@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_substrings.hpp"
+#include "common/function_ref.hpp"
 #include "common/keep_alive.hpp"
 #include "common/view/select.hpp"
 
@@ -194,11 +195,10 @@ private:
 	string m_id;
 };
 
-template<typename receiver>
 [[nodiscard]]
-static bool GetDevicePropertyImpl(DEVINST hDevInst, const receiver& Receiver)
+static bool GetDevicePropertyImpl(DEVINST hDevInst, function_ref<bool(dev_info const&, SP_DEVINFO_DATA&)> const Receiver)
 {
-	dev_info Info(hDevInst);
+	dev_info const Info(hDevInst);
 	if (!Info)
 		return false;
 

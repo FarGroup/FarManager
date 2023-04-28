@@ -292,7 +292,7 @@ namespace colors
 		return Result;
 	}
 
-	std::array<COLORREF, 16> nt_palette()
+	nt_palette_t nt_palette()
 	{
 		enum
 		{
@@ -326,7 +326,7 @@ namespace colors
 
 	static auto console_palette()
 	{
-		if (std::array<COLORREF, 16> Palette; console.GetPalette(Palette))
+		if (nt_palette_t Palette; console.GetPalette(Palette))
 			return Palette;
 
 		return nt_palette();

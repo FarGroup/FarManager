@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
+#include "common/2d/algorithm.hpp"
 #include "common/2d/point.hpp"
 #include "common/from_string.hpp"
 #include "common/null_iterator.hpp"
@@ -65,53 +66,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static constexpr uint8_t distinct(unsigned char const value)
+static constexpr uint8_t distinct(unsigned char const Index)
 {
-	return (~value & 0xf0) >> 4 | value;
+	return detail::bg(Index) | detail::fg(colors::index::nt_last - Index);
 }
 
-static constexpr uint8_t IndexColors[]
+static constexpr auto IndexColors = []
 {
-	distinct(B_BLACK),
-	distinct(B_BLUE),
-	distinct(B_GREEN),
-	distinct(B_CYAN),
-	distinct(B_RED),
-	distinct(B_MAGENTA),
-	distinct(B_BROWN),
-	distinct(B_LIGHTGRAY),
-	distinct(B_DARKGRAY),
-	distinct(B_LIGHTBLUE),
-	distinct(B_LIGHTGREEN),
-	distinct(B_LIGHTCYAN),
-	distinct(B_LIGHTRED),
-	distinct(B_LIGHTMAGENTA),
-	distinct(B_YELLOW),
-	distinct(B_WHITE)
-};
+	std::array<uint8_t, colors::index::nt_size> Result;
 
-// Color controls are column-major
+	for (uint8_t i = 0; i != Result.size(); ++i)
+		Result[i] = distinct(i);
 
-static constexpr uint8_t control_by_color[]
-{
-	0, 2, 4, 6, 8, 10, 12, 14,
-	1, 3, 5, 7, 9, 11, 13, 15
-};
+	return Result;
+}();
+static_assert(std::size(IndexColors) == colors::index::nt_size);
 
+static constexpr auto
+	ColorsWidth = 8,
+	ColorsHeight = colors::index::nt_size / ColorsWidth;
+
+static constexpr auto control_by_color = column_major_iota<uint8_t, ColorsWidth, ColorsHeight>();
 static_assert(std::size(control_by_color) == std::size(IndexColors));
 
-static constexpr uint8_t color_by_control[]
-{
-	0, 8,
-	1, 9,
-	2, 10,
-	3, 11,
-	4, 12,
-	5, 13,
-	6, 14,
-	7, 15
-};
-
+static constexpr auto color_by_control = column_major_iota<uint8_t, ColorsHeight, ColorsWidth>();
 static_assert(std::size(color_by_control) == std::size(IndexColors));
 
 static string color_code(COLORREF const Color, bool const IsIndex)
@@ -175,7 +153,7 @@ enum color_dialog_items
 	cd_fg_text,
 	cd_fg_active,
 	cd_fg_color_first,
-	cd_fg_color_last = cd_fg_color_first + 15,
+	cd_fg_color_last = cd_fg_color_first + colors::index::nt_last,
 
 	cd_fg_colorcode_title,
 	cd_fg_colorcode,
@@ -185,7 +163,7 @@ enum color_dialog_items
 	cd_bg_text,
 	cd_bg_active,
 	cd_bg_color_first,
-	cd_bg_color_last = cd_bg_color_first + 15,
+	cd_bg_color_last = cd_bg_color_first + colors::index::nt_last,
 
 	cd_bg_colorcode_title,
 	cd_bg_colorcode,
@@ -335,7 +313,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 				const auto Offset = IsFg? cd_fg_color_first : cd_bg_color_first;
-				for (const auto& i: irange(16))
+				for (const auto& i: irange(colors::index::nt_size))
 				{
 					Dlg->SendMessage(DM_ENABLE, i + Offset, Param2);
 				}
@@ -611,7 +589,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	const auto activate_control = [&](COLORREF const ColorPart, int const ControlGroup)
 	{
 		const auto Index = colors::index_value(ColorPart);
-		if (Index >= colors::index::nt_last)
+		if (Index > colors::index::nt_last)
 			return false;
 
 		const auto ControlId = ControlGroup + control_by_color[Index];

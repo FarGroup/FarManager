@@ -356,7 +356,7 @@ static constexpr unsigned long long BytesInUnit[][2]
 	BD_UNIT(P),
 	BD_UNIT(E),
 
-#undef BU_NIT
+#undef BD_UNIT
 };
 
 static constexpr unsigned long long PrecisionMultiplier[]

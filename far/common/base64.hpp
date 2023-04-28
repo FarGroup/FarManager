@@ -41,143 +41,133 @@ namespace base64
 {
 	namespace detail
 	{
+		using bits_set = uint_fast32_t;
+
+		inline auto byte_to_bits(std::byte const Byte, size_t const i) noexcept
+		{
+			return std::to_integer<bits_set>(Byte) << (8 * (2 - i));
+		}
+
 		template<typename iterator_t, size_t... I>
-		auto bin_take(iterator_t& Iterator, std::index_sequence<I...>) noexcept
+		auto bytes_to_bits(iterator_t& Iterator, std::index_sequence<I...>) noexcept
 		{
-			const auto take_one = [&](size_t const i) { return (std::to_integer<int>(*Iterator++)) << (16 - 8 * i); };
-			return (... | take_one(I));
+			bits_set Result{};
+			(..., (Result |= byte_to_bits(*Iterator++, I)));
+			return Result;
 		}
 
-		template<size_t... I>
-		void bin_store(int const Bits, bytes& Str, std::index_sequence<I...>) noexcept
-		{
-			(..., Str.push_back(static_cast<std::byte>((Bits >> 8 * (2 - I)) & 0xFF)));
-		}
-
-		template<size_t I>
-		void bin_store(int const Bits, bytes& Str) noexcept
-		{
-			bin_store(Bits, Str, std::make_index_sequence<I>{});
-		}
-
-		inline auto text_take(std::string_view& Data) noexcept
-		{
-			size_t Count = 0;
-
-			auto const get_alphabet_char = [&](char& To)
-			{
-				static int constexpr no = -1, Table[]
-				{
-					no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
-					no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
-					no, no, no, no, no, no, no, no, no, no, no, 62, no, no, no, 63,
-					52, 53, 54, 55, 56, 57, 58, 59, 60, 61, no, no, no, no, no, no,
-					no,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-					15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, no, no, no, no, no,
-					no, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-					41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, no, no, no, no, no,
-				};
-
-				if (const auto Skip = std::find_if(ALL_CONST_RANGE(Data), [](size_t const i) { return i < std::size(Table) && Table[i] != no; }) - Data.cbegin())
-					Data.remove_prefix(Skip);
-
-				if (Data.empty())
-					return false;
-
-				To = Table[static_cast<size_t>(Data.front())];
-				Data.remove_prefix(1);
-				++Count;
-				return true;
-			};
-
-			char Sextets[4]{};
-
-			get_alphabet_char(Sextets[0]) &&
-			get_alphabet_char(Sextets[1]) &&
-			get_alphabet_char(Sextets[2]) &&
-			get_alphabet_char(Sextets[3]);
-
-			auto const Bits =
-				(Sextets[0] << 3 * 6) +
-				(Sextets[1] << 2 * 6) +
-				(Sextets[2] << 1 * 6) +
-				(Sextets[3] << 0 * 6);
-
-			return std::pair(Bits, Count);
-		}
-
-		template<size_t... I>
-		void text_store(int const Bits, std::string& Str, std::index_sequence<I...>) noexcept
+		inline auto bits_to_char(bits_set const Bits, size_t const i)
 		{
 			constexpr char EncodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-			(..., Str.push_back(EncodingTable[(Bits & (0b111111 << 6 * (3 - I))) >> 6 * (3 - I)]));
+			return EncodingTable[(Bits & (0b111111 << (6 * (3 - i)))) >> (6 * (3 - i))];
+		}
+
+		template<size_t... I>
+		void bits_to_chars(bits_set const Bits, std::string& Str, std::index_sequence<I...>) noexcept
+		{
+			(..., Str.push_back(bits_to_char(Bits, I)));
 		}
 
 		template<size_t Bytes, typename iterator_t>
 		void encode(iterator_t& Iterator, std::string& Str) noexcept
 		{
-			auto const Bits = bin_take(Iterator, std::make_index_sequence<Bytes>{});
-			text_store(Bits, Str, std::make_index_sequence<Bytes + 1>{});
+			bits_to_chars(bytes_to_bits(Iterator, std::make_index_sequence<Bytes>{}), Str, std::make_index_sequence<Bytes + 1>{});
+			Str.append(3 - Bytes, '=');
 		}
 
-		template<size_t Bytes, typename iterator_t>
-		void decode(iterator_t& Iterator, bytes& Str) noexcept
+
+		inline auto char_to_bits(char const Char, size_t const i)
 		{
-			auto const Bits = text_take(Iterator, std::make_index_sequence<Bytes>{});
-			bin_store(Bits, Str, std::make_index_sequence<Bytes - 1>{});
+			static uint8_t constexpr no = -1, DecodingTable[]
+			{
+				no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+				no, no, no, no, no, no, no, no, no, no, no, 62, no, no, no, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, no, no, no, no, no, no,
+				no,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, no, no, no, no, no,
+				no, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, no, no, no, no, no,
+			};
+
+			const auto error = [&]
+			{
+				using namespace std::string_literals;
+				throw std::runtime_error("Invalid base64 character "s + Char);
+			};
+
+			if (Char >= std::size(DecodingTable))
+				error();
+
+			const auto Bits = DecodingTable[static_cast<size_t>(Char)];
+			if (Bits == no)
+				error();
+
+			return static_cast<bits_set>((Bits & 0b111111) << (6 * (3 - i)));
+		}
+
+		template<typename iterator_t, size_t... I>
+		auto chars_to_bits(iterator_t& Iterator, std::index_sequence<I...>)
+		{
+			bits_set Result{};
+			(..., (Result |= char_to_bits(*Iterator++, I)));
+			return Result;
+		}
+
+		template<size_t... I>
+		void bits_to_bytes(bits_set const Bits, bytes& Str, std::index_sequence<I...>)
+		{
+			(..., Str.push_back(static_cast<std::byte>((Bits >> 8 * (2 - I)) & 0xFF)));
+		}
+
+		template<size_t Chars, typename iterator_t>
+		void decode(iterator_t& Iterator, bytes& Str)
+		{
+			bits_to_bytes(chars_to_bits(Iterator, std::make_index_sequence<Chars>{}), Str, std::make_index_sequence<Chars - 1>{});
 		}
 	}
 
-	inline std::string encode(bytes_view const Data)
+	inline auto encode(bytes_view const Data)
 	{
-		std::string Str;
-		Str.reserve((Data.size() + 2) / 3 * 4);
+		std::string Result;
+		Result.reserve((Data.size() + 2) / 3 * 4);
 
 		auto Iterator = Data.cbegin();
 		auto const Chunks = Data.size() / 3;
 
 		repeat(Chunks, [&]
 		{
-			detail::encode<3>(Iterator, Str);
+			detail::encode<3>(Iterator, Result);
 		});
 
 		switch (Data.size() - Chunks * 3)
 		{
-		case 1:
-			detail::encode<1>(Iterator, Str);
-			Str.push_back('=');
-			Str.push_back('=');
-			break;
-
-		case 2:
-			detail::encode<2>(Iterator, Str);
-			Str.push_back('=');
-			break;
+		case 1: detail::encode<1>(Iterator, Result); break;
+		case 2: detail::encode<2>(Iterator, Result); break;
 		}
 
-		return Str;
+		return Result;
 	}
 
-	inline bytes decode(std::string_view Data)
+	inline auto decode(std::string_view Data)
 	{
-		if (const auto PaddingSize = std::find_if(ALL_CONST_REVERSE_RANGE(Data), [](char const i) { return i != '='; }) - Data.crbegin())
-			Data.remove_suffix(PaddingSize);
+		Data.remove_suffix(Data.size() - (Data.find_last_not_of('=') + 1));
 
-		bytes Str;
-		Str.reserve((Data.size() + 3) / 4 * 3);
+		bytes Result;
+		Result.reserve((Data.size() + 3) / 4 * 3);
 
-		for (;;)
+		auto Iterator = Data.cbegin();
+		auto const Chunks = Data.size() / 4;
+
+		repeat(Chunks, [&]
 		{
-			const auto [Bits, Count] = detail::text_take(Data);
+			detail::decode<4>(Iterator, Result);
+		});
 
-			switch (Count)
-			{
-			default: return Str;
-			case 2: detail::bin_store<1>(Bits, Str); break;
-			case 3: detail::bin_store<2>(Bits, Str); break;
-			case 4: detail::bin_store<3>(Bits, Str); break;
-			}
+		switch (Data.size() - Chunks * 4)
+		{
+		case 1: detail::decode<1>(Iterator, Result); break;
+		case 2: detail::decode<2>(Iterator, Result); break;
+		case 3: detail::decode<3>(Iterator, Result); break;
 		}
+
+		return Result;
 	}
 }
 

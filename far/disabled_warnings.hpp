@@ -128,6 +128,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO: some of these might be useful
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+#pragma clang diagnostic ignored "-Wc++20-compat"
 #pragma clang diagnostic ignored "-Wconversion"
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #pragma clang diagnostic ignored "-Wctad-maybe-unsupported"

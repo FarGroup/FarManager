@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
 #include <array>
+#include <functional>
 #include <numeric>
 #include <string>
 #include <string_view>
@@ -229,14 +230,11 @@ bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> con
 [[nodiscard]]
 inline bool within(std::wstring_view const Haystack, std::wstring_view const Needle)
 {
-	// Comparing potentially unrelated pointers is, technically, UB.
-	// Integers are always fine.
+	const auto HaystackBegin = Haystack.data();
+	const auto HaystackEnd = HaystackBegin + Haystack.size();
 
-	const auto HaystackBegin = reinterpret_cast<uintptr_t>(Haystack.data());
-	const auto HaystackEnd = reinterpret_cast<uintptr_t>(Haystack.data() + Haystack.size());
-
-	const auto NeedleBegin = reinterpret_cast<uintptr_t>(Needle.data());
-	const auto NeedleEnd = reinterpret_cast<uintptr_t>(Needle.data() + Needle.size());
+	const auto NeedleBegin = Needle.data();
+	const auto NeedleEnd = NeedleBegin + Needle.size();
 
 	/*
 	HHHHHH
@@ -245,11 +243,11 @@ inline bool within(std::wstring_view const Haystack, std::wstring_view const Nee
 		NN
 	*/
 	return
-		NeedleBegin >= HaystackBegin && NeedleBegin < HaystackEnd&&
-		NeedleEnd > HaystackBegin && NeedleEnd <= HaystackEnd &&
+		std::greater_equal{}(NeedleBegin, HaystackBegin) && std::less{}(NeedleBegin, HaystackEnd) &&
+		std::greater{}(NeedleEnd, HaystackBegin) && std::less_equal{}(NeedleEnd, HaystackEnd) &&
 		// An empty needle could be within the haystack, but who cares.
 		// You can't really break an empty view by invalidating its underlying storage.
-		NeedleEnd > NeedleBegin;
+		!Needle.empty();
 }
 
 namespace detail

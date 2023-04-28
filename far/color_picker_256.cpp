@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
+#include "common/2d/algorithm.hpp"
 #include "common/2d/point.hpp"
 
 // External:
@@ -59,18 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-// Cube controls are column-major
-
-static constexpr uint8_t cube_rc_mapping[]
-{
-	0,  6, 12, 18, 24, 30,
-	1,  7, 13, 19, 25, 31,
-	2,  8, 14, 20, 26, 32,
-	3,  9, 15, 21, 27, 33,
-	4, 10, 16, 22, 28, 34,
-	5, 11, 17, 23, 29, 35
-};
-
+static constexpr auto cube_rc_mapping = column_major_iota<uint8_t, colors::index::cube_size, colors::index::cube_size>();
 static_assert(std::size(cube_rc_mapping) == colors::index::cube_size * colors::index::cube_size);
 
 static constexpr uint16_t distinct_cube_index(uint8_t const Index)
@@ -85,58 +75,21 @@ static constexpr uint16_t distinct_grey(uint8_t const Value)
 	return (colors::index::grey_first + Value) << 8 | (colors::index::grey_first + Value + (Value < 12? +12 : -12));
 }
 
-static constexpr uint16_t GreyColorIndex[]
+static constexpr auto GreyColorIndex = []
 {
-	distinct_grey(0),
-	distinct_grey(1),
-	distinct_grey(2),
-	distinct_grey(3),
-	distinct_grey(4),
-	distinct_grey(5),
-	distinct_grey(6),
-	distinct_grey(7),
-	distinct_grey(8),
-	distinct_grey(9),
-	distinct_grey(10),
-	distinct_grey(11),
-	distinct_grey(12),
-	distinct_grey(13),
-	distinct_grey(14),
-	distinct_grey(15),
-	distinct_grey(16),
-	distinct_grey(17),
-	distinct_grey(18),
-	distinct_grey(19),
-	distinct_grey(20),
-	distinct_grey(21),
-	distinct_grey(22),
-	distinct_grey(23)
-};
+	std::array<uint16_t, colors::index::grey_last - colors::index::grey_first + 1> Result;
 
+	for (uint8_t i = 0; i != Result.size(); ++i)
+		Result[i] = distinct_grey(i);
+
+	return Result;
+}();
 static_assert(std::size(GreyColorIndex) == colors::index::grey_last - colors::index::grey_first + 1);
 
-// Grey controls are column-major
-
-static constexpr uint8_t grey_control_by_color[]
-{
-	0,  4,  8, 12, 16, 20,
-	1,  5,  9, 13, 17, 21,
-	2,  6, 10, 14, 18, 22,
-	3,  7, 11, 15, 19, 23
-};
-
+static constexpr auto grey_control_by_color = column_major_iota<uint8_t, 6, 4>();
 static_assert(std::size(grey_control_by_color) == std::size(GreyColorIndex));
 
-static constexpr uint8_t grey_color_by_control[]
-{
-	0,  6, 12, 18,
-	1,  7, 13, 19,
-	2,  8, 14, 20,
-	3,  9, 15, 21,
-	4, 10, 16, 22,
-	5, 11, 17, 23
-};
-
+static constexpr auto grey_color_by_control = column_major_iota<uint8_t, 4, 6>();
 static_assert(std::size(grey_color_by_control) == std::size(GreyColorIndex));
 
 static constexpr uint8_t grey_stripe_mapping[]
