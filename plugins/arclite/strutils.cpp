@@ -224,3 +224,19 @@ std::wstring search_and_replace(const std::wstring& str, const std::wstring& sea
   result.shrink_to_fit();
   return result;
 }
+
+bool str_start_with(const std::wstring& str, const wchar_t* prefix, const bool ignore_case) {
+  auto pref_len = wcslen(prefix);
+  if (pref_len > str.size())
+    return false;
+  return (ignore_case ? _wcsnicmp(str.c_str(), prefix, pref_len) : wcsncmp(str.c_str(), prefix, pref_len)) == 0;
+}
+
+bool str_end_with(const std::wstring& str, const wchar_t* suffix, const bool ignore_case)
+{
+  auto suff_len = wcslen(suffix);
+  if (suff_len > str.size())
+    return false;
+  size_t off = str.size() - suff_len;
+	return (ignore_case ? _wcsicmp(str.c_str()+off, suffix) : wcscmp(str.c_str()+off, suffix)) == 0;
+}

@@ -13,26 +13,40 @@ const wchar_t* c_method_lzma   = L"LZMA";
 const wchar_t* c_method_lzma2  = L"LZMA2";
 const wchar_t* c_method_ppmd   = L"PPMD";
 
-#define DEFINE_ARC_ID(name, value) \
-  const unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" value "\x00\x00"; \
-  const ArcType c_##name(c_guid_##name, c_guid_##name + 16);
+#define DEFINE_ARC_ID(name, v) \
+static constexpr unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" v "\x00\x00"; \
+const ArcType c_##name(c_guid_##name, c_guid_##name + 16);
 
-DEFINE_ARC_ID(7z, "\x07")
-DEFINE_ARC_ID(zip, "\x01")
-DEFINE_ARC_ID(bzip2, "\x02")
+DEFINE_ARC_ID(7z,   "\x07")
+DEFINE_ARC_ID(zip,  "\x01")
+DEFINE_ARC_ID(bzip2,"\x02")
 DEFINE_ARC_ID(gzip, "\xEF")
-DEFINE_ARC_ID(xz, "\x0C")
-DEFINE_ARC_ID(iso, "\xE7")
-DEFINE_ARC_ID(udf, "\xE0")
-DEFINE_ARC_ID(rar, "\x03")
-DEFINE_ARC_ID(split, "\xEA")
-DEFINE_ARC_ID(wim, "\xE6")
-DEFINE_ARC_ID(tar, "\xEE")
+DEFINE_ARC_ID(xz,   "\x0C")
+DEFINE_ARC_ID(iso,  "\xE7")
+DEFINE_ARC_ID(udf,  "\xE0")
+DEFINE_ARC_ID(rar,  "\x03")
+DEFINE_ARC_ID(split,"\xEA")
+DEFINE_ARC_ID(wim,  "\xE6")
+DEFINE_ARC_ID(tar,  "\xEE")
 DEFINE_ARC_ID(SWFc, "\xD8")
-DEFINE_ARC_ID(dmg, "\xE4")
-DEFINE_ARC_ID(hfs, "\xE3")
+DEFINE_ARC_ID(dmg,  "\xE4")
+DEFINE_ARC_ID(hfs,  "\xE3") // HFS
+
+DEFINE_ARC_ID(fat,  "\xDA") // FAT
+DEFINE_ARC_ID(ntfs, "\xD9") // NTFS
+DEFINE_ARC_ID(ext4, "\xC7") // Ext[234]
+DEFINE_ARC_ID(apfs, "\xC3") // APFS
+//DEFINE_ARC_ID(uefi, "\xD1") // UEFi
+//DEFINE_ARC_ID(sqfs, "\xD2") // SquashFS
+
+DEFINE_ARC_ID(mbr,  "\xDB") // MBR
+DEFINE_ARC_ID(gpt,  "\xCB") // GPT
 
 #undef DEFINE_ARC_ID
+
+// https://www.tc4shell.com/en/7zip/exfat7z/
+static constexpr unsigned char c_guid_xfat[] = "\x1e\x7e\xa5\x3e\xcb\xdd\xf0\x45\x9a\xe2\x2e\xf7\xf3\x98\x42\x53";
+const ArcType c_xfat(c_guid_xfat, c_guid_xfat + 16);
 
 const UInt64 c_min_volume_size = 16 * 1024;
 
@@ -952,6 +966,14 @@ UInt64 Archive::get_psize(UInt32 index) const {
     return prop.get_uint();
   else
     return 0;
+}
+
+UInt64 Archive::get_offset(UInt32 index) const {
+  PropVariant prop;
+  if (index < m_num_indices)
+    if (in_arc->GetProperty(index, kpidOffset, prop.ref()) == S_OK && prop.is_uint())
+      return prop.get_uint();
+  return ~0ULL;
 }
 
 FILETIME Archive::get_ctime(UInt32 index) const {

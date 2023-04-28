@@ -28,6 +28,8 @@ std::wstring format_data_size(uint64_t value, const wchar_t* suffixes[5]);
 bool is_slash(wchar_t c);
 std::wstring unquote(const std::wstring& str);
 std::wstring search_and_replace(const std::wstring& str, const std::wstring& search_str, const std::wstring& replace_str);
+bool str_start_with(const std::wstring& str, const wchar_t* prefix, const bool ignore_case = true);
+bool str_end_with(const std::wstring& str, const wchar_t* suffix, const bool ignore_case = true);
 
 std::wstring long_path(const std::wstring& path);
 std::wstring long_path_norm(const std::wstring& path);

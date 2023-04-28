@@ -360,15 +360,17 @@ HRESULT Archive::copy_prologue(IOutStream *out_stream)
 bool Archive::open(IInStream* stream, const ArcType& type, const bool allow_tail) {
   ArcAPI::create_in_archive(type, in_arc.ref());
   ComObject<IArchiveOpenCallback> opener(new ArchiveOpener(shared_from_this()));
-  const UInt64 max_check_start_position = 0;
-  HRESULT res;
   if (allow_tail && ArcAPI::formats().at(type).Flags_PreArc())  {
     ComObject<IArchiveAllowTail> allowTail;
     in_arc->QueryInterface(IID_IArchiveAllowTail, (void**)&allowTail);
     if (allowTail)
       allowTail->AllowTail(TRUE);
   }
-  COM_ERROR_CHECK(res = in_arc->Open(stream, &max_check_start_position, opener));
+  const UInt64 max_check_start_position = 0;
+  auto res = in_arc->Open(stream, &max_check_start_position, opener);
+  if (res == HRESULT_FROM_WIN32(ERROR_INVALID_DATA)) // unfriendly eDecode
+	  res = S_FALSE;
+  COM_ERROR_CHECK(res);
   return res == S_OK;
 }
 
