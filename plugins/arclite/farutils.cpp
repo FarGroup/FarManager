@@ -69,8 +69,8 @@ intptr_t menu(const GUID& id, const std::wstring& title, const MenuItems& items,
 }
 
 std::wstring get_progress_bar_str(unsigned width, uint64_t completed, uint64_t total) {
-  const wchar_t c_pb_black = 9608;
-  const wchar_t c_pb_white = 9617;
+  constexpr wchar_t c_pb_black = 9608; // '\x2588' █
+  constexpr wchar_t c_pb_white = 9617; // '\x2591' ░
   unsigned len1;
   if (total == 0)
     len1 = 0;
@@ -136,9 +136,10 @@ intptr_t editor(const std::wstring& file_name, const std::wstring& title, EDITOR
   return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_DEFAULT);
 }
 
-void update_panel(HANDLE h_panel, bool keep_selection) {
+void update_panel(HANDLE h_panel, const bool keep_selection, const bool reset_pos) {
   g_far.PanelControl(h_panel, FCTL_UPDATEPANEL, keep_selection ? 1 : 0, nullptr);
-  g_far.PanelControl(h_panel, FCTL_REDRAWPANEL, 0, nullptr);
+  PanelRedrawInfo ri{ sizeof(ri) };
+  g_far.PanelControl(h_panel, FCTL_REDRAWPANEL, 0, reset_pos ? &ri : nullptr);
 }
 
 void set_view_mode(HANDLE h_panel, unsigned view_mode) {
@@ -752,6 +753,26 @@ bool match_masks(const std::wstring& file_name, const std::wstring& masks) {
 
 bool get_color(PaletteColors color_id, FarColor& color) {
   return g_far.AdvControl(&c_plugin_guid, ACTL_GETCOLOR, color_id, &color) != 0;
+}
+
+void panel_go_to_part(HANDLE h_panel, const int pidx) {
+	PanelRedrawInfo panel_ri = { sizeof(PanelRedrawInfo) };
+	if (pidx >= 0) {
+		g_far.PanelControl(h_panel, FCTL_UPDATEPANEL, 0, nullptr);
+		PanelInfo panel_info{ sizeof(PanelInfo) };
+		if (g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info)) {
+			Buffer<unsigned char> buf(512);
+			for (size_t i = 0; i < panel_info.ItemsNumber; ++i) {
+				get_panel_item(h_panel, FCTL_GETPANELITEM, i, buf);
+				const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
+				if (isdigit(panel_item->FileName[0]) && pidx == _wtoi(panel_item->FileName)) {
+					panel_ri.CurrentItem = i;
+					break;
+				}
+			}
+		}
+	}
+	g_far.PanelControl(h_panel, FCTL_REDRAWPANEL, 0, &panel_ri);
 }
 
 bool panel_go_to_dir(HANDLE h_panel, const std::wstring& dir) {

@@ -63,7 +63,7 @@ void flush_screen();
 intptr_t viewer(const std::wstring& file_name, const std::wstring& title, VIEWER_FLAGS flags = 0);
 intptr_t editor(const std::wstring& file_name, const std::wstring& title, EDITOR_FLAGS flags = 0);
 
-void update_panel(HANDLE h_panel, bool keep_selection);
+void update_panel(HANDLE h_panel, const bool keep_selection, const bool reset_position=false);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
 void set_sort_mode(HANDLE h_panel, unsigned sort_mode);
 void set_reverse_sort(HANDLE h_panel, bool reverse_sort);
@@ -242,6 +242,7 @@ bool match_masks(const std::wstring& file_name, const std::wstring& masks);
 bool get_color(PaletteColors color_id, FarColor& color);
 bool panel_go_to_dir(HANDLE h_panel, const std::wstring& dir);
 bool panel_go_to_file(HANDLE h_panel, const std::wstring& file_path);
+void panel_go_to_part(HANDLE h_panek, const int part_idx);
 DWORD get_lang_id();
 void close_panel(HANDLE h_panel, const std::wstring& dir);
 void open_help(const std::wstring& topic);
