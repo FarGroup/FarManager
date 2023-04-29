@@ -14,6 +14,16 @@
 static std::wstring g_plugin_prefix;
 static TriState g_detect_next_time = triUndef;
 
+static const wchar_t ext_FAT[]   = L".fat";
+static const wchar_t ext_ExFAT[] = L".xfat";
+static const wchar_t ext_NTFS[]  = L".ntfs";
+static const wchar_t ext_EXT2[]  = L".ext2";
+static const wchar_t ext_EXT3[]  = L".ext3";
+static const wchar_t ext_EXT4[]  = L".ext4";
+static const wchar_t ext_EXTn[]  = L".ext";
+static const wchar_t ext_HFS[]   = L".hfs";
+static const wchar_t ext_APFS[]  = L".apfs";
+
 class Plugin
 {
 private:
@@ -71,16 +81,47 @@ public:
 		return plugin.release();
 	}
 
-	bool is_xfat(const uint32_t f_index)
+	const wchar_t* guess_fs_ext(const uint32_t f_index)
 	{
-		char bs[512];
+		unsigned char bs[1024*2];
 		ComObject<IInStream> sub_stream;
 		if (!archive->get_stream(f_index, sub_stream.ref()))
-			return false;
+			return nullptr;
 		UInt32 nr = 0;
-		if (S_OK != sub_stream->Read(bs, 512, &nr) || nr != 512)
-			return false;
-		return bs[510] == '\x55' && bs[511] == '\xAA' && 0 == memcmp(bs + 3, "EXFAT   ", 8);
+		if (S_OK != sub_stream->Read(bs, sizeof(bs), &nr) || nr != sizeof(bs))
+			return nullptr;
+
+		if (bs[510] == '\x55' && bs[511] == '\xAA') {
+			if (memcmp(bs + 0x03, "EXFAT   ", 8) == 0)
+				return ext_ExFAT;
+			if (memcmp(bs + 0x03, "NTFS    ", 8) == 0)
+				return ext_NTFS;
+			if (memcmp(bs + 0x52, "FAT32   ", 8) == 0)
+				return ext_FAT;
+			if (memcmp(bs + 0x36, "FAT16   ", 8) == 0)
+				return ext_FAT;
+			if (memcmp(bs + 0x36, "FAT12   ", 8) == 0)
+				return ext_FAT;
+		}
+
+		if (bs[0x438] == 0x53 && bs[0x439] == 0xEF) { // 0xEF53 -- ExtFS superblock_magic
+			bool zero_1k = true;
+			for (int i = 0; i < 0x400; ++i) {
+				if (bs[i] != 0x00) {
+					zero_1k = false; break;
+				}
+			}
+			if (zero_1k) {
+				if (bs[0x44c] == 0x00) // s_rev_level
+					return ext_EXT2;
+				if (bs[0x44c] == 0x01) { // s_rev_level
+					return (bs[0x45c] & 0x04) == 0x00 ? ext_EXT2 : ext_EXT3; // s_feature_compat HAS_JOURNAL bit
+				}
+				return ext_EXTn;
+			}
+		}
+
+		return nullptr;
 	}
 	//
 	void correct_part_root_name(std::wstring& name, const uint32_t f_index, const DWORD attrs, const uint64_t fsize, const uint64_t psize)
@@ -100,22 +141,15 @@ public:
 		if (dot2 == dot1 + 4 && name[dot1] == part_mode) // N.(mpr|gpt).EXT -- already converted
 			return;
 
-		const wchar_t* ext{ nullptr };
-		if (str_end_with(name, L".fat"))
-			ext = L".fat";
-		else if (str_end_with(name, L".xfat"))
-			ext = L".xfat";
-		else if (str_end_with(name, L".ntfs"))
-			ext = part_mode == 'm' && is_xfat(f_index) ? L".xfat" : L".ntfs";
-		else if (str_end_with(name, L".apfs"))
-			ext = L".apfs";
-		else if (str_end_with(name, L".hfs") || str_end_with(name, L".hfsx"))
-			ext = L".hfs";
-		else if (str_end_with(name, L".ext") || str_end_with(name, L".ext4"))
-			ext = L".ext";
-		else if (str_end_with(name, L".img"))
-			ext = part_mode == 'g' && is_xfat(f_index) ? L".xfat" : L".img";
-
+		const wchar_t* ext = guess_fs_ext(f_index);
+		if (!ext) {
+			if (str_end_with(name, L".apfs"))
+				ext = ext_APFS;
+			else if (str_end_with(name, L".hfs") || str_end_with(name, L".hfsx"))
+				ext = ext_HFS;
+			else if (str_end_with(name, ext_EXT4))
+				ext = ext_EXTn;
+		}
 		if (ext)
 			name = std::to_wstring(f_index) + (part_mode == 'm' ? L".mbr" : L".gpt") + ext;
 	}
@@ -157,12 +191,15 @@ public:
 			return false;
 
 		const ArcType* p_type = nullptr;
-		if      (str_end_with(i.file_name, L".fat" )) p_type = &c_fat;
-		else if (str_end_with(i.file_name, L".xfat")) p_type = &c_xfat;
-		else if (str_end_with(i.file_name, L".ntfs")) p_type = &c_ntfs;
-		else if (str_end_with(i.file_name, L".apfs")) p_type = &c_apfs;
-		else if (str_end_with(i.file_name, L".hfs" )) p_type = &c_hfs;
-		else if (str_end_with(i.file_name, L".ext" ) || str_end_with(i.file_name, L".img")) p_type = &c_ext4;
+		if      (str_end_with(i.file_name, ext_FAT  )) p_type = &c_fat;
+		else if (str_end_with(i.file_name, ext_ExFAT)) p_type = &c_xfat;
+		else if (str_end_with(i.file_name, ext_NTFS )) p_type = &c_ntfs;
+		else if (str_end_with(i.file_name, ext_APFS )) p_type = &c_apfs;
+		else if (str_end_with(i.file_name, ext_HFS  )) p_type = &c_hfs;
+		else if (str_end_with(i.file_name, ext_EXT2 )) p_type = &c_ext4;
+		else if (str_end_with(i.file_name, ext_EXT3 )) p_type = &c_ext4;
+		else if (str_end_with(i.file_name, ext_EXT4 )) p_type = &c_ext4;
+		else if (str_end_with(i.file_name, ext_EXTn )) p_type = &c_ext4;
 		else
 			return false;
 
@@ -1581,7 +1618,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
     }
     // Enter [Ctrl+PgDn]
     else if (!alt && !shift && (
-      (key_event.wVirtualKeyCode==VK_RETURN && !ctrl) // || (key_event.wVirtualKeyCode==VK_NEXT && ctrl)
+      (key_event.wVirtualKeyCode==VK_RETURN && !ctrl) || (key_event.wVirtualKeyCode==VK_NEXT && ctrl)
     )){
       Far::PanelItem panel_item = Far::get_current_panel_item(PANEL_ACTIVE);
       if (plugin->set_partition(panel_item)) {
