@@ -207,6 +207,9 @@ public:
 	const FileListItem* GetLastSelectedItem() const;
 
 	plugin_panel* OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
+	void PushFilePlugin(const string& FileName, std::unique_ptr<plugin_panel>&& hNewPlugin);
+	void SetAndUpdateFilePlugin(const string& FileName, std::unique_ptr<plugin_panel>&& hNewPlugin);
+
 	void ProcessHostFile();
 	bool GetPluginInfo(PluginInfo *PInfo) const;
 	void PluginGetPanelInfo(PanelInfo &Info);

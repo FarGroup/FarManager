@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "constitle.hpp"
 #include "filepanels.hpp"
+#include "filelist.hpp"
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -1597,16 +1598,49 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
-		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
+		bool plugin_panel_stack = false;
+		std::wstring hostfile;
+		const auto FList = dynamic_cast<FileList*>(ActivePanel.get());
+		//
+		if (FList)
 		{
-			ClosePanel(std::move(hPlugin));
-			return FALSE;
+			if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
+			{
+				unsigned long long IFlags = 0;
+				PluginInfo Info{ sizeof(Info) };
+				if (GetPluginInfo(hPlugin->plugin(), &Info))
+					IFlags = Info.Flags;
+
+				if ((IFlags & PF_RECURSIVEPANEL) != 0)
+				{
+					OpenPanelInfo info = { sizeof(info), hPlugin->panel() };
+					hPlugin->plugin()->GetOpenPanelInfo(&info);
+					if (info.HostFile && info.HostFile[0])
+					{
+						hostfile = info.HostFile;
+						plugin_panel_stack = true;
+					}
+				}
+			}
+		}
+		if (plugin_panel_stack)
+		{
+			FList->PushFilePlugin(hostfile, std::move(hPlugin));
 		}
 
-		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
-		NewPanel->Update(0);
-		NewPanel->Show();
+		else
+		{
+			if (ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
+			{
+				ClosePanel(std::move(hPlugin));
+				return FALSE;
+			}
+
+			const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
+			NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
+			NewPanel->Update(0);
+			NewPanel->Show();
+		}
 	}
 
 	// restore title for old plugins only.
