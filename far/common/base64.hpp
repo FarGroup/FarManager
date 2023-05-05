@@ -92,7 +92,7 @@ namespace base64
 				throw std::runtime_error("Invalid base64 character "s + Char);
 			};
 
-			if (Char >= std::size(DecodingTable))
+			if (static_cast<size_t>(Char) >= std::size(DecodingTable))
 				error();
 
 			const auto Bits = DecodingTable[static_cast<size_t>(Char)];
