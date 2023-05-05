@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6105.0
+Plugin API for Far Manager 3.0.6134.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6105
+#define FARMANAGERVERSION_BUILD 6134
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -2390,6 +2390,7 @@ FAR_INLINE_CONSTANT PLUGIN_FLAGS
 	PF_VIEWER         = 0x0000000000000008ULL,
 	PF_FULLCMDLINE    = 0x0000000000000010ULL,
 	PF_DIALOG         = 0x0000000000000020ULL,
+	PF_RECURSIVEPANEL = 0x0000000000000040ULL,
 	PF_NONE           = 0;
 
 struct PluginMenuItem
