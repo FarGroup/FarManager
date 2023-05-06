@@ -303,6 +303,12 @@ string ExtractHexString(string_view HexString);
 [[nodiscard]]
 string ConvertHexString(string_view From, uintptr_t Codepage, bool FromHex);
 
+[[nodiscard]]
+string BytesToString(bytes_view Bytes, uintptr_t Codepage);
+
+[[nodiscard]]
+string HexMask(size_t ByteCount);
+
 void xstrncpy(char* dest, const char* src, size_t DestSize);
 void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 

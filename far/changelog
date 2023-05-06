@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2023-05-05 22:02:12-07:00 - build 6135
+
+1. gh-612: Help Search parameters are preserved between Help sessions.
+
+2. gh-613: Search patterns and parameters are shared between
+   Viewer, Editor, and Find File.
+
+--------------------------------------------------------------------------------
 w17 2023-05-04 22:01:33+03:00 - build 6134
 
 1. Experimental: Auto plugin panel stack for PF_RECURSIVEPANEL plugins
