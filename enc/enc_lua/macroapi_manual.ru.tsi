@@ -1181,7 +1181,7 @@ mtime=3833370231
 #_  next_script:  function
 #_
 #_**Описание:**
-#_  Функция *EnumScripts* возвращает функцию-итератор *next_script*, позволяющущую
+#_  Функция *EnumScripts* возвращает функцию-итератор *next_script*, позволяющую
 #_  перебирать все скрипты заданного *ScriptType* типа, где *ScriptType* - одно из значений:
 #_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
 #_  (по имени функции-загрузчика), а также "CustomSortModes".
