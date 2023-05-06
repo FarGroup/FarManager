@@ -742,7 +742,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		return false;
 	}
 
-	if(SelCount==1)
+	if(SelCount==1 && os::is_interactive_user_session())
 	{
 		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
 	}
@@ -1325,6 +1325,9 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			break;
 		case SA_BUTTON_SYSTEMDLG:
 			{
+				if (!os::is_interactive_user_session())
+					return true;
+
 				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;

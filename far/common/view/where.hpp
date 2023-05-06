@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../keep_alive.hpp"
 
 #include <iterator>
+#include <tuple>
 
 //----------------------------------------------------------------------------
 
@@ -45,17 +46,17 @@ namespace detail
 	{
 	public:
 		using iterator_category = std::common_type_t<std::bidirectional_iterator_tag, typename std::iterator_traits<T>::iterator_category>;
-		using difference_type = std::ptrdiff_t;
-		using reference = std::invoke_result_t<predicate, typename std::iterator_traits<T>::value_type>;
-		using value_type = std::remove_reference_t<reference>;
-		using pointer = value_type*;
+		using difference_type = typename std::iterator_traits<T>::difference_type;
+		using reference = typename std::iterator_traits<T>::reference;
+		using value_type = typename std::iterator_traits<T>::value_type;
+		using pointer = typename std::iterator_traits<T>::pointer;
 
 		explicit where_iterator(const T& Value, const T& End, const predicate& Predicate):
 			m_Value(Value),
 			m_End(End),
 			m_Predicate(&Predicate)
 		{
-			while (m_Value != m_End && !(*m_Predicate)(*m_Value))
+			while (m_Value != m_End && !call())
 				++m_Value;
 		}
 
@@ -74,14 +75,14 @@ namespace detail
 		auto& operator++()
 		{
 			do ++m_Value;
-			while (m_Value != m_End && !(*m_Predicate)(*m_Value));
+			while (m_Value != m_End && !call());
 			return *this;
 		}
 
 		auto& operator--()
 		{
 			do --m_Value;
-			while (m_Value != m_End && !(*m_Predicate)(*m_Value));
+			while (m_Value != m_End && !call());
 			return *this;
 		}
 
@@ -89,6 +90,14 @@ namespace detail
 		bool operator==(const where_iterator& rhs) const { return m_Value == rhs.m_Value; }
 
 	private:
+		bool call()
+		{
+			if constexpr (requires { (*m_Predicate)(*m_Value); })
+				return (*m_Predicate)(*m_Value);
+			else
+				return std::apply(*m_Predicate, *m_Value);
+		}
+
 		T m_Value;
 		T m_End;
 		predicate const* m_Predicate;

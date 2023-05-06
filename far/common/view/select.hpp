@@ -35,60 +35,78 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../keep_alive.hpp"
 
 #include <iterator>
+#include <tuple>
 
 //----------------------------------------------------------------------------
 
 namespace detail
 {
 	template<typename T, typename accessor>
-	class select_iterator
+	class select_iterator_data
 	{
 	public:
-		using iterator_category = typename std::iterator_traits<T>::iterator_category;
-		using difference_type = std::ptrdiff_t;
-		using reference = std::invoke_result_t<accessor, typename std::iterator_traits<T>::reference>;
-		using value_type = std::remove_reference_t<reference>;
-		using pointer = value_type*;
-
-		explicit select_iterator(const T& Value, accessor& Accessor):
+		explicit select_iterator_data(const T& Value, accessor& Accessor):
 			m_Value(Value),
 			m_Accessor(&Accessor)
 		{
 		}
 
+	protected:
+		[[nodiscard]] decltype(auto) operator*()       { return call(*this); }
+		[[nodiscard]] decltype(auto) operator*() const { return call(*this); }
+		[[nodiscard]] auto operator->()       { return &**this; }
+		[[nodiscard]] auto operator->() const { return &**this; }
+
+		template<typename self_t>
 		[[nodiscard]]
-		decltype(auto) operator*() { return std::invoke(*m_Accessor, *m_Value); }
+		static decltype(auto) call(self_t& Self)
+		{
+			if constexpr (requires(accessor&& Accessor, T&& Value){ Accessor(*Value); })
+				return (*Self.m_Accessor)(*Self.m_Value);
+			else
+				return std::apply(*Self.m_Accessor, *Self.m_Value);
+		}
 
-		[[nodiscard]]
-		decltype(auto) operator*() const { return std::invoke(*m_Accessor, *m_Value); }
-
-		[[nodiscard]]
-		auto operator->() { return &**this; }
-
-		[[nodiscard]]
-		auto operator->() const { return &**this; }
-
-		auto& operator++() { ++m_Value; return *this; }
-		auto& operator--() { --m_Value; return *this; }
-
-		auto& operator+=(size_t n) { m_Value += n; return *this; }
-		auto& operator-=(size_t n) { m_Value -= n; return *this; }
-
-		auto operator+(size_t n) const { return select_iterator(m_Value + n); }
-		auto operator-(size_t n) const { return select_iterator(m_Value - n); }
-
-		auto operator-(const select_iterator& rhs) const { return m_Value - rhs.m_Value; }
-
-		[[nodiscard]]
-		bool operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
-
-		[[nodiscard]]
-		bool operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
-
-	private:
 		T m_Value;
 		accessor* m_Accessor;
 	};
+
+	template<typename T, typename accessor>
+	class select_iterator: private select_iterator_data<T, accessor>
+	{
+		using base = select_iterator_data<T, accessor>;
+
+	public:
+		using iterator_category = typename std::iterator_traits<T>::iterator_category;
+		using difference_type = std::ptrdiff_t;
+		using reference = decltype(base::call(std::declval<base&>()));
+		using value_type = std::remove_reference_t<reference>;
+		using pointer = value_type*;
+
+		using base::select_iterator_data;
+		using base::operator*;
+		using base::operator->;
+
+		auto& operator++() { ++this->m_Value; return *this; }
+		auto& operator--() { --this->m_Value; return *this; }
+
+		auto& operator+=(size_t n) { this->m_Value += n; return *this; }
+		auto& operator-=(size_t n) { this->m_Value -= n; return *this; }
+
+		auto operator+(size_t n) const { return select_iterator(this->m_Value + n); }
+		auto operator-(size_t n) const { return select_iterator(this->m_Value - n); }
+
+		auto operator-(const select_iterator& rhs) const { return this->m_Value - rhs.m_Value; }
+
+		[[nodiscard]]
+		bool operator==(const select_iterator& rhs) const { return this->m_Value == rhs.m_Value; }
+
+		[[nodiscard]]
+		bool operator<(const select_iterator& rhs) const { return this->m_Value < rhs.m_Value; }
+	};
+
+	template<typename T, typename accessor>
+	select_iterator(const T&, accessor&) -> select_iterator<T, accessor>;
 }
 
 template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>

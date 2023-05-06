@@ -2219,7 +2219,12 @@ WARNING_DISABLE_CLANG("-Wrange-loop-analysis")
 WARNING_POP()
 		{
 			REQUIRE(Iterator != std::cend(Data));
-			REQUIRE(i == Selector(*Iterator));
+
+			if constexpr (requires { Selector(*Iterator); })
+				REQUIRE(i == Selector(*Iterator));
+			else
+				REQUIRE(i == std::apply(Selector, *Iterator));
+
 			++Iterator;
 		}
 
@@ -2255,6 +2260,11 @@ WARNING_POP()
 	{
 		std::vector<int> const Data;
 		Test(Data, [](const auto& i) { return i; });
+	}
+
+	{
+		std::vector<std::pair<int, int>> const Data;
+		Test(Data, [](auto a, auto b) { return b; });
 	}
 }
 
@@ -2310,6 +2320,34 @@ TEST_CASE("view.where")
 		ints{},
 		ints{},
 		Even);
+
+
+	using tuples = std::vector<std::tuple<int, int>>;
+	const auto Equal = [](int const a, int const b) { return a == b; };
+
+	Test(
+		tuples{ { 0, 0 }, { 1, 1 }, { 2, 2 } },
+		tuples{ { 0, 0 }, { 1, 1 }, { 2, 2 } },
+		Equal
+	);
+
+	Test(
+		tuples{ { 0, 1 }, { 1, 1 }, { 1, 2 } },
+		tuples{ { 1, 1 } },
+		Equal
+	);
+
+	Test(
+		tuples{ { 0, 1 }, { 1, 2 } },
+		tuples{},
+		Equal
+	);
+
+	Test(
+		tuples{},
+		tuples{},
+		Equal
+	);
 }
 
 //----------------------------------------------------------------------------

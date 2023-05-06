@@ -245,6 +245,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="cmdline.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
     <ClInclude Include="color_picker.hpp" />
+    <ClInclude Include="color_picker_common.hpp" />
     <ClInclude Include="color_picker_256.hpp" />
     <ClInclude Include="color_picker_rgb.hpp" />
     <ClInclude Include="colormix.hpp" />

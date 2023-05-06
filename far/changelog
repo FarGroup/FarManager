@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-05-06 20:55:00+01:00 - build 6136
+
+1. Extend internal RGB color picker (similar to 256).
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 MZK 2023-05-05 22:02:12-07:00 - build 6135
 
 1. gh-612: Help Search parameters are preserved between Help sessions.

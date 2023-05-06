@@ -1447,9 +1447,9 @@ static string collect_information(
 
 	const auto log_message = [](span<info_block const> const Info)
 	{
-		auto LogMessage = join(L"\n"sv, select(Info, [](auto const& Pair)
+		auto LogMessage = join(L"\n"sv, select(Info, [](string_view const ParamName, string_view const ParamValue)
 		{
-			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
+			return format(FSTR(L"{} {}"sv), ParamName, ParamValue);
 		}));
 
 		LogMessage += L"\n\n"sv;

@@ -331,10 +331,20 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				const auto IsFg = Param1 == cd_fg_256;
 				const auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-				auto NewColor = colors::color_value(Component);
-				if (pick_color_256(NewColor))
+
+				FarColor const TmpColor
 				{
-					SetComponentColorValue(IsFg, NewColor);
+					FCF_FG_INDEX | (CurColor.Flags & FlagIndex(IsFg)? FCF_BG_INDEX : 0),
+					{ 0 },
+					{ Component }
+				};
+
+				auto Color = colors::index_value(colors::FarColorToConsole256Color(TmpColor).BackgroundIndex);
+
+				if (pick_color_256(Color))
+				{
+					SetComponentColorValue(IsFg, Color);
+
 					CurColor.Flags |= FlagIndex(IsFg);
 
 					Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));

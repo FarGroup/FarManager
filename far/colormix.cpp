@@ -58,7 +58,7 @@ enum
 
 namespace colors
 {
-	COLORREF index_bits(COLORREF const Colour)
+	uint8_t index_bits(COLORREF const Colour)
 	{
 		return Colour & INDEXMASK;
 	}
@@ -73,7 +73,7 @@ namespace colors
 		return Colour & ALPHAMASK;
 	}
 
-	COLORREF index_value(COLORREF const Colour)
+	uint8_t index_value(COLORREF const Colour)
 	{
 		return index_bits(Colour) >> 0;
 	}
@@ -83,7 +83,7 @@ namespace colors
 		return color_bits(Colour) >> 0;
 	}
 
-	COLORREF alpha_value(COLORREF const Colour)
+	uint8_t alpha_value(COLORREF const Colour)
 	{
 		return alpha_bits(Colour) >> 24;
 	}
@@ -98,7 +98,7 @@ namespace colors
 		return !alpha_bits(Colour);
 	}
 
-	void set_index_bits(COLORREF& Value, COLORREF const Index)
+	void set_index_bits(COLORREF& Value, uint8_t const Index)
 	{
 		flags::copy(Value, INDEXMASK, Index);
 	}
@@ -113,7 +113,7 @@ namespace colors
 		flags::copy(Value, ALPHAMASK, alpha_value(Alpha) << 24);
 	}
 
-	void set_index_value(COLORREF& Value, COLORREF const Index)
+	void set_index_value(COLORREF& Value, uint8_t const Index)
 	{
 		set_index_bits(Value, Index);
 	}
@@ -123,7 +123,7 @@ namespace colors
 		set_color_bits(Value, Colour);
 	}
 
-	void set_alpha_value(COLORREF& Value, COLORREF const Alpha)
+	void set_alpha_value(COLORREF& Value, uint8_t const Alpha)
 	{
 		set_alpha_bits(Value, (Alpha & 0xFF) << 24);
 	}
@@ -443,11 +443,10 @@ namespace colors
 
 	static_assert(sizeof(Index8ToIndex4) == 256);
 
-	static WORD get_closest_palette_index(COLORREF const Color)
+	static uint8_t get_closest_palette_index(COLORREF const Color, span<COLORREF const> const Palette)
 	{
-		static const auto Palette = console_palette();
-
-		static std::unordered_map<COLORREF, WORD> Map;
+		static std::unordered_map<COLORREF, uint8_t> Map16, Map256;
+		auto& Map = Palette.size() == index::nt_size? Map16 : Map256;
 
 		if (const auto Iterator = Map.find(Color); Iterator != Map.cend())
 			return Iterator->second;
@@ -473,7 +472,8 @@ namespace colors
 			);
 		};
 
-		const auto ClosestPointIterator = std::min_element(ALL_CONST_RANGE(Palette), [&](COLORREF const Item1, COLORREF const Item2)
+		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
+		const auto ClosestPointIterator = std::min_element(Palette.cbegin() + Skip, Palette.cend(), [&](COLORREF const Item1, COLORREF const Item2)
 		{
 			return distance(Item1) < distance(Item2);
 		});
@@ -510,19 +510,9 @@ namespace colors
 		return Color | (Flags & FCF_RAWATTR_MASK);
 	}
 
-WORD FarColorToConsoleColor(const FarColor& Color)
+static index_color_256 FarColorToConsoleColor(const FarColor& Color, FarColor& LastColor, span<COLORREF const> const Palette)
 {
-	static FarColor LastColor{};
-	static WORD Result = 0;
-
-	if (
-		Color.BackgroundColor == LastColor.BackgroundColor &&
-		Color.ForegroundColor == LastColor.ForegroundColor &&
-		(Color.Flags & FCF_INDEXMASK) == (LastColor.Flags & FCF_INDEXMASK)
-	)
-		return emulate_styles(Result, Color.Flags);
-
-	const auto convert_and_save = [&](COLORREF FarColor::* const Getter, FARCOLORFLAGS const Flag, BYTE& IndexColor)
+	const auto convert_and_save = [&](COLORREF FarColor::* const Getter, FARCOLORFLAGS const Flag, uint8_t& IndexColor)
 	{
 		const auto Current = std::invoke(Getter, Color);
 		auto& Last = std::invoke(Getter, LastColor);
@@ -534,43 +524,68 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 		if (Color.Flags & Flag)
 		{
-			IndexColor = Index8ToIndex4[index_value(Current)];
+			const auto CurrentIndex = index_value(Current);
+			IndexColor = Palette.size() == index::nt_size?
+				Index8ToIndex4[CurrentIndex] :
+				ConsoleIndex16to256(CurrentIndex);
+
 			return;
 		}
 
-		IndexColor = get_closest_palette_index(color_value(Current));
+		IndexColor = get_closest_palette_index(color_value(Current), Palette);
 	};
 
-	static struct
-	{
-		uint8_t
-			Foreground,
-			Background;
-	}
-	Index{};
+	static index_color_256 Index{};
 
-	convert_and_save(&FarColor::ForegroundColor, FCF_FG_INDEX, Index.Foreground);
-	convert_and_save(&FarColor::BackgroundColor, FCF_BG_INDEX, Index.Background);
+	convert_and_save(&FarColor::ForegroundColor, FCF_FG_INDEX, Index.ForegroundIndex);
+	convert_and_save(&FarColor::BackgroundColor, FCF_BG_INDEX, Index.BackgroundIndex);
 
 	LastColor.Flags = Color.Flags;
 
-	auto FinalIndex = Index;
+	return Index;
+}
+
+WORD FarColorToConsoleColor(const FarColor& Color)
+{
+	static FarColor LastColor{};
+	static index_color_256 Result{};
 
 	if (
-		FinalIndex.Foreground == FinalIndex.Background &&
-		color_bits(Color.ForegroundColor) != color_bits(Color.BackgroundColor)
+		Color.BackgroundColor != LastColor.BackgroundColor ||
+		Color.ForegroundColor != LastColor.ForegroundColor ||
+		(Color.Flags & FCF_INDEXMASK) != (LastColor.Flags & FCF_INDEXMASK)
 	)
 	{
-		// oops, unreadable
-		// since background is more pronounced we adjust the foreground only
-		flags::invert(FinalIndex.Foreground, FOREGROUND_INTENSITY);
+		static const auto Palette = console_palette();
+		Result = FarColorToConsoleColor(Color, LastColor, Palette);
+
+		if (
+			Result.ForegroundIndex == Result.BackgroundIndex &&
+			color_bits(Color.ForegroundColor) != color_bits(Color.BackgroundColor)
+		)
+		{
+			// oops, unreadable
+			// since background is more pronounced we adjust the foreground only
+			flags::invert(Result.ForegroundIndex, FOREGROUND_INTENSITY);
+		}
 	}
 
-	Result =
-		(FinalIndex.Foreground << ConsoleFgShift) |
-		(FinalIndex.Background << ConsoleBgShift);
+	return emulate_styles(Result.ForegroundIndex << ConsoleFgShift | Result.BackgroundIndex << ConsoleBgShift, Color.Flags);
+}
 
-	return emulate_styles(Result, Color.Flags);
+index_color_256 FarColorToConsole256Color(const FarColor& Color)
+{
+	static FarColor LastColor{};
+	static index_color_256 Result{};
+
+	if (!(
+		Color.BackgroundColor == LastColor.BackgroundColor &&
+		Color.ForegroundColor == LastColor.ForegroundColor &&
+		(Color.Flags & FCF_INDEXMASK) == (LastColor.Flags & FCF_INDEXMASK)
+	))
+		Result = FarColorToConsoleColor(Color, LastColor, Index8ToRGB);
+
+	return Result;
 }
 
 FarColor NtColorToFarColor(WORD Color)
@@ -587,6 +602,31 @@ COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 {
 	const auto Index = index_value(Color);
 	return alpha_bits(Color) | (Index < 16? console_palette()[Index] : Index8ToRGB[Index]);
+}
+
+static constexpr uint8_t color_16_to_256[]
+{
+	rgb6(0, 0, 0),
+	rgb6(0, 0, 2),
+	rgb6(0, 2, 0),
+	rgb6(0, 2, 2),
+	rgb6(2, 0, 0),
+	rgb6(2, 0, 2),
+	rgb6(2, 2, 0),
+	rgb6(3, 3, 3),
+	rgb6(2, 2, 2),
+	rgb6(0, 0, 5),
+	rgb6(0, 5, 0),
+	rgb6(0, 5, 5),
+	rgb6(5, 0, 0),
+	rgb6(5, 0, 5),
+	rgb6(5, 5, 0),
+	rgb6(5, 5, 5),
+};
+
+uint8_t ConsoleIndex16to256(uint8_t const Color)
+{
+	return Color < std::size(color_16_to_256)? color_16_to_256[Color] : Color;
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
