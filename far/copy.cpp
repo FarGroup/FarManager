@@ -370,7 +370,7 @@ static string GenerateName(string_view const Name, string_view const Path)
 	{
 		try
 		{
-			format(GenNameFormat, 1, NamePart, ExtPart);
+			far::vformat(GenNameFormat, 1, NamePart, ExtPart);
 		}
 		catch (fmt::format_error const&)
 		{
@@ -382,7 +382,7 @@ static string GenerateName(string_view const Name, string_view const Path)
 	for (size_t i = 2; os::fs::exists(Result); ++i)
 	{
 		Result.resize(BaseSize);
-		append(Result, format(GenNameFormat, i, NamePart, ExtPart));
+		append(Result, far::vformat(GenNameFormat, i, NamePart, ExtPart));
 	}
 
 	return Result;
