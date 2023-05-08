@@ -83,7 +83,7 @@ namespace os
 
 			default:
 				// Abandoned or error
-				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForSingleobject returned {}"sv), Result));
+				throw MAKE_FAR_FATAL_EXCEPTION(far::format(L"WaitForSingleobject returned {}"sv, Result));
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace os
 			else
 			{
 				// Abandoned or error
-				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForMultipleObjects returned {}"sv), Result));
+				throw MAKE_FAR_FATAL_EXCEPTION(far::format(L"WaitForMultipleObjects returned {}"sv, Result));
 			}
 		}
 
@@ -221,7 +221,7 @@ static string postprocess_error_string(unsigned const ErrorCode, string&& Str)
 {
 	std::replace_if(ALL_RANGE(Str), IsEol, L' ');
 	inplace::trim_right(Str);
-	return format(FSTR(L"0x{:0>8X} - {}"sv), ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
+	return far::format(L"0x{:0>8X} - {}"sv, ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
 }
 
 [[nodiscard]]
@@ -271,8 +271,8 @@ string error_state::NtErrorStr() const
 
 string error_state::to_string() const
 {
-	const auto StrWin32Error = Win32Error? format(FSTR(L"LastError: {}"sv), Win32ErrorStr()) : L""s;
-	const auto StrNtError    = NtError?    format(FSTR(L"NTSTATUS: {}"sv),  NtErrorStr())    : L""s;
+	const auto StrWin32Error = Win32Error? far::format(L"LastError: {}"sv, Win32ErrorStr()) : L""s;
+	const auto StrNtError    = NtError?    far::format(L"NTSTATUS: {}"sv,  NtErrorStr())    : L""s;
 
 	string_view const Errors[]
 	{
@@ -667,7 +667,7 @@ namespace rtdl
 			}
 
 			if (!*m_module && Mandatory)
-				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Error loading {}: {}"sv), m_name, last_error()));
+				throw MAKE_FAR_FATAL_EXCEPTION(far::format(L"Error loading {}: {}"sv, m_name, last_error()));
 
 			return m_module->get();
 		}
@@ -696,7 +696,7 @@ namespace rtdl
 			if (const auto Pointer = *m_Pointer; Pointer || !Mandatory)
 				return Pointer;
 
-			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"{}!{} is missing: {}"sv), m_Module->name(), encoding::ansi::get_chars(m_Name), last_error()));
+			throw MAKE_FAR_FATAL_EXCEPTION(far::format(L"{}!{} is missing: {}"sv, m_Module->name(), encoding::ansi::get_chars(m_Name), last_error()));
 		}
 	}
 

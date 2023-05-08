@@ -121,7 +121,7 @@ static std::wstring GetFileName(HANDLE Handle)
 			case FILE_TYPE_CHAR:     return L"<char>"s;
 			case FILE_TYPE_REMOTE:   return L"<remote>"s;
 			case FILE_TYPE_UNKNOWN:  return L"<unknown>"s;
-			default:                 return format(L"<unknown> ({})"s, FileType);
+			default:                 return far::format(L"<unknown> ({})"sv, FileType);
 			}
 		}
 	}
@@ -269,13 +269,13 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 			const std::scoped_lock l(*pThread);
 			const auto pd = pThread->GetProcessData(dwId, 0);
 			const auto pName = pd? pd->ProcessName : L"<unknown>"sv;
-			return format(FSTR(L"{0} ({1})"), pName, dwId);
+			return far::format(L"{} ({})"sv, pName, dwId);
 		}
 		return {};
 
 	case OB_TYPE_THREAD:
 		if (DWORD dwId = 0; GetThreadId(handle, dwId))
-			return format(FSTR(L"TID: {0}"), dwId);
+			return far::format(L"TID: {}"sv, dwId);
 		return {};
 
 	case OB_TYPE_FILE:
@@ -399,7 +399,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 			return false;
 	}
 
-	WriteToFile(file, format(FSTR(L"\n{0}:\n{1:6} {2:8} {3:15} {4}\n"),
+	WriteToFile(file, far::format(L"\n{}:\n{:6} {:8} {:15} {}\n"sv,
 		GetMsg(MHandles),
 		GetMsg(MHandlesHandle),
 		GetMsg(MHandlesAccess),
@@ -429,7 +429,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 		if (!bIncludeUnnamed && Name.empty())
 			continue;
 
-		WriteToFile(file, format(FSTR(L"{0:6X} {1:08X} {2:15} {3}\n"),
+		WriteToFile(file, far::format(L"{:6X} {:08X} {:15} {}\n"sv,
 			pSysHandleInformation->Handles[i].HandleValue,
 			pSysHandleInformation->Handles[i].GrantedAccess,
 			TypeToken,

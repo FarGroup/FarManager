@@ -8,6 +8,8 @@
 #include "perfthread.hpp"
 #include "guid.hpp"
 
+#include <utility.hpp>
+
 #include <winperf.h>
 
 const counters Counters[]
@@ -214,17 +216,6 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads)
 	})->first;
 }
 
-template<typename T>
-static const T* view_as_opt(const void* const Data, const void* const DataEnd, size_t const Offset)
-{
-	const auto Begin = static_cast<const char*>(Data) + Offset;
-
-	if (Begin + sizeof(T) > static_cast<const char*>(DataEnd))
-		return {};
-
-	return static_cast<const T*>(static_cast<const void*>(Begin));
-}
-
 bool PerfThread::RefreshImpl()
 {
 	DebugToken token;
@@ -266,7 +257,7 @@ bool PerfThread::RefreshImpl()
 	}
 
 	const auto DataEnd = buf.data() + buf.size();
-	const auto pPerf = view_as_opt<PERF_DATA_BLOCK>(buf.data(), DataEnd, 0);
+	const auto pPerf = view_as_opt<PERF_DATA_BLOCK>(buf);
 	if (!pPerf)
 		return false;
 

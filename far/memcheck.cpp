@@ -132,7 +132,7 @@ static string format_type(allocation_type Type, size_t Size)
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
 	}
 
-	return format(FSTR(L"{} ({} bytes)"sv), sType, Size);
+	return far::format(L"{} ({} bytes)"sv, sType, Size);
 }
 
 static string printable_string(string_view const Str)
@@ -294,15 +294,15 @@ private:
 		auto Message = L"Memory leaks detected:\n"s;
 
 		if (m_CallNewDeleteVector)
-			format_to(Message, FSTR(L" new[]:   {}\n"sv), m_CallNewDeleteVector);
+			far::format_to(Message, L" new[]:   {}\n"sv, m_CallNewDeleteVector);
 		if (m_CallNewDeleteScalar)
-			format_to(Message, FSTR(L" new:     {}\n"sv), m_CallNewDeleteScalar);
+			far::format_to(Message, L" new:     {}\n"sv, m_CallNewDeleteScalar);
 
 		Message += L'\n';
 
-		format_to(Message, FSTR(L" Blocks:  {}\n"sv), m_AllocatedMemoryBlocks);
-		format_to(Message, FSTR(L" Payload: {}\n"sv), m_AllocatedPayloadSize);
-		format_to(Message, FSTR(L" Bytes:   {}\n"sv), m_AllocatedMemorySize);
+		far::format_to(Message, L" Blocks:  {}\n"sv, m_AllocatedMemoryBlocks);
+		far::format_to(Message, L" Payload: {}\n"sv, m_AllocatedPayloadSize);
+		far::format_to(Message, L" Bytes:   {}\n"sv, m_AllocatedMemorySize);
 
 		append(Message, L"\nNot freed blocks:\n"sv);
 

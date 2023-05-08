@@ -1408,7 +1408,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 		Message(MSG_WARNING,
 			msg(lng::MEditTitle),
 			{
-				format(msg(lng::MEditorCPNotSupported), cp)
+				far::vformat(msg(lng::MEditorCPNotSupported), cp)
 			},
 			{ lng::MOk });
 		return false;
@@ -1542,8 +1542,8 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 					{
 						string(Name),
 						// Ширина = 8 - это будет... в Kb и выше...
-						format(msg(lng::MEditFileLong), trim(FileSizeToStr(FileSize, 8))),
-						format(msg(lng::MEditFileLong2), trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
+						far::vformat(msg(lng::MEditFileLong), trim(FileSizeToStr(FileSize, 8))),
+						far::vformat(msg(lng::MEditFileLong2), trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
 						msg(lng::MEditROOpen)
 					},
 					{ lng::MYes, lng::MNo },
@@ -1658,7 +1658,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 				}
 
 				if (!Progress)
-					Progress.emplace(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
+					Progress.emplace(msg(lng::MEditTitle), far::vformat(msg(lng::MEditReading), Name), 0);
 
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
@@ -2043,7 +2043,7 @@ int FileEditor::SaveFile(const string_view Name, int Ask, bool bSaveAs, error_st
 				if (TimeCheck)
 				{
 					if (!Progress)
-						Progress.emplace(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
+						Progress.emplace(msg(lng::MEditTitle), far::vformat(msg(lng::MEditSaving), Name), 0);
 
 					Progress->update(ToPercent(LineNumber, m_editor->Lines.size()));
 				}
@@ -2247,9 +2247,9 @@ string FileEditor::GetTitle() const
 
 static std::pair<string, size_t> char_code(std::optional<char32_t> const& Char, int const Codebase)
 {
-	const auto process = [&](const auto& Format, string_view const Max)
+	const auto process = [&](const auto Format, string_view const Max)
 	{
-		auto Result = std::pair{ Char.has_value()? format(Format, static_cast<uint32_t>(*Char)) : L""s, Max.size()};
+		auto Result = std::pair{ Char.has_value()? far::format(Format, static_cast<uint32_t>(*Char)) : L""s, Max.size()};
 		Result.second = std::max(Result.first.size(), Result.second);
 		return Result;
 	};
@@ -2270,7 +2270,7 @@ static std::pair<string, size_t> char_code(std::optional<char32_t> const& Char, 
 
 static std::pair<string, size_t> ansi_char_code(std::optional<char32_t> const& Char, int const Codebase, uintptr_t const Codepage)
 {
-	const auto process = [&](const auto& Format, string_view const Max)
+	const auto process = [&](const auto Format, string_view const Max)
 	{
 		std::optional<unsigned> CharCode;
 
@@ -2289,7 +2289,7 @@ static std::pair<string, size_t> ansi_char_code(std::optional<char32_t> const& C
 			}
 		}
 
-		return std::pair{ CharCode.has_value()? format(Format, *CharCode) : L""s, Max.size() };
+		return std::pair{ CharCode.has_value()? far::format(Format, *CharCode) : L""s, Max.size() };
 	};
 
 	switch (Codebase)
@@ -2350,10 +2350,10 @@ void FileEditor::ShowStatus() const
 
 	//предварительный расчет
 	const auto LinesFormat = FSTR(L"{}/{}"sv);
-	const auto SizeLineStr = format(LinesFormat, m_editor->Lines.size(), m_editor->Lines.size()).size();
-	const auto strLineStr = format(LinesFormat, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
+	const auto SizeLineStr = far::format(LinesFormat, m_editor->Lines.size(), m_editor->Lines.size()).size();
+	const auto strLineStr = far::format(LinesFormat, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L"│"s + AttrStr : L""s;
-	auto StatusLine = format(FSTR(L"│{}{}│{:5.5}│{:.3} {:>{}}│{:.3} {:<3}│{:.3} {:<3}{}│{}"sv),
+	auto StatusLine = far::format(FSTR(L"│{}{}│{:5.5}│{:.3} {:>{}}│{:.3} {:<3}│{:.3} {:<3}{}│{}"sv),
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? L'-' : m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)? L'"' : L' ',
 		ShortReadableCodepageName(m_codepage),

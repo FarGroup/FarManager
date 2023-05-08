@@ -778,11 +778,11 @@ ShellCopy::ShellCopy(
 		const auto Format = msg(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile);
 		const auto& ToOrIn = msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO);
 		const auto SpaceAvailable = std::max(0, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - 1 - 1));
-		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(format(Format, L""sv, ToOrIn)))))
+		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(far::vformat(Format, L""sv, ToOrIn)))))
 		{
 			strCopyStr = truncate_right(SingleSelName, MaxLength);
 		}
-		strCopyStr = format(Format, strCopyStr, ToOrIn);
+		strCopyStr = far::vformat(Format, strCopyStr, ToOrIn);
 
 		// Если копируем одиночный файл, то запрещаем использовать фильтр
 		if (!(SingleSelAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -804,7 +804,7 @@ ShellCopy::ShellCopy(
 		else if (StrItems[LenItems-1] == '1')
 			NItems = lng::MCMLItems0;
 
-		strCopyStr = format(msg(Move? lng::MMoveFiles : Link? lng::MLinkFiles : lng::MCopyFiles),
+		strCopyStr = far::vformat(msg(Move? lng::MMoveFiles : Link? lng::MLinkFiles : lng::MCopyFiles),
 			SelCount,
 			msg(NItems),
 			msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO));
@@ -2989,7 +2989,7 @@ bool ShellCopy::AskOverwrite(
 	const auto FormatLine = [&](const os::chrono::time_point TimePoint, lng Label, unsigned long long Size)
 	{
 		const auto [Date, Time] = ConvertDate(TimePoint, 8, 1);
-		return format(FSTR(L"{:26} {:20} {} {}"sv), msg(Label), Size, Date, Time);
+		return far::format(L"{:26} {:20} {} {}"sv, msg(Label), Size, Date, Time);
 	};
 
 	string strDestName(DestName);

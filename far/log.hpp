@@ -99,7 +99,7 @@ namespace logging
 		if (logging::filter(log_level)) \
 		{ \
 			logging::log( \
-				format(FSTR(Format), ##__VA_ARGS__), \
+				far::format(Format, ##__VA_ARGS__), \
 				log_level, \
 				CURRENT_FUNCTION_NAME, \
 				CURRENT_FILE_NAME, \

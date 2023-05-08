@@ -162,7 +162,7 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 
 	const auto Self = Pid == GetCurrentProcessId() || Window == console.GetWindow();
 
-	MenuItemEx NewItem(format(FSTR(L"{:{}} {} {}"sv), Pid, PidWidth, BoxSymbols[BS_V1], MenuItem), Self? MIF_CHECKED : MIF_NONE);
+	MenuItemEx NewItem(far::format(L"{:{}} {} {}"sv, Pid, PidWidth, BoxSymbols[BS_V1], MenuItem), Self? MIF_CHECKED : MIF_NONE);
 	// for sorting
 	NewItem.ComplexUserData = menu_data{ WindowTitle, Pid, Window };
 	Menu->AddItem(NewItem);

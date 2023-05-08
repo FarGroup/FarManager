@@ -55,6 +55,7 @@ namespace colors
 		constexpr inline auto
 			nt_mask = 0xf,
 			nt_last = 15,
+			nt_size = nt_last + 1,
 			cube_first = nt_last + 1,
 			cube_size = 6,
 			cube_last = cube_first + cube_size * cube_size * cube_size - 1,
@@ -62,24 +63,24 @@ namespace colors
 			grey_last = 255;
 	}
 
-	COLORREF index_bits(COLORREF Colour);
+	uint8_t  index_bits(COLORREF Colour);
 	COLORREF color_bits(COLORREF Colour);
 	COLORREF alpha_bits(COLORREF Colour);
 
-	COLORREF index_value(COLORREF Colour);
+	uint8_t  index_value(COLORREF Colour);
 	COLORREF color_value(COLORREF Colour);
-	COLORREF alpha_value(COLORREF Colour);
+	uint8_t  alpha_value(COLORREF Colour);
 
 	bool is_opaque(COLORREF Colour);
 	bool is_transparent(COLORREF Colour);
 
-	void set_index_bits(COLORREF& Value, COLORREF Index);
+	void set_index_bits(COLORREF& Value, uint8_t Index);
 	void set_color_bits(COLORREF& Value, COLORREF Colour);
 	void set_alpha_bits(COLORREF& Value, COLORREF Alpha);
 
-	void set_index_value(COLORREF& Value, COLORREF Index);
+	void set_index_value(COLORREF& Value, uint8_t Index);
 	void set_color_value(COLORREF& Value, COLORREF Colour);
-	void set_alpha_value(COLORREF& Value, COLORREF Alpha);
+	void set_alpha_value(COLORREF& Value, uint8_t Alpha);
 
 	COLORREF opaque(COLORREF Colour);
 	COLORREF transparent(COLORREF Colour);
@@ -93,20 +94,61 @@ namespace colors
 	rgba to_rgba(COLORREF Color);
 	COLORREF to_color(rgba Rgba);
 
+	struct index_color_256
+	{
+		uint8_t
+			ForegroundIndex,
+			BackgroundIndex;
+	};
+
 	size_t color_hash(const FarColor& Value);
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 
-	std::array<COLORREF, 16> nt_palette();
+	using nt_palette_t = std::array<COLORREF, index::nt_size>;
+	nt_palette_t nt_palette();
 
+	// TODO: Rename these uniformly
 	WORD FarColorToConsoleColor(const FarColor& Color);
+	index_color_256 FarColorToConsole256Color(const FarColor& Color);
 	FarColor NtColorToFarColor(WORD Color);
 	COLORREF ConsoleIndexToTrueColor(COLORREF Color);
+	uint8_t ConsoleIndex16to256(uint8_t Color);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);
 	COLORREF ARGB2ABGR(int Color);
 	// ([[T]FFFFFFFF][:[T]BBBBBBBB])
 	string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop);
+
+	struct rgb6
+	{
+		rgb6() = default;
+
+		constexpr rgb6(uint8_t const R, uint8_t const G, uint8_t const B):
+			r(R),
+			g(G),
+			b(B)
+		{
+		}
+
+		explicit(false) constexpr rgb6(uint8_t const Color):
+			r((Color - index::nt_size) / (index::cube_size * index::cube_size)),
+			g((Color - index::nt_size - r * index::cube_size * index::cube_size) / index::cube_size),
+			b(Color - index::nt_size - r * index::cube_size * index::cube_size - g * index::cube_size)
+		{
+		}
+
+		explicit(false) constexpr operator uint8_t() const
+		{
+			return
+				index::nt_size +
+				r * index::cube_size * index::cube_size +
+				g * index::cube_size +
+				b;
+		}
+
+		uint8_t r{}, g{}, b{};
+	};
 }
 
 template<>

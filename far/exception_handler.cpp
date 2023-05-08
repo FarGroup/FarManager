@@ -377,7 +377,7 @@ static void read_modules(string& To, string_view const Eol)
 		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
 		{
 			const auto LastError = os::last_error();
-			format_to(To, FSTR(L"{}"sv), LastError);
+			far::format_to(To, L"{}"sv, LastError);
 			LOGWARNING(L"EnumProcessModules(): {}"sv, LastError);
 			return;
 		}
@@ -393,9 +393,9 @@ static void read_modules(string& To, string_view const Eol)
 
 static string self_version()
 {
-	const auto Version = format(FSTR(L"{} {}"sv), version_to_string(build::version()), build::platform());
+	const auto Version = far::format(L"{} {}"sv, version_to_string(build::version()), build::platform());
 	const auto ScmRevision = build::scm_revision();
-	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({:.7})"sv), ScmRevision);
+	return ScmRevision.empty()? Version : Version + far::format(L" ({:.7})"sv, ScmRevision);
 }
 
 static string timestamp(os::chrono::time_point const Point)
@@ -405,7 +405,7 @@ static string timestamp(os::chrono::time_point const Point)
 	if (!FileTimeToSystemTime(&FileTime, &SystemTime))
 	{
 		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
-		return format(FSTR(L"{:16X}"sv), Point.time_since_epoch().count());
+		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
 	}
 
 	const auto [Date, Time] = format_datetime(SystemTime);
@@ -449,7 +449,7 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 {
 	const auto r = [&](string_view const Name, auto const Value)
 	{
-		format_to(To, FSTR(L"{:3} = {:0{}X}{}"sv), Name, Value, sizeof(Value) * 2, Eol);
+		far::format_to(To, L"{:3} = {:0{}X}{}"sv, Name, Value, sizeof(Value) * 2, Eol);
 	};
 
 #if defined _M_X64
@@ -892,7 +892,7 @@ static string get_locale()
 
 	const auto LocaleId = GetUserDefaultLCID();
 	const auto LanguageId = LANGIDFROMLCID(LocaleId);
-	return format(FSTR(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}"sv),
+	return far::format(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}"sv,
 		Name,
 		LocaleId,
 		LanguageId,
@@ -1211,7 +1211,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 	};
 
 	const auto Name = exception_name(ExceptionRecord.ExceptionCode);
-	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
+	return WithType(far::format(L"0x{:0>8X} - {}"sv, ExceptionRecord.ExceptionCode, Name));
 }
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message, string& ExtraDetails)
@@ -1249,7 +1249,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 			if (Symbol.empty())
 				Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 
-			auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+			auto Result = far::format(L"Memory at {} could not be {}"sv, Symbol, Mode);
 			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters > 2)
 				append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
 
@@ -1261,7 +1261,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 			if (!ExceptionRecord.NumberParameters)
 				break;
 
-			return format(FSTR(L"Unable to allocate {} bytes: {}"sv), ExceptionRecord.ExceptionInformation[0], default_details());
+			return far::format(L"Unable to allocate {} bytes: {}"sv, ExceptionRecord.ExceptionInformation[0], default_details());
 		}
 
 	case EH_DELAYLOAD_MODULE:
@@ -1447,9 +1447,9 @@ static string collect_information(
 
 	const auto log_message = [](span<info_block const> const Info)
 	{
-		auto LogMessage = join(L"\n"sv, select(Info, [](auto const& Pair)
+		auto LogMessage = join(L"\n"sv, select(Info, [](string_view const ParamName, string_view const ParamValue)
 		{
-			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
+			return far::format(L"{} {}"sv, ParamName, ParamValue);
 		}));
 
 		LogMessage += L"\n\n"sv;
@@ -1463,7 +1463,7 @@ static string collect_information(
 	{
 		for (const auto& [Label, Value] : Info)
 		{
-			format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
+			far::format_to(Strings, L"{} {}{}"sv, Label, Value, Eol);
 		}
 	};
 
@@ -1521,13 +1521,13 @@ static string collect_information(
 				if (Tid == CurrentThreadId)
 					continue;
 
-				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
+				auto ThreadTitle = far::format(L"Thread {0} / 0x{0:X}"sv, Tid);
 
 				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
 				if (!Thread)
 				{
 					make_header(ThreadTitle, append_line);
-					append_line(format(FSTR(L"Error opening thread {}: {}"sv), Tid, os::last_error()));
+					append_line(far::format(L"Error opening thread {}: {}"sv, Tid, os::last_error()));
 					continue;
 				}
 
@@ -1546,14 +1546,14 @@ static string collect_information(
 				}
 				else
 				{
-					append_line(format(FSTR(L"Error getting thread status: {}"sv), os::format_ntstatus(ThreadStatus.Result)));
+					append_line(far::format(L"Error getting thread status: {}"sv, os::format_ntstatus(ThreadStatus.Result)));
 				}
 
 				CONTEXT ThreadContext{};
 				ThreadContext.ContextFlags = CONTEXT_ALL;
 				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
 				{
-					append_line(format(FSTR(L"Error getting thread context: {}"sv), os::last_error()));
+					append_line(far::format(L"Error getting thread context: {}"sv, os::last_error()));
 					continue;
 				}
 
@@ -1610,7 +1610,7 @@ static handler_result handle_generic_exception(
 	LOGERROR(L"Unhandled exception, see {} for details"sv, ReportLocation);
 
 	const auto PluginInfo = PluginModule?
-	format(FSTR(L"{} {} ({}, {})"sv),
+	far::format(L"{} {} ({}, {})"sv,
 		PluginModule->Title(),
 		version_to_string(PluginModule->version()),
 		PluginModule->Description(),
@@ -2004,7 +2004,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 	if (handle_generic_exception(
 		Context,
 		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
-		format(FSTR(L"{}({})"sv), File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
+		far::format(L"{}({})"sv, File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
 		{},
 		{},
 		Expression? Expression : L"Invalid parameter"sv,

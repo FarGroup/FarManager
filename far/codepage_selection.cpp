@@ -812,13 +812,13 @@ string codepages::FormatName(uintptr_t const CodePage)
 		return Name;
 	};
 
-	return format(FSTR(L"{}: {}"sv), CodePage, get_name());
+	return far::format(L"{}: {}"sv, CodePage, get_name());
 }
 
 string codepages::UnsupportedCharacterMessage(wchar_t const Char)
 {
-	const auto UnicodeNotation = format(FSTR(L"U+{0:04X}"sv), Char);
-	return format(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, UnicodeNotation);
+	const auto UnicodeNotation = far::format(L"U+{0:04X}"sv, Char);
+	return far::vformat(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, UnicodeNotation);
 }
 
 long long codepages::GetFavorite(uintptr_t cp)

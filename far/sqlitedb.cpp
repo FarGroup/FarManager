@@ -119,13 +119,13 @@ namespace
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0, string_view const Sql = {}, int const ErrorOffset = -1)
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, ErrorCode, true, format(FSTR(L"[{}] - SQLite error {}: {}{}{}{}"sv),
+		throw MAKE_EXCEPTION(far_sqlite_exception, ErrorCode, true, far::format(L"[{}] - SQLite error {}: {}{}{}{}"sv,
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
-			SystemErrorCode? format(FSTR(L" ({})"sv), os::format_error(SystemErrorCode)) : L""sv,
-			Sql.empty()? L""sv : format(FSTR(L" while executing \"{}\""sv), Sql),
-			ErrorOffset == -1? L""sv : format(FSTR(L" at position {}"sv), ErrorOffset)
+			SystemErrorCode? far::format(L" ({})"sv, os::format_error(SystemErrorCode)) : L""sv,
+			Sql.empty()? L""sv : far::format(L" while executing \"{}\""sv, Sql),
+			ErrorOffset == -1? L""sv : far::format(L" at position {}"sv, ErrorOffset)
 		));
 	}
 

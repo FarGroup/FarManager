@@ -50,8 +50,8 @@ public:
 		const_iterator_type>;
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-	using value_type = typename std::iterator_traits<iterator>::value_type;
-	using reference = typename std::iterator_traits<iterator>::reference;
+	using value_type = std::iter_value_t<iterator>;
+	using reference = std::iter_reference_t<iterator>;
 	using pointer = typename std::iterator_traits<iterator>::pointer;
 	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
 

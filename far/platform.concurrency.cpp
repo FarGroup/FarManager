@@ -173,7 +173,7 @@ namespace os::concurrency
 
 	string_view mutex::get_namespace()
 	{
-		return L"Far_Manager_Mutex_"sv;
+		return L"Far_Manager_Mutex"sv;
 	}
 
 	void mutex::lock() const
@@ -274,7 +274,7 @@ namespace os::concurrency
 
 	string_view event::get_namespace()
 	{
-		return L"Far_Manager_Event_"sv;
+		return L"Far_Manager_Event"sv;
 	}
 
 	void event::set() const
@@ -328,7 +328,58 @@ namespace os::concurrency
 
 #include "testing.hpp"
 
-TEST_CASE("platform.thread.forwarding")
+TEST_CASE("platform.concurrency.make_name")
+{
+	struct s
+	{
+		static auto get_namespace()
+		{
+			return L"banana"sv;
+		}
+	};
+
+	const auto Suffix = L"peel"sv;
+	const auto Name = os::make_name<s>(L"random"sv, Suffix);
+
+	REQUIRE(Name.starts_with(s::get_namespace()));
+	REQUIRE(Name.ends_with(Suffix));
+}
+
+TEMPLATE_TEST_CASE("platform.concurrency.locking", "", os::critical_section, os::mutex, os::shared_mutex)
+{
+	std::atomic_int Cookie;
+	TestType Lock1, Lock2;
+
+	os::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+	os::thread const Thread(
+		os::thread::mode::join,
+		[&]
+		{
+			SCOPED_ACTION(std::scoped_lock)(Lock2);
+			Event.set();
+
+			{
+				SCOPED_ACTION(std::scoped_lock)(Lock1);
+				REQUIRE(Cookie == 1);
+				Cookie = 2;
+			}
+		}
+	);
+
+	{
+		SCOPED_ACTION(std::scoped_lock)(Lock1);
+		Event.wait();
+
+		Cookie = 1;
+	}
+
+	{
+		SCOPED_ACTION(std::scoped_lock)(Lock2);
+		REQUIRE(Cookie == 2);
+	}
+}
+
+TEST_CASE("platform.concurrency.thread.forwarding")
 {
 	{
 		const auto Magic = 42;
@@ -344,7 +395,42 @@ TEST_CASE("platform.thread.forwarding")
 	SUCCEED();
 }
 
-TEST_CASE("platform.timer")
+TEST_CASE("platform.concurrency.event")
+{
+	{
+		os::event const Event(os::event::type::manual, os::event::state::nonsignaled);
+		REQUIRE(!Event.is_signaled());
+
+		Event.set();
+		REQUIRE(Event.is_signaled());
+
+		Event.reset();
+		REQUIRE(!Event.is_signaled());
+	}
+
+	{
+		os::event const Event(os::event::type::automatic, os::event::state::signaled);
+		REQUIRE(Event.is_signaled());
+		REQUIRE(!Event.is_signaled());
+
+		Event.set();
+		REQUIRE(Event.is_signaled());
+		REQUIRE(!Event.is_signaled());
+
+		Event.reset();
+		REQUIRE(!Event.is_signaled());
+	}
+
+	{
+		os::event const Event;
+		OVERLAPPED o;
+		REQUIRE_THROWS_AS(Event.associate(o), far_fatal_exception);
+		REQUIRE_THROWS_AS(Event.set(), far_fatal_exception);
+		REQUIRE_THROWS_AS(Event.reset(), far_fatal_exception);
+	}
+}
+
+TEST_CASE("platform.concurrency.timer")
 {
 	size_t Count{};
 	size_t const Max = 3;

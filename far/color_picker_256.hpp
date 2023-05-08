@@ -44,6 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool pick_color_256(COLORREF& Color);
+bool pick_color_256(uint8_t& Color);
 
 #endif // COLOR_PICKER_256_HPP_31E35302_0627_46E0_830F_B81F8D7344B1

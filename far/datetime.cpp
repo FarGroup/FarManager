@@ -76,7 +76,7 @@ static string st_time(const tm& Time, const locale_names& Names, bool const is_d
 
 	if (is_dd_mmm_yyyy)
 	{
-		return format(FSTR(L"{:2}-{:3.3}-{:4}"sv),
+		return far::format(L"{:2}-{:3.3}-{:4}"sv,
 			Time.tm_mday,
 			upper(Names.Months[Time.tm_mon].Short),
 			Time.tm_year + 1900);
@@ -84,7 +84,7 @@ static string st_time(const tm& Time, const locale_names& Names, bool const is_d
 
 	const auto Format = [&](const auto FormatString)
 	{
-		return format(FormatString, DateSeparator, Time.tm_mday, Time.tm_mon + 1, Time.tm_year + 1900);
+		return far::format(FormatString, DateSeparator, Time.tm_mday, Time.tm_mon + 1, Time.tm_year + 1900);
 	};
 
 	switch(locale.date_format())
@@ -179,7 +179,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 		//appropriate date and time representation
 		case L'c':
 			// Thu Oct 07 12:37:32 1999
-			format_to(Result, FSTR(L"{} {} {:02} {:02}:{:02}:{:02} {:4}"sv),
+			far::format_to(Result, L"{} {} {:02} {:02}:{:02}:{:02} {:4}"sv,
 				locale.Names(IsLocal).Weekdays[Time.tm_wday].Short,
 				locale.Names(IsLocal).Months[Time.tm_mon].Short,
 				Time.tm_mday, Time.tm_hour, Time.tm_min, Time.tm_sec, Time.tm_year + 1900);
@@ -187,7 +187,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 
 		// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 		case L'C':
-			format_to(Result, FSTR(L"{:02}"sv), (Time.tm_year + 1900) / 100);
+			far::format_to(Result, L"{:02}"sv, (Time.tm_year + 1900) / 100);
 			break;
 
 		// day of month, blank padded
@@ -196,8 +196,8 @@ static string StrFTime(string_view const Format, const tm& Time)
 		// day of the month, 01 - 31
 		case L'd':
 			Result += *Iterator == L'e'?
-				format(FSTR(L"{:2}"sv), Time.tm_mday) :
-				format(FSTR(L"{:02}"sv), Time.tm_mday);
+				far::format(L"{:2}"sv, Time.tm_mday) :
+				far::format(L"{:02}"sv, Time.tm_mday);
 			break;
 
 		// hour, 24-hour clock, blank pad
@@ -206,8 +206,8 @@ static string StrFTime(string_view const Format, const tm& Time)
 		// hour, 24-hour clock, 00 - 23
 		case L'H':
 			Result += *Iterator == L'k'?
-				format(FSTR(L"{:2}"sv), Time.tm_hour) :
-				format(FSTR(L"{:02}"sv), Time.tm_hour);
+				far::format(L"{:2}"sv, Time.tm_hour) :
+				far::format(L"{:02}"sv, Time.tm_hour);
 			break;
 
 		// hour, 12-hour clock, 1 - 12, blank pad
@@ -222,15 +222,15 @@ static string StrFTime(string_view const Format, const tm& Time)
 				I=12;
 
 			Result += *Iterator == L'l'?
-				format(FSTR(L"{:2}"sv), I) :
-				format(FSTR(L"{:02}"sv), I);
+				far::format(L"{:2}"sv, I) :
+				far::format(L"{:02}"sv, I);
 			break;
 		}
 
 		// Три цифры дня в году (001 - 366)
 		// day of the year, 001 - 366
 		case L'j':
-			format_to(Result, FSTR(L"{:03}"sv), Time.tm_yday+1);
+			far::format_to(Result, L"{:03}"sv, Time.tm_yday+1);
 			break;
 
 		// Две цифры месяца, как десятичное число (1 - 12)
@@ -244,17 +244,17 @@ static string StrFTime(string_view const Format, const tm& Time)
 			{
 			// %mh - Hex month digit
 			case L'h':
-				format_to(Result, FSTR(L"{:X}"sv), Time.tm_mon + 1);
+				far::format_to(Result, L"{:X}"sv, Time.tm_mon + 1);
 				break;
 
 			// %m0 - ведущий 0
 			case L'0':
-				format_to(Result, FSTR(L"{:02}"sv), Time.tm_mon + 1);
+				far::format_to(Result, L"{:02}"sv, Time.tm_mon + 1);
 				break;
 
 			default:
 				--Iterator;
-				format_to(Result, FSTR(L"{}"sv), Time.tm_mon + 1);
+				far::format_to(Result, L"{}"sv, Time.tm_mon + 1);
 				break;
 			}
 			break;
@@ -262,7 +262,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 		// Две цифры минут (00 - 59)
 		// minute, 00 - 59
 		case L'M':
-			format_to(Result, FSTR(L"{:02}"sv), Time.tm_min);
+			far::format_to(Result, L"{:02}"sv, Time.tm_min);
 			break;
 
 		// AM или PM
@@ -274,7 +274,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 		// Две цифры секунд (00 - 59)
 		// second, 00 - 59
 		case L'S':
-			format_to(Result, FSTR(L"{:02}"sv), Time.tm_sec);
+			far::format_to(Result, L"{:02}"sv, Time.tm_sec);
 			break;
 
 		// День недели где 0 - Воскресенье (Sunday) (0 - 6)
@@ -296,7 +296,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 			if (I<0)
 				I+=7;
 
-			format_to(Result, FSTR(L"{:02}"sv), (Time.tm_yday + I - (*Iterator == L'W')) / 7);
+			far::format_to(Result, L"{:02}"sv, (Time.tm_yday + I - (*Iterator == L'W')) / 7);
 			break;
 		}
 
@@ -313,13 +313,13 @@ static string StrFTime(string_view const Format, const tm& Time)
 		// appropriate time representation
 		case L'T':
 		case L'X':
-			format_to(Result, FSTR(L"{1:02}{0}{2:02}{0}{3:02}"sv), locale.time_separator(), Time.tm_hour, Time.tm_min, Time.tm_sec);
+			far::format_to(Result, L"{1:02}{0}{2:02}{0}{3:02}"sv, locale.time_separator(), Time.tm_hour, Time.tm_min, Time.tm_sec);
 			break;
 
 		// Две цифры года без столетия (00 to 99)
 		// year without a century, 00 - 99
 		case L'y':
-			format_to(Result, FSTR(L"{:02}"sv), Time.tm_year % 100);
+			far::format_to(Result, L"{:02}"sv, Time.tm_year % 100);
 			break;
 
 		// Год со столетием (19yy-20yy)
@@ -342,7 +342,7 @@ static string StrFTime(string_view const Format, const tm& Time)
 					return Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min;
 				}();
 
-				format_to(Result, FSTR(L"{:+05}"sv), HHMM);
+				far::format_to(Result, L"{:+05}"sv, HHMM);
 			}
 			break;
 
@@ -569,10 +569,10 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 	}
 
 	auto TimeText = TimeLength < 7?
-		format(FSTR(L"{:02}{}{:02}{}"sv), st.wHour, TimeSeparator, st.wMinute, Letter) :
+		far::format(L"{:02}{}{:02}{}"sv, st.wHour, TimeSeparator, st.wMinute, Letter) :
 		cut_right(
-			format(
-				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"sv),
+			far::format(
+				L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"sv,
 				st.wHour,
 				TimeSeparator,
 				st.wMinute,
@@ -591,7 +591,7 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 	{
 		const auto Format = [&](const auto FormatString)
 		{
-			DateText = format(FormatString, st.wDay, locale.LocalNames().Months[st.wMonth - 1].Short, Year);
+			DateText = far::format(FormatString, st.wDay, locale.LocalNames().Months[st.wMonth - 1].Short, Year);
 		};
 
 		switch (CurDateFormat)
@@ -637,7 +637,7 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 		wchar_t Format[] = L"{0: >{1}}{6}{2:0>{3}}{6}{4: >{5}}";
 		Format[3] = f1;
 		Format[27] = f3;
-		DateText = format(string_view(Format), p1, w1, p2, 2, p3, w3, DateSeparator);
+		DateText = far::vformat(Format, p1, w1, p2, 2, p3, w3, DateSeparator);
 	}
 
 	if (Brief)
@@ -646,7 +646,7 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 
 		SYSTEMTIME Now;
 		if (utc_to_local(os::chrono::nt_clock::now(), Now) && Now.wYear != st.wYear)
-			TimeText = format(FSTR(L"{:5}"sv), st.wYear);
+			TimeText = far::format(L"{:5}"sv, st.wYear);
 	}
 
 	return { std::move(DateText), std::move(TimeText) };
@@ -661,7 +661,7 @@ std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 	return
 	{
 		str(Result.get<days>() / 1_d),
-		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"sv),
+		far::format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"sv,
 			Result.get<hours>() / 1h,
 			Result.get<minutes>() / 1min,
 			Result.get<seconds>() / 1s,
@@ -678,7 +678,7 @@ string ConvertDurationToHMS(os::chrono::duration Duration)
 
 	const auto Result = split_duration<hours, minutes, seconds>(Duration);
 
-	return format(FSTR(L"{0:02}{3}{1:02}{3}{2:02}"sv),
+	return far::format(L"{0:02}{3}{1:02}{3}{2:02}"sv,
 		Result.get<hours>() / 1h,
 		Result.get<minutes>() / 1min,
 		Result.get<seconds>() / 1s,
@@ -722,14 +722,14 @@ std::pair<string, string> format_datetime(SYSTEMTIME const& SystemTime)
 {
 	return
 	{
-		format(
-			FSTR(L"{:04}-{:02}-{:02}"sv),
+		far::format(
+			L"{:04}-{:02}-{:02}"sv,
 			SystemTime.wYear,
 			SystemTime.wMonth,
 			SystemTime.wDay
 		),
-		format(
-			FSTR(L"{:02}:{:02}:{:02}.{:03}"sv),
+		far::format(
+			L"{:02}:{:02}:{:02}.{:03}"sv,
 			SystemTime.wHour,
 			SystemTime.wMinute,
 			SystemTime.wSecond,

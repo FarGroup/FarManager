@@ -52,7 +52,8 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#define FMT_CONSTEVAL // Not yet
+#define FMT_CONSTEVAL consteval
+#define FMT_HAS_CONSTEVAL
 
 #define FMT_STATIC_THOUSANDS_SEPARATOR
 #include "thirdparty/fmt/fmt/format.h"
@@ -61,37 +62,43 @@ WARNING_DISABLE_CLANG("-Weverything")
 
 WARNING_POP()
 
-namespace detail
+namespace far
 {
-	template<typename F>
-	void validate_format()
+	template<typename... args>
+	using format_string = fmt::wformat_string<args...>;
+
+	template<typename... args>
+	using char_format_string = fmt::format_string<args...>;
+
+	template <typename... args>
+	auto format(format_string<args...> const Format, args const&... Args)
 	{
-		static_assert(!std::is_array_v<std::remove_reference_t<F>>, "Use FSTR or string_view instead of string literals");
+		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
 	}
-}
 
-template<typename F, typename... args>
-auto format(F&& Format, args&&... Args)
-{
-	detail::validate_format<F>();
+	template <typename... args>
+	auto format(char_format_string<args...> const Format, args const&... Args)
+	{
+		return fmt::vformat(fmt::string_view(Format), fmt::make_format_args(Args...));
+	}
 
-	return fmt::format(FWD(Format), FWD(Args)...);
-}
+	template<typename... args>
+	auto vformat(string_view const Format, args const&... Args)
+	{
+		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+	}
 
-template<typename I, typename F, typename... args>
-auto format_to(I&& Iterator, F&& Format, args&&... Args)
-{
-	detail::validate_format<F>();
+	template<typename I, typename... args> requires std::output_iterator<I, wchar_t>
+	auto format_to(I const Iterator, format_string<args...> const Format, args const&... Args)
+	{
+		return fmt::vformat_to(Iterator, fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+	}
 
-	return fmt::format_to(FWD(Iterator), FWD(Format), FWD(Args)...);
-}
-
-template<typename F, typename... args>
-auto format_to(string& Str, F&& Format, args&&... Args)
-{
-	detail::validate_format<F>();
-
-	return fmt::format_to(std::back_inserter(Str), FWD(Format), FWD(Args)...);
+	template<typename... args>
+	auto format_to(string& Str, format_string<args...> const Format, args const&... Args)
+	{
+		return fmt::vformat_to(std::back_inserter(Str), fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+	}
 }
 
 #define FSTR(str) FMT_STRING(str)
@@ -104,7 +111,7 @@ auto str(const T& Value)
 
 inline auto str(const void* Value)
 {
-	return format(FSTR(L"0x{:0{}X}"sv), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return far::format(L"0x{:0{}X}"sv, reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 inline auto str(void* Value)
@@ -136,7 +143,7 @@ namespace format_helpers
 		template<typename FormatContext>
 		auto format(object_type const& Value, FormatContext& ctx)
 		{
-			return fmt::format_to(ctx.out(), FSTR(L"{}"sv), fmt::formatter<object_type, wchar_t>::to_string(Value));
+			return fmt::format_to(ctx.out(), L"{}"sv, fmt::formatter<object_type, wchar_t>::to_string(Value));
 		}
 	};
 

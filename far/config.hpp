@@ -572,7 +572,6 @@ public:
 		BoolOption EditOpenedForWrite;
 		BoolOption SearchSelFound;
 		BoolOption SearchCursorAtEnd;
-		BoolOption SearchRegexp;
 		Bool3Option ShowWhiteSpace;
 
 		StringOption strWordDiv;
@@ -604,7 +603,6 @@ public:
 		BoolOption SaveShortPos;
 		BoolOption SaveViewMode;
 		BoolOption SaveWrapMode;
-		BoolOption SearchRegexp;
 		Bool3Option SearchWrapStop; // [NonStop] / {Start-End} / [Full Cycle]
 		BoolOption ShowArrows;
 		BoolOption ShowKeyBar;
@@ -944,7 +942,6 @@ public:
 	IntOption HelpTabSize;
 
 	IntOption HelpURLRules; // =0 отключить возможность запуска URL-приложений
-	BoolOption HelpSearchRegexp;
 
 	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
 	BoolOption RememberLogicalDrives;

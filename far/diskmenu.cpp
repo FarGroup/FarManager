@@ -342,7 +342,7 @@ static int MessageRemoveConnection(string_view const Drive, int &UpdateProfile)
 		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	DCDlg[rc_text_1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Drive);
+	DCDlg[rc_text_1].strData = far::vformat(msg(lng::MChangeDriveDisconnectQuestion), Drive);
 	DCDlg[rc_text_2].strData = msg(lng::MChangeDriveDisconnectMapped);
 
 	const auto Len = std::max({ DCDlg[rc_doublebox].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_checkbox].strData.size() });
@@ -403,7 +403,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 		{
 			if (Global->Opt->Confirm.RemoveSUBST)
 			{
-				const auto Question = format(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName);
+				const auto Question = far::vformat(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName);
 				const auto MappedTo = msg(lng::MChangeDriveDisconnectMapped);
 				string SubstitutedPath;
 				GetSubstName(DriveType, DosDriveName, SubstitutedPath);
@@ -429,7 +429,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 			const auto ErrorState = os::last_error();
 
 			const auto LastError = ErrorState.Win32Error;
-			const auto strMsgText = format(msg(lng::MChangeDriveCannotDelSubst), DosDriveName);
+			const auto strMsgText = far::vformat(msg(lng::MChangeDriveCannotDelSubst), DosDriveName);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
 				if (Message(MSG_WARNING, ErrorState,
@@ -488,7 +488,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 
 			const auto ErrorState = os::last_error();
 
-			const auto strMsgText = format(msg(lng::MChangeDriveCannotDisconnect), DosDriveName);
+			const auto strMsgText = far::vformat(msg(lng::MChangeDriveCannotDisconnect), DosDriveName);
 			const auto LastError = ErrorState.Win32Error;
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
@@ -531,7 +531,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 		{
 			if (Global->Opt->Confirm.DetachVHD)
 			{
-				const auto Question = format(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName);
+				const auto Question = far::vformat(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName);
 				if (Message(MSG_WARNING,
 					msg(lng::MChangeVHDDisconnectDriveTitle),
 					{
@@ -552,7 +552,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
-					format(msg(lng::MChangeDriveCannotDetach), DosDriveName)
+					far::vformat(msg(lng::MChangeDriveCannotDetach), DosDriveName)
 				},
 				{ lng::MOk },
 				{}, &VHDDisconnectDriveErrorId);
@@ -652,7 +652,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &
 		if (Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
-				format(msg(lng::MChangeCouldNotEjectHotPlugMedia), dos_drive_name(item.Path))
+				far::vformat(msg(lng::MChangeCouldNotEjectHotPlugMedia), dos_drive_name(item.Path))
 			},
 			{ lng::MHRetry, lng::MHCancel },
 			{}, &EjectHotPlugMediaErrorId) != message_result::first_button)
@@ -1353,7 +1353,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 			else
 			{
-				Builder.AddText(format(FSTR(L"{} {}"sv), msg(lng::MChangeDriveCannotReadDisk), item.Path));
+				Builder.AddText(far::format(L"{} {}"sv, msg(lng::MChangeDriveCannotReadDisk), item.Path));
 			}
 
 			Builder.AddSeparator();

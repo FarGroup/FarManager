@@ -65,15 +65,29 @@ struct SearchReplaceDlgProps
 struct SearchReplaceDlgParams
 {
 	string SearchStr;
-	bytes SearchBytes;
-	string ReplaceStr;
+	std::optional<bytes> SearchBytes;
+	std::optional<string> ReplaceStr;
 	std::optional<bool> Hex;
 	std::optional<bool> CaseSensitive;
 	std::optional<bool> WholeWords;
-	std::optional<bool> Regexp;
+	std::optional<bool> Regex;
 	std::optional<bool> Fuzzy;
 	std::optional<bool> PreserveStyle;
+
+	enum class SharedGroup { common, help, count };
+
+	static const SearchReplaceDlgParams& GetShared(SharedGroup Group);
+	void SaveToShared(SharedGroup Group) const;
+
+	// Uses Hex.value_or(false)
+	void SetSearchPattern(string_view TextString, string_view HexString, uintptr_t CodePage);
+
+	auto IsSearchPatternEmpty() const noexcept
+	{
+		return Hex.value_or(false) ? SearchBytes.value().empty() : SearchStr.empty();
+	}
 };
+
 
 enum class SearchReplaceDlgResult
 {

@@ -165,7 +165,7 @@ namespace
 
 	auto get_location(std::string_view const Function, std::string_view const File, int const Line)
 	{
-		return format(FSTR(L"{}, {}({})"sv), encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
+		return far::format(L"{}, {}({})"sv, encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
 	}
 
 	auto get_thread_id()
@@ -491,7 +491,7 @@ namespace
 			STARTUPINFO si{ sizeof(si) };
 			PROCESS_INFORMATION pi{};
 
-			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{}\" {} {}"sv), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
+			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(far::format(L"\"{}\" {} {}"sv, m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
 			{
 				LOGERROR(L"{}"sv, os::last_error());
 				return;
@@ -547,7 +547,7 @@ namespace
 		static constexpr auto name = L"pipe"sv;
 
 	private:
-		string m_PipeName{ format(FSTR(L"\\\\.\\pipe\\far_{}.log"sv), GetCurrentProcessId()) };
+		string m_PipeName{ far::format(L"\\\\.\\pipe\\far_{}.log"sv, GetCurrentProcessId()) };
 		os::handle m_Pipe{ CreateNamedPipe(m_PipeName.c_str(), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, {}) };
 		string m_ThisModule{ os::fs::get_current_process_file_name() };
 		bool m_Connected{};
@@ -608,7 +608,7 @@ namespace
 
 		void poll(string_view const Name)
 		{
-			os::debug::set_thread_name(format(FSTR(L"Log sink ({})"sv), Name));
+			os::debug::set_thread_name(far::format(L"Log sink ({})"sv, Name));
 
 			return seh_try_no_ui(
 				[&]
@@ -1010,7 +1010,7 @@ namespace logging
 		{
 			const auto ErrorState = os::last_error();
 
-			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << format(FSTR(L"Can't open pipe {}: {}"sv), PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
+			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << far::format(L"Can't open pipe {}: {}"sv, PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
 				return EXIT_FAILURE;
 		}
 
@@ -1039,7 +1039,7 @@ namespace logging
 					return EXIT_SUCCESS;
 				}
 
-				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"sv), PipeName, e) << std::endl;
+				std::wcerr << far::format(L"Error reading pipe {}: {}"sv, PipeName, e) << std::endl;
 				os::chrono::sleep_for(5s);
 				return EXIT_FAILURE;
 			}
@@ -1050,7 +1050,7 @@ namespace logging
 			}
 			catch (far_exception const& e)
 			{
-				std::wcerr << format(FSTR(L"sink_console::process(): {}"sv), e) << std::endl;
+				std::wcerr << far::format(L"sink_console::process(): {}"sv, e) << std::endl;
 			}
 		}
 	}

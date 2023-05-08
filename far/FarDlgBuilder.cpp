@@ -436,7 +436,7 @@ DialogItemEx& DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx& DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	auto& Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item.strData = format(FSTR(L"{:016X}"sv), as_unsigned(Value.Get()));
+	Item.strData = far::format(L"{:016X}"sv, as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item.X2 = Item.X1 + Width - 1;
 
@@ -450,7 +450,7 @@ DialogItemEx& DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 DialogItemEx& DialogBuilder::AddBinaryEditField(IntOption& Value, int Width)
 {
 	auto& Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item.strData = format(FSTR(L"{0:064b}"), as_unsigned(Value.Get()));
+	Item.strData = far::format(L"{0:064b}", as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item.X2 = Item.X1 + Width - 1;
 

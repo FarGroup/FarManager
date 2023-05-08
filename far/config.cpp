@@ -604,7 +604,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition({ -1, -1, -1, -1 });
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(format(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
+						MasksMenu->SetBottomTitle(far::vformat(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}
@@ -1623,7 +1623,7 @@ void IntOption::Export(FarSettingsItem& To) const
 
 string IntOption::ExInfo() const
 {
-	return format(FSTR(L" = 0x{:X}"sv), as_unsigned(Get()));
+	return far::format(L" = 0x{:X}"sv, as_unsigned(Get()));
 }
 
 
@@ -1866,7 +1866,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ReadOnlyLock"sv,                  EdOpt.ReadOnlyLock, 0},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SaveEditorPos"sv,                 EdOpt.SavePos, true},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SaveEditorShortPos"sv,            EdOpt.SaveShortPos, true},
-		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchRegexp"sv,                  EdOpt.SearchRegexp, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchSelFound"sv,                EdOpt.SearchSelFound, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchCursorAtEnd"sv,             EdOpt.SearchCursorAtEnd, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ShowKeyBar"sv,                    EdOpt.ShowKeyBar, true},
@@ -1878,7 +1877,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyEditor,                 L"UseExternalEditor"sv,             EdOpt.UseExternalEditor, false},
 		{FSSF_EDITOR,            NKeyEditor,                 L"WordDiv"sv,                       EdOpt.strWordDiv, WordDiv0},
 		{FSSF_PRIVATE,           NKeyHelp,                   L"ActivateURL"sv,                   HelpURLRules, 1},
-		{FSSF_PRIVATE,           NKeyHelp,                   L"HelpSearchRegexp"sv,              HelpSearchRegexp, false},
 		{FSSF_PRIVATE,           NKeyCommandHistory,         L"Count"sv,                         HistoryCount, 1000},
 		{FSSF_PRIVATE,           NKeyCommandHistory,         L"Lifetime"sv,                      HistoryLifetime, 90},
 		{FSSF_PRIVATE,           NKeyDialogHistory,          L"Count"sv,                         DialogsHistoryCount, 1000},
@@ -2101,7 +2099,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewerShortPos"sv,            ViOpt.SaveShortPos, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewerWrapMode"sv,            ViOpt.SaveWrapMode, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewMode"sv,                  ViOpt.SaveViewMode, true},
-		{FSSF_PRIVATE,           NKeyViewer,                 L"SearchRegexp"sv,                  ViOpt.SearchRegexp, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SearchWrapStop"sv,                ViOpt.SearchWrapStop, BSTATE_CHECKED},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"ShowArrows"sv,                    ViOpt.ShowArrows, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"ShowKeyBar"sv,                    ViOpt.ShowKeyBar, true},
@@ -2255,7 +2252,7 @@ static auto deserialise_sort_layers(string_view const LayersStr)
 
 static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 {
-	return format(FSTR(L"S{}:O{}"sv), Layer.first, Layer.second);
+	return far::format(L"S{}:O{}"sv, Layer.first, Layer.second);
 }
 
 static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)

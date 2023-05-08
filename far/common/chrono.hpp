@@ -42,28 +42,28 @@ class split_duration: public std::tuple<tuple_types...>
 {
 public:
 	template<typename duration_type>
-	explicit split_duration(duration_type Duration)
+	constexpr explicit split_duration(duration_type Duration)
 	{
 		(..., (set_and_chop<tuple_types>(Duration)));
 	}
 
 	template<typename type>
 	[[nodiscard]]
-	type& get()
+	constexpr type& get()
 	{
 		return std::get<type>(*this);
 	}
 
 	template<typename type>
 	[[nodiscard]]
-	const type& get() const
+	constexpr const type& get() const
 	{
 		return std::get<type>(*this);
 	}
 
 private:
 	template<typename cast_type, typename duration_type>
-	void set_and_chop(duration_type& Duration)
+	constexpr void set_and_chop(duration_type& Duration)
 	{
 		auto& Element = get<cast_type>();
 		Element = std::chrono::duration_cast<cast_type>(Duration);
@@ -74,7 +74,7 @@ private:
 inline namespace literals
 {
 	[[nodiscard]]
-	constexpr auto operator"" _d(unsigned long long const Value) noexcept
+	consteval auto operator"" _d(unsigned long long const Value) noexcept
 	{
 		return std::chrono::days(Value);
 	}

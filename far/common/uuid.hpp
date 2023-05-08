@@ -164,7 +164,7 @@ namespace uuid
 
 	template<typename string_type>
 	[[nodiscard]]
-	auto parse(string_type const& Str)
+	constexpr auto parse(string_type const& Str)
 	{
 		return parse(Str.data(), Str.size());
 	}
@@ -226,7 +226,7 @@ namespace uuid
 	namespace literals
 	{
 		[[nodiscard]]
-		constexpr auto operator""_uuid(const char* const Str, size_t const Size)
+		consteval auto operator""_uuid(const char* const Str, size_t const Size)
 		{
 			return parse(Str, Size);
 		}

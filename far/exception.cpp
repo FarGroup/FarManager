@@ -56,15 +56,15 @@ namespace detail
 	string far_base_exception::to_string() const
 	{
 		return any()?
-			format(FSTR(L"far_base_exception: {}, Error: {}"sv), full_message(), error_state::to_string()) :
-			format(FSTR(L"far_base_exception: {}"sv), full_message());
+			far::format(L"far_base_exception: {}, Error: {}"sv, full_message(), error_state::to_string()) :
+			far::format(L"far_base_exception: {}"sv, full_message());
 	}
 
 	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, std::string_view const Function, std::string_view const File, int const Line):
 		error_state_ex(CaptureErrors? os::last_error(): os::error_state{}, Message, CaptureErrors? errno : 0),
 		m_Function(Function),
-		m_Location(format(FSTR(L"{}({})"sv), encoding::utf8::get_chars(File), Line)),
-		m_FullMessage(format(FSTR(L"{} ({}, {})"sv), Message, encoding::utf8::get_chars(m_Function), m_Location))
+		m_Location(far::format(L"{}({})"sv, encoding::utf8::get_chars(File), Line)),
+		m_FullMessage(far::format(L"{} ({}, {})"sv, Message, encoding::utf8::get_chars(m_Function), m_Location))
 	{
 		LOGTRACE(L"{}"sv, *this);
 	}
@@ -111,15 +111,15 @@ string error_state_ex::to_string() const
 		if (Errno)
 			Str = concat(ErrnoStr(), L", "sv, Str);
 
-		return with_exception_stacktrace(format(FSTR(L"Message: {}, Error: {}"sv), What, Str));
+		return with_exception_stacktrace(far::format(L"Message: {}, Error: {}"sv, What, Str));
 	}
 
-	return with_exception_stacktrace(format(FSTR(L"Message: {}"sv), What));
+	return with_exception_stacktrace(far::format(L"Message: {}"sv, What));
 }
 
 string formattable<std::exception>::to_string(std::exception const& e)
 {
-	return with_exception_stacktrace(::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what())));
+	return with_exception_stacktrace(far::format(L"std::exception: {}"sv, encoding::utf8::get_chars(e.what())));
 }
 
 string unknown_exception_t::to_string()

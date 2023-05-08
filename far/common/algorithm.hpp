@@ -51,7 +51,7 @@ void repeat(size_t count, const T& f)
 template<typename Iter1, typename Iter2>
 void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 {
-	using difference_type = typename std::iterator_traits<Iter2>::value_type;
+	using difference_type = std::iter_value_t<Iter2>;
 	const difference_type length = std::distance(first, last);
 	for (difference_type i = 0; i < length; ++i)
 	{

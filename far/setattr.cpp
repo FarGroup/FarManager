@@ -742,7 +742,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		return false;
 	}
 
-	if(SelCount==1)
+	if(SelCount==1 && os::is_interactive_user_session())
 	{
 		AttrDlg[SA_BUTTON_SYSTEMDLG].Flags&=~DIF_DISABLE;
 	}
@@ -806,25 +806,25 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		{
 		default:
 		case date_type::ymd:
-			DateMask = format(FSTR(L"N9999{0}99{0}99"sv), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitleYMD), DateSeparator);
+			DateMask = far::format(L"N9999{0}99{0}99"sv, DateSeparator);
+			DateFormat = far::vformat(msg(lng::MSetAttrDateTitleYMD), DateSeparator);
 			break;
 
 		case date_type::dmy:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitleDMY), DateSeparator);
+			DateMask = far::format(L"99{0}99{0}9999N"sv, DateSeparator);
+			DateFormat = far::vformat(msg(lng::MSetAttrDateTitleDMY), DateSeparator);
 			break;
 
 		case date_type::mdy:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitleMDY), DateSeparator);
+			DateMask = far::format(L"99{0}99{0}9999N"sv, DateSeparator);
+			DateFormat = far::vformat(msg(lng::MSetAttrDateTitleMDY), DateSeparator);
 			break;
 		}
 
-		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
+		const auto TimeMask = far::format(L"99{0}99{0}99{1}9999999"sv, TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
-		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator);
+		AttrDlg[SA_TEXT_TITLETIME].strData = far::vformat(msg(lng::MSetAttrTimeTitle), TimeSeparator);
 
 		for (const auto& i: TimeMap)
 		{
@@ -1325,6 +1325,9 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			break;
 		case SA_BUTTON_SYSTEMDLG:
 			{
+				if (!os::is_interactive_user_session())
+					return true;
+
 				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;

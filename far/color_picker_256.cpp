@@ -37,107 +37,86 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "color_picker_256.hpp"
 
 // Internal:
-#include "dialog.hpp"
-#include "filepanels.hpp"
-#include "ctrlobj.hpp"
-#include "scrbuf.hpp"
-#include "panel.hpp"
-#include "interf.hpp"
-#include "console.hpp"
+#include "color_picker_common.hpp"
 #include "colormix.hpp"
 #include "lang.hpp"
-#include "strmix.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
-#include "common.hpp"
-#include "common/2d/point.hpp"
+#include "common/2d/algorithm.hpp"
 
 // External:
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
 
-// Cube controls are column-major
+using namespace color_picker_common;
+using colors::index_color_256;
+using rgb = colors::rgb6;
 
-static constexpr uint8_t cube_rc_mapping[]
+constexpr auto cube_size = colors::index::cube_size;
+
+static constexpr auto cube_rc_mapping = column_major_iota<uint8_t, cube_size, cube_size>();
+static_assert(std::size(cube_rc_mapping) == cube_size * cube_size);
+
+using shape = shapes<uint8_t, cube_size>;
+using cell  = shape::cell;
+using row   = shape::row;
+using plane = shape::plane;
+using cube  = shape::cube;
+
+static FarColor Console256ColorToFarColor(index_color_256 const Color)
 {
-	0,  6, 12, 18, 24, 30,
-	1,  7, 13, 19, 25, 31,
-	2,  8, 14, 20, 26, 32,
-	3,  9, 15, 21, 27, 33,
-	4, 10, 16, 22, 28, 34,
-	5, 11, 17, 23, 29, 35
-};
-
-static_assert(std::size(cube_rc_mapping) == colors::index::cube_size * colors::index::cube_size);
-
-static constexpr uint16_t distinct_cube_index(uint8_t const Index)
-{
-	return Index << 8 | (colors::index::cube_last - (Index - colors::index::cube_first));
+	return
+	{
+		FCF_FG_INDEX | FCF_BG_INDEX,
+		{ colors::opaque(colors::index_bits(Color.ForegroundIndex)) },
+		{ colors::opaque(colors::index_bits(Color.BackgroundIndex)) }
+	};
 }
 
-static constexpr uint16_t distinct_grey(uint8_t const Value)
+static constexpr index_color_256 distinct_cube_index(uint8_t const Index)
+{
+	rgb RGB = Index;
+	// Naive inversion doesn't work nicely in the middle of the spectre.
+	// This way the distance between foreground and background colors is constant and should always produce readable results.
+	constexpr uint8_t Mapping[]{ 3, 4, 5, 0, 1, 2 };
+	RGB.r = Mapping[RGB.r];
+	RGB.g = Mapping[RGB.g];
+	RGB.b = Mapping[RGB.b];
+
+	return { RGB, Index };
+}
+
+static constexpr index_color_256 distinct_grey(uint8_t const Value)
 {
 	// Naive inversion doesn't work nicely in the middle of the spectre.
 	// This way the distance between foreground and background colors is constant and should always produce readable results.
-	return (colors::index::grey_first + Value) << 8 | (colors::index::grey_first + Value + (Value < 12? +12 : -12));
+	return
+	{
+		static_cast<uint8_t>(colors::index::grey_first + Value + (Value < 12? +12 : -12)),
+		static_cast<uint8_t>(colors::index::grey_first + Value)
+	};
 }
 
-static constexpr uint16_t GreyColorIndex[]
+static constexpr auto distinct_grey_index = []
 {
-	distinct_grey(0),
-	distinct_grey(1),
-	distinct_grey(2),
-	distinct_grey(3),
-	distinct_grey(4),
-	distinct_grey(5),
-	distinct_grey(6),
-	distinct_grey(7),
-	distinct_grey(8),
-	distinct_grey(9),
-	distinct_grey(10),
-	distinct_grey(11),
-	distinct_grey(12),
-	distinct_grey(13),
-	distinct_grey(14),
-	distinct_grey(15),
-	distinct_grey(16),
-	distinct_grey(17),
-	distinct_grey(18),
-	distinct_grey(19),
-	distinct_grey(20),
-	distinct_grey(21),
-	distinct_grey(22),
-	distinct_grey(23)
-};
+	std::array<index_color_256, colors::index::grey_last - colors::index::grey_first + 1> Result;
 
-static_assert(std::size(GreyColorIndex) == colors::index::grey_last - colors::index::grey_first + 1);
+	for (uint8_t i = 0; i != Result.size(); ++i)
+		Result[i] = distinct_grey(i);
 
-// Grey controls are column-major
+	return Result;
+}();
+static_assert(std::size(distinct_grey_index) == colors::index::grey_last - colors::index::grey_first + 1);
 
-static constexpr uint8_t grey_control_by_color[]
-{
-	0,  4,  8, 12, 16, 20,
-	1,  5,  9, 13, 17, 21,
-	2,  6, 10, 14, 18, 22,
-	3,  7, 11, 15, 19, 23
-};
+static constexpr auto grey_control_by_color = column_major_iota<uint8_t, 6, 4>();
+static_assert(std::size(grey_control_by_color) == std::size(distinct_grey_index));
 
-static_assert(std::size(grey_control_by_color) == std::size(GreyColorIndex));
-
-static constexpr uint8_t grey_color_by_control[]
-{
-	0,  6, 12, 18,
-	1,  7, 13, 19,
-	2,  8, 14, 20,
-	3,  9, 15, 21,
-	4, 10, 16, 22,
-	5, 11, 17, 23
-};
-
-static_assert(std::size(grey_color_by_control) == std::size(GreyColorIndex));
+static constexpr auto grey_color_by_control = column_major_iota<uint8_t, 4, 6>();
+static_assert(std::size(grey_color_by_control) == std::size(distinct_grey_index));
 
 static constexpr uint8_t grey_stripe_mapping[]
 {
@@ -147,128 +126,11 @@ static constexpr uint8_t grey_stripe_mapping[]
 	23, 22, 21, 20, 19, 18
 };
 
-static_assert(std::size(grey_stripe_mapping) == std::size(GreyColorIndex));
+static_assert(std::size(grey_stripe_mapping) == std::size(distinct_grey_index));
 
-using cell  = std::uint8_t;
-using row   = std::array<cell,  colors::index::cube_size>;
-using plane = std::array<row,   colors::index::cube_size>;
-using cube  = std::array<plane, colors::index::cube_size>;
-
-struct rgb6
+static bool is_rgb(uint8_t const Color)
 {
-	rgb6() = default;
-
-	explicit(false) rgb6(COLORREF const Color):
-		r((Color - 16) / 36),
-		g((Color - 16 - r * 36) / 6),
-		b(Color - 16 - r * 36 - g * 6)
-
-	{
-	}
-
-	explicit(false) operator COLORREF() const
-	{
-		return 16 + r * 36 + g * 6 + b;
-	}
-
-	uint8_t r{}, g{}, b{};
-};
-
-struct color_256_state
-{
-	COLORREF CurColor;
-	rgb6 RGB;
-	cube Cube;
-	int CubeSlice{};
-	unsigned char CurrentIndex{};
-};
-
-static void rorate_coord(int& A, int& B, bool const Clockwise)
-{
-	// (A', B') = (-B,  A) // CW
-	// (A', B') = ( B, -A) // CCW
-
-	if (Clockwise)
-		B = colors::index::cube_size - 1 - B;
-	else
-		A = colors::index::cube_size - 1 - A;
-
-	using std::swap;
-	swap(A, B);
-}
-
-enum class axis
-{
-	x,
-	y,
-	z
-};
-
-static void rotate_cube(cube& Cube, axis const Axis, bool const Clockwise)
-{
-	enum dimension
-	{
-		z,
-		y,
-		x
-	};
-
-	size_t A = 0, B = 0;
-
-	switch (Axis)
-	{
-	case axis::x:
-		A = dimension::y;
-		B = dimension::z;
-		break;
-
-	case axis::y:
-		A = dimension::z;
-		B = dimension::x;
-		break;
-
-	case axis::z:
-		A = dimension::x;
-		B = dimension::y;
-		break;
-	}
-
-	cube NewCube{};
-
-	for (const auto& Plane: Cube)
-	{
-		for (const auto& Line: Plane)
-		{
-			for (const auto& Point: Line)
-			{
-				std::array const Coord
-				{
-					static_cast<int>(&Plane - &Cube[0]),
-					static_cast<int>(&Line - &Plane[0]),
-					static_cast<int>(&Point - &Line[0])
-				};
-
-				auto NewCoord = Coord;
-
-				rorate_coord(NewCoord[A], NewCoord[B], Clockwise);
-
-				NewCube[NewCoord[0]][NewCoord[1]][NewCoord[2]] = Cube[Coord[0]][Coord[1]][Coord[2]];
-			}
-		}
-	}
-
-	using std::swap;
-	swap(Cube, NewCube);
-}
-
-static FarColor Console256ColorToFarColor(WORD const Color)
-{
-	return
-	{
-		FCF_FG_INDEX | FCF_BG_INDEX,
-		{ colors::opaque(colors::index_bits(Color >> 0)) },
-		{ colors::opaque(colors::index_bits(Color >> 8)) }
-	};
+	return in_closed_range(colors::index::cube_first, static_cast<int>(Color), colors::index::cube_last);
 }
 
 enum color_256_dialog_items
@@ -276,21 +138,22 @@ enum color_256_dialog_items
 	cd_border,
 
 	cd_cube_first,
-	cd_cube_last = cd_cube_first + 35,
+	cd_cube_last = cd_cube_first + (cube_size * cube_size - 1),
 
 	cd_grey_first,
-	cd_grey_last = cd_grey_first + 23,
-
-	cd_radio_rgb,
+	cd_grey_last = cd_grey_first + (colors::index::grey_last - colors::index::grey_first),
 
 	cd_button_up,
 	cd_button_left,
 	cd_button_right,
 	cd_button_down,
 
+	cd_button_home,
+
 	cd_button_plus,
 	cd_button_minus,
 
+	cd_text_rgb,
 	cd_text_r,
 	cd_button_r_plus,
 	cd_button_r_minus,
@@ -309,117 +172,68 @@ enum color_256_dialog_items
 	cd_count
 };
 
-struct rgb_context
-{
-	uint8_t rgb6::*Channel;
-	color_256_dialog_items TextId;
-	int Multiplier;
+using rgb_context = rgb_context_t<rgb, color_256_dialog_items>;
 
+struct color_256_state
+{
+	using items = color_256_dialog_items;
+	using rgb_context = rgb_context;
+	static constexpr size_t Depth = 6;
+
+	uint8_t CurColor{};
+
+	cube_data<cube> Cube;
+
+	static auto channel_value(uint8_t const Channel)
+	{
+		return far::format(L" {} "sv, Channel);
+	}
+
+	rgb as_rgb() const
+	{
+		return is_rgb(CurColor)? CurColor : colors::index::cube_first;
+	}
+
+	void from_rgb(rgb const RGB)
+	{
+		CurColor = RGB;
+	}
 };
 
-static rgb_context get_rgb_context(color_256_dialog_items const Item)
+static auto cube_index(color_256_state const& ColorState, color_256_dialog_items const Button)
 {
-	switch (Item)
-	{
-	case cd_text_r:
-	case cd_button_r_plus:
-	case cd_button_r_minus:
-		return { &rgb6::r, cd_text_r, 36 };
-
-	case cd_text_g:
-	case cd_button_g_plus:
-	case cd_button_g_minus:
-		return { &rgb6::g, cd_text_g, 6 };
-
-	case cd_text_b:
-	case cd_button_b_plus:
-	case cd_button_b_minus:
-		return { &rgb6::b, cd_text_b, 1 };
-
-	default:
-		UNREACHABLE;
-	}
-}
-
-static auto get_channel_operation(color_256_dialog_items const Button)
-{
-	switch (Button)
-	{
-	case cd_button_r_plus:
-	case cd_button_g_plus:
-	case cd_button_b_plus:
-		return +1;
-
-	case cd_button_r_minus:
-	case cd_button_g_minus:
-	case cd_button_b_minus:
-		return -1;
-
-	default:
-		UNREACHABLE;
-	}
-}
-
-static auto channel_value(uint8_t const Channel)
-{
-	return format(FSTR(L" {} "sv), Channel);
-}
-
-static void copy_row(plane const& SrcPlane, size_t const SrcRow, plane& DestPlane, size_t const DestRow)
-{
-	for (size_t Col = 0; Col != colors::index::cube_size; ++Col)
-	{
-		DestPlane[DestRow][Col] = SrcPlane[SrcRow][Col];
-	}
-}
-
-static void copy_col(plane const& SrcPlane, size_t const SrcCol, plane& DestPlane, size_t const DestCol)
-{
-	for (size_t Row = 0; Row != colors::index::cube_size; ++Row)
-	{
-		DestPlane[Row][DestCol] = SrcPlane[Row][SrcCol];
-	}
-}
-
-static void move_step(plane const& NewPlane, plane& Plane, size_t const Step, bool const Row, size_t const From, size_t const To)
-{
-	const auto Copy = Row? copy_row : copy_col;
-	const auto Direction = From < To? +1 : -1;
-
-	for (auto i = From; i != To; i += Direction)
-		Copy(Plane, i + Direction, Plane, i);
-
-	Copy(NewPlane, Direction > 0? From + Step : From - Step, Plane, To);
-}
-
-static void move_plane(plane const& NewPlane, plane& Plane, color_256_dialog_items const Direction, size_t const Step)
-{
+	const auto CubeIndex = cube_rc_mapping[Button - cd_cube_first];
 	const auto
-		Forward = any_of(Direction, cd_button_up, cd_button_left),
-		Row = any_of(Direction, cd_button_up, cd_button_down);
+		Y = CubeIndex / cube_size,
+		X = CubeIndex % cube_size;
 
-	const auto
-		First = Forward? 0 : colors::index::cube_size - 1,
-		Last = Forward? colors::index::cube_size - 1 : 0;
+	return ColorState.Cube.Cube[ColorState.Cube.Slice][Y][X];
+}
 
-	move_step(NewPlane, Plane, Step, Row, First, Last);
+static void init_cube(color_256_state& ColorState)
+{
+	uint8_t Index = colors::index::cube_first;
+
+	for (auto& Plane: ColorState.Cube.Cube)
+	{
+		for (auto& Line: Plane)
+		{
+			for (auto& Point: Line)
+			{
+				Point = Index++;
+
+				if (Point == ColorState.CurColor)
+				{
+					ColorState.Cube.Slice = &Plane - &ColorState.Cube.Cube[0];
+				}
+			}
+		}
+	}
 }
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	auto& ColorState = edit_as<color_256_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-
-	const auto cube_index = [&](intptr_t ControlId)
-	{
-		const auto CubeIndex = cube_rc_mapping[Param1 - cd_cube_first];
-		const auto
-			Y = CubeIndex / colors::index::cube_size,
-			X = CubeIndex % colors::index::cube_size;
-
-		return ColorState.Cube[ColorState.CubeSlice][Y][X];
-	};
-
-	const auto DM_ONCUBECHANGE = DM_USER + 1;
 
 	switch (Msg)
 	{
@@ -429,35 +243,38 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
-				const auto ColorIndex = cube_index(Param1);
-				Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
-				return TRUE;
+				Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(cube_index(ColorState, static_cast<color_256_dialog_items>(Param1))));
+				return true;
 			}
 
 			if (in_closed_range(cd_grey_first, Param1, cd_grey_last))
 			{
-				Colors.Colors[0] = Console256ColorToFarColor(GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
-				return TRUE;
+				Colors.Colors[0] = Console256ColorToFarColor(distinct_grey_index[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
+				return true;
 			}
 
 			switch (const auto Item = static_cast<color_256_dialog_items>(Param1))
 			{
-			case cd_radio_rgb:
+			case cd_text_rgb:
 				{
-					const COLORREF ColorIndex = ColorState.RGB;
-					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
-					return TRUE;
+					// Foreground color is irrelevant
+					Colors.Colors[0] = Console256ColorToFarColor({ 0, ColorState.CurColor });
+					return true;
 				}
 
 			case cd_text_r:
 			case cd_text_g:
 			case cd_text_b:
 				{
-					const auto Context = get_rgb_context(Item);
-					const auto Channel = std::invoke(Context.Channel, ColorState.RGB);
-					const auto ColorIndex = 16 + Channel * Context.Multiplier;
-					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
-					return TRUE;
+					const auto Context = get_rgb_context<rgb>(Item);
+					auto RGB = ColorState.as_rgb();
+					auto& Channel = std::invoke(Context.Channel, RGB);
+					const auto SavedValue = Channel;
+					RGB = {};
+					Channel = SavedValue;
+					// Primary colors don't need no safe distinction
+					Colors.Colors[0] = Console256ColorToFarColor({ static_cast<uint8_t>(colors::invert(RGB, true)), RGB });
+					return true;
 				}
 
 			default:
@@ -468,121 +285,44 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_BTNCLICK:
 		{
-			switch(const auto Button = static_cast<color_256_dialog_items>(Param1))
+			const auto Button = static_cast<color_256_dialog_items>(Param1);
+			if (on_button_click(Dlg, Button, ColorState))
+				return true;
+
+			if (Param2 && in_closed_range(cd_cube_first, Button, cd_cube_last))
 			{
-			case cd_button_up:
-			case cd_button_down:
-			case cd_button_right:
-			case cd_button_left:
-				{
-					const auto Axis = any_of(Button, cd_button_up, cd_button_down)? axis::x : axis::y;
-					const auto Cw = any_of(Button, cd_button_down, cd_button_left);
+				ColorState.CurColor = cube_index(ColorState, Button);
+				update_rgb_control<color_256_state>(Dlg, ColorState.as_rgb());
+				return true;
+			}
 
-					const auto OldPlane = ColorState.Cube[ColorState.CubeSlice];
+			if (Param2 && in_closed_range(cd_grey_first, Button, cd_grey_last))
+			{
+				ColorState.CurColor = colors::index::grey_first + grey_stripe_mapping[grey_color_by_control[Button - cd_grey_first]];
+				update_rgb_control<color_256_state>(Dlg, rgb{});
+				return true;
+			}
 
-					rotate_cube(ColorState.Cube, Axis, Cw);
-
-					if constexpr (true)
-					{
-						// Undo the top plane and refill it step by step for a smooth transition effect
-						auto& Plane = ColorState.Cube[ColorState.CubeSlice];
-						const auto NewPlane = Plane;
-						Plane = OldPlane;
-
-						// N steps -> N - 1 delays
-						const auto Delay = 250ms / (colors::index::cube_size - 1);
-
-						// Sleep won't do, the rendering time is non-negligible and unpredictable
-						os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
-						os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
-
-						for (const auto& i: irange(0, colors::index::cube_size))
-						{
-							move_plane(NewPlane, Plane, Button, i);
-							Dlg->SendMessage(DM_REDRAW, 0, {});
-
-							if (i != colors::index::cube_size - 1)
-								Event.wait();
-						}
-					}
-
-					Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
-					return TRUE;
-				}
-
-			case cd_button_plus:
-			case cd_button_minus:
-				{
-					ColorState.CubeSlice = std::clamp(ColorState.CubeSlice + (Button == cd_button_plus? +1 : -1), 0, colors::index::cube_size - 1);
-					Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
-					return TRUE;
-				}
-
-			case cd_button_r_plus:
-			case cd_button_r_minus:
-			case cd_button_g_plus:
-			case cd_button_g_minus:
-			case cd_button_b_plus:
-			case cd_button_b_minus:
-				{
-					const auto Context = get_rgb_context(Button);
-					auto& Channel = std::invoke(Context.Channel, ColorState.RGB);
-
-					switch (get_channel_operation(Button))
-					{
-					case -1:
-						if (Channel)
-							--Channel;
-						break;
-
-					case +1:
-						if (Channel < 5)
-							++Channel;
-						break;
-					}
-
-					Dlg->SendMessage(DM_SETTEXTPTR, Context.TextId, UNSAFE_CSTR(channel_value(Channel)));
-					Dlg->SendMessage(DM_SETCHECK, cd_radio_rgb, ToPtr(BSTATE_CHECKED));
-					return TRUE;
-				}
+			switch (Button)
+			{
+			case cd_button_home:
+				init_cube(ColorState);
+				ColorState.Cube.Slice = 0;
+				Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
+				return true;
 
 			default:
 				break;
-			}
-
-			if (Param2 && in_closed_range(cd_cube_first, Param1, cd_cube_last))
-			{
-				ColorState.CurColor = cube_index(Param1);
-				ColorState.RGB = ColorState.CurColor;
-
-				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_r, UNSAFE_CSTR(channel_value(ColorState.RGB.r)));
-				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_g, UNSAFE_CSTR(channel_value(ColorState.RGB.g)));
-				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_b, UNSAFE_CSTR(channel_value(ColorState.RGB.b)));
-
-				return TRUE;
-			}
-
-			if (Param2 && in_closed_range(cd_grey_first, Param1, cd_grey_last))
-			{
-				ColorState.CurColor = GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]] >> 8;
-				return TRUE;
-			}
-
-			if (Param2 && Param1 == cd_radio_rgb)
-			{
-				ColorState.CurColor = ColorState.RGB;
-				return TRUE;
 			}
 		}
 		break;
 
 	case DM_ONCUBECHANGE:
 		{
-			if (in_closed_range(colors::index::cube_first, static_cast<int>(ColorState.CurColor), colors::index::cube_last))
+			if (is_rgb(ColorState.CurColor))
 				Dlg->SendMessage(DM_SETCHECK, cd_cube_first, ToPtr(BSTATE_3STATE));
 
-			const auto& Plane = ColorState.Cube[ColorState.CubeSlice];
+			const auto& Plane = ColorState.Cube.Cube[ColorState.Cube.Slice];
 			for (const auto& Line: Plane)
 			{
 				for (const auto& Point: Line)
@@ -598,7 +338,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			Dlg->SendMessage(DM_REDRAW, 0, {});
 		}
-		return TRUE;
+		return true;
 
 	default:
 		break;
@@ -607,15 +347,15 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-bool pick_color_256(COLORREF& Color)
+bool pick_color_256(uint8_t& Color)
 {
 	const auto
 		CubeX = 5,
 		CubeY = 2,
-		PadX = CubeX + colors::index::cube_size * 3 + 1,
+		PadX = CubeX + cube_size * 3 + 1,
 		PadY = CubeY,
 		GreyX = CubeX,
-		GreyY = CubeY + colors::index::cube_size + 1,
+		GreyY = CubeY + cube_size + 1,
 		GreyH = 4,
 		RGBX = PadX,
 		RGBY = GreyY,
@@ -625,97 +365,40 @@ bool pick_color_256(COLORREF& Color)
 	{
 		{ DI_DOUBLEBOX,   {{3,  1 }, {PadX+10, ButtonY+1}}, DIF_NONE, msg(lng::MSetColorTitle), },
 
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT | DIF_GROUP, },
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*0, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+#define COLOR_COLUMN(x, y, index) \
+	COLOR_CELL(x + 3 * index, y + 0), \
+	COLOR_CELL(x + 3 * index, y + 1), \
+	COLOR_CELL(x + 3 * index, y + 2), \
+	COLOR_CELL(x + 3 * index, y + 3), \
+	COLOR_CELL(x + 3 * index, y + 4), \
+	COLOR_CELL(x + 3 * index, y + 5)
 
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*1, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+#define COLOR_PLANE(column, x, y) \
+		column(x, y,  0), \
+		column(x, y,  1), \
+		column(x, y,  2), \
+		column(x, y,  3), \
+		column(x, y,  4), \
+		column(x, y,  5)
 
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*2, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+		COLOR_PLANE(COLOR_COLUMN, CubeX, CubeY),
 
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*3, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+#undef COLOR_COLUMN
 
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*4, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+#define GRAY_COLUMN(x, y, index) \
+	COLOR_CELL(x + 3 * index, y + 0), \
+	COLOR_CELL(x + 3 * index, y + 1), \
+	COLOR_CELL(x + 3 * index, y + 2), \
+	COLOR_CELL(x + 3 * index, y + 3)
 
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+0}, {0, CubeY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+1}, {0, CubeY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+2}, {0, CubeY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+3}, {0, CubeY+3}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+4}, {0, CubeY+4}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{CubeX+3*5, CubeY+5}, {0, CubeY+5}}, DIF_MOVESELECT, },
+		COLOR_PLANE(GRAY_COLUMN, GreyX, GreyY),
 
+#undef COLOR_PLANE
+#undef GRAY_COLUMN
 
-		{ DI_RADIOBUTTON, {{GreyX+3*0, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*0, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*0, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*0, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
+		PAD_CONTROL(PadX, PadY),
 
-		{ DI_RADIOBUTTON, {{GreyX+3*1, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*1, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*1, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*1, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
-
-		{ DI_RADIOBUTTON, {{GreyX+3*2, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*2, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*2, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*2, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
-
-		{ DI_RADIOBUTTON, {{GreyX+3*3, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*3, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*3, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*3, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
-
-		{ DI_RADIOBUTTON, {{GreyX+3*4, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*4, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*4, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*4, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
-
-		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+0}, {0, GreyY+0}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+1}, {0, GreyY+1}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
-		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
-
-		{ DI_RADIOBUTTON, {{RGBX+3, RGBY+0}, {0, RGBY+0}}, DIF_MOVESELECT, },
-
-		{ DI_BUTTON,      {{PadX+3, PadY+0}, {0, PadY+0}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{PadX+0, PadY+1}, {0, PadY+1}}, DIF_NOBRACKETS, L"[◄]"sv, },
-		{ DI_BUTTON,      {{PadX+6, PadY+1}, {0, PadY+1}}, DIF_NOBRACKETS, L"[►]"sv, },
-		{ DI_BUTTON,      {{PadX+3, PadY+2}, {0, PadY+2}}, DIF_NOBRACKETS, L"[▼]"sv, },
-		{ DI_BUTTON,      {{PadX+1, PadY+4}, {0, PadY+4}}, DIF_NOBRACKETS, L"[+]"sv, },
-		{ DI_BUTTON,      {{PadX+5, PadY+4}, {0, PadY+4}}, DIF_NOBRACKETS, L"[-]"sv, },
-
-		{ DI_TEXT,        {{RGBX+0, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
-		{ DI_BUTTON,      {{RGBX+0, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+0, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
-		{ DI_TEXT,        {{RGBX+3, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
-		{ DI_BUTTON,      {{RGBX+3, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+3, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
-		{ DI_TEXT,        {{RGBX+6, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
-		{ DI_BUTTON,      {{RGBX+6, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+6, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
+		RGB_CONTROL(RGBX, RGBY),
 
 		{ DI_TEXT,        {{-1, ButtonY-1}, {0, ButtonY-1}}, DIF_SEPARATOR, },
 
@@ -723,42 +406,29 @@ bool pick_color_256(COLORREF& Color)
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
+	ColorDlg[cd_cube_first].Flags |= DIF_GROUP;
+
 	color_256_state ColorState
 	{
-		Color,
+		.CurColor = Color,
 	};
+
+	init_cube(ColorState);
+
+	{
+		const auto RGB = ColorState.as_rgb();
+		ColorDlg[cd_text_r].strData = ColorState.channel_value(RGB.r);
+		ColorDlg[cd_text_g].strData = ColorState.channel_value(RGB.g);
+		ColorDlg[cd_text_b].strData = ColorState.channel_value(RGB.b);
+	}
 
 	if (in_closed_range(colors::index::cube_first, static_cast<int>(Color), colors::index::cube_last))
 	{
-		ColorState.RGB = Color;
-		ColorDlg[cd_text_r].strData = channel_value(ColorState.RGB.r);
-		ColorDlg[cd_text_g].strData = channel_value(ColorState.RGB.g);
-		ColorDlg[cd_text_b].strData = channel_value(ColorState.RGB.b);
+		const auto ControlId = cd_cube_first + cube_rc_mapping[(Color - colors::index::cube_first) % (cube_size * cube_size)];
+		ColorDlg[ControlId].Selected = BSTATE_CHECKED;
+		ColorDlg[ControlId].Flags |= DIF_FOCUS;
 	}
-
-	{
-		unsigned char Index = colors::index::cube_first;
-		for (auto& Plane: ColorState.Cube)
-		{
-			for (auto& Line: Plane)
-			{
-				for (auto& Point: Line)
-				{
-					Point = Index++;
-
-					if (Point == Color)
-					{
-						ColorState.CubeSlice = &Plane - &ColorState.Cube[0];
-						const auto ControlId = cd_cube_first + cube_rc_mapping[&Point - &Plane[0][0]];
-						ColorDlg[ControlId].Selected = BSTATE_CHECKED;
-						ColorDlg[ControlId].Flags |= DIF_FOCUS;
-					}
-				}
-			}
-		}
-	}
-
-	if (in_closed_range(colors::index::grey_first, static_cast<int>(Color), colors::index::grey_last))
+	else if (in_closed_range(colors::index::grey_first, static_cast<int>(Color), colors::index::grey_last))
 	{
 		const auto ControlId = cd_grey_first + grey_control_by_color[grey_stripe_mapping[Color - colors::index::grey_first]];
 		ColorDlg[ControlId].Selected = BSTATE_CHECKED;

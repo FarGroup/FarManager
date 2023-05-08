@@ -701,7 +701,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 	const auto GenerateHistoryName = [&](size_t const Index)
 	{
-		return format(FSTR(L"{}{}"sv), HistoryAndVariablePrefix, Index);
+		return far::format(L"{}{}"sv, HistoryAndVariablePrefix, Index);
 	};
 
 	constexpr auto ExpectedTokensCount = 64;
@@ -869,7 +869,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			continue;
 
 		const auto Index = (&i - DlgData.data() - 1) / 2;
-		const auto VariableName = format(FSTR(L"%{}{}"sv), HistoryAndVariablePrefix, Index + 1);
+		const auto VariableName = far::format(L"%{}{}"sv, HistoryAndVariablePrefix, Index + 1);
 		replace_icase(strTmpStr, VariableName, i.strData);
 
 		if (!i.strHistory.empty() && i.strHistory != GenerateHistoryName(Index))

@@ -19038,6 +19038,20 @@ MSetColorVTHintNotSupported
 "Вашая сістэма не падтрымлівае гэтае."
 "Your system does not support it."
 
+MSetColorSystemDialog
+upd:"System"
+"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+
 MSetColorSet
 "Установить"
 "Set"

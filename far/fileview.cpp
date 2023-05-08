@@ -620,7 +620,7 @@ void FileViewer::ShowStatus() const
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(m_Where.left, m_Where.top);
 
-	auto StatusLine = format(FSTR(L"│{}│{:5.5}│{:<10}│{:.3} {:<3}│{:4}"sv),
+	auto StatusLine = far::format(L"│{}│{:5.5}│{:<10}│{:.3} {:<3}│{:4}"sv,
 		L"thd"[m_View->m_DisplayMode],
 		ShortReadableCodepageName(m_View->m_Codepage),
 		m_View->FileSize,

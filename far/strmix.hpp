@@ -221,44 +221,59 @@ inline wchar_t* UNSAFE_CSTR(const string& s) noexcept {return const_cast<wchar_t
 [[nodiscard]]
 inline wchar_t* UNSAFE_CSTR(null_terminated const& s) noexcept {return const_cast<wchar_t*>(s.c_str());}
 
-template<class container>
-[[nodiscard]]
-auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
+namespace detail
 {
-	string strFlags;
-	for (const auto& [Value, Name]: From)
+	template<typename flags_type>
+	[[nodiscard]]
+	auto FlagsToString(unsigned long long Flags, span<std::pair<flags_type, string_view> const> const From, wchar_t Separator = L' ')
 	{
-		if (Flags & Value)
+		string strFlags;
+		for (const auto& [Value, Name]: From)
 		{
-			append(strFlags, Name, Separator);
+			if (Flags & Value)
+			{
+				append(strFlags, Name, Separator);
+			}
 		}
+
+		if (!strFlags.empty())
+		{
+			strFlags.pop_back();
+		}
+
+		return strFlags;
 	}
 
-	if (!strFlags.empty())
+	template<typename flags_type>
+	[[nodiscard]]
+	auto StringToFlags(string_view const strFlags, span<std::pair<flags_type, string_view> const> const From, const string_view Separators = L"|;, "sv)
 	{
-		strFlags.pop_back();
-	}
+		flags_type Flags{};
 
-	return strFlags;
+		if (strFlags.empty())
+			return Flags;
+
+		for (const auto& i: enum_tokens(strFlags, Separators))
+		{
+			const auto ItemIterator = std::find_if(CONST_RANGE(From, j) { return equal_icase(i, j.second); });
+			if (ItemIterator != From.end())
+				Flags |= ItemIterator->first;
+		}
+
+		return Flags;
+	}
 }
 
-template<class container>
 [[nodiscard]]
-auto StringToFlags(string_view const strFlags, const container& From, const string_view Separators = L"|;, "sv)
+auto FlagsToString(unsigned long long const Flags, span_like auto const& From, wchar_t const Separator = L' ')
 {
-	decltype(std::begin(From)->first) Flags {};
+	return detail::FlagsToString(Flags, span(From), Separator);
+}
 
-	if (strFlags.empty())
-		return Flags;
-
-	for (const auto& i: enum_tokens(strFlags, Separators))
-	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(From, j) { return equal_icase(i, j.second); });
-		if (ItemIterator != std::cend(From))
-			Flags |= ItemIterator->first;
-	}
-
-	return Flags;
+[[nodiscard]]
+auto StringToFlags(string_view const strFlags, span_like auto const& From, string_view const Separators = L"|;, "sv)
+{
+	return detail::StringToFlags(strFlags, span(From), Separators);
 }
 
 [[nodiscard]]
@@ -287,6 +302,12 @@ string ExtractHexString(string_view HexString);
 
 [[nodiscard]]
 string ConvertHexString(string_view From, uintptr_t Codepage, bool FromHex);
+
+[[nodiscard]]
+string BytesToString(bytes_view Bytes, uintptr_t Codepage);
+
+[[nodiscard]]
+string HexMask(size_t ByteCount);
 
 void xstrncpy(char* dest, const char* src, size_t DestSize);
 void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);

@@ -431,8 +431,8 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 		{
 			msg(lng::MPlgBadVers),
 			plg,
-			format(msg(lng::MPlgRequired), version_to_string(required)),
-			format(msg(lng::MPlgRequired2), version_to_string(build::version()))
+			far::vformat(msg(lng::MPlgRequired), version_to_string(required)),
+			far::vformat(msg(lng::MPlgRequired2), version_to_string(build::version()))
 		},
 		{ lng::MOk }
 	);

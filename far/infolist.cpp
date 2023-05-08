@@ -376,8 +376,8 @@ void InfoList::DisplayObject()
 			if (UseAssocPath)
 				append(SectionTitle, L' ', strAssocPath);
 
-			strDiskNumber = format(
-				FSTR(L"{:04X}-{:04X}"sv),
+			strDiskNumber = far::format(
+				L"{:04X}-{:04X}"sv,
 				extract_integer<WORD, 1>(VolumeNumber),
 				extract_integer<WORD, 0>(VolumeNumber)
 			);
@@ -409,7 +409,7 @@ void InfoList::DisplayObject()
 
 	const auto PrintMetricText = [&](lng const Kind, lng const Metric)
 	{
-		PrintText(format(FSTR(L"{}, {}"sv), msg(Kind), msg(Metric)));
+		PrintText(far::format(L"{}, {}"sv, msg(Kind), msg(Metric)));
 	};
 
 	const auto PrintMetric = [&](lng const Kind, unsigned long long const Total, unsigned long long const Available)
@@ -419,7 +419,7 @@ void InfoList::DisplayObject()
 		PrintInfo(size2str(Total));
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintMetricText(Kind, lng::MInfoMetricAvailable);
-		PrintInfo(format(FSTR(L"{}%, {}"sv), ToPercent(Available, Total), size2str(Available)));
+		PrintInfo(far::format(L"{}%, {}"sv, ToPercent(Available, Total), size2str(Available)));
 	};
 
 	if (SectionState[ILSS_DISKINFO].Show)

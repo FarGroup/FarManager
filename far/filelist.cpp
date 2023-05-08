@@ -4116,7 +4116,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		if (!Ext.empty())
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = format(FSTR(L"\"*{}\""sv), Ext);
+			strRawMask = far::format(L"\"*{}\""sv, Ext);
 			WrapBrackets=true;
 		}
 		else
@@ -4131,7 +4131,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		{
 			// Учтем тот момент, что имя может содержать символы-разделители
 			const auto [Name, Ext] = name_ext(strCurName);
-			strRawMask = format(FSTR(L"\"{}.*\""sv), Name);
+			strRawMask = far::format(L"\"{}.*\""sv, Name);
 			WrapBrackets=true;
 			Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
 		}
@@ -5362,30 +5362,41 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 	}
 
 	auto hNewPlugin = OpenPluginForFile(FileName, 0, Type, StopProcessing);
-
 	const auto hNewPluginRawCopy = hNewPlugin.get();
 
 	if (hNewPlugin)
 	{
 		if (PushPrev)
-		{
 			PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
-		}
 
-		const auto WasFullscreen = IsFullScreen();
-		SetPluginMode(std::move(hNewPlugin), FileName);  // SendOnFocus??? true???
-		m_PanelMode = panel_mode::PLUGIN_PANEL;
-		UpperFolderTopFile=m_CurTopFile;
-		m_CurFile=0;
-		Update(0);
-		Redraw();
-		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-
-		if ((AnotherPanel->GetType() == panel_type::INFO_PANEL) || WasFullscreen)
-			AnotherPanel->Redraw();
+		SetAndUpdateFilePlugin(FileName, std::move(hNewPlugin));
 	}
 
 	return hNewPluginRawCopy;
+}
+//
+void FileList::PushFilePlugin(const string& FileName, std::unique_ptr<plugin_panel>&& hNewPlugin)
+{
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
+	PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
+	SetAndUpdateFilePlugin(FileName, std::move(hNewPlugin));
+}
+//
+void FileList::SetAndUpdateFilePlugin(const string& FileName, std::unique_ptr<plugin_panel>&& hNewPlugin)
+{
+	const auto WasFullscreen = IsFullScreen();
+	SetPluginMode(std::move(hNewPlugin), FileName);  // SendOnFocus??? true???
+	m_PanelMode = panel_mode::PLUGIN_PANEL;
+	UpperFolderTopFile = m_CurTopFile;
+	m_CurFile = 0;
+	Update(0);
+	Redraw();
+
+	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
+	if ((AnotherPanel->GetType() == panel_type::INFO_PANEL) || WasFullscreen)
+		AnotherPanel->Redraw();
 }
 
 
@@ -7024,7 +7035,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 					SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 				}
 
-				auto strReadMsg = format(msg(lng::MReadingFiles), m_ListData.size());
+				auto strReadMsg = far::vformat(msg(lng::MReadingFiles), m_ListData.size());
 				inplace::truncate_left(strReadMsg, Title.size() - 2);
 				GotoXY(m_Where.left + 1 + static_cast<int>(Title.size() - strReadMsg.size() - 1) / 2, m_Where.top);
 				Text(concat(L' ', strReadMsg, L' '));
@@ -8106,14 +8117,14 @@ void FileList::ShowSelectedSize()
 	if (m_SelFileCount)
 	{
 		auto strFormStr = size2str(SelFileSize, 6, false, true);
-		auto strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
+		auto strSelStr = far::vformat(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
 		const auto BorderSize = 1;
 		const auto MarginSize = 1;
 		const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
 		if (strSelStr.size() > AvailableWidth)
 		{
 			strFormStr = size2str(SelFileSize, 6, false, false);
-			strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
+			strSelStr = far::vformat(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
 			if (strSelStr.size() > AvailableWidth)
 				inplace::truncate_right(strSelStr, AvailableWidth);
 		}
@@ -8141,17 +8152,17 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		{
 			if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 			{
-				strTotalSize = format(msg(lng::MListFileSize), strFormSize, m_TotalFileCount, m_TotalDirCount, m_TotalFileCount + m_TotalDirCount);
+				strTotalSize = far::vformat(msg(lng::MListFileSize), strFormSize, m_TotalFileCount, m_TotalDirCount, m_TotalFileCount + m_TotalDirCount);
 			}
 			else
 			{
 				const string DHLine(3, BoxSymbols[BS_H2]);
-				strTotalSize = format(msg(lng::MListFileSizeStatus), strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
+				strTotalSize = far::vformat(msg(lng::MListFileSizeStatus), strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
 			}
 		}
 		else
 		{
-			strTotalSize = format(msg(lng::MListFreeSize), strFreeSize.empty() ? L"?"s : strFreeSize);
+			strTotalSize = far::vformat(msg(lng::MListFreeSize), strFreeSize.empty() ? L"?"s : strFreeSize);
 		}
 		return strTotalSize;
 	};

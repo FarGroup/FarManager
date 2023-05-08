@@ -37,25 +37,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "color_picker_rgb.hpp"
 
 // Internal:
+#include "color_picker_common.hpp"
 #include "colormix.hpp"
-#include "config.hpp"
 #include "console.hpp"
-#include "dialog.hpp"
 #include "lang.hpp"
 #include "log.hpp"
-#include "strmix.hpp"
 
 // Platform:
 #include "platform.hpp"
 
 // Common:
+#include "common/2d/algorithm.hpp"
+#include "common/range.hpp"
+#include "common/view/select.hpp"
+#include "common/view/where.hpp"
+#include "common/view/zip.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
 static bool pick_color_rgb_gui(COLORREF& Color, std::array<COLORREF, 16>& CustomColors)
 {
+	if (!os::is_interactive_user_session())
+		return false;
+
 	CHOOSECOLOR Params{ sizeof(Params) };
 
 	// Console can be "invisible" in certain fancy scenarios, e.g. a terminal embedded into VS.
@@ -64,7 +71,8 @@ static bool pick_color_rgb_gui(COLORREF& Color, std::array<COLORREF, 16>& Custom
 
 	Params.Flags = CC_ANYCOLOR | CC_FULLOPEN | CC_RGBINIT;
 
-	Params.lpCustColors = CustomColors.data();
+	auto CustomColorsCopy = CustomColors;
+	Params.lpCustColors = CustomColorsCopy.data();
 	Params.rgbResult = Color;
 
 	if (!ChooseColor(&Params))
@@ -77,22 +85,68 @@ static bool pick_color_rgb_gui(COLORREF& Color, std::array<COLORREF, 16>& Custom
 	}
 
 	Color = Params.rgbResult;
+	CustomColors = CustomColorsCopy;
 
 	return true;
 }
 
 
-struct color_rgb_state
+using namespace color_picker_common;
+using rgb = rgba;
+
+constexpr auto cube_size = 16;
+
+static constexpr auto cube_rc_mapping = column_major_iota<uint8_t, cube_size, cube_size>();
+static_assert(std::size(cube_rc_mapping) == cube_size * cube_size);
+
+using shape = shapes<std::uint16_t, cube_size>;
+using cell  = shape::cell;
+using row   = shape::row;
+using plane = shape::plane;
+using cube  = shape::cube;
+
+static FarColor TrueColorToFarColor(COLORREF const Color)
 {
-	COLORREF CurColor;
-};
+	return
+	{
+		0,
+		{ colors::opaque(colors::invert(Color, false)) },
+		{ colors::opaque(Color) }
+	};
+}
+
+static FarColor TrueColorToFarColorDistinct(COLORREF const Color)
+{
+	auto Result = TrueColorToFarColor(Color);
+	// Naive inversion doesn't work nicely in the middle of the spectre.
+	// This way the distance between foreground and background colors is constant and should always produce readable results.
+	Result.ForegroundColor ^= 0x3F3F3F;
+	return Result;
+}
 
 enum color_rgb_dialog_items
 {
 	cd_border,
 
-	cd_text_rgb,
+	cd_cube_first,
+	cd_cube_last = cd_cube_first + 255,
 
+	cd_custom_first,
+	cd_custom_last = cd_custom_first + 16 - 1,
+
+	cd_button_up,
+	cd_button_left,
+	cd_button_right,
+	cd_button_down,
+
+	cd_button_home,
+
+	cd_button_plus,
+	cd_button_minus,
+
+	cd_button_zoom,
+
+	cd_text_rgb,
 	cd_text_r,
 	cd_button_r_plus,
 	cd_button_r_minus,
@@ -103,66 +157,248 @@ enum color_rgb_dialog_items
 	cd_button_b_plus,
 	cd_button_b_minus,
 
+	cd_button_save,
+
 	cd_separator,
 
 	cd_button_ok,
+	cd_button_system,
 	cd_button_cancel,
 
 	cd_count
 };
 
-struct rgb_context
+using rgb_context = rgb_context_t<rgb, color_rgb_dialog_items>;
+
+struct color_rgb_state
 {
-	uint8_t rgba::*Channel;
-	color_rgb_dialog_items TextId;
+	using items = color_rgb_dialog_items;
+	using rgb_context = rgb_context;
+	static constexpr size_t Depth = 256;
+
+	COLORREF CurColor{};
+
+	cube_data<cube> Cube, OuterCube;
+
+	bool IsZoomed{};
+
+	std::array<COLORREF, 16> CustomColors{};
+	std::optional<uint8_t> CustomIndex;
+
+	std::bitset<cube_size * cube_size> Overlay;
+
+	static auto channel_value(uint8_t const Channel)
+	{
+		return far::format(L"{:>3}"sv, Channel);
+	}
+
+	rgb as_rgb() const
+	{
+		return colors::to_rgba(CurColor);
+	}
+
+	void from_rgb(rgb const RGB)
+	{
+		CurColor = colors::to_color(RGB);
+	}
 };
 
-static rgb_context get_rgb_context(color_rgb_dialog_items const Item)
+static rgb cube_rgb(cube const& Cube, uint8_t const x, uint8_t const y, uint8_t const z, bool const IsZoomed)
 {
-	switch (Item)
+	const auto CellIndex = Cube[z][y][x];
+	const auto Multiplier = IsZoomed? 1 : 16;
+
+	return
 	{
-	case cd_text_r:
-	case cd_button_r_plus:
-	case cd_button_r_minus:
-		return { &rgba::r, cd_text_r };
+		static_cast<uint8_t>(CellIndex / 256      * Multiplier),
+		static_cast<uint8_t>(CellIndex % 256 / 16 * Multiplier),
+		static_cast<uint8_t>(CellIndex % 16       * Multiplier)
+	};
+}
 
-	case cd_text_g:
-	case cd_button_g_plus:
-	case cd_button_g_minus:
-		return { &rgba::g, cd_text_g };
+static rgb cube_rgb(cube const& Cube, uint8_t const Slice, uint8_t const Index, bool const IsZoomed)
+{
+	const auto CubeIndex = cube_rc_mapping[Index];
+	const auto
+		Y = CubeIndex / cube_size,
+		X = CubeIndex % cube_size;
 
-	case cd_text_b:
-	case cd_button_b_plus:
-	case cd_button_b_minus:
-		return { &rgba::b, cd_text_b };
+	return cube_rgb(Cube, X, Y, Slice, IsZoomed);
+}
 
-	default:
-		UNREACHABLE;
+static rgb cube_rgb(color_rgb_state const& ColorState, uint8_t const Index, bool UseZoom = false)
+{
+	if (UseZoom && ColorState.Overlay[Index])
+		return cube_rgb(ColorState.OuterCube.Cube, ColorState.OuterCube.Slice, Index, false);
+
+	if (!ColorState.IsZoomed)
+		return cube_rgb(ColorState.Cube.Cube, ColorState.Cube.Slice, Index, false);
+
+	const auto OuterRGB = cube_rgb(ColorState.OuterCube.Cube, ColorState.OuterCube.Slice, ColorState.OuterCube.Index, false);
+	const auto InnerRGB = cube_rgb(ColorState.Cube.Cube, ColorState.Cube.Slice, Index, true);
+
+	return
+	{
+		static_cast<uint8_t>(OuterRGB.r + InnerRGB.r),
+		static_cast<uint8_t>(OuterRGB.g + InnerRGB.g),
+		static_cast<uint8_t>(OuterRGB.b + InnerRGB.b),
+	};
+}
+
+static bool match_rgb(rgb Cell, rgb const Color, bool const IsZoomed)
+{
+	static_assert(cube_size == 16);
+
+	const auto Tolerance = IsZoomed? 0u : cube_size - 1;
+
+	if (!IsZoomed)
+	{
+		Cell.r &= 0xf0;
+		Cell.g &= 0xf0;
+		Cell.b &= 0xf0;
+	}
+
+	return
+		in_closed_range(Cell.r, Color.r, Cell.r + Tolerance) &&
+		in_closed_range(Cell.g, Color.g, Cell.g + Tolerance) &&
+		in_closed_range(Cell.b, Color.b, Cell.b + Tolerance);
+}
+
+static void init_cube(color_rgb_state& ColorState)
+{
+	const auto ColorRGB = ColorState.as_rgb();
+
+	auto Index = 0;
+
+	for (auto& Plane: ColorState.Cube.Cube)
+	{
+		for (auto& Line: Plane)
+		{
+			for (auto& Point: Line)
+			{
+				Point = Index++;
+
+				const auto RGB = cube_rgb(
+					ColorState.Cube.Cube,
+					&Point - &Line[0],
+					&Line - &Plane[0],
+					&Plane - &ColorState.Cube.Cube[0],
+					ColorState.IsZoomed
+				);
+
+				if (match_rgb(RGB, ColorRGB, ColorState.IsZoomed))
+				{
+					ColorState.Cube.Slice = &Plane - &ColorState.Cube.Cube[0];
+				}
+			}
+		}
 	}
 }
 
-static auto get_channel_operation(color_rgb_dialog_items const Button)
+static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 {
-	switch (Button)
+	const auto ZoomingIn = !ColorState.IsZoomed;
+
+	if (ZoomingIn)
 	{
-	case cd_button_r_plus:
-	case cd_button_g_plus:
-	case cd_button_b_plus:
-		return +1;
+		ColorState.OuterCube = ColorState.Cube;
 
-	case cd_button_r_minus:
-	case cd_button_g_minus:
-	case cd_button_b_minus:
-		return -1;
+		ColorState.Cube.Slice = 0;
+		ColorState.Cube.Index = 0;
 
-	default:
-		UNREACHABLE;
+		ColorState.Overlay.set();
+		ColorState.IsZoomed = true;
 	}
-}
 
-static auto channel_value(uint8_t const Channel)
-{
-	return format(FSTR(L"{:>3}"sv), Channel);
+	const auto index = [](int const r, int const c)
+	{
+		return r * cube_size + c;
+	};
+
+	using bits = std::bitset<cube_size* cube_size>;
+
+	const auto check_neighbor = [&](bits const& Cells, int const r, int const c)
+	{
+		return
+			in_closed_range(0, r, cube_size - 1) &&
+			in_closed_range(0, c, cube_size - 1) &&
+			Cells[index(r, c)];
+	};
+
+	const auto check_neighbors = [&](bits const& Cells, auto& NewCells, int const r, int const c)
+	{
+		const auto Index = index(r, c);
+		if (Cells[Index])
+			return;
+
+		// x x x
+		// x   x
+		// x x x
+		if (
+			check_neighbor(Cells, r - 1, c - 1) ||
+			check_neighbor(Cells, r - 1, c - 0) ||
+			check_neighbor(Cells, r - 1, c + 1) ||
+			check_neighbor(Cells, r - 0, c - 1) ||
+			check_neighbor(Cells, r - 0, c + 1) ||
+			check_neighbor(Cells, r + 1, c - 1) ||
+			check_neighbor(Cells, r + 1, c + 0) ||
+			check_neighbor(Cells, r + 1, c + 1)
+		)
+			NewCells[Index] = true;
+	};
+
+	std::array<bits, cube_size> Steps{};
+	size_t StepsSize = 0;
+
+	Steps[StepsSize++][ColorState.OuterCube.Index] = true;
+
+	for (;;)
+	{
+		bits NewCells;
+
+		for (const auto& r: irange(0, cube_size))
+		{
+			for (const auto& c: irange(0, cube_size))
+			{
+				check_neighbors(Steps[StepsSize - 1], NewCells, r, c);
+			}
+		}
+
+		if (!NewCells.any())
+			break;
+
+		Steps[StepsSize] = Steps[StepsSize - 1] | NewCells;
+		++StepsSize;
+	}
+
+	Dlg->SendMessage(DM_SETCHECK, cd_cube_first, ToPtr(BSTATE_3STATE));
+
+	// N steps -> N - 1 delays
+	const auto Delay = 250ms / (cube_size - 1);
+
+	// Sleep won't do, the rendering time is non-negligible and unpredictable
+	os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+	os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
+
+	for (const auto& i: irange(StepsSize))
+	{
+		ColorState.Overlay = ZoomingIn?
+			~Steps[i] :
+			~Steps[StepsSize - 1 - i];
+
+		Dlg->SendMessage(DM_REDRAW, 0, {});
+		if (i != StepsSize - 1)
+			Event.wait();
+	}
+
+	if (!ZoomingIn)
+	{
+		ColorState.Cube = ColorState.OuterCube;
+		ColorState.IsZoomed = false;
+	}
+
+	ColorState.Overlay.reset();
+	Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 }
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -174,30 +410,42 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	case DN_CTLCOLORDLGITEM:
 		{
 			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
+
+			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
+			{
+				const auto RGB = cube_rgb(ColorState, Param1 - cd_cube_first, true);
+				Colors.Colors[0] = TrueColorToFarColorDistinct(colors::to_color(RGB));
+				return true;
+			}
+
+			if (in_closed_range(cd_custom_first, Param1, cd_custom_last))
+			{
+				Colors.Colors[0] = TrueColorToFarColorDistinct(ColorState.CustomColors[Param1 - cd_custom_first]);
+				return true;
+			}
+
 			switch (const auto Item = static_cast<color_rgb_dialog_items>(Param1))
 			{
 			case cd_text_rgb:
 				{
-					flags::clear(Colors.Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
-					Colors.Colors[0].BackgroundColor = colors::opaque(ColorState.CurColor);
-					Colors.Colors[0].ForegroundColor = Colors.Colors[0].BackgroundColor;
-					return TRUE;
+					// Foreground color is irrelevant
+					Colors.Colors[0] = TrueColorToFarColor(ColorState.CurColor);
+					return true;
 				}
 
 			case cd_text_r:
 			case cd_text_g:
 			case cd_text_b:
 				{
-					const auto Context = get_rgb_context(Item);
-					auto RGBA = colors::to_rgba(ColorState.CurColor);
-					auto& Channel = std::invoke(Context.Channel, RGBA);
+					const auto Context = get_rgb_context<rgb>(Item);
+					auto RGB = ColorState.as_rgb();
+					auto& Channel = std::invoke(Context.Channel, RGB);
 					const auto SavedValue = Channel;
-					RGBA = {};
+					RGB = {};
 					Channel = SavedValue;
-					flags::clear(Colors.Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
-					Colors.Colors[0].BackgroundColor = colors::opaque(colors::to_color(RGBA));
-					Colors.Colors[0].ForegroundColor = colors::invert(Colors.Colors[0].BackgroundColor, false);
-					return TRUE;
+					// Primary colors don't need no safe distinction
+					Colors.Colors[0] = TrueColorToFarColor(colors::to_color(RGB));
+					return true;
 				}
 			default:
 				break;
@@ -207,35 +455,77 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_BTNCLICK:
 		{
-			switch (const auto Button = static_cast<color_rgb_dialog_items>(Param1))
+			const auto Button = static_cast<color_rgb_dialog_items>(Param1);
+			if (on_button_click(Dlg, Button, ColorState))
+				return true;
+
+			if (Param2 && in_closed_range(cd_cube_first, Button, cd_cube_last))
 			{
-			case cd_button_r_plus:
-			case cd_button_r_minus:
-			case cd_button_g_plus:
-			case cd_button_g_minus:
-			case cd_button_b_plus:
-			case cd_button_b_minus:
+				ColorState.Cube.Index = Button - cd_cube_first;
+				const auto RGB = cube_rgb(ColorState, ColorState.Cube.Index);
+				ColorState.from_rgb(RGB);
+				update_rgb_control<color_rgb_state>(Dlg, RGB);
+				return true;
+			}
+
+			if (Param2 && in_closed_range(cd_custom_first, Button, cd_custom_last))
+			{
+				ColorState.CustomIndex = Button - cd_custom_first;
+				ColorState.CurColor = ColorState.CustomColors[*ColorState.CustomIndex];
+				update_rgb_control<color_rgb_state>(Dlg, ColorState.as_rgb());
+				return true;
+			}
+
+			switch (Button)
+			{
+			case cd_button_home:
+				init_cube(ColorState);
+				ColorState.Cube.Slice = 0;
+				Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
+				return true;
+
+			case cd_button_zoom:
+				zoom(Dlg, ColorState);
+				return true;
+
+			case cd_button_system:
 				{
-					const auto Context = get_rgb_context(Button);
-					auto RGBA = colors::to_rgba(ColorState.CurColor);
-					auto& Channel = std::invoke(Context.Channel, RGBA);
+					const auto SavedColor = ColorState.CurColor;
+					const auto SavedCustomColors = ColorState.CustomColors;
 
-					switch (get_channel_operation(Button))
+					if (!pick_color_rgb_gui(ColorState.CurColor, ColorState.CustomColors))
+						return true;
+
+					if (ColorState.CurColor != SavedColor)
 					{
-					case -1:
-						if (Channel)
-							--Channel;
-						break;
-
-					case +1:
-						if (Channel < 255)
-							++Channel;
-						break;
+						update_rgb_control<color_rgb_state>(Dlg, ColorState.as_rgb());
 					}
 
-					ColorState.CurColor = colors::to_color(RGBA);
-					Dlg->SendMessage(DM_SETTEXTPTR, Context.TextId, UNSAFE_CSTR(channel_value(Channel)));
-					return TRUE;
+					if (ColorState.CustomColors != SavedCustomColors)
+					{
+						const auto Range = zip(SavedCustomColors, ColorState.CustomColors, irange(std::size(SavedCustomColors)));
+						const auto Changed = [](auto const Old, auto const New, auto){ return Old != New; };
+						const auto Index = [](auto, auto, auto i){ return i; };
+
+						for (const auto i: select(where(Range, Changed), Index))
+						{
+							Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(1));
+						}
+					}
+				}
+				return true;
+
+			case cd_button_save:
+				{
+					uint8_t Index = 0;
+					if (ColorState.CustomIndex)
+						Index = *ColorState.CustomIndex;
+					else if (const auto Iterator = std::find(ALL_CONST_RANGE(ColorState.CustomColors), RGB(255, 255, 255)); Iterator != std::cend(ColorState.CustomColors))
+						Index = Iterator - std::cbegin(ColorState.CustomColors);
+
+					ColorState.CustomColors[Index] = ColorState.CurColor;
+					Dlg->SendMessage(DM_SHOWITEM, Index, ToPtr(1));
+					return true;
 				}
 
 			default:
@@ -243,6 +533,28 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			}
 		}
 		break;
+
+	case DM_ONCUBECHANGE:
+		{
+			Dlg->SendMessage(DM_SETCHECK, cd_cube_first, ToPtr(BSTATE_3STATE));
+
+			const auto& Plane = ColorState.Cube.Cube[ColorState.Cube.Slice];
+			for (const auto& Line: Plane)
+			{
+				for (const auto& Point: Line)
+				{
+					const auto Index = &Point - &Plane[0][0];
+					if (colors::to_color(cube_rgb(ColorState, Index)) == ColorState.CurColor)
+					{
+						Dlg->SendMessage(DM_SETCHECK, cd_cube_first + Index, ToPtr(BSTATE_CHECKED));
+						break;
+					}
+				}
+			}
+
+			Dlg->SendMessage(DM_REDRAW, 0, {});
+		}
+		return true;
 
 	default:
 		break;
@@ -254,43 +566,125 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLORREF, 16>& CustomColors)
 {
 	const auto
-		RGBX = 10,
-		RGBY = 2,
+		CubeX = 5,
+		CubeY = 2,
+		PadX = CubeX + cube_size * 3 + 1,
+		PadY = CubeY,
+		CustomX = CubeX,
+		CustomY = CubeY + cube_size + 1,
 		RGBW = 9,
 		RGBH = 4,
-		ButtonY = RGBY + RGBH + 1;
+		RGBX = PadX,
+		RGBY = CubeY + cube_size * 1 - RGBH,
+		ButtonY = CustomY + 1 + 1;
 
 	auto ColorDlg = MakeDialogItems<cd_count>(
 	{
-		{ DI_DOUBLEBOX,   {{3, 1}, {RGBX*2+RGBW-4, ButtonY+1}}, DIF_NONE, msg(lng::MSetColorTitle), },
-		{ DI_TEXT,        {{RGBX+3, RGBY+0}, {0, RGBY+0}}, DIF_NONE,       L"   "sv, },
-		{ DI_TEXT,        {{RGBX+0, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L"  0"sv, },
-		{ DI_BUTTON,      {{RGBX+0, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+0, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
-		{ DI_TEXT,        {{RGBX+3, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L"  0"sv, },
-		{ DI_BUTTON,      {{RGBX+3, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+3, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
-		{ DI_TEXT,        {{RGBX+6, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L"  0"sv, },
-		{ DI_BUTTON,      {{RGBX+6, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
-		{ DI_BUTTON,      {{RGBX+6, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
+		{ DI_DOUBLEBOX,   {{3, 1}, {RGBX+RGBW+1, ButtonY+1}}, DIF_NONE, msg(lng::MSetColorTitle), },
+
+#define COLOR_COLUMN(x, y, index) \
+	COLOR_CELL(x + 3 * index, y +  0), \
+	COLOR_CELL(x + 3 * index, y +  1), \
+	COLOR_CELL(x + 3 * index, y +  2), \
+	COLOR_CELL(x + 3 * index, y +  3), \
+	COLOR_CELL(x + 3 * index, y +  4), \
+	COLOR_CELL(x + 3 * index, y +  5), \
+	COLOR_CELL(x + 3 * index, y +  6), \
+	COLOR_CELL(x + 3 * index, y +  7), \
+	COLOR_CELL(x + 3 * index, y +  8), \
+	COLOR_CELL(x + 3 * index, y +  9), \
+	COLOR_CELL(x + 3 * index, y + 10), \
+	COLOR_CELL(x + 3 * index, y + 11), \
+	COLOR_CELL(x + 3 * index, y + 12), \
+	COLOR_CELL(x + 3 * index, y + 13), \
+	COLOR_CELL(x + 3 * index, y + 14), \
+	COLOR_CELL(x + 3 * index, y + 15)
+
+#define COLOR_PLANE(x, y) \
+		COLOR_COLUMN(x, y,  0), \
+		COLOR_COLUMN(x, y,  1), \
+		COLOR_COLUMN(x, y,  2), \
+		COLOR_COLUMN(x, y,  3), \
+		COLOR_COLUMN(x, y,  4), \
+		COLOR_COLUMN(x, y,  5), \
+		COLOR_COLUMN(x, y,  6), \
+		COLOR_COLUMN(x, y,  7), \
+		COLOR_COLUMN(x, y,  8), \
+		COLOR_COLUMN(x, y,  9), \
+		COLOR_COLUMN(x, y, 10), \
+		COLOR_COLUMN(x, y, 11), \
+		COLOR_COLUMN(x, y, 12), \
+		COLOR_COLUMN(x, y, 13), \
+		COLOR_COLUMN(x, y, 14), \
+		COLOR_COLUMN(x, y, 15)
+
+		COLOR_PLANE(CubeX, CubeY),
+
+#undef COLOR_PLANE
+#undef COLOR_COLUMN
+
+#define CUSTOM_COLOR_ROW(x, y) \
+	COLOR_CELL(x + 3 *  0, y), \
+	COLOR_CELL(x + 3 *  1, y), \
+	COLOR_CELL(x + 3 *  2, y), \
+	COLOR_CELL(x + 3 *  3, y), \
+	COLOR_CELL(x + 3 *  4, y), \
+	COLOR_CELL(x + 3 *  5, y), \
+	COLOR_CELL(x + 3 *  6, y), \
+	COLOR_CELL(x + 3 *  7, y), \
+	COLOR_CELL(x + 3 *  8, y), \
+	COLOR_CELL(x + 3 *  9, y), \
+	COLOR_CELL(x + 3 * 10, y), \
+	COLOR_CELL(x + 3 * 11, y), \
+	COLOR_CELL(x + 3 * 12, y), \
+	COLOR_CELL(x + 3 * 13, y), \
+	COLOR_CELL(x + 3 * 14, y), \
+	COLOR_CELL(x + 3 * 15, y)
+
+		CUSTOM_COLOR_ROW(CustomX, CustomY),
+
+#undef CUSTOM_COLOR_ROW
+
+		PAD_CONTROL(PadX, PadY),
+
+		{ DI_BUTTON,      {{PadX+3, PadY+6}, {0, PadY+6}}, DIF_NOBRACKETS, L"[]"sv, },
+
+		RGB_CONTROL(RGBX, RGBY),
+
+		{ DI_BUTTON,      {{PadX, CustomY}, {0, CustomY }}, DIF_NOBRACKETS, L"[«]"sv, },
 
 		{ DI_TEXT,        {{-1, ButtonY-1}, {0, ButtonY-1}}, DIF_SEPARATOR, },
 
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MSetColorSystemDialog), },
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
+	ColorDlg[cd_cube_first].Flags |= DIF_GROUP;
+
+	if (!os::is_interactive_user_session())
+		ColorDlg[cd_button_system].Flags |= DIF_DISABLE;
+
 	color_rgb_state ColorState
 	{
-		Color,
+		.CurColor = Color,
+		.CustomColors = CustomColors
 	};
 
-	{
-		const auto RGBA = colors::to_rgba(Color);
+	init_cube(ColorState);
 
-		ColorDlg[cd_text_r].strData = channel_value(RGBA.r);
-		ColorDlg[cd_text_g].strData = channel_value(RGBA.g);
-		ColorDlg[cd_text_b].strData = channel_value(RGBA.b);
+	{
+		const auto RGB = ColorState.as_rgb();
+		ColorDlg[cd_text_r].strData = ColorState.channel_value(RGB.r);
+		ColorDlg[cd_text_g].strData = ColorState.channel_value(RGB.g);
+		ColorDlg[cd_text_b].strData = ColorState.channel_value(RGB.b);
+
+		ColorState.Cube.Index = cube_rc_mapping[cube_size * (RGB.g >> 4) + (RGB.b >> 4)];
+		const auto ControlId = cd_cube_first + ColorState.Cube.Index;
+		ColorDlg[ControlId].Flags |= DIF_FOCUS;
+
+		if (ColorState.CurColor == colors::to_color(cube_rgb(ColorState, ColorState.Cube.Index)))
+			ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 	}
 
 	const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &ColorState);
@@ -307,14 +701,11 @@ static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLO
 		return false;
 
 	Color = ColorState.CurColor;
+	CustomColors = ColorState.CustomColors;
 	return true;
 }
 
 bool pick_color_rgb(COLORREF& Color, std::array<COLORREF, 16>& CustomColors)
 {
-	// Calling common dialogs in a non-interactive session is not the best idea.
-	return (os::is_interactive_user_session()?
-		pick_color_rgb_gui :
-		pick_color_rgb_tui
-	)(Color, CustomColors);
+	return pick_color_rgb_tui(Color, CustomColors);
 }

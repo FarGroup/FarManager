@@ -88,16 +88,25 @@ namespace io
 		return Stream.gcount();
 	}
 
-	template<span_like container>
-	void write(std::ostream& Stream, const container& Container)
+	namespace detail
 	{
-		static_assert(std::is_trivially_copyable_v<value_type<container>>);
+		template<typename T>
+		void write(std::ostream& Stream, span<T const> const Container)
+		{
+			static_assert(std::is_trivially_copyable_v<T>);
 
-		const auto Size = std::size(Container);
-		if (!Size)
-			return;
+			if (Container.empty())
+				return;
 
-		Stream.write(view_as<char const*>(std::data(Container)), Size * sizeof(*std::data(Container)));
+			const auto Bytes = std::as_bytes(Container);
+			// design by committee
+			Stream.write(static_cast<char const*>(static_cast<void const*>(Bytes.data())), Bytes.size());
+		}
+	}
+
+	void write(std::ostream& Stream, span_like auto const& Container)
+	{
+		return detail::write(Stream, span(Container));
 	}
 }
 
