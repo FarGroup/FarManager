@@ -417,27 +417,22 @@ TEST_CASE("bytes")
 
 TEST_CASE("chrono")
 {
-	const auto Duration = 47h + 63min + 71s + 3117ms;
-
-	const auto check = [](const auto& Result, auto Arg)
+	const auto check_split_duration = [](const auto Duration, auto... Args)
 	{
-		REQUIRE(Result.template get<decltype(Arg)>() == Arg);
+		auto Result = split_duration<decltype(Args)...>(Duration);
+		return (... && (Result.template get<decltype(Args)>() == Args));
 	};
 
-	const auto check_split_duration = [&](auto... Args)
-	{
-		const auto Result = split_duration<decltype(Args)...>(Duration);
-		(..., check(Result, Args));
-	};
+	constexpr auto Duration = 47h + 63min + 71s + 3117ms;
 
-	check_split_duration(2_d);
-	check_split_duration(48h);
-	check_split_duration(2884min);
-	check_split_duration(173054s);
-	check_split_duration(173054117ms);
-	check_split_duration(48h, 254117ms);
-	check_split_duration(2884min, 14s);
-	check_split_duration(2_d, 0h, 4min, 14s, 117ms);
+	STATIC_REQUIRE(check_split_duration(Duration, 2_d));
+	STATIC_REQUIRE(check_split_duration(Duration, 48h));
+	STATIC_REQUIRE(check_split_duration(Duration, 2884min));
+	STATIC_REQUIRE(check_split_duration(Duration, 173054s));
+	STATIC_REQUIRE(check_split_duration(Duration, 173054117ms));
+	STATIC_REQUIRE(check_split_duration(Duration, 48h, 254117ms));
+	STATIC_REQUIRE(check_split_duration(Duration, 2884min, 14s));
+	STATIC_REQUIRE(check_split_duration(Duration, 2_d, 0h, 4min, 14s, 117ms));
 }
 
 //----------------------------------------------------------------------------
@@ -816,16 +811,13 @@ TEST_CASE("multifunction")
 
 TEST_CASE("noncopyable")
 {
-	class c0
+	class c: noncopyable
 	{
 	};
 
-	class c1: noncopyable
-	{
-	};
-
-	STATIC_REQUIRE(std::copyable<c0>);
-	STATIC_REQUIRE_FALSE(std::copyable<c1>);
+	STATIC_REQUIRE(!std::is_copy_constructible_v<c>);
+	STATIC_REQUIRE(!std::is_copy_assignable_v<c>);
+	STATIC_REQUIRE(std::movable<c>);
 }
 
 //----------------------------------------------------------------------------
@@ -1090,10 +1082,7 @@ TEST_CASE("preprocessor.predefined")
 	{
 		static void method()
 		{
-#if __cpp_lib_string_view == 201803
 			STATIC_REQUIRE(CURRENT_FUNCTION_NAME == "method"sv);
-#endif
-			REQUIRE(CURRENT_FUNCTION_NAME == "method"sv);
 		}
 	};
 
@@ -1609,6 +1598,13 @@ TEST_CASE("string_utils.misc")
 		REQUIRE(string_view(StrCr).front() == L'C');
 	}
 
+	{
+		STATIC_REQUIRE(!std::is_copy_constructible_v<string_copyref>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<string_copyref>);
+		STATIC_REQUIRE(!std::is_move_constructible_v<string_copyref>);
+		STATIC_REQUIRE(!std::is_move_assignable_v<string_copyref>);
+	}
+
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
 	REQUIRE(concat(L""sv, L""sv).empty());
 
@@ -1645,6 +1641,8 @@ TEST_CASE("type_traits")
 	STATIC_REQUIRE(!is_one_of_v<int, char, bool, unsigned int>);
 
 
+	STATIC_REQUIRE(range_like<range<int*>>);
+	STATIC_REQUIRE(range_like<span<int>>);
 	STATIC_REQUIRE(range_like<int[1]>);
 	STATIC_REQUIRE(range_like<std::initializer_list<int>>);
 	STATIC_REQUIRE(range_like<std::vector<int>>);
@@ -1656,6 +1654,8 @@ TEST_CASE("type_traits")
 	STATIC_REQUIRE(!range_like<void>);
 
 
+	STATIC_REQUIRE(span_like<span<int>>);
+	STATIC_REQUIRE(span_like<range<int*>>);
 	STATIC_REQUIRE(span_like<int[1]>);
 	STATIC_REQUIRE(span_like<std::initializer_list<int>>);
 	STATIC_REQUIRE(span_like<std::vector<int>>);
@@ -1675,7 +1675,7 @@ TEST_CASE("type_traits")
 	{
 		struct test_type
 		{
-			using value_type = int;
+			using value_type = char;
 
 			int* begin()  const { return {}; }
 			int* end()    const { return {}; }
@@ -1684,7 +1684,9 @@ TEST_CASE("type_traits")
 			size_t size() const { return {}; }
 		};
 
-		STATIC_REQUIRE(std::same_as<int, value_type<test_type>>);
+		STATIC_REQUIRE(std::same_as<char, value_type<test_type>>);
+		STATIC_REQUIRE(range_like<test_type>);
+		STATIC_REQUIRE(span_like<test_type>);
 	}
 
 	{
@@ -1698,6 +1700,8 @@ TEST_CASE("type_traits")
 		};
 
 		STATIC_REQUIRE(std::same_as<bool, value_type<test_type>>);
+		STATIC_REQUIRE(range_like<test_type>);
+		STATIC_REQUIRE(span_like<test_type>);
 	}
 
 	{
@@ -1708,6 +1712,8 @@ TEST_CASE("type_traits")
 		};
 
 		STATIC_REQUIRE(std::same_as<int, value_type<test_type>>);
+		STATIC_REQUIRE(range_like<test_type>);
+		STATIC_REQUIRE(!span_like<test_type>);
 	}
 
 	enum class foo: int;

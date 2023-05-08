@@ -110,6 +110,8 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
+	NONMOVABLE(string_copyref);
+
 	explicit(false) string_copyref(std::wstring_view const Str) noexcept:
 		m_Str(Str)
 	{
@@ -659,7 +661,7 @@ template<typename T>
 [[nodiscard]]
 constexpr auto make_string_view(T const Begin, T const End) noexcept
 {
-	using char_type = typename std::iterator_traits<T>::value_type;
+	using char_type = std::iter_value_t<T>;
 	static_assert(std::same_as<typename std::basic_string_view<char_type>::const_iterator, T>);
 
 	const auto Size = static_cast<size_t>(End - Begin);

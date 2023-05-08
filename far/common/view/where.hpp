@@ -46,9 +46,9 @@ namespace detail
 	{
 	public:
 		using iterator_category = std::common_type_t<std::bidirectional_iterator_tag, typename std::iterator_traits<T>::iterator_category>;
-		using difference_type = typename std::iterator_traits<T>::difference_type;
-		using reference = typename std::iterator_traits<T>::reference;
-		using value_type = typename std::iterator_traits<T>::value_type;
+		using difference_type = std::iter_difference_t<T>;
+		using reference = std::iter_difference_t<T>;
+		using value_type = std::iter_value_t<T>;
 		using pointer = typename std::iterator_traits<T>::pointer;
 
 		explicit where_iterator(const T& Value, const T& End, const predicate& Predicate):
