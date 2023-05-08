@@ -604,7 +604,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition({ -1, -1, -1, -1 });
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(format(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
+						MasksMenu->SetBottomTitle(far::vformat(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}
@@ -1623,7 +1623,7 @@ void IntOption::Export(FarSettingsItem& To) const
 
 string IntOption::ExInfo() const
 {
-	return format(FSTR(L" = 0x{:X}"sv), as_unsigned(Get()));
+	return far::format(L" = 0x{:X}"sv, as_unsigned(Get()));
 }
 
 
@@ -2251,7 +2251,7 @@ static auto deserialise_sort_layers(string_view const LayersStr)
 
 static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 {
-	return format(FSTR(L"S{}:O{}"sv), Layer.first, Layer.second);
+	return far::format(L"S{}:O{}"sv, Layer.first, Layer.second);
 }
 
 static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)

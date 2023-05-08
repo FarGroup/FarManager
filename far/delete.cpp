@@ -345,7 +345,7 @@ static void show_confirmation(
 	if (SelCount == 1)
 	{
 		const auto IsFolder = (SingleSelData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-		items.emplace_back(format(msg(MessageId), msg(IsFolder? lng::MAskDeleteFolder : lng::MAskDeleteFile)));
+		items.emplace_back(far::vformat(msg(MessageId), msg(IsFolder? lng::MAskDeleteFolder : lng::MAskDeleteFile)));
 		items.emplace_back(QuoteOuterSpace(SingleSelData.FileName));
 
 		if (SingleSelData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
@@ -373,7 +373,7 @@ static void show_confirmation(
 	}
 	else
 	{
-		items.emplace_back(format(msg(MessageId), msg(lng::MAskDeleteObjects)));
+		items.emplace_back(far::vformat(msg(MessageId), msg(lng::MAskDeleteObjects)));
 
 		const auto ItemsToShow = std::min(std::min(std::max(static_cast<size_t>(Global->Opt->DelOpt.ShowSelected), size_t{ 1 }), SelCount), size_t{ScrY / 2u});
 		const auto ItemsMore = SelCount - ItemsToShow;
@@ -385,7 +385,7 @@ static void show_confirmation(
 			if (items.size() - 1 == ItemsToShow)
 			{
 				if (ItemsMore)
-					items.emplace_back(format(msg(lng::MAskDeleteAndMore), ItemsMore));
+					items.emplace_back(far::vformat(msg(lng::MAskDeleteAndMore), ItemsMore));
 
 				break;
 			}

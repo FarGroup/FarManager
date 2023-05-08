@@ -76,8 +76,8 @@ namespace os::version
 		if (!Translation)
 			return false;
 
-		m_BlockPath = format(
-			FSTR(L"\\StringFileInfo\\{:04X}{:04X}\\"sv),
+		m_BlockPath = far::format(
+			L"\\StringFileInfo\\{:04X}{:04X}\\"sv,
 			extract_integer<WORD, 0>(*Translation),
 			extract_integer<WORD, 1>(*Translation)
 		);
@@ -144,7 +144,7 @@ namespace os::version
 		if (!FixedInfo)
 			return last_error().Win32ErrorStr();
 
-		return format(FSTR(L"{}.{}.{}.{}"sv),
+		return far::format(L"{}.{}.{}.{}"sv,
 			extract_integer<WORD, 1>(FixedInfo->dwFileVersionMS),
 			extract_integer<WORD, 0>(FixedInfo->dwFileVersionMS),
 			extract_integer<WORD, 1>(FixedInfo->dwFileVersionLS),
@@ -173,7 +173,7 @@ WARNING_POP()
 		case VER_PLATFORM_WIN32_NT:
 			return L"Windows NT"s;
 		default:
-			return format(FSTR(L"Unknown ({})"sv), PlatformId);
+			return far::format(L"Unknown ({})"sv, PlatformId);
 		}
 	}
 
@@ -188,17 +188,17 @@ WARNING_POP()
 		case VER_NT_SERVER:
 			return L"Server"s;
 		default:
-			return format(FSTR(L"Unknown ({})"sv), ProductType);
+			return far::format(L"Unknown ({})"sv, ProductType);
 		}
 	}
 
 	static auto windows_service_pack(OSVERSIONINFOEX const& Info)
 	{
 		if (*Info.szCSDVersion)
-			return format(FSTR(L" {} ({}.{})"sv), Info.szCSDVersion, Info.wServicePackMajor, Info.wServicePackMinor);
+			return far::format(L" {} ({}.{})"sv, Info.szCSDVersion, Info.wServicePackMajor, Info.wServicePackMinor);
 
 		if (Info.wServicePackMajor)
-			return format(FSTR(L" {}.{}"sv), Info.wServicePackMajor, Info.wServicePackMinor);
+			return far::format(L" {}.{}"sv, Info.wServicePackMajor, Info.wServicePackMinor);
 
 		return L""s;
 	}
@@ -213,7 +213,7 @@ WARNING_POP()
 		if (!imports.GetProductInfo || !imports.GetProductInfo(-1, -1, -1, -1, &ProductType))
 			ProductType = 0;
 
-		return format(FSTR(L"{} {} {}.{}.{}{}, 0x{:X}/0x{:X}"sv),
+		return far::format(L"{} {} {}.{}.{}{}, 0x{:X}/0x{:X}"sv,
 			windows_platform(Info.dwPlatformId),
 			windows_product_type(Info.wProductType),
 			Info.dwMajorVersion,
@@ -251,7 +251,7 @@ WARNING_POP()
 		)
 			return {};
 
-		return format(FSTR(L" ({}, version {}, OS build {}.{})"sv), ProductName, DisplayVersion, CurrentBuild, UBR);
+		return far::format(L" ({}, version {}, OS build {}.{})"sv, ProductName, DisplayVersion, CurrentBuild, UBR);
 	}
 
 	string os_version()

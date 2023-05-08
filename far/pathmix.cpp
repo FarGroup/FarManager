@@ -511,7 +511,7 @@ string unique_name()
 	std::erase_if(Date, not_digit);
 	std::erase_if(Time, not_digit);
 
-	return format(FSTR(L"Far_{}_{}_{}"sv), Date, Time, GetCurrentProcessId());
+	return far::format(L"Far_{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
 }
 
 bool IsRootPath(const string_view Path)
@@ -883,8 +883,8 @@ TEST_CASE("path.CutToParent")
 			if (Root.empty() && Test.RootMustExist)
 				continue;
 
-			const auto Baseline = format(Test.ExpectedPath, Root);
-			auto Path = format(Test.InputPath, Root);
+			const auto Baseline = far::vformat(Test.ExpectedPath, Root);
+			auto Path = far::vformat(Test.InputPath, Root);
 
 			REQUIRE(Test.ExpectedResult == CutToParent(Path));
 			REQUIRE(Baseline == Path);

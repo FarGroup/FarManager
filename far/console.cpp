@@ -1183,12 +1183,12 @@ protected:
 			if (Index < 16)
 				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + vt_base_color_index(Index)));
 			else
-				format_to(Str, FSTR(L"{};5;{}"sv), Mapping.ExtendedColour, Index);
+				far::format_to(Str, L"{};5;{}"sv, Mapping.ExtendedColour, Index);
 		}
 		else
 		{
 			const auto RGBA = colors::to_rgba(ColorPart);
-			format_to(Str, FSTR(L"{};2;{};{};{}"sv), Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
+			far::format_to(Str, L"{};2;{};{};{}"sv, Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
 		}
 	}
 
@@ -1702,7 +1702,7 @@ WARNING_POP()
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
 				const union { COLORREF Color; rgba RGBA; } Value{ Color };
-				format_to(Str, FSTR(OSC L"4;{};rgb:{:02x}/{:02x}/{:02x}" ST ""sv), vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				far::format_to(Str, OSC L"4;{};rgb:{:02x}/{:02x}/{:02x}" ST ""sv, vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			return ::console.Write(Str);

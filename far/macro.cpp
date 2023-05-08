@@ -1246,7 +1246,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected = 2;
 	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected = 2;
 
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(msg(lng::MMacroSettingsTitle), KeyToText(Key));
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = far::vformat(msg(lng::MMacroSettingsTitle), KeyToText(Key));
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
@@ -3113,7 +3113,7 @@ void FarMacroApi::menushowFunc() const
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.Name = format(FSTR(L"{:{}} - {}"sv), LineCount, nLeftShift - 3, NewItem.Name);
+			NewItem.Name = far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, NewItem.Name);
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -3148,7 +3148,7 @@ void FarMacroApi::menushowFunc() const
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.Name = format(FSTR(L"{:{}} - {}"sv), LineCount, nLeftShift - 3, Item.Name);
+				Item.Name = far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, Item.Name);
 			}
 		}
 	}
@@ -4999,7 +4999,7 @@ M1:
 					MessageTemplate = SetChange? lng::MMacroDeleteKey : lng::MMacroReDefinedKey;
 					//"Макроклавиша '{0}'   будет удалена : уже определена."
 				}
-				const auto strBuf = format(msg(MessageTemplate), strKeyText);
+				const auto strBuf = far::vformat(msg(MessageTemplate), strKeyText);
 
 				const std::array ChangeButtons{ lng::MYes, lng::MMacroEditKey, lng::MNo };
 				const std::array NoChangeButtons{ lng::MYes, lng::MNo };

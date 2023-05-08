@@ -657,8 +657,8 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 			Message(MSG_WARNING, *ErrorState,
 				msg(lng::MError),
 				{
-					format(msg(lng::MCopyMountVolFailed), Target),
-					format(msg(lng::MCopyMountVolFailed2), strFullLink)
+					far::vformat(msg(lng::MCopyMountVolFailed), Target),
+					far::vformat(msg(lng::MCopyMountVolFailed2), strFullLink)
 				},
 				{ lng::MOk });
 		}
@@ -836,7 +836,7 @@ bool reparse_tag_to_string(DWORD ReparseTag, string& Str)
 	if (!Str.empty())
 		return true;
 
-	Str = format(FSTR(L":{:0>8X}"sv), ReparseTag);
+	Str = far::format(L":{:0>8X}"sv, ReparseTag);
 	return false;
 }
 

@@ -3450,7 +3450,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				}
 
 				if (!Progress)
-					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
+					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), far::vformat(msg(lng::MEditSearchingFor), QuotedStr), 0);
 
 				SetCursorType(false, -1);
 				const auto Total = FindAll? Lines.size() : Backward ? StartLine : Lines.size() - StartLine;
@@ -3493,8 +3493,8 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				if(FindAll)
 				{
 					constexpr int service_len{ 12 };
-					const auto Location{ format(FSTR(L"{}:{}"sv), m_FoundLine.Number() + 1, m_FoundPos + 1) };
-					MenuItemEx Item{ format(FSTR(L"{:{}}{}{}"sv), Location, service_len, BoxSymbols[BS_V1], m_FoundLine->GetString()) };
+					const auto Location{ far::format(L"{}:{}"sv, m_FoundLine.Number() + 1, m_FoundPos + 1) };
+					MenuItemEx Item{ far::format(L"{:{}}{}{}"sv, Location, service_len, BoxSymbols[BS_V1], m_FoundLine->GetString()) };
 					Item.Annotations.emplace_back(m_FoundPos + service_len + 1, m_FoundSize);
 					Item.ComplexUserData = FindCoord{ m_FoundLine.Number(), m_FoundPos, m_FoundSize };
 					FindAllList->AddItem(Item);
@@ -3751,7 +3751,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 		const auto MenuY2 = MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2;
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
-		FindAllList->SetTitle(format(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
+		FindAllList->SetTitle(far::vformat(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(KeysToLocalizedText(KEY_CTRLENTER, KEY_F5, KEY_ADD, KEY_CTRLUP, KEY_CTRLDOWN));
 		FindAllList->SetHelp(L"FindAllMenu"sv);
 		FindAllList->SetId(EditorFindAllListId);

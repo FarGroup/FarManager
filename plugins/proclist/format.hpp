@@ -11,31 +11,37 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#define FMT_CONSTEVAL // Not yet
+#define FMT_CONSTEVAL consteval
+#define FMT_HAS_CONSTEVAL
 
 #include <fmt/format.h>
 #include <fmt/xchar.h>
 
 WARNING_POP()
 
-
 // TODO: Unify with Far
 
-template<typename F, typename... args>
-auto format(F&& Format, args&&... Args)
+#undef far
+#undef FAR
+#define FAR
+
+namespace far
 {
-	return fmt::format(Format, Args...);
+	template<typename... args>
+	using format_string = fmt::wformat_string<args...>;
+
+	template <typename... args>
+	auto format(format_string<args...> const Format, args const&... Args)
+	{
+		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+	}
+
+	template<typename... args>
+	auto vformat(std::wstring_view const Format, args const&... Args)
+	{
+		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+	}
 }
-
-// use FSTR or string_view instead of string literals
-template<typename char_type, size_t N, typename... args>
-auto format(const char_type(&Format)[N], args&&...) = delete;
-
-#if 1
-#define FSTR(str) FMT_STRING(str)
-#else
-#define FSTR(str) str ## sv
-#endif
 
 template<typename T>
 auto str(const T& Value)
@@ -45,7 +51,7 @@ auto str(const T& Value)
 
 inline auto str(const void* Value)
 {
-	return format(FSTR(L"0x{0:0{1}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return far::format(L"0x{:0{}X}", reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 std::wstring str(const char*) = delete;

@@ -1488,7 +1488,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			const auto refresh_status = [&]
 			{
-				const auto strDataStr = format(msg(lng::MFindFileFound), m_FileCount, m_DirCount);
+				const auto strDataStr = far::vformat(msg(lng::MFindFileFound), m_FileCount, m_DirCount);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
 				if (m_Searcher->Finished())
@@ -1501,7 +1501,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (!Params.DlgParams.IsSearchPatternEmpty())
 					{
-						strFM = format(
+						strFM = far::vformat(
 							msg(lng::MFindFileSearchingIn),
 							quote_unconditional(
 								truncate_right(Params.DlgParams.Hex.value()
@@ -1509,7 +1509,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									: Params.DlgParams.SearchStr, 10)))
 							+ L' ' + strFM;
 
-						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), m_Percent)));
+						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(far::format(L"{:3}%"sv, m_Percent)));
 					}
 
 					SMALL_RECT Rect;
@@ -1556,7 +1556,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Finalized = true;
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-				const auto strMessage = format(msg(lng::MFindFileDone), m_FileCount, m_DirCount);
+				const auto strMessage = far::vformat(msg(lng::MFindFileDone), m_FileCount, m_DirCount);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);

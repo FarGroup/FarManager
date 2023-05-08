@@ -475,7 +475,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 			MarkAmpFix = Mark.size() - HiStrlen(Mark),
 			NameAmpFix = Name.size() - HiStrlen(Name);
 
-		return format(FSTR(L"{1:{2}.{2}} {0} {3:{4}.{4}} {0} {5} {6} {0} {7}"sv),
+		return far::format(L"{1:{2}.{2}} {0} {3:{4}.{4}} {0} {5} {6} {0} {7}"sv,
 			BoxSymbols[BS_V1],
 			Mark,
 			MaxMarkSize + MarkAmpFix,
@@ -487,10 +487,10 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 		);
 	}
 
-	const auto HotkeyStr = Hotkey? format(FSTR(L"&{}. "sv), Hotkey) : bPanelType? L"   "s : L""s;
+	const auto HotkeyStr = Hotkey? far::format(L"&{}. "sv, Hotkey) : bPanelType? L"   "s : L""s;
 	const auto AmpFix = Hotkey? 1 : Name.size() - HiStrlen(Name);
 
-	return format(FSTR(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
+	return far::format(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"sv,
 			BoxSymbols[BS_V1],
 			HotkeyStr,
 			Name,
@@ -826,13 +826,13 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	default:
 	case date_type::ymd:
 		// Маска даты для формата YYYYY.MM.DD
-		strDateMask = format(FSTR(L"N9999{0}99{0}99"sv), DateSeparator);
+		strDateMask = far::format(L"N9999{0}99{0}99"sv, DateSeparator);
 		break;
 
 	case date_type::mdy:
 	case date_type::dmy:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
+		strDateMask = far::format(L"99{0}99{0}9999N"sv, DateSeparator);
 		break;
 	}
 
@@ -909,7 +909,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	FilterDlg[ID_FF_MASKEDIT].strHistory = L"FilterMasks"sv;
 
 	FilterDlg[ID_FF_DATEBEFOREEDIT].strMask = FilterDlg[ID_FF_DATEAFTEREDIT].strMask = strDateMask;
-	FilterDlg[ID_FF_TIMEBEFOREEDIT].strMask = FilterDlg[ID_FF_TIMEAFTEREDIT].strMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
+	FilterDlg[ID_FF_TIMEBEFOREEDIT].strMask = FilterDlg[ID_FF_TIMEAFTEREDIT].strMask = far::format(L"99{0}99{0}99{1}9999999"sv, TimeSeparator, DecimalSeparator);
 	// Маска для ввода дней для относительной даты
 	FilterDlg[ID_FF_DAYSBEFOREEDIT].strMask = FilterDlg[ID_FF_DAYSAFTEREDIT].strMask = L"9999"sv;
 

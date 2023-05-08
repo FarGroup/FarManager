@@ -440,7 +440,7 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 			MessageItems.emplace_back(strFriendlyName);
 
 		if (!DisksStr.empty())
-			MessageItems.emplace_back(format(msg(lng::MHotPlugDisks), DisksStr));
+			MessageItems.emplace_back(far::vformat(msg(lng::MHotPlugDisks), DisksStr));
 
 		MessageResult = Message(MSG_WARNING,
 			msg(lng::MChangeHotPlugDisconnectDriveTitle),

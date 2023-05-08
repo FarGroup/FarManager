@@ -1530,7 +1530,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	string StrPercent;
 	if (ShowPercent)
 	{
-		StrPercent = format(FSTR(L" {:3}%"sv), Percent);
+		StrPercent = far::format(L" {:3}%"sv, Percent);
 		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);
@@ -1688,7 +1688,7 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 
 	for (;;)
 	{
-		std::wcout << format(FSTR(L"\n{} ({})? "sv), Message, join(L"/"sv, Choices)) << std::flush;
+		std::wcout << far::format(L"\n{} ({})? "sv, Message, join(L"/"sv, Choices)) << std::flush;
 
 		wchar_t Input;
 		std::wcin.clear();

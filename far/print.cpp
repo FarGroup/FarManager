@@ -153,11 +153,11 @@ void PrintFiles(FileList* SrcPanel)
 				if (!SrcPanel->get_first_selected(Data))
 					return;
 
-				strTitle = format(msg(lng::MPrintTo), quote_unconditional(truncate_left(Data.FileName, 50)));
+				strTitle = far::vformat(msg(lng::MPrintTo), quote_unconditional(truncate_left(Data.FileName, 50)));
 			}
 			else
 			{
-				strTitle = format(msg(lng::MPrintFilesTo), SelCount - DirsCount);
+				strTitle = far::vformat(msg(lng::MPrintFilesTo), SelCount - DirsCount);
 			}
 
 			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
@@ -206,7 +206,7 @@ void PrintFiles(FileList* SrcPanel)
 				if (CheckForEscAndConfirmAbort())
 					break;
 
-				Progress.update(format(msg(lng::MPrintingFile), i.FileName));
+				Progress.update(far::vformat(msg(lng::MPrintingFile), i.FileName));
 				Progress.update(ToPercent(PrintIndex, SelCount - DirsCount));
 			}
 

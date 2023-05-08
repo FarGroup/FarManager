@@ -663,8 +663,8 @@ static string format_process_name(DWORD const Pid, string_view const ImageName, 
 		HaveAppHame = AppName && *AppName,
 		HaveServiceName = ServiceShortName && *ServiceShortName;
 
-	return format(
-		FSTR(L"{} (PID {}{}{}{}{}{})"sv),
+	return far::format(
+		L"{} (PID {}{}{}{}{}{})"sv,
 		!ImageName.empty()? ImageName : L"Unknown"sv,
 		Pid,
 		HaveAppHame? L", "sv : L""sv,
@@ -804,7 +804,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 
 			if (ProcessCount > MaxProcesses)
 			{
-				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxProcesses));
+				Msg.emplace_back(far::vformat(msg(lng::MObjectLockedAndMore), ProcessCount - MaxProcesses));
 			}
 
 			static const std::pair<DWORD, lng> Mappings[]
@@ -837,7 +837,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 	std::vector Msgs{std::move(Description), QuoteOuterSpace(Object)};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));
+		Msgs.emplace_back(far::vformat(msg(lng::MObjectLockedReason), msg(Reason)));
 		std::move(ALL_RANGE(Msg), std::back_inserter(Msgs));
 		Msg.clear();
 	}
@@ -1260,19 +1260,19 @@ void regex_playground()
 
 			const auto match_str = [&](RegExpMatch const& m)
 			{
-				return m.start < 0? L""s : format(FSTR(L"{}-{} {}"sv), m.start, m.end, TestStr.substr(m.start, m.end - m.start));
+				return m.start < 0? L""s : far::format(L"{}-{} {}"sv, m.start, m.end, TestStr.substr(m.start, m.end - m.start));
 			};
 
 			for (const auto& [i, Index] : enumerate(Match))
 			{
-				ListStrings.emplace_back(format(FSTR(L"${}: {}"sv), Index, match_str(i)));
+				ListStrings.emplace_back(far::format(L"${}: {}"sv, Index, match_str(i)));
 				ListItems.push_back({ i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0 });
 			}
 
 			for (const auto& [k, v] : NamedMatch.Matches)
 			{
 				const auto& m = Match[v];
-				ListStrings[v] = format(FSTR(L"${{{}}}: {}"sv), k, match_str(m));
+				ListStrings[v] = far::format(L"${{{}}}: {}"sv, k, match_str(m));
 				ListItems[v].Text = ListStrings[v].c_str();
 			}
 

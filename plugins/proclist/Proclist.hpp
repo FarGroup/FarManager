@@ -317,4 +317,9 @@ inline bool norm_m_prefix(const wchar_t* Str)
 	return Str[0] == L'\\' && Str[1] == L'\\';
 }
 
+inline namespace literals
+{
+	using namespace std::literals;
+}
+
 #endif // PROCLIST_HPP_71FFA62B_457B_416D_B4F5_DAB215BE015F

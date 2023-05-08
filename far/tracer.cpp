@@ -62,13 +62,13 @@ static auto format_address(uintptr_t const Value)
 		width_in_hex_chars<decltype(Value)> :
 		width_in_hex_chars<uint32_t>;
 
-	return format(FSTR(L"{:0{}X}"sv), Value, Width);
+	return far::format(L"{:0{}X}"sv, Value, Width);
 }
 
 static auto format_symbol(string_view const ImageName, os::debug::symbols::symbol const Symbol)
 {
-	return format(
-		FSTR(L"{}!{}{}"sv),
+	return far::format(
+		L"{}!{}{}"sv,
 		!ImageName.empty()?
 			PointToName(ImageName):
 			L"<unknown>"sv,
@@ -76,7 +76,7 @@ static auto format_symbol(string_view const ImageName, os::debug::symbols::symbo
 			Symbol.Name :
 			L"<unknown> (get the pdb)"sv,
 		!Symbol.Name.empty()?
-			format(FSTR(L"+0x{:X}"sv), Symbol.Displacement) :
+			far::format(L"+0x{:X}"sv, Symbol.Displacement) :
 			L""s
 	);
 }
@@ -84,7 +84,7 @@ static auto format_symbol(string_view const ImageName, os::debug::symbols::symbo
 static auto format_location(os::debug::symbols::location const Location)
 {
 	return !Location.FileName.empty()?
-		concat(Location.FileName, Location.Line? format(FSTR(L"({})"sv), *Location.Line) : L""s) :
+		concat(Location.FileName, Location.Line? far::format(L"({})"sv, *Location.Line) : L""s) :
 		L""s;
 }
 

@@ -71,7 +71,7 @@ namespace build
 #endif
 			L""sv;
 
-		return format(FSTR(L"{}, version {}.{}.{}{}"sv),
+		return far::format(L"{}, version {}.{}.{}{}"sv,
 			COMPILER_NAME,
 			COMPILER_VERSION_MAJOR,
 			COMPILER_VERSION_MINOR,
@@ -82,7 +82,7 @@ namespace build
 
 	string library()
 	{
-		return format(FSTR(L"{}, version {}.{}.{}"sv),
+		return far::format(L"{}, version {}.{}.{}"sv,
 			STANDARD_LIBRARY_NAME,
 			STANDARD_LIBRARY_VERSION_MAJOR,
 			STANDARD_LIBRARY_VERSION_MINOR,

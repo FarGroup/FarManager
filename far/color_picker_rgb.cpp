@@ -189,7 +189,7 @@ struct color_rgb_state
 
 	static auto channel_value(uint8_t const Channel)
 	{
-		return format(FSTR(L"{:>3}"sv), Channel);
+		return far::format(L"{:>3}"sv, Channel);
 	}
 
 	rgb as_rgb() const

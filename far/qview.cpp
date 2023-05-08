@@ -150,7 +150,7 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
 		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MListFolder).size() - 5));
-		PrintText(format(FSTR(LR"({} "{}")"), msg(lng::MListFolder), DisplayName));
+		PrintText(far::format(LR"({} "{}")", msg(lng::MListFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -191,7 +191,7 @@ void QuickView::DisplayObject()
 			inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
-			PrintText(format(FSTR(LR"({} "{}")"), TypeName, Target));
+			PrintText(far::format(LR"({} "{}")", TypeName, Target));
 		}
 
 		const auto bytes_suffix = upper(msg(lng::MListBytes));
@@ -240,14 +240,13 @@ void QuickView::DisplayObject()
 			PrintRow(5, lng::MQuickViewFiles, str(Data.FileCount));
 			PrintRow(6, lng::MQuickViewBytes, size2str(Data.FileSize));
 
-			const auto Format = FSTR(L"{} ({}%)"sv);
-			PrintRow(7, lng::MQuickViewAllocated, format(Format, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
+			PrintRow(7, lng::MQuickViewAllocated, far::format(L"{} ({}%)"sv, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (m_DirectoryScanStatus == scan_status::real_ok)
 			{
 				PrintRow(9, lng::MQuickViewCluster, GroupDigits(Data.ClusterSize));
-				PrintRow(10, lng::MQuickViewSlack, format(Format, size2str(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
-				PrintRow(11, lng::MQuickViewMFTOverhead, format(Format, size2str(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
+				PrintRow(10, lng::MQuickViewSlack, far::format(L"{} ({}%)"sv, size2str(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
+				PrintRow(11, lng::MQuickViewMFTOverhead, far::format(L"{} ({}%)"sv, size2str(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
 			}
 		}
 	}

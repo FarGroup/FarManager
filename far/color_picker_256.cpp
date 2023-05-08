@@ -186,7 +186,7 @@ struct color_256_state
 
 	static auto channel_value(uint8_t const Channel)
 	{
-		return format(FSTR(L" {} "sv), Channel);
+		return far::format(L" {} "sv, Channel);
 	}
 
 	rgb as_rgb() const

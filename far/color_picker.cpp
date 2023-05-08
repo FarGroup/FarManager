@@ -95,8 +95,8 @@ static_assert(std::size(color_by_control) == std::size(IndexColors));
 static string color_code(COLORREF const Color, bool const IsIndex)
 {
 	return IsIndex?
-		format(FSTR(L"{:02X}    {:02X}"sv), colors::alpha_value(Color), colors::index_value(Color)) :
-		format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
+		far::format(L"{:02X}    {:02X}"sv, colors::alpha_value(Color), colors::index_value(Color)) :
+		far::format(L"{:08X}"sv, colors::ARGB2ABGR(Color));
 }
 
 static std::optional<COLORREF> parse_color(string_view const Str, bool const IsIndex)

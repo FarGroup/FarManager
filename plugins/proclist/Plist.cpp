@@ -258,16 +258,16 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 
 	if (!CurDir.empty())
 	{
-		WriteToFile(InfoFile, format(FSTR(L"{0}:\n{1}\n"), GetMsg(MCurDir), CurDir));
+		WriteToFile(InfoFile, far::format(L"{}:\n{}\n"sv, GetMsg(MCurDir), CurDir));
 	}
 
 	if (bExportEnvironment && !EnvStrings.empty())
 	{
-		WriteToFile(InfoFile, format(FSTR(L"\n{0}:\n"), GetMsg(MEnvironment)));
+		WriteToFile(InfoFile, far::format(L"\n{}:\n"sv, GetMsg(MEnvironment)));
 
 		for (wchar_t* p = EnvStrings.data(); *p; p += std::wcslen(p) + 1)
 		{
-			WriteToFile(InfoFile, format(FSTR(L"{0}\n"), p));
+			WriteToFile(InfoFile, far::format(L"{}\n"sv, p));
 		}
 	}
 }
@@ -294,13 +294,13 @@ static void PrintModuleVersion(HANDLE InfoFile, const wchar_t* pVersion, const w
 
 static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module, DWORD const SizeOfImage, const options& LocalOpt, const std::function<bool(wchar_t*, size_t)>& GetName)
 {
-	auto len = WriteToFile(InfoFile, format(FSTR(L"{0} {1:8X}"), Module, SizeOfImage));
+	auto len = WriteToFile(InfoFile, far::format(L"{} {:8X}"sv, Module, SizeOfImage));
 
 	WCHAR wszModuleName[MAX_PATH];
 
 	if (GetName(wszModuleName, std::size(wszModuleName)))
 	{
-		len += WriteToFile(InfoFile, format(FSTR(L" {0}"), wszModuleName));
+		len += WriteToFile(InfoFile, far::format(L" {}"sv, wszModuleName));
 
 		const wchar_t* pVersion, * pDesc;
 		std::unique_ptr<char[]> Buffer;
@@ -320,9 +320,9 @@ static void print_module(HANDLE const InfoFile, module_type Module, DWORD const 
 	std::wstring ModuleStr;
 
 	if constexpr (sizeof(module_type) > sizeof(void*))
-		ModuleStr = format(FSTR(L"{0:016X}"), Module);
+		ModuleStr = far::format(L"{:016X}"sv, Module);
 	else
-		ModuleStr = format(FSTR(L"{0:0{1}X}"), reinterpret_cast<uintptr_t>(Module), sizeof(void*) * 2);
+		ModuleStr = far::format(L"{:0{}X}"sv, reinterpret_cast<uintptr_t>(Module), sizeof(void*) * 2);
 
 	print_module_impl(InfoFile, ModuleStr, SizeOfImage, LocalOpt, GetName);
 }

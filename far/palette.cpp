@@ -291,7 +291,7 @@ static palette::custom_colors CustomColors;
 
 static string CustomLabel(size_t Index)
 {
-	return format(FSTR(L"CustomColor{}"sv), Index);
+	return far::format(L"CustomColor{}"sv, Index);
 }
 
 void palette::Load()

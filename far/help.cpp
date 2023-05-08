@@ -1532,7 +1532,7 @@ bool Help::JumpTopic()
 
 			const auto SetSelTopic = [&](const auto FormatString)
 			{
-				StackData->strSelTopic = format(FormatString, ConvertNameToFull(FullPath), Topic);
+				StackData->strSelTopic = far::format(FormatString, ConvertNameToFull(FullPath), Topic);
 			};
 
 			EndSlash? SetSelTopic(HelpFormatLink) : SetSelTopic(HelpFormatLinkModule);
@@ -2064,7 +2064,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				if (!GetLangParam(HelpFile, ContentsName, strEntryName, HelpFileCodePage))
 					continue;
 
-				AddLine(format(FSTR(L"   ~{}~@{}@"sv), strEntryName, help::make_link(Path, HelpContents)));
+				AddLine(far::format(L"   ~{}~@{}@"sv, strEntryName, help::make_link(Path, HelpContents)));
 			}
 
 			break;
@@ -2209,7 +2209,7 @@ namespace help
 			return string(HelpTopic.substr(1));
 
 		auto Topic = pPlugin && HelpTopic.front() != HelpBeginLink?
-			format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
+			far::format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
 			string(HelpTopic);
 
 		if (!Topic.starts_with(HelpBeginLink))

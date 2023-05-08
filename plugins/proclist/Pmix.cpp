@@ -53,7 +53,7 @@ int WinError(const wchar_t* pSourceModule)
 	}
 	else
 	{
-		Buffer = format(FSTR(L"Error 0x{0:08X}"), LastError);
+		Buffer = far::format(L"Error 0x{0:08X}"sv, LastError);
 	}
 
 	Buffer.resize(Buffer.find_last_not_of(L"\r\n") + 1);

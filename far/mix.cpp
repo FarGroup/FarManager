@@ -411,7 +411,7 @@ string version_to_string(const VersionInfo& Version)
 
 	static_assert(std::size(Stage) == VS_PRIVATE + 1);
 
-	auto VersionStr = format(FSTR(L"{}.{}.{}.{}"sv), Version.Major, Version.Minor, Version.Build, Version.Revision);
+	auto VersionStr = far::format(L"{}.{}.{}.{}"sv, Version.Major, Version.Minor, Version.Build, Version.Revision);
 	if (Version.Stage != VS_RELEASE && static_cast<size_t>(Version.Stage) < std::size(Stage))
 	{
 		append(VersionStr, L" ("sv, Stage[Version.Stage], L')');

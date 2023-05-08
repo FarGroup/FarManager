@@ -509,7 +509,7 @@ static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 
 	try
 	{
-		Parameters = format(os::env::expand(Global->Opt->Exec.ComspecArguments), FullCommand);
+		Parameters = far::vformat(os::env::expand(Global->Opt->Exec.ComspecArguments), FullCommand);
 	}
 	catch (fmt::format_error const& e)
 	{

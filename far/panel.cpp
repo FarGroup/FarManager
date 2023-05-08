@@ -255,10 +255,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else
 	{
-		strSelName = format(msg(lng::MDragFiles), SelCount);
+		strSelName = far::vformat(msg(lng::MDragFiles), SelCount);
 	}
 
-	auto strDragMsg = format(msg(Move? lng::MDragMove : lng::MDragCopy), strSelName);
+	auto strDragMsg = far::vformat(msg(Move? lng::MDragMove : lng::MDragCopy), strSelName);
 
 	auto Length = static_cast<int>(strDragMsg.size());
 	int MsgX = X;

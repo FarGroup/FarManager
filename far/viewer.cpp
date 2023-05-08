@@ -873,7 +873,7 @@ void Viewer::ShowHex()
 		if (Y == m_Where.top + 1 && !veof())
 			SecondPos=vtell();
 
-		auto OutStr = format(FSTR(L"{:010X}: "sv), vtell());
+		auto OutStr = far::format(L"{:010X}: "sv, vtell());
 		int SelStart = static_cast<int>(OutStr.size()), SelEnd = SelStart;
 		const auto fpos = vtell();
 
@@ -929,7 +929,7 @@ void Viewer::ShowHex()
 			for (const auto& X: irange(m_BytesPerLine))
 			{
 				if (X < BytesRead)
-					format_to(OutStr, FSTR(L"{:02X} "sv), static_cast<int>(RawBuffer[X]));
+					far::format_to(OutStr, L"{:02X} "sv, static_cast<int>(RawBuffer[X]));
 				else
 					OutStr.append(3, L' ');
 
