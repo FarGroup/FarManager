@@ -37,7 +37,7 @@ inline auto write_loc(std::back_insert_iterator<detail::buffer<wchar_t>> out,
 }
 }  // namespace detail
 
-FMT_MODULE_EXPORT_BEGIN
+FMT_BEGIN_EXPORT
 
 using wstring_view = basic_string_view<wchar_t>;
 using wformat_parse_context = basic_format_parse_context<wchar_t>;
@@ -170,7 +170,7 @@ inline auto vformat_to(
   auto&& buf = detail::get_buffer<Char>(out);
   vformat_to(buf, detail::to_string_view(format_str), args,
              detail::locale_ref(loc));
-  return detail::get_iterator(buf);
+  return detail::get_iterator(buf, out);
 }
 
 template <
@@ -181,7 +181,7 @@ template <
 inline auto format_to(OutputIt out, const Locale& loc, const S& format_str,
                       Args&&... args) ->
     typename std::enable_if<enable, OutputIt>::type {
-  return vformat_to(out, loc, to_string_view(format_str),
+  return vformat_to(out, loc, detail::to_string_view(format_str),
                     fmt::make_format_args<buffer_context<Char>>(args...));
 }
 
@@ -253,7 +253,7 @@ template <typename... T> void println(wformat_string<T...> fmt, T&&... args) {
 template <typename T> inline auto to_wstring(const T& value) -> std::wstring {
   return format(FMT_STRING(L"{}"), value);
 }
-FMT_MODULE_EXPORT_END
+FMT_END_EXPORT
 FMT_END_NAMESPACE
 
 #endif  // FMT_XCHAR_H_
