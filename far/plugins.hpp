@@ -240,6 +240,7 @@ private:
 	void UndoRemove(const Plugin* plugin);
 	bool UpdateId(Plugin* pPlugin, const UUID& Id);
 	void LoadPluginsFromCache();
+	int ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, const bool fe_close) const;
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
 	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;

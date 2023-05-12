@@ -1590,7 +1590,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		item = *PluginList->GetComplexUserDataPtr<PluginMenuItemData>(ExitCode);
 	}
 
-	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	int OpenCode=OPEN_PLUGINSMENU;
 	intptr_t Item=0;
 	OpenDlgPluginData pd{ sizeof(pd) };
@@ -1614,49 +1613,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
-		bool plugin_panel_stack = false;
-		std::wstring hostfile;
-		const auto FList = dynamic_cast<FileList*>(ActivePanel.get());
-		//
-		if (FList)
-		{
-			if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
-			{
-				unsigned long long IFlags = 0;
-				PluginInfo Info{ sizeof(Info) };
-				if (GetPluginInfo(hPlugin->plugin(), &Info))
-					IFlags = Info.Flags;
-
-				if ((IFlags & PF_RECURSIVEPANEL) != 0)
-				{
-					OpenPanelInfo info = { sizeof(info), hPlugin->panel() };
-					hPlugin->plugin()->GetOpenPanelInfo(&info);
-					if (info.HostFile && info.HostFile[0])
-					{
-						hostfile = info.HostFile;
-						plugin_panel_stack = true;
-					}
-				}
-			}
-		}
-		if (plugin_panel_stack)
-		{
-			FList->PushFilePlugin(hostfile, std::move(hPlugin));
-		}
-
-		else
-		{
-			if (ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
-			{
-				ClosePanel(std::move(hPlugin));
-				return FALSE;
-			}
-
-			const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
-			NewPanel->Update(0);
-			NewPanel->Show();
-		}
+		if (!ProcessPluginPanel(std::move(hPlugin), true))
+			return FALSE;
 	}
 
 	// restore title for old plugins only.
@@ -1669,6 +1627,56 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 #endif // NO_WRAPPER
+	return TRUE;
+}
+//
+int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin, const bool fe_close) const
+{
+	bool plugin_panel_stack = false;
+	std::wstring hostfile;
+	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+	const auto FList = dynamic_cast<FileList*>(ActivePanel.get());
+	//
+	if (FList)
+	{
+		if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
+		{
+			unsigned long long IFlags = 0;
+			PluginInfo Info{ sizeof(Info) };
+			if (GetPluginInfo(hNewPlugin->plugin(), &Info))
+				IFlags = Info.Flags;
+
+			if ((IFlags & PF_RECURSIVEPANEL) != 0)
+			{
+				OpenPanelInfo info = { sizeof(info), hNewPlugin->panel() };
+				hNewPlugin->plugin()->GetOpenPanelInfo(&info);
+				if (info.HostFile && info.HostFile[0])
+				{
+					hostfile = info.HostFile;
+					plugin_panel_stack = true;
+				}
+			}
+		}
+	}
+	if (plugin_panel_stack)
+	{
+		FList->PushFilePlugin(hostfile, std::move(hNewPlugin));
+	}
+
+	else
+	{
+		if (fe_close && ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
+		{
+			ClosePanel(std::move(hNewPlugin));
+			return FALSE;
+		}
+
+		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
+		NewPanel->SetPluginMode(std::move(hNewPlugin), {}, true);
+		NewPanel->Update(0);
+		NewPanel->Show();
+	}
+
 	return TRUE;
 }
 
@@ -2098,10 +2106,7 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.c_str() };
 	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info)))
 	{
-		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
-		NewPanel->Update(0);
-		NewPanel->Show();
+		ProcessPluginPanel(std::move(hPlugin), false);
 	}
 	return true;
 }
@@ -2372,18 +2377,11 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 
 	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
+		if (!ProcessPluginPanel(std::move(hPlugin), true))
+			return FALSE;
+
 		//BUGBUG: Закрытие панели? Нужно ли оно?
 		//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
-		if (ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
-		{
-			ClosePanel(std::move(hPlugin));
-			return false;
-		}
-
-		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
-		NewPanel->Update(0);
-		NewPanel->Show();
 	}
 
 	// restore title for old plugins only.
