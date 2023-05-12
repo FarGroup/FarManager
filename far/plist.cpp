@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
-#include "string_sort.hpp"
 #include "exception_handler.hpp"
 #include "console.hpp"
 #include "keyboard.hpp"
@@ -163,7 +162,6 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 	const auto Self = Pid == GetCurrentProcessId() || Window == console.GetWindow();
 
 	MenuItemEx NewItem(far::format(L"{:{}} {} {}"sv, Pid, PidWidth, BoxSymbols[BS_V1], MenuItem), Self? MIF_CHECKED : MIF_NONE);
-	// for sorting
 	NewItem.ComplexUserData = menu_data{ WindowTitle, Pid, Window };
 	Menu->AddItem(NewItem);
 }
@@ -204,11 +202,6 @@ void ShowProcessList()
 		{
 			AddMenuItem(Window, Pid, PidWidth, ShowImage, ProcList);
 		}
-
-		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam&)
-		{
-			return string_sort::less(std::any_cast<const menu_data&>(a.ComplexUserData).Title, std::any_cast<const menu_data&>(b.ComplexUserData).Title);
-		});
 
 		return true;
 	};

@@ -83,39 +83,39 @@ public:
 
 	const wchar_t* guess_fs_ext(const uint32_t f_index)
 	{
-		unsigned char bs[1024*2];
+		union { unsigned char bs[1024*2]; uint64_t zeroes[1024/sizeof(uint64_t)]; } u;
 		ComObject<IInStream> sub_stream;
 		if (!archive->get_stream(f_index, sub_stream.ref()))
 			return nullptr;
 		UInt32 nr = 0;
-		if (S_OK != sub_stream->Read(bs, sizeof(bs), &nr) || nr != sizeof(bs))
+		if (S_OK != sub_stream->Read(u.bs, sizeof(u.bs), &nr) || nr != sizeof(u.bs))
 			return nullptr;
 
-		if (bs[510] == '\x55' && bs[511] == '\xAA') {
-			if (memcmp(bs + 0x03, "EXFAT   ", 8) == 0)
+		if (u.bs[510] == '\x55' && u.bs[511] == '\xAA') {
+			if (memcmp(u.bs + 0x03, "EXFAT   ", 8) == 0)
 				return ext_ExFAT;
-			if (memcmp(bs + 0x03, "NTFS    ", 8) == 0)
+			if (memcmp(u.bs + 0x03, "NTFS    ", 8) == 0)
 				return ext_NTFS;
-			if (memcmp(bs + 0x52, "FAT32   ", 8) == 0)
+			if (memcmp(u.bs + 0x52, "FAT32   ", 8) == 0)
 				return ext_FAT;
-			if (memcmp(bs + 0x36, "FAT16   ", 8) == 0)
+			if (memcmp(u.bs + 0x36, "FAT16   ", 8) == 0)
 				return ext_FAT;
-			if (memcmp(bs + 0x36, "FAT12   ", 8) == 0)
+			if (memcmp(u.bs + 0x36, "FAT12   ", 8) == 0)
 				return ext_FAT;
 		}
 
-		if (bs[0x438] == 0x53 && bs[0x439] == 0xEF) { // 0xEF53 -- ExtFS superblock_magic
+		if (u.bs[0x438] == 0x53 && u.bs[0x439] == 0xEF) { // 0xEF53 -- ExtFS superblock_magic
 			bool zero_1k = true;
-			for (int i = 0; i < 0x400; ++i) {
-				if (bs[i] != 0x00) {
+			for (int i = 0; i < _countof(u.zeroes); ++i) {
+				if (u.zeroes[i] != 0) {
 					zero_1k = false; break;
 				}
 			}
 			if (zero_1k) {
-				if (bs[0x44c] == 0x00) // s_rev_level
+				if (u.bs[0x44c] == 0x00) // s_rev_level
 					return ext_EXT2;
-				if (bs[0x44c] == 0x01) { // s_rev_level
-					return (bs[0x45c] & 0x04) == 0x00 ? ext_EXT2 : ext_EXT3; // s_feature_compat HAS_JOURNAL bit
+				if (u.bs[0x44c] == 0x01) { // s_rev_level
+					return (u.bs[0x45c] & 0x04) == 0x00 ? ext_EXT2 : ext_EXT3; // s_feature_compat HAS_JOURNAL bit
 				}
 				return ext_EXTn;
 			}
@@ -1248,6 +1248,7 @@ void WINAPI GetPluginInfoW(PluginInfo* info) {
   config_menu[0] = Far::msg_ptr(MSG_PLUGIN_NAME);
 
   info->StructSize = sizeof(PluginInfo);
+  info->Flags = PF_RECURSIVEPANEL;
   info->PluginMenu.Guids = &c_plugin_menu_guid;
   info->PluginMenu.Strings = plugin_menu;
   info->PluginMenu.Count = ARRAYSIZE(plugin_menu);

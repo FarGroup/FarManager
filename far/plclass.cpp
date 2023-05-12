@@ -724,10 +724,7 @@ bool Plugin::Unload(bool bExitFAR)
 		return true;
 
 	if (bExitFAR)
-	{
-		ExitInfo Info{ sizeof(Info) };
-		ExitFAR(&Info);
-	}
+		NotifyExit();
 
 	bool Result = true;
 
@@ -743,6 +740,15 @@ bool Plugin::Unload(bool bExitFAR)
 	bPendingRemove = true;
 
 	return Result;
+}
+
+void Plugin::NotifyExit()
+{
+	if (WorkFlags.Check(PIWF_LOADED))
+	{
+		ExitInfo Info{sizeof(Info)};
+		ExitFAR(&Info);
+	}
 }
 
 void Plugin::ClearExports()
