@@ -137,6 +137,7 @@ class PluginManager: noncopyable
 
 public:
 	PluginManager();
+	void NotifyExit();
 
 	// API functions
 	std::unique_ptr<plugin_panel> Open(Plugin* pPlugin, int OpenFrom, const UUID& Uuid, intptr_t Item) const;

@@ -1,3 +1,8 @@
+w17 2023-05-12 12:06:40+03:00 - build 6139
+
+1. https://bugs.farmanager.com/view.php?id=3447
+   Provide alive macro API in ExitFAR event.
+
 --------------------------------------------------------------------------------
 drkns 2023-05-11 19:36:13+01:00 - build 6138
 

@@ -296,6 +296,7 @@ public:
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 
 	bool Load();
+	void NotifyExit();
 	bool Unload(bool bExitFAR = false);
 	bool LoadData();
 	bool LoadFromCache(const os::fs::find_data &FindData);

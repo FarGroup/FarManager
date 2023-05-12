@@ -88,6 +88,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static const union {
+	unsigned char uc_array[16];
+	UUID uuid;
+} LuamacroGuid = { 200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77 };
+
+//----------------------------------------------------------------------------
+
 static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {
 	/*
@@ -126,7 +133,7 @@ static void EnsureLuaCpuCompatibility()
 	if (IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE))
 		return;
 
-	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"legacy"sv, L"lua51.dll"sv));
+	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"Legacy"sv, L"lua51.dll"sv));
 	// modules are lazy loaded
 	(void)LuaModule.operator bool();
 #endif
@@ -138,6 +145,15 @@ PluginManager::PluginManager():
 #endif // NO_WRAPPER
 	m_PluginsLoaded()
 {
+}
+
+void PluginManager::NotifyExit()
+{
+	std::for_each(CONST_RANGE(SortedPlugins, i)
+	{
+		if (i->Id() == LuamacroGuid.uuid)
+			i->NotifyExit();
+	});
 }
 
 void PluginManager::UnloadPlugins()
@@ -158,7 +174,7 @@ void PluginManager::UnloadPlugins()
 
 	if (Luamacro)
 	{
-		Luamacro->Unload(true);
+		Luamacro->Unload(false);
 	}
 
 	// some plugins might still have dialogs (if DialogFree wasn't called)
@@ -307,7 +323,7 @@ int PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 
 		const auto IsPanelPlugin = pPlugin->IsPanelPlugin();
 
-		nResult = pPlugin->Unload(true);
+		nResult = pPlugin->Unload();
 
 		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
@@ -336,7 +352,7 @@ bool PluginManager::IsPluginUnloaded(const Plugin* pPlugin) const
 bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 {
 	//BUGBUG нужны проверки на легальность выгрузки
-	if(pPlugin->Active())
+	if (pPlugin->Active())
 	{
 		if(!IsPluginUnloaded(pPlugin))
 		{
@@ -346,7 +362,7 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 	}
 
 	UnloadedPlugins.remove(pPlugin);
-	const auto Result = pPlugin->Unload(true);
+	const auto Result = pPlugin->Unload();
 	RemovePlugin(pPlugin);
 	return Result;
 }
@@ -2460,7 +2476,7 @@ void PluginManager::RefreshPluginsList()
 		{
 			if (!i->Active())
 			{
-				i->Unload(true);
+				i->Unload();
 				RemovePlugin(i);
 				return true;
 			}
