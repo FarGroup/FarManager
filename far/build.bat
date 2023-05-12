@@ -62,6 +62,7 @@ goto :EOF
   for %%p in (dwarf dw2) do if /i "%%p" == "%~1" set dwarf=Y
   for %%p in (15 15.0 141 vc15 2017 vs2017) do if /i "%%p" == "%~1" set "vcver=15"
   for %%p in (16 16.0 142 vc16 2019 vs2019) do if /i "%%p" == "%~1" set "vcver=16"
+  for %%p in (17 17.0 143 vc17 2022 vs2022) do if /i "%%p" == "%~1" set "vcver=17"
 goto :EOF
 
 :init
@@ -101,12 +102,13 @@ goto :EOF
 
 :set_vcver
   set "vcver="
-  for %%v in (15 16) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
+  for %%v in (15 16 17) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
 goto :EOF
 
 :set_vc
 :set_vcvars
   if "" == "%vcver%" if not "" == "%VS160COMNTOOLS%" if exist "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars32.bat" set "vcver=16"
+  if "" == "%vcver%" if not "" == "%VS170COMNTOOLS%" if exist "%VS170COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars64.bat" set "vcver=17"
   if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars32.bat" set "vcver=15"
   if "" == "%vcver%" set "vcver=16"
   set "VisualStudioVersion=%vcver%.0"
@@ -115,5 +117,6 @@ goto :EOF
   if "%~1" == "64" set "vcmod=64"
   if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
+  if "%vcver%" == "17" call "%VS170COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   set "vcmod="
 goto :EOF
