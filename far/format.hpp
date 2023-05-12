@@ -184,14 +184,10 @@ struct fmt::formatter<object_type, wchar_t>: format_helpers::no_spec<object_type
 };
 
 // fmt 9 deprecated implicit enums formatting :(
-template<typename object_type, typename char_type> requires std::is_enum_v<object_type>
-struct fmt::formatter<object_type, char_type>: fmt::formatter<std::underlying_type_t<object_type>, char_type>
+template<typename enum_type> requires std::is_enum_v<enum_type>
+auto format_as(enum_type const Value)
 {
-	template<typename FormatContext>
-	auto format(object_type const& Value, FormatContext& ctx) const
-	{
-		return formatter<std::underlying_type_t<object_type>, char_type>::format(std::to_underlying(Value), ctx);
-	}
-};
+	return std::to_underlying(Value);
+}
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC
