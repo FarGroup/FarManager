@@ -74,7 +74,7 @@ struct SearchReplaceDlgParams
 	std::optional<bool> Fuzzy;
 	std::optional<bool> PreserveStyle;
 
-	enum class SharedGroup { common, help, count };
+	enum class SharedGroup { view_edit, find_file, help, count };
 
 	static const SearchReplaceDlgParams& GetShared(SharedGroup Group);
 	void SaveToShared(SharedGroup Group) const;

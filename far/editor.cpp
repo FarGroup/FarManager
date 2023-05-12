@@ -140,13 +140,13 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	EdOpt(Global->Opt->EdOpt),
 	m_SearchDlgParams
 	{
-		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchStr,
-		.ReplaceStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).ReplaceStr.value_or(string{}),
-		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).CaseSensitive.value_or(false),
-		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).WholeWords.value_or(false),
-		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Regex.value_or(false),
-		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Fuzzy.value_or(false),
-		.PreserveStyle = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).PreserveStyle.value_or(false)
+		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).SearchStr,
+		.ReplaceStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).ReplaceStr.value_or(string{}),
+		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).CaseSensitive.value_or(false),
+		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).WholeWords.value_or(false),
+		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).Regex.value_or(false),
+		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).Fuzzy.value_or(false),
+		.PreserveStyle = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).PreserveStyle.value_or(false)
 	},
 	EditorID(::GlobalEditorCount++),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
@@ -219,7 +219,7 @@ void Editor::SwapState(Editor& swap_state)
 // should it be called after the dialog was closed (not cancelled) instead of in Edior's destructor?
 void Editor::KeepInitParameters() const
 {
-	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::common);
+	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::view_edit);
 }
 
 void Editor::DisplayObject()
