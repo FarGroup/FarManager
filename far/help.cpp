@@ -218,6 +218,10 @@ private:
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
 
+	// Ugly, but cheap and effective.
+	// BUGBUG We otta rewrite this abomination
+	bool m_Render{true};
+
 	SearchReplaceDlgParams m_SearchDlgParams;
 };
 
@@ -871,7 +875,8 @@ void Help::FastShow()
 	if (!IsVisible())
 		return;
 
-	DrawWindowFrame();
+	if (m_Render)
+		DrawWindowFrame();
 
 	CorrectPosition();
 	StackData.strSelTopic.clear();
@@ -891,9 +896,12 @@ void Help::FastShow()
 		}
 		else if (i==FixCount && FixCount>0)
 		{
-			GotoXY(m_Where.left, m_Where.top + i + 1);
-			SetColor(COL_HELPBOX);
-			DrawLine(ObjWidth(), line_type::h1_to_v2);
+			if (m_Render)
+			{
+				GotoXY(m_Where.left, m_Where.top + i + 1);
+				SetColor(COL_HELPBOX);
+				DrawLine(ObjWidth(), line_type::h1_to_v2);
+			}
 			continue;
 		}
 		else
@@ -922,8 +930,11 @@ void Help::FastShow()
 		}
 	}
 
-	SetColor(COL_HELPSCROLLBAR);
-	ScrollBar(m_Where.right, m_Where.top + HeaderHeight() + 1, BodyHeight(), StackData.TopStr, HelpList.size() - FixCount);
+	if (m_Render)
+	{
+		SetColor(COL_HELPSCROLLBAR);
+		ScrollBar(m_Where.right, m_Where.top + HeaderHeight() + 1, BodyHeight(), StackData.TopStr, HelpList.size() - FixCount);
+	}
 }
 
 void Help::DrawWindowFrame() const
@@ -1152,7 +1163,13 @@ void Help::OutString(string_view Str)
 				SetColor(Highlight ? colors::PaletteColorToFarColor(COL_HELPHIGHLIGHTTEXT) : CurColor);
 			}
 
-			Text(OutStr, MaxWidth - (WhereX() - m_Where.left - 2));
+			const auto MaxSize = MaxWidth - (WhereX() - m_Where.left - 2);
+
+			if (m_Render)
+				Text(OutStr, MaxSize);
+			else
+				// BUGBUG the logic above relies on cursor position, so we have to advance it even when we're not rendering anything.
+				GotoXY(WhereX() + std::min(static_cast<int>(OutStr.size()), MaxSize), WhereY());
 
 			OutStr.clear();
 		}
@@ -1187,8 +1204,11 @@ void Help::OutString(string_view Str)
 
 	if (WhereX() < m_Where.right)
 	{
-		SetColor(CurColor);
-		Text(string(m_Where.right - WhereX(), L' '));
+		if (m_Render)
+		{
+			SetColor(CurColor);
+			Text(string(m_Where.right - WhereX(), L' '));
+		}
 	}
 }
 
@@ -1896,7 +1916,12 @@ void Help::MoveToReference(int Forward,int CurScreen)
 				}
 			}
 
+			// BUGBUG Help rendering and parsing do not belong to the same function. FastShow() should not modify the state.
+			// This workaround makes it bearable by suppressing ScrBuf interaction, but we still do an insane amount of redundant work here.
+			// Rewrite this abomination!
+			m_Render = false;
 			FastShow();
+			m_Render = true;
 
 			if (StackData.strSelTopic.empty())
 				StartSelection = false;
