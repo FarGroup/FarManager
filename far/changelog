@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2023-05-13 20:18:31+01:00 - build 6142
+
+1. Improve insanely slow help rendering on large screens.
+   I won't go into details, but we should rewrite the whole thing.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-12 19:31:11+01:00 - build 6141
 
 1. Remove sorting from Task List.

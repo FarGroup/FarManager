@@ -2,10 +2,24 @@
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <ItemGroup Label="ProjectConfigurations">
+
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug_ASAN|x64">
       <Configuration>Debug_ASAN</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_no_LTCG|x64">
+      <Configuration>Release_no_LTCG</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -14,42 +28,46 @@
       <Configuration>Debug_ASAN</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
+    <ProjectConfiguration Include="Release_no_LTCG|Win32">
+      <Configuration>Release_no_LTCG</Configuration>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <!--
-    <ProjectConfiguration Include="Debug_ASAN|ARM">
-      <Configuration>Debug_ASAN</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
+
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_ASAN|ARM">
+      <Configuration>Debug_ASAN</Configuration>
       <Platform>ARM</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|ARM">
       <Configuration>Release</Configuration>
       <Platform>ARM</Platform>
     </ProjectConfiguration>
-    -->
-    <ProjectConfiguration Include="Debug_ASAN|ARM64">
-      <Configuration>Debug_ASAN</Configuration>
-      <Platform>ARM64</Platform>
+    <ProjectConfiguration Include="Release_no_LTCG|ARM">
+      <Configuration>Release_no_LTCG</Configuration>
+      <Platform>ARM</Platform>
     </ProjectConfiguration>
+
     <ProjectConfiguration Include="Debug|ARM64">
       <Configuration>Debug</Configuration>
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_ASAN|ARM64">
+      <Configuration>Debug_ASAN</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|ARM64">
       <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_no_LTCG|ARM64">
+      <Configuration>Release_no_LTCG</Configuration>
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -87,6 +105,10 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release_no_LTCG'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug_ASAN'">
@@ -161,7 +183,6 @@
     </ResourceCompile>
     <Link>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <LinkTimeCodeGeneration></LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
 
@@ -181,19 +202,17 @@
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' or '$(Configuration)'=='Release_no_LTCG'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
