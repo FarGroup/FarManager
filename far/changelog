@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-05-15 19:38:57+01:00 - build 6143
+
+1. gh-687: Commands history: empty Folder for commands with host-file plugin prefix run via file association.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-13 20:18:31+01:00 - build 6142
 
 1. Improve insanely slow help rendering on large screens.
