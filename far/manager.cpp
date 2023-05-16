@@ -658,6 +658,8 @@ void Manager::ExitMainLoop(int Ask)
 		*/
 		if (ExitAll() || Global->CloseFAR)
 		{
+			Global->CtrlObject->Plugins->NotifyExit();
+
 			const auto cp = Global->CtrlObject->Cp();
 			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)))
 				EndLoop=true;
