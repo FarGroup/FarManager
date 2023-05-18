@@ -16,7 +16,7 @@ Macro {
   area="Shell Search";
   key="CtrlShiftDown";
   flags="Selection";
-  action = function()
+  action=function()
     JumpToSelected(APanel.CurPos+1,APanel.ItemCount)
   end;
 }
@@ -26,7 +26,7 @@ Macro {
   area="Shell Search";
   key="CtrlShiftUp";
   flags="Selection";
-  action = function()
+  action=function()
     JumpToSelected(APanel.CurPos-1,1)
   end;
 }
@@ -36,7 +36,7 @@ Macro {
   area="Shell Search";
   key="CtrlShiftHome CtrlShiftNum7";
   flags="Selection";
-  action = function()
+  action=function()
     JumpToSelected(1,APanel.ItemCount)
   end;
 }
@@ -46,7 +46,7 @@ Macro {
   area="Shell Search";
   key="CtrlShiftEnd CtrlShiftNum1";
   flags="Selection";
-  action = function()
+  action=function()
     JumpToSelected(APanel.ItemCount,1)
   end;
 }
