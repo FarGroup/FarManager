@@ -176,6 +176,12 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	bool PreserveLFN = false;
 	if (SubstFileName(strCommand, Context, &PreserveLFN) && !strCommand.empty())
 	{
+		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory & EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
+		{
+			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
+			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, {}, curDir);
+		}
+
 		SCOPED_ACTION(PreserveLongName)(Name, PreserveLFN);
 
 		execute_info Info;
@@ -188,12 +194,6 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		Info.UseAssociations = false;
 
 		Launcher? Launcher(Info) : Global->CtrlObject->CmdLine()->ExecString(Info);
-
-		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-		{
-			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
-			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, {}, curDir);
-		}
 	}
 
 	return true;

@@ -317,8 +317,21 @@ SearchReplaceDlgResult GetSearchReplaceString(
 
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
+		const auto EnableActionButtons{ [&]
+		{
+			const auto Str{ get_dialog_item_text(Dlg, Param1) };
+			const auto Empty{ Param1 == dlg_edit_search_text ? Str.empty() : HexStringToBlob(ExtractHexString(Str), 0).empty() };
+			Dlg->SendMessage(DM_ENABLE, dlg_button_prev, ToPtr(!Empty));
+			Dlg->SendMessage(DM_ENABLE, dlg_button_action, ToPtr(!Empty));
+			Dlg->SendMessage(DM_ENABLE, dlg_button_all, ToPtr(!Empty));
+		} };
+
 		switch (Msg)
 		{
+		case DN_INITDIALOG:
+			EnableActionButtons();
+			break;
+
 		case DN_BTNCLICK:
 			switch (Param1)
 			{
@@ -391,6 +404,18 @@ SearchReplaceDlgResult GetSearchReplaceString(
 		case DN_HOTKEY:
 			{
 				TextOrHexHotkeyUsed = Param1 == dlg_radio_text || Param1 == dlg_radio_hex;
+			}
+			break;
+
+		case DN_EDITCHANGE:
+			switch (Param1)
+			{
+			case dlg_edit_search_text:
+			case dlg_edit_search_hex:
+				{
+					EnableActionButtons();
+					break;
+				}
 			}
 			break;
 		}

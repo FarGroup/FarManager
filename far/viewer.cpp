@@ -139,13 +139,13 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_SearchDlgParams
 	{
-		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchStr,
-		.SearchBytes = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchBytes.value_or(bytes{}),
-		.Hex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Hex.value_or(false),
-		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).CaseSensitive.value_or(false),
-		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).WholeWords.value_or(false),
-		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Regex.value_or(false),
-		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Fuzzy.value_or(false),
+		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).SearchStr,
+		.SearchBytes = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).SearchBytes.value_or(bytes{}),
+		.Hex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).Hex.value_or(false),
+		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).CaseSensitive.value_or(false),
+		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).WholeWords.value_or(false),
+		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).Regex.value_or(false),
+		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::view_edit).Fuzzy.value_or(false),
 	},
 	m_DefCodepage(aCodePage),
 	m_Codepage(m_DefCodepage),
@@ -272,7 +272,7 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters() const
 {
-	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::common);
+	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::view_edit);
 	Global->Opt->ViOpt.ViewerIsWrap = m_Wrap;
 	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
 }

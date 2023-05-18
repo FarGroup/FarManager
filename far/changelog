@@ -1,4 +1,32 @@
 --------------------------------------------------------------------------------
+skipik 2023-05-16 19:36:39+03:00 - build 6146
+
+1. SQLite v3.42.0
+
+--------------------------------------------------------------------------------
+w17 2023-05-16 15:39:22+03:00 - build 6145
+
+1. Continue 6139 -- missed change
+
+--------------------------------------------------------------------------------
+MZK 2023-05-15 13:39:37-07:00 - build 6144
+
+1. Fallout of 6135: Persist forgotten Find File dialog options.
+1.1. gh-681: Persist empty search pattern.
+1.2. gh-685: Persist "Search in archives" option.
+1.3. gh-681: Find File content search parameters (search pattern, hex,
+     case sensitive, whole words, fuzzy) are not shared with Viewer / Editor.
+     However, if the search pattern is not empty, Find File content search
+     parameters are copied to Viewer / Editor search.
+
+2. gh-681: Do not allow empty search pattern in Viewer and Editor search dialog.
+
+--------------------------------------------------------------------------------
+drkns 2023-05-15 19:38:57+01:00 - build 6143
+
+1. gh-687: Commands history: empty Folder for commands with host-file plugin prefix run via file association.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-13 20:18:31+01:00 - build 6142
 
 1. Improve insanely slow help rendering on large screens.
