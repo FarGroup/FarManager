@@ -4,7 +4,7 @@ local ON = true -- set to false to turn the option OFF
 local Pattern = regex.new("^\\U+$")
 local F = far.Flags
 
-local GUID = win.Uuid("fad00dbe-3fff-4095-9232-e1cc70c67737") -- "MakeFolderId"
+local GUID = far.Guids.MakeFolderId
 local itempos = 3
 
 local function Work (Event, FarDialogEvent)
@@ -23,6 +23,7 @@ end
 
 Event {
   description="Create folders in uppercase";
-  group="DialogEvent"; condition = function() return ON end;
+  group="DialogEvent";
+  condition=function() return ON end;
   action=Work;
 }

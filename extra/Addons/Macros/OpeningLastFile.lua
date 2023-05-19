@@ -1,5 +1,15 @@
+local last
 Macro {
-  area="Shell Viewer Editor"; key="Ctrl'"; description="Opening last view/edit of a file"; action = function()
-Keys('AltF11 Up Enter')
+  description="Opening previous file from view/edit history";
+  area="Viewer Editor Shell QView Tree Info Search";
+  key="Ctrl'";
+  action=function()
+    Keys("AltF11")
+    if not Area.Menu then return end -- modal editor/viewer
+    if not Object.Eof or last==Menu.Value then
+      Keys("Up")
+    end
+    last = Menu.Value
+    Keys("ShiftEnter")
   end;
 }
