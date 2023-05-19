@@ -982,7 +982,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					if (i.empty())
 						continue;
 
-					const auto Pos = FindFile(PointToName(i), true);
+					const auto Pos = FindFile(i, !contains(i, path::separator));
 					if (Pos == -1)
 						continue;
 
