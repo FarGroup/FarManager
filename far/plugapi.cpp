@@ -3097,7 +3097,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			auto const SrcNamePart = Size? SrcName.substr(0, Size) : SrcName;
 
 			auto strResult = ConvertWildcards(SrcNamePart, NullToEmpty(param2));
-			if (Size)
+			if (Size && Size < SrcName.size())
 				strResult += SrcName.substr(Size);
 
 			xwcsncpy(param2, strResult.c_str(), size);

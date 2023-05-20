@@ -40,8 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fs.hpp"
+#include "platform.memory.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -65,8 +67,12 @@ static auto format_address(uintptr_t const Value)
 	return far::format(L"{:0{}X}"sv, Value, Width);
 }
 
-static auto format_symbol(string_view const ImageName, os::debug::symbols::symbol const Symbol)
+static auto format_symbol(uintptr_t const Address, string_view const ImageName, os::debug::symbols::symbol const Symbol)
 {
+	// If it's not a legit pointer, it's likely a member of a struct at nullptr or something like that, no point in suggesting PDBs.
+	if (ImageName.empty() && Symbol.Name.empty() && !os::memory::is_pointer(ToPtr(Address)))
+		return L""s;
+
 	return far::format(
 		L"{}!{}{}"sv,
 		!ImageName.empty()?
@@ -105,7 +111,7 @@ void tracer_detail::tracer::get_symbols(string_view const Module, span<os::debug
 
 		if (Address)
 		{
-			append(Result, InlineFrame? L" I "sv : L"   "sv, format_symbol(ImageName, Symbol));
+			append(Result, InlineFrame? L" I "sv : L"   "sv, format_symbol(Address, ImageName, Symbol));
 			const auto LocationStr = format_location(Location);
 			if (!LocationStr.empty())
 				append(Result, L" ("sv, LocationStr, L')');
@@ -127,7 +133,7 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 
 		if (Address)
 		{
-			Name = format_symbol(ImageName, Symbol);
+			Name = format_symbol(Address, ImageName, Symbol);
 			Source = format_location(Location);
 		}
 		else

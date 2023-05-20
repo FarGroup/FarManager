@@ -146,7 +146,7 @@ void ESetFileTime(
 
 	const auto Implementation = [&]
 	{
-		const os::fs::file File(Name, GENERIC_WRITE, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+		const os::fs::file File(Name, FILE_WRITE_ATTRIBUTES, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 		if (!File)
 			return false;
 
@@ -154,7 +154,7 @@ void ESetFileTime(
 	};
 
 	retryable_ui_operation(
-		without_ro(Name, CurrentAttributes, Implementation),
+		Implementation,
 		Name, lng::MSetAttrTimeCannotFor, SkipErrors);
 }
 

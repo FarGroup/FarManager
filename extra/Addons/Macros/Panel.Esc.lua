@@ -4,7 +4,9 @@ Macro {
   key="Esc";
   flags="EmptyCommandLine";
   action=function()
-    Keys"CtrlO"
-    if APanel.Visible~=PPanel.Visible then Keys "CtrlP" end -- unhide both panels
+    Keys("CtrlO")
+    if APanel.Visible~=PPanel.Visible then -- unhide both panels
+      Keys("CtrlP")
+    end
   end;
 }

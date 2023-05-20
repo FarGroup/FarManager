@@ -130,6 +130,14 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 
 		Stream.flush();
 		OutFile.SetEnd();
+
+		if (UseTemporaryFile)
+		{
+			if (os::chrono::time_point CreationTime; os::fs::GetFileTimeSimple(FileName, &CreationTime, {}, {}, {}))
+			{
+				OutFile.SetTime(&CreationTime, {}, {}, {});
+			}
+		}
 	}
 
 	if (UseTemporaryFile)
