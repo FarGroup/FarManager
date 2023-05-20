@@ -975,6 +975,8 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= data_size())
 				return Result;
 
+			const auto IsRegularPanel = m_PanelMode == panel_mode::NORMAL_PANEL;
+
 			const auto ApplyToList = [&](const auto& Selector)
 			{
 				for (const auto& i: enum_tokens_with_quotes(mps->Item, L"\r\n"sv))
@@ -982,7 +984,9 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					if (i.empty())
 						continue;
 
-					const auto Pos = FindFile(i, !contains(i, path::separator));
+					const auto NameToFind = IsRegularPanel? PointToName(i) : i;
+					const auto PartialCompare = IsRegularPanel || !contains(i, path::separator);
+					const auto Pos = FindFile(NameToFind, PartialCompare);
 					if (Pos == -1)
 						continue;
 
