@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2023-05-20 19:37:43+01:00 - build 6149
+
+1. gh-692: Change time for read-only or system files cannot be set
+
+2. gh-693: Change time cannot be set simultaneously with other file attributes
+
+3. gh-694: File creation time lost after saving read-only file on secondary disk
+
+--------------------------------------------------------------------------------
 drkns 2023-05-20 17:54:07+01:00 - build 6148
 
 1. More gh-691.
