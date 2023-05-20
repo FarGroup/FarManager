@@ -16,8 +16,53 @@ Macro {
 }
 --]]
 
+local function assert_eq(a,b)      assert(a == b)               return true; end
+local function assert_neq(a,b)     assert(a ~= b)               return true; end
+local function assert_num(v)       assert(type(v)=="number")    return v; end
+local function assert_str(v)       assert(type(v)=="string")    return v; end
+local function assert_table(v)     assert(type(v)=="table")     return v; end
+local function assert_bool(v)      assert(type(v)=="boolean")   return v; end
+local function assert_func(v)      assert(type(v)=="function")  return v; end
+local function assert_userdata(v)  assert(type(v)=="userdata")  return v; end
+local function assert_nil(v)       assert(v==nil)               return v; end
+local function assert_false(v)     assert(v==false)             return v; end
+local function assert_true(v)      assert(v==true)              return v; end
+local function assert_falsy(v)     assert(not v == true)        return v; end
+local function assert_truthy(v)    assert(not v == false)       return v; end
+
+local function assert_range(val, low, high)
+  if low then assert(val >= low) end
+  if high then assert(val <= high) end
+  return true
+end
+
+local function CmpName(mask, name, flags)
+  return far.ProcessName("PN_CMPNAME", mask, name, flags)
+end
+
+far.CmpName = CmpName
+
+local function CmpNameList(mask, name, flags)
+  return far.ProcessName("PN_CMPNAMELIST", mask, name, flags)
+end
+
+far.CmpNameList = CmpNameList
+
+local function GenerateName(mask, name, size)
+  return far.ProcessName("PN_GENERATENAME", mask, name, 0, size)
+end
+
+far.GenerateName = GenerateName
+
+local function CheckMask(mask)
+  return far.ProcessName("PN_CHECKMASK", mask)
+end
+
+far.CheckMask = CheckMask
+
 local MT = {} -- "macrotest", this module
 local F = far.Flags
+local band, bor, bnot = bit64.band, bit64.bor, bit64.bnot
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
 
 local function pack (...)
@@ -97,7 +142,7 @@ end
 local function test_bit64()
   for _,name in ipairs{"band","bnot","bor","bxor","lshift","rshift"} do
     assert(_G[name] == bit64[name])
-    assert(type(bit64[name]) == "function")
+    assert_func (bit64[name])
   end
 
   local a,b,c = 0xFF,0xFE,0xFD
@@ -255,7 +300,7 @@ local function test_mf_clip()
   mf.clip(5,2); assert(mf.clip(0) == "bar")
 
   mf.clip(5,1) -- leave the OS clipboard active in the end
-  far.CopyToClipboard(oldval) -- restore
+  far.CopyToClipboard(oldval or "") -- restore
 end
 
 local function test_mf_env()
@@ -298,8 +343,8 @@ local function test_mf_prompt()
 end
 
 local function test_mf_date()
-  assert(type(mf.date())=="string")
-  assert(type(mf.date("%a"))=="string")
+  assert_str (mf.date())
+  assert_str (mf.date("%a"))
 end
 
 local function test_mf_fmatch()
@@ -433,9 +478,9 @@ local function test_mf_msave()
   mf.msave(Key, "name1", t1)
 
   local T1 = mf.mload(Key, "name1")
-  assert(type(T1)=="table")
+  assert_table (T1)
   local T2 = T1[3]
-  assert(type(T2)=="table")
+  assert_table (T2)
   local T3 = T1[4]
   assert(type(T3)=="table" and T3==T1[5])
   assert(T1[1]==5 and T1[2]==T1 and T1[3]==T2)
@@ -564,27 +609,27 @@ local function test_mf_size2str()
 end
 
 local function test_mf_xlat()
-  assert(type(mf.xlat("abc"))=="string")
+  assert_str (mf.xlat("abc"))
   -- commented out, as these tests won't work with any Windows configuration:
   --assert(mf.xlat("ghzybr")=="пряник")
   --assert(mf.xlat("сщьзгеук")=="computer")
 end
 
 local function test_mf_beep()
-  assert(type(mf.beep())=="boolean")
+  assert_bool (mf.beep())
 end
 
 local function test_mf_flock()
-  for k=0,2 do assert(type(mf.flock(k,-1))=="number") end
+  for k=0,2 do assert_num (mf.flock(k,-1)) end
 end
 
 local function test_mf_GetMacroCopy()
-  assert(type(mf.GetMacroCopy) == "function")
+  assert_func (mf.GetMacroCopy)
 end
 
 local function test_mf_Keys()
   assert(Keys == mf.Keys)
-  assert(type(Keys) == "function")
+  assert_func (Keys)
 
   Keys("Esc F a r Space M a n a g e r Space Ф А Р")
   assert(panel.GetCmdLine() == "Far Manager ФАР")
@@ -612,7 +657,7 @@ end
 
 local function test_mf_print()
   assert(print == mf.print)
-  assert(type(print) == "function")
+  assert_func (print)
   -- test on command line
   local str = "abc ABC абв АБВ"
   Keys("Esc")
@@ -637,15 +682,15 @@ local function test_mf_print()
 end
 
 local function test_mf_postmacro()
-  assert(type(mf.postmacro) == "function")
+  assert_func (mf.postmacro)
 end
 
 local function test_mf_sleep()
-  assert(type(mf.sleep) == "function")
+  assert_func (mf.sleep)
 end
 
 local function test_mf_usermenu()
-  assert(type(mf.usermenu) == "function")
+  assert_func (mf.usermenu)
 end
 
 function MT.test_mf()
@@ -1040,23 +1085,23 @@ local function test_Far_GetConfig()
 end
 
 function MT.test_Far()
-  assert(type(Far.FullScreen) == "boolean")
-  assert(type(Far.Height) == "number")
-  assert(type(Far.IsUserAdmin) == "boolean")
-  assert(type(Far.PID) == "number")
-  assert(type(Far.Title) == "string")
-  assert(type(Far.Width) == "number")
+  assert_bool (Far.FullScreen)
+  assert_num (Far.Height)
+  assert_bool (Far.IsUserAdmin)
+  assert_num (Far.PID)
+  assert_str (Far.Title)
+  assert_num (Far.Width)
 
   local temp = Far.UpTime
   mf.sleep(50)
   temp = Far.UpTime - temp
   assert(temp > 40 and temp < 80)
 
-  assert(type(Far.Cfg_Get)=="function")
-  assert(type(Far.DisableHistory)=="function")
-  assert(type(Far.KbdLayout(0))=="number")
-  assert(type(Far.KeyBar_Show(0))=="number")
-  assert(type(Far.Window_Scroll)=="function")
+  assert_func (Far.Cfg_Get)
+  assert_func (Far.DisableHistory)
+  assert_num (Far.KbdLayout(0))
+  assert_num (Far.KeyBar_Show(0))
+  assert_func (Far.Window_Scroll)
 
   -- test_Far_GetConfig()
 end
@@ -1088,76 +1133,91 @@ local function test_CheckAndGetHotKey()
   Keys("Esc")
 end
 
+function MT.test_Menu()
+  Keys("F11")
+  assert_str(Menu.Value)
+  assert_eq(Menu.Id, far.Guids.PluginsMenuId)
+  assert_eq(Menu.Id, "937F0B1C-7690-4F85-8469-AA935517F202")
+  Keys("Esc")
+
+  assert_func(Menu.Filter)
+  assert_func(Menu.FilterStr)
+  assert_func(Menu.GetValue)
+  assert_func(Menu.ItemStatus)
+  assert_func(Menu.Select)
+  assert_func(Menu.Show)
+end
+
 function MT.test_Object()
-  assert(type(Object.Bof)         == "boolean")
-  assert(type(Object.CurPos)      == "number")
-  assert(type(Object.Empty)       == "boolean")
-  assert(type(Object.Eof)         == "boolean")
-  assert(type(Object.Height)      == "number")
-  assert(type(Object.ItemCount)   == "number")
-  assert(type(Object.Selected)    == "boolean")
-  assert(type(Object.Title)       == "string")
-  assert(type(Object.Width)       == "number")
+  assert_bool (Object.Bof)
+  assert_num (Object.CurPos)
+  assert_bool (Object.Empty)
+  assert_bool (Object.Eof)
+  assert_num (Object.Height)
+  assert_num (Object.ItemCount)
+  assert_bool (Object.Selected)
+  assert_str (Object.Title)
+  assert_num (Object.Width)
 
   test_CheckAndGetHotKey()
 end
 
 function MT.test_Drv()
   Keys"AltF1"
-  assert(type(Drv.ShowMode) == "number")
+  assert_num (Drv.ShowMode)
   assert(Drv.ShowPos == 1)
   Keys"Esc AltF2"
-  assert(type(Drv.ShowMode) == "number")
+  assert_num (Drv.ShowMode)
   assert(Drv.ShowPos == 2)
   Keys"Esc"
 end
 
 function MT.test_Help()
   Keys"F1"
-  assert(type(Help.FileName)=="string")
-  assert(type(Help.SelTopic)=="string")
-  assert(type(Help.Topic)=="string")
+  assert_str (Help.FileName)
+  assert_str (Help.SelTopic)
+  assert_str (Help.Topic)
   Keys"Esc"
 end
 
 function MT.test_Mouse()
-  assert(type(Mouse.X) == "number")
-  assert(type(Mouse.Y) == "number")
-  assert(type(Mouse.Button) == "number")
-  assert(type(Mouse.CtrlState) == "number")
-  assert(type(Mouse.EventFlags) == "number")
-  assert(type(Mouse.LastCtrlState) == "number")
+  assert_num (Mouse.X)
+  assert_num (Mouse.Y)
+  assert_num (Mouse.Button)
+  assert_num (Mouse.CtrlState)
+  assert_num (Mouse.EventFlags)
+  assert_num (Mouse.LastCtrlState)
 end
 
 function MT.test_XPanel(pan) -- (@pan: either APanel or PPanel)
-  assert(type(pan.Bof)         == "boolean")
-  assert(type(pan.ColumnCount) == "number")
-  assert(type(pan.CurPos)      == "number")
-  assert(type(pan.Current)     == "string")
-  assert(type(pan.DriveType)   == "number")
-  assert(type(pan.Empty)       == "boolean")
-  assert(type(pan.Eof)         == "boolean")
-  assert(type(pan.FilePanel)   == "boolean")
-  assert(type(pan.Filter)      == "boolean")
-  assert(type(pan.Folder)      == "boolean")
-  assert(type(pan.Format)      == "string")
-  assert(type(pan.Height)      == "number")
-  assert(type(pan.HostFile)    == "string")
-  assert(type(pan.ItemCount)   == "number")
-  assert(type(pan.Left)        == "boolean")
-  assert(type(pan.LFN)         == "boolean")
-  assert(type(pan.OPIFlags)    == "number")
-  assert(type(pan.Path)        == "string")
-  assert(type(pan.Path0)       == "string")
-  assert(type(pan.Plugin)      == "boolean")
-  assert(type(pan.Prefix)      == "string")
-  assert(type(pan.Root)        == "boolean")
-  assert(type(pan.SelCount)    == "number")
-  assert(type(pan.Selected)    == "boolean")
-  assert(type(pan.Type)        == "number")
-  assert(type(pan.UNCPath)     == "string")
-  assert(type(pan.Visible)     == "boolean")
-  assert(type(pan.Width)       == "number")
+  assert_bool (pan.Bof)
+  assert_num (pan.ColumnCount)
+  assert_num (pan.CurPos)
+  assert_str (pan.Current)
+  assert_num (pan.DriveType)
+  assert_bool (pan.Empty)
+  assert_bool (pan.Eof)
+  assert_bool (pan.FilePanel)
+  assert_bool (pan.Filter)
+  assert_bool (pan.Folder)
+  assert_str (pan.Format)
+  assert_num (pan.Height)
+  assert_str (pan.HostFile)
+  assert_num (pan.ItemCount)
+  assert_bool (pan.Left)
+  assert_bool (pan.LFN)
+  assert_num (pan.OPIFlags)
+  assert_str (pan.Path)
+  assert_str (pan.Path0)
+  assert_bool (pan.Plugin)
+  assert_str (pan.Prefix)
+  assert_bool (pan.Root)
+  assert_num (pan.SelCount)
+  assert_bool (pan.Selected)
+  assert_num (pan.Type)
+  assert_str (pan.UNCPath)
+  assert_bool (pan.Visible)
+  assert_num (pan.Width)
 
   if pan == APanel then
     Keys "End"  assert(pan.Eof==true)
@@ -1167,31 +1227,143 @@ end
 
 local function test_Panel_Item()
   for pt=0,1 do
-    assert(type(Panel.Item(pt,0,0))  =="string")
-    assert(type(Panel.Item(pt,0,1))  =="string")
-    assert(type(Panel.Item(pt,0,2))  =="number")
-    assert(type(Panel.Item(pt,0,3))  =="string")
-    assert(type(Panel.Item(pt,0,4))  =="string")
-    assert(type(Panel.Item(pt,0,5))  =="string")
+    assert_str (Panel.Item(pt,0,0))
+    assert_str (Panel.Item(pt,0,1))
+    assert_num (Panel.Item(pt,0,2))
+    assert_str (Panel.Item(pt,0,3))
+    assert_str (Panel.Item(pt,0,4))
+    assert_str (Panel.Item(pt,0,5))
     assert(IsNumOrInt(Panel.Item(pt,0,6)))
     assert(IsNumOrInt(Panel.Item(pt,0,7)))
-    assert(type(Panel.Item(pt,0,8))  =="boolean")
-    assert(type(Panel.Item(pt,0,9))  =="number")
-    assert(type(Panel.Item(pt,0,10)) =="number")
-    assert(type(Panel.Item(pt,0,11)) =="string")
-    assert(type(Panel.Item(pt,0,12)) =="string")
-    assert(type(Panel.Item(pt,0,13)) =="number")
-    assert(type(Panel.Item(pt,0,14)) =="number")
+    assert_bool (Panel.Item(pt,0,8))
+    assert_num (Panel.Item(pt,0,9))
+    assert_num (Panel.Item(pt,0,10))
+    assert_str (Panel.Item(pt,0,11))
+    assert_str (Panel.Item(pt,0,12))
+    assert_num (Panel.Item(pt,0,13))
+    assert_num (Panel.Item(pt,0,14))
     assert(IsNumOrInt(Panel.Item(pt,0,15)))
     assert(IsNumOrInt(Panel.Item(pt,0,16)))
     assert(IsNumOrInt(Panel.Item(pt,0,17)))
-    assert(type(Panel.Item(pt,0,18)) =="number")
+    assert_num (Panel.Item(pt,0,18))
     assert(IsNumOrInt(Panel.Item(pt,0,19)))
-    assert(type(Panel.Item(pt,0,20)) =="string")
+    assert_str (Panel.Item(pt,0,20))
     assert(IsNumOrInt(Panel.Item(pt,0,21)))
     assert(not pcall(Panel.Item,pt,0,22))
-    assert(type(Panel.Item(pt,0,23)) =="number")
+    assert_num (Panel.Item(pt,0,23))
   end
+end
+
+local function test_Panel_SetPath()
+  -- store
+  local adir_old = panel.GetPanelDirectory(nil,1).Name
+  local pdir_old = panel.GetPanelDirectory(nil,0).Name
+  --test
+  local pdir = "c:\\windows"
+  local adir = "c:\\windows\\system32"
+  local afile = "cmd.exe"
+  assert(true == Panel.SetPath(1, pdir))
+  assert(true == Panel.SetPath(0, adir, afile))
+  assert(pdir == panel.GetPanelDirectory(nil,0).Name:lower())
+  assert(adir == panel.GetPanelDirectory(nil,1).Name:lower())
+  assert(panel.GetCurrentPanelItem(nil,1).FileName:lower() == afile)
+  -- restore
+  assert(true == Panel.SetPath(1, pdir_old))
+  assert(true == Panel.SetPath(0, adir_old))
+end
+
+-- N=Panel.Select(panelType,Action[,Mode[,Items]])
+local function Test_Panel_Select()
+  local PS = assert_func(Panel.Select)
+  local RM,ADD,INV,RST = 0,1,2,3 -- Action
+  local MODE
+
+  local dir = assert_str(win.GetEnv("FARHOME"))
+  assert_true(panel.SetPanelDirectory(nil,1,dir))
+  local pi = assert_table(panel.GetPanelInfo(1))
+  local ItemsCount = assert_num(pi.ItemsNumber)-1 -- don't count ".."
+  assert(ItemsCount>=10, "not enough files to test")
+
+  --------------------------------------------------------------
+  MODE = 0
+  assert_eq(ItemsCount,PS(0,ADD,MODE)) -- select all
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(ItemsCount, pi.SelectedItemsNumber)
+
+  assert_eq(ItemsCount,PS(0,RM,MODE)) -- clear all
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  assert_eq(ItemsCount,PS(0,INV,MODE)) -- invert
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(ItemsCount, pi.SelectedItemsNumber)
+
+  assert_eq(0,PS(0,INV,MODE)) -- invert again (return value is the selection count, contrary to docs)
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  --------------------------------------------------------------
+  MODE = 1
+  assert_eq(1,PS(0,ADD,MODE,5))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(1, pi.SelectedItemsNumber)
+
+  assert_eq(1,PS(0,RM,MODE,5))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  assert_eq(1,PS(0,INV,MODE,5))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(1, pi.SelectedItemsNumber)
+
+  assert_eq(1,PS(0,INV,MODE,5))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  --------------------------------------------------------------
+  MODE = 2
+  local list = dir.."\\FarEng.hlf\nFarEng.lng" -- the 1-st file with path, the 2-nd without
+  assert_eq(2,PS(0,ADD,MODE,list))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(2, pi.SelectedItemsNumber)
+
+  assert_eq(2,PS(0,RM,MODE,list))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  assert_eq(2,PS(0,INV,MODE,list))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(2, pi.SelectedItemsNumber)
+
+  assert_eq(2,PS(0,INV,MODE,list))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  --------------------------------------------------------------
+  MODE = 3
+  local mask = "*.hlf;*.lng"
+  local count = 0
+  for i=1,pi.ItemsNumber do
+    local item = assert_table(panel.GetPanelItem(nil,1,i))
+    if far.CmpNameList(mask, item.FileName) then count=count+1 end
+  end
+  assert(count>1, "not enough files to test")
+
+  assert_eq(count,PS(0,ADD,MODE,mask))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(count, pi.SelectedItemsNumber)
+
+  assert_eq(count,PS(0,RM,MODE,mask))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
+
+  assert_eq(count,PS(0,INV,MODE,mask))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(count, pi.SelectedItemsNumber)
+
+  assert_eq(count,PS(0,INV,MODE,mask))
+  pi = assert_table(panel.GetPanelInfo(1))
+  assert_eq(0, pi.SelectedItemsNumber)
 end
 
 function MT.test_Panel()
@@ -1203,10 +1375,10 @@ function MT.test_Panel()
   assert(Panel.FExist(0,":")==0)
   assert(Panel.FExist(1,":")==0)
 
-  assert(type(Panel.Select)    == "function")
-  assert(type(Panel.SetPath)   == "function")
-  assert(type(Panel.SetPos)    == "function")
-  assert(type(Panel.SetPosIdx) == "function")
+  Test_Panel_Select()
+  test_Panel_SetPath()
+  assert_func (Panel.SetPos)
+  assert_func (Panel.SetPosIdx)
 end
 
 function MT.test_Dlg()
@@ -1259,7 +1431,7 @@ local function test_far_MacroExecute()
       nil,
       bit64.new("0x8765876587658765"),
       {"bar"})
-    assert(type(t) == "table")
+    assert_table (t)
     assert(t.n  == 6)
     assert(t[1] == "foo")
     assert(t[2] == false)
@@ -1426,6 +1598,21 @@ local function test_RegexControl()
   assert(str=="ITEM;ITEM;ITEM" and nfound==3 and nrep==3)
   str, nfound, nrep = regex.gsub(";a;", "a*?", "ITEM")
   assert(str=="ITEM;ITEMaITEM;ITEM" and nfound==4 and nrep==4)
+
+  -- Mantis 3336 (https://bugs.farmanager.com/view.php?id=3336)
+  local fr,to,c1,c2,c3
+  fr,to,c1 = regex.find("{}", "\\{(.)?\\}")
+  assert(fr==1 and to==2 and c1==false)
+  fr,to,c1,c2,c3 = regex.find("bbb", "(b)?b(b)?(b)?b")
+  assert(fr==1 and to==3 and c1=="b" and c2==false and c3==false)
+
+  -- Mantis 1388 (https://bugs.farmanager.com/view.php?id=1388)
+  c1,c2 = regex.match("123", "(\\d+)A|(\\d+)")
+  assert(c1==false and c2=="123")
+
+  -- Issue #609 (https://github.com/FarGroup/FarManager/issues/609)
+  c1 = regex.match("88", "(8)+")
+  assert(c1=="8")
 end
 
 --[[------------------------------------------------------------------------------------------------
@@ -1647,7 +1834,7 @@ local function test_AdvControl()
 end
 
 local function test_far_GetMsg()
-  assert(type(far.GetMsg(0))=="string")
+  assert_str (far.GetMsg(0))
 end
 
 local function test_clipboard()
@@ -1658,7 +1845,7 @@ local function test_clipboard()
     far.CopyToClipboard(v)
     assert(far.PasteFromClipboard() == v)
   end
-  far.CopyToClipboard(orig)
+  if orig then far.CopyToClipboard(orig) end
   assert(far.PasteFromClipboard() == orig)
 end
 
@@ -1678,16 +1865,68 @@ local function test_far_FarClock()
   assert(OK)
 end
 
+local function test_ProcessName()
+  assert_true  (far.CheckMask("f*.ex?"))
+  assert_true  (far.CheckMask("/(abc)?def/"))
+  assert_false (far.CheckMask("/[[[/"))
+
+  assert_eq    (far.GenerateName("a??b.*", "cdef.txt"),     "adeb.txt")
+  assert_eq    (far.GenerateName("a??b.*", "cdef.txt", 50), "adeb.txt")
+  assert_eq    (far.GenerateName("a??b.*", "cdef.txt", 2),  "adbef.txt")
+
+  assert_true  (far.CmpName("f*.ex?",      "ftp.exe"        ))
+  assert_true  (far.CmpName("f*.ex?",      "fc.exe"         ))
+  assert_true  (far.CmpName("f*.ex?",      "f.ext"          ))
+
+  assert_true (far.CmpName("f*.ex?",      "FTP.exe"        ))
+
+  assert_false (far.CmpName("f*.ex?",      "a/f.ext"        ))
+  assert_false (far.CmpName("f*.ex?",      "a/f.ext", 0     ))
+  assert_true  (far.CmpName("f*.ex?",      "a/f.ext", "PN_SKIPPATH" ))
+
+  assert_true  (far.CmpName("*co*",        "color.ini"      ))
+  assert_true  (far.CmpName("*co*",        "edit.com"       ))
+  assert_true  (far.CmpName("[c-ft]*.txt", "config.txt"     ))
+  assert_true  (far.CmpName("[c-ft]*.txt", "demo.txt"       ))
+  assert_true  (far.CmpName("[c-ft]*.txt", "faq.txt"        ))
+  assert_true  (far.CmpName("[c-ft]*.txt", "tips.txt"       ))
+  assert_true  (far.CmpName("*",           "foo.bar"        ))
+  assert_true  (far.CmpName("*.cpp",       "foo.cpp"        ))
+  assert_false (far.CmpName("*.cpp",       "foo.abc"        ))
+  assert_false (far.CmpName("*|*.cpp",     "foo.abc"        )) -- exclude mask not supported
+  assert_false (far.CmpName("*,*",         "foo.bar"        )) -- mask list not supported
+
+  assert_true (far.CmpNameList("*",          "foo.bar"    ))
+  assert_true (far.CmpNameList("*.cpp",      "foo.cpp"    ))
+  assert_false(far.CmpNameList("*.cpp",      "foo.abc"    ))
+  assert_true (far.CmpNameList("*|*.cpp",    "foo.abc"    )) -- exclude mask IS supported
+  assert_true (far.CmpNameList("|*.cpp",     "foo.abc"    )) -- +++
+  assert_false(far.CmpNameList("*|*.abc",    "foo.abc"    )) -- +++
+  assert_true (far.CmpNameList("*.aa,*.bar", "foo.bar"    ))
+  assert_true (far.CmpNameList("*.aa,*.bar", "c:/foo.bar" ))
+  assert_true (far.CmpNameList("/.+/",       "c:/foo.bar" ))
+  assert_true (far.CmpNameList("/bar$/",     "c:/foo.bar" ))
+  assert_false(far.CmpNameList("/dar$/",     "c:/foo.bar" ))
+  assert_true (far.CmpNameList("/abcd/;*",    "/abcd/foo.bar", "PN_SKIPPATH"))
+  assert_true (far.CmpNameList("/Makefile(.+)?/", "Makefile"))
+  assert_true (far.CmpNameList("/makefile([._\\-].+)?$/i", "Makefile", "PN_SKIPPATH"))
+
+  assert_false (far.CmpNameList("f*.ex?",    "a/f.ext", 0     ))
+  assert_true  (far.CmpNameList("f*.ex?",    "a/f.ext", "PN_SKIPPATH" ))
+end
+
 local function test_FarStandardFunctions()
   test_clipboard()
   test_far_FarClock()
+
+  test_ProcessName()
 
   assert(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL") == [[c:\abc]])
 
   assert(far.FormatFileSize(123456, 8)  == "  123456")
   assert(far.FormatFileSize(123456, -8) == "123456  ")
 
-  assert(type(far.GetCurrentDirectory()) == "string")
+  assert_str (far.GetCurrentDirectory())
 
   assert(far.GetPathRoot[[D:\foo\bar]] == [[D:\]])
 
@@ -1748,7 +1987,7 @@ local function test_issue_3129()
   end
   assert(editor.SaveFile())
   assert(editor.Quit())
-  local fp = assert(io.open(fname))
+  fp = assert(io.open(fname))
   local k = 0
   for line in fp:lines() do
     k = k + 1
@@ -1771,6 +2010,40 @@ local function test_gmatch_coro()
   assert(head() == "1")
 end
 
+local function test_PluginsControl()
+  local mod = assert(far.PluginStartupInfo().ModuleName)
+  local hnd1 = far.FindPlugin("PFM_MODULENAME", mod)
+  assert_userdata(hnd1)
+  local hnd2 = far.FindPlugin("PFM_GUID", far.PluginStartupInfo().PluginGuid)
+  assert_userdata(hnd2)
+
+  local info = far.GetPluginInformation(hnd1)
+  assert_table(info)
+  assert_table(info.GInfo)
+  assert_table(info.PInfo)
+  assert_eq(mod, info.ModuleName)
+  assert_num(info.Flags)
+  assert(0 ~= band(info.Flags, F.FPF_LOADED))
+  assert(0 == band(info.Flags, F.FPF_ANSI))
+
+  local pluglist = far.GetPlugins()
+  assert_table(pluglist)
+  assert(#pluglist >= 1)
+  for _,plug in ipairs(pluglist) do
+    assert_userdata(plug)
+  end
+end
+
+local function test_far_timer()
+  local N = 0
+  local timer = far.Timer(50, function(hnd)
+      N = N+1
+      if N==3 then hnd:Close() end
+    end)
+  while not timer.Closed do Keys("foobar") end
+  assert(N==3)
+end
+
 function MT.test_luafar()
   test_bit64()
   test_gmatch_coro()
@@ -1784,11 +2057,13 @@ function MT.test_luafar()
   test_issue_3129()
   test_MacroControl()
   test_RegexControl()
+  test_PluginsControl()
+  test_far_timer()
 end
 
 -- Test in particular that Plugin.Call (a so-called "restricted" function) works properly
 -- from inside a deeply nested coroutine.
-local function test_coroutine()
+function MT.test_coroutine()
   for k=1,2 do
     local Call = k==1 and Plugin.Call or Plugin.SyncCall
     local function f1()
@@ -1803,10 +2078,6 @@ local function test_coroutine()
   end
 end
 
-function MT.test_misc()
-  test_coroutine()
-end
-
 function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
@@ -1818,6 +2089,7 @@ function MT.test_all()
   MT.test_Dlg()
   MT.test_Drv()
   MT.test_Far()
+  MT.test_Menu()
   MT.test_Mouse()
   MT.test_Object()
   MT.test_Panel()
@@ -1826,7 +2098,7 @@ function MT.test_all()
   MT.test_XPanel(PPanel)
   MT.test_mantis_1722()
   MT.test_luafar()
-  MT.test_misc()
+  MT.test_coroutine()
 end
 
 return MT
