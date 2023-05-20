@@ -631,11 +631,36 @@ static bool process_single_file(
 		ESetFileOwner(Name, New.Owner, SkipErrors);
 	}
 
+	if (New.FindData.Attributes != Current.FindData.Attributes)
+	{
+		ESetFileCompression(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_COMPRESSED) != 0, Current.FindData.Attributes, SkipErrors);
+
+		ESetFileEncryption(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_ENCRYPTED) != 0, Current.FindData.Attributes, SkipErrors);
+
+		ESetFileSparse(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0, Current.FindData.Attributes, SkipErrors);
+
+		const auto IsChanged = [&](os::fs::attributes const Attributes)
+		{
+			return (New.FindData.Attributes & Attributes) != (Current.FindData.Attributes & Attributes);
+		};
+
+		if (IsChanged(FILE_ATTRIBUTE_REPARSE_POINT))
+		{
+			EDeleteReparsePoint(Name, Current.FindData.Attributes, SkipErrors);
+		}
+
+		const auto OtherAttributes = ~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE | FILE_ATTRIBUTE_REPARSE_POINT);
+		if (IsChanged(OtherAttributes))
+		{
+			ESetFileAttributes(Name, New.FindData.Attributes & OtherAttributes, SkipErrors);
+		}
+	}
+
 	{
 		os::chrono::time_point WriteTime, CreationTime, AccessTime, ChangeTime;
-		std::array TimePointers{ &WriteTime, &CreationTime, &AccessTime, &ChangeTime };
+		std::array TimePointers{ &WriteTime, & CreationTime, & AccessTime, & ChangeTime };
 
-		for (const auto& [i, TimePointer]: zip(TimeMap, TimePointers))
+		for (const auto& [i, TimePointer] : zip(TimeMap, TimePointers))
 		{
 			const auto OriginalTime = std::invoke(i.Accessor, Current.FindData);
 			if (!construct_time(OriginalTime, *TimePointer, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId))
@@ -646,31 +671,6 @@ static bool process_single_file(
 		}
 
 		ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], Current.FindData.Attributes, SkipErrors);
-	}
-
-	if (New.FindData.Attributes == Current.FindData.Attributes)
-		return true;
-
-	ESetFileCompression(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_COMPRESSED) != 0, Current.FindData.Attributes, SkipErrors);
-
-	ESetFileEncryption(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_ENCRYPTED) != 0, Current.FindData.Attributes, SkipErrors);
-
-	ESetFileSparse(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0, Current.FindData.Attributes, SkipErrors);
-
-	const auto IsChanged = [&](os::fs::attributes const Attributes)
-	{
-		return (New.FindData.Attributes & Attributes) != (Current.FindData.Attributes & Attributes);
-	};
-
-	if (IsChanged(FILE_ATTRIBUTE_REPARSE_POINT))
-	{
-		EDeleteReparsePoint(Name, Current.FindData.Attributes, SkipErrors);
-	}
-
-	const auto OtherAttributes = ~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE | FILE_ATTRIBUTE_REPARSE_POINT);
-	if (IsChanged(OtherAttributes))
-	{
-		ESetFileAttributes(Name, New.FindData.Attributes & OtherAttributes, SkipErrors);
 	}
 
 	return true;
