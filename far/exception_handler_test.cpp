@@ -335,7 +335,7 @@ namespace tests
 		using func_t = void(*)();
 
 		volatile const func_t InvalidAddress = reinterpret_cast<func_t>(1);
-		assert(!os::memory::is_pointer(InvalidAddress));
+		assert(!os::memory::is_pointer(reinterpret_cast<void const*>(InvalidAddress)));
 		InvalidAddress();
 	}
 
