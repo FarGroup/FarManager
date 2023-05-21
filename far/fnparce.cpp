@@ -351,7 +351,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 
 	ListFileName = MakeTemp();
 
-	const os::fs::file ListFile(ListFileName, GENERIC_WRITE, os::fs::file_share_all, nullptr, CREATE_ALWAYS);
+	const os::fs::file ListFile(ListFileName, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!ListFile)
 		throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 

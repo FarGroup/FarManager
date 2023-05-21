@@ -220,7 +220,7 @@ namespace os::process
 		if (!fs::get_module_file_name(Process, {}, ProcessFileName))
 			return image_type::unknown;
 
-		const fs::file ModuleFile(ProcessFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		const fs::file ModuleFile(ProcessFileName, GENERIC_READ, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 		if (!ModuleFile)
 			return image_type::unknown;
 

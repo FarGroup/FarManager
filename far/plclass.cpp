@@ -212,7 +212,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 	if (!ends_with_icase(FileName, L".dll"sv))
 		return false;
 
-	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	const os::fs::file ModuleFile(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 	{
 		LOGDEBUG(L"create_file({}) {}"sv, FileName, os::last_error());

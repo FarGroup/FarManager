@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-05-21 18:36:11+01:00 - build 6150
+
+1. Adjust CreateFile access & sharing flags in a few places.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-20 19:37:43+01:00 - build 6149
 
 1. gh-692: Change time for read-only or system files cannot be set

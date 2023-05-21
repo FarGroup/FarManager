@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
+#include "platform.memory.hpp"
 
 // Common:
 #include "common/preprocessor.hpp"
@@ -326,6 +327,15 @@ namespace tests
 		using func_t = void(*)();
 
 		volatile const func_t InvalidAddress = nullptr;
+		InvalidAddress();
+	}
+
+	static void seh_access_violation_ex_np()
+	{
+		using func_t = void(*)();
+
+		volatile const func_t InvalidAddress = reinterpret_cast<func_t>(1);
+		assert(!os::memory::is_pointer(InvalidAddress));
 		InvalidAddress();
 	}
 
@@ -608,6 +618,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_ex_nx,   L"SEH access violation (execute NX)"sv },
 		{ tests::seh_access_violation_ex_nul,  L"SEH access violation (execute nullptr)"sv },
+		{ tests::seh_access_violation_ex_np,   L"SEH access violation (execute non-ptr)"sv },
 		{ tests::seh_access_violation_bad,     L"SEH access violation (malformed)"sv },
 		{ tests::seh_in_page_error,            L"SEH in page error"sv },
 		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },

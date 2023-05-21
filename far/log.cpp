@@ -460,7 +460,7 @@ namespace
 
 		static os::fs::file open_file()
 		{
-			os::fs::file File(make_filename(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_ALWAYS);
+			os::fs::file File(make_filename(), GENERIC_WRITE, os::fs::file_share_read, nullptr, OPEN_ALWAYS);
 			if (!File)
 				throw MAKE_FAR_EXCEPTION(L"Can't create a log file"sv);
 

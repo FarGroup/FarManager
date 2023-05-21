@@ -80,7 +80,7 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path,
 
 		auto& [CurrentFile, CurrentLngName, CurrentCodepage] = CurrentFileData;
 
-		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 		if (!CurrentFile)
 			continue;
 
@@ -157,7 +157,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 		if (!os::fs::is_file(FindData))
 			continue;
 
-		const os::fs::file LangFile(path::join(Global->g_strFarPath, FindData.FileName), FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		const os::fs::file LangFile(path::join(Global->g_strFarPath, FindData.FileName), FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 		if (!LangFile)
 			continue;
 
@@ -320,7 +320,7 @@ private:
 
 static void LoadCustomStrings(string_view const FileName, unordered_string_map<string>& Strings)
 {
-	const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	const os::fs::file CustomFile(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 	if (!CustomFile)
 		return;
 

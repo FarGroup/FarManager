@@ -465,7 +465,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			{
 				const auto cp = m_View->m_Codepage;
 				const auto strViewFileName = m_View->GetFileName();
-				while (!os::fs::file(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_DELETE | (Global->Opt->EdOpt.EditOpenedForWrite? FILE_SHARE_WRITE : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+				while (!os::fs::file(strViewFileName, FILE_READ_DATA, os::fs::file_share_read | (Global->Opt->EdOpt.EditOpenedForWrite? FILE_SHARE_WRITE : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					if (OperationFailed(os::last_error(), strViewFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) != operation::retry)
 						return true;
