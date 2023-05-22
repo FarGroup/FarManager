@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+MZK 2023-05-21 19:01:56-07:00 - build 6151
+
+1. gh-669: Now Home key works in the Search / Replace dialog.
+1.a. Added new FARDIALOGITEMFLAGS: DIF_HOMEITEM.
+     This flag indicates the item which should take focus on Home key press.
+     Note: The first "focusable" item is not always the best target for Home key.
+     It is a good idea to set this flag on the item which initially has DIF_FOCUS.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-21 18:36:11+01:00 - build 6150
 
 1. Adjust CreateFile access & sharing flags in a few places.
