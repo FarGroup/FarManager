@@ -84,6 +84,7 @@ public:
   bool write_nt(const void* data, size_t size, size_t& size_written) noexcept;
   void set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime);
   bool set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) noexcept;
+  bool set_ctime(const FILETIME& ctime) noexcept;
   uint64_t set_pos(int64_t offset, DWORD method = FILE_BEGIN);
   bool set_pos_nt(int64_t offset, DWORD method = FILE_BEGIN, uint64_t* new_pos = nullptr) noexcept;
   void set_end();

@@ -96,6 +96,8 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
+
+  using File::set_ctime;
 };
 
 class ArchiveFileDeleter: public IArchiveUpdateCallback, public ComBase {
@@ -190,11 +192,16 @@ void Archive::delete_files(const std::vector<UInt32>& src_indices) {
 
     const auto progress = std::make_shared<ArchiveFileDeleterProgress>();
     ComObject<IArchiveUpdateCallback> deleter(new ArchiveFileDeleter(new_indices, progress));
-    ComObject<IOutStream> update_stream(new ArchiveFileDeleterStream(temp_arc_name, progress));
+    ComObject update_stream(new ArchiveFileDeleterStream(temp_arc_name, progress));
 
     COM_ERROR_CHECK(copy_prologue(update_stream));
 
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, static_cast<UInt32>(new_indices.size()), deleter));
+
+    WIN32_FILE_ATTRIBUTE_DATA fa;
+    if (File::attributes_ex(arc_path, &fa))
+        update_stream->set_ctime(fa.ftCreationTime);
+
     close();
     update_stream.Release();
     File::move_file(temp_arc_name, arc_path, MOVEFILE_REPLACE_EXISTING);
