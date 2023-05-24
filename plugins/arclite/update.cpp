@@ -190,7 +190,7 @@ public:
     File::delete_file_nt(m_file_path);
   }
 
-  using File::set_ctime;
+  using File::copy_ctime_from;
 };
 
 
@@ -1153,20 +1153,15 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
   try {
     ComObject<IOutArchive> out_arc;
     CHECK_COM(in_arc->QueryInterface(IID_IOutArchive, reinterpret_cast<void**>(&out_arc)));
-
     set_properties(out_arc, options);
 
     const auto progress = std::make_shared<ArchiveUpdateProgress>(false, arc_path);
-    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
+    ComObject updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
     COM_ERROR_CHECK(copy_prologue(update_stream));
-
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, new_index, updater));
-
-    WIN32_FILE_ATTRIBUTE_DATA fa;
-    if (File::attributes_ex(arc_path, &fa))
-      update_stream->set_ctime(fa.ftCreationTime);
+    update_stream->copy_ctime_from(arc_path);
 
     close();
     update_stream.Release();

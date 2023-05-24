@@ -5623,6 +5623,8 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		return false;
 	}
 
+	const std::wstring cached_hostfile = m_CachedOpenPanelInfo.HostFile;
+	const auto cached_Flags = m_CachedOpenPanelInfo.Flags;
 	const auto CurPlugin = std::move(PluginsList.back());
 	PluginsList.pop_back();
 	--Global->PluginPanelsCount;
@@ -5667,10 +5669,17 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-
-		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
+		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES)) // remove previous plugin host-file/directory
 		{
-			DeleteFileWithFolder(CurPlugin->m_HostFile);  // удаление файла от предыдущего плагина
+			char del_mode = 'd'; // old way - always remove directory on plugin panel pop
+			if ((cached_Flags & OPIF_RECURSIVEPANEL) && !(cached_Flags & OPIF_DELETEDIRONCLOSE)) // new way - controlled by flags
+				del_mode = (cached_Flags & OPIF_DELETEFILEONCLOSE) ? 'f' : '\0';
+
+			if (cached_hostfile == CurPlugin->m_HostFile)
+			{
+				if (del_mode == 'd') DeleteFileWithFolder(CurPlugin->m_HostFile);
+				if (del_mode == 'f') std::ignore = os::fs::delete_file(CurPlugin->m_HostFile);
+			}
 		}
 	}
 	else

@@ -7,7 +7,7 @@
 #include "msearch.hpp"
 #include "archive.hpp"
 
-OpenOptions::OpenOptions() : detect(false), open_password_len(nullptr)
+OpenOptions::OpenOptions() : detect(false), open_password_len(nullptr), recursive_panel(false), delete_on_close('\0')
 {}
 
 class ArchiveSubStream : public IInStream, private ComBase {

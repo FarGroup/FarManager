@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+w17 2023-05-24 15:05:42+03:00 - build 6152
+
+1. Continue 6134, 6140
+   gh-683: Archive is deleted on close when using prefix to open it from another archive
+   PF_RECURSIVEPANEL -> OPIF_RECURSIVEPANEL
+
+--------------------------------------------------------------------------------
 MZK 2023-05-21 19:01:56-07:00 - build 6151
 
 1. gh-669: Now Home key works in the Search / Replace dialog.

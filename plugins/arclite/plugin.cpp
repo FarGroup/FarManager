@@ -43,6 +43,9 @@ public:
 	int     part_idx {  -1  };  // -1 or partition index
 	std::unique_ptr<Plugin> partition;
 
+	bool    recursive_panel{ false };
+	char    del_on_close   { '\0'  };
+
 public:
 	Plugin(bool real_file = true)
 	 : archive(new Archive()), real_archive_file(real_file), need_close_panel(false)
@@ -238,7 +241,11 @@ public:
 		}
 
 		opi->StructSize = sizeof(OpenPanelInfo);
-		opi->Flags = OPIF_ADDDOTS | OPIF_SHORTCUT;
+		opi->Flags = OPIF_ADDDOTS | OPIF_SHORTCUT
+			| (recursive_panel     ? OPIF_RECURSIVEPANEL    : 0)
+			| (del_on_close == 'd' ? OPIF_DELETEDIRONCLOSE  : 0)
+			| (del_on_close == 'f' ? OPIF_DELETEFILEONCLOSE : 0)
+		;
 		opi->CurDir = current_dir.c_str();
 		panel_title = Far::get_msg(MSG_PLUGIN_NAME);
 		if (archive->is_open()) {
@@ -1248,7 +1255,6 @@ void WINAPI GetPluginInfoW(PluginInfo* info) {
   config_menu[0] = Far::msg_ptr(MSG_PLUGIN_NAME);
 
   info->StructSize = sizeof(PluginInfo);
-  info->Flags = PF_RECURSIVEPANEL;
   info->PluginMenu.Guids = &c_plugin_menu_guid;
   info->PluginMenu.Strings = plugin_menu;
   info->PluginMenu.Count = ARRAYSIZE(plugin_menu);
@@ -1419,7 +1425,12 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       case cmdOpen: {
         OpenOptions options = parse_open_command(cmd_args).options;
         options.arc_path = Far::get_absolute_path(options.arc_path);
-        return Plugin::open(*Archive::open(options));
+        auto plugin = Plugin::open(*Archive::open(options));
+		  if (plugin) {
+			  plugin->recursive_panel = options.recursive_panel;
+			  plugin->del_on_close = options.delete_on_close;
+		  }
+		  return plugin;
       }
       case cmdCreate:
       case cmdUpdate:

@@ -96,6 +96,8 @@ struct OpenOptions {
   ArcTypes arc_types;
   std::wstring password;
   int *open_password_len;
+  bool recursive_panel;
+  char delete_on_close;
   OpenOptions();
 };
 

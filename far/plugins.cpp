@@ -1641,20 +1641,12 @@ int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin
 	{
 		if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
 		{
-			unsigned long long IFlags = 0;
-			PluginInfo Info{ sizeof(Info) };
-			if (GetPluginInfo(hNewPlugin->plugin(), &Info))
-				IFlags = Info.Flags;
-
-			if ((IFlags & PF_RECURSIVEPANEL) != 0)
+			OpenPanelInfo info = { sizeof(info), hNewPlugin->panel() };
+			hNewPlugin->plugin()->GetOpenPanelInfo(&info);
+			if ((info.Flags & OPIF_RECURSIVEPANEL) && info.HostFile && info.HostFile[0])
 			{
-				OpenPanelInfo info = { sizeof(info), hNewPlugin->panel() };
-				hNewPlugin->plugin()->GetOpenPanelInfo(&info);
-				if (info.HostFile && info.HostFile[0])
-				{
-					hostfile = info.HostFile;
-					plugin_panel_stack = true;
-				}
+				hostfile = info.HostFile;
+				plugin_panel_stack = true;
 			}
 		}
 	}
