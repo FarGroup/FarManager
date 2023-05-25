@@ -150,7 +150,7 @@ std::list<std::wstring> parse_listfile(const std::wstring& str) {
 }
 
 
-// arc:[-d] [-r] [-x[d]] [-t:<arc_type>] [-p:<password>] <archive>
+// arc:[-d] [-r [-x[d]]] [-t:<arc_type>] [-p:<password>] <archive>
 
 OpenCommand parse_open_command(const CommandArgs& ca) {
   OpenCommand command;
@@ -171,16 +171,16 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
       CHECK_FMT(!param.value.empty());
       command.options.password = param.value;
     }
-	 else if (param.name == L"r") {
-		 command.options.recursive_panel = true;
-	 }
-	 else if (param.name == L"x" || param.name == L"xf ") {
-		 command.options.delete_on_close = 'f'; // 'f'ile
-	 }
-	 else if (param.name == L"xd ") {
-		 command.options.delete_on_close = 'd'; // 'd'ir
-	 }
-	 else
+    else if (param.name == L"r") {
+      command.options.recursive_panel = true;
+    }
+    else if (param.name == L"x" || param.name == L"xf") {
+      command.options.delete_on_close = 'f'; // 'f'ile
+    }
+    else if (param.name == L"xd") {
+      command.options.delete_on_close = 'd'; // 'd'ir
+    }
+    else
       FAIL(E_BAD_FORMAT);
   }
   if (!arc_type_spec) {
