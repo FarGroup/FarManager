@@ -3802,7 +3802,10 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 		dd->hDlg = hDlg;
 	}
 
-	L = dd->L; // the dialog may be called from a lua_State other than the main one
+	if (dd)
+	{
+		L = dd->L; // the dialog may be called from a lua_State other than the main one
+	}
 	ret = DoDlgProc(L, Info, dd, hDlg, Msg, Param1, Param2);
 	if (Msg == DN_CLOSE && ret && NonModal(dd))
 	{
