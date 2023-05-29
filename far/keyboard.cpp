@@ -1105,7 +1105,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse)
 
 	DWORD Key = GetInputRecordImpl(rec, ExcludeMacro, ProcessMouse);
 
-	if (Key)
+	if (Key && !in_closed_range(KEY_OP_BASE, Key, KEY_OP_ENDBASE))
 	{
 		if (Global->CtrlObject)
 		{
