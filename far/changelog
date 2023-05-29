@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2023-05-29 11:49:01-07:00 - build 6156
+
+1. gh-697: Fixed disappearing autocomplete list in Search / Replace dialog.
+   The bug was introduced in 6144.
+
+--------------------------------------------------------------------------------
 w17 2023-05-29 13:25:38+03:00 - build 6155
 
 1. Continue 6153, OPIF_DEL.. on close can be used without RECURSIVEPANEL
