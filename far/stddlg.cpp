@@ -314,22 +314,34 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	SetFlagIf(dlg_button_all, DIF_HIDDEN, !Props.ShowButtonAll);
 
 	bool TextOrHexHotkeyUsed{};
+	bool SearchStringWasEmpty{};
 
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
-		const auto EnableActionButtons{ [&]
+		const auto EnableActionButtons{ [&](const bool Init)
 		{
 			const auto Str{ get_dialog_item_text(Dlg, Param1) };
 			const auto Empty{ Param1 == dlg_edit_search_text ? Str.empty() : HexStringToBlob(ExtractHexString(Str), 0).empty() };
-			Dlg->SendMessage(DM_ENABLE, dlg_button_prev, ToPtr(!Empty));
-			Dlg->SendMessage(DM_ENABLE, dlg_button_action, ToPtr(!Empty));
-			Dlg->SendMessage(DM_ENABLE, dlg_button_all, ToPtr(!Empty));
+
+			// 2023-05-29 MZK: If DN_EDITCHANGE comes because of changing items in the autocomplete list (Up, Down, Mouse),
+			// and we send DM_ENABLE to dialog buttons, the dialog is refreshed but the autocomplete list is not, see gh-697.
+			// As the result, the list disappears from the screen but still has focus. Seems to be a bug in the autocomplete list.
+			// To work around this issue, the code below avoids sending DM_ENABLE if the "empty" status did not change.
+			// It works because while the autocomplete list is open, the Search string never becomes empty,
+			// so we never send DM_ENABLE thus dodging the whole problem.
+			if (Init || Empty != SearchStringWasEmpty)
+			{
+				SearchStringWasEmpty = Empty;
+				Dialog::suppress_redraw RedrawGuard{ Dlg };
+				for (auto Item : { dlg_button_prev, dlg_button_action, dlg_button_all })
+					Dlg->SendMessage(DM_ENABLE, Item, ToPtr(!Empty));
+			}
 		} };
 
 		switch (Msg)
 		{
 		case DN_INITDIALOG:
-			EnableActionButtons();
+			EnableActionButtons(true);
 			break;
 
 		case DN_BTNCLICK:
@@ -413,7 +425,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 			case dlg_edit_search_text:
 			case dlg_edit_search_hex:
 				{
-					EnableActionButtons();
+					EnableActionButtons(false);
 					break;
 				}
 			}
