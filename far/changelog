@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+w17 2023-05-29 13:25:38+03:00 - build 6155
+
+1. Continue 6153, OPIF_DEL.. on close can be used without RECURSIVEPANEL
+
+--------------------------------------------------------------------------------
 drkns 2023-05-29 10:19:46+01:00 - build 6154
 
 1. gh-696: Don't call ProcessConsoleInput on special macro keys.
