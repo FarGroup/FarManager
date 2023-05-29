@@ -5623,7 +5623,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		return false;
 	}
 
-	const std::wstring cached_hostfile = m_CachedOpenPanelInfo.HostFile ? m_CachedOpenPanelInfo.HostFile : L"";
+	const string cached_hostfile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
 	const auto cached_Flags = m_CachedOpenPanelInfo.Flags;
 	const auto CurPlugin = std::move(PluginsList.back());
 	PluginsList.pop_back();
@@ -7279,7 +7279,7 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 	std::vector<size_t> OldPositions;
 	OldPositions.reserve(To.size());
 
-	std::set<decltype(From.begin())> MatchedNames;
+	std::vector<decltype(From.begin())> MatchedNames;
 
 	const auto npos = static_cast<size_t>(-1);
 
@@ -7293,10 +7293,12 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 			return EqualRange.begin();
 
 		MatchedNames.clear();
+		reserve_exp_noshrink(MatchedNames, EqualRange.size());
+
 		for (auto Iterator = EqualRange.begin(); Iterator != EqualRange.end(); ++Iterator)
 		{
 			if (!Iterator->FileName.empty())
-				MatchedNames.insert(Iterator);
+				MatchedNames.push_back(Iterator);
 		}
 
 		const auto filter = [&](const auto& Predicate)

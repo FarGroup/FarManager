@@ -2165,8 +2165,13 @@ TEST_CASE("uuid")
 
 	for (const auto& i: Tests)
 	{
-		if (!i.Valid)
+		REQUIRE(uuid::try_parse(i.Str).has_value() == i.Valid);
+
+		if (i.Valid)
+			REQUIRE_NOTHROW(uuid::parse(i.Str));
+		else
 			REQUIRE_THROWS(uuid::parse(i.Str));
+
 	}
 }
 

@@ -938,7 +938,6 @@ public:
 
 	StringOption strHelpLanguage;
 	BoolOption FullScreenHelp;
-	IntOption HelpTabSize;
 
 	IntOption HelpURLRules; // =0 отключить возможность запуска URL-приложений
 

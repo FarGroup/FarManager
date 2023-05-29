@@ -5066,7 +5066,7 @@ private:
 
 			if (const auto UuidStr = FileVersion.get_string(L"PluginGUID"sv))
 			{
-				if (const auto Uuid = uuid::try_parse(string_view(UuidStr)))
+				if (const auto Uuid = uuid::try_parse(UuidStr))
 				{
 					Info->Guid = *Uuid;
 					UuidFound = true;

@@ -206,7 +206,7 @@ private:
 
 	// символа - для атрибутов
 	FarColor CurColor;             // CurColor - текущий цвет отрисовки
-	unsigned CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+	unsigned CtrlTabSize{8};       // CtrlTabSize - опция! размер табуляции
 
 	DWORD LastStartPos{};
 	DWORD StartPos{};
@@ -232,7 +232,6 @@ static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyN
 
 Help::Help(private_tag):
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
-	CtrlTabSize(Global->Opt->HelpTabSize),
 	m_SearchDlgParams
 	{
 		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).SearchStr,

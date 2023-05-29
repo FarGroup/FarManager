@@ -1706,8 +1706,6 @@ Options::Options():
 	PanelRightClickRule.SetCallback(option::validator([](long long Value) { return Value %= 3; }));
 	PanelCtrlAltShiftRule.SetCallback(option::validator([](long long Value) { return Value %= 3; }));
 
-	HelpTabSize.SetCallback(option::validator([](long long Value) { return DefaultTabSize; })); // пока жестко пропишем...
-
 	const auto MacroKeyValidator = [](const string& Value, unsigned& Key, string_view const DefaultValue, unsigned DefaultKey)
 	{
 		Key = KeyNameToKey(Value);

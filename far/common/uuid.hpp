@@ -150,40 +150,57 @@ namespace uuid
 		{
 			serialise_impl(Value, Handler, std::make_index_sequence<sizeof(Value)>{});
 		}
-	}
 
-	template<typename char_type>
-	[[nodiscard]]
-	constexpr auto parse(char_type const* const Str, size_t const Size)
-	{
-		if (!(Size == detail::uuid_length || (Size == detail::uuid_length + 2 && Str[0] == L'{' && Str[Size - 1] == L'}')))
-			detail::fail("Incorrect format");
-
-		return detail::parse(Str + (Size != detail::uuid_length));
-	}
-
-	template<typename string_type>
-	[[nodiscard]]
-	constexpr auto parse(string_type const& Str)
-	{
-		return parse(Str.data(), Str.size());
-	}
-
-	template<typename string_type>
-	[[nodiscard]]
-	std::optional<UUID> try_parse(string_type const& Str)
-	{
-		if (Str.empty())
-			return {};
-
-		try
+		template<typename char_type>
+		[[nodiscard]]
+		constexpr auto parse(std::basic_string_view<char_type> const Str)
 		{
-			return parse(Str.data(), Str.size());
+			if (!(Str.size() == uuid_length || (Str.size() == uuid_length + 2 && Str.front() == L'{' && Str.back() == L'}')))
+				fail("Incorrect format");
+
+			return detail::parse(Str.data() + (Str.size() != uuid_length));
 		}
-		catch (...)
+
+		template<typename char_type>
+		[[nodiscard]]
+		constexpr std::optional<UUID> try_parse(std::basic_string_view<char_type> const Str)
 		{
-			return {};
+			if (Str.empty())
+				return {};
+
+			try
+			{
+				return parse(Str);
+			}
+			catch (...)
+			{
+				return {};
+			}
 		}
+	}
+
+	[[nodiscard]]
+	constexpr auto parse(std::string_view const Str)
+	{
+		return detail::parse(Str);
+	}
+
+	[[nodiscard]]
+	constexpr auto parse(std::wstring_view const Str)
+	{
+		return detail::parse(Str);
+	}
+
+	[[nodiscard]]
+	constexpr auto try_parse(std::string_view const Str)
+	{
+		return detail::try_parse(Str);
+	}
+
+	[[nodiscard]]
+	constexpr auto try_parse(std::wstring_view const Str)
+	{
+		return detail::try_parse(Str);
 	}
 
 	[[nodiscard]]
@@ -228,7 +245,7 @@ namespace uuid
 		[[nodiscard]]
 		consteval auto operator""_uuid(const char* const Str, size_t const Size)
 		{
-			return parse(Str, Size);
+			return parse(std::string_view{ Str, Size });
 		}
 	}
 }
