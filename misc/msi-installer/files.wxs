@@ -292,6 +292,9 @@
           <Component Id="Edit.SaveFile.lua" Guid="$(var.Guid.Edit.SaveFile.lua)" Win64="$(var.Win64)">
             <File Id="Edit.SaveFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.lua" />
           </Component>
+          <Component Id="Edit.SelectionStartEnd.lua" Guid="$(var.Guid.Edit.SelectionStartEnd.lua)" Win64="$(var.Win64)">
+            <File Id="Edit.SelectionStartEnd.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SelectionStartEnd.lua" />
+          </Component>
           <Component Id="F3.lua" Guid="$(var.Guid.F3.lua)" Win64="$(var.Win64)">
             <File Id="F3.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.lua" />
           </Component>

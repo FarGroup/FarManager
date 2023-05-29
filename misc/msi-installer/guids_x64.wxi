@@ -105,6 +105,7 @@
 <?define Guid.Edit.OpenURL.lua = "CD3C7FB1-A6E7-40B4-AA15-333F14A6D7EF" ?>
 <?define Guid.Edit.SaveAndExit.lua = "CE3C86E9-DFC9-462E-A142-38566F24C54A" ?>
 <?define Guid.Edit.SaveFile.lua = "AD682164-EFAB-42BA-9643-DBBE07170964" ?>
+<?define Guid.Edit.SelectionStartEnd.lua = "814AA0D0-113A-4797-8F95-19A8F307F776" ?>
 <?define Guid.F3.lua = "283D34FE-6E3F-4532-8A2D-CCB405A98925" ?>
 <?define Guid.F9DeactivateMenu.lua = "BC84919C-2913-4FBE-BE29-FE4279B4E89D" ?>
 <?define Guid.F9Table.lua = "4BDDEF71-86F7-4BDB-B5DC-F89056992637" ?>
