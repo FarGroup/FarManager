@@ -5670,14 +5670,12 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		}
 
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) && !CurPlugin->m_HostFile.empty()) // remove previous plugin host-file/directory
+		if (cached_hostfile == CurPlugin->m_HostFile && !cached_hostfile.empty()) // del previous plugin host-file/directory
 		{
-			if (cached_hostfile == CurPlugin->m_HostFile) // just in case
-			{
-				const bool new_way = (cached_Flags & (OPIF_RECURSIVEPANEL | OPIF_DELETEFILEONCLOSE | OPIF_DELETEDIRONCLOSE)) != 0;
-				if (!new_way || (cached_Flags & OPIF_DELETEDIRONCLOSE) != 0) del_mode = 'd';
-				else if (new_way && (cached_Flags & OPIF_DELETEFILEONCLOSE) != 0) del_mode = 'f';
-			}
+			const bool new_way = (cached_Flags & (OPIF_RECURSIVEPANEL | OPIF_DELETEFILEONCLOSE | OPIF_DELETEDIRONCLOSE)) != 0;
+			const bool real_names = (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) != 0;
+			if ((!new_way && !real_names) || (cached_Flags & OPIF_DELETEDIRONCLOSE) != 0) del_mode = 'd';
+			else if ((cached_Flags & OPIF_DELETEFILEONCLOSE) != 0) del_mode = 'f';
 		}
 	}
 	else
