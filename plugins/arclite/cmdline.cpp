@@ -150,7 +150,7 @@ std::list<std::wstring> parse_listfile(const std::wstring& str) {
 }
 
 
-// arc:[-d] [-r [-x[d]]] [-t:<arc_type>] [-p:<password>] <archive>
+// arc:[-r] [-x[d]] [-d] [-t:<arc_type>] [-p:<password>] <archive>
 
 OpenCommand parse_open_command(const CommandArgs& ca) {
   OpenCommand command;
@@ -175,10 +175,10 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
       command.options.recursive_panel = true;
     }
     else if (param.name == L"x" || param.name == L"xf") {
-      command.options.delete_on_close = 'f'; // 'f'ile
+      command.options.delete_on_close = 'f'; // (f)ile
     }
     else if (param.name == L"xd") {
-      command.options.delete_on_close = 'd'; // 'd'ir
+      command.options.delete_on_close = 'd'; // (d)ir
     }
     else
       FAIL(E_BAD_FORMAT);
@@ -194,6 +194,7 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
 
 // arc:c [-pr:name] [-t:<arc_type>] [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]] [-sfx[:<module>]] [-v:<volume_size>]
 //   [-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<advanced>] <archive> (<file1> <file2> ... | @<filelist>)
+//
 // arc:u [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]]
 //   [-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] <archive> (<file1> <file2> ... | @<filelist>)
 //   <level> = 0|1|3|5|7|9
