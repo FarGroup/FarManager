@@ -111,9 +111,10 @@ void tracer_detail::tracer::get_symbols(string_view const Module, span<os::debug
 
 		if (Address)
 		{
-			append(Result, InlineFrame? L" I "sv : L"   "sv, format_symbol(Address, ImageName, Symbol));
-			const auto LocationStr = format_location(Location);
-			if (!LocationStr.empty())
+			if (const auto FormattedSymbol = format_symbol(Address, ImageName, Symbol); !FormattedSymbol.empty())
+				append(Result, InlineFrame? L" I "sv : L"   "sv, FormattedSymbol);
+
+			if (const auto LocationStr = format_location(Location); !LocationStr.empty())
 				append(Result, L" ("sv, LocationStr, L')');
 		}
 

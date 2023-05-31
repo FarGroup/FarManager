@@ -1,3 +1,11 @@
+zg 2023-05-25 09:46:58+03:00 - build 778
+
+1. Dlg.GetValue(...) crashed for non-modal dialog then called from DN_CLOSE & DE_DLGPROCEND.
+
+shmuel 2023-05-21 08:24:55+03:00 - build 777
+
+1. Generic plugin: don't delete lua_State on ExitFARW.
+
 shmuel 2023-04-27 14:58:49+03:00 - build 776
 
 1. Macrobrowser could not run macros that used the extra "data" argument.

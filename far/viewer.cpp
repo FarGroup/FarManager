@@ -312,8 +312,6 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
-		//after reading from the pipe, redirect stdin to the real console stdin
-		SetStdHandle(STD_INPUT_HANDLE, os::fs::low::create_file(L"CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
 		ReadStdin=TRUE;
 	}
 	else

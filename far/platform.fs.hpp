@@ -433,7 +433,11 @@ namespace os::fs
 		bool m_Active;
 	};
 
-	constexpr DWORD file_share_all = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+
+	constexpr DWORD
+		// Usually there is no reason to forbid external deletion while reading
+		file_share_read = FILE_SHARE_READ | FILE_SHARE_DELETE,
+		file_share_all = file_share_read | FILE_SHARE_WRITE;
 
 	namespace low
 	{

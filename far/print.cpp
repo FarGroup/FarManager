@@ -249,7 +249,7 @@ void PrintFiles(FileList* SrcPanel)
 
 			try
 			{
-				const os::fs::file SrcFile(FileName, GENERIC_READ, os::fs::file_share_all, nullptr, OPEN_EXISTING);
+				const os::fs::file SrcFile(FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 				if (!SrcFile)
 					throw MAKE_FAR_EXCEPTION(L"Cannot open the file"sv);
 

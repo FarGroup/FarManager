@@ -243,7 +243,7 @@ static string get_report_location()
 
 static bool write_readme(string_view const FullPath)
 {
-	os::fs::file const File(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	os::fs::file const File(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!File)
 		return false;
 
@@ -271,7 +271,7 @@ static bool write_readme(string_view const FullPath)
 
 static bool write_report(string_view const Data, string_view const FullPath)
 {
-	os::fs::file const File(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	os::fs::file const File(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!File)
 		return false;
 	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
@@ -287,7 +287,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
-	const os::fs::file DumpFile(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 

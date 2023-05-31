@@ -164,7 +164,7 @@ private:
 		int bracketscount{};
 		int maxbackref{};
 #ifdef RE_DEBUG
-		std::wstring resrc;
+		string resrc;
 #endif
 
 		int CalcLength(string_view src);

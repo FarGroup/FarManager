@@ -288,7 +288,7 @@ Plugin* PluginManager::LoadPluginExternal(const string& ModuleName, bool LoadToM
 		{
 			if (!pPlugin->bPendingRemove)
 			{
-				UnloadedPlugins.emplace_back(pPlugin);
+				UnloadedPlugins.emplace(pPlugin);
 			}
 			return nullptr;
 		}
@@ -305,9 +305,9 @@ Plugin* PluginManager::LoadPluginExternal(const string& ModuleName, bool LoadToM
 	return pPlugin;
 }
 
-int PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
+bool PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 {
-	int nResult = FALSE;
+	bool Result = false;
 
 	if (pPlugin && (From != iExitFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
@@ -323,7 +323,7 @@ int PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 
 		const auto IsPanelPlugin = pPlugin->IsPanelPlugin();
 
-		nResult = pPlugin->Unload();
+		Result = pPlugin->Unload();
 
 		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
@@ -338,15 +338,15 @@ int PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 			AnotherPanel->Redraw();
 		}
 
-		UnloadedPlugins.emplace_back(pPlugin);
+		UnloadedPlugins.emplace(pPlugin);
 	}
 
-	return nResult;
+	return Result;
 }
 
-bool PluginManager::IsPluginUnloaded(const Plugin* pPlugin) const
+bool PluginManager::IsPluginUnloaded(Plugin* pPlugin) const
 {
-	return contains(UnloadedPlugins, pPlugin);
+	return UnloadedPlugins.contains(pPlugin);
 }
 
 bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
@@ -356,12 +356,12 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 	{
 		if(!IsPluginUnloaded(pPlugin))
 		{
-			UnloadedPlugins.emplace_back(pPlugin);
+			UnloadedPlugins.emplace(pPlugin);
 		}
 		return true;
 	}
 
-	UnloadedPlugins.remove(pPlugin);
+	UnloadedPlugins.erase(pPlugin);
 	const auto Result = pPlugin->Unload();
 	RemovePlugin(pPlugin);
 	return Result;
@@ -1404,14 +1404,14 @@ void PluginManager::Configure(int StartPos) const
 	}
 }
 
-int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName) const
+bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName) const
 {
 	if (ModalType == windowtype_dialog || ModalType == windowtype_menu)
 	{
 		const auto dlg = std::static_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow());
 		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
 		{
-			return 0;
+			return false;
 		}
 	}
 
@@ -1583,7 +1583,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		if (ExitCode<0)
 		{
-			return FALSE;
+			return false;
 		}
 
 		Global->ScrBuf->Flush();
@@ -1614,7 +1614,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
 		if (!ProcessPluginPanel(std::move(hPlugin), true))
-			return FALSE;
+			return false;
 	}
 
 	// restore title for old plugins only.
@@ -1627,13 +1627,13 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 #endif // NO_WRAPPER
-	return TRUE;
+	return true;
 }
 //
-int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin, const bool fe_close) const
+bool PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, const bool fe_close) const
 {
 	bool plugin_panel_stack = false;
-	std::wstring hostfile;
+	string hostfile;
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const auto FList = dynamic_cast<FileList*>(ActivePanel.get());
 	//
@@ -1641,20 +1641,12 @@ int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin
 	{
 		if (ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL)
 		{
-			unsigned long long IFlags = 0;
-			PluginInfo Info{ sizeof(Info) };
-			if (GetPluginInfo(hNewPlugin->plugin(), &Info))
-				IFlags = Info.Flags;
-
-			if ((IFlags & PF_RECURSIVEPANEL) != 0)
+			OpenPanelInfo info = { sizeof(info), hNewPlugin->panel() };
+			hNewPlugin->plugin()->GetOpenPanelInfo(&info);
+			if ((info.Flags & OPIF_RECURSIVEPANEL) && info.HostFile && info.HostFile[0])
 			{
-				OpenPanelInfo info = { sizeof(info), hNewPlugin->panel() };
-				hNewPlugin->plugin()->GetOpenPanelInfo(&info);
-				if (info.HostFile && info.HostFile[0])
-				{
-					hostfile = info.HostFile;
-					plugin_panel_stack = true;
-				}
+				hostfile = info.HostFile;
+				plugin_panel_stack = true;
 			}
 		}
 	}
@@ -1668,7 +1660,7 @@ int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin
 		if (fe_close && ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
 		{
 			ClosePanel(std::move(hNewPlugin));
-			return FALSE;
+			return false;
 		}
 
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
@@ -1677,7 +1669,7 @@ int PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel> &&hNewPlugin
 		NewPanel->Show();
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool PluginManager::SetHotKeyDialog(const Plugin* const pPlugin, const UUID& Uuid, const hotkey_type HotKeyType, const string_view DlgPluginTitle)
@@ -2321,13 +2313,11 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 		return false;
 
 	std::unique_ptr<plugin_panel> hPlugin;
-	panel_ptr ActivePanel;
 
 	switch (Data->CallFlags & CPT_MASK)
 	{
 	case CPT_MENU:
 		{
-			ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			auto OpenCode = OPEN_PLUGINSMENU;
 			intptr_t Item = 0;
 			OpenDlgPluginData pd { sizeof(pd) };
@@ -2358,7 +2348,6 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 
 	case CPT_CMDLINE:
 		{
-			ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
 			const string command = Data->Command; // Нужна копия строки
 			OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), command.c_str() };
 			hPlugin = Open(Data->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info));
@@ -2378,7 +2367,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
 		if (!ProcessPluginPanel(std::move(hPlugin), true))
-			return FALSE;
+			return false;
 
 		//BUGBUG: Закрытие панели? Нужно ли оно?
 		//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
@@ -2468,26 +2457,21 @@ const UUID& PluginManager::GetUUID(const plugin_panel* hPlugin)
 
 void PluginManager::RefreshPluginsList()
 {
-	if(!UnloadedPlugins.empty())
+	// It is probably not that important in which exactly order we unload them
+	std::erase_if(UnloadedPlugins, [this](const auto& i)
 	{
-		UnloadedPlugins.remove_if([this](const auto& i)
-		{
-			if (!i->Active())
-			{
-				i->Unload();
-				RemovePlugin(i);
-				return true;
-			}
+		if (i->Active())
 			return false;
-		});
-	}
+
+		i->Unload();
+		RemovePlugin(i);
+		return true;
+	});
 }
 
-void PluginManager::UndoRemove(const Plugin* plugin)
+void PluginManager::UndoRemove(Plugin* plugin)
 {
-	const auto i = std::find(UnloadedPlugins.begin(), UnloadedPlugins.end(), plugin);
-	if(i != UnloadedPlugins.end())
-		UnloadedPlugins.erase(i);
+	UnloadedPlugins.erase(plugin);
 }
 
 bool PluginManager::GetPluginInfo(Plugin* pPlugin, PluginInfo* Info)

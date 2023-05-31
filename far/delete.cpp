@@ -206,7 +206,8 @@ private:
 static bool EraseFileData(string_view const Name, progress Files, delete_progress const& Progress)
 {
 	os::fs::file_walker File;
-	if (!File.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
+	// FILE_READ_DATA is for sparse files
+	if (!File.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
 		return false;
 
 	unsigned long long FileSize;

@@ -1224,7 +1224,7 @@ ShellCopy::ShellCopy(
 		{
 			for (const auto& CreatedFolder: m_CreatedFolders)
 			{
-				if (const auto File = os::fs::file(CreatedFolder.FullName, GENERIC_WRITE, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+				if (const auto File = os::fs::file(CreatedFolder.FullName, FILE_WRITE_ATTRIBUTES, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
 					set_file_time(File, CreatedFolder, true);
 				}
@@ -2507,7 +2507,7 @@ bool ShellCopy::ShellCopyFile(
 		{
 			if (!Global->Opt->CMOpt.CopyOpened)
 			{
-				if (!os::fs::file(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+				if (!os::fs::file(SrcName, GENERIC_READ, os::fs::file_share_read, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					return false;
 				}
@@ -2520,7 +2520,7 @@ bool ShellCopy::ShellCopyFile(
 	const auto sd = GetSecurity(SrcName);
 
 	os::fs::file_walker SrcFile;
-	const auto OpenMode = FILE_SHARE_READ | FILE_SHARE_DELETE | (Global->Opt->CMOpt.CopyOpened? FILE_SHARE_WRITE : 0);
+	const auto OpenMode = os::fs::file_share_read | (Global->Opt->CMOpt.CopyOpened? FILE_SHARE_WRITE : 0);
 	if (!SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 		return false;
 
@@ -2573,7 +2573,7 @@ bool ShellCopy::ShellCopyFile(
 		if (!DestFile.Open(
 			strDestName,
 			GENERIC_WRITE,
-			FILE_SHARE_READ,
+			os::fs::file_share_read,
 			sd? &SecAttr : nullptr,
 			Append? OPEN_EXISTING : CREATE_ALWAYS,
 			(attrs & ~(IsSystemEncrypted? FILE_ATTRIBUTE_SYSTEM : 0)) | FILE_FLAG_SEQUENTIAL_SCAN))
@@ -2758,7 +2758,7 @@ bool ShellCopy::ShellCopyFile(
 		{
 			if (os::fs::drive::get_type(GetPathRoot(strDestName)) == DRIVE_REMOTE)
 			{
-				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, os::fs::file_share_read, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
 					set_file_time(DestFile, SrcData, Global->Opt->CMOpt.PreserveTimestamps);
 

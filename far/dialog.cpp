@@ -94,9 +94,8 @@ struct DlgUserControl
 };
 
 //////////////////////////////////////////////////////////////////////////
-/*
-   Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
-*/
+// Функции, определяющие - "Может ли элемент диалога иметь фокус ввода"
+//
 static bool CanGetFocus(int Type)
 {
 	switch (Type)
@@ -115,6 +114,11 @@ static bool CanGetFocus(int Type)
 		default:
 			return false;
 	}
+}
+
+static bool CanGetFocus(int Type, FARDIALOGITEMFLAGS Flags)
+{
+	return CanGetFocus(Type) && !(Flags & (DIF_NOFOCUS | DIF_DISABLE | DIF_HIDDEN));
 }
 
 static bool IsEmulatedEditorLine(const DialogItemEx& Item)
@@ -686,9 +690,8 @@ void Dialog::InitDialogObjects(size_t ID)
 		}
 		// предварительный поиск фокуса
 		if (m_FocusPos == static_cast<size_t>(-1) &&
-		        CanGetFocus(Item.Type) &&
-		        (Item.Flags&DIF_FOCUS) &&
-		        !(Item.Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
+		        CanGetFocus(Item.Type, Item.Flags) &&
+		        (Item.Flags&DIF_FOCUS))
 			m_FocusPos=I; // запомним первый фокусный элемент
 
 		Item.Flags&=~DIF_FOCUS; // сбросим для всех, чтобы не оказалось,
@@ -715,7 +718,7 @@ void Dialog::InitDialogObjects(size_t ID)
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 		{
-			return CanGetFocus(i.Type) && !(i.Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN));
+			return CanGetFocus(i.Type, i.Flags);
 		});
 		if (ItemIterator != Items.cend())
 		{
@@ -3594,10 +3597,17 @@ bool Dialog::Do_ProcessFirstCtrl()
 	}
 	else
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
+		auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 		{
-			return CanGetFocus(i.Type);
+			return (i.Flags & DIF_HOMEITEM) && CanGetFocus(i.Type, i.Flags);
 		});
+		if (ItemIterator == Items.cend())
+		{
+			ItemIterator = std::find_if(CONST_RANGE(Items, i)
+			{
+				return CanGetFocus(i.Type, i.Flags);
+			});
+		}
 		if (ItemIterator != Items.cend())
 		{
 			ChangeFocus2(ItemIterator - Items.begin());

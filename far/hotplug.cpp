@@ -347,7 +347,7 @@ static device_paths get_relation_device_paths(DEVINST hDevInst)
 	for (const auto& i: enum_substrings(DeviceIdList))
 	{
 		DEVINST hRelationDevInst;
-		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.data()), 0) == CR_SUCCESS)
+		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID>(i.data()), 0) == CR_SUCCESS)
 			DevicePaths.append(get_device_paths_impl(hRelationDevInst));
 	}
 

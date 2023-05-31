@@ -100,7 +100,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 			return os::fs::file(
 				OutFileName,
 				GENERIC_WRITE,
-				FILE_SHARE_READ,
+				os::fs::file_share_read,
 				Security,
 				IsFileExists && !UseTemporaryFile? TRUNCATE_EXISTING : CreationDistribution,
 				// No FILE_ATTRIBUTE_SYSTEM at this point to avoid potential conflicts with FILE_ATTRIBUTE_ENCRYPTED. We will set it later.

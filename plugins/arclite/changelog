@@ -1,3 +1,11 @@
+w17 2023-05-24 15:36:25+03:00 - build 337
+
+1. PF_RECURSIVEPANEL -> OPIF_RECURSIVEPANEL, OPIF_DELETEFILEONCLOSE, OPIF_DELETEDIRONCLOSE
+
+drkns 2023-05-22 18:57:05+01:00 - build 336
+
+1. gh-695: Archive file creation time lost after deleting files.
+
 w17 2023-05-12 13:14:32+03:00 - build 335
 
 1. add PF_RECURSIVEPANEL flag

@@ -1398,7 +1398,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 	}
 	else if (cp == CP_REDETECT)
 	{
-		const os::fs::file EditFile(strFileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
+		const os::fs::file EditFile(strFileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 		const auto DefaultCodepage = GetDefaultCodePage();
 		cp = EditFile? GetFileCodepage(EditFile, DefaultCodepage) : DefaultCodepage;
 	}
@@ -1517,7 +1517,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 
 	EditorPosCache pc;
 	UserBreak = 0;
-	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_DELETE | (Global->Opt->EdOpt.EditOpenedForWrite? FILE_SHARE_WRITE : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	os::fs::file EditFile(Name, FILE_READ_DATA, os::fs::file_share_read | (Global->Opt->EdOpt.EditOpenedForWrite? FILE_SHARE_WRITE : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!EditFile)
 	{
 		ErrorState = os::last_error();

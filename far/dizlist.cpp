@@ -82,7 +82,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 
 	const auto ReadDizFile = [this](const string_view Name)
 	{
-		const os::fs::file DizFile(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		const os::fs::file DizFile(Name, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
 		if (!DizFile)
 			return false;
 

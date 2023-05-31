@@ -190,10 +190,7 @@ public:
     File::delete_file_nt(m_file_path);
   }
 
-  bool set_ctime(const FILETIME& ctime) noexcept {
-    FILETIME dummy{0, 0};
-    return set_time_nt(ctime, dummy, dummy);
-  }
+  using File::copy_ctime_from;
 };
 
 
@@ -1156,21 +1153,16 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
   try {
     ComObject<IOutArchive> out_arc;
     CHECK_COM(in_arc->QueryInterface(IID_IOutArchive, reinterpret_cast<void**>(&out_arc)));
-
     set_properties(out_arc, options);
 
     const auto progress = std::make_shared<ArchiveUpdateProgress>(false, arc_path);
-    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
-    auto simple_update_stream = new SimpleUpdateStream(temp_arc_name, progress);
-    ComObject<IOutStream> update_stream(simple_update_stream);
+    ComObject updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
+    ComObject update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
     COM_ERROR_CHECK(copy_prologue(update_stream));
-
     COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, new_index, updater));
+    update_stream->copy_ctime_from(arc_path);
 
-    WIN32_FILE_ATTRIBUTE_DATA fa;
-    if (File::attributes_ex(arc_path, &fa))
-      simple_update_stream->set_ctime(fa.ftCreationTime);
     close();
     update_stream.Release();
     File::move_file(temp_arc_name, arc_path, MOVEFILE_REPLACE_EXISTING);

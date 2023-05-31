@@ -223,8 +223,8 @@ SearchReplaceDlgResult GetSearchReplaceString(
 		{ DI_BUTTON,      {{WordButtonX1,      2      }, {WordButtonX2,      2      }}, DIF_BTNNOCLOSE, WordLabel },
 		{ DI_BUTTON,      {{SelectionButtonX1, 2      }, {SelectionButtonX2, 2      }}, DIF_BTNNOCLOSE, SelectionLabel },
 		{ DI_TEXT,        {{5,                 2      }, {0,                 2      }}, DIF_NONE, SearchForLabel },
-		{ DI_EDIT,        {{5,                 3      }, {DlgWidth-4-2,      3      }}, DIF_USELASTHISTORY | DIF_HISTORY, },
-		{ DI_FIXEDIT,     {{5,                 3      }, {DlgWidth-4-2,      3      }}, DIF_MASKEDIT, },
+		{ DI_EDIT,        {{5,                 3      }, {DlgWidth-4-2,      3      }}, DIF_USELASTHISTORY | DIF_HISTORY | DIF_HOMEITEM, },
+		{ DI_FIXEDIT,     {{5,                 3      }, {DlgWidth-4-2,      3      }}, DIF_MASKEDIT | DIF_HOMEITEM, },
 		{ DI_TEXT,        {{5,                 4      }, {0,                 4      }}, DIF_NONE, msg(lng::MSearchReplaceReplaceWith), },
 		{ DI_EDIT,        {{5,                 5      }, {DlgWidth-4-2,      5      }}, DIF_USELASTHISTORY | DIF_HISTORY, },
 		{ DI_TEXT,        {{-1,                6-YFix }, {0,                 6-YFix }}, DIF_SEPARATOR, },
@@ -314,22 +314,34 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	SetFlagIf(dlg_button_all, DIF_HIDDEN, !Props.ShowButtonAll);
 
 	bool TextOrHexHotkeyUsed{};
+	bool SearchStringWasEmpty{};
 
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
-		const auto EnableActionButtons{ [&]
+		const auto EnableActionButtons{ [&](const bool Init)
 		{
 			const auto Str{ get_dialog_item_text(Dlg, Param1) };
 			const auto Empty{ Param1 == dlg_edit_search_text ? Str.empty() : HexStringToBlob(ExtractHexString(Str), 0).empty() };
-			Dlg->SendMessage(DM_ENABLE, dlg_button_prev, ToPtr(!Empty));
-			Dlg->SendMessage(DM_ENABLE, dlg_button_action, ToPtr(!Empty));
-			Dlg->SendMessage(DM_ENABLE, dlg_button_all, ToPtr(!Empty));
+
+			// 2023-05-29 MZK: If DN_EDITCHANGE comes because of changing items in the autocomplete list (Up, Down, Mouse),
+			// and we send DM_ENABLE to dialog buttons, the dialog is refreshed but the autocomplete list is not, see gh-697.
+			// As the result, the list disappears from the screen but still has focus. Seems to be a bug in the autocomplete list.
+			// To work around this issue, the code below avoids sending DM_ENABLE if the "empty" status did not change.
+			// It works because while the autocomplete list is open, the Search string never becomes empty,
+			// so we never send DM_ENABLE thus dodging the whole problem.
+			if (Init || Empty != SearchStringWasEmpty)
+			{
+				SearchStringWasEmpty = Empty;
+				Dialog::suppress_redraw RedrawGuard{ Dlg };
+				for (auto Item : { dlg_button_prev, dlg_button_action, dlg_button_all })
+					Dlg->SendMessage(DM_ENABLE, Item, ToPtr(!Empty));
+			}
 		} };
 
 		switch (Msg)
 		{
 		case DN_INITDIALOG:
-			EnableActionButtons();
+			EnableActionButtons(true);
 			break;
 
 		case DN_BTNCLICK:
@@ -413,7 +425,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 			case dlg_edit_search_text:
 			case dlg_edit_search_hex:
 				{
-					EnableActionButtons();
+					EnableActionButtons(false);
 					break;
 				}
 			}

@@ -818,7 +818,7 @@ int KeyMacro::GetKey()
 				if (!mpr.Count || mpr.Values[0].Type != FMVT_STRING)
 					break;
 
-				const auto Uuid = uuid::try_parse(string_view(mpr.Values[0].String));
+				const auto Uuid = uuid::try_parse(mpr.Values[0].String);
 				if (!Uuid)
 					break;
 
@@ -831,7 +831,7 @@ int KeyMacro::GetKey()
 				UUID MenuUuid;
 				if (*Arg && (mpr.ReturnType==MPRT_PLUGINMENU || mpr.ReturnType==MPRT_PLUGINCONFIG))
 				{
-					if (const auto MenuUuidOpt = uuid::try_parse(string_view(Arg)))
+					if (const auto MenuUuidOpt = uuid::try_parse(Arg))
 					{
 						MenuUuid = *MenuUuidOpt;
 						cpInfo.ItemUuid = &MenuUuid;
@@ -2188,7 +2188,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			const auto SyncCall = Data->Values[0].Boolean == 0;
 			const auto SysID = Data->Values[1].String;
-			const auto Uuid = uuid::try_parse(string_view(SysID));
+			const auto Uuid = uuid::try_parse(SysID);
 
 			if (!Uuid || !Global->CtrlObject->Plugins->FindPlugin(*Uuid))
 				return api.PassBoolean(false);
@@ -4812,7 +4812,7 @@ void FarMacroApi::pluginexistFunc() const
 	if (!mData->Count || mData->Values[0].Type != FMVT_STRING)
 		return PassBoolean(false);
 
-	const auto Uuid = uuid::try_parse(string_view(mData->Values[0].String));
+	const auto Uuid = uuid::try_parse(mData->Values[0].String);
 	PassBoolean(Uuid && Global->CtrlObject->Plugins->FindPlugin(*Uuid) != nullptr);
 }
 

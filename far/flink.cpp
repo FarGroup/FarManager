@@ -150,7 +150,7 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const 
 
 static auto GetDesiredAccessForReparsePointChange()
 {
-	static const auto DesiredAccess = IsWindowsXPOrGreater()? FILE_WRITE_ATTRIBUTES : GENERIC_WRITE;
+	static const auto DesiredAccess = IsWindowsXPOrGreater()? FILE_WRITE_ATTRIBUTES : FILE_WRITE_DATA;
 	return DesiredAccess;
 }
 

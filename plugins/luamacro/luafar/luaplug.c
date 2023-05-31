@@ -314,10 +314,7 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 {
 	if (IS_PLUGIN_READY(G))
 	{
-		lua_State* oldState = G.LS;
-		G.LS = NULL;
-		LF_ExitFAR(oldState, Info);
-		lua_close(oldState);
+		LF_ExitFAR(G.LS, Info);
 		LEAVE_CS(G);
 	}
 }

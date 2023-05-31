@@ -1,4 +1,54 @@
 --------------------------------------------------------------------------------
+w17 2023-05-31 12:18:13+03:00 - build 6157
+
+1. Continue 6155, 6153, 6152
+   Correction for Temporary panel (OPIF_REALNAMES)
+
+--------------------------------------------------------------------------------
+MZK 2023-05-29 11:49:01-07:00 - build 6156
+
+1. gh-697: Fixed disappearing autocomplete list in Search / Replace dialog.
+   The bug was introduced in 6144.
+
+--------------------------------------------------------------------------------
+w17 2023-05-29 13:25:38+03:00 - build 6155
+
+1. Continue 6153, OPIF_DEL.. on close can be used without RECURSIVEPANEL
+
+--------------------------------------------------------------------------------
+drkns 2023-05-29 10:19:46+01:00 - build 6154
+
+1. gh-696: Don't call ProcessConsoleInput on special macro keys.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+w17 2023-05-24 21:10:15+03:00 - build 6153
+
+1. Fix 6152
+
+--------------------------------------------------------------------------------
+w17 2023-05-24 15:05:42+03:00 - build 6152
+
+1. Continue 6134, 6140
+   gh-683: Archive is deleted on close when using prefix to open it from another archive
+   PF_RECURSIVEPANEL -> OPIF_RECURSIVEPANEL
+
+--------------------------------------------------------------------------------
+MZK 2023-05-21 19:01:56-07:00 - build 6151
+
+1. gh-669: Now Home key works in the Search / Replace dialog.
+1.a. Added new FARDIALOGITEMFLAGS: DIF_HOMEITEM.
+     This flag indicates the item which should take focus on Home key press.
+     Note: The first "focusable" item is not always the best target for Home key.
+     It is a good idea to set this flag on the item which initially has DIF_FOCUS.
+
+--------------------------------------------------------------------------------
+drkns 2023-05-21 18:36:11+01:00 - build 6150
+
+1. Adjust CreateFile access & sharing flags in a few places.
+
+--------------------------------------------------------------------------------
 drkns 2023-05-20 19:37:43+01:00 - build 6149
 
 1. gh-692: Change time for read-only or system files cannot be set

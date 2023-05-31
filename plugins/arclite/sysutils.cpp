@@ -221,6 +221,15 @@ bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILET
   return SetFileTime(h_file, &ctime, &atime, &mtime) != 0;
 };
 
+bool File::copy_ctime_from(const std::wstring& source_file) noexcept
+{
+  WIN32_FILE_ATTRIBUTE_DATA fa;
+  if (!attributes_ex(source_file, &fa))
+    return false;
+  FILETIME dummy{};
+  return set_time_nt(fa.ftCreationTime, dummy, dummy);
+}
+
 uint64_t File::set_pos(int64_t offset, DWORD method) {
   uint64_t new_pos;
   CHECK_FILE(set_pos_nt(offset, method, &new_pos), m_file_path);

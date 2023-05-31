@@ -171,7 +171,7 @@ public:
 	void GetContentData(const std::vector<Plugin*>& Plugins, string_view FilePath, const std::vector<const wchar_t*>& ColNames, std::vector<const wchar_t*>& ColValues, unordered_string_map<string>& ContentData) const;
 	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
 	bool UnloadPluginExternal(Plugin* pPlugin);
-	bool IsPluginUnloaded(const Plugin* pPlugin) const;
+	bool IsPluginUnloaded(Plugin* pPlugin) const;
 	void LoadPlugins();
 	void UnloadPlugins();
 
@@ -211,7 +211,7 @@ public:
 #endif // NO_WRAPPER
 	bool IsPluginsLoaded() const { return m_PluginsLoaded; }
 	void Configure(int StartPos=0) const;
-	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr) const;
+	bool CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr) const;
 	bool GetDiskMenuItem(Plugin* pPlugin, size_t PluginItem, bool& ItemPresent, wchar_t& PluginHotkey, string& strPluginText, UUID& Uuid) const;
 	void ReloadLanguage() const;
 	bool ProcessCommandLine(string_view Command);
@@ -236,16 +236,16 @@ private:
 	Plugin* LoadPlugin(const string& FileName, const os::fs::find_data &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(const Plugin* pPlugin);
-	int UnloadPlugin(Plugin* pPlugin, int From);
-	void UndoRemove(const Plugin* plugin);
+	bool UnloadPlugin(Plugin* pPlugin, int From);
+	void UndoRemove(Plugin* plugin);
 	bool UpdateId(Plugin* pPlugin, const UUID& Id);
 	void LoadPluginsFromCache();
-	int ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, const bool fe_close) const;
+	bool ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, const bool fe_close) const;
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
 	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;
 	plugins_set SortedPlugins;
-	std::list<Plugin*> UnloadedPlugins;
+	std::unordered_set<Plugin*> UnloadedPlugins;
 
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;
