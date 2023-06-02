@@ -2759,6 +2759,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			else
 			{
 				size_t MinDist=1000, Pos = 0, MinPos=0;
+				const auto IsLeft = any_of(LocalKey(), KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT);
 				for (const auto &i :Items)
 				{
 					if (Pos != m_FocusPos &&
@@ -2768,7 +2769,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					{
 						const auto Dist = i.X1-Items[m_FocusPos].X1;
 
-						if ((any_of(LocalKey(), KEY_LEFT, KEY_SHIFTNUMPAD4) && Dist < 0) || (any_of(LocalKey(), KEY_RIGHT, KEY_SHIFTNUMPAD6) && Dist > 0))
+						if ((IsLeft && Dist < 0) || (!IsLeft && Dist > 0))
 						{
 							if (static_cast<size_t>(std::abs(Dist))<MinDist)
 							{
