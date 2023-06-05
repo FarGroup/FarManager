@@ -54,6 +54,7 @@ WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, re
 WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
 WARNING_DISABLE_MSC(4191) // 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
 
+WARNING_DISABLE_GCC("-Wpedantic")
 WARNING_DISABLE_GCC("-Wcast-function-type")
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wdouble-promotion")

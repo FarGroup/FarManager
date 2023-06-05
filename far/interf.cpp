@@ -1720,9 +1720,10 @@ TEST_CASE("interf.highlight")
 		size_t HotkeyVisualPos;
 		struct
 		{
-			size_t PosVisual;
-			size_t PosReal;
-		};
+			size_t Visual;
+			size_t Real;
+		}
+		Pos;
 	}
 	Tests[]
 	{
@@ -1760,7 +1761,7 @@ TEST_CASE("interf.highlight")
 
 		REQUIRE(HiStrlen(i.Input) == i.Result.size());
 
-		REQUIRE(HiFindRealPos(i.Input, i.PosVisual) == i.PosReal);
+		REQUIRE(HiFindRealPos(i.Input, i.Pos.Visual) == i.Pos.Real);
 	}
 }
 
