@@ -20,7 +20,7 @@ static DWORD NextPosition,FileSize;
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
 #define EPOCH_BIAS    116444736000000000ll
 
-void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
+static void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
   *(__int64*)ft = EPOCH_BIAS + time * 10000000ll;
 }

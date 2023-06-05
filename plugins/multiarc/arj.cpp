@@ -96,14 +96,14 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     const unsigned char *D=Data+I;
     WORD HeaderSize;
     if (D[0]==0x60 && D[1]==0xEA &&
-       (HeaderSize=*(WORD*)(D+2)) <= HEADERSIZE_MAX &&
+       (HeaderSize=*(const WORD*)(D+2)) <= HEADERSIZE_MAX &&
        D[7]<0x10 &&
        D[10]==2 &&
        I+4+HeaderSize < DataSize-11)
     {
       CRC=CRC_MASK;
-      crc_buf((char *)D+4, (int) HeaderSize);
-      if ((CRC ^ CRC_MASK) == *(DWORD*)(D+4+HeaderSize))
+      crc_buf((const char *)D+4, (int) HeaderSize);
+      if ((CRC ^ CRC_MASK) == *(const DWORD*)(D+4+HeaderSize))
       {
         SFXSize=I;
         return(TRUE);

@@ -91,17 +91,20 @@ CFLAGS += \
 	-fdiagnostics-show-option \
 	-pipe \
 	-funsigned-char \
+	-pedantic-errors \
 	-Wall \
 	-Wextra \
+	-Wpedantic \
+	-Wfatal-errors \
 	-Werror=odr \
 	-Werror=return-type \
-	-Wcast-align \
-	-Wcast-qual \
+	-Werror=cast-align=strict \
+	-Werror=cast-qual \
+	-Werror=implicit-fallthrough=5 \
 	-Wdouble-promotion \
 	-Wduplicated-branches \
 	-Wduplicated-cond \
 	-Wformat=2 \
-	-Wimplicit-fallthrough=5 \
 	-Winvalid-pch \
 	-Wlogical-op \
 	-Wmissing-declarations \

@@ -1334,7 +1334,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	const auto
 		NonePressed = check_control(ControlState, none_pressed),
 		OnlyAnyCtrlPressed = check_control(ControlState, any_ctrl_pressed),
-		OnlyAnyAltPressed = check_control(ControlState, any_alt_pressed),
+		//OnlyAnyAltPressed = check_control(ControlState, any_alt_pressed),
 		OnlyAnyShiftPressed = check_control(ControlState, any_shift_pressed);
 
 	if (OnlyAnyCtrlPressed && Key == L'R')

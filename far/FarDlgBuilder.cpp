@@ -185,7 +185,7 @@ template<typename int_type>
 class CheckBoxIntBinding final: public DialogItemBinding
 {
 public:
-	explicit CheckBoxIntBinding(int_type& Value, int Mask):
+	explicit CheckBoxIntBinding(int_type& Value, unsigned Mask):
 		m_Value(Value),
 		m_Mask(Mask)
 	{
@@ -353,14 +353,14 @@ DialogItemEx& DialogBuilder::AddText(lng_string const Text)
 	return Item;
 }
 
-DialogItemEx& DialogBuilder::AddCheckbox(lng_string const Text, int& Value, int Mask, bool ThreeState)
+DialogItemEx& DialogBuilder::AddCheckbox(lng_string const Text, int& Value, unsigned Mask, bool ThreeState)
 {
 	auto& Item = AddCheckboxImpl(Text, Value, Mask, ThreeState);
 	SetLastItemBinding(std::make_unique<CheckBoxIntBinding<int>>(Value, Mask));
 	return Item;
 }
 
-DialogItemEx& DialogBuilder::AddCheckbox(lng_string const Text, IntOption& Value, int Mask, bool ThreeState)
+DialogItemEx& DialogBuilder::AddCheckbox(lng_string const Text, IntOption& Value, unsigned Mask, bool ThreeState)
 {
 	auto& Item = AddCheckboxImpl(Text, Value, Mask, ThreeState);
 	SetLastItemBinding(std::make_unique<CheckBoxIntBinding<IntOption>>(Value, Mask));
@@ -941,7 +941,7 @@ intptr_t DialogBuilder::DoShowDialog()
 }
 
 template<typename value_type>
-DialogItemEx& DialogBuilder::AddCheckboxImpl(lng_string const Text, value_type& Value, int Mask, bool ThreeState)
+DialogItemEx& DialogBuilder::AddCheckboxImpl(lng_string const Text, value_type& Value, unsigned Mask, bool ThreeState)
 {
 	auto& Item = AddDialogItem(DI_CHECKBOX, Text.c_str());
 	if (ThreeState && !Mask)

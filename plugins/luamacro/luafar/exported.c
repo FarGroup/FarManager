@@ -290,7 +290,7 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 		lua_getfield(L, dataPos, "ExtUserData");
 		pi->UserData.Data = lua_touserdata(L, -1);
 		lua_getfield(L, dataPos, "FreeUserData");
-		pi->UserData.FreeData = lua_touserdata(L, -1);
+		pi->UserData.FreeData = (FARPANELITEMFREECALLBACK)(intptr_t)lua_touserdata(L, -1);
 		lua_pop(L, 3);
 	}
 }

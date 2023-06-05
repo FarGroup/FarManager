@@ -3,6 +3,8 @@ USERCPP = -DWIN32 -DPCRE_STATIC -D_WIN32
 
 include ../makefile_gcc_def_inc
 
+CFLAGS += -Wno-pointer-sign -Wno-error=cast-qual -Wno-error=implicit-fallthrough=5
+
 DLLNAME = libPCRE.a
 DLLFULLNAME = $(OBJDIR)/$(DLLNAME)
 SRCS = pcre_chartables.c pcre_compile.c pcre_exec.c pcre_fullinfo.c pcre_get.c pcre_globals.c pcre_study.c pcre_tables.c pcre_try_flipped.c pcre_version.c

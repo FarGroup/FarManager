@@ -1032,7 +1032,7 @@ bool NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 					}
 				}
 
-				PsInfo.PanelControl(this, FCTL_CLOSEPANEL, 0, (void*)NewDir.c_str());
+				PsInfo.PanelControl(this, FCTL_CLOSEPANEL, 0, const_cast<void*>(static_cast<const void*>(NewDir.c_str())));
 				return true;
 			}
 

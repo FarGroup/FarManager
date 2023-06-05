@@ -94,7 +94,7 @@ void  WINAPI SetFarInfo(const PluginStartupInfo *Info)
    lstrcpy(ModuleName,Info->ModuleName);
 }
 
-int CALLBACK CallbackProc(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2)
+static int CALLBACK CallbackProc(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2)
 {
   switch(msg)
   {
@@ -198,7 +198,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   }
 
   memset(&OpenArchiveData,0,sizeof(OpenArchiveData));
-  OpenArchiveData.ArcName=(char*)Name;
+  OpenArchiveData.ArcName=const_cast<char*>(Name);
   OpenArchiveData.OpenMode=RAR_OM_LIST;
   OpenArchiveData.Callback=CallbackProc;
   hArcData=pRAROpenArchiveEx(&OpenArchiveData);

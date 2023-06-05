@@ -12,7 +12,7 @@ const wchar_t SZ_USERNAME[] = L"UserName";
 const wchar_t SZ_USERPASS[] = L"Password";
 static wchar_t szFavProv[] = L"Far Favorites Provider";
 
-std::vector<std::wstring> SplitPath(const wchar_t* lpRemoteName)
+static std::vector<std::wstring> SplitPath(const wchar_t* lpRemoteName)
 {
 	// lpRemoteName = Favorite\\share \\machine\share or \\machine
 	// result  {Favorite , machine, share} or {Favorite , machine}

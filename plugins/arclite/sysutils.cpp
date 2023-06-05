@@ -285,7 +285,7 @@ bool File::attributes_ex(const std::wstring& file_path, WIN32_FILE_ATTRIBUTE_DAT
     if (pf == nullptr)
       have_attributes_ex = -1;
     else {
-      (FARPROC&)pfGetFileAttributesExW = pf;
+      pfGetFileAttributesExW = reinterpret_cast<decltype(pfGetFileAttributesExW)>(reinterpret_cast<void*>(pf));
       have_attributes_ex = +1;
     }
   }

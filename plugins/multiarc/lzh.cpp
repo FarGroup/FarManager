@@ -51,7 +51,7 @@ static DWORD NextPosition,SFXSize,FileSize;
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
 #define EPOCH_BIAS    116444736000000000ll
 
-void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
+static void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
   *(__int64*)ft = EPOCH_BIAS + time * 10000000ll;
 }
@@ -165,7 +165,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 {
   for (int I=0;I<DataSize-5;I++)
   {
-    LZH_Level0 *lzh=(LZH_Level0*)(Data+I);
+    const LZH_Level0 *lzh=(const LZH_Level0*)(Data+I);
     if(CheckLZHHeader(lzh))
     {
       const unsigned char *D=Data+I;

@@ -589,7 +589,7 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem, int No
 		{
 			lua_pushlightuserdata(L, PanelItem->UserData.Data);
 			lua_setfield(L, -2, "ExtUserData"); //use field name different from "UserData" to distinguish later
-			lua_pushlightuserdata(L, PanelItem->UserData.FreeData);
+			lua_pushlightuserdata(L, (void*)(intptr_t)PanelItem->UserData.FreeData);
 			lua_setfield(L, -2, "FreeUserData");
 		}
 	}
@@ -6196,7 +6196,7 @@ static int far_host_FreeUserData(lua_State *L)
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "FreeUserData");
-			FreeData = (FARPANELITEMFREECALLBACK) lua_touserdata(L, -1);
+			FreeData = (FARPANELITEMFREECALLBACK)(intptr_t)lua_touserdata(L, -1);
 			lua_pop(L, 1);
 
 			if (UserData && FreeData)

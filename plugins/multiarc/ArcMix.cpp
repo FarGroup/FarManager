@@ -87,13 +87,13 @@ const char *GetMsg(int MsgId)
    запуск треда для ожидания момента убийства лист файла */
 void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list)
 {
-    if ( pi==0 || list==0 || *list==0)
+    if (!pi || !list || !*list)
         return;
     KillStruct *ks;
     DWORD dummy;
 
     ks=(KillStruct*)GlobalAlloc(GPTR,sizeof(KillStruct));
-    if ( ks==0 )
+    if (!ks)
         return ;
 
     ks->hThread=pi->hThread;
@@ -565,7 +565,7 @@ int GetScrX(void)
 
 
 
-int PathMayBeAbsolute(const char *Path)
+static int PathMayBeAbsolute(const char *Path)
 {
   return (Path &&
            (

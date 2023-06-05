@@ -84,11 +84,6 @@ wchar_t auto_sz::operator[](int nPos)
   return m_sz[nPos];
 }
 
-auto_sz::operator void*()
-{
-  return m_sz;
-}
-
 void auto_sz::Alloc(size_t nSize)
 {
   Clear();
@@ -156,19 +151,24 @@ void auto_sz::Trunc(size_t nNewLen)
   if (nNewLen<m_nSize) m_sz[nNewLen]=L'\0';
 }
 
-bool auto_sz::operator ==(LPCWSTR sz)
+bool operator==(const auto_sz& str, LPCWSTR sz)
 {
-  return lstrcmp(m_sz, sz)==0;
+	return lstrcmp(str, sz) == 0;
+}
+
+bool operator==(LPCWSTR sz, const auto_sz& str)
+{
+	return str == sz;
+}
+
+bool operator==(const auto_sz& str1, const auto_sz& str2)
+{
+	return str1 == str2.operator LPCWSTR();
 }
 
 int auto_sz::CompareNoCase(LPCWSTR sz)
 {
   return lstrcmpi(m_sz, sz);
-}
-
-bool auto_sz::operator !=(LPCWSTR sz)
-{
-  return lstrcmp(m_sz, sz)!=0;
 }
 
 bool auto_sz::CompareExcluding(LPCWSTR sz, wchar_t chExcl)

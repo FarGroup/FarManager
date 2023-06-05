@@ -563,9 +563,9 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
     FSF.sprintf(InfoLines[14].Data,"%d%%",ToPercent(PackedSize,TotalSize));
 
     memset(&KeyBar,0,sizeof(KeyBar));
-    KeyBar.ShiftTitles[1-1]=(char*)"";
-    KeyBar.AltTitles[6-1]=(char*)GetMsg(MAltF6);
-    KeyBar.AltShiftTitles[9-1]=(char*)GetMsg(MAltShiftF9);
+    KeyBar.ShiftTitles[1-1]=const_cast<char*>("");
+    KeyBar.AltTitles[6-1]=const_cast<char*>(GetMsg(MAltF6));
+    KeyBar.AltShiftTitles[9-1]=const_cast<char*>(GetMsg(MAltShiftF9));
   }
 
   Info->Format=Format;
