@@ -307,7 +307,11 @@ private:
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
-	bool ShiftItemShowPos(int Pos,int Direct);
+	size_t GetItemMaxShowPos(int Item);
+	bool SetItemShowPos(int Item, int NewShowPos); // Negative NewShowPos is relative to the right side; -1 aligns the item to the right
+	bool ShiftItemShowPos(int Item,int Shift); // Shifts item's ShowPos; if Shift is positive, the item visually moves left
+	bool SetAllItemsShowPos(int NewShowPos);
+	bool ShiftAllItemsShowPos(int Shift);
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
 	bool ShouldSendKeyToFilter(unsigned Key) const;

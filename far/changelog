@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+MZK 2023-06-20 19:53:29-07:00 - build 6167
+
+1. More ways to scroll VMenu lists horizontally.
+   - Ctrl+Alt+Arrows scroll all items by 20 characters at a time.
+   - Ctrl+Shift+Arrows scroll the selected item by 20 characters at a time.
+   - Alt+Shift+Home aligns the selected item to the left.
+   - Alt+Shift+End aligns the selected item to the right.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-20 20:01:57+01:00 - build 6166
 
 1. Configurable cursor size in screen grabber.
