@@ -6517,7 +6517,7 @@ horizontally (Windows Vista and above):
  System.MsHWheelDeltaEdit - in the internal Editor
  System.MsHWheelDelta     - in other areas
 
- Default value: 1 (for all parameters).
+ Default value for all parameters: 0 (use system settings).
 
  Note: Rolling or tilting mouse wheel while holding #Alt# key always
 scrolls one line or character at a time.

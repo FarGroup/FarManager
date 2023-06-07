@@ -2288,20 +2288,20 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_UP:
 		case KEY_MSWHEEL_UP | KEY_ALT:
 		case KEY_MSWHEEL_UP | KEY_RALT:
-			Scroll(LocalKey & (KEY_ALT | KEY_RALT)? -1 : static_cast<int>(-Global->Opt->MsWheelDelta));
+			Scroll(-static_cast<int>((LocalKey == KEY_MSWHEEL_UP? get_wheel_scroll_lines(Global->Opt->MsWheelDelta) : 1) * Key.NumberOfWheelEvents()));
 			return true;
 
 		case KEY_MSWHEEL_DOWN:
 		case KEY_MSWHEEL_DOWN | KEY_ALT:
 		case KEY_MSWHEEL_DOWN | KEY_RALT:
-			Scroll(LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsWheelDelta));
+			Scroll(static_cast<int>((LocalKey == KEY_MSWHEEL_DOWN? get_wheel_scroll_lines(Global->Opt->MsWheelDelta) : 1) * Key.NumberOfWheelEvents()));
 			return true;
 
 		case KEY_MSWHEEL_LEFT:
 		case KEY_MSWHEEL_LEFT | KEY_ALT:
 		case KEY_MSWHEEL_LEFT | KEY_RALT:
 		{
-			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
+			const auto Roll = static_cast<int>((LocalKey == KEY_MSWHEEL_LEFT? get_wheel_scroll_chars(Global->Opt->MsHWheelDelta) : 1) * Key.NumberOfWheelEvents());
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_LEFT)); });
 			return true;
 		}
@@ -2310,7 +2310,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_RIGHT | KEY_ALT:
 		case KEY_MSWHEEL_RIGHT | KEY_RALT:
 		{
-			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
+			const auto Roll = static_cast<int>((LocalKey == KEY_MSWHEEL_RIGHT? get_wheel_scroll_chars(Global->Opt->MsHWheelDelta) : 1) * Key.NumberOfWheelEvents());
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_RIGHT)); });
 			return true;
 		}

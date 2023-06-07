@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-07 22:32:00+01:00 - build 6159
+
+1. Improve mouse wheel handling:
+   - Take into account that one mouse event can describe more than one wheel detent.
+   - Use OS wheel settings when System.Ms[H]WheelDelta* parameters are set to 0.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-02 20:53:21+01:00 - build 6158
 
 1. NumLeft & NumRight don't work as intended with radiobuttons.

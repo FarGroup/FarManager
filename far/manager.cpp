@@ -114,6 +114,14 @@ Manager::Key& Manager::Key::operator&=(unsigned int Key)
 	return *this;
 }
 
+size_t Manager::Key::NumberOfWheelEvents() const
+{
+	if (!m_EventFilled || m_Event.EventType != MOUSE_EVENT || !(m_Event.Event.MouseEvent.dwEventFlags & MOUSE_WHEELED | MOUSE_HWHEELED))
+		return 1;
+
+	return std::abs(static_cast<short>(extract_integer<WORD, 1>(m_Event.Event.MouseEvent.dwButtonState)) / WHEEL_DELTA);
+}
+
 static bool CASHook(const Manager::Key& key)
 {
 	if (!key.IsEvent())

@@ -6416,7 +6416,7 @@ obrócić rolkę o jeden przeskok w pionie:
  System.MsHWheelDeltaEdit - w wewnętrznym Edytorze
  System.MsHWheelDelta     - w innych obszarach
 
- Domyślna wartość: 1 (dla wszystkich parametrów).
+ Domyślna wartość: dla wszystkich parametrów: 0 (używać ustawień systemowych).
 
  Uwaga: Rolowanie lub przechylanie rolki myszki przy wciśniętym
 klawiszu #Alt# zawsze przewija o jedną linię lub jeden znak na raz.

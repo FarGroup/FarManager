@@ -534,6 +534,27 @@ bool while_mouse_button_pressed(function_ref<bool(DWORD)> const Action)
 	return true;
 }
 
+static int get_wheel_scroll(unsigned const Type, int const ConfigValue)
+{
+	if (ConfigValue)
+		return ConfigValue;
+
+	if (UINT Value; SystemParametersInfo(Type, 0, &Value, 0))
+		return Value;
+
+	return 1;
+}
+
+int get_wheel_scroll_lines(int const ConfigValue)
+{
+	return get_wheel_scroll(SPI_GETWHEELSCROLLLINES, ConfigValue);
+}
+
+int get_wheel_scroll_chars(int const ConfigValue)
+{
+	return get_wheel_scroll(SPI_GETWHEELSCROLLCHARS, ConfigValue);
+}
+
 static auto ButtonStateToKeyMsClick(DWORD ButtonState)
 {
 	switch (ButtonState)
