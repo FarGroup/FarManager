@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-08 20:25:38+01:00 - build 6161
+
+1. Continue 6159: finer-resolution wheels/pads should now work more or less as expected.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-08 08:21:33+01:00 - build 6160
 
 1. gh-702: Trackpad scrolling issue in build 6159.

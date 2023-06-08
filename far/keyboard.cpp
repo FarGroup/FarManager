@@ -775,7 +775,7 @@ static const far_key_code WheelKeys[][2] =
 	{ KEY_MSWHEEL_LEFT, KEY_MSWHEEL_RIGHT }
 };
 
-static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro, bool ProcessMouse, DWORD& CalcKey)
+static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro, bool ProcessMouse, DWORD& CalcKey)
 {
 	lastMOUSE_EVENT_RECORD = MouseEvent;
 	IntKeyState.PreMouseEventFlags = std::exchange(IntKeyState.MouseEventFlags, MouseEvent.dwEventFlags);
@@ -815,9 +815,35 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 
 	if (IntKeyState.MouseEventFlags == MOUSE_WHEELED || IntKeyState.MouseEventFlags == MOUSE_HWHEELED)
 	{
+		// https://learn.microsoft.com/en-gb/windows/win32/inputdev/wm-mousewheel
+		// The wheel rotation will be a multiple of WHEEL_DELTA, which is set at 120.
+		// This is the threshold for action to be taken, and one such action
+		// (for example, scrolling one increment) should occur for each delta.
+		// The delta was set to 120 to allow Microsoft or other vendors to build
+		// finer-resolution wheels (a freely-rotating wheel with no notches)
+		// to send more messages per rotation, but with a smaller value in each message.
+		// To use this feature, you can either add the incoming delta values
+		// until WHEEL_DELTA is reached (so for a delta-rotation you get the same response),
+		// or scroll partial lines in response to the more frequent messages.
+		// You can also choose your scroll granularity and accumulate deltas until it is reached.
+		static int StoredTicks = 0;
+		const auto Ticks = static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState));
+		StoredTicks += Ticks;
+
+		if (std::abs(StoredTicks) < WHEEL_DELTA)
+		{
+			CalcKey = KEY_NONE;
+			return true;
+		}
+
 		const auto& WheelKeysPair = WheelKeys[IntKeyState.MouseEventFlags == MOUSE_HWHEELED? 1 : 0];
-		const auto Key = WheelKeysPair[static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState)) > 0? 1 : 0];
+		const auto Key = WheelKeysPair[StoredTicks > 0? 1 : 0];
 		CalcKey = Key | GetModifiers();
+
+		// Move accumulated ticks into the event, so that clients can inspect them via Manager::NumberOfWheelEvents() and act accordingly.
+		const auto Remainder = StoredTicks % WHEEL_DELTA;
+		MouseEvent.dwButtonState = make_integer<DWORD>(extract_integer<WORD, 0>(MouseEvent.dwButtonState), static_cast<WORD>(StoredTicks - Remainder));
+		StoredTicks = Remainder;
 		return false;
 	}
 
