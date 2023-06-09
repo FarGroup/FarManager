@@ -2036,6 +2036,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsHWheelDelta"sv,                 MsHWheelDelta, 0},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsHWheelDeltaEdit"sv,             MsHWheelDeltaEdit, 0},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsHWheelDeltaView"sv,             MsHWheelDeltaView, 0},
+		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelThreshold"sv,              MsWheelThreshold, 0},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MultiCopy"sv,                     CMOpt.MultiCopy, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MultiMakeDir"sv,                  MultiMakeDir, false},
 #ifndef NO_WRAPPER

@@ -953,6 +953,9 @@ public:
 	IntOption MsHWheelDeltaView;
 	IntOption MsHWheelDeltaEdit;
 
+	// How many ticks constitute an event
+	IntOption MsWheelThreshold;
+
 	/*
 	битовая маска:
 	    0 - если установлен, то опрашивать сменные диски при GetSubstName()

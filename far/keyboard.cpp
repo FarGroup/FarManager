@@ -534,6 +534,11 @@ bool while_mouse_button_pressed(function_ref<bool(DWORD)> const Action)
 	return true;
 }
 
+int get_wheel_threshold(int ConfigValue)
+{
+	return ConfigValue? ConfigValue : WHEEL_DELTA;
+}
+
 static int get_wheel_scroll(unsigned const Type, int const ConfigValue)
 {
 	if (ConfigValue)
@@ -828,9 +833,16 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 		// You can also choose your scroll granularity and accumulate deltas until it is reached.
 		static int StoredTicks = 0;
 		const auto Ticks = static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState));
-		StoredTicks += Ticks;
 
-		if (std::abs(StoredTicks) < WHEEL_DELTA)
+		// Discard stored ticks on scrolling direction change
+		if (Ticks > 0 == StoredTicks > 0)
+			StoredTicks += Ticks;
+		else
+			StoredTicks = Ticks;
+
+		const auto Threshold = get_wheel_threshold(Global->Opt->MsWheelThreshold);
+
+		if (std::abs(StoredTicks) < Threshold)
 		{
 			CalcKey = KEY_NONE;
 			return true;
@@ -841,7 +853,7 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 		CalcKey = Key | GetModifiers();
 
 		// Move accumulated ticks into the event, so that clients can inspect them via Manager::NumberOfWheelEvents() and act accordingly.
-		const auto Remainder = StoredTicks % WHEEL_DELTA;
+		const auto Remainder = StoredTicks % Threshold;
 		MouseEvent.dwButtonState = make_integer<DWORD>(extract_integer<WORD, 0>(MouseEvent.dwButtonState), static_cast<WORD>(StoredTicks - Remainder));
 		StoredTicks = Remainder;
 		return false;

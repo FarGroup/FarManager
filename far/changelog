@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-09 19:49:34+01:00 - build 6162
+
+1. Address gh-702 comments:
+   - System.MsWheelThreshold option to adjust wheel sensitivity.
+   - Discard accumulated events on scrolling direction change.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-08 20:25:38+01:00 - build 6161
 
 1. Continue 6159: finer-resolution wheels/pads should now work more or less as expected.
