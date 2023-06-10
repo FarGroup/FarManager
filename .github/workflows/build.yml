@@ -238,7 +238,7 @@ jobs:
           make -j4 CLANG=1 -f makefile_gcc
 
       - name: Build plugins (clang)
-        if: matrix.compiler  == 'CLANG_MAKE'
+        if: matrix.compiler  == 'mingw_clang'
         working-directory: plugins
         shell: msys2 {0}
         run: |
