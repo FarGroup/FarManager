@@ -1,7 +1,14 @@
-﻿#include <stdlib.h>
+﻿#include <compiler.hpp>
+
+#include <stdlib.h>
 #include <windows.h>
 #include <shellapi.h>
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4255)
 #include <versionhelpers.h>
+WARNING_POP()
+
 #include "reg.h"
 #include "util.h"
 #include "ustring.h"
@@ -217,7 +224,7 @@ static int win_DeleteRegKey(lua_State *L)
 	if (module && (ProcAddr = GetProcAddress(module, "RegDeleteKeyExW")) != NULL)
 	{
 		typedef LONG (WINAPI *pRegDeleteKeyEx)(HKEY, LPCTSTR, REGSAM, DWORD);
-		res = ((pRegDeleteKeyEx)ProcAddr)(hRoot, Key, samDesired, 0);
+		res = ((pRegDeleteKeyEx)(intptr_t)ProcAddr)(hRoot, Key, samDesired, 0);
 	}
 	else
 	{

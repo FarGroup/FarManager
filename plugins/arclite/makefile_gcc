@@ -64,7 +64,7 @@ ifdef USEDEP
 include $(OBJDIR)/$(NAME).dep
 endif
 
-CPPFLAGS += -I"$(FARDIR)/common" -Wno-non-virtual-dtor -Wno-error=pedantic
+CPPFLAGS += -Wno-non-virtual-dtor -Wno-error=pedantic
 
 include ../makefile_gcc_target_inc
 

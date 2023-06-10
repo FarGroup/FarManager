@@ -1,10 +1,13 @@
 ﻿#include "Network.hpp"
 #include "version.hpp"
-#include "guid.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
 #include "NetLng.hpp"
 #include "NetCommon.hpp"
+
+#include "guid.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 PluginStartupInfo PsInfo;
 FarStandardFunctions FSF;

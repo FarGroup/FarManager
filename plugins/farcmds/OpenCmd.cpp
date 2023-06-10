@@ -769,8 +769,8 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd,bool Dir)
 	ptrAllPath+=lstrlen(ptrAllPath);
 
 	// 3. Folders in the system environment variable #PATH#
+	{
 	GetEnvironmentVariable(L"PATH", ptrAllPath, PathLength);
-
 
 	wchar_t *pPathExt=PathExt;
 	wchar_t* tempFind = new wchar_t[lstrlen(temp) + PathExtLength + 1];
@@ -816,6 +816,7 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd,bool Dir)
 
 	delete[] tempFind;
 	delete[] AllPath;
+	}
 
 	// 7..8 Contents of the registry key
 	if (!DestPath || !*DestPath)

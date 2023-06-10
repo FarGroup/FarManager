@@ -74,7 +74,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 	if (!UnitIndex)
 		return ValueStr;
 
-	const auto SizeInUnits = value / std::pow(Divider.first, UnitIndex);
+	const auto SizeInUnits = static_cast<double>(value) / std::pow(Divider.first, UnitIndex);
 
 	double Parts[2];
 	Parts[1] = std::modf(SizeInUnits, &Parts[0]);
@@ -85,7 +85,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 		const auto AdjustedParts = [&]
 		{
 			const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
-			const auto Value = Parts[1] * Multiplier;
+			const auto Value = Parts[1] * static_cast<double>(Multiplier);
 			const auto UseRound = true;
 			const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
 			return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);

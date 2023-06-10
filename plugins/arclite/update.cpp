@@ -38,11 +38,11 @@ private:
     if (time == 0)
       speed = 0;
     else
-      speed = al_round(static_cast<double>(completed) / time * ticks_per_sec());
+      speed = al_round(static_cast<double>(completed) / static_cast<double>(time) * static_cast<double>(ticks_per_sec()));
 
     UInt64 total_time;
     if (completed)
-      total_time = static_cast<UInt64>(static_cast<double>(total) / completed * time);
+      total_time = static_cast<UInt64>(static_cast<double>(total) / static_cast<double>(completed) * static_cast<double>(time));
     else
       total_time = 0;
     if (total_time < time)

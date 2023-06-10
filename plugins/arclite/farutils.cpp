@@ -75,7 +75,7 @@ std::wstring get_progress_bar_str(unsigned width, uint64_t completed, uint64_t t
   if (total == 0)
     len1 = 0;
   else
-    len1 = static_cast<unsigned>(static_cast<double>(completed) * width / total);
+    len1 = static_cast<unsigned>(static_cast<double>(completed) * static_cast<double>(width) / static_cast<double>(total));
   if (len1 > width)
     len1 = width;
   unsigned len2 = width - len1;

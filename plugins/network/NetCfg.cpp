@@ -7,20 +7,21 @@
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
-const wchar_t* StrAddToDisksMenu = L"AddToDisksMenu";
-const wchar_t* StrAddToPluginsMenu = L"AddToPluginsMenu";
-const wchar_t* StrHelpNetBrowse = L"Contents";
-const wchar_t* StrHiddenShares = L"HiddenShares";
-const wchar_t* StrShowPrinters = L"ShowPrinters";
-const wchar_t* StrLocalNetwork = L"LocalNetwork";
-const wchar_t* StrDisconnectMode = L"DisconnectMode";
-const wchar_t* StrHiddenSharesAsHidden = L"HiddenSharesAsHidden";
-const wchar_t* StrFullPathShares = L"FullPathShares";
-const wchar_t* StrFavoritesFlags = L"FavoritesFlags";
-const wchar_t* StrNoRootDoublePoint = L"NoRootDoublePoint";
-const wchar_t* StrNavigateToDomains = L"NavigateToDomains";
-const wchar_t* StrScanNetwork = L"ScanNetwork";
 const wchar_t* StrPanelMode = L"PanelMode";
+const wchar_t* StrHelpNetBrowse = L"Contents";
+const wchar_t* StrDisconnectMode = L"DisconnectMode";
+
+static const wchar_t* StrAddToDisksMenu = L"AddToDisksMenu";
+static const wchar_t* StrAddToPluginsMenu = L"AddToPluginsMenu";
+static const wchar_t* StrHiddenShares = L"HiddenShares";
+static const wchar_t* StrShowPrinters = L"ShowPrinters";
+static const wchar_t* StrLocalNetwork = L"LocalNetwork";
+static const wchar_t* StrHiddenSharesAsHidden = L"HiddenSharesAsHidden";
+static const wchar_t* StrFullPathShares = L"FullPathShares";
+static const wchar_t* StrFavoritesFlags = L"FavoritesFlags";
+static const wchar_t* StrNoRootDoublePoint = L"NoRootDoublePoint";
+static const wchar_t* StrNavigateToDomains = L"NavigateToDomains";
+static const wchar_t* StrScanNetwork = L"ScanNetwork";
 
 int Config()
 {

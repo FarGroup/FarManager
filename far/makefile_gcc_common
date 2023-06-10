@@ -111,6 +111,9 @@ CFLAGS += \
 	-Wredundant-decls \
 	-Wundef \
 	-include $(FARDIR)disabled_warnings.hpp \
+	-D NOMINMAX \
+	-D WIN32_LEAN_AND_MEAN \
+	-D PSAPI_VERSION=1 \
 
 CPPFLAGS = $(CFLAGS)\
 	-std=c++20 \

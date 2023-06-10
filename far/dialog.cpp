@@ -2662,7 +2662,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				focus->SetString(strStr);
 				focus->SetCurPos(0);
 
-				for (const auto& Item: span(Items).subspan(m_FocusPos + 1, EditorLastPos - m_FocusPos))
+				for (const auto& Item: std::span(Items).subspan(m_FocusPos + 1, EditorLastPos - m_FocusPos))
 				{
 					const auto next = static_cast<DlgEdit*>(Item.ObjPtr);
 					strStr = next->GetString();

@@ -154,6 +154,18 @@ public:
 	// TODO: use iterators
 	auto operator[](size_t const Index) const { assert(Index <= m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
 
+	const auto& at(size_t const Row, size_t const Col) const
+	{
+		assert(Row < m_Rows);
+		assert(Col < m_Cols);
+		return m_Data[m_Cols * Row + Col];
+	}
+
+	auto& at(size_t const Row, size_t const Col)
+	{
+		return const_cast<T&>(std::as_const(*this).at(Row, Col));
+	}
+
 	[[nodiscard]]
 	auto height() const { return m_Rows; }
 

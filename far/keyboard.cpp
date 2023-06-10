@@ -835,7 +835,7 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 		const auto Ticks = static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState));
 
 		// Discard stored ticks on scrolling direction change
-		if (Ticks > 0 == StoredTicks > 0)
+		if ((Ticks > 0) == (StoredTicks > 0))
 			StoredTicks += Ticks;
 		else
 			StoredTicks = Ticks;
