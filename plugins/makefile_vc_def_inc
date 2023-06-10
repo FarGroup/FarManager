@@ -119,6 +119,12 @@ FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
 
 RFLAGS = /nologo /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE)
 
+!ifdef CLANG
+CPPFLAGS = $(CPPFLAGS)\
+	-Wno-old-style-cast\
+
+!endif
+
 !if "$(BUILD_PLATFORM)" == "AMD64"
 ULOUT=-Tpd+
 !elseif "$(BUILD_PLATFORM)" == "IA64"

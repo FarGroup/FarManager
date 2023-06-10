@@ -175,6 +175,7 @@ LINKFLAGS = $(LINKFLAGS) /machine:ARM64
 
 # Compiler-specific flags
 !ifdef CLANG
+CC = clang-cl
 CPP = clang-cl
 CPPFLAGS = $(CPPFLAGS)\
 	-Qunused-arguments\

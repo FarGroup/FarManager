@@ -160,6 +160,11 @@ jobs:
           clang --version
           nmake /f makefile_vc CLANG=1
 
+      - name: Build plugins (clang)
+        if: matrix.compiler  == 'nmake_clang'
+        working-directory: plugins
+        run: nmake /f makefile_all_vc CLANG=1
+
       - name: Perform CodeQL Analysis
         if: matrix.build == 'nmake_cl_x64_debug'
         uses: github/codeql-action/analyze@v2
