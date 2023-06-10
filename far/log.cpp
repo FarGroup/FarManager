@@ -674,7 +674,7 @@ namespace
 	};
 
 	template<typename sink_type>
-	class sync final: public sink_boilerplate<sink_type>, private synchronized_impl<sink_type>
+	class sync final: public synchronized_impl<sink_boilerplate<sink_type>>
 	{
 	public:
 		static constexpr auto mode = sink_mode::sync;
