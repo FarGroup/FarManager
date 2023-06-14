@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-14 20:01:09+01:00 - build 6164
+
+1. Subscribe to power events only when needed.
+
+2. Support more reparse tags.
+
+3. Static analysis warnings.
+
+4. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-10 10:50:50+01:00 - build 6163
 
 1. gh-704: Multiple log files created and console logs empty in sync mode.
