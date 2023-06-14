@@ -215,7 +215,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 			masks m;
 			Result = m.assign(std::move(SimpleMasksInclude), Flags);
 			if (Result)
-				Include.push_back(std::move(m));
+				Include.emplace_back(std::move(m));
 		}
 
 		if (Result && !SimpleMasksExclude.empty())
@@ -223,7 +223,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 			masks m;
 			Result = m.assign(std::move(SimpleMasksExclude), Flags);
 			if (Result)
-				Exclude.push_back(std::move(m));
+				Exclude.emplace_back(std::move(m));
 		}
 
 		if (Result && Include.empty() && !Exclude.empty())
@@ -231,7 +231,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 			masks m;
 			Result = m.assign(L"*"s, Flags);
 			if (Result)
-				Include.push_back(std::move(m));
+				Include.emplace_back(std::move(m));
 		}
 
 		Result = !empty();

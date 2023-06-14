@@ -135,7 +135,7 @@ struct subst_data
 	bool PassivePanel{};
 	bool EscapeAmpersands{};
 
-	unordered_string_map<string>* Variables;
+	unordered_string_map<string>* Variables{};
 };
 
 

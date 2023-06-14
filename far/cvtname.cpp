@@ -272,7 +272,6 @@ string ConvertNameToReal(string_view const Object)
 
 	// Получим сначала полный путь до объекта обычным способом
 	const auto FullPath = ConvertNameToFull(Object);
-	auto strDest = FullPath;
 
 	string Path = FullPath;
 	os::fs::file File;
@@ -286,14 +285,14 @@ string ConvertNameToReal(string_view const Object)
 	}
 
 	if (!File)
-		return strDest;
+		return FullPath;
 
 	string FinalFilePath;
 	const auto Result = File.GetFinalPathName(FinalFilePath);
 	File.Close();
 
 	if (!Result || FinalFilePath.empty())
-		return strDest;
+		return FullPath;
 
 	// append non-existent path part (if present)
 	DeleteEndSlash(Path);
@@ -376,14 +375,13 @@ string ConvertNameToUNC(string_view const Object)
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
-		string strTemp;
-		if (DriveLocalToRemoteName(true, strFileName, strTemp))
+		if (string strTemp; DriveLocalToRemoteName(true, strFileName, strTemp))
 		{
 			const auto SlashPos = FindSlash(strFileName);
 			if (SlashPos != string::npos)
 				path::append(strTemp, string_view(strFileName).substr(SlashPos + 1));
 
-			strFileName = strTemp;
+			strFileName = std::move(strTemp);
 		}
 	}
 	else

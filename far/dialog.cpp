@@ -1275,7 +1275,7 @@ void Dialog::GetDialogObjectsExpandData()
 					EditPtr->SetString(strData);
 					EditPtr->SetCallbackState(true);
 
-					i.strData = strData;
+					i.strData = std::move(strData);
 				}
 
 				break;

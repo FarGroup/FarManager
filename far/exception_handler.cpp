@@ -750,6 +750,7 @@ static handler_result ExcDialog(bool const CanContinue, string const& ReportLoca
 	Builder.AddSeparator();
 
 	std::vector<lng> Buttons;
+	Buttons.reserve(4);
 	std::optional<intptr_t> ContinueId, UnloadId;
 
 	intptr_t const TerminateId = Buttons.size();

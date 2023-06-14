@@ -5163,16 +5163,14 @@ bool FileList::ApplyCommand()
 			if (CheckForEscAndConfirmAbort())
 				break;
 
-			string strConvertedCommand = strCommand;
 			bool PreserveLFN = false;
-
-			if (SubstFileName(strConvertedCommand, { i.FileName, i.AlternateFileName() }, &PreserveLFN) && !strConvertedCommand.empty())
+			if (string strConvertedCommand = strCommand; SubstFileName(strConvertedCommand, { i.FileName, i.AlternateFileName() }, &PreserveLFN) && !strConvertedCommand.empty())
 			{
 				SCOPED_ACTION(PreserveLongName)(i.FileName, PreserveLFN);
 
 				execute_info Info;
 				Info.DisplayCommand = strConvertedCommand;
-				Info.Command = strConvertedCommand;
+				Info.Command = std::move(strConvertedCommand);
 
 				Parent()->GetCmdLine()->ExecString(Info);
 			}

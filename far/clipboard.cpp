@@ -352,7 +352,7 @@ public:
 	}
 
 private:
-	os::clipboard::testing::state* m_Data;
+	os::clipboard::testing::state* m_Data{};
 };
 
 TEST_CASE("clipboard.stream")

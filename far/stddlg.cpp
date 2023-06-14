@@ -119,7 +119,7 @@ void SearchReplaceDlgParams::SetSearchPattern(string_view TextString, string_vie
 	if (Hex.value_or(false))
 	{
 		SearchBytes = HexStringToBlob(ExtractHexString(HexString), 0);
-		SearchStr = BytesToString(SearchBytes.value(), CodePage);
+		SearchStr = BytesToString(*SearchBytes, CodePage);
 	}
 	else
 	{

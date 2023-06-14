@@ -766,11 +766,10 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 			if (Command.empty())
 				return;
 
-			string FullName;
 			// Unfortunately it's not possible to avoid the manual search, see gh-290.
-			if (FindObject(Command, FullName))
+			if (string FullName; FindObject(Command, FullName))
 			{
-				Command = FullName;
+				Command = std::move(FullName);
 			}
 		}
 		else

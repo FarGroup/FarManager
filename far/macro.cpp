@@ -441,12 +441,14 @@ static bool MacroPluginOp(int OpCode, const FarMacroValue& Param, MacroPluginRet
 	FarMacroValue values[]{ static_cast<double> (OpCode), Param };
 	FarMacroCall fmc{ sizeof(fmc), 2, values };
 	OpenMacroPluginInfo info{ MCT_KEYMACRO, &fmc };
-	if (CallMacroPlugin(&info))
-	{
-		if (Ret) *Ret=info.Ret;
-		return true;
-	}
-	return false;
+
+	if (!CallMacroPlugin(&info))
+		return false;
+
+	if (Ret)
+		*Ret=info.Ret;
+
+	return true;
 }
 
 int KeyMacro::GetExecutingState()
@@ -1713,7 +1715,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	case MCODE_C_EOF:
 		{
 			if (!CurrentWindow)
-				api.PassBoolean(true);
+				return api.PassBoolean(true);
 
 			if (
 				none_of(m_Area, MACROAREA_USERMENU, MACROAREA_MAINMENU, MACROAREA_MENU) &&
@@ -3498,11 +3500,11 @@ void FarMacroApi::dlgsetfocusFunc() const
 	const auto Index = static_cast<unsigned>(Params[0].asInteger()) - 1;
 
 	if (Global->CtrlObject->Macro.GetArea() != MACROAREA_DIALOG)
-		PassValue(-1);
+		return PassValue(-1);
 
 	const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow());
 	if (!Dlg)
-		PassValue(-1);
+		return PassValue(-1);
 
 	auto Ret = Dlg->VMProcess(MCODE_V_DLGCURPOS);
 	if (static_cast<int>(Index) >= 0)
