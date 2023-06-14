@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wm_listener.hpp"
 
 // Internal:
-#include "config.hpp"
 #include "imports.hpp"
 #include "notification.hpp"
 #include "global.hpp"
@@ -104,11 +103,8 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 				if (Area == L"Environment"sv)
 				{
-					if (Global->Opt->UpdateEnvironment)
-					{
-						LOGINFO(L"WM_SETTINGCHANGE(Environment)"sv);
-						message_manager::instance().notify(update_environment);
-					}
+					LOGINFO(L"WM_SETTINGCHANGE(Environment)"sv);
+					message_manager::instance().notify(update_environment);
 				}
 				else if (Area == L"intl"sv)
 				{
@@ -152,6 +148,35 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 	});
 
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
+}
+
+
+void wm_listener::powernotify_deleter::operator()(HPOWERNOTIFY const Ptr) const
+{
+	if (!imports.UnregisterPowerSettingNotification)
+		return;
+
+	if (!imports.UnregisterPowerSettingNotification(Ptr))
+		LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, os::last_error());
+}
+
+// for PBT_POWERSETTINGCHANGE
+void wm_listener::enable_power_notifications()
+{
+	if (!imports.RegisterPowerSettingNotification)
+		return;
+
+	assert(!m_PowerNotify);
+
+	m_PowerNotify.reset(imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
+
+	if (!m_PowerNotify)
+		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, os::last_error());
+}
+
+void wm_listener::disable_power_notifications()
+{
+	m_PowerNotify.reset();
 }
 
 wm_listener::wm_listener()
@@ -205,22 +230,6 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 		ReadyEvent.set();
 		return;
 	}
-
-	// for PBT_POWERSETTINGCHANGE
-	const auto hpn = imports.RegisterPowerSettingNotification?
-		imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE) :
-		nullptr;
-
-	if (!hpn && imports.RegisterPowerSettingNotification)
-	{
-		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, os::last_error());
-	}
-
-	SCOPE_EXIT
-	{
-		if (hpn && !imports.UnregisterPowerSettingNotification(hpn))
-			LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, os::last_error());
-	};
 
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;

@@ -113,7 +113,7 @@ InfoList::InfoList(private_tag, window_ptr Owner):
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),
-	PowerListener(update_power, [&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
+	PowerListener([&]{ if (Global->Opt->InfoPanel.ShowPowerStatus && IsVisible() && SectionState[ILSS_POWERSTATUS].Show) { Redraw(); }})
 {
 	m_Type = panel_type::INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
@@ -1071,6 +1071,17 @@ void InfoList::DynamicUpdateKeyBar() const
 	}
 
 	Keybar.SetCustomLabels(KBA_INFO);
+}
+
+InfoList::power_listener::power_listener(std::function<void()> EventHandler):
+	listener(update_power, std::move(EventHandler))
+{
+	message_manager::instance().enable_power_notifications();
+}
+
+InfoList::power_listener::~power_listener()
+{
+	message_manager::instance().disable_power_notifications();
 }
 
 Viewer* InfoList::GetViewer()
