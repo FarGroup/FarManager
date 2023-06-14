@@ -64,7 +64,6 @@ class elevation: public singleton<elevation>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	~elevation();
 	void ResetApprove();
 	bool Elevated() const {return m_Elevation;}
 
@@ -106,6 +105,7 @@ public:
 
 private:
 	elevation() = default;
+	~elevation();
 
 	template<typename T>
 	T Read() const;

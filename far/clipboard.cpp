@@ -62,11 +62,6 @@ class system_clipboard final: public clipboard, public singleton<system_clipboar
 	IMPLEMENTS_SINGLETON;
 
 public:
-	~system_clipboard() override
-	{
-		system_clipboard::Close();
-	}
-
 	bool Open() override
 	{
 		assert(!m_Opened);
@@ -129,6 +124,11 @@ public:
 
 private:
 	system_clipboard() = default;
+
+	~system_clipboard() override
+	{
+		system_clipboard::Close();
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -140,11 +140,6 @@ public:
 	static auto CreateInstance()
 	{
 		return std::unique_ptr<clipboard>(new internal_clipboard);
-	}
-
-	~internal_clipboard() override
-	{
-		internal_clipboard::Close();
 	}
 
 	bool Open() override
@@ -240,6 +235,10 @@ public:
 
 private:
 	internal_clipboard() = default;
+	~internal_clipboard() override
+	{
+		internal_clipboard::Close();
+	}
 
 	std::optional<string> m_Data;
 	bool m_Vertical{};

@@ -99,6 +99,7 @@ public:
 
 private:
 	far_language();
+	~far_language() override = default;
 };
 
 // (file, name, codepage)

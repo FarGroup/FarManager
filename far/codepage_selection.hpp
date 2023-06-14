@@ -71,7 +71,6 @@ class codepages: public singleton<codepages>
 
 public:
 	NONCOPYABLE(codepages);
-	~codepages();
 
 	bool SelectCodePage(uintptr_t& CodePage, bool ViewOnly, bool bShowAutoDetect);
 	size_t FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
@@ -99,6 +98,7 @@ private:
 	friend class system_codepages_enumerator;
 
 	codepages();
+	~codepages();
 
 	static bool GetCodePageCustomName(uintptr_t CodePage, string& CodePageName);
 	size_t GetMenuItemCodePage(size_t Position = -1) const;

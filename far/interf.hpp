@@ -284,6 +284,7 @@ public:
 
 private:
 	consoleicons() = default;
+	~consoleicons() = default;
 
 	struct icon
 	{

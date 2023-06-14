@@ -6078,6 +6078,10 @@ class dialogs_set: public singleton<dialogs_set>
 
 public:
 	std::unordered_set<Dialog*> Set;
+
+private:
+	dialogs_set() = default;
+	~dialogs_set() = default;
 };
 
 void Dialog::AddToList()
