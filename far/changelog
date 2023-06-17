@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+johnd0e 2023-06-17 14:55:00+01:00 - build 6165
+
+1. Allow to break directory scan started from a macro (Mantis#0002692).
+   Fix by Shmuel: https://github.com/shmuz/far2m/issues/36
+
+--------------------------------------------------------------------------------
 drkns 2023-06-14 20:01:09+01:00 - build 6164
 
 1. Subscribe to power events only when needed.
