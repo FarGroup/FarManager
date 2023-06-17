@@ -44,6 +44,7 @@ ENABLE_TESTS=1
 
 !ifdef CLANG
 OUTDIR=$(OUTDIR).clang
+INTDIR=$(OUTDIR)\obj
 !endif
 
 FARINCLUDE=Include
@@ -333,8 +334,8 @@ $(INTDIR)\vc_crt_fix_ulink.obj: $(@B).cpp
 !else
 .c{$(INTDIR)}.obj::
 !endif
-	$(CPP) @<<
-	$(CPPFLAGS) $<
+	$(CC) @<<
+	$(CFLAGS) $<
 <<
 
 !ifdef NOBATCH
@@ -361,7 +362,7 @@ $(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Fa
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	@echo Testing C plugin API
-	$(CPP) /nologo /c /Fo"$@" /TC api_test.c
+	$(CC) /nologo /c /Fo"$@" /TC api_test.c
 
 $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	@echo Testing C++ plugin API

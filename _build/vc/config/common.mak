@@ -88,7 +88,7 @@ CFLAGS = $(CFLAGS)\
 CPPFLAGS = $(CPPFLAGS)\
 	$(CFLAGS)\
 	/EHsc\
-	/std:c++latest\
+	/std:c++20\
 	/Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
@@ -177,16 +177,18 @@ LINKFLAGS = $(LINKFLAGS) /machine:ARM64
 !ifdef CLANG
 CC = clang-cl
 CPP = clang-cl
-CPPFLAGS = $(CPPFLAGS)\
+CFLAGS = $(CFLAGS)\
 	-Qunused-arguments\
 	/clang:-fvisibility=hidden\
 	-Weverything\
 	-Werror=array-bounds\
 	-Werror=dangling\
 	-Werror=odr\
+	-Werror=return-type\
+
+CPPFLAGS = $(CPPFLAGS)\
 	-Werror=old-style-cast\
 	-Werror=reorder\
-	-Werror=return-type\
 
 NOBATCH = 1
 NO_RELEASE_LTCG = 1
