@@ -931,6 +931,7 @@ public:
 
 	BoolOption ExceptUsed;
 	IntOption CursorSize[4];
+	IntOption GrabberCursorSize;
 
 	CodeXLAT XLat;
 

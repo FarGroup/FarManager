@@ -304,7 +304,7 @@ void Grabber::DisplayObject()
 		PutText({ FromX, FromY, ToX, ToY }, CharBuf.data());
 	}
 
-	SetCursorType(true, 100);
+	SetCursorType(true, Global->Opt->GrabberCursorSize);
 }
 
 

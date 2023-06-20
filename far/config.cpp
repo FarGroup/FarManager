@@ -1895,6 +1895,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize2"sv,                   CursorSize[1], 10},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize3"sv,                   CursorSize[2], 99},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize4"sv,                   CursorSize[3], 99},
+		{FSSF_PRIVATE,           NKeyInterface,              L"GrabberCursorSize"sv,             GrabberCursorSize, 50},
 		{FSSF_PRIVATE,           NKeyInterface,              L"EditorTitleFormat"sv,             strEditorTitleFormat, L"%Lng %File"sv},
 		{FSSF_PRIVATE,           NKeyInterface,              L"FormatNumberSeparators"sv,        FormatNumberSeparators, L""sv},
 		{FSSF_PRIVATE,           NKeyInterface,              L"FullWidthAwareRendering"sv,       FullWidthAwareRendering, 0},
