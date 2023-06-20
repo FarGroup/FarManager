@@ -19,13 +19,13 @@
 
 <ol>
 <li>Ссылка "внутрь" Энциклопедии (например, для структуры PluginStartupInfo):<br><br>
-<code>&lt;a href="mk:@MSITStore:pluginsr.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt/a&gt;</code><br><br>
-Здесь следует учесть структуры каталогов pluginsr.chm и принципы наименования статей:<br><br>
+<code>&lt;a href="mk:@MSITStore:FarEncyclopedia.ru.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt/a&gt;</code><br><br>
+Здесь следует учесть структуры каталогов FarEncyclopedia.ru.chm и принципы наименования статей:<br><br>
 <ul>
 <li>имена html-файлов в основном соответствуют названиям функций и структур;
-<li>все html-файлы внутри pluginsr.chm в нижнем регистре;
+<li>все html-файлы внутри FarEncyclopedia.ru.chm в нижнем регистре;
 <li>html-файлы раскиданы по подкаталогам в соответствии со своими функциональными назначениями, например, основные структуры
-располагаются в <code>pluginsr.chm::/html/structures/</code>, структуры Dialog API в <code>pluginsr.chm::/html/dialogapi/structures/</code>
+располагаются в <code>FarEncyclopedia.ru.chm::/html/structures/</code>, структуры Dialog API в <code>FarEncyclopedia.ru.chm::/html/dialogapi/structures/</code>
 и т.п.
 </ul>
 <br>
@@ -78,7 +78,7 @@
 
 &lt;div class="descr"&gt;
 Запрашиваемая информация &lt;span id="msdn"&gt;&lt;/span&gt; находится где-то в дебрях
-&lt;b&gt;&lt;a href="https://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
+&lt;b&gt;&lt;a href="https://learn.microsoft.com/docs/" target="_blank"&gt;Microsoft&lt;/a&gt;&lt;/b&gt;.
 
 &lt;script language="javascript" type="text/javascript"&gt;&lt;!--
 if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
@@ -87,7 +87,7 @@ if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0)
   if(f > 0)
   {
     var qu=document.location.href.substring(f+1);
-    msdn.innerHTML=" по &lt;a href='https://social.msdn.microsoft.com/Search/?query=" +
+    msdn.innerHTML=" по &lt;a href='https://learn.microsoft.com/search/?terms=" +
         qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
   }
 }
