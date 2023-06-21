@@ -314,8 +314,35 @@ $ #Tastaturreferenz#
 $ #Menu control commands#
  #Common menu and drop-down list commands#
 
- Filter menu or list items                          #Ctrl+Alt+F,RAlt#
- Lock filter                                             #Ctrl+Alt+L#
+ #Ctrl+Alt+F#, #RAlt#
+ Filter menu or list items.
+
+ #Ctrl+Alt+L#
+ Lock filter.
+
+ #Alt+Left#, #Alt+Right#, #MsWheelLeft#, #MsWheelRight#
+ Scroll all items horizontally.
+
+ #Alt+Shift+Left#, #Alt+Shift+Right#
+ Scroll the selected item horizontally.
+
+ #Ctrl+Alt+Left#, #Ctrl+Alt+Right#, #Ctrl+MsWheelLeft#, #Ctrl+MsWheelRight#
+ Scroll all items horizontally by 20 characters.
+
+ #Ctrl+Shift+Left#, #Ctrl+Shift+Right#
+ Scroll the selected item horizontally by 20 characters.
+
+ #Alt+Home#
+ Align all items to the left.
+
+ #Alt+End#
+ Align all items to the right.
+
+ #Alt+Shift+Home#
+ Align the selected item to the left.
+
+ #Alt+Shift+End#
+ Align the selected item to the right.
 
  See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
 
@@ -3489,6 +3516,8 @@ $ #Editor: All matching entries menu#
 
  #LeftCtrl+0…9#
  Go to the bookmark 0…9.
+
+ See also: common ~menu~@MenuCmd@ keyboard commands.
 
 
 @FileOpenCreate
