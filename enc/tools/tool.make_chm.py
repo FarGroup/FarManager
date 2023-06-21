@@ -221,7 +221,7 @@ def make_chm_lang(lang):
       continue
     macro_flag = "macro" in root
     for fn in files:
-      if not fn.endswith(".html") or fn in ["faq.html", "msdn.html"]:
+      if not fn.endswith(".html") or fn in ["faq.html"]:
         continue
       relflink = join(root[root.find("html"):], fn).replace('\\', '/')
       f = open(join(root, fn), encoding="windows-1251")
