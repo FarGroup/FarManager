@@ -83,11 +83,11 @@ def make_chm_lang(lang):
   for root, dirs, files in walk(chm_meta_dir):
     for f in files:
       infile  = open(join(root, f), encoding="utf-8-sig")
-      outfile = open(join(root.replace(chm_meta_dir, chm_html_dir), f), "w", encoding="windows-1251")
+      outfile = open(join(root.replace(chm_meta_dir, chm_html_dir), f), "w", encoding="utf-8-sig")
       header_replaced = False
       for line in infile:
         if not header_replaced and header_match in line:
-          line = line.replace(header_match, header_replace)
+          #line = line.replace(header_match, header_replace)
           header_replaced = True
 
         #while link_match.search(line):
@@ -126,7 +126,7 @@ def make_chm_lang(lang):
 
 """)
   in_hhc1 = 0
-  f1 = open(join(chm_html_dir, "index.html"), encoding="windows-1251")
+  f1 = open(join(chm_html_dir, "index.html"), encoding="utf-8-sig")
   log("Scanning %s" % f1.name)
   for l1 in f1:
     if (l1.find("HHC") != -1):
@@ -149,7 +149,7 @@ def make_chm_lang(lang):
       in_hhc2 = 0
       in_h3 = 0
       in_link = 0
-      f2 = open(join(chm_html_dir, rl[1]), encoding="windows-1251")
+      f2 = open(join(chm_html_dir, rl[1]), encoding="utf-8-sig")
       log("Scanning %s" % f2.name)
       for l2 in f2:
         if (l2.find("HHC") != -1):
@@ -224,7 +224,7 @@ def make_chm_lang(lang):
       if not fn.endswith(".html") or fn in ["faq.html"]:
         continue
       relflink = join(root[root.find("html"):], fn).replace('\\', '/')
-      f = open(join(root, fn), encoding="windows-1251")
+      f = open(join(root, fn), encoding="utf-8-sig")
       for line in f:
         if not macro_flag:
           target_list = title_list
