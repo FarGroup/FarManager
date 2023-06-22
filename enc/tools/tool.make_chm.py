@@ -17,7 +17,7 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 
 from config import *
 
-from os import makedirs, walk, listdir
+from os import makedirs, walk, listdir, rename
 from os.path import isdir, join, exists
 from string import Template
 import shutil
@@ -55,52 +55,8 @@ def make_chm_lang(lang):
   copytree("%s/enc_%s" % (ROOT_DIR, lang), "%s/%s" % (DEST_CHM, lang_code))
 
   chm_lang_dir = join(DEST_CHM, lang_code)
-  makedirs(join(chm_lang_dir, "html"))
-
-  # build empty directory tree
-  chm_meta_dir = join(chm_lang_dir, "meta")
   chm_html_dir = join(chm_lang_dir, "html")
-  for root, dirs, files in walk(chm_meta_dir):
-    for d in dirs:
-      makedirs(join(root.replace(chm_meta_dir, chm_html_dir), d))
-
-  log("-- translating meta into html")
-  # filter files and replace "win32/.." links with calls to MSDN
-  link_match = re.compile(r'href[\s"\'=\/\.]*?win32\/(?P<funcname>[^"\']*?)(\.html)?[\'"].*?>(?P<linkend>.*?<\/a>)', re.I)
-  link_replace = Template(
-'''href="JavaScript:link$id.Click()">\g<linkend>
-<object id="link$id" type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
-<param name="Command" value="KLink">
-<param name="DefaultTopic" value="">
-<param name="Item1" value="">
-<param name="Item2" value="\g<funcname>">
-</object>''')
-
-  header_match = '<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">'
-  header_replace = '<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">'
-
-  id = 0
-  for root, dirs, files in walk(chm_meta_dir):
-    for f in files:
-      infile  = open(join(root, f), encoding="utf-8-sig")
-      outfile = open(join(root.replace(chm_meta_dir, chm_html_dir), f), "w", encoding="utf-8-sig")
-      header_replaced = False
-      for line in infile:
-        if not header_replaced and header_match in line:
-          #line = line.replace(header_match, header_replace)
-          header_replaced = True
-
-        #while link_match.search(line):
-        #  line = link_match.sub(link_replace.substitute(id=id), line)
-        #  id += 1
-
-        outfile.write(line)
-      infile.close()
-      outfile.close()
-  log("total %d win32 links" % id)
-
-  log("-- cleaning meta")
-  shutil.rmtree(chm_meta_dir)
+  rename(join(chm_lang_dir, "meta"), chm_html_dir)
 
   log("-- creating CHM contents")
   contents_filename = join(chm_lang_dir, "plugins%s.hhc" % lang[0])
