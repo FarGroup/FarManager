@@ -932,6 +932,7 @@ public:
 
 	BoolOption ExceptUsed;
 	IntOption CursorSize[4];
+	IntOption GrabberCursorSize;
 
 	CodeXLAT XLat;
 
@@ -953,6 +954,9 @@ public:
 	IntOption MsHWheelDelta;
 	IntOption MsHWheelDeltaView;
 	IntOption MsHWheelDeltaEdit;
+
+	// How many ticks constitute an event
+	IntOption MsWheelThreshold;
 
 	/*
 	битовая маска:

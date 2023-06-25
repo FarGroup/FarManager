@@ -314,8 +314,35 @@ $ #Skróty klawiszowe#
 $ #Polecenia kontroli menu#
  #Ułatwienia w standardowym menu i listach rozwijanych#
 
- Menu filtru lub pozycje listy                      #Ctrl+Alt+F,RAlt#
- Zablokuj filtr                                          #Ctrl+Alt+L#
+ #Ctrl+Alt+F#, #RAlt#
+ Menu filtru lub pozycje listy.
+
+ #Ctrl+Alt+L#
+ Zablokuj filtr.
+
+ #Alt+Left#, #Alt+Right#, #MsWheelLeft#, #MsWheelRight#
+ Scroll all items horizontally.
+
+ #Alt+Shift+Left#, #Alt+Shift+Right#
+ Scroll the selected item horizontally.
+
+ #Ctrl+Alt+Left#, #Ctrl+Alt+Right#, #Ctrl+MsWheelLeft#, #Ctrl+MsWheelRight#
+ Scroll all items horizontally by 20 characters.
+
+ #Ctrl+Shift+Left#, #Ctrl+Shift+Right#
+ Scroll the selected item horizontally by 20 characters.
+
+ #Alt+Home#
+ Align all items to the left.
+
+ #Alt+End#
+ Align all items to the right.
+
+ #Alt+Shift+Home#
+ Align the selected item to the left.
+
+ #Alt+Shift+End#
+ Align the selected item to the right.
 
  Zobacz także listę ~klawiszy makropoleceń~@KeyMacroMenuList@, dostępnych w menu.
 
@@ -3412,6 +3439,8 @@ $ #Edytor: menu wszystkich znalezionych wystąpień#
  #LewyCtrl+0…9#
  Przechodzi do zakładki 0…9.
 
+ Zobacz także: polecenia ~menu~@MenuCmd@.
+
 
 @FileOpenCreate
 $ #Edytor: otwórz/utwórz plik#
@@ -6416,7 +6445,7 @@ obrócić rolkę o jeden przeskok w pionie:
  System.MsHWheelDeltaEdit - w wewnętrznym Edytorze
  System.MsHWheelDelta     - w innych obszarach
 
- Domyślna wartość: 1 (dla wszystkich parametrów).
+ Domyślna wartość: dla wszystkich parametrów: 0 (używać ustawień systemowych).
 
  Uwaga: Rolowanie lub przechylanie rolki myszki przy wciśniętym
 klawiszu #Alt# zawsze przewija o jedną linię lub jeden znak na raz.

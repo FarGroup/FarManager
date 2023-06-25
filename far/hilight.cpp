@@ -238,7 +238,7 @@ static FileFilterParams LoadHighlight(/*const*/ HierarchicalConfig& cfg, const H
 	auto MarkRead = false;
 	if (string Mark; cfg.GetValue(key, names::Mark, Mark))
 	{
-		Colors.Mark.Mark = Mark;
+		Colors.Mark.Mark = std::move(Mark);
 		MarkRead = true;
 	}
 

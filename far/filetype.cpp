@@ -138,11 +138,11 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			if (!strDescription.empty())
 				SubstFileName(strDescription, Context, {}, true, {}, true);
 			else
-				strDescription = strCommandText;
+				strDescription = std::move(strCommandText);
 
 			MenuItemEx TypesMenuItem(strDescription);
 			TypesMenuItem.ComplexUserData = strCommand;
-			MenuItems.push_back(std::move(TypesMenuItem));
+			MenuItems.emplace_back(std::move(TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -186,7 +186,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 
 		execute_info Info;
 		Info.DisplayCommand = strCommand;
-		Info.Command = strCommand;
+		Info.Command = std::move(strCommand);
 		Info.Directory = CurrentDirectory;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 		Info.RunAs = RunAs;
@@ -289,7 +289,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 
 	execute_info Info;
 	Info.DisplayCommand = strExecStr;
-	Info.Command = strExecStr;
+	Info.Command = std::move(strExecStr);
 	Info.Directory = CurrentDirectory;
 	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 

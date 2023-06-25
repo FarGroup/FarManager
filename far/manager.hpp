@@ -64,6 +64,7 @@ public:
 		Key& operator=(unsigned int Key);
 		Key& operator&=(unsigned int Key);
 		unsigned int operator()() const {return m_FarKey;}
+		size_t NumberOfWheelEvents() const;
 
 	private:
 		INPUT_RECORD m_Event{};

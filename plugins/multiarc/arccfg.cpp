@@ -89,7 +89,7 @@ typedef struct
   int PluginNumber, PluginType;
 } FORMATINFO;
 
-LONG_PTR WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+static LONG_PTR WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   switch(Msg)
   {

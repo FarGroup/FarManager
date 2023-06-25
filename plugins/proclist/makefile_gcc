@@ -13,7 +13,6 @@ SRCS = \
 	wmi.cpp \
 	wmi_init.cpp
 
-USERCPP = -I "$(FARDIR)/common" -I "$(FARDIR)/thirdparty/fmt"
 USERLIBS = -lversion -lmpr -lole32 -loleaut32 -lpsapi
 
 include ../makefile_gcc_def_inc

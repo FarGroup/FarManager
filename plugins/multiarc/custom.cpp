@@ -363,7 +363,7 @@ DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 
 BOOL WINAPI _export IsArchive(const char *Name, const unsigned char *Data, int DataSize)
 {
-    char *Dot = strrchr((char *) Name, '.');
+    const char *Dot = strrchr(Name, '.');
 
     for(int I = 0;; I++)
     {

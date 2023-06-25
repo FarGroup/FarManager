@@ -184,7 +184,7 @@ static void *ll_load(lua_State *L, const wchar_t *path)
 
 static lua_CFunction ll_sym(lua_State *L, void *lib, const char *sym)
 {
-	lua_CFunction f = (lua_CFunction)GetProcAddress((HINSTANCE)lib, sym);
+	lua_CFunction f = (lua_CFunction)(intptr_t)GetProcAddress((HINSTANCE)lib, sym);
 
 	if(f == NULL) pusherror(L);
 

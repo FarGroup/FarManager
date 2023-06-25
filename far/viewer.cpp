@@ -1693,34 +1693,34 @@ bool Viewer::process_key(const Manager::Key& Key)
 			return true;
 		}
 		case KEY_MSWHEEL_UP:
-		case(KEY_MSWHEEL_UP | KEY_ALT):
-		case(KEY_MSWHEEL_UP | KEY_RALT):
+		case KEY_MSWHEEL_UP | KEY_ALT:
+		case KEY_MSWHEEL_UP | KEY_RALT:
 		{
-			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsWheelDeltaView);
+			const auto Roll = (LocalKey == KEY_MSWHEEL_UP? get_wheel_scroll_lines(Global->Opt->MsWheelDeltaView) : 1) * Key.NumberOfWheelEvents();
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_UP)); });
 			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
-		case(KEY_MSWHEEL_DOWN | KEY_ALT):
-		case(KEY_MSWHEEL_DOWN | KEY_RALT):
+		case KEY_MSWHEEL_DOWN | KEY_ALT:
+		case KEY_MSWHEEL_DOWN | KEY_RALT:
 		{
-			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsWheelDeltaView);
+			const auto Roll = (LocalKey == KEY_MSWHEEL_DOWN? get_wheel_scroll_lines(Global->Opt->MsWheelDeltaView) : 1) * Key.NumberOfWheelEvents();
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_DOWN)); });
 			return true;
 		}
 		case KEY_MSWHEEL_LEFT:
-		case(KEY_MSWHEEL_LEFT | KEY_ALT):
-		case(KEY_MSWHEEL_LEFT | KEY_RALT):
+		case KEY_MSWHEEL_LEFT | KEY_ALT:
+		case KEY_MSWHEEL_LEFT | KEY_RALT:
 		{
-			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsHWheelDeltaView);
+			const auto Roll = (LocalKey == KEY_MSWHEEL_LEFT? get_wheel_scroll_chars(Global->Opt->MsHWheelDeltaView) : 1) * Key.NumberOfWheelEvents();
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_LEFT)); });
 			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
-		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
-		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
+		case KEY_MSWHEEL_RIGHT | KEY_ALT:
+		case KEY_MSWHEEL_RIGHT | KEY_RALT:
 		{
-			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsHWheelDeltaView);
+			const auto Roll = (LocalKey == KEY_MSWHEEL_RIGHT? get_wheel_scroll_chars(Global->Opt->MsHWheelDeltaView) : 1) * Key.NumberOfWheelEvents();
 			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_RIGHT)); });
 			return true;
 		}

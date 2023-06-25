@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // These semi-magical defines and appropriate overloads in cpp.hpp are intended to fix this madness.
 
 // Force C version to return const
+#undef _CONST_RETURN
 #define _CONST_RETURN const
 // Disable broken inline overloads
 #define __CORRECT_ISO_CPP_WCHAR_H_PROTO

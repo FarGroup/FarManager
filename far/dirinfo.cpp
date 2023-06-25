@@ -111,10 +111,13 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter
 	// Временные хранилища имён каталогов
 	string strLastDirName;
 	os::fs::find_data FindData;
+
+	// Mantis#0002692
+	Global->CtrlObject->Macro.SuspendMacros(true);
+	SCOPE_EXIT{ Global->CtrlObject->Macro.SuspendMacros(false); };
+
 	while (ScTree.GetNextName(FindData,strFullName))
 	{
-		// Mantis#0002692
-		if (!Global->CtrlObject->Macro.IsExecuting())
 		{
 			INPUT_RECORD rec;
 

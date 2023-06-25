@@ -160,6 +160,11 @@ jobs:
           clang --version
           nmake /f makefile_vc CLANG=1
 
+      - name: Build plugins (clang)
+        if: matrix.compiler  == 'nmake_clang'
+        working-directory: plugins
+        run: nmake /f makefile_all_vc CLANG=1
+
       - name: Perform CodeQL Analysis
         if: matrix.build == 'nmake_cl_x64_debug'
         uses: github/codeql-action/analyze@v2
@@ -238,7 +243,7 @@ jobs:
           make -j4 CLANG=1 -f makefile_gcc
 
       - name: Build plugins (clang)
-        if: matrix.compiler  == 'CLANG_MAKE'
+        if: matrix.compiler  == 'mingw_clang'
         working-directory: plugins
         shell: msys2 {0}
         run: |

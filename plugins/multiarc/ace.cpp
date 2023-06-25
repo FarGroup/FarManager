@@ -92,7 +92,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     const unsigned char *D=Data+I;
     if (D[0]=='*' && D[1]=='*' && D[2]=='A' && D[3]=='C' && D[4]=='E' && D[5]=='*' && D[6]=='*' )
     {
-      ACEHEADER *Header=(ACEHEADER *)(Data+I-7);
+      const ACEHEADER *Header=(const ACEHEADER *)(Data+I-7);
 #if defined(CALC_CRC)
       DWORD crc=CRC_MASK;
       crc=getcrc(crc,&Header->HeaderType,Header->HeaderSize);

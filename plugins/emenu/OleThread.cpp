@@ -1,8 +1,8 @@
-﻿#include "OleThread.h"
-#include <strsafe.h>
+﻿#include <cassert>
+
 #include <windows.h>
-#include <comdef.h>
-#include <cassert>
+
+#include "OleThread.h"
 #include "Handle.h"
 #include "FarMenu.h"
 

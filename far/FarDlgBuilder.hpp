@@ -136,8 +136,8 @@ public:
 	~DialogBuilder();
 
 	DialogItemEx& AddText(lng_string Text);
-	DialogItemEx& AddCheckbox(lng_string Text, int& Value, int Mask = 0, bool ThreeState = false);
-	DialogItemEx& AddCheckbox(lng_string Text, IntOption& Value, int Mask = 0, bool ThreeState = false);
+	DialogItemEx& AddCheckbox(lng_string Text, int& Value, unsigned Mask = 0, bool ThreeState = false);
+	DialogItemEx& AddCheckbox(lng_string Text, IntOption& Value, unsigned Mask = 0, bool ThreeState = false);
 	DialogItemEx& AddCheckbox(lng_string Text, Bool3Option& Value);
 	DialogItemEx& AddCheckbox(lng_string Text, BoolOption& Value);
 	DialogItemEx& AddTextBefore(DialogItemEx& RelativeTo, lng_string Text);
@@ -194,7 +194,7 @@ private:
 	intptr_t DoShowDialog();
 
 	template<typename value_type>
-	DialogItemEx& AddCheckboxImpl(lng_string Text, value_type& Value, int Mask, bool ThreeState);
+	DialogItemEx& AddCheckboxImpl(lng_string Text, value_type& Value, unsigned Mask, bool ThreeState);
 
 	template<typename value_type>
 	DialogItemEx& AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);

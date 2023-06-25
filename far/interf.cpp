@@ -725,7 +725,7 @@ void SetCursorType(bool const Visible, size_t Size)
 	if (Size == static_cast<size_t>(-1) || !Visible)
 	{
 		const size_t index = IsConsoleFullscreen()? 1 : 0;
-		Size = Global->Opt->CursorSize[index]? static_cast<int>(Global->Opt->CursorSize[index]) : InitialCursorInfo.dwSize;
+		Size = Global->Opt->CursorSize[index]? static_cast<size_t>(Global->Opt->CursorSize[index]) : InitialCursorInfo.dwSize;
 	}
 	Global->ScrBuf->SetCursorType(Visible, Size);
 }
@@ -1720,9 +1720,10 @@ TEST_CASE("interf.highlight")
 		size_t HotkeyVisualPos;
 		struct
 		{
-			size_t PosVisual;
-			size_t PosReal;
-		};
+			size_t Visual;
+			size_t Real;
+		}
+		Pos;
 	}
 	Tests[]
 	{
@@ -1760,7 +1761,7 @@ TEST_CASE("interf.highlight")
 
 		REQUIRE(HiStrlen(i.Input) == i.Result.size());
 
-		REQUIRE(HiFindRealPos(i.Input, i.PosVisual) == i.PosReal);
+		REQUIRE(HiFindRealPos(i.Input, i.Pos.Visual) == i.Pos.Real);
 	}
 }
 

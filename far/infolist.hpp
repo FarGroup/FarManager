@@ -89,7 +89,14 @@ private:
 	string strDizFileName;
 	struct InfoListSectionState;
 	std::vector<InfoListSectionState> SectionState;
-	listener PowerListener;
+
+	class power_listener: listener
+	{
+	public:
+		explicit power_listener(std::function<void()> EventHandler);
+		~power_listener();
+	}
+	PowerListener;
 };
 
 #endif // INFOLIST_HPP_938248E2_BB38_43DF_BDD3_D582C383A102

@@ -850,7 +850,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	if (const auto Result = ProcessServiceModes(Args))
 		return *Result;
 
-	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
+	SCOPED_ACTION(listener)(update_environment, [] { if (Global->Opt->UpdateEnvironment) ReloadEnvironment(); });
 	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
 	SCOPED_ACTION(listener)(update_devices, &UpdateSavedDrives);
 

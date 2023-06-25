@@ -130,8 +130,8 @@ namespace
 
 		os::fs::find_data FindData;
 		ArcListItem* Arc{};
-		DWORD Used;
-		UserDataItem UserData;
+		DWORD Used{};
+		UserDataItem UserData{};
 	};
 
 	namespace messages
@@ -2202,7 +2202,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 					AddEndSlash(strArcPathName);
 
 				strArcPathName += strPathName == L".\\"sv? L"\\"s : strPathName;
-				strPathName = strArcPathName;
+				strPathName = std::move(strArcPathName);
 			}
 		}
 

@@ -103,8 +103,8 @@ else
 COMMONLIB = 
 endif
 
-CFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)
-CPPFLAGS += -Wno-old-style-cast $(USERCPP)
+CFLAGS  += -I "$(FARDIR)/common" -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)
+CPPFLAGS += -I "$(FARDIR)/thirdparty/fmt" -Wno-old-style-cast $(USERCPP)
 LNKFLAGS += $(USERLIBS)
 RCFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERRC)
 

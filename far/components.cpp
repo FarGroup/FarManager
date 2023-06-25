@@ -62,6 +62,7 @@ namespace components
 
 	private:
 		components_list() = default;
+		~components_list() = default;
 
 		[[nodiscard]]
 		bool get(bool Reset, value_type& Value) const

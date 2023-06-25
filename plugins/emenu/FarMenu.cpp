@@ -172,8 +172,8 @@ static bool GetCursorXY(int* pnX, int* pnY)
 
 	COORD const console_size
 	{
-		console_rect.Right - console_rect.Left + 1,
-		console_rect.Bottom - console_rect.Top + 1,
+		static_cast<SHORT>(console_rect.Right - console_rect.Left + 1),
+		static_cast<SHORT>(console_rect.Bottom - console_rect.Top + 1),
 	};
 
 	if (pt.x < rc.left || pt.x > rc.right || pt.y < rc.top || pt.y > rc.bottom)

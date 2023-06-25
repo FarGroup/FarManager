@@ -702,8 +702,8 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (m_CurPos.x > 0)
 			{
-				const auto& Cell = Buf[m_CurPos.y][m_CurPos.x];
-				const auto& PrevCell = Buf[m_CurPos.y][m_CurPos.x - 1];
+				const auto& Cell = Buf.at(m_CurPos.y, m_CurPos.x);
+				const auto& PrevCell = Buf.at(m_CurPos.y, m_CurPos.x - 1);
 
 				if (is_valid_surrogate_pair(PrevCell.Char, Cell.Char) || (char_width::is_enabled() && Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
 				{

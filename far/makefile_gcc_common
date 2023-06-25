@@ -91,23 +91,29 @@ CFLAGS += \
 	-fdiagnostics-show-option \
 	-pipe \
 	-funsigned-char \
+	-pedantic-errors \
 	-Wall \
 	-Wextra \
+	-Wpedantic \
+	-Wfatal-errors \
 	-Werror=odr \
 	-Werror=return-type \
-	-Wcast-align \
-	-Wcast-qual \
+	-Werror=cast-align=strict \
+	-Werror=cast-qual \
+	-Werror=implicit-fallthrough=5 \
 	-Wdouble-promotion \
 	-Wduplicated-branches \
 	-Wduplicated-cond \
 	-Wformat=2 \
-	-Wimplicit-fallthrough=5 \
 	-Winvalid-pch \
 	-Wlogical-op \
 	-Wmissing-declarations \
 	-Wredundant-decls \
 	-Wundef \
 	-include $(FARDIR)disabled_warnings.hpp \
+	-D NOMINMAX \
+	-D WIN32_LEAN_AND_MEAN \
+	-D PSAPI_VERSION=1 \
 
 CPPFLAGS = $(CFLAGS)\
 	-std=c++20 \

@@ -140,7 +140,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
       <UseFullPaths>false</UseFullPaths>

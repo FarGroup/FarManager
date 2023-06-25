@@ -65,7 +65,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     const unsigned char *D=Data+I;
     if (D[0]=='M' && D[1]=='S' && D[2]=='C' && D[3]=='F')
     {
-      CFHEADER *Header=(CFHEADER *)(Data+I);
+      const CFHEADER *Header=(const CFHEADER *)(Data+I);
       if (Header->cbCabinet > sizeof(*Header) && Header->coffFiles > sizeof(*Header) &&
           Header->coffFiles<0xffff && Header->versionMajor>0 &&
           Header->versionMajor<0x10 && Header->cFolders>0)

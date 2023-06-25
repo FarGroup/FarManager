@@ -2,9 +2,14 @@
 #include <cassert>
 #include <utility>
 
+#include "compiler.hpp"
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(5204) // 'type-name': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
 #include <shlobj.h>
 #include <comdef.h>
 #include <shlguid.h>
+WARNING_POP();
 
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>

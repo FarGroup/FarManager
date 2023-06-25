@@ -12,8 +12,6 @@ DOCS = \
 	*.temp
 
 !include ..\makefile_vc_def_inc
-CPPFLAGS = -I"$(FARDIR)/common" $(CPPFLAGS)
-
 !include ..\makefile_vc_target_inc
 
 $(INTDIR)\TmpPanel.obj: TmpPanel.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp

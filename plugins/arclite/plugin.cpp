@@ -109,7 +109,7 @@ public:
 
 		if (u.bs[0x438] == 0x53 && u.bs[0x439] == 0xEF) { // 0xEF53 -- ExtFS superblock_magic
 			bool zero_1k = true;
-			for (int i = 0; i < _countof(u.zeroes); ++i) {
+			for (size_t i = 0; i < _countof(u.zeroes); ++i) {
 				if (u.zeroes[i] != 0) {
 					zero_1k = false; break;
 				}
@@ -174,7 +174,7 @@ public:
 		correct_part_root_name(i.file_name, index, i.file_attributes, i.file_size, i.pack_size);
 
 		i.creation_time    = { 0, 0 }; //
-		i.last_access_time = { 0, 0 }; // 
+		i.last_access_time = { 0, 0 }; //
 		i.last_write_time  = { 0, 0 }; //
 		i.alt_file_name.clear();       // not used in set_partition()
 

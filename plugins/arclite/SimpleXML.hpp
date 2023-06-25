@@ -7,6 +7,7 @@ namespace SimpleXML
 {//################################################################################################
 //#################################################################################################
 
+// BUGBUG remove & use string_view
 class str_view
 {
 public:
@@ -15,7 +16,6 @@ public:
 public:
 	constexpr str_view() : ps(nullptr), pe(nullptr) {}
 	constexpr str_view(const char *_Str) : ps(_Str), pe(_Str) {}
-	constexpr str_view(const str_view&) = default;
 	constexpr str_view(const char *_Str, size_t _Len) : ps(_Str), pe(_Str+_Len) {}
 	constexpr str_view(const char *_Beg, const char *_End) : ps(_Beg), pe(_End) {}
 	bool empty() const noexcept { return ps >= pe; }

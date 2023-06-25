@@ -54,7 +54,7 @@ unsigned __int64 GetFileSizeFromTable(lua_State *L, const char *key)
 FILETIME GetFileTimeFromTable(lua_State *L, const char *key)
 {
 	FILETIME ft;
-	INT64 tm;
+	INT64 tm = {0};
 	int OK = 0;
 
 	lua_getfield(L, -1, key);

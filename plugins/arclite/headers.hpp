@@ -2,10 +2,6 @@
 
 #include <compiler.hpp>
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 #include <windows.h>
 #include <shobjidl.h>
 #include <winioctl.h>
@@ -36,6 +32,7 @@
 #include <initguid.h>
 
 WARNING_PUSH()
+WARNING_DISABLE_MSC(5204) // 'type-name': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
 WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_DISABLE_CLANG("-Weverything")
 

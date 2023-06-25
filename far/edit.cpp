@@ -1611,7 +1611,7 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 			{
 				bool goLoop = false;
 
-				if (j < Str.size() && CharInMask(Str[j], Mask[m_CurPos]))
+				if (CharInMask(Str[j], Mask[m_CurPos]))
 					InsertKey(Str[j]);
 				else
 					goLoop = true;

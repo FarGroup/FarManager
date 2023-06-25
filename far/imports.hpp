@@ -238,8 +238,7 @@ namespace imports_detail
 	{
 		static const auto Pointer = [&]
 		{
-			const auto& Module = std::invoke(ModuleAccessor, ::imports);
-			if (const auto DynamicPointer = reinterpret_cast<function_type>(get_pointer_impl(Module, Name)))
+			if (const auto DynamicPointer = reinterpret_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
 				return DynamicPointer;
 
 			return StubFunction;

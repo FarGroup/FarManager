@@ -69,8 +69,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CSI ESC L"["
 #define OSC ESC L"]"
 #define ST ESC L"\\"
-#define ANSISYSSC CSI "s"
-#define ANSISYSRC CSI "u"
+#define ANSISYSSC CSI L"s"
+#define ANSISYSRC CSI L"u"
 
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
@@ -1475,7 +1475,7 @@ WARNING_POP()
 				// Words cannot describe how much I despise VT.
 
 				// Save cursor position
-				Str = ANSISYSSC ""sv;
+				Str = ANSISYSSC L""sv;
 
 				for (const auto& i: irange(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
 				{
@@ -1485,7 +1485,7 @@ WARNING_POP()
 							ANSISYSRC // Restore cursor position
 							CSI L"1B" // Move cursor down
 							ANSISYSSC // Save again
-							""sv;
+							L""sv;
 
 						// For some reason restoring the cursor position affects colors
 						LastColor.reset();
@@ -2511,7 +2511,7 @@ TEST_CASE("console.vt_sequence")
 		std::optional<FarColor> LastColor;
 		console_detail::make_vt_sequence(Buffer, Str, LastColor);
 
-		REQUIRE(Str == CSI L"92;44;1m" L"  " CSI "22m" L" "sv);
+		REQUIRE(Str == CSI L"92;44;1m" L"  " CSI L"22m" L" "sv);
 	}
 
 	{
@@ -2531,7 +2531,7 @@ TEST_CASE("console.vt_sequence")
 		std::optional<FarColor> LastColor;
 		console_detail::make_vt_sequence(Buffer, Str, LastColor);
 
-		REQUIRE(Str == CSI L"92;44;21m" L"  " CSI "24;4m" L" "sv);
+		REQUIRE(Str == CSI L"92;44;21m" L"  " CSI L"24;4m" L" "sv);
 	}
 }
 

@@ -111,6 +111,9 @@ public:
 	void notify(string_view EventId, std::any&& Payload = {});
 	bool dispatch();
 
+	void enable_power_notifications();
+	void disable_power_notifications();
+
 private:
 	struct message
 	{

@@ -32,14 +32,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/preprocessor.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
+
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wenum-constexpr-conversion")
+
 #include "platform.sdk/sdk_common.h"
 
-#ifdef _MSC_VER
-# include "platform.sdk/sdk_vc.h"
-#endif // _MSC_VER
+#if IS_MICROSOFT_SDK()
+#include "platform.sdk/sdk_vc.h"
+#else
+#include "platform.sdk/sdk_gcc.h"
+#endif
 
-#ifdef __GNUC__
-# include "platform.sdk/sdk_gcc.h"
-#endif // __GNUC__
+WARNING_POP()
 
 #endif // PLATFORM_SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C

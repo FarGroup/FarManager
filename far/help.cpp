@@ -1358,7 +1358,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_UP | KEY_ALT:
 		case KEY_MSWHEEL_UP | KEY_RALT:
 		{
-			auto n = LocalKey == KEY_MSWHEEL_UP? Global->Opt->MsWheelDeltaHelp : 1;
+			auto n = static_cast<int>((LocalKey == KEY_MSWHEEL_UP? get_wheel_scroll_lines(Global->Opt->MsWheelDeltaHelp) : 1) * Key.NumberOfWheelEvents());
 			while (n-- > 0)
 				ProcessKey(Manager::Key(KEY_UP));
 
@@ -1368,7 +1368,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_DOWN | KEY_ALT:
 		case KEY_MSWHEEL_DOWN | KEY_RALT:
 		{
-			auto n = LocalKey == KEY_MSWHEEL_DOWN? Global->Opt->MsWheelDeltaHelp : 1;
+			auto n = static_cast<int>((LocalKey == KEY_MSWHEEL_DOWN? get_wheel_scroll_lines(Global->Opt->MsWheelDeltaHelp) : 1) * Key.NumberOfWheelEvents());
 			while (n-- > 0)
 				ProcessKey(Manager::Key(KEY_DOWN));
 
@@ -2150,7 +2150,7 @@ static bool OpenURL(string_view const URLPath)
 
 	execute_info Info;
 	Info.DisplayCommand = FilteredURLPath;
-	Info.Command = FilteredURLPath;
+	Info.Command = std::move(FilteredURLPath);
 	Info.SourceMode = execute_info::source_mode::known_external; // skip plugin prefixes processing
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 	return true;

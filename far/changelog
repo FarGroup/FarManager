@@ -1,4 +1,70 @@
 --------------------------------------------------------------------------------
+MZK 2023-06-20 19:53:29-07:00 - build 6167
+
+1. More ways to scroll VMenu lists horizontally.
+   - Ctrl+Alt+Arrows scroll all items by 20 characters at a time.
+   - Ctrl+Shift+Arrows scroll the selected item by 20 characters at a time.
+   - Alt+Shift+Home aligns the selected item to the left.
+   - Alt+Shift+End aligns the selected item to the right.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-20 20:01:57+01:00 - build 6166
+
+1. Configurable cursor size in screen grabber.
+
+--------------------------------------------------------------------------------
+johnd0e 2023-06-17 14:55:00+01:00 - build 6165
+
+1. Allow to break directory scan started from a macro (Mantis#0002692).
+   Fix by Shmuel: https://github.com/shmuz/far2m/issues/36
+
+--------------------------------------------------------------------------------
+drkns 2023-06-14 20:01:09+01:00 - build 6164
+
+1. Subscribe to power events only when needed.
+
+2. Support more reparse tags.
+
+3. Static analysis warnings.
+
+4. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-10 10:50:50+01:00 - build 6163
+
+1. gh-704: Multiple log files created and console logs empty in sync mode.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-09 19:49:34+01:00 - build 6162
+
+1. Address gh-702 comments:
+   - System.MsWheelThreshold option to adjust wheel sensitivity.
+   - Discard accumulated events on scrolling direction change.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-08 20:25:38+01:00 - build 6161
+
+1. Continue 6159: finer-resolution wheels/pads should now work more or less as expected.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-08 08:21:33+01:00 - build 6160
+
+1. gh-702: Trackpad scrolling issue in build 6159.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-07 22:32:00+01:00 - build 6159
+
+1. Improve mouse wheel handling:
+   - Take into account that one mouse event can describe more than one wheel detent.
+   - Use OS wheel settings when System.Ms[H]WheelDelta* parameters are set to 0.
+
+--------------------------------------------------------------------------------
+drkns 2023-06-02 20:53:21+01:00 - build 6158
+
+1. NumLeft & NumRight don't work as intended with radiobuttons.
+   An ancient bug, planted 21 years ago.
+
+--------------------------------------------------------------------------------
 w17 2023-05-31 12:18:13+03:00 - build 6157
 
 1. Continue 6155, 6153, 6152

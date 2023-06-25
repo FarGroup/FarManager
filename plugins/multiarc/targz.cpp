@@ -133,7 +133,7 @@ void  WINAPI _export SetFarInfo(const PluginStartupInfo *Info)
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
 #define EPOCH_BIAS    116444736000000000ll
 
-void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
+static void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
   *(__int64*)ft = EPOCH_BIAS + (__int64)time * 10000000ll;
 }
@@ -161,10 +161,10 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   else
     return(FALSE);
 
-  const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
+  const char *NamePtr=(const char *)strrchr(Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
   lstrcpy(ZipName,NamePtr);
-  const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
+  const char *Dot=(const char *)strrchr(NamePtr,'.');
 
   if (Dot!=NULL)
   {
@@ -521,12 +521,12 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 int IsTarHeader(const BYTE *Data,int DataSize)
 {
   size_t I;
-  posix_header *Header;
+  const posix_header *Header;
 
   if (DataSize<(int)sizeof(posix_header))
     return(FALSE);
 
-  Header=(posix_header *)Data;
+  Header=(const posix_header *)Data;
 
   if(!lstrcmp (Header->magic, TMAGIC))
     TarArchiveFormat = POSIX_FORMAT;

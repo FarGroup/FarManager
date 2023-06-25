@@ -1,7 +1,7 @@
 ﻿#include "ustring.h"
 #include "luafar.h"
 
-extern int IsLuaJIT();
+extern int IsLuaJIT(void);
 
 /* Taken from Lua 5.1; modified to work with Unicode filenames. */
 /* ------------------------------------------------------------ */

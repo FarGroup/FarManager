@@ -59,7 +59,7 @@ private:
     if (time_elapsed() == 0)
       extract_speed = 0;
     else
-      extract_speed = al_round(static_cast<double>(extract_completed) / time_elapsed() * ticks_per_sec());
+      extract_speed = al_round(static_cast<double>(extract_completed) / static_cast<double>(time_elapsed()) * static_cast<double>(ticks_per_sec()));
 
     if (extract_total && cache_total > extract_total)
       cache_total = extract_total;

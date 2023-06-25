@@ -88,13 +88,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static const union {
-	unsigned char uc_array[16];
-	UUID uuid;
-} LuamacroGuid = { 200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77 };
-
-//----------------------------------------------------------------------------
-
 static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {
 	/*
@@ -149,11 +142,8 @@ PluginManager::PluginManager():
 
 void PluginManager::NotifyExit()
 {
-	std::for_each(CONST_RANGE(SortedPlugins, i)
-	{
-		if (i->Id() == LuamacroGuid.uuid)
-			i->NotifyExit();
-	});
+	if (const auto LuaMacro = m_Plugins.find(Global->Opt->KnownIDs.Luamacro.Id); LuaMacro != m_Plugins.cend())
+		LuaMacro->second->NotifyExit();
 }
 
 void PluginManager::UnloadPlugins()

@@ -404,14 +404,13 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 			if (Global->Opt->Confirm.RemoveSUBST)
 			{
 				const auto Question = far::vformat(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName);
-				const auto MappedTo = msg(lng::MChangeDriveDisconnectMapped);
 				string SubstitutedPath;
 				GetSubstName(DriveType, DosDriveName, SubstitutedPath);
 				if (Message(MSG_WARNING,
 					msg(lng::MChangeSUBSTDisconnectDriveTitle),
 					{
 						Question,
-						MappedTo,
+						msg(lng::MChangeDriveDisconnectMapped),
 						SubstitutedPath
 					},
 					{ lng::MYes, lng::MNo },

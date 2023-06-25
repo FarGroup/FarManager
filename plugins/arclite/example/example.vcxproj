@@ -17,10 +17,4 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <AdditionalIncludeDirectories>..\7z\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>%(ForcedIncludeFiles);headers.hpp</ForcedIncludeFiles>
-    </ClCompile>
-  </ItemDefinitionGroup>
 </Project>

@@ -254,6 +254,16 @@ bool message_manager::dispatch()
 	return Result;
 }
 
+void message_manager::enable_power_notifications()
+{
+	m_Window->enable_power_notifications();
+}
+
+void message_manager::disable_power_notifications()
+{
+	m_Window->disable_power_notifications();
+}
+
 string listener::CreateEventName(string_view const ScopeName)
 {
 	return concat(ScopeName, L"::"sv, uuid::str(os::uuid::generate()));

@@ -26,7 +26,7 @@ unsigned calc_percent(UInt64 completed, UInt64 total) {
   if (total == 0)
     percent = 0;
   else
-    percent = al_round(static_cast<double>(completed) / total * 100);
+    percent = al_round(static_cast<double>(completed) / static_cast<double>(total) * 100);
   if (percent > 100)
     percent = 100;
   return percent;
