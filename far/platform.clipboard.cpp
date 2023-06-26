@@ -284,7 +284,7 @@ namespace os::clipboard
 		// return value is ignored - non-critical feature
 		if (const auto Format = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length))
 		{
-			if (auto Size = memory::global::copy(static_cast<uint32_t>(Str.size())))
+			if (auto Size = memory::global::copy((static_cast<uint32_t>(Str.size()) + 1) * sizeof(decltype(Str)::value_type)))
 				set_data(Format, std::move(Size));
 			else
 				LOGWARNING(L"global::copy(): {}"sv, last_error());
@@ -633,7 +633,7 @@ namespace os::clipboard
 		const auto GetTextLength = [&]
 		{
 			if (const auto Length = GetBinaryTextLength())
-				return *Length;
+				return *Length / sizeof(std::remove_reference<decltype(Data)>::type::value_type) - 1;
 
 			return static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), L'\0') - DataView.cbegin());
 		};
