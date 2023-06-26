@@ -308,7 +308,7 @@ public:
 
   // *** IOutArchive ***
 
-  STDMETHODIMP UpdateItems(ISequentialOutStream* out_stream, UInt32 num_items, IArchiveUpdateCallback* update_callback) override {
+  STDMETHODIMP UpdateItems(ISequentialOutStream* out_stream, UInt32 num_items, IArchiveUpdateCallback* update_callback) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     UInt64 total_size = 0;
@@ -415,7 +415,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetFileTimeType(UInt32* type) override {
+  STDMETHODIMP GetFileTimeType(UInt32* type) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *type = NFileTimeType::kWindows;
     return S_OK;
@@ -425,7 +425,7 @@ public:
   // *** ISetProperties ***
 
   // set compression properties
-  STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) override {
+  STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     for (Int32 i = 0; i < (int)num_properties; i++) {
       PropVariant prop = values[i];
@@ -466,7 +466,7 @@ public:
     UNKNOWN_IMPL_ITF(IInStream)
     UNKNOWN_IMPL_END
 
-    STDMETHODIMP Read(void* data, UInt32 size, UInt32* processed_size) override {
+    STDMETHODIMP Read(void* data, UInt32 size, UInt32* processed_size) noexcept override {
       COM_ERROR_HANDLER_BEGIN
       if (pos > file_info.size)
         size = 0;
@@ -482,7 +482,7 @@ public:
       COM_ERROR_HANDLER_END
     }
 
-    STDMETHODIMP Seek(Int64 offset, UInt32 seek_origin, UInt64* new_position) override {
+    STDMETHODIMP Seek(Int64 offset, UInt32 seek_origin, UInt64* new_position) noexcept override {
       COM_ERROR_HANDLER_BEGIN
       switch (seek_origin) {
       case STREAM_SEEK_SET:
@@ -505,7 +505,7 @@ public:
   };
 
   // client will request IInStream via QueryInterface if needed
-  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream** stream) override {
+  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream** stream) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= files.size())
       return E_INVALIDARG;
