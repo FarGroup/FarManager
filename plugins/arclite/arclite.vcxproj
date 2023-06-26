@@ -16,7 +16,8 @@
   </ImportGroup>
   <ItemGroup>
     <CopyFileToFolders Include="arclite.xml" />
-    <CopyFileToFolders Include="7z\dll\$(DirBit)\7z.dll" />
+    <CopyFileToFolders Condition="'$(Configuration)'!='Debug'" Include="7z\dll\$(DirBit)\7z.dll" />
+    <CopyFileToFolders Condition="'$(Configuration)'=='Debug'" Include="7z\src\CPP\7zip\Bundles\Format7zF\Debug\$(DIRBIT)\7z.dll" />
     <CopyFileToFolders Include="7z\sfx\*.sfx" />
   </ItemGroup>
 </Project>

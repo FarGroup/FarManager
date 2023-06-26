@@ -26,11 +26,7 @@ LINK_OBJS = \
 	$(INTDIR)\update.obj \
 
 !ifdef DEBUG_7Z
-!if "$(BUILD_PLATFORM)" == "X86"
-7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
-!else
-7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
-!endif
+7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\$(DIRBIT)\7z.dll
 !else
 7ZDLL = 7z\dll\$(DIRBIT)\7z.dll
 !endif
