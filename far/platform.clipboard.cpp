@@ -231,6 +231,7 @@ namespace os::clipboard
 	{
 		vertical_block_oem,
 		vertical_block_unicode,
+		text_length,
 		preferred_drop_effect,
 		ms_dev_column_select,
 		borland_ide_dev_block,
@@ -245,6 +246,7 @@ namespace os::clipboard
 		{
 			{ L"FAR_VerticalBlock", 0 },
 			{ L"FAR_VerticalBlock_Unicode", 0 },
+			{ L"FAR_Text_Length", 0 },
 			{ CFSTR_PREFERREDDROPEFFECT, 0 },
 			{ L"MSDEVColumnSelect", 0 },
 			{ L"Borland IDE Block Type", 0 },
@@ -279,6 +281,16 @@ namespace os::clipboard
 
 		if (!set_data(CF_UNICODETEXT, std::move(hData)))
 			return false;
+
+		// Our own text length
+		// return value is ignored - non-critical feature
+		if (const auto Format = RegisterFormat(clipboard_format::text_length))
+		{
+			if (auto Size = memory::global::copy((static_cast<uint64_t>(Str.size()))))
+				set_data(Format, std::move(Size));
+			else
+				LOGWARNING(L"global::copy(): {}"sv, last_error());
+		}
 
 		// 'Notepad++ binary text length'
 		// return value is ignored - non-critical feature
@@ -571,17 +583,28 @@ namespace os::clipboard
 		Data = std::move(RecodedData);
 	}
 
-	static std::optional<size_t> GetBinaryTextLength()
+	static size_t GetTextLength(clip_ptr<wchar_t> const& TextPtr)
 	{
-		const auto SizeFormat = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length);
-		if (!SizeFormat)
-			return {};
+		if (const auto SizeFormat = RegisterFormat(clipboard_format::text_length))
+		{
+			if (const auto ClipData = get_as<uint64_t>(SizeFormat))
+				return static_cast<size_t>(*ClipData);
+		}
 
-		const auto ClipData = get_as<uint32_t>(SizeFormat);
-		if (!ClipData)
-			return {};
+		if (const auto SizeFormat = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length))
+		{
+			if (const auto ClipData = get_as<uint32_t>(SizeFormat))
+			{
+				// it's ambiguous now 🤦
+				// https://forum.farmanager.com/viewtopic.php?p=175357#p175357
+				return *ClipData <= TextPtr.size / sizeof(wchar_t)?
+					*ClipData :
+					*ClipData / sizeof(wchar_t) - 1;
+			}
+		}
 
-		return *ClipData;
+		const string_view DataView(TextPtr.get(), TextPtr.size / sizeof(*TextPtr));
+		return static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), L'\0') - DataView.cbegin());
 	}
 
 	template<typename char_type>
@@ -628,17 +651,7 @@ namespace os::clipboard
 		if (!ClipData)
 			return GetHDROPAsText(Data);
 
-		const string_view DataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
-
-		const auto GetTextLength = [&]
-		{
-			if (const auto Length = GetBinaryTextLength())
-				return *Length / sizeof(std::remove_reference<decltype(Data)>::type::value_type) - 1;
-
-			return static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), L'\0') - DataView.cbegin());
-		};
-
-		Data = DataView.substr(0, GetTextLength());
+		Data.assign(ClipData.get(), GetTextLength(ClipData));
 
 		try_to_fix_incorrect_ansi_to_unicode_conversion(Data);
 

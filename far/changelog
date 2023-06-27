@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-27 19:58:03+01:00 - build 6169
+
+1. Using a foreign format exclusively for the clipboard text size was probably not a good idea.
+   E.g. now copying text between 6167 and 6168 is broken. Oops.
+
+   To avoid repeating the same mistake in the future, we now have our own format ("FAR_Text_Length")
+   and resort to "Notepad++ binary text length" only when our own format is not available.
+
+2. With some magic copying text from pre-6168 should now work.
+   Unfortunately, time travel is not yet discovered, so copying text into pre-6168 remains broken.
+
+--------------------------------------------------------------------------------
 zg 2023-06-26 20:55:27+03:00 - build 6168
 
 1. correction of 4496. notepad++ expects data size in bytes including final '\0'.
