@@ -791,15 +791,17 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 
 	UpdateIntKeyState(CtrlState);
 
-	const auto BtnState = MouseEvent.dwButtonState;
 	KeyMacro::SetMacroConst(constMsButton, MouseEvent.dwButtonState);
 
-	if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	SCOPE_EXIT
 	{
-		IntKeyState.PrevMouseButtonState = IntKeyState.MouseButtonState;
-	}
+		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+		{
+			IntKeyState.PrevMouseButtonState = IntKeyState.MouseButtonState;
+		}
+	};
 
-	IntKeyState.MouseButtonState = BtnState;
+	IntKeyState.MouseButtonState = MouseEvent.dwButtonState;
 	IntKeyState.MousePrevPos = IntKeyState.MousePos;
 	IntKeyState.MousePos = MouseEvent.dwMousePosition;
 	KeyMacro::SetMacroConst(constMsX, IntKeyState.MousePos.x);
@@ -863,7 +865,8 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 	{
 		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 		{
-			const auto MsCalcKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState);
+			// By clearing the previously pressed buttons we ensure that the newly pressed one will be reported
+			const auto MsCalcKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState);
 			if (MsCalcKey != KEY_NONE)
 			{
 				CalcKey = MsCalcKey | GetModifiers();
@@ -1988,7 +1991,8 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	{
 	case 0:
 	{
-		const auto MsKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState);
+		// By clearing the previously pressed buttons we ensure that the newly pressed one will be reported
+		const auto MsKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState);
 		if (MsKey != KEY_NONE)
 		{
 			return MsKey;

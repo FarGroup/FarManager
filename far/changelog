@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-27 21:47:13+01:00 - build 6170
+
+1. Improve mouse buttons to fake macro keys translation.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-27 19:58:03+01:00 - build 6169
 
 1. Using a foreign format exclusively for the clipboard text size was probably not a good idea.
