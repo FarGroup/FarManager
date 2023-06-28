@@ -490,7 +490,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				const auto& ir = *static_cast<INPUT_RECORD const*>(Param2);
 				if (ir.EventType == MOUSE_EVENT && Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 				{
-					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir.Event.MouseEvent.dwButtonState && !(ir.Event.MouseEvent.dwEventFlags & MOUSE_MOVED))
+					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir.Event.MouseEvent.dwButtonState && IsMouseButtonEvent(ir.Event.MouseEvent.dwEventFlags))
 					{
 						Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 						return FALSE;

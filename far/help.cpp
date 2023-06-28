@@ -1693,7 +1693,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (m_windowKeyBar->ProcessMouse(MouseEvent))
 		return true;
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
 		return true;
@@ -1789,7 +1789,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	/* $ 26.11.2001 VVM
 	  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
-	if (!MouseEvent->dwEventFlags
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags)
 	 && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
 	{
 		BeforeMouseDownX = StackData.CurX;
@@ -1800,7 +1800,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		simple_move = false;
 	}
 
-	if (!MouseEvent->dwEventFlags
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags)
 	 && !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))
 	 && MouseDown)
 	{

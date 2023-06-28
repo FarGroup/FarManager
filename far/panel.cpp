@@ -161,7 +161,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			EndDrag();
 
-			if (!MouseEvent->dwEventFlags && SrcDragPanel!=this)
+			if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && SrcDragPanel != this)
 			{
 				MoveToMouse(MouseEvent);
 				Redraw();
@@ -178,7 +178,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED && !MouseEvent->dwEventFlags)
+		if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			DragMove=!DragMove;
 
 		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -201,7 +201,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_Where.width() - 1 < ScrX)
+	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags) && m_Where.width() - 1 < ScrX)
 	{
 		MoveToMouse(MouseEvent);
 		os::fs::find_data Data;

@@ -797,7 +797,7 @@ bool InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{ ILSS_POWERSTATUS,     true },
 	};
 
-	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 	{
 		for (const auto& [Section, Enabled]: Sections)
 		{

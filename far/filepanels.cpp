@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "diskmenu.hpp"
 #include "global.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1168,7 +1169,7 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
 	{
-		if (MouseEvent->dwEventFlags == MOUSE_MOVED)
+		if (!IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			return true;
 
 		int Key = KEY_ENTER;

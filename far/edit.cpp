@@ -1794,7 +1794,7 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (
 			CurrentTime - PrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) &&
-			MouseEvent->dwEventFlags != MOUSE_MOVED &&
+			IsMouseButtonEvent(MouseEvent->dwEventFlags) &&
 			PrevPosition == MouseEvent->dwMousePosition
 		)
 		{

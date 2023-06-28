@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-06-28 22:58:23+01:00 - build 6171
+
+1. Continue 6170 & other highly experimental improvements in mouse processing.
+
+--------------------------------------------------------------------------------
 drkns 2023-06-27 21:47:13+01:00 - build 6170
 
 1. Improve mouse buttons to fake macro keys translation.

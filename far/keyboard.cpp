@@ -534,6 +534,11 @@ bool while_mouse_button_pressed(function_ref<bool(DWORD)> const Action)
 	return true;
 }
 
+bool IsMouseButtonEvent(DWORD const EventFlags)
+{
+	return EventFlags == 0 || EventFlags == DOUBLE_CLICK;
+}
+
 int get_wheel_threshold(int ConfigValue)
 {
 	return ConfigValue? ConfigValue : WHEEL_DELTA;
@@ -793,17 +798,8 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 
 	KeyMacro::SetMacroConst(constMsButton, MouseEvent.dwButtonState);
 
-	SCOPE_EXIT
-	{
-		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
-		{
-			IntKeyState.PrevMouseButtonState = IntKeyState.MouseButtonState;
-		}
-	};
-
-	IntKeyState.MouseButtonState = MouseEvent.dwButtonState;
-	IntKeyState.MousePrevPos = IntKeyState.MousePos;
-	IntKeyState.MousePos = MouseEvent.dwMousePosition;
+	IntKeyState.PrevMouseButtonState = std::exchange(IntKeyState.MouseButtonState, MouseEvent.dwButtonState);
+	IntKeyState.MousePrevPos = std::exchange(IntKeyState.MousePos, MouseEvent.dwMousePosition);
 	KeyMacro::SetMacroConst(constMsX, IntKeyState.MousePos.x);
 	KeyMacro::SetMacroConst(constMsY, IntKeyState.MousePos.y);
 
@@ -863,7 +859,7 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 
 	if ((!ExcludeMacro || ProcessMouse) && Global->CtrlObject && (ProcessMouse || !(Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting())))
 	{
-		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+		if (!IntKeyState.MouseEventFlags)
 		{
 			// By clearing the previously pressed buttons we ensure that the newly pressed one will be reported
 			const auto MsCalcKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState);
@@ -1990,6 +1986,7 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	switch (MouseEvent.dwEventFlags)
 	{
 	case 0:
+	case DOUBLE_CLICK:
 	{
 		// By clearing the previously pressed buttons we ensure that the newly pressed one will be reported
 		const auto MsKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState);

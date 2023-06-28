@@ -2670,7 +2670,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()) && MouseEvent->dwMousePosition.X == m_Where.right && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()) && MouseEvent->dwMousePosition.X == m_Where.right && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 	{
 		if (MouseEvent->dwMousePosition.Y == m_Where.top)
 		{
@@ -2715,7 +2715,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (
 			CurrentTime - EditorPrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) &&
-			MouseEvent->dwEventFlags != MOUSE_MOVED &&
+			IsMouseButtonEvent(MouseEvent->dwEventFlags) &&
 			EditorPrevPosition == MouseEvent->dwMousePosition
 		)
 		{
