@@ -1324,6 +1324,13 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 			break;
 		}
+		case '^':
+		{
+			if (AlignAnnotations(static_cast<int>((MaxLineWidth + 2) / 4)))
+				ShowMenu(true);
+
+			break;
+		}
 		case KEY_MSWHEEL_UP:
 		{
 			SetSelectPos(SelectPos - 1, -1, true);
@@ -1800,18 +1807,11 @@ bool VMenu::SetItemShowPos(int Item, int NewShowPos)
 
 bool VMenu::ShiftItemShowPos(int Item, int Shift)
 {
-	const auto MaxShowPos{ GetItemMaxShowPos(Item) };
-	auto ItemShowPos{ std::min(Items[Item].ShowPos, MaxShowPos) }; // Just in case
+	const auto ItemLen{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
+	const auto MaxShowPos{ static_cast<intptr_t>(ItemLen - 1) };
+	const auto MinShowPos{ -static_cast<intptr_t >(MaxLineWidth - 1) };
 
-	if (Shift >= 0)
-	{
-		ItemShowPos += std::min(static_cast<size_t>(Shift), MaxShowPos - ItemShowPos);
-	}
-	else
-	{
-		ItemShowPos -= std::min(static_cast<size_t>(-Shift), ItemShowPos);
-	}
-
+	const auto ItemShowPos{ std::clamp(Items[Item].ShowPos + Shift, MinShowPos, MaxShowPos) };
 	if (ItemShowPos == Items[Item].ShowPos)
 		return false;
 
@@ -1836,6 +1836,36 @@ bool VMenu::ShiftAllItemsShowPos(int Shift)
 
 	for (const auto& I : irange(Items.size()))
 		NeedRedraw |= ShiftItemShowPos(static_cast<int>(I), Shift);
+
+	return NeedRedraw;
+}
+
+bool VMenu::AlignAnnotations(int AlignPos)
+{
+	auto UAlignPos{ static_cast<size_t>(std::max(0, AlignPos)) };
+	assert(MaxLineWidth > 0);
+	UAlignPos = std::min(UAlignPos, MaxLineWidth - 1);
+
+	bool NeedRedraw = false;
+
+	for (const auto& I : irange(Items.size()))
+	{
+		if (Items[I].Annotations.empty()) continue;
+
+		const auto AnnotationPos{ Items[I].Annotations.front().first };
+		if (AnnotationPos < 0) continue;
+		const auto UAnnotationPos{ static_cast<size_t>(AnnotationPos) };
+
+		const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[I].Name) : HiStrlen(Items[I].Name) };
+		if (UAnnotationPos >= Len) continue;
+
+		const auto NewShowPos{ static_cast<intptr_t>(UAnnotationPos - UAlignPos) };
+		if (NewShowPos == Items[I].ShowPos) continue;
+
+		Items[I].ShowPos = NewShowPos;
+		VMFlags.Set(VMENU_UPDATEREQUIRED);
+		NeedRedraw = true;
+	}
 
 	return NeedRedraw;
 }
@@ -2211,7 +2241,6 @@ void VMenu::ShowMenu(bool IsParent)
 
 				SetColor(CurColor);
 
-				string strMenuLine;
 				wchar_t CheckMark = L' ';
 
 				if (Items[I].Flags & LIF_CHECKED)
@@ -2222,32 +2251,35 @@ void VMenu::ShowMenu(bool IsParent)
 						CheckMark = static_cast<wchar_t>(Items[I].Flags & 0x0000FFFF);
 				}
 
-				strMenuLine.push_back(CheckMark);
+				const auto ItemIndent{ static_cast<size_t>(-std::min(Items[I].ShowPos, 0LL)) };
+				const auto ItemHanging{ static_cast<size_t>(std::max(0LL, Items[I].ShowPos)) };
+
+				string strMenuLine{ CheckMark };
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
+				const auto LineWidthPlusLeftMargin{ strMenuLine.size() + MaxLineWidth };
+				strMenuLine.append(ItemIndent, L' ');
 				const auto PrefixSize = strMenuLine.size();
 
 				size_t HotkeyVisualPos = string::npos;
 				auto MenuItemForDisplay = CheckFlags(VMENU_SHOWAMPERSAND)? Items[I].Name : HiText2Str(Items[I].Name, &HotkeyVisualPos);
 
-				MenuItemForDisplay.erase(0, Items[I].ShowPos);
+				strMenuLine.append(MenuItemForDisplay, std::min(ItemHanging, MenuItemForDisplay.size()));
 
 				if (HotkeyVisualPos != string::npos)
 				{
-					if (HotkeyVisualPos < Items[I].ShowPos)
+					if (HotkeyVisualPos < ItemHanging)
 						HotkeyVisualPos = string::npos;
 					else
-						HotkeyVisualPos -= Items[I].ShowPos;
+						HotkeyVisualPos -= ItemHanging;
 				}
 
 				// fit menu string into available space
 				bool ShowRightScroller = false;
-				if (MenuItemForDisplay.size() > MaxLineWidth)
+				if (strMenuLine.size() > LineWidthPlusLeftMargin)
 				{
-					MenuItemForDisplay.resize(MaxLineWidth);
+					strMenuLine.resize(LineWidthPlusLeftMargin);
 					ShowRightScroller = true;
 				}
-
-				strMenuLine += MenuItemForDisplay;
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
@@ -2276,8 +2308,7 @@ void VMenu::ShowMenu(bool IsParent)
 						size_t Pos = 0;
 						for (const auto& [AnnPos, AnnSize]: Items[I].Annotations)
 						{
-							const int StartOffset = 1; // 1 is '<<' placeholder size
-							const size_t pre_len = AnnPos - Items[I].ShowPos + StartOffset - Pos + 1;
+							const size_t pre_len = AnnPos - ItemHanging + PrefixSize - Pos;
 							if (Pos < strMenuLine.size())
 							{
 								Text(string_view(strMenuLine).substr(Pos, pre_len));
@@ -2332,7 +2363,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
-				if (Items[I].ShowPos)
+				if (ItemHanging)
 				{
 					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
 					Text(L'«');
@@ -2340,7 +2371,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (ShowRightScroller)
 				{
-					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth), Y);
+					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + LineWidthPlusLeftMargin), Y);
 					Text(L'»');
 				}
 			}

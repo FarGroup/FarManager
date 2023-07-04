@@ -162,12 +162,12 @@ struct MenuItemEx: menu_item
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	size_t ShowPos{};
+	intptr_t ShowPos{};
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
 	short Len[2]{};                  // размеры 2-х частей
 	short Idx2{};                    // начало 2-й части
-	std::list<std::pair<int, int>> Annotations;
+	std::vector<std::pair<int, int>> Annotations;
 };
 
 struct SortItemParam
@@ -312,6 +312,7 @@ private:
 	bool SetItemShowPos(int Item, int NewShowPos); // Negative NewShowPos is relative to the right side; -1 aligns the item to the right
 	bool ShiftItemShowPos(int Item,int Shift); // Shifts item's ShowPos; if Shift is positive, the item visually moves left
 	bool SetAllItemsShowPos(int NewShowPos);
+	bool AlignAnnotations(int AlignPos);
 	bool ShiftAllItemsShowPos(int Shift);
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
