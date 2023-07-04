@@ -164,10 +164,13 @@ with Ctrl-PgDn.
 @Prefix
 $ #Prefix command line format#
 	#Open archive#
-	arc:[-d] [-t:<arc_type>] [-p:<password>] <archive>
+	arc:[-d] [-t:<arc_type>] [-p:<password>] [-r] [-x[d]] <archive>
 	-t = archive type (7z, zip, etc.)
 	-d = detect all available formats and show selection menu
 	-p = specify password for encrypted archive
+	-r = recursive panel: on exit, return to the previous plugin's panel instead of the file panel
+	-x = delete archive: on exit, delete the <archive> file; useful for temporary files
+	-xd = delete directory: on exit, delete the directory where <archive> file is located; useful for temporary directories
 	<archive> = archive file name
 
 	#Create or update archive#

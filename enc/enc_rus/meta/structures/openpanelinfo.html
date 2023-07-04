@@ -88,11 +88,18 @@ struct OpenPanelInfo
     <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле <code>FreeSize</code>. Не у всех эмулированных плагинами файловых системах возможно понятие "свободное место" (например, в плагине ImpEx).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHORTCUT">OPIF_SHORTCUT</a></td>
     <td class="cont" width="60%">Флаг указывает, что плагин позволяет добавлять смену каталогов в историю Far Manager'a, а также поддерживает установку "быстрых каталогов" на своей панели.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_RECURSIVEPANEL">OPIF_RECURSIVEPANEL</a></td>
+    <td class="cont" width="60%">Если плагин запущен из панели (возможно другого) плагина, то этот флаг указывает, что после закрытия плагина Far Manager должен вернуться в панель предыдущего плагина, а не в файловую панель.<a href="#dagger">&dagger;</a></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DELETEFILEONCLOSE">OPIF_DELETEFILEONCLOSE</a></td>
+    <td class="cont" width="60%">Флаг указывает, что после закрытия плагина Far Manager должен удалить <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DELETEDIRONCLOSE">OPIF_DELETEDIRONCLOSE</a></td>
+    <td class="cont" width="60%">Флаг указывает, что после закрытия плагина Far Manager должен удалить директорию, где находится <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_NONE">OPIF_NONE</a></td>
     <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
+    <a name="dagger">&dagger;</a> Этот флаг используется только если плагин открыт при помощи меню плагинов <code>F11&nbsp;&rarr;&nbsp;плагин&nbsp;&rarr;&nbsp;&hellip;</code>, префикса плагина <code>prefix:command</code> или функции Lua <code>Plugin.Command(GUID,&nbsp;command)</code>.
     </div>
-  <div class=dfn>HostFile</div>
+  <div class=dfn><a name="Hostfile">HostFile</a></div>
     <div class=dfndescr>Имя файла-контейнера, на основе которого эмулируется файловая система на панели. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в <code>NULL</code>.</div>
   <div class=dfn>CurDir</div>
     <div class=dfndescr>Текущая директория панели. Если панельный плагин вернёт здесь пустую строку, то при нажатии <kbd>ENTER</kbd> на ".." Far Manager закроет панель плагина автоматически.</div>
