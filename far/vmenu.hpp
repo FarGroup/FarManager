@@ -162,12 +162,13 @@ struct MenuItemEx: menu_item
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	intptr_t ShowPos{};
+	int HorizontalPosition{}; // Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
-	short Len[2]{};                  // размеры 2-х частей
-	short Idx2{};                    // начало 2-й части
 	std::vector<std::pair<int, int>> Annotations;
+
+	size_t Indent() const noexcept { return std::max(0, HorizontalPosition); }
+	size_t Hanging() const noexcept { return std::max(0, -HorizontalPosition); }
 };
 
 struct SortItemParam
@@ -202,7 +203,6 @@ public:
 	void ShowConsoleTitle() override;
 	void OnClose() override;
 
-	void FastShow() { ShowMenu(); }
 	void ResetCursor();
 	void SetTitle(string_view Title);
 	void SetBottomTitle(string_view BottomTitle);
@@ -302,7 +302,7 @@ private:
 
 	void DisplayObject() override;
 
-	void ShowMenu(bool IsParent = false);
+	void ShowMenu();
 	void DrawTitles() const;
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
@@ -320,6 +320,7 @@ private:
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
+	rectangle GetClientRect()const noexcept;
 
 	size_t Text(string_view Str) const;
 	size_t Text(wchar_t Char) const;

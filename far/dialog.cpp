@@ -2544,6 +2544,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			case KEY_MSWHEEL_RIGHT:
 			case KEY_NUMENTER:
 			case KEY_ENTER:
+			case KEY_NUMPAD5:
 				auto& List = Items[m_FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
 				List->ProcessKey(Key);

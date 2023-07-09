@@ -435,7 +435,7 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 
 	NewMenuItem.AutoHotkey = {};
 	NewMenuItem.AutoHotkeyPos = 0;
-	NewMenuItem.ShowPos = 0;
+	NewMenuItem.HorizontalPosition = 0;
 
 	if (PosAdd <= SelectPos)
 		SelectPos++;
@@ -857,7 +857,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 					{
 						SetSelectPos(I,1);
 
-						ShowMenu(true);
+						ShowMenu();
 
 						return GetVisualPos(SelectPos)+1;
 					}
@@ -1224,7 +1224,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			FarListPos pos{ sizeof(pos), 0, -1 };
 			SetSelectPos(&pos, 1);
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 		case KEY_END:          case KEY_NUMPAD1:
@@ -1236,7 +1236,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			int p = static_cast<int>(Items.size())-1;
 			FarListPos pos{ sizeof(pos), p, std::max(0, p - MaxHeight + 1) };
 			SetSelectPos(&pos, -1);
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 		case KEY_PGUP:         case KEY_NUMPAD9:
@@ -1250,7 +1250,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 			FarListPos pos{ sizeof(pos), p, p };
 			SetSelectPos(&pos, 1);
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 		case KEY_PGDN:         case KEY_NUMPAD3:
@@ -1265,7 +1265,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 			FarListPos pos{ sizeof(pos), pSel, pTop };
 			SetSelectPos(&pos, -1);
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 		case KEY_ALTHOME:           case KEY_ALT|KEY_NUMPAD7:
@@ -1274,7 +1274,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTEND:           case KEY_RALT|KEY_NUMPAD1:
 		{
 			if (SetAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_HOME, KEY_NUMPAD7)? 0 : -1))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1282,7 +1282,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTEND:       case KEY_ALTSHIFT|KEY_NUMPAD1:
 		{
 			if (SetItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_HOME, KEY_NUMPAD7)? 0 : -1))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1292,7 +1292,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTRIGHT: case KEY_RALT|KEY_NUMPAD6:
 		{
 			if (ShiftAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT)? -1 : 1))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1302,7 +1302,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTRIGHT: case KEY_CTRLRALTNUMPAD6:
 		{
 			if (ShiftAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT)? -20 : 20))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1312,7 +1312,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTSHIFTRIGHT:    case KEY_RALTSHIFTNUMPAD6:
 		{
 			if (ShiftItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4)? -1 : 1))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1320,14 +1320,14 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTRIGHT:    case KEY_CTRLSHIFTNUMPAD6:
 		{
 			if (ShiftItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4)? -20 : 20))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
-		case '^':
+		case KEY_CTRLNUMPAD5:
 		{
 			if (AlignAnnotations(static_cast<int>((MaxLineWidth + 2) / 4)))
-				ShowMenu(true);
+				ShowMenu();
 
 			break;
 		}
@@ -1348,7 +1348,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_UP:           case KEY_NUMPAD8:
 		{
 			SetSelectPos(SelectPos-1,-1,IsRepeatedKey());
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 
@@ -1356,7 +1356,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_DOWN:         case KEY_NUMPAD2:
 		{
 			SetSelectPos(SelectPos+1,1,IsRepeatedKey());
-			ShowMenu(true);
+			ShowMenu();
 			break;
 		}
 
@@ -1468,7 +1468,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			{
 				if (Parent->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(NewPos)))
 				{
-					ShowMenu(true);
+					ShowMenu();
 					ClearDone();
 					break;
 				}
@@ -1604,7 +1604,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					return false;
 
 				ProcessKey(Manager::Key(KEY_UP));
-				ShowMenu(true);
+				ShowMenu();
 				return true;
 			});
 
@@ -1620,7 +1620,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					return false;
 
 				ProcessKey(Manager::Key(KEY_DOWN));
-				ShowMenu(true);
+				ShowMenu();
 				return true;
 			});
 
@@ -1652,7 +1652,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 				SetSelectPos(VisualPosToReal(MsPos),Delta);
 
-				ShowMenu(true);
+				ShowMenu();
 			}
 
 			return true;
@@ -1726,7 +1726,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					SetSelectPos(MsPos,1);
 				}
 
-				ShowMenu(true);
+				ShowMenu();
 			}
 
 			/* $ 13.10.2001 VVM
@@ -1786,38 +1786,40 @@ size_t VMenu::GetItemMaxShowPos(int Item) const
 
 bool VMenu::SetItemShowPos(int Item, int NewShowPos)
 {
-	const auto MaxShowPos{ GetItemMaxShowPos(Item) };
-	auto OldShowPos{ Items[Item].ShowPos };
+	//const auto MaxShowPos{ GetItemMaxShowPos(Item) };
+	//auto OldShowPos{ Items[Item].ShowPos };
 
-	if (NewShowPos >= 0)
-	{
-		Items[Item].ShowPos = std::min(static_cast<size_t>(NewShowPos), MaxShowPos);
-	}
-	else
-	{
-		Items[Item].ShowPos = MaxShowPos - std::min(static_cast<size_t>(-(NewShowPos + 1)), MaxShowPos);
-	}
+	//if (NewShowPos >= 0)
+	//{
+	//	Items[Item].ShowPos = std::min(static_cast<size_t>(NewShowPos), MaxShowPos);
+	//}
+	//else
+	//{
+	//	Items[Item].ShowPos = MaxShowPos - std::min(static_cast<size_t>(-(NewShowPos + 1)), MaxShowPos);
+	//}
 
-	if (Items[Item].ShowPos == OldShowPos)
-		return false;
+	//if (Items[Item].ShowPos == OldShowPos)
+	//	return false;
 
-	VMFlags.Set(VMENU_UPDATEREQUIRED);
-	return true;
+	//VMFlags.Set(VMENU_UPDATEREQUIRED);
+	//return true;
+	return false;
 }
 
 bool VMenu::ShiftItemShowPos(int Item, int Shift)
 {
-	const auto ItemLen{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
-	const auto MaxShowPos{ static_cast<intptr_t>(ItemLen - 1) };
-	const auto MinShowPos{ -static_cast<intptr_t >(MaxLineWidth - 1) };
+	//const auto ItemLen{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
+	//const auto MaxShowPos{ static_cast<intptr_t>(ItemLen - 1) };
+	//const auto MinShowPos{ -static_cast<intptr_t >(MaxLineWidth - 1) };
 
-	const auto ItemShowPos{ std::clamp(Items[Item].ShowPos + Shift, MinShowPos, MaxShowPos) };
-	if (ItemShowPos == Items[Item].ShowPos)
-		return false;
+	//const auto ItemShowPos{ std::clamp(Items[Item].ShowPos + Shift, MinShowPos, MaxShowPos) };
+	//if (ItemShowPos == Items[Item].ShowPos)
+	//	return false;
 
-	Items[Item].ShowPos = ItemShowPos;
-	VMFlags.Set(VMENU_UPDATEREQUIRED);
-	return true;
+	//Items[Item].ShowPos = ItemShowPos;
+	//VMFlags.Set(VMENU_UPDATEREQUIRED);
+	//return true;
+	return false;
 }
 
 bool VMenu::SetAllItemsShowPos(int NewShowPos)
@@ -1842,30 +1844,30 @@ bool VMenu::ShiftAllItemsShowPos(int Shift)
 
 bool VMenu::AlignAnnotations(int AlignPos)
 {
-	auto UAlignPos{ static_cast<size_t>(std::max(0, AlignPos)) };
-	assert(MaxLineWidth > 0);
-	UAlignPos = std::min(UAlignPos, MaxLineWidth - 1);
+	//auto UAlignPos{ static_cast<size_t>(std::max(0, AlignPos)) };
+	//assert(MaxLineWidth > 0);
+	//UAlignPos = std::min(UAlignPos, MaxLineWidth - 1);
 
 	bool NeedRedraw = false;
 
-	for (const auto& I : irange(Items.size()))
-	{
-		if (Items[I].Annotations.empty()) continue;
+	//for (const auto& I : irange(Items.size()))
+	//{
+	//	if (Items[I].Annotations.empty()) continue;
 
-		const auto AnnotationPos{ Items[I].Annotations.front().first };
-		if (AnnotationPos < 0) continue;
-		const auto UAnnotationPos{ static_cast<size_t>(AnnotationPos) };
+	//	const auto AnnotationPos{ Items[I].Annotations.front().first };
+	//	if (AnnotationPos < 0) continue;
+	//	const auto UAnnotationPos{ static_cast<size_t>(AnnotationPos) };
 
-		const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[I].Name) : HiStrlen(Items[I].Name) };
-		if (UAnnotationPos >= Len) continue;
+	//	const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[I].Name) : HiStrlen(Items[I].Name) };
+	//	if (UAnnotationPos >= Len) continue;
 
-		const auto NewShowPos{ static_cast<intptr_t>(UAnnotationPos - UAlignPos) };
-		if (NewShowPos == Items[I].ShowPos) continue;
+	//	const auto NewShowPos{ static_cast<intptr_t>(UAnnotationPos - UAlignPos) };
+	//	if (NewShowPos == Items[I].ShowPos) continue;
 
-		Items[I].ShowPos = NewShowPos;
-		VMFlags.Set(VMENU_UPDATEREQUIRED);
-		NeedRedraw = true;
-	}
+	//	Items[I].ShowPos = NewShowPos;
+	//	VMFlags.Set(VMENU_UPDATEREQUIRED);
+	//	NeedRedraw = true;
+	//}
 
 	return NeedRedraw;
 }
@@ -1997,7 +1999,7 @@ void VMenu::DisplayObject()
 
 	if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !CheckFlags(VMENU_LISTBOX))
 	{
-		// BUGBUG, dead code
+		// BUGBUG, dead code -- 2023-07-08 MZK: Is it though? I've got here when pressed hotkey of "Select search area" combobox on "find file" dialog.
 
 		if (m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX)
 		{
@@ -2021,7 +2023,7 @@ void VMenu::DisplayObject()
 	if (!CheckFlags(VMENU_LISTBOX))
 		DrawTitles();
 
-	ShowMenu(true);
+	ShowMenu();
 }
 
 void VMenu::DrawTitles() const
@@ -2070,12 +2072,18 @@ void VMenu::DrawTitles() const
 	}
 }
 
-void VMenu::ShowMenu(bool IsParent)
+rectangle VMenu::GetClientRect() const noexcept
+{
+	if (m_BoxType == NO_BOX)
+		return m_Where;
+
+	return { m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 };
+}
+
+void VMenu::ShowMenu()
 {
 	const auto ServiceAreaSize = GetServiceAreaSize();
-	const auto CalcMaxLineWidth = ServiceAreaSize > static_cast<size_t>(m_Where.width())? 0 : m_Where.width() - ServiceAreaSize;
-
-	MaxLineWidth = CalcMaxLineWidth;
+	MaxLineWidth = ServiceAreaSize > static_cast<size_t>(m_Where.width())? 0 : m_Where.width() - ServiceAreaSize;
 
 	if (m_Where.right <= m_Where.left || m_Where.bottom <= m_Where.top)
 	{
@@ -2083,39 +2091,16 @@ void VMenu::ShowMenu(bool IsParent)
 			return;
 	}
 
+	// 2023-07-09 MZK: Do we need this? Why?
 	if (CheckFlags(VMENU_LISTBOX))
 	{
-		if (!IsParent || !GetShowItemCount())
-		{
-			if (GetShowItemCount())
-				m_BoxType=CheckFlags(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
-
+		if (!GetShowItemCount())
 			SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
-		}
 
 		if (m_BoxType!=NO_BOX)
 			Box(m_Where, Colors[VMenuColorBox], m_BoxType);
 
 		DrawTitles();
-	}
-
-	wchar_t BoxChar[2]{};
-
-	switch (m_BoxType)
-	{
-		case NO_BOX:
-			*BoxChar=L' ';
-			break;
-
-		case SINGLE_BOX:
-		case SHORT_SINGLE_BOX:
-			*BoxChar=BoxSymbols[BS_V1];
-			break;
-
-		case DOUBLE_BOX:
-		case SHORT_DOUBLE_BOX:
-			*BoxChar=BoxSymbols[BS_V2];
-			break;
 	}
 
 	if (GetShowItemCount() <= 0)
@@ -2124,10 +2109,13 @@ void VMenu::ShowMenu(bool IsParent)
 	if (CheckFlags(VMENU_AUTOHIGHLIGHT))
 		AssignHighlights(CheckFlags(VMENU_REVERSEHIGHLIGHT));
 
+	const auto ClientRect{ GetClientRect() };
+
 	int VisualSelectPos = GetVisualPos(SelectPos);
 	int VisualTopPos = GetVisualPos(TopPos);
 
 	// коррекция Top`а
+	// 2023-07-09 MZK: What is it? Should it be ClientRect.height() instead of m_Where.height()?
 	if (VisualTopPos+GetShowItemCount() >= m_Where.height() - 1 && VisualSelectPos == GetShowItemCount()-1)
 	{
 		VisualTopPos--;
@@ -2136,11 +2124,11 @@ void VMenu::ShowMenu(bool IsParent)
 			VisualTopPos=0;
 	}
 
-	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (m_Where.height() - 2 - (m_BoxType == NO_BOX ? 2 : 0)));
+	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (ClientRect.height() - 4));
 
-	if (VisualSelectPos > VisualTopPos + (m_Where.height() - 1 - (m_BoxType == NO_BOX? 0 : 2)))
+	if (VisualSelectPos > VisualTopPos + (ClientRect.height() - 1))
 	{
-		VisualTopPos = VisualSelectPos - (m_Where.height() - 1 - (m_BoxType == NO_BOX? 0 : 2));
+		VisualTopPos = VisualSelectPos - (ClientRect.height() - 1);
 	}
 
 	if (VisualSelectPos < VisualTopPos)
@@ -2159,10 +2147,10 @@ void VMenu::ShowMenu(bool IsParent)
 	if (TopPos<0)
 		TopPos=0;
 
-	for (int Y = m_Where.top + (m_BoxType == NO_BOX? 0 : 1), I = TopPos; Y < m_Where.bottom + (m_BoxType == NO_BOX? 1 : 0); ++Y, ++I)
-	{
-		GotoXY(m_Where.left, Y);
+	string LineBuffer(MaxLineWidth, L' ');
 
+	for (int Y = ClientRect.top, I = TopPos; Y <= ClientRect.bottom; ++Y, ++I)
+	{
 		if (I < static_cast<int>(Items.size()))
 		{
 			if (!item_is_visible(Items[I]))
@@ -2171,6 +2159,7 @@ void VMenu::ShowMenu(bool IsParent)
 				continue;
 			}
 
+			GotoXY(m_Where.left, Y);
 			if (Items[I].Flags&LIF_SEPARATOR)
 			{
 				int SepWidth = m_Where.width();
@@ -2251,8 +2240,8 @@ void VMenu::ShowMenu(bool IsParent)
 						CheckMark = static_cast<wchar_t>(Items[I].Flags & 0x0000FFFF);
 				}
 
-				const auto ItemIndent{ static_cast<size_t>(-std::min(Items[I].ShowPos, 0LL)) };
-				const auto ItemHanging{ static_cast<size_t>(std::max(0LL, Items[I].ShowPos)) };
+				const auto ItemIndent{ Items[I].Indent() };
+				const auto ItemHanging{ Items[I].Hanging() };
 
 				string strMenuLine{ CheckMark };
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
@@ -2378,6 +2367,7 @@ void VMenu::ShowMenu(bool IsParent)
 		}
 		else
 		{
+			GotoXY(m_Where.left, Y);
 			if (m_BoxType!=NO_BOX)
 			{
 				SetColor(Colors[VMenuColorBox]);
@@ -2487,7 +2477,7 @@ void VMenu::AssignHighlights(bool Reverse)
 		if (!ShowAmpersand && HotkeyVisualPos != string::npos)
 			continue;
 
-		MenuItemForDisplay.erase(0, Items[I].ShowPos);
+		MenuItemForDisplay.erase(0, Items[I].Hanging()); // 2023-07-08 MZK: Should be something like "visible"!
 
 		// TODO: проверка на LIF_HIDDEN
 		for (const auto& Ch: MenuItemForDisplay)
@@ -2520,7 +2510,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 			if (ChangePos)
 			{
 				SetSelectPos(NewPos, 1);
-				ShowMenu(true);
+				ShowMenu();
 			}
 
 			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && item_can_be_entered(Items[SelectPos]))
