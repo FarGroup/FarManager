@@ -3136,7 +3136,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return false;
 
 	const auto column_titles = Global->Opt->ShowColumnTitles ? 1 : 0;
-	const bool disk_or_sorts = Global->Opt->ShowSortMode && IsVisible() && !MouseEvent->dwEventFlags &&
+	const bool disk_or_sorts = Global->Opt->ShowSortMode && IsVisible() && IsMouseButtonEvent(MouseEvent->dwEventFlags) &&
 		MouseEvent->dwMousePosition.Y == m_Where.top + column_titles &&
 		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 2+column_titles;
 
@@ -3158,8 +3158,14 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (IsVisible() && Global->Opt->ShowPanelScrollbar && IntKeyState.MousePos.x == m_Where.right &&
-	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED) && !IsDragging())
+	if (
+		IsVisible() &&
+		Global->Opt->ShowPanelScrollbar &&
+		IntKeyState.MousePos.x == m_Where.right &&
+		(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
+		IsMouseButtonEvent(MouseEvent->dwEventFlags) &&
+		!IsDragging()
+	)
 	{
 		const auto ScrollY = m_Where.top + 1 + Global->Opt->ShowColumnTitles;
 
@@ -3286,7 +3292,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				const auto DataLock = lock_data();
 				auto& m_ListData = *DataLock;
 
-				if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
+				if (IsMouseButtonEvent(MouseEvent->dwEventFlags))
 					MouseSelection = !m_ListData[m_CurFile].Selected;
 
 				Select(m_ListData[m_CurFile], MouseSelection);

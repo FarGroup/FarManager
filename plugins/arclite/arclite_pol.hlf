@@ -169,10 +169,13 @@ z menu wtyczek. Zobacz #Dostępne formaty#, aby uzyskać informacje o pełnej li
 @Prefix
 $ #Format przedrostków w linii poleceń#
  #Otwórz archiwum#
- arc:[-d] [-t:<typ_arch>] [-p:<hasło>] <archiwum>
+ arc:[-d] [-t:<typ_arch>] [-p:<hasło>] [-r] [-x[d]] <archiwum>
  -t = typ archiwum (7z, zip, itp.)
  -d = wykrywa wszystkie dostępne format i pokazuje menu wyboru
  -p = użyj hasła do zakodowania archiwum
+ -r = recursive panel: on exit, return to the previous plugin's panel instead of the file panel
+ -x = delete archive: on exit, delete the <archiwum> file; useful for temporary files
+ -xd = delete directory: on exit, delete the directory where <archiwum> file is located; useful for temporary directories
  <archiwum> = nazwa pliku archiwum
 
  #Tworzenie lub aktualizacja archiwum#

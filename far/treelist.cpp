@@ -1583,11 +1583,11 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		if (((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-		        MouseEvent->dwEventFlags==DOUBLE_CLICK) ||
-		        ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
-		         !MouseEvent->dwEventFlags) ||
-		        (OldFile!=m_CurFile && Global->Opt->Tree.AutoChangeFolder && !m_ModalMode))
+		if (
+			((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && MouseEvent->dwEventFlags == DOUBLE_CLICK) ||
+			((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags)) ||
+			(OldFile!=m_CurFile && Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
+		)
 		{
 			const auto control = MouseEvent->dwControlKeyState & (SHIFT_PRESSED | LEFT_ALT_PRESSED | LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED | RIGHT_CTRL_PRESSED);
 

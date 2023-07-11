@@ -313,11 +313,12 @@ bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (!m_Where.contains(MouseEvent->dwMousePosition) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && !m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+		const auto NewButtonState = MouseEvent->dwButtonState & ~IntKeyState.PrevMouseButtonState;
+		if ((NewButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton & DMOUSEBUTTON_LEFT))
 			ProcessKey(Manager::Key(KEY_ESC));
-		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+		else if ((NewButtonState & RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton & DMOUSEBUTTON_RIGHT))
 			ProcessKey(Manager::Key(KEY_ENTER));
 
 		return true;

@@ -285,7 +285,9 @@ static PropInfo c_prop_info[] =
   { kpidUserId, MSG_KPID_USER_ID, nullptr },
   { kpidGroupId, MSG_KPID_GROUP_ID, nullptr },
   { kpidDeviceMajor, MSG_KPID_DEVICE_MAJOR, nullptr },
-  { kpidDeviceMinor, MSG_KPID_DEVICE_MINOR, nullptr }
+  { kpidDeviceMinor, MSG_KPID_DEVICE_MINOR, nullptr },
+  { kpidDevMajor, MSG_KPID_DEV_MAJOR, nullptr },
+  { kpidDevMinor, MSG_KPID_DEV_MINOR, nullptr }
 };
 
 static const PropInfo* find_prop_info(PROPID prop_id) {

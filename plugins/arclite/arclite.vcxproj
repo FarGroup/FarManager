@@ -10,13 +10,19 @@
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
     <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
+    <Release7ZDll>7z\dll\$(DirBit)\7z.dll</Release7ZDll>
+    <Debug7ZDll>7z\src\CPP\7zip\Bundles\Format7zF\Debug\$(DirBit)\7z.dll</Debug7ZDll>
+    <IsDebug>0</IsDebug>
+    <IsDebug Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">1</IsDebug>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
   <ItemGroup>
     <CopyFileToFolders Include="arclite.xml" />
-    <CopyFileToFolders Include="7z\dll\$(DirBit)\7z.dll" />
+    <CopyFileToFolders Condition="'$(IsDebug)'=='0'" Include="$(Release7ZDll)" />
+    <CopyFileToFolders Condition="'$(IsDebug)'=='1' and  Exists('$(Debug7ZDll)') " Include="$(Debug7ZDll)" />
+    <CopyFileToFolders Condition="'$(IsDebug)'=='1' and !Exists('$(Debug7ZDll)') " Include="$(Release7ZDll)" />
     <CopyFileToFolders Include="7z\sfx\*.sfx" />
   </ItemGroup>
 </Project>

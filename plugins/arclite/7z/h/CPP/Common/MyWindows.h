@@ -1,18 +1,17 @@
 // MyWindows.h
 
-#ifndef __MY_WINDOWS_H
-#define __MY_WINDOWS_H
+#ifdef Z7_DEFINE_GUID
+# undef Z7_DEFINE_GUID
+#endif
+#define Z7_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+  constexpr inline GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+
+#ifndef ZIP7_INC_MY_WINDOWS_H
+#define ZIP7_INC_MY_WINDOWS_H
 
 #ifdef _WIN32
 
-#include <basetyps.h>
-#include <unknwn.h>
-#include <Windows.h>
-
-#ifdef UNDER_CE
-  #undef VARIANT_TRUE
-  #define VARIANT_TRUE ((VARIANT_BOOL)-1)
-#endif
+#include "../../C/7zWindows.h"
 
 #else // _WIN32
 
@@ -20,11 +19,11 @@
 #include <string.h>
 // #include <stdint.h> // for uintptr_t
 
+#include "../../C/7zTypes.h"
 #include "MyGuidDef.h"
 
 // WINAPI is __stdcall in Windows-MSVC in windef.h
 #define WINAPI
-#define EXTERN_C MY_EXTERN_C
 
 typedef char CHAR;
 typedef unsigned char UCHAR;
@@ -105,31 +104,78 @@ typedef LONG SCODE;
 
 #define STDAPI  EXTERN_C HRESULT STDAPICALLTYPE
 
-#define STDMETHOD_(t, f) virtual t STDMETHODCALLTYPE f
-#define STDMETHOD(f) STDMETHOD_(HRESULT, f)
-#define STDMETHODIMP_(type) type STDMETHODCALLTYPE
-#define STDMETHODIMP STDMETHODIMP_(HRESULT)
+#ifndef DECLSPEC_NOTHROW
+#define DECLSPEC_NOTHROW    Z7_DECLSPEC_NOTHROW
+#endif
+
+#ifndef DECLSPEC_NOVTABLE
+#define DECLSPEC_NOVTABLE   Z7_DECLSPEC_NOVTABLE
+#endif
+
+#ifndef COM_DECLSPEC_NOTHROW
+#ifdef COM_STDMETHOD_CAN_THROW
+  #define COM_DECLSPEC_NOTHROW
+#else
+  #define COM_DECLSPEC_NOTHROW  DECLSPEC_NOTHROW
+#endif
+#endif
+
+#define DECLARE_INTERFACE(iface)              struct DECLSPEC_NOVTABLE iface
+#define DECLARE_INTERFACE_(iface, baseiface)  struct DECLSPEC_NOVTABLE iface : public baseiface
+
+#define STDMETHOD_(t, f)  virtual COM_DECLSPEC_NOTHROW t STDMETHODCALLTYPE f
+#define STDMETHOD(f)      STDMETHOD_(HRESULT, f)
+#define STDMETHODIMP_(t)  COM_DECLSPEC_NOTHROW t STDMETHODCALLTYPE
+#define STDMETHODIMP      STDMETHODIMP_(HRESULT)
+
 
 #define PURE = 0
 
-#define MIDL_INTERFACE(x) struct
+// #define MIDL_INTERFACE(x) struct
+
 
 #ifdef __cplusplus
+
+/*
+  p7zip and 7-Zip before v23 used virtual destructor in IUnknown,
+  if _WIN32 is not defined.
+  It used virtual destructor, because some compilers don't like virtual
+  interfaces without virtual destructor.
+  IUnknown in Windows (_WIN32) doesn't use virtual destructor in IUnknown.
+  We still can define Z7_USE_VIRTUAL_DESTRUCTOR_IN_IUNKNOWN here,
+  if we want to be compatible with old plugin interface of p7zip and 7-Zip before v23.
+
+v23:
+  In new 7-Zip v23 we try to be more compatible with original IUnknown from _WIN32.
+  So we do not define Z7_USE_VIRTUAL_DESTRUCTOR_IN_IUNKNOWN here,
+*/
+// #define Z7_USE_VIRTUAL_DESTRUCTOR_IN_IUNKNOWN
+
+#ifdef Z7_USE_VIRTUAL_DESTRUCTOR_IN_IUNKNOWN
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Winconsistent-missing-destructor-override"
+#endif
+#endif
+
+Z7_PURE_INTERFACES_BEGIN
 
 DEFINE_GUID(IID_IUnknown,
 0x00000000, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
 struct IUnknown
 {
-  STDMETHOD(QueryInterface) (REFIID iid, void **outObject) PURE;
-  STDMETHOD_(ULONG, AddRef)() PURE;
-  STDMETHOD_(ULONG, Release)() PURE;
+  STDMETHOD(QueryInterface) (REFIID iid, void **outObject) =0;
+  STDMETHOD_(ULONG, AddRef)() =0;
+  STDMETHOD_(ULONG, Release)() =0;
+ #ifdef Z7_USE_VIRTUAL_DESTRUCTOR_IN_IUNKNOWN
   virtual ~IUnknown() {}
-  // We use virtual ~IUnknown() here for binary compatibility with 7z.so from p7zip
+ #endif
 };
 
 typedef IUnknown *LPUNKNOWN;
 
-#endif
+Z7_PURE_INTERFACES_END
+
+#endif // __cplusplus
 
 #define VARIANT_TRUE ((VARIANT_BOOL)-1)
 #define VARIANT_FALSE ((VARIANT_BOOL)0)
@@ -199,8 +245,8 @@ typedef PROPVARIANT tagVARIANT;
 typedef tagVARIANT VARIANT;
 typedef VARIANT VARIANTARG;
 
-MY_EXTERN_C HRESULT VariantClear(VARIANTARG *prop);
-MY_EXTERN_C HRESULT VariantCopy(VARIANTARG *dest, const VARIANTARG *src);
+EXTERN_C HRESULT VariantClear(VARIANTARG *prop);
+EXTERN_C HRESULT VariantCopy(VARIANTARG *dest, const VARIANTARG *src);
 
 typedef struct tagSTATPROPSTG
 {
@@ -209,19 +255,19 @@ typedef struct tagSTATPROPSTG
   VARTYPE vt;
 } STATPROPSTG;
 
-MY_EXTERN_C BSTR SysAllocStringByteLen(LPCSTR psz, UINT len);
-MY_EXTERN_C BSTR SysAllocStringLen(const OLECHAR *sz, UINT len);
-MY_EXTERN_C BSTR SysAllocString(const OLECHAR *sz);
-MY_EXTERN_C void SysFreeString(BSTR bstr);
-MY_EXTERN_C UINT SysStringByteLen(BSTR bstr);
-MY_EXTERN_C UINT SysStringLen(BSTR bstr);
+EXTERN_C BSTR SysAllocStringByteLen(LPCSTR psz, UINT len);
+EXTERN_C BSTR SysAllocStringLen(const OLECHAR *sz, UINT len);
+EXTERN_C BSTR SysAllocString(const OLECHAR *sz);
+EXTERN_C void SysFreeString(BSTR bstr);
+EXTERN_C UINT SysStringByteLen(BSTR bstr);
+EXTERN_C UINT SysStringLen(BSTR bstr);
 
-MY_EXTERN_C DWORD GetLastError();
-MY_EXTERN_C void SetLastError(DWORD dwCode);
-MY_EXTERN_C LONG CompareFileTime(const FILETIME* ft1, const FILETIME* ft2);
+EXTERN_C DWORD GetLastError();
+EXTERN_C void SetLastError(DWORD dwCode);
+EXTERN_C LONG CompareFileTime(const FILETIME* ft1, const FILETIME* ft2);
 
-MY_EXTERN_C DWORD GetCurrentThreadId();
-MY_EXTERN_C DWORD GetCurrentProcessId();
+EXTERN_C DWORD GetCurrentThreadId();
+EXTERN_C DWORD GetCurrentProcessId();
 
 #define MAX_PATH 1024
 

@@ -29,9 +29,11 @@
   <PropertyGroup Label="Globals">
     <ProjectName>7z</ProjectName>
     <ProjectGuid>{3AAF130C-999A-BC41-F53A-BC1339658B86}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -364,6 +366,7 @@
       <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Sort.c" />
+    <ClCompile Include="..\..\..\..\C\SwapBytes.c" />
     <ClCompile Include="..\..\..\..\C\Threads.c" />
     <ClCompile Include="..\..\..\..\C\Xz.c" />
     <ClCompile Include="..\..\..\..\C\XzCrc64.c" />
@@ -660,6 +663,8 @@
     <ClInclude Include="..\..\..\..\C\7zBuf.h" />
     <ClInclude Include="..\..\..\..\C\7zCrc.h" />
     <ClInclude Include="..\..\..\..\C\7zTypes.h" />
+    <ClInclude Include="..\..\..\..\C\7zVersion.h" />
+    <ClInclude Include="..\..\..\..\C\7zWindows.h" />
     <ClInclude Include="..\..\..\..\C\Aes.h" />
     <ClInclude Include="..\..\..\..\C\Alloc.h" />
     <ClInclude Include="..\..\..\..\C\Bcj2.h" />
@@ -689,11 +694,13 @@
     <ClInclude Include="..\..\..\..\C\Sha256.h" />
     <ClInclude Include="..\..\..\..\C\Sort.h" />
     <ClInclude Include="..\..\..\..\C\StdAfx.h" />
+    <ClInclude Include="..\..\..\..\C\SwapBytes.h" />
     <ClInclude Include="..\..\..\..\C\Threads.h" />
     <ClInclude Include="..\..\..\..\C\Xz.h" />
     <ClInclude Include="..\..\..\..\C\XzCrc64.h" />
     <ClInclude Include="..\..\..\..\C\XzEnc.h" />
     <ClInclude Include="..\..\..\Common\Common.h" />
+    <ClInclude Include="..\..\..\Common\ComTry.h" />
     <ClInclude Include="..\..\..\Common\Defs.h" />
     <ClInclude Include="..\..\..\Common\DynamicBuffer.h" />
     <ClInclude Include="..\..\..\Common\DynLimBuf.h" />
@@ -721,6 +728,8 @@
     <ClInclude Include="..\..\..\Windows\FileFind.h" />
     <ClInclude Include="..\..\..\Windows\FileIO.h" />
     <ClInclude Include="..\..\..\Windows\FileName.h" />
+    <ClInclude Include="..\..\..\Windows\Handle.h" />
+    <ClInclude Include="..\..\..\Windows\NtCheck.h" />
     <ClInclude Include="..\..\..\Windows\PropVariant.h" />
     <ClInclude Include="..\..\..\Windows\PropVariantConv.h" />
     <ClInclude Include="..\..\..\Windows\PropVariantUtils.h" />
@@ -876,6 +885,7 @@
     <ClInclude Include="..\..\IPassword.h" />
     <ClInclude Include="..\..\IProgress.h" />
     <ClInclude Include="..\..\IStream.h" />
+    <ClInclude Include="..\..\MyVersion.h" />
     <ClInclude Include="..\..\PropID.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

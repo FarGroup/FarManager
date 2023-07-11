@@ -1501,8 +1501,35 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 	return true;
 }
 
+bool VMenu::ClickHandler(window* Menu, int const MenuClick)
+{
+	switch (MenuClick)
+	{
+	case VMENUCLICK_APPLY:
+		return Menu->ProcessKey(Manager::Key(KEY_ENTER));
+
+	case VMENUCLICK_CANCEL:
+		return Menu->ProcessKey(Manager::Key(KEY_ESC));
+
+	case VMENUCLICK_IGNORE:
+	default:
+		return true;
+	}
+}
+
 bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && MouseEvent->dwButtonState && !m_Where.contains(MouseEvent->dwMousePosition))
+	{
+		const auto NewButtonState = MouseEvent->dwButtonState & ~IntKeyState.PrevMouseButtonState;
+		if (NewButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
+		else if (NewButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.MBtnClick);
+		else if (NewButtonState & RIGHTMOST_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.RBtnClick);
+	}
+
 	const auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
@@ -1522,7 +1549,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (!GetShowItemCount())
 	{
-		if (MouseEvent->dwButtonState && !MouseEvent->dwEventFlags)
+		if (MouseEvent->dwButtonState && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			SetExitCode(-1);
 		return false;
 	}
@@ -1531,10 +1558,10 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	const int MsY = MouseEvent->dwMousePosition.Y;
 
 	// необходимо знать, что RBtn был нажат ПОСЛЕ появления VMenu, а не до
-	if (MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED && MouseEvent->dwEventFlags==0)
+	if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 		bRightBtnPressed=true;
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+	if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED) && IsMouseButtonEvent(MouseEvent->dwEventFlags))
 	{
 		if (
 			m_BoxType == NO_BOX?
@@ -1685,7 +1712,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos]))
 		{
-			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || !MouseEvent->dwEventFlags)
+			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			{
 				/* TODO:
 
@@ -1711,41 +1738,15 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 			/* $ 13.10.2001 VVM
 			  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
-			if (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
+			if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
 				SetMenuFlags(VMENU_MOUSEDOWN);
 
-			if (!MouseEvent->dwEventFlags && !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)) && CheckFlags(VMENU_MOUSEDOWN))
+			if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)) && CheckFlags(VMENU_MOUSEDOWN))
 			{
 				ClearFlags(VMENU_MOUSEDOWN);
 				ProcessKey(Manager::Key(KEY_ENTER));
 			}
 		}
-
-		return true;
-	}
-	else if (m_BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
-	{
-		const auto ClickOpt = (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) ? Global->Opt->VMenu.LBtnClick : Global->Opt->VMenu.RBtnClick;
-		if (ClickOpt==VMENUCLICK_CANCEL)
-			ProcessKey(Manager::Key(KEY_ESC));
-
-		return true;
-	}
-	else if (m_BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.LBtnClick==VMENUCLICK_APPLY))
-	{
-		ProcessKey(Manager::Key(KEY_ENTER));
-
-		return true;
-	}
-	else if (m_BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.MBtnClick==VMENUCLICK_APPLY))
-	{
-		ProcessKey(Manager::Key(KEY_ENTER));
-
-		return true;
-	}
-	else if (m_BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.RBtnClick==VMENUCLICK_APPLY))
-	{
-		ProcessKey(Manager::Key(KEY_ENTER));
 
 		return true;
 	}

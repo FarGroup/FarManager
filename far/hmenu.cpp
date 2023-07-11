@@ -344,7 +344,12 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 	const auto MsX = MouseEvent->dwMousePosition.X;
 	const auto MsY = MouseEvent->dwMousePosition.Y;
 
-	return MsY != m_Where.top || ((!m_SelectPos || MsX >= m_Item[m_SelectPos].XPos) && (m_SelectPos == m_Item.size() - 1 || MsX < m_Item[m_SelectPos + 1].XPos));
+	return
+		MsY == m_Where.top &&
+		(
+			(m_SelectPos && MsX < m_Item[m_SelectPos].XPos) ||
+			(m_SelectPos != m_Item.size() - 1 && MsX >= m_Item[m_SelectPos + 1].XPos)
+		);
 }
 
 bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -369,7 +374,7 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		ShowMenu();
 		ProcessCurrentSubMenu();
 	}
-	else if (!(MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
+	else if (IsMouseButtonEvent(MouseEvent->dwEventFlags))
 		Close(-1);
 
 	return true;
@@ -416,13 +421,20 @@ bool HMenu::ProcessCurrentSubMenu()
 
 				if (rec.EventType == MOUSE_EVENT)
 				{
-					if (!TestMouse(&rec.Event.MouseEvent))
+					if (TestMouse(&rec.Event.MouseEvent))
 					{
 						MenuMouseRecord = rec.Event.MouseEvent;
 						SendMouse = true;
 						SubMenu->Close(-1);
 						return 1;
 					}
+
+					if (IsMouseButtonEvent(rec.Event.MouseEvent.dwEventFlags) && rec.Event.MouseEvent.dwMousePosition.Y != m_Where.top && !SubMenu->GetPosition().contains(rec.Event.MouseEvent.dwMousePosition))
+					{
+						MenuMouseRecord = rec.Event.MouseEvent;
+						SendMouse = true;
+					}
+
 					if (rec.Event.MouseEvent.dwMousePosition.Y == m_Where.top)
 						return 1;
 				}

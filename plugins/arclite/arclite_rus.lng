@@ -342,6 +342,8 @@
 "Group ID"
 "Device Major"
 "Device Minor"
+"Dev Major"
+"Dev Minor"
 
 // Property values
 "Да"

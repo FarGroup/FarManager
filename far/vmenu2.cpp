@@ -668,34 +668,21 @@ int VMenu2::GetTypeAndName(string &strType, string &strName)
 	return windowtype_menu;
 }
 
-static auto ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
-{
-	switch (MenuClick)
-	{
-	case  VMENUCLICK_APPLY:
-		return Menu->ProcessKey(Manager::Key(KEY_ENTER));
-
-	case VMENUCLICK_CANCEL:
-		return Menu->ProcessKey(Manager::Key(KEY_ESC));
-
-	case VMENUCLICK_IGNORE:
-	default:
-		return true;
-	}
-}
-
 bool VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (!IsMoving())
+	if (!IsMoving() && IsMouseButtonEvent(MouseEvent->dwEventFlags) && !m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		if (!m_Where.contains(MouseEvent->dwMousePosition))
+		INPUT_RECORD mouse{ MOUSE_EVENT };
+		mouse.Event.MouseEvent = *MouseEvent;
+		if (!Call(DN_INPUT, &mouse))
 		{
-			if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-				return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
-			else if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
-				return ClickHandler(this, Global->Opt->VMenu.MBtnClick);
-			else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
-				return ClickHandler(this, Global->Opt->VMenu.RBtnClick);
+			const auto NewButtonState = mouse.Event.MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState;
+			if (NewButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+				return VMenu::ClickHandler(this, Global->Opt->VMenu.LBtnClick);
+			else if (NewButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+				return VMenu::ClickHandler(this, Global->Opt->VMenu.MBtnClick);
+			else if (NewButtonState & RIGHTMOST_BUTTON_PRESSED)
+				return VMenu::ClickHandler(this, Global->Opt->VMenu.RBtnClick);
 		}
 	}
 	return Dialog::ProcessMouse(MouseEvent);

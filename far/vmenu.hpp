@@ -292,6 +292,7 @@ public:
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem);
 	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
+	static bool ClickHandler(window* Menu, int MenuClick);
 
 	size_t MaxItemLength() const;
 	size_t GetServiceAreaSize();

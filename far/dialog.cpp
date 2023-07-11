@@ -3153,7 +3153,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		)
 		{
 			auto& List = Item.ListPtr;
-			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+			if (IsMouseButtonEvent(MouseRecord.dwEventFlags) && !(MouseRecord.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
 				if (PrevMouseRecord.dwMousePosition.X==MsX && PrevMouseRecord.dwMousePosition.Y==MsY)
 				{
@@ -3197,7 +3197,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 									CloseDialog();
 									return true;
 								}
-								if (!MouseRecord.dwEventFlags && (MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+								if (IsMouseButtonEvent(MouseRecord.dwEventFlags) && (MouseRecord.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 									PrevMouseRecord=MouseRecord;
 							}
 						}
@@ -3221,37 +3221,27 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (!m_Where.contains(MouseRecord.dwMousePosition))
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags) && !m_Where.contains(MouseRecord.dwMousePosition))
 	{
-		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc(DN_CONTROLINPUT,-1,&mouse))
+		if (!DlgProc(DN_CONTROLINPUT,-1,&mouse))
 		{
 			if (!DialogMode.Check(DMODE_SHOW))
 				return false;
 
-			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+			const auto NewButtonState = mouse.Event.MouseEvent.dwButtonState & ~IntKeyState.PrevMouseButtonState;
+			if ((NewButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton & DMOUSEBUTTON_LEFT))
 				ProcessKey(Manager::Key(KEY_ESC));
-			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+			else if ((NewButtonState & RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton & DMOUSEBUTTON_RIGHT))
 				ProcessKey(Manager::Key(KEY_ENTER));
 		}
-		else if (DialogMode.Check(DMODE_CLICKOUTSIDE))
-		{
-			DialogMode.Clear(DMODE_CLICKOUTSIDE);
-			return true;
-		}
-
-		if (mouse.Event.MouseEvent.dwButtonState)
-			DialogMode.Set(DMODE_CLICKOUTSIDE);
 
 		return true;
 	}
 
 	if (!mouse.Event.MouseEvent.dwButtonState)
-	{
-		DialogMode.Clear(DMODE_CLICKOUTSIDE);
 		return false;
-	}
 
-	if (!mouse.Event.MouseEvent.dwEventFlags || mouse.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
+	if (IsMouseButtonEvent(mouse.Event.MouseEvent.dwEventFlags))
 	{
 		// первый цикл - все за исключением рамок.
 		//for (I=0; I < ItemCount;I++)

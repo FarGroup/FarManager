@@ -342,6 +342,8 @@
 "ID Grupo"
 "Dispositivo Mayor"
 "Dispositivo Menor"
+"Dev Major"
+"Dev Minor"
 
 // Property values
 "Si"

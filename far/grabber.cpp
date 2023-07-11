@@ -681,8 +681,10 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
-	        (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
+	if (
+		MouseEvent->dwEventFlags==DOUBLE_CLICK ||
+		(IsMouseButtonEvent(MouseEvent->dwEventFlags) && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
+	)
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
 		return true;
@@ -691,7 +693,7 @@ bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return false;
 
-	if (!MouseEvent->dwEventFlags)
+	if (IsMouseButtonEvent(MouseEvent->dwEventFlags))
 	{
 		ResetArea = true;
 	}

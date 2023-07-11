@@ -121,6 +121,7 @@ private:
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
 bool while_mouse_button_pressed(function_ref<bool(DWORD)> Action);
+bool IsMouseButtonEvent(DWORD EventFlags);
 int get_wheel_threshold(int ConfigValue);
 int get_wheel_scroll_lines(int ConfigValue);
 int get_wheel_scroll_chars(int ConfigValue);

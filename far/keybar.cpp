@@ -290,7 +290,7 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!IsVisible())
 		return false;
 
-	if (!(MouseEvent->dwButtonState & 3) || MouseEvent->dwEventFlags)
+	if (!(MouseEvent->dwButtonState & 3) || !IsMouseButtonEvent(MouseEvent->dwEventFlags))
 		return false;
 
 	if (!m_Where.contains(MouseEvent->dwMousePosition))
