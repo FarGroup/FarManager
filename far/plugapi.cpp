@@ -721,7 +721,6 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_QUIT:
-			Global->CloseFARMenu = true;
 			Global->WindowManager->ExitMainLoop(FALSE);
 			return TRUE;
 

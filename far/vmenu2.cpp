@@ -173,11 +173,6 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 				Resize();
 		}
 		break;
-
-	default:
-		if(Global->CloseFARMenu)
-			ProcessKey(Manager::Key(KEY_ESC));
-		break;
 	}
 	return Dlg->DefProc(Msg, Param1, Param2);
 }

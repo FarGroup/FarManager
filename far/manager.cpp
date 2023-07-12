@@ -647,11 +647,6 @@ void Manager::ProcessMainLoop()
 
 void Manager::ExitMainLoop(int Ask)
 {
-	if (Global->CloseFAR)
-	{
-		Global->CloseFARMenu = true;
-	}
-
 	if (!Ask || !Global->Opt->Confirm.Exit || Message(0,
 		msg(lng::MQuit),
 		{
@@ -671,10 +666,6 @@ void Manager::ExitMainLoop(int Ask)
 			const auto cp = Global->CtrlObject->Cp();
 			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)))
 				EndLoop=true;
-		}
-		else
-		{
-			Global->CloseFARMenu = false;
 		}
 	}
 }

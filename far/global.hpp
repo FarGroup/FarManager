@@ -71,7 +71,7 @@ public:
 
 	std::atomic_size_t SuppressClock{};
 	std::atomic_size_t SuppressIndicators{};
-	bool CloseFAR{}, CloseFARMenu{}, AllowCancelExit{true};
+	bool CloseFAR{}, AllowCancelExit{true};
 	bool DisablePluginsOutput{};
 	int IsProcessAssignMacroKey{};
 	size_t PluginPanelsCount{};

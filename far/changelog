@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+zg 2023-07-12 22:29:50+03:00 - build 6172
+
+1. far didn't ask to save unsaved data in editor then menu was active and the console window is closed with "X".
+
+--------------------------------------------------------------------------------
 drkns 2023-06-28 22:58:23+01:00 - build 6171
 
 1. Continue 6170 & other highly experimental improvements in mouse processing.
