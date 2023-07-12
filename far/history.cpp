@@ -713,6 +713,8 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 	auto CurrentItem = m_CurrentItem;
 	auto FirstPreviousItem = CurrentItem;
+	size_t fns;
+	const auto strView = cltrim_view(strStr, fns);
 
 	for (;;)
 	{
@@ -734,13 +736,15 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		if (!NewItem)
 			continue;
 
-		if (!is_known_record(Time) || !starts_with_icase(strName, string_view(strStr).substr(0, Length)) || strStr == strName)
+		if (!is_known_record(Time) || !starts_with_icase(strName, string_view(strView).substr(0, Length)) || strView == strName)
 			continue;
 
 		if (bAppend)
 			strStr.append(strName, Length);
-		else
+		else if (fns == 0)
 			strStr = strName;
+		else
+			strStr.replace(fns, strName.size(), strName);
 
 		m_CurrentItem = CurrentItem;
 		return true;
@@ -751,11 +755,14 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 void History::GetAllSimilar(string_view const Str, function_ref<void(string_view Name, unsigned long long Id, bool IsLocked)> const Callback) const
 {
+	size_t fns;
+	const auto strView = cltrim_view(Str, fns);
+
 	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, {}, true))
 	{
-		if (is_known_record(i.Time) && starts_with_icase(i.Name, Str))
+		if (is_known_record(i.Time) && starts_with_icase(i.Name, strView))
 		{
-			Callback(i.Name, i.Id, i.Lock);
+			Callback(fns == 0 ? i.Name : Str.substr(0, fns) + i.Name, i.Id, i.Lock);
 		}
 	}
 }
