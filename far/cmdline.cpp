@@ -633,7 +633,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 		const string_view Format = Global->Opt->CmdLine.strPromptFormat.Get();
 		auto SegmentBegin = Format.cbegin();
 		auto Color = PrefixColor;
-		FOR_CONST_RANGE(Format, Iterator)
+		for (auto Iterator = Format.cbegin(); Iterator != Format.cend();)
 		{
 			bool Stop;
 			auto NewColor = PrefixColor;
@@ -643,6 +643,8 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 			{
 				if (Stop)
 					break;
+
+				++Iterator;
 				continue;
 			}
 
