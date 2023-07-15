@@ -59,7 +59,7 @@ lv=1
 dt=Text
 nm=Flags
 ctime=3480257526
-mtime=3602510587
+mtime=3898572321
 <article>
 #_<markdown>
 #_
@@ -67,7 +67,7 @@ mtime=3602510587
 #_
 #_This manual uses the term **flags** for both a single constant contained in the table `far.Flags`, and for the [bitwise OR](405.html) of two or more such constants.
 #_
-#_When some function parameter in this manual is denoted as *flags*, it can be supplied from Lua as either an integer, a string (when a combination consists of one flag), or a table, with keys corresponding to constants' names and having non-false values.
+#_When some function parameter in this manual is denoted as *flags*, it can be supplied from Lua as either an integer, a string (space-delimitered flags), or a table, with keys corresponding to constants' names and having non-false values.
 #_
 #_#### Example 1 (single flag)
 #_The following 2 calls are equivalent:
@@ -78,7 +78,8 @@ mtime=3602510587
 #_The 7-th parameter to function [`editor.Editor`](21.html) can be
 #_supplied from Lua in the following equivalent forms:
 #_        (1)  bit64.bor(F.EF_NONMODAL, F.EF_IMMEDIATERETURN, ....)
-#_        (2)  { EF_NONMODAL=1, EF_IMMEDIATERETURN=1, .... }
+#_        (2)  "EF_NONMODAL EF_IMMEDIATERETURN ...."
+#_        (3)  { EF_NONMODAL=1, EF_IMMEDIATERETURN=1, .... }
 #_
 #_@@@
 #_{ef_immediatereturn}: http://api.farmanager.com/ru/service_functions/editor.html#EF_IMMEDIATERETURN

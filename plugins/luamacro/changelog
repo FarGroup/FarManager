@@ -1,3 +1,7 @@
+shmuel 2023-07-15 08:51:10+03:00 - build 779
+
+1. LuaFAR: a flag combination may be specified as a string (space-delimitered).
+
 zg 2023-05-25 09:46:58+03:00 - build 778
 
 1. Dlg.GetValue(...) crashed for non-modal dialog then called from DN_CLOSE & DE_DLGPROCEND.
