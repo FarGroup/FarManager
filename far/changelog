@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2023-07-15 10:39:13+01:00 - build 6172
+
+1. Fix a crash in prompt format parser.
+
+2. Propagate taskbar state to the terminal.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 zg 2023-07-12 22:29:50+03:00 - build 6172
 
 1. far didn't ask to save unsaved data in editor then menu was active and the console window is closed with "X".
