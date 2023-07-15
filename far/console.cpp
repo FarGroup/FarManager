@@ -2427,6 +2427,31 @@ WARNING_POP()
 		sEnableVirtualTerminal = Value;
 	}
 
+	static wchar_t state_to_vt(TBPFLAG const State)
+	{
+		switch (State)
+		{
+		case TBPF_NOPROGRESS:    return L'0';
+		case TBPF_INDETERMINATE: return L'3';
+		case TBPF_NORMAL:        return L'1';
+		case TBPF_ERROR:         return L'2';
+		case TBPF_PAUSED:        return L'4';
+		default:
+			UNREACHABLE;
+		}
+	}
+
+	void console::set_progress_state(TBPFLAG const State) const
+	{
+		send_vt_command(far::format(OSC(L"9;4;{}"), state_to_vt(State)));
+	}
+
+	void console::set_progress_value(TBPFLAG const State, size_t const Percent) const
+	{
+		// 🤦
+		send_vt_command(far::format(OSC(L"9;4;{};{}"), state_to_vt(State), Percent));
+	}
+
 	bool console::GetCursorRealPosition(point& Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -2446,6 +2471,26 @@ WARNING_POP()
 		}
 
 		return true;
+	}
+
+	bool console::send_vt_command(string_view Command) const
+	{
+		// Happy path
+		if (::console.IsVtEnabled())
+			return Write(Command);
+
+		// Legacy console
+		if (!IsVtSupported())
+			return false;
+
+		// If VT is not enabled, we enable it temporarily
+		if (std::pair<HANDLE, DWORD> Data{ GetOutputHandle(), 0 }; GetMode(Data.first, Data.second) && SetMode(Data.first, Data.second | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+		{
+			SCOPE_EXIT{ SetMode(Data.first, Data.second); };
+			return Write(Command);
+		}
+
+		return false;
 	}
 }
 

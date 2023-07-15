@@ -199,6 +199,9 @@ namespace console_detail
 		static void EnableWindowMode(bool Value);
 		static void EnableVirtualTerminal(bool Value);
 
+		void set_progress_state(TBPFLAG State) const;
+		void set_progress_value(TBPFLAG State, size_t Percent) const;
+
 	private:
 		class implementation;
 		friend class implementation;
@@ -210,6 +213,8 @@ namespace console_detail
 		bool ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
 		bool GetCursorRealPosition(point& Position) const;
 		bool SetCursorRealPosition(point Position) const;
+
+		bool send_vt_command(string_view Command) const;
 
 		HANDLE m_OriginalInputHandle;
 		HANDLE m_ActiveConsoleScreenBuffer{};
