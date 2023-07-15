@@ -1969,7 +1969,7 @@ void VMenu::DisplayObject()
 		ClearFlags(VMENU_REFILTERREQUIRED);
 	}
 
-	SetCursorType(false, 10);
+	HideCursor();
 
 	if (!CheckFlags(VMENU_LISTBOX) && !SaveScr)
 	{

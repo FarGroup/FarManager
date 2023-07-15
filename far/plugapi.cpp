@@ -1619,7 +1619,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 					if (!MsgOut)
 					{
-						SetCursorType(false, 0);
+						HideCursor();
 						PR_FarGetDirListMsg();
 						MsgOut = true;
 					}

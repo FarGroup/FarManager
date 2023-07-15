@@ -3401,7 +3401,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	size_t AllRefLines{};
 
 	{
-		SetCursorType(false, -1);
+		HideCursor();
 
 		auto CurPos = FindAll ? 0 : CalculateSearchStartPosition(Continue, Backward, m_SearchDlgParams.Regex.value());
 
@@ -3452,7 +3452,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				if (!Progress)
 					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), far::vformat(msg(lng::MEditSearchingFor), QuotedStr), 0);
 
-				SetCursorType(false, -1);
+				HideCursor();
 				const auto Total = FindAll? Lines.size() : Backward ? StartLine : Lines.size() - StartLine;
 				const auto Current = std::abs(CurPtr.Number() - StartLine);
 				Progress->update(ToPercent(Current, Total));

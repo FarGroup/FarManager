@@ -1439,7 +1439,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		{
 			if (Focus)
 			{
-				SetCursorType(false, 10);
+				HideCursor();
 				// TEXT
 				Color[0] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
 				// HiText
@@ -1958,7 +1958,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!IsMoving())
-						SetCursorType(true, -1);
+						ShowCursor();
 
 					MoveCursor({ m_Where.left + CX1 + 1, m_Where.top + CY1 });
 				}
@@ -2005,7 +2005,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!IsMoving())
-						SetCursorType(true, -1);
+						ShowCursor();
 
 					EditPtr->Show();
 				}
@@ -2016,7 +2016,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				//   Отключение мигающего курсора при перемещении диалога
 				if (IsMoving())
-					SetCursorType(false, 0);
+					HideCursor();
 
 				if (ItemHasDropDownArrow(&Item))
 				{
@@ -2076,7 +2076,7 @@ void Dialog::ShowDialog(size_t ID)
 							SetCursorType(UCData->CursorVisible, UCData->CursorSize);
 						}
 						else
-							SetCursorType(false, -1);
+							HideCursor();
 					}
 				}
 

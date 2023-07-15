@@ -67,8 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ESC L"\u001b"
 #define CSI ESC L"["
-#define OSC ESC L"]"
-#define ST ESC L"\\"
+#define OSC(Command) ESC L"]" Command ESC L"\\"sv
 #define ANSISYSSC CSI L"s"
 #define ANSISYSRC CSI L"u"
 
@@ -1697,12 +1696,12 @@ WARNING_POP()
 		static bool SetPaletteVT(std::array<COLORREF, 16> const& Palette)
 		{
 			string Str;
-			Str.reserve(OSC L"4;15;rgb:ff/ff/ff" ST ""sv.size() * 16);
+			Str.reserve(OSC(L"4;15;rgb:ff/ff/ff").size() * 16);
 
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
 				const union { COLORREF Color; rgba RGBA; } Value{ Color };
-				far::format_to(Str, OSC L"4;{};rgb:{:02x}/{:02x}/{:02x}" ST ""sv, vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				far::format_to(Str, OSC(L"4;{};rgb:{:02x}/{:02x}/{:02x}"), vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			return ::console.Write(Str);

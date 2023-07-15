@@ -1096,7 +1096,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				if (Global->WindowManager->ShowBackground())
 				{
-					SetCursorType(false, 0);
+					HideCursor();
 					WaitKey();
 				}
 
@@ -1660,7 +1660,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 				if (!Progress)
 					Progress.emplace(msg(lng::MEditTitle), far::vformat(msg(lng::MEditReading), Name), 0);
 
-				SetCursorType(false, 0);
+				HideCursor();
 				const auto CurPos = EditFile.GetPointer();
 				auto Percent = ToPercent(CurPos, FileSize);
 				// В случае если во время загрузки файл увеличивается размере, то количество
@@ -2023,7 +2023,7 @@ int FileEditor::SaveFile(const string_view Name, int Ask, bool bSaveAs, error_st
 			m_editor->UndoSavePos = m_editor->UndoPos;
 			m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
 
-			SetCursorType(false, 0);
+			HideCursor();
 
 			if (!bSaveAs)
 				AddSignature = m_bAddSignature;

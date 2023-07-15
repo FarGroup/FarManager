@@ -749,7 +749,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	ConsoleTitle::SetFarTitle(msg(lng::MDeletingTitle));
 	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
-	SetCursorType(false, 0);
+	HideCursor();
 
 	delete_progress const Progress(m_DeleteType == delete_type::erase, Global->Opt->DelOpt.ShowTotal);
 	const auto Total = Global->Opt->DelOpt.ShowTotal? calculate_total(SrcPanel) : total_items{};

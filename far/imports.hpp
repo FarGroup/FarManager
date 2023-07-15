@@ -56,20 +56,21 @@ public:
 	imports();
 
 private:
-#define DEFINE_MODULE(MODULE) const os::rtdl::module m_##MODULE{WIDE_SV(#MODULE)}
+#define MODULE(MODULE) m_##MODULE{WIDE_SV(#MODULE)}
 
-	DEFINE_MODULE(ntdll);
-	DEFINE_MODULE(kernel32);
-	DEFINE_MODULE(shell32);
-	DEFINE_MODULE(user32);
-	DEFINE_MODULE(virtdisk);
-	DEFINE_MODULE(rstrtmgr);
-	DEFINE_MODULE(netapi32);
-	DEFINE_MODULE(dbgeng);
-	DEFINE_MODULE(dbghelp);
-	DEFINE_MODULE(dwmapi);
+	const os::rtdl::module
+		MODULE(ntdll),
+		MODULE(kernel32),
+		MODULE(shell32),
+		MODULE(user32),
+		MODULE(virtdisk),
+		MODULE(rstrtmgr),
+		MODULE(netapi32),
+		MODULE(dbgeng),
+		MODULE(dbghelp),
+		MODULE(dwmapi);
 
-#undef DEFINE_MODULE
+#undef MODULE
 
 
 	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>

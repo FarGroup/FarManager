@@ -309,7 +309,7 @@ void ScreenSaver()
 
 	CONSOLE_CURSOR_INFO CursorInfo;
 	console.GetCursorInfo(CursorInfo);
-	SetCursorType(false, 10);
+	HideCursor();
 
 	SCOPE_EXIT
 	{

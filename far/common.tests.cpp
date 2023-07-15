@@ -1848,6 +1848,39 @@ TEST_CASE("utility.bit")
 
 TEST_CASE("utility.flags")
 {
+	{
+		enum class scoped_flags
+		{
+			f0 = bit(0),
+			f1 = bit(1),
+			f2 = bit(2),
+			f3 = bit(3),
+
+			is_bit_flags
+		};
+
+		auto Flags = scoped_flags::f0 | scoped_flags::f3;
+
+		REQUIRE(flags::check_any(Flags, scoped_flags::f0));
+		REQUIRE(flags::check_all(Flags, scoped_flags::f3));
+
+		flags::set(Flags, scoped_flags::f1);
+		REQUIRE(flags::check_any(Flags, scoped_flags::f1));
+
+		flags::clear(Flags, scoped_flags::f1);
+		REQUIRE(!flags::check_any(Flags, scoped_flags::f1));
+
+		flags::invert(Flags, scoped_flags::f0);
+		REQUIRE(!flags::check_any(Flags, scoped_flags::f0));
+
+		flags::change(Flags, scoped_flags::f0, true);
+		REQUIRE(flags::check_any(Flags, scoped_flags::f0));
+
+		Flags = {};
+		flags::copy(Flags, scoped_flags::f1 | scoped_flags::f2, -1);
+		REQUIRE(flags::check_all(Flags, scoped_flags::f1 | scoped_flags::f2));
+	}
+
 	using flags_type = uint8_t;
 
 	{

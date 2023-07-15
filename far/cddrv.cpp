@@ -120,9 +120,9 @@ struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
 	UCHAR DataBuf[512];
 };
 
-static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS& Spt)
+static auto InitSCSIPassThrough()
 {
-	Spt = {};
+	SCSI_PASS_THROUGH_WITH_BUFFERS Spt = {};
 
 	Spt.Length = sizeof(SCSI_PASS_THROUGH);
 	Spt.PathId = 0;
@@ -140,6 +140,8 @@ WARNING_DISABLE_CLANG("-Winvalid-offsetof")
 	Spt.SenseInfoOffset = static_cast<ULONG>(offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf));
 
 WARNING_POP()
+
+	return Spt;
 }
 
 // http://www.13thmonkey.org/documentation/SCSI/
@@ -191,8 +193,7 @@ WARNING_POP()
 
 static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 {
-	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
-	InitSCSIPassThrough(Spt);
+	auto Spt = InitSCSIPassThrough();
 
 #if !IS_MICROSOFT_SDK()
 	// GCC headers incorrectly reserve only one bit for RequestType
@@ -254,9 +255,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 {
-	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
-	InitSCSIPassThrough(Spt);
-
+	auto Spt = InitSCSIPassThrough();
 	auto& ModeSense = edit_as<CDB>(Spt.Cdb).MODE_SENSE;
 	ModeSense.OperationCode = SCSIOP_MODE_SENSE;
 	ModeSense.Dbd = true;

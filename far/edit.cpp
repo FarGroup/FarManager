@@ -145,7 +145,7 @@ void Edit::DisplayObject()
 	   при DropDownBox курсор выключаем
 	   не знаю даже - попробовал но не очень красиво вышло */
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		::SetCursorType(false, 10);
+		HideCursor();
 	else
 	{
 		if (m_Flags.Check(FEDITLINE_OVERTYPE))

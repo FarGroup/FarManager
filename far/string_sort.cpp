@@ -190,7 +190,7 @@ static const auto& create_alt_sort_table()
 		if (const auto Result = CompareString(LOCALE_INVARIANT, 0, &a, 1, &b, 1))
 			return Result - 2 < 0;
 
-		return static_cast<int>(a) < static_cast<int>(b);
+		return a < b;
 	});
 
 	int u_beg = 0, u_end = 0xffff;

@@ -75,7 +75,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter
 	SCOPED_ACTION(wakeful);
 
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? static_cast<DWORD>(-1) : (Flags & GETDIRINFO_SCANSYMLINK)));
-	SetCursorType(false, 0);
+	HideCursor();
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
 	*/
@@ -367,7 +367,7 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 		}
 	}
 
-	SetCursorType(false, 0);
+	HideCursor();
 
 	OpenPanelInfo Info;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);

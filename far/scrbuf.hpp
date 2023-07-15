@@ -58,18 +58,10 @@ enum class flush_type
 	cursor = 1_bit,
 	title  = 2_bit,
 
-	all = screen | cursor | title
+	all = screen | cursor | title,
+
+	is_bit_flags
 };
-
-constexpr auto operator|(flush_type a, flush_type b)
-{
-	return enum_helpers::operation<std::bit_or<>>(a, b);
-}
-
-constexpr auto operator&(flush_type a, flush_type b)
-{
-	return enum_helpers::operation<std::bit_and<>, std::underlying_type_t<flush_type>>(a, b);
-}
 
 class ScreenBuf: noncopyable
 {

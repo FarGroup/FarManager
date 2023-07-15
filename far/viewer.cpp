@@ -519,7 +519,7 @@ void Viewer::ShowPage(int nMode)
 	}
 
 	if (m_HideCursor)
-		SetCursorType(false, 10);
+		HideCursor();
 
 	vseek(FilePos, FILE_BEGIN);
 	LastPage = false;
@@ -3119,7 +3119,7 @@ void Viewer::DoSearchReplace(SearchDisposition Disposition)
 	sd.CurPos = LastSelectPos;
 	{
 		SCOPED_ACTION(taskbar::indeterminate);
-		SetCursorType(false, 0);
+		HideCursor();
 
 		std::optional<single_progress> Progress;
 		const time_check TimeCheck;

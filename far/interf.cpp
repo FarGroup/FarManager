@@ -730,6 +730,16 @@ void SetCursorType(bool const Visible, size_t Size)
 	Global->ScrBuf->SetCursorType(Visible, Size);
 }
 
+void HideCursor()
+{
+	SetCursorType(false, 0);
+}
+
+void ShowCursor()
+{
+	SetCursorType(true, -1);
+}
+
 void SetInitialCursorType()
 {
 	Global->ScrBuf->SetCursorType(InitialCursorInfo.bVisible!=FALSE,InitialCursorInfo.dwSize);

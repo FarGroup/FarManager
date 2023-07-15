@@ -153,6 +153,8 @@ int WhereY();
 void MoveCursor(point Point);
 point GetCursorPos();
 void SetCursorType(bool Visible, size_t Size);
+void HideCursor();
+void ShowCursor();
 void SetInitialCursorType();
 void GetCursorType(bool& Visible, size_t& Size);
 void MoveRealCursor(int X,int Y);
