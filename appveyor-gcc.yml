@@ -59,7 +59,7 @@ after_build:
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
   #archive Far
   #save artifacts only for release as we keep on reaching the appveyor limit
-  - if "%configuration%" == "Release" 7z a "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z" -x!obj\
+  - if "%configuration%" == "Release" 7z a -m0=LZMA -mf=off -mx9 "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z" -x!obj\
   - cd ..\..
 
 artifacts:
