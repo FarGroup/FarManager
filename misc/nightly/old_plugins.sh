@@ -83,19 +83,19 @@ cd ..
 
 cd outfinalnew32/Plugins || exit 1
 cd FTP || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../FarFtp.x86.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../FarFtp.x86.7z
 cd ../MultiArc || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../MultiArc.x86.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../MultiArc.x86.7z
 cd ../../../
 cd outfinalnew64/Plugins || exit 1
 cd FTP || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../FarFtp.x64.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../FarFtp.x64.7z
 cd ../MultiArc || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../MultiArc.x64.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../MultiArc.x64.7z
 cd ../../../
 cd outfinalnewARM64/Plugins || exit 1
 cd FTP || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../FarFtp.ARM64.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../FarFtp.ARM64.7z
 cd ../MultiArc || exit 1
-7z a -m0=LZMA -mf=off -mx9 ../../../MultiArc.ARM64.7z
+7z a -m0=LZMA -mf=BCJ2 -mx9 ../../../MultiArc.ARM64.7z
 cd ../../../

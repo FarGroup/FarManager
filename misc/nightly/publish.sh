@@ -22,7 +22,7 @@ processFarBuild()
 		return 1
 	fi
 
-	7za a -m0=LZMA -mf=off -mx9 -r -x!${ARCNAME}.msi -x!*.pdb ${ARCNAME}.7z *
+	7za a -m0=LZMA -mf=BCJ2 -mx9 -r -x!${ARCNAME}.msi -x!*.pdb ${ARCNAME}.7z *
 	7za a -m0=LZMA -mf=off -mx9 -r -i!./*.pdb ${ARCNAME}.pdb.7z
 
 	cd $BASE || return 1
