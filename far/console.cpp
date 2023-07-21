@@ -1413,7 +1413,7 @@ WARNING_POP()
 
 
 			// Hide cursor
-			if (!::console.SetCursorInfo({1}))
+			if (!::console.SetCursorInfo({SavedCursorInfo.dwSize}))
 				return false;
 
 			// Move the viewport down
