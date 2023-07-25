@@ -103,7 +103,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 
 			if (TimeCheck)
 			{
-				SetCursorType(false, 0);
+				HideCursor();
 
 				if (CheckForEscAndConfirmAbort())
 					break;

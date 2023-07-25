@@ -447,7 +447,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLO:
 			if (Global->WindowManager->ShowBackground())
 			{
-				SetCursorType(false, 0);
+				HideCursor();
 				WaitKey();
 				Global->WindowManager->RefreshAll();
 			}

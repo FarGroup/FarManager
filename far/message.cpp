@@ -440,7 +440,7 @@ static message_result MessageImpl(
 
 
 	// *** Без Диалога! ***
-	SetCursorType(false, 0);
+	HideCursor();
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{

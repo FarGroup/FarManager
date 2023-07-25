@@ -321,28 +321,28 @@ $ #Polecenia kontroli menu#
  Zablokuj filtr.
 
  #Alt+Left#, #Alt+Right#, #MsWheelLeft#, #MsWheelRight#
- Scroll all items horizontally.
+ Przewija wszystkie elementy w poziomie.
 
  #Alt+Shift+Left#, #Alt+Shift+Right#
- Scroll the selected item horizontally.
+ Przewija zaznaczone elementy w poziomie.
 
  #Ctrl+Alt+Left#, #Ctrl+Alt+Right#, #Ctrl+MsWheelLeft#, #Ctrl+MsWheelRight#
- Scroll all items horizontally by 20 characters.
+ Przewija wszystkie elementy w poziomie o 20 znaków.
 
  #Ctrl+Shift+Left#, #Ctrl+Shift+Right#
- Scroll the selected item horizontally by 20 characters.
+ Przewija zaznaczone elementy w poziomie o 20 znaków.
 
  #Alt+Home#
- Align all items to the left.
+ Wyrównuje wszystkie elementy do lewej.
 
  #Alt+End#
- Align all items to the right.
+ Wyrównuje wszystkie elementy do prawej.
 
  #Alt+Shift+Home#
- Align the selected item to the left.
+ Wyrównuje zaznaczone elementy do lewej.
 
  #Alt+Shift+End#
- Align the selected item to the right.
+ Wyrównuje zaznaczone elementy do prawej.
 
  Zobacz także listę ~klawiszy makropoleceń~@KeyMacroMenuList@, dostępnych w menu.
 
@@ -844,12 +844,13 @@ ponieważ będą zapisane w historii.
  Usuń bieżącą pozycję z historii pola edycji              #Shift+Del#
  (jeżeli nie jest zablokowane)
 
- Set the dialog focus to the first element                     #Home#
+ Ustaw fokus okna dialogowego na pierwszy element              #Home#
 
  Przeskocz na domyślny element okna dialogowego           #PgDn, End#
 
- The #Home# and #End# keys move the focus if it is currently not
-on a control which handles these keys internally, like edit control.
+ Klawisze #Home# i #End# przenoszą fokus, jeżeli nie jest on aktualnie
+na kontrolce, która obsługuje te klawisze wewnętznie, np. kontrolka
+edycji.
 
  Poniższe kombinacje klawiszy są dostępne dla wszystkich pól edycji
 za wyjątkiem wiersza poleceń, włączając okna dialogowe i ~wewnętrzny edytor~@Editor@.
@@ -6445,7 +6446,7 @@ obrócić rolkę o jeden przeskok w pionie:
  System.MsHWheelDeltaEdit - w wewnętrznym Edytorze
  System.MsHWheelDelta     - w innych obszarach
 
- Domyślna wartość: dla wszystkich parametrów: 0 (używać ustawień systemowych).
+ Domyślna wartość: dla wszystkich parametrów: 0 (używa ustawień systemowych).
 
  Uwaga: Rolowanie lub przechylanie rolki myszki przy wciśniętym
 klawiszu #Alt# zawsze przewija o jedną linię lub jeden znak na raz.

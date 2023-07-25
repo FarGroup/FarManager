@@ -1400,7 +1400,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 	if (Dest.empty() || IsCurrentDirectory(Dest))
 		return;
 
-	SetCursorType(false, 0);
+	HideCursor();
 
 	DWORD Flags0 = Flags;
 

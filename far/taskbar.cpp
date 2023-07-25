@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "console.hpp"
 #include "log.hpp"
+#include "mix.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -70,10 +71,12 @@ public:
 
 	void set_value(unsigned long long const Completed, unsigned long long const Total)
 	{
-		if (m_State == TBPF_NORMAL && m_Completed == Completed && m_Total == Total)
+		const auto NewState = any_of(m_State, TBPF_NOPROGRESS, TBPF_INDETERMINATE)? TBPF_NORMAL : m_State.load();
+
+		if (m_State == NewState && m_Completed == Completed && m_Total == Total)
 			return;
 
-		m_State = TBPF_NORMAL;
+		m_State = NewState;
 		m_Completed = Completed;
 		m_Total = Total;
 
@@ -128,10 +131,12 @@ private:
 
 			case 1:
 				TaskbarList->SetProgressState(console.GetWindow(), m_State);
+				console.set_progress_state(m_State);
 				break;
 
 			case 2:
 				TaskbarList->SetProgressValue(console.GetWindow(), m_Completed, m_Total);
+				console.set_progress_value(m_State, ToPercent(m_Completed, m_Total));
 				break;
 			}
 		}

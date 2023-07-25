@@ -69,7 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
-#include "log.hpp"
 
 // Platform:
 #include "platform.hpp"

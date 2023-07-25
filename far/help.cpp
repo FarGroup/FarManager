@@ -847,7 +847,7 @@ void Help::DisplayObject()
 		return;
 	}
 
-	SetCursorType(false, 10);
+	HideCursor();
 
 	if (StackData.strSelTopic.empty())
 		MoveToReference(1,1);

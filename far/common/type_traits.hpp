@@ -92,19 +92,16 @@ template<typename T>
 using value_type = typename detail::value_type<T>::type;
 
 
-namespace detail
+template<typename T> requires std::integral<T> || std::is_enum_v<T>
+auto sane_to_underlying(T Value)
 {
-	template<typename T> requires std::integral<T> || std::is_enum_v<T>
-	auto sane_to_underlying(T Value)
-	{
-		if constexpr (std::is_enum_v<T>)
-			return static_cast<std::underlying_type_t<T>>(Value);
-		else
-			return Value;
-	}
+	if constexpr (std::is_enum_v<T>)
+		return static_cast<std::underlying_type_t<T>>(Value);
+	else
+		return Value;
 }
 
 template<typename T>
-using sane_underlying_type = decltype(detail::sane_to_underlying(std::declval<T&>()));
+using sane_underlying_type = decltype(sane_to_underlying(std::declval<T&>()));
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

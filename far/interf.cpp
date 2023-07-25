@@ -722,12 +722,25 @@ point GetCursorPos()
 
 void SetCursorType(bool const Visible, size_t Size)
 {
-	if (Size == static_cast<size_t>(-1) || !Visible)
+	if (Size == static_cast<size_t>(-1))
 	{
-		const size_t index = IsConsoleFullscreen()? 1 : 0;
-		Size = Global->Opt->CursorSize[index]? static_cast<size_t>(Global->Opt->CursorSize[index]) : InitialCursorInfo.dwSize;
+		Size = static_cast<size_t>(Global->Opt->CursorSize[IsConsoleFullscreen()? 1 : 0]);
 	}
+
+	if (!Size)
+		Size = InitialCursorInfo.dwSize;
+
 	Global->ScrBuf->SetCursorType(Visible, Size);
+}
+
+void HideCursor()
+{
+	SetCursorType(false, 0);
+}
+
+void ShowCursor()
+{
+	SetCursorType(true, -1);
 }
 
 void SetInitialCursorType()

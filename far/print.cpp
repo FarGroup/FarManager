@@ -181,7 +181,7 @@ void PrintFiles(FileList* SrcPanel)
 		single_progress const Progress(msg(lng::MPrintTitle), {}, 0);
 		time_check const TimeCheck;
 
-		SetCursorType(false, 0);
+		HideCursor();
 
 		const auto hPlugin = SrcPanel->GetPluginHandle();
 

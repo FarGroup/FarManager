@@ -721,7 +721,6 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_QUIT:
-			Global->CloseFARMenu = true;
 			Global->WindowManager->ExitMainLoop(FALSE);
 			return TRUE;
 
@@ -1620,7 +1619,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 					if (!MsgOut)
 					{
-						SetCursorType(false, 0);
+						HideCursor();
 						PR_FarGetDirListMsg();
 						MsgOut = true;
 					}

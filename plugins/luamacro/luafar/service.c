@@ -284,20 +284,20 @@ static UINT64 check_env_flag(lua_State *L, int pos)
 UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 {
 	UINT64 ret = 0;
+	UINT64 flag;
+	pos = abs_index(L, pos);
+	if (success)
+		*success = TRUE;
 
 	if(lua_type(L, pos) == LUA_TTABLE)
 	{
-		if(success)
-			*success = TRUE;
-
-		pos = abs_index(L, pos);
 		lua_pushnil(L);
 
 		while(lua_next(L, pos))
 		{
 			if(lua_type(L,-2)==LUA_TSTRING && lua_toboolean(L,-1))
 			{
-				UINT64 flag = get_env_flag(L, -2, success);
+				flag = get_env_flag(L, -2, success);
 
 				if(success == NULL || *success)
 					ret |= flag;
@@ -306,6 +306,24 @@ UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 			}
 
 			lua_pop(L, 1);
+		}
+	}
+	else if (lua_type(L, pos) == LUA_TSTRING)
+	{
+		const char *p = lua_tostring(L, pos), *q;
+		for (; *p; p=q)
+		{
+			int ok;
+			while (isspace(*p)) p++;
+			if (*p == 0) break;
+			for (q=p+1; *q && !isspace(*q); ) q++;
+			lua_pushlstring(L, p, q-p);
+			flag = get_env_flag(L, -1, &ok);
+			lua_pop(L, 1);
+			if (ok)
+				ret |= flag;
+			else if (success)
+				*success = FALSE;
 		}
 	}
 	else

@@ -67,8 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ESC L"\u001b"
 #define CSI ESC L"["
-#define OSC ESC L"]"
-#define ST ESC L"\\"
+#define OSC(Command) ESC L"]" Command ESC L"\\"sv
 #define ANSISYSSC CSI L"s"
 #define ANSISYSRC CSI L"u"
 
@@ -1414,7 +1413,7 @@ WARNING_POP()
 
 
 			// Hide cursor
-			if (!::console.SetCursorInfo({1}))
+			if (!::console.SetCursorInfo({SavedCursorInfo.dwSize}))
 				return false;
 
 			// Move the viewport down
@@ -1697,12 +1696,12 @@ WARNING_POP()
 		static bool SetPaletteVT(std::array<COLORREF, 16> const& Palette)
 		{
 			string Str;
-			Str.reserve(OSC L"4;15;rgb:ff/ff/ff" ST ""sv.size() * 16);
+			Str.reserve(OSC(L"4;15;rgb:ff/ff/ff").size() * 16);
 
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
 				const union { COLORREF Color; rgba RGBA; } Value{ Color };
-				far::format_to(Str, OSC L"4;{};rgb:{:02x}/{:02x}/{:02x}" ST ""sv, vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				far::format_to(Str, OSC(L"4;{};rgb:{:02x}/{:02x}/{:02x}"), vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			return ::console.Write(Str);
@@ -2428,6 +2427,31 @@ WARNING_POP()
 		sEnableVirtualTerminal = Value;
 	}
 
+	static wchar_t state_to_vt(TBPFLAG const State)
+	{
+		switch (State)
+		{
+		case TBPF_NOPROGRESS:    return L'0';
+		case TBPF_INDETERMINATE: return L'3';
+		case TBPF_NORMAL:        return L'1';
+		case TBPF_ERROR:         return L'2';
+		case TBPF_PAUSED:        return L'4';
+		default:
+			UNREACHABLE;
+		}
+	}
+
+	void console::set_progress_state(TBPFLAG const State) const
+	{
+		send_vt_command(far::format(OSC(L"9;4;{}"), state_to_vt(State)));
+	}
+
+	void console::set_progress_value(TBPFLAG const State, size_t const Percent) const
+	{
+		// 🤦
+		send_vt_command(far::format(OSC(L"9;4;{};{}"), state_to_vt(State), Percent));
+	}
+
 	bool console::GetCursorRealPosition(point& Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -2447,6 +2471,26 @@ WARNING_POP()
 		}
 
 		return true;
+	}
+
+	bool console::send_vt_command(string_view Command) const
+	{
+		// Happy path
+		if (::console.IsVtEnabled())
+			return Write(Command);
+
+		// Legacy console
+		if (!IsVtSupported())
+			return false;
+
+		// If VT is not enabled, we enable it temporarily
+		if (std::pair<HANDLE, DWORD> Data{ GetOutputHandle(), 0 }; GetMode(Data.first, Data.second) && SetMode(Data.first, Data.second | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+		{
+			SCOPE_EXIT{ SetMode(Data.first, Data.second); };
+			return Write(Command);
+		}
+
+		return false;
 	}
 }
 

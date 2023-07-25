@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 
+#include <functional>
 #include <optional>
 #include <utility>
 
@@ -191,34 +192,59 @@ consteval auto operator""_bit(unsigned long long const Number)
 
 namespace flags
 {
+	namespace detail
+	{
+		template<typename T> requires std::integral<T> || std::is_enum_v<T>
+		constexpr auto reveal(T const Value)
+		{
+			return as_unsigned(sane_to_underlying(Value));
+		}
+
+		template<typename T> requires (!std::integral<T> && !std::is_enum_v<T>)
+		constexpr auto& reveal(T& Value)
+		{
+			return Value;
+		}
+	}
+
 	template<typename value_type, typename flags_type>
 	constexpr bool check_any(const value_type& Value, flags_type Bits)
 	{
-		return (Value & Bits) != 0;
+		return (detail::reveal(Value) & detail::reveal(Bits)) != 0;
 	}
 
 	template<typename value_type, typename flags_type>
 	constexpr bool check_all(const value_type& Value, flags_type Bits)
 	{
-		return static_cast<flags_type>(Value & Bits) == Bits;
+		return (detail::reveal(Value) & detail::reveal(Bits)) == detail::reveal(Bits);
 	}
 
 	template<typename value_type, typename flags_type>
 	constexpr void set(value_type& Value, flags_type Bits)
 	{
-		Value |= Bits;
+		if constexpr (requires { Value |= detail::reveal(Bits); })
+			Value |= detail::reveal(Bits);
+		else
+			Value = static_cast<value_type>(detail::reveal(Value) | detail::reveal(Bits));
 	}
 
 	template<typename value_type, typename flags_type>
 	constexpr void clear(value_type& Value, flags_type Bits)
 	{
-		Value &= ~static_cast<value_type>(Bits);
+		const auto Mask = static_cast<std::remove_reference_t<decltype(detail::reveal(Value))>>(detail::reveal(Bits));
+		if constexpr (requires { Value &= ~Mask; })
+			Value &= ~Mask;
+		else
+			Value = static_cast<value_type>(detail::reveal(Value) & ~Mask);
 	}
 
 	template<typename value_type, typename flags_type>
 	constexpr void invert(value_type& Value, flags_type Bits)
 	{
-		Value ^= Bits;
+		if constexpr (requires { Value ^= detail::reveal(Bits); })
+			Value ^= detail::reveal(Bits);
+		else
+			Value = static_cast<value_type>(detail::reveal(Value) ^ detail::reveal(Bits));
 	}
 
 	template<typename value_type, typename flags_type>
@@ -231,7 +257,7 @@ namespace flags
 	constexpr void copy(value_type& Value, mask_type Mask, flags_type Bits)
 	{
 		clear(Value, Mask);
-		set(Value, Bits & Mask);
+		set(Value, detail::reveal(Bits) & detail::reveal(Mask));
 	}
 }
 
@@ -265,8 +291,25 @@ namespace enum_helpers
 	{
 		return static_cast<std::conditional_t<std::same_as<R, void>, T, R>>(O()(std::to_underlying(a), std::to_underlying(b)));
 	}
+
+	template<typename T>
+	concept enum_is_bit_flags = std::is_enum_v<T> && requires { T::is_bit_flags; };
+
+	template<typename T> requires enum_is_bit_flags<T>
+	constexpr auto operator|(T const a, T const b)
+	{
+		return operation<std::bit_or<>>(a, b);
+	}
+
+	template<typename T> requires enum_is_bit_flags<T>
+	constexpr auto operator&(T const a, T const b)
+	{
+		return operation<std::bit_and<>, std::underlying_type_t<T>>(a, b);
+	}
 }
 
+using enum_helpers::operator|;
+using enum_helpers::operator&;
 
 template<typename... args>
 struct [[nodiscard]] overload: args...

@@ -173,9 +173,9 @@ $ #Format przedrostków w linii poleceń#
  -t = typ archiwum (7z, zip, itp.)
  -d = wykrywa wszystkie dostępne format i pokazuje menu wyboru
  -p = użyj hasła do zakodowania archiwum
- -r = recursive panel: on exit, return to the previous plugin's panel instead of the file panel
- -x = delete archive: on exit, delete the <archiwum> file; useful for temporary files
- -xd = delete directory: on exit, delete the directory where <archiwum> file is located; useful for temporary directories
+ -r = panel rekurencyjne: przy wyjściu, wraca do poprzedniej wtyczki panelu zamiast do panelu plików
+ -x = usuń archiwum: przy wyjściu, usuwa plik <archiwum>; przydatne przy plikach tymczasowych
+ -xd = usuń folder: przy wyjściu, usuwa folder, gdzie znajduje się plik <archiwum>; przydatne przy plikach tymczasowych
  <archiwum> = nazwa pliku archiwum
 
  #Tworzenie lub aktualizacja archiwum#
