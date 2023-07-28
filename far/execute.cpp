@@ -323,8 +323,14 @@ void OpenFolderInShell(string_view const Folder)
 }
 
 [[nodiscard]]
-static os::handle wait_for_process_or_detach(os::handle Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
+static bool wait_for_process(os::handle const& Process, int const ConsoleDetachKey)
 {
+	if (!ConsoleDetachKey)
+	{
+		Process.wait();
+		return true;
+	}
+
 	const auto ConfigVKey = TranslateKeyToVK(ConsoleDetachKey);
 
 	enum class dual_key_t
@@ -391,37 +397,58 @@ static os::handle wait_for_process_or_detach(os::handle Process, int const Conso
 		if (std::none_of(Buffer.cbegin(), Buffer.cbegin() + EventsRead, is_detach_key))
 			continue;
 
-		auto Aliases = console.GetAllAliases();
-
-		consoleicons::instance().restore_icon();
-
-		FlushInputBuffer();
-		ClearKeyQueue();
-
-		/*
-		  Не будем вызывать CloseConsole, потому, что она поменяет
-		  ConsoleMode на тот, что был до запуска Far'а,
-		  чего работающее приложение могло и не ожидать.
-		*/
-
-		if (const auto Window = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
-			SendMessage(Window, WM_SETHOTKEY, 0, 0);
-
-		console.Free();
-		console.Allocate();
-
-		InitConsole();
-
-		console.SetSize(ConsoleSize);
-		console.SetWindowRect(ConsoleWindowRect);
-		console.SetSize(ConsoleSize);
-
-		console.SetAllAliases(std::move(Aliases));
-
-		return {};
+		return false;
 	}
 
-	return Process;
+	return true;
+}
+
+static void detach(point const& ConsoleSize, rectangle const& ConsoleWindowRect)
+{
+	auto Aliases = console.GetAllAliases();
+
+	consoleicons::instance().restore_icon();
+
+	FlushInputBuffer();
+	ClearKeyQueue();
+
+	/*
+	  Не будем вызывать CloseConsole, потому, что она поменяет
+	  ConsoleMode на тот, что был до запуска Far'а,
+	  чего работающее приложение могло и не ожидать.
+	*/
+
+	if (const auto Window = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
+		SendMessage(Window, WM_SETHOTKEY, 0, 0);
+
+	console.Free();
+	console.Allocate();
+
+	InitConsole();
+
+	console.SetSize(ConsoleSize);
+	console.SetWindowRect(ConsoleWindowRect);
+	console.SetSize(ConsoleSize);
+
+	console.SetAllAliases(std::move(Aliases));
+}
+
+[[nodiscard]]
+static os::handle wait_for_process_or_detach(os::handle Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
+{
+	if (wait_for_process(Process, ConsoleDetachKey))
+	{
+		if (point Size; !console.GetSize(Size) && GetLastError() == ERROR_PIPE_NOT_CONNECTED)
+		{
+			// The process has crashed the conhost. Well done. *slow clap*
+			detach(ConsoleSize, ConsoleWindowRect);
+		}
+
+		return Process;
+	}
+
+	detach(ConsoleSize, ConsoleWindowRect);
+	return {};
 }
 
 static void log_process_exit_code(os::handle const& Process)
@@ -468,17 +495,9 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 			if (!NeedWaiting)
 				return;
 
-			if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
-			{
-				Process = wait_for_process_or_detach(std::move(Process), ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
-				if (Process)
-					log_process_exit_code(Process);
-			}
-			else
-			{
-				Process.wait();
+			Process = wait_for_process_or_detach(std::move(Process), KeyNameToKey(Global->Opt->ConsoleDetachKey), ConsoleSize, ConsoleWindowRect);
+			if (Process)
 				log_process_exit_code(Process);
-			}
 		}
 		return;
 

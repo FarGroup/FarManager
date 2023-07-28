@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-07-27 19:40:17+01:00 - build 6175
+
+1. Try to survive a conhost crash caused by a spawned process.
+
+--------------------------------------------------------------------------------
 drkns 2023-07-21 22:56:56+01:00 - build 6174
 
 1. Preserve user-defined cursor shape if possible.

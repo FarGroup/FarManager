@@ -2331,7 +2331,7 @@ WARNING_POP()
 	{
 		// It ain't stupid if it works
 
-		if (!m_WidthTestScreen)
+		const auto initialize = [this]
 		{
 			m_WidthTestScreen.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, {}, {}, CONSOLE_TEXTMODE_BUFFER, {}));
 
@@ -2346,11 +2346,22 @@ WARNING_POP()
 			{
 				LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, os::last_error());
 			}
+		};
+
+		if (!m_WidthTestScreen)
+		{
+			initialize();
 		}
 
-		if (!SetConsoleCursorPosition(m_WidthTestScreen.native_handle(), {}))
+		while (!SetConsoleCursorPosition(m_WidthTestScreen.native_handle(), {}))
 		{
 			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, os::last_error());
+
+			if (GetLastError() != ERROR_INVALID_HANDLE)
+				return false;
+
+			LOGINFO(L"Reinitializing");
+			initialize();
 			return false;
 		}
 
