@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-08-04 22:20:38+01:00 - build 6176
+
+1. 0004000: Crash with "integer divide by zero" searching text Alt+F7 in file KEYPAD.BMP
+
+--------------------------------------------------------------------------------
 drkns 2023-07-27 19:40:17+01:00 - build 6175
 
 1. Try to survive a conhost crash caused by a spawned process.
