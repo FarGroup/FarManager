@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2023-08-06 16:21:24+01:00 - build 6177
+
+1. Remove "Notepad++ binary text length" clipboard format support
+   We now have other means to store data lenght, NP++ changed it on their side and we were doing it wrong anyway.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2023-08-04 22:20:38+01:00 - build 6176
 
 1. 0004000: Crash with "integer divide by zero" searching text Alt+F7 in file KEYPAD.BMP
