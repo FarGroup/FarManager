@@ -235,7 +235,6 @@ namespace os::clipboard
 		preferred_drop_effect,
 		ms_dev_column_select,
 		borland_ide_dev_block,
-		notepad_plusplus_binary_text_length,
 
 		count
 	};
@@ -250,7 +249,6 @@ namespace os::clipboard
 			{ CFSTR_PREFERREDDROPEFFECT, 0 },
 			{ L"MSDEVColumnSelect", 0 },
 			{ L"Borland IDE Block Type", 0 },
-			{ L"Notepad++ binary text length", 0 },
 		};
 
 		static_assert(std::size(FormatNames) == static_cast<size_t>(clipboard_format::count));
@@ -287,16 +285,6 @@ namespace os::clipboard
 		if (const auto Format = RegisterFormat(clipboard_format::text_length))
 		{
 			if (auto Size = memory::global::copy((static_cast<uint64_t>(Str.size()))))
-				set_data(Format, std::move(Size));
-			else
-				LOGWARNING(L"global::copy(): {}"sv, last_error());
-		}
-
-		// 'Notepad++ binary text length'
-		// return value is ignored - non-critical feature
-		if (const auto Format = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length))
-		{
-			if (auto Size = memory::global::copy((static_cast<uint32_t>(Str.size()) + 1) * sizeof(decltype(Str)::value_type)))
 				set_data(Format, std::move(Size));
 			else
 				LOGWARNING(L"global::copy(): {}"sv, last_error());
@@ -589,18 +577,6 @@ namespace os::clipboard
 		{
 			if (const auto ClipData = get_as<uint64_t>(SizeFormat))
 				return static_cast<size_t>(*ClipData);
-		}
-
-		if (const auto SizeFormat = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length))
-		{
-			if (const auto ClipData = get_as<uint32_t>(SizeFormat))
-			{
-				// it's ambiguous now 🤦
-				// https://forum.farmanager.com/viewtopic.php?p=175357#p175357
-				return *ClipData <= TextPtr.size / sizeof(wchar_t)?
-					*ClipData :
-					*ClipData / sizeof(wchar_t) - 1;
-			}
 		}
 
 		const string_view DataView(TextPtr.get(), TextPtr.size / sizeof(*TextPtr));
