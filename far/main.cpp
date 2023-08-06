@@ -475,18 +475,6 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 	return {};
 }
 
-static void UpdateErrorMode()
-{
-	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
-
-	if (ConfigProvider().GeneralCfg()->GetValue<bool>(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv))
-	{
-		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
-	}
-
-	os::set_error_mode(Global->ErrorMode);
-}
-
 [[noreturn]]
 static void handle_exception(function_ref<bool()> const Handler)
 {
@@ -816,8 +804,6 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	std::optional<elevation::suppress> NoElevationDuringBoot(std::in_place);
 
-	os::set_error_mode(Global->ErrorMode);
-
 	RegisterTestExceptionsHook();
 
 	os::memory::enable_low_fragmentation_heap();
@@ -923,8 +909,6 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
 		Global->Opt->LoadPlug.strCustomPluginsPath = full_path_expanded(Global->Opt->LoadPlug.strCustomPluginsPath);
 
-	UpdateErrorMode();
-
 	ControlObject CtrlObj;
 	Global->CtrlObject = &CtrlObj;
 
@@ -990,6 +974,8 @@ static void handle_exception_final(function_ref<bool()> const Handler)
 
 static int wmain_seh()
 {
+	os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX);
+
 	// wmain is a non-standard extension and not available in gcc.
 	int Argc = 0;
 	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));

@@ -515,6 +515,7 @@ extern "C" void WINAPI WRAPPER(WakeAllConditionVariable)(PCONDITION_VARIABLE Con
 	return Function(ConditionVariable);
 }
 
+// AcquireSRWLockExclusive (VC2022)
 extern "C" void WINAPI WRAPPER(AcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
@@ -529,6 +530,7 @@ extern "C" void WINAPI WRAPPER(AcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 	return Function(SRWLock);
 }
 
+// ReleaseSRWLockExclusive (VC2022)
 extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
