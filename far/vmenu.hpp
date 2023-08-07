@@ -302,7 +302,48 @@ private:
 
 	void DisplayObject() override;
 
+	struct ItemColorIndicies
+	{
+		vmenu_colors Normal, Highlighted, HScroller;
+	};
+
+	struct ItemLayout
+	{
+		// Should be called after CalculateBoxType()
+		ItemLayout(const VMenu& menu);
+
+		std::optional<short> LeftBox;
+		std::optional<short> CheckMark;
+		std::optional<short> LeftHScroll;
+		std::optional<short> TextLeft;
+		std::optional<short> TextRight;
+		std::optional<short> RightHScroll;
+		std::optional<short> SubMenu;
+		std::optional<short> Scrollbar;
+		std::optional<short> RightBox;
+
+		std::optional<size_t> TextWidth() const noexcept { (TextLeft && TextRight) ? std::optional{ static_cast<size_t>(TextRight.value()) - TextLeft.value() + 1 } : std::nullopt; }
+	};
+
 	void ShowMenu();
+
+	void CalculateBoxType() noexcept;
+	// Should be called after CalculateBoxType()
+	bool NeedBox() const noexcept { return m_BoxType != NO_BOX; }
+	bool NeedCheckMark() const noexcept { return true; }
+	bool NeedLeftHScroll() const noexcept { return true; }
+	bool NeedRightHScroll() const noexcept { return true; }
+	bool NeedSubMenu() const noexcept { return ItemSubMenusCount > 0; }
+	bool NeedScrollbar() const;
+
+	rectangle GetClientRect() const noexcept;
+	std::optional<size_t> CalculateMaxLineWidth();
+
+	int AdjustTopPos(int ClientHeight);
+	void ConnectSeparator(size_t CurItem, string& separator) const;
+	void ApplySeparatorName(size_t CurItem, string& separator) const;
+	wchar_t GetItemCheckMark(const MenuItemEx& CurItem) const noexcept;
+	ItemColorIndicies GetItemColors(const MenuItemEx& CurItem) const;
 	void DrawTitles() const;
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
@@ -314,13 +355,13 @@ private:
 	bool SetAllItemsShowPos(int NewShowPos);
 	bool AlignAnnotations(int AlignPos);
 	bool ShiftAllItemsShowPos(int Shift);
+
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
 	bool ShouldSendKeyToFilter(unsigned Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
-	rectangle GetClientRect()const noexcept;
 
 	size_t Text(string_view Str) const;
 	size_t Text(wchar_t Char) const;
@@ -349,7 +390,6 @@ private:
 	intptr_t ItemHiddenCount{};
 	intptr_t ItemSubMenusCount{};
 	FarColor Colors[VMENU_COLOR_COUNT]{};
-	size_t MaxLineWidth{};
 	bool bRightBtnPressed{};
 	UUID MenuId;
 };

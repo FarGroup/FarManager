@@ -1326,7 +1326,8 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLNUMPAD5:
 		{
-			if (AlignAnnotations(static_cast<int>((MaxLineWidth + 2) / 4)))
+			if (const auto MaxLineWidth{ CalculateMaxLineWidth() };
+				MaxLineWidth && AlignAnnotations(static_cast<int>((MaxLineWidth.value() + 2) / 4)))
 				ShowMenu();
 
 			break;
@@ -1778,10 +1779,11 @@ int VMenu::VisualPosToReal(int VPos) const
 
 size_t VMenu::GetItemMaxShowPos(int Item) const
 {
-	const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
-	if (Len <= MaxLineWidth)
-		return 0;
-	return Len - MaxLineWidth;
+	//const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
+	//if (Len <= MaxLineWidth)
+	//	return 0;
+	//return Len - MaxLineWidth;
+	return size_t{};
 }
 
 bool VMenu::SetItemShowPos(int Item, int NewShowPos)
@@ -1803,7 +1805,7 @@ bool VMenu::SetItemShowPos(int Item, int NewShowPos)
 
 	//VMFlags.Set(VMENU_UPDATEREQUIRED);
 	//return true;
-	return false;
+	return bool{};
 }
 
 bool VMenu::ShiftItemShowPos(int Item, int Shift)
@@ -1819,7 +1821,7 @@ bool VMenu::ShiftItemShowPos(int Item, int Shift)
 	//Items[Item].ShowPos = ItemShowPos;
 	//VMFlags.Set(VMENU_UPDATEREQUIRED);
 	//return true;
-	return false;
+	return bool{};
 }
 
 bool VMenu::SetAllItemsShowPos(int NewShowPos)
@@ -2072,18 +2074,9 @@ void VMenu::DrawTitles() const
 	}
 }
 
-rectangle VMenu::GetClientRect() const noexcept
-{
-	if (m_BoxType == NO_BOX)
-		return m_Where;
-
-	return { m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 };
-}
-
 void VMenu::ShowMenu()
 {
-	const auto ServiceAreaSize = GetServiceAreaSize();
-	MaxLineWidth = ServiceAreaSize > static_cast<size_t>(m_Where.width())? 0 : m_Where.width() - ServiceAreaSize;
+	CalculateBoxType();
 
 	if (m_Where.right <= m_Where.left || m_Where.bottom <= m_Where.top)
 	{
@@ -2110,293 +2103,337 @@ void VMenu::ShowMenu()
 		AssignHighlights(CheckFlags(VMENU_REVERSEHIGHLIGHT));
 
 	const auto ClientRect{ GetClientRect() };
+	const auto VisualTopPos{ AdjustTopPos(ClientRect.height()) };
 
-	int VisualSelectPos = GetVisualPos(SelectPos);
-	int VisualTopPos = GetVisualPos(TopPos);
+	if (ClientRect.width() <= 0)
+		return;
 
-	// коррекция Top`а
-	// 2023-07-09 MZK: What is it? Should it be ClientRect.height() instead of m_Where.height()?
-	if (VisualTopPos+GetShowItemCount() >= m_Where.height() - 1 && VisualSelectPos == GetShowItemCount()-1)
-	{
-		VisualTopPos--;
-
-		if (VisualTopPos<0)
-			VisualTopPos=0;
-	}
-
-	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (ClientRect.height() - 4));
-
-	if (VisualSelectPos > VisualTopPos + (ClientRect.height() - 1))
-	{
-		VisualTopPos = VisualSelectPos - (ClientRect.height() - 1);
-	}
-
-	if (VisualSelectPos < VisualTopPos)
-	{
-		TopPos=SelectPos;
-		VisualTopPos=VisualSelectPos;
-	}
-	else
-	{
-		TopPos=VisualPosToReal(VisualTopPos);
-	}
-
-	if (VisualTopPos<0)
-		VisualTopPos=0;
-
-	if (TopPos<0)
-		TopPos=0;
-
-	string LineBuffer(MaxLineWidth, L' ');
+	string LineBuffer(ClientRect.width(), L' ');
+	ItemLayout Layout{ this };
 
 	for (int Y = ClientRect.top, I = TopPos; Y <= ClientRect.bottom; ++Y, ++I)
 	{
-		if (I < static_cast<int>(Items.size()))
+		if (I >= static_cast<int>(Items.size()))
 		{
-			if (!item_is_visible(Items[I]))
-			{
-				Y--;
-				continue;
-			}
+			LineBuffer.replace(LineBuffer.cbegin(), LineBuffer.cend(), ClientRect.width(), L' ');
 
+			SetColor(Colors[VMenuColorText]);
+			GotoXY(ClientRect.left, Y);
+			Text(string(LineBuffer));
+			continue;
+		}
+
+		if (!ItemIsVisible(Items[I]))
+		{
+			Y--;
+			continue;
+		}
+
+		if (Items[I].Flags & LIF_SEPARATOR)
+		{
+			// 2023-09-19 MZK: Need to use LineBuffer
+			auto separator{ MakeLine(
+				m_Where.width(),
+				m_BoxType == NO_BOX? line_type::h1_to_none : (m_BoxType == SINGLE_BOX || m_BoxType == SHORT_SINGLE_BOX? line_type::h1_to_v1 : line_type::h1_to_v2)) };
+			ConnectSeparator(I, separator);
+			ApplySeparatorName(I, separator);
+
+			SetColor(Colors[VMenuColorSeparator]);
 			GotoXY(m_Where.left, Y);
-			if (Items[I].Flags&LIF_SEPARATOR)
-			{
-				int SepWidth = m_Where.width();
+			Text(separator);
+			continue;
+		}
 
-				auto strTmpStr = MakeLine(SepWidth, m_BoxType == NO_BOX? line_type::h1_to_none : (m_BoxType == SINGLE_BOX || m_BoxType == SHORT_SINGLE_BOX? line_type::h1_to_v1 : line_type::h1_to_v2));
+		if (!Layout.TextWidth())
+			continue;
 
-				if (!CheckFlags(VMENU_NOMERGEBORDER) && SepWidth > 3)
-				{
-					for (const auto& J: irange(strTmpStr.size() - 3))
-					{
-						const auto AnyPrev = I > 0;
-						const auto AnyNext = I < static_cast<int>(Items.size() - 1);
+		size_t HotkeyInItemToDisplay{ string::npos };
+		auto ItemToDisplay{ CheckFlags(VMENU_SHOWAMPERSAND)? Items[I].Name : HiText2Str(Items[I].Name, &HotkeyInItemToDisplay) };
 
-						const auto PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[I - 1].Name, J) - J : 0;
-						const auto NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[I + 1].Name, J) - J : 0;
+		const auto TextWidth{ Layout.TextWidth().value() };
+		const auto Indent{ Items[I].Indent() };
+		const auto Hanging{ Items[I].Hanging() };
 
-						wchar_t PrevItem = (AnyPrev && Items[I - 1].Name.size() > J + PCorrection)? Items[I - 1].Name[J + PCorrection] : 0;
-						wchar_t NextItem = (AnyNext && Items[I + 1].Name.size() > J + NCorrection)? Items[I + 1].Name[J + NCorrection] : 0;
+		if (Hanging < ItemToDisplay.size() && Indent < TextWidth)
+		{
+			const auto ItemVisibleWidth{ std::min(ItemToDisplay.size() - Hanging, std::min(ItemToDisplay.size(), TextWidth - Indent)) };
+			const auto RightMargin{ TextWidth - Indent - ItemVisibleWidth };
 
-						if (!PrevItem && !NextItem)
-							break;
+		}
 
-						if (PrevItem==BoxSymbols[BS_V1])
-						{
-							if (NextItem==BoxSymbols[BS_V1])
-								strTmpStr[J+(m_BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_C_H1V1];
-							else
-								strTmpStr[J+(m_BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_B_H1V1];
-						}
-						else if (NextItem==BoxSymbols[BS_V1])
-						{
-							strTmpStr[J+(m_BoxType==NO_BOX?1:2) + 1] = BoxSymbols[BS_T_H1V1];
-						}
-					}
-				}
 
-				SetColor(Colors[VMenuColorSeparator]);
-				Text(strTmpStr);
 
-				if (!Items[I].Name.empty())
-				{
-					auto ItemWidth = static_cast<int>(Items[I].Name.size());
 
-					if (ItemWidth + 2 > m_Where.width())
-						ItemWidth = m_Where.width() - 2;
 
-					GotoXY(m_Where.left + (m_Where.width() - 2 - ItemWidth) / 2, Y);
-					Text(concat(L' ', fit_to_left(Items[I].Name, ItemWidth), L' '));
-				}
-			}
+
+		LineBuffer.assign(ItemIndent, L' ');
+		LineBuffer.append(string_view{ ItemToDisplay }.substr(ItemHanging));
+		LineBuffer.append(TextWidth > LineBuffer.size() ? TextWidth - LineBuffer.size()));
+
+
+
+		if (HotkeyInMenuItemToDisplay != string::npos)
+		{
+			if (HotkeyInMenuItemToDisplay < ItemHanging)
+				HotkeyInMenuItemToDisplay = string::npos;
 			else
-			{
-				if (m_BoxType!=NO_BOX)
-				{
-					SetColor(Colors[VMenuColorBox]);
-					Text(BoxChar);
-					GotoXY(m_Where.right, Y);
-					Text(BoxChar);
-				}
+				HotkeyInMenuItemToDisplay -= ItemHanging;
+		}
 
-				GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1), Y);
 
-				FarColor CurColor;
-				if ((Items[I].Flags&LIF_SELECTED))
-					CurColor = Colors[Items[I].Flags & LIF_GRAYED? VMenuColorSelGrayed : VMenuColorSelected];
-				else
-					CurColor = Colors[Items[I].Flags & LIF_DISABLE? VMenuColorDisabled : (Items[I].Flags & LIF_GRAYED? VMenuColorGrayed : VMenuColorText)];
 
-				SetColor(CurColor);
+		const auto ColorIndices{ GetItemColors(Items[I]) };
 
-				wchar_t CheckMark = L' ';
+		SetColor(Colors[ColorIndices.Normal]);
 
-				if (Items[I].Flags & LIF_CHECKED)
-				{
-					if (!(Items[I].Flags & 0x0000FFFF))
-						CheckMark = 0x221A;
-					else
-						CheckMark = static_cast<wchar_t>(Items[I].Flags & 0x0000FFFF);
-				}
 
-				const auto ItemIndent{ Items[I].Indent() };
-				const auto ItemHanging{ Items[I].Hanging() };
 
-				string strMenuLine{ CheckMark };
-				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
-				const auto LineWidthPlusLeftMargin{ strMenuLine.size() + MaxLineWidth };
-				strMenuLine.append(ItemIndent, L' ');
-				const auto PrefixSize = strMenuLine.size();
 
-				size_t HotkeyVisualPos = string::npos;
-				auto MenuItemForDisplay = CheckFlags(VMENU_SHOWAMPERSAND)? Items[I].Name : HiText2Str(Items[I].Name, &HotkeyVisualPos);
 
-				strMenuLine.append(MenuItemForDisplay, std::min(ItemHanging, MenuItemForDisplay.size()));
+		const auto LineWidthPlusLeftMargin{ strMenuLine.size() + MaxLineWidth };
+		strMenuLine.append(ItemIndent, L' ');
+		const auto PrefixSize = strMenuLine.size();
 
-				if (HotkeyVisualPos != string::npos)
-				{
-					if (HotkeyVisualPos < ItemHanging)
-						HotkeyVisualPos = string::npos;
-					else
-						HotkeyVisualPos -= ItemHanging;
-				}
+		strMenuLine.append(MenuItemForDisplay, std::min(ItemHanging, MenuItemForDisplay.size()));
 
-				// fit menu string into available space
-				bool ShowRightScroller = false;
-				if (strMenuLine.size() > LineWidthPlusLeftMargin)
-				{
-					strMenuLine.resize(LineWidthPlusLeftMargin);
-					ShowRightScroller = true;
-				}
+
+		// fit menu string into available space
+		bool ShowRightScroller = false;
+		if (strMenuLine.size() > LineWidthPlusLeftMargin)
+		{
+			strMenuLine.resize(LineWidthPlusLeftMargin);
+			ShowRightScroller = true;
+		}
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
 				std::ranges::replace(strMenuLine, L'\t', L' ');
 
-				FarColor Col;
-
-				if (!(Items[I].Flags & LIF_DISABLE))
+		if (!Items[I].Annotations.empty())
+		{
+			size_t Pos = 0;
+			for (const auto& [AnnPos, AnnSize] : Items[I].Annotations)
+			{
+				const size_t pre_len = AnnPos - ItemHanging + PrefixSize - Pos;
+				if (Pos < strMenuLine.size())
 				{
-					static const vmenu_colors ItemColors[][2] =
+					Text(string_view(strMenuLine).substr(Pos, pre_len));
+					Pos += pre_len;
+					if (Pos < strMenuLine.size())
 					{
-						{ VMenuColorHighlight, VMenuColorHSelect },
-						{ VMenuColorGrayed, VMenuColorSelGrayed },
-					};
-
-					const auto Index = ItemColors[Items[I].Flags & LIF_GRAYED ? 1 : 0][Items[I].Flags & LIF_SELECTED ? 1 : 0];
-					Col = Colors[Index];
-				}
-				else
-				{
-					Col = Colors[VMenuColorDisabled];
-				}
-
-				if (!Items[I].Annotations.empty())
-				{
-						size_t Pos = 0;
-						for (const auto& [AnnPos, AnnSize]: Items[I].Annotations)
-						{
-							const size_t pre_len = AnnPos - ItemHanging + PrefixSize - Pos;
-							if (Pos < strMenuLine.size())
-							{
-								Text(string_view(strMenuLine).substr(Pos, pre_len));
-								Pos += pre_len;
-								if (Pos < strMenuLine.size())
-								{
-									SetColor(Col);
-									Text(string_view(strMenuLine).substr(Pos, AnnSize));
-									Pos += AnnSize;
-									SetColor(CurColor);
-								}
-							}
-						}
-						if (Pos < strMenuLine.size())
-							Text(string_view(strMenuLine).substr(Pos));
-				}
-				else
-				{
-					if (HotkeyVisualPos != string::npos || Items[I].AutoHotkey)
-					{
-						const auto HotkeyPos = (HotkeyVisualPos != string::npos? HotkeyVisualPos : Items[I].AutoHotkeyPos) + PrefixSize;
-
-						Text(string_view(strMenuLine).substr(0, HotkeyPos));
-
-						if (HotkeyPos < strMenuLine.size())
-						{
-							const auto SaveColor = CurColor;
-							SetColor(Col);
-							Text(strMenuLine[HotkeyPos]);
-							SetColor(SaveColor);
-							Text(string_view(strMenuLine).substr(HotkeyPos + 1));
-						}
+						SetColor(Colors[ColorIndices.Highlighted]);
+						Text(string_view(strMenuLine).substr(Pos, AnnSize));
+						Pos += AnnSize;
+						SetColor(Colors[ColorIndices.Normal]);
 					}
-					else
-					{
-						Text(strMenuLine);
-					}
-				}
-
-				// сделаем добавочку для NO_BOX
-				{
-					int Width = m_Where.right - WhereX() + (m_BoxType == NO_BOX? 1 : 0);
-					if (Width > 0)
-						Text(string(Width, L' '));
-				}
-
-				if (Items[I].Flags & MIF_SUBMENU)
-				{
-					GotoXY(m_Where.right - 1, Y);
-					Text(L'►');
-				}
-
-				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
-
-				if (ItemHanging)
-				{
-					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
-					Text(L'«');
-				}
-
-				if (ShowRightScroller)
-				{
-					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + LineWidthPlusLeftMargin), Y);
-					Text(L'»');
 				}
 			}
+			if (Pos < strMenuLine.size())
+				Text(string_view(strMenuLine).substr(Pos));
 		}
 		else
 		{
-			GotoXY(m_Where.left, Y);
-			if (m_BoxType!=NO_BOX)
+			if (HotkeyVisualPos != string::npos || Items[I].AutoHotkey)
 			{
-				SetColor(Colors[VMenuColorBox]);
-				Text(BoxChar);
-				GotoXY(m_Where.right, Y);
-				Text(BoxChar);
-				GotoXY(m_Where.left + 1, Y);
+				const auto HotkeyPos = (HotkeyVisualPos != string::npos? HotkeyVisualPos : Items[I].AutoHotkeyPos) + PrefixSize;
+
+				Text(string_view(strMenuLine).substr(0, HotkeyPos));
+
+				if (HotkeyPos < strMenuLine.size())
+				{
+					SetColor(Colors[ColorIndices.Highlighted]);
+					Text(strMenuLine[HotkeyPos]);
+					SetColor(Colors[ColorIndices.Normal]);
+					Text(string_view(strMenuLine).substr(HotkeyPos + 1));
+				}
 			}
 			else
 			{
-				GotoXY(m_Where.left, Y);
+				Text(strMenuLine);
 			}
+		}
 
-			SetColor(Colors[VMenuColorText]);
-			// сделаем добавочку для NO_BOX
-			const auto Size = m_Where.width() - (m_BoxType == NO_BOX? 0 : 2);
-			Text(string(Size, L' '));
+		// сделаем добавочку для NO_BOX
+		{
+			int Width = m_Where.right - WhereX() + (m_BoxType == NO_BOX? 1 : 0);
+			if (Width > 0)
+				Text(string(Width, L' '));
+		}
+
+		// Item decorations
+		SetColor(Colors[ColorIndices.Normal]);
+
+		if (Layout.CheckMark)
+		{
+			GotoXY(Layout.CheckMark.value(), Y);
+			Text(GetItemCheckMark(Items[I]));
+		}
+
+		if (Layout.SubMenu)
+		{
+			GotoXY(Layout.SubMenu.value(), Y);
+			Text(Items[I].Flags & MIF_SUBMENU ? L'►' : L' ');
+		}
+
+		SetColor(Colors[ColorIndices.HScroller]);
+
+		if (Layout.LeftHScroll)
+		{
+			GotoXY(Layout.LeftHScroll.value(), Y);
+			Text(ItemHanging ? L'«' : L' ');
+		}
+
+		if (Layout.RightHScroll)
+		{
+			GotoXY(Layout.RightHScroll.value(), Y);
+			Text(ShowRightScroller ? L'»' : L' ');
 		}
 	}
 
 	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 	{
 		SetColor(Colors[VMenuColorScrollBar]);
-
-		if (m_BoxType!=NO_BOX)
-			ScrollBar(m_Where.right, m_Where.top + 1, m_Where.height() - 2, VisualTopPos, GetShowItemCount());
-		else
-			ScrollBar(m_Where.right, m_Where.top, m_Where.height(), VisualTopPos, GetShowItemCount());
+		ScrollBar(m_Where.right, ClientRect.top, ClientRect.height(), VisualTopPos, GetShowItemCount());
 	}
+}
+
+rectangle VMenu::GetClientRect() const noexcept
+{
+	if (m_BoxType == NO_BOX)
+		return m_Where;
+
+	return { m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 };
+}
+
+int VMenu::AdjustTopPos(const int ClientHeight)
+{
+	int VisualSelectPos = GetVisualPos(SelectPos);
+	int VisualTopPos = GetVisualPos(TopPos);
+
+	// 2023-07-09 MZK: What is it? Should it be ClientRect.height() instead of m_Where.height()?
+	if (VisualTopPos + GetShowItemCount() >= m_Where.height() - 1 && VisualSelectPos == GetShowItemCount() - 1)
+	{
+		VisualTopPos--;
+
+		if (VisualTopPos < 0)
+			VisualTopPos = 0;
+	}
+
+	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (ClientHeight - 4));
+
+	if (VisualSelectPos > VisualTopPos + (ClientHeight - 1))
+	{
+		VisualTopPos = VisualSelectPos - (ClientHeight - 1);
+	}
+
+	if (VisualSelectPos < VisualTopPos)
+	{
+		TopPos = SelectPos;
+		VisualTopPos = VisualSelectPos;
+	}
+	else
+	{
+		TopPos = VisualPosToReal(VisualTopPos);
+	}
+
+	if (VisualTopPos < 0)
+		VisualTopPos = 0;
+
+	if (TopPos < 0)
+		TopPos = 0;
+
+	return VisualTopPos;
+}
+
+void VMenu::ConnectSeparator(size_t CurItem, string& separator) const
+{
+	if (CheckFlags(VMENU_NOMERGEBORDER) || separator.size() <= 3)
+		return;
+
+	for (const auto& I : irange(separator.size() - 3))
+	{
+		const auto AnyPrev = CurItem > 0;
+		const auto AnyNext = CurItem < Items.size() - 1;
+
+		const auto PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[CurItem - 1].Name, I) - I : 0;
+		const auto NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[CurItem + 1].Name, I) - I : 0;
+
+		wchar_t PrevItem = (AnyPrev && Items[CurItem - 1].Name.size() > I + PCorrection)? Items[CurItem - 1].Name[I + PCorrection] : 0;
+		wchar_t NextItem = (AnyNext && Items[CurItem + 1].Name.size() > I + NCorrection)? Items[CurItem + 1].Name[I + NCorrection] : 0;
+
+		if (!PrevItem && !NextItem)
+			break;
+
+		if (PrevItem == BoxSymbols[BS_V1])
+		{
+			if (NextItem == BoxSymbols[BS_V1])
+				separator[I + (m_BoxType == NO_BOX?1:2) + 1] = BoxSymbols[BS_C_H1V1];
+			else
+				separator[I + (m_BoxType == NO_BOX?1:2) + 1] = BoxSymbols[BS_B_H1V1];
+		}
+		else if (NextItem == BoxSymbols[BS_V1])
+		{
+			separator[I + (m_BoxType == NO_BOX?1:2) + 1] = BoxSymbols[BS_T_H1V1];
+		}
+	}
+}
+
+void VMenu::ApplySeparatorName(size_t CurItem, string& separator) const
+{
+	if (Items[CurItem].Name.empty() || separator.size() <= 3)
+		return;
+
+	auto NameWidth{ std::min(Items[CurItem].Name.size(), separator.size() - 2) };
+	auto NamePos{ (separator.size() - NameWidth) / 2 };
+
+	separator.at(NamePos - 1) = L' ';
+	separator.replace(NamePos, NameWidth, fit_to_left(Items[CurItem].Name, NameWidth));
+	separator.at(NamePos + NameWidth) = L' ';
+}
+
+wchar_t VMenu::GetItemCheckMark(const MenuItemEx& CurItem) const noexcept
+{
+	if (!(CurItem.Flags & LIF_CHECKED))
+		return L' ';
+
+	if (!(CurItem.Flags & 0x0000FFFF))
+		return 0x221A;
+
+	return static_cast<wchar_t>(CurItem.Flags & 0x0000FFFF);
+}
+
+VMenu::ItemColorIndicies VMenu::GetItemColors(const MenuItemEx& CurItem) const
+{
+	const auto Selected{ !!(CurItem.Flags & LIF_SELECTED) };
+	const auto Grayed{ !!(CurItem.Flags & LIF_GRAYED) };
+	const auto Disabled{ !!(CurItem.Flags & LIF_DISABLE) };
+
+	if (Disabled)
+	{
+		return ItemColorIndicies
+		{
+			.Normal = VMenuColorDisabled,
+			.Highlighted = VMenuColorDisabled,
+			.HScroller = VMenuColorArrowsDisabled
+		};
+	}
+
+	if (Selected)
+	{
+		return ItemColorIndicies
+		{
+			.Normal = Grayed ? VMenuColorSelGrayed : VMenuColorSelected,
+			.Highlighted = Grayed ? VMenuColorSelGrayed : VMenuColorHSelect,
+			.HScroller = VMenuColorArrowsSelect
+		};
+	}
+
+	return ItemColorIndicies
+	{
+		.Normal = Grayed ? VMenuColorGrayed : VMenuColorText,
+		.Highlighted = Grayed ? VMenuColorGrayed : VMenuColorHighlight,
+		.HScroller = VMenuColorArrows
+	};
 }
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
@@ -2962,7 +2999,7 @@ void VMenu::EnableFilter(bool const Enable)
 		RestoreFilteredItems();
 }
 
-size_t VMenu::GetServiceAreaSize()
+void VMenu::CalculateBoxType() noexcept
 {
 	if (CheckFlags(VMENU_LISTBOX))
 	{
@@ -2975,23 +3012,44 @@ size_t VMenu::GetServiceAreaSize()
 		else
 			m_BoxType = SHORT_SINGLE_BOX;
 	}
+}
 
-	size_t ServiceAreaSize = 0;
+bool VMenu::NeedScrollbar() const
+{
+	return (CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && ScrollBarRequired(m_Where.height(), GetShowItemCount());
+}
 
-	if (m_BoxType != NO_BOX)
-		ServiceAreaSize += 2; // frame
+VMenu::ItemLayout::ItemLayout(const VMenu& menu)
+{
+	auto Left{ menu.m_Where.left };
+	if (menu.NeedBox())          LeftBox = Left++;
+	if (menu.NeedCheckMark())    CheckMark = Left++;
+	if (menu.NeedLeftHScroll())  LeftHScroll = Left++;
 
-	++ServiceAreaSize; // check mark
-	++ServiceAreaSize; // left scroll indicator
-	++ServiceAreaSize; // right scroll indicator
+	auto Right{ menu.m_Where.right };
+	if (menu.NeedBox())          RightBox = Right;
+	if (menu.NeedScrollbar())    Scrollbar = Right;
+	if (RightBox || Scrollbar)   Right--;
+	if (menu.NeedSubMenu())      SubMenu = Right--;
+	if (menu.NeedRightHScroll()) RightHScroll = Right--;
 
-	if (ItemSubMenusCount > 0)
-		++ServiceAreaSize; // sub menu arrow
+	if (Left <= Right)
+	{
+		TextLeft = Left;
+		TextRight = Right;
+	}
+}
 
-	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
-		++ServiceAreaSize; // scrollbar
+size_t VMenu::GetServiceAreaSize()
+{
+	CalculateBoxType();
+	return NeedBox() + NeedCheckMark() + NeedLeftHScroll() + NeedRightHScroll() + NeedSubMenu() + (NeedScrollbar() || NeedBox());
+}
 
-	return ServiceAreaSize;
+std::optional<size_t> VMenu::CalculateMaxLineWidth()
+{
+	CalculateBoxType();
+	return ItemLayout{ this }.TextWidth();
 }
 
 size_t VMenu::Text(string_view const Str) const
