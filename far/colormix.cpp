@@ -40,11 +40,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "console.hpp"
 #include "global.hpp"
+#include "strmix.hpp"
 
 // Platform:
 
 // Common:
+#include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 
@@ -665,6 +668,16 @@ static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS&
 	return true;
 }
 
+static bool ExtractStyle(string_view const Str, FARCOLORFLAGS& TargetFlags)
+{
+	const auto Flags = ColorStringToFlags(Str);
+	if (!Flags)
+		return false;
+
+	TargetFlags |= Flags & FCF_STYLEMASK;
+	return true;
+}
+
 string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool& Stop)
 {
 	Stop = false;
@@ -680,13 +693,24 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 		return Str;
 	}
 
-	const auto [FgColor, BgColor] = split(Token, L':');
+	std::array<string_view, 4> Parts;
+
+	for (const auto& [t, p]: zip(enum_tokens(Token, L":"sv), Parts))
+	{
+		if (&p == &Parts.back())
+			return Str;
+
+		p = t;
+	}
+
+	const auto& [FgColor, BgColor, Style, _] = Parts;
 
 	auto NewColor = Color;
 
 	if (
 		(FgColor.empty() || ExtractColor(FgColor, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_INDEX)) &&
-		(BgColor.empty() || ExtractColor(BgColor, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_INDEX))
+		(BgColor.empty() || ExtractColor(BgColor, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_INDEX)) &&
+		(Style.empty() || ExtractStyle(Style, NewColor.Flags))
 	)
 	{
 		Color = NewColor;
@@ -694,6 +718,33 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 	}
 
 	return Str;
+}
+
+const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
+{
+	{ FCF_FG_INDEX,        L"fgindex"sv      },
+	{ FCF_BG_INDEX,        L"bgindex"sv      },
+	{ FCF_INHERIT_STYLE,   L"inherit"sv      },
+	{ FCF_FG_BOLD,         L"bold"sv         },
+	{ FCF_FG_ITALIC,       L"italic"sv       },
+	{ FCF_FG_UNDERLINE,    L"underline"sv    },
+	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
+	{ FCF_FG_OVERLINE,     L"overline"sv     },
+	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
+	{ FCF_FG_FAINT,        L"faint"sv        },
+	{ FCF_FG_BLINK,        L"blink"sv        },
+	{ FCF_FG_INVERSE,      L"inverse"sv      },
+	{ FCF_FG_INVISIBLE,    L"invisible"sv    },
+};
+
+string ColorFlagsToString(unsigned long long const Flags)
+{
+	return FlagsToString(Flags, ColorFlagNames);
+}
+
+unsigned long long ColorStringToFlags(string_view const Flags)
+{
+	return StringToFlags(Flags, ColorFlagNames);
 }
 
 }
@@ -773,13 +824,17 @@ TEST_CASE("colors.parser")
 	ValidTests[]
 	{
 		{ L"()"sv,                { } },
+		{ L"(:)"sv,               { } },
+		{ L"(::)"sv,              { } },
+		{ L"(E)"sv,               { FCF_FG_INDEX, {0xE}, {0} } },
 		{ L"(E)"sv,               { FCF_FG_INDEX, {0xE}, {0} } },
 		{ L"(:F)"sv,              { FCF_BG_INDEX, {0}, {0xF} } },
 		{ L"(B:C)"sv,             { FCF_FG_INDEX | FCF_BG_INDEX, {0xB}, {0xC} } },
 		{ L"(AE)"sv,              { FCF_FG_INDEX, { 0xAE }, { 0 } } },
 		{ L"(:AF)"sv,             { FCF_BG_INDEX, { 0 }, { 0xAF } } },
-		{ L"(AB:AC)"sv,           { FCF_FG_INDEX | FCF_BG_INDEX, {0xAB}, {0xAC} } },
+		{ L"(AB:AC:blink)"sv,     { FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_BLINK, {0xAB}, {0xAC} } },
 		{ L"(T00CCCC:TE34234)"sv, { 0, {0x00CCCC00}, {0x003442E3} } },
+		{ L"(::bold italic)"sv,   { FCF_FG_BOLD | FCF_FG_ITALIC, {0}, {0} } },
 	};
 
 	for (const auto& i: ValidTests)
@@ -810,6 +865,9 @@ TEST_CASE("colors.parser")
 		{ L"( 0)"sv,     false },
 		{ L"( -0)"sv,    false },
 		{ L"( +0)"sv,    false },
+		{ L"(::meow)"sv, false },
+		{ L"(:::)"sv,    false },
+		{ L"(:::1)"sv,   false },
 	};
 
 	for (const auto& i: InvalidTests)

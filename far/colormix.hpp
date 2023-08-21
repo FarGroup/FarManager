@@ -149,6 +149,12 @@ namespace colors
 
 		uint8_t r{}, g{}, b{};
 	};
+
+	[[nodiscard]]
+	string ColorFlagsToString(unsigned long long Flags);
+
+	[[nodiscard]]
+	unsigned long long ColorStringToFlags(string_view Flags);
 }
 
 template<>

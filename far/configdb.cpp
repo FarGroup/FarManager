@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "stddlg.hpp"
 #include "log.hpp"
+#include "colormix.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -841,23 +842,6 @@ private:
 	};
 };
 
-const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
-{
-	{ FCF_FG_INDEX,        L"fgindex"sv      },
-	{ FCF_BG_INDEX,        L"bgindex"sv      },
-	{ FCF_INHERIT_STYLE,   L"inherit"sv      },
-	{ FCF_FG_BOLD,         L"bold"sv         },
-	{ FCF_FG_ITALIC,       L"italic"sv       },
-	{ FCF_FG_UNDERLINE,    L"underline"sv    },
-	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
-	{ FCF_FG_OVERLINE,     L"overline"sv     },
-	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
-	{ FCF_FG_FAINT,        L"faint"sv        },
-	{ FCF_FG_BLINK,        L"blink"sv        },
-	{ FCF_FG_INVERSE,      L"inverse"sv      },
-	{ FCF_FG_INVISIBLE,    L"invisible"sv    },
-};
-
 const std::pair<FARCOLORFLAGS, string_view> LegacyColorFlagNames[]
 {
 	{ FCF_FG_INDEX, L"fg4bit"sv },
@@ -892,7 +876,7 @@ private:
 				SetAttribute(e, "type", "color"sv);
 				SetAttribute(e, "background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)));
 				SetAttribute(e, "foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)));
-				SetAttribute(e, "flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)));
+				SetAttribute(e, "flags", encoding::utf8::get_bytes(colors::ColorFlagsToString(Color.Flags)));
 				return;
 			}
 		}
@@ -913,7 +897,7 @@ private:
 			if (const auto flags = e.Attribute("flags"))
 			{
 				const auto FlagsStr = encoding::utf8::get_chars(flags);
-				Color.Flags = StringToFlags(FlagsStr, ColorFlagNames) | StringToFlags(FlagsStr, LegacyColorFlagNames);
+				Color.Flags = colors::ColorStringToFlags(FlagsStr) | StringToFlags(FlagsStr, LegacyColorFlagNames);
 			}
 
 			return bytes(view_bytes(Color));
@@ -980,7 +964,7 @@ private:
 			{
 				SetAttribute(e, "background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)));
 				SetAttribute(e, "foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)));
-				SetAttribute(e, "flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)));
+				SetAttribute(e, "flags", encoding::utf8::get_bytes(colors::ColorFlagsToString(Color.Flags)));
 			}
 		}
 	}
@@ -1005,7 +989,7 @@ private:
 				FarColor Color{};
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
-				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
+				Color.Flags = colors::ColorStringToFlags(encoding::utf8::get_chars(flags));
 				SetValue(Name, Color);
 			}
 			else
