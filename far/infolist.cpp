@@ -721,11 +721,14 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 				{
-					if (i.find_first_of(L"*?"sv) == string::npos)
-					{
-						FileEditor::create(i, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
-						break;
-					}
+					if (i.empty())
+						continue;
+
+					if (i.find_first_of(L"*?"sv) != string::npos)
+						continue;
+
+					FileEditor::create(i, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
+					break;
 				}
 			}
 
@@ -912,6 +915,9 @@ bool InfoList::ShowDirDescription(int YPos)
 
 	for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 	{
+		if (i.empty())
+			continue;
+
 		strFullDizName.resize(DirSize);
 		append(strFullDizName, i);
 

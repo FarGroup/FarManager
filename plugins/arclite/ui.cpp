@@ -498,7 +498,7 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
       ignore_all_id = button_cnt;
       button_cnt++;
     }
-    st << Far::get_msg(MSG_BUTTON_CANCEL) << L'\n';
+    st << Far::get_msg(MSG_BUTTON_CANCEL);
     button_cnt++;
     ProgressSuspend ps(progress);
     auto id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);

@@ -65,6 +65,9 @@ void xlat_initialize()
 	size_t I = 0;
 	for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"sv))
 	{
+		if (i.empty())
+			continue;
+
 		if (const auto Hkl = os::make_hkl(i); Hkl)
 		{
 			XLat.Layouts[I] = Hkl;

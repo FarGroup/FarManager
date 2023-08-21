@@ -1019,6 +1019,9 @@ ShellCopy::ShellCopy(
 					{
 						for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strCopyDlgValue, L",;"sv))
 						{
+							if (i.empty())
+								continue;
+
 							m_DestList.emplace_back(i);
 						}
 					}

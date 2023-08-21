@@ -852,6 +852,9 @@ F8CP::F8CP(bool viewer):
 		std::unordered_set<uintptr_t> used_cps;
 		for(const auto& i: enum_tokens(cps, L",;"sv))
 		{
+			if (i.empty())
+				continue;
+
 			uintptr_t cp;
 			if (equal_icase(i, L"ansi"sv) || equal_icase(i, L"acp"sv) || equal_icase(i, L"win"sv))
 				cp = encoding::codepage::ansi();
