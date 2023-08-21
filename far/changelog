@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-08-21 18:21:32+01:00 - build 6179
+
+1. Disable ampersand processing in filenames in progress dialogs.
+
+2. Support text attributes in prompt and help color codes.
+
+--------------------------------------------------------------------------------
 drkns 2023-08-12 21:53:22+01:00 - build 6178
 
 1. fmt v10.1.
