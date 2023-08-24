@@ -702,8 +702,10 @@ public:
       });
       const auto error_log = std::make_shared<ErrorLog>();
       size_t im = 0, nm = matched_indices.size();
+      std::vector<UInt32> indices;
+      indices.reserve(nm);
       while (im < nm) {
-        std::vector<UInt32> indices;
+        indices.clear();
         auto parent = archive->file_list[matched_indices[im]].parent;
         while (im < nm && archive->file_list[matched_indices[im]].parent == parent)
           indices.push_back(matched_indices[im++]);

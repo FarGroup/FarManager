@@ -352,7 +352,7 @@ public:
   bool show() {
     label(Far::get_msg(MSG_SFX_OPTIONS_DLG_PROFILE));
     std::vector<std::wstring> profile_names;
-    profile_names.reserve(profiles.size());
+    profile_names.reserve(profiles.size() + 1);
     for (unsigned i = 0; i < profiles.size(); i++) {
       profile_names.push_back(profiles[i].name);
     }
