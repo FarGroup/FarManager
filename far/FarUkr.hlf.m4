@@ -121,9 +121,8 @@ $ #Як користуватися допомогою#
  У змісті довідкової системи є посилання (вони функціонують приблизно так
 же, як і гіперпосилання, знайомі кожному користувачеві Інтернету), які вказують
 на розділи з більш докладною інформацією.
-Also, the main page has the "~Help Index~@Index@", which lists all the
-topics available in the help file and in some cases helps to find the needed
-information faster.
+Головна сторінка також має "~Довідковий Індекс~@Index@", що містить всі теми,
+доступні у довідковому файлі, та може допомогти знайти інформацію швидше.
 
  Для переміщення між посиланнями ви можете використовувати #Tab# чи #Shift+Tab#.
 Натиснення Enter викличе сторінку, що відповідає вибраному посиланню. Такий же
@@ -138,8 +137,8 @@ information faster.
 
  Натисніть #Shift+F2#, щоб отримати допомогу по ~зовнішніх модулях~@Plugins@.
 
- Press #F7# to search for text in the current help file. Search results
-will be displayed as links to relevant topics.
+ Для пошуку тексту у відкритому довідковому файлі натисніть #F7#.
+Результати пошуку будуть відображені як посилання на знайдені теми.
 
  Для перемикання між повноекранним режимом відображення допомоги і
 виведенням тексту у вікні можна використовувати #F5#.
@@ -200,7 +199,7 @@ $ #Параметри командного рядка#
 
  #-p[<path>]#
  Шукати "основні" плагіни у папці, вказаній у <path>.
- Several search paths can be specified, separated by ‘;’.
+ Можно вказати декілька шляхів для пошуку, розділених ‘;’.
 
  Наприклад: far -p%USERPROFILE%\\Far\\Plugins#
 
@@ -210,34 +209,33 @@ $ #Параметри командного рядка#
 Після додавання, заміни чи видалення плагінів треба завантажити Far без цього параметра.
 Якщо кешу немає, то і список плагінів завантажений не буде.
 
- Remarks about switches -p and -co:
- - ^<wrap>if -p is empty, then Far will be loaded with no plugins;
- - ^<wrap>if -p is given with a <path>, then only plugins from <path> will be loaded;
- - ^<wrap>if only the -co switch is given and plugins cache is not empty, then plugins
-will be loaded from cache;
- - ^<wrap>-co is ignored, if -p is given;
- - ^<wrap>if -p and -co are not given, then plugins will be loaded from the 'Plugins'
-folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
-user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
+ Про опції -p та -co:
+ - ^<wrap>якщо вказано тільки -p, Far буде загружено без плагінів;
+ - ^<wrap>якщо -p вказано зі шляхом <path>, будуть загружені лише плагіни зі вказаного шляху;
+ - ^<wrap>якщо вказана лише опція -co та кеш плагінів не пустий, буде загружено плагіни з кешу;
+ - ^<wrap>-co буде проігноровано, якщо вказана опція -p;
+ - ^<wrap>якщо -p та -co не вказані, плагіни будуть загружені з папки 'Plugins', що знаходиться там,
+де і Far.exe, а також з папки 'Plugins' що знаходиться у профілі користувача
+(#%APPDATA%\\Far Manager\\Profile# by default).
 
  #-m#
- Far will not load macros when started.
+ Far не буде загружати макроси при старті.
 
  #-ma#
- Macros with the "Run after Far start" option set will not be run when Far is started.
+ Не виконувати макроси з опцією "Виконувати після запуску Far" при старті.
 
  #-s <profilepath> [<localprofilepath>]#
- Custom location for Far configuration files (overrides the ini file).
+ Вказати шлях до конфігураційних файлів Far (опція має приоритет над значенням в ini файлі).
 
  #-u <username>#
  Дозволяє використовувати окремі конфігурації для різних користувачів.
- Affects only 1.x Far Manager plugins
+ Це працює тільки з плагинами для Far 1.x.
  Наприклад: far -u guest
 
  Far Manager встановить ~змінну середовища~@FAREnv@ "FARUSER" у значення, рівне <username>.
 
  #-v <filename>#
- Перегляд вказаного файла. Якщо у якості <filename> використане `#-#', дані будуть читатися з stdin (стандартного вхідного потоку).
+ Перегляд вказаного файлу. Якщо у якості <filename> використано `#-#', дані будуть читатися з stdin (стандартного вхідного потоку).
 
  Наприклад, "dir│far -v -" виведе результат роботи команди dir.
 
@@ -252,19 +250,18 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
  Location of Far template configuration file (overrides the ini file).
 
  #-title[:<title>]#
- If <title> string is provided, use it as the window title; otherwise
-inherit the console window's title. Macro #%Default# in the custom title
-string will be replaced with the standard context-dependent Far window's
-title.
+ Якщо вказано <title>, його буде використано для заповнення заголовку вікна Far;
+якщо опція вказана без значення, заголовок вікна буде взятий з заголовка консолі.
+Макрос #%Default# буде замінений на стандартний контекстно-залежний заголовок вікна Far.
 
  #-clearcache [profilepath [localprofilepath]]#
- Clear plugins cache.
+ Очистити кеш плагінів.
 
  #-export <out.farconfig> [profilepath [localprofilepath]]#
- Export settings to file out.farconfig.
+ Експорт налаштувань до файлу out.farconfig.
 
  #-import <in.farconfig> [profilepath [localprofilepath]]#
- Import settings from file in.farconfig.
+ Імпорт налаштувань з файлу in.farconfig.
 
  #-ro[-]#
  Read-only or normal config mode (overrides the ini file).
@@ -278,13 +275,13 @@ title.
 
  У командному рядку можна вказувати не більше двох шляхів до
 каталогів, файлів або архівів. Перший шлях для активної панелі, другий - для пасивної:
- - ^<wrap>для каталогів та архівів Far покаже їх уміст;
+ - ^<wrap>для каталогів та архівів Far покаже їх зміст;
  - ^<wrap>для файлів - відбудеться перехід у каталог із файлом і
     позиціонування на вказаний файл, якщо він існує;
- - ^<wrap>when prefixes specified (simultaneous use with common paths allowed)
-passive command executes first (passive panel activates temporary).
-Single letter prefixes A-Z or conflicted with disk letter will be ignored.
- Example: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Successfully started')"
+ - ^<wrap>якщо вказано префікси (можна використовувати одночасно із звичайними шляхами)
+пасивна команда буде виконана першою (пасивна панель буде тимчасово активована).
+Префікси з однієї літери A-Z чи конфліктуючі з літерою диска буде проігноровано.
+ Приклад: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Successfully started')"
 
 
 @KeyRef
@@ -303,7 +300,7 @@ $ #Клавіатурні команди#
 
  ~Інші команди~@MiscCmd@
 
- ~Special commands~@SpecCmd@
+ ~Спеціальні команди~@SpecCmd@
 
 
 @MenuCmd
@@ -340,7 +337,7 @@ $ #Menu control commands#
  #Alt+Shift+End#
  Align the selected item to the right.
 
- See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
+ Також дивіться список ~макро клавиш~@KeyMacroMenuList@, що доступні у меню.
 
 
 @PanelCmd
@@ -360,14 +357,14 @@ $ #Команди керування панелями#
  Прибрати/показати ліву панель                              #Ctrl+F1#
  Прибрати/показати праву панель                             #Ctrl+F2#
  Змінити висоту панелей                          #Ctrl+Up, Ctrl+Down#
- Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
+ Змінити висоту поточної панелі       #Ctrl+Shift+Up,Ctrl+Shift+Down#
  Змінити ширину                               #Ctrl+Left, Ctrl+Right#
  (при пустому командному рядку)
  Відновити ширину панелей за замовчуванням             #Ctrl+Numpad5#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
+ Відновити висоту панелей за замовчуванням         #Ctrl+Alt+Numpad5#
  Сховати/Показати лінійку функціональних клавіш              #Ctrl+B#
- Toggle total and free size show mode                  #Ctrl+Shift+S#
- in bytes (if possible) or with size suffixes K/M/G/T
+ Переключити показ загального та вільного розміру      #Ctrl+Shift+S#
+ в байтах (якщо можливо) або з суфіксами K/M/G/T
 
  #Команди файлової панелі#
 
@@ -475,29 +472,29 @@ $ #Команди керування панелями#
 
 @PanelCmdSort
 $ #Sort modes#
- The sort modes menu is called by #Ctrl+F12# and applies to the currently
-active panel. The following sort modes are available:
+ Меню вибору сортування викликається натисканням #Ctrl+F12# та застосовується до активної панелі.
+Доступні такі режими сортування:
 
- Sort files by name                                         #Ctrl+F3#
- Sort files by extension                                    #Ctrl+F4#
- Sort files by last write time                              #Ctrl+F5#
- Sort files by size                                         #Ctrl+F6#
- Keep files unsorted                                        #Ctrl+F7#
- Sort files by creation time                                #Ctrl+F8#
- Sort files by access time                                  #Ctrl+F9#
- Sort files by description                                 #Ctrl+F10#
- Sort files by file owner                                  #Ctrl+F11#
+ Сортування за іменем                               #Ctrl+F3#
+ Сортування за розширенням                          #Ctrl+F4#
+ Сортування за часом запису                         #Ctrl+F5#
+ Сортування за розміром                             #Ctrl+F6#
+ Не сортувати                                       #Ctrl+F7#
+ Сортування за часом створення                      #Ctrl+F8#
+ Сортувати за часом звернення                       #Ctrl+F9#
+ Сортувати за описом                                #Ctrl+F10#
+ Сортувати за власником                             #Ctrl+F11#
 
- The #+# key sets the sorting order to be direct.
- The #-# key sets the sorting order to be reversed.
- The #*# key changes the sorting order to be reversed.
+ #+# встановлює прямий порядок сортування.
+ #-# встановлює зворотній порядок сортування.
+ #*# змінює порядок сортування на протилежний.
 
- Use group sorting                                        #Shift+F11#
- Show selected files first                                #Shift+F12#
+ Використовувати групове сортування                 #Shift+F11#
+ Відображати спочатку відмічені файли               #Shift+F12#
 
- You can ~fine-tune~@PanelSortCriteria@ sort modes by pressing #F4#.
+ Ви можете ~додатково налаштувати~@PanelSortCriteria@ режим сортування, натиснувши #F4#.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Також дивіться: Основне ~меню~@MenuCmd@ клавіатурних команд.
 
 
 @PanelSortCriteria
@@ -545,8 +542,8 @@ $ #Швидкий пошук у панелях#
 переміститься курсор.
 
  За допомогою #Ctrl+Enter# можна циклічно переміщуватися по елементах
-панелі у відповідності до введеної у рядку файлової маски. #Ctrl+Shift+Enter# allows to
-cycle backwards.
+панелі у відповідності до введеної у рядку файлової маски. #Ctrl+Shift+Enter# дозволяє
+переміщуватись у зворотньому напрямку.
 
  Крім звичайних символів у імені файла також можна використовувати
 символи ‘*’ та ‘?’.
@@ -723,14 +720,14 @@ Alt+F9 перемикає екран з 25 ліній на 50 і навпаки.
 
  Копіювання файла під курсором                             #Shift+F5#
  Перейменування або перенесення файла під курсором         #Shift+F6#
- For folders: if the specified path (absolute or relative) points to an
-existing folder, the source folder is moved inside that folder. Otherwise the
-folder is renamed/moved to the new path.
- E.g. when moving #c:\folder1\# to #d:\folder2\#:
- - ^<wrap>if #d:\folder2\# exists, contents of #c:\folder1\# is
-moved into #d:\folder2\folder1\#;
- - ^<wrap>otherwise contents of #c:\folder1\# is moved into the
-newly created #d:\folder2\#.
+ Для папок: Якщо вказаний шлях (абсолютний чи відносний) вказує на існуючу
+папку, цільова папка буде переміщена до вказаної. Інакше - перенесена чи
+переіменована у новий шлях.
+ Таким чином якщо перенести #c:\folder1\# to #d:\folder2\#:
+ - ^<wrap>якщо #d:\folder2\# існує, то контент of #c:\folder1\# буде
+переміщено у  #d:\folder2\folder1\#;
+ - ^<wrap>інакше контент #c:\folder1\# буде переміщено у нову створену
+папку #d:\folder2\#.
 
  ~Видалення файла~@DeleteFile@ під курсором                              #Shift+F8#
 
@@ -771,22 +768,22 @@ Shift+Enter на папці з іменем "#..#" відкриває у Про�
 
 @DeleteFile
 $ #Deleting and wiping files and folders#
- The following hotkeys are used to delete or wipe out files and folders:
+ Наступні сполучення клавіш використовуються для видалення файлів та папок:
 
  #F8#
- If any files or folders are selected in the panel then the selected group will be deleted, otherwise
-the object currently under cursor will be deleted.
+ Якщо на панелі вибрано будь-які файли чи папки, іх буде видалено. Інакше буде видалено
+об'єкт під курсором.
 
  #Shift+F8#
- Delete only the file under cursor (with no regard to selection in the panel).
+ Видалити тільки об'єкт під курсором (ігноруючи вибрані об'єкти панелі).
 
  #Shift+Del#
- Delete selected objects, skipping the Recycle Bin.
+ Видалити вибрані об'єкти, не користуючись корзиною.
 
  #Alt+Del#
- Wipe out files and folders.
+ Знищити файли та папки.
 
- Remarks:
+ Замітки:
 
  1. ^<wrap>In accordance to ~System settings~@SystemSettings@ the hotkeys #F8# and
 #Shift+F8# do or do not move the deleted files to the Recycle Bin. The
@@ -2899,10 +2896,10 @@ $ #Вбудована програма перегляду#
 #Ctrl+Right# keys shift the content within the window one byte at a time
 in the corresponding direction.
 
- In the #hex# ~view mode~@ViewerMode@, #Alt+Left# and #Alt+Right# key
-combinations decrease or increase the number of bytes displayed on each
-row by one byte, respectively. #Ctrl+Alt+Left# and #Ctrl+Alt+Right# key
-combinations adjust the number of displayed bytes by 16 at a time.
+ В режимі #hex# ~view mode~@ViewerMode@, #Alt+Left# та #Alt+Right# комбінації
+зменьшують чи збільшують число байтів, що відображаються в кожному рядку, на 1.
+Комбінації #Ctrl+Alt+Left# та #Ctrl+Alt+Right# вирівнюють кількість байтів до
+найближчої кількості, кратної 16.
 
  Команди програми перегляду
 
@@ -3548,7 +3545,7 @@ UTF-16 (Little endian) or UTF-16 (Big endian), then if the option #Add signature
 the appropriate marker is inserted into the beginning of the file, which
 helps applications to identify the code page of this file.
 
- Вы можете також вказати формат подання символу переведення рядка:
+ Ви можете також вказати формат подання символу переведення рядка:
 
  #Вихідний формат#
  Не змінювати символи переведення рядка.
@@ -4952,7 +4949,7 @@ $ #Попередження: Вихідний файл містить більш
 увімкніть опцію #"Використовувати системну функцію копіювання"# у діалозі
 ~Системні параметри~@SystemSettings@.
 
- Якщо ви копіюєте багатопоточный файловий об'єкт на том, відмінний
+ Якщо ви копіюєте багатопоточний файловий об'єкт на том, відмінний
 від NTFS, то й у цьому випадку втратите дані - буде скопійований
 тільки основний потік.
 
@@ -5095,15 +5092,15 @@ $ #Змінні середовища#
 
 @RegExp
 $ #Regular expressions#
- The regular expressions syntax is almost equal to Perl regexps.
+ Синтакс регулярних виразів майже відповідає стандарту PCRE (perl compatible regular expressions).
 
- General form: #regexp# or /#regexp#/#options#.
+ Загальна форма: #regexp# or /#regexp#/#options#.
 
- #Options#:
- #i# - ignore character case;
- #s# - ^<wrap>consider the whole text as one line, ‘#.#’ matches any character;
- #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
-beginning and the end of any "inner" string;
+ #Опції#:
+ #i# - ігнорувати регістр символів;
+ #s# - ^<wrap>розглядати весь текст як одну рядок, ‘#.#’ буде позначати будь-який символ;
+ #m# - ^<wrap>розглядати весь текст як декілька рядків. ‘#^#’ та ‘#$#’ відповідають
+початку та кінцю кожного "внутрішнього" рядку;
  #x# - ^<wrap>ignore space characters (unescaped ones, i.e. without backslash before).
 This is useful to outline the complex expressions.
 
@@ -5117,7 +5114,7 @@ rather than escape other characters themselves or mark
 the end of expression. An example: the string "big\white/scary" looks in the
 form of regular expression like "big\\\\white\/scary".
 
- #Metacharacters#
+ #Метасимволи#
 
  #\#  - ^<wrap>the next character is treated verbatim, not a metacharacter;
  #^#  - ^<wrap>the beginning of string;
@@ -5166,17 +5163,19 @@ zero-size expression.
  #{,m}#   - ^<wrap>equals to {0,m}
  #{,m}?#  - ^<wrap>equals to {0,m}?
 
- #"Greedy" and "not greedy" quantifiers#
+ #"Жадібні" та "не жадібні" квантифікатори#
 
- Greedy quantifier captures as many characters as possible, and only if
-further match fails, it "returns" the captured string (the rollback
-happens, which is rather expensive).
- When expression "A.*Z" is matched to string
-"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
-rolls back character by character until it finds Z. On the opposite, if the expression
-is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
-#minimizing#, it captures as few characters as possible, and only if
-further match fails it captures more.
+ Жадібний квантифікатор (Greedy) захоплює якомога більше символів, і лише якщо
+подальший збіг не вдається, він "повертає" захоплені символи по одному,
+перевіряючи збіг регулярного виразу (такий відкат досить дорогий за ресурсами).
+ Наприклад, під час перевірки, що вираз "A.*Z" відповідає наступному рядку
+"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", вираз #.*# захоплює весь рядок, а потім
+відкочує символ за символом справа наліво, поки не знайде Z, таким чином
+рядок буде перевірено стільки разів, скільки потрібно буде пройти назад на кожну
+літеру X, доки черга не дійде до Z. На противагу, якщо наш вираз буде "A.*?Z", то
+Z буде знайдено відразу, наступним кроком. Не жадібний квантифікатор також відомий як #lazy#,
+захоплює якомога менше символів, і лише якщо подальший збіг не вдається, він йде зліва
+направо, захоплючи наступний символ, та перевіряючи рядок на збігання.
 
  #Special characters#
 
@@ -6860,21 +6859,21 @@ following histories:
 @Editor.F8CPs
 $ #far:config Editor.F8CPs#
 $ #far:config Viewer.F8CPs#
- These string parameters define code pages which are cycled through when
-#F8# key is pressed in ~Editor~@Editor@ or ~Viewer~@Viewer@.
+ Ці параметри визначають кодові сторінки, що будуть використані при циклічному переборі, коли
+натиснено #F8# у ~Редакторі~@Editor@ чи ~Переглядачі~@Viewer@.
 
- The value of each parameter is a list of code page numbers or symbolic
-names listed below. Symbolic names are case insensitive. Duplicated
-code pages, as well as unsupported code pages, are ignored.
+  Значенням кожного параметру є список номерів кодових сторінок або символичні
+назви, наведені нижче. Символічні назви нечутливі до регістру. Дублювання, а
+також непідтримувані кодові сторінки ігноруються.
 
  - #ANSI#    ^<wrap>variants #ACP#, #WIN#
  - #OEM#     variants #OEMCP#, #DOS#
  - #UTF8#    variant #UTF-8#
- - #DEFAULT# stands for the default code page defined in
-~Editor~@EditorSettings@ or ~Viewer~@ViewerSettings@ settings dialog.
+ - #DEFAULT# означає кодову сторінку за замовчуванням, визначену в налаштуваннях діалогу
+~Редактора~@EditorSettings@ чи ~Переглядача~@ViewerSettings@.
 
- If the string is empty or does not contain any supported code pages,
-ANSI and OEM code pages are used.
+  Якщо рядок порожній або не містить підтримуваних кодових сторінок,
+використовуються кодові сторінки ANSI та OEM.
 
  Special parameter value of #-1# stands for #ANSI;OEM;Default#.
 
