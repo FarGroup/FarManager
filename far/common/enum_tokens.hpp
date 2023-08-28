@@ -235,17 +235,22 @@ public:
 
 private:
 	[[nodiscard]]
-	bool get(bool Reset, std::wstring_view& Value) const
+	bool get(bool const Reset, std::wstring_view& Value) const
 	{
 		if (Reset)
+		{
 			m_Iterator = m_View.cbegin();
-		else if (m_Iterator != m_View.cend())
-			++m_Iterator;
-
-		if (m_Iterator == m_View.cend())
+			m_Finished = false;
+		}
+		else if (m_Finished)
 			return false;
 
 		m_Iterator = policy::extract(m_Iterator, m_View.cend(), m_Separators, Value);
+
+		m_Finished = m_Iterator == m_View.cend();
+		if (!m_Finished)
+			++m_Iterator;
+
 		return true;
 	}
 
@@ -253,6 +258,7 @@ private:
 	std::wstring_view m_View;
 	std::wstring_view m_Separators;
 	mutable std::wstring_view::const_iterator m_Iterator{};
+	mutable bool m_Finished{};
 };
 
 using enum_tokens = enum_tokens_t<detail::simple_policy>;

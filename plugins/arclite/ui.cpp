@@ -498,7 +498,7 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
       ignore_all_id = button_cnt;
       button_cnt++;
     }
-    st << Far::get_msg(MSG_BUTTON_CANCEL) << L'\n';
+    st << Far::get_msg(MSG_BUTTON_CANCEL);
     button_cnt++;
     ProgressSuspend ps(progress);
     auto id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
@@ -1077,6 +1077,7 @@ private:
   void populate_profile_list() {
     DisableEvents de(*this);
     std::vector<FarListItem> fl_items;
+    fl_items.reserve(profiles.size() + 1);
     FarListItem fl_item{};
     for (unsigned i = 0; i < profiles.size(); i++) {
       fl_item.Text = profiles[i].name.c_str();
@@ -1280,7 +1281,7 @@ public:
         old_ext = ArcAPI::formats().at(m_options.arc_type).default_extension();
 
       std::vector<std::wstring> profile_names;
-      profile_names.reserve(profiles.size());
+      profile_names.reserve(profiles.size() + 1);
       unsigned profile_idx = static_cast<unsigned>(profiles.size());
       std::for_each(profiles.begin(), profiles.end(), [&] (const UpdateProfile& profile) {
         profile_names.push_back(profile.name);
@@ -1345,6 +1346,7 @@ public:
           return _wcsicmp(a_format.name.c_str(), b_format.name.c_str()) < 0;
       });
       std::vector<std::wstring> other_format_names;
+      other_format_names.reserve(other_formats.size());
       unsigned other_format_index = 0;
       bool found = false;
       for (const auto& t : other_formats) {
@@ -1378,9 +1380,11 @@ public:
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
     std::wstring method = m_options.method.empty() && m_options.arc_type == c_7z? c_methods[0].value : m_options.method;
     std::vector<std::wstring> method_names;
+    const auto sizeMethods = ARRAYSIZE(c_methods) + ArcAPI::Count7zCodecs();
+    method_names.reserve(sizeMethods);
     const auto& codecs = ArcAPI::codecs();
     unsigned method_sel = 0;
-    for (unsigned i = 0; i < ARRAYSIZE(c_methods) + ArcAPI::Count7zCodecs(); ++i) {
+    for (unsigned i = 0; i < sizeMethods; ++i) {
       std::wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i - ARRAYSIZE(c_methods)].Name;
       if (method == method_name)
         method_sel = i;

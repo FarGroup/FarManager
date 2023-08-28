@@ -1041,8 +1041,6 @@ class elevated:noncopyable
 public:
 	int Run(string_view const Uuid, DWORD PID, bool UsePrivileges)
 	{
-		os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
-
 		std::array const Privileges
 		{
 			SE_BACKUP_NAME,

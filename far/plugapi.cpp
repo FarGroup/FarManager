@@ -1244,7 +1244,13 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
-			for (const auto& i: enum_tokens(view_as<const wchar_t*>(Items), L"\n"sv))
+			string_view StrItems = view_as<const wchar_t*>(Items);
+
+			// Plugins expect that the trailing \n is ignored here, even though it's not promised anywhere.
+			if (StrItems.ends_with(L'\n'))
+				StrItems.remove_suffix(1);
+
+			for (const auto& i: enum_tokens(StrItems, L"\n"sv))
 			{
 				Strings.emplace_back(i);
 			}

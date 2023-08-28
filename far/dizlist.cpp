@@ -179,6 +179,9 @@ void DizList::Read(string_view const Path, const string* DizName)
 	{
 		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv))
 		{
+			if (i.empty())
+				continue;
+
 			if (try_read_diz_file(path::join(Path, i)))
 				break;
 		}
@@ -302,7 +305,11 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 			return false;
 
 		const auto Enum = enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv);
-		const auto Begin = Enum.begin();
+		auto Begin = Enum.begin();
+
+		while (Begin != Enum.end() && Begin->empty())
+			++Begin;
+
 		if (Begin != Enum.end())
 			m_DizFileName = path::join(Path, *Begin);
 

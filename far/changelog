@@ -1,4 +1,41 @@
 --------------------------------------------------------------------------------
+yjh 2023-08-25 12:09:02+03:00 - build 6181
+
+1. SQLite v3.43.0
+
+--------------------------------------------------------------------------------
+drkns 2023-08-21 19:39:57+01:00 - build 6180
+
+1. Correction of 6179 & related fixes.
+
+--------------------------------------------------------------------------------
+drkns 2023-08-21 18:21:32+01:00 - build 6179
+
+1. Disable ampersand processing in filenames in progress dialogs.
+
+2. Support text attributes in prompt and help color codes.
+
+--------------------------------------------------------------------------------
+drkns 2023-08-12 21:53:22+01:00 - build 6178
+
+1. fmt v10.1.
+
+2. Catch2 v3.4.
+
+--------------------------------------------------------------------------------
+drkns 2023-08-06 16:21:24+01:00 - build 6177
+
+1. Remove "Notepad++ binary text length" clipboard format support
+   We now have other means to store data lenght, NP++ changed it on their side and we were doing it wrong anyway.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 2023-08-04 22:20:38+01:00 - build 6176
+
+1. 0004000: Crash with "integer divide by zero" searching text Alt+F7 in file KEYPAD.BMP
+
+--------------------------------------------------------------------------------
 drkns 2023-07-27 19:40:17+01:00 - build 6175
 
 1. Try to survive a conhost crash caused by a spawned process.

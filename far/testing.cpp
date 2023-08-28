@@ -94,7 +94,8 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 	if (is_ui_test_run(Args.subspan(1)))
 		return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
 
-	const auto IsBuildStep = Args.size() > 1 && Args[1] == L"/service:test"sv;
+	const auto ServiceTestIterator = std::find_if(ALL_CONST_RANGE(Args), [](wchar_t const* const Arg){ return Arg == L"/service:test"sv; });
+	const auto IsBuildStep = ServiceTestIterator != Args.end();
 
 	if constexpr (DebugTests)
 	{
@@ -119,7 +120,7 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 	{
 		NewArgs.reserve(Args.size() - 1);
 		NewArgs.emplace_back(Args[0]);
-		NewArgs.insert(NewArgs.end(), Args.begin() + 2, Args.end());
+		NewArgs.insert(NewArgs.end(), ServiceTestIterator + 1, Args.end());
 	}
 	else
 	{

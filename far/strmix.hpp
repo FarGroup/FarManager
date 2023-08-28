@@ -255,6 +255,9 @@ namespace detail
 
 		for (const auto& i: enum_tokens(strFlags, Separators))
 		{
+			if (i.empty())
+				continue;
+
 			const auto ItemIterator = std::find_if(CONST_RANGE(From, j) { return equal_icase(i, j.second); });
 			if (ItemIterator != From.end())
 				Flags |= ItemIterator->first;

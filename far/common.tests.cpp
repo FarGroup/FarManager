@@ -467,44 +467,53 @@ TEST_CASE("enum_substrings")
 
 #include "common/enum_tokens.hpp"
 
+template<typename T>
+void test_enum_tokens(const auto& Expected, string_view const Input, string_view const Separators)
+{
+	auto Iterator = Expected.begin();
+
+	for (const auto& t: T(Input, Separators))
+	{
+		REQUIRE(t == *Iterator++);
+	}
+
+	REQUIRE(Iterator == Expected.end());
+}
+
 TEST_CASE("enum_tokens")
 {
+	enum class test_type
 	{
-		const std::array Baseline{ L"abc"sv, L""sv, L"def"sv, L" q "sv, L"123"sv };
-		auto BaselineIterator = Baseline.begin();
+		simple,
+		quotes,
+		trim
+	};
 
-		for (const auto& i: enum_tokens(L"abc;,def; q ,123;"sv, L",;"sv))
-		{
-			REQUIRE(i == *BaselineIterator++);
-		}
-
-		REQUIRE(BaselineIterator == Baseline.end());
-	}
-
+	static const struct
 	{
-		const std::array Baseline{ L"abc;"sv, L"de;,f"sv, L"123"sv, L""sv };
-		auto BaselineIterator = Baseline.begin();
-
-		for (const auto& i: enum_tokens_with_quotes(L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv))
-		{
-			REQUIRE(i == *BaselineIterator++);
-		}
-
-		REQUIRE(BaselineIterator == Baseline.end());
+		test_type TestType;
+		std::initializer_list<string_view> Expected;
+		string_view Input, Separators;
 	}
-
+	Tests[]
 	{
-		const std::array Baseline{ L"abc"sv, L"def"sv, L""sv };
-		auto BaselineIterator = Baseline.begin();
+		{ test_type::simple, { {} }, {}, L","sv },
+		{ test_type::simple, { {}, {} }, L",", L","sv },
+		{ test_type::simple, { L"abc"sv, {}, L"def"sv, L" q "sv, L"123"sv, {} }, L"abc;,def; q ,123;"sv, L",;"sv },
+		{ test_type::quotes, { L"abc;"sv, L"de;,f"sv, L"123"sv, {}, {} }, L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv },
+		{ test_type::trim,   { L"abc"sv, L"def"sv, {}, {} }, L"  abc|   def  |  |"sv, L"|"sv },
+	};
 
-		for (const auto& i: enum_tokens_custom_t<with_trim>(L"  abc|   def  |  "sv, L"|"sv))
+	for (const auto& i: Tests)
+	{
+		switch(i.TestType)
 		{
-			REQUIRE(i == *BaselineIterator++);
+		case test_type::simple: test_enum_tokens<enum_tokens>(i.Expected, i.Input, i.Separators); break;
+		case test_type::quotes: test_enum_tokens<enum_tokens_with_quotes>(i.Expected, i.Input, i.Separators); break;
+		case test_type::trim:   test_enum_tokens<enum_tokens_custom_t<with_trim>>(i.Expected, i.Input, i.Separators); break;
+		default: UNREACHABLE;
 		}
-
-		REQUIRE(BaselineIterator == Baseline.end());
 	}
-
 }
 
 //----------------------------------------------------------------------------
