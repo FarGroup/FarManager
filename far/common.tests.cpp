@@ -1754,23 +1754,13 @@ TEST_CASE("utility.base")
 
 TEST_CASE("utility.grow_exp_noshrink")
 {
-	static const struct
+	for (const auto& i: irange(size_t{32}))
 	{
-		size_t Current, Desired, Expected;
-	}
-	Tests[]
-	{
-		{ 0, 1, 1 },
-		{ 1, 1, 1 },
-		{ 1, 0, 1 },
-		{ 0, 2, 2 },
-		{ 1, 2, 2 },
-		{ 2, 2, 2 },
-	};
-
-	for (const auto& i : Tests)
-	{
-		REQUIRE(grow_exp_noshrink(i.Current, i.Desired) == i.Expected);
+		const auto ExpectedIncrease = std::max(size_t{1}, i / 2);
+		REQUIRE(grow_exp_noshrink(i, 0) == i);
+		REQUIRE(grow_exp_noshrink(i, {}) == i + ExpectedIncrease);
+		REQUIRE(grow_exp_noshrink(i, i + 1) == i + ExpectedIncrease);
+		REQUIRE(grow_exp_noshrink(i, i * 2) == i * 2);
 	}
 }
 

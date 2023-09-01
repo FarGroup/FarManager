@@ -67,7 +67,7 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 
 	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	const auto LowerBound = Current + (Current + 2) / 2;
+	const auto LowerBound = Current + std::max(size_t{1}, Current / 2);
 	return Desired? std::max(LowerBound, *Desired) : LowerBound;
 }
 

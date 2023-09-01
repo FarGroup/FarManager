@@ -95,11 +95,11 @@ namespace detail
 		template<typename... args>
 		explicit far_std_exception(args&&... Args):
 			far_base_exception(FWD(Args)...),
-			std::runtime_error(convert_message())
+			std::runtime_error(convert_message(full_message()))
 		{}
 
 	private:
-		[[nodiscard]] std::string convert_message() const;
+		[[nodiscard]] static std::string convert_message(string_view Message);
 	};
 
 	class break_into_debugger

@@ -207,7 +207,6 @@ CLANG_FLAGS = \
 	-Weverything \
 
 CFLAGS += $(CLANG_FLAGS)
-CFLAGS += -D __FLOAT_H # 8.1 incompatibility
 
 LNKFLAGS += \
 	$(CLANG_FLAGS) \
@@ -233,6 +232,7 @@ endif
 ifdef USE_LLD
 LNKFLAGS += \
 	-fuse-ld=lld \
+	-Xlinker --allow-multiple-definition \
 
 endif
 

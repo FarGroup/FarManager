@@ -694,7 +694,7 @@ static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLO
 		DlgHeight = static_cast<int>(ColorDlg[cd_border].Y2) + 2;
 
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
-	Dlg->SetHelp(L"ColorPicker"sv);
+	Dlg->SetHelp(L"ColorPickerRGB"sv);
 	Dlg->Process();
 
 	if (Dlg->GetExitCode() != cd_button_ok)
