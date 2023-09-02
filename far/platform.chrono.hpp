@@ -87,6 +87,7 @@ namespace os::chrono
 	using time_point = nt_clock::time_point;
 
 	SYSTEMTIME now_utc();
+	SYSTEMTIME now_local();
 
 	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime);
 	bool local_to_utc(const SYSTEMTIME& LocalTime, time_point& UtcTime);

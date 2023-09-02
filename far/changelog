@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 2023-09-02 17:00:00+01:00 - build 6183
+
+1. gh-726: Wrong buttons in warning message when creating a new file from a plugin panel.
+   M#0000231: ShiftF4 sometimes doesn't work.
+
+   Rework the mess around creating new files with the editor:
+    - Empty names work on plugin panels too. Yay. It took only 17 years to get there.
+    - New name template is now fs-compatible and includes a customizable timestamp.
+
+--------------------------------------------------------------------------------
 drkns 2023-09-01 21:06:39+01:00 - build 6182
 
 1. Refactoring.
