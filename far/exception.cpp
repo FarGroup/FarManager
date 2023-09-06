@@ -69,9 +69,9 @@ namespace detail
 		LOGTRACE(L"{}"sv, *this);
 	}
 
-	std::string far_std_exception::convert_message() const
+	std::string far_std_exception::convert_message(string_view const Message)
 	{
-		return encoding::utf8::get_bytes(full_message());
+		return encoding::utf8::get_bytes(Message);
 	}
 
 	break_into_debugger::break_into_debugger()

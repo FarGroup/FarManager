@@ -147,7 +147,7 @@ private:
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 	int SaveFile(string_view Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
-	bool SetFileName(string_view NewFileName);
+	void SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	os::fs::attributes EditorGetFileAttributes(string_view Name);
 	void SetPluginData(const string* PluginData);

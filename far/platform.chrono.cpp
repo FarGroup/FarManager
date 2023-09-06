@@ -111,6 +111,14 @@ namespace os::chrono
 		return SystemTime;
 	}
 
+	SYSTEMTIME now_local()
+	{
+
+		SYSTEMTIME LocalTime;
+		GetLocalTime(&LocalTime);
+		return LocalTime;
+	}
+
 	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime)
 	{
 		const auto FileTime = nt_clock::to_filetime(UtcTime);

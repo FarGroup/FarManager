@@ -320,9 +320,6 @@ static bool dlgSaveFileAs(string &strFileName, eol& Eol, uintptr_t &codepage, bo
 	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
 	EditDlg[ID_SF_SIGNATURE].Selected = AddSignature;
 
-	if (const auto pos = EditDlg[ID_SF_FILENAME].strData.find(msg(lng::MNewFileName)); pos != string::npos)
-		EditDlg[ID_SF_FILENAME].strData.resize(pos);
-
 	const auto EolToIndex = [&]()
 	{
 		if (Eol == eol::win)
@@ -469,7 +466,8 @@ void FileEditor::Init(
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
-	const auto BlankFileName = Name == msg(lng::MNewFileName) || Name.empty();
+	const auto BlankFileName = Name.empty();
+
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
@@ -492,11 +490,7 @@ void FileEditor::Init(
 	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
 	strStartDir = os::fs::get_current_directory();
 
-	if (!SetFileName(Name))
-	{
-		SetExitCode(XC_OPEN_ERROR);
-		return;
-	}
+	SetFileName(Name);
 
 	{
 		if (auto EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName))
@@ -688,7 +682,7 @@ void FileEditor::Init(
 	m_editor->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
-	int UserBreak;
+	int UserBreak = 0;
 
 	/* $ 06.07.2001 IS
 	   При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
@@ -707,14 +701,8 @@ void FileEditor::Init(
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 
 	error_state_ex ErrorState;
-	while (!LoadFile(strFullFileName,UserBreak, ErrorState))
+	while (BlankFileName || !LoadFile(strFullFileName, UserBreak, ErrorState))
 	{
-		if (BlankFileName)
-		{
-			m_Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
-			UserBreak=0;
-		}
-
 		if (!m_Flags.Check(FFILEEDIT_NEW) || UserBreak)
 		{
 			if (UserBreak!=1)
@@ -750,7 +738,7 @@ void FileEditor::Init(
 	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
-	if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && strFileName != msg(lng::MNewFileName))
+	if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !strFileName.empty())
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 	InitKeyBar();
@@ -1282,23 +1270,12 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					const auto FilePlaced = !os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
-
-					if (m_editor->IsChanged() || // в текущем сеансе были изменения?
-					        FilePlaced) // а сам файл то еще на месте?
-					{
-						auto MsgLine1 = lng::MNewFileName;
-						if (m_editor->IsChanged() && FilePlaced)
-							MsgLine1 = lng::MEditSavedChangedNonFile;
-						else if (!m_editor->IsChanged() && FilePlaced)
-							MsgLine1 = lng::MEditSavedChangedNonFile1;
-
-						if (MsgLine1 != lng::MNewFileName)
+						if (!os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW))
 						{
 							switch (Message(MSG_WARNING,
 								msg(lng::MEditTitle),
 								{
-									msg(MsgLine1),
+									msg(m_editor->IsChanged()? lng::MEditSavedChangedNonFile : lng::MEditSavedChangedNonFile1),
 									msg(lng::MEditSavedChangedNonFile2)
 								},
 								{ lng::MHYes, lng::MHNo, lng::MHCancel },
@@ -1320,7 +1297,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							default:
 								return false;
 							}
-						}
 					}
 					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????
 						NeedQuestion = false;
@@ -1489,7 +1465,7 @@ bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWin
 			break;
 		}
 
-		if (strFileName == msg(lng::MNewFileName))
+		if (strFileName.empty())
 		{
 			if (!ProcessKey(Manager::Key(KEY_SHIFTF2)))
 			{
@@ -2143,7 +2119,7 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
-	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !equal_icase(strFileName, msg(lng::MNewFileName)))
+	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !strFileName.empty())
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 	//AY: флаг оповещающий закрытие редактора.
@@ -2193,13 +2169,11 @@ void FileEditor::SetPluginTitle(const string* PluginTitle)
 		strPluginTitle = *PluginTitle;
 }
 
-bool FileEditor::SetFileName(const string_view NewFileName)
+void FileEditor::SetFileName(const string_view NewFileName)
 {
-	// BUGBUG This whole MNewFileName thing is madness.
-	// TODO: Just support an empty name
-	strFileName = NewFileName.empty()? msg(lng::MNewFileName) : NewFileName;
+	strFileName = NewFileName;
 
-	if (strFileName != msg(lng::MNewFileName))
+	if (!strFileName.empty())
 	{
 		strFullFileName = ConvertNameToFull(strFileName);
 		string strFilePath=strFullFileName;
@@ -2215,10 +2189,32 @@ bool FileEditor::SetFileName(const string_view NewFileName)
 	}
 	else
 	{
-		strFullFileName = path::join(strStartDir, strFileName);
-	}
+		const auto LocalTime = os::chrono::now_local();
+		const auto& Template = msg(lng::MNewFileName);
 
-	return true;
+		const auto make_new_name = [&](string_view const Format)
+		{
+			return far::vformat(
+				Format,
+				LocalTime.wYear,
+				LocalTime.wMonth,
+				LocalTime.wDay,
+				LocalTime.wHour,
+				LocalTime.wMinute,
+				LocalTime.wSecond,
+				LocalTime.wMilliseconds
+			);
+		};
+
+		const auto NewName = make_new_name(Template);
+
+		strFullFileName = path::join(
+			strStartDir,
+			NewName != Template? // no funny stuff
+				NewName :
+				make_new_name(L"New_File_{0:04}-{1:02}-{2:02}_{3:02}.{4:02}.{5:02}.{6:03}.txt"sv)
+		);
+	}
 }
 
 void FileEditor::SetTitle(const string* Title)
@@ -2616,11 +2612,10 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					codepage=esf->CodePage;
 			}
 
-			{
 				const auto strOldFullFileName = strFullFileName;
 
-				if (SetFileName(strName))
-				{
+				SetFileName(strName);
+
 					if (!equal_icase(strFullFileName, strOldFullFileName))
 					{
 						if (!AskOverwrite(strName))
@@ -2634,10 +2629,6 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
 					error_state_ex ErrorState;
 					return SaveFile(strName, FALSE, true, ErrorState, Eol, codepage, m_bAddSignature);
-				}
-			}
-
-			return FALSE;
 		}
 		case ECTL_QUIT:
 		{

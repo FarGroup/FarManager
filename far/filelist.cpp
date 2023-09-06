@@ -1808,8 +1808,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey==KEY_SHIFTF4)
 				{
-					do
-					{
 						if (!dlgOpenEditor(strFileName, codepage))
 							return false;
 
@@ -1846,24 +1844,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								}
 							}
 						}
-						else if (PluginMode) // пустое имя файла в панели плагина не разрешается!
-						{
-							if (Message(MSG_WARNING,
-								msg(lng::MWarning),
-								{
-									msg(lng::MEditNewPlugin1),
-									msg(lng::MEditNewPath3)
-								},
-								{ lng::MCancel },
-								L"WarnEditorPluginName"sv) != message_result::first_button)
-								return false;
-						}
-						else
-						{
-							strFileName = msg(lng::MNewFileName);
-						}
-					}
-					while (strFileName.empty());
 				}
 				else
 				{
@@ -1894,6 +1874,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					if (!os::fs::create_directory(TemporaryDirectory))
 						return true;
 
+					if (strFileName.empty())
+					{
+						NewFile = true;
+					}
+					else
+					{
 					strTempName = path::join(TemporaryDirectory, PointToName(strFileName));
 
 					const FileListItem* CurPtr = nullptr;
@@ -1931,6 +1917,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 
 					strShortFileName = ConvertNameToShort(strFileName);
+					}
 				}
 
 				auto DeleteViewedFile = PluginMode && !Edit; // внутренний viewer сам все удалит.
@@ -1938,15 +1925,16 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				auto UploadFile = true;
 				auto RefreshedPanel = true;
 
-				if (!strFileName.empty())
-				{
 					if (Edit)
 					{
-						const auto EnableExternal = ((any_of(LocalKey, KEY_F4, KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
+						const auto EnableExternal = !strFileName.empty() && ((any_of(LocalKey, KEY_F4, KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
 							(any_of(LocalKey, KEY_ALTF4, KEY_RALTF4) && !Global->Opt->EdOpt.UseExternalEditor)) && !Global->Opt->strExternalEditor.empty();
 						auto Processed = false;
 
-						const auto SavedState = file_state::get(strFileName);
+						std::optional<file_state> SavedState;
+						if (!strFileName.empty())
+							SavedState = file_state::get(strFileName);
+
 						if (any_of(LocalKey, KEY_ALTF4, KEY_RALTF4, KEY_F4) && ProcessLocalFileTypes(strFileName, strShortFileName, LocalKey == KEY_F4? FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode, TemporaryDirectory))
 						{
 							UploadFile = file_state::get(strFileName) != SavedState;
@@ -1964,9 +1952,24 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							else if (PluginMode)
 							{
 								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
-								const auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_DISABLEHISTORY, -1, -1, &strPluginData);
+
+								const auto ShellEditor = [&]
+								{
+									// BUGBUG, not good, consider extending FileEditor to provide the path
+									SCOPED_ACTION(os::fs::current_directory_guard)(TemporaryDirectory);
+									return FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_DISABLEHISTORY, -1, -1, &strPluginData);
+								}();
+
 								if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);//OT
 								UploadFile=ShellEditor->IsFileChanged() || NewFile;
+
+								if (strTempName.empty())
+								{
+									string Dummy;
+									ShellEditor->GetTypeAndName(Dummy, strTempName);
+									strFileName = strTempName;
+								}
+
 								Modaling = true;
 							}
 							else
@@ -2074,7 +2077,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							}
 						}
 					}
-				}
 
 				/* $ 08.04.2002 IS
 				     для файла, который открывался во внутреннем viewer-е, ничего не

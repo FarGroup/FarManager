@@ -36,6 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 
+#ifdef _DEBUG
+#include <cstring>
+#endif
+
 //----------------------------------------------------------------------------
 
 namespace placement

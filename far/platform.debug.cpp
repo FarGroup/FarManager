@@ -236,14 +236,14 @@ namespace os::debug
 		return Data;
 	}
 
+	static auto address(DWORD64 const Offset)
+	{
+		return ADDRESS64{ Offset, 0, AddrModeFlat };
+	};
+
 	template<typename T, typename data>
 	static void stack_walk(data const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
 	{
-		const auto address = [](DWORD64 const Offset)
-		{
-			return ADDRESS64{ Offset, 0, AddrModeFlat };
-		};
-
 		T StackFrame{};
 		StackFrame.AddrPC = address(Data.PC);
 		StackFrame.AddrFrame = address(Data.Frame);

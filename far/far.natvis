@@ -232,17 +232,17 @@
 			</Synthetic>
 			<Synthetic Name="Style">
 				<DisplayString>
-					{int(is_inherit())}|
-					{int(is_bold())}|
-					{int(is_italic())}|
-					{int(is_underline())}|
-					{int(is_underline2())}|
-					{int(is_overline())}|
-					{int(is_strikeout())}|
-					{int(is_faint())}|
-					{int(is_blink())}|
-					{int(is_inverse())}|
-					{int(is_invisible())}
+					{int(is_inherit()),d}|
+					{int(is_bold()),d}|
+					{int(is_italic()),d}|
+					{int(is_underline()),d}|
+					{int(is_underline2()),d}|
+					{int(is_overline()),d}|
+					{int(is_strikeout()),d}|
+					{int(is_faint()),d}|
+					{int(is_blink()),d}|
+					{int(is_inverse()),d}|
+					{int(is_invisible()),d}
 				</DisplayString>
 				<Expand>
 					<Item Name="inherit">is_inherit()</Item>

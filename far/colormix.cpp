@@ -670,11 +670,11 @@ static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS&
 
 static bool ExtractStyle(string_view const Str, FARCOLORFLAGS& TargetFlags)
 {
-	const auto Flags = ColorStringToFlags(Str);
+	const auto Flags = ColorStringToFlags(Str) & FCF_STYLEMASK;
 	if (!Flags)
 		return false;
 
-	TargetFlags |= Flags & FCF_STYLEMASK;
+	TargetFlags |= Flags;
 	return true;
 }
 

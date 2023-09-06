@@ -66,12 +66,60 @@ namespace os
 {
 	namespace detail
 	{
-		HANDLE handle_implementation::normalise(HANDLE const Handle)
+		static bool ApiDynamicStringReceiverImpl(
+			string& Destination,
+			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable,
+			function_ref<bool(size_t ReturnedSize, size_t AllocatedSize)> const Condition
+		)
 		{
-			return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
+			return ApiDynamicReceiver(
+				buffer<wchar_t>(),
+				Callable,
+				Condition,
+				[&](span<wchar_t const> const Buffer)
+				{
+					Destination.assign(Buffer.data(), Buffer.size());
+				}
+			);
 		}
 
-		bool handle_implementation::wait(HANDLE const Handle, std::optional<std::chrono::milliseconds> const Timeout)
+		bool ApiDynamicStringReceiver(
+			string& Destination,
+			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable
+		)
+		{
+			return ApiDynamicStringReceiverImpl(
+				Destination,
+				Callable,
+				[](size_t const ReturnedSize, size_t const AllocatedSize)
+				{
+					// Why such a condition?
+					// Usually API functions return string length (without \0) on success and
+					// required buffer size (i. e. string length + \0) on failure.
+					// Some of them, however, always return buffer size.
+					// It's Callable's responsibility to handle and fix that.
+					return ReturnedSize >= AllocatedSize;
+				}
+			);
+		}
+
+		bool ApiDynamicErrorBasedStringReceiver(
+			DWORD const ExpectedErrorCode,
+			string& Destination,
+			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable)
+		{
+			return ApiDynamicStringReceiverImpl(
+				Destination,
+				Callable,
+				[&](size_t const ReturnedSize, size_t /*const AllocatedSize*/)
+				{
+					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
+				}
+			);
+		}
+
+		[[nodiscard]]
+		static bool single_wait(HANDLE const Handle, std::optional<std::chrono::milliseconds> const Timeout = {})
 		{
 			switch (const auto Result = WaitForSingleObject(Handle, Timeout? *Timeout / 1ms : INFINITE))
 			{
@@ -87,7 +135,8 @@ namespace os
 			}
 		}
 
-		std::optional<size_t> handle_implementation::wait(span<HANDLE const> const Handles, bool const WaitAll, std::optional<std::chrono::milliseconds> Timeout)
+		[[nodiscard]]
+		static std::optional<size_t> multi_wait(span<HANDLE const> const Handles, bool const WaitAll, std::optional<std::chrono::milliseconds> Timeout = {})
 		{
 			assert(!Handles.empty());
 			assert(Handles.size() <= MAXIMUM_WAIT_OBJECTS);
@@ -107,6 +156,41 @@ namespace os
 				// Abandoned or error
 				throw MAKE_FAR_FATAL_EXCEPTION(far::format(L"WaitForMultipleObjects returned {}"sv, Result));
 			}
+		}
+
+		void handle_implementation::wait(HANDLE const Handle)
+		{
+			(void)single_wait(Handle);
+		}
+
+		bool handle_implementation::is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
+		{
+			return single_wait(Handle, Timeout);
+		}
+
+		size_t handle_implementation::wait_any(span<HANDLE const> const Handles)
+		{
+			return *multi_wait(Handles, false);
+		}
+
+		std::optional<size_t> handle_implementation::wait_any(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
+		{
+			return multi_wait(Handles, false, Timeout);
+		}
+
+		bool handle_implementation::wait_all(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
+		{
+			return multi_wait(Handles, true, Timeout).has_value();
+		}
+
+		void handle_implementation::wait_all(span<HANDLE const> const Handles)
+		{
+			(void)multi_wait(Handles, true);
+		}
+
+		HANDLE handle_implementation::normalise(HANDLE const Handle)
+		{
+			return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
 		}
 
 		void handle_closer::operator()(HANDLE Handle) const noexcept

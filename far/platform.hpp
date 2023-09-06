@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/utility.hpp"
 
@@ -67,16 +68,21 @@ namespace os
 
 	namespace detail
 	{
-		template<typename buffer_type, typename receiver, typename condition, typename assigner>
+		template<typename buffer_type>
 		[[nodiscard]]
-		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
+		bool ApiDynamicReceiver(
+			buffer_type&& Buffer,
+			function_ref<size_t(span<value_type<buffer_type>> WritableBuffer)> const Receiver,
+			function_ref<bool(size_t ReturnedSize, size_t AllocatedSize)> const Condition,
+			function_ref<void(span<value_type<buffer_type> const> ReadableBuffer)> const Assigner
+		)
 		{
-			size_t Size = Receiver(Buffer);
+			size_t Size = Receiver({ Buffer.data(), Buffer.size() });
 
 			while (Condition(Size, Buffer.size()))
 			{
 				Buffer.reset(Size? Size : Buffer.size() * 2);
-				Size = Receiver(Buffer);
+				Size = Receiver({ Buffer.data(), Buffer.size() });
 			}
 
 			if (!Size)
@@ -86,58 +92,38 @@ namespace os
 			return true;
 		}
 
-		template<typename T>
 		[[nodiscard]]
-		bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
-		{
-			return ApiDynamicReceiver(
-				buffer<wchar_t>(),
-				Callable,
-				[](size_t ReturnedSize, size_t AllocatedSize)
-				{
-					// Why such condition?
-					// Usually API functions return string length (without \0) on success and
-					// required buffer size (i. e. string length + \0) on failure.
-					// Some of them, however, always return buffer size.
-					// It's Callable's responsibility to handle and fix that.
-					return ReturnedSize >= AllocatedSize;
-				},
-				[&](string_view const Buffer)
-				{
-					Destination = Buffer;
-				});
-		}
+		bool ApiDynamicStringReceiver(string& Destination, function_ref<size_t(span<wchar_t> WritableBuffer)> Callable);
 
-		template<typename T>
 		[[nodiscard]]
-		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
-		{
-			return ApiDynamicReceiver(
-				buffer<wchar_t>(),
-				Callable,
-				[&](size_t ReturnedSize, size_t AllocatedSize)
-				{
-					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
-				},
-				[&](string_view const Buffer)
-				{
-					Destination = Buffer;
-				});
-		}
+		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, function_ref<size_t(span<wchar_t> WritableBuffer)> Callable);
 
 		class handle_implementation
 		{
+		public:
+			static void wait(HANDLE Handle);
+
+			[[nodiscard]]
+			static bool is_signaled(HANDLE Handle, std::chrono::milliseconds Timeout = 0ms);
+
+			[[nodiscard]]
+			static std::optional<size_t> wait_any(span<HANDLE const> Handles, std::optional<std::chrono::milliseconds> Timeout);
+
+			[[nodiscard]]
+			static size_t wait_any(span<HANDLE const> Handles);
+
+			[[nodiscard]]
+			static bool wait_all(span<HANDLE const> Handles, std::optional<std::chrono::milliseconds> Timeout);
+
+			static void wait_all(span<HANDLE const> Handles);
+
 		protected:
 			[[nodiscard]]
 			static HANDLE normalise(HANDLE Handle);
-			[[nodiscard]]
-			static bool wait(HANDLE Handle, std::optional<std::chrono::milliseconds> Timeout = {});
-			[[nodiscard]]
-			static std::optional<size_t> wait(span<HANDLE const> Handles, bool WaitAll, std::optional<std::chrono::milliseconds> Timeout = {});
 		};
 
 		template<class deleter>
-		class handle_t: handle_implementation, public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
+		class handle_t: public handle_implementation, public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
 		{
 		public:
 			MOVABLE(handle_t);
@@ -169,44 +155,19 @@ namespace os
 				reset(nullptr);
 			}
 
+			using handle_implementation::wait;
+
 			void wait() const
 			{
-				(void)handle_implementation::wait(native_handle());
+				wait(native_handle());
 			}
+
+			using handle_implementation::is_signaled;
 
 			[[nodiscard]]
 			bool is_signaled(std::chrono::milliseconds Timeout = 0ms) const
 			{
-				return handle_implementation::wait(native_handle(), Timeout);
-			}
-
-			[[nodiscard]]
-			static bool is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout = 0ms)
-			{
-				return handle_implementation::wait(Handle, Timeout);
-			}
-
-			[[nodiscard]]
-			static auto wait_any(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
-			{
-				return handle_implementation::wait(Handles, false, Timeout);
-			}
-
-			[[nodiscard]]
-			static auto wait_any(span<HANDLE const> const Handles)
-			{
-				return *handle_implementation::wait(Handles, false);
-			}
-
-			[[nodiscard]]
-			static bool wait_all(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
-			{
-				return handle_implementation::wait(Handles, true, Timeout).has_value();
-			}
-
-			static void wait_all(span<HANDLE const> const Handles)
-			{
-				(void)handle_implementation::wait(Handles, true);
+				return is_signaled(native_handle(), Timeout);
 			}
 		};
 

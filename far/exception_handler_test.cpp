@@ -291,10 +291,13 @@ namespace tests
 #endif
 	}
 
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	static void cpp_assertion_failure()
 	{
 		assert(true == false);
 	}
+WARNING_POP()
 
 	static void seh_access_violation_read()
 	{

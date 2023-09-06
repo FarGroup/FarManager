@@ -440,11 +440,6 @@ static string system_timestamp()
 	return timestamp(os::chrono::nt_clock::now());
 }
 
-static string kernel_version()
-{
-	return os::version::get_file_version(L"ntoskrnl.exe"sv);
-}
-
 static void read_registers(string& To, CONTEXT const& Context, string_view const Eol)
 {
 	const auto r = [&](string_view const Name, auto const Value)
@@ -1403,7 +1398,6 @@ static string collect_information(
 	const auto SystemTime = system_timestamp();
 	const auto Uptime = get_uptime();
 	const auto OsVersion = os::version::os_version();
-	const auto KernelVersion = kernel_version();
 	const auto Locale = get_locale();
 	const auto ConsoleHost = get_console_host();
 	const auto Parent = get_parent_process();
@@ -1438,7 +1432,6 @@ static string collect_information(
 		{ L"Time:     "sv, SystemTime,    },
 		{ L"Uptime:   "sv, Uptime,        },
 		{ L"OS:       "sv, OsVersion,     },
-		{ L"Kernel:   "sv, KernelVersion, },
 		{ L"Locale:   "sv, Locale,        },
 		{ L"Host:     "sv, ConsoleHost,   },
 		{ L"Parent:   "sv, Parent,        },
