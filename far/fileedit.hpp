@@ -71,7 +71,6 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_SAVETOSAVEAS          = 21_bit,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
 	//   При редактировании найденного файла из архива для
 	//   клавиши F2 сделать вызов ShiftF2.
-	FFILEEDIT_SAVEWQUESTIONS        = 22_bit,  // сохранить без вопросов
 	FFILEEDIT_LOCKED                = 23_bit,  // заблокировать?
 	FFILEEDIT_OPENFAILED            = 24_bit,  // файл открыть не удалось
 	FFILEEDIT_DELETEONCLOSE         = 25_bit,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
@@ -107,6 +106,7 @@ public:
 	// архива для клавиши F2 сделать вызов ShiftF2.
 	void SetSaveToSaveAs(bool ToSaveAs) { m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
+	uintptr_t GetCodePage() const;
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
 	bool SetCodePageEx(uintptr_t cp);
 	bool IsFileChanged() const { return m_editor->IsChanged(); }
@@ -145,7 +145,8 @@ private:
 	bool LoadFile(string_view Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(string_view Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	bool SaveAction(bool SaveAsIntention);
 	void SetTitle(const string* Title);
 	void SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
@@ -155,7 +156,7 @@ private:
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
 	void ReadEvent();
-	bool ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
+	bool ProcessQuitKey(bool NeedSave, bool ConfirmSave, bool DeleteWindow);
 	bool UpdateFileList() const;
 
 	static uintptr_t GetDefaultCodePage();
@@ -176,7 +177,8 @@ private:
 	bool bLoaded{};
 	bool m_bAddSignature{};
 	bool BadConversion{};
-	uintptr_t m_codepage{CP_DEFAULT}; //BUGBUG
+	uintptr_t m_codepage{CP_DEFAULT};
+	eol m_SaveEol{ eol::none };
 
 	F8CP f8cps;
 

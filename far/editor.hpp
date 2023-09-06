@@ -59,7 +59,7 @@ class Edit;
 class Editor final: public SimpleScreenObject
 {
 public:
-	explicit Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed = false);
+	explicit Editor(window_ptr Owner, bool DialogUsed = false);
 	~Editor() override;
 
 	bool ProcessKey(const Manager::Key& Key) override;
@@ -68,9 +68,8 @@ public:
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc) const;
-	bool TryCodePage(uintptr_t Codepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, wchar_t& ErrorChar);
-	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr, bool ShowMe=true); //BUGBUG
-	uintptr_t GetCodePage() const; //BUGBUG
+	bool TryCodePage(uintptr_t CurrentCodepage, uintptr_t NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, wchar_t& ErrorChar); //BUGBUG does not belong here
+	bool SetCodePage(uintptr_t CurrentCodepage, uintptr_t NewCodepage, bool *BOM=nullptr, bool ShowMe=true); //BUGBUG does not belong here
 	void KeepInitParameters() const;
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsModified() const;
@@ -277,7 +276,7 @@ private:
 	string Block2Text();
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	bool SetLineCodePage(iterator const& Iterator, uintptr_t Codepage, bool Validate);
+	bool SetLineCodePage(iterator const& Iterator, uintptr_t CurrentCodepage, uintptr_t NewCodepage, bool Validate);
 	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
 	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
@@ -315,6 +314,8 @@ private:
 	void BeginStreamMarking(const numbered_iterator& Where);
 	void BeginVBlockMarking(const numbered_iterator& Where);
 
+	uintptr_t GetCodePage() const;
+
 	// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 	enum editor_flags
 	{
@@ -351,7 +352,7 @@ private:
 	int VBlockSizeX{};
 	int VBlockSizeY{};
 	int MacroSelectionStart{ -1 };
-	uintptr_t m_codepage; //BUGBUG
+	uintptr_t m_codepageBUGBUG;
 	int m_StartLine{ -1 };
 	int StartChar{ -1 };
 	//numbered bookmarks (accessible by Ctrl-0..9)

@@ -133,10 +133,9 @@ eol Editor::GetDefaultEOL()
 	return Global->Opt->EdOpt.NewFileUnixEOL? eol::unix : eol::win;
 }
 
-Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
+Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SimpleScreenObject(std::move(Owner)),
 	GlobalEOL(GetDefaultEOL()),
-	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
 	m_SearchDlgParams
 	{
@@ -200,7 +199,6 @@ void Editor::SwapState(Editor& swap_state)
 	swap(VBlockSizeX, swap_state.VBlockSizeX);
 	swap(VBlockSizeY, swap_state.VBlockSizeY);
 	swap(MacroSelectionStart, swap_state.MacroSelectionStart);
-	swap(m_codepage, swap_state.m_codepage);
 	swap(m_StartLine, swap_state.m_StartLine);
 	swap(StartChar, swap_state.StartChar);
 	m_SavePos.swap(swap_state.m_SavePos);
@@ -3308,7 +3306,7 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 		m_SearchDlgParams,
 		L"SearchText"sv,
 		L"ReplaceText"sv,
-		m_codepage,
+		GetCodePage(),
 		L"EditorSearch"sv,
 		ReplaceMode? &EditorReplaceId : &EditorSearchId,
 		Picker))
@@ -4755,22 +4753,23 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 	enum { UnknownMultiplier = -1 };
 	int Multiplier = 1;
 	unsigned long long bom = 0;
+	const auto Codepage = GetCodePage();
 
 	if (file_pos)
 	{
-		if (m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM)
+		if (Codepage == CP_UNICODE || Codepage == CP_REVERSEBOM)
 		{
 			Multiplier = sizeof(wchar_t);
 			if (add_bom)
 				bom = 1;
 		}
-		else if (m_codepage == CP_UTF8)
+		else if (Codepage == CP_UTF8)
 		{
 			Multiplier = UnknownMultiplier;
 			if (add_bom)
 				bom = 3;
 		}
-		else if (const auto Info = GetCodePageInfo(m_codepage); Info && Info->MaxCharSize > 1)
+		else if (const auto Info = GetCodePageInfo(Codepage); Info && Info->MaxCharSize > 1)
 		{
 			Multiplier = UnknownMultiplier;
 		}
@@ -4779,7 +4778,7 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != UnknownMultiplier? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + line.GetEOL().str().size();
+		return Value + (Multiplier != UnknownMultiplier? Str.size() : encoding::get_bytes_count(Codepage, Str)) + line.GetEOL().str().size();
 	});
 
 	return Multiplier != UnknownMultiplier? TotalSize * Multiplier : TotalSize;
@@ -5416,7 +5415,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
 			Info->CurState|=!m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
 			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
-			Info->CodePage=m_codepage;
+			Info->CodePage = GetCodePage();
 
 			return true;
 		}
@@ -5708,7 +5707,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 				else
 				{
-					if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp) || !SetCodePage(cp))
+					if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp) || !SetCodePage(GetCodePage(), cp))
 						return false;
 				}
 				Show();
@@ -6547,14 +6546,15 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 	{
 		auto CurPtr = FirstLine();
 		size_t TotalSize = 0;
+		const auto Codepage = GetCodePage();
 
-		if (m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM)
+		if (Codepage == CP_UNICODE || Codepage == CP_REVERSEBOM)
 		{
 			StartChar /= 2;
 			if ( count_bom )
 				--StartChar;
 		}
-		else if (m_codepage == CP_UTF8)
+		else if (Codepage == CP_UTF8)
 		{
 			if ( count_bom )
 				StartChar -= 3;
@@ -6562,7 +6562,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		while (!IsLastLine(CurPtr))
 		{
-			if (m_codepage == CP_UTF8)
+			if (Codepage == CP_UTF8)
 			{
 				TotalSize += encoding::utf8::get_bytes_count(CurPtr->GetString());
 			}
@@ -6629,7 +6629,7 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.cur.ScreenLine = CalcDistance(m_it_TopScreen, m_it_CurLine);
 	pc.cur.LinePos = m_it_CurLine->GetTabCurPos();
 	pc.cur.LeftPos = m_it_CurLine->GetLeftPos();
-	pc.CodePage = m_codepage;
+	pc.CodePage = GetCodePage();
 	pc.bm=m_SavePos;
 }
 
@@ -6646,24 +6646,24 @@ static std::string_view GetLineBytes(string_view const Str, std::vector<char>& B
 	}
 }
 
-bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t const Codepage, bool const Validate)
+bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t CurrentCodepage, uintptr_t const NewCodepage, bool const Validate)
 {
-	if (Codepage == m_codepage || Iterator->m_Str.empty())
+	if (Iterator->m_Str.empty())
 		return true;
 
 	encoding::diagnostics Diagnostics;
-	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, Validate? &Diagnostics : nullptr);
+	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, CurrentCodepage, Validate? &Diagnostics : nullptr);
 	auto Result = !Bytes.empty() && !Diagnostics.ErrorPosition;
-	encoding::get_chars(Codepage, Bytes, Iterator->m_Str, &Diagnostics);
+	encoding::get_chars(NewCodepage, Bytes, Iterator->m_Str, &Diagnostics);
 	Result = Result && !Iterator->m_Str.empty() && !Diagnostics.ErrorPosition;
 	Iterator->Changed();
 
 	return Result;
 }
 
-bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, wchar_t& ErrorChar)
+bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, wchar_t& ErrorChar)
 {
-	if (m_codepage == Codepage)
+	if (CurrentCodepage == NewCodepage)
 		return true;
 
 	int LineNumber = 0;
@@ -6674,32 +6674,32 @@ bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, siz
 			continue;
 
 		encoding::diagnostics Diagnostics;
-		const auto Bytes = GetLineBytes(i->m_Str, decoded, m_codepage, &Diagnostics);
+		const auto Bytes = GetLineBytes(i->m_Str, decoded, CurrentCodepage, &Diagnostics);
 
 		if (Bytes.empty() || Diagnostics.ErrorPosition)
 		{
-			ErrorCodepage = m_codepage;
+			ErrorCodepage = CurrentCodepage;
 			ErrorLine = LineNumber;
 			ErrorPos = *Diagnostics.ErrorPosition;
 			ErrorChar = i->m_Str[ErrorPos];
 			return false;
 		}
 
-		if (!encoding::get_chars_count(Codepage, Bytes, &Diagnostics) || Diagnostics.ErrorPosition)
+		if (!encoding::get_chars_count(NewCodepage, Bytes, &Diagnostics) || Diagnostics.ErrorPosition)
 		{
-			ErrorCodepage = Codepage;
+			ErrorCodepage = NewCodepage;
 			ErrorLine = LineNumber;
 
 			// Position is in bytes, we might need to convert it back to chars
-			const auto Info = GetCodePageInfo(m_codepage);
+			const auto Info = GetCodePageInfo(CurrentCodepage);
 			if (Info && Info->MaxCharSize == 1)
 			{
 				ErrorPos = *Diagnostics.ErrorPosition;
 			}
 			else
 			{
-				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &Diagnostics);
-				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, BytesCount) });
+				const auto BytesCount = encoding::get_bytes(CurrentCodepage, i->m_Str, decoded, &Diagnostics);
+				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, BytesCount) });
 			}
 
 			ErrorChar = i->m_Str[ErrorPos];
@@ -6711,23 +6711,23 @@ bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, siz
 	return true;
 }
 
-bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
+bool Editor::SetCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, bool *BOM, bool ShowMe)
 {
-	if ( m_codepage == codepage )
+	if (CurrentCodepage == NewCodepage)
 		return true;
 
 	auto Result = true;
 
 	FOR_RANGE(Lines, i)
 	{
-		if (!SetLineCodePage(i, codepage, Result))
+		if (!SetLineCodePage(i, CurrentCodepage, NewCodepage, Result))
 			Result = false;
 	}
 
 	if (BOM)
 	{
 		*BOM = false;
-		if (codepage == CP_UTF8 && !Lines.empty())
+		if (NewCodepage == CP_UTF8 && !Lines.empty())
 		{
 			auto& first = *Lines.begin();
 			if (first.m_Str.starts_with(encoding::bom_char))
@@ -6738,8 +6738,6 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 		}
 	}
 
-	m_codepage = codepage;
-
 	if (ShowMe) Show(); //BUGBUG: костыль для того, чтобы не было перерисовки в FileEditor::Init.
 
 	return Result; // BUGBUG, more details?
@@ -6747,7 +6745,10 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 
 uintptr_t Editor::GetCodePage() const
 {
-	return m_codepage;
+	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+		return HostFileEditor->GetCodePage();
+
+	throw MAKE_FAR_EXCEPTION(L"HostFileEditor is nullptr"sv);
 }
 
 

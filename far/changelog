@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2023-09-07 00:13:41+01:00 - build 6184
+
+1. Refactoring:
+   - Simpler logic around saving file in editor and various dialogs related to it.
+     The changes are somewhat massive, expect bugs.
+   - Code page is no longer stored in Editor, only in FileEditor.
+
+--------------------------------------------------------------------------------
 drkns 2023-09-02 17:00:00+01:00 - build 6183
 
 1. gh-726: Wrong buttons in warning message when creating a new file from a plugin panel.
