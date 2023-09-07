@@ -73,7 +73,6 @@ public:
 	void KeepInitParameters() const;
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsModified() const;
-	bool IsChanged() const;
 	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetOptions(const Options::EditorOptions& Options);
@@ -322,7 +321,6 @@ private:
 		FEDITOR_MODIFIED              = 8_bit,
 		FEDITOR_MARKINGBLOCK          = 9_bit,
 		FEDITOR_MARKINGVBLOCK         = 10_bit,
-		FEDITOR_WASCHANGED            = 11_bit,
 		FEDITOR_OVERTYPE              = 12_bit,
 		FEDITOR_NEWUNDO               = 13_bit,
 		FEDITOR_UNDOSAVEPOSLOST       = 14_bit,

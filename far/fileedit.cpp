@@ -853,7 +853,7 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?              3_bit : 0;
 		MacroEditState |= m_editor->IsStreamSelection()?                                  4_bit : 0;
 		MacroEditState |= m_editor->IsVerticalSelection()?                                5_bit : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?            6_bit : 0;
+		MacroEditState |= WasFileSaved()?                                                 6_bit : 0;
 		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?              7_bit : 0;
 		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)? 8_bit : 0;
 		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?              9_bit : 0;
@@ -952,7 +952,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 				switch (Message(MSG_WARNING,
 					msg(lng::MEditTitle),
 					{
-						msg(m_editor->IsChanged()? lng::MEditSavedChangedNonFile : lng::MEditSavedChangedNonFile1),
+						msg(WasFileSaved()? lng::MEditSavedChangedNonFile : lng::MEditSavedChangedNonFile1),
 						msg(lng::MEditSavedChangedNonFile2)
 					},
 					{ lng::MHYes, lng::MHNo },
@@ -1152,7 +1152,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					switch (Message(MSG_WARNING,
 						msg(lng::MEditTitle),
 						{
-							msg(m_editor->IsChanged()? lng::MEditSavedChangedNonFile : lng::MEditSavedChangedNonFile1),
+							msg(WasFileSaved()? lng::MEditSavedChangedNonFile : lng::MEditSavedChangedNonFile1),
 							msg(lng::MEditSavedChangedNonFile2)
 						},
 						{ lng::MHYes, lng::MHNo, lng::MHCancel },
@@ -1628,7 +1628,6 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	{
 		if (LoadFile(strFullFileName, user_break, ErrorState))
 		{
-			m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 			m_editor->m_Flags.Clear(Editor::FEDITOR_MODIFIED);
 			Show();
 			return true;
@@ -1762,7 +1761,6 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 
 	if (Eol != eol::none)
 	{
-		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 		m_editor->GlobalEOL = Eol;
 	}
 
@@ -1888,7 +1886,6 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
-		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 
 	/* Этот кусок раскомметировать в том случае, если народ решит, что
 	   для если файл был залочен и мы его переписали под други именем...
@@ -1903,6 +1900,7 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 	{
 		m_editor->TextChanged(false);
 		m_editor->m_Flags.Set(Editor::FEDITOR_NEWUNDO);
+		m_Flags.Set(FFILEEDIT_WAS_SAVED);
 	}
 
 	Show();

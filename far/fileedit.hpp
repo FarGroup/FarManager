@@ -69,6 +69,7 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_DISABLEHISTORY        = 19_bit,  // Запретить запись в историю?
 	FFILEEDIT_ENABLEF6              = 20_bit,  // Переключаться во вьювер можно?
 	FFILEEDIT_SAVETOSAVEAS          = 21_bit,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
+	FFILEEDIT_WAS_SAVED             = 22_bit,  // The file was saved by the user at least once. Sometimes we need to know, e.g. if it's from a plugin panel.
 	//   При редактировании найденного файла из архива для
 	//   клавиши F2 сделать вызов ShiftF2.
 	FFILEEDIT_LOCKED                = 23_bit,  // заблокировать?
@@ -109,7 +110,7 @@ public:
 	uintptr_t GetCodePage() const;
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
 	bool SetCodePageEx(uintptr_t cp);
-	bool IsFileChanged() const { return m_editor->IsChanged(); }
+	bool WasFileSaved() const { return m_Flags.Check(FFILEEDIT_WAS_SAVED); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt) const;
 	void SetPluginTitle(const string* PluginTitle);

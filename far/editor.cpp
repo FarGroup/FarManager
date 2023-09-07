@@ -4736,12 +4736,6 @@ void Editor::SetStartPos(int LineNum,int CharNum)
 	StartChar=CharNum? CharNum:1;
 }
 
-bool Editor::IsChanged() const
-{
-	return m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED);
-}
-
-
 bool Editor::IsModified() const
 {
 	return m_Flags.Check(FEDITOR_MODIFIED);
@@ -5414,7 +5408,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
 			Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
 			Info->CurState|=!m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
-			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
+			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_MODIFIED:0;
 			Info->CodePage = GetCodePage();
 
 			return true;

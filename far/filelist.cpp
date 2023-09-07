@@ -1961,7 +1961,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								}();
 
 								if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);//OT
-								UploadFile=ShellEditor->IsFileChanged() || NewFile;
+								UploadFile = ShellEditor->WasFileSaved();
 
 								if (strTempName.empty())
 								{
