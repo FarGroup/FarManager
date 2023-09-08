@@ -317,7 +317,7 @@ static bool dlgSaveFileAs(string &strFileName, eol& Eol, uintptr_t &codepage, bo
 	});
 
 	EditDlg[ID_SF_FILENAME].strHistory = L"NewEdit"sv;
-	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
+	EditDlg[ID_SF_FILENAME].strData = strFileName;
 	EditDlg[ID_SF_SIGNATURE].Selected = AddSignature;
 
 	const auto EolToIndex = [&]()
@@ -1654,9 +1654,6 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
 int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t Codepage, bool AddSignature)
 {
-	if (!bSaveAs && !m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED))
-		return SAVEFILE_SUCCESS;
-
 	if (!bSaveAs)
 	{
 		Eol = eol::none;
@@ -1665,8 +1662,6 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 
 	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
-
-	int NewFile=TRUE;
 
 	const auto FileAttr = os::fs::get_file_attributes(Name);
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
@@ -1696,8 +1691,6 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 					}
 				}
 		}
-
-		NewFile=FALSE;
 
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 		{
@@ -1756,8 +1749,6 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 			return SAVEFILE_CANCEL;
 		}
 	}
-
-	int RetCode=SAVEFILE_SUCCESS;
 
 	if (Eol != eol::none)
 	{
@@ -1870,58 +1861,45 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 				Writer.write(SaveStr, LineEol.str());
 			}
 		});
-	}
-	catch (far_exception const& e)
-	{
-		RetCode = SAVEFILE_ERROR;
-		ErrorState = e;
-	}
 
-	// BUGBUG check result
-	if (os::fs::get_find_data(Name, FileInfo))
-		FileInfo.FileName = Name;
-	else
-		LOGWARNING(L"get_find_data({}): {}"sv, Name, os::last_error());
-
-	EditorGetFileAttributes(Name);
-
-	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
-
-	/* Этот кусок раскомметировать в том случае, если народ решит, что
-	   для если файл был залочен и мы его переписали под други именем...
-	   ...то "лочка" должна быть снята.
-	*/
-
-//  if(SaveAs)
-//    Flags.Clear(FEDITOR_LOCKMODE);
-	/* 28.12.2001 VVM
-	  ! Проверить на успешную запись */
-	if (RetCode==SAVEFILE_SUCCESS)
-	{
 		m_editor->TextChanged(false);
 		m_editor->m_Flags.Set(Editor::FEDITOR_NEWUNDO);
 		m_Flags.Set(FFILEEDIT_WAS_SAVED);
-	}
+		m_Flags.Clear(FFILEEDIT_NEW);
 
-	Show();
-	// ************************************
-	m_Flags.Clear(FFILEEDIT_NEW);
-	return RetCode;
+		// BUGBUG check result
+		if (os::fs::get_find_data(Name, FileInfo))
+			FileInfo.FileName = Name;
+		else
+			LOGWARNING(L"get_find_data({}): {}"sv, Name, os::last_error());
+
+		EditorGetFileAttributes(Name);
+		Show();
+		return SAVEFILE_SUCCESS;
+	}
+	catch (far_exception const& e)
+	{
+		ErrorState = e;
+		Show();
+		return SAVEFILE_ERROR;
+	}
 }
 
-static bool is_parent_directory_exists(string_view const FileName)
+static auto parent_directory(string_view const FileName)
 {
 	auto Path = FileName;
 	CutToParent(Path);
-	return os::fs::is_directory(Path);
+	return Path;
 }
 
 bool FileEditor::SaveAction(bool const SaveAsIntention)
 {
+	const auto ParentDirectory = parent_directory(strFullFileName);
+
 	const auto SaveAs =
 		SaveAsIntention ||
 		m_Flags.Check(FFILEEDIT_SAVETOSAVEAS) ||
-		!is_parent_directory_exists(strFullFileName);
+		!os::fs::is_directory(ParentDirectory);
 
 	for (;;)
 	{
@@ -1932,7 +1910,9 @@ bool FileEditor::SaveAction(bool const SaveAsIntention)
 
 		if (SaveAs)
 		{
-			auto strSaveAsName = m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName;
+			auto strSaveAsName = equal_icase(ParentDirectory, os::fs::get_current_directory())?
+				strFileName :
+				strFullFileName;
 
 			if (!dlgSaveFileAs(strSaveAsName, Eol, Codepage, AddSignature))
 				return false;
@@ -1955,9 +1935,6 @@ bool FileEditor::SaveAction(bool const SaveAsIntention)
 			m_SaveEol = Eol;
 			m_bAddSignature = AddSignature;
 			SetFileName(strFullSaveAsName);
-
-			if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY))
-				Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 			// перерисовывать надо как минимум когда изменилась кодировка или имя файла
 			ShowConsoleTitle();

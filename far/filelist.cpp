@@ -1863,9 +1863,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					strShortFileName = Current.AlternateFileName();
 				}
 
-				string strTempName;
 				string TemporaryDirectory;
 				bool UploadFailed = false, NewFile = false;
+				auto DeleteTemporaryFile = PluginMode;
 
 				if (PluginMode)
 				{
@@ -1880,8 +1880,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 					else
 					{
-					strTempName = path::join(TemporaryDirectory, PointToName(strFileName));
-
 					const FileListItem* CurPtr = nullptr;
 					if (LocalKey==KEY_SHIFTF4)
 					{
@@ -1892,13 +1890,15 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						else
 						{
 							NewFile = true;
-							strFileName = strTempName;
 						}
 					}
 					else
 					{
 						CurPtr = &m_ListData[m_CurFile];
 					}
+
+					strFileName = path::join(TemporaryDirectory, PointToName(strFileName));
+					strShortFileName = ConvertNameToShort(strFileName);
 
 					if (!NewFile)
 					{
@@ -1916,11 +1916,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						}
 					}
 
-					strShortFileName = ConvertNameToShort(strFileName);
 					}
 				}
 
-				auto DeleteViewedFile = PluginMode && !Edit; // внутренний viewer сам все удалит.
 				auto Modaling = false;
 				auto UploadFile = true;
 				auto RefreshedPanel = true;
@@ -1963,11 +1961,14 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);//OT
 								UploadFile = ShellEditor->WasFileSaved();
 
-								if (strTempName.empty())
 								{
+									// The user could potentially save the temporary file to a different location
 									string Dummy;
-									ShellEditor->GetTypeAndName(Dummy, strTempName);
-									strFileName = strTempName;
+									ShellEditor->GetTypeAndName(Dummy, strFileName);
+									string_view ParentDirectory = strFileName;
+									CutToParent(ParentDirectory);
+									if (!equal_icase(ParentDirectory, TemporaryDirectory))
+										DeleteTemporaryFile = false;
 								}
 
 								Modaling = true;
@@ -1998,17 +1999,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							PluginPanelItemHolderHeap PanelItem;
 							const auto strSaveDir = os::fs::get_current_directory();
 
-							if (!os::fs::exists(strTempName))
-							{
-								string_view Path = strTempName;
-								CutToSlash(Path);
-								const auto Find = os::fs::enum_files(Path + L'*');
-								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
-								if (ItemIterator != Find.cend())
-									strTempName = Path + ItemIterator->FileName;
-							}
-
-							if (FileNameToPluginItem(strTempName, PanelItem))
+							if (FileNameToPluginItem(strFileName, PanelItem))
 							{
 								const auto PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_EDIT);
 
@@ -2067,12 +2058,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									&ViewList);
 
 								/* $ 08.04.2002 IS
-								Сбросим DeleteViewedFile, т.к. внутренний viewer сам все удалит
+								Сбросим DeleteTemporaryFile, т.к. внутренний viewer сам все удалит
 								*/
 								if (ShellViewer->GetExitCode() && PluginMode)
 								{
 									ShellViewer->SetTempViewName(strFileName);
-									DeleteViewedFile=false;
+									DeleteTemporaryFile = false;
 								}
 							}
 						}
@@ -2095,7 +2086,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							},
 							{ lng::MOk });
 					}
-					else if (Edit || DeleteViewedFile)
+					else if (DeleteTemporaryFile)
 					{
 						// удаляем файл только для случая открытия его в редакторе или во
 						// внешнем viewer-е, т.к. внутренний viewer удаляет файл сам
