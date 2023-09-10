@@ -170,7 +170,7 @@ void tracer_detail::tracer::current_stacktrace(string_view Module, function_ref<
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
-	return get_symbols(Module, os::debug::current_stacktrace(FramesToSkip, FramesToCapture), Consumer);
+	return get_symbols(Module, os::debug::current_stacktrace(FramesToSkip + 1, FramesToCapture), Consumer);
 }
 
 void tracer_detail::tracer::stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer, CONTEXT const ContextRecord, HANDLE const ThreadHandle) const

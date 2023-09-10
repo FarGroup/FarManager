@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 
 // Platform:
-#include "platform.hpp"
 
 // Common:
 #include "common/2d/algorithm.hpp"
@@ -77,46 +76,82 @@ static FarColor Console256ColorToFarColor(index_color_256 const Color)
 	};
 }
 
-static constexpr index_color_256 distinct_cube_index(uint8_t const Index)
+static constexpr uint8_t cube_color(uint8_t const Index)
 {
-	rgb RGB = Index;
-	// Naive inversion doesn't work nicely in the middle of the spectre.
-	// This way the distance between foreground and background colors is constant and should always produce readable results.
-	constexpr uint8_t Mapping[]{ 3, 4, 5, 0, 1, 2 };
-	RGB.r = Mapping[RGB.r];
-	RGB.g = Mapping[RGB.g];
-	RGB.b = Mapping[RGB.b];
-
-	return { RGB, Index };
+	assert(Index < colors::index::cube_count);
+	return colors::index::cube_first + Index;
 }
 
-static constexpr index_color_256 distinct_grey(uint8_t const Value)
+static constexpr uint8_t cube_index(uint8_t const Color)
 {
-	// Naive inversion doesn't work nicely in the middle of the spectre.
-	// This way the distance between foreground and background colors is constant and should always produce readable results.
-	return
-	{
-		static_cast<uint8_t>(colors::index::grey_first + Value + (Value < 12? +12 : -12)),
-		static_cast<uint8_t>(colors::index::grey_first + Value)
-	};
+	assert(colors::index::cube_first <= Color && Color <= colors::index::cube_last);
+	return Color - colors::index::cube_first;
 }
 
-static constexpr auto distinct_grey_index = []
+static constexpr uint8_t grey_color(uint8_t const Index)
 {
-	std::array<index_color_256, colors::index::grey_last - colors::index::grey_first + 1> Result;
+	assert(Index < colors::index::grey_count);
+	return colors::index::grey_first + Index;
+}
+
+static constexpr uint8_t grey_index(uint8_t const Color)
+{
+	assert(colors::index::grey_first <= Color && Color <= colors::index::grey_last);
+	return Color - colors::index::grey_first;
+}
+
+// Naive inversion doesn't work nicely in the middle of the spectre.
+// This way the distance between foreground and background colors is constant and should always produce readable results.
+template<uint8_t count>
+static consteval auto foreground_inverse_mapping()
+{
+	std::array<uint8_t, count> Result;
+	constexpr auto Pivot = count / 2;
+	std::iota(Result.begin(), Result.begin() + Pivot, Pivot);
+	std::iota(Result.begin() + Pivot, Result.end(), 0);
+	return Result;
+}
+
+static constexpr auto distinct_cube_map = []
+{
+	std::array<uint8_t, colors::index::cube_count> Result;
+
+	constexpr auto CubeInverseMapping = foreground_inverse_mapping<cube_size>();
 
 	for (uint8_t i = 0; i != Result.size(); ++i)
-		Result[i] = distinct_grey(i);
+	{
+		rgb RGB = cube_color(i);
+		RGB.r = CubeInverseMapping[RGB.r];
+		RGB.g = CubeInverseMapping[RGB.g];
+		RGB.b = CubeInverseMapping[RGB.b];
+
+		Result[i] = RGB;
+	}
 
 	return Result;
 }();
-static_assert(std::size(distinct_grey_index) == colors::index::grey_last - colors::index::grey_first + 1);
+static_assert(std::size(distinct_cube_map) == colors::index::cube_count);
 
-static constexpr auto grey_control_by_color = column_major_iota<uint8_t, 6, 4>();
-static_assert(std::size(grey_control_by_color) == std::size(distinct_grey_index));
+static constexpr auto distinct_grey_map = []
+{
+	std::array<uint8_t, colors::index::grey_count> Result;
 
-static constexpr auto grey_color_by_control = column_major_iota<uint8_t, 4, 6>();
-static_assert(std::size(grey_color_by_control) == std::size(distinct_grey_index));
+	constexpr auto GreyInverseMapping = foreground_inverse_mapping<colors::index::grey_count>();
+
+	for (uint8_t i = 0; i != Result.size(); ++i)
+	{
+		Result[i] = grey_color(GreyInverseMapping[i]);
+	}
+
+	return Result;
+}();
+static_assert(std::size(distinct_grey_map) == colors::index::grey_count);
+
+static constexpr auto grey_control_by_index = column_major_iota<uint8_t, 6, 4>();
+static_assert(std::size(grey_control_by_index) == colors::index::grey_count);
+
+static constexpr auto grey_index_by_control = column_major_iota<uint8_t, 4, 6>();
+static_assert(std::size(grey_index_by_control) == colors::index::grey_count);
 
 static constexpr uint8_t grey_stripe_mapping[]
 {
@@ -126,11 +161,16 @@ static constexpr uint8_t grey_stripe_mapping[]
 	23, 22, 21, 20, 19, 18
 };
 
-static_assert(std::size(grey_stripe_mapping) == std::size(distinct_grey_index));
+static_assert(std::size(grey_stripe_mapping) == colors::index::grey_count);
 
 static bool is_rgb(uint8_t const Color)
 {
-	return in_closed_range(colors::index::cube_first, static_cast<int>(Color), colors::index::cube_last);
+	return in_closed_range(colors::index::cube_first, Color, colors::index::cube_last);
+}
+
+static bool is_grey(uint8_t const Color)
+{
+	return in_closed_range(colors::index::grey_first, Color, colors::index::grey_last);
 }
 
 enum color_256_dialog_items
@@ -141,7 +181,7 @@ enum color_256_dialog_items
 	cd_cube_last = cd_cube_first + (cube_size * cube_size - 1),
 
 	cd_grey_first,
-	cd_grey_last = cd_grey_first + (colors::index::grey_last - colors::index::grey_first),
+	cd_grey_last = cd_grey_first + colors::index::grey_count - 1,
 
 	cd_button_up,
 	cd_button_left,
@@ -212,7 +252,7 @@ static auto cube_index(color_256_state const& ColorState, color_256_dialog_items
 
 static void init_cube(color_256_state& ColorState)
 {
-	uint8_t Index = colors::index::cube_first;
+	uint8_t Index{};
 
 	for (auto& Plane: ColorState.Cube.Cube)
 	{
@@ -222,7 +262,7 @@ static void init_cube(color_256_state& ColorState)
 			{
 				Point = Index++;
 
-				if (Point == ColorState.CurColor)
+				if (cube_color(Point) == ColorState.CurColor)
 				{
 					ColorState.Cube.Slice = &Plane - &ColorState.Cube.Cube[0];
 				}
@@ -243,13 +283,15 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
-				Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(cube_index(ColorState, static_cast<color_256_dialog_items>(Param1))));
+				const auto ColorIndex = cube_index(ColorState, static_cast<color_256_dialog_items>(Param1));
+				Colors.Colors[0] = Console256ColorToFarColor({ distinct_cube_map[ColorIndex], cube_color(ColorIndex) });
 				return true;
 			}
 
 			if (in_closed_range(cd_grey_first, Param1, cd_grey_last))
 			{
-				Colors.Colors[0] = Console256ColorToFarColor(distinct_grey_index[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
+				const auto ColorIndex = grey_stripe_mapping[grey_index_by_control[Param1 - cd_grey_first]];
+				Colors.Colors[0] = Console256ColorToFarColor({ distinct_grey_map[ColorIndex], grey_color(ColorIndex) });
 				return true;
 			}
 
@@ -291,14 +333,14 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (Param2 && in_closed_range(cd_cube_first, Button, cd_cube_last))
 			{
-				ColorState.CurColor = cube_index(ColorState, Button);
+				ColorState.CurColor = cube_color(cube_index(ColorState, Button));
 				update_rgb_control<color_256_state>(Dlg, ColorState.as_rgb());
 				return true;
 			}
 
 			if (Param2 && in_closed_range(cd_grey_first, Button, cd_grey_last))
 			{
-				ColorState.CurColor = colors::index::grey_first + grey_stripe_mapping[grey_color_by_control[Button - cd_grey_first]];
+				ColorState.CurColor = grey_color(grey_stripe_mapping[grey_index_by_control[Button - cd_grey_first]]);
 				update_rgb_control<color_256_state>(Dlg, rgb{});
 				return true;
 			}
@@ -327,7 +369,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				for (const auto& Point: Line)
 				{
-					if (Point == ColorState.CurColor)
+					if (cube_color(Point) == ColorState.CurColor)
 					{
 						const auto ControlId = cd_cube_first + cube_rc_mapping[&Point - &Plane[0][0]];
 						Dlg->SendMessage(DM_SETCHECK, ControlId, ToPtr(BSTATE_CHECKED));
@@ -422,15 +464,15 @@ bool pick_color_256(uint8_t& Color)
 		ColorDlg[cd_text_b].strData = ColorState.channel_value(RGB.b);
 	}
 
-	if (in_closed_range(colors::index::cube_first, static_cast<int>(Color), colors::index::cube_last))
+	if (is_rgb(Color))
 	{
-		const auto ControlId = cd_cube_first + cube_rc_mapping[(Color - colors::index::cube_first) % (cube_size * cube_size)];
+		const auto ControlId = cd_cube_first + cube_rc_mapping[cube_index(Color) % (cube_size * cube_size)];
 		ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 		ColorDlg[ControlId].Flags |= DIF_FOCUS;
 	}
-	else if (in_closed_range(colors::index::grey_first, static_cast<int>(Color), colors::index::grey_last))
+	else if (is_grey(Color))
 	{
-		const auto ControlId = cd_grey_first + grey_control_by_color[grey_stripe_mapping[Color - colors::index::grey_first]];
+		const auto ControlId = cd_grey_first + grey_control_by_index[grey_stripe_mapping[grey_index(Color)]];
 		ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 		ColorDlg[ControlId].Flags |= DIF_FOCUS;
 	}

@@ -52,15 +52,17 @@ namespace colors
 {
 	namespace index
 	{
-		constexpr inline auto
+		constexpr inline uint8_t
 			nt_mask = 0xf,
 			nt_last = 15,
 			nt_size = nt_last + 1,
 			cube_first = nt_last + 1,
 			cube_size = 6,
-			cube_last = cube_first + cube_size * cube_size * cube_size - 1,
+			cube_count = cube_size * cube_size * cube_size,
+			cube_last = cube_first + cube_count - 1,
 			grey_first = cube_last + 1,
-			grey_last = 255;
+			grey_last = 255,
+			grey_count = grey_last - grey_first + 1;
 	}
 
 	uint8_t  index_bits(COLORREF Colour);
@@ -129,6 +131,9 @@ namespace colors
 			g(G),
 			b(B)
 		{
+			assert(R < 6);
+			assert(G < 6);
+			assert(B < 6);
 		}
 
 		explicit(false) constexpr rgb6(uint8_t const Color):
@@ -136,6 +141,7 @@ namespace colors
 			g((Color - index::nt_size - r * index::cube_size * index::cube_size) / index::cube_size),
 			b(Color - index::nt_size - r * index::cube_size * index::cube_size - g * index::cube_size)
 		{
+			assert(index::cube_first <= Color && Color <= index::cube_last);
 		}
 
 		explicit(false) constexpr operator uint8_t() const

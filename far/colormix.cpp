@@ -355,96 +355,67 @@ namespace colors
 		 8,  8,  8,  8,  8,  8,  8,  8,  7,  7,  7,  7,  7,  7, 15, 15
 	};
 
-	enum
-	{
-		C_Step = 40,
+	static_assert(sizeof(Index8ToIndex4) == 256);
 
-		C0 = 0,
-		C1 = 95,
-		C2 = C1 + C_Step,
-		C3 = C2 + C_Step,
-		C4 = C3 + C_Step,
-		C5 = C4 + C_Step
-	};
-
-	constexpr auto gray(int const Shade)
+	static constexpr auto Index8ToRGB = []
 	{
-		const auto Value = 8 + 10 * Shade;
-		return RGB(Value, Value, Value);
-	}
+		std::array<COLORREF, 256> Result;
 
-	static constexpr COLORREF Index8ToRGB[]
-	{
-		// First 16 colors are dynamic, see console_palette().
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// First 16 colors are dynamic, see console_palette()
+		for (auto i = 0; i != index::nt_size; ++i)
+		{
+			Result[i] = 0;
+		}
 
 		// 6x6x6 color cube
-		RGB(C0, C0, C0), RGB(C0, C0, C1), RGB(C0, C0, C2), RGB(C0, C0, C3), RGB(C0, C0, C4), RGB(C0, C0, C5),
-		RGB(C0, C1, C0), RGB(C0, C1, C1), RGB(C0, C1, C2), RGB(C0, C1, C3), RGB(C0, C1, C4), RGB(C0, C1, C5),
-		RGB(C0, C2, C0), RGB(C0, C2, C1), RGB(C0, C2, C2), RGB(C0, C2, C3), RGB(C0, C2, C4), RGB(C0, C2, C5),
-		RGB(C0, C3, C0), RGB(C0, C3, C1), RGB(C0, C3, C2), RGB(C0, C3, C3), RGB(C0, C3, C4), RGB(C0, C3, C5),
-		RGB(C0, C4, C0), RGB(C0, C4, C1), RGB(C0, C4, C2), RGB(C0, C4, C3), RGB(C0, C4, C4), RGB(C0, C4, C5),
-		RGB(C0, C5, C0), RGB(C0, C5, C1), RGB(C0, C5, C2), RGB(C0, C5, C3), RGB(C0, C5, C4), RGB(C0, C5, C5),
-		RGB(C1, C0, C0), RGB(C1, C0, C1), RGB(C1, C0, C2), RGB(C1, C0, C3), RGB(C1, C0, C4), RGB(C1, C0, C5),
-		RGB(C1, C1, C0), RGB(C1, C1, C1), RGB(C1, C1, C2), RGB(C1, C1, C3), RGB(C1, C1, C4), RGB(C1, C1, C5),
-		RGB(C1, C2, C0), RGB(C1, C2, C1), RGB(C1, C2, C2), RGB(C1, C2, C3), RGB(C1, C2, C4), RGB(C1, C2, C5),
-		RGB(C1, C3, C0), RGB(C1, C3, C1), RGB(C1, C3, C2), RGB(C1, C3, C3), RGB(C1, C3, C4), RGB(C1, C3, C5),
-		RGB(C1, C4, C0), RGB(C1, C4, C1), RGB(C1, C4, C2), RGB(C1, C4, C3), RGB(C1, C4, C4), RGB(C1, C4, C5),
-		RGB(C1, C5, C0), RGB(C1, C5, C1), RGB(C1, C5, C2), RGB(C1, C5, C3), RGB(C1, C5, C4), RGB(C1, C5, C5),
-		RGB(C2, C0, C0), RGB(C2, C0, C1), RGB(C2, C0, C2), RGB(C2, C0, C3), RGB(C2, C0, C4), RGB(C2, C0, C5),
-		RGB(C2, C1, C0), RGB(C2, C1, C1), RGB(C2, C1, C2), RGB(C2, C1, C3), RGB(C2, C1, C4), RGB(C2, C1, C5),
-		RGB(C2, C2, C0), RGB(C2, C2, C1), RGB(C2, C2, C2), RGB(C2, C2, C3), RGB(C2, C2, C4), RGB(C2, C2, C5),
-		RGB(C2, C3, C0), RGB(C2, C3, C1), RGB(C2, C3, C2), RGB(C2, C3, C3), RGB(C2, C3, C4), RGB(C2, C3, C5),
-		RGB(C2, C4, C0), RGB(C2, C4, C1), RGB(C2, C4, C2), RGB(C2, C4, C3), RGB(C2, C4, C4), RGB(C2, C4, C5),
-		RGB(C2, C5, C0), RGB(C2, C5, C1), RGB(C2, C5, C2), RGB(C2, C5, C3), RGB(C2, C5, C4), RGB(C2, C5, C5),
-		RGB(C3, C0, C0), RGB(C3, C0, C1), RGB(C3, C0, C2), RGB(C3, C0, C3), RGB(C3, C0, C4), RGB(C3, C0, C5),
-		RGB(C3, C1, C0), RGB(C3, C1, C1), RGB(C3, C1, C2), RGB(C3, C1, C3), RGB(C3, C1, C4), RGB(C3, C1, C5),
-		RGB(C3, C2, C0), RGB(C3, C2, C1), RGB(C3, C2, C2), RGB(C3, C2, C3), RGB(C3, C2, C4), RGB(C3, C2, C5),
-		RGB(C3, C3, C0), RGB(C3, C3, C1), RGB(C3, C3, C2), RGB(C3, C3, C3), RGB(C3, C3, C4), RGB(C3, C3, C5),
-		RGB(C3, C4, C0), RGB(C3, C4, C1), RGB(C3, C4, C2), RGB(C3, C4, C3), RGB(C3, C4, C4), RGB(C3, C4, C5),
-		RGB(C3, C5, C0), RGB(C3, C5, C1), RGB(C3, C5, C2), RGB(C3, C5, C3), RGB(C3, C5, C4), RGB(C3, C5, C5),
-		RGB(C4, C0, C0), RGB(C4, C0, C1), RGB(C4, C0, C2), RGB(C4, C0, C3), RGB(C4, C0, C4), RGB(C4, C0, C5),
-		RGB(C4, C1, C0), RGB(C4, C1, C1), RGB(C4, C1, C2), RGB(C4, C1, C3), RGB(C4, C1, C4), RGB(C4, C1, C5),
-		RGB(C4, C2, C0), RGB(C4, C2, C1), RGB(C4, C2, C2), RGB(C4, C2, C3), RGB(C4, C2, C4), RGB(C4, C2, C5),
-		RGB(C4, C3, C0), RGB(C4, C3, C1), RGB(C4, C3, C2), RGB(C4, C3, C3), RGB(C4, C3, C4), RGB(C4, C3, C5),
-		RGB(C4, C4, C0), RGB(C4, C4, C1), RGB(C4, C4, C2), RGB(C4, C4, C3), RGB(C4, C4, C4), RGB(C4, C4, C5),
-		RGB(C4, C5, C0), RGB(C4, C5, C1), RGB(C4, C5, C2), RGB(C4, C5, C3), RGB(C4, C5, C4), RGB(C4, C5, C5),
-		RGB(C5, C0, C0), RGB(C5, C0, C1), RGB(C5, C0, C2), RGB(C5, C0, C3), RGB(C5, C0, C4), RGB(C5, C0, C5),
-		RGB(C5, C1, C0), RGB(C5, C1, C1), RGB(C5, C1, C2), RGB(C5, C1, C3), RGB(C5, C1, C4), RGB(C5, C1, C5),
-		RGB(C5, C2, C0), RGB(C5, C2, C1), RGB(C5, C2, C2), RGB(C5, C2, C3), RGB(C5, C2, C4), RGB(C5, C2, C5),
-		RGB(C5, C3, C0), RGB(C5, C3, C1), RGB(C5, C3, C2), RGB(C5, C3, C3), RGB(C5, C3, C4), RGB(C5, C3, C5),
-		RGB(C5, C4, C0), RGB(C5, C4, C1), RGB(C5, C4, C2), RGB(C5, C4, C3), RGB(C5, C4, C4), RGB(C5, C4, C5),
-		RGB(C5, C5, C0), RGB(C5, C5, C1), RGB(C5, C5, C2), RGB(C5, C5, C3), RGB(C5, C5, C4), RGB(C5, C5, C5),
+		enum
+		{
+			C_Step = 40,
+
+			C0 = 0,
+			C1 = 95,
+			C2 = C1 + C_Step,
+			C3 = C2 + C_Step,
+			C4 = C3 + C_Step,
+			C5 = C4 + C_Step
+		};
+
+		constexpr uint8_t channel_value[]
+		{
+			C0,
+			C1,
+			C2,
+			C3,
+			C4,
+			C5,
+		};
+
+		for (auto r = 0; r != index::cube_size; ++r)
+		{
+			for (auto g = 0; g != index::cube_size; ++g)
+			{
+				for (auto b = 0; b != index::cube_size; ++b)
+				{
+					Result[rgb6(r, g, b)] = RGB(
+						channel_value[r],
+						channel_value[g],
+						channel_value[b]
+					);
+				}
+			}
+		}
 
 		// 24 shades of grey
-		gray(0),
-		gray(1),
-		gray(2),
-		gray(3),
-		gray(4),
-		gray(5),
-		gray(6),
-		gray(7),
-		gray(8),
-		gray(9),
-		gray(10),
-		gray(11),
-		gray(12),
-		gray(13),
-		gray(14),
-		gray(15),
-		gray(16),
-		gray(17),
-		gray(18),
-		gray(19),
-		gray(20),
-		gray(21),
-		gray(22),
-		gray(23),
-	};
+		for (auto i = 0; i != index::grey_count; ++i)
+		{
+			const auto Value = 8 + 10 * i;
+			Result[index::grey_first + i] = RGB(Value, Value, Value);
+		}
 
+		return Result;
+	}();
 
-	static_assert(sizeof(Index8ToIndex4) == 256);
+	static_assert(Index8ToRGB.size() == 256);
 
 	static uint8_t get_closest_palette_index(COLORREF const Color, span<COLORREF const> const Palette)
 	{

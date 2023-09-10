@@ -62,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
-#include "common/lazy.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -175,10 +174,10 @@ namespace
 
 	struct message
 	{
-		message(string_view const Str, logging::level const Level, std::string_view const Function, std::string_view const File, int const Line, size_t const TraceDepth):
+		message(string&& Str, logging::level const Level, std::string_view const Function, std::string_view const File, int const Line, size_t const TraceDepth):
 			m_ThreadId(get_thread_id()),
 			m_LevelString(level_to_string(Level)),
-			m_Data(Str),
+			m_Data(std::move(Str)),
 			m_Location(get_location(Function, File, Line)),
 			m_Level(Level)
 		{
@@ -188,7 +187,7 @@ namespace
 			{
 				m_Data += L"\nLog stack:\n"sv;
 
-				const auto FramesToSkip = 4; // log -> engine.log -> submit -> this ctor
+				const auto FramesToSkip = 3; // log -> engine::log -> this ctor
 				tracer.current_stacktrace({}, [&](string_view const TraceLine)
 				{
 					append(m_Data, TraceLine, L'\n');
@@ -857,19 +856,18 @@ namespace logging
 			}
 		}
 
-		void log(string_view const Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
+		void log(string&& Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
 		{
 			if (m_Status == engine_status::in_progress)
 			{
-				message Message(Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0);
-				m_QueuedMessages.emplace(std::move(Message));
+				m_QueuedMessages.push({ std::move(Str), Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
 				return;
 			}
 
 			if (!filter(Level))
 				return;
 
-			submit({ Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
+			submit({ std::move(Str), Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
 		}
 
 		static void suppress()
@@ -965,7 +963,7 @@ namespace logging
 
 	static thread_local size_t RecursionGuard{};
 
-	void log(string_view const Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
+	void log(string&& Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
 	{
 		// Log can potentially log itself, directly or through other parts of the code.
 		// Allow one level of recursion for diagnostics
@@ -975,7 +973,7 @@ namespace logging
 		++RecursionGuard;
 		SCOPE_EXIT{ --RecursionGuard; };
 
-		log_engine.log(Str, Level, Function, File, Line);
+		log_engine.log(std::move(Str), Level, Function, File, Line);
 	}
 
 	void show()

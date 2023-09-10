@@ -71,7 +71,7 @@ namespace logging
 	[[nodiscard]]
 	bool filter(level Level);
 
-	void log(string_view Str, level Level, std::string_view Function, std::string_view File, int Line);
+	void log(string&& Str, level Level, std::string_view Function, std::string_view File, int Line);
 
 	void show();
 
