@@ -839,6 +839,7 @@ void FileEditor::DisplayObject()
 	if (!m_bClosing)
 	{
 		m_editor->Show();
+		ShowStatus();
 	}
 }
 
@@ -2657,6 +2658,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 
 	BadConversion = !m_editor->SetCodePage(m_codepage, codepage, &m_bAddSignature);
 	m_codepage = codepage;
+	ShowStatus();
 	return true;
 }
 

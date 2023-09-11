@@ -363,10 +363,6 @@ void Editor::ShowEditor()
 			}
 		}
 	}
-
-	// BUGBUG
-	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
-		HostFileEditor->ShowStatus();
 }
 
 
