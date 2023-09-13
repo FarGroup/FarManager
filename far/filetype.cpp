@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "uuids.far.dialogs.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "RegExp.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -66,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/string_utils.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -90,42 +92,74 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	if (!CurrentDirectory.empty())
 		Guard.emplace(CurrentDirectory);
 
-	string strCommand;
-
 	const subst_context Context(Name, ShortName);
 
+	struct menu_data
 	{
+		string Command;
+		std::vector<RegExpMatch> Matches;
+		named_regex_match NamedMatches;
+	};
+
+	const auto AddMatches = [&](menu_data const& Data)
+	{
+		for (const auto& i: Data.Matches)
+		{
+			Context.Variables.emplace(
+				far::format(L"RegexGroup{}"sv, &i - Data.Matches.data()),
+				get_match(Context.Name, i)
+			);
+		}
+
+		for (const auto& [Name, Value]: Data.NamedMatches.Matches)
+		{
+			const auto& Match = Data.Matches[Value];
+			Context.Variables.emplace(
+				far::format(L"RegexGroup{{{}}}"sv, Name),
+				get_match(Context.Name, Match)
+			);
+		}
+	};
+
+	std::vector<menu_data> MenuData;
+
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
 
 		int CommandCount=0;
 
 		std::vector<MenuItemEx> MenuItems;
+
 		string strDescription;
 
 		for(const auto& [Id, Mask]: ConfigProvider().AssocConfig()->TypedMasksEnumerator(Mode))
 		{
-			strCommand.clear();
 			strDescription.clear();
+			Context.Variables.clear();
+
+			menu_data NewMenuData;
+			filemasks::regex_matches const RegexMatches{ NewMenuData.Matches, NewMenuData.NamedMatches };
 
 			if (FMask.assign(Mask, FMF_SILENT))
 			{
-				if (FMask.check(Context.Name))
+				if (FMask.check(Context.Name, &RegexMatches))
 				{
-					ConfigProvider().AssocConfig()->GetCommand(Id, Mode, strCommand);
+					ConfigProvider().AssocConfig()->GetCommand(Id, Mode, NewMenuData.Command);
 
-					if (!strCommand.empty())
+					if (!NewMenuData.Command.empty())
 					{
 						ConfigProvider().AssocConfig()->GetDescription(Id, strDescription);
 						CommandCount++;
 					}
 				}
 
-				if (strCommand.empty())
+				if (NewMenuData.Command.empty())
 					continue;
+
+				AddMatches(NewMenuData);
 			}
 
-			string strCommandText = strCommand;
+			string strCommandText = NewMenuData.Command;
 			if (
 				!SubstFileName(strCommandText, Context, {}, true) ||
 				// все "подставлено", теперь проверим условия "if exist"
@@ -141,7 +175,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 				strDescription = std::move(strCommandText);
 
 			MenuItemEx TypesMenuItem(strDescription);
-			TypesMenuItem.ComplexUserData = strCommand;
+			MenuData.emplace_back(std::move(NewMenuData));
 			MenuItems.emplace_back(std::move(TypesMenuItem));
 		}
 
@@ -170,23 +204,24 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 				return true;
 		}
 
-		strCommand = *TypesMenu->GetComplexUserDataPtr<string>(ExitCode);
-	}
+	auto& ItemData = MenuData[ExitCode];
+	Context.Variables.clear();
+	AddMatches(ItemData);
 
 	bool PreserveLFN = false;
-	if (SubstFileName(strCommand, Context, &PreserveLFN) && !strCommand.empty())
+	if (SubstFileName(ItemData.Command, Context, &PreserveLFN) && !ItemData.Command.empty())
 	{
 		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory & EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 		{
 			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
-			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, {}, curDir);
+			Global->CtrlObject->CmdHistory->AddToHistory(ItemData.Command, HR_DEFAULT, nullptr, {}, curDir);
 		}
 
 		SCOPED_ACTION(PreserveLongName)(Name, PreserveLFN);
 
 		execute_info Info;
-		Info.DisplayCommand = strCommand;
-		Info.Command = std::move(strCommand);
+		Info.DisplayCommand = ItemData.Command;
+		Info.Command = std::move(ItemData.Command);
 		Info.Directory = CurrentDirectory;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 		Info.RunAs = RunAs;

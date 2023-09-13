@@ -105,11 +105,15 @@ public:
 	bool operator==(string_view FileName) const;
 	bool empty() const;
 
+	using last_regex_matches = std::pair<std::vector<RegExpMatch> const*, named_regex_match const*>;
+	last_regex_matches last_matches() const;
+
 private:
 	struct regex_data
 	{
 		RegExp Regex;
 		mutable std::vector<RegExpMatch> Match;
+		mutable named_regex_match NamedMatch;
 	};
 
 	std::variant<std::vector<string>, regex_data> m_Masks;
@@ -257,9 +261,25 @@ void filemasks::clear()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::check(const string_view Name) const
+bool filemasks::check(const string_view Name, regex_matches const* const Matches) const
 {
-	return contains(Include, Name) && !contains(Exclude, Name);
+	if (contains(Exclude, Name))
+		return false;
+
+	const auto MaskIterator = std::find(ALL_CONST_RANGE(Include), Name);
+	if (MaskIterator == Include.cend())
+		return false;
+
+	if (Matches)
+	{
+		if (const auto [MatchPtr, NamedMatchPtr] = MaskIterator->last_matches(); MatchPtr)
+		{
+			Matches->first = std::move(*MatchPtr);
+			Matches->second = std::move(*NamedMatchPtr);
+		}
+	}
+
+	return true;
 }
 
 bool filemasks::empty() const
@@ -393,7 +413,7 @@ bool filemasks::masks::operator==(const string_view FileName) const
 		},
 		[&](const regex_data& Data)
 		{
-			return Data.Regex.Search(FileName, Data.Match); // BUGBUG
+			return Data.Regex.Search(FileName, Data.Match, &Data.NamedMatch);
 		}
 	}, m_Masks);
 }
@@ -410,6 +430,21 @@ bool filemasks::masks::empty() const
 		{
 			// It holds regex_data only when compilation is successful
 			return false;
+		}
+	}, m_Masks);
+}
+
+filemasks::masks::last_regex_matches filemasks::masks::last_matches() const
+{
+	return std::visit(overload
+	{
+		[&](const std::vector<string>&) -> last_regex_matches
+		{
+			return {};
+		},
+		[&](const regex_data& Data) -> last_regex_matches
+		{
+			return { &Data.Match, &Data.NamedMatch };
 		}
 	}, m_Masks);
 }
@@ -464,5 +499,32 @@ TEST_CASE("masks")
 	}
 
 	mask_group_accessor = &get_mask_group;
+}
+
+TEST_CASE("masks_with_matches")
+{
+	filemasks Masks;
+	Masks.assign(L"/(.+)\\.(?:.+)\\.(?{scratch}.+)/"sv);
+
+	std::vector<RegExpMatch> Matches;
+	named_regex_match NamedMatches;
+	filemasks::regex_matches const RegexMatches{ Matches, NamedMatches };
+	const auto Test = L"none.shall.pass"sv;
+
+	REQUIRE(Masks.check(Test, &RegexMatches));
+
+	REQUIRE(Matches.size() == 3u);
+
+	REQUIRE(Matches[0].start == 0);
+	REQUIRE(Matches[0].end == 15);
+
+	REQUIRE(Matches[1].start == 0);
+	REQUIRE(Matches[1].end == 4);
+
+	REQUIRE(Matches[2].start == 11);
+	REQUIRE(Matches[2].end == 15);
+
+	REQUIRE(NamedMatches.Matches.size() == 1u);
+	REQUIRE(NamedMatches.Matches.at(L"scratch"s) == 2u);
 }
 #endif
