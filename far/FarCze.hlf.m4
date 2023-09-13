@@ -2329,6 +2329,7 @@ je zapnuta, pokusí se Far pro vykonání tohoto typu souboru použít asociaci 
 a "IF DEFINED" (jestliže je definován) umožňují nastavit "chytřejší" asociace
 - pokud máte pro jeden typ souboru specifikováno několik asociací, menu
 zobrazí jen ty asociace, pro které jsou podmínky pravdivé.
+ 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
 
 
 @MetaSymbols

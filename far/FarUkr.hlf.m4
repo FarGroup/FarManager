@@ -2345,6 +2345,7 @@ $ #Редагування асоціацій файлів#
 дозволяють зробити асоціації більш "розумними" - якщо ви призначили кілька
 асоціацій для одного типу файлів, то до меню попадуть тільки ті асоціації,
 у яких умови будуть виконуватися.
+ 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
 
 
 @MetaSymbols

@@ -2373,6 +2373,7 @@ Windowsban definiált társításokat alkalmazni.
 szabhatunk. Ha azonos fájltípushoz több különböző társítást adtunk meg, az
 említett szabályok hatására a menüben csak a feltételeknek megfelelő
 társítások jelennek meg.
+ 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
 
 
 @MetaSymbols
