@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-09-13 20:28:17+01:00 - build 6191
+
+1. In file associations, if the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroupN or %RegexGroup{Name}.
+
+--------------------------------------------------------------------------------
 yjh 2023-09-12 01:06:13+03:00 - build 6190
 
 1. SQLite v3.43.1
