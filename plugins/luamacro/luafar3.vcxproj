@@ -45,8 +45,14 @@
     <ClCompile Include="luafar\lusercontrol.c" />
     <ClCompile Include="luafar\reg.c" />
     <ClCompile Include="luafar\service.c" />
-    <ClCompile Include="luafar\slnunico.c" />
-    <ClCompile Include="luafar\lutf8lib.c" />
+    <ClCompile Include="luafar\slnunico.c">
+      <WarningLevel>Level1</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
+    <ClCompile Include="luafar\lutf8lib.c">
+      <WarningLevel>Level1</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+    </ClCompile>
     <ClCompile Include="luafar\uliolib51.c" />
     <ClCompile Include="luafar\uloadlib51.c" />
     <ClCompile Include="luafar\ustring.c" />
