@@ -43,7 +43,7 @@ void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 
 void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
-  Info->StructSize=sizeof(Info);
+  Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
   static const wchar_t *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MAlign);
