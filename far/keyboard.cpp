@@ -2234,7 +2234,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 
 		if (Result == KEY_ESC && console.IsViewportShifted())
 		{
-			console.ResetPosition();
+			console.ResetViewportPosition();
 			return KEY_NONE;
 		}
 		else

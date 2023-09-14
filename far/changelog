@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-09-14 02:49:00+01:00 - build 6192
+
+1. Workaround for gh-727 and related minor fixes.
+
+--------------------------------------------------------------------------------
 drkns 2023-09-13 20:28:17+01:00 - build 6191
 
 1. In file associations, if the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroupN or %RegexGroup{Name}.
