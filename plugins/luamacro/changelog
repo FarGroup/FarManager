@@ -1,3 +1,9 @@
+johnd0e 2023-09-15 10:00:00+02:00 - build 781
+
+1. LuaFAR: update luautf8 library to 0.1.5-3-gf736301
+
+   Update to Unicode 15.1
+
 johnd0e 2023-09-14 12:59:00+02:00 - build 780
 
 1. LuaFAR: update luautf8 library to 0.1.5-2-g182575d
