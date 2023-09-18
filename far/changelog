@@ -1,4 +1,52 @@
 --------------------------------------------------------------------------------
+drkns 2023-09-14 02:49:00+01:00 - build 6192
+
+1. Workaround for gh-727 and related minor fixes.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-13 20:28:17+01:00 - build 6191
+
+1. In file associations, if the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroupN or %RegexGroup{Name}.
+
+--------------------------------------------------------------------------------
+yjh 2023-09-12 01:06:13+03:00 - build 6190
+
+1. SQLite v3.43.1
+
+--------------------------------------------------------------------------------
+drkns 2023-09-11 17:35:09+01:00 - build 6189
+
+1. Continue 6185.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-10 16:55:08+01:00 - build 6188
+
+1. Refactoring and minor fixes.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-09 09:31:11+01:00 - build 6187
+
+1. Continue 6185.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-08 18:07:06+01:00 - build 6186
+
+1. Continue 6185.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-07 19:35:15+01:00 - build 6185
+
+1. gh-700: Unmodified files are overwritten in plugins if code page is changed.
+
+--------------------------------------------------------------------------------
+drkns 2023-09-07 00:13:41+01:00 - build 6184
+
+1. Refactoring:
+   - Simpler logic around saving file in editor and various dialogs related to it.
+     The changes are somewhat massive, expect bugs.
+   - Code page is no longer stored in Editor, only in FileEditor.
+
+--------------------------------------------------------------------------------
 drkns 2023-09-02 17:00:00+01:00 - build 6183
 
 1. gh-726: Wrong buttons in warning message when creating a new file from a plugin panel.

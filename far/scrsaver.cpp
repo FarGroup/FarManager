@@ -303,7 +303,7 @@ void ScreenSaver()
 
 	// The whole point of a screen saver is to be visible
 	if (console.IsViewportShifted())
-		console.ResetPosition();
+		console.ResetViewportPosition();
 
 	SCOPED_ACTION(SaveScreen);
 

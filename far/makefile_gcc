@@ -191,7 +191,7 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
-FORCEINCLUDE=$(patsubst %, -include %, $(FORCEINCLUDELIST_NO_PCH))
+FORCEINCLUDE=$(patsubst %, -include %, headers.hpp $(FORCEINCLUDELIST_NO_PCH))
 
 CPPFLAGS += $(ADDINCLUDE)
 

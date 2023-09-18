@@ -1297,7 +1297,7 @@ void regex_playground()
 
 			const auto match_str = [&](RegExpMatch const& m)
 			{
-				return m.start < 0? L""s : far::format(L"{}-{} {}"sv, m.start, m.end, TestStr.substr(m.start, m.end - m.start));
+				return m.start < 0? L""s : far::format(L"{}-{} {}"sv, m.start, m.end, get_match(TestStr, m));
 			};
 
 			for (const auto& [i, Index] : enumerate(Match))

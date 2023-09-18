@@ -60,16 +60,8 @@ namespace os::version
 	bool is_win10_build_or_later(DWORD Build);
 
 	// This versioning scheme is mental
-
-	inline bool is_win10_1607_or_later()
-	{
-		return is_win10_build_or_later(14393);
-	}
-
-	inline bool is_win10_1703_or_later()
-	{
-		return is_win10_build_or_later(15063);
-	}
+	bool is_win10_1607_or_later();
+	bool is_win10_1703_or_later();
 
 	string get_file_version(string_view Name);
 

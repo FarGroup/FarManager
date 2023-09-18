@@ -2344,6 +2344,7 @@ $ #Настройка ассоциации файлов#
 позволяют сделать ассоциации более "умными" - если вы назначили несколько
 ассоциаций для одного типа файлов, то в меню попадут только те ассоциации,
 у которых условия будут выполняться.
+ 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
 
 
 @MetaSymbols

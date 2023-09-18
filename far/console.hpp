@@ -173,7 +173,6 @@ namespace console_detail
 
 		bool IsFullscreenSupported() const;
 
-		void ResetPosition() const;
 		bool ResetViewportPosition() const;
 
 		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;

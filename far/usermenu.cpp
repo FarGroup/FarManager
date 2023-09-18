@@ -703,7 +703,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					{
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
 						if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);
-						if (!ShellEditor->IsFileChanged())
+						if (!ShellEditor->WasFileSaved())
 							break;
 					}
 					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, os::fs::file_share_read, nullptr, OPEN_EXISTING))

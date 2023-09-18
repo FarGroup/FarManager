@@ -119,6 +119,7 @@ CPPFLAGS = $(CFLAGS)\
 	-std=c++20 \
 	-fvisibility=hidden \
 	-Werror=old-style-cast \
+	-Werror=vexing-parse \
 	-Wctor-dtor-privacy \
 	-Wextra-semi \
 	-Wimplicit-fallthrough \

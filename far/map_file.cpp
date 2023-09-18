@@ -174,12 +174,6 @@ static auto determine_format(std::istream& Stream)
 	return determine_format(Lines.begin()->Str);
 }
 
-static auto group(string_view const Str, std::vector<RegExpMatch> const& m, size_t const Index)
-{
-	const auto& Match = m[Index];
-	return Str.substr(Match.start, Match.end - Match.start);
-}
-
 static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	RegExp ReBase, ReSymbol;
@@ -198,13 +192,13 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 
 		if (!BaseAddress && ReBase.Search(i.Str, m))
 		{
-			BaseAddress = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			BaseAddress = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
 			continue;
 		}
 
 		if (ReSymbol.Search(i.Str, m))
 		{
-			auto Address = from_string<uintptr_t>(group(i.Str, m, 2), {}, 16);
+			auto Address = from_string<uintptr_t>(get_match(i.Str, m[2]), {}, 16);
 			if (!Address)
 				continue;
 
@@ -212,8 +206,8 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 				Address -= BaseAddress;
 
 			map_file::line Line;
-			Line.Name = group(i.Str, m, 1);
-			const auto File = group(i.Str, m, 3);
+			Line.Name = get_match(i.Str, m[1]);
+			const auto File = get_match(i.Str, m[3]);
 			Line.File = &*Files.emplace(File).first;
 
 			Symbols.emplace(Address, std::move(Line));
@@ -241,16 +235,16 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 		if (ReSymbol.Search(i.Str, m))
 		{
 			map_file::line Line;
-			Line.Name = group(i.Str, m, 2);
+			Line.Name = get_match(i.Str, m[2]);
 			Line.File = &*Files.emplace(ObjName).first;
-			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
 			Symbols.emplace(Address, std::move(Line));
 			continue;
 		}
 
 		if (ReObject.Search(i.Str, m))
 		{
-			ObjName = group(i.Str, m, 1);
+			ObjName = get_match(i.Str, m[1]);
 			continue;
 		}
 	}
@@ -277,7 +271,7 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 
 		if (ReFile.Search(i.Str, m) && ReFileName.Search(LastLine, m))
 		{
-			FileName = group(LastLine, m, 1);
+			FileName = get_match(LastLine, m[1]);
 			LastLine.clear();
 			continue;
 		}
@@ -285,9 +279,9 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 		if (ReSymbol.Search(i.Str, m))
 		{
 			map_file::line Line;
-			Line.Name = group(i.Str, m, 2);
+			Line.Name = get_match(i.Str, m[2]);
 			Line.File = &*Files.emplace(FileName).first;
-			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16) + BaseAddress;
+			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16) + BaseAddress;
 			Symbols.emplace(Address, std::move(Line));
 			continue;
 		}

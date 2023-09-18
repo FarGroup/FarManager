@@ -104,30 +104,37 @@ namespace os::version
 
 	bool is_win10_build_or_later(DWORD const Build)
 	{
-		static const auto Result = [&]
+		OSVERSIONINFOEXW osvi
 		{
-			OSVERSIONINFOEXW osvi
-			{
-				sizeof(osvi),
-				extract_integer<BYTE, 1>(_WIN32_WINNT_WIN10),
-				extract_integer<BYTE, 0>(_WIN32_WINNT_WIN10),
-				Build
-			};
+			sizeof(osvi),
+			extract_integer<BYTE, 1>(_WIN32_WINNT_WIN10),
+			extract_integer<BYTE, 0>(_WIN32_WINNT_WIN10),
+			Build
+		};
 
-			const auto ConditionMask = condition_mask<
-				VER_MAJORVERSION,
-				VER_MINORVERSION,
-				VER_BUILDNUMBER
-			>(VER_GREATER_EQUAL);
+		const auto ConditionMask = condition_mask<
+			VER_MAJORVERSION,
+			VER_MINORVERSION,
+			VER_BUILDNUMBER
+		>(VER_GREATER_EQUAL);
 
-			return VerifyVersionInfo(
-				&osvi,
-				VER_MAJORVERSION |
-				VER_MINORVERSION |
-				VER_BUILDNUMBER,
-				ConditionMask) != FALSE;
-		}();
+		return VerifyVersionInfo(
+			&osvi,
+			VER_MAJORVERSION |
+			VER_MINORVERSION |
+			VER_BUILDNUMBER,
+			ConditionMask) != FALSE;
+	}
 
+	bool is_win10_1607_or_later()
+	{
+		static const auto Result = is_win10_build_or_later(14393);
+		return Result;
+	}
+
+	bool is_win10_1703_or_later()
+	{
+		static const auto Result = is_win10_build_or_later(15063);
 		return Result;
 	}
 

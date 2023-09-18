@@ -512,6 +512,26 @@ protected:
 	static nifty_counter::buffer<external_console> Storage;
 	static auto& ExternalConsole = reinterpret_cast<external_console&>(Storage);
 
+	class hide_cursor
+	{
+	public:
+		NONCOPYABLE(hide_cursor);
+
+		hide_cursor():
+			m_Restore(::console.GetCursorInfo(m_CursorInfo) && ::console.SetCursorInfo({ m_CursorInfo.dwSize }))
+		{
+		}
+
+		~hide_cursor()
+		{
+			if (m_Restore)
+				(void)::console.SetCursorInfo(m_CursorInfo);
+		}
+
+		CONSOLE_CURSOR_INFO m_CursorInfo{};
+		bool m_Restore{};
+	};
+
 	console::console():
 		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
 		m_StreamBuffersOverrider(std::make_unique<stream_buffers_overrider>())
@@ -1403,18 +1423,11 @@ WARNING_POP()
 			if (!::console.GetCursorRealPosition(SavedCursorPosition))
 				return false;
 
-			CONSOLE_CURSOR_INFO SavedCursorInfo;
-			if (!::console.GetCursorInfo(SavedCursorInfo))
-				return false;
-
 			// Ideally this should be filtered out earlier
 			if (WriteRegion.left > csbi.dwSize.X - 1 || WriteRegion.top > csbi.dwSize.Y - 1)
 				return false;
 
-
-			// Hide cursor
-			if (!::console.SetCursorInfo({SavedCursorInfo.dwSize}))
-				return false;
+			SCOPED_ACTION(hide_cursor);
 
 			// Move the viewport down
 			if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
@@ -1430,8 +1443,6 @@ WARNING_POP()
 				::console.SetCursorRealPosition({ 0, csbi.dwSize.Y - 1 });
 				// Restore cursor position within the viewport
 				::console.SetCursorRealPosition(SavedCursorPosition);
-				// Restore cursor
-				::console.SetCursorInfo(SavedCursorInfo);
 				// Restore buffer relative position
 				if (csbi.srWindow.Left || csbi.srWindow.Bottom != csbi.dwSize.Y - 1)
 					::console.SetWindowRect(csbi.srWindow);
@@ -1503,44 +1514,25 @@ WARNING_POP()
 			return ::console.Write(CSI L"0m"sv);
 		}
 
-		class cursor_suppressor
+		class cursor_suppressor: public hide_cursor
 		{
 		public:
 			NONCOPYABLE(cursor_suppressor);
 
-			cursor_suppressor()
+			cursor_suppressor():
+				m_Restore(::console.GetCursorRealPosition(m_Position) && ::console.SetCursorPosition({}))
 			{
-				CONSOLE_CURSOR_INFO Info;
-				if (!::console.GetCursorInfo(Info))
-					return;
-
-				if (!::console.SetCursorInfo({ 1 }))
-					return;
-
-				m_Info = Info;
-
-				point Position;
-				if (!::console.GetCursorRealPosition(Position))
-					return;
-
-				if (!::console.SetCursorPosition({}))
-					return;
-
-				m_Position = Position;
 			}
 
 			~cursor_suppressor()
 			{
-				if (m_Position)
-					::console.SetCursorRealPosition(*m_Position);
-
-				if (m_Info)
-					::console.SetCursorInfo(*m_Info);
+				if (m_Restore)
+					(void)::console.SetCursorRealPosition(m_Position);
 			}
 
 		private:
-			std::optional<point> m_Position;
-			std::optional<CONSOLE_CURSOR_INFO> m_Info;
+			point m_Position;
+			bool m_Restore{};
 		};
 
 		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, point const BufferSize, rectangle const& WriteRegion)
@@ -2185,29 +2177,26 @@ WARNING_POP()
 #endif
 	}
 
-	void console::ResetPosition() const
+	bool console::ResetViewportPosition() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
-			return;
+			return false;
 
-		if (!csbi.srWindow.Left && csbi.srWindow.Bottom == csbi.dwSize.Y - 1)
-			return;
+		rectangle const Window = csbi.srWindow;
+		point SavedCursorPosition;
+		const auto RestoreCursorPosition = GetCursorRealPosition(SavedCursorPosition) && SavedCursorPosition.y > csbi.dwSize.Y - Window.height() && SavedCursorPosition.x < Window.width();
 
-		csbi.srWindow.Right -= csbi.srWindow.Left;
-		csbi.srWindow.Left = 0;
-		csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
-		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
-		SetWindowRect(csbi.srWindow);
-	}
+		SCOPED_ACTION(hide_cursor);
 
-	bool console::ResetViewportPosition() const
-	{
-		rectangle WindowRect;
-		return
-			GetWindowRect(WindowRect) &&
-			SetCursorPosition({}) &&
-			SetCursorPosition({ 0, WindowRect.height() - 1 });
+		// Move the viewport down
+		if (!SetCursorRealPosition({ 0, csbi.dwSize.Y - 1 }))
+			return false;
+
+		if (RestoreCursorPosition)
+			(void)SetCursorRealPosition(SavedCursorPosition);
+
+		return true;
 	}
 
 	bool console::IsVtEnabled() const

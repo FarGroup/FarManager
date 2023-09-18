@@ -2294,6 +2294,7 @@ dialog is on, Far tries to use Windows association to execute this file type.
 allow to configure "smarter" associations - if you have specified several
 associations for a file type, the menu will show only the associations
 for which the conditions are true.
+ 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
 
 
 @MetaSymbols

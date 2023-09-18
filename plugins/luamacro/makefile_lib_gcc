@@ -39,6 +39,7 @@ USERC = \
 	-Wno-format-nonliteral \
 	-Wno-implicit-fallthrough \
 	-Wno-missing-declarations \
+	-Wno-pedantic \
 
 ifdef CLANG
 USERC += \
@@ -50,7 +51,6 @@ USERC += \
 	-Wno-format-non-iso \
 	-Wno-missing-prototypes \
 	-Wno-missing-variable-declarations \
-	-Wno-pedantic \
 	-Wno-shadow \
 	-Wno-strict-prototypes \
 	-Wno-unused-macros \

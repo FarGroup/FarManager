@@ -409,10 +409,14 @@ namespace os::debug::symbols
 		}
 	}
 
+	enum context_encoding
+	{
+		ansi,
+		unicode
+	};
+
 	static BOOL CALLBACK callback([[maybe_unused]] HANDLE const Process, ULONG const ActionCode, ULONG64 const CallbackData, ULONG64 const UserContext)
 	{
-		const auto IsUnicode = UserContext == 1;
-
 		switch (ActionCode)
 		{
 		case CBA_EVENT:
@@ -423,7 +427,7 @@ namespace os::debug::symbols
 				string Buffer;
 				string_view Message;
 
-				if (IsUnicode)
+				if (UserContext == context_encoding::unicode)
 				{
 					Message = static_cast<wchar_t const*>(static_cast<void const*>(Event.desc));
 				}
@@ -448,10 +452,10 @@ namespace os::debug::symbols
 	static bool register_callback(HANDLE const Process)
 	{
 		if (imports.SymRegisterCallbackW64)
-			return imports.SymRegisterCallbackW64(Process, callback, 1) != FALSE;
+			return imports.SymRegisterCallbackW64(Process, callback, context_encoding::unicode) != FALSE;
 
 		if (imports.SymRegisterCallback64)
-			return imports.SymRegisterCallback64(Process, callback, 0) != FALSE;
+			return imports.SymRegisterCallback64(Process, callback, context_encoding::ansi) != FALSE;
 
 		return false;
 	}

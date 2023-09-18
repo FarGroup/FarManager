@@ -1,3 +1,23 @@
+johnd0e 2023-09-15 10:00:00+02:00 - build 781
+
+1. LuaFAR: update luautf8 library to 0.1.5-3-gf736301
+
+   Update to Unicode 15.1
+
+johnd0e 2023-09-14 12:59:00+02:00 - build 780
+
+1. LuaFAR: update luautf8 library to 0.1.5-2-g182575d
+
+   Unicode normalize algorithm implemented.
+
+   New functions:
+   - utf8.isnfc(s) -> boolean
+     check whether s is in Normal Form C or not.
+   - utf8.normalize_nfc(s) -> normal_string, was_nfc
+     convert s to Normal Form C.
+
+   See https://github.com/starwing/luautf8/pull/44/files#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5 for more info.
+
 shmuel 2023-07-15 08:51:10+03:00 - build 779
 
 1. LuaFAR: a flag combination may be specified as a string (space-delimitered).

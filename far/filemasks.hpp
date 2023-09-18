@@ -46,6 +46,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+struct RegExpMatch;
+struct named_regex_match;
+
 enum FM_FLAGS
 {
 	FMF_SILENT = 1,
@@ -63,7 +66,8 @@ public:
 	filemasks& operator=(filemasks&&) noexcept;
 
 	bool assign(string_view Str, DWORD Flags = 0);
-	bool check(string_view Name) const;
+	using regex_matches = std::pair<std::vector<RegExpMatch>&, named_regex_match&>;
+	bool check(string_view Name, regex_matches const* Matches = {}) const;
 	bool empty() const;
 
 	static void ErrorMessage();

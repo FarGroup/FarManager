@@ -1909,7 +1909,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				{
 					Global->WindowManager->ExecuteNonModal(Editor);
 					if (Global->WindowManager->IndexOf(Editor) != -1)
-						ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+						ExitCode = Editor->WasFileSaved()? EEC_MODIFIED : EEC_NOT_MODIFIED;
 					else
 						ExitCode = EEC_NOT_MODIFIED;//??? editorExitCode
 				}
@@ -1922,7 +1922,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 					if constexpr (features::mantis_2562)
 					{
-						ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+						ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->WasFileSaved()? EEC_MODIFIED : EEC_NOT_MODIFIED;
 					}
 					else
 					{
@@ -1973,7 +1973,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 							ExitCode = XC_OPEN_ERROR;
 						else
 #endif
-							ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+							ExitCode = Editor->WasFileSaved()? EEC_MODIFIED : EEC_NOT_MODIFIED;
 					}
 				}
 				break;
