@@ -314,16 +314,13 @@ using enum_helpers::operator&;
 template<typename... args>
 struct [[nodiscard]] overload: args...
 {
-	explicit overload(args&&... Args):
-		args(FWD(Args))...
-	{
-	}
-
 	using args::operator()...;
+
+	consteval void operator()(auto a) const
+	{
+		static_assert(!sizeof(a), "Unsupported type");
+	}
 };
-
-template<typename... args> overload(args&&...) -> overload<args...>;
-
 
 namespace detail
 {

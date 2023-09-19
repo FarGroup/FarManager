@@ -39,10 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "config.hpp"
-#include "strmix.hpp"
 #include "global.hpp"
 #include "locale.hpp"
-#include "encoding.hpp"
 
 // Platform:
 
@@ -853,6 +851,29 @@ TEST_CASE("datetime.ConvertDuration")
 		REQUIRE(i.Days == Days);
 		check_digits(i.Timestamp, Timestamp);
 		check_digits(i.HMS, ConvertDurationToHMS(i.Duration));
+	}
+}
+
+TEST_CASE("datetime.format_datetime")
+{
+	static const struct
+	{
+		SYSTEMTIME SystemTime;
+		string_view Date, Time;
+	}
+	Tests[]
+	{
+		{ {                                   },  L"0000-00-00"sv, L"00:00:00.000"sv },
+		{ {     1,  1, 0,  1,  1,  1,  1,   1 },  L"0001-01-01"sv, L"01:01:01.001"sv },
+		{ {  2023,  9, 0, 18, 22, 37, 14, 123 },  L"2023-09-18"sv, L"22:37:14.123"sv },
+		{ { 30827, 12, 0, 31, 23, 59, 59, 999 }, L"30827-12-31"sv, L"23:59:59.999"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto [Date, Time] = format_datetime(i.SystemTime);
+		REQUIRE(i.Date == Date);
+		REQUIRE(i.Time == Time);
 	}
 }
 #endif

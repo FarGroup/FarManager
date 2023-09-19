@@ -125,7 +125,7 @@ namespace os::com
 
 	static bool is_proper_progid(string_view const ProgID)
 	{
-		return !ProgID.empty() && reg::key::open(reg::key::classes_root, ProgID, KEY_QUERY_VALUE);
+		return !ProgID.empty() && reg::key::classes_root.open(ProgID, KEY_QUERY_VALUE);
 	}
 
 	static string get_shell_type(string_view const FileName)
@@ -156,7 +156,7 @@ namespace os::com
 			}
 		}
 
-		if (const auto UserKey = reg::key::open(reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
+		if (const auto UserKey = reg::key::current_user.open(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
 		{
 			if (string Value; UserKey.get(L"ProgId"sv, Value) && is_proper_progid(Value))
 			{
@@ -172,7 +172,7 @@ namespace os::com
 			}
 		}
 
-		if (const auto CRKey = reg::key::open(reg::key::classes_root, Ext, KEY_QUERY_VALUE))
+		if (const auto CRKey = reg::key::classes_root.open(Ext, KEY_QUERY_VALUE))
 		{
 			if (string Value; CRKey.get({}, Value) && is_proper_progid(Value))
 			{
@@ -189,13 +189,7 @@ namespace os::com
 		if (Type.empty())
 			return {};
 
-		string Description;
-		if (!reg::key::classes_root.get(Type, {}, Description))
-		{
-			return {};
-		}
-
-		return Description;
+		return reg::key::classes_root.get<string>(Type, {}).value_or(L""s);
 	}
 
 	ptr<IFileIsInUse> create_file_is_in_use(const string& File)

@@ -59,10 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	string UserName;
-	// BUGBUG check result
-	(void)os::reg::key::current_user.get(concat(L"Network\\"sv, Drive), L"UserName"sv, UserName);
-	return UserName;
+	return os::reg::key::current_user.get<string>(concat(L"Network\\"sv, Drive), L"UserName"sv).value_or(L""s);
 }
 
 os::fs::drives_set GetSavedNetworkDrives()

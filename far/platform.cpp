@@ -645,9 +645,16 @@ std::vector<HKL> get_keyboard_layout_list()
 	// The code below emulates it in the hope that your client and server layouts are more or less similar.
 	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, os::last_error());
 
+	const auto Key = reg::key::current_user.open(L"Keyboard Layout\\Preload"sv, KEY_QUERY_VALUE);
+	if (!Key)
+	{
+		LOGWARNING(L"Cannot open Keyboard Layout\\Preload key"sv);
+		return Result;
+	}
+
 	Result.reserve(10);
-	string LayoutStr, LayoutIdStr;
-	for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"sv))
+
+	for (const auto& i: Key.enum_values())
 	{
 		try
 		{
@@ -658,17 +665,15 @@ std::vector<HKL> get_keyboard_layout_list()
 			const auto Preload = from_string<uint32_t>(PreloadStr, {}, 16);
 			const auto PrimaryLanguageId = extract_integer<uint16_t, 0>(Preload);
 
-			const auto LayoutValue = os::reg::key::current_user.get(L"Keyboard Layout\\Substitutes"sv, PreloadStr, LayoutStr)?
-				from_string<uint32_t>(LayoutStr, {}, 16) :
-				Preload;
+			const auto LayoutStr = reg::key::current_user.get<string>(L"Keyboard Layout\\Substitutes"sv, PreloadStr);
+			const auto LayoutValue = LayoutStr? from_string<uint32_t>(*LayoutStr, {}, 16) : Preload;
 
 			const auto SecondaryLanguageId = extract_integer<uint16_t, 0>(LayoutValue);
 
-			const string_view LayoutView = LayoutValue == Preload? PreloadStr : LayoutStr;
+			const string_view LayoutView = LayoutValue == Preload? PreloadStr : *LayoutStr;
 
-			const auto LayoutId = os::reg::key::local_machine.get(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv, LayoutIdStr)?
-				from_string<int>(LayoutIdStr, {}, 16) :
-				0;
+			const auto LayoutIdStr = reg::key::local_machine.get<string>(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv);
+			const auto LayoutId = LayoutIdStr? from_string<int>(*LayoutIdStr, {}, 16) : 0;
 
 			const auto FinalLayout = make_integer<uint32_t, uint16_t>(PrimaryLanguageId, LayoutId? (LayoutId & 0xfff) | 0xf000 : SecondaryLanguageId);
 

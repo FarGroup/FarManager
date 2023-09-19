@@ -2011,14 +2011,15 @@ TEST_CASE("utility.overload")
 {
 	const auto Composite = overload
 	{
-		[](int i){ return i; },
-		[](bool b){ return b; },
-		[](auto a) { return a; }
+		[](int    i) { return i; },
+		[](bool   b) { return b; },
+		[](double d) { return d; },
 	};
 
-	STATIC_REQUIRE(std::same_as<decltype(Composite(42)), int>);
-	STATIC_REQUIRE(std::same_as<decltype(Composite(false)), bool>);
-	STATIC_REQUIRE(std::same_as<decltype(Composite(0.5)), double>);
+	STATIC_REQUIRE(Composite(42) == 42);
+	STATIC_REQUIRE(Composite(false) == false);
+	STATIC_REQUIRE(Composite(0.5) == 0.5);
+	STATIC_REQUIRE(!std::convertible_to<decltype(Composite('q')), char>);
 }
 
 TEST_CASE("utility.casts")
