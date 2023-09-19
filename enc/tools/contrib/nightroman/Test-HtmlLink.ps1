@@ -46,7 +46,7 @@ Get-ChildItem $Path -Include $Include -Recurse | Select-String '(?:href|src)\s*=
 	$directory = [IO.Path]::GetDirectoryName($_.Path)
 	foreach($m in $_.Matches) {
 		$link = $m.Groups[1].Value
-		if ($link -notmatch '^(?:win32/|http:|mailto:|ftp:|news:)' -and ![IO.File]::Exists("$directory\$link")) {
+		if ($link -notmatch '^(?:http:|mailto:|ftp:|news:)' -and ![IO.File]::Exists("$directory\$link")) {
 			if ($Emit) {
 				$e = 1 | Select-Object Path, LineNumber, Link
 				$e.Path = $_.Path; $e.LineNumber = $_.LineNumber; $e.Link = $link
