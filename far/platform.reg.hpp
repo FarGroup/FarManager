@@ -49,11 +49,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace os::reg
 {
 	class value;
+	class enum_key;
+	class enum_value;
 
 	class key
 	{
-		friend class enum_key;
-		friend class enum_value;
+		friend enum_key;
+		friend enum_value;
 
 	public:
 		key() = default;

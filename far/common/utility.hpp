@@ -322,6 +322,9 @@ struct [[nodiscard]] overload: args...
 	}
 };
 
+// For Clang
+template<typename... args> overload(args...) -> overload<args...>;
+
 namespace detail
 {
 	template<typename T>
