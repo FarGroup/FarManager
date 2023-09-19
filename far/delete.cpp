@@ -337,7 +337,7 @@ static void show_confirmation(
 		Id = &DeleteRecycleId;
 	}
 	else
-		UNREACHABLE;
+		std::unreachable();
 
 	std::vector<string> items;
 
@@ -905,7 +905,7 @@ bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files, delete
 		}
 
 	default:
-		UNREACHABLE;
+		std::unreachable();
 	}
 }
 
@@ -928,7 +928,7 @@ bool ShellDelete::ERemoveDirectory(string_view const Name, delete_type const Typ
 				!RetryRecycleAsRemove;
 		}
 	default:
-		UNREACHABLE;
+		std::unreachable();
 	}
 }
 

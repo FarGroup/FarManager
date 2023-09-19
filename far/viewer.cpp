@@ -3007,7 +3007,7 @@ Viewer::SearchDisposition Viewer::ShowSearchReplaceDialog()
 		case SearchReplaceDlgResult::Ok:
 		case SearchReplaceDlgResult::All:
 		default:
-			UNREACHABLE;
+			std::unreachable();
 	}
 }
 

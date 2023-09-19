@@ -380,7 +380,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 			return;
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

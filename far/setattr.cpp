@@ -221,7 +221,8 @@ static int label_to_time_map_index(int Id)
 	case SA_TEXT_CREATION:     return 1;
 	case SA_TEXT_LASTACCESS:   return 2;
 	case SA_TEXT_CHANGE:       return 3;
-	default: UNREACHABLE;
+	default:
+		std::unreachable();
 	}
 }
 

@@ -107,7 +107,7 @@ namespace os::concurrency
 			return;
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

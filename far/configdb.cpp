@@ -2631,7 +2631,8 @@ void config_provider::ServiceMode(string_view const File)
 	{
 	case mode::m_import: return Import(File);
 	case mode::m_export: return Export(File);
-	default: UNREACHABLE;
+	default:
+		std::unreachable();
 	}
 }
 

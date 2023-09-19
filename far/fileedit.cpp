@@ -1951,7 +1951,7 @@ bool FileEditor::SaveAction(bool const SaveAsIntention)
 			return false;
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 }

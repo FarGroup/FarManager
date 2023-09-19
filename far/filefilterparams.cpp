@@ -311,7 +311,8 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 			case FDATE_OPENED:   return Object.AccessTime;
 			case FDATE_CHANGED:  return Object.ChangeTime;
 			case FDATE_MODIFIED: return Object.ModificationTime;
-			default: UNREACHABLE; // Validated in SetDate()
+			default:
+				std::unreachable(); // Validated in SetDate()
 			}
 		}();
 

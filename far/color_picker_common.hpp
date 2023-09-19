@@ -259,7 +259,7 @@ namespace color_picker_common
 			return -1;
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 
@@ -292,7 +292,7 @@ namespace color_picker_common
 			return { &rgb::b, dialog_items::cd_text_b };
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

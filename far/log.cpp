@@ -839,7 +839,7 @@ namespace logging
 				return true;
 
 			default:
-				UNREACHABLE;
+				std::unreachable();
 			}
 		}
 

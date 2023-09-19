@@ -478,7 +478,8 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	case dlg_button_action: return Props.ShowButtonsPrevNext ? SearchReplaceDlgResult::Next : SearchReplaceDlgResult::Ok;
 	case dlg_button_prev:   return SearchReplaceDlgResult::Prev;
 	case dlg_button_all:    return SearchReplaceDlgResult::All;
-	default:                UNREACHABLE;
+	default:
+		std::unreachable();
 	}
 }
 
@@ -1218,7 +1219,8 @@ void regex_playground()
 		case status::normal:  return F_LIGHTGREEN;
 		case status::warning: return F_YELLOW;
 		case status::error:   return F_LIGHTRED;
-		default: UNREACHABLE;
+		default:
+			std::unreachable();
 		}
 	};
 

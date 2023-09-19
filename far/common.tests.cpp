@@ -511,7 +511,8 @@ TEST_CASE("enum_tokens")
 		case test_type::simple: test_enum_tokens<enum_tokens>(i.Expected, i.Input, i.Separators); break;
 		case test_type::quotes: test_enum_tokens<enum_tokens_with_quotes>(i.Expected, i.Input, i.Separators); break;
 		case test_type::trim:   test_enum_tokens<enum_tokens_custom_t<with_trim>>(i.Expected, i.Input, i.Separators); break;
-		default: UNREACHABLE;
+		default:
+			std::unreachable();
 		}
 	}
 }

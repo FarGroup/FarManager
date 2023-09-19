@@ -226,7 +226,7 @@ namespace tests
 		}
 		catch (far_exception const&)
 		{
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 
@@ -516,7 +516,7 @@ WARNING_POP()
 	WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	static void debug_reach_unreachable()
 	{
-		UNREACHABLE;
+		std::unreachable();
 	}
 	WARNING_POP()
 
