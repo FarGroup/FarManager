@@ -623,6 +623,17 @@ function mf.printconsole(...)
   end
   panel.SetUserScreen()
 end
+
+local Persistent = {}
+function mf.GetPersistent(field)
+  assert(type(field)=="string", "arg #1 must be a string")
+  local t = Persistent[field]
+  if t == nil then
+    t = {}
+    Persistent[field] = t
+  end
+  return t
+end
 --------------------------------------------------------------------------------
 
 _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
