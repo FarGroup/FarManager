@@ -362,47 +362,58 @@ namespace detail
 	}
 
 }
-template<typename T>
-decltype(auto) view_as(void const* const BaseAddress, intptr_t const Offset = 0)
+
+namespace detail
 {
-	return detail::cast_as<T>(BaseAddress, Offset);
+	template<typename T>
+	concept buffer_type = std::same_as<std::remove_const_t<T>, void> || std::is_trivially_copyable_v<T>;
+
+	template<typename T>
+	concept writable_buffer_type = !std::is_const_v<T> && (std::same_as<T, void> || std::is_trivially_copyable_v<T>);
+}
+
+template<typename T>
+decltype(auto) view_as(detail::buffer_type auto const* const BaseAddress, intptr_t const Offset = 0)
+{
+	return detail::cast_as<T>(static_cast<void const*>(BaseAddress), Offset);
 }
 
 template<typename T>
 decltype(auto) view_as(unsigned long long const Address)
 {
-	return view_as<T>(nullptr, Address);
+	return view_as<T>(static_cast<void const*>(nullptr), Address);
 }
 
 template<typename T>
-decltype(auto) edit_as(void* const BaseAddress, intptr_t const Offset = 0)
+decltype(auto) edit_as(detail::writable_buffer_type auto* const BaseAddress, intptr_t const Offset = 0)
 {
-	return detail::cast_as<T>(BaseAddress, Offset);
+	return detail::cast_as<T>(static_cast<void*>(BaseAddress), Offset);
 }
 
 template<typename T>
 decltype(auto) edit_as(unsigned long long const Address)
 {
-	return edit_as<T>(nullptr, Address);
+	return edit_as<T>(static_cast<void*>(nullptr), Address);
 }
 
 template<typename T> requires std::is_trivially_copyable_v<T>
-auto view_as_opt(void const* const Begin, void const* const End, size_t const Offset = 0)
+auto view_as_opt(detail::buffer_type auto const* const Begin, detail::buffer_type auto const* const End, size_t const Offset = 0)
 {
-	return static_cast<char const*>(Begin) + Offset + sizeof(T) <= static_cast<char const*>(End)?
+	return static_cast<char const*>(static_cast<void const*>(Begin)) + Offset + sizeof(T) <= static_cast<char const*>(static_cast<void const*>(End))?
 		view_as<T const*>(Begin, Offset) :
 		nullptr;
 }
 
 template<typename T> requires std::is_trivially_copyable_v<T>
-auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
+auto view_as_opt(detail::buffer_type auto const* const Buffer, size_t const Size, size_t const Offset = 0)
 {
-	return view_as_opt<T>(Buffer, static_cast<char const*>(Buffer) + Size, Offset);
+	return view_as_opt<T>(Buffer, static_cast<char const*>(static_cast<void const*>(Buffer)) + Size, Offset);
 }
 
-template<typename T>
+template<typename T> requires std::is_trivially_copyable_v<T>
 auto view_as_opt(span_like auto const& Buffer, size_t const Offset = 0)
 {
+	static_assert(detail::buffer_type<value_type<decltype(Buffer)>>);
 	return view_as_opt<T>(std::data(Buffer), std::size(Buffer), Offset);
 }
 
