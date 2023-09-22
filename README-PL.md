@@ -1,4 +1,4 @@
-|[Polish](README-PL.md)|[Russian](README-RU.md)|
+|[Angielski](README.md)|[Rosyjski](README-RU.md)|
 |-|-|
 
 [![Header][logo-img]][logo-url]
@@ -11,39 +11,39 @@
 | Clang | [![AppVeyor][Clang-AppVeyor-img]][Clang-AppVeyor-url] | TBD |
 
 
-### Far Manager — what is it?
-Far Manager is a program for managing files and archives in Windows operating systems. Far Manager works in text mode and provides a simple and intuitive interface for performing most of the necessary actions:
-* viewing files and directories;
-* editing, copying and renaming files;
-* and many other actions.
+### Far Manager — czym jest?
+Far Manager to program do zarządzania plikami i archiwami w systemach operacyjnych Windows. Far Manager pracuje w trybie tekstowym i oferuje prosty oraz intuicyjny interfejs do przeprowadzania większości niezbędnych czynności:
+* podgląd plików i folderów;
+* edytowanie, kopiowanie i zmienianie nazw plików;
+* i wiele innych operacji.
 
-### Customize it
-Far Manager has a multi-language, easily configurable interface. File system navigation is made easier through the use of color highlighting and sort groups.
+### Dostosowanie
+Far Manager posiada wielojęzykowy, łatwy do skonfigurowania interfejs. Nawigacja po systemie plików jest łatwiejsza dzięki użyciu grup sortowania i podświetlania kolorami.
 
-### Your task — your way
-The functionality of Far Manager is greatly extended by external DLL modules — plugins (made possible by a special set of interfaces — the [Plugins API](https://api.farmanager.com/)). For example: archive support, FTP client, temporary panel and network browser are all implemented as plugins included in the standard distribution of Far.
+### Twoje zadanie - Twój sposób
+Funkcjonalność Far Manager jest znacznie rozszerzona o zewnętrzne moduły DLL — wtyczki (tworzone dzięki specjalnemu zestawowi interfejsów [API dla wtyczek](https://api.farmanager.com/)). Dla przykładu: obsługa archiwów, klient FTP, panel tymczasowy oraz przeglądarka sieci są zaimplementowane jako wtyczki zawarte w standardowej dystrybucji Far.
 
 
-#### Support forum
+#### Forum wsparcia (po angielsku i rosyjsku)
 https://enforum.farmanager.com/<br/>
 https://forum.farmanager.com/
 
-#### Bug tracker
+#### Zgłaszanie błędów (po angielsku i rosyjsku)
 https://bugs.farmanager.com/
 
-#### Developers mailing list (english)
+#### Lista mailingowa dla programistów (po angielsku)
 https://groups.google.com/group/fardeven<br/>
 <fardeven@googlegroups.com>
 
-#### Developers mailing list (russian)
+#### Lista mailingowa dla programistów (po rosyjsku)
 https://groups.google.com/group/fardev<br/>
 <fardev@googlegroups.com>
 
-#### Commits mailing list
+#### Lista mailingowa z poprawkami kodu
 https://groups.google.com/group/farcommits<br/>
 <farcommits@googlegroups.com>
 
-#### Source code
+#### Kod źródłowy
 https://github.com/FarGroup/FarManager
 
 [logo-img]: ./logo.svg
