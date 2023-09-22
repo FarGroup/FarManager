@@ -785,7 +785,7 @@ private:
 			return compare_numbers(a.StreamsSize(m_Owner), b.StreamsSize(m_Owner));
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

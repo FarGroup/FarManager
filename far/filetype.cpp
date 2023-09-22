@@ -111,11 +111,11 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			);
 		}
 
-		for (const auto& [Name, Value]: Data.NamedMatches.Matches)
+		for (const auto& [GroupName, GroupNumber]: Data.NamedMatches.Matches)
 		{
-			const auto& Match = Data.Matches[Value];
+			const auto& Match = Data.Matches[GroupNumber];
 			Context.Variables.emplace(
-				far::format(L"RegexGroup{{{}}}"sv, Name),
+				far::format(L"RegexGroup{{{}}}"sv, GroupName),
 				get_match(Context.Name, Match)
 			);
 		}

@@ -2437,7 +2437,7 @@ WARNING_POP()
 		case TBPF_ERROR:         return L'2';
 		case TBPF_PAUSED:        return L'4';
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

@@ -2388,9 +2388,8 @@ namespace os::fs
 			const auto Where = { &reg::key::local_machine, &reg::key::current_user };
 			for (const auto& i: Where)
 			{
-				unsigned NoDrives;
-				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))
-					return ~NoDrives;
+				if (const auto NoDrives = i->get<unsigned>(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv))
+					return ~*NoDrives;
 			}
 
 			return ~0u;

@@ -244,7 +244,7 @@ WARNING_POP()
 				0;
 		}();
 
-		const auto Key = reg::key::open(reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
+		const auto Key = reg::key::local_machine.open(L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
 		if (!Key)
 			return {};
 

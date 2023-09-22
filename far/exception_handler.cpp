@@ -2157,7 +2157,7 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 
 		default:
-			UNREACHABLE;
+			std::unreachable();
 		}
 	}
 

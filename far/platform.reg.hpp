@@ -49,9 +49,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace os::reg
 {
 	class value;
+	class enum_key;
+	class enum_value;
 
 	class key
 	{
+		friend enum_key;
+		friend enum_value;
+
 	public:
 		key() = default;
 
@@ -60,7 +65,7 @@ namespace os::reg
 		static const key local_machine;
 
 		[[nodiscard]]
-		static key open(const key& Key, string_view SubKey, DWORD SamDesired);
+		key open(string_view SubKey, DWORD SamDesired) const;
 
 		void close();
 
@@ -68,13 +73,13 @@ namespace os::reg
 		HKEY native_handle() const;
 
 		[[nodiscard]]
-		bool enum_keys(size_t Index, string& Name) const;
+		enum_key enum_keys() const;
 
 		[[nodiscard]]
-		bool enum_values(size_t Index, value& Value) const;
+		enum_value enum_values() const;
 
 		[[nodiscard]]
-		bool get(string_view Name) const;
+		bool exits(string_view Name) const;
 
 		[[nodiscard]]
 		bool get(string_view Name, string& Value) const;
@@ -82,20 +87,20 @@ namespace os::reg
 		[[nodiscard]]
 		bool get(string_view Name, unsigned int& Value) const;
 
-		[[nodiscard]]
-		bool get(string_view Name, unsigned long long& Value) const;
-
 		template<class T>
 		[[nodiscard]]
-		bool get(string_view SubKey, string_view Name, T& Value, REGSAM Sam = 0) const
+		std::optional<T> get(string_view const SubKeyName, string_view const Name) const
 		{
-			static_assert(is_one_of_v<T, string, unsigned int, unsigned long long>);
+			static_assert(is_one_of_v<T, string, unsigned int>);
 
-			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
-			if (!NewKey)
-				return false;
+			const auto SubKey = open(SubKeyName, KEY_QUERY_VALUE);
+			if (!SubKey)
+				return {};
 
-			return NewKey.get(Name, Value);
+			if (T Value; SubKey.get(Name, Value))
+				return Value;
+
+			return {};
 		}
 
 		[[nodiscard]]
@@ -108,6 +113,12 @@ namespace os::reg
 		{
 			void operator()(HKEY Key) const noexcept;
 		};
+
+		[[nodiscard]]
+		bool enum_keys_impl(size_t Index, string& Name) const;
+
+		[[nodiscard]]
+		bool enum_values_impl(size_t Index, value& Value) const;
 
 		std::unique_ptr<std::remove_pointer_t<HKEY>, hkey_deleter> m_Key;
 	};
@@ -127,9 +138,6 @@ namespace os::reg
 		[[nodiscard]]
 		unsigned int get_unsigned() const;
 
-		[[nodiscard]]
-		unsigned long long get_unsigned_64() const;
-
 	private:
 		friend class key;
 
@@ -144,13 +152,11 @@ namespace os::reg
 
 	public:
 		explicit enum_key(const key& Key);
-		enum_key(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
 		[[nodiscard]]
 		bool get(bool Reset, value_type& Value) const;
 
-		key m_Key;
 		const key* m_KeyRef{};
 		mutable size_t m_Index{};
 	};
@@ -161,13 +167,11 @@ namespace os::reg
 
 	public:
 		explicit enum_value(const key& Key);
-		enum_value(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
 		[[nodiscard]]
 		bool get(bool Reset, value_type& Value) const;
 
-		key m_Key;
 		const key* m_KeyRef{};
 		mutable size_t m_Index{};
 	};

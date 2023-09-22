@@ -21,8 +21,6 @@ def check_links(dir_to_check):
         for r in link_match.findall(line):
           if (r[1].startswith(("http:", "https:", "mailto:", "ftp:", "news:", "mk:"))):
             continue
-          if (r[1].find("win32/") != -1):
-            continue
           if (not isfile(join(root, r[1]))):
             print("%s - %s" % (join(root, f)[len(dir_to_check)+1:], r[1]))
       infile.close()

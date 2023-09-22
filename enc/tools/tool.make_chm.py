@@ -65,21 +65,10 @@ def make_chm_lang(lang):
       makedirs(join(root.replace(chm_meta_dir, chm_html_dir), d))
 
   log("-- translating meta into html")
-  # filter files and replace "win32/.." links with calls to MSDN
-  link_match = re.compile(r'href[\s"\'=\/\.]*?win32\/(?P<funcname>[^"\']*?)(\.html)?[\'"].*?>(?P<linkend>.*?<\/a>)', re.I)
-  link_replace = Template(
-'''href="JavaScript:link$id.Click()">\g<linkend>
-<object id="link$id" type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
-<param name="Command" value="KLink">
-<param name="DefaultTopic" value="">
-<param name="Item1" value="">
-<param name="Item2" value="\g<funcname>">
-</object>''')
 
   header_match = '<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">'
   header_replace = '<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">'
 
-  id = 0
   for root, dirs, files in walk(chm_meta_dir):
     for f in files:
       infile  = open(join(root, f), encoding="utf-8-sig")
@@ -90,14 +79,9 @@ def make_chm_lang(lang):
           line = line.replace(header_match, header_replace)
           header_replaced = True
 
-        #while link_match.search(line):
-        #  line = link_match.sub(link_replace.substitute(id=id), line)
-        #  id += 1
-
         outfile.write(line)
       infile.close()
       outfile.close()
-  log("total %d win32 links" % id)
 
   log("-- cleaning meta")
   shutil.rmtree(chm_meta_dir)
@@ -221,7 +205,7 @@ def make_chm_lang(lang):
       continue
     macro_flag = "macro" in root
     for fn in files:
-      if not fn.endswith(".html") or fn in ["faq.html", "msdn.html"]:
+      if not fn.endswith(".html") or fn in ["faq.html"]:
         continue
       relflink = join(root[root.find("html"):], fn).replace('\\', '/')
       f = open(join(root, fn), encoding="windows-1251")

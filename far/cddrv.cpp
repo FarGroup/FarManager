@@ -69,7 +69,7 @@ enum cdrom_device_capabilities
 
 	CAPABILITIES_BDROM    = 7_bit,
 	CAPABILITIES_BDR      = 8_bit,
-	CAPABILITIES_BDRW     = 9_bit,
+	CAPABILITIES_BDRE     = 9_bit,
 
 	CAPABILITIES_HDDVDROM = 10_bit,
 	CAPABILITIES_HDDVDR   = 11_bit,
@@ -178,7 +178,7 @@ WARNING_DISABLE_CLANG("-Wswitch")
 	case ProfileBDRom:                     return CAPABILITIES_BDROM;     // 0040h | BD-ROM                                | Blu-ray Disc ROM
 	case ProfileBDRSequentialWritable:     return CAPABILITIES_BDR;       // 0041h | BD-R SRM                              | Blu-ray Disc Recordable – Sequential Recording Mode
 	case ProfileBDRRandomWritable:         return CAPABILITIES_BDR;       // 0042h | BD-R RRM                              | Blu-ray Disc Recordable – Random Recording Mode
-	case ProfileBDRewritable:              return CAPABILITIES_BDRW;      // 0043h | BD-RE                                 | Blu-ray Disc Rewritable
+	case ProfileBDRewritable:              return CAPABILITIES_BDRE;      // 0043h | BD-RE                                 | Blu-ray Disc Rewritable
 	case ProfileHDDVDRom:                  return CAPABILITIES_HDDVDROM;  // 0050h | HD DVD-ROM                            | Read-only HD DVD
 	case ProfileHDDVDRecordable:           return CAPABILITIES_HDDVDR;    // 0051h | HD DVD-R                              | Write-once HD DVD
 	case ProfileHDDVDRam:                  return CAPABILITIES_HDDVDRAM;  // 0052h | HD DVD-RAM                            | Rewritable HD DVD
@@ -326,8 +326,8 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 		{ L"DVDRW"sv,     {L"HD"sv}, {},                            CAPABILITIES_DVDRW    },
 		{ L"DVDRAM"sv,    {L"HD"sv}, {},                            CAPABILITIES_DVDRAM   },
 		{ L"BDROM"sv,     {},        {},                            CAPABILITIES_BDROM    },
-		{ L"BDR"sv,       {},        { L"OM"sv, L"W"sv },           CAPABILITIES_BDR      },
-		{ L"BDRW"sv,      {},        {},                            CAPABILITIES_BDRW     },
+		{ L"BDR"sv,       {},        { L"OM"sv, L"E"sv },           CAPABILITIES_BDR      },
+		{ L"BDRE"sv,      {},        {},                            CAPABILITIES_BDRE     },
 		{ L"HDDVDROM"sv,  {},        {},                            CAPABILITIES_HDDVDROM },
 		{ L"HDDVDR"sv,    {},        { L"OM"sv, L"W"sv, L"AM"sv },  CAPABILITIES_HDDVDR   },
 		{ L"HDDVDRW"sv,   {},        {},                            CAPABILITIES_HDDVDRW  },
@@ -411,7 +411,7 @@ static auto get_cd_type(cdrom_device_capabilities const caps)
 		{ cd_type::hddvdrw,      CAPABILITIES_HDDVDRW },
 		{ cd_type::hddvdr,       CAPABILITIES_HDDVDR },
 		{ cd_type::hddvdrom,     CAPABILITIES_HDDVDROM },
-		{ cd_type::bdrw,         CAPABILITIES_BDRW },
+		{ cd_type::bdre,         CAPABILITIES_BDRE },
 		{ cd_type::bdr,          CAPABILITIES_BDR },
 		{ cd_type::bdrom,        CAPABILITIES_BDROM },
 		{ cd_type::dvdram,       CAPABILITIES_DVDRAM },
@@ -505,7 +505,7 @@ TEST_CASE("cddrv.product_id_to_capatibilities")
 		{ "DVD+RAM",     CAPABILITIES_DVDRAM    },
 		{ "BD_ROM",      CAPABILITIES_BDROM     },
 		{ "UberBDR",     CAPABILITIES_BDR       },
-		{ "HDBD/RW",     CAPABILITIES_BDRW      },
+		{ "HDBD/RE",     CAPABILITIES_BDRE      },
 		{ "HD-DVD-ROM",  CAPABILITIES_HDDVDROM  },
 		{ "HDDVDR",      CAPABILITIES_HDDVDR    },
 		{ "HDDVD RW",    CAPABILITIES_HDDVDRW   },

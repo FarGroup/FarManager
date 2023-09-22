@@ -1608,7 +1608,7 @@ bool IntOption::Edit(DialogBuilder& Builder, int const Param)
 		break;
 
 	default:
-		UNREACHABLE;
+		std::unreachable();
 	}
 
 	return false;

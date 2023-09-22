@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 //----------------------------------------------------------------------------
 
@@ -168,7 +169,7 @@ T from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Bas
 		throw std::out_of_range("from_string argument out of range");
 
 	default:
-		UNREACHABLE;
+		std::unreachable();
 	}
 }
 

@@ -59,39 +59,57 @@ static const auto
 	mac_s = L"\r"sv,         // Mac
 	bad_win_s = L"\r\r\n"sv; // result of <CR><LF> text mode conversion
 
-const eol eol::none(eol_type::none);
-const eol eol::win(eol_type::win);
-const eol eol::unix(eol_type::unix);
-const eol eol::mac(eol_type::mac);
-const eol eol::bad_win(eol_type::bad_win);
-const eol eol::std = unix;
-const eol eol::system = win;
+#define EOL(type) eol::type(eol_type::type)
+
+eol const
+	EOL(none),
+	EOL(win),
+	EOL(unix),
+	EOL(mac),
+	EOL(bad_win),
+	eol::std = unix,
+	eol::system = win;
+
+#undef EOL
 
 eol::eol():
 	m_Type(eol_type::none)
 {
 }
 
+static eol_type parse_type(string_view const Value)
+{
+#define EOL_FROM_STR(type) if (Value == type ## _s) return eol_type::type
+
+	EOL_FROM_STR(win);
+	EOL_FROM_STR(unix);
+	EOL_FROM_STR(mac);
+	EOL_FROM_STR(bad_win);
+
+	return eol_type::none;
+
+#undef EOL_FROM_STR
+}
+
 eol eol::parse(string_view const Value)
 {
-	return eol(
-		Value == win_s?     eol_type::win :
-		Value == unix_s?    eol_type::unix :
-		Value == mac_s?     eol_type::mac :
-		Value == bad_win_s? eol_type::bad_win :
-		                    eol_type::none
-	);
+
+	return eol(parse_type(Value));
 }
 
 string_view eol::str() const
 {
 	switch (m_Type)
 	{
-	case eol_type::win:     return win_s;
-	case eol_type::unix:    return unix_s;
-	case eol_type::mac:     return mac_s;
-	case eol_type::bad_win: return bad_win_s;
-	default:                return none_s;
+#define EOL_TO_STR(type) case eol_type::type: return type ## _s
+
+		EOL_TO_STR(win);
+		EOL_TO_STR(unix);
+		EOL_TO_STR(mac);
+		EOL_TO_STR(bad_win);
+		default: return none_s;
+
+#undef EOL_TO_STR
 	}
 }
 
@@ -99,3 +117,37 @@ eol::eol(char const Type):
 	m_Type(Type)
 {
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("eol")
+{
+	static const struct
+	{
+		eol const& Eol;
+		string_view EolStr;
+	}
+	Tests[]
+	{
+#define EOL_STR(type) {eol::type,    type ## _s }
+		EOL_STR(none),
+		EOL_STR(win),
+		EOL_STR(unix),
+		EOL_STR(mac),
+		EOL_STR(bad_win),
+#undef EOL_STR
+		{eol::std,    unix_s },
+		{eol::system, win_s },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Eol.str() == i.EolStr);
+		REQUIRE(eol::parse(i.EolStr) == i.Eol);
+	}
+
+	REQUIRE(eol::parse(L"banana"sv) == eol::none);
+}
+#endif

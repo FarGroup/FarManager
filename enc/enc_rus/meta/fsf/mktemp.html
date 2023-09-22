@@ -45,15 +45,15 @@ size_t WINAPI MkTemp(
 <h3>Примечание</h3>
 <div class=descr>
 <ol>
-<li>Имя временного файла формируется объединением пути к временному каталогу (получаемого через вызов функции <a href="win32/GetTempPath">GetTempPath</a>), переданного
+<li>Имя временного файла формируется объединением пути к временному каталогу (получаемого через вызов функции <a class="msdocs">GetTempPath</a>), переданного
 префикса, набора случайных шестнадцатеричных цифр. Формат:<p>
 <code>PrefXXXP.PTT</code><p>
 
 здесь<br>
 &nbsp;&nbsp;&nbsp;<b>Pref</b> - 4-х символьный префикс;<br>
 &nbsp;&nbsp;&nbsp;<b>XXX</b> - три 16-ричных цифры;<br>
-&nbsp;&nbsp;&nbsp;<b>PP</b> - две 16-ричных цифры PID (результат функции <a href="win32/GetCurrentProcessId">GetCurrentProcessId</a>);<br>
-&nbsp;&nbsp;&nbsp;<b>TT</b> - две 16-ричных цифры TID (результат функции <a href="win32/GetCurrentThreadId">GetCurrentThreadId</a>).<br>
+&nbsp;&nbsp;&nbsp;<b>PP</b> - две 16-ричных цифры PID (результат функции <a class="msdocs">GetCurrentProcessId</a>);<br>
+&nbsp;&nbsp;&nbsp;<b>TT</b> - две 16-ричных цифры TID (результат функции <a class="msdocs">GetCurrentThreadId</a>).<br>
 
 <li>Функция, физически не создаёт файл на диске, только формирует имя.
 </ol>

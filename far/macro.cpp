@@ -1884,7 +1884,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					return api.PassValue(Info.Format);
 
 				default:
-					UNREACHABLE;
+					std::unreachable();
 			}
 		}
 

@@ -50,10 +50,10 @@ struct PluginPanelItem
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>CreationTime</div>
-    <div class=dfndescr>Время создания - структура <a href="../winapi/filetime.html">FILETIME</a> содержащая время создания файла. <a href="win32/FindFirstFile">FindFirstFile</a> и <a href="win32/FindNextFile">FindNextFile</a>
+    <div class=dfndescr>Время создания - структура <a href="../winapi/filetime.html">FILETIME</a> содержащая время создания файла. <a class="msdocs">FindFirstFile</a> и <a class="msdocs">FindNextFile</a>
     возвращают время файла в UTC-формате. Эти функции устанавливают элементы FILETIME в ноль, если файловая система, содержащая файл не поддерживает этот временной атрибут.
-    Вы можете использовать функцию <a href="win32/FileTimeToLocalFileTime">FileTimeToLocalFileTime</a> для преобразования из UTC в локальное время и тогда использовать
-    функцию <a href="win32/FileTimeToSystemTime">FileTimeToSystemTime</a> для преобразования локального времени в структуру <a href="../winapi/systemtime.html">SYSTEMTIME</a>
+    Вы можете использовать функцию <a class="msdocs">FileTimeToLocalFileTime</a> для преобразования из UTC в локальное время и тогда использовать
+    функцию <a class="msdocs">FileTimeToSystemTime</a> для преобразования локального времени в структуру <a href="../winapi/systemtime.html">SYSTEMTIME</a>
     содержащую отдельные элементы для месяца, дня, года и так далее...</div>
   <div class=dfn>LastAccessTime</div>
     <div class=dfndescr>Структура <a href="../winapi/filetime.html">FILETIME</a> с временем последнего доступа к файлу. Время хранится в UTC формате; элементы структуры установлены в ноль, если файловая система не поддерживает этого свойства.</div>

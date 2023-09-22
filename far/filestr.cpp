@@ -167,7 +167,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 				return true;
 
 			default:
-				UNREACHABLE;
+				std::unreachable();
 			}
 		}
 
@@ -189,7 +189,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 				return true;
 
 			default:
-				UNREACHABLE;
+				std::unreachable();
 			}
 		}
 

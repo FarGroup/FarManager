@@ -511,7 +511,8 @@ TEST_CASE("enum_tokens")
 		case test_type::simple: test_enum_tokens<enum_tokens>(i.Expected, i.Input, i.Separators); break;
 		case test_type::quotes: test_enum_tokens<enum_tokens_with_quotes>(i.Expected, i.Input, i.Separators); break;
 		case test_type::trim:   test_enum_tokens<enum_tokens_custom_t<with_trim>>(i.Expected, i.Input, i.Separators); break;
-		default: UNREACHABLE;
+		default:
+			std::unreachable();
 		}
 	}
 }
@@ -2011,14 +2012,15 @@ TEST_CASE("utility.overload")
 {
 	const auto Composite = overload
 	{
-		[](int i){ return i; },
-		[](bool b){ return b; },
-		[](auto a) { return a; }
+		[](int    i) { return i; },
+		[](bool   b) { return b; },
+		[](double d) { return d; },
 	};
 
-	STATIC_REQUIRE(std::same_as<decltype(Composite(42)), int>);
-	STATIC_REQUIRE(std::same_as<decltype(Composite(false)), bool>);
-	STATIC_REQUIRE(std::same_as<decltype(Composite(0.5)), double>);
+	STATIC_REQUIRE(Composite(42) == 42);
+	STATIC_REQUIRE(Composite(false) == false);
+	STATIC_REQUIRE(Composite(0.5) == 0.5);
+	STATIC_REQUIRE(!std::convertible_to<decltype(Composite('q')), char>);
 }
 
 TEST_CASE("utility.casts")
@@ -2026,33 +2028,58 @@ TEST_CASE("utility.casts")
 	int Data[]{ 42, 24 };
 	void* Ptr = &Data;
 
-	auto& Object1View = view_as<int>(Ptr);
-	STATIC_REQUIRE(std::same_as<decltype(Object1View), int const&>);
-	REQUIRE(&Object1View == &Data[0]);
+	{
+		auto& ObjectView = view_as<int>(Ptr);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectView), int const&>);
+		REQUIRE(&ObjectView == &Data[0]);
+	}
 
-	auto& Object2View = view_as<int>(Ptr, sizeof(int));
-	STATIC_REQUIRE(std::same_as<decltype(Object2View), int const&>);
-	REQUIRE(&Object2View == &Data[1]);
+	{
+		auto& ObjectView = view_as<int>(Ptr, sizeof(int));
+		STATIC_REQUIRE(std::same_as<decltype(ObjectView), int const&>);
+		REQUIRE(&ObjectView == &Data[1]);
+	}
 
-	auto Object1OptView = view_as_opt<int>(Ptr, sizeof(Data), 0);
-	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
-	REQUIRE(Object1OptView == &Data[0]);
+	{
+		auto ObjectView = view_as_opt<int>(Ptr, sizeof(Data), 0);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectView), int const*>);
+		REQUIRE(ObjectView == &Data[0]);
+	}
 
-	auto Object2OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 1);
-	STATIC_REQUIRE(std::same_as<decltype(Object2OptView), int const*>);
-	REQUIRE(Object2OptView == &Data[1]);
+	{
+		auto ObjectView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 1);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectView), int const*>);
+		REQUIRE(ObjectView == &Data[1]);
+	}
 
-	auto Object3OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 2);
-	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
-	REQUIRE(Object3OptView == nullptr);
+	{
+		auto ObjectView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 2);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectView), int const*>);
+		REQUIRE(ObjectView == nullptr);
+	}
 
-	auto& Object1Edit = edit_as<int>(Ptr);
-	STATIC_REQUIRE(std::same_as<decltype(Object1Edit), int&>);
-	REQUIRE(&Object1View == &Data[0]);
+	{
+		auto& ObjectEdit = edit_as<int>(Ptr);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectEdit), int&>);
+		REQUIRE(&ObjectEdit == &Data[0]);
+	}
 
-	auto& Object2Edit = edit_as<int>(Ptr, sizeof(int) * 1);
-	STATIC_REQUIRE(std::same_as<decltype(Object2Edit), int&>);
-	REQUIRE(&Object2Edit == &Data[1]);
+	{
+		auto& ObjectEdit = edit_as<int>(Ptr, sizeof(int) * 1);
+		STATIC_REQUIRE(std::same_as<decltype(ObjectEdit), int&>);
+		REQUIRE(&ObjectEdit == &Data[1]);
+	}
+
+	{
+		[[maybe_unused]] const auto* const ConstPtr = Ptr;
+		STATIC_REQUIRE_ERROR(int, edit_as<TestType>(ConstPtr));
+		STATIC_REQUIRE_ERROR(int, edit_as<TestType>(ConstPtr, sizeof(int) * 1));
+
+		[[maybe_unused]] string NonTrivial;
+		STATIC_REQUIRE_ERROR(int, view_as<TestType>(&NonTrivial));
+		STATIC_REQUIRE_ERROR(string, view_as_opt<TestType>(Ptr));
+		STATIC_REQUIRE_ERROR(int, edit_as<TestType>(&NonTrivial));
+	}
 }
 
 namespace utility_integers_detail

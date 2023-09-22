@@ -358,7 +358,7 @@ static int MessageRemoveConnection(string_view const Drive, int &UpdateProfile)
 	//   есть постоянное подключение.
 
 	bool IsPersistent = true;
-	if (os::reg::key::open(os::reg::key::current_user, concat(L"Network\\"sv, Drive.front()), KEY_QUERY_VALUE))
+	if (os::reg::key::current_user.open(concat(L"Network\\"sv, Drive.front()), KEY_QUERY_VALUE))
 	{
 		DCDlg[rc_checkbox].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}

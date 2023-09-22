@@ -1018,6 +1018,9 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         continue;
 
       const auto str = i.get_str();
+      if (str.empty())
+        continue;
+
       string_to_integer(str, &wcstoull, i) || string_to_integer(str, &wcstoll, i);
     }
 

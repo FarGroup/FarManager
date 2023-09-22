@@ -109,6 +109,25 @@ namespace std
 }
 #endif
 
+#ifndef __cpp_lib_unreachable
+#include <cassert>
+
+namespace std
+{
+	[[noreturn]]
+	inline void unreachable()
+	{
+		assert(false);
+
+#if COMPILER(CL)
+		__assume(0);
+#else
+		__builtin_unreachable();
+#endif
+	}
+}
+#endif
+
 //----------------------------------------------------------------------------
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

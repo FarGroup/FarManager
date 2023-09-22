@@ -57,7 +57,7 @@ enum class cd_type
 	dvdram,
 	bdrom,
 	bdr,
-	bdrw,
+	bdre,
 	hddvdrom,
 	hddvdr,
 	hddvdrw,

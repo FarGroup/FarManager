@@ -47,38 +47,7 @@ def make_inet_lang(lang):
 
   log("copying files")
   copytree("%s/enc_%s/images" % (ROOT_DIR, lang), "%s/images" % (DEST_INET))
-  copytree("%s/enc_%s/meta" % (ROOT_DIR, lang), "%s/%s/meta" % (DEST_INET, lang_code))
-
-  # build empty directory tree
-  inet_html_dir = join(DEST_INET, lang_code)
-  for root, dirs, files in walk(inet_meta_dir):
-    for d in dirs:
-      makedirs(join(root.replace(inet_meta_dir, inet_html_dir), d))
-
-  log("-- translating meta into html")
-  # filter files and replace "win32/.." links with calls to MSDN
-  link_match = re.compile(r'href[\s"\'=\/\.]*?win32\/(?P<funcname>[^"\']*?)(\.html)?[\'"].*?>(?P<linkend>.*?<\/a>)', re.I)
-  link_replace = Template(r'href="$notfound?\g<funcname>">\g<linkend>')
-  id = 0
-  for root, dirs, files in walk(inet_meta_dir):
-    for f in files:
-      relpath = normpath(join(root, "..", "xxx")) # ".." because we need to get rid of 1 level because of "meta""
-      plen = len(commonprefix([ join(inet_html_dir, "msdn.html"), relpath ]))
-      relpath = relpath[plen:].replace('\\','/')
-      notfound = "../" * relpath.count('/') + "msdn.html"
-      infile  = open(join(root, f), encoding="utf-8-sig")
-      outfile = open(join(root.replace(inet_meta_dir, inet_html_dir), f), "w", encoding="utf-8-sig")
-      for line in infile:
-        while link_match.search(line):
-          line = link_match.sub(link_replace.substitute(notfound=notfound), line)
-          id += 1
-        outfile.write(line)
-      infile.close()
-      outfile.close()
-  log("total %d win32 links" % id)
-
-  log("-- cleaning meta")
-  shutil.rmtree(inet_meta_dir)
+  copytree("%s/enc_%s/meta" % (ROOT_DIR, lang), "%s/%s" % (DEST_INET, lang_code))
 
 # end def make_inet_lang(lang):
 

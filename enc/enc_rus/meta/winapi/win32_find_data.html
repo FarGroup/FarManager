@@ -18,8 +18,8 @@
 
 <div class=shortdescr>
 Структура <code>WIN32_FIND_DATA</code> описывает
-файл, найденный функциями <code><a href="win32/FindFirstFile">FindFirstFile</a></code>, <code><a href="win32/FindFirstFileEx">FindFirstFileEx</a></code>
-или <code><a href="win32/FindNextFile">FindNextFile</a></code>.
+файл, найденный функциями <code><a class="msdocs">FindFirstFile</a></code>, <code><a class="msdocs">FindFirstFileEx</a></code>
+или <code><a class="msdocs">FindNextFile</a></code>.
 </div>
 
 <pre class=syntax>
@@ -102,14 +102,14 @@ typedef struct _WIN32_FIND_DATA {
 
     <div class=dfn>ftCreationTime</div>
     <div class=dfndescr>Время создания - структура <a href="filetime.html">FILETIME</a>,
-    содержащая время создания файла. <a href="win32/FindFirstFile">FindFirstFile</a> и
-    <a href="win32/FindNextFile">FindNextFile</a>
+    содержащая время создания файла. <a class="msdocs">FindFirstFile</a> и
+    <a class="msdocs">FindNextFile</a>
     возвращают время файла в UTC-формате.
     Эти функции устанавливают элементы <code>FILETIME</code> в ноль, если файловая
     система, содержащая файл, не поддерживает этот временной атрибут.<br>
-    Вы можете использовать функцию <a href="win32/FileTimeToLocalFileTime">FileTimeToLocalFileTime</a>
+    Вы можете использовать функцию <a class="msdocs">FileTimeToLocalFileTime</a>
     для преобразования из UTC в локальное время и тогда использовать
-    функцию <a href="win32/FileTimeToSystemTime">FileTimeToSystemTime</a>
+    функцию <a class="msdocs">FileTimeToSystemTime</a>
     для преобразования
     локального времени в структуру <a href="systemtime.html">SYSTEMTIME</a>
     содержащую отдельные элементы для месяца, дня, года и так далее...</div>
@@ -124,8 +124,8 @@ typedef struct _WIN32_FIND_DATA {
 
     <div class=dfn>ftLastWriteTime</div>
     <div class=dfndescr>Структура <a href="filetime.html">FILETIME</a> с временем последней
-    записи в файл (с помощью функций <a href="win32/WriteFile">WriteFile</a> или
-    <a href="win32/SetEndOfFile">SetEndOfFile</a>). Время последней записи не обновляется для таких операций, как
+    записи в файл (с помощью функций <a class="msdocs">WriteFile</a> или
+    <a class="msdocs">SetEndOfFile</a>). Время последней записи не обновляется для таких операций, как
     установка атрибутов файла или изменение дескриптора безопасности (security descriptors).<br>
     Для каталогов в этой компоненте содержится информация о времени создания каталога.
     <br>Время хранится в UTC формате; элементы структуры
@@ -162,7 +162,7 @@ typedef struct _WIN32_FIND_DATA {
 <li>Если файл имеет длинное имя, полное имя возвращается в элементе <code>cFileName</code>
   а усечённая версия формата 8.3 сохраняется в <code>cAlternateFileName</code>.
   Иначе <code>cAlternateFileName</code> пусто.
-  Как альтернативу вы можете использовать функцию <a href="win32/GetShortPathName">GetShortPathName</a>
+  Как альтернативу вы можете использовать функцию <a class="msdocs">GetShortPathName</a>
   для возвращения 8.3-вида имени файла.
 </li>
 <li>Не все файловые системы позволяют хранить время создания файла и

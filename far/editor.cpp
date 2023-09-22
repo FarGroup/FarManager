@@ -3324,7 +3324,7 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 
 		case SearchReplaceDlgResult::Ok:
 		default:
-			UNREACHABLE;
+			std::unreachable();
 	}
 }
 

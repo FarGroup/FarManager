@@ -391,21 +391,23 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 	case IO_REPARSE_TAG_APPEXECLINK:
 		{
-			// Third string in the list is the target filename
+			// The current protocol version is 3. It is known that in all 3 versions the third string in the list is the target filename.
+			// Hopefully it stays like that in the future, but if no, the worse thing that could happen is a wrong string.
 			constexpr size_t FilenameIndex = 2;
 
 			struct APPEXECLINK_REPARSE_DATA_BUFFER
 			{
-				ULONG StringCount;
+				ULONG Version;
 				WCHAR StringList[1];
 			};
 
-			const auto& AppExecLinkReparseBuffer = view_as<APPEXECLINK_REPARSE_DATA_BUFFER>(&rdb->GenericReparseBuffer);
-			if (AppExecLinkReparseBuffer.StringCount <= FilenameIndex)
-				return false;
+			const auto& AppExecLinkReparseBuffer = view_as<APPEXECLINK_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
 
 			size_t Index = 0;
-			for (const auto& i: enum_substrings(AppExecLinkReparseBuffer.StringList))
+			const auto StringSize = (rdb->ReparseDataLength - sizeof(AppExecLinkReparseBuffer.Version)) / sizeof(*AppExecLinkReparseBuffer.StringList);
+			string_view const StringList{ AppExecLinkReparseBuffer.StringList, StringSize };
+
+			for (const auto& i: enum_substrings(StringList))
 			{
 				if (Index < FilenameIndex)
 				{

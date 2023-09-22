@@ -324,13 +324,13 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 	{
 		const auto SamDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | Flags;
 
-		const auto AppPathsKey = os::reg::key::open(RootKey, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, SamDesired);
+		const auto AppPathsKey = RootKey.open(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, SamDesired);
 		if (!AppPathsKey)
 			return;
 
-		for (const auto& SubkeyName: os::reg::enum_key(AppPathsKey))
+		for (const auto& SubkeyName: AppPathsKey.enum_keys())
 		{
-			if (const auto SubKey = os::reg::key::open(AppPathsKey, SubkeyName, SamDesired); SubKey.get({}) && starts_with_icase(SubkeyName, Token))
+			if (const auto SubKey = AppPathsKey.open(SubkeyName, SamDesired); SubKey.exits({}) && starts_with_icase(SubkeyName, Token))
 			{
 				ResultStrings.emplace(SubkeyName);
 			}

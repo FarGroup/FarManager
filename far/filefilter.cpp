@@ -673,7 +673,7 @@ filter_result::operator bool() const
 		return !(State & filter_state::has_include);
 
 	default:
-		UNREACHABLE;
+		std::unreachable();
 	}
 }
 

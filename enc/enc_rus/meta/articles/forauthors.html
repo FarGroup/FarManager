@@ -4,6 +4,7 @@
 <title>Для авторов</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -19,88 +20,22 @@
 
 <ol>
 <li>Ссылка "внутрь" Энциклопедии (например, для структуры PluginStartupInfo):<br><br>
-<code>&lt;a href="mk:@MSITStore:pluginsr.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt/a&gt;</code><br><br>
-Здесь следует учесть структуры каталогов pluginsr.chm и принципы наименования статей:<br><br>
+<code>&lt;a href="mk:@MSITStore:FarEncyclopedia.ru.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt/a&gt;</code><br><br>
+Здесь следует учесть структуры каталогов FarEncyclopedia.ru.chm и принципы наименования статей:<br><br>
 <ul>
 <li>имена html-файлов в основном соответствуют названиям функций и структур;
-<li>все html-файлы внутри pluginsr.chm в нижнем регистре;
+<li>все html-файлы внутри FarEncyclopedia.ru.chm в нижнем регистре;
 <li>html-файлы раскиданы по подкаталогам в соответствии со своими функциональными назначениями, например, основные структуры
-располагаются в <code>pluginsr.chm::/html/structures/</code>, структуры Dialog API в <code>pluginsr.chm::/html/dialogapi/structures/</code>
+располагаются в <code>FarEncyclopedia.ru.chm::/html/structures/</code>, структуры Dialog API в <code>FarEncyclopedia.ru.chm::/html/dialogapi/structures/</code>
 и т.п.
 </ul>
 <br>
 <br>
 
-<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Вашей статьи
-(например, для функции GetLastError):<br><br>
-<code>&lt;a href="win32/GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
-специальным скриптом такая ссылка преобразуется в &lt;object&gt;, как указано ниже.
-<br>
-<br>
-
-<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для самостоятельного CHM-файла (например, для функции GetLastError):<br><br>
-<code>&lt;a href=JavaScript:<b>linkXXXX</b>.Click()&gt;GetLastError&lt;/a&gt;<br>
-&lt;object id=<b>linkXXXX</b> type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11"&gt;<br>
-&lt;param name="Command" value="KLink"&gt;<br>
-&lt;param name="DefaultTopic" value=""&gt;<br>
-&lt;param name="Item1" value=""&gt;<br>
-&lt;param name="Item2" value="GetLastError"&gt;<br>
-&lt;/object&gt;</code><br><br>
-Здесь <b>linkXXXX</b> - уникальный ID объекта в пределах одной HTML-страницы.<br><br>
-При этом, если CHM-файл, то выбор ссылки приведёт к
-открытию соответствующей статьи из MSDN. Если MSDN`а поблизости нет, то пользователь получит сообщение:<br><br>
-<img src="../../images/notfound.gif" width=335 height=119>
-<br>
-<br>
-
-
-<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Интернета (например, для функции GetLastError):<br><br>
-<code>&lt;a href="msdn.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
-
-Предполагается, что "msdn.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
-Содержимое файла:
-<pre class=code>
-&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"&gt;
-&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;Внешняя ссылка&lt;/title&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=Windows-1251"&gt;
-&lt;link rel="stylesheet" type="text/css" href="../styles/styles.css"&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;h1&gt;Внешняя ссылка&lt;/h1&gt;
-&lt;div class="navbar"&gt;
-  &lt;a href="index.html"&gt;главная&lt;/a&gt;
-&lt;/div&gt;
-
-&lt;div class="descr"&gt;
-Запрашиваемая информация &lt;span id="msdn"&gt;&lt;/span&gt; находится где-то в дебрях
-&lt;b&gt;&lt;a href="https://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
-
-&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
-if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
-{
-  var f=document.location.href.indexOf("?");
-  if(f > 0)
-  {
-    var qu=document.location.href.substring(f+1);
-    msdn.innerHTML=" по &lt;a href='https://social.msdn.microsoft.com/Search/?query=" +
-        qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
-  }
-}
-//--&gt;&lt;/script&gt;
-
-&lt;/body&gt;
-
-&lt;/html&gt;
-</pre>
-<br>
-<br>
-
-
+<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии), для Вашей статьи,
+например для функции <code>GetLastError</code>:<br><br>
+<code>&lt;a class="msdocs"&gt;GetLastError&lt;/a&gt;</code><br><br>
+при помощи javascript такая ссылка автоматически преобразуется в полную ссылку для поиска на сайте Microsoft: <a class="msdocs">GetLastError</a>.
 </ol>
 
 </body>
