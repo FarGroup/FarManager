@@ -1,4 +1,4 @@
-|[Английский](README.md)|[Польский](README-PL.md)|
+|[English](README.md)|[Polski](README-PL.md)|
 |-|-|
 
 [![Header][logo-img]][logo-url]

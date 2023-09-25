@@ -1,4 +1,4 @@
-|[Английский](CONTRIBUTING.md)|[Польский](CONTRIBUTING-PL.md)|
+|[English](CONTRIBUTING.md)|[Polski](CONTRIBUTING-PL.md)|
 |-|-|
 
 ### УЧАСТИЕ

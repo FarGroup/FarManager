@@ -1,4 +1,4 @@
-|[Polish](CONTRIBUTING-PL.md)|[Russian](CONTRIBUTING-RU.md)|
+|[Polski](CONTRIBUTING-PL.md)|[Русский](CONTRIBUTING-RU.md)|
 |-|-|
 
 ### CONTRIBUTING

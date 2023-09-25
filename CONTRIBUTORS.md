@@ -1,3 +1,6 @@
+﻿|[Polski](CONTRIBUTORS-PL.md)|
+|-|
+
 # Far Group past and present
 * Valentin Skirdin
 * Ivan Sintyurin
