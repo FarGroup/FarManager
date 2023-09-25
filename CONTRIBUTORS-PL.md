@@ -131,5 +131,5 @@
 * Arūnas Bartišius
 * Rohitab Batra
  
-> I specjalne podziękowania dla wszystkich członków naszej społeczności!
+> I specjalne podziękowania dla wszystkich członków naszej społeczności!<br/>
 > Jesteście nie mniej ważni niż osoby tutaj wymienione.
