@@ -1,4 +1,4 @@
-|[Angielski](CONTRIBUTING.md)|[Rosyjski](CONTRIBUTING-RU.md)|
+|[English](CONTRIBUTING.md)|[Русский](CONTRIBUTING-RU.md)|
 |-|-|
 
 ### WSPÓŁPRACA
