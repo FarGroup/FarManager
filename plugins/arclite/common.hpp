@@ -170,6 +170,7 @@ struct UpdateOptions: public ProfileOptions {
   OverwriteAction overwrite;
   std::shared_ptr<Far::FileFilter> filter;
   bool append_ext;
+  std::wstring exclude_filter;
   UpdateOptions();
 };
 

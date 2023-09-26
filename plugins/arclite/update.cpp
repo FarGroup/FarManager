@@ -525,6 +525,7 @@ private:
   ErrorLog& error_log;
   OverwriteAction overwrite_action;
   Far::FileFilter* filter;
+  std::wstring exclude_filter;
   bool& skipped_files;
 
   const std::wstring* file_path;
@@ -554,6 +555,8 @@ private:
       if (!filter->match(filter_data))
         return false;
     }
+    else if (!exclude_filter.empty() && Far::match_masks(std::wstring(src_find_data.cFileName), exclude_filter))
+      return false;
 
     FileIndexInfo file_index_info;
     file_index_info.rel_path = sub_dir;
@@ -655,6 +658,7 @@ public:
     bool& ignore_errors,
     ErrorLog& error_log,
     Far::FileFilter* filter,
+    const std::wstring& exclude_filter,
     bool& skipped_files
   ) : ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false),
     src_dir(src_dir),
@@ -665,6 +669,7 @@ public:
     error_log(error_log),
     overwrite_action(overwrite_action),
     filter(filter),
+    exclude_filter(exclude_filter),
     skipped_files(skipped_files)
   {
     skipped_files = false;
@@ -1043,7 +1048,7 @@ private:
   }
 
   void update_progress(const std::wstring& file_path_value) {
-	  m_file_path = &file_path_value;
+    m_file_path = &file_path_value;
     update_ui();
   }
 
@@ -1110,7 +1115,7 @@ void Archive::create(const std::wstring& src_dir, const std::vector<std::wstring
   bool skipped_files = false;
 
   const auto file_index_map = std::make_shared<FileIndexMap>();
-  PrepareUpdate(src_dir, file_names, c_root_index, *this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
+  PrepareUpdate(src_dir, file_names, c_root_index, *this, *file_index_map, new_index, oaOverwrite, *ignore_errors, *error_log, options.filter.get(), options.exclude_filter, skipped_files);
 
   ComObject<IOutArchive> out_arc;
   ArcAPI::create_out_archive(options.arc_type, out_arc.ref());
@@ -1150,7 +1155,7 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
   bool skipped_files = false;
 
   const auto file_index_map = std::make_shared<FileIndexMap>();
-  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), *this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get(), skipped_files);
+  PrepareUpdate(src_dir, file_names, find_dir(dst_dir), *this, *file_index_map, new_index, options.overwrite, *ignore_errors, *error_log, options.filter.get(), options.exclude_filter, skipped_files);
 
   std::wstring temp_arc_name = get_temp_file_name();
   try {

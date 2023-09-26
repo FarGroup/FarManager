@@ -303,6 +303,10 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
       else
         FAIL(E_BAD_FORMAT);
     }
+    else if (param.name == L"x") {
+      CHECK_FMT(!param.value.empty());
+      command.options.exclude_filter = param.value;
+    }
     else if (param.name == L"adv") {
       CHECK_FMT(!param.value.empty());
       command.options.advanced = param.value;
