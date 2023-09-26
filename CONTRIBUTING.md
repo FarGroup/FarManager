@@ -1,4 +1,7 @@
-﻿### CONTRIBUTING
+|[Polski](CONTRIBUTING-PL.md)|[Русский](CONTRIBUTING-RU.md)|
+|-|-|
+
+### CONTRIBUTING
 
 > Sections below will help you get familiar with our development process.
 
@@ -30,15 +33,15 @@ to the project, please follow those guidelines:
 cd far
 ```
 
-1. To compile with Visual Studio you can either use the IDE project or makefile.  
-   Example for msbuild & vcxproj:  
-     `msbuild /property:Configuration=Release;platform=x64 far.vcxproj`  
-   Example for nmake & makefile:  
-     `nmake /f makefile_vc`
+1. To compile with Visual Studio you can either use the IDE project or makefile.<br/>
+   Example for msbuild & vcxproj:<br/>
+   `msbuild /property:Configuration=Release;platform=x64 far.vcxproj`<br/>
+   Example for nmake & makefile:<br/>
+   `nmake /f makefile_vc`
 
-2. To compile with GCC you can use makefile.
-   Example for MinGW & makefile:  
-     `mingw32-make -f makefile_gcc`
+2. To compile with GCC you can use makefile.<br/>
+   Example for MinGW & makefile:<br/>
+   `mingw32-make -f makefile_gcc`
 
 > Also see comments in makefile_* for additional build parameters.
 
@@ -63,8 +66,8 @@ warp 2006-12-05 01:39:38+03:00 - build 2149
 1. This file contains information used to generate Far version:
    * `SPECIAL_VERSION`, a string that, if set, marks the build as special.
       - Intended for Far versions which code has not been
-        committed yet to the repository so we and the users will not be confused.  
-      - If not set, the build type will be defined by FARMANAGER_BUILD_TYPE environment 
+        committed yet to the repository so we and the users will not be confused.
+      - If not set, the build type will be defined by FARMANAGER_BUILD_TYPE environment
         variable. If the variable is not set, the build type will be Private.
         For the supported build types see VERSION_STAGE enumeration in plugin.hpp.
    * `VERSION_MAJOR` - major Far version (e.g. 3).

@@ -1,3 +1,6 @@
+﻿|[Polski](CONTRIBUTORS-PL.md)|
+|-|
+
 # Far Group past and present
 * Valentin Skirdin
 * Ivan Sintyurin
@@ -128,5 +131,5 @@
 * Arūnas Bartišius
 * Rohitab Batra
  
-> And special thanks to all of our community members!  
+> And special thanks to all of our community members!<br/>
 > You are not less important than the people mentioned here.
