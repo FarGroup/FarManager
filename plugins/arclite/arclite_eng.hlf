@@ -175,9 +175,9 @@ $ #Prefix command line format#
 
 	#Create or update archive#
 	arc:c [-pr:name] [-t:<arc_type>] [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]] [-sfx[:<module>]] [-v:<volume_size>]
-[-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<advanced>] [-x:<masks>] <archive> (<file> | @@<filelist>) ...
 	arc:u [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]]
-[-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] [-x:<masks>] <archive> (<file> | @@<filelist>) ...
 	-pr = profile name (other parameters overwrite profile settings)
 	-t = archive type (7z, zip, etc.)
 	-l = compression level (0|1|3|5|7|9)
@@ -191,6 +191,7 @@ $ #Prefix command line format#
 	-ie = ignore errors (skip files with errors)
 	-o = overwrite existing files (o = overwrite, s = skip)
 	-adv = advanced settings (see 7-Zip documentation for -m switch)
+	-x = exclude filenames ~masks~@:FileMasks@
 	<archive> = archive file name
 	<file> ... = list of files to archive (masks are allowed)
 	@@<filelist> ... = files containing lists of files to archive
