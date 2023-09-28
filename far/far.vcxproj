@@ -515,56 +515,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="FarEng.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarRus.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarHun.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarPol.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarGer.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarUkr.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarCze.hlf.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="FarSky.hlf.m4">
+    <CustomBuild Include="*.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
       <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>

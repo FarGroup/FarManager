@@ -225,7 +225,7 @@ constexpr struct
 		LastError,
 		LastStatus;
 }
-pdb_offsets
+teb_offsets
 {
 #ifdef _WIN64
 	0x68,
@@ -238,12 +238,12 @@ pdb_offsets
 
 NTSTATUS get_last_nt_status(void const* Teb)
 {
-	return view_as<NTSTATUS>(Teb, pdb_offsets.LastStatus);
+	return view_as<NTSTATUS>(Teb, teb_offsets.LastStatus);
 }
 
 DWORD get_last_error(void const* const Teb)
 {
-	return view_as<DWORD>(Teb, pdb_offsets.LastError);
+	return view_as<DWORD>(Teb, teb_offsets.LastError);
 }
 
 NTSTATUS get_last_nt_status()
