@@ -59,7 +59,7 @@ enum:class lng:int
 
 
 MYes
-`l://Version: 'FULLVERSION`
+`l:// Version: 'FULLVERSION`
 l:
 "Да"
 "Yes"
@@ -1278,7 +1278,7 @@ MAltShiftF12
 
 MCtrlShiftF1
 l:
-l://Main CtrlShift
+l:// Main CtrlShift
 ""
 ""
 ""
@@ -7591,7 +7591,7 @@ MEditF12
 
 MEditShiftF1
 l:
-l://Editor: Shift
+l:// Editor: Shift
 ""
 ""
 ""
@@ -7761,7 +7761,7 @@ MEditShiftF12
 
 MEditAltF1
 l:
-l://Editor: Alt
+l:// Editor: Alt
 ""
 ""
 ""
@@ -7931,7 +7931,7 @@ MEditAltF12
 
 MEditCtrlF1
 l:
-l://Editor: Ctrl
+l:// Editor: Ctrl
 ""
 ""
 ""
@@ -8101,7 +8101,7 @@ MEditCtrlF12
 
 MEditAltShiftF1
 l:
-l://Editor: AltShift
+l:// Editor: AltShift
 ""
 ""
 ""
@@ -8271,7 +8271,7 @@ MEditAltShiftF12
 
 MEditCtrlShiftF1
 l:
-l://Editor: CtrlShift
+l:// Editor: CtrlShift
 ""
 ""
 ""
@@ -9597,7 +9597,7 @@ MListEb
 "E"
 
 MListFileSize
-l:{3} replacement field can receive a sum of files & folders
+l:// {3} replacement field can receive a sum of files & folders
 "Байт: {0}, файлов: {1}, папок: {2}"
 "Bytes: {0}, files: {1}, folders: {2}"
 "Bajty: {0}, soubory: {1}, složky: {2}"
@@ -10125,7 +10125,7 @@ MViewF12
 
 MViewShiftF1
 l:
-l://Viewer: Shift
+l:// Viewer: Shift
 ""
 ""
 ""
@@ -10295,7 +10295,7 @@ MViewShiftF12
 
 MViewAltF1
 l:
-l://Viewer: Alt
+l:// Viewer: Alt
 ""
 ""
 ""
@@ -10465,7 +10465,7 @@ MViewAltF12
 
 MViewCtrlF1
 l:
-l://Viewer: Ctrl
+l:// Viewer: Ctrl
 ""
 ""
 ""
@@ -10635,7 +10635,7 @@ MViewCtrlF12
 
 MViewAltShiftF1
 l:
-l://Viewer: AltShift
+l:// Viewer: AltShift
 ""
 ""
 ""
@@ -10805,7 +10805,7 @@ MViewAltShiftF12
 
 MViewCtrlShiftF1
 l:
-l://Viewer: CtrlShift
+l:// Viewer: CtrlShift
 ""
 ""
 ""
@@ -10975,7 +10975,7 @@ MViewCtrlShiftF12
 
 MViewCtrlAltF1
 l:
-l://Viewer: CtrlAlt
+l:// Viewer: CtrlAlt
 ""
 ""
 ""
@@ -11145,7 +11145,7 @@ MViewCtrlAltF12
 
 MViewCtrlAltShiftF1
 l:
-l://Viewer: CtrlAltShift
+l:// Viewer: CtrlAltShift
 ""
 ""
 ""
