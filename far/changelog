@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2023-10-05 22:00:00+01:00 - build 6197
+
+1. Add "default color" concept.
+   In VT renderer "default" is SGR 39/49.
+   In classic renderer "default" is whatever was active in the console initially.
+
+2. COL_COMMANDLINE, COL_COMMANDLINEPREFIX, COL_COMMANDLINEUSERSCREEN use "default" by default.
+
+--------------------------------------------------------------------------------
 drkns 2023-09-28 17:14:11+01:00 - build 6196
 
 1. Continue 6185.

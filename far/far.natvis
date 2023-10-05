@@ -152,7 +152,9 @@
 		<Intrinsic Name="index_green" Expression="(i - 16) % 36 / 6"/>
 		<Intrinsic Name="index_blue"  Expression="(i - 16) % 6"/>
 		<Intrinsic Name="index_grey"  Expression="23 - (255 - i)"/>
+		<Intrinsic Name="is_default"  Expression="i == 0 &amp;&amp; reserved0 == 0 &amp;&amp; reserved1 == 0x80"/>
 
+		<DisplayString Condition="is_default()">{{(default) {a,nvo}}}</DisplayString>
 		<DisplayString Condition="i == 0x0">{{{i,nvo} (black) {a,nvo}}}</DisplayString>
 		<DisplayString Condition="i == 0x1">{{{i,nvo} (navy) {a,nvo}}}</DisplayString>
 		<DisplayString Condition="i == 0x2">{{{i,nvo} (green) {a,nvo}}}</DisplayString>
@@ -172,7 +174,7 @@
 		<DisplayString Condition="i&gt;0xe7">{{{i,nvo} (grey {index_grey()}) {a,nvo}}}</DisplayString>
 		<DisplayString Condition="i&gt;0xf">{{{i,nvo}  ({index_red()} {index_green()} {index_blue()}) {a,nvo}}}</DisplayString>
 		<Expand>
-			<Item      Name="index" Condition="i&lt;0x10">i,nvo</Item>
+			<Item      Name="index" Condition="!is_default() &amp;&amp; i&lt;0x10">i,nvo</Item>
 			<Synthetic Name="index" Condition="i&gt;0xf">
 				<DisplayString>{i,nvo}</DisplayString>
 				<Expand>
@@ -223,11 +225,11 @@
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
-				<DisplayString Condition="is_f_index()">{BackgroundIndex}</DisplayString>
-				<DisplayString Condition="!is_f_index()">{BackgroundRGBA}</DisplayString>
+				<DisplayString Condition="is_b_index()">{BackgroundIndex}</DisplayString>
+				<DisplayString Condition="!is_b_index()">{BackgroundRGBA}</DisplayString>
 				<Expand>
-					<ExpandedItem Condition="is_f_index()">BackgroundIndex</ExpandedItem>
-					<ExpandedItem Condition="!is_f_index()">BackgroundRGBA</ExpandedItem>
+					<ExpandedItem Condition="is_b_index()">BackgroundIndex</ExpandedItem>
+					<ExpandedItem Condition="!is_b_index()">BackgroundRGBA</ExpandedItem>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Style">

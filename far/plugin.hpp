@@ -140,6 +140,10 @@ struct color_index
 		a;
 };
 
+#define INDEXMASK 0x000000ff
+#define COLORMASK 0x00ffffff
+#define ALPHAMASK 0xff000000
+
 struct FarColor
 {
 	FARCOLORFLAGS Flags;
@@ -190,6 +194,16 @@ struct FarColor
 		return (Flags & FCF_FG_INDEX) != 0;
 	}
 
+	bool IsBgDefault() const
+	{
+		return IsBgIndex() && ((BackgroundColor & COLORMASK) == 0x00800000);
+	}
+
+	bool IsFgDefault() const
+	{
+		return IsFgIndex() && ((ForegroundColor & COLORMASK) == 0x00800000);
+	}
+
 	FarColor& SetBgIndex(bool Value)
 	{
 		Value? Flags |= FCF_BG_INDEX : Flags &= ~FCF_BG_INDEX;
@@ -201,6 +215,23 @@ struct FarColor
 		Value? Flags |= FCF_FG_INDEX : Flags &= ~FCF_FG_INDEX;
 		return *this;
 	}
+
+	FarColor& SetBgDefault()
+	{
+		SetBgIndex(true);
+		BackgroundColor &= ~COLORMASK;
+		BackgroundColor |= 0x00800000;
+		return *this;
+	}
+
+	FarColor& SetFgDefault()
+	{
+		SetFgIndex(true);
+		ForegroundColor &= ~COLORMASK;
+		ForegroundColor |= 0x00800000;
+		return *this;
+	}
+
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
 
@@ -231,10 +262,6 @@ struct FarColor
 #ifdef FAR_USE_INTERNALS
 static_assert(sizeof(FarColor) == 24);
 #endif // END FAR_USE_INTERNALS
-
-#define INDEXMASK 0x000000ff
-#define COLORMASK 0x00ffffff
-#define ALPHAMASK 0xff000000
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS

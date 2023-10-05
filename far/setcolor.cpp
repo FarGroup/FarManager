@@ -75,7 +75,7 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 		return;
 
 	if (Reset)
-		NewColor = colors::NtColorToFarColor(Global->Opt->Palette.Default(PaletteIndex));
+		NewColor = Global->Opt->Palette.Default(PaletteIndex);
 
 	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
 

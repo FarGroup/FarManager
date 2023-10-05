@@ -160,11 +160,6 @@ static int MainProcess(
 	int StartChar
 )
 {
-		FarColor InitAttributes;
-		if (!console.GetTextAttributes(InitAttributes))
-			InitAttributes = colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK);
-		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
 		if (ConfigProvider().ShowProblems())
 		{
@@ -318,9 +313,6 @@ static int MainProcess(
 
 		TreeList::FlushCache();
 
-		// очистим за собой!
-		SetScreen({ 0, 0, ScrX, ScrY }, L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-		console.SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 
@@ -799,6 +791,11 @@ static void parse_command_line(span<const wchar_t* const> const Args, span<strin
 static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
+
+	if (FarColor InitAttributes; console.GetTextAttributes(InitAttributes))
+		colors::store_default_color(InitAttributes);
+
+	SCOPE_EXIT{ console.SetTextAttributes(colors::default_color()); };
 
 	SCOPED_ACTION(global);
 

@@ -58,6 +58,8 @@ static const struct ColorsInit
 {
 	string_view Name;
 	unsigned char Index;
+
+	static constexpr unsigned char Default = 0xFF;
 }
 Init[]
 {
@@ -109,7 +111,7 @@ Init[]
 	{L"Keybar.Num"sv,                                  F_LIGHTGRAY|B_BLACK,    }, // COL_KEYBARNUM,
 	{L"Keybar.Text"sv,                                 F_BLACK|B_CYAN,         }, // COL_KEYBARTEXT,
 	{L"Keybar.Background"sv,                           F_LIGHTGRAY|B_BLACK,    }, // COL_KEYBARBACKGROUND,
-	{L"CommandLine"sv,                                 F_LIGHTGRAY|B_BLACK,    }, // COL_COMMANDLINE,
+	{L"CommandLine"sv,                                 ColorsInit::Default,    }, // COL_COMMANDLINE,
 	{L"Clock"sv,                                       F_BLACK|B_CYAN,         }, // COL_CLOCK,
 	{L"Viewer.Text"sv,                                 F_LIGHTCYAN|B_BLUE,     }, // COL_VIEWERTEXT,
 	{L"Viewer.Text.Selected"sv,                        F_BLACK|B_CYAN,         }, // COL_VIEWERSELECTEDTEXT,
@@ -135,7 +137,7 @@ Init[]
 	{L"Dialog.List.Scrollbar"sv,                       F_BLACK|B_LIGHTGRAY,    }, // COL_DIALOGLISTSCROLLBAR,
 	{L"Menu.Scrollbar"sv,                              F_WHITE|B_CYAN,         }, // COL_MENUSCROLLBAR,
 	{L"Viewer.Scrollbar"sv,                            F_LIGHTCYAN|B_BLUE,     }, // COL_VIEWERSCROLLBAR,
-	{L"CommandLine.Prefix"sv,                          F_LIGHTGRAY|B_BLACK,    }, // COL_COMMANDLINEPREFIX,
+	{L"CommandLine.Prefix"sv,                          ColorsInit::Default,    }, // COL_COMMANDLINEPREFIX,
 	{L"Dialog.Disabled"sv,                             F_DARKGRAY|B_LIGHTGRAY, }, // COL_DIALOGDISABLED,
 	{L"Dialog.Edit.Disabled"sv,                        F_DARKGRAY|B_CYAN,      }, // COL_DIALOGEDITDISABLED,
 	{L"Dialog.List.Disabled"sv,                        F_DARKGRAY|B_LIGHTGRAY, }, // COL_DIALOGLISTDISABLED,
@@ -187,7 +189,7 @@ Init[]
 	{L"Menu.Arrows"sv,                                 F_YELLOW|B_CYAN,        }, // COL_MENUARROWS,
 	{L"Menu.Arrows.Disabled"sv,                        F_DARKGRAY|B_CYAN,      }, // COL_MENUARROWSDISABLED,
 	{L"Menu.Arrows.Selected"sv,                        F_YELLOW|B_BLACK,       }, // COL_MENUARROWSSELECTED,
-	{L"CommandLine.UserScreen"sv,                      F_LIGHTGRAY|B_BLACK,    }, // COL_COMMANDLINEUSERSCREEN,
+	{L"CommandLine.UserScreen"sv,                      ColorsInit::Default,    }, // COL_COMMANDLINEUSERSCREEN,
 	{L"Editor.Scrollbar"sv,                            F_LIGHTCYAN|B_BLUE,     }, // COL_EDITORSCROLLBAR,
 	{L"Menu.GrayText"sv,                               F_DARKGRAY|B_CYAN,      }, // COL_MENUGRAYTEXT,
 	{L"Menu.GrayText.Selected"sv,                      F_LIGHTGRAY|B_BLACK,    }, // COL_MENUSELECTEDGRAYTEXT,
@@ -220,7 +222,9 @@ palette::palette():
 
 static auto index_color(ColorsInit const& i)
 {
-	return colors::NtColorToFarColor(i.Index);
+	return i.Index == ColorsInit::Default?
+		colors::default_color() :
+		colors::NtColorToFarColor(i.Index);
 }
 
 void palette::Reset(bool const RGB)
@@ -228,6 +232,10 @@ void palette::Reset(bool const RGB)
 	const auto rgb_color = [Palette = colors::nt_palette()](ColorsInit const& i)
 	{
 		auto Color = index_color(i);
+
+		if (i.Index == ColorsInit::Default)
+			return Color;
+
 		flags::clear(Color.Flags, FCF_INDEXMASK);
 		colors::set_color_bits(Color.ForegroundColor, Palette[colors::index_bits(Color.ForegroundColor)]);
 		colors::set_color_bits(Color.BackgroundColor, Palette[colors::index_bits(Color.BackgroundColor)]);
@@ -253,11 +261,11 @@ void palette::ResetToDefaultRGB()
 	Reset(true);
 }
 
-unsigned char palette::Default(size_t const Index) const
+FarColor palette::Default(size_t const Index) const
 {
 	assert(Index < std::size(Init));
 
-	return Init[Index].Index;
+	return index_color(Init[Index]);
 }
 
 void palette::Set(size_t StartOffset, span<FarColor> Values)

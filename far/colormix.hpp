@@ -105,7 +105,7 @@ namespace colors
 
 	size_t color_hash(const FarColor& Value);
 
-	FarColor merge(const FarColor& Bottom, const FarColor& Top);
+	FarColor merge(FarColor Bottom, FarColor Top);
 
 	using nt_palette_t = std::array<COLORREF, index::nt_size>;
 	nt_palette_t nt_palette();
@@ -161,6 +161,12 @@ namespace colors
 
 	[[nodiscard]]
 	unsigned long long ColorStringToFlags(string_view Flags);
+
+	FarColor resolve_defaults(FarColor const& Color);
+	FarColor unresolve_defaults(FarColor const& Color);
+	FarColor default_color();
+	bool is_default(COLORREF Color);
+	void store_default_color(FarColor const& Color);
 }
 
 template<>

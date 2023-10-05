@@ -127,7 +127,7 @@ public:
 	void Save(bool always);
 	void ResetToDefaultIndex();
 	void ResetToDefaultRGB();
-	unsigned char Default(size_t Index) const;
+	FarColor Default(size_t Index) const;
 	void Set(size_t StartOffset, span<FarColor> Values);
 	void CopyTo(span<FarColor> Destination) const;
 	const FarColor& operator[](size_t Index) const;

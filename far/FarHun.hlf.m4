@@ -4507,6 +4507,9 @@ $ #Color Picker#
  The standard 16-color palette is available in the dialog.
  To access the ~256-color palette~@ColorPicker256@ and the ~RGB color space~@ColorPickerRGB@ use the corresponding buttons.
 
+ #Default# is the color used by your terminal when no colors are specified explicitly, e.g. \(800000:800000) C:\> \-.
+ Usually it is one of the palette colors, e.g. \(7:0)silver on black\-, but not necessarily: some terminals could handle it differently, e.g. render as translucent.
+
  The color value is also represented in the hexadecimal form for convenience, where:
  - #AA______# - the alpha channel, representing the degree of transparency from fully transparent (00) to fully opaque (FF).
  - #______##### - the palette index from 00 to FF.

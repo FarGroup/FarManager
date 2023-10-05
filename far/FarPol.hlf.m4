@@ -4406,6 +4406,9 @@ $ #Wybór kolorów#
  Standardowa 16-kolorowa paleta jest dostępna w oknie dialogowym.
  Aby skorzystać z ~256-kolorowej palety~@ColorPicker256@ i ~przestrzeni barw RGB~@ColorPickerRGB@ należy użyć odpowiednich przycisków.
 
+ #Default# is the color used by your terminal when no colors are specified explicitly, e.g. \(800000:800000) C:\> \-.
+ Usually it is one of the palette colors, e.g. \(7:0)silver on black\-, but not necessarily: some terminals could handle it differently, e.g. render as translucent.
+
  Wartość kolorów jest także przedstawiania w postaci szesnastkowej, gdzie:
  - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
  - #______##### - indeks palety od 00 do FF.

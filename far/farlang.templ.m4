@@ -18684,6 +18684,34 @@ MSetColorBackground
 "&Фон:"
 "&Fonas:"
 
+MSetColorForegroundDefault
+"По умолчанию"
+"Default"
+"Výchozí"
+"Default"
+"Alapértelmezett"
+"Domyślny"
+"Por defecto"
+"Predvolená"
+"Predefinito"
+"За замовчуванням"
+"Па змаўчанні"
+"Numatytas"
+
+MSetColorBackgroundDefault
+"По умолчанию"
+"Default"
+"Výchozí"
+"Default"
+"Alapértelmezett"
+"Domyślny"
+"Por defecto"
+"Predvolená"
+"Predefinito"
+"За замовчуванням"
+"Па змаўчанні"
+"Numatytas"
+
 MSetColorForeIndex
 l:
 l:// 8 characters max
@@ -18715,6 +18743,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorForeDefault
+l:
+l:// 8 characters max
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
 
 MSetColorFore256
 l:
@@ -18779,6 +18823,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorBackDefault
+l:
+l:// 8 characters max
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
+"AA"
 
 MSetColorBack256
 l:

@@ -230,6 +230,8 @@ static bool apply_index_shadow(FarColor& Color, COLORREF FarColor::* ColorAccess
 	// Reduce the intensity or make black.
 	// Technically the other branch can merge index colours too,
 	// but this should give more predictable results than the approximation.
+
+	Color = colors::resolve_defaults(Color);
 	auto& ColorPart = std::invoke(ColorAccessor, Color);
 	const auto Index = colors::index_value(ColorPart);
 	const auto Alpha = colors::alpha_bits(ColorPart);

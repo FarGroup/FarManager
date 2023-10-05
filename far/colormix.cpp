@@ -157,6 +157,8 @@ namespace colors
 
 		if (IsIndex)
 		{
+			assert(!is_default(Colour));
+
 			const auto Index = index_value(Colour);
 
 			if (Index <= index::nt_last)
@@ -206,9 +208,12 @@ namespace colors
 			Value.ForegroundColor);
 	}
 
-	FarColor merge(const FarColor& Bottom, const FarColor& Top)
+	FarColor merge(FarColor Bottom, FarColor Top)
 	{
 		static FarColor LastResult, LastBottom, LastTop;
+
+		Top = resolve_defaults(Top);
+		Bottom = resolve_defaults(Bottom);
 
 		if (Bottom == LastBottom && Top == LastTop)
 		{
@@ -484,8 +489,10 @@ namespace colors
 		return Color | (Flags & FCF_RAWATTR_MASK);
 	}
 
-static index_color_256 FarColorToConsoleColor(const FarColor& Color, FarColor& LastColor, span<COLORREF const> const Palette)
+static index_color_256 FarColorToConsoleColor(FarColor Color, FarColor& LastColor, span<COLORREF const> const Palette)
 {
+	Color = resolve_defaults(Color);
+
 	const auto convert_and_save = [&](COLORREF FarColor::* const Getter, FARCOLORFLAGS const Flag, uint8_t& IndexColor)
 	{
 		const auto Current = std::invoke(Getter, Color);
@@ -574,6 +581,8 @@ FarColor NtColorToFarColor(WORD Color)
 
 COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 {
+	assert(!is_default(Color));
+
 	const auto Index = index_value(Color);
 	return alpha_bits(Color) | (Index < 16? console_palette()[Index] : Index8ToRGB[Index]);
 }
@@ -718,6 +727,67 @@ unsigned long long ColorStringToFlags(string_view const Flags)
 	return StringToFlags(Flags, ColorFlagNames);
 }
 
+static FarColor s_ResolvedIndexColor
+{
+	FCF_INDEXMASK,
+	colors::opaque(F_LIGHTGRAY),
+	colors::opaque(F_BLACK),
+};
+
+FarColor resolve_defaults(FarColor const& Color)
+{
+	auto Result = Color;
+
+	if (Result.IsFgDefault())
+	{
+		Result.ForegroundIndex.i = s_ResolvedIndexColor.ForegroundIndex.i;
+		Result.ForegroundIndex.reserved1 = 0;
+	}
+
+	if (Result.IsBgDefault())
+	{
+		Result.BackgroundIndex.i = s_ResolvedIndexColor.BackgroundIndex.i;
+		Result.BackgroundIndex.reserved1 = 0;
+	}
+
+	return Result;
+}
+
+FarColor unresolve_defaults(FarColor const& Color)
+{
+	auto Result = Color;
+
+	if (Result.IsFgIndex() && Result.ForegroundIndex.i == s_ResolvedIndexColor.ForegroundIndex.i)
+		Result.SetFgDefault();
+
+	if (Result.IsBgIndex() && Result.BackgroundIndex.i == s_ResolvedIndexColor.BackgroundIndex.i)
+		Result.SetBgDefault();
+
+	return Result;
+}
+
+constexpr auto default_color_bit = bit(23);
+
+FarColor default_color()
+{
+	return
+	{
+		FCF_INDEXMASK | FCF_INHERIT_STYLE,
+		opaque(default_color_bit),
+		opaque(default_color_bit),
+	};
+}
+
+bool is_default(COLORREF const Color)
+{
+	return color_value(Color) == default_color_bit;
+}
+
+void store_default_color(FarColor const& Color)
+{
+	assert(flags::check_all(Color.Flags, FCF_INDEXMASK));
+	s_ResolvedIndexColor = Color;
+}
 }
 
 #ifdef ENABLE_TESTS
@@ -761,6 +831,31 @@ TEST_CASE("colors.COLORREF")
 	REQUIRE(Color == 0xff000042);
 	colors::set_alpha_value(Color = 0xffffffff, 0x42);
 	REQUIRE(Color == 0x42ffffff);
+}
+
+TEST_CASE("colors.default")
+{
+	FarColor Color
+	{
+		0,
+		0xFFFFFFFF,
+		0xFFFFFFFF,
+	};
+
+	REQUIRE(!Color.IsFgDefault());
+	REQUIRE(!Color.IsBgDefault());
+
+	Color.SetFgDefault();
+	Color.SetBgDefault();
+
+	REQUIRE(Color.IsFgDefault());
+	REQUIRE(Color.IsBgDefault());
+
+	REQUIRE(Color.ForegroundColor == 0xFF800000);
+	REQUIRE(Color.ForegroundColor == 0xFF800000);
+
+	REQUIRE((Color.Flags & FCF_INDEXMASK) == FCF_INDEXMASK);
+
 }
 
 TEST_CASE("colors.merge")

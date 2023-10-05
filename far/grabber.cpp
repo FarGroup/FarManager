@@ -268,7 +268,7 @@ void Grabber::DisplayObject()
 			{
 				const auto& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
 				auto& Destination = CharBuf[Y - Y1][X - FromX].Attributes;
-				Destination = CurColor;
+				Destination = colors::resolve_defaults(CurColor);
 
 				if (m_StreamSelection)
 				{
@@ -296,8 +296,8 @@ void Grabber::DisplayObject()
 					}
 				}
 
-				colors::make_invert(Destination.BackgroundColor, CurColor.IsBgIndex());
-				colors::make_invert(Destination.ForegroundColor, CurColor.IsFgIndex());
+				colors::make_invert(Destination.ForegroundColor, Destination.IsFgIndex());
+				colors::make_invert(Destination.BackgroundColor, Destination.IsBgIndex());
 			}
 		}
 

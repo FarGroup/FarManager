@@ -85,9 +85,10 @@ static_assert(std::size(control_by_color) == std::size(IndexColors));
 static constexpr auto color_by_control = column_major_iota<uint8_t, ColorsHeight, ColorsWidth>();
 static_assert(std::size(color_by_control) == std::size(IndexColors));
 
-static string color_code(COLORREF const Color, bool const IsIndex)
+static string color_code(COLORREF const Color, bool const IsIndex, bool const IsDefault)
 {
-	return IsIndex?
+	return IsIndex? IsDefault?
+		far::format(L"{:02X}      "sv, colors::alpha_value(Color)) :
 		far::format(L"{:02X}    {:02X}"sv, colors::alpha_value(Color), colors::index_value(Color)) :
 		far::format(L"{:08X}"sv, colors::ARGB2ABGR(Color));
 }
@@ -130,7 +131,8 @@ struct color_state
 
 constexpr auto
 	MaskIndex = L"HH    HH"sv,
-	MaskARGB  = L"HHHHHHHH"sv;
+	MaskARGB  = L"HHHHHHHH"sv,
+	MaskDef   = L"HH      "sv;
 
 enum color_dialog_items
 {
@@ -146,7 +148,9 @@ enum color_dialog_items
 	cd_fg_text,
 	cd_fg_active,
 	cd_fg_color_first,
-	cd_fg_color_last = cd_fg_color_first + colors::index::nt_last,
+	cd_fg_color_last = cd_fg_color_first + colors::index::nt_last + 1,
+	cd_fg_color_default = cd_fg_color_last,
+	cd_fg_color_default_label,
 
 	cd_fg_colorcode_title,
 	cd_fg_colorcode,
@@ -156,7 +160,9 @@ enum color_dialog_items
 	cd_bg_text,
 	cd_bg_active,
 	cd_bg_color_first,
-	cd_bg_color_last = cd_bg_color_first + colors::index::nt_last,
+	cd_bg_color_last = cd_bg_color_first + colors::index::nt_last + 1,
+	cd_bg_color_default = cd_bg_color_last,
+	cd_bg_color_default_label,
 
 	cd_bg_colorcode_title,
 	cd_bg_colorcode,
@@ -215,6 +221,18 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	const auto GetColor = [Param1](size_t const Offset)
 	{
+		if (any_of(Param1, cd_fg_color_default, cd_bg_color_default))
+		{
+			auto Color = colors::resolve_defaults(colors::default_color());
+			if (Offset == cd_fg_color_first)
+			{
+				using std::swap;
+				swap(Color.ForegroundColor, Color.BackgroundColor);
+			}
+
+			return Color;
+		}
+
 		auto Color = colors::NtColorToFarColor(IndexColors[color_by_control[Param1 - Offset]]);
 		flags::clear(Color.Flags, FCF_INHERIT_STYLE);
 		return Color;
@@ -287,6 +305,11 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				CurColor.Flags |= FlagIndex(IsFg);
 
+				if (Param1 == cd_fg_color_default)
+					CurColor.SetFgDefault();
+				else if (Param1 == cd_bg_color_default)
+					CurColor.SetBgDefault();
+
 				Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});
 
 				return TRUE;
@@ -323,16 +346,10 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (any_of(Param1, cd_fg_256, cd_bg_256))
 			{
 				const auto IsFg = Param1 == cd_fg_256;
-				const auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+				const auto Index = colors::FarColorToConsole256Color(CurColor);
+				const auto& Component = IsFg? Index.ForegroundIndex : Index.BackgroundIndex;
 
-				FarColor const TmpColor
-				{
-					FCF_FG_INDEX | (CurColor.Flags & FlagIndex(IsFg)? FCF_BG_INDEX : 0),
-					{ 0 },
-					{ Component }
-				};
-
-				auto Color = colors::index_value(colors::FarColorToConsole256Color(TmpColor).BackgroundIndex);
+				auto Color = colors::index_value(Component);
 
 				if (pick_color_256(Color))
 				{
@@ -350,7 +367,8 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (any_of(Param1, cd_fg_rgb, cd_bg_rgb))
 			{
 				const auto IsFg = Param1 == cd_fg_rgb;
-				const auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+				const auto ResolvedColor = colors::resolve_defaults(CurColor);
+				const auto& Component = IsFg? ResolvedColor.ForegroundColor : ResolvedColor.BackgroundColor;
 
 				auto Color = colors::color_value(
 					CurColor.Flags & FlagIndex(IsFg)?
@@ -433,22 +451,23 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			const auto Color = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
 			const auto IsIndex = IsFg? CurColor.IsFgIndex() : CurColor.IsBgIndex();
-			const auto Value = color_code(Color, IsIndex);
+			const auto IsDefault = IsFg? CurColor.IsFgDefault() : CurColor.IsBgDefault();
+			const auto Value = color_code(Color, IsIndex, IsDefault);
 
-			Item.Mask = (IsIndex? MaskIndex :MaskARGB).data();
+			Item.Mask = (IsIndex? IsDefault? MaskDef : MaskIndex: MaskARGB).data();
 			Item.Data = UNSAFE_CSTR(Value);
 
 			Dlg->SendMessage(DM_SETDLGITEM, Param1, &Item);
 
-			constexpr lng Titles[][2]
+			constexpr lng Titles[][3]
 			{
-				{ lng::MSetColorForeIndex, lng::MSetColorForeAARRGGBB },
-				{ lng::MSetColorBackIndex, lng::MSetColorBackAARRGGBB },
+				{ lng::MSetColorForeIndex, lng::MSetColorForeAARRGGBB, lng::MSetColorForeDefault },
+				{ lng::MSetColorBackIndex, lng::MSetColorBackAARRGGBB, lng::MSetColorBackDefault },
 			};
 
 			Dlg->SendMessage(DM_SETTEXTPTR,
 				IsFg? cd_fg_colorcode_title : cd_bg_colorcode_title,
-				UNSAFE_CSTR(msg(Titles[IsFg? 0 : 1][IsIndex? 0 : 1]))
+				UNSAFE_CSTR(msg(Titles[IsFg? 0 : 1][IsIndex? IsDefault? 2 : 0 : 1]))
 			);
 		}
 		return TRUE;
@@ -510,8 +529,10 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		column(x, y,  7)
 
 		COLOR_PLANE(COLOR_COLUMN, Fg4X, Fg4Y + 1),
+		COLOR_CELL(Fg4X, Fg4Y + 3),
+		{ DI_TEXT, { { Fg4X + 4, Fg4Y + 3 }, { 0, Fg4Y + 3 } }, DIF_NONE, msg(lng::MSetColorForegroundDefault) },
 
-		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(Color.IsFgIndex()? lng::MSetColorForeIndex : lng::MSetColorForeAARRGGBB) },
+		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(Color.IsFgIndex()? Color.IsFgDefault()? lng::MSetColorForeDefault : lng::MSetColorForeIndex : lng::MSetColorForeAARRGGBB) },
 		{ DI_FIXEDIT,     {{30, 3 }, {37, 3 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{30, 4 }, {37, 4 }}, DIF_NONE, msg(lng::MSetColorFore256), },
 		{ DI_BUTTON,      {{30, 5 }, {37, 5 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
@@ -520,11 +541,13 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_CHECKBOX,    {{Bg4X, Bg4Y}, {0, Bg4Y}}, DIF_NONE, msg(lng::MSetColorBackground), },
 
 		COLOR_PLANE(COLOR_COLUMN, Bg4X, Bg4Y + 1),
+		COLOR_CELL(Bg4X, Bg4Y + 3),
+		{ DI_TEXT, { { Bg4X + 4, Bg4Y + 3 }, { 0, Bg4Y + 3 } }, DIF_NONE, msg(lng::MSetColorBackgroundDefault) },
 
 #undef COLOR_PLANE
 #undef COLOR_COLUMN
 
-		{ DI_TEXT,        {{30, 7 }, {0,  7 }}, DIF_NONE, msg(Color.IsBgIndex()? lng::MSetColorBackIndex : lng::MSetColorBackAARRGGBB) },
+		{ DI_TEXT,        {{30, 7 }, {0,  7 }}, DIF_NONE, msg(Color.IsBgIndex()? Color.IsBgDefault()? lng::MSetColorBackDefault : lng::MSetColorBackIndex : lng::MSetColorBackAARRGGBB) },
 		{ DI_FIXEDIT,     {{30, 8 }, {37, 8 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{30, 9 }, {37, 9 }}, DIF_NONE, msg(lng::MSetColorBack256), },
 		{ DI_BUTTON,      {{30, 10}, {37, 10}}, DIF_NONE, msg(lng::MSetColorBackRGB), },
@@ -563,10 +586,10 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	ColorDlg[cd_separator_after_foreground].strMask = ColorDlg[cd_separator_after_background].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
 	ColorDlg[cd_separator_style].strMask = { BoxSymbols[BS_H1], BoxSymbols[BS_H1], BoxSymbols[BS_H1] };
 
-	ColorDlg[cd_fg_colorcode].strData = color_code(Color.ForegroundColor, Color.IsFgIndex());
-	ColorDlg[cd_bg_colorcode].strData = color_code(Color.BackgroundColor, Color.IsBgIndex());
-	ColorDlg[cd_fg_colorcode].strMask = Color.IsFgIndex()? MaskIndex : MaskARGB;
-	ColorDlg[cd_bg_colorcode].strMask = Color.IsBgIndex()? MaskIndex : MaskARGB;
+	ColorDlg[cd_fg_colorcode].strData = color_code(Color.ForegroundColor, Color.IsFgIndex(), Color.IsFgDefault());
+	ColorDlg[cd_bg_colorcode].strData = color_code(Color.BackgroundColor, Color.IsBgIndex(), Color.IsBgDefault());
+	ColorDlg[cd_fg_colorcode].strMask = Color.IsFgIndex()? Color.IsFgDefault()? MaskDef : MaskIndex : MaskARGB;
+	ColorDlg[cd_bg_colorcode].strMask = Color.IsBgIndex()? Color.IsBgDefault()? MaskDef : MaskIndex : MaskARGB;
 
 	color_state ColorState
 	{
@@ -579,15 +602,26 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		ForegroundColorControlActivated = false,
 		BackgroundColorControlActivated = false;
 
-	const auto activate_control = [&](COLORREF const ColorPart, int const ControlGroup)
+	const auto get_control_id = [&](COLORREF const ColorPart, int const ControlGroup) -> std::optional<size_t>
 	{
+		if (colors::is_default(ColorPart))
+			return ControlGroup + colors::index::nt_size;
+
 		const auto Index = colors::index_value(ColorPart);
 		if (Index > colors::index::nt_last)
+			return {};
+
+		return ControlGroup + control_by_color[Index];
+	};
+
+	const auto activate_control = [&](COLORREF const ColorPart, int const ControlGroup)
+	{
+		const auto ControlId = get_control_id(ColorPart, ControlGroup);
+		if (!ControlId)
 			return false;
 
-		const auto ControlId = ControlGroup + control_by_color[Index];
-		ColorDlg[ControlId].Selected = true;
-		ColorDlg[ControlId].Flags |= DIF_FOCUS;
+		ColorDlg[*ControlId].Selected = true;
+		ColorDlg[*ControlId].Flags |= DIF_FOCUS;
 		return true;
 	};
 
@@ -617,6 +651,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 				ColorDlg[i].Flags |= DIF_DISABLE;
 			}
 
+			ColorDlg[cd_fg_color_default_label].Flags |= DIF_DISABLE;
 			ColorDlg[cd_fg_colorcode].Flags |= DIF_DISABLE;
 			ColorDlg[cd_fg_256].Flags |= DIF_DISABLE;
 			ColorDlg[cd_fg_rgb].Flags |= DIF_DISABLE;
@@ -633,6 +668,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 				ColorDlg[i].Flags |= DIF_DISABLE;
 			}
 
+			ColorDlg[cd_bg_color_default_label].Flags |= DIF_DISABLE;
 			ColorDlg[cd_bg_colorcode].Flags |= DIF_DISABLE;
 			ColorDlg[cd_bg_256].Flags |= DIF_DISABLE;
 			ColorDlg[cd_bg_rgb].Flags |= DIF_DISABLE;

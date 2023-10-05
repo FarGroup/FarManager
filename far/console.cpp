@@ -434,7 +434,7 @@ protected:
 				return;
 			}
 
-			FarColor CurrentColor;
+			FarColor CurrentColor{};
 			const auto ChangeColour = m_Colour && ::console.GetTextAttributes(CurrentColor);
 
 			if (ChangeColour)
@@ -651,9 +651,7 @@ protected:
 			if (WindowCoord.x > csbi.dwSize.X)
 			{
 				// windows sometimes uses existing colors to init right region of screen buffer
-				FarColor Color;
-				GetTextAttributes(Color);
-				ClearExtraRegions(Color, CR_RIGHT);
+				ClearExtraRegions(colors::default_color(), CR_RIGHT);
 			}
 		}
 
@@ -1126,7 +1124,7 @@ protected:
 		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
 			const auto& Cell = *ConsoleBufferIterator++;
-			i = { replace_replacement_if_needed(Cell), colors::NtColorToFarColor(Cell.Attributes) };
+			i = { replace_replacement_if_needed(Cell), colors::unresolve_defaults(colors::NtColorToFarColor(Cell.Attributes)) };
 		});
 
 		return true;
@@ -1160,12 +1158,12 @@ protected:
 	{
 		COLORREF FarColor::* Color;
 		FARCOLORFLAGS Flags;
-		string_view Normal, Intense, ExtendedColour;
+		string_view Normal, Intense, ExtendedColour, Default;
 	}
 	ColorsMapping[]
 	{
-		{ &FarColor::ForegroundColor, FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv },
-		{ &FarColor::BackgroundColor, FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv },
+		{ &FarColor::ForegroundColor, FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv, L"39"sv },
+		{ &FarColor::BackgroundColor, FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv, L"49"sv },
 	};
 
 	static constexpr struct
@@ -1198,8 +1196,9 @@ protected:
 
 		if (Attributes.Flags & Mapping.Flags)
 		{
-			const auto Index = colors::index_value(ColorPart);
-			if (Index < 16)
+			if (colors::is_default(ColorPart))
+				append(Str, Mapping.Default);
+			else if (const auto Index = colors::index_value(ColorPart); Index < colors::index::nt_size)
 				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + vt_base_color_index(Index)));
 			else
 				far::format_to(Str, L"{};5;{}"sv, Mapping.ExtendedColour, Index);
