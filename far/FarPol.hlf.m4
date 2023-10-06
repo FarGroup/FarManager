@@ -47,9 +47,9 @@
 
 @Contents
 $^#Menedżer plików i archiwów#
-`$^#'FULLVERSION`#'
+$^#M4_MACRO_GET(FULLVERSION)#
 $^#Copyright © 1996-2000 Eugene Roshal#
-`$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
+$^#Copyright © 2000-M4_MACRO_GET(COPYRIGHTYEAR) Far Group#
  ~Indeks pomocy~@Index@
  ~Jak używać pomocy~@Help@
 

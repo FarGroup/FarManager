@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-Far Manager `v'FULLVERSION for Windows
+Far Manager M4_MACRO_CONCAT(v, M4_MACRO_GET(FULLVERSION)) for Windows
 
 Text mode file and archive manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

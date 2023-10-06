@@ -59,7 +59,7 @@ enum:class lng:int
 
 
 MYes
-`l:// Version: 'FULLVERSION`
+l:// Version: M4_MACRO_GET(FULLVERSION)
 l:
 "Да"
 "Yes"

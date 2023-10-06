@@ -47,9 +47,9 @@
 
 @Contents
 $^#Datei- und Archiv-Manager.#
-`$^#'FULLVERSION`#'
+$^#M4_MACRO_GET(FULLVERSION)#
 $^#Copyright © 1996-2000 Eugene Roshal#
-`$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#
+$^#Copyright © 2000-M4_MACRO_GET(COPYRIGHTYEAR) Far Group#
  ~Help file index~@Index@
  ~Hilfe über Hilfe~@Help@
 
@@ -240,7 +240,7 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
  Far Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
 
  -v <Dateiname>
- Zeigt die angegebene Datei im Betrachter an. Gibt man als Dateiname - an, wird vom Standardeingabegerät (stdin) eingelesen.
+ Zeigt die angegebene Datei im Betrachter an. Gibt man als Dateiname `#-#' an, wird vom Standardeingabegerät (stdin) eingelesen.
 
  Beispiel, "dir|far -v -" zeigt z.B. die Ausgabe des dir-Befehls an.
 

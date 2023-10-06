@@ -1,3 +1,2 @@
 m4_include(`farversion.m4')m4_dnl
-m4_define(CMD,`CMDAWK -f ./scripts/plugins.awk -v p1=VERSION_MAJOR -v p2=VERSION_MINOR -v p3=VERSION_REVISION p4=VERSION_BUILD p5=VERSION_TYPE INPUT')m4_dnl
-m4_esyscmd(CMD)m4_dnl
+m4_esyscmd(CMDAWK -f ./scripts/plugins.awk -v p1=M4_MACRO_GET(VERSION_MAJOR) -v p2=M4_MACRO_GET(VERSION_MINOR) -v p3=M4_MACRO_GET(VERSION_REVISION) p4=M4_MACRO_GET(VERSION_BUILD) p5=M4_MACRO_GET(VERSION_TYPE) INPUT)m4_dnl

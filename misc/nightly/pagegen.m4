@@ -1,17 +1,32 @@
 m4_include(`farversion.m4')m4_dnl
-m4_define(NEWARC,`Far'VERSION_MAJOR`'VERSION_MINOR`b'VERSION_BUILD`.'m4_ifelse(FARBIT, 64, `x64', FARBIT, 32, `x86', FARBIT)`.'BUILD_YEAR`'BUILD_MONTH`'BUILD_DAY)m4_dnl
-m4_define(COPY,m4_esyscmd(cp -f ARC`.7z' `/var/www/html/nightly/'NEWARC`.7z'))m4_dnl
-m4_define(COPY2,m4_esyscmd(cp -f ARC`.msi' `/var/www/html/nightly/'NEWARC`.msi'))m4_dnl
-m4_define(COPY3,m4_esyscmd(cp -f ARC`.pdb.7z' `/var/www/html/nightly/'NEWARC`.pdb.7z'))m4_dnl
-`<?php'
-`$far'FARVAR`_major="'VERSION_MAJOR`";'
-`$far'FARVAR`_minor="'VERSION_MINOR`";'
-`$far'FARVAR`_build="'VERSION_BUILD`";'
-`$far'FARVAR`_platform="'m4_ifelse(FARBIT, 64, `x64', FARBIT, 32, `x86', FARBIT)`";'
-`$far'FARVAR`_arc="'NEWARC`.7z";'
-`$far'FARVAR`_msi="'NEWARC`.msi";'
-`$far'FARVAR`_pdb="'NEWARC`.pdb.7z";'
-`$far'FARVAR`_date="'BUILD_YEAR`-'BUILD_MONTH`-'BUILD_DAY`";'
-`$far'FARVAR`_scm_revision="'SCM_REVISION`";'
-`$far'FARVAR`_lastchange="'LASTCHANGE`";'
-`?>'
+m4_divert(-1)
+M4_MACRO_DEFINE(NEWARC, M4_MACRO_CONCAT(
+	Far,
+	M4_MACRO_GET(VERSION_MAJOR),
+	M4_MACRO_GET(VERSION_MINOR),
+	b,
+	M4_MACRO_GET(VERSION_BUILD),
+	.,
+	M4_MACRO_GET(BUILD_PLATFORM),
+	.,
+	M4_MACRO_GET(BUILD_YEAR),
+	M4_MACRO_GET(BUILD_MONTH),
+	M4_MACRO_GET(BUILD_DAY)))
+
+m4_syscmd(cp -f M4_MACRO_CONCAT(ARC, .7z     /var/www/html/nightly/, NEWARC, .7z))
+m4_syscmd(cp -f M4_MACRO_CONCAT(ARC, .msi    /var/www/html/nightly/, NEWARC, .msi'))
+m4_syscmd(cp -f M4_MACRO_CONCAT(ARC, .pdb.7z /var/www/html/nightly/, NEWARC, .pdb.7z'))
+
+m4_divert(0)m4_dnl
+<?php
+M4_MACRO_CONCAT($far, FARVAR, _major=",          M4_MACRO_GET(VERSION_MAJOR)";)
+M4_MACRO_CONCAT($far, FARVAR, _minor=",          M4_MACRO_GET(VERSION_MINOR)";)
+M4_MACRO_CONCAT($far, FARVAR, _build=",          M4_MACRO_GET(VERSION_BUILD)";)
+M4_MACRO_CONCAT($far, FARVAR, _platform=",       M4_MACRO_GET(BUILD_PLATFORM)";)
+M4_MACRO_CONCAT($far, FARVAR, _arc=",            M4_MACRO_GET(NEWARC), .7z";)
+M4_MACRO_CONCAT($far, FARVAR, _msi=",            M4_MACRO_GET(NEWARC),.msi";)
+M4_MACRO_CONCAT($far, FARVAR, _pdb=",            M4_MACRO_GET(NEWARC),.pdb.7z";)
+M4_MACRO_CONCAT($far, FARVAR, _date=",           M4_MACRO_GET(BUILD_YEAR)-M4_MACRO_GET(BUILD_MONTH)-M4_MACRO_GET(BUILD_DAY)";)
+M4_MACRO_CONCAT($far, FARVAR, _scm_revision=",   SCM_REVISION";)
+M4_MACRO_CONCAT($far, FARVAR, _lastchange=",     LASTCHANGE";)
+?>
