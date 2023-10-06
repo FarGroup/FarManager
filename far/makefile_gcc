@@ -294,7 +294,7 @@ $(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp
 
 MSG=@echo Generating $@
 
-VERSION_DEPS=farversion.m4 tools.m4 vbuild.m4
+VERSION_DEPS=farversion.m4 vbuild.m4
 
 $(BOOTSTRAPDIR)%: %.m4 $(VERSION_DEPS)
 	$(MSG)

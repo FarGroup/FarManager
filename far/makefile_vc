@@ -370,7 +370,7 @@ $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.
 
 MSG=@echo Generating $@
 
-VERSION_DEPS=farversion.m4 tools.m4 vbuild.m4
+VERSION_DEPS=farversion.m4 vbuild.m4
 
 $(BOOTSTRAPDIR)Far.exe.manifest \
 $(BOOTSTRAPDIR)copyright.inc \
