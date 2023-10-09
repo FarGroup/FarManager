@@ -2241,6 +2241,11 @@ namespace os::fs
 			return true;
 		}
 
+		// The logic below was added in 596 to retrieve the data when we don't have access to one of the upper directories.
+		// It is better to explicitly limit it to that particular case to avoid any possible interference with legit lookup errors, e.g. when the dir is empty.
+		if (const auto ErrorState = last_error(); ErrorState.Win32Error != ERROR_ACCESS_DENIED)
+			return false;
+
 		FindData = {};
 		FindData.Attributes = INVALID_FILE_ATTRIBUTES;
 
