@@ -474,13 +474,13 @@ extern "C" int WINAPI WRAPPER(LCMapStringEx)(LPCWSTR LocaleName, DWORD MapFlags,
 {
 	struct implementation
 	{
-		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
+		static int WINAPI LCMapStringEx(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
 		{
 			return LCMapStringW(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, CompareStringEx);
+	CREATE_FUNCTION_POINTER(modules::kernel32, LCMapStringEx);
 	return Function(LocaleName, MapFlags, SrcStr, SrcCount, DestStr, DestCount, VersionInformation, Reserved, SortHandle);
 }
 
