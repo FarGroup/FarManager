@@ -60,9 +60,13 @@ static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
 
-#define WRAPPER(name) name ## Wrapper
-#define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
-static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &implementation::FunctionName)
+#define WRAPPER(name) Wrapper_ ## name
+#define CREATE_AND_RETURN_IMPL(ModuleName, FunctionName, ImplementationName, ...) \
+	static const auto FunctionPointer = GetFunctionPointer(ModuleName, FunctionName, &implementation::ImplementationName); \
+	return FunctionPointer(__VA_ARGS__)
+
+#define CREATE_AND_RETURN_NAMED(ModuleName, FunctionName, ...) CREATE_AND_RETURN_IMPL(ModuleName, #FunctionName, FunctionName, __VA_ARGS__)
+#define CREATE_AND_RETURN(ModuleName, ...)                     CREATE_AND_RETURN_IMPL(ModuleName, __func__ + sizeof("Wrapper_") - 1, impl, __VA_ARGS__)
 
 namespace modules
 {
@@ -93,14 +97,13 @@ extern "C" PVOID WINAPI WRAPPER(EncodePointer)(PVOID Ptr)
 {
 	struct implementation
 	{
-		static PVOID WINAPI EncodePointer(PVOID Ptr)
+		static PVOID WINAPI impl(PVOID Ptr)
 		{
 			return XorPointer(Ptr);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, EncodePointer);
-	return Function(Ptr);
+	CREATE_AND_RETURN(modules::kernel32, Ptr);
 }
 
 // DecodePointer(VC2010)
@@ -108,14 +111,13 @@ extern "C" PVOID WINAPI WRAPPER(DecodePointer)(PVOID Ptr)
 {
 	struct implementation
 	{
-		static PVOID WINAPI DecodePointer(PVOID Ptr)
+		static PVOID WINAPI impl(PVOID Ptr)
 		{
 			return XorPointer(Ptr);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, DecodePointer);
-	return Function(Ptr);
+	CREATE_AND_RETURN(modules::kernel32, Ptr);
 }
 
 // GetModuleHandleExW (VC2012)
@@ -123,7 +125,7 @@ extern "C" BOOL WINAPI WRAPPER(GetModuleHandleExW)(DWORD Flags, LPCWSTR ModuleNa
 {
 	struct implementation
 	{
-		static BOOL WINAPI GetModuleHandleExW(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
+		static BOOL WINAPI impl(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 		{
 			if (Flags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS)
 			{
@@ -159,8 +161,7 @@ extern "C" BOOL WINAPI WRAPPER(GetModuleHandleExW)(DWORD Flags, LPCWSTR ModuleNa
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, GetModuleHandleExW);
-	return Function(Flags, ModuleName, Module);
+	CREATE_AND_RETURN(modules::kernel32, Flags, ModuleName, Module);
 }
 
 namespace slist
@@ -333,116 +334,106 @@ namespace slist
 	}
 }
 
-// InitializeSListHead (VC2015)
+// VC2015
 extern "C" void WINAPI WRAPPER(InitializeSListHead)(PSLIST_HEADER ListHead)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, InitializeSListHead);
-	return Function(ListHead);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, InitializeSListHead, ListHead);
 }
 
-// InterlockedFlushSList (VC2015)
+// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedFlushSList)(PSLIST_HEADER ListHead)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, InterlockedFlushSList);
-	return Function(ListHead);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedFlushSList, ListHead);
 }
 
-// InterlockedPopEntrySList (VC2015)
+// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPopEntrySList)(PSLIST_HEADER ListHead)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, InterlockedPopEntrySList);
-	return Function(ListHead);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPopEntrySList, ListHead);
 }
 
-// InterlockedPushEntrySList (VC2015)
+// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPushEntrySList)(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, InterlockedPushEntrySList);
-	return Function(ListHead, ListEntry);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPushEntrySList, ListHead, ListEntry);
 }
 
-// InterlockedPushListSListEx (VC2015)
+// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPushListSListEx)(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, InterlockedPushListSListEx);
-	return Function(ListHead, List, ListEnd, Count);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPushListSListEx, ListHead, List, ListEnd, Count);
 }
 
-// RtlFirstEntrySList (VC2015)
+// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(RtlFirstEntrySList)(PSLIST_HEADER ListHead)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::ntdll, RtlFirstEntrySList);
-	return Function(ListHead);
+	CREATE_AND_RETURN_NAMED(modules::ntdll, RtlFirstEntrySList, ListHead);
 }
 
-// QueryDepthSList (VC2015)
+// VC2015
 extern "C" USHORT WINAPI WRAPPER(QueryDepthSList)(PSLIST_HEADER ListHead)
 {
 	using namespace slist;
-	CREATE_FUNCTION_POINTER(modules::kernel32, QueryDepthSList);
-	return Function(ListHead);
+	CREATE_AND_RETURN_NAMED(modules::kernel32, QueryDepthSList, ListHead);
 }
 
-// GetNumaHighestNodeNumber (VC2017)
+// VC2017
 extern "C" BOOL WINAPI WRAPPER(GetNumaHighestNodeNumber)(PULONG HighestNodeNumber)
 {
 	struct implementation
 	{
-		static BOOL WINAPI GetNumaHighestNodeNumber(PULONG HighestNodeNumber)
+		static BOOL WINAPI impl(PULONG HighestNodeNumber)
 		{
 			*HighestNodeNumber = 0;
 			return TRUE;
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, GetNumaHighestNodeNumber);
-	return Function(HighestNodeNumber);
+	CREATE_AND_RETURN(modules::kernel32, HighestNodeNumber);
 }
 
-// GetLogicalProcessorInformation (VC2017)
+// VC2017
 extern "C" BOOL WINAPI WRAPPER(GetLogicalProcessorInformation)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION Buffer, PDWORD ReturnLength)
 {
 	struct implementation
 	{
-		static BOOL WINAPI GetLogicalProcessorInformation(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION Buffer, PDWORD ReturnLength)
+		static BOOL WINAPI impl(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION Buffer, PDWORD ReturnLength)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, GetLogicalProcessorInformation);
-	return Function(Buffer, ReturnLength);
+	CREATE_AND_RETURN(modules::kernel32, Buffer, ReturnLength);
 }
 
-// SetThreadStackGuarantee (VC2019)
+// VC2019
 extern "C" BOOL WINAPI WRAPPER(SetThreadStackGuarantee)(PULONG StackSizeInBytes)
 {
 	struct implementation
 	{
-		static BOOL WINAPI SetThreadStackGuarantee(PULONG StackSizeInBytes)
+		static BOOL WINAPI impl(PULONG StackSizeInBytes)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, SetThreadStackGuarantee);
-	return Function(StackSizeInBytes);
+	CREATE_AND_RETURN(modules::kernel32, StackSizeInBytes);
 }
 
-// InitializeCriticalSectionEx (VC2019)
+// VC2019
 extern "C" BOOL WINAPI WRAPPER(InitializeCriticalSectionEx)(LPCRITICAL_SECTION CriticalSection, DWORD SpinCount, DWORD Flags)
 {
 	struct implementation
 	{
-		static int WINAPI InitializeCriticalSectionEx(LPCRITICAL_SECTION CriticalSection, DWORD SpinCount, DWORD Flags)
+		static int WINAPI impl(LPCRITICAL_SECTION CriticalSection, DWORD SpinCount, DWORD Flags)
 		{
 			InitializeCriticalSection(CriticalSection);
 			CriticalSection->SpinCount = Flags | SpinCount;
@@ -450,102 +441,97 @@ extern "C" BOOL WINAPI WRAPPER(InitializeCriticalSectionEx)(LPCRITICAL_SECTION C
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, InitializeCriticalSectionEx);
-	return Function(CriticalSection, SpinCount, Flags);
+	CREATE_AND_RETURN(modules::kernel32, CriticalSection, SpinCount, Flags);
 }
 
-// CompareStringEx (VC2019)
+// VC2019
 extern "C" int WINAPI WRAPPER(CompareStringEx)(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
 {
 	struct implementation
 	{
-		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
+		static int WINAPI impl(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
 		{
 			return CompareStringW(LOCALE_USER_DEFAULT, CmpFlags, String1, Count1, String2, Count2);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, CompareStringEx);
-	return Function(LocaleName, CmpFlags, String1, Count1, String2, Count2, VersionInformation, Reserved, Param);
+	CREATE_AND_RETURN(modules::kernel32, LocaleName, CmpFlags, String1, Count1, String2, Count2, VersionInformation, Reserved, Param);
 }
 
-// LCMapStringEx (VC2019)
+// VC2019
 extern "C" int WINAPI WRAPPER(LCMapStringEx)(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
 {
 	struct implementation
 	{
-		static int WINAPI LCMapStringEx(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
+		static int WINAPI impl(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
 		{
 			return LCMapStringW(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, LCMapStringEx);
-	return Function(LocaleName, MapFlags, SrcStr, SrcCount, DestStr, DestCount, VersionInformation, Reserved, SortHandle);
+	CREATE_AND_RETURN(modules::kernel32, LocaleName, MapFlags, SrcStr, SrcCount, DestStr, DestCount, VersionInformation, Reserved, SortHandle);
 }
 
-// SleepConditionVariableSRW (VC2022)
+// VC2022
 extern "C" BOOL WINAPI WRAPPER(SleepConditionVariableSRW)(PCONDITION_VARIABLE ConditionVariable, PSRWLOCK SRWLock, DWORD Milliseconds, ULONG Flags)
 {
 	struct implementation
 	{
-		static BOOL WINAPI SleepConditionVariableSRW(PCONDITION_VARIABLE ConditionVariable, PSRWLOCK SRWLock, DWORD Milliseconds, ULONG Flags)
+		static BOOL WINAPI impl(PCONDITION_VARIABLE ConditionVariable, PSRWLOCK SRWLock, DWORD Milliseconds, ULONG Flags)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, SleepConditionVariableSRW);
-	return Function(ConditionVariable, SRWLock, Milliseconds, Flags);
+	CREATE_AND_RETURN(modules::kernel32, ConditionVariable, SRWLock, Milliseconds, Flags);
 }
 
-// WakeAllConditionVariable (VC2022)
+// VC2022
 extern "C" void WINAPI WRAPPER(WakeAllConditionVariable)(PCONDITION_VARIABLE ConditionVariable)
 {
 	struct implementation
 	{
-		static void WINAPI WakeAllConditionVariable(PCONDITION_VARIABLE ConditionVariable)
+		static void WINAPI impl(PCONDITION_VARIABLE ConditionVariable)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, WakeAllConditionVariable);
-	return Function(ConditionVariable);
+	CREATE_AND_RETURN(modules::kernel32, ConditionVariable);
 }
 
-// AcquireSRWLockExclusive (VC2022)
+// VC2022
 extern "C" void WINAPI WRAPPER(AcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-		static void WINAPI AcquireSRWLockExclusive(PSRWLOCK SRWLock)
+		static void WINAPI impl(PSRWLOCK SRWLock)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, AcquireSRWLockExclusive);
-	return Function(SRWLock);
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
-// ReleaseSRWLockExclusive (VC2022)
+// VC2022
 extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-		static void WINAPI ReleaseSRWLockExclusive(PSRWLOCK SRWLock)
+		static void WINAPI impl(PSRWLOCK SRWLock)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	};
 
-	CREATE_FUNCTION_POINTER(modules::kernel32, ReleaseSRWLockExclusive);
-	return Function(SRWLock);
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
-#undef CREATE_FUNCTION_POINTER
+#undef CREATE_AND_RETURN
+#undef CREATE_AND_RETURN_NAMED
+#undef CREATE_AND_RETURN_IMPL
 #undef WRAPPER
 
 // disable VS2015 telemetry
