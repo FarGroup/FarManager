@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6173.0
+Plugin API for Far Manager 3.0.6198.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -24,7 +24,7 @@ are met:
 3. The name of the authors may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6173
+#define FARMANAGERVERSION_BUILD 6198
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -116,6 +116,10 @@ struct color_index
 		a;
 };
 
+#define INDEXMASK 0x000000ff
+#define COLORMASK 0x00ffffff
+#define ALPHAMASK 0xff000000
+
 struct FarColor
 {
 	FARCOLORFLAGS Flags;
@@ -166,6 +170,16 @@ struct FarColor
 		return (Flags & FCF_FG_INDEX) != 0;
 	}
 
+	bool IsBgDefault() const
+	{
+		return IsBgIndex() && ((BackgroundColor & COLORMASK) == 0x00800000);
+	}
+
+	bool IsFgDefault() const
+	{
+		return IsFgIndex() && ((ForegroundColor & COLORMASK) == 0x00800000);
+	}
+
 	FarColor& SetBgIndex(bool Value)
 	{
 		Value? Flags |= FCF_BG_INDEX : Flags &= ~FCF_BG_INDEX;
@@ -177,6 +191,23 @@ struct FarColor
 		Value? Flags |= FCF_FG_INDEX : Flags &= ~FCF_FG_INDEX;
 		return *this;
 	}
+
+	FarColor& SetBgDefault()
+	{
+		SetBgIndex(true);
+		BackgroundColor &= ~COLORMASK;
+		BackgroundColor |= 0x00800000;
+		return *this;
+	}
+
+	FarColor& SetFgDefault()
+	{
+		SetFgIndex(true);
+		ForegroundColor &= ~COLORMASK;
+		ForegroundColor |= 0x00800000;
+		return *this;
+	}
+
 
 	// Legacy names, don't use
 	bool IsBg4Bit() const
@@ -201,10 +232,6 @@ struct FarColor
 #endif
 };
 
-
-#define INDEXMASK 0x000000ff
-#define COLORMASK 0x00ffffff
-#define ALPHAMASK 0xff000000
 
 #define INDEXVALUE(x) ((x)&INDEXMASK)
 #define COLORVALUE(x) ((x)&COLORMASK)
