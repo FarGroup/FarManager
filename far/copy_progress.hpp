@@ -107,12 +107,14 @@ private:
 	string m_FilesCopied;
 	std::chrono::steady_clock::duration m_CalcTime{};
 
-	struct
+	struct files
 	{
 		size_t Copied{};
 		size_t Total{};
+
+		bool operator==(files const&) const = default;
 	}
-	m_Files;
+	m_Files, m_FilesLastRendered;
 
 	struct
 	{
