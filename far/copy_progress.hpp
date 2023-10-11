@@ -66,7 +66,7 @@ public:
 	void set_total_bytes(unsigned long long Value);
 	void add_total_bytes(unsigned long long Value);
 
-	void skip();
+	void skip(unsigned long long Size);
 	void next();
 	void undo();
 

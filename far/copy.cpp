@@ -1602,7 +1602,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 				}
 				else if (CopyCode == COPY_SKIPPED)
 				{
-					CP->skip();
+					CP->skip(i.FileSize);
 					continue;
 				}
 				else if (CopyCode == COPY_SUCCESS)
@@ -1630,7 +1630,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 			}
 			else
 			{
-				CP->skip();
+				CP->skip(i.FileSize);
 				continue;
 			}
 		}
@@ -1698,7 +1698,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 						{
 							case COPY_SKIPPED:
 							{
-								CP->skip();
+								CP->skip(SrcData.FileSize);
 								continue;
 							}
 
@@ -1719,7 +1719,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 							}
 
 							default:
-								CP->skip();
+								CP->skip(SrcData.FileSize);
 						}
 					}
 
@@ -1745,7 +1745,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 					}
 					else
 					{
-						CP->skip();
+						CP->skip(SrcData.FileSize);
 					}
 				}
 
