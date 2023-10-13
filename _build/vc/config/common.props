@@ -100,6 +100,7 @@
     <IntDir>$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\$(ProjectSpecificIntDirName)\</IntDir>
     <GenerateManifest>false</GenerateManifest>
     <EmbedManifest>false</EmbedManifest>
+    <UseStructuredOutput>true</UseStructuredOutput>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

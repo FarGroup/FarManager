@@ -72,7 +72,7 @@ namespace detail
 
 		bool is_cjk() const;
 		date_type date_format() const;
-		int digits_grouping() const;
+		unsigned digits_grouping() const;
 		wchar_t date_separator() const;
 		wchar_t time_separator() const;
 		wchar_t decimal_separator() const;
@@ -87,7 +87,7 @@ namespace detail
 
 		mutable bool m_IsCJK{};
 		mutable date_type m_DateFormat{ date_type::mdy };
-		mutable int m_DigitsGrouping{};
+		mutable unsigned m_DigitsGrouping{};
 		mutable wchar_t m_DateSeparator{};
 		mutable wchar_t m_TimeSeparator{};
 		mutable wchar_t m_DecimalSeparator{};

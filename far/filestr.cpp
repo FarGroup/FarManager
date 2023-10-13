@@ -602,5 +602,7 @@ TEST_CASE("GetCpUsingML_M4000")
 
 	uintptr_t Cp;
 	GetCpUsingML({ c, std::size(c) }, Cp, [](uintptr_t){ return true; });
+
+	SUCCEED();
 }
 #endif

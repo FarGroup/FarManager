@@ -129,7 +129,7 @@ bool CheckFileSizeStringFormat(string_view FileSizeStr);
 unsigned long long ConvertFileSizeString(string_view FileSizeStr);
 
 [[nodiscard]]
-string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, span<RegExpMatch const> Match, const named_regex_match* NamedMatch, int& CurPos, int& SearchLength);
+string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, span<RegExpMatch const> Match, const named_regex_match* NamedMatch);
 
 [[nodiscard]]
 string GroupDigits(unsigned long long Value);

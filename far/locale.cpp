@@ -298,7 +298,7 @@ namespace detail
 		return m_DateFormat;
 	}
 
-	int locale::digits_grouping() const
+	unsigned locale::digits_grouping() const
 	{
 		refresh();
 		return m_DigitsGrouping;

@@ -1231,9 +1231,7 @@ void regex_playground()
 			const auto TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
 			const auto ReplaceStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
 
-			int CurPos = 0;
-			int SearchLength;
-			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match, &NamedMatch, CurPos, SearchLength);
+			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match, &NamedMatch);
 			Status = status::normal;
 			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Str));
 		};

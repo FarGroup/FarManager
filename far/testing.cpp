@@ -118,19 +118,22 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 
 	if (IsBuildStep)
 	{
-		NewArgs.reserve(Args.size() - 1);
+		NewArgs.reserve(Args.size() - 1 + 2);
 		NewArgs.emplace_back(Args[0]);
 		NewArgs.insert(NewArgs.end(), ServiceTestIterator + 1, Args.end());
 	}
 	else
 	{
-		NewArgs.reserve(Args.size() + 1);
+		NewArgs.reserve(Args.size() + 1 + DebugTests + 2);
 		NewArgs.assign(ALL_CONST_RANGE(Args));
 		NewArgs.emplace_back(L"--break");
 
 		if (DebugTests)
 			NewArgs.emplace_back(L"--wait-for-keypress exit");
 	}
+
+	NewArgs.emplace_back(L"--warn");
+	NewArgs.emplace_back(L"NoAssertions");
 
 	return Catch::Session().run(static_cast<int>(NewArgs.size()), NewArgs.data());
 }
