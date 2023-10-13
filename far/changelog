@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2023-10-13 22:09:02+01:00 - build 6204
+
+1. In VT mode, end each line with \n.
+   Apparently it's the right thing to do and it fixes a few issues.
+
+2. Refactoring, tests.
+
+--------------------------------------------------------------------------------
 drkns 2023-10-11 01:59:20+01:00 - build 6203
 
 1. Fix build.
