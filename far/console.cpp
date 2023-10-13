@@ -1501,6 +1501,15 @@ WARNING_POP()
 					}
 
 					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+
+					if (SubRect.right == csbi.srWindow.Right && i != csbi.srWindow.Bottom - ::GetDelta(csbi))
+					{
+						// Explicitly ending rows with \n should (hopefully) give a hint to the host
+						// that we're writing something structured and not just a stream,
+						// so it's better to leave the text alone when resizing the buffer.
+						// Surprisingly, it also fixes terminal#15153.
+						Str += L'\n';
+					}
 				}
 
 				if (!::console.Write(Str))
