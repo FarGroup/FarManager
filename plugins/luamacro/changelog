@@ -1,3 +1,7 @@
+shmuel 2023-10-21 01:02:22+03:00 - build 782
+
+1. Fix lm:about for new LPeg versions
+
 johnd0e 2023-09-15 10:00:00+02:00 - build 781
 
 1. LuaFAR: update luautf8 library to 0.1.5-3-gf736301
