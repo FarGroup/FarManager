@@ -765,7 +765,7 @@ ShellCopy::ShellCopy(
 		const auto SpaceAvailable = std::max(0, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - 1 - 1));
 		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(far::vformat(Format, L""sv, ToOrIn)))))
 		{
-			strCopyStr = truncate_right(SingleSelName, MaxLength);
+			strCopyStr = escape_ampersands(truncate_right(SingleSelName, MaxLength));
 		}
 		strCopyStr = far::vformat(Format, strCopyStr, ToOrIn);
 
