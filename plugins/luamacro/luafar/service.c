@@ -2633,25 +2633,29 @@ static int far_GetDirList(lua_State *L)
 	return 1;
 }
 
-// GetPluginDirList (hPanel, Dir) //TODO: update manual
-//   hPanel:          Current plugin instance handle.
+// GetPluginDirList (hPanel, Dir)
+//   hPanel:          Panel handle.
 //   Dir:             Name of the directory to scan (full pathname).
 static int far_GetPluginDirList(lua_State *L)
 {
 	TPluginData *pd = GetPluginData(L);
 	HANDLE handle = OptHandle(L);
 	const wchar_t *Dir = check_utf8_string(L, 2, NULL);
-	struct PluginPanelItem *PanelItems;
-	size_t ItemsNumber;
+	struct PanelInfo pi;
+	pi.StructSize = sizeof(pi);
 
-	if(pd->Info->GetPluginDirList(pd->PluginId, handle, Dir, &PanelItems, &ItemsNumber))
+	if (handle && pd->Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi) && (pi.Flags & PFLAGS_PLUGIN))
 	{
-		PushPanelItems(L, PanelItems, ItemsNumber, 0);
-		pd->Info->FreePluginDirList(handle, PanelItems, ItemsNumber);
+		struct PluginPanelItem *PanelItems;
+		size_t ItemsNumber;
+		if (pd->Info->GetPluginDirList(&pi.OwnerGuid, handle, Dir, &PanelItems, &ItemsNumber))
+		{
+			PushPanelItems(L, PanelItems, ItemsNumber, 0);
+			pd->Info->FreePluginDirList(handle, PanelItems, ItemsNumber);
+			return 1;
+		}
 	}
-	else
-		lua_pushnil(L);
-
+	lua_pushnil(L);
 	return 1;
 }
 

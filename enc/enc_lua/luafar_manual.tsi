@@ -2610,12 +2610,12 @@ id=60
 lv=2
 dt=Text
 nm=far.GetPluginDirList
-mtime=3608362125
+mtime=3907594909
 <article>
 #_list = far.GetPluginDirList (handle, Dir)
 #_
 #_**Parameters:**
-#_  handle:       panel handle, or nil
+#_  handle:       panel handle
 #_  Dir:          string
 #_
 #_**Returns:**

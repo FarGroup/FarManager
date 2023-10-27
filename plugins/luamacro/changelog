@@ -1,3 +1,7 @@
+shmuel 2023-10-27 18:55:57+03:00 - build 783
+
+1. Make far.GetPluginDirList more straightforward.
+
 shmuel 2023-10-21 01:02:22+03:00 - build 782
 
 1. Fix lm:about for new LPeg versions
