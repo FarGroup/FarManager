@@ -1,3 +1,7 @@
+shmuel 2023-10-28 01:00:44+03:00 - build 785
+
+1. Fix the last commit.
+
 shmuel 2023-10-28 00:33:46+03:00 - build 784
 
 1. LuaFAR: DM_GETDLGDATA and DM_SETDLGDATA made available to scripts.
