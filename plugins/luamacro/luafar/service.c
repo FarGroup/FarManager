@@ -3794,7 +3794,7 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 
 	if (Msg == DN_INITDIALOG) {
 		lua_pushinteger(L, Msg);                         //+3
-		lua_pushinteger(L, Param1);                      //+4
+		lua_pushinteger(L, Param1 + 1);                  //+4
 		lua_rawgeti(L, LUA_REGISTRYINDEX, dd->dataRef);  //+5
 	}
 	else {
