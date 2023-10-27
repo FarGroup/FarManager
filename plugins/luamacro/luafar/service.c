@@ -2973,6 +2973,7 @@ TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg, BOOL isOwned
 	dd->isOwned  = isOwned;
 	dd->wasError = FALSE;
 	dd->isModal  = TRUE;
+	dd->dataRef  = LUA_REFNIL;
 	luaL_getmetatable(L, FarDialogType);
 	lua_setmetatable(L, -2);
 
@@ -3053,7 +3054,7 @@ static int far_SendDlgMessage(lua_State *L)
 	typedef struct { void *Id; int Ref; } listdata_t;
 	TPluginData *pluginData = GetPluginData(L);
 	PSInfo *Info = pluginData->Info;
-	intptr_t res;
+	intptr_t res=0;
 	intptr_t Msg, Param1=0, res_incr=0;
 	void* Param2 = NULL;
 	wchar_t buf[512];
@@ -3065,16 +3066,15 @@ static int far_SendDlgMessage(lua_State *L)
 	Msg = CAST(int, check_env_flag(L, 2));
 	lua_settop(L, 4);
 
-	// Special cases (implemented as no-ops as these message types are used internally)
-	if (Msg == DM_GETDLGDATA || Msg == DM_SETDLGDATA)
-		return lua_pushnil(L), 1;
-
 	// Param1
 	switch(Msg)
 	{
 		case DM_CLOSE:
 			Param1 = luaL_optinteger(L,3,-1);
 			if (Param1>0) --Param1;
+			break;
+		case DM_GETDLGDATA:
+		case DM_SETDLGDATA:
 			break;
 		case DM_ENABLEREDRAW:
 		case DM_GETDIALOGINFO:
@@ -3185,6 +3185,20 @@ static int far_SendDlgMessage(lua_State *L)
 
 			return lua_pushnil(L), 1;
 		}
+
+		case DM_GETDLGDATA: {
+			TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, dd->dataRef);
+			return 1;
+		}
+
+		case DM_SETDLGDATA: {
+			TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+			lua_settop(L, 3);
+			lua_rawseti(L, LUA_REGISTRYINDEX, dd->dataRef);
+			return 0;
+		}
+
 		case DM_GETDLGRECT:
 		case DM_GETITEMPOSITION:
 
@@ -3616,8 +3630,8 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 			return FALSE;
 	}
 
-	lua_pushinteger(L, Msg);             //+1
-	lua_pushinteger(L, Param1);          //+2
+	lua_pushinteger(L, Msg);       //+1
+	lua_pushinteger(L, Param1);    //+2
 
 	// Param2
 	switch(Msg)
@@ -3778,10 +3792,16 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 	lua_rawgeti(L, -2, 3);               //+3   retrieve the handle
 	lua_remove(L, -3);                   //+2
 
-	if (! PushDNParams(L, Msg, Param1, Param2)) //+5
-	{
-		lua_pop(L, 2);
-		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+	if (Msg == DN_INITDIALOG) {
+		lua_pushinteger(L, Msg);                         //+3
+		lua_rawgeti(L, LUA_REGISTRYINDEX, dd->dataRef);  //+4
+		lua_pushnil(L);                                  //+5
+	}
+	else {
+		if (!PushDNParams(L, Msg, Param1, Param2)) {     //+5
+			lua_pop(L, 2);
+			return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
+		}
 	}
 
 	if (pcall_msg(L, 4, 1))  //+2
@@ -3802,6 +3822,7 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 
 static void RemoveDialogFromRegistry(lua_State *L, TDialogData *dd)
 {
+	luaL_unref(dd->L, LUA_REGISTRYINDEX, dd->dataRef);
 	dd->hDlg = INVALID_HANDLE_VALUE;
 	lua_pushlightuserdata(L, dd);
 	lua_pushnil(L);
@@ -3839,6 +3860,7 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 
 static int far_DialogInit(lua_State *L)
 {
+	enum { POS_HISTORIES=1, POS_ITEMS=2 };
 	intptr_t ItemsNumber, i;
 	struct FarDialogItem *Items;
 	UINT64 Flags;
@@ -3856,32 +3878,20 @@ static int far_DialogInit(lua_State *L)
 	luaL_checktype(L, 7, LUA_TTABLE);
 	lua_newtable(L);  // create a "histories" table, to prevent history strings
 	// from being garbage collected too early
-	lua_replace(L, 1);
+	lua_replace(L, POS_HISTORIES);
 	ItemsNumber = lua_objlen(L, 7);
 	Items = (struct FarDialogItem*)lua_newuserdata(L, ItemsNumber * sizeof(struct FarDialogItem));
-	lua_replace(L, 2);
+	lua_replace(L, POS_ITEMS);
 
-	for(i=0; i < ItemsNumber; i++)
-	{
-		int type;
+	for(i=0; i < ItemsNumber; i++) {
 		lua_pushinteger(L, i+1);
 		lua_gettable(L, 7);
-		type = lua_type(L, -1);
-
-		if(type == LUA_TTABLE)
-		{
-			SetFarDialogItem(L, Items+i, (int)i, 1);
+		if (lua_type(L, -1) == LUA_TTABLE) {
+			SetFarDialogItem(L, Items+i, (int)i, POS_HISTORIES);
+			lua_pop(L, 1);
 		}
-
-		lua_pop(L, 1);
-
-		if(type == LUA_TNIL) {
-			ItemsNumber = i;
-			break;
-		}
-
-		if(type != LUA_TTABLE)
-			return luaL_error(L, "Items[%d] is not a table", i+1);
+		else
+			return luaL_error(L, "Items[%d] is not a table", (int)i+1);
 	}
 
 	// 8-th parameter (flags)
@@ -3896,12 +3906,16 @@ static int far_DialogInit(lua_State *L)
 	{
 		Proc = pd->DlgProc;
 		Param = dd;
+		if (lua_gettop(L) >= 10) {
+			lua_pushvalue(L,10);
+			dd->dataRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		}
 	}
 
 	// Put some values into the registry
 	lua_pushlightuserdata(L, dd); // important: index it with dd
 	lua_createtable(L, 3, 0);
-	lua_pushvalue(L, 1);      // store the "histories" table
+	lua_pushvalue(L, POS_HISTORIES);  // store the "histories" table
 	lua_rawseti(L, -2, 1);
 
 	if(lua_isfunction(L, 9))
@@ -6505,8 +6519,8 @@ const luaL_Reg far_host_funcs[] =
 };
 
 const char far_Dialog[] =
-"function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)\n\
-  local hDlg = far.DialogInit(Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc)\n\
+"function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n\
+  local hDlg = far.DialogInit(Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n\
   if hDlg == nil then return nil end\n\
 \n\
   local ret = far.DialogRun(hDlg)\n\

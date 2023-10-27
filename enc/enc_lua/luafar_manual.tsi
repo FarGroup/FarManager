@@ -2890,9 +2890,9 @@ id=20
 lv=2
 dt=Text
 nm=far.Dialog
-mtime=3646474948
+mtime=3907614581
 <article>
-#_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
+#_result = far.Dialog (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc,Param)
 #_
 #_**Parameters:**
 #_  Same parameters as in `far.DialogInit`
@@ -2953,9 +2953,9 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3646474866
+mtime=3907614640
 <article>
-#_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc)
+#_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc,Param)
 #_
 #_**Parameters:**
 #_  Guid:      string
@@ -2967,6 +2967,7 @@ mtime=3646474866
 #_  Items:     table (array of `tFarDialogItem`)
 #_  Flags:     flags
 #_  fDlgProc:  function (`dialog event handler`), or nil
+#_  Param:     any Lua value (optional)
 #_
 #_**Returns:**
 #_  hDlg:      userdata (or nil in case of failure)
@@ -3153,7 +3154,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3835879532
+mtime=3907614477
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3371,10 +3372,12 @@ mtime=3835879532
 #_    Param2:  `tInputRecord` or string
 #_    Result:  integer
 #_
-#_DM_GETDLGDATA,
+#_DM_GETDLGDATA:
+#_    Result: the dialog data (can be any Lua value)
+#_
 #_DM_SETDLGDATA:
-#_  These operations are not implemented as they are used internally by LuaFAR.
-#_  Param1 and Param2 are ignored; nil is returned.
+#_    Param1: any Lua value
+#_    Result: no
 #_
 #_**Far API used:**
 #_  SendDlgMessage

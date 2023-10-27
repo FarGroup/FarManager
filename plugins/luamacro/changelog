@@ -1,6 +1,10 @@
+shmuel 2023-10-28 00:33:46+03:00 - build 784
+
+1. LuaFAR: DM_GETDLGDATA and DM_SETDLGDATA made available to scripts.
+
 shmuel 2023-10-27 18:55:57+03:00 - build 783
 
-1. Make far.GetPluginDirList more straightforward.
+1. LuaFAR: make far.GetPluginDirList more straightforward.
 
 shmuel 2023-10-21 01:02:22+03:00 - build 782
 
