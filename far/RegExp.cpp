@@ -1720,7 +1720,20 @@ struct RegExp::StateStackItem
 	int forward{};
 };
 
-static const RegExp::StateStackItem& FindStateByPos(const std::vector<RegExp::StateStackItem>& stack, RegExp::REOpCode* pos, int op)
+class RegExp::state_stack
+{
+public:
+	using state = std::vector<StateStackItem, stack_allocator<StateStackItem, 4096>>;
+
+private:
+	state::allocator_type::arena_type m_Arena;
+
+public:
+	state State{ m_Arena };
+};
+
+
+static const RegExp::StateStackItem& FindStateByPos(span<RegExp::StateStackItem const> const stack, RegExp::REOpCode* pos, int op)
 {
 	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](const auto& i){ return i.pos == pos && i.op == op; });
 }
@@ -1753,7 +1766,9 @@ int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end
 	return 1;
 }
 
-bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match& NamedMatch, std::vector<StateStackItem>& stack) const
+static constexpr RegExpMatch DefaultMatch{ -1, -1 };
+
+bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, named_regex_match& NamedMatch, state_stack& StateStack) const
 {
 	int i,j;
 	int minimizing;
@@ -1762,11 +1777,13 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 	UniSet *cl;
 	int inrangebracket=0;
 
+	auto& match = RegexMatch.Matches;
+	auto& stack = StateStack.State;
+
 	stack.clear();
 	match.clear();
 	NamedMatch.Matches.clear();
-
-	match.resize(bracketscount, { -1, -1 });
+	match.resize(bracketscount, DefaultMatch);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
 	{
@@ -1777,7 +1794,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 		if (str<=strend)
 		{
-			const auto MinSkip = [&](StateStackItem& st, function_ref<bool(const wchar_t*)> const cmp)
+			const auto MinSkip = [&](StateStackItem& st, auto const& cmp)
 			{
 				int jj;
 				switch (std::next(op)->op)
@@ -2822,19 +2839,18 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 			if (stack.empty())
 				return false;
 
-			const auto ps = std::prev(stack.end());
+			auto& ps = stack.back();
 
-			//dpf(("ps->op:%s\n",ops[ps->op]));
-			switch (ps->op)
+			switch (ps.op)
 			{
 				case opAlternative:
 				{
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (op->alternative.nextalt)
 					{
-						ps->pos=op->alternative.nextalt;
+						ps.pos=op->alternative.nextalt;
 					}
 					else
 					{
@@ -2850,56 +2866,57 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				case opTypeRange:
 				case opNotTypeRange:
 				{
-					str=ps->savestr-1;
-					op=ps->pos;
+					str = ps.savestr-1;
+					op = ps.pos;
 
-					if (str<ps->startstr)
+					if (str < ps.startstr)
 					{
 						continue;
 					}
 
-					ps->savestr=str;
+					ps.savestr = str;
 					break;
 				}
 				case opNamedRefRange:
 				case opBackRefRange:
 				{
-					if (ps->op == opBackRefRange)
+					if (ps.op == opBackRefRange)
 					{
-						m = &match[ps->pos->range.refindex];
+						m = &match[ps.pos->range.refindex];
 					}
 					else
 					{
-						const auto Iterator = NamedMatch.Matches.find(ps->pos->range.refname);
+						const auto Iterator = NamedMatch.Matches.find(ps.pos->range.refname);
 						if (Iterator == NamedMatch.Matches.cend())
 							break;
 
 						m = &match[Iterator->second];
 					}
-					str=ps->savestr-(m->end-m->start);
-					op=ps->pos;
+					str = ps.savestr-(m->end-m->start);
+					op = ps.pos;
 
-					if (str<ps->startstr)
+					if (str < ps.startstr)
 					{
 						continue;
 					}
 
-					ps->savestr=str;
+					ps.savestr = str;
 					break;
 				}
 				case opAnyMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
-					if (ps->pos->range.op==opCharAny)
+					if (ps.pos->range.op == opCharAny)
 					{
-						if (str<strend && *str!=0x0a && *str!=0x0d)
+						if (str < strend && !IsEol(*str))
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2911,7 +2928,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						if (str<strend)
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2923,17 +2940,18 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opSymbolMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (ignorecase)
 					{
 						if (str<strend && TOLOWER(*str)==op->symbol)
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2945,7 +2963,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						if (str<strend && *str==op->symbol)
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2957,17 +2975,18 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opNotSymbolMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (ignorecase)
 					{
 						if (str<strend && TOLOWER(*str)!=op->symbol)
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2979,7 +2998,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						if (str<strend && *str!=op->symbol)
 						{
 							str++;
-							ps->savestr=str;
+							ps.savestr = str;
 						}
 						else
 						{
@@ -2991,15 +3010,16 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opClassMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (str<strend && op->range.symbolclass->GetBit(*str))
 					{
 						str++;
-						ps->savestr=str;
+						ps.savestr = str;
 					}
 					else
 					{
@@ -3010,15 +3030,16 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opTypeMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (str<strend && isType(*str,op->range.type))
 					{
 						str++;
-						ps->savestr=str;
+						ps.savestr = str;
 					}
 					else
 					{
@@ -3029,15 +3050,16 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opNotTypeMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
+					str = ps.savestr;
+					op = ps.pos;
 
 					if (str<strend && !isType(*str,op->range.type))
 					{
 						str++;
-						ps->savestr=str;
+						ps.savestr=str;
 					}
 					else
 					{
@@ -3049,11 +3071,12 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				case opNamedRefMinRange:
 				case opBackRefMinRange:
 				{
-					if (!(ps->max--))continue;
+					if (!(ps.max--))
+						continue;
 
-					str=ps->savestr;
-					op=ps->pos;
-					if (ps->op == opBackRefMinRange)
+					str = ps.savestr;
+					op = ps.pos;
+					if (ps.op == opBackRefMinRange)
 					{
 						m = &match[op->range.refindex];
 					}
@@ -3068,7 +3091,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					if (str+m->end-m->start<strend && StrCmp(str,start+m->start,start+m->end))
 					{
-						ps->savestr=str;
+						ps.savestr = str;
 					}
 					else
 					{
@@ -3079,18 +3102,18 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opBracketRange:
 				{
-					if (ps->min)
+					if (ps.min)
 					{
 						inrangebracket--;
 						continue;
 					}
 
-					if (ps->forward)
+					if (ps.forward)
 					{
-						ps->forward=0;
-						op=ps->pos->range.bracket.pairindex;
+						ps.forward = 0;
+						op = ps.pos->range.bracket.pairindex;
 						inrangebracket--;
-						str=ps->savestr;
+						str = ps.savestr;
 
 						if (op->range.nextalt)
 						{
@@ -3114,17 +3137,17 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opBracketMinRange:
 				{
-					if (!(ps->max--))
+					if (!(ps.max--))
 					{
 						inrangebracket--;
 						continue;
 					}
 
-					if (ps->forward)
+					if (ps.forward)
 					{
-						ps->forward=0;
-						op=ps->pos;
-						str=ps->savestr;
+						ps.forward = 0;
+						op = ps.pos;
+						str = ps.savestr;
 
 						if (op->range.bracket.index >= 0)
 						{
@@ -3155,24 +3178,24 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opOpenBracket:
 				{
-					j=ps->pos->bracket.index;
+					j = ps.pos->bracket.index;
 
 					if (j >= 0)
 					{
-						match[j].start=ps->min;
-						match[j].end=ps->max;
+						match[j].start = ps.min;
+						match[j].end = ps.max;
 					}
 
 					continue;
 				}
 				case opNamedBracket:
 				{
-					j = ps->pos->nbracket.index;
+					j = ps.pos->nbracket.index;
 
 					if (j >= 0)
 					{
-						match[j].start = ps->min;
-						match[j].end = ps->max;
+						match[j].start = ps.min;
+						match[j].end = ps.max;
 					}
 
 					continue;
@@ -3185,10 +3208,10 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				case opNotLookBehind:
 				case opNotLookAhead:
 				{
-					op=ps->pos->assert.pairindex;
-					str=ps->savestr;
+					op = ps.pos->assert.pairindex;
+					str = ps.savestr;
 
-					if (ps->forward)
+					if (ps.forward)
 					{
 						stack.pop_back();
 						break;
@@ -3211,12 +3234,12 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 	return true;
 }
 
-bool RegExp::Match(string_view const text, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch) const
+bool RegExp::Match(string_view const text, regex_match& match, named_regex_match* NamedMatch) const
 {
 	return MatchEx(text, 0, match, NamedMatch);
 }
 
-bool RegExp::MatchEx(string_view const text, size_t const From, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch) const
+bool RegExp::MatchEx(string_view const text, size_t const From, regex_match& match, named_regex_match* NamedMatch) const
 {
 	// Logic errors, no need to catch them
 	if (code.empty())
@@ -3248,12 +3271,12 @@ bool RegExp::MatchEx(string_view const text, size_t const From, std::vector<RegE
 	if (minlength && tempend-start<minlength)
 		return false;
 
-	std::vector<StateStackItem> stack;
+	state_stack stack;
 
 	if (!InnerMatch(start, textstart, tempend, match, *NamedMatch, stack))
 		return false;
 
-	for (auto& i: match)
+	for (auto& i: match.Matches)
 	{
 		if (i.start == -1 || i.end == -1 || i.start > i.end)
 			i.start = i.end = -1;
@@ -3523,12 +3546,12 @@ bool RegExp::Optimize()
 	return true;
 }
 
-bool RegExp::Search(string_view const text, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch) const
+bool RegExp::Search(string_view const text, regex_match& match, named_regex_match* NamedMatch) const
 {
 	return SearchEx(text, 0, match, NamedMatch);
 }
 
-bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch) const
+bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& match, named_regex_match* NamedMatch) const
 {
 	// Logic errors, no need to catch them
 	if (code.empty())
@@ -3551,7 +3574,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 	if (minlength && tempend-start<minlength)
 		return false;
 
-	std::vector<StateStackItem> stack;
+	state_stack stack;
 
 	auto str = textstart;
 
@@ -3564,9 +3587,9 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 	{
 		if (!code[0].bracket.nextalt && code[1].op == opDataEnd && code[2].op == opClosingBracket)
 		{
-			match.resize(1);
-			match[0].start = textend - start;
-			match[0].end=match[0].start;
+			match.Matches.resize(1);
+			match.Matches[0].start = textend - start;
+			match.Matches[0].end = match.Matches[0].start;
 			return true;
 		}
 
@@ -3609,7 +3632,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 		}
 	}
 
-	for (auto& i: match)
+	for (auto& i: match.Matches)
 	{
 		if (i.start == -1 || i.end == -1 || i.start > i.end)
 			i.start = i.end = -1;
@@ -3617,9 +3640,11 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 
 	return true;
 }
+
 bool RegExp::Search(string_view const Str) const
 {
-	std::vector<RegExpMatch> Match(1);
+	regex_match Match;
+	Match.Matches.resize(1);
 	return Search(Str, Match);
 }
 
@@ -3788,7 +3813,7 @@ TEST_CASE("regex.corner.empty_needle")
 	};
 
 	RegExp re;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 
 	for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 	{
@@ -3800,7 +3825,7 @@ TEST_CASE("regex.corner.empty_needle")
 
 			REQUIRE(re.Match(i.Haystack, Match) == MatchExpected);
 			if (MatchExpected)
-				REQUIRE(Match == i.Match);
+				REQUIRE(Match.Matches == i.Match);
 		}
 	}
 }
@@ -3826,7 +3851,7 @@ TEST_CASE("regex.corner.empty_haystack")
 	};
 
 	RegExp re;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 
 	for (const auto& i: Tests)
 	{
@@ -3838,7 +3863,7 @@ TEST_CASE("regex.corner.empty_haystack")
 			REQUIRE(re.Match({}, Match) == MatchExpected);
 
 			if (MatchExpected)
-				REQUIRE(Match == i.Match);
+				REQUIRE(Match.Matches == i.Match);
 		}
 	}
 }
@@ -3857,14 +3882,14 @@ TEST_CASE("regex.list.special")
 	};
 
 	RegExp re;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 
 	for (const auto& i: Tests)
 	{
 		re.Compile(i.Regex);
 		REQUIRE(!re.Match(i.BadMatch, Match));
 		REQUIRE(re.Match(i.GoodMatch, Match));
-		REQUIRE(Match == i.Match);
+		REQUIRE(Match.Matches == i.Match);
 	}
 }
 
@@ -3934,7 +3959,7 @@ TEST_CASE("regex.regression")
 	};
 
 	RegExp re;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 
 	for (const auto& i: Tests)
 	{
@@ -3946,7 +3971,7 @@ TEST_CASE("regex.regression")
 			REQUIRE(re.Search(i.Input, Match) == MatchExpected);
 
 			if (MatchExpected)
-				REQUIRE(Match == i.Match);
+				REQUIRE(Match.Matches == i.Match);
 		}
 	}
 }
@@ -3968,7 +3993,7 @@ TEST_CASE("regex.named_groups")
 	};
 
 	RegExp re;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 	named_regex_match NamedMatch;
 
 	for (const auto& i: Tests)
@@ -3983,7 +4008,7 @@ TEST_CASE("regex.named_groups")
 			if (!MatchExpected)
 				continue;
 
-			REQUIRE(Match == i.Match);
+			REQUIRE(Match.Matches == i.Match);
 
 			REQUIRE(i.NamedMatch.size() == NamedMatch.Matches.size());
 

@@ -105,7 +105,7 @@ public:
 	bool operator==(string_view FileName) const;
 	bool empty() const;
 
-	using last_regex_matches = std::pair<std::vector<RegExpMatch> const*, named_regex_match const*>;
+	using last_regex_matches = std::pair<std::vector<RegExpMatch> const*, unordered_string_map<size_t> const*>;
 	last_regex_matches last_matches() const;
 
 private:
@@ -113,7 +113,7 @@ private:
 	{
 		RegExp Regex;
 		mutable std::vector<RegExpMatch> Match;
-		mutable named_regex_match NamedMatch;
+		mutable unordered_string_map<size_t> NamedMatch;
 	};
 
 	std::variant<std::vector<string>, regex_data> m_Masks;
@@ -413,7 +413,15 @@ bool filemasks::masks::operator==(const string_view FileName) const
 		},
 		[&](const regex_data& Data)
 		{
-			return Data.Regex.Search(FileName, Data.Match, &Data.NamedMatch);
+			regex_match Match;
+			named_regex_match NamedMatch;
+			if (!Data.Regex.Search(FileName, Match, &NamedMatch))
+				return false;
+
+			Data.Match.assign(ALL_CONST_RANGE(Match.Matches));
+			for (const auto& [k, v]: NamedMatch.Matches)
+				Data.NamedMatch.emplace(k, v);
+			return true;
 		}
 	}, m_Masks);
 }
@@ -507,7 +515,7 @@ TEST_CASE("masks_with_matches")
 	Masks.assign(L"/(.+)\\.(?:.+)\\.(?{scratch}.+)/"sv);
 
 	std::vector<RegExpMatch> Matches;
-	named_regex_match NamedMatches;
+	unordered_string_map<size_t> NamedMatches;
 	filemasks::regex_matches const RegexMatches{ Matches, NamedMatches };
 	const auto Test = L"none.shall.pass"sv;
 
@@ -524,7 +532,7 @@ TEST_CASE("masks_with_matches")
 	REQUIRE(Matches[2].start == 11);
 	REQUIRE(Matches[2].end == 15);
 
-	REQUIRE(NamedMatches.Matches.size() == 1u);
-	REQUIRE(NamedMatches.Matches.at(L"scratch"s) == 2u);
+	REQUIRE(NamedMatches.size() == 1u);
+	REQUIRE(NamedMatches.at(L"scratch"s) == 2u);
 }
 #endif

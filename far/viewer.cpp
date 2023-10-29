@@ -2449,7 +2449,7 @@ struct Viewer::search_data
 	string word_div; // IN: Word delimiter characters if Text; empty otherwise
 	bool first_Rex{true};
 	RegExp Rex; // IN: Compiled regex if Regex
-	std::vector<RegExpMatch> RexMatch;
+	regex_match RexMatch;
 };
 
 enum SEARCHER_RESULT: int
@@ -2875,10 +2875,10 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		if (!sd->Rex.SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))  // doesn't match
 			break;
 
-		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch[0].start);
+		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch.Matches[0].start);
 		if ( fpos < cpos )
 		{
-			off = sd->RexMatch[0].start + 1; // skip
+			off = sd->RexMatch.Matches[0].start + 1; // skip
 			continue;
 		}
 		else if (swrap == SearchWrap_CYCLE && !tail_part && fpos >= StartSearchPos)
@@ -2888,7 +2888,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		else // found
 		{
 			sd->MatchPos = fpos;
-			sd->search_len = GetStrBytesNum(t_line + off + sd->RexMatch[0].start, sd->RexMatch[0].end - sd->RexMatch[0].start);
+			sd->search_len = GetStrBytesNum(t_line + off + sd->RexMatch.Matches[0].start, sd->RexMatch.Matches[0].end - sd->RexMatch.Matches[0].start);
 			return Search_Found;
 		}
 	}
@@ -2938,8 +2938,8 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 		if (!sd->Rex.SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))
 			break;
 
-		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch[0].start);
-		const auto flen = GetStrBytesNum(t_line + sd->RexMatch[0].start, sd->RexMatch[0].end - sd->RexMatch[0].start);
+		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch.Matches[0].start);
+		const auto flen = GetStrBytesNum(t_line + sd->RexMatch.Matches[0].start, sd->RexMatch.Matches[0].end - sd->RexMatch.Matches[0].start);
 		if (fpos+flen > cpos)
 			break;
 
@@ -2949,7 +2949,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 			prev_len = flen;
 		}
 
-		off = sd->RexMatch[0].start + 1; // skip
+		off = sd->RexMatch.Matches[0].start + 1; // skip
 	}
 
 	if (prev_len >= 0)

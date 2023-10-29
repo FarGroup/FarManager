@@ -1198,7 +1198,7 @@ void regex_playground()
 	RegexDlgItems[rp_edit_substitution].strHistory = L"RegexTestSubstitution"sv;
 
 	RegExp Regex;
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 	named_regex_match NamedMatch;
 
 	std::vector<string> ListStrings;
@@ -1231,7 +1231,7 @@ void regex_playground()
 			const auto TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
 			const auto ReplaceStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
 
-			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match, &NamedMatch);
+			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match.Matches, &NamedMatch);
 			Status = status::normal;
 			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Str));
 		};
@@ -1244,7 +1244,7 @@ void regex_playground()
 
 		const auto clear_matches = [&]
 		{
-			Match.clear();
+			Match.Matches.clear();
 			NamedMatch.Matches.clear();
 			ListItems.clear();
 
@@ -1292,15 +1292,15 @@ void regex_playground()
 			ListItems.clear();
 			ListStrings.clear();
 
-			reserve_exp_noshrink(ListItems, Match.size());
-			reserve_exp_noshrink(ListStrings, Match.size());
+			reserve_exp_noshrink(ListItems, Match.Matches.size());
+			reserve_exp_noshrink(ListStrings, Match.Matches.size());
 
 			const auto match_str = [&](RegExpMatch const& m)
 			{
 				return m.start < 0? L""s : far::format(L"{}-{} {}"sv, m.start, m.end, get_match(TestStr, m));
 			};
 
-			for (const auto& [i, Index] : enumerate(Match))
+			for (const auto& [i, Index] : enumerate(Match.Matches))
 			{
 				ListStrings.emplace_back(far::format(L"${}: {}"sv, Index, match_str(i)));
 				ListItems.push_back({ i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0 });
@@ -1308,7 +1308,7 @@ void regex_playground()
 
 			for (const auto& [k, v] : NamedMatch.Matches)
 			{
-				const auto& m = Match[v];
+				const auto& m = Match.Matches[v];
 				ListStrings[v] = far::format(L"${{{}}}: {}"sv, k, match_str(m));
 				ListItems[v].Text = ListStrings[v].c_str();
 			}

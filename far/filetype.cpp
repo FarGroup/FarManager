@@ -98,7 +98,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	{
 		string Command;
 		std::vector<RegExpMatch> Matches;
-		named_regex_match NamedMatches;
+		unordered_string_map<size_t> NamedMatches;
 	};
 
 	const auto AddMatches = [&](menu_data const& Data)
@@ -111,7 +111,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			);
 		}
 
-		for (const auto& [GroupName, GroupNumber]: Data.NamedMatches.Matches)
+		for (const auto& [GroupName, GroupNumber]: Data.NamedMatches)
 		{
 			const auto& Match = Data.Matches[GroupNumber];
 			Context.Variables.emplace(

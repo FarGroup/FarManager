@@ -2822,13 +2822,13 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		{
 			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			std::vector<RegExpMatch> Match;
+			regex_match Match;
 
 			if (!Handle.Regex.MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
 				return false;
 
-			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
-			std::copy_n(Match.cbegin(), MaxSize, data->Match);
+			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
+			std::copy_n(Match.Matches.cbegin(), MaxSize, data->Match);
 			data->Count = MaxSize;
 			return true;
 		}
@@ -2837,13 +2837,13 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		{
 			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			std::vector<RegExpMatch> Match;
+			regex_match Match;
 
 			if (!Handle.Regex.SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
 				return false;
 
-			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
-			std::copy_n(Match.cbegin(), MaxSize, data->Match);
+			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
+			std::copy_n(Match.Matches.cbegin(), MaxSize, data->Match);
 			data->Count = MaxSize;
 			return true;
 		}

@@ -800,7 +800,7 @@ namespace
 	bool SearchStringRegex(
 		string_view const Source,
 		const RegExp& re,
-		std::vector<RegExpMatch>& Match,
+		regex_match& Match,
 		named_regex_match* const NamedMatch,
 		intptr_t Position,
 		search_replace_string_options const options,
@@ -818,15 +818,15 @@ namespace
 				if (!re.SearchEx(Source, CurrentPosition, Match, NamedMatch))
 					return false;
 
-				if (options.WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+				if (options.WholeWords && !CanContainWholeWord(Source, Match.Matches[0].start, Match.Matches[0].end - Match.Matches[0].start, WordDiv))
 				{
 					++CurrentPosition;
 					continue;
 				}
 
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match, NamedMatch);
-				CurPos = Match[0].start;
-				SearchLength = Match[0].end - Match[0].start;
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match.Matches, NamedMatch);
+				CurPos = Match.Matches[0].start;
+				SearchLength = Match.Matches[0].end - Match.Matches[0].start;
 				return true;
 			}
 			while (static_cast<size_t>(CurrentPosition) != Source.size());
@@ -835,23 +835,23 @@ namespace
 		bool found = false;
 		intptr_t pos = 0;
 
-		std::vector<RegExpMatch> FoundMatch;
+		regex_match FoundMatch;
 		named_regex_match FoundNamedMatch;
 
 		while (re.SearchEx(Source, pos, Match, NamedMatch))
 		{
-			pos = Match[0].start;
+			pos = Match.Matches[0].start;
 			if (pos > Position)
 				break;
 
-			if (options.WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+			if (options.WholeWords && !CanContainWholeWord(Source, Match.Matches[0].start, Match.Matches[0].end - Match.Matches[0].start, WordDiv))
 			{
 				++pos;
 				continue;
 			}
 
 			found = true;
-			FoundMatch = std::move(Match);
+			FoundMatch.Matches = std::move(Match.Matches);
 			if (NamedMatch)
 				FoundNamedMatch.Matches = std::move(NamedMatch->Matches);
 			++pos;
@@ -859,9 +859,9 @@ namespace
 
 		if (found)
 		{
-			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch, NamedMatch? &FoundNamedMatch : nullptr);
-			CurPos = FoundMatch[0].start;
-			SearchLength = FoundMatch[0].end - FoundMatch[0].start;
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch.Matches, NamedMatch? &FoundNamedMatch : nullptr);
+			CurPos = FoundMatch.Matches[0].start;
+			SearchLength = FoundMatch.Matches[0].end - FoundMatch.Matches[0].start;
 
 		}
 
@@ -874,7 +874,7 @@ bool SearchString(
 	string_view const Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	std::vector<RegExpMatch>& Match,
+	regex_match& Match,
 	named_regex_match* const NamedMatch,
 	int& CurPos,
 	search_replace_string_options const options,
@@ -902,7 +902,7 @@ bool SearchAndReplaceString(
 	string_view const Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	std::vector<RegExpMatch>& Match,
+	regex_match& Match,
 	named_regex_match* const NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,

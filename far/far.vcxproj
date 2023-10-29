@@ -438,6 +438,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="stddlg.hpp" />
     <ClInclude Include="string_sort.hpp" />
     <ClInclude Include="string_utils.hpp" />
+    <ClInclude Include="stack_allocator.hpp" />
     <ClInclude Include="strmix.hpp" />
     <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="testing.hpp" />

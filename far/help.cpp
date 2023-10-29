@@ -1958,7 +1958,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	bool TopicFound=false;
 	string strCurTopic, strEntryName;
 
-	std::vector<RegExpMatch> Match;
+	regex_match Match;
 	named_regex_match NamedMatch;
 	RegExp re;
 

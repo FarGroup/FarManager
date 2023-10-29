@@ -51,7 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class RegExp;
 struct RegExpMatch;
-struct named_regex_match;
+class regex_match;
+class named_regex_match;
 
 namespace legacy
 {
@@ -192,7 +193,7 @@ bool SearchString(
 	string_view Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	std::vector<RegExpMatch>& Match,
+	regex_match& Match,
 	named_regex_match* NamedMatch,
 	int& CurPos,
 	search_replace_string_options options,
@@ -206,7 +207,7 @@ bool SearchAndReplaceString(
 	string_view Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	std::vector<RegExpMatch>& Match,
+	regex_match& Match,
 	named_regex_match* NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,

@@ -1,15 +1,14 @@
-﻿#ifndef FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299
-#define FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299
+﻿#ifndef STACK_ALLOCATOR_HPP_7214ED21_CB3F_4E83_9723_F7707D14C876
+#define STACK_ALLOCATOR_HPP_7214ED21_CB3F_4E83_9723_F7707D14C876
 #pragma once
 
 /*
-filemasks.hpp
+stack_allocator.hpp
 
-Класс для работы с масками файлов (учитывается наличие масок исключения).
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2023 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,44 +39,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/preprocessor.hpp"
-#include "common/string_utils.hpp"
 
 // External:
+#include "thirdparty/short_alloc/short_alloc.h"
 
 //----------------------------------------------------------------------------
 
-struct RegExpMatch;
+template<class T, std::size_t N, std::size_t Align = alignof(std::max_align_t)>
+using stack_allocator = short_alloc<T, N, Align>;
 
-enum FM_FLAGS
-{
-	FMF_SILENT = 1,
-};
 
-class filemasks
-{
-public:
-	NONCOPYABLE(filemasks);
-
-	filemasks();
-	~filemasks();
-
-	filemasks(filemasks&&) noexcept;
-	filemasks& operator=(filemasks&&) noexcept;
-
-	bool assign(string_view Str, DWORD Flags = 0);
-	using regex_matches = std::pair<std::vector<RegExpMatch>&, unordered_string_map<size_t>&>;
-	bool check(string_view Name, regex_matches const* Matches = {}) const;
-	bool empty() const;
-
-	static void ErrorMessage();
-
-private:
-	class masks;
-
-	void clear();
-
-	std::vector<masks> Include, Exclude;
-};
-
-#endif // FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299
+#endif // STACK_ALLOCATOR_HPP_7214ED21_CB3F_4E83_9723_F7707D14C876

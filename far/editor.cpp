@@ -3405,7 +3405,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 		auto CurPtr = FindAll ? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
-		std::vector<RegExpMatch> Match;
+		regex_match Match;
 		named_regex_match NamedMatch;
 		RegExp re;
 

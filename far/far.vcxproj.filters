@@ -1111,6 +1111,9 @@
     <ClInclude Include="sqlitedb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stack_allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="stddlg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
