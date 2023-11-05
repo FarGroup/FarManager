@@ -240,7 +240,7 @@ ustawienia z pliku ini).
  Far Manager może ustawić ~zmienną systemową~@FAREnv@ "FARUSER" na wartość <użytkownik>.
 
  #-v <nazwa_pliku>#
- Włącza podgląd podanego pliku. Jeżeli <nazwa_pliku> to `#-#', program odczytuje
+ Włącza podgląd podanego pliku. Jeżeli <nazwa_pliku> to ‘#-#’, program odczytuje
 dane ze strumienia stdin.
 
  Przykład: "dir|far -v -" wyświetli wyjście polecenia dir.
@@ -2008,7 +2008,7 @@ Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane
 począwszy od Windows Server 2012.
 
  #Ma więcej niż jeden link#
- Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeśli dane
+ Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeżeli dane
 na które wskazuje bieżący plik jest również wskazany przez co najmniej jeden inny plik.
  #Uwaga#: Włączenie tej opcji może spowodować znaczne spowolnienie wyszukiwania.
 
@@ -2295,7 +2295,8 @@ będzie włączona, Far spróbuje do uruchomienia użyć przypisania z systemu W
 oraz "IF DEFINED" (jeżeli zdefiniowano) pozwalają na skonfigurowanie "inteligentniejszych"
 powiązań - jeżeli ustawiono kilka powiązań do danego typu pliku, menu zostanie
 wyświetlone tylko dla powiązań, których warunki zostaną spełnione (wartość TRUE).
- 3. ^<wrap>If the specified mask is a regular expression, its capturing groups can be referenced in the commands as %RegexGroup#N# or %RegexGroup{#Name#}.
+  3. ^<wrap>Jeżeli określona maska jest wyrażeniem regularnym, do jej grup przechwytujących
+można odwoływać się w poleceniach jako %RegexGroup#N# or %RegexGroup{#Nazwa#}.
 
 
 @MetaSymbols
@@ -4116,7 +4117,7 @@ operacji, z której wywołano to menu.
  Menu filtrów składa się z dwóch części. W górnej części są przedstawione
 #filtry użytkownika#, w dolna część zawiera maski wszystkich plików,
 które istnieją w bieżącym panelu (łącznie z maskami plików wybranymi w aktualnym
-obszarze działania, z którego wywołano menu, nawet jeśli nie ma żadnych plików
+obszarze działania, z którego wywołano menu, nawet jeżeli nie ma żadnych plików
 pasujących do masek w bieżącym panelu).
 
  Dla #Filtrów użytkownika# dostępne są następujące polecenia:
@@ -4201,7 +4202,7 @@ zostanie pokazana informacja o błędzie. Jeżeli włączona będzie opcja
 pliku opisów.
 
  Jeżeli jest to włączone w konfiguracji, Far aktualizuje opisy podczas
-kopiowania, przenoszeniu i usuwania plików. Ale jeśli polecenie przetwarza
+kopiowania, przenoszeniu i usuwania plików. Ale jeżeli polecenie przetwarza
 pliki z podfolderów, opisy w podfolderach nie są aktualizowane.
 
  #Otwieraj pliki w kodowaniu Windows#
@@ -4406,8 +4407,9 @@ $ #Wybór kolorów#
  Standardowa 16-kolorowa paleta jest dostępna w oknie dialogowym.
  Aby skorzystać z ~256-kolorowej palety~@ColorPicker256@ i ~przestrzeni barw RGB~@ColorPickerRGB@ należy użyć odpowiednich przycisków.
 
- #Default# is the color used by your terminal when no colors are specified explicitly, e.g. \(800000:800000) C:\> \-.
- Usually it is one of the palette colors, e.g. \(7:0)silver on black\-, but not necessarily: some terminals could handle it differently, e.g. render as translucent.
+ #Domyślny# to kolor używany przez terminal, gdy nie określono żadnych kolorów, np. \(800000:800000) C:\> \-.
+ Zazwyczaj jest to jeden z kolorów palety, np. \(7:0)srebrny na czarnym\-, ale niekoniecznie: niektóre terminale
+mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty. XXXXX
 
  Wartość kolorów jest także przedstawiania w postaci szesnastkowej, gdzie:
  - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
@@ -4420,17 +4422,17 @@ $ #Wybór kolorów#
  Jeżeli opcja #Dziedziczenie# jest zaznaczona, uwzględniany jest poprzedni styl tekstu pierwszoplanowego
  w logicznym porządku Z.
 
- Default:   \(7:0) Example \-
- Bold:      \(7:0:bold) Example \-
- Italic:    \(7:0:italic) Example \-
- Underline: \(7:0:underline) Example \-
- Double:    \(7:0:underline2) Example \-
- Overline:  \(7:0:overline) Example \-
- Strikeout: \(7:0:strikeout) Example \-
- Faint:     \(7:0:faint) Example \-
- Blink:     \(7:0:blink) Example \-
- Inverse:   \(7:0:inverse) Example \-
- Invisible: \(7:0:invisible) Example \-
+ Domyślny:        \(7:0) Przykład \-
+ Pogrubienie:     \(7:0:bold) Przykład \-
+ Kursywa:         \(7:0:italic) Przykład \-
+ Podkreślenie:    \(7:0:underline) Przykład \-
+ Podwójne:        \(7:0:underline2) Przykład \-
+ Nadkreślenie:    \(7:0:overline) Przykład \-
+ Przekreślenie:   \(7:0:strikeout) Przykład \-
+ Przygaszenie:    \(7:0:faint) Przykład \-
+ Migotanie:       \(7:0:blink) Przykład \-
+ Odwrotność:      \(7:0:inverse) Przykład \-
+ Niewidzialność:  \(7:0:invisible) Przykład \-
 
  W sekcji podglądu (poniżej opcji) wyświetlany jest wynik końcowy.
 
@@ -4474,18 +4476,18 @@ $ #Wybór z 256 kolorów#
 
 
 @ColorPickerRGB
-$ #RGB Color Picker#
- This dialog allows to pick a color from the RGB color space.
+$ #Wybór z kolorów RGB#
+ To okno dialogowe pozwala wybrać kolor z przestrzeni barw RGB.
 
- The 16 777 216 RGB colors are represented as a 16x16x16 hypercube.
+ 16 777 216 kolorów RGB prezentowane są jako hipersześcian o wymiarach 16x16x16.
 
- Use the buttons on the right to rotate the cube, access its inner levels or mix the primary colors directly.
+ Użyj przycisków po prawej stronie, aby obrócić kostką, uzyskać dostęp do jej wewnętrznych poziomów lub bezpośrednio mieszać kolory podstawowe.
 
- Each of the 4096 cells in the hypercube represents a 16x16x16 cube with RGB colors. To switch between the cubes use the #↔# button.
+ Każda z 4096 komórek hipersześcianu reprezentuje sześcian 16x16x16 z kolorami RGB. Aby przełączyć się między sześcianami, należy użyć przycisku #↔#.
 
- The #«# button allows to save the selected color to the custom palette for quick access.
+ Przycisk #«# dodaje wybrany kolor do palety użytkownika, dla szybszego dostępu do tego koloru.
 
- The #System# button opens the system RGB color picker.
+ Przycisk #System# otwiera systemowy wybór kolorów RGB.
 
 
 @SortGroups
@@ -5100,8 +5102,8 @@ znaków i tylko wtedy gdy dopasowanie kończy się niepowodzeniem, przechwytuje 
 przypadków znakiem ‘#\#’, ale w przypadku liter i cyfr należy to robić ostrożnie,
 ponieważ jest to sposób opisywania znaków specjalnych:
 
- #.#    - ^<wrap>dowolny znak za wyjątkiem powrotu karetki. Jeśli wśród opcji znajduje się
-“#s#”, to wtedy kropka dopasowuje dowolny znak.
+ #.#    - ^<wrap>dowolny znak za wyjątkiem powrotu karetki. Jeżeli wśród opcji
+znajduje się “#s#”, to wtedy kropka dopasowuje dowolny znak.
  #\t#   - tabulator (0x09)
  #\n#   - nowa linia (LF, 0x0a)
  #\r#   - powrót karetki (CR, 0x0d)
@@ -5347,7 +5349,7 @@ klawisz skrótu makropolecenia, które ma zostać usunięte.
  #Uwaga#: po usunięciu makropolecenia, kombinacja
 klawiszy (skrót), który został użyty do jego wykonania
 zacznie funkcjonować tak, jak to było pierwotnie zamierzone.
-Oznacza to, że jeśli jakaś kombinacja była obsługiwana
+Oznacza to, że jeżeli jakaś kombinacja była obsługiwana
 przez Far lub jakąś wtyczkę, to po usunięciu makropolecenia
 kombinacja klawiszy będzie przetwarzania jak w przeszłości.
 
@@ -6675,7 +6677,7 @@ zastąpione ich odpowiednimi znakami narodowymi zdefiniowanymi w #XLat.Table1#.
 
  Domyślna wartość: pusty łańcuch (tabela przekodowania nie jest zdefiniowana).
 
- Jeśli znak nie może być przekodowany przy użyciu tabeli, Far spróbuje
+ Jeżeli znak nie może być przekodowany przy użyciu tabeli, Far spróbuje
 zastosować specjalne reguły ~XLat.Rules~@XLat.Rules@.
 
  Zobacz także Addons\XLat\Russian\Qwerty.farconfig.
@@ -6700,11 +6702,11 @@ drugim znakiem w parze.
 lub nie istnieje żadna reguła o nazwie odpowiadającej bieżącemu układowi
 klawiatury - to zostanie użyta jedna z trzech ponumerowanych reguł.
 
- #XLat.Rules1# ^<wrap> jest stosowana, jeśli poprzedni znak w przekodowanym
+ #XLat.Rules1# ^<wrap> jest stosowana, jeżeli poprzedni znak w przekodowanym
 łańcuchu pochodzi z alfabetu narodowego.
- #XLat.Rules2# jest stosowana, jeśli poprzedni znak w przekodowanym
+ #XLat.Rules2# jest stosowana, jeżeli poprzedni znak w przekodowanym
 łańcuchu jest znakiem łacińskim.
- #XLat.Rules3# jest stosowana, jeśli poprzedni znak w przekodowanym łańcuchu
+ #XLat.Rules3# jest stosowana, jeżeli poprzedni znak w przekodowanym łańcuchu
 nie pochodzi z alfabetu narodowego, ani nie jest znakiem alfabetu łacińskiego.
 
  Nazwana reguła specjalna jest stosowana jeżeli bit 2 (0x04) w ~XLat.Flags~@XLat.Flags@
