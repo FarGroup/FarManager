@@ -60,6 +60,8 @@ desktop::desktop(private_tag)
 	SetMacroMode(MACROAREA_DESKTOP);
 }
 
+desktop::~desktop() = default;
+
 desktop_ptr desktop::create()
 {
 	return std::make_shared<desktop>(private_tag());

@@ -53,6 +53,7 @@ class desktop final: public window
 public:
 	static desktop_ptr create();
 	explicit desktop(private_tag);
+	~desktop() override;
 
 	int GetType() const override { return windowtype_desktop; }
 	int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
