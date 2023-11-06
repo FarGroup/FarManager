@@ -170,7 +170,7 @@ static bool sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 	flags::clear(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
 	flags::clear(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 
-	if (First == Second)
+	if (IsFirst && IsSecond && First == Second)
 	{
 		// Valid DBSC, awesome
 		flags::set(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
@@ -200,7 +200,7 @@ static bool sanitise_surrogate_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 		return false;
 	}
 
-	if (encoding::utf16::is_valid_surrogate_pair(First.Char, Second.Char) && First.Attributes == Second.Attributes)
+	if (IsFirst && IsSecond && First.Attributes == Second.Attributes)
 	{
 		// Valid surrogate, awesome
 		return false;
@@ -215,9 +215,9 @@ static bool sanitise_surrogate_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 	return true;
 }
 
-void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+bool sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 {
-	sanitise_dbsc_pair(First, Second) || sanitise_surrogate_pair(First, Second);
+	return sanitise_dbsc_pair(First, Second) || sanitise_surrogate_pair(First, Second);
 }
 
 bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo)
@@ -439,6 +439,7 @@ protected:
 
 			if (ChangeColour)
 			{
+				CurrentColor = colors::unresolve_defaults(CurrentColor);
 				::console.SetTextAttributes(colors::merge(CurrentColor, *m_Colour));
 			}
 
@@ -501,7 +502,7 @@ protected:
 		static FarColor fg_color(int const NtColor)
 		{
 			auto Color = colors::NtColorToFarColor(NtColor);
-			colors::make_transparent(Color.BackgroundColor);
+			Color.SetBgDefault();
 			return Color;
 		}
 
@@ -1130,8 +1131,11 @@ protected:
 		return true;
 	}
 
-	static constexpr uint8_t vt_base_color_index(uint8_t const Index)
+	static constexpr uint8_t vt_color_index(uint8_t const Index)
 	{
+		if (Index > colors::index::nt_last)
+			return Index;
+
 		// NT is RGB, VT is BGR
 		constexpr uint8_t Table[]
 		{
@@ -1146,24 +1150,24 @@ protected:
 			0b111, // 111
 		};
 
-		return Table[Index & 0b111];
-	}
-
-	static constexpr uint8_t vt_color_index(uint8_t const Index)
-	{
-		return (Index & 0b11111000) | vt_base_color_index(Index);
+		return (Index & 0b1000) | Table[Index & 0b111];
 	}
 
 	static constexpr struct
 	{
-		COLORREF FarColor::* Color;
 		FARCOLORFLAGS Flags;
 		string_view Normal, Intense, ExtendedColour, Default;
 	}
 	ColorsMapping[]
 	{
-		{ &FarColor::ForegroundColor, FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv, L"39"sv },
-		{ &FarColor::BackgroundColor, FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv, L"49"sv },
+		{ FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv, L"39"sv },
+		{ FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv, L"49"sv },
+	};
+
+	enum class colors_mapping_type
+	{
+		foreground,
+		background,
 	};
 
 	static constexpr struct
@@ -1189,68 +1193,64 @@ protected:
 	static_assert(StyleMapping[UnderlineIndex].Style == FCF_FG_UNDERLINE);
 	static_assert(StyleMapping[UnderlineIndex + 1].Style == FCF_FG_UNDERLINE2);
 
-	static void make_vt_color(const FarColor& Attributes, string& Str, size_t const MappingIndex)
+	static void make_vt_color(colors::single_color const Color, colors_mapping_type const MappingType, string& Str)
 	{
-		const auto& Mapping = ColorsMapping[MappingIndex];
-		const auto ColorPart = std::invoke(Mapping.Color, Attributes);
+		const auto& Mapping = ColorsMapping[std::to_underlying(MappingType)];
 
-		if (Attributes.Flags & Mapping.Flags)
+		if (Color.IsIndex)
 		{
-			if (colors::is_default(ColorPart))
+			if (colors::is_default(Color.Value))
 				append(Str, Mapping.Default);
-			else if (const auto Index = colors::index_value(ColorPart); Index < colors::index::nt_size)
-				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + vt_base_color_index(Index)));
+			else if (const auto Index = vt_color_index(colors::index_value(Color.Value)); Index < colors::index::nt_size)
+				append(Str, Color.Value & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + (Index & 0b111)));
 			else
 				far::format_to(Str, L"{};5;{}"sv, Mapping.ExtendedColour, Index);
 		}
 		else
 		{
-			const auto RGBA = colors::to_rgba(ColorPart);
+			const auto RGBA = colors::to_rgba(Color.Value);
 			far::format_to(Str, L"{};2;{};{};{}"sv, Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
 		}
 	}
 
-	static void make_vt_style(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
+	static void make_vt_style(FARCOLORFLAGS const Style, string& Str, FARCOLORFLAGS const LastStyle)
 	{
 		auto UnderlineSet = false;
 
 		for (const auto& i: StyleMapping)
 		{
-			if (Attributes.Flags & i.Style)
-			{
-				if (!LastColor.has_value() || !(LastColor->Flags & i.Style))
-				{
-					append(Str, i.On, L';');
+			const auto Was = (LastStyle & i.Style) != 0;
+			const auto Is  = (Style & i.Style) != 0;
 
-					// See below
-					if (i.Style == FCF_FG_UNDERLINE)
-						UnderlineSet = true;
-				}
+			if (Was == Is)
+				continue;
+
+			if (Is > Was)
+			{
+				if (i.Style == FCF_FG_UNDERLINE)
+					UnderlineSet = true;
 			}
 			else
 			{
-				if (LastColor.has_value() && LastColor->Flags & i.Style)
+				if (i.Style == FCF_FG_UNDERLINE2 && Style & FCF_FG_UNDERLINE)
 				{
-					if (i.Style == FCF_FG_UNDERLINE2 && Attributes.Flags & FCF_FG_UNDERLINE)
-					{
-						// Both Underline and Double Underline have the same off code. 🤦
-						// VT is a bloody joke. Whoever invented it should be punished.
+					// Both Underline and Double Underline have the same off code. 🤦
+					// VT is a bloody joke. Whoever invented it should be punished.
 
-						// D is checked after U.
-						// We're dropping D now, so, if we have already enabled U on the previous iteration, this will kill it.
-						// To address this, we undo U if needed, emit the off code and enable U.
-						constexpr auto UnderlineOn = StyleMapping[UnderlineIndex].On;
+					// D is checked after U.
+					// We're dropping D now, so, if we have already enabled U on the previous iteration, this will kill it.
+					// To address this, we undo U if needed, emit the off code and enable U.
+					constexpr auto UnderlineOn = StyleMapping[UnderlineIndex].On;
 
-						if (UnderlineSet)
-							Str.resize(Str.size() - UnderlineOn.size() - 1);
+					if (UnderlineSet)
+						Str.resize(Str.size() - UnderlineOn.size() - 1);
 
-						append(Str, i.Off, L';', UnderlineOn, L';');
-						continue;
-					}
-
-					append(Str, i.Off, L';');
+					append(Str, i.Off, L';', UnderlineOn, L';');
+					continue;
 				}
 			}
+
+			append(Str, Is > Was? i.On : i.Off, L';');
 		}
 
 		// We should only enter this function if the style has changed and it should add or remove at least something,
@@ -1258,40 +1258,57 @@ protected:
 		Str.pop_back();
 	}
 
-	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
+	static void make_vt_attributes(const FarColor& Color, string& Str, FarColor const& LastColor)
 	{
-		const auto SameFgColor = LastColor && LastColor->IsFgIndex() == Attributes.IsFgIndex() && LastColor->ForegroundColor == Attributes.ForegroundColor;
-		const auto SameBgColor = LastColor && LastColor->IsBgIndex() == Attributes.IsBgIndex() && LastColor->BackgroundColor == Attributes.BackgroundColor;
-		const auto SameStyle = LastColor && ((LastColor->Flags & FCF_STYLEMASK) == (Attributes.Flags & FCF_STYLEMASK));
+		using colors::single_color;
 
-		if (SameFgColor && SameBgColor && SameStyle)
+		struct expanded_state
 		{
-			assert(false);
-			return;
+			single_color ForegroundColor, BackgroundColor;
+			FARCOLORFLAGS Style;
+			bool operator==(expanded_state const&) const = default;
+
+			explicit expanded_state(FarColor const& Color):
+				ForegroundColor(single_color::foreground(Color)),
+				BackgroundColor(single_color::background(Color)),
+				Style(Color.Flags & FCF_STYLEMASK)
+			{
+			}
 		}
+		const
+		Current(Color), Last(LastColor);
+
+		assert(Current != Last);
 
 		Str += CSI ""sv;
 
-		if (!SameFgColor)
+		auto ModeAdded = false;
+
+		if (Current.ForegroundColor != Last.ForegroundColor)
 		{
-			make_vt_color(Attributes, Str, 0);
+			make_vt_color(Current.ForegroundColor, colors_mapping_type::foreground, Str);
+			ModeAdded = true;
 		}
 
-		if (!SameBgColor)
+		if (Current.BackgroundColor != Last.BackgroundColor)
 		{
-			if (!SameFgColor)
+			if (ModeAdded)
 				Str += L';';
 
-			make_vt_color(Attributes, Str, 1);
+			make_vt_color(Current.BackgroundColor, colors_mapping_type::background, Str);
+			ModeAdded = true;
 		}
 
-		if (!SameStyle)
+		if (Current.Style != Last.Style)
 		{
-			if (!SameFgColor || !SameBgColor)
+			if (ModeAdded)
 				Str += L';';
 
-			make_vt_style(Attributes, Str, LastColor);
+			make_vt_style(Current.Style, Str, Last.Style);
+			ModeAdded = true;
 		}
+
+		assert(ModeAdded);
 
 		Str += L'm';
 	}
@@ -1310,7 +1327,7 @@ protected:
 			a.Reserved[1] == b.Reserved[1];
 	}
 
-	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
+	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, FarColor& LastColor)
 	{
 		const auto CharWidthEnabled = char_width::is_enabled();
 
@@ -1386,7 +1403,7 @@ WARNING_POP()
 				}
 			}
 
-			if (!LastColor.has_value() || !is_same_color(Cell.Attributes, *LastColor))
+			if (!is_same_color(Cell.Attributes, LastColor))
 			{
 				make_vt_attributes(Cell.Attributes, Str, LastColor);
 				LastColor = Cell.Attributes;
@@ -1410,8 +1427,16 @@ WARNING_POP()
 	class console::implementation
 	{
 	public:
-		static bool WriteOutputVT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
+		static bool WriteOutputVT(matrix<FAR_CHAR_INFO>& Buffer, point const BufferCoord, rectangle const& WriteRegion)
 		{
+			const rectangle SubRect
+			{
+				BufferCoord.x,
+				BufferCoord.y,
+				BufferCoord.x + WriteRegion.width() - 1,
+				BufferCoord.y + WriteRegion.height() - 1
+			};
+
 			const auto Out = ::console.GetOutputHandle();
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -1454,7 +1479,7 @@ WARNING_POP()
 			if (const auto Area = SubRect.width() * SubRect.height(); Area > 4)
 				Str.reserve(std::max(1024, Area * 2));
 
-			std::optional<FarColor> LastColor;
+			auto LastColor = colors::default_color();
 
 			point ViewportSize;
 			{
@@ -1494,10 +1519,12 @@ WARNING_POP()
 							ANSISYSRC // Restore cursor position
 							CSI L"1B" // Move cursor down
 							ANSISYSSC // Save again
-							L""sv;
 
-						// For some reason restoring the cursor position affects colors
-						LastColor.reset();
+							// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
+							// Explicitly reset them here for consistency across implementations.
+							CSI L"m"sv;
+
+						LastColor = colors::default_color();
 					}
 
 					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
@@ -1519,7 +1546,7 @@ WARNING_POP()
 
 			}
 
-			return ::console.Write(CSI L"0m"sv);
+			return ::console.Write(CSI L"m"sv);
 		}
 
 		class cursor_suppressor: public hide_cursor
@@ -1563,32 +1590,16 @@ WARNING_POP()
 			return true;
 		}
 
-		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, point const BufferSize, rectangle const& WriteRegion)
+		static bool WriteOutputNT(matrix<FAR_CHAR_INFO>& Buffer, point const BufferCoord, rectangle const& WriteRegion)
 		{
-			if constexpr ((false))
+			const rectangle SubRect
 			{
-				assert(BufferSize.x == WriteRegion.width());
-				assert(BufferSize.y == WriteRegion.height());
+				BufferCoord.x,
+				BufferCoord.y,
+				BufferCoord.x + WriteRegion.width() - 1,
+				BufferCoord.y + WriteRegion.height() - 1
+			};
 
-				const auto invert_colors = [&]
-				{
-					for (auto& i: span(Buffer, BufferSize.x* BufferSize.y))
-						i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | extract_integer<BYTE, 0>(~i.Attributes);
-				};
-
-				invert_colors();
-
-				WriteOutputNTImpl(Buffer, BufferSize, WriteRegion);
-				Sleep(50);
-
-				invert_colors();
-			}
-
-			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
-		}
-
-		static bool WriteOutputNT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
-		{
 			std::vector<CHAR_INFO> ConsoleBuffer;
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
 
@@ -1659,13 +1670,13 @@ WARNING_POP()
 						PartialWriteRegion.height()
 					};
 
-					if (!WriteOutputNTImplDebug(ConsoleBuffer.data() + i * PartialBufferSize.x, PartialBufferSize, PartialWriteRegion))
+					if (!WriteOutputNTImpl(ConsoleBuffer.data() + i * PartialBufferSize.x, PartialBufferSize, PartialWriteRegion))
 						return false;
 				}
 			}
 			else
 			{
-				if (!WriteOutputNTImplDebug(ConsoleBuffer.data(), BufferSize, WriteRegion))
+				if (!WriteOutputNTImpl(ConsoleBuffer.data(), BufferSize, WriteRegion))
 					return false;
 			}
 
@@ -1743,6 +1754,15 @@ WARNING_POP()
 
 	bool console::WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
 	{
+		if (IsVtActive())
+		{
+			const int Delta = sWindowMode? GetDelta() : 0;
+			auto WriteRegion = WriteRegionRelative;
+			WriteRegion.top += Delta;
+			WriteRegion.bottom += Delta;
+			return implementation::WriteOutputVT(Buffer, BufferCoord, WriteRegion);
+		}
+
 		if (ExternalConsole.Imports.pWriteOutput)
 		{
 			const COORD BufferSize{ static_cast<short>(Buffer.width()), static_cast<short>(Buffer.height()) };
@@ -1755,15 +1775,19 @@ WARNING_POP()
 		WriteRegion.top += Delta;
 		WriteRegion.bottom += Delta;
 
-		const rectangle SubRect
-		{
-			BufferCoord.x,
-			BufferCoord.y,
-			BufferCoord.x + WriteRegion.width() - 1,
-			BufferCoord.y + WriteRegion.height() - 1
-		};
+		return implementation::WriteOutputNT(Buffer, BufferCoord, WriteRegion);
+	}
 
-		return (IsVtActive()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
+	bool console::WriteOutputGather(matrix<FAR_CHAR_INFO>& Buffer, span<rectangle const> WriteRegions) const
+	{
+		// TODO: VT can handle this in one go
+		for (const auto& i: WriteRegions)
+		{
+			if (!WriteOutput(Buffer, { i.left, i.top }, i))
+				return false;
+		}
+
+		return true;
 	}
 
 	bool console::Read(span<wchar_t> const Buffer, size_t& Size) const
@@ -2538,8 +2562,8 @@ TEST_CASE("console.vt_color")
 	for (const auto& i: Tests)
 	{
 		string Str[2];
-		console_detail::make_vt_color(i.Color, Str[0], 0);
-		console_detail::make_vt_color(i.Color, Str[1], 1);
+		console_detail::make_vt_color(colors::single_color::foreground(i.Color), console_detail::colors_mapping_type::foreground, Str[0]);
+		console_detail::make_vt_color(colors::single_color::background(i.Color), console_detail::colors_mapping_type::background, Str[1]);
 		REQUIRE(Str[0] == i.Fg);
 		REQUIRE(Str[1] == i.Bg);
 	}
@@ -2547,31 +2571,51 @@ TEST_CASE("console.vt_color")
 
 TEST_CASE("console.vt_sequence")
 {
+	FAR_CHAR_INFO const def{ L' ', colors::default_color() };
+
+	const auto check = [](span<FAR_CHAR_INFO> const Buffer, string_view const Expected)
 	{
-		FAR_CHAR_INFO Buffer[3]{};
-		Buffer[0].Char = L' ';
-		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_BOLD;
-		Buffer[0].Attributes.BackgroundColor = 1;
-		Buffer[0].Attributes.ForegroundColor = 10;
+		string Actual;
+		auto LastColor = colors::default_color();
+		console_detail::make_vt_sequence(Buffer, Actual, LastColor);
+		REQUIRE(Expected == Actual);
+	};
+
+#define SGR(modes) CSI #modes "m"
+
+	{
+		FAR_CHAR_INFO Buffer[]{ def };
+		check(Buffer, L" "sv);
+	}
+
+	{
+		FAR_CHAR_INFO Buffer[]{ def, def, def, def };
+		Buffer[1].Attributes.BackgroundColor = colors::opaque(F_MAGENTA);
+		Buffer[2].Attributes.ForegroundColor = colors::opaque(F_GREEN);
+		Buffer[3].Attributes.Flags |= FCF_FG_BOLD;
+		check(Buffer, L" " SGR(45) L" " SGR(32;49) " " SGR(39;1) " "sv);
+	}
+
+	{
+		FAR_CHAR_INFO Buffer[]{ def, def, def };
+		Buffer[0].Attributes.Flags |= FCF_FG_BOLD;
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
 
 		Buffer[1] = Buffer[0];
 
 		Buffer[2] = Buffer[1];
 		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_BOLD);
 
-		string Str;
-		std::optional<FarColor> LastColor;
-		console_detail::make_vt_sequence(Buffer, Str, LastColor);
-
-		REQUIRE(Str == CSI L"92;44;1m" L"  " CSI L"22m" L" "sv);
+		check(Buffer, SGR(92;44;1) L"  " SGR(22) L" "sv);
 	}
 
 	{
-		FAR_CHAR_INFO Buffer[3]{};
-		Buffer[0].Char = L' ';
+		FAR_CHAR_INFO Buffer[]{ def, def, def };
+
 		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_UNDERLINE2;
-		Buffer[0].Attributes.BackgroundColor = 1;
-		Buffer[0].Attributes.ForegroundColor = 10;
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
 
 		Buffer[1] = Buffer[0];
 
@@ -2579,12 +2623,10 @@ TEST_CASE("console.vt_sequence")
 		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE2);
 		flags::set(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE);
 
-		string Str;
-		std::optional<FarColor> LastColor;
-		console_detail::make_vt_sequence(Buffer, Str, LastColor);
-
-		REQUIRE(Str == CSI L"92;44;21m" L"  " CSI L"24;4m" L" "sv);
+		check(Buffer, SGR(92;44;21) L"  " SGR(24;4) L" "sv);
 	}
+
+#undef SGR
 }
 
 #endif

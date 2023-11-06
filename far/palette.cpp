@@ -236,7 +236,8 @@ void palette::Reset(bool const RGB)
 		if (i.Index == ColorsInit::Default)
 			return Color;
 
-		flags::clear(Color.Flags, FCF_INDEXMASK);
+		Color.SetFgIndex(false);
+		Color.SetBgIndex(false);
 		colors::set_color_bits(Color.ForegroundColor, Palette[colors::index_bits(Color.ForegroundColor)]);
 		colors::set_color_bits(Color.BackgroundColor, Palette[colors::index_bits(Color.BackgroundColor)]);
 		return Color;

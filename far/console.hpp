@@ -59,7 +59,7 @@ enum CLEAR_REGION
 };
 
 wchar_t ReplaceControlCharacter(wchar_t Char);
-void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
+bool sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
 bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo);
 
 namespace console_detail
@@ -121,6 +121,7 @@ namespace console_detail
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const rectangle& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
 		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
 		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+		bool WriteOutputGather(matrix<FAR_CHAR_INFO>& Buffer, span<rectangle const> WriteRegions) const;
 		bool Read(span<wchar_t> Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;
 		bool Commit() const;

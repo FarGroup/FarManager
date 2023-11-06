@@ -61,6 +61,21 @@ enum
 
 namespace colors
 {
+	single_color single_color::foreground(FarColor const& Color)
+	{
+		return { Color.ForegroundColor, Color.IsFgIndex() };
+	}
+
+	single_color single_color::background(FarColor const& Color)
+	{
+		return { Color.BackgroundColor, Color.IsBgIndex() };
+	}
+
+	single_color single_color::default_color()
+	{
+		return { default_colorref(), true };
+	}
+
 	uint8_t index_bits(COLORREF const Colour)
 	{
 		return Colour & INDEXMASK;
@@ -212,9 +227,6 @@ namespace colors
 	{
 		static FarColor LastResult, LastBottom, LastTop;
 
-		Top = resolve_defaults(Top);
-		Bottom = resolve_defaults(Bottom);
-
 		if (Bottom == LastBottom && Top == LastTop)
 		{
 			LastResult.Reserved[0] = Bottom.Reserved[0];
@@ -260,8 +272,11 @@ namespace colors
 				return colors::to_rgba(IsIndex? ConsoleIndexToTrueColor(Color) : Color);
 			};
 
-			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);
-			const auto BottomRGBA = to_rgba(BottomValue, (Bottom.Flags & Flag) != 0);
+			const auto ResolvedTopValue = resolve_default(TopValue, Flag == FCF_FG_INDEX);
+			const auto ResolvedBottomValue = resolve_default(BottomValue, Flag == FCF_FG_INDEX);
+
+			const auto TopRGBA = to_rgba(ResolvedTopValue, (Top.Flags & Flag) != 0);
+			const auto BottomRGBA = to_rgba(ResolvedBottomValue, (Bottom.Flags & Flag) != 0);
 
 			const auto calc_channel = [&](unsigned char rgba::*Accessor)
 			{
@@ -526,16 +541,23 @@ static index_color_256 FarColorToConsoleColor(FarColor Color, FarColor& LastColo
 	return Index;
 }
 
+static bool not_the_same_index(const FarColor& a, const FarColor& b)
+{
+	return
+		a.ForegroundColor != b.ForegroundColor ||
+		a.BackgroundColor != b.BackgroundColor ||
+		(
+			flags::check_all(a.Flags, FCF_FG_INDEX | FCF_BG_INDEX) !=
+			flags::check_all(b.Flags, FCF_FG_INDEX | FCF_BG_INDEX)
+		);
+}
+
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static FarColor LastColor{};
 	static index_color_256 Result{};
 
-	if (
-		Color.BackgroundColor != LastColor.BackgroundColor ||
-		Color.ForegroundColor != LastColor.ForegroundColor ||
-		(Color.Flags & FCF_INDEXMASK) != (LastColor.Flags & FCF_INDEXMASK)
-	)
+	if (not_the_same_index(Color, LastColor))
 	{
 		static const auto Palette = console_palette();
 		Result = FarColorToConsoleColor(Color, LastColor, Palette);
@@ -559,11 +581,7 @@ index_color_256 FarColorToConsole256Color(const FarColor& Color)
 	static FarColor LastColor{};
 	static index_color_256 Result{};
 
-	if (!(
-		Color.BackgroundColor == LastColor.BackgroundColor &&
-		Color.ForegroundColor == LastColor.ForegroundColor &&
-		(Color.Flags & FCF_INDEXMASK) == (LastColor.Flags & FCF_INDEXMASK)
-	))
+	if (not_the_same_index(Color, LastColor))
 		Result = FarColorToConsoleColor(Color, LastColor, Index8ToRGB);
 
 	return Result;
@@ -573,7 +591,7 @@ FarColor NtColorToFarColor(WORD Color)
 {
 	return
 	{
-		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
+		FCF_INDEXMASK | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
 		{ opaque(index_bits(Color >> ConsoleFgShift) & index::nt_mask) },
 		{ opaque(index_bits(Color >> ConsoleBgShift) & index::nt_mask) }
 	};
@@ -727,12 +745,24 @@ unsigned long long ColorStringToFlags(string_view const Flags)
 	return StringToFlags(Flags, ColorFlagNames);
 }
 
-static FarColor s_ResolvedIndexColor
+static FarColor s_ResolvedDefaultColor
 {
 	FCF_INDEXMASK,
-	colors::opaque(F_LIGHTGRAY),
-	colors::opaque(F_BLACK),
+	{ opaque(F_LIGHTGRAY) },
+	{ opaque(F_BLACK) },
 };
+
+COLORREF resolve_default(COLORREF Color, bool IsForeground)
+{
+	if (!is_default(Color))
+		return Color;
+
+	const auto ResolvedColor = IsForeground?
+		s_ResolvedDefaultColor.ForegroundColor:
+		s_ResolvedDefaultColor.BackgroundColor;
+
+	return alpha_bits(Color) | color_bits(ResolvedColor);
+}
 
 FarColor resolve_defaults(FarColor const& Color)
 {
@@ -740,14 +770,12 @@ FarColor resolve_defaults(FarColor const& Color)
 
 	if (Result.IsFgDefault())
 	{
-		Result.ForegroundIndex.i = s_ResolvedIndexColor.ForegroundIndex.i;
-		Result.ForegroundIndex.reserved1 = 0;
+		Result.ForegroundColor = alpha_bits(Result.ForegroundColor) | color_bits(s_ResolvedDefaultColor.ForegroundColor);
 	}
 
 	if (Result.IsBgDefault())
 	{
-		Result.BackgroundIndex.i = s_ResolvedIndexColor.BackgroundIndex.i;
-		Result.BackgroundIndex.reserved1 = 0;
+		Result.BackgroundColor = alpha_bits(Result.BackgroundColor) | color_bits(s_ResolvedDefaultColor.BackgroundColor);
 	}
 
 	return Result;
@@ -757,10 +785,10 @@ FarColor unresolve_defaults(FarColor const& Color)
 {
 	auto Result = Color;
 
-	if (Result.IsFgIndex() && Result.ForegroundIndex.i == s_ResolvedIndexColor.ForegroundIndex.i)
+	if (single_color::foreground(Result) == single_color::foreground(s_ResolvedDefaultColor))
 		Result.SetFgDefault();
 
-	if (Result.IsBgIndex() && Result.BackgroundIndex.i == s_ResolvedIndexColor.BackgroundIndex.i)
+	if (single_color::background(Result) == single_color::background(s_ResolvedDefaultColor))
 		Result.SetBgDefault();
 
 	return Result;
@@ -768,13 +796,18 @@ FarColor unresolve_defaults(FarColor const& Color)
 
 constexpr auto default_color_bit = bit(23);
 
+COLORREF default_colorref()
+{
+	return opaque(default_color_bit);
+}
+
 FarColor default_color()
 {
 	return
 	{
 		FCF_INDEXMASK | FCF_INHERIT_STYLE,
-		opaque(default_color_bit),
-		opaque(default_color_bit),
+		{ default_colorref() },
+		{ default_colorref() },
 	};
 }
 
@@ -785,8 +818,7 @@ bool is_default(COLORREF const Color)
 
 void store_default_color(FarColor const& Color)
 {
-	assert(flags::check_all(Color.Flags, FCF_INDEXMASK));
-	s_ResolvedIndexColor = Color;
+	s_ResolvedDefaultColor = Color;
 }
 }
 
@@ -853,9 +885,6 @@ TEST_CASE("colors.default")
 
 	REQUIRE(Color.ForegroundColor == 0xFF800000);
 	REQUIRE(Color.ForegroundColor == 0xFF800000);
-
-	REQUIRE((Color.Flags & FCF_INDEXMASK) == FCF_INDEXMASK);
-
 }
 
 TEST_CASE("colors.merge")

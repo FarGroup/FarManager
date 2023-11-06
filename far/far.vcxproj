@@ -461,48 +461,14 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="xlat.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="farcolor.hpp">
+    <CustomBuild Include="farcolor.hpp;plugin.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
-      <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>Include\%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="plugin.hpp">
-      <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\%(Identity)</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CopyFileToFolders Include="Far.exe.example.ini" />
-    <CustomBuild Include="copyright.inc.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="Far.exe.manifest.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="far.rc.inc.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="farlang.templ.m4">
-      <FileType>Document</FileType>
-      <Message>Compiling %(Identity)...</Message>
-      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
-      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="farversion.inc.m4">
+    <CustomBuild Include="copyright.inc.m4;Far.exe.manifest.m4;far.rc.inc.m4;farlang.templ.m4;farversion.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
       <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
@@ -535,14 +501,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
     </MASM>
     <CopyFileToFolders Include="changelog" />
-    <None Include="Far.ico" />
-    <None Include="Far.black.ico" />
-    <None Include="Far.hack.ico" />
-    <None Include="Far.mono.ico" />
-    <None Include="Far.msg.ico" />
+    <None Include="*.ico" />
     <None Include="far.natjmc" />
-    <None Include="Far.red.ico" />
-    <None Include="Far.log.ico" />
     <None Include="farversion.m4" />
     <None Include="headers.m4" />
     <None Include="vbuild.m4" />

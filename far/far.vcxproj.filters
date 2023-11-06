@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Dependencies">
       <UniqueIdentifier>{ee8269df-ee5e-4cb1-b5e2-41705afcbbb0}</UniqueIdentifier>
@@ -1176,25 +1176,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Far.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.black.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.hack.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.mono.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.msg.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.red.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Far.log.ico">
+    <None Include="*.ico">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="farversion.m4">
@@ -1217,32 +1199,17 @@
     <CustomBuild Include="$(BootstrapDir)farlang.templ">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="copyright.inc.m4">
+    <CustomBuild Include="copyright.inc.m4;Far.exe.manifest.m4;far.rc.inc.m4;farlang.templ.m4;farversion.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
-    <CustomBuild Include="Far.exe.manifest.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="far.rc.inc.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farcolor.hpp">
+    <CustomBuild Include="farcolor.hpp;plugin.hpp">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farlang.templ.m4">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="farversion.inc.m4">
-      <Filter>Dependencies</Filter>
     </CustomBuild>
     <CustomBuild Include="File_id.diz.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
     <CustomBuild Include="*.hlf.m4">
       <Filter>Dependencies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="plugin.hpp">
-      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="api_test.c">
       <Filter>Source Files</Filter>

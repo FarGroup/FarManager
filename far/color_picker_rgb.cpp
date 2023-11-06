@@ -201,6 +201,9 @@ struct color_rgb_state
 	{
 		CurColor = colors::to_color(RGB);
 	}
+
+	intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
 };
 
 static rgb cube_rgb(cube const& Cube, uint8_t const x, uint8_t const y, uint8_t const z, bool const IsZoomed)
@@ -401,10 +404,8 @@ static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 	Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 }
 
-static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	auto& ColorState = edit_as<color_rgb_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-
 	switch (Msg)
 	{
 	case DN_CTLCOLORDLGITEM:
@@ -413,14 +414,14 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
-				const auto RGB = cube_rgb(ColorState, Param1 - cd_cube_first, true);
+				const auto RGB = cube_rgb(*this, Param1 - cd_cube_first, true);
 				Colors.Colors[0] = TrueColorToFarColorDistinct(colors::to_color(RGB));
 				return true;
 			}
 
 			if (in_closed_range(cd_custom_first, Param1, cd_custom_last))
 			{
-				Colors.Colors[0] = TrueColorToFarColorDistinct(ColorState.CustomColors[Param1 - cd_custom_first]);
+				Colors.Colors[0] = TrueColorToFarColorDistinct(CustomColors[Param1 - cd_custom_first]);
 				return true;
 			}
 
@@ -429,7 +430,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_text_rgb:
 				{
 					// Foreground color is irrelevant
-					Colors.Colors[0] = TrueColorToFarColor(ColorState.CurColor);
+					Colors.Colors[0] = TrueColorToFarColor(CurColor);
 					return true;
 				}
 
@@ -438,7 +439,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_text_b:
 				{
 					const auto Context = get_rgb_context<rgb>(Item);
-					auto RGB = ColorState.as_rgb();
+					auto RGB = as_rgb();
 					auto& Channel = std::invoke(Context.Channel, RGB);
 					const auto SavedValue = Channel;
 					RGB = {};
@@ -456,54 +457,54 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	case DN_BTNCLICK:
 		{
 			const auto Button = static_cast<color_rgb_dialog_items>(Param1);
-			if (on_button_click(Dlg, Button, ColorState))
+			if (on_button_click(Dlg, Button, *this))
 				return true;
 
 			if (Param2 && in_closed_range(cd_cube_first, Button, cd_cube_last))
 			{
-				ColorState.Cube.Index = Button - cd_cube_first;
-				const auto RGB = cube_rgb(ColorState, ColorState.Cube.Index);
-				ColorState.from_rgb(RGB);
+				Cube.Index = Button - cd_cube_first;
+				const auto RGB = cube_rgb(*this, Cube.Index);
+				from_rgb(RGB);
 				update_rgb_control<color_rgb_state>(Dlg, RGB);
 				return true;
 			}
 
 			if (Param2 && in_closed_range(cd_custom_first, Button, cd_custom_last))
 			{
-				ColorState.CustomIndex = Button - cd_custom_first;
-				ColorState.CurColor = ColorState.CustomColors[*ColorState.CustomIndex];
-				update_rgb_control<color_rgb_state>(Dlg, ColorState.as_rgb());
+				CustomIndex = Button - cd_custom_first;
+				CurColor = CustomColors[*CustomIndex];
+				update_rgb_control<color_rgb_state>(Dlg, as_rgb());
 				return true;
 			}
 
 			switch (Button)
 			{
 			case cd_button_home:
-				init_cube(ColorState);
-				ColorState.Cube.Slice = 0;
+				init_cube(*this);
+				Cube.Slice = 0;
 				Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 				return true;
 
 			case cd_button_zoom:
-				zoom(Dlg, ColorState);
+				zoom(Dlg, *this);
 				return true;
 
 			case cd_button_system:
 				{
-					const auto SavedColor = ColorState.CurColor;
-					const auto SavedCustomColors = ColorState.CustomColors;
+					const auto SavedColor = CurColor;
+					const auto SavedCustomColors = CustomColors;
 
-					if (!pick_color_rgb_gui(ColorState.CurColor, ColorState.CustomColors))
+					if (!pick_color_rgb_gui(CurColor, CustomColors))
 						return true;
 
-					if (ColorState.CurColor != SavedColor)
+					if (CurColor != SavedColor)
 					{
-						update_rgb_control<color_rgb_state>(Dlg, ColorState.as_rgb());
+						update_rgb_control<color_rgb_state>(Dlg, as_rgb());
 					}
 
-					if (ColorState.CustomColors != SavedCustomColors)
+					if (CustomColors != SavedCustomColors)
 					{
-						const auto Range = zip(SavedCustomColors, ColorState.CustomColors, irange(std::size(SavedCustomColors)));
+						const auto Range = zip(SavedCustomColors, CustomColors, irange(std::size(SavedCustomColors)));
 						const auto Changed = [](auto const Old, auto const New, auto){ return Old != New; };
 						const auto Index = [](auto, auto, auto i){ return i; };
 
@@ -518,12 +519,12 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_button_save:
 				{
 					uint8_t Index = 0;
-					if (ColorState.CustomIndex)
-						Index = *ColorState.CustomIndex;
-					else if (const auto Iterator = std::find(ALL_CONST_RANGE(ColorState.CustomColors), RGB(255, 255, 255)); Iterator != std::cend(ColorState.CustomColors))
-						Index = Iterator - std::cbegin(ColorState.CustomColors);
+					if (CustomIndex)
+						Index = *CustomIndex;
+					else if (const auto Iterator = std::find(ALL_CONST_RANGE(CustomColors), RGB(255, 255, 255)); Iterator != std::cend(CustomColors))
+						Index = Iterator - std::cbegin(CustomColors);
 
-					ColorState.CustomColors[Index] = ColorState.CurColor;
+					CustomColors[Index] = CurColor;
 					Dlg->SendMessage(DM_SHOWITEM, Index, ToPtr(1));
 					return true;
 				}
@@ -538,13 +539,13 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			Dlg->SendMessage(DM_SETCHECK, cd_cube_first, ToPtr(BSTATE_3STATE));
 
-			const auto& Plane = ColorState.Cube.Cube[ColorState.Cube.Slice];
+			const auto& Plane = Cube.Cube[Cube.Slice];
 			for (const auto& Line: Plane)
 			{
 				for (const auto& Point: Line)
 				{
 					const auto Index = &Point - &Plane[0][0];
-					if (colors::to_color(cube_rgb(ColorState, Index)) == ColorState.CurColor)
+					if (colors::to_color(cube_rgb(*this, Index)) == CurColor)
 					{
 						Dlg->SendMessage(DM_SETCHECK, cd_cube_first + Index, ToPtr(BSTATE_CHECKED));
 						break;
@@ -687,7 +688,7 @@ static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLO
 			ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &ColorState);
+	const auto Dlg = Dialog::create(ColorDlg, &color_rgb_state::GetColorDlgProc, &ColorState);
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[cd_border].X2) + 4,

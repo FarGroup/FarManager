@@ -65,6 +65,18 @@ namespace colors
 			grey_count = grey_last - grey_first + 1;
 	}
 
+	struct single_color
+	{
+		COLORREF Value{};
+		bool IsIndex{};
+
+		bool operator==(single_color const&) const = default;
+
+		static single_color foreground(FarColor const& Color);
+		static single_color background(FarColor const& Color);
+		static single_color default_color();
+	};
+
 	uint8_t  index_bits(COLORREF Colour);
 	COLORREF color_bits(COLORREF Colour);
 	COLORREF alpha_bits(COLORREF Colour);
@@ -162,8 +174,10 @@ namespace colors
 	[[nodiscard]]
 	unsigned long long ColorStringToFlags(string_view Flags);
 
+	COLORREF resolve_default(COLORREF Color, bool IsForeground);
 	FarColor resolve_defaults(FarColor const& Color);
 	FarColor unresolve_defaults(FarColor const& Color);
+	COLORREF default_colorref();
 	FarColor default_color();
 	bool is_default(COLORREF Color);
 	void store_default_color(FarColor const& Color);

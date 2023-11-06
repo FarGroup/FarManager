@@ -100,14 +100,15 @@ static void invalidate_broken_pairs_in_cache(matrix<FAR_CHAR_INFO>const& Buf, ma
 		&Buf0 = BufRowData[X1X2.first],
 		&Buf1 = BufRowData[X1X2.second];
 
-	std::array Pair{ Buf0, Buf1 };
-	sanitise_pair(Pair[0], Pair[1]);
+	auto Pair0 = Buf0, Pair1 = Buf1;
+	if (sanitise_pair(Pair0, Pair1))
+	{
+		if (Pair0 != Buf0)
+			ShadowRowData[X1X2.first] = {};
 
-	if (Pair[0] != Buf0)
-		ShadowRowData[X1X2.first] = {};
-
-	if (Pair[1] != Buf1)
-		ShadowRowData[X1X2.second] = {};
+		if (Pair1 != Buf1)
+			ShadowRowData[X1X2.second] = {};
+	}
 }
 
 ScreenBuf::ScreenBuf():
@@ -670,11 +671,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 				Shadow = Buf;
 
-				for (const auto& i: WriteList)
-				{
-					console.WriteOutput(Shadow, { i.left, i.top }, i);
-				}
-
+				console.WriteOutputGather(Shadow, WriteList);
 				console.Commit();
 			}
 

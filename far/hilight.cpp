@@ -304,21 +304,19 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 {
 	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
-		if (colors::color_bits(Color.ForegroundColor) || colors::color_bits(Color.BackgroundColor))
+		const auto LegacyUseDefaultPaletteColor =
+			colors::is_opaque(Color.ForegroundColor) && !colors::color_value(Color.ForegroundColor) &&
+			colors::is_opaque(Color.BackgroundColor) && !colors::color_value(Color.BackgroundColor);
+
+		if (!LegacyUseDefaultPaletteColor)
 			return;
 
-		colors::set_color_value(Color.BackgroundColor, Base.BackgroundColor);
-		colors::set_color_value(Color.ForegroundColor, Base.ForegroundColor);
-		flags::copy(Color.Flags, FCF_INDEXMASK, Base.Flags);
-
-		if (Color.Flags & FCF_INHERIT_STYLE)
-			flags::set(Color.Flags, Base.Flags & FCF_STYLEMASK);
+		colors::make_transparent(Color.ForegroundColor);
+		colors::make_transparent(Color.BackgroundColor);
+		Color = colors::merge(Base, Color);
 	};
 
-	//Применим black on black.
-	//Для файлов возьмем цвета панели не изменяя прозрачность.
 	InheritColor(Colors.FileColor, Global->Opt->Palette[PaletteColor]);
-	//Для пометки возьмем цвета файла включая прозрачность.
 	InheritColor(Colors.MarkColor, Colors.FileColor);
 }
 
