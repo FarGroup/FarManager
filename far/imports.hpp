@@ -52,9 +52,6 @@ namespace imports_detail
 
 class imports
 {
-public:
-	imports();
-
 private:
 #define MODULE(MODULE) m_##MODULE{WIDE_SV(#MODULE)}
 

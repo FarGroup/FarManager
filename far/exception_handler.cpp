@@ -306,12 +306,8 @@ static bool write_minidump(const exception_context& Context, string_view const F
 		struct writer_context
 		{
 			DWORD const ThreadId{ GetCurrentThreadId() };
-		}
-		WriterContext;
 
-		MINIDUMP_CALLBACK_INFORMATION Mci
-		{
-			[](void* const Param, MINIDUMP_CALLBACK_INPUT* const Input, MINIDUMP_CALLBACK_OUTPUT*)
+			static BOOL WINAPI callback(void* const Param, MINIDUMP_CALLBACK_INPUT* const Input, MINIDUMP_CALLBACK_OUTPUT*)
 			{
 				const auto& Ctx = *static_cast<writer_context const*>(Param);
 
@@ -319,7 +315,13 @@ static bool write_minidump(const exception_context& Context, string_view const F
 					return FALSE;
 
 				return TRUE;
-			},
+			}
+		}
+		WriterContext;
+
+		MINIDUMP_CALLBACK_INFORMATION Mci
+		{
+			&writer_context::callback,
 			&WriterContext
 		};
 

@@ -105,7 +105,7 @@ namespace os::chrono
 	namespace literals
 	{
 		[[nodiscard]]
-		consteval auto operator"" _hns(unsigned long long const Value) noexcept
+		consteval auto operator""_hns(unsigned long long const Value) noexcept
 		{
 			return hectonanoseconds(Value);
 		}

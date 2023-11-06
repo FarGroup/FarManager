@@ -41,8 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error Visual C++ 2019 Update 16.11.24 (or higher) required
 #elif !CHECK_COMPILER(GCC, 10, 0, 0)
 #error GCC 10.0.0 (or higher) required
-#elif !CHECK_COMPILER(CLANG, 10, 0, 0)
-#error Clang 10.0.0 (or higher) required
+#elif !CHECK_COMPILER(CLANG, 16, 0, 0)
+#error Clang 16.0.0 (or higher) required
 #endif
 
 #ifdef __GNUC__

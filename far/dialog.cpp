@@ -382,9 +382,7 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	{
 		for (const auto& [ItemAuto, SrcItemAuto]: zip(Item.Auto, SrcItem.Auto))
 		{
-			// https://github.com/llvm/llvm-project/issues/54300
-			// TODO: remove once we have it.
-			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&SrcItemAuto = SrcItemAuto](const DialogItemEx& i)
+			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&](const DialogItemEx& i)
 			{
 				return &i == SrcItemAuto.Owner;
 			});

@@ -1112,10 +1112,9 @@ TEST_CASE("range.static")
 		{
 			const auto TestImpl = [](auto& ContainerVersion)
 			{
-				auto Range = range(ContainerVersion);
-
 				const auto TestType = [&](const auto & ContainerGetter, const auto & RangeGetter)
 				{
+					range const Range(ContainerVersion);
 					STATIC_REQUIRE(std::same_as<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
 				};
 

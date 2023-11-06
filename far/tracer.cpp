@@ -60,9 +60,12 @@ static auto format_address(uintptr_t const Value)
 {
 	// It is unlikely that RVAs will be above 4 GiB,
 	// so we can save some screen space here.
-	const auto Width = Value > std::numeric_limits<uint32_t>::max()?
-		width_in_hex_chars<decltype(Value)> :
-		width_in_hex_chars<uint32_t>;
+	const auto Width =
+#ifdef _WIN64
+		Value > std::numeric_limits<uint32_t>::max()?
+			width_in_hex_chars<decltype(Value)> :
+#endif
+			width_in_hex_chars<uint32_t>;
 
 	return far::format(L"{:0{}X}"sv, Value, Width);
 }

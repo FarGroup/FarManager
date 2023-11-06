@@ -53,10 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace imports_detail
 {
-	imports::imports()
-	{
-	}
-
 	void* imports::get_pointer_impl(os::rtdl::module const& Module, const char* Name)
 	{
 		// imports is the lowest level. Everything else depends on it, including logging.

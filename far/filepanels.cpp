@@ -77,6 +77,8 @@ FilePanels::FilePanels(private_tag):
 {
 }
 
+FilePanels::~FilePanels() = default;
+
 filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 {
 	const auto FilePanelsPtr = std::make_shared<FilePanels>(private_tag());

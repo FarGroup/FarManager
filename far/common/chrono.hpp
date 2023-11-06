@@ -74,7 +74,7 @@ private:
 inline namespace literals
 {
 	[[nodiscard]]
-	consteval auto operator"" _d(unsigned long long const Value) noexcept
+	consteval auto operator""_d(unsigned long long const Value) noexcept
 	{
 		return std::chrono::days(Value);
 	}

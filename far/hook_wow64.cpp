@@ -69,6 +69,9 @@ static struct
 }
 Error;
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wmissing-declarations")
+WARNING_DISABLE_CLANG("-Wmissing-prototypes")
 std::pair<string_view, DWORD> get_hook_wow64_error()
 {
 	static const string_view Messages[]
@@ -92,6 +95,7 @@ std::pair<string_view, DWORD> get_hook_wow64_error()
 
 	return { Messages[static_cast<size_t>(Error.Hook)], Error.Win32 };
 }
+WARNING_POP()
 
 static thread_local void* SavedState;
 
@@ -389,7 +393,9 @@ __attribute__((section(".CRT$XLY")))
 
 WARNING_POP()
 
+#if COMPILER(CL)
 // for ulink
 #pragma comment(linker, "/include:_hook_wow64_tlscb")
+#endif
 
 #endif

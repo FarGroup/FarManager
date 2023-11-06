@@ -838,8 +838,8 @@ TEST_CASE("colors.default")
 	FarColor Color
 	{
 		0,
-		0xFFFFFFFF,
-		0xFFFFFFFF,
+		{ 0xFFFFFFFF },
+		{ 0xFFFFFFFF },
 	};
 
 	REQUIRE(!Color.IsFgDefault());

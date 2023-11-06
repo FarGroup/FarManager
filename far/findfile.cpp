@@ -552,9 +552,7 @@ void background_searcher::InitInFileSearch()
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
 					// Проверяем дубли
-					// https://github.com/llvm/llvm-project/issues/54300
-					// TODO: remove once we have it.
-					if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&Name = Name](const CodePageInfo& cp) { return cp.CodePage == Name; }))
+					if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&](const CodePageInfo& cp) { return cp.CodePage == Name; }))
 						m_CodePages.emplace_back(Name);
 				}
 			}

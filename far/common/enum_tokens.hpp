@@ -83,8 +83,7 @@ namespace detail
 		auto& get_opt()
 		{
 			constexpr auto HasOperation = requires { operation<std::tuple_element_t<index + 1, base_type>>(); };
-			// This idiotic cast to std::tuple is for clang
-			return std::get<HasOperation? index + 1 : 0>(static_cast<base_type&>(*this));
+			return std::get<HasOperation? index + 1 : 0>(*this);
 		}
 
 		template<typename T>

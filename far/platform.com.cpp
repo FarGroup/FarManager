@@ -142,10 +142,7 @@ namespace os::com
 				COM_INVOKE(imports.SHCreateAssociationRegistration, (IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR))));
 
 				memory<wchar_t*> Association;
-				// https://github.com/llvm/llvm-project/issues/54300
-				// TODO: remove once we have it.
-				const auto& ExtRef = Ext;
-				COM_INVOKE(AAR->QueryCurrentDefault, (null_terminated(ExtRef).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)));
+				COM_INVOKE(AAR->QueryCurrentDefault, (null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)));
 
 				return Association.get();
 			}

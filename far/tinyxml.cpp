@@ -58,6 +58,7 @@ WARNING_DISABLE_MSC(5262) // implicit fall-through occurs here; are you missing 
 WARNING_DISABLE_GCC("-Wdouble-promotion")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wold-style-cast")
+WARNING_DISABLE_GCC("-Wundef")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 
 WARNING_DISABLE_CLANG("-Weverything")
