@@ -1529,7 +1529,7 @@ WARNING_POP()
 
 					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 
-					if (SubRect.right == csbi.srWindow.Right && i != csbi.srWindow.Bottom - ::GetDelta(csbi))
+					if (SubRect.right == ScrX && i != ScrY)
 					{
 						// Explicitly ending rows with \n should (hopefully) give a hint to the host
 						// that we're writing something structured and not just a stream,
