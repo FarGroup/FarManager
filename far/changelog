@@ -14,6 +14,17 @@ drkns 2023-11-06 18:35:45+00:00 - build 6208
    - Remove outdated workarounds
    - Bump version
 
+3. Clarification of "black on black - default color" logic in Files highlighting:
+   black on black is now considered "default" (or "transparent") only when both
+   foreground and background are fully opaque.
+   If you noticed a sudden black color somewhere where it shouldn't be - make sure
+   that both foreground and background are either fully opaque or fully transparent,
+   either via the UI or:
+   1. export the config
+   2. search for:   background="00000000" foreground="FF000000"
+      replace with: background="00000000" foreground="00000000"
+   3. save and import.
+
 --------------------------------------------------------------------------------
 yjh 2023-11-02 09:24:30+03:00 - build 6207
 
