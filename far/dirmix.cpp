@@ -109,13 +109,6 @@ bool FarChDir(string_view const NewDir)
 
 	const auto IsNetworkPath = PathType == root_type::remote || PathType == root_type::unc_remote;
 
-	std::optional<elevation::suppress> NoElevation;
-
-	// It's usually useless over the network anyway
-	// TODO: a more generic/common way
-	if (IsNetworkPath)
-		NoElevation.emplace();
-
 	if (os::fs::set_current_directory(Directory))
 	{
 		set_drive_env_curdir(Directory);
