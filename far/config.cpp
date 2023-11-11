@@ -2266,7 +2266,7 @@ void Options::ReadSortLayers()
 	for (auto& [Layers, i]: enumerate(PanelSortLayers))
 	{
 		string LayersStr;
-		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), LayersStr))
+		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), LayersStr) && !LayersStr.empty())
 			Layers = deserialise_sort_layers(LayersStr);
 
 		if (Layers.empty())
