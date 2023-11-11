@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2023-11-11 23:43:42+00:00 - build 6210
+
+1. M#4019: restore elevation requests for network paths
+
+2. gh-747: Build 6209 crashes on start with the profile from build 5629.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2023-11-07 01:48:43+00:00 - build 6209
 
 1. Correction of 6204.
