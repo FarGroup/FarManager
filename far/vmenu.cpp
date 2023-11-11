@@ -2288,9 +2288,6 @@ void VMenu::ShowMenu(bool IsParent)
 				if (!Items[I].Annotations.empty())
 				{
 						size_t Pos = 0;
-						FarColor InvColor = CurColor;
-						using std::swap;
-						swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
 						for (const auto& [AnnPos, AnnSize]: Items[I].Annotations)
 						{
 							const int StartOffset = 1; // 1 is '<<' placeholder size

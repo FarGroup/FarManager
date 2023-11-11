@@ -591,7 +591,7 @@ FarColor NtColorToFarColor(WORD Color)
 {
 	return
 	{
-		FCF_INDEXMASK | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
+		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
 		{ opaque(index_bits(Color >> ConsoleFgShift) & index::nt_mask) },
 		{ opaque(index_bits(Color >> ConsoleBgShift) & index::nt_mask) }
 	};
@@ -662,6 +662,9 @@ static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS&
 	{
 		TargetFlags |= SetFlag;
 	}
+
+	if (is_transparent(Target))
+		make_opaque(Target);
 
 	return true;
 }
@@ -883,8 +886,8 @@ TEST_CASE("colors.default")
 	REQUIRE(Color.IsFgDefault());
 	REQUIRE(Color.IsBgDefault());
 
-	REQUIRE(Color.ForegroundColor == 0xFF800000);
-	REQUIRE(Color.ForegroundColor == 0xFF800000);
+	REQUIRE(Color.ForegroundColor == colors::default_colorref());
+	REQUIRE(Color.ForegroundColor == colors::default_colorref());
 }
 
 TEST_CASE("colors.merge")
@@ -918,18 +921,17 @@ TEST_CASE("colors.parser")
 	}
 	ValidTests[]
 	{
-		{ L"()"sv,                { } },
-		{ L"(:)"sv,               { } },
-		{ L"(::)"sv,              { } },
-		{ L"(E)"sv,               { FCF_FG_INDEX, {0xE}, {0} } },
-		{ L"(E)"sv,               { FCF_FG_INDEX, {0xE}, {0} } },
-		{ L"(:F)"sv,              { FCF_BG_INDEX, {0}, {0xF} } },
-		{ L"(B:C)"sv,             { FCF_FG_INDEX | FCF_BG_INDEX, {0xB}, {0xC} } },
-		{ L"(AE)"sv,              { FCF_FG_INDEX, { 0xAE }, { 0 } } },
-		{ L"(:AF)"sv,             { FCF_BG_INDEX, { 0 }, { 0xAF } } },
-		{ L"(AB:AC:blink)"sv,     { FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_BLINK, {0xAB}, {0xAC} } },
-		{ L"(T00CCCC:TE34234)"sv, { 0, {0x00CCCC00}, {0x003442E3} } },
-		{ L"(::bold italic)"sv,   { FCF_FG_BOLD | FCF_FG_ITALIC, {0}, {0} } },
+		{ L"()"sv,    },
+		{ L"(:)"sv,   },
+		{ L"(::)"sv,  },
+		{ L"(E)"sv,               { FCF_FG_INDEX, { 0xFF00000E } } },
+		{ L"(:F)"sv,              { FCF_BG_INDEX, {}, { 0xFF00000F } } },
+		{ L"(B:C)"sv,             { FCF_FG_INDEX | FCF_BG_INDEX, { 0xFF00000B }, { 0xFF00000C } } },
+		{ L"(AE)"sv,              { FCF_FG_INDEX, { 0xFF0000AE } } },
+		{ L"(:AF)"sv,             { FCF_BG_INDEX, {}, { 0xFF0000AF } } },
+		{ L"(AB:AC:blink)"sv,     { FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_BLINK, { 0xFF0000AB }, { 0xFF0000AC } } },
+		{ L"(T00CCCC:TE34234)"sv, { FCF_NONE, { 0xFFCCCC00 }, { 0xFF3442E3 } } },
+		{ L"(::bold italic)"sv,   { FCF_FG_BOLD | FCF_FG_ITALIC } },
 	};
 
 	for (const auto& i: ValidTests)

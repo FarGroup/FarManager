@@ -2582,6 +2582,7 @@ TEST_CASE("console.vt_sequence")
 	};
 
 #define SGR(modes) CSI #modes "m"
+#define VTSTR(str) L"" str ""sv
 
 	{
 		FAR_CHAR_INFO Buffer[]{ def };
@@ -2593,7 +2594,12 @@ TEST_CASE("console.vt_sequence")
 		Buffer[1].Attributes.BackgroundColor = colors::opaque(F_MAGENTA);
 		Buffer[2].Attributes.ForegroundColor = colors::opaque(F_GREEN);
 		Buffer[3].Attributes.Flags |= FCF_FG_BOLD;
-		check(Buffer, L" " SGR(45) L" " SGR(32;49) " " SGR(39;1) " "sv);
+		check(Buffer, VTSTR(
+			" "
+			SGR(45) " "
+			SGR(32;49) " "
+			SGR(39;1) " "
+		));
 	}
 
 	{
@@ -2607,7 +2613,10 @@ TEST_CASE("console.vt_sequence")
 		Buffer[2] = Buffer[1];
 		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_BOLD);
 
-		check(Buffer, SGR(92;44;1) L"  " SGR(22) L" "sv);
+		check(Buffer, VTSTR(
+			SGR(92;44;1) "  "
+			SGR(22) " "
+		));
 	}
 
 	{
@@ -2623,9 +2632,13 @@ TEST_CASE("console.vt_sequence")
 		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE2);
 		flags::set(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE);
 
-		check(Buffer, SGR(92;44;21) L"  " SGR(24;4) L" "sv);
+		check(Buffer, VTSTR(
+			SGR(92;44;21) L"  "
+			SGR(24;4) " "
+		));
 	}
 
+#undef VTSTR
 #undef SGR
 }
 

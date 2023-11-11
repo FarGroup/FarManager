@@ -303,45 +303,49 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 				colors::set_index_value(Element.Attributes.BackgroundColor, F_BLACK) :
 				colors::set_color_value(Element.Attributes.BackgroundColor, 0);
 
-			if (Element.Attributes.IsFgIndex())
+			const auto apply_shadow = [](COLORREF& ColorRef, bool const IsIndex)
 			{
-				const auto Mask = FOREGROUND_INTENSITY;
-				auto ForegroundColor = colors::index_value(Element.Attributes.ForegroundColor);
-
-				if (ForegroundColor <= colors::index::nt_last)
+				if (IsIndex)
 				{
-					if (ForegroundColor != Mask)
-						ForegroundColor &= ~Mask;
-				}
-				else if (ForegroundColor <= colors::index::cube_last)
-				{
-					// Just to stop GCC from complaining about identical branches
-					[[maybe_unused]] constexpr auto Cube = true;
+					auto Color = colors::index_value(ColorRef);
 
-					// Subpar
-					colors::set_index_value(Element.Attributes.ForegroundColor, F_DARKGRAY);
+					if (Color <= colors::index::nt_last)
+					{
+						if (Color == F_LIGHTGRAY)
+							Color = F_DARKGRAY;
+						else if (const auto Mask = FOREGROUND_INTENSITY; Color != Mask)
+							Color &= ~Mask;
+					}
+					else if (Color <= colors::index::cube_last)
+					{
+						colors::rgb6 rgb(Color);
+
+						rgb.r = std::min<uint8_t>(rgb.r, 2);
+						rgb.g = std::min<uint8_t>(rgb.g, 2);
+						rgb.b = std::min<uint8_t>(rgb.b, 2);
+
+						Color = rgb;
+					}
+					else
+					{
+						Color = std::min<uint8_t>(Color, colors::index::grey_first + colors::index::grey_count / 2);
+					}
+
+					colors::set_index_value(ColorRef, Color);
 				}
 				else
 				{
-					// Just to stop GCC from complaining about identical branches
-					[[maybe_unused]] constexpr auto Ramp = true;
+					const auto Mask = 0x808080;
+					auto Color = colors::color_value(ColorRef);
 
-					// Subpar
-					colors::set_index_value(Element.Attributes.ForegroundColor, F_DARKGRAY);
+					if (Color != Mask)
+						Color &= ~Mask;
+
+					colors::set_color_value(ColorRef, Color);
 				}
+			};
 
-				colors::set_index_value(Element.Attributes.ForegroundColor, ForegroundColor);
-			}
-			else
-			{
-				const auto Mask = 0x808080;
-				auto ForegroundColor = colors::color_value(Element.Attributes.ForegroundColor);
-
-				if (ForegroundColor != Mask)
-					ForegroundColor &= ~Mask;
-
-				colors::set_color_value(Element.Attributes.ForegroundColor, ForegroundColor);
-			}
+			apply_shadow(Element.Attributes.ForegroundColor, Element.Attributes.IsFgIndex());
 		}
 		else if (IsTrueColorAvailable)
 		{

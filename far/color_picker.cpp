@@ -93,7 +93,7 @@ static auto color_code(colors::single_color const Color)
 		far::format(L"{:08X}"sv, colors::ARGB2ABGR(Color.Value));
 }
 
-static std::optional<COLORREF> parse_color(string_view const Str, bool const IsIndex)
+static std::optional<COLORREF> parse_color(string_view const Str, bool const IsIndex, bool const IsDefault)
 {
 	if (IsIndex)
 	{
@@ -101,13 +101,22 @@ static std::optional<COLORREF> parse_color(string_view const Str, bool const IsI
 		if (!from_string(Str.substr(0, 2), Alpha, {}, 16))
 			return {};
 
-		unsigned Index;
-		if (!from_string(Str.substr(6, 2), Index, {}, 16))
-			return {};
-
 		COLORREF Result{};
+
+		if (IsDefault)
+		{
+			Result = colors::default_colorref();
+		}
+		else
+		{
+			unsigned Index;
+			if (!from_string(Str.substr(6, 2), Index, {}, 16))
+				return {};
+
+			colors::set_index_value(Result, Index);
+		}
+
 		colors::set_alpha_value(Result, Alpha);
-		colors::set_index_value(Result, Index);
 
 		return Result;
 	}
@@ -270,7 +279,9 @@ struct color_state
 	intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 };
 
-static const auto DM_UPDATECOLORCODE = DM_USER + 1;
+static const auto
+	DM_UPDATECOLORCODE = DM_USER + 1,
+	DM_UPDATEPREVIEW   = DM_USER + 2;
 
 intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -279,7 +290,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 		if (Param1 - Offset == cb::color_default_radio)
 		{
 			auto Color = colors::default_color();
-			if (Offset == cd::fg_first)
+			if (Offset != cd::bg_first)
 				Color.Flags |= FCF_FG_INVERSE;
 
 			return Color;
@@ -351,7 +362,9 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 		if (Param1 - Offset == cb::button_256)
 		{
-			FarColor FakeColor{ .BackgroundColor = CurColor.Value };
+			const auto ResolvedColor = colors::resolve_default(CurColor.Value, Offset != cd::bg_first);
+
+			FarColor FakeColor{ .BackgroundColor = ResolvedColor };
 			FakeColor.SetBgIndex(CurColor.IsIndex);
 
 			if (auto Color = colors::index_value(colors::FarColorToConsole256Color(FakeColor).BackgroundIndex); pick_color_256(Color))
@@ -369,7 +382,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 		if (Param1 - Offset == cb::button_rgb)
 		{
-			const auto ResolvedColor = colors::resolve_default(CurColor.Value, Offset == cd::fg_first);
+			const auto ResolvedColor = colors::resolve_default(CurColor.Value, Offset != cd::bg_first);
 
 			auto Color = colors::color_value(
 				CurColor.IsIndex?
@@ -400,7 +413,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 			if (!std::any_of(Iterator, Iterator.end(), std::iswxdigit))
 				return false;
 
-			const auto ParsedColor = parse_color(Item.Data, CurColor.IsIndex);
+			const auto ParsedColor = parse_color(Item.Data, CurColor.IsIndex, colors::is_default(CurColor.Value));
 			if (!ParsedColor)
 				return false;
 
@@ -464,6 +477,63 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
+#define COLOR_COLUMN(x, y, index) \
+	COLOR_CELL(x + 3 * index, y + 0), \
+	COLOR_CELL(x + 3 * index, y + 1)
+
+#define COLOR_PLANE(column, x, y) \
+	column(x, y,  0), \
+	column(x, y,  1), \
+	column(x, y,  2), \
+	column(x, y,  3), \
+	column(x, y,  4), \
+	column(x, y,  5), \
+	column(x, y,  6), \
+	column(x, y,  7)
+
+static std::optional<size_t> get_control_id(COLORREF const ColorPart, size_t const Offset)
+{
+	if (colors::is_default(ColorPart))
+		return Offset + cb::color_first_radio + colors::index::nt_size;
+
+	const auto Index = colors::index_value(ColorPart);
+	if (Index > colors::index::nt_last)
+		return {};
+
+	return Offset + cb::color_first_radio + control_by_color[Index];
+}
+
+static auto activate_control(COLORREF const Color, span<DialogItemEx> ColorDlgItems, size_t const Offset)
+{
+	const auto ControlId = get_control_id(Color, Offset);
+	if (!ControlId)
+		return false;
+
+	ColorDlgItems[*ControlId].Selected = true;
+	ColorDlgItems[*ControlId].Flags |= DIF_FOCUS;
+	return true;
+}
+
+static void disable_if_needed(COLORREF const Color, span<DialogItemEx> ColorDlgItems, size_t const Offset)
+{
+	if (colors::is_transparent(Color))
+	{
+		for (const auto& i: irange(cb::color_first_radio, cb::color_last_radio + 2))
+		{
+			ColorDlgItems[Offset + i].Flags |= DIF_DISABLE;
+		}
+
+		ColorDlgItems[Offset + cb::colorcode_edit].Flags |= DIF_DISABLE;
+		ColorDlgItems[Offset + cb::colorcode_text].Flags |= DIF_DISABLE;
+		ColorDlgItems[Offset + cb::button_256].Flags |= DIF_DISABLE;
+		ColorDlgItems[Offset + cb::button_rgb].Flags |= DIF_DISABLE;
+	}
+	else
+	{
+		ColorDlgItems[Offset + cb::color_active_checkbox].Selected = BSTATE_CHECKED;
+	}
+};
+
 intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
@@ -512,14 +582,20 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 
 		break;
 
-	case DM_UPDATECOLORCODE:
-		if (delegate_proc(Dlg, Msg, Param1, Param2))
+	case DM_UPDATEPREVIEW:
 		{
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 			for (const auto& i : irange(cd::sample_text_first, cd::sample_text_last + 1))
 			{
 				Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(1));
 			}
+			return TRUE;
+		}
+
+	case DM_UPDATECOLORCODE:
+		if (delegate_proc(Dlg, Msg, Param1, Param2))
+		{
+			Dlg->SendMessage(DM_UPDATEPREVIEW, 0, {});
 			return TRUE;
 		}
 		return FALSE;
@@ -566,20 +642,6 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_TEXT,        {{Fg4X, Fg4Y}, {0, Fg4Y}}, DIF_NONE, msg(lng::MSetColorForeground), },
 		{ DI_CHECKBOX,    {{Fg4X, Fg4Y}, {0, Fg4Y}}, DIF_NONE, msg(lng::MSetColorForeground), },
 
-#define COLOR_COLUMN(x, y, index) \
-	COLOR_CELL(x + 3 * index, y + 0), \
-	COLOR_CELL(x + 3 * index, y + 1)
-
-#define COLOR_PLANE(column, x, y) \
-		column(x, y,  0), \
-		column(x, y,  1), \
-		column(x, y,  2), \
-		column(x, y,  3), \
-		column(x, y,  4), \
-		column(x, y,  5), \
-		column(x, y,  6), \
-		column(x, y,  7)
-
 		COLOR_PLANE(COLOR_COLUMN, Fg4X, Fg4Y + 1),
 		COLOR_CELL(Fg4X, Fg4Y + 3),
 		{ DI_TEXT, { { Fg4X + 4, Fg4Y + 3 }, { 0, Fg4Y + 3 } }, DIF_NONE, msg(lng::MSetColorForegroundDefault) },
@@ -595,9 +657,6 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		COLOR_PLANE(COLOR_COLUMN, Bg4X, Bg4Y + 1),
 		COLOR_CELL(Bg4X, Bg4Y + 3),
 		{ DI_TEXT, { { Bg4X + 4, Bg4Y + 3 }, { 0, Bg4Y + 3 } }, DIF_NONE, msg(lng::MSetColorBackgroundDefault) },
-
-#undef COLOR_PLANE
-#undef COLOR_COLUMN
 
 		{ DI_TEXT,        {{30, 7 }, {0,  7 }}, DIF_NONE, msg(Color.IsBgIndex()? Color.IsBgDefault()? lng::MSetColorBackDefault : lng::MSetColorBackIndex : lng::MSetColorBackAARRGGBB) },
 		{ DI_FIXEDIT,     {{30, 8 }, {37, 8 }}, DIF_MASKEDIT, },
@@ -668,34 +727,11 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		ForegroundColorControlActivated = false,
 		BackgroundColorControlActivated = false;
 
-	const auto get_control_id = [&](COLORREF const ColorPart, size_t const Offset) -> std::optional<size_t>
-	{
-		if (colors::is_default(ColorPart))
-			return Offset + cb::color_first_radio + colors::index::nt_size;
-
-		const auto Index = colors::index_value(ColorPart);
-		if (Index > colors::index::nt_last)
-			return {};
-
-		return Offset + cb::color_first_radio + control_by_color[Index];
-	};
-
-	const auto activate_control = [&](COLORREF const ColorPart, size_t const Offset)
-	{
-		const auto ControlId = get_control_id(ColorPart, Offset);
-		if (!ControlId)
-			return false;
-
-		ColorDlg[*ControlId].Selected = true;
-		ColorDlg[*ControlId].Flags |= DIF_FOCUS;
-		return true;
-	};
-
 	if (Color.IsFgIndex())
-		ForegroundColorControlActivated = activate_control(Color.ForegroundColor, cd::fg_first);
+		ForegroundColorControlActivated = activate_control(Color.ForegroundColor, ColorDlg, cd::fg_first);
 
 	if (Color.IsBgIndex())
-		BackgroundColorControlActivated = activate_control(Color.BackgroundColor, cd::bg_first);
+		BackgroundColorControlActivated = activate_control(Color.BackgroundColor, ColorDlg, cd::bg_first);
 
 	if (!ForegroundColorControlActivated && !BackgroundColorControlActivated)
 		ColorDlg[fg_item(cb::colorcode_edit)].Flags |= DIF_FOCUS;
@@ -710,28 +746,8 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		ColorDlg[fg_item(cb::color_text)].Flags |= DIF_HIDDEN | DIF_DISABLE;
 		ColorDlg[bg_item(cb::color_text)].Flags |= DIF_HIDDEN | DIF_DISABLE;
 
-		const auto disable_if_needed = [&](size_t const Offset)
-		{
-			if (colors::is_transparent(Offset == cd::fg_first? Color.ForegroundColor : Color.BackgroundColor))
-			{
-				for (const auto& i: irange(cb::color_first_radio, cb::color_last_radio + 2))
-				{
-					ColorDlg[Offset + i].Flags |= DIF_DISABLE;
-				}
-
-				ColorDlg[Offset + cb::colorcode_edit].Flags |= DIF_DISABLE;
-				ColorDlg[Offset + cb::colorcode_text].Flags |= DIF_DISABLE;
-				ColorDlg[Offset + cb::button_256].Flags |= DIF_DISABLE;
-				ColorDlg[Offset + cb::button_rgb].Flags |= DIF_DISABLE;
-			}
-			else
-			{
-				ColorDlg[Offset + cb::color_active_checkbox].Selected = BSTATE_CHECKED;
-			}
-		};
-
-		disable_if_needed(cd::fg_first);
-		disable_if_needed(cd::bg_first);
+		disable_if_needed(Color.ForegroundColor, ColorDlg, cd::fg_first);
+		disable_if_needed(Color.BackgroundColor, ColorDlg, cd::bg_first);
 	}
 	else
 	{
@@ -775,3 +791,6 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 
 	}
 }
+
+#undef COLOR_PLANE
+#undef COLOR_COLUMN
