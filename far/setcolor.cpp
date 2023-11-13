@@ -104,13 +104,45 @@ enum list_mode
 	list_modes_count
 };
 
+struct color_item;
+
+class color_item_span
+{
+public:
+	constexpr color_item_span() = default;
+
+	template<size_t N>
+	explicit(false) constexpr color_item_span(color_item const (&Items)[N]):
+		data(Items),
+		size(N)
+	{
+	}
+
+	constexpr bool empty() const
+	{
+		return !size;
+	}
+
+	constexpr operator span<color_item const>() const;
+
+private:
+	color_item const* data{};
+	size_t size{};
+};
+
 struct color_item
 {
 	lng LngId;
 	PaletteColors Color;
-	span<const color_item> SubColor;
+	// libc++ decided to follow the standard literally and prohibit incomplete types in spans :(
+	color_item_span SubColor;
 	PaletteColors const* BottomColor;
 };
+
+constexpr color_item_span::operator span<color_item const>() const
+{
+	return { data, data + size };
+}
 
 static void SetItemColors(span<const color_item> const Items, point Position = {})
 {
