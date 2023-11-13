@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-dotnet@v3
         with:
@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         if: matrix.build == 'msbuild_cl_x64_debug'
@@ -124,7 +124,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         if: matrix.build == 'nmake_cl_x64_debug'
@@ -179,18 +179,22 @@ jobs:
                  mingw_gcc_x64_debug,
                  mingw_gcc_x64_release,
                  mingw_clang_x64_debug,
-                 mingw_clang_x64_release
+                 mingw_clang_x64_release,
+                 mingw_llvm_x64_debug,
+                 mingw_llvm_x64_release
                ]
 
         include:
           - { build: mingw_gcc_x64_debug,     compiler: mingw_gcc,   arch: amd64, build_config: Debug }
           - { build: mingw_gcc_x64_release,   compiler: mingw_gcc,   arch: amd64, build_config: Release }
-          - { build: mingw_clang_x64_Debug,   compiler: mingw_clang, arch: amd64, build_config: Debug }
-          - { build: mingw_clang_x64_Release, compiler: mingw_clang, arch: amd64, build_config: Release }
+          - { build: mingw_clang_x64_debug,   compiler: mingw_clang, arch: amd64, build_config: Debug }
+          - { build: mingw_clang_x64_release, compiler: mingw_clang, arch: amd64, build_config: Release }
+          - { build: mingw_llvm_x64_debug,    compiler: mingw_llvm,  arch: amd64, build_config: Debug }
+          - { build: mingw_llvm_x64_release,  compiler: mingw_llvm,  arch: amd64, build_config: Release }
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         if: matrix.build == 'mingw_gcc_x64_debug'
@@ -247,6 +251,34 @@ jobs:
         working-directory: plugins
         shell: msys2 {0}
         run: |
+          clang --version
+          make -j4 CLANG=1 -f makefile_all_gcc
+
+      - name: Install llvm x64
+        id: install_llvm_x64
+        if: matrix.compiler  == 'mingw_llvm'
+        uses: robinraju/release-downloader@v1.8
+        with:
+          repository: "mstorsjo/llvm-mingw"
+          latest: true
+          fileName: "llvm-mingw-*-msvcrt-x86_64.zip"
+          extract: true
+
+      - name: Build Far (llvm)
+        if: matrix.compiler  == 'mingw_llvm'
+        working-directory: far
+        shell: cmd
+        run: |
+          set path=${{github.workspace}}\llvm-mingw-${{steps.install_llvm_x64.outputs.tag_name}}-msvcrt-x86_64\bin;%path%
+          clang --version
+          make -j4 CLANG=1 -f makefile_gcc
+
+      - name: Build plugins (llvm)
+        if: matrix.compiler  == 'mingw_llvm'
+        working-directory: plugins
+        shell: cmd
+        run: |
+          set path=${{github.workspace}}\llvm-mingw-${{steps.install_llvm_x64.outputs.tag_name}}-msvcrt-x86_64\bin;%path%
           clang --version
           make -j4 CLANG=1 -f makefile_all_gcc
 
