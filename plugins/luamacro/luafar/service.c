@@ -5986,7 +5986,6 @@ static int far_ColorDialog(lua_State *L)
 	UINT64 Flags;
 	struct FarColor Color;
 	TPluginData *pd = GetPluginData(L);
-	int istable = lua_istable(L, 1);
 
 	if(!GetFarColor(L, 1, &Color))
 	{
@@ -5998,10 +5997,7 @@ static int far_ColorDialog(lua_State *L)
 	Flags = OptFlags(L, 2, 0);
 
 	if(pd->Info->ColorDialog(pd->PluginId, Flags, &Color))
-	{
-		if(istable) PushFarColor(L, &Color);
-		else lua_pushnumber(L, Color.Foreground.ForegroundColor | (Color.Background.BackgroundColor << 4));
-	}
+		PushFarColor(L, &Color);
 	else
 		lua_pushnil(L);
 

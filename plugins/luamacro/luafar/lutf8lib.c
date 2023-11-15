@@ -1831,16 +1831,18 @@ static int Lutf8_normalize_nfc(lua_State *L) {
   return 2;
 
 build_string:
-  /* We will need to build a new string, this one is not NFC */
-  luaL_Buffer buff;
-  luaL_buffinit(L, &buff);
-  luaL_addlstring(&buff, s, starter_p - s);
+  {
+    /* We will need to build a new string, this one is not NFC */
+    luaL_Buffer buff;
+    luaL_buffinit(L, &buff);
+    luaL_addlstring(&buff, s, starter_p - s);
 
-  string_to_nfc(L, &buff, starter_p, e);
+    string_to_nfc(L, &buff, starter_p, e);
 
-  luaL_pushresult(&buff);
-  lua_pushboolean(L, 0);
-  return 2;
+    luaL_pushresult(&buff);
+    lua_pushboolean(L, 0);
+    return 2;
+  }
 }
 
 /* lua module import interface */

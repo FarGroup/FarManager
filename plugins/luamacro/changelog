@@ -1,3 +1,8 @@
+shmuel 2023-11-15 20:40:58+02:00 - build 787
+
+1. LuaFAR: far.ColorDialog() always returns a table --> an API change.
+   (Previously it returned a table or an integer depending on its argument).
+
 shmuel 2023-10-28 01:13:50+03:00 - build 786
 
 1. Fix build 784

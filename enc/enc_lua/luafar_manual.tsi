@@ -2833,7 +2833,7 @@ lv=2
 dt=Text
 nm=far.ColorDialog
 ctime=3511465011
-mtime=3602277807
+mtime=3909242213
 <article>
 #_OutColor = far.ColorDialog (InColor, Flags)
 #_
@@ -2842,10 +2842,7 @@ mtime=3602277807
 #_  Flags:    flags (optional)
 #_
 #_**Returns:**
-#_  OutColor: table `tFarColor`, integer, or nil
-#_
-#_**Note:**
-#_  Type of *OutColor* is the same as that of *InColor*.
+#_  OutColor: table `tFarColor`, or nil
 #_
 #_**Far API used:**
 #_  ColorDialog
