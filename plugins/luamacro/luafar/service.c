@@ -4381,39 +4381,50 @@ static int far_LStrnicmp(lua_State *L)
 //   @Flags: PN_SKIPPATH, PN_SHOWERRORMESSAGE
 //   @Size: integer 0...0xFFFF
 //   @Result: boolean
-static int far_ProcessName(lua_State *L)
+static int _ProcessName (lua_State *L, int Op)
 {
-	UINT64 Op = CheckFlags(L,1);
-	const wchar_t* Mask = check_utf8_string(L,2,NULL);
-	const wchar_t* Name = (Op==PN_CHECKMASK) ? L"" : check_utf8_string(L,3,NULL);
-	UINT64 Flags = OptFlags(L,4,0);
+  struct FarStandardFunctions *FSF = GetPluginData(L)->FSF;
 
-	if(Op == PN_CMPNAME || Op == PN_CMPNAMELIST || Op == PN_CHECKMASK)
-	{
-		size_t result = GetPluginData(L)->FSF->ProcessName(Mask, (wchar_t*)Name, 0, Op|Flags);
-		lua_pushboolean(L, result != 0);
+	int pos2=2, pos3=3, pos4=4;
+	if (Op == -1)
+		Op = CheckFlags(L, 1);
+	else {
+		--pos2, --pos3, --pos4;
+		if (Op == PN_CHECKMASK)
+			--pos4;
 	}
-	else if(Op == PN_GENERATENAME)
-	{
-		UINT64 Size = luaL_optinteger(L,5,0) & 0xFFFF;
-		size_t result;
-		wchar_t* buf;
-		size_t len = wcslen(Mask), len2 = wcslen(Name), bufsize;
+	const wchar_t* Mask = check_utf8_string(L, pos2, NULL);
+	const wchar_t* Name = (Op == PN_CHECKMASK) ? L"" : check_utf8_string(L, pos3, NULL);
+	int Flags = Op | OptFlags(L, pos4, 0);
 
-		if(len < len2) len = len2;
+	if(Op == PN_CMPNAME || Op == PN_CMPNAMELIST || Op == PN_CHECKMASK) {
+		int result = FSF->ProcessName(Mask, (wchar_t*)Name, 0, Flags);
+		lua_pushboolean(L, result);
+	}
+	else if (Op == PN_GENERATENAME) {
+		UINT64 Size = luaL_optinteger(L, pos4+1, 0) & 0xFFFF;
+		const int BUFSIZE = 1024;
+		wchar_t* buf = (wchar_t*)lua_newuserdata(L, BUFSIZE * sizeof(wchar_t));
+		wcsncpy(buf, Mask, BUFSIZE-1);
+		buf[BUFSIZE-1] = 0;
 
-		bufsize = len < 1024 ? 1024 : len+1;
-		buf = (wchar_t*)lua_newuserdata(L, bufsize * sizeof(wchar_t));
-		wcsncpy(buf, Mask, bufsize-1);
-		buf[bufsize-1] = 0;
-		result = GetPluginData(L)->FSF->ProcessName(Name, buf, bufsize, Op|Flags|Size);
-		result ? (void)push_utf8_string(L, buf, -1) : lua_pushboolean(L, 0);
+		int result = FSF->ProcessName(Name, buf, BUFSIZE, Flags|Size);
+		if (result)
+			push_utf8_string(L, buf, -1);
+		else
+			lua_pushboolean(L, result);
 	}
 	else
-		lua_pushboolean(L, 0);
+		luaL_argerror(L, 1, "command not supported");
 
 	return 1;
 }
+
+static int far_ProcessName  (lua_State *L) { return _ProcessName(L, -1);              }
+static int far_CmpName      (lua_State *L) { return _ProcessName(L, PN_CMPNAME);      }
+static int far_CmpNameList  (lua_State *L) { return _ProcessName(L, PN_CMPNAMELIST);  }
+static int far_CheckMask    (lua_State *L) { return _ProcessName(L, PN_CHECKMASK);    }
+static int far_GenerateName (lua_State *L) { return _ProcessName(L, PN_GENERATENAME); }
 
 static int far_GetReparsePointInfo(lua_State *L)
 {
@@ -6471,6 +6482,10 @@ const luaL_Reg far_funcs[] =
 	{"LStricmp",            far_LStricmp},
 	{"LStrnicmp",           far_LStrnicmp},
 	{"ProcessName",         far_ProcessName},
+	{"CmpName",             far_CmpName},
+	{"CmpNameList",         far_CmpNameList},
+	{"CheckMask",           far_CheckMask},
+	{"GenerateName",        far_GenerateName},
 	{"GetPathRoot",         far_GetPathRoot},
 	{"GetReparsePointInfo", far_GetReparsePointInfo},
 	{"LIsAlpha",            far_LIsAlpha},

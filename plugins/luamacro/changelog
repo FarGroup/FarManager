@@ -1,3 +1,7 @@
+shmuel 2023-11-16 19:03:27+02:00 - build 788
+
+1. LuaFAR: add functions far.CheckMask, far.CmpName, far.CmpNameList, far.GenerateName.
+
 shmuel 2023-11-15 20:40:58+02:00 - build 787
 
 1. LuaFAR: far.ColorDialog() always returns a table --> an API change.

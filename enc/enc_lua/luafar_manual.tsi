@@ -7637,6 +7637,82 @@ nm=Far Standard Functions
 </article>
 </node>
 <node>
+id=560
+lv=2
+dt=Text
+nm=far.CheckMask
+ctime=3909321682
+mtime=3909321895
+<article>
+#_Result = far.CheckMask (Mask, Flags)
+#_
+#_**Parameters:**
+#_  Mask:  string
+#_  Flags: flags  (PN_SHOWERRORMESSAGE; default=0)
+#_
+#_**Returns:**
+#_  Result: boolean
+#_
+#_**Far API used:**
+#_  FSF.ProcessName
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=561
+lv=2
+dt=Text
+nm=far.CmpName
+ctime=3909321696
+mtime=3909321862
+<article>
+#_Result = far.CmpName (Mask, Name, Flags)
+#_
+#_**Parameters:**
+#_  Mask:  string
+#_  Name:  string
+#_  Flags: flags  (combination of PN_SKIPPATH, PN_CASEINSENSITIVE
+#_                 and PN_SHOWERRORMESSAGE; default=0)
+#_
+#_**Returns:**
+#_  Result: boolean
+#_
+#_**Far API used:**
+#_  FSF.ProcessName
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=562
+lv=2
+dt=Text
+nm=far.CmpNameList
+ctime=3909321707
+mtime=3909321923
+<article>
+#_Result = far.CmpNameList (Mask, Name, Flags)
+#_
+#_**Parameters:**
+#_  Mask:  string
+#_  Name:  string
+#_  Flags: flags  (combination of PN_SKIPPATH, PN_CASEINSENSITIVE
+#_                 and PN_SHOWERRORMESSAGE; default=0)
+#_
+#_**Returns:**
+#_  Result: boolean
+#_
+#_**Far API used:**
+#_  FSF.ProcessName
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=284
 lv=2
 dt=Text
@@ -7738,6 +7814,31 @@ mtime=3602447969
 #_@@@
 #_{fffs_minsizeindex}: http://api.farmanager.com/ru/fsf/formatfilesize.html#FFFS_MINSIZEINDEX
 #_{formatfilesize}: http://api.farmanager.com/ru/fsf/formatfilesize.html
+#_
+</article>
+</node>
+<node>
+id=563
+lv=2
+dt=Text
+nm=far.GenerateName
+ctime=3909321759
+mtime=3909321979
+<article>
+#_Result = far.GenerateName (Mask, Name, Flags)
+#_
+#_**Parameters:**
+#_  Mask:  string
+#_  Name:  string
+#_  Flags: flags (default=0)
+#_
+#_**Returns:**
+#_  Result: string, or false
+#_
+#_**Far API used:**
+#_  FSF.ProcessName
+#_
+#_@@@
 #_
 </article>
 </node>

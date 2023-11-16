@@ -36,30 +36,6 @@ local function assert_range(val, low, high)
   return true
 end
 
-local function CmpName(mask, name, flags)
-  return far.ProcessName("PN_CMPNAME", mask, name, flags)
-end
-
-far.CmpName = CmpName
-
-local function CmpNameList(mask, name, flags)
-  return far.ProcessName("PN_CMPNAMELIST", mask, name, flags)
-end
-
-far.CmpNameList = CmpNameList
-
-local function GenerateName(mask, name, size)
-  return far.ProcessName("PN_GENERATENAME", mask, name, 0, size)
-end
-
-far.GenerateName = GenerateName
-
-local function CheckMask(mask)
-  return far.ProcessName("PN_CHECKMASK", mask)
-end
-
-far.CheckMask = CheckMask
-
 local MT = {} -- "macrotest", this module
 local F = far.Flags
 local band, bor, bnot = bit64.band, bit64.bor, bit64.bnot
