@@ -1250,6 +1250,8 @@ end
 
 -- N=Panel.Select(panelType,Action[,Mode[,Items]])
 local function Test_Panel_Select()
+  local adir_old = panel.GetPanelDirectory(nil,1) -- store active panel directory
+
   local PS = assert_func(Panel.Select)
   local RM,ADD,INV,RST = 0,1,2,3 -- Action
   local MODE
@@ -1340,6 +1342,8 @@ local function Test_Panel_Select()
   assert_eq(count,PS(0,INV,MODE,mask))
   pi = assert_table(panel.GetPanelInfo(1))
   assert_eq(0, pi.SelectedItemsNumber)
+
+  panel.SetPanelDirectory(nil,1,adir_old) -- restore active panel directory
 end
 
 function MT.test_Panel()
