@@ -103,7 +103,8 @@ function MT.test_areas()
   assert_false (Area.UserMenu)
   assert_false (Area.ShellAutoCompletion)
   assert_false (Area.DialogAutoCompletion)
-  assert_false(Area.Desktop)
+  assert_false (Area.Grabber)
+  assert_false (Area.Desktop)
 end
 
 local function test_mf_akey()
