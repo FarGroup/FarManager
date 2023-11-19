@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6198.0
+Plugin API for Far Manager 3.0.6213.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6198
+#define FARMANAGERVERSION_BUILD 6213
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -68,35 +68,49 @@ typedef GUID UUID;
 #define CP_DEFAULT    ((uintptr_t)-1)
 #define CP_REDETECT   ((uintptr_t)-2)
 
+enum UNDERLINE_STYLE
+{
+	UNDERLINE_NONE   = 0,
+	UNDERLINE_SINGLE = 1,
+	UNDERLINE_DOUBLE = 2,
+	UNDERLINE_CURLY  = 3,
+	UNDERLINE_DOT    = 4,
+	UNDERLINE_DASH   = 5,
+};
+
 typedef unsigned long long FARCOLORFLAGS;
 FAR_INLINE_CONSTANT FARCOLORFLAGS
-	FCF_FG_INDEX      = 0x0000000000000001ULL,
-	FCF_BG_INDEX      = 0x0000000000000002ULL,
-	FCF_INDEXMASK     = 0x0000000000000003ULL, // FCF_FG_INDEX | FCF_BG_INDEX
+	FCF_FG_INDEX           = 0x0000000000000001ULL,
+	FCF_BG_INDEX           = 0x0000000000000002ULL,
+	FCF_FG_UNDERLINE_INDEX = 0x0000000000000008ULL,
+	FCF_INDEXMASK          = 0x000000000000000BULL, // FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_UNDERLINE_INDEX
 
 	// Legacy names, don't use
-	FCF_FG_4BIT       = 0x0000000000000001ULL, // FCF_FG_INDEX
-	FCF_BG_4BIT       = 0x0000000000000002ULL, // FCF_BG_INDEX
-	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_INDEXMASK
+	FCF_FG_4BIT            = 0x0000000000000001ULL, // FCF_FG_INDEX
+	FCF_BG_4BIT            = 0x0000000000000002ULL, // FCF_BG_INDEX
+	FCF_4BITMASK           = 0x000000000000000BULL, // FCF_INDEXMASK
 
-	FCF_INHERIT_STYLE = 0x0000000000000004ULL,
+	FCF_INHERIT_STYLE      = 0x0000000000000004ULL,
 
-	FCF_RAWATTR_MASK  = 0x000000000000FF00ULL, // stored console attributes
+	FCF_RAWATTR_MASK       = 0x000000000000FF00ULL, // stored console attributes
 
-	FCF_FG_BOLD       = 0x1000000000000000ULL,
-	FCF_FG_ITALIC     = 0x2000000000000000ULL,
-	FCF_FG_UNDERLINE  = 0x4000000000000000ULL,
-	FCF_FG_UNDERLINE2 = 0x8000000000000000ULL,
-	FCF_FG_OVERLINE   = 0x0100000000000000ULL,
-	FCF_FG_STRIKEOUT  = 0x0200000000000000ULL,
-	FCF_FG_FAINT      = 0x0400000000000000ULL,
-	FCF_FG_BLINK      = 0x0800000000000000ULL,
-	FCF_FG_INVERSE    = 0x0010000000000000ULL,
-	FCF_FG_INVISIBLE  = 0x0020000000000000ULL,
+	FCF_FG_BOLD            = 0x1000000000000000ULL,
+	FCF_FG_ITALIC          = 0x2000000000000000ULL,
+	FCF_FG_U_DATA0         = 0x4000000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
+	FCF_FG_U_DATA1         = 0x8000000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
+	FCF_FG_OVERLINE        = 0x0100000000000000ULL,
+	FCF_FG_STRIKEOUT       = 0x0200000000000000ULL,
+	FCF_FG_FAINT           = 0x0400000000000000ULL,
+	FCF_FG_BLINK           = 0x0800000000000000ULL,
+	FCF_FG_INVERSE         = 0x0010000000000000ULL,
+	FCF_FG_INVISIBLE       = 0x0020000000000000ULL,
+	FCF_FG_U_DATA2         = 0x0040000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
 
-	FCF_STYLEMASK     = 0xFFF0000000000000ULL,
+	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL,  // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
 
-	FCF_NONE          = 0;
+	FCF_STYLEMASK          = 0xFFF0000000000000ULL,
+
+	FCF_NONE               = 0;
 
 struct rgba
 {
@@ -143,7 +157,17 @@ struct FarColor
 	Background
 #endif
 	;
-	DWORD Reserved[2];
+	union
+	{
+		COLORREF UnderlineColor;
+		struct color_index UnderlineIndex;
+		struct rgba UnderlineRGBA;
+	}
+#ifndef __cplusplus
+	Underline
+#endif
+		;
+	DWORD Reserved;
 
 #ifdef __cplusplus
 	bool operator==(const FarColor& rhs) const
@@ -151,8 +175,8 @@ struct FarColor
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
 			&& BackgroundColor == rhs.BackgroundColor
-			&& Reserved[0] == rhs.Reserved[0]
-			&& Reserved[1] == rhs.Reserved[1];
+			&& UnderlineColor == rhs.UnderlineColor
+			&& Reserved == rhs.Reserved;
 	}
 
 	bool operator!=(const FarColor& rhs) const
@@ -170,6 +194,11 @@ struct FarColor
 		return (Flags & FCF_FG_INDEX) != 0;
 	}
 
+	bool IsUnderlineIndex() const
+	{
+		return (Flags & FCF_FG_UNDERLINE_INDEX) != 0;
+	}
+
 	bool IsBgDefault() const
 	{
 		return IsBgIndex() && ((BackgroundColor & COLORMASK) == 0x00800000);
@@ -178,6 +207,24 @@ struct FarColor
 	bool IsFgDefault() const
 	{
 		return IsFgIndex() && ((ForegroundColor & COLORMASK) == 0x00800000);
+	}
+
+	bool IsUnderlineDefault() const
+	{
+		return IsUnderlineIndex() && ((UnderlineColor & COLORMASK) == 0x00800000);
+	}
+
+	UNDERLINE_STYLE GetUnderline() const
+	{
+		switch (Flags & FCF_FG_UNDERLINE_MASK)
+		{
+		default:                              return UNDERLINE_NONE;
+		case FCF_FG_U_DATA0:                  return UNDERLINE_SINGLE;
+		case FCF_FG_U_DATA1:                  return UNDERLINE_DOUBLE;
+		case FCF_FG_U_DATA1 | FCF_FG_U_DATA0: return UNDERLINE_CURLY;
+		case FCF_FG_U_DATA2:                  return UNDERLINE_DOT;
+		case FCF_FG_U_DATA2 | FCF_FG_U_DATA0: return UNDERLINE_DASH;
+		}
 	}
 
 	FarColor& SetBgIndex(bool Value)
@@ -189,6 +236,12 @@ struct FarColor
 	FarColor& SetFgIndex(bool Value)
 	{
 		Value? Flags |= FCF_FG_INDEX : Flags &= ~FCF_FG_INDEX;
+		return *this;
+	}
+
+	FarColor& SetUnderlineIndex(bool Value)
+	{
+		Value? Flags |= FCF_FG_UNDERLINE_INDEX : Flags &= ~FCF_FG_UNDERLINE_INDEX;
 		return *this;
 	}
 
@@ -205,6 +258,50 @@ struct FarColor
 		SetFgIndex(true);
 		ForegroundColor &= ~COLORMASK;
 		ForegroundColor |= 0x00800000;
+		return *this;
+	}
+
+	FarColor& SetUnderlineDefault()
+	{
+		SetUnderlineIndex(true);
+		UnderlineColor &= ~COLORMASK;
+		UnderlineColor |= 0x00800000;
+		return *this;
+	}
+
+	FarColor& SetUnderline(UNDERLINE_STYLE UnderlineStyle)
+	{
+		Flags &= ~FCF_FG_UNDERLINE_MASK;
+
+		switch (UnderlineStyle)
+		{
+		default:
+		case UNDERLINE_NONE:
+			break;
+
+		case UNDERLINE_SINGLE:
+			Flags |= FCF_FG_U_DATA0;
+			break;
+
+		case UNDERLINE_DOUBLE:
+			Flags |= FCF_FG_U_DATA1;
+			break;
+
+		case UNDERLINE_CURLY:
+			Flags |= FCF_FG_U_DATA1 | FCF_FG_U_DATA0;
+			break;
+
+		case UNDERLINE_DOT:
+			Flags |= FCF_FG_U_DATA2;
+			break;
+
+		case UNDERLINE_DASH:
+			Flags |= FCF_FG_U_DATA2 | FCF_FG_U_DATA0;
+			break;
+
+		// We still have space for 2 styles (21 and 210)
+		}
+
 		return *this;
 	}
 
