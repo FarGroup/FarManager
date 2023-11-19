@@ -862,6 +862,7 @@ void color_to_xml(bytes_view const Blob, tinyxml::XMLElement& e)
 
 	process_color("background", Color.BackgroundColor);
 	process_color("foreground", Color.ForegroundColor);
+	process_color("underline", Color.UnderlineColor);
 
 	if (Color.Flags)
 	{
@@ -882,6 +883,7 @@ FarColor color_from_xml(tinyxml::XMLElement const& e)
 
 	process_color("background", Color.BackgroundColor);
 	process_color("foreground", Color.ForegroundColor);
+	process_color("underline", Color.UnderlineColor);
 
 	if (const auto flags = e.Attribute("flags"))
 	{

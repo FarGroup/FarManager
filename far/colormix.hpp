@@ -74,6 +74,7 @@ namespace colors
 
 		static single_color foreground(FarColor const& Color);
 		static single_color background(FarColor const& Color);
+		static single_color underline(FarColor const& Color);
 		static single_color default_color();
 	};
 

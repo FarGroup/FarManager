@@ -1156,18 +1156,24 @@ protected:
 	static constexpr struct
 	{
 		FARCOLORFLAGS Flags;
-		string_view Normal, Intense, ExtendedColour, Default;
+		string_view Normal, Intense, ExtendedColour, Default, Separator, ExtraSeparator;
+		bool PreferBasicIndex;
 	}
 	ColorsMapping[]
 	{
-		{ FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv, L"39"sv },
-		{ FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv, L"49"sv },
+		// Initially Windows supported only RGB format ";2;R;G;B", ":2::R:G:B" was added much later.
+		// Underline only supports the latter, which seems to be more standard/preferable, but we cannot use it exclusively:
+		// as of Nov 2023 the host that comes with the OS only supports the former.
+		{ FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv, L"39"sv, L";"sv, L""sv,  true  },
+		{ FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv, L"49"sv, L";"sv, L""sv,  true  },
+		{ 0,            L""sv,  L""sv,   L"58"sv, L"59"sv, L":"sv, L":"sv, false },
 	};
 
 	enum class colors_mapping_type
 	{
 		foreground,
 		background,
+		underline,
 	};
 
 	static constexpr struct
@@ -1179,8 +1185,6 @@ protected:
 	{
 		{ FCF_FG_BOLD,         L"1"sv,     L"22"sv },
 		{ FCF_FG_ITALIC,       L"3"sv,     L"23"sv },
-		{ FCF_FG_UNDERLINE,    L"4"sv,     L"24"sv },
-		{ FCF_FG_UNDERLINE2,   L"21"sv,    L"24"sv },
 		{ FCF_FG_OVERLINE,     L"53"sv,    L"55"sv },
 		{ FCF_FG_STRIKEOUT,    L"9"sv,     L"29"sv },
 		{ FCF_FG_FAINT,        L"2"sv,     L"22"sv },
@@ -1189,9 +1193,15 @@ protected:
 		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
 	};
 
-	static const size_t UnderlineIndex = 2;
-	static_assert(StyleMapping[UnderlineIndex].Style == FCF_FG_UNDERLINE);
-	static_assert(StyleMapping[UnderlineIndex + 1].Style == FCF_FG_UNDERLINE2);
+	static constexpr string_view UnderlineStyleMapping[]
+	{
+		L"24"sv,  // UNDERLINE_NONE
+		L"4"sv,   // UNDERLINE_SINGLE
+		L"21"sv,  // UNDERLINE_DOUBLE
+		L"4:3"sv, // UNDERLINE_CURLY
+		L"4:4"sv, // UNDERLINE_DOT
+		L"4:5"sv, // UNDERLINE_DASH
+	};
 
 	static void make_vt_color(colors::single_color const Color, colors_mapping_type const MappingType, string& Str)
 	{
@@ -1201,22 +1211,20 @@ protected:
 		{
 			if (colors::is_default(Color.Value))
 				append(Str, Mapping.Default);
-			else if (const auto Index = vt_color_index(colors::index_value(Color.Value)); Index < colors::index::nt_size)
+			else if (const auto Index = vt_color_index(colors::index_value(Color.Value)); Index < colors::index::nt_size && Mapping.PreferBasicIndex)
 				append(Str, Color.Value & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + (Index & 0b111)));
 			else
-				far::format_to(Str, L"{};5;{}"sv, Mapping.ExtendedColour, Index);
+				far::format_to(Str, L"{1}{0}5{0}{2}"sv, Mapping.Separator, Mapping.ExtendedColour, Index);
 		}
 		else
 		{
 			const auto RGBA = colors::to_rgba(Color.Value);
-			far::format_to(Str, L"{};2;{};{};{}"sv, Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
+			far::format_to(Str, L"{2}{0}2{0}{1}{3}{0}{4}{0}{5}"sv, Mapping.Separator, Mapping.ExtraSeparator, Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
 		}
 	}
 
 	static void make_vt_style(FARCOLORFLAGS const Style, string& Str, FARCOLORFLAGS const LastStyle)
 	{
-		auto UnderlineSet = false;
-
 		for (const auto& i: StyleMapping)
 		{
 			const auto Was = (LastStyle & i.Style) != 0;
@@ -1224,31 +1232,6 @@ protected:
 
 			if (Was == Is)
 				continue;
-
-			if (Is > Was)
-			{
-				if (i.Style == FCF_FG_UNDERLINE)
-					UnderlineSet = true;
-			}
-			else
-			{
-				if (i.Style == FCF_FG_UNDERLINE2 && Style & FCF_FG_UNDERLINE)
-				{
-					// Both Underline and Double Underline have the same off code. 🤦
-					// VT is a bloody joke. Whoever invented it should be punished.
-
-					// D is checked after U.
-					// We're dropping D now, so, if we have already enabled U on the previous iteration, this will kill it.
-					// To address this, we undo U if needed, emit the off code and enable U.
-					constexpr auto UnderlineOn = StyleMapping[UnderlineIndex].On;
-
-					if (UnderlineSet)
-						Str.resize(Str.size() - UnderlineOn.size() - 1);
-
-					append(Str, i.Off, L';', UnderlineOn, L';');
-					continue;
-				}
-			}
 
 			append(Str, Is > Was? i.On : i.Off, L';');
 		}
@@ -1261,24 +1244,43 @@ protected:
 	static void make_vt_attributes(const FarColor& Color, string& Str, FarColor const& LastColor)
 	{
 		using colors::single_color;
+		const auto StyleMaskWithoutUnderline = FCF_STYLEMASK & ~FCF_FG_UNDERLINE_MASK;
 
 		struct expanded_state
 		{
 			single_color ForegroundColor, BackgroundColor;
 			FARCOLORFLAGS Style;
+			UNDERLINE_STYLE UnderlineStyle;
+			single_color UnderlineColor;
+
 			bool operator==(expanded_state const&) const = default;
 
 			explicit expanded_state(FarColor const& Color):
 				ForegroundColor(single_color::foreground(Color)),
 				BackgroundColor(single_color::background(Color)),
-				Style(Color.Flags & FCF_STYLEMASK)
+				Style(Color.Flags& StyleMaskWithoutUnderline),
+				UnderlineStyle(Color.GetUnderline()),
+				UnderlineColor(single_color::underline(Color))
 			{
+				if (
+					// If there's no underline, no point in emitting its color
+					UnderlineStyle == UNDERLINE_NONE ||
+					// UnderlineColor repurposed a previously reserved field,
+					// which means that it will likely be set to 0 ("transparent black")
+					// when coming from external sources like config or plugins.
+					// We don't want to treat that case as black for obvious reasons.
+					colors::is_transparent(UnderlineColor.Value) ||
+					// No point in emitting the color if it's the same as foreground
+					UnderlineColor == ForegroundColor
+				)
+					UnderlineColor = single_color::default_color();
 			}
 		}
 		const
 		Current(Color), Last(LastColor);
 
-		assert(Current != Last);
+		if (Current == Last)
+			return;
 
 		Str += CSI ""sv;
 
@@ -1308,6 +1310,24 @@ protected:
 			ModeAdded = true;
 		}
 
+		if (Current.UnderlineStyle != Last.UnderlineStyle)
+		{
+			if (ModeAdded)
+				Str += L';';
+
+			Str += UnderlineStyleMapping[Current.UnderlineStyle];
+			ModeAdded = true;
+		}
+
+		if (Current.UnderlineColor != Last.UnderlineColor)
+		{
+			if (ModeAdded)
+				Str += L';';
+
+			make_vt_color(Current.UnderlineColor, colors_mapping_type::underline, Str);
+			ModeAdded = true;
+		}
+
 		assert(ModeAdded);
 
 		Str += L'm';
@@ -1323,8 +1343,8 @@ protected:
 			(a.Flags & ~IgnoredFlags) == (b.Flags & ~IgnoredFlags) &&
 			a.ForegroundColor == b.ForegroundColor &&
 			a.BackgroundColor == b.BackgroundColor &&
-			// Reserved[0] contains non-BMP codepoints and is of no interest here.
-			a.Reserved[1] == b.Reserved[1];
+			a.UnderlineColor == b.UnderlineColor;
+			// Reserved contains non-BMP codepoints and is of no interest here.
 	}
 
 	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, FarColor& LastColor)
@@ -1409,9 +1429,9 @@ WARNING_POP()
 				LastColor = Cell.Attributes;
 			}
 
-			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
+			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved > std::numeric_limits<wchar_t>::max())
 			{
-				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
+				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved);
 				append(Str, Pair.first, Pair.second);
 
 				if (char_width::is_half_width_surrogate_broken())
@@ -2620,21 +2640,69 @@ TEST_CASE("console.vt_sequence")
 	}
 
 	{
-		FAR_CHAR_INFO Buffer[]{ def, def, def };
-
-		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_UNDERLINE2;
+		FAR_CHAR_INFO Buffer[]{ def, def, def, def, def };
 		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
-		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_YELLOW);
 
 		Buffer[1] = Buffer[0];
+		Buffer[1].Attributes.SetUnderline(UNDERLINE_CURLY);
+		Buffer[1].Attributes.UnderlineColor = Buffer[1].Attributes.ForegroundColor;
+		Buffer[1].Attributes.SetUnderlineIndex(Buffer[1].Attributes.IsFgIndex());
 
 		Buffer[2] = Buffer[1];
-		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE2);
-		flags::set(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE);
+		Buffer[2].Attributes.UnderlineColor = colors::opaque(F_RED);
+
+		Buffer[3] = Buffer[1];
+
+		Buffer[4] = Buffer[3];
+		Buffer[4].Attributes.ForegroundColor = colors::opaque(F_MAGENTA);
+		Buffer[4].Attributes.UnderlineColor = colors::opaque(F_MAGENTA);
+
 
 		check(Buffer, VTSTR(
-			SGR(92;44;21) L"  "
-			SGR(24;4) " "
+			SGR(93;44) " "
+			SGR(4:3) " "
+			SGR(58:5:1) " "
+			SGR(59) " "
+			SGR(35) " "
+		));
+	}
+
+	{
+		FAR_CHAR_INFO Buffer[]{ def, def, def, def, def, def };
+
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
+		Buffer[0].Attributes.SetUnderline(UNDERLINE_DOUBLE);
+
+		Buffer[1] = Buffer[0];
+		Buffer[1].Attributes.SetUnderline(UNDERLINE_CURLY);
+		Buffer[1].Attributes.UnderlineColor = colors::opaque(F_YELLOW);
+
+		Buffer[2] = Buffer[1];
+		Buffer[2].Attributes.SetUnderline(UNDERLINE_DOT);
+
+		Buffer[3] = Buffer[2];
+		Buffer[3].Attributes.SetUnderline(UNDERLINE_DASH);
+		Buffer[3].Attributes.UnderlineColor = colors::opaque(0x112233);
+		Buffer[3].Attributes.SetUnderlineIndex(false);
+
+		Buffer[4] = Buffer[3];
+		Buffer[4].Attributes.SetUnderline(UNDERLINE_NONE);
+		Buffer[4].Attributes.UnderlineColor = colors::opaque(0xAABBCC);
+
+		Buffer[5] = Buffer[4];
+		Buffer[5].Attributes.SetUnderline(UNDERLINE_NONE);
+		Buffer[5].Attributes.UnderlineColor = colors::opaque(0xFF06B5);
+
+
+		check(Buffer, VTSTR(
+			SGR(92;44;21) " "
+			SGR(4:3;58:5:11)  " "
+			SGR(4:4) " "
+			SGR(4:5;58:2::51:34:17) " "
+			SGR(24;59)
+			"  "
 		));
 	}
 

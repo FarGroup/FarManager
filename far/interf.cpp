@@ -830,7 +830,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 					// Put *one* fake character:
 					Buffer.back().Char = encoding::replace_char;
 					// Stash the actual codepoint. The drawing code will restore it from here:
-					Buffer.back().Attributes.Reserved[0] = Codepoint;
+					Buffer.back().Attributes.Reserved = Codepoint;
 				}
 				else
 				{

@@ -713,8 +713,10 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				{
 					colors::make_transparent(i.FileColor.ForegroundColor);
 					colors::make_transparent(i.FileColor.BackgroundColor);
+					colors::make_transparent(i.FileColor.UnderlineColor);
 					colors::make_transparent(i.MarkColor.ForegroundColor);
 					colors::make_transparent(i.MarkColor.BackgroundColor);
+					colors::make_transparent(i.MarkColor.UnderlineColor);
 				}
 
 				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKINHERIT,ToPtr(BSTATE_CHECKED));

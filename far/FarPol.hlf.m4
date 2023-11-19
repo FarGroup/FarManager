@@ -2777,7 +2777,7 @@ znak opisuje jedną zapisaną ścieżkę.
  Elementy zachęty mogą być wyróżniane za pomocą #kolorów#.
 
  Format:
- #([[T]FFFFFFFF][:[T]BBBBBBBB])#, gdzie:
+ #([[T]FFFFFFFF][:[T]BBBBBBBB][:style[:[T]UUUUUUUU]])#, gdzie:
 
   #FFFFFFFF#
   Kolor tekstu w formacie aarrggbb lub indeks w palecie konsoli.
@@ -2785,13 +2785,32 @@ znak opisuje jedną zapisaną ścieżkę.
   #BBBBBBBB#
   Kolor tła w formacie aarrggbb lub indeks w palecie konsoli.
 
+  #style#
+  One or more text styles, separated by spaces:
+  #bold#
+  #italic#
+  #overline#
+  #strikeout#
+  #faint#
+  #blink#
+  #inverse#
+  #invisible#
+  #underline#
+  #underline_double#
+  #underline_curly#
+  #underline_dot#
+  #underline_dash#
+
+  #UUUUUUUU#
+  Kolor tła w formacie aarrggbb lub indeks w palecie konsoli.
+
   #T#
-  Flaga "TrueColor". Jeżeli nieobecna, wartość jest traktowana jako indeks palety konsoli (0-F):
+  Flaga "TrueColor". Jeżeli nieobecna, wartość jest traktowana jako indeks palety konsoli (00-FF):
 
   \00 \11 \22 \33 \44 \55 \66 \77 \88 \99 \AA \BB \CC \DD \EE \FF \-
   0123456789ABCDEF
 
- Jeżeli nie podano kolorów tekstu lub tła, zostanie użyta odpowiednia wartość domyślna.
+ Jeżeli nie podano koloru, zostanie użyta odpowiednia wartość domyślna.
 
  Przykłady:
 
@@ -4425,14 +4444,18 @@ mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty. XXXXX
  Domyślny:        \(7:0) Przykład \-
  Pogrubienie:     \(7:0:bold) Przykład \-
  Kursywa:         \(7:0:italic) Przykład \-
- Podkreślenie:    \(7:0:underline) Przykład \-
- Podwójne:        \(7:0:underline2) Przykład \-
  Nadkreślenie:    \(7:0:overline) Przykład \-
  Przekreślenie:   \(7:0:strikeout) Przykład \-
  Przygaszenie:    \(7:0:faint) Przykład \-
  Migotanie:       \(7:0:blink) Przykład \-
  Odwrotność:      \(7:0:inverse) Przykład \-
  Niewidzialność:  \(7:0:invisible) Przykład \-
+ Podkreślenie:
+   Pojedyncze: \(7:0:underline) Przykład \-
+   Podwójne:   \(7:0:underline_double) Przykład \-
+   Kręcone:    \(7:0:underline_curly) Przykład \-
+   Kropkowane: \(7:0:underline_dot) Przykład \-
+   Przerywane: \(7:0:underline_dash) Przykład \-
 
  W sekcji podglądu (poniżej opcji) wyświetlany jest wynik końcowy.
 

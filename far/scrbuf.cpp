@@ -288,9 +288,10 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 	const auto Is256ColorAvailable = IsTrueColorAvailable;
 
 	static constexpr FarColor
-		TrueShadowFull{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x80'000000 } },
-		TrueShadowFore{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x00'000000 } },
-		TrueShadowBack{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x80'000000 } };
+		TrueShadowFull{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x80'000000 }, { 0x80'000000 } },
+		TrueShadowFore{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x00'000000 }, { 0x00'000000 } },
+		TrueShadowBack{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x80'000000 }, { 0x00'000000 } },
+		TrueShadowUndl{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x00'000000 }, { 0x80'000000 } };
 
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
@@ -346,6 +347,7 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 			};
 
 			apply_shadow(Element.Attributes.ForegroundColor, Element.Attributes.IsFgIndex());
+			apply_shadow(Element.Attributes.UnderlineColor, Element.Attributes.IsUnderlineIndex());
 		}
 		else if (IsTrueColorAvailable)
 		{
@@ -356,6 +358,7 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 		{
 			apply_shadow(Element.Attributes, &FarColor::ForegroundColor, FCF_FG_INDEX, TrueShadowFore, Is256ColorAvailable);
 			apply_shadow(Element.Attributes, &FarColor::BackgroundColor, FCF_BG_INDEX, TrueShadowBack, Is256ColorAvailable);
+			apply_shadow(Element.Attributes, &FarColor::UnderlineColor, FCF_FG_UNDERLINE_INDEX, TrueShadowUndl, Is256ColorAvailable);
 		}
 
 		if (CharWidthEnabled)

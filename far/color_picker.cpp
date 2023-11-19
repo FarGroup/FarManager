@@ -184,8 +184,6 @@ namespace color_dialog
 		style_checkbox_inherit = style_checkbox_first,
 		style_checkbox_bold,
 		style_checkbox_italic,
-		style_checkbox_underline,
-		style_checkbox_underline2,
 		style_checkbox_overline,
 		style_checkbox_strikeout,
 		style_checkbox_faint,
@@ -193,6 +191,9 @@ namespace color_dialog
 		style_checkbox_inverse,
 		style_checkbox_invisible,
 		style_checkbox_last = style_checkbox_invisible,
+		style_underline_text,
+		style_underline_combo,
+		style_underline_color_button,
 
 		sample_text_first,
 		sample_text_last = sample_text_first + 2,
@@ -227,8 +228,6 @@ static const std::pair<cd::controls, FARCOLORFLAGS> StyleMapping[]
 	{ cd::style_checkbox_inherit,     FCF_INHERIT_STYLE  },
 	{ cd::style_checkbox_bold,        FCF_FG_BOLD        },
 	{ cd::style_checkbox_italic,      FCF_FG_ITALIC      },
-	{ cd::style_checkbox_underline,   FCF_FG_UNDERLINE   },
-	{ cd::style_checkbox_underline2,  FCF_FG_UNDERLINE2  },
 	{ cd::style_checkbox_overline,    FCF_FG_OVERLINE    },
 	{ cd::style_checkbox_strikeout,   FCF_FG_STRIKEOUT   },
 	{ cd::style_checkbox_faint,       FCF_FG_FAINT       },
@@ -491,6 +490,31 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 	column(x, y,  6), \
 	column(x, y,  7)
 
+namespace single_color_dialog
+{
+	enum controls
+	{
+		border,
+
+		separator_before_buttons,
+
+		color_first,
+		color_last = color_first + cb::count - 1,
+
+		button_ok,
+		button_cancel,
+
+		count
+	};
+}
+
+namespace scd = single_color_dialog;
+
+static consteval auto scd_item(cb::controls const Item)
+{
+	return static_cast<scd::controls>(scd::color_first + static_cast<size_t>(Item));
+}
+
 static std::optional<size_t> get_control_id(COLORREF const ColorPart, size_t const Offset)
 {
 	if (colors::is_default(ColorPart))
@@ -534,6 +558,85 @@ static void disable_if_needed(COLORREF const Color, span<DialogItemEx> ColorDlgI
 	}
 };
 
+static bool pick_color_single(colors::single_color& Color, colors::single_color const BaseColor, std::array<COLORREF, 16>& CustomColors)
+{
+	const auto
+		Cl4X = 5,
+		Cl4Y = 2,
+		ButtonY = 7;
+
+	auto ColorDlg = MakeDialogItems<scd::count>(
+	{
+		{ DI_DOUBLEBOX,   {{3,  1 }, {39, ButtonY+1}}, DIF_NONE, msg(lng::MSetColorTitle), },
+		{ DI_TEXT,        {{-1, ButtonY-1}, {0, ButtonY-1}}, DIF_SEPARATOR, },
+		{ DI_TEXT,        {{Cl4X, Cl4Y}, {0, Cl4Y}}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		{ DI_CHECKBOX,    {{Cl4X, Cl4Y}, {0, Cl4Y}}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		COLOR_PLANE(COLOR_COLUMN, Cl4X, Cl4Y + 1),
+		COLOR_CELL(Cl4X, Cl4Y + 3),
+		{ DI_TEXT, { { Cl4X + 4, Cl4Y + 3 }, { 0, Cl4Y + 3 } }, DIF_NONE, msg(lng::MSetColorForegroundDefault) },
+
+		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(Color.IsIndex? colors::is_default(Color.Value)? lng::MSetColorForeDefault : lng::MSetColorForeIndex : lng::MSetColorForeAARRGGBB) },
+		{ DI_FIXEDIT,     {{30, 3 }, {37, 3 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{30, 4 }, {37, 4 }}, DIF_NONE, msg(lng::MSetColorFore256), },
+		{ DI_BUTTON,      {{30, 5 }, {37, 5 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
+
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
+	});
+
+	ColorDlg[scd::color_first].Flags |= DIF_GROUP;
+
+	ColorDlg[scd_item(cb::colorcode_edit)].strData = color_code(Color);
+	ColorDlg[scd_item(cb::colorcode_edit)].strMask = Color.IsIndex? colors::is_default(Color.Value)? MaskDef : MaskIndex : MaskARGB;
+
+	single_color_state ColorState
+	{
+		.CurColor = Color,
+		.TransparencyEnabled = true,
+		.RefreshColor = []{},
+		.Offset = scd::color_first,
+	};
+
+	auto UndelineColorControlActivated = false;
+
+	if (Color.IsIndex)
+		UndelineColorControlActivated = activate_control(Color.Value, ColorDlg, scd::color_first);
+
+	if (!UndelineColorControlActivated)
+		ColorDlg[scd_item(cb::colorcode_edit)].Flags |= DIF_FOCUS;
+
+	if constexpr ((true))
+	{
+		ColorDlg[scd_item(cb::color_text)].Flags |= DIF_HIDDEN | DIF_DISABLE;
+		disable_if_needed(Color.Value, ColorDlg, scd::color_first);
+	}
+	else
+	{
+		ColorDlg[scd_item(cb::color_active_checkbox)].Flags |= DIF_HIDDEN | DIF_DISABLE;
+	}
+
+	const auto Dlg = Dialog::create(ColorDlg, &single_color_state::GetSingleColorDlgProc, &ColorState);
+
+	const auto
+		DlgWidth = static_cast<int>(ColorDlg[scd::border].X2) + 4,
+		DlgHeight = static_cast<int>(ColorDlg[scd::border].Y2) + 2;
+
+	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
+
+	Dlg->SetHelp(L"ColorPicker"sv);
+	Dlg->Process();
+
+	switch (Dlg->GetExitCode())
+	{
+	case scd::button_ok:
+		Color = ColorState.CurColor;
+		return true;
+
+	default:
+		return false;
+	}
+}
+
 intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
@@ -565,6 +668,19 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 			return TRUE;
 		}
 
+		if (Param1 == cd::style_underline_color_button)
+		{
+			auto Color = colors::single_color::underline(CurColor);
+			if (auto CustomColors = Global->Opt->Palette.GetCustomColors(); pick_color_single(Color, colors::single_color::underline(BaseColor), CustomColors))
+			{
+				CurColor.SetUnderlineIndex(Color.IsIndex);
+				CurColor.UnderlineColor = Color.Value;
+				Global->Opt->Palette.SetCustomColors(CustomColors);
+				Dlg->SendMessage(DM_UPDATEPREVIEW, 0, {});
+			}
+			return TRUE;
+		}
+
 		if (Param1 == cd::button_enable_vt)
 		{
 			Global->Opt->VirtualTerminalRendering = true;
@@ -579,6 +695,9 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 	case DN_EDITCHANGE:
 		if (const auto Result = delegate_proc(Dlg, Msg, Param1, Param2))
 			return *Result;
+
+		if (Param1 == cd::style_underline_combo)
+			CurColor.SetUnderline(static_cast<UNDERLINE_STYLE>(Dlg->SendMessage(DM_LISTGETCURPOS, cd::style_underline_combo, {})));
 
 		break;
 
@@ -667,14 +786,15 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_CHECKBOX,    {{StyleX, StyleY+1 }, {0, StyleY+1 }}, DIF_NONE, msg(lng::MSetColorStyleInherit), },
 		{ DI_CHECKBOX,    {{StyleX, StyleY+3 }, {0, StyleY+3 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
 		{ DI_CHECKBOX,    {{StyleX, StyleY+4 }, {0, StyleY+4 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+5 }, {0, StyleY+5 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+6 }, {0, StyleY+6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+7 }, {0, StyleY+7 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+8 }, {0, StyleY+8 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+9 }, {0, StyleY+9 }}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+10}, {0, StyleY+10}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+11}, {0, StyleY+11}}, DIF_NONE, msg(lng::MSetColorStyleInverse), },
-		{ DI_CHECKBOX,    {{StyleX, StyleY+12}, {0, StyleY+12}}, DIF_NONE, msg(lng::MSetColorStyleInvisible), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+5 }, {0, StyleY+5 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+6 }, {0, StyleY+6 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+7 }, {0, StyleY+7 }}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+8 }, {0, StyleY+8 }}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+9 }, {0, StyleY+9 }}, DIF_NONE, msg(lng::MSetColorStyleInverse), },
+		{ DI_CHECKBOX,    {{StyleX, StyleY+10}, {0, StyleY+10}}, DIF_NONE, msg(lng::MSetColorStyleInvisible), },
+		{ DI_TEXT,        {{StyleX, StyleY+11}, {0, StyleY+11}}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		{ DI_COMBOBOX,    {{StyleX, StyleY+12}, {51,StyleY+12}}, DIF_DROPDOWNLIST, },
+		{ DI_BUTTON,      {{54,     StyleY+12}, {0,StyleY+12}}, DIF_BTNNOCLOSE, L"..."sv, },
 
 		{ DI_TEXT,        {{SampleX,  SampleY+0}, {SampleX+SampleW, SampleY+0}}, DIF_NONE, msg(lng::MSetColorSample), },
 		{ DI_TEXT,        {{SampleX,  SampleY+1}, {SampleX+SampleW, SampleY+1}}, DIF_NONE, msg(lng::MSetColorSample), },
@@ -701,6 +821,27 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	ColorDlg[bg_item(cb::colorcode_edit)].strData = color_code(colors::single_color::background(Color));
 	ColorDlg[fg_item(cb::colorcode_edit)].strMask = Color.IsFgIndex()? Color.IsFgDefault()? MaskDef : MaskIndex : MaskARGB;
 	ColorDlg[bg_item(cb::colorcode_edit)].strMask = Color.IsBgIndex()? Color.IsBgDefault()? MaskDef : MaskIndex : MaskARGB;
+
+	FarListItem UnderlineTypes[]
+	{
+		{ 0, msg(lng::MSetColorStyleUnderlineNone).c_str() },
+		{ 0, msg(lng::MSetColorStyleUnderlineSingle).c_str() },
+		{ 0, msg(lng::MSetColorStyleUnderlineDouble).c_str() },
+		{ 0, msg(lng::MSetColorStyleUnderlineCurly).c_str() },
+		{ 0, msg(lng::MSetColorStyleUnderlineDotted).c_str() },
+		{ 0, msg(lng::MSetColorStyleUnderlineDashed).c_str() },
+	};
+
+	UnderlineTypes[Color.GetUnderline()].Flags = LIF_SELECTED;
+
+	FarList ComboList
+	{
+		sizeof(ComboList),
+		std::size(UnderlineTypes),
+		UnderlineTypes
+	};
+
+	ColorDlg[cd::style_underline_combo].ListItems = &ComboList;
 
 	color_state ColorState
 	{

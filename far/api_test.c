@@ -35,8 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Include/farcolor.hpp"
 
 #ifdef __cplusplus
-static_assert(FCF_INDEXMASK == (FCF_FG_INDEX | FCF_BG_INDEX), "");
+static_assert(FCF_INDEXMASK == (FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_UNDERLINE_INDEX), "");
 static_assert(FCF_FG_4BIT == FCF_FG_INDEX, "");
 static_assert(FCF_BG_4BIT == FCF_BG_INDEX, "");
 static_assert(FCF_4BITMASK == FCF_INDEXMASK, "");
+static_assert(FCF_FG_UNDERLINE_MASK == (FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2), "");
 #endif
