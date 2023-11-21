@@ -3536,10 +3536,10 @@ void FarMacroApi::fargetconfigFunc() const
 			else if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
 				auto Val = Opt->Get();
-        if (Val == 0 || Val == 1)
-          PassBoolean(Val == 1);
-        else
-          PassValue(L"other");
+				if (Val == 0 || Val == 1)
+					PassBoolean(Val == 1);
+				else
+					PassValue(L"other");
 
 				PassValue(L"3-state");
 			}
@@ -3553,11 +3553,11 @@ void FarMacroApi::fargetconfigFunc() const
 				PassValue(Opt->Get());
 				PassValue(L"string");
 			}
-      else
-        PassError(L"unknown option type");
+			else
+				PassError(L"unknown option type");
 		}
-    else
-      PassError(L"setting doesn't exist");
+		else
+			PassError(L"setting doesn't exist");
 	}
 	else
 		PassError(L"invalid argument #1");
