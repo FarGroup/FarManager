@@ -4,7 +4,6 @@ local Shared = ...
 local checkarg, utils, yieldcall = Shared.checkarg, Shared.utils, Shared.yieldcall
 
 local MCODE_F_USERMENU = 0x80C66
-local MCODE_F_FAR_GETCONFIG = 0x80C69
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local MacroCallFar = Shared.MacroCallFar
@@ -292,27 +291,11 @@ SetProperties(Menu, {
 Far = {
   Cfg_Get        = function(...) return MacroCallFar(0x80C58, ...) end,
   DisableHistory = function(...) return Shared.keymacro.DisableHistory(...) end,
+  GetConfig      = function(...) return MacroCallFar(0x80C69, ...) end,
   KbdLayout      = function(...) return MacroCallFar(0x80C49, ...) end,
   KeyBar_Show    = function(...) return MacroCallFar(0x80C4B, ...) end,
   Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
 }
-
-function Far.GetConfig (keyname)
-  checkarg(keyname, 1, "string")
-  local key, name = keyname:match("^(.+)%.([^.]+)$")
-  if not key then
-    error("invalid format of arg. #1", 2)
-  end
-  local tp,val = MacroCallFar(MCODE_F_FAR_GETCONFIG, key, name)
-  if not tp then
-    error("cannot get setting '"..keyname.."'", 2)
-  end
-  tp = ({"boolean","3-state","integer","string"})[tp]
-  if tp == "3-state" then
-    if val==0 or val==1 then val=(val==1) else val="other" end
-  end
-  return val,tp
-end
 
 SetProperties(Far, {
   FullScreen     = function() return MacroCallFar(0x80411) end,

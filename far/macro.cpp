@@ -3515,43 +3515,52 @@ void FarMacroApi::farcfggetFunc() const
 	return option? PassValue(option->toString()) : PassBoolean(false);
 }
 
-// V=Far.GetConfig(Key,Name)
+// V=Far.GetConfig(Key.Name)
 void FarMacroApi::fargetconfigFunc() const
 {
-	if (mData->Count >= 2 && mData->Values[0].Type==FMVT_STRING && mData->Values[1].Type==FMVT_STRING)
+	const wchar_t *Keyname = (mData->Count >= 1 && mData->Values[0].Type==FMVT_STRING) ?
+		mData->Values[0].String : L"";
+
+	auto Dot = wcsrchr(Keyname, L'.');
+	if (Dot)
 	{
-		if (const auto option = Global->Opt->GetConfigValue(mData->Values[0].String, mData->Values[1].String))
+		string Key(Keyname, Dot - Keyname);
+
+		if (const auto option = Global->Opt->GetConfigValue(Key.c_str(), Dot+1))
 		{
 			if (const auto Opt = dynamic_cast<const BoolOption*>(option))
 			{
-				PassValue(1);
 				PassBoolean(Opt->Get());
-				return;
+				PassValue(L"boolean");
 			}
-
-			if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
+			else if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
-				PassValue(2);
-				PassValue(Opt->Get());
-				return;
-			}
+				auto Val = Opt->Get();
+        if (Val == 0 || Val == 1)
+          PassBoolean(Val == 1);
+        else
+          PassValue(L"other");
 
-			if (const auto Opt = dynamic_cast<const IntOption*>(option))
-			{
-				PassValue(3);
-				PassValue(Opt->Get());
-				return;
+				PassValue(L"3-state");
 			}
-
-			if (const auto Opt = dynamic_cast<const StringOption*>(option))
+			else if (const auto Opt = dynamic_cast<const IntOption*>(option))
 			{
-				PassValue(4);
 				PassValue(Opt->Get());
-				return;
+				PassValue(L"integer");
 			}
+			else if (const auto Opt = dynamic_cast<const StringOption*>(option))
+			{
+				PassValue(Opt->Get());
+				PassValue(L"string");
+			}
+      else
+        PassError(L"unknown option type");
 		}
+    else
+      PassError(L"setting doesn't exist");
 	}
-	PassBoolean(false);
+	else
+		PassError(L"invalid argument #1");
 }
 
 // V=Dlg->GetValue([Pos[,InfoID]])

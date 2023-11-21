@@ -1,3 +1,7 @@
+shmuel 2023-11-21 20:39:31+02:00 - build 789
+
+1. Far.GetConfig() is implemented entirely in Far.exe (was: Far + LuaMacro).
+
 shmuel 2023-11-16 19:03:27+02:00 - build 788
 
 1. LuaFAR: add functions far.CheckMask, far.CmpName, far.CmpNameList, far.GenerateName.
