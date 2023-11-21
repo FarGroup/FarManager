@@ -332,14 +332,14 @@ end
 
 local function test_mf_fsplit()
   local path="C:\\Program Files\\Far\\Far.exe"
-  assert(mf.fsplit(path,0x01)=="C:")
-  assert(mf.fsplit(path,0x02)=="\\Program Files\\Far\\")
-  assert(mf.fsplit(path,0x04)=="Far")
-  assert(mf.fsplit(path,0x08)==".exe")
+  assert_eq (mf.fsplit(path,0x01), "C:")
+  assert_eq (mf.fsplit(path,0x02), "\\Program Files\\Far\\")
+  assert_eq (mf.fsplit(path,0x04), "Far")
+  assert_eq (mf.fsplit(path,0x08), ".exe")
 
-  assert(mf.fsplit(path,0x03)=="C:\\Program Files\\Far\\")
-  assert(mf.fsplit(path,0x0C)=="Far.exe")
-  assert(mf.fsplit(path,0x0F)==path)
+  assert_eq (mf.fsplit(path,0x03), "C:\\Program Files\\Far\\")
+  assert_eq (mf.fsplit(path,0x0C), "Far.exe")
+  assert_eq (mf.fsplit(path,0x0F), path)
 end
 
 local function test_mf_iif()
@@ -1069,8 +1069,9 @@ function MT.test_Far()
   local temp = Far.UpTime
   mf.sleep(50)
   temp = Far.UpTime - temp
-  assert(temp > 40 and temp < 80)
+  assert(temp > 40 and temp < 80, temp)
 
+  assert_num (Far.GetConfig("Editor.defaultcodepage"))
   assert_func (Far.Cfg_Get)
   assert_func (Far.DisableHistory)
   assert_num (Far.KbdLayout(0))
@@ -1236,11 +1237,11 @@ local function test_Panel_SetPath()
   local pdir = "c:\\windows"
   local adir = "c:\\windows\\system32"
   local afile = "cmd.exe"
-  assert(true == Panel.SetPath(1, pdir))
-  assert(true == Panel.SetPath(0, adir, afile))
-  assert(pdir == panel.GetPanelDirectory(nil,0).Name:lower())
-  assert(adir == panel.GetPanelDirectory(nil,1).Name:lower())
-  assert(panel.GetCurrentPanelItem(nil,1).FileName:lower() == afile)
+  assert_true(Panel.SetPath(1, pdir))
+  assert_true(Panel.SetPath(0, adir, afile))
+  assert_eq (pdir, panel.GetPanelDirectory(nil,0).Name:lower())
+  assert_eq (adir, panel.GetPanelDirectory(nil,1).Name:lower())
+  assert_eq (panel.GetCurrentPanelItem(nil,1).FileName:lower(), afile)
   -- restore
   assert_true(Panel.SetPath(1, pdir_old))
   assert_true(Panel.SetPath(0, adir_old))
@@ -1361,9 +1362,9 @@ end
 
 function MT.test_Dlg()
   Keys"F7 a b c"
-  assert(Area.Dialog)
-  assert(Dlg.Id == "FAD00DBE-3FFF-4095-9232-E1CC70C67737")
-  assert(Dlg.Owner == "00000000-0000-0000-0000-000000000000")
+  assert_true(Area.Dialog)
+  assert_eq(Dlg.Id, "FAD00DBE-3FFF-4095-9232-E1CC70C67737")
+  assert_eq(Dlg.Owner, "00000000-0000-0000-0000-000000000000")
   assert(Dlg.ItemCount > 6)
   assert_eq(Dlg.ItemType, 4)
   assert_eq(Dlg.CurPos, 3)
@@ -1736,23 +1737,23 @@ local function test_AdvControl_Window()
 end
 
 local function test_AdvControl_Colors()
-  local t = assert(far.AdvControl("ACTL_GETARRAYCOLOR"))
-  assert(#t == 146)
-  for n=1,#t do
+  local allcolors = assert_table(far.AdvControl("ACTL_GETARRAYCOLOR"))
+  assert(#allcolors == 146)
+  for n=1,#allcolors do
     local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
     assert(color.Flags and color.ForegroundColor and color.BackgroundColor)
     for k,v in pairs(color) do
-      assert(t[n][k] == v)
+      assert(allcolors[n][k] == v)
     end
   end
-  assert(not far.AdvControl("ACTL_GETCOLOR", #t))
-  assert(not far.AdvControl("ACTL_GETCOLOR", -1))
+  assert_nil(far.AdvControl("ACTL_GETCOLOR", #allcolors))
+  assert_nil(far.AdvControl("ACTL_GETCOLOR", -1))
 
   -- change the colors
   local arr, elem = {StartIndex=0; Flags=0}, {Flags=100; ForegroundColor=101; BackgroundColor=102}
-  for n=1,#t do arr[n]=elem end
+  for n=1,#allcolors do arr[n]=elem end
   assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, arr))
-  for n=1,#t do
+  for n=1,#allcolors do
     local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
     for k,v in pairs(elem) do
       assert(color[k] == v)
@@ -1760,7 +1761,7 @@ local function test_AdvControl_Colors()
   end
 
   -- restore the colors
-  assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, t))
+  assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, allcolors))
 end
 
 local function test_AdvControl_Synchro()
@@ -1798,9 +1799,9 @@ local function test_AdvControl_Misc()
     assert(t.X==k and t.Y==k+1)
   end
 
-  assert(true == mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1"))
+  assert_true(mf.acall(far.AdvControl, "ACTL_WAITKEY", nil, "F1"))
   Keys("F1")
-  assert(true == mf.acall(far.AdvControl, "ACTL_WAITKEY"))
+  assert_true(mf.acall(far.AdvControl, "ACTL_WAITKEY"))
   Keys("F2")
 end
 
@@ -1824,7 +1825,7 @@ local function test_clipboard()
     assert_eq(far.PasteFromClipboard(), v)
   end
   if orig then far.CopyToClipboard(orig) end
-  assert(far.PasteFromClipboard() == orig)
+  assert_eq(far.PasteFromClipboard(), orig)
 end
 
 local function test_far_FarClock()
@@ -1840,7 +1841,7 @@ local function test_far_FarClock()
     win.Sleep(20)
     if temp ~= far.FarClock() % 10 then OK=true; break; end
   end
-  assert(OK)
+  assert_true(OK)
 end
 
 local function test_ProcessName()
@@ -1856,7 +1857,7 @@ local function test_ProcessName()
   assert_true  (far.CmpName("f*.ex?",      "fc.exe"         ))
   assert_true  (far.CmpName("f*.ex?",      "f.ext"          ))
 
-  assert_true (far.CmpName("f*.ex?",      "FTP.exe"        ))
+  assert_true  (far.CmpName("f*.ex?",      "FTP.exe"        ))
 
   assert_false (far.CmpName("f*.ex?",      "a/f.ext"        ))
   assert_false (far.CmpName("f*.ex?",      "a/f.ext", 0     ))
@@ -1911,12 +1912,12 @@ local function test_FarStandardFunctions()
 
   assert(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL") == [[c:\abc]])
 
-  assert(far.FormatFileSize(123456, 8)  == "  123456")
-  assert(far.FormatFileSize(123456, -8) == "123456  ")
+  assert_eq(far.FormatFileSize(123456, 8), "  123456")
+  assert_eq(far.FormatFileSize(123456, -8), "123456  ")
 
   assert_str (far.GetCurrentDirectory())
 
-  assert(far.GetPathRoot[[D:\foo\bar]] == [[D:\]])
+  assert_eq(far.GetPathRoot[[D:\foo\bar]], [[D:\]])
 
   assert_true  (far.LIsAlpha("A"))
   assert_true  (far.LIsAlpha("Я"))
@@ -2020,6 +2021,10 @@ local function test_PluginsControl()
   for _,plug in ipairs(pluglist) do
     assert_udata(plug)
   end
+
+  assert_func(far.LoadPlugin)
+  assert_func(far.ForcedLoadPlugin)
+  assert_func(far.UnloadPlugin)
 end
 
 local function test_far_timer()
@@ -2032,21 +2037,44 @@ local function test_far_timer()
   assert_eq (N, 3)
 end
 
-function MT.test_luafar()
-  test_bit64()
-  test_gmatch_coro()
+local function test_win_CompareString()
+  assert(win.CompareString("a","b") < 0)
+  assert(win.CompareString("b","a") > 0)
+  assert(win.CompareString("b","b") == 0)
+end
+
+local function test_win()
+  test_win_CompareString()
+
+  assert_str(win.GetCurrentDir())
+  assert_table(win.EnumSystemCodePages())
+  assert_num(win.GetACP())
+  assert_num(win.GetOEMCP())
+
+  local dir = assert_str(win.GetEnv("FARHOME"))
+  local attr = assert_str(win.GetFileAttr(dir))
+  assert_num(attr:find("d"))
+end
+
+local function test_utf8()
   test_utf8_len()
   test_utf8_sub()
   test_utf8_lower_upper()
+end
 
+function MT.test_luafar()
+  test_bit64()
+  test_utf8()
+  test_win()
   test_AdvControl()
-  test_far_GetMsg()
-  test_FarStandardFunctions()
-  test_issue_3129()
   test_MacroControl()
-  test_RegexControl()
   test_PluginsControl()
+  test_RegexControl()
+  test_FarStandardFunctions()
+  test_far_GetMsg()
   test_far_timer()
+  test_gmatch_coro()
+  test_issue_3129()
 end
 
 -- Test in particular that Plugin.Call (a so-called "restricted" function) works properly
