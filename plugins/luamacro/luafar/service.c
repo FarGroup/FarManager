@@ -776,7 +776,7 @@ static int _EditorGetString(lua_State *L, int is_wide)
 	intptr_t line_num = luaL_optinteger(L, 2, 0) - 1;
 	intptr_t mode = luaL_optinteger(L, 3, 0);
 	BOOL res = 0;
-	struct EditorGetString egs;
+	struct EditorGetString egs = {};
 	egs.StructSize = sizeof(egs);
 
 	if(mode == 0 || mode == 3)
@@ -4381,12 +4381,12 @@ static int far_LStrnicmp(lua_State *L)
 //   @Flags: PN_SKIPPATH, PN_SHOWERRORMESSAGE
 //   @Size: integer 0...0xFFFF
 //   @Result: boolean
-static int _ProcessName (lua_State *L, int Op)
+static int _ProcessName (lua_State *L, UINT64 Op)
 {
   struct FarStandardFunctions *FSF = GetPluginData(L)->FSF;
 
 	int pos2=2, pos3=3, pos4=4;
-	if (Op == -1)
+	if (Op == 0xFFFFFFFF)
 		Op = CheckFlags(L, 1);
 	else {
 		--pos2, --pos3, --pos4;
@@ -4398,8 +4398,8 @@ static int _ProcessName (lua_State *L, int Op)
 	int Flags = Op | OptFlags(L, pos4, 0);
 
 	if(Op == PN_CMPNAME || Op == PN_CMPNAMELIST || Op == PN_CHECKMASK) {
-		int result = FSF->ProcessName(Mask, (wchar_t*)Name, 0, Flags);
-		lua_pushboolean(L, result);
+		size_t result = FSF->ProcessName(Mask, (wchar_t*)Name, 0, Flags);
+		lua_pushboolean(L, (int)result);
 	}
 	else if (Op == PN_GENERATENAME) {
 		UINT64 Size = luaL_optinteger(L, pos4+1, 0) & 0xFFFF;
@@ -4408,11 +4408,11 @@ static int _ProcessName (lua_State *L, int Op)
 		wcsncpy(buf, Mask, BUFSIZE-1);
 		buf[BUFSIZE-1] = 0;
 
-		int result = FSF->ProcessName(Name, buf, BUFSIZE, Flags|Size);
+		size_t result = FSF->ProcessName(Name, buf, BUFSIZE, Flags|Size);
 		if (result)
 			push_utf8_string(L, buf, -1);
 		else
-			lua_pushboolean(L, result);
+			lua_pushboolean(L, (int)result);
 	}
 	else
 		luaL_argerror(L, 1, "command not supported");
@@ -4420,7 +4420,7 @@ static int _ProcessName (lua_State *L, int Op)
 	return 1;
 }
 
-static int far_ProcessName  (lua_State *L) { return _ProcessName(L, -1);              }
+static int far_ProcessName  (lua_State *L) { return _ProcessName(L, 0xFFFFFFFF);      }
 static int far_CmpName      (lua_State *L) { return _ProcessName(L, PN_CMPNAME);      }
 static int far_CmpNameList  (lua_State *L) { return _ProcessName(L, PN_CMPNAMELIST);  }
 static int far_CheckMask    (lua_State *L) { return _ProcessName(L, PN_CHECKMASK);    }
