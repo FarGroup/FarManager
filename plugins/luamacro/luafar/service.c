@@ -776,7 +776,7 @@ static int _EditorGetString(lua_State *L, int is_wide)
 	intptr_t line_num = luaL_optinteger(L, 2, 0) - 1;
 	intptr_t mode = luaL_optinteger(L, 3, 0);
 	BOOL res = 0;
-	struct EditorGetString egs = {};
+	struct EditorGetString egs = {0,0,0,NULL,NULL,0,0};
 	egs.StructSize = sizeof(egs);
 
 	if(mode == 0 || mode == 3)
