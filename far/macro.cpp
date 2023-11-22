@@ -3521,21 +3521,21 @@ void FarMacroApi::fargetconfigFunc() const
 	const wchar_t *Keyname = (mData->Count >= 1 && mData->Values[0].Type==FMVT_STRING) ?
 		mData->Values[0].String : L"";
 
-	auto Dot = wcsrchr(Keyname, L'.');
+	const auto Dot = wcsrchr(Keyname, L'.');
 	if (Dot)
 	{
-		string Key(Keyname, Dot - Keyname);
+		const string_view Key(Keyname, Dot - Keyname);
 
-		if (const auto option = Global->Opt->GetConfigValue(Key.c_str(), Dot+1))
+		if (const auto option = Global->Opt->GetConfigValue(Key, Dot+1))
 		{
-			if (const auto Opt = dynamic_cast<const BoolOption*>(option))
+			if (const auto OptBool = dynamic_cast<const BoolOption*>(option))
 			{
-				PassBoolean(Opt->Get());
+				PassBoolean(OptBool->Get());
 				PassValue(L"boolean");
 			}
-			else if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
+			else if (const auto OptBool3 = dynamic_cast<const Bool3Option*>(option))
 			{
-				auto Val = Opt->Get();
+				auto Val = OptBool3->Get();
 				if (Val == 0 || Val == 1)
 					PassBoolean(Val == 1);
 				else
@@ -3543,14 +3543,14 @@ void FarMacroApi::fargetconfigFunc() const
 
 				PassValue(L"3-state");
 			}
-			else if (const auto Opt = dynamic_cast<const IntOption*>(option))
+			else if (const auto OptInt = dynamic_cast<const IntOption*>(option))
 			{
-				PassValue(Opt->Get());
+				PassValue(OptInt->Get());
 				PassValue(L"integer");
 			}
-			else if (const auto Opt = dynamic_cast<const StringOption*>(option))
+			else if (const auto OptString = dynamic_cast<const StringOption*>(option))
 			{
-				PassValue(Opt->Get());
+				PassValue(OptString->Get());
 				PassValue(L"string");
 			}
 			else
