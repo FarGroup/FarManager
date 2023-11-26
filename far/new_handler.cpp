@@ -74,25 +74,15 @@ extern "C"
 namespace
 {
 	// GCC can't statically link _set_new_handler & _set_new_mode due to incompatible name mangling.
-	const auto [crt_set_new_handler_name, crt_set_new_mode_name] = std::tuple
-	{
-#if defined _M_X64
-		"?_set_new_handler@@YAP6AH_K@ZP6AH0@Z@Z",
-		"?_set_new_mode@@YAHH@Z"
-#elif defined _M_IX86
-		"?_set_new_handler@@YAP6AHI@ZP6AHI@Z@Z",
-		"?_set_new_mode@@YAHH@Z"
-#elif defined _M_ARM64
-		"?_set_new_handler@@YAP6AH_K@ZP6AH0@Z@Z",
-		"?_set_new_mode@@YAHH@Z"
-#elif defined _M_ARM
-		"?_set_new_handler@@YAP6AHI@ZP6AHI@Z@Z",
-		"?_set_new_mode@@YAHH@Z"
+	const auto
+		crt_set_new_handler_name =
+#ifdef _WIN64
+			"?_set_new_handler@@YAP6AH_K@ZP6AH0@Z@Z",
 #else
-		COMPILER_WARNING("Unknown platform")
-		"", ""
+			"?_set_new_handler@@YAP6AHI@ZP6AHI@Z@Z",
 #endif
-	};
+		crt_set_new_mode_name =
+			"?_set_new_mode@@YAHH@Z";
 }
 
 template<auto Function>
