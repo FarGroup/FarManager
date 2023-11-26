@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2023-12-07 12:21:35-08:00 - build 6223
+
+1. gh-750: Fixed VMenu set selection behavior around list edges.
+   Warning! Bugs are expected.
+
+--------------------------------------------------------------------------------
 drkns 2023-12-07 19:52:27+00:00 - build 6222
 
 1. gh-758: Show all reparse point tags in Attributes dialog.

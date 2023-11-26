@@ -140,25 +140,57 @@ void VMenu::ResetCursor()
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 }
 
+int find_nearest(std::ranges::contiguous_range auto const& Range, const int Pos, const auto Pred, const bool GoBackward, const bool DoWrap)
+{
+	using namespace std::views;
+
+	assert(0 <= Pos && Pos < static_cast<int>(Range.size()));
+
+	const auto FindPos =
+		[&](const auto First, const auto Second)
+		{
+			const auto FindPosPart =
+				[&](const auto Part)
+				{
+					if (auto Filtered = Range | Part | filter(Pred))
+						return static_cast<int>(&Filtered.front() - Range.data());
+
+					return -1;
+				};
+
+			if (const auto Found{ FindPosPart(First) }; Found != -1) return Found;
+			if (const auto Found{ FindPosPart(Second) }; Found != -1) return Found;
+			return -1;
+		};
+
+	return GoBackward
+		? (DoWrap
+			? FindPos(take(Pos + 1) | reverse, drop(Pos + 1) | reverse)
+			: FindPos(take(Pos + 1) | reverse, drop(Pos + 1)))
+		: (DoWrap
+			? FindPos(drop(Pos), take(Pos))
+			: FindPos(drop(Pos), take(Pos) | reverse));
+}
+
 //может иметь фокус
-static bool ItemCanHaveFocus(unsigned long long const Flags)
+static bool item_flags_allow_focus(unsigned long long const Flags)
 {
 	return !(Flags & (LIF_DISABLE | LIF_HIDDEN | LIF_FILTERED | LIF_SEPARATOR));
 }
 
-static bool ItemCanHaveFocus(MenuItemEx const& Item)
+static bool item_can_have_focus(MenuItemEx const& Item)
 {
-	return ItemCanHaveFocus(Item.Flags);
+	return item_flags_allow_focus(Item.Flags);
 }
 
 //может быть выбран
-static bool ItemCanBeEntered(MenuItemEx const& Item)
+static bool item_can_be_entered(MenuItemEx const& Item)
 {
-	return ItemCanHaveFocus(Item) && !(Item.Flags & LIF_GRAYED);
+	return item_can_have_focus(Item) && !(Item.Flags & LIF_GRAYED);
 }
 
 //видимый
-static bool ItemIsVisible(MenuItemEx const& Item)
+static bool item_is_visible(MenuItemEx const& Item)
 {
 	return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 }
@@ -173,11 +205,11 @@ void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 	if (Items[Pos].Flags & MIF_SUBMENU)
 		--ItemSubMenusCount;
 
-	if (!ItemIsVisible(Items[Pos]))
+	if (!item_is_visible(Items[Pos]))
 		--ItemHiddenCount;
 
 
-	if (!ItemCanHaveFocus(NewFlags))
+	if (!item_flags_allow_focus(NewFlags))
 		NewFlags &= ~LIF_SELECTED;
 
 	//remove selection
@@ -211,7 +243,7 @@ void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 	if (NewFlags&MIF_SUBMENU)
 		ItemSubMenusCount++;
 
-	if (!ItemIsVisible(Items[Pos]))
+	if (!item_is_visible(Items[Pos]))
 		ItemHiddenCount++;
 }
 
@@ -228,54 +260,20 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 		i.Flags &= ~LIF_SELECTED;
 	}
 
-	for (int Pass=0, I=0;;I++)
+	const auto DoWrap{ CheckFlags(VMENU_WRAPMODE) && Direct != 0 && !stop_on_edge };
+	const auto GoBackward{ Direct < 0 };
+	const auto ItemsSize{ static_cast<int>(Items.size()) };
+
+	if (Pos < 0)
 	{
-		if (Pos<0)
-		{
-			if (CheckFlags(VMENU_WRAPMODE))
-			{
-				Pos = static_cast<int>(Items.size()-1);
-				TopPos = Pos;
-			}
-			else
-			{
-				Pos = 0;
-				TopPos = 0;
-				Pass++;
-			}
-		}
-		else if (Pos>=static_cast<int>(Items.size()))
-		{
-			if (CheckFlags(VMENU_WRAPMODE))
-			{
-				Pos = 0;
-				TopPos = 0;
-			}
-			else
-			{
-				Pos = static_cast<int>(Items.size()-1);
-				Pass++;
-			}
-		}
-
-		if (ItemCanHaveFocus(Items[Pos]))
-			break;
-
-		if (Pass)
-		{
-			Pos = SelectPos;
-			break;
-		}
-
-		Pos += Direct;
-
-		if (I>=static_cast<int>(Items.size())) // круг пройден - ничего не найдено :-(
-			Pass++;
+		Pos = DoWrap ? ItemsSize - 1 : 0;
+	}
+	else if (Pos >= ItemsSize)
+	{
+		Pos = DoWrap ? 0 : ItemsSize - 1;
 	}
 
-	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
-		Pos = SelectPos;
-
+	Pos = find_nearest(Items, Pos, item_can_have_focus, GoBackward, DoWrap);
 
 	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
@@ -287,11 +285,11 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	}
 
 	if (Pos >= 0)
-		UpdateItemFlags(Pos, Items[Pos].Flags|LIF_SELECTED);
+		UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED);
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
-	SelectPosResult=Pos;
+	SelectPosResult = Pos;
 	return Pos;
 }
 
@@ -337,12 +335,12 @@ void VMenu::UpdateSelectPos()
 		return;
 
 	// если selection стоит в некорректном месте - сбросим его
-	if (SelectPos >= 0 && !ItemCanHaveFocus(Items[SelectPos]))
+	if (SelectPos >= 0 && !item_can_have_focus(Items[SelectPos]))
 		SelectPos = -1;
 
 	for (const auto& [Item, Index]: enumerate(Items))
 	{
-		if (!ItemCanHaveFocus(Item))
+		if (!item_can_have_focus(Item))
 		{
 			Item.SetSelect(false);
 		}
@@ -506,7 +504,7 @@ int VMenu::DeleteItem(int ID, int Count)
 		if (Items[ID+I].Flags & MIF_SUBMENU)
 			--ItemSubMenusCount;
 
-		if (!ItemIsVisible(Items[ID+I]))
+		if (!item_is_visible(Items[ID+I]))
 			--ItemHiddenCount;
 	}
 
@@ -523,7 +521,7 @@ int VMenu::DeleteItem(int ID, int Count)
 			ID--;
 		}
 		SelectPos = -1;
-		SetSelectPos(ID,1);
+		SetSelectPos(ID, 0, true);
 	}
 	else if (SelectPos >= ID+Count)
 	{
@@ -604,7 +602,7 @@ void VMenu::RestoreFilteredItems()
 			continue;
 
 		i.Flags &= ~MIF_FILTERED;
-		if (ItemIsVisible(i))
+		if (item_is_visible(i))
 			--ItemHiddenCount;
 	}
 
@@ -637,7 +635,7 @@ void VMenu::FilterStringUpdated()
 	{
 		CurItem.Flags &= ~LIF_FILTERED;
 
-		if (!ItemIsVisible(CurItem))
+		if (!item_is_visible(CurItem))
 		{
 			++ItemHiddenCount;
 			continue;
@@ -681,12 +679,12 @@ void VMenu::FilterStringUpdated()
 				PrevGroup = static_cast<int>(index);
 				if (LowerVisible == -2)
 				{
-					if (ItemCanHaveFocus(CurItem))
+					if (item_can_have_focus(CurItem))
 						UpperVisible = static_cast<int>(index);
 				}
 				else if (LowerVisible == -1)
 				{
-					if (ItemCanHaveFocus(CurItem))
+					if (item_can_have_focus(CurItem))
 						LowerVisible = static_cast<int>(index);
 				}
 				// Этот разделитель - оставить видимым
@@ -833,7 +831,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 					const auto& Item = at(I);
 
-					if (!ItemCanHaveFocus(Item))
+					if (!item_can_have_focus(Item))
 						continue;
 
 					int Res = 0;
@@ -1180,7 +1178,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 	const auto ProcessEnter = [this]()
 	{
-		if (ItemCanBeEntered(Items[SelectPos]))
+		if (item_can_be_entered(Items[SelectPos]))
 		{
 			if (IsComboBox())
 			{
@@ -1328,26 +1326,14 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_MSWHEEL_UP:
 		{
-			if(SelectPos)
-			{
-				FarListPos Pos{ sizeof(Pos), SelectPos - 1, TopPos - 1 };
-				SetSelectPos(&Pos);
-				ShowMenu(true);
-			}
+			SetSelectPos(SelectPos - 1, -1, true);
+			ShowMenu(true);
 			break;
 		}
 		case KEY_MSWHEEL_DOWN:
 		{
-			if(SelectPos < static_cast<int>(Items.size()-1))
-			{
-				FarListPos Pos{ sizeof(Pos), SelectPos + 1, TopPos };
-				const auto ItemsSize = static_cast<int>(Items.size());
-				const auto HeightSize = std::max(0, m_Where.height() - (m_BoxType == NO_BOX? 0 : 2));
-				if (!(ItemsSize - TopPos <= HeightSize || ItemsSize <= HeightSize))
-					Pos.TopPos++;
-				SetSelectPos(&Pos);
-				ShowMenu(true);
-			}
+			SetSelectPos(SelectPos + 1, 1, true);
+			ShowMenu(true);
 			break;
 		}
 
@@ -1710,7 +1696,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		const auto MsPos = VisualPosToReal(GetVisualPos(TopPos) + MsY - m_Where.top - (m_BoxType == NO_BOX? 0 : 1));
 
-		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos]))
+		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && item_can_have_focus(Items[MsPos]))
 		{
 			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			{
@@ -1765,7 +1751,7 @@ int VMenu::GetVisualPos(int Pos) const
 	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
-	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [](const auto& Item) { return ItemIsVisible(Item); });
+	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [](const auto& Item) { return item_is_visible(Item); });
 }
 
 int VMenu::VisualPosToReal(int VPos) const
@@ -1779,7 +1765,7 @@ int VMenu::VisualPosToReal(int VPos) const
 	if (VPos >= GetShowItemCount())
 		return static_cast<int>(Items.size());
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i) && !VPos--; });
+	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return item_is_visible(i) && !VPos--; });
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
@@ -2149,7 +2135,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 		if (I < static_cast<int>(Items.size()))
 		{
-			if (!ItemIsVisible(Items[I]))
+			if (!item_is_visible(Items[I]))
 			{
 				Y--;
 				continue;
@@ -2399,7 +2385,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
 
 	for (const auto& I: irange(StartPos, Items.size()))
 	{
-		if (!ItemIsVisible(Items[I]))
+		if (!item_is_visible(Items[I]))
 			continue;
 
 		if (const auto Ch = GetHighlights(&Items[I]))
@@ -2497,7 +2483,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 	FOR_CONST_RANGE(Items, Iterator)
 	{
 		auto& CurItem = *Iterator;
-		if (ItemCanHaveFocus(CurItem) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AutoHotkey || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name, Key, Translate, CurItem.AutoHotkey))))
+		if (item_can_have_focus(CurItem) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AutoHotkey || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name, Key, Translate, CurItem.AutoHotkey))))
 		{
 			NewPos=static_cast<int>(Iterator - Items.cbegin());
 			if (ChangePos)
@@ -2506,7 +2492,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 				ShowMenu(true);
 			}
 
-			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos]))
+			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && item_can_be_entered(Items[SelectPos]))
 			{
 				SetExitCode(NewPos);
 			}
@@ -2996,3 +2982,70 @@ size_t VMenu::Text(wchar_t const Char) const
 {
 	return ::Text(Char, m_Where.width() - (WhereX() - m_Where.left));
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("find.nearest.selectable.item")
+{
+	using namespace std::ranges;
+	using namespace std::views;
+
+	std::array<int, 10> arr{};
+
+	const auto Pred{ [](const int b) { return b != 0; } };
+
+	const auto TestAllPositions{
+		[&](const int Found)
+		{
+			for (const auto Pos : iota(0, static_cast<int>(arr.size())))
+			{
+				REQUIRE(find_nearest(arr, Pos, Pred, false, false) == Found);
+				REQUIRE(find_nearest(arr, Pos, Pred, false, true) == Found);
+				REQUIRE(find_nearest(arr, Pos, Pred, true, false) == Found);
+				REQUIRE(find_nearest(arr, Pos, Pred, true, true) == Found);
+			}
+		} };
+
+	TestAllPositions(-1);
+
+	for (const auto Found : iota(0, static_cast<int>(arr.size())))
+	{
+		fill(arr, int{});
+		arr[Found] = true;
+		TestAllPositions(Found);
+	}
+
+	fill(arr, int{});
+	arr[3] = arr[7] = true;
+
+	static constexpr struct
+	{
+		int Pos;
+		bool GoBackward;
+		bool DoWrap;
+		int Expected;
+	} TestDataPoints[]
+	{
+		{ 1, false, false, 3 },
+		{ 1, false, true, 3 },
+		{ 5, false, false, 7 },
+		{ 5, false, true, 7 },
+		{ 9, false, false, 7 },
+		{ 9, false, true, 3 },
+		{ 1, true, false, 3 },
+		{ 1, true, true, 7 },
+		{ 5, true, false, 3 },
+		{ 5, true, true, 3 },
+		{ 9, true, false, 7 },
+		{ 9, true, true, 7 },
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(find_nearest(arr, TestDataPoint.Pos, Pred, TestDataPoint.GoBackward, TestDataPoint.DoWrap) == TestDataPoint.Expected);
+	}
+}
+
+#endif
