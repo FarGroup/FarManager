@@ -2813,12 +2813,44 @@ void FarMacroApi::rindexFunc() const
 	PassValue(Position);
 }
 
+static auto convert_size2str_flags(uint64_t const Flags)
+{
+	static constexpr std::pair<uint64_t, uint64_t> FlagsMap[]
+	{
+		{ 0x0010000000000000, COLFLAGS_SHOW_MULTIPLIER },
+		{ 0x0800000000000000, COLFLAGS_GROUPDIGITS },
+		{ 0x0080000000000000, COLFLAGS_FLOATSIZE },
+		{ 0x0040000000000000, COLFLAGS_ECONOMIC },
+		{ 0x0400000000000000, COLFLAGS_THOUSAND },
+		{ 0x0020000000000000, COLFLAGS_USE_MULTIPLIER },
+	};
+
+	uint64_t InternalFlags = 0;
+
+	for (const auto& [From, To]: FlagsMap)
+	{
+		if (Flags & From)
+			InternalFlags |= To;
+	}
+
+	if (InternalFlags & COLFLAGS_USE_MULTIPLIER)
+	{
+		const auto Multiplier = Flags & COLFLAGS_MULTIPLIER_MASK;
+		InternalFlags |= Multiplier;
+	}
+
+	return InternalFlags;
+}
+
 // S=Size2Str(Size,Flags[,Width])
 void FarMacroApi::size2strFunc() const
 {
 	const auto Params = parseParams(3);
+	const auto Size = as_unsigned(Params[0].asInteger());
+	const auto Flags = convert_size2str_flags(Params[1].asInteger());
 	const auto Width = static_cast<int>(Params[2].asInteger());
-	PassValue(FileSizeToStr(Params[0].asInteger(), Width, Params[1].asInteger()));
+
+	PassValue(FileSizeToStr(Size, Width, Flags));
 }
 
 // S=date([S])
@@ -5210,6 +5242,27 @@ TEST_CASE("macro.splitpath")
 
 			REQUIRE(Expected == Actual);
 		}
+	}
+}
+
+TEST_CASE("macro.convert_size2str_flags")
+{
+	static const struct
+	{
+		uint64_t Input, Expected;
+	}
+	Tests[]
+	{
+		{ 0, 0 },
+		{ 1, 0 },
+		{ 0x1000000000000000, 0 },
+		{ 0x0020000000000004, COLFLAGS_USE_MULTIPLIER | COLFLAGS_MULTIPLIER_P },
+		{ as_unsigned(-1ll), COLFLAGS_SHOW_MULTIPLIER | COLFLAGS_GROUPDIGITS | COLFLAGS_FLOATSIZE | COLFLAGS_ECONOMIC | COLFLAGS_THOUSAND | COLFLAGS_USE_MULTIPLIER | COLFLAGS_MULTIPLIER_MASK },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Expected == convert_size2str_flags(i.Input));
 	}
 }
 #endif
