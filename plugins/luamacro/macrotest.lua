@@ -578,8 +578,25 @@ local function test_mf_waitkey()
 end
 
 local function test_mf_size2str()
-  assert_eq (mf.size2str(123,0,5), "  123")
-  assert_eq (mf.size2str(123,0,-5), "123  ")
+  local F_COMMAS         = bit64.new("0x0800000000000000")
+  local F_FLOATSIZE      = bit64.new("0x0080000000000000")
+  local F_SHOWBYTESINDEX = bit64.new("0x0010000000000000")
+  local F_ECONOMIC       = bit64.new("0x0040000000000000")
+  local F_THOUSAND       = bit64.new("0x0400000000000000")
+  local F_MINSIZEINDEX   = bit64.new("0x0020000000000000")
+
+  assert_eq(mf.size2str(123456, 0), "123456")
+  assert_eq(mf.size2str(123456, 0, 8), "  123456")
+  assert_eq(mf.size2str(123456, 0, -8), "123456  ")
+  assert_eq(mf.size2str(123456, F_COMMAS), "123,456")
+  assert_eq(mf.size2str(123456, F_SHOWBYTESINDEX), "123456 B")
+  assert_eq(mf.size2str(123456, F_FLOATSIZE), "121 K")
+  assert_eq(mf.size2str(123456, F_FLOATSIZE+F_ECONOMIC), "121K")
+  assert_eq(mf.size2str(123456, F_FLOATSIZE+F_THOUSAND), "123 k")
+  assert_eq(mf.size2str(2^42+2^34, F_SHOWBYTESINDEX+F_MINSIZEINDEX+0x3), "4 T")
+  assert_eq(mf.size2str(2^42+2^34, F_SHOWBYTESINDEX+F_MINSIZEINDEX+0x2), "4112 G")
+  assert_eq(mf.size2str(2^42+2^34, F_SHOWBYTESINDEX+F_MINSIZEINDEX+0x1), "4210688 M")
+  assert_eq(mf.size2str(2^42+2^34, F_SHOWBYTESINDEX+F_MINSIZEINDEX+0x0), "4311744512 K")
 end
 
 local function test_mf_xlat()
@@ -1912,8 +1929,18 @@ local function test_FarStandardFunctions()
 
   assert(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL") == [[c:\abc]])
 
+  assert_eq(far.FormatFileSize(123456, 0), "123456")
   assert_eq(far.FormatFileSize(123456, 8), "  123456")
   assert_eq(far.FormatFileSize(123456, -8), "123456  ")
+  assert_eq(far.FormatFileSize(123456, 0, F.FFFS_COMMAS), "123,456")
+  assert_eq(far.FormatFileSize(123456, 0, F.FFFS_SHOWBYTESINDEX), "123456 B")
+  assert_eq(far.FormatFileSize(123456, 0, F.FFFS_FLOATSIZE), "121 K")
+  assert_eq(far.FormatFileSize(123456, 0, F.FFFS_FLOATSIZE+F.FFFS_ECONOMIC), "121K")
+  assert_eq(far.FormatFileSize(123456, 0, F.FFFS_FLOATSIZE+F.FFFS_THOUSAND), "123 k")
+  assert_eq(far.FormatFileSize(2^42+2^34, 0, F.FFFS_SHOWBYTESINDEX+F.FFFS_MINSIZEINDEX+0x3), "4 T")
+  assert_eq(far.FormatFileSize(2^42+2^34, 0, F.FFFS_SHOWBYTESINDEX+F.FFFS_MINSIZEINDEX+0x2), "4112 G")
+  assert_eq(far.FormatFileSize(2^42+2^34, 0, F.FFFS_SHOWBYTESINDEX+F.FFFS_MINSIZEINDEX+0x1), "4210688 M")
+  assert_eq(far.FormatFileSize(2^42+2^34, 0, F.FFFS_SHOWBYTESINDEX+F.FFFS_MINSIZEINDEX+0x0), "4311744512 K")
 
   assert_str (far.GetCurrentDirectory())
 
