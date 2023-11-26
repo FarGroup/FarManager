@@ -5501,15 +5501,19 @@ static int far_XLat(lua_State *L)
 
 static int far_FormatFileSize(lua_State *L)
 {
-	wchar_t buf[256];
-	UINT64 Size = CAST(UINT64, luaL_checknumber(L, 1));
+	uint64_t Size = (uint64_t) luaL_checknumber(L, 1);
 	intptr_t Width = luaL_checkinteger(L, 2);
-	UINT64 Flags = OptFlags(L, 3, 0);
+	if (abs(Width) > 0x20000)
+		return luaL_error(L, "the 'Width' argument exceeds 128 KBytes");
 
-	if(Flags & FFFS_MINSIZEINDEX)
-		Flags |= (luaL_optinteger(L, 4, 0) & FFFS_MINSIZEINDEX_MASK);
+	UINT64 Flags = OptFlags(L, 3, 0) & ~FFFS_MINSIZEINDEX_MASK;
+	Flags |= luaL_optinteger(L, 4, 0) & FFFS_MINSIZEINDEX_MASK;
 
-	GetPluginData(L)->FSF->FormatFileSize(Size, Width, Flags, buf, ARRSIZE(buf));
+	TPluginData *pd = GetPluginData(L);
+	size_t bufsize = pd->FSF->FormatFileSize(Size, Width, Flags, NULL, 0);
+	wchar_t *buf = (wchar_t*) lua_newuserdata(L, bufsize*sizeof(wchar_t));
+
+	pd->FSF->FormatFileSize(Size, Width, Flags, buf, bufsize);
 	push_utf8_string(L, buf, -1);
 	return 1;
 }
