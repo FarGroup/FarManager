@@ -54,7 +54,7 @@ GAWK=tools\gawk
 
 BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
 
-DEPFILE=$(BOOTSTRAPDIR)far.vc.dep
+DEPFILE=$(BOOTSTRAPDIR)far.dep
 
 RES_FILE = "$(INTDIR)\far.res"
 

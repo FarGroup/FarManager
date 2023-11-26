@@ -1,8 +1,8 @@
 include ../../../far/makefile_gcc_common
 
-OBJDIR = ./obj.$(DIRBIT).gcc
+OBJDIR = ./obj.$(DIRBIT).$(DIRSUFFIX)
 OBJDIRW = $(OBJDIR)/w
-REOBJDIR = \.\/obj\.$(DIRBIT)\.gcc\/
+REOBJDIR = \.\/obj\.$(DIRBIT)\.$(DIRSUFFIX)\/
 DLLDIR = ..
 DLLNAME = libCRT.a
 ifeq ($(DIRBIT),64)

@@ -3,14 +3,14 @@
 include ./makefile_gcc_common
 THIS_MAKE = $(TOP_MAKEFILE)
 
-EXEDIR = $(DIRNAME).$(DIRBIT).gcc/
+EXEDIR = $(DIRNAME).$(DIRBIT).$(DIRSUFFIX)/
 OBJDIR = $(EXEDIR)obj/
 export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
 FORCEINCLUDELIST_NO_PCH=memcheck.hpp disabled_warnings.hpp
 export FORCEINCLUDELIST=headers.hpp $(FORCEINCLUDELIST_NO_PCH)
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
-DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
+DEPFILE = $(BOOTSTRAPDIR)far.dep
 
 ifdef DEBUG
 ENABLE_TESTS = 1

@@ -79,6 +79,12 @@ ifndef DIRBIT
   endif
  endif
 endif # DIRBIT
+
+ifdef CLANG
+DIRSUFFIX=clang
+else # CLANG
+DIRSUFFIX=gcc
+endif # CLANG
 # Output directory setup end
 
 # Main flags setup
@@ -165,7 +171,6 @@ else # DEBUG
 CFLAGS += \
 	-DNDEBUG \
 	-O3 \
-	-fomit-frame-pointer \
 
 ifeq ($(USE_LTO),1)
 CFLAGS += \
@@ -194,6 +199,12 @@ endif
 # Platform-specific flags end
 
 # Compiler-specific flags
+LLD_FLAGS = \
+	-fuse-ld=lld \
+	-Xlinker --allow-multiple-definition \
+	-Xlinker -Map \
+	-Xlinker $(MAP) \
+
 ifdef CLANG
 ifeq ($(DIRBIT), 32)
 CLANG_TARGET = i686-pc-windows-gnu
@@ -211,10 +222,7 @@ CFLAGS += $(CLANG_FLAGS)
 
 LNKFLAGS += \
 	$(CLANG_FLAGS) \
-	-fuse-ld=lld \
-	-Xlinker --allow-multiple-definition \
-	-Xlinker -Map \
-	-Xlinker $(MAP) \
+	$(LLD_FLAGS) \
 
 ifndef DEBUG
 LNKFLAGS += \
@@ -232,8 +240,7 @@ endif
 
 ifdef USE_LLD
 LNKFLAGS += \
-	-fuse-ld=lld \
-	-Xlinker --allow-multiple-definition \
+	$(LLD_FLAGS) \
 
 endif
 

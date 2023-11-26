@@ -66,7 +66,7 @@ FAR_DIRNAME=Release
 else
 FAR_DIRNAME=Debug
 endif
-FAR_WORKDIR := $(FARDIR)\$(FAR_DIRNAME).$(DIRBIT).gcc
+FAR_WORKDIR := $(FARDIR)\$(FAR_DIRNAME).$(DIRBIT).$(DIRSUFFIX)
 endif
 
 .PHONY: lualib

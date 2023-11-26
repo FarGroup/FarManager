@@ -57,9 +57,9 @@ C_DEBUG := -g -D_DEBUG
 L_DEBUG :=
 endif
 
-BASEDIR = ./$(DIRNAME).$(DIRBIT).gcc
+BASEDIR = ./$(DIRNAME).$(DIRBIT).$(DIRSUFFIX)
 OBJDIR := $(BASEDIR)/obj
-REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)\.gcc\/obj\/
+REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)\.$(DIRSUFFIX)\/obj\/
 DLLDIR ?= $(BASEDIR)$(ADDOUTDIR)
 COMMON ?= $(MAKEFILE_DIR)/common
 COMINC = $(COMMON)/$(if $(ANSI),ascii,unicode)
