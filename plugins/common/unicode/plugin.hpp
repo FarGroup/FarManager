@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6213.0
+Plugin API for Far Manager 3.0.6218.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6213
+#define FARMANAGERVERSION_BUILD 6218
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -2353,7 +2353,7 @@ FAR_INLINE_CONSTANT FARFORMATFILESIZEFLAGS
 	FFFS_ECONOMIC               = 0x0800000000000000LL,
 	FFFS_THOUSAND               = 0x1000000000000000LL,
 	FFFS_MINSIZEINDEX           = 0x2000000000000000LL,
-	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000003LL,
+	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000007LL,
 	FFFS_NONE                   = 0;
 
 typedef size_t (WINAPI *FARFORMATFILESIZE)(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
