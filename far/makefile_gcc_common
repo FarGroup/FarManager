@@ -180,7 +180,7 @@ CFLAGS += \
 endif # USE_LTO
 
 LNKFLAGS += \
-	-Xlinker --gc-sections
+	-Xlinker --gc-sections \
 
 endif # DEBUG
 # Configuration-specific flags end
@@ -199,11 +199,16 @@ endif
 # Platform-specific flags end
 
 # Compiler-specific flags
+PDB_FLAGS = \
+	-g \
+	-gcodeview \
+
 LLD_FLAGS = \
 	-fuse-ld=lld \
 	-Xlinker --allow-multiple-definition \
 	-Xlinker -Map \
 	-Xlinker $(MAP) \
+	-Xlinker --pdb= \
 
 ifdef CLANG
 ifeq ($(DIRBIT), 32)
@@ -216,7 +221,9 @@ CLANG_FLAGS = \
 	-target $(CLANG_TARGET) \
 	-Wno-unknown-warning-option \
 	-fms-extensions \
+	-fno-emulated-tls \
 	-Weverything \
+	$(PDB_FLAGS)
 
 CFLAGS += $(CLANG_FLAGS)
 
@@ -224,24 +231,27 @@ LNKFLAGS += \
 	$(CLANG_FLAGS) \
 	$(LLD_FLAGS) \
 
-ifndef DEBUG
-LNKFLAGS += \
-	-Xlinker --strip-all \
-
-endif
-
 else
+ifndef USE_LLD
 # LD map files are unusable for tracing,
 # so we keep the symbols, objdump them and strip manually.
 # LLD, on the contrary, generates good maps and doesn't need this trickery.
 USE_OBJDUMP_MAPS=1
 endif
+endif
 # Compiler-specific flags end
 
-ifdef USE_LLD
+ifndef USE_OBJDUMP_MAPS
+ifdef DEBUG
 LNKFLAGS += \
-	$(LLD_FLAGS) \
+	-Xlinker --strip-all \
 
+endif
+endif
+
+ifdef USE_LLD
+CFLAGS += $(PDB_FLAGS)
+LNKFLAGS += $(LLD_FLAGS)
 endif
 
 ifeq ($(findstring ----,---$(strip $(MAKEFLAGS))-),)
