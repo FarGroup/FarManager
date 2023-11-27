@@ -43,15 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum eol_type: char
-{
-	none = 0,
-	win,      // <CR><LF>      \r\n
-	unix,     // <LF>          \n
-	mac,      // <CR>          \r
-	bad_win,  // <CR><CR><LF>  \r\r\n
-};
-
 static const auto
 	none_s = L""sv,
 	win_s = L"\r\n"sv,       // DOS/Windows
@@ -72,21 +63,16 @@ eol const
 
 #undef EOL
 
-eol::eol():
-	m_Type(eol_type::none)
+static eol::eol_type parse_type(string_view const Value)
 {
-}
-
-static eol_type parse_type(string_view const Value)
-{
-#define EOL_FROM_STR(type) if (Value == type ## _s) return eol_type::type
+#define EOL_FROM_STR(type) if (Value == type ## _s) return eol::eol_type::type
 
 	EOL_FROM_STR(win);
 	EOL_FROM_STR(unix);
 	EOL_FROM_STR(mac);
 	EOL_FROM_STR(bad_win);
 
-	return eol_type::none;
+	return eol::eol_type::none;
 
 #undef EOL_FROM_STR
 }
@@ -111,11 +97,6 @@ string_view eol::str() const
 
 #undef EOL_TO_STR
 	}
-}
-
-eol::eol(char const Type):
-	m_Type(Type)
-{
 }
 
 #ifdef ENABLE_TESTS

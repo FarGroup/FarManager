@@ -47,7 +47,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class eol
 {
 public:
-	eol();
+	enum class eol_type: uint8_t
+	{
+		none,
+		win,
+		unix,
+		mac,
+		bad_win,
+
+		count
+	};
 
 	static const eol
 		none,
@@ -58,14 +67,22 @@ public:
 		std,      // unix
 		system;   // win
 
+	explicit(false) eol(eol_type Type = eol_type::none):
+		m_Type(Type)
+	{
+	}
+
+	eol_type type() const
+	{
+		return m_Type;
+	}
+
 	static eol parse(string_view Value);
 	string_view str() const;
 	bool operator==(const eol&) const = default;
 
 private:
-	explicit eol(char Type);
-
-	char m_Type;
+	eol_type m_Type;
 };
 
 #endif // EOL_HPP_F17D2D67_EAFD_480A_A1DA_92894204FB5A

@@ -77,7 +77,16 @@ enum FLAGS_CLASS_EDITLINE
 	// явно не в диалоге юзается.
 	FEDITLINE_PARENT_SINGLELINE    = 21_bit,  // обычная строка ввода в диалоге
 	FEDITLINE_PARENT_MULTILINE     = 22_bit,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+
+	// eol storage
+	// We pack it into scrobj flags to not waste space in Edit class
+	FEDITLINE_EOL_DATA0            = 29_bit,
+	FEDITLINE_EOL_DATA1            = 30_bit,
+	FEDITLINE_EOL_DATA2            = 31_bit,
+	FEDITLINE_EOL_MASK = FEDITLINE_EOL_DATA0 | FEDITLINE_EOL_DATA1 | FEDITLINE_EOL_DATA2
 };
+
+static_assert(std::to_underlying(eol::eol_type::count) < 0b111);
 
 struct ColorItem
 {
@@ -229,6 +238,9 @@ private:
 
 	bool is_valid_surrogate_pair_at(size_t Position) const;
 
+	eol::eol_type get_eol() const;
+	void set_eol(eol::eol_type Eol);
+
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int
 	// Remove it after fixing all signed/unsigned mess
@@ -254,7 +266,6 @@ private:
 	int m_SelStart{-1};
 	int m_SelEnd{};
 	int LeftPos{};
-	eol m_Eol{eol::none};
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B
