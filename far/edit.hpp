@@ -120,8 +120,6 @@ public:
 	NONCOPYABLE(Edit);
 	MOVE_CONSTRUCTIBLE(Edit);
 
-	using delete_color_condition = function_ref<bool(const ColorItem&)>;
-
 	explicit Edit(window_ptr Owner);
 
 	bool ProcessKey(const Manager::Key& Key) override;
@@ -176,9 +174,6 @@ public:
 	void SetEditorMode(bool Mode) {m_Flags.Change(FEDITLINE_EDITORMODE, Mode);}
 	bool ReplaceTabs();
 	void InsertTab();
-	void AddColor(const ColorItem& col);
-	void DeleteColor(delete_color_condition Condition);
-	bool GetColor(ColorItem& col, size_t Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);
 	void SetCursorType(bool Visible, size_t Size);
@@ -223,7 +218,7 @@ private:
 
 	bool InsertKey(wchar_t Key);
 	bool RecurseProcessKey(int Key);
-	void ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisual);
+	void ApplyColor(std::multiset<ColorItem> const& Colors, int XPos, int FocusedLeftPos, positions_cache& RealToVisual);
 	int GetNextCursorPos(int Position,int Where) const;
 	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();

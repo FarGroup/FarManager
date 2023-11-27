@@ -169,6 +169,7 @@ Editor::~Editor()
 void Editor::FreeAllocatedData()
 {
 	m_AutoDeletedColors.clear();
+	m_ColorList.clear();
 	Lines.clear();
 	UndoData.clear();
 	UndoSavePos = UndoPos = UndoData.end();
@@ -209,6 +210,7 @@ void Editor::SwapState(Editor& swap_state)
 	swap(m_FoundLine, swap_state.m_FoundLine);
 	swap(m_FoundPos, swap_state.m_FoundPos);
 	swap(m_FoundSize, swap_state.m_FoundSize);
+	swap(m_ColorList, swap_state.m_ColorList);
 	swap(m_AutoDeletedColors, swap_state.m_AutoDeletedColors);
 	swap(MaxRightPosState, swap_state.MaxRightPosState);
 }
@@ -3562,7 +3564,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 							newcol.SetColor(SelColor);
 							newcol.SetOwner(FarUuid);
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
-							CurPtr->AddColor(newcol);
+							AddColor(CurPtr, newcol);
 
 							if (!SearchLength && strReplaceStrCurrent.empty())
 								ZeroLength = true;
@@ -3579,7 +3581,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 								},
 								{ lng::MEditReplace, lng::MEditReplaceAll, lng::MEditSkip, lng::MEditCancel });
 
-							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
+							DeleteColor(CurPtr, [&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
 							if (MsgCode == message_result::second_button)
 								IsReplaceAll = true;
@@ -5599,7 +5601,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			newcol.SetOwner(col->Owner);
 			newcol.Priority=col->Priority;
 
-			CurPtr->AddColor(newcol);
+			AddColor(CurPtr, newcol);
 			if (col->Flags & ECF_AUTODELETE)
 				m_AutoDeletedColors.emplace(&*CurPtr);
 
@@ -5618,7 +5620,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				return false;
 
 			ColorItem curcol;
-			if (!CurPtr->GetColor(curcol, col->ColorItem))
+			if (!GetColor(CurPtr, curcol, col->ColorItem))
 				return false;
 
 			col->StartPos = curcol.StartPos;
@@ -5641,7 +5643,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (CurPtr == Lines.end())
 				return false;
 
-			CurPtr->DeleteColor([&](const ColorItem& Item)
+			DeleteColor(CurPtr, [&](const ColorItem& Item)
 			{
 				return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner();
 			});
@@ -6745,6 +6747,48 @@ uintptr_t Editor::GetCodePage() const
 	throw MAKE_FAR_EXCEPTION(L"HostFileEditor is nullptr"sv);
 }
 
+void Editor::AddColor(numbered_iterator const& It, ColorItem const& Item)
+{
+	m_ColorList[std::to_address(It)].insert(Item);
+}
+
+void Editor::DeleteColor(Edit const* It, delete_color_condition const Condition)
+{
+	const auto [ColorsIterator, Inserted] = m_ColorList.try_emplace(It);
+	std::erase_if(ColorsIterator->second, Condition);
+	if (ColorsIterator->second.empty())
+		m_ColorList.erase(ColorsIterator);
+}
+
+void Editor::DeleteColor(numbered_iterator const& It, delete_color_condition Condition)
+{
+	return DeleteColor(std::to_address(It), Condition);
+}
+
+bool Editor::GetColor(numbered_iterator const& It, ColorItem& Item, size_t const Index) const
+{
+	const auto ColorsIterator = m_ColorList.find(std::to_address(It));
+	if (ColorsIterator == m_ColorList.cend())
+		return false;
+
+	if (Index >= ColorsIterator->second.size())
+		return false;
+
+	auto ColorIterator = ColorsIterator->second.begin();
+	std::advance(ColorIterator, Index);
+	Item = *ColorIterator;
+	return true;
+}
+
+std::multiset<ColorItem> const* Editor::GetColors(Edit* It) const
+{
+	const auto ColorsIterator = m_ColorList.find(It);
+	if (ColorsIterator == m_ColorList.cend())
+		return {};
+
+	return &ColorsIterator->second;
+}
+
 
 void Editor::SetDialogParent(DWORD Sets)
 {
@@ -6853,7 +6897,7 @@ void Editor::AutoDeleteColors()
 {
 	for (const auto& i: m_AutoDeletedColors)
 	{
-		i->DeleteColor([](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; });
+		DeleteColor(i, [](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; });
 	}
 
 	m_AutoDeletedColors.clear();

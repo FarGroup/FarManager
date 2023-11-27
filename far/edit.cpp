@@ -397,7 +397,8 @@ void Edit::FastShow(const ShowInfo* Info)
 		if (m_Flags.Check(FEDITLINE_EDITORMODE))
 		{
 			// Editor highlight
-			ApplyColor(XPos, FocusedLeftPos, RealToVisual);
+			if (const auto Colors = GetEditor()->GetColors(this); Colors)
+				ApplyColor(*Colors, XPos, FocusedLeftPos, RealToVisual);
 		}
 
 		if (TabSelStart == -1)
@@ -2056,32 +2057,11 @@ void Edit::DeleteBlock()
 	Changed(true);
 }
 
-void Edit::AddColor(const ColorItem& col)
-{
-	ColorList.insert(col);
-}
-
-void Edit::DeleteColor(delete_color_condition const Condition)
-{
-	std::erase_if(ColorList, Condition);
-}
-
-bool Edit::GetColor(ColorItem& col, size_t Item) const
-{
-	if (Item >= ColorList.size())
-		return false;
-
-	auto it = ColorList.begin();
-	std::advance(it, Item);
-	col = *it;
-	return true;
-}
-
-void Edit::ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisual)
+void Edit::ApplyColor(std::multiset<ColorItem> const& Colors, int XPos, int FocusedLeftPos, positions_cache& RealToVisual)
 {
 	const auto Width = ObjWidth();
 
-	for (const auto& CurItem: ColorList)
+	for (const auto& CurItem: Colors)
 	{
 		// Skip invalid
 		if (CurItem.StartPos > CurItem.EndPos)
