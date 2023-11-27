@@ -1925,6 +1925,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				Undo(any_of(LocalKey(), KEY_CTRLSHIFTZ, KEY_RCTRLSHIFTZ));
+				m_Flags.Set(FEDITOR_NEWUNDO);
 				Refresh = true;
 			}
 
