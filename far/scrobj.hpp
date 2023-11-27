@@ -100,8 +100,8 @@ private:
 protected:
 	// KEEP ALIGNED!
 	std::weak_ptr<window> m_Owner;
-	BitFlags m_Flags;
 	small_rectangle m_Where{};
+	BitFlags m_Flags;
 };
 
 class ScreenObject:public SimpleScreenObject
