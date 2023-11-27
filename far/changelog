@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2023-11-27 20:38:00+00:00 - build 6219
+
+1. Reduce memory consumption in editor with a few tricks. Could be up to 30%.
+
+2. gh-752: Editor Undo Glitch.
+   Primordial bug from v1.50 beta (6 Oct 1997).
+
+--------------------------------------------------------------------------------
 drkns 2023-11-26 15:22:17+00:00 - build 6218
 
 1. Fix flags processing in mf.size2str, broken in 5418.
