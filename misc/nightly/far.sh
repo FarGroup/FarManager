@@ -22,7 +22,7 @@ mkdir -p $OUTDIR/obj
 mkdir -p $OUTDIR/cod
 mkdir -p ${BOOTSTRAPDIR}
 
-ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
+ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.dep
 
 M4CMDP="$M4CMD -DFARBIT=$DIRBIT"
 
