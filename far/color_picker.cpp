@@ -174,10 +174,10 @@ namespace color_dialog
 		separator_style,
 
 		fg_first,
-		fg_last = fg_first + cb::count - 1,
+		fg_last = fg_first + std::to_underlying(cb::count) - 1,
 
 		bg_first,
-		bg_last = bg_first + cb::count - 1,
+		bg_last = bg_first + std::to_underlying(cb::count) - 1,
 
 		style_text,
 		style_checkbox_first,

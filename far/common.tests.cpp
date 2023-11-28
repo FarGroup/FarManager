@@ -1309,8 +1309,8 @@ namespace
 
 	enum
 	{
-		on_fail    = bit(0),
-		on_success = bit(1),
+		on_fail    = 0_bit,
+		on_success = 1_bit,
 	};
 
 	template<scope_exit::scope_type type>
@@ -1850,10 +1850,10 @@ TEST_CASE("utility.flags")
 	{
 		enum class scoped_flags
 		{
-			f0 = bit(0),
-			f1 = bit(1),
-			f2 = bit(2),
-			f3 = bit(3),
+			f0 = 0_bit,
+			f1 = 1_bit,
+			f2 = 2_bit,
+			f3 = 3_bit,
 
 			is_bit_flags
 		};

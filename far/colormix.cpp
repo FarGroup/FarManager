@@ -854,7 +854,7 @@ FarColor unresolve_defaults(FarColor const& Color)
 	return Result;
 }
 
-constexpr auto default_color_bit = bit(23);
+constexpr auto default_color_bit = 23_bit;
 
 COLORREF default_colorref()
 {
