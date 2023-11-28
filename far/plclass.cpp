@@ -560,6 +560,12 @@ bool Plugin::LoadData()
 	}
 
 	PrepareModulePath(m_strModuleName);
+
+	// Factory can spawn error messages, which in turn can cause redraw events
+	// and load plugins recursively again and again, eventually overflowing the stack.
+	// Expect nothing and you will never be disappointed.
+	WorkFlags.Set(PIWF_DONTLOADAGAIN);
+
 	m_Instance = m_Factory->Create(m_strModuleName);
 	FarChDir(strCurPath);
 
@@ -567,13 +573,9 @@ bool Plugin::LoadData()
 		os::env::set(Drive, strCurPlugDiskPath);
 
 	if (!m_Instance)
-	{
-		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
-		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 		return false;
-	}
 
-	WorkFlags.Clear(PIWF_CACHED);
+	WorkFlags.Clear(PIWF_DONTLOADAGAIN | PIWF_CACHED);
 
 	if(bPendingRemove)
 	{
