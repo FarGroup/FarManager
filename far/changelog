@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-11-28 17:30:27+00:00 - build 6220
+
+1. gh-754: Far crash on opening small file from network in Editor.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2023-11-27 20:38:00+00:00 - build 6219
 
 1. Reduce memory consumption in editor with a few tricks. Could be up to 30%.
