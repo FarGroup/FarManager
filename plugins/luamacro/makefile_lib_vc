@@ -1,6 +1,5 @@
 NAME=luafar3
-LUA_VER=51
-USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
+USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua51.dll\"
 !ifndef LUA
 LUA=luasdk\32\lua.exe
 !endif
@@ -13,7 +12,7 @@ DEF_NAME=
 !include ..\makefile_vc_def_inc
 
 DOCS = \
-	luasdk\$(DIRBIT)\lua$(LUA_VER).dll \
+	luasdk\$(DIRBIT)\lua51.dll \
 	luasdk\$(DIRBIT)\lpeg.dll \
 
 LINK_OBJS = \
@@ -35,7 +34,7 @@ $(INTDIR)\ustring.obj \
 $(INTDIR)\util.obj \
 $(INTDIR)\win.obj \
 
-LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib
+LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua51.lib
 
 !include ..\makefile_vc_target_inc
 

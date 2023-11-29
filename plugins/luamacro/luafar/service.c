@@ -9,7 +9,6 @@
 #include "luafar.h"
 #include "util.h"
 #include "ustring.h"
-#include "compat52.h"
 
 #ifndef LUADLL
 # if LUA_VERSION_NUM == 501

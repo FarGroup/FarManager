@@ -1,7 +1,6 @@
 ﻿#include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "compat52.h"
 
 #define MAX53 0x1FFFFFFFFFFFFFLL
 typedef __int64 INT64;

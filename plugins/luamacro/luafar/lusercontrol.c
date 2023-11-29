@@ -2,7 +2,6 @@
 
 #include "ustring.h"
 #include "util.h"
-#include "compat52.h"
 
 #define TYPE_USERCONTROL "far_usercontrol"
 

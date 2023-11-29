@@ -2,7 +2,6 @@
 
 #include "luafar.h"
 #include "ustring.h"
-#include "compat52.h"
 
 #define TYPE_REGEX "far_regex"
 

@@ -1,7 +1,5 @@
 NAME = luamacro
 
-LUAVER = 51
-
 SRCS = \
 	luafar/luaplug.c \
 
@@ -49,7 +47,7 @@ endif
 
 USERLIBS = \
 	$(OBJDIR)/luafar3.lib \
-	luasdk/$(DIRBIT)/lua$(LUAVER).lib \
+	luasdk/$(DIRBIT)/lua51.lib \
 
 USERTARGETS = \
 	lualib \
@@ -71,7 +69,7 @@ endif
 
 .PHONY: lualib
 lualib:
-	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) LUAVER=$(LUAVER)
+	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR)
 
 .PHONY: lualegacy
 lualegacy:

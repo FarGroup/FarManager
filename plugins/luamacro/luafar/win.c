@@ -13,7 +13,6 @@ WARNING_POP()
 #include "util.h"
 #include "ustring.h"
 #include "luafar.h"
-#include "compat52.h"
 
 extern const char* VirtualKeyStrings[256];
 extern void pushFileTime(lua_State *L, const FILETIME *ft);
