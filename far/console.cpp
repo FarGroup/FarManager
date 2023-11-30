@@ -1429,9 +1429,9 @@ WARNING_POP()
 				LastColor = Cell.Attributes;
 			}
 
-			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved > std::numeric_limits<wchar_t>::max())
+			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Reserved1 > std::numeric_limits<wchar_t>::max())
 			{
-				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved);
+				const auto Pair = encoding::utf16::to_surrogate(Cell.Reserved1);
 				append(Str, Pair.first, Pair.second);
 
 				if (char_width::is_half_width_surrogate_broken())
