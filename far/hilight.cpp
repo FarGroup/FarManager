@@ -544,7 +544,7 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 		auto BakedColor = ColorRef;
 		highlight::configuration::ApplyFinalColor(BakedColor, Index);
 
-		Row.front() = { BoxSymbols[BS_V2], colors::PaletteColorToFarColor(COL_PANELBOX) };
+		Row.front() = { BoxSymbols[BS_V2], {}, {}, colors::PaletteColorToFarColor(COL_PANELBOX) };
 
 		auto Iterator = Row.begin() + 1;
 
@@ -560,10 +560,10 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 
 		for (const auto& [Cell, Char]: zip(FileArea, Str))
 		{
-			Cell = { Char, BakedColor.FileColor };
+			Cell = { Char, {}, {}, BakedColor.FileColor };
 		}
 
-		Row.back() = { BoxSymbols[BS_V1], Row.front().Attributes };
+		Row.back() = { BoxSymbols[BS_V1], {}, {}, Row.front().Attributes };
 	}
 }
 

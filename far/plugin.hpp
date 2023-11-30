@@ -762,12 +762,18 @@ struct FarDialogItemColors
 struct FAR_CHAR_INFO
 {
 	wchar_t Char;
+	wchar_t Reserved0;
+	int Reserved1;
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
 	bool operator==(const FAR_CHAR_INFO& rhs) const
 	{
-		return Char == rhs.Char && Attributes == rhs.Attributes;
+		return
+			Char == rhs.Char &&
+			Reserved0 == rhs.Reserved0 &&
+			Reserved1 == rhs.Reserved1 &&
+			Attributes == rhs.Attributes;
 	}
 
 	bool operator!=(const FAR_CHAR_INFO& rhs) const
@@ -776,6 +782,9 @@ struct FAR_CHAR_INFO
 	}
 #endif
 };
+#ifdef FAR_USE_INTERNALS
+static_assert(sizeof(FAR_CHAR_INFO) == 32);
+#endif // END FAR_USE_INTERNALS
 
 struct FarDialogItem
 {

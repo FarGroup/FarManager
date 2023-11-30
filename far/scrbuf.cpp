@@ -822,7 +822,7 @@ void ScreenBuf::Scroll(size_t Count)
 
 	SCOPED_ACTION(std::scoped_lock)(CS);
 
-	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
+	const FAR_CHAR_INFO Fill{ L' ', {}, {}, colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 
 	if (Global->Opt->WindowMode)
 	{

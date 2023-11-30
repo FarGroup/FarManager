@@ -773,7 +773,7 @@ static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_
 	const auto From = Str.substr(0, MaxSize);
 	Buffer.reserve(From.size());
 
-	std::transform(ALL_CONST_RANGE(From), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+	std::transform(ALL_CONST_RANGE(From), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, {}, {}, CurColor }; });
 }
 
 static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
@@ -796,7 +796,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 			Str.remove_prefix(1);
 		}
 
-		Buffer.push_back({ Char[0], CurColor });
+		Buffer.push_back({ Char[0], {}, {}, CurColor });
 
 		if (char_width::is_wide(Codepoint))
 		{
@@ -810,13 +810,13 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 			if (Char[1])
 			{
 				// It's wide and it already occupies two cells - awesome
-				Buffer.push_back({ Char[1], CurColor });
+				Buffer.push_back({ Char[1], {}, {}, CurColor });
 			}
 			else
 			{
 				// It's wide and we need to add a bogus cell
 				Buffer.back().Attributes.Flags |= COMMON_LVB_LEADING_BYTE;
-				Buffer.push_back({ Char[0], CurColor });
+				Buffer.push_back({ Char[0], {}, {}, CurColor });
 				Buffer.back().Attributes.Flags |= COMMON_LVB_TRAILING_BYTE;
 			}
 		}
@@ -836,7 +836,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 				{
 					// Classic grid mode, nothing we can do :(
 					// Expect the broken UI
-					Buffer.push_back({ Char[1], CurColor });
+					Buffer.push_back({ Char[1], {}, {}, CurColor });
 				}
 			}
 			else
@@ -1146,7 +1146,7 @@ string escape_ampersands(string_view const Str)
 
 void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)
 {
-	Global->ScrBuf->FillRect(Where, { Ch, Color });
+	Global->ScrBuf->FillRect(Where, { Ch, {}, {}, Color });
 }
 
 void MakeShadow(rectangle const Where, bool const IsLegacy)
@@ -1182,7 +1182,7 @@ void SetRealColor(const FarColor& Color)
 
 void ClearScreen(const FarColor& Color)
 {
-	Global->ScrBuf->FillRect({ 0, 0, ScrX, ScrY }, { L' ', Color });
+	Global->ScrBuf->FillRect({ 0, 0, ScrX, ScrY }, { L' ', {}, {}, Color });
 	if(Global->Opt->WindowMode)
 	{
 		console.ClearExtraRegions(Color, CR_BOTH);

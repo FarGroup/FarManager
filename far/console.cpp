@@ -1125,7 +1125,7 @@ protected:
 		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
 			const auto& Cell = *ConsoleBufferIterator++;
-			i = { replace_replacement_if_needed(Cell), colors::unresolve_defaults(colors::NtColorToFarColor(Cell.Attributes)) };
+			i = { replace_replacement_if_needed(Cell), {}, {}, colors::unresolve_defaults(colors::NtColorToFarColor(Cell.Attributes)) };
 		});
 
 		return true;
@@ -2591,7 +2591,7 @@ TEST_CASE("console.vt_color")
 
 TEST_CASE("console.vt_sequence")
 {
-	FAR_CHAR_INFO const def{ L' ', colors::default_color() };
+	FAR_CHAR_INFO const def{ L' ', {}, {}, colors::default_color() };
 
 	const auto check = [](span<FAR_CHAR_INFO> const Buffer, string_view const Expected)
 	{

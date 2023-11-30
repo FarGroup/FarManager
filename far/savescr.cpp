@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
-	const FAR_CHAR_INFO Value{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
+	const FAR_CHAR_INFO Value{ L' ', {}, {}, colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 	std::fill_n(Buffer, BufSize, Value);
 }
 
