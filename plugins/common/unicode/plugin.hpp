@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6218.0
+Plugin API for Far Manager 3.0.6221.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6218
+#define FARMANAGERVERSION_BUILD 6221
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -710,12 +710,18 @@ struct FarDialogItemColors
 struct FAR_CHAR_INFO
 {
 	wchar_t Char;
+	wchar_t Reserved0;
+	int Reserved1;
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
 	bool operator==(const FAR_CHAR_INFO& rhs) const
 	{
-		return Char == rhs.Char && Attributes == rhs.Attributes;
+		return
+			Char == rhs.Char &&
+			Reserved0 == rhs.Reserved0 &&
+			Reserved1 == rhs.Reserved1 &&
+			Attributes == rhs.Attributes;
 	}
 
 	bool operator!=(const FAR_CHAR_INFO& rhs) const
