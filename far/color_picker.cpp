@@ -307,7 +307,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 		break;
 
 	case DN_CTLCOLORDLGITEM:
-		if (in_closed_range(cb::color_first_radio, Param1 - Offset, cb::color_last_radio))
+		if (in_closed_range(cb::color_first_radio, as_signed(Param1 - Offset), cb::color_last_radio))
 		{
 			if (TransparencyEnabled && colors::is_transparent(CurColor.Value))
 				return FALSE;
@@ -320,7 +320,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 		break;
 
 	case DN_BTNCLICK:
-		if (Param2 && in_closed_range(cb::color_first_radio, Param1 - Offset, cb::color_last_radio))
+		if (Param2 && in_closed_range(cb::color_first_radio, as_signed(Param1 - Offset), cb::color_last_radio))
 		{
 			if (IgnoreColorIndexClick)
 				return TRUE;
