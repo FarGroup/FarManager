@@ -3867,12 +3867,23 @@ static int far_DialogInit(lua_State *L)
 	FARAPIDEFDLGPROC Proc;
 	void *Param;
 	TPluginData *pd = GetPluginData(L);
-	GUID Id = *(GUID*)luaL_checkstring(L, 1);
-	intptr_t X1 = luaL_checkinteger(L, 2);
-	intptr_t Y1 = luaL_checkinteger(L, 3);
-	intptr_t X2 = luaL_checkinteger(L, 4);
-	intptr_t Y2 = luaL_checkinteger(L, 5);
-	const wchar_t *HelpTopic = opt_utf8_string(L, 6, NULL);
+	GUID Id;
+	intptr_t X1, Y1, X2, Y2;
+	const wchar_t *HelpTopic;
+
+	memset(&Id, 0, sizeof(Id));
+	if (lua_type(L,1) == LUA_TSTRING) {
+		if (lua_objlen(L,1) >= sizeof(GUID))
+			Id = *(const GUID*)lua_tostring(L, 1);
+	}
+	else if (!lua_isnoneornil(L,1))
+		return luaL_typerror(L, 1, "optional string");
+
+	X1 = luaL_checkinteger(L, 2);
+	Y1 = luaL_checkinteger(L, 3);
+	X2 = luaL_checkinteger(L, 4);
+	Y2 = luaL_checkinteger(L, 5);
+	HelpTopic = opt_utf8_string(L, 6, NULL);
 
 	luaL_checktype(L, 7, LUA_TTABLE);
 	lua_newtable(L);  // create a "histories" table, to prevent history strings
