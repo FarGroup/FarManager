@@ -6708,12 +6708,20 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 #endif
 	}
 
+	lua_getglobal(L, "utf8");                   //+1
+	lua_getglobal(L, "string");                 //+2
+	// utf8.dump = string.dump
+	lua_getfield(L, -1, "dump");                //+3
+	lua_setfield(L, -3, "dump");                //+2
+	// utf8.rep = string.rep
+	lua_getfield(L, -1, "rep");                 //+3
+	lua_setfield(L, -3, "rep");                 //+2
 	// getmetatable("").__index = utf8
-	lua_pushliteral(L, "");
-	lua_getmetatable(L, -1);
-	lua_getglobal(L, "utf8");
-	lua_setfield(L, -2, "__index");
-	lua_pop(L, 2);
+	lua_pushliteral(L, "");                     //+3
+	lua_getmetatable(L, -1);                    //+4
+	lua_pushvalue(L, -4);                       //+5
+	lua_setfield(L, -2, "__index");	            //+4
+	lua_pop(L, 4);                              //+0
 
 	// unicode.utf8 = utf8 (for backward compatibility;)
 	lua_newtable(L);

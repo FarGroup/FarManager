@@ -168,45 +168,6 @@ static int grab_one_utf8(const char **ps)
 }
 
 
-static int str_rep(lua_State *L)
-{
-	size_t l;
-	luaL_Buffer b;
-	const char *s = luaL_checklstring(L, 1, &l);
-	int n = luaL_checkint(L, 2);
-	luaL_buffinit(L, &b);
-
-	while(n-- > 0)
-		luaL_addlstring(&b, s, l);
-
-	luaL_pushresult(&b);
-	return 1;
-}
-
-
-static int writer(lua_State *L, const void* b, size_t size, void* B)
-{
-	(void)L;
-	luaL_addlstring((luaL_Buffer*) B, (const char *)b, size);
-	return 0;
-}
-
-
-static int str_dump(lua_State *L)
-{
-	luaL_Buffer b;
-	luaL_checktype(L, 1, LUA_TFUNCTION);
-	lua_settop(L, 1);
-	luaL_buffinit(L,&b);
-
-	if(lua_dump(L, writer, &b) != 0)
-		luaL_error(L, "unable to dump given function");
-
-	luaL_pushresult(&b);
-	return 1;
-}
-
-
 #define L_ESC		'%'
 #define SPECIALS	"^$*+?.([%-"
 
@@ -447,9 +408,7 @@ static int utf8_valid(lua_State *L)
 
 static const luaL_Reg uniclib[] =
 {
-	{"dump",      str_dump},
 	{"format",    str_format},
-	{"rep",       str_rep},
 	{"utf8valid", utf8_valid},
 	{NULL, NULL}
 };

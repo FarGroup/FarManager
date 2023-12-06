@@ -11796,11 +11796,9 @@ lv=2
 dt=Text
 nm=utf8.dump
 ctime=3776451293
-mtime=3776486873
+mtime=3911018421
 <article>
-#_**Note:**
-#_  This is an added function, not present in the original luautf8 library.
-#_  See `string.dump` for reference.
+#_This is the same function as `string.dump`.
 #_
 #_@@@
 #_[string.dump]: http://www.lua.org/manual/5.1/manual.html#pdf-string.dump
@@ -11830,11 +11828,9 @@ lv=2
 dt=Text
 nm=utf8.rep
 ctime=3776451304
-mtime=3776487967
+mtime=3911018452
 <article>
-#_**Note:**
-#_  This is an added function, not present in the original luautf8 library.
-#_  See `string.rep` for reference.
+#_This is the same function as `string.rep`.
 #_
 #_@@@
 #_[string.rep]: http://www.lua.org/manual/5.1/manual.html#pdf-string.rep
