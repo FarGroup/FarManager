@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <numeric>
 #include <optional>
 #include <random>
+#include <ranges>
 #include <regex>
 #include <set>
 #include <span>
