@@ -322,7 +322,12 @@ private:
 		std::optional<short> Scrollbar;
 		std::optional<short> RightBox;
 
-		std::optional<size_t> TextWidth() const noexcept { (TextLeft && TextRight) ? std::optional{ static_cast<size_t>(TextRight.value()) - TextLeft.value() + 1 } : std::nullopt; }
+		std::optional<size_t> TextWidth() const noexcept
+		{
+			return (TextLeft && TextRight)
+				? std::optional{ static_cast<size_t>(TextRight.value()) - TextLeft.value() + 1 }
+				: std::nullopt;
+		}
 	};
 
 	void ShowMenu();
