@@ -2950,12 +2950,12 @@ lv=2
 dt=Text
 nm=far.DialogInit
 ctime=3490426716
-mtime=3907614640
+mtime=3911132065
 <article>
-#_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,fDlgProc,Param)
+#_hDlg = far.DialogInit (Guid,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)
 #_
 #_**Parameters:**
-#_  Guid:      string
+#_  Guid:      string, or nil
 #_  X1:        integer
 #_  Y1:        integer
 #_  X2:        integer
@@ -2963,7 +2963,7 @@ mtime=3907614640
 #_  HelpTopic: string, or nil
 #_  Items:     table (array of `tFarDialogItem`)
 #_  Flags:     flags
-#_  fDlgProc:  function (`dialog event handler`), or nil
+#_  DlgProc:   function (`dialog event handler`), or nil
 #_  Param:     any Lua value (optional)
 #_
 #_**Returns:**

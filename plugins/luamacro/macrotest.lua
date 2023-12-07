@@ -471,19 +471,19 @@ local function test_mf_msave()
     mf.msave("key2", "name2", 200, "roaming")
     mf.msave("key1", "name1", 300, "local")
     for k=1,2 do
-      assert(mf.mload("key1", "name1") == 100)
-      assert(mf.mload("key1", "name1", "roaming") == 100)
-      assert(mf.mload("key2", "name2") == 200)
-      assert(mf.mload("key2", "name2", "roaming") == 200)
-      assert(mf.mload("key1", "name1", "local") == 300)
+      assert_eq(mf.mload("key1", "name1"), 100)
+      assert_eq(mf.mload("key1", "name1", "roaming"), 100)
+      assert_eq(mf.mload("key2", "name2"), 200)
+      assert_eq(mf.mload("key2", "name2", "roaming"), 200)
+      assert_eq(mf.mload("key1", "name1", "local"), 300)
     end
     mf.mdelete("key1", "name1")
     mf.mdelete("key2", "name2", "roaming")
-    assert(mf.mload("key1", "name1") == nil)
-    assert(mf.mload("key2", "name2") == nil)
-    assert(mf.mload("key1", "name1", "local") == 300)
+    assert_nil(mf.mload("key1", "name1"))
+    assert_nil(mf.mload("key2", "name2"))
+    assert_eq(mf.mload("key1", "name1", "local"), 300)
     mf.mdelete("key1", "name1", "local")
-    assert(mf.mload("key1", "name1", "local") == nil)
+    assert_nil(mf.mload("key1", "name1", "local"))
   end
 end
 
@@ -1404,6 +1404,9 @@ function MT.test_Plugin()
   assert_false(Plugin.Command())
   assert_true(Plugin.Command(luamacroId))
 
+  assert_true(Plugin.Exist(luamacroId))
+  assert_false(Plugin.Exist(luamacroId:gsub("^...","000")))
+
   local function test (func, N) -- Plugin.Call, Plugin.SyncCall: test arguments and returns
     local i1 = bit64.new("0x8765876587658765")
     local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
@@ -1632,7 +1635,7 @@ function MT.test_mantis_1722()
     end
   end
   local Dlg = { {"DI_EDIT", 3,1,56,10, 0,0,0,0, "a"}, }
-  mf.acall(far.Dialog, "",-1,-1,60,3,"Contents",Dlg, 0, DlgProc)
+  mf.acall(far.Dialog, nil,-1,-1,60,3,"Contents",Dlg, 0, DlgProc)
   assert_true(Area.Dialog)
   Keys("W 1 2 3 4 BS Esc")
   assert_eq(check, 6)
@@ -1760,7 +1763,7 @@ local function test_AdvControl_Colors()
     local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
     assert(color.Flags and color.ForegroundColor and color.BackgroundColor)
     for k,v in pairs(color) do
-      assert(allcolors[n][k] == v)
+      assert_eq(allcolors[n][k], v)
     end
   end
   assert_nil(far.AdvControl("ACTL_GETCOLOR", #allcolors))
@@ -1769,11 +1772,11 @@ local function test_AdvControl_Colors()
   -- change the colors
   local arr, elem = {StartIndex=0; Flags=0}, {Flags=100; ForegroundColor=101; BackgroundColor=102}
   for n=1,#allcolors do arr[n]=elem end
-  assert(far.AdvControl("ACTL_SETARRAYCOLOR", nil, arr))
+  assert_eq(far.AdvControl("ACTL_SETARRAYCOLOR", nil, arr), 1)
   for n=1,#allcolors do
-    local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
+    local color = assert_table(far.AdvControl("ACTL_GETCOLOR", n-1))
     for k,v in pairs(elem) do
-      assert(color[k] == v)
+      assert_eq(color[k], v)
     end
   end
 
@@ -1786,7 +1789,7 @@ local function test_AdvControl_Synchro()
   local oldProcessSynchroEvent = export.ProcessSynchroEvent
   export.ProcessSynchroEvent =
     function(event,param)
-      assert(pass==0 and param==123 or pass==1 and param==-456)
+      assert_true(pass==0 and param==123 or pass==1 and param==-456)
       pass = pass + 1
     end
   far.AdvControl("ACTL_SYNCHRO", 123)
@@ -1795,24 +1798,24 @@ local function test_AdvControl_Synchro()
     mf.acall(far.Show); Keys"Esc"
   end
   export.ProcessSynchroEvent = oldProcessSynchroEvent
-  assert(pass == 2)
+  assert_eq(pass, 2)
 end
 
 local function test_AdvControl_Misc()
   local t
 
-  assert(type(far.AdvControl("ACTL_GETFARHWND"))=="userdata")
+  assert_udata(far.AdvControl("ACTL_GETFARHWND"))
 
-  assert(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1)=="3")
-  assert(far.AdvControl("ACTL_GETFARMANAGERVERSION",true)==3)
+  assert_eq(far.AdvControl("ACTL_GETFARMANAGERVERSION"):sub(1,1), "3")
+  assert_eq(far.AdvControl("ACTL_GETFARMANAGERVERSION",true), 3)
 
   t = far.AdvControl("ACTL_GETFARRECT")
   assert(t.Left>=0 and t.Top>=0 and t.Right>t.Left and t.Bottom>t.Top)
 
-  assert(0 == far.AdvControl("ACTL_SETCURSORPOS", nil, {X=-1,Y=0}))
+  assert_eq(0, far.AdvControl("ACTL_SETCURSORPOS", nil, {X=-1,Y=0}))
   for k=0,2 do
-    assert(1 == far.AdvControl("ACTL_SETCURSORPOS", nil, {X=k,Y=k+1}))
-    t = assert(far.AdvControl("ACTL_GETCURSORPOS"))
+    assert_eq(1, far.AdvControl("ACTL_SETCURSORPOS", nil, {X=k,Y=k+1}))
+    t = assert_table(far.AdvControl("ACTL_GETCURSORPOS"))
     assert(t.X==k and t.Y==k+1)
   end
 
@@ -1927,7 +1930,7 @@ local function test_FarStandardFunctions()
 
   test_ProcessName()
 
-  assert(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL") == [[c:\abc]])
+  assert_eq(far.ConvertPath([[c:\foo\bar\..\..\abc]], "CPM_FULL"), [[c:\abc]])
 
   assert_eq(far.FormatFileSize(123456, 0), "123456")
   assert_eq(far.FormatFileSize(123456, 8), "  123456")
