@@ -155,43 +155,50 @@ void QuickView::DisplayObject()
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			string Target;
 			DWORD ReparseTag=0;
-			string TypeName;
+			string TypeName, Target;
+			bool KnownReparseTag = false;
+
 			if (GetReparsePointInfo(strCurFileName, Target, &ReparseTag))
 			{
+				KnownReparseTag = true;
 				NormalizeSymlinkName(Target);
-				switch(ReparseTag)
+
+				switch (ReparseTag)
 				{
-				// Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						auto ID_Msg = lng::MListJunction;
-						bool Root;
-						if(ParsePath(Target, nullptr, &Root) == root_type::volume && Root)
-						{
+						if (bool Root; ParsePath(Target, nullptr, &Root) == root_type::volume && Root)
 							ID_Msg = lng::MListVolMount;
-						}
+
 						TypeName = msg(ID_Msg);
 					}
 					break;
 
-				default:
-					if (!reparse_tag_to_string(ReparseTag, TypeName) && !Global->Opt->ShowUnknownReparsePoint)
-						TypeName = msg(lng::MQuickViewUnknownReparsePoint);
+				case IO_REPARSE_TAG_SYMLINK:
+					TypeName = msg(lng::MListSymlink);
 					break;
 				}
+
+				inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
 			}
-			else
+			else if (reparse_tag_to_string(ReparseTag, TypeName, Global->Opt->ShowUnknownReparsePoint))
+			{
+				TypeName = far::format(L"{} {}"sv, msg(lng::MQuickViewReparsePoint), TypeName);
+				KnownReparseTag = true;
+			}
+			else if (TypeName.empty())
 			{
 				TypeName = msg(lng::MQuickViewUnknownReparsePoint);
-				Target = msg(lng::MQuickViewNoData);
 			}
 
-			inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
-			PrintText(far::format(LR"({} "{}")", TypeName, Target));
+			PrintText(KnownReparseTag?
+				far::format(LR"({} "{}")", TypeName, Target) :
+				msg(lng::MQuickViewUnknownReparsePoint)
+			);
 		}
 
 		const auto bytes_suffix = upper(msg(lng::MListBytes));

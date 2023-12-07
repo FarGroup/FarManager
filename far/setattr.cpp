@@ -891,28 +891,56 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
 			{
+				LinkPresent = true;
+
 				auto ID_Msg = IsMountPoint? lng::MSetAttrVolMount : lng::MSetAttrSymlink;
 				DWORD ReparseTag = SingleSelFindData.ReparseTag;
-				bool KnownReparsePoint = false;
+				bool KnownReparseTag = false;
+
 				if (!DlgParam.Plugin)
 				{
 					if (IsMountPoint)
 					{
 						// BUGBUG, cheating
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-						KnownReparsePoint = os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+						KnownReparseTag = true;
+						(void)os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 					}
 					else
 					{
 						DWORD ReparseTagAlternative = 0;
-						KnownReparsePoint = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative);
+						KnownReparseTag = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative);
 						if (ReparseTagAlternative && !ReparseTag)
 						{
 							ReparseTag = ReparseTagAlternative;
 						}
+					}
 
-						if (!KnownReparsePoint)
+					if (KnownReparseTag)
+					{
+						NormalizeSymlinkName(strLinkName);
+
+						switch (ReparseTag)
 						{
+						case IO_REPARSE_TAG_MOUNT_POINT:
+							ID_Msg = lng::MSetAttrJunction;
+
+							if (bool Root; !IsMountPoint && ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
+								ID_Msg = lng::MSetAttrVolMount;
+
+							break;
+
+						case IO_REPARSE_TAG_SYMLINK:
+							ID_Msg = lng::MSetAttrSymlink;
+							break;
+
+						case IO_REPARSE_TAG_APPEXECLINK:
+							ID_Msg = lng::MSetAttrAppExecLink;
+							break;
+						}
+					}
+					else
+					{
 							if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
 								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
@@ -922,7 +950,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 									Result = imports.NetDfsGetClientInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, edit_as<BYTE**>(&ptr_setter(DfsInfo)));
 								if (Result == NERR_Success)
 								{
-									KnownReparsePoint = true;
+									KnownReparseTag = true;
 
 									const span DfsStorages(DfsInfo->Storage, DfsInfo->NumberOfStorages);
 									ListItems.resize(DfsStorages.size());
@@ -939,13 +967,15 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 									NameList.Items = ListItems.data();
 									NameList.ItemsNumber = DfsInfo->NumberOfStorages;
-
-									AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_HIDDEN;
-									AttrDlg[SA_COMBO_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
-									AttrDlg[SA_COMBO_REPARSE_POINT].ListItems = &NameList;
-									AttrDlg[SA_COMBO_REPARSE_POINT].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("sv, str(NameList.ItemsNumber), L')');
 								}
 							}
+
+						if (!KnownReparseTag)
+						{
+							if (reparse_tag_to_string(ReparseTag, strLinkName, Global->Opt->ShowUnknownReparsePoint) || !strLinkName.empty())
+								strLinkName = far::format(L"{} {}"sv, replace(msg(lng::MSetAttrReparsePoint), L"&"sv, L""sv), strLinkName);
+							else
+								strLinkName = msg(lng::MSetAttrUnknownReparsePoint);
 						}
 					}
 				}
@@ -961,40 +991,34 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					}
 				}
 
-				LinkPresent=true;
-				NormalizeSymlinkName(strLinkName);
+				AttrDlg[SA_TEXT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
 
-				if (!IsMountPoint && ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
+				if (KnownReparseTag)
 				{
-					bool Root;
-					if(ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
+					AttrDlg[SA_TEXT_REPARSE_POINT].strData = msg(ID_Msg);
+
+					if (ReparseTag == IO_REPARSE_TAG_DFS)
 					{
-						ID_Msg = lng::MSetAttrVolMount;
+						AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_HIDDEN;
+						AttrDlg[SA_COMBO_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
+						AttrDlg[SA_COMBO_REPARSE_POINT].ListItems = &NameList;
+						AttrDlg[SA_COMBO_REPARSE_POINT].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("sv, str(NameList.ItemsNumber), L')');
 					}
 					else
 					{
-						ID_Msg = lng::MSetAttrJunction;
+						AttrDlg[SA_EDIT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
+						AttrDlg[SA_EDIT_REPARSE_POINT].strData = strLinkName;
 					}
+
+					if (IsMountPoint || none_of(ReparseTag, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK))
+						AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_READONLY;
 				}
-				else if (ReparseTag == IO_REPARSE_TAG_APPEXECLINK)
+				else
 				{
-					ID_Msg = lng::MSetAttrAppExecLink;
+					AttrDlg[SA_TEXT_REPARSE_POINT].X2 = AttrDlg[SA_EDIT_REPARSE_POINT].X2;
+					AttrDlg[SA_TEXT_REPARSE_POINT].Flags |= DIF_CENTERTEXT;
+					AttrDlg[SA_TEXT_REPARSE_POINT].strData = strLinkName;
 				}
-
-				if (!KnownReparsePoint)
-					strLinkName=msg(lng::MSetAttrUnknownReparsePoint);
-
-				AttrDlg[SA_TEXT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
-				AttrDlg[SA_TEXT_REPARSE_POINT].strData = msg(ID_Msg);
-
-				if (ReparseTag != IO_REPARSE_TAG_DFS)
-				{
-					AttrDlg[SA_EDIT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
-					AttrDlg[SA_EDIT_REPARSE_POINT].strData = strLinkName;
-				}
-
-				if (IsMountPoint || none_of(ReparseTag, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK))
-					AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_READONLY;
 			}
 
 			// обработка случая "несколько хардлинков"

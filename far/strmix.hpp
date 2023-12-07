@@ -89,9 +89,23 @@ inline void replace(string& Str, string_view const Find, string_view const Repla
 	ReplaceStrings(Str, Find, Replace, false);
 }
 
+inline auto replace(string_view const Str, string_view const Find, string_view const Replace)
+{
+	string Copy(Str);
+	replace(Copy, Find, Replace);
+	return Copy;
+}
+
 inline void replace_icase(string& Str, string_view const Find, string_view const Replace)
 {
 	ReplaceStrings(Str, Find, Replace, true);
+}
+
+inline auto replace_icase(string_view const Str, string_view const Find, string_view const Replace)
+{
+	string Copy(Str);
+	replace_icase(Copy, Find, Replace);
+	return Copy;
 }
 
 void remove_duplicates(string& Str, wchar_t Char, bool IgnoreCase = false);

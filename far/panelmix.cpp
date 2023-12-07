@@ -728,23 +728,24 @@ string FormatStr_Size(
 						auto ID_Msg = lng::MListJunction;
 						if (Global->Opt->PanelDetailedJunction && !CurDir.empty())
 						{
-							string strLinkName;
-							if (GetReparsePointInfo(path::join(CurDir, PointToName(strName)), strLinkName))
+							if (string strLinkName; GetReparsePointInfo(path::join(CurDir, PointToName(strName)), strLinkName))
 							{
 								NormalizeSymlinkName(strLinkName);
-								bool Root;
-								if(ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
-								{
+
+								if(bool Root; ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
 									ID_Msg = lng::MListVolMount;
-								}
 							}
 						}
-						TypeName=msg(ID_Msg);
+						TypeName = msg(ID_Msg);
 					}
 					break;
 
+				case IO_REPARSE_TAG_SYMLINK:
+					TypeName = msg(lng::MListSymlink);
+					break;
+
 				default:
-					if (!reparse_tag_to_string(ReparseTag, TypeName) && !Global->Opt->ShowUnknownReparsePoint)
+					if (!reparse_tag_to_string(ReparseTag, TypeName, Global->Opt->ShowUnknownReparsePoint) && TypeName.empty())
 						TypeName = msg(lng::MListUnknownReparsePoint);
 					break;
 				}

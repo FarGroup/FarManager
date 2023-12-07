@@ -16259,6 +16259,20 @@ l:
 "Хуткі прагляд"
 "Vaizdas"
 
+MQuickViewReparsePoint
+"Точка повторного анализа"
+"&Reparse point"
+"Reparse point"
+"Analysepunkt"
+upd:"Reparse point"
+"Punkt &analizy"
+"Punto de análisis"
+"Reparse point"
+"P&unto Di Reparse"
+"Точка повторного аналізу"
+"Кропка паўторнай апрацоўкі"
+upd:"&Reparse point"
+
 MQuickViewUnknownReparsePoint
 "Неизвестная точка повторного анализа"
 "Unknown reparse point"
@@ -16272,20 +16286,6 @@ upd:"Unknown reparse point"
 "Невідома точка повторного аналізу"
 "Невядомая кропка паўторнага аналізу"
 upd:"Unknown reparse point"
-
-MQuickViewNoData
-"(нет данных)"
-"(data not available)"
-"(data nejsou k dispozici)"
-"(nicht verfügbar)"
-"(adat nem elérhető)"
-"(dane niedostępne)"
-"(dato no disponible)"
-"(dáta nie sú k dispozícii)"
-"(dati sconosciuti)"
-"(нема даних)"
-"(няма дадзеных)"
-upd:"(data not available)"
 
 MQuickViewFolders
 "Папок:"
@@ -16513,18 +16513,18 @@ MSetAttrAppExecLink
 "Programos slapyvardis :"
 
 MSetAttrUnknownReparsePoint
-"(нет данных)"
-"(data not available)"
-"(data nejsou k dispozici)"
-"(nicht verfügbar)"
-"(adat nem elérhető)"
-"(dane niedostępne)"
-"(datos no disponibles)"
-"(dáta nie sú k dispozícii)"
-"(dati sconosciuti)"
-"(нема даних)"
-"(няма дадзеных)"
-upd:"(data not available)"
+"Неизвестная точка повторного анализа"
+"Unknown reparse point"
+upd:"Unknown reparse point"
+"Unbekannter Analysepunkt"
+upd:"Unknown reparse point"
+"Nieznany punkt powiązania"
+"Punto de análisis desconocido"
+"Neznáme rozšírené informácie (ReparsePoint)"
+"Punto Reparse Ignoto"
+"Невідома точка повторного аналізу"
+"Невядомая кропка паўторнага аналізу"
+upd:"Unknown reparse point"
 
 MSetAttrReadOnly
 "&Только для чтения"

@@ -88,6 +88,6 @@ void NormalizeSymlinkName(string &strLinkName);
 
 bool MkSymLink(string_view Target, string_view LinkName, ReparsePointTypes LinkType, std::optional<error_state_ex>& ErrorState, bool Silent = false, bool HoldTarget = false);
 
-bool reparse_tag_to_string(DWORD ReparseTag, string& Str);
+bool reparse_tag_to_string(DWORD ReparseTag, string& Str, bool ShowUnknown);
 
 #endif // FLINK_HPP_76B08BB3_29AE_4BCA_B01B_C600603A2996

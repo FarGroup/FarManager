@@ -695,13 +695,9 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 	{
 	default: return {};
 
-	// Localised
-	case IO_REPARSE_TAG_MOUNT_POINT:                 return msg(lng::MListJunction);
-	case IO_REPARSE_TAG_SYMLINK:                     return msg(lng::MListSymlink);
-
-	// Generated
 #define TAG_STR(name) case IO_REPARSE_TAG_##name: return WIDE_SV(#name);
 	// MS tags:
+	TAG_STR(MOUNT_POINT)
 	TAG_STR(HSM)
 	TAG_STR(DRIVE_EXTENDER)
 	TAG_STR(HSM2)
@@ -710,6 +706,7 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 	TAG_STR(CSV)
 	TAG_STR(DFS)
 	TAG_STR(FILTER_MANAGER)
+	TAG_STR(SYMLINK)
 	TAG_STR(IIS_CACHE)
 	TAG_STR(DFSR)
 	TAG_STR(DEDUP)
@@ -853,14 +850,16 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 	}
 }
 
-bool reparse_tag_to_string(DWORD ReparseTag, string& Str)
+bool reparse_tag_to_string(DWORD ReparseTag, string& Str, bool const ShowUnknown)
 {
 	Str = reparse_tag_to_string(ReparseTag);
 
 	if (!Str.empty())
 		return true;
 
-	Str = far::format(L":{:0>8X}"sv, ReparseTag);
+	if (ShowUnknown)
+		Str = far::format(L":{:0>8X}"sv, ReparseTag);
+
 	return false;
 }
 
@@ -980,7 +979,7 @@ TEST_CASE("reparse_tag_to_string")
 	string Str;
 	for (const auto& i: Tests)
 	{
-		REQUIRE(reparse_tag_to_string(i.Tag, Str) == i.Known);
+		REQUIRE(reparse_tag_to_string(i.Tag, Str, true) == i.Known);
 		REQUIRE(Str == i.Str);
 	}
 }
