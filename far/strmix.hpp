@@ -273,7 +273,7 @@ namespace detail
 			if (i.empty())
 				continue;
 
-			const auto ItemIterator = std::find_if(CONST_RANGE(From, j) { return equal_icase(i, j.second); });
+			const auto ItemIterator = std::ranges::find_if(From, [&](auto const& j){ return equal_icase(i, j.second); });
 			if (ItemIterator != From.end())
 				Flags |= ItemIterator->first;
 		}

@@ -779,7 +779,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 	}
 
 	OutStr.resize(ClientWidth, L' ');
-	std::replace(ALL_RANGE(OutStr), L'\0', ZeroChar);
+	std::ranges::replace(OutStr, L'\0', ZeroChar);
 
 	return tail;
 }

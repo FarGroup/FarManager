@@ -278,7 +278,7 @@ static DWORD DriveMaskFromVolumeName(string_view const VolumeName)
 	DWORD Result = 0;
 	string strCurrentVolumeName;
 	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
-	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
+	const auto ItemIterator = std::ranges::find_if(Enumerator, [&](const auto& i)
 	{
 		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::drive::get_win32nt_root_directory(i), strCurrentVolumeName) && starts_with_icase(strCurrentVolumeName, VolumeName);
 	});
@@ -507,12 +507,12 @@ bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancel
 		if (PathType == root_type::win32nt_drive_letter)
 		{
 			const auto DiskNumber = os::fs::drive::get_number(Path[L"\\\\?\\"sv.size()]);
-			return std::find_if(CONST_RANGE(Info, i) { return i.DevicePaths.Disks[DiskNumber]; });
+			return std::ranges::find_if(Info, [&](DeviceInfo const& i){ return i.DevicePaths.Disks[DiskNumber]; });
 		}
 
-		return std::find_if(CONST_RANGE(Info, i)
+		return std::ranges::find_if(Info, [&](DeviceInfo const& i)
 		{
-			return std::any_of(ALL_CONST_RANGE(i.DevicePaths.Volumes), [&](string const& VolumeName)
+			return std::ranges::any_of(i.DevicePaths.Volumes, [&](string const& VolumeName)
 			{
 				return equal_icase(VolumeName, Path);
 			});

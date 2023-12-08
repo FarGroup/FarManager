@@ -295,7 +295,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 	}
 
 	string Result(Buffer.get(), Size);
-	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
+	std::ranges::replace_if(Result, IsEol, L' ');
 	inplace::trim_right(Result);
 
 	return Result;
@@ -303,7 +303,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 
 static string postprocess_error_string(unsigned const ErrorCode, string&& Str)
 {
-	std::replace_if(ALL_RANGE(Str), IsEol, L' ');
+	std::ranges::replace_if(Str, IsEol, L' ');
 	inplace::trim_right(Str);
 	return far::format(L"0x{:0>8X} - {}"sv, ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
 }

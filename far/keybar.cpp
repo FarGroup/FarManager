@@ -116,7 +116,7 @@ void KeyBar::DisplayObject()
 		Text(str(i + 1));
 		SetColor(COL_KEYBARTEXT);
 
-		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
+		const auto State = std::ranges::find_if(Mapping, [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
 		auto Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
@@ -208,7 +208,7 @@ static int FnGroup(unsigned ControlState)
 	};
 	static_assert(std::size(Area) == KBL_GROUP_COUNT);
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
+	const auto ItemIterator = std::ranges::find_if(Area, [&](auto const& i)
 	{
 		return i.ControlState == ControlState;
 	});

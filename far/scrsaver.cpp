@@ -95,7 +95,7 @@ namespace
 
 		starfield()
 		{
-			std::generate(ALL_RANGE(m_Stars), [&] { return create_star(); });
+			std::ranges::generate(m_Stars, [&] { return create_star(); });
 
 			SetScreen({ 0, 0, ScrX, ScrY }, L' ', colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 		}

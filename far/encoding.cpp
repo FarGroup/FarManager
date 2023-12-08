@@ -158,7 +158,7 @@ cp_info const* GetCodePageInfo(uintptr_t cp)
 template<typename range1, typename range2>
 static std::optional<size_t> mismatch(range1 const& Range1, range2 const& Range2)
 {
-	const auto [Mismatch1, Mismatch2] = std::mismatch(ALL_CONST_RANGE(Range1), ALL_CONST_RANGE(Range2));
+	const auto [Mismatch1, Mismatch2] = std::ranges::mismatch(Range1, Range2);
 
 	size_t const
 		Pos1 = Mismatch1 - std::cbegin(Range1),

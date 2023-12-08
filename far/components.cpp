@@ -94,7 +94,7 @@ namespace components
 		{
 			FN_RETURN_TYPE(GetComponentsInfo) Result;
 			const auto& ComponentsList = components_list::instance();
-			std::transform(ALL_CONST_RANGE(ComponentsList), std::inserter(Result, Result.end()), [](const auto& i)
+			std::ranges::transform(ComponentsList, std::inserter(Result, Result.end()), [](const auto& i)
 			{
 				return i();
 			});

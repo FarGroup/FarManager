@@ -373,7 +373,7 @@ bool PreserveStyleReplaceString(
 
 		const auto SourceTokens = PreserveStyleTokenize(Source.substr(I, Idx - I));
 
-		if (!std::equal(ALL_CONST_RANGE(SourceTokens), ALL_CONST_RANGE(StrTokens), [](const auto& a, const auto& b)
+		if (!std::ranges::equal(SourceTokens, StrTokens, [](const auto& a, const auto& b)
 		{
 			return a.Token.size() == b.Token.size();
 		}))

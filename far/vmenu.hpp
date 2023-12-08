@@ -282,7 +282,7 @@ public:
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 	{
 		SortItemParam Param { Reverse, Offset };
-		std::sort(ALL_RANGE(Items), [&](const auto& a, const auto& b) { return Pred(a, b, Param); });
+		std::ranges::sort(Items, [&](const auto& a, const auto& b) { return Pred(a, b, Param); });
 
 		// скорректируем SelectPos
 		UpdateSelectPos();

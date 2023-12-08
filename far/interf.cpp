@@ -773,7 +773,7 @@ static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_
 	const auto From = Str.substr(0, MaxSize);
 	Buffer.reserve(From.size());
 
-	std::transform(ALL_CONST_RANGE(From), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, {}, {}, CurColor }; });
+	std::ranges::transform(From, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, {}, {}, CurColor }; });
 }
 
 static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
@@ -1223,7 +1223,7 @@ bool DoWeReallyHaveToScroll(short Rows)
 	matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);
 	Global->ScrBuf->Read(Region, BufferBlock);
 
-	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
+	return !std::ranges::all_of(BufferBlock.vector(), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 }
 
 size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t const TabSize, position_parser_state* SavedState)
@@ -1510,7 +1510,7 @@ string MakeLine(int const Length, line_type const Type, string_view const UserLi
 	}
 	else
 	{
-		std::transform(ALL_CONST_RANGE(Predefined[static_cast<size_t>(Type)]), Buffer, [](size_t i){ return BoxSymbols[i]; });
+		std::ranges::transform(Predefined[static_cast<size_t>(Type)], Buffer, [](size_t i){ return BoxSymbols[i]; });
 	}
 
 	string Result(Length, Buffer[1]);

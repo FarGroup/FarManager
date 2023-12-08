@@ -894,7 +894,7 @@ F8CP::F8CP(bool viewer):
 
 uintptr_t F8CP::NextCP(uintptr_t cp) const
 {
-	auto curr = std::find(ALL_CONST_RANGE(m_F8CpOrder), cp);
+	auto curr = std::ranges::find(m_F8CpOrder, cp);
 	return curr != m_F8CpOrder.cend() && ++curr != m_F8CpOrder.cend()? *curr : *m_F8CpOrder.cbegin();
 }
 

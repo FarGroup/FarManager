@@ -212,13 +212,13 @@ namespace os::security
 
 		const span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
 
-		return std::all_of(ALL_CONST_RANGE(Names), [&](const wchar_t* const Name)
+		return std::ranges::all_of(Names, [&](const wchar_t* const Name)
 		{
 			const auto& Luid = lookup_privilege_value(Name);
 			if (!Luid)
 				return false;
 
-			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Privileges), [&](const auto& Item) { return Item.Luid == *Luid; });
+			const auto ItemIterator = std::ranges::find_if(Privileges, [&](const auto& Item) { return Item.Luid == *Luid; });
 			return ItemIterator != Privileges.end() && ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT);
 		});
 	}

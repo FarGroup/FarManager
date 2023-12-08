@@ -638,7 +638,7 @@ static string_view ProcessVariable(string_view const CurStr, const subst_data& S
 {
 	const auto Str = CurStr.substr(1);
 
-	const auto Iterator = std::find_if(ALL_CONST_RANGE(*SubstData.Variables), [&](std::pair<string, string> const& i)
+	const auto Iterator = std::ranges::find_if(*SubstData.Variables, [&](std::pair<string, string> const& i)
 	{
 		return starts_with_icase(Str, i.first);
 	});
@@ -851,7 +851,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 	for (size_t n = 0; n != strStr.size(); ++n)
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(Positions, i) { return i.Pos == n; });
+		const auto ItemIterator = std::ranges::find_if(Positions, [&](pos_item const& i){ return i.Pos == n; });
 		if (ItemIterator != Positions.cend())
 		{
 			strTmpStr += DlgData[(ItemIterator - Positions.cbegin()) * 2 + 2].strData;

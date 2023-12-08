@@ -382,7 +382,7 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	{
 		for (const auto& [ItemAuto, SrcItemAuto]: zip(Item.Auto, SrcItem.Auto))
 		{
-			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&](const DialogItemEx& i)
+			const auto SrcItemIterator = std::ranges::find_if(SrcItems, [&](const DialogItemEx& i)
 			{
 				return &i == SrcItemAuto.Owner;
 			});
@@ -714,7 +714,7 @@ void Dialog::InitDialogObjects(size_t ID)
 	// хотя бы один, то ставим на первый подходящий
 	if (m_FocusPos == static_cast<size_t>(-1))
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
+		const auto ItemIterator = std::ranges::find_if(Items, [](DialogItemEx const& i)
 		{
 			return CanGetFocus(i.Type, i.Flags);
 		});
@@ -928,7 +928,7 @@ void Dialog::InitDialogObjects(size_t ID)
 				span<FarListItem const> const ListItems{ Item.ListItems->Items, Item.ListItems->ItemsNumber };
 				//Item.ListPtr->AddItem(Item.ListItems);
 
-				const auto ItemIterator = std::find_if(ALL_CONST_RANGE(ListItems), [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
+				const auto ItemIterator = std::ranges::find_if(ListItems, [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
 				if (ItemIterator != ListItems.cend())
 				{
 					if (Item.Flags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
@@ -2601,7 +2601,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLENTER:
 		case KEY_RCTRLENTER:
 		{
-			const auto ItemIterator = std::find_if(RANGE(Items, i)
+			const auto ItemIterator = std::ranges::find_if(Items, [](DialogItemEx const& i)
 			{
 				return i.Flags & DIF_DEFAULTBUTTON;
 			});
@@ -2846,7 +2846,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				;
 			else
 			{
-				const auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
+				const auto ItemIterator = std::ranges::find_if(Items, [](DialogItemEx const& i)
 				{
 					return i.Flags&DIF_DEFAULTBUTTON;
 				});
@@ -3586,13 +3586,13 @@ bool Dialog::Do_ProcessFirstCtrl()
 	}
 	else
 	{
-		auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
+		auto ItemIterator = std::ranges::find_if(Items, [](DialogItemEx const& i)
 		{
 			return (i.Flags & DIF_HOMEITEM) && CanGetFocus(i.Type, i.Flags);
 		});
 		if (ItemIterator == Items.cend())
 		{
-			ItemIterator = std::find_if(CONST_RANGE(Items, i)
+			ItemIterator = std::ranges::find_if(Items, [](DialogItemEx const& i)
 			{
 				return CanGetFocus(i.Type, i.Flags);
 			});
@@ -4201,7 +4201,7 @@ void Dialog::Process()
 	}
 
 	if (SavedItems)
-		std::copy(ALL_CONST_RANGE(Items), SavedItems);
+		std::ranges::copy(Items, SavedItems);
 }
 
 intptr_t Dialog::CloseDialog()

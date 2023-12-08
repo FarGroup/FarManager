@@ -552,7 +552,7 @@ void background_searcher::InitInFileSearch()
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
 					// Проверяем дубли
-					if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&](const CodePageInfo& cp) { return cp.CodePage == Name; }))
+					if (hasSelected || !std::ranges::any_of(m_CodePages, [&](const CodePageInfo& cp) { return cp.CodePage == Name; }))
 						m_CodePages.emplace_back(Name);
 				}
 			}
@@ -992,7 +992,7 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 
 	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, Items, OPM_SILENT))
 	{
-		const auto It = std::find_if(ALL_CONST_RANGE(Items), [&](const auto& Item)
+		const auto It = std::ranges::find_if(Items, [&](const auto& Item)
 		{
 			return FileNameToFind == NullToEmpty(Item.FileName) && FileNameToFindShort == NullToEmpty(Item.AlternateFileName);
 		});
@@ -2731,7 +2731,7 @@ bool FindFiles::FindFilesProcess()
 		}
 	}
 
-	AnySetFindList = std::any_of(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+	AnySetFindList = std::ranges::any_of(*Global->CtrlObject->Plugins, [](Plugin const* const i)
 	{
 		return i->has(iSetFindList);
 	});

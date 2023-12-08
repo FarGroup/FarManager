@@ -440,7 +440,7 @@ namespace os::clipboard
 		if (DataView.empty())
 			return false;
 
-		const auto DataSize = static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), '\0') - DataView.cbegin());
+		const auto DataSize = static_cast<size_t>(std::ranges::find(DataView, '\0') - DataView.cbegin());
 
 		Data = DataView.substr(0, DataSize);
 
@@ -526,7 +526,7 @@ namespace os::clipboard
 			return;
 
 		// If it's pure ASCII, our job here is done.
-		if (std::all_of(ALL_CONST_RANGE(Data), [](wchar_t const Char){ return Char < 128; }))
+		if (std::ranges::all_of(Data, [](wchar_t const Char){ return Char < 128; }))
 			return;
 
 		const auto ClipboardLocale = get_locale();
@@ -580,7 +580,7 @@ namespace os::clipboard
 		}
 
 		const string_view DataView(TextPtr.get(), TextPtr.size / sizeof(*TextPtr));
-		return static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), L'\0') - DataView.cbegin());
+		return static_cast<size_t>(std::ranges::find(DataView, L'\0') - DataView.cbegin());
 	}
 
 	template<typename char_type>
@@ -666,7 +666,7 @@ namespace os::clipboard
 
 		const std::string_view OemDataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
 
-		const auto OemDataSize = static_cast<size_t>(std::find(ALL_CONST_RANGE(OemDataView), '\0') - OemDataView.cbegin());
+		const auto OemDataSize = static_cast<size_t>(std::ranges::find(OemDataView, '\0') - OemDataView.cbegin());
 		encoding::oem::get_chars(OemDataView.substr(0, OemDataSize), Data);
 		return true;
 	}

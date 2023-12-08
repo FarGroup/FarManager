@@ -2987,7 +2987,7 @@ void Editor::InsertString()
 		{
 			const auto& Str = PrevLine->GetString();
 
-			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
+			const auto It = std::ranges::find_if_not(Str, std::iswblank);
 			if (It != Str.cend())
 			{
 				PrevLine->SetCurPos(static_cast<int>(It - Str.cbegin()));
@@ -3155,7 +3155,7 @@ void Editor::InsertString()
 
 		if (SpaceOnly)
 		{
-			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
+			const auto SpaceIterator = std::ranges::find_if_not(Str, std::iswblank);
 			const auto NewPos = std::min<size_t>(SpaceIterator - Str.cbegin(), OrgIndentPos);
 			if (NewPos > CurPos)
 				m_it_CurLine->SetCurPos(static_cast<int>(NewPos));

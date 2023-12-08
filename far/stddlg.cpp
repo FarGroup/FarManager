@@ -876,7 +876,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 	if(!Msg.empty())
 	{
 		Msgs.emplace_back(far::vformat(msg(lng::MObjectLockedReason), msg(Reason)));
-		std::move(ALL_RANGE(Msg), std::back_inserter(Msgs));
+		std::ranges::move(Msg, std::back_inserter(Msgs));
 		Msg.clear();
 	}
 

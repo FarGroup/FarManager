@@ -395,7 +395,7 @@ namespace copy
 	template<typename iterator>
 	void unquote(const std::wstring_view Str, const iterator Destination)
 	{
-		std::remove_copy(ALL_CONST_RANGE(Str), Destination, L'"');
+		std::ranges::remove_copy(Str, Destination, L'"');
 	}
 }
 

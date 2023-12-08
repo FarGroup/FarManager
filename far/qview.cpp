@@ -227,7 +227,7 @@ void QuickView::DisplayObject()
 				lng::MQuickViewSlack,
 			};
 
-			const auto ColumnSize = msg(*std::max_element(ALL_CONST_RANGE(TableLabels), [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size() + 1;
+			const auto ColumnSize = msg(*std::ranges::max_element(TableLabels, [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size() + 1;
 
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;

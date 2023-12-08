@@ -951,7 +951,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 			}
 		}
 
-		if (const auto& Factories = Global->CtrlObject->Plugins->Factories(); std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
+		if (const auto& Factories = Global->CtrlObject->Plugins->Factories(); std::ranges::any_of(Factories, [](const auto& i) { return i->IsExternal(); }))
 		{
 			std::wcout << L"\nPlugin adapters:\n"sv;
 			for (const auto& i: Factories)

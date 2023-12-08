@@ -815,7 +815,7 @@ bool Plugin::IsPanelPlugin() const
 		iClosePanel,
 	};
 
-	return std::any_of(CONST_RANGE(PanelExports, i)
+	return std::ranges::any_of(PanelExports, [&](int const i)
 	{
 		return Exports[i] != nullptr;
 	});
@@ -1374,7 +1374,7 @@ public:
 		std::vector<string> MessageLines;
 		const string Summary = concat(Info.Summary, L" ("sv, encoding::utf8::get_chars(Function), L')');
 		const auto Enumerator = enum_tokens(Info.Description, L"\n"sv);
-		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
+		std::ranges::transform(Enumerator, std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			Summary,
 			MessageLines,

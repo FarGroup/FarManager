@@ -156,7 +156,7 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 
 	std::wcmatch Match;
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i)
+	const auto ItemIterator = std::ranges::find_if(PathTypes, [&](auto const& i)
 	{
 		return std::regex_search(Path.data(), Path.data() + Path.size(), Match, i.re);
 	});
@@ -442,7 +442,7 @@ bool ContainsSlash(const string_view Str)
 
 size_t FindSlash(const string_view Str)
 {
-	const auto SlashPos = std::find_if(ALL_CONST_RANGE(Str), path::is_separator);
+	const auto SlashPos = std::ranges::find_if(Str, path::is_separator);
 	return SlashPos == Str.cend()? string::npos : SlashPos - Str.cbegin();
 }
 

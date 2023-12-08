@@ -342,14 +342,14 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 
 		if (
 			const auto Prefix = Id.substr(0, Pos);
-			std::any_of(ALL_CONST_RANGE(i.AntipatternsBefore),
+			std::ranges::any_of(i.AntipatternsBefore,
 				[&](string_view const Str){ return Prefix.ends_with(Str); })
 		)
 			return Value;
 
 		if (
 			const auto Suffix = Id.substr(Pos + i.Pattern.size());
-			std::any_of(ALL_CONST_RANGE(i.AntipatternsAfter),
+			std::ranges::any_of(i.AntipatternsAfter,
 				[&](string_view const Str){ return Suffix.starts_with(Str); })
 		)
 			return Value;
@@ -422,7 +422,7 @@ static auto get_cd_type(cdrom_device_capabilities const caps)
 		{ cd_type::cdrom,        CAPABILITIES_CDROM },
 	};
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
+	const auto ItemIterator = std::ranges::find_if(DeviceCaps, [caps](const auto& i)
 	{
 		return flags::check_all(caps, i.second);
 	});

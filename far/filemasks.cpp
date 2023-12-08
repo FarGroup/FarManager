@@ -70,13 +70,13 @@ static auto extract_impl(string_view& Str, size_t const Size)
 
 static auto extract_separators(string_view& Str)
 {
-	const auto SeparatorsSize = std::find_if_not(ALL_CONST_RANGE(Str), [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; }) - Str.cbegin();
+	const auto SeparatorsSize = std::ranges::find_if_not(Str, [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; }) - Str.cbegin();
 	return extract_impl(Str, SeparatorsSize);
 }
 
 static auto extract_masks(string_view& Str)
 {
-	const auto MasksSize = std::find_if(ALL_CONST_RANGE(Str), [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; }) - Str.cbegin();
+	const auto MasksSize = std::ranges::find_if(Str, [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; }) - Str.cbegin();
 	return extract_impl(Str, MasksSize);
 }
 
@@ -266,7 +266,8 @@ bool filemasks::check(const string_view Name, regex_matches const* const Matches
 	if (contains(Exclude, Name))
 		return false;
 
-	const auto MaskIterator = std::find(ALL_CONST_RANGE(Include), Name);
+	// Ugh, ranges are awesome.
+	const auto MaskIterator = std::ranges::find_if(Include, [&](masks const& Masks){ return Masks == Name; });
 	if (MaskIterator == Include.cend())
 		return false;
 
@@ -284,8 +285,8 @@ bool filemasks::check(const string_view Name, regex_matches const* const Matches
 
 bool filemasks::empty() const
 {
-	return std::all_of(ALL_CONST_RANGE(Include), LIFT_MF(empty)) &&
-	       std::all_of(ALL_CONST_RANGE(Exclude), LIFT_MF(empty));
+	return std::ranges::all_of(Include, LIFT_MF(empty)) &&
+	       std::ranges::all_of(Exclude, LIFT_MF(empty));
 }
 
 void filemasks::ErrorMessage()
@@ -409,7 +410,7 @@ bool filemasks::masks::operator==(const string_view FileName) const
 	{
 		[&](const std::vector<string>& Data)
 		{
-			return std::any_of(CONST_RANGE(Data, i) { return CmpName(i, FileName, false); });
+			return std::ranges::any_of(Data, [&](string_view const i){ return CmpName(i, FileName, false); });
 		},
 		[&](const regex_data& Data)
 		{

@@ -125,7 +125,7 @@ void ScreenBuf::DebugDump() const
 	for (const auto& row_num: irange(Buf.height()))
 	{
 		const auto& row = Buf[row_num];
-		std::transform(ALL_CONST_RANGE(row), std::back_inserter(s), [](const auto& i) { return i.Char; });
+		std::ranges::transform(row, std::back_inserter(s), [](const auto& i) { return i.Char; });
 		s.push_back(L'\n');
 		os::debug::print(s);
 		s.clear();

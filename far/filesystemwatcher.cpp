@@ -109,7 +109,7 @@ private:
 					}
 
 					m_Handles.resize(1);
-					std::transform(ALL_CONST_RANGE(m_Clients), std::back_inserter(m_Handles), [](const FileSystemWatcher* const Client) { return Client->m_Event.native_handle(); });
+					std::ranges::transform(m_Clients, std::back_inserter(m_Handles), [](const FileSystemWatcher* const Client) { return Client->m_Event.native_handle(); });
 				}
 			}
 

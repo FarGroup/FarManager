@@ -190,8 +190,8 @@ void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
 [[nodiscard]]
 string_view DeleteEndSlash(string_view Path);
-inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
-inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
+inline void ReplaceSlashToBackslash(string &strStr) { std::ranges::replace(strStr, L'/', L'\\'); }
+inline void ReplaceBackslashToSlash(string &strStr) { std::ranges::replace(strStr, L'\\', L'/'); }
 
 bool ContainsSlash(string_view Str);
 [[nodiscard]]

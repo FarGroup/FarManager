@@ -203,7 +203,7 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 	if (MenuInitItems.empty())
 		return;
 
-	std::sort(ALL_RANGE(MenuInitItems), [SortByHotkey = (Global->Opt->ChangeDriveMode & DRIVE_SORT_PLUGINS_BY_HOTKEY) != 0](menu_init_item const& a, menu_init_item const& b)
+	std::ranges::sort(MenuInitItems, [SortByHotkey = (Global->Opt->ChangeDriveMode & DRIVE_SORT_PLUGINS_BY_HOTKEY) != 0](menu_init_item const& a, menu_init_item const& b)
 	{
 		if (!SortByHotkey || a.Hotkey == b.Hotkey)
 			return string_sort::less(a.Str, b.Str);

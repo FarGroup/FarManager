@@ -74,7 +74,7 @@ std::optional<string_view> NamesList::GetPrevName()
 
 bool NamesList::SetCurName(string_view const Name)
 {
-	const auto ItemIterator = std::find(ALL_CONST_RANGE(Names), Name);
+	const auto ItemIterator = std::ranges::find(Names, Name);
 	if (ItemIterator == Names.cend())
 		return false;
 

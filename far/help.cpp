@@ -818,7 +818,7 @@ void Help::AddTitle(const string_view Title)
 
 void Help::HighlightsCorrection(string &strStr)
 {
-	if ((std::count(ALL_CONST_RANGE(strStr), L'#') & 1) && strStr.front() != L'$')
+	if ((std::ranges::count(strStr, L'#') & 1) && strStr.front() != L'$')
 		strStr.insert(0, 1, L'#');
 }
 

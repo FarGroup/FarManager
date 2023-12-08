@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../preprocessor.hpp"
 #include "../range.hpp"
 
+#include <algorithm>
 #include <vector>
 
 #include <cassert>
@@ -53,7 +54,7 @@ namespace detail
 		[[nodiscard]]
 		bool operator==(const matrix_row& rhs) const
 		{
-			return std::equal(ALL_CONST_RANGE(*this), ALL_CONST_RANGE(rhs));
+			return std::ranges::equal(*this, rhs);
 		}
 	};
 

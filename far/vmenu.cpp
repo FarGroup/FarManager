@@ -984,7 +984,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 				case 3:
 					// Don't use ItemHiddenCount here - it also includes invisible (LIF_HIDDEN), but non-filtered items
-					RetValue = std::count_if(ALL_CONST_RANGE(Items), [](const MenuItemEx& Item) { return (Item.Flags & LIF_FILTERED) != 0; });
+					RetValue = std::ranges::count_if(Items, [](const MenuItemEx& Item) { return (Item.Flags & LIF_FILTERED) != 0; });
 					break;
 
 				case 4:
@@ -1765,7 +1765,7 @@ int VMenu::VisualPosToReal(int VPos) const
 	if (VPos >= GetShowItemCount())
 		return static_cast<int>(Items.size());
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return item_is_visible(i) && !VPos--; });
+	const auto ItemIterator = std::ranges::find_if(Items, [&](MenuItemEx const& i){ return item_is_visible(i) && !VPos--; });
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
@@ -2251,7 +2251,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
-				std::replace(ALL_RANGE(strMenuLine), L'\t', L' ');
+				std::ranges::replace(strMenuLine, L'\t', L' ');
 
 				FarColor Col;
 

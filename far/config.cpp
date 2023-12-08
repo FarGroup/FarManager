@@ -2146,7 +2146,7 @@ const Options::farconfig& Options::GetConfig(config_type Type) const
 template<class container, class pred>
 static const Option* GetConfigValuePtr(const container& Config, const pred& Pred)
 {
-	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Config), Pred);
+	const auto ItemIterator = std::ranges::find_if(Config, Pred);
 	return ItemIterator == Config.cend()? nullptr : ItemIterator->Value;
 }
 
@@ -2284,7 +2284,7 @@ void Options::SaveSortLayers(bool const Always)
 	for (const auto& [Layers, i]: enumerate(PanelSortLayers))
 	{
 		const auto DefaultLayers = default_sort_layers(static_cast<panel_sort>(i));
-		if (std::equal(ALL_CONST_RANGE(Layers), ALL_CONST_RANGE(DefaultLayers)))
+		if (std::ranges::equal(Layers, DefaultLayers))
 		{
 			Cfg.DeleteValue(NKeyPanelSortLayers, str(i));
 			continue;

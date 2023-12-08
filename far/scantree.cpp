@@ -308,7 +308,7 @@ bool ScanTree::IsDirSearchDone() const
 
 bool ScanTree::InsideReparsePoint() const
 {
-	return std::any_of(ALL_CONST_RANGE(ScanItems), [](scantree_item const& i)
+	return std::ranges::any_of(ScanItems, [](scantree_item const& i)
 	{
 		return i.Flags.Check(TREE_ITEM_INSIDE_REPARSE_POINT);
 	});

@@ -311,7 +311,7 @@ string truncate_path(string_view const Str, size_t const MaxLength)
 
 bool IsCaseMixed(const string_view Str)
 {
-	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(Str), is_alpha);
+	const auto AlphaBegin = std::ranges::find_if(Str, is_alpha);
 	if (AlphaBegin == Str.cend())
 		return false;
 
@@ -546,11 +546,11 @@ bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, co
 
 void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
 {
-	const auto NewEnd = IgnoreCase?
-		std::unique(ALL_RANGE(Str), [Char, Eq = string_comparer_icase{}](wchar_t const First, wchar_t const Second){ return Eq(First, Char) && Eq(Second, Char); }) :
-		std::unique(ALL_RANGE(Str), [Char](wchar_t const First, wchar_t const Second){ return First == Char && Second == Char; });
+	const auto Removed = IgnoreCase?
+		std::ranges::unique(Str, [Char, Eq = string_comparer_icase{}](wchar_t const First, wchar_t const Second){ return Eq(First, Char) && Eq(Second, Char); }) :
+		std::ranges::unique(Str, [Char](wchar_t const First, wchar_t const Second){ return First == Char && Second == Char; });
 
-	Str.resize(NewEnd - Str.begin());
+	Str.resize(Str.size() - Removed.size());
 }
 
 bool wrapped_text::get(bool Reset, string_view& Value) const
@@ -1067,7 +1067,7 @@ string ExtractHexString(string_view const HexString)
 	string Result;
 	Result.reserve((Trimmed.size() + 2) / 3 * 2);
 	// TODO: Fix these and trailing spaces in Dialog class?
-	std::remove_copy(ALL_CONST_RANGE(Trimmed), std::back_inserter(Result), L' ');
+	std::ranges::remove_copy(Trimmed, std::back_inserter(Result), L' ');
 	if (Result.size() & 1)
 	{
 		// Odd length - hex string is not valid.
@@ -1628,7 +1628,7 @@ TEST_CASE("xwcsncpy")
 		{ L"12345"sv, },
 	};
 
-	const auto MaxBufferSize = std::max_element(ALL_CONST_RANGE(Tests), [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
+	const auto MaxBufferSize = std::ranges::max_element(Tests, [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
 
 	for (const auto& BufferSize: irange(MaxBufferSize + 1))
 	{

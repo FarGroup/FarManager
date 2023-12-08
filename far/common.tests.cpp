@@ -185,7 +185,7 @@ TEST_CASE("2d.algorithm")
 		21, 22, 23, 24, 25,
 	};
 
-	REQUIRE(std::equal(ALL_CONST_RANGE(Data), ALL_CONST_RANGE(Expected)));
+	REQUIRE(std::ranges::equal(Data, Expected));
 	REQUIRE(Value == StartValue + 3 * 3);
 }
 
@@ -383,7 +383,7 @@ TEST_CASE("base64.random.roundtrip")
 	std::uniform_int_distribution CharDist(0, UCHAR_MAX);
 
 	char RandomInput[256];
-	std::generate(ALL_RANGE(RandomInput), [&]{ return CharDist(mt); });
+	std::ranges::generate(RandomInput, [&]{ return CharDist(mt); });
 
 	const auto Encoded = base64::encode(view_bytes(RandomInput));
 	REQUIRE(base64::decode(Encoded) == view_bytes(RandomInput));

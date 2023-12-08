@@ -197,7 +197,7 @@ bool string_comparer_icase::operator()(const string_view Str1, const string_view
 
 bool equal_icase(const string_view Str1, const string_view Str2)
 {
-	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{});
+	return Str1 == Str2 || std::ranges::equal(Str1, Str2, string_comparer_icase{});
 }
 
 bool starts_with_icase(const string_view Str, const string_view Prefix)

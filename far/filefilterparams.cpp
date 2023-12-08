@@ -847,7 +847,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		{lng::MHighlightFileName4, {}},
 	};
 
-	const auto ColumnSize = msg(std::max_element(ALL_CONST_RANGE(NameLabels), [](const auto& a, const auto& b) { return msg(a.first).size() < msg(b.first).size(); })->first).size() + 1;
+	const auto ColumnSize = msg(std::ranges::max_element(NameLabels, [](const auto& a, const auto& b) { return msg(a.first).size() < msg(b.first).size(); })->first).size() + 1;
 
 	for (auto& [LngId, Label]: NameLabels)
 	{

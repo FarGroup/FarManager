@@ -235,7 +235,7 @@ static bool EraseFileData(string_view const Name, progress Files, delete_progres
 		{
 			if (Global->Opt->WipeSymbol == -1)
 			{
-				std::generate(ALL_RANGE(Buf), [&]{ return CharDist(mt); });
+				std::ranges::generate(Buf, [&]{ return CharDist(mt); });
 			}
 			else
 			{

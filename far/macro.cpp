@@ -2790,11 +2790,11 @@ void FarMacroApi::indexFunc() const
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
-	const auto StrStr = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{}); };
+	const auto StrStr = [](const string& Str1, const string& Str2) { return std::ranges::search(Str1, Str2); };
+	const auto StrStrI = [](const string& Str1, const string& Str2) { return std::ranges::search(Str1, Str2, string_comparer_icase{}); };
 
-	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
-	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
+	const auto Result = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
+	const auto Position = Result.empty()? -1 : Result.begin() - s.cbegin();
 	PassValue(Position);
 }
 
@@ -2805,11 +2805,11 @@ void FarMacroApi::rindexFunc() const
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
-	const auto RevStrStr = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{}); };
+	const auto RevStrStr = [](const string& Str1, const string& Str2) { return std::ranges::find_end(Str1, Str2); };
+	const auto RevStrStrI = [](const string& Str1, const string& Str2) { return std::ranges::find_end(Str1, Str2, string_comparer_icase{}); };
 
-	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
-	const auto Position = i != s.cend()? i - s.cbegin() : -1;
+	const auto Result = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
+	const auto Position = Result.empty()? -1 : Result.begin() - s.cbegin();
 	PassValue(Position);
 }
 
@@ -3059,7 +3059,7 @@ void FarMacroApi::menushowFunc() const
 	int nLeftShift=0;
 	if (bAutoNumbering)
 	{
-		for (int numlines = std::count(ALL_CONST_RANGE(strItems), L'\n'); numlines; numlines/=10)
+		for (int numlines = std::ranges::count(strItems, L'\n'); numlines; numlines/=10)
 		{
 			nLeftShift++;
 		}
@@ -3120,7 +3120,7 @@ void FarMacroApi::menushowFunc() const
 				}
 			};
 
-			const auto NewBegin = std::find_if(ALL_CONST_RANGE(NewItem.Name), [&](wchar_t i)
+			const auto NewBegin = std::ranges::find_if(NewItem.Name, [&](wchar_t i)
 			{
 				const auto Flag = CharToFlag(i);
 				NewItem.Flags |= Flag;

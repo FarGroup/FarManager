@@ -510,7 +510,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 	case DN_GOTFOCUS:
 		{
-			if (!std::any_of(ALL_CONST_RANGE(TimeMap), [&](const auto& i) { return i.DateId == Param1; }))
+			if (!std::ranges::any_of(TimeMap, [&](const auto& i) { return i.DateId == Param1; }))
 				break;
 
 			if (locale.date_format() != date_type::ymd)
@@ -1042,7 +1042,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					if (!Links.empty())
 					{
 						ListItems.reserve(Links.size());
-						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const string& i) { return FarListItem{ 0, i.c_str() }; });
+						std::ranges::transform(Links, std::back_inserter(ListItems), [&](const string& i) { return FarListItem{ 0, i.c_str() }; });
 
 						NameList.Items = ListItems.data();
 						AttrDlg[SA_COMBO_HARDLINK].ListItems = &NameList;

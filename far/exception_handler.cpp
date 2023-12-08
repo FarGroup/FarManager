@@ -1508,7 +1508,7 @@ static string collect_information(
 		os::process::enum_processes const Enum;
 		const auto CurrentPid = GetCurrentProcessId();
 		const auto CurrentThreadId = GetCurrentThreadId();
-		const auto CurrentEntry = std::find_if(ALL_CONST_RANGE(Enum), [&](os::process::enum_process_entry const& Entry){ return Entry.Pid == CurrentPid; });
+		const auto CurrentEntry = std::ranges::find_if(Enum, [&](os::process::enum_process_entry const& Entry){ return Entry.Pid == CurrentPid; });
 		if (CurrentEntry != Enum.cend())
 		{
 			for (const auto& i: CurrentEntry->Threads)

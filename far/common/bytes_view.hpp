@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "range.hpp"
 #include "type_traits.hpp"
 
+#include <algorithm>
 #include <string_view>
 
 //----------------------------------------------------------------------------
@@ -135,7 +136,7 @@ bool deserialise(bytes_view const Bytes, T& Value) noexcept
 	if (ValueBytes.size() != Bytes.size())
 		return false;
 
-	std::copy(ALL_CONST_RANGE(Bytes), ValueBytes.begin());
+	std::ranges::copy(Bytes, ValueBytes.begin());
 	return true;
 }
 

@@ -258,7 +258,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 		}
 	}
 
-	const auto Begin = std::find_if(ALL_CONST_RANGE(FullCommand), [](wchar_t i){ return i != L' '; });
+	const auto Begin = std::ranges::find_if(FullCommand, [](wchar_t i){ return i != L' '; });
 	const auto End = FullCommand.cend();
 	auto CmdEnd = End;
 	auto ParamsBegin = End;
@@ -296,7 +296,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 
 	const auto Cmd = make_string_view(Begin, CmdEnd);
 	const auto ExcludeCmds = enum_tokens(exclude_cmds(), L";"sv);
-	if (std::any_of(ALL_CONST_RANGE(ExcludeCmds), [&](string_view const i){ return equal_icase(i, Cmd); }))
+	if (std::ranges::any_of(ExcludeCmds, [&](string_view const i){ return equal_icase(i, Cmd); }))
 		return false;
 
 	Command.assign(Begin, CmdEnd);

@@ -978,7 +978,7 @@ DialogItemEx& DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_t
 	std::vector<FarListItem> ListItems;
 	ListItems.reserve(Items.size());
 
-	std::transform(ALL_CONST_RANGE(Items), std::back_inserter(ListItems), [&Value](const DialogBuilderListItem& i)
+	std::ranges::transform(Items, std::back_inserter(ListItems), [&Value](const DialogBuilderListItem& i)
 	{
 		FarListItem NewItem{};
 		NewItem.Text = i.str().c_str();

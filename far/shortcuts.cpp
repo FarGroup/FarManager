@@ -208,7 +208,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 
 	if (!Item.PluginData.empty())
 	{
-		const string PrintablePluginData(Item.PluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.PluginData), [](const auto i) { return i < L' '; }));
+		const string PrintablePluginData(Item.PluginData.cbegin(), std::ranges::find_if(Item.PluginData, [](const auto i) { return i < L' '; }));
 		if (!PrintablePluginData.empty())
 			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "sv);
 	}

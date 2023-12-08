@@ -398,7 +398,7 @@ int Manager::CountWindowsWithName(string_view const Name, bool IgnoreCase) const
 
 	string strType, strCurName;
 
-	return std::count_if(CONST_RANGE(m_windows, i)
+	return std::ranges::count_if(m_windows, [&](window_ptr const& i)
 	{
 		i->GetTypeAndName(strType, strCurName);
 		return AreEqual(Name, strCurName);
@@ -436,7 +436,7 @@ window_ptr Manager::WindowMenu()
 			}
 		}
 
-		const auto TypesWidth = std::get<0>(*std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return std::get<0>(a).size() < std::get<0>(b).size(); })).size();
+		const auto TypesWidth = std::get<0>(*std::ranges::max_element(Data, [](const auto& a, const auto &b) { return std::get<0>(a).size() < std::get<0>(b).size(); })).size();
 
 		const auto ModalMenu = VMenu2::create(msg(lng::MScreensTitle), {}, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch"sv);
@@ -486,7 +486,7 @@ window_ptr Manager::WindowMenu()
 
 int Manager::GetWindowCountByType(int Type) const
 {
-	return std::count_if(CONST_RANGE(m_windows, i)
+	return std::ranges::count_if(m_windows, [&](window_ptr const& i)
 	{
 		return !i->IsDeleting() && i->GetExitCode() != XC_QUIT && i->GetType() == Type;
 	});
@@ -495,7 +495,7 @@ int Manager::GetWindowCountByType(int Type) const
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
 window_ptr Manager::FindWindowByFile(int const ModalType, string_view const FileName) const
 {
-	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i)
+	const auto ItemIterator = std::ranges::find_if(m_windows, [&](window_ptr const& i)
 	{
 		// Mantis#0000469 - получать Name будем только при совпадении ModalType
 		if (!i->IsDeleting() && i->GetType() == ModalType)
@@ -576,7 +576,7 @@ void Manager::SwitchToPanels()
 {
 	if (!Global->OnlyEditorViewerUsed)
 	{
-		const auto PanelsWindow = std::find_if(ALL_CONST_RANGE(m_windows), [](const auto& item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
+		const auto PanelsWindow = std::ranges::find_if(m_windows, [](const auto& item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
 		if (PanelsWindow != m_windows.cend())
 		{
 			ActivateWindow(*PanelsWindow);
@@ -701,7 +701,7 @@ bool Manager::ProcessKey(Key key)
 		/*** А вот здесь - все остальное! ***/
 		if (!Global->IsProcessAssignMacroKey)
 		{
-			if (std::any_of(CONST_RANGE(m_GlobalKeyHandlers, i) { return i(key); }))
+			if (std::ranges::any_of(m_GlobalKeyHandlers, [&](auto const& i){ return i(key); }))
 			{
 				return true;
 			}
@@ -877,7 +877,7 @@ window_ptr Manager::GetWindow(size_t Index) const
 
 int Manager::IndexOf(const window_ptr& Window) const
 {
-	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
+	const auto ItemIterator = std::ranges::find(m_windows, Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
 }
 
@@ -1221,7 +1221,7 @@ FileEditor* Manager::GetCurrentEditor() const
 
 Manager::windows::const_iterator Manager::IsSpecialWindow() const
 {
-	return std::find_if(CONST_RANGE(m_windows, i) { return i->IsSpecial(); });
+	return std::ranges::find_if(m_windows, [](window_ptr const& i){ return i->IsSpecial(); });
 }
 
 void Manager::FolderChanged()

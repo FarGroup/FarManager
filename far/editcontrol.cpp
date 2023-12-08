@@ -166,7 +166,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 static bool ParseStringWithQuotes(string_view const Str, string& Start, string& Token, bool& StartQuote)
 {
 	size_t Pos;
-	if (std::count(ALL_CONST_RANGE(Str), L'"') & 1) // odd quotes count
+	if (std::ranges::count(Str, L'"') & 1) // odd quotes count
 	{
 		Pos = Str.rfind(L'"');
 	}

@@ -3796,7 +3796,7 @@ static bool operator==(RegExpMatch const& a, RegExpMatch const& b)
 
 static bool operator==(span<RegExpMatch const> const a, span<RegExpMatch const> const b)
 {
-	return std::equal(ALL_CONST_RANGE(a), ALL_CONST_RANGE(b));
+	return std::ranges::equal(a, b);
 }
 
 TEST_CASE("regex.corner.empty_needle")

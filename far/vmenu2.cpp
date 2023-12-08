@@ -364,7 +364,7 @@ vmenu2_ptr VMenu2::create(const string& Title, span<const menu_item> const Data,
 
 	std::vector<FarListItem> fli;
 	fli.reserve(Data.size());
-	std::transform(ALL_CONST_RANGE(Data), std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.c_str() }; });
+	std::ranges::transform(Data, std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.c_str() }; });
 
 	FarList fl{ sizeof(fl), fli.size(), fli.data() };
 

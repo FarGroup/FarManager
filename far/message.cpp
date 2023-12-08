@@ -218,7 +218,7 @@ static message_result MessageImpl(
 		}
 	}
 
-	auto MaxLength = !Strings.empty()? std::max_element(ALL_CONST_RANGE(Strings), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size() : 0;
+	auto MaxLength = !Strings.empty()? std::ranges::max_element(Strings, [](const auto& a, const auto &b) { return a.size() < b.size(); })->size() : 0;
 
 	string strClipText;
 
@@ -518,7 +518,7 @@ message_result Message(unsigned const Flags, string_view const Title, std::vecto
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
-	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
+	std::ranges::transform(Buttons, std::back_inserter(StrButtons), msg);
 
 	return MessageImpl(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
@@ -527,7 +527,7 @@ message_result Message(unsigned const Flags, const error_state_ex& ErrorState, s
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
-	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
+	std::ranges::transform(Buttons, std::back_inserter(StrButtons), msg);
 
 	return MessageImpl(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }

@@ -632,7 +632,7 @@ filter_result multifilter::FileInFilterEx(const os::fs::find_data& fde, string_v
 	const auto ProcessFilters = [&]
 	{
 		const auto& Filters = FilterData();
-		return std::all_of(ALL_CONST_RANGE(Filters), [&](FileFilterParams const& Filter)
+		return std::ranges::all_of(Filters, [&](FileFilterParams const& Filter)
 		{
 			return Process(Filter, false);
 		});
@@ -646,7 +646,7 @@ filter_result multifilter::FileInFilterEx(const os::fs::find_data& fde, string_v
 	const auto ProcessAutoFilters = [&]
 	{
 		const auto& Filters = TempFilterData();
-		return std::all_of(ALL_CONST_RANGE(Filters), [&](std::pair<string, FileFilterParams const&> const& Filter)
+		return std::ranges::all_of(Filters, [&](std::pair<string, FileFilterParams const&> const& Filter)
 		{
 			return Process(Filter.second, IsFolder);
 		});
@@ -711,13 +711,13 @@ bool multifilter::IsEnabledOnPanel() const
 	if (m_Area != filter_area::panel_left && m_Area != filter_area::panel_right)
 		return false;
 
-	if (std::any_of(CONST_RANGE(FilterData(), i) { return i.GetFlags(m_Area); }))
+	if (std::ranges::any_of(FilterData(), [&](FileFilterParams const& i){ return i.GetFlags(m_Area); }))
 		return true;
 
 	if (FoldersFilter->GetFlags(m_Area))
 		return true;
 
-	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.second.GetFlags(m_Area); });
+	return std::ranges::any_of(TempFilterData(), [&](auto const& i){ return i.second.GetFlags(m_Area); });
 }
 
 filter_area multifilter::area() const

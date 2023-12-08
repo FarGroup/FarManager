@@ -401,7 +401,7 @@ string MkStrFTime(string_view const Format)
 static void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)
 {
 	assert(Dst.size() == Ranges.size());
-	std::transform(ALL_CONST_RANGE(Ranges), Dst.begin(), [Src, Default](const auto& i)
+	std::ranges::transform(Ranges, Dst.begin(), [Src, Default](const auto& i)
 	{
 		const auto Part = trim(Src.substr(i.first, i.second));
 		return Part.empty()? Default : from_string<time_component>(Part);
@@ -839,7 +839,7 @@ TEST_CASE("datetime.ConvertDuration")
 	const auto check_digits = [](string_view const Expected, string_view const Actual)
 	{
 		// Time & decimal separators are locale-specific, so let's compare digits only
-		REQUIRE(std::equal(ALL_CONST_RANGE(Expected), ALL_CONST_RANGE(Actual), [](wchar_t const a, wchar_t const b)
+		REQUIRE(std::ranges::equal(Expected, Actual, [](wchar_t const a, wchar_t const b)
 		{
 			return a == b || !std::iswdigit(a);
 		}));

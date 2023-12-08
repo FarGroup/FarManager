@@ -2662,7 +2662,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			case PFM_MODULENAME:
 				{
 					const auto strPath = ConvertNameToFull(static_cast<const wchar_t*>(Param2));
-					const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+					const auto ItemIterator = std::ranges::find_if(*Global->CtrlObject->Plugins, [&](Plugin const* const i)
 					{
 						return equal_icase(i->ModuleName(), strPath);
 					});

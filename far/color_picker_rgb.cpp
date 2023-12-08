@@ -521,7 +521,7 @@ intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 					uint8_t Index = 0;
 					if (CustomIndex)
 						Index = *CustomIndex;
-					else if (const auto Iterator = std::find(ALL_CONST_RANGE(CustomColors), RGB(255, 255, 255)); Iterator != std::cend(CustomColors))
+					else if (const auto Iterator = std::ranges::find(CustomColors, RGB(255, 255, 255)); Iterator != std::cend(CustomColors))
 						Index = Iterator - std::cbegin(CustomColors);
 
 					CustomColors[Index] = CurColor;

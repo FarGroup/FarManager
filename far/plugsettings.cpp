@@ -452,7 +452,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	if (bCreate || Value.Root != FSSF_ROOT)
 		return 0;
 
-	const size_t Position = std::find(ALL_CONST_RANGE(m_Keys), Value.Value) - m_Keys.cbegin();
+	const size_t Position = std::ranges::find(m_Keys, Value.Value) - m_Keys.cbegin();
 	if (Position == m_Keys.size())
 		m_Keys.emplace_back(Value.Value);
 

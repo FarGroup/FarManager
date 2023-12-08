@@ -318,7 +318,7 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 			AddEndSlash(strRemoteName);
 	}
 
-	std::replace(ALL_RANGE(strRemoteName), path::separator, L'_');
+	std::ranges::replace(strRemoteName, path::separator, L'_');
 	strName = far::format(L"{}\\{}.{:X}.{}.{}"sv, strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return true;
 }
@@ -834,7 +834,7 @@ bool TreeList::ReadTree()
 		return false;
 	}
 
-	std::sort(ALL_RANGE(m_ListData), string_sort::less);
+	std::ranges::sort(m_ListData, string_sort::less);
 
 	if (!FillLastData())
 		return false;
@@ -1975,7 +1975,7 @@ bool TreeList::GoToFile(const string_view Name, const bool OnlyPartName)
 
 long TreeList::FindFile(const string_view Name, const bool OnlyPartName)
 {
-	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
+	const auto ItemIterator = std::ranges::find_if(m_ListData, [&](TreeItem const& i)
 	{
 		return equal_icase(Name, OnlyPartName? PointToName(i.strName) : i.strName);
 	});
@@ -1992,7 +1992,7 @@ long TreeList::FindNext(int StartPos, string_view const Name)
 {
 	if (static_cast<size_t>(StartPos) < m_ListData.size())
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
+		const auto ItemIterator = std::ranges::find_if(m_ListData, [&](TreeItem const& i)
 		{
 			return CmpName(Name, i.strName, true) && !IsParentDirectory(i.strName);
 		});

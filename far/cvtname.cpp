@@ -235,7 +235,7 @@ std::optional<wchar_t> get_volume_drive(string_view const VolumePath)
 	string VolumeName;
 	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 
-	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const wchar_t i)
+	const auto ItemIterator = std::ranges::find_if(Enumerator, [&](const wchar_t i)
 	{
 		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::drive::get_win32nt_root_directory(i), VolumeName) && equal_icase(VolumeName, SrcVolumeName);
 	});

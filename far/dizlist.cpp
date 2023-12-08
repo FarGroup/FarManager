@@ -203,7 +203,7 @@ string_view DizList::Get(const string_view Name, const string_view ShortName, co
 		return {};
 	}
 
-	auto Begin = std::find_if_not(ALL_CONST_RANGE(Description), std::iswblank);
+	auto Begin = std::ranges::find_if_not(Description, std::iswblank);
 
 	if (std::iswdigit(*Begin))
 	{
@@ -276,7 +276,7 @@ bool DizList::Erase(const string_view Name, const string_view ShortName)
 		return false;
 	}
 
-	m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*Iterator));
+	m_OrderForWrite.erase(std::ranges::find(m_OrderForWrite, &*Iterator));
 
 	// Sometimes client can keep the pointer after erasure and use it,
 	// e. g. if a description has been deleted during file moving and filelist decided to redraw in the process.

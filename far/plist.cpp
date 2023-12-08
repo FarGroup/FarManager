@@ -195,7 +195,7 @@ void ShowProcessList()
 			return false;
 		}
 
-		const auto MaxPid = std::max_element(ALL_CONST_RANGE(Info.Windows), [](const auto& a, const auto& b) { return a.second < b.second; })->second;
+		const auto MaxPid = std::ranges::max_element(Info.Windows, [](const auto& a, const auto& b) { return a.second < b.second; })->second;
 		const auto PidWidth = static_cast<size_t>(std::log10(MaxPid)) + 1;
 
 		for (const auto& [Window, Pid]: Info.Windows)

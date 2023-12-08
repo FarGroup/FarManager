@@ -1752,10 +1752,10 @@ WARNING_POP()
 				return false;
 			}
 
-			if (std::equal(ALL_CONST_RANGE(Palette), ALL_CONST_RANGE(csbi.ColorTable)))
+			if (std::ranges::equal(Palette, csbi.ColorTable))
 				return true;
 
-			std::copy(ALL_CONST_RANGE(Palette), std::begin(csbi.ColorTable));
+			std::ranges::copy(Palette, std::begin(csbi.ColorTable));
 
 			if (!imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
 			{
@@ -2439,7 +2439,7 @@ WARNING_POP()
 			return false;
 		}
 
-		std::copy(ALL_CONST_RANGE(csbi.ColorTable), Palette.begin());
+		std::ranges::copy(csbi.ColorTable, Palette.begin());
 
 		return true;
 	}

@@ -247,7 +247,7 @@ void palette::Reset(bool const RGB)
 		function_ref(rgb_color) :
 		function_ref(index_color);
 
-	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), set_color);
+	std::ranges::transform(Init, CurrentPalette.begin(), set_color);
 
 	PaletteChanged = true;
 }
@@ -273,7 +273,7 @@ void palette::Set(size_t StartOffset, span<FarColor> Values)
 {
 	assert(Values.size() + StartOffset <= CurrentPalette.size());
 
-	std::copy(ALL_CONST_RANGE(Values), CurrentPalette.begin() + StartOffset);
+	std::ranges::copy(Values, CurrentPalette.begin() + StartOffset);
 	PaletteChanged = true;
 }
 

@@ -241,7 +241,7 @@ private:
 	bool FindExport(const std::string_view ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
-		return contains(select(m_ExportsNames, [](const export_name& Item) { return Item.AName; }), ExportName);
+		return std::ranges::includes(m_ExportsNames, std::views::single(ExportName), {}, [](const export_name& Item){ return Item.AName; });
 	}
 
 	string_view kind() const override { return L"legacy"sv; }
@@ -420,7 +420,7 @@ static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 static wchar_t** AnsiArrayToUnicode(span<const char* const> const Strings)
 {
 	auto Result = std::make_unique<wchar_t*[]>(Strings.size());
-	std::transform(ALL_CONST_RANGE(Strings), Result.get(), AnsiToUnicode);
+	std::ranges::transform(Strings, Result.get(), AnsiToUnicode);
 	return Result.release();
 }
 
@@ -428,7 +428,7 @@ static wchar_t **AnsiArrayToUnicodeMagic(span<const char* const> const Strings)
 {
 	auto Result = std::make_unique<wchar_t*[]>(Strings.size() + 1);
 	Result[0] = static_cast<wchar_t*>(ToPtr(Strings.size()));
-	std::transform(ALL_CONST_RANGE(Strings), Result.get() + 1, AnsiToUnicode);
+	std::ranges::transform(Strings, Result.get() + 1, AnsiToUnicode);
 	return Result.release() + 1;
 }
 
@@ -528,7 +528,7 @@ static InfoPanelLine* ConvertInfoPanelLinesA(span<const oldfar::InfoPanelLine> c
 {
 	auto Result = std::make_unique<InfoPanelLine[]>(ipl.size());
 
-	std::transform(ALL_CONST_RANGE(ipl), Result.get(), [](const auto& Item)
+	std::ranges::transform(ipl, Result.get(), [](const auto& Item)
 	{
 		return InfoPanelLine{ AnsiToUnicode(Item.Text), AnsiToUnicode(Item.Data), Item.Separator? IPLFLAGS_SEPARATOR : 0 };
 	});
@@ -621,11 +621,11 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 	{
 		const auto CheckLabel = [&](const auto& Item) { return Extract(Item, i) != nullptr; };
 
-		kbtW.CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMap), CheckLabel);
+		kbtW.CountLabels += std::ranges::count_if(LabelsMap, CheckLabel);
 
 		if (FullStruct)
 		{
-			kbtW.CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMapEx), CheckLabel);
+			kbtW.CountLabels += std::ranges::count_if(LabelsMapEx, CheckLabel);
 		}
 	}
 
@@ -649,11 +649,11 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 			}
 		};
 
-		std::for_each(ALL_CONST_RANGE(LabelsMap), ProcessLabel);
+		std::ranges::for_each(LabelsMap, ProcessLabel);
 
 		if (FullStruct)
 		{
-			std::for_each(ALL_CONST_RANGE(LabelsMapEx), ProcessLabel);
+			std::ranges::for_each(LabelsMapEx, ProcessLabel);
 		}
 	}
 
@@ -2409,7 +2409,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			AnsiItems.reserve(ItemsNumber);
 			AnsiItemsPtrs.reserve(ItemsNumber);
 			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(NullToEmpty(Item)); });
-			std::transform(ALL_CONST_RANGE(AnsiItems), std::back_inserter(AnsiItemsPtrs), [](const string& Item){ return Item.c_str(); });
+			std::ranges::transform(AnsiItems, std::back_inserter(AnsiItemsPtrs), [](const string& Item){ return Item.c_str(); });
 		}
 
 		static const std::array FlagsMap
@@ -3952,7 +3952,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETARRAYCOLOR, Color.size(), Color.data());
 						Color.insert(Color.begin() + oldfar::COL_RESERVED0, FarColor{});
 						const auto OldColors = static_cast<LPBYTE>(Param);
-						std::transform(ALL_CONST_RANGE(Color), OldColors, colors::FarColorToConsoleColor);
+						std::ranges::transform(Color, OldColors, colors::FarColorToConsoleColor);
 					}
 					return PaletteSize;
 				}

@@ -211,7 +211,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 
 		if (!PosChanged)
 		{
-			const auto It = std::find_if(ALL_CONST_RANGE(Mask), CheckCharMask);
+			const auto It = std::ranges::find_if(Mask, CheckCharMask);
 			if (It != Mask.cend())
 			{
 				Result = It - Mask.cbegin();

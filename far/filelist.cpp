@@ -830,21 +830,21 @@ void FileList::SortFileList(bool KeepPosition)
 
 	if (m_SortMode < panel_sort::COUNT)
 	{
-		const auto NameColumn = std::find_if(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), [](column const& i){ return i.type == column_type::name; });
+		const auto NameColumn = std::ranges::find_if(m_ViewSettings.PanelColumns, [](column const& i){ return i.type == column_type::name; });
 		const auto IgnorePaths = NameColumn != m_ViewSettings.PanelColumns.cend() && NameColumn->type_flags & COLFLAGS_NAMEONLY;
 
 		list_less const Predicate(this, hSortPlugin, IgnorePaths);
 
 		const auto& SortLayers = Global->Opt->PanelSortLayers[static_cast<size_t>(m_SortMode)];
 
-		if (std::any_of(ALL_CONST_RANGE(SortLayers), [](std::pair<panel_sort, sort_order> const& Layer){ return Layer.first == panel_sort::UNSORTED; }))
+		if (std::ranges::any_of(SortLayers, [](std::pair<panel_sort, sort_order> const& Layer){ return Layer.first == panel_sort::UNSORTED; }))
 		{
 			// Unsorted criterion is deterministic and won't report equality, thus ensuring stability
-			std::sort(ALL_RANGE(m_ListData), Predicate);
+			std::ranges::sort(m_ListData, Predicate);
 		}
 		else
 		{
-			std::stable_sort(ALL_RANGE(m_ListData), Predicate);
+			std::ranges::stable_sort(m_ListData, Predicate);
 		}
 	}
 	else if (m_SortMode >= panel_sort::BY_USER)
@@ -2646,7 +2646,7 @@ static bool IsExecutable(string_view const Filename)
 	const auto Extension = name_ext(Filename).second;
 
 	static const std::array Executables{ L".exe"sv, L".cmd"sv, L".com"sv, L".bat"sv };
-	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view i)
+	return std::ranges::any_of(Executables, [&](const string_view i)
 	{
 		return equal_icase(Extension, i);
 	});
@@ -4657,7 +4657,7 @@ static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> cons
 		auto& Item = AvailableSortModesMenuItems[i.MenuPosition];
 		Item.Name = msg(i.Label);
 
-		if (std::any_of(ALL_CONST_RANGE(SortLayers), [&](std::pair<panel_sort, sort_order> const& Layer) { return Layer.first == static_cast<panel_sort>(&i - SortModes); }))
+		if (std::ranges::any_of(SortLayers, [&](std::pair<panel_sort, sort_order> const& Layer) { return Layer.first == static_cast<panel_sort>(&i - SortModes); }))
 		{
 			Item.Flags |= MIF_HIDDEN;
 			--VisibleCount;
@@ -4680,7 +4680,7 @@ static void edit_sort_layers(int MenuPos)
 	if (MenuPos >= static_cast<int>(panel_sort::COUNT))
 		return;
 
-	const auto SortMode = std::find_if(CONST_RANGE(SortModes, i){ return i.MenuPosition == MenuPos; }) - SortModes;
+	const auto SortMode = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == MenuPos; }) - SortModes;
 	if (static_cast<panel_sort>(SortMode) == panel_sort::UNSORTED)
 		return;
 
@@ -4688,7 +4688,7 @@ static void edit_sort_layers(int MenuPos)
 
 	std::vector<menu_item> SortLayersMenuItems;
 	SortLayersMenuItems.reserve(SortLayers.size());
-	std::transform(ALL_CONST_RANGE(SortLayers), std::back_inserter(SortLayersMenuItems), [](std::pair<panel_sort, sort_order> const& Layer)
+	std::ranges::transform(SortLayers, std::back_inserter(SortLayersMenuItems), [](std::pair<panel_sort, sort_order> const& Layer)
 	{
 		return menu_item{ msg(SortModes[static_cast<size_t>(Layer.first)].Label), LIF_CHECKED | order_indicator(Layer.second) };
 	});
@@ -4718,7 +4718,7 @@ static void edit_sort_layers(int MenuPos)
 		case KEY_NUMPAD0:
 			if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 			{
-				const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
+				const auto NewSortModeIndex = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == Result; }) - SortModes;
 				const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
 				const auto InsertPos = Pos > 0? Pos : 1;
 				SortLayersMenu->AddItem(MenuItemEx{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, InsertPos);
@@ -4741,7 +4741,7 @@ static void edit_sort_layers(int MenuPos)
 			{
 				if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 				{
-					const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
+					const auto NewSortModeIndex = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == Result; }) - SortModes;
 					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
 					SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
 					SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
@@ -4970,7 +4970,7 @@ void FileList::SelectSortMode()
 			KeepOrder = true;
 		}
 
-		const auto SortMode = static_cast<panel_sort>(std::find_if(CONST_RANGE(SortModes, i){ return i.MenuPosition == SortCode; }) - SortModes);
+		const auto SortMode = static_cast<panel_sort>(std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == SortCode; }) - SortModes);
 		SetSortMode(SortMode, KeepOrder);
 	}
 	// custom sort modes
@@ -5793,7 +5793,7 @@ static void FileListItemToPluginPanelItemBasic(const FileListItem& From, PluginP
 	To.FileAttributes = From.Attributes;
 	To.NumberOfLinks = {};
 	To.CRC32 = From.CRC32;
-	std::fill(ALL_RANGE(To.Reserved), 0);
+	std::ranges::fill(To.Reserved, 0);
 }
 
 void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const
@@ -6999,7 +6999,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		if (!m_ContentNames.empty())
 		{
 			m_ContentNamesPtrs.reserve(m_ContentNames.size());
-			std::transform(ALL_CONST_RANGE(m_ContentNames), std::back_inserter(m_ContentNamesPtrs), [](const string& i) { return i.c_str(); });
+			std::ranges::transform(m_ContentNames, std::back_inserter(m_ContentNamesPtrs), [](const string& i){ return i.c_str(); });
 			m_ContentPlugins = Global->CtrlObject->Plugins->GetContentPlugins(m_ContentNamesPtrs);
 			m_ContentValues.resize(m_ContentNames.size());
 		}
@@ -7279,7 +7279,7 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 		i.Position = &i - From.data();
 	}
 
-	std::sort(ALL_RANGE(From), hash_less{});
+	std::ranges::sort(From, hash_less{});
 
 	std::vector<size_t> OldPositions;
 	OldPositions.reserve(To.size());
@@ -7290,7 +7290,7 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 
 	const auto find_old_item = [&](FileListItem const& NewItem)
 	{
-		range const EqualRange = std::equal_range(ALL_RANGE(From), make_hash(NewItem.FileName), hash_less{});
+		const auto EqualRange = std::ranges::equal_range(From, make_hash(NewItem.FileName), hash_less{});
 		if (EqualRange.empty())
 			return From.end();
 
@@ -7358,7 +7358,7 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 		OldItemIterator->FileName.clear();
 	}
 
-	std::sort(ALL_RANGE(To), [&](FileListItem const& a, FileListItem const& b)
+	std::ranges::sort(To, [&](FileListItem const& a, FileListItem const& b)
 	{
 		const auto OldPosA = OldPositions[a.Position];
 		const auto OldPosB = OldPositions[b.Position];
@@ -9089,8 +9089,8 @@ bool FileList::IsDizDisplayed() const
 bool FileList::IsColumnDisplayed(function_ref<bool(const column&)> const Compare) const
 {
 	return
-		std::any_of(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), Compare) ||
-		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), Compare);
+		std::ranges::any_of(m_ViewSettings.PanelColumns, Compare) ||
+		std::ranges::any_of(m_ViewSettings.StatusColumns, Compare);
 }
 
 bool FileList::IsColumnDisplayed(column_type Type) const

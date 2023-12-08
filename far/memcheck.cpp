@@ -140,7 +140,7 @@ static string printable_string(string_view const Str)
 	string Result;
 	Result.reserve(Str.size());
 
-	std::replace_copy_if(ALL_RANGE(Str), std::back_inserter(Result), [](wchar_t const Char){ return !std::iswprint(Char); }, L'.');
+	std::ranges::replace_copy_if(Str, std::back_inserter(Result), [](wchar_t const Char){ return !std::iswprint(Char); }, L'.');
 
 	return Result;
 }

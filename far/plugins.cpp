@@ -230,7 +230,7 @@ bool PluginManager::RemovePlugin(const Plugin* pPlugin)
 		}
 	}
 #endif // NO_WRAPPER
-	SortedPlugins.erase(std::find(ALL_CONST_RANGE(SortedPlugins), pPlugin));
+	SortedPlugins.erase(std::ranges::find(SortedPlugins, pPlugin));
 	m_Plugins.erase(pPlugin->Id());
 	return true;
 }
@@ -240,7 +240,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_dat
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; }))
+	if (std::ranges::none_of(PluginFactories, [&](plugin_factory_ptr const& i){ return (pPlugin = i->CreatePlugin(FileName)) != nullptr; }))
 		return nullptr;
 
 	auto Result = LoadToMem? false : pPlugin->LoadFromCache(FindData);
@@ -359,7 +359,7 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 
 Plugin* PluginManager::FindPlugin(const string_view ModuleName) const
 {
-	const auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
+	const auto ItemIterator = std::ranges::find_if(SortedPlugins, [&](Plugin const* const i)
 	{
 		return equal_icase(i->ModuleName(), ModuleName);
 	});
@@ -385,7 +385,7 @@ void PluginManager::LoadFactories()
 		{
 			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
-				if (std::find_if(ALL_CONST_RANGE(PluginFactories), [&](const auto& i){ return i->Id() == CustomModel->Id(); }) == PluginFactories.cend())
+				if (std::ranges::find_if(PluginFactories, [&](const auto& i){ return i->Id() == CustomModel->Id(); }) == PluginFactories.cend())
 					PluginFactories.emplace_back(std::move(CustomModel));
 			}
 		}
@@ -1060,7 +1060,7 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	const auto GetCode = hPlugin->plugin()->GetFiles(&Info);
 
 	const auto Find = os::fs::enum_files(path::join(Info.DestPath, L'*'));
-	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
+	const auto ItemIterator = std::ranges::find_if(Find, [](os::fs::find_data const& i){ return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
 		const string_view Name = PanelItem->FileName;
@@ -2043,7 +2043,7 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 			continue;
 
 		const auto Enumerator = enum_tokens(PluginPrefixes, L":"sv);
-		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, *Prefix); }))
+		if (!std::ranges::any_of(Enumerator, [&](const auto& p) { return equal_icase(p, *Prefix); }))
 			continue;
 
 		if (!i->Load() || !i->has(iOpen))
@@ -2401,7 +2401,7 @@ std::vector<Plugin*> PluginManager::GetContentPlugins(const std::vector<const wc
 {
 	GetContentFieldsInfo Info{ sizeof(Info), ColNames.size(), ColNames.data() };
 	std::vector<Plugin*> Plugins;
-	std::copy_if(ALL_CONST_RANGE(SortedPlugins), std::back_inserter(Plugins), [&Info](Plugin* p)
+	std::ranges::copy_if(SortedPlugins, std::back_inserter(Plugins), [&Info](Plugin* p)
 	{
 		return p->has(iGetContentData) && p->has(iGetContentFields) && p->GetContentFields(&Info);
 	});
