@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-12-08 23:18:38+00:00 - build 6224
+
+1. Refactoring.
+
+2. Switch to ranges globally (simple cases for now).
+
+--------------------------------------------------------------------------------
 MZK 2023-12-07 12:21:35-08:00 - build 6223
 
 1. gh-750: Fixed VMenu set selection behavior around list edges.
