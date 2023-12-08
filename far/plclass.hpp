@@ -301,7 +301,7 @@ public:
 	bool LoadData();
 	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();
-	bool IsPanelPlugin();
+	bool IsPanelPlugin() const;
 	bool Active() const {return m_Activity != 0; }
 	void AddDialog(const window_ptr& Dlg);
 	bool RemoveDialog(const window_ptr& Dlg);

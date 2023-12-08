@@ -141,27 +141,21 @@ size_t hash_combine_all(const args&... Args)
 }
 
 
-template<typename iterator>
-[[nodiscard]]
-size_t hash_range(iterator First, iterator Last)
+template<typename type>
+void hash_range(size_t& Seed, type const& Range)
 {
-	size_t Seed = 0;
-
-	for (; First != Last; ++First)
+	for (const auto& i: Range)
 	{
-		hash_combine(Seed, *First);
+		hash_combine(Seed, i);
 	}
-
-	return Seed;
 }
 
-template<typename iterator>
-void hash_range(size_t& Seed, iterator First, iterator Last)
+template<typename type>
+size_t hash_range(type const& Range)
 {
-	for (; First != Last; ++First)
-	{
-		hash_combine(Seed, *First);
-	}
+	size_t Seed = 0;
+	hash_range(Seed, Range);
+	return Seed;
 }
 
 template<typename T>

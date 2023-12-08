@@ -499,7 +499,7 @@ namespace single_color_dialog
 		separator_before_buttons,
 
 		color_first,
-		color_last = color_first + cb::count - 1,
+		color_last = color_first + std::to_underlying(cb::count) - 1,
 
 		button_ok,
 		button_cancel,

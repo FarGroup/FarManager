@@ -793,7 +793,7 @@ void Plugin::SubscribeToSynchroEvents()
 	});
 }
 
-bool Plugin::IsPanelPlugin()
+bool Plugin::IsPanelPlugin() const
 {
 	static const int PanelExports[]
 	{

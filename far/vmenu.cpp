@@ -1769,7 +1769,7 @@ int VMenu::VisualPosToReal(int VPos) const
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
-size_t VMenu::GetItemMaxShowPos(int Item)
+size_t VMenu::GetItemMaxShowPos(int Item) const
 {
 	const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
 	if (Len <= MaxLineWidth)

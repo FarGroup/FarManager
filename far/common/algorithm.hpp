@@ -78,6 +78,12 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 	}
 }
 
+template<typename Iter>
+void apply_permutation(range_like auto& Range, Iter Indices)
+{
+	return apply_permutation(ALL_RANGE(Range), Indices);
+}
+
 // Unified container emplace
 template<typename container, typename... args>
 void emplace(container& Container, args&&... Args)

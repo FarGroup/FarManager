@@ -866,7 +866,7 @@ void FileList::SortFileList(bool KeepPosition)
 
 		if (custom_sort::SortFileList(&cs, CustomSortIndicator))
 		{
-			apply_permutation(ALL_RANGE(m_ListData), Positions.begin());
+			apply_permutation(m_ListData, Positions.begin());
 		}
 		else
 		{

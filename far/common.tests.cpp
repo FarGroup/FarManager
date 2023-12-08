@@ -208,7 +208,7 @@ TEST_CASE("algorithm.apply_permutation")
 {
 	{
 		std::vector<int> Data, Indices;
-		apply_permutation(ALL_RANGE(Data), Indices.begin());
+		apply_permutation(Data, Indices.begin());
 		REQUIRE(Data.empty());
 		REQUIRE(Indices.empty());
 	}
@@ -221,7 +221,7 @@ TEST_CASE("algorithm.apply_permutation")
 			std::size(Data) == std::size(Expected) &&
 			std::size(Data) == std::size(Indices)
 		);
-		apply_permutation(ALL_RANGE(Data), Indices.begin());
+		apply_permutation(Data, Indices.begin());
 		REQUIRE(Data == Expected);
 	}
 }
@@ -1825,9 +1825,9 @@ TEST_CASE("utility.hash_range")
 	const auto s2 = L"12345"s;
 	const auto s3 = L"abcde"s;
 
-	const auto h1 = hash_range(ALL_CONST_RANGE(s1));
-	const auto h2 = hash_range(ALL_CONST_RANGE(s2));
-	const auto h3 = hash_range(ALL_CONST_RANGE(s3));
+	const auto h1 = hash_range(s1);
+	const auto h2 = hash_range(s2);
+	const auto h3 = hash_range(s3);
 
 	REQUIRE(h1 == h2);
 	REQUIRE(h2 != h3);
