@@ -309,14 +309,14 @@ string_view detail::fuzzy_searcher_impl::normalize(string_view const Str)
 	}
 
 	zip const Zip(m_Result, m_Types);
-	const auto End = std::remove_if(ALL_RANGE(Zip), [](const auto& i)
+	const auto Removed = std::ranges::remove_if(Zip, [](const auto& i)
 	{
 		return
 			!flags::check_any(std::get<1>(i), C3_ALPHA | C3_LEXICAL) &&
 			flags::check_any(std::get<1>(i), C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK);
 	});
 
-	m_Result.resize(End - Zip.begin());
+	m_Result.resize(m_Result.size() - Removed.size());
 	return m_Result;
 }
 

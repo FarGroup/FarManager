@@ -518,7 +518,7 @@ void background_searcher::InitInFileSearch()
 		{
 			// Проверяем наличие выбранных страниц символов
 			const auto CpEnum = codepages::GetFavoritesEnumerator();
-			const auto hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
+			const auto hasSelected = std::ranges::any_of(CpEnum, [](auto const& i){ return (i.second & CPST_FIND) != 0; });
 
 			if (hasSelected)
 			{
@@ -710,7 +710,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = codepages::GetFavoritesEnumerator();
-		const auto Title = msg(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
+		const auto Title = msg(std::ranges::any_of(CpEnum, [](auto const& i){ return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
 		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).Name = Title;
 		FarListPos Position{ sizeof(Position) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);

@@ -1742,7 +1742,7 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 
 	const irange Chars(std::numeric_limits<wchar_t>::max() + 1);
 
-	const auto AllValid = std::all_of(ALL_CONST_RANGE(Chars), [&](wchar_t const Char)
+	const auto AllValid = std::ranges::all_of(Chars, [&](wchar_t const Char)
 	{
 		const auto Result = round_trip(Char);
 
@@ -1783,7 +1783,7 @@ TEST_CASE("encoding.utf8-ucs2.round-trip")
 
 	const irange Bytes(std::numeric_limits<char>::max() + 1);
 
-	const auto AllValid = std::all_of(ALL_CONST_RANGE(Bytes), [&](char const Byte)
+	const auto AllValid = std::ranges::all_of(Bytes, [&](char const Byte)
 	{
 		if (!(Byte & 0b10000000) || utf8::support_embedded_raw_bytes)
 		{

@@ -2665,7 +2665,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	items.reserve(CurrentConfig.size());
 	std::vector<string> Strings(CurrentConfig.size());
 	const auto ConfigData = zip(CurrentConfig, Strings);
-	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
+	std::ranges::transform(ConfigData, std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
 	FarList Items{ sizeof(Items), items.size(), items.data() };
 

@@ -298,7 +298,7 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 	};
 
 	const auto iRange = irange(start, start + length);
-	const auto Pos = std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
+	const auto Pos = std::ranges::find_if(iRange, [&](size_t const i){ return GetCodePage(i) >= codePage; });
 	return Pos != iRange.cend()? *Pos : start + length;
 }
 
