@@ -297,6 +297,7 @@ public:
 
 	auto& operator++() noexcept { ++m_value; return *this; }
 	auto& operator--() noexcept { --m_value; return *this; }
+	POSTFIX_OPS()
 
 	auto& operator+=(size_t n) noexcept { m_value += n; return *this; }
 	auto& operator-=(size_t n) noexcept { m_value -= n; return *this; }

@@ -45,7 +45,7 @@ class [[nodiscard]] enumerator
 {
 public:
 	NONCOPYABLE(enumerator);
-	MOVE_CONSTRUCTIBLE(enumerator);
+	MOVABLE(enumerator);
 
 	using value_type = T;
 	using enumerator_type = enumerator;
@@ -77,28 +77,31 @@ public:
 		{
 		}
 
-		[[nodiscard]]
-		auto operator->() noexcept
+		iterator_t(iterator_t const& rhs):
+			m_Owner(rhs.m_Owner),
+			m_Position(rhs.m_Position),
+			m_Value(rhs.m_Value)
 		{
-			return &remove_pointer(value());
+		}
+
+		auto& operator=(iterator_t const& rhs)
+		{
+			m_Owner = rhs.m_Owner;
+			m_Position = rhs.m_Position;
+			m_Value = rhs.m_Value;
+			return *this;
 		}
 
 		[[nodiscard]]
 		auto operator->() const noexcept
 		{
-			return &remove_pointer(value());
-		}
-
-		[[nodiscard]]
-		auto& operator*() noexcept
-		{
-			return remove_pointer(value());
+			return &remove_pointer(m_Value);
 		}
 
 		[[nodiscard]]
 		auto& operator*() const noexcept
 		{
-			return remove_pointer(value());
+			return remove_pointer(m_Value);
 		}
 
 		auto& operator++()
@@ -140,14 +143,9 @@ public:
 			return m_Value;
 		}
 
-		auto& value() const
-		{
-			return m_Value;
-		}
-
 		owner_type m_Owner{};
 		position m_Position{ position::end };
-		std::remove_const_t<item_type> m_Value{};
+		std::remove_const_t<item_type> mutable m_Value{};
 	};
 
 	using iterator = iterator_t<T, Derived*>;

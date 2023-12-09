@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../keep_alive.hpp"
+#include "../preprocessor.hpp"
 
 #include <iterator>
 #include <optional>
@@ -106,10 +107,25 @@ namespace detail
 		using pointer           = typename traits<args...>::pointer;
 		using reference         = typename traits<args...>::reference;
 
+		MOVABLE(zip_iterator);
+
 		zip_iterator() = default;
 		explicit zip_iterator(args&&... Args): m_Tuple(Args...) {}
+
+		zip_iterator(zip_iterator const& rhs):
+			m_Tuple(rhs.m_Tuple)
+		{
+		}
+
+		auto& operator=(zip_iterator const& rhs)
+		{
+			m_Tuple = rhs.m_Tuple;
+			return *this;
+		}
+
 		auto& operator++() { std::apply([](auto&... Item){ (..., ++Item); }, m_Tuple); return *this; }
 		auto& operator--() { std::apply([](auto&... Item){ (..., --Item); }, m_Tuple); return *this; }
+		POSTFIX_OPS()
 
 		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
 		[[nodiscard]]

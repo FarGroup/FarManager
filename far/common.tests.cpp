@@ -521,7 +521,23 @@ TEST_CASE("enum_tokens")
 
 #include "common/enumerator.hpp"
 
-TEST_CASE("enumerator")
+TEST_CASE("enumerator.static")
+{
+	using test_range = decltype(make_inline_enumerator<int>([](bool, int&){ return false; }));
+
+	STATIC_REQUIRE(std::ranges::range<test_range>);
+	STATIC_REQUIRE(std::ranges::input_range<test_range>);
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::begin(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cbegin(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::end(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cend(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::find(Range, *Range.begin()); });
+}
+
+TEST_CASE("enumerator.dynamic")
 {
 	enum
 	{
@@ -1107,6 +1123,48 @@ TEST_CASE("preprocessor.predefined")
 
 TEST_CASE("range.static")
 {
+	{
+		using test_range = range<int*>;
+
+		STATIC_REQUIRE(std::ranges::range<test_range>);
+		STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
+		STATIC_REQUIRE(std::ranges::contiguous_range<test_range>);
+		STATIC_REQUIRE(std::ranges::random_access_range<test_range>);
+		STATIC_REQUIRE(std::ranges::sized_range<test_range>);
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
+	}
+
+	{
+		using test_range = irange<int>;
+
+		STATIC_REQUIRE(std::ranges::range<test_range>);
+		STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
+		STATIC_REQUIRE(std::ranges::sized_range<test_range>);
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
+
+		STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
+	}
+
 	{
 		const auto Test = [](auto&& Container)
 		{
@@ -2276,7 +2334,28 @@ TEST_CASE("view.reverse")
 
 #include "common/view/select.hpp"
 
-TEST_CASE("view.select")
+TEST_CASE("view.select.static")
+{
+	using test_range = decltype(select(std::declval<span<int>&>(), [](int){ return 0.0; }));
+
+	STATIC_REQUIRE(std::ranges::range<test_range>);
+	STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
+	STATIC_REQUIRE(std::ranges::sized_range<test_range>);
+
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
+}
+
+TEST_CASE("view.select.dynamic")
 {
 	const auto Test = [](const auto& Data, const auto& Selector)
 	{
@@ -2423,7 +2502,28 @@ TEST_CASE("view.where")
 
 #include "common/view/zip.hpp"
 
-TEST_CASE("view.zip")
+TEST_CASE("view.zip.static")
+{
+	using test_range = decltype(zip(std::declval<span<int>&>(), std::declval<span<int>&>()));
+
+	STATIC_REQUIRE(std::ranges::range<test_range>);
+	STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
+	STATIC_REQUIRE(std::ranges::sized_range<test_range>);
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::begin(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cbegin(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::rbegin(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::crbegin(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::end(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cend(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::rend(Range); });
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::crend(Range); });
+
+	STATIC_REQUIRE(requires(test_range Range) { std::ranges::find(Range, *Range.begin()); });
+}
+
+TEST_CASE("view.zip.dynamic")
 {
 	{
 		const std::array Source      { 1, 2, 3 };

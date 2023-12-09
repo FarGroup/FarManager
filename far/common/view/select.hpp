@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../keep_alive.hpp"
+#include "../preprocessor.hpp"
 
 #include <iterator>
 #include <tuple>
@@ -45,6 +46,8 @@ namespace detail
 	class select_iterator_data
 	{
 	public:
+		select_iterator_data() = default;
+
 		explicit select_iterator_data(const T& Value, accessor& Accessor):
 			m_Value(Value),
 			m_Accessor(&Accessor)
@@ -52,15 +55,15 @@ namespace detail
 		}
 
 	protected:
-		[[nodiscard]] decltype(auto) operator*()       { return call(*this); }
 		[[nodiscard]] decltype(auto) operator*() const { return call(*this); }
-		[[nodiscard]] auto operator->()       { return &**this; }
 		[[nodiscard]] auto operator->() const { return &**this; }
 
 		template<typename self_t>
 		[[nodiscard]]
 		static decltype(auto) call(self_t& Self)
 		{
+			assert(Self.m_Accessor);
+
 			if constexpr (requires(accessor&& Accessor, T&& Value){ Accessor(*Value); })
 				return (*Self.m_Accessor)(*Self.m_Value);
 			else
@@ -68,7 +71,13 @@ namespace detail
 		}
 
 		T m_Value;
-		accessor* m_Accessor;
+		accessor* m_Accessor{};
+	};
+
+	template<typename T>
+	concept subtractable = requires(const T& a, const T& b)
+	{
+		{ a - b } -> std::integral;
 	};
 
 	template<typename T, typename accessor>
@@ -89,14 +98,15 @@ namespace detail
 
 		auto& operator++() { ++this->m_Value; return *this; }
 		auto& operator--() { --this->m_Value; return *this; }
+		POSTFIX_OPS()
 
 		auto& operator+=(size_t n) { this->m_Value += n; return *this; }
 		auto& operator-=(size_t n) { this->m_Value -= n; return *this; }
 
-		auto operator+(size_t n) const { return select_iterator(this->m_Value + n); }
-		auto operator-(size_t n) const { return select_iterator(this->m_Value - n); }
+		auto operator+(size_t n) const { return select_iterator(this->m_Value + n, *this->m_Accessor); }
+		auto operator-(size_t n) const { return select_iterator(this->m_Value - n, *this->m_Accessor); }
 
-		auto operator-(const select_iterator& rhs) const { return this->m_Value - rhs.m_Value; }
+		auto operator-(const select_iterator& rhs) const requires subtractable<T> { return this->m_Value - rhs.m_Value; }
 
 		[[nodiscard]]
 		bool operator==(const select_iterator& rhs) const { return this->m_Value == rhs.m_Value; }
