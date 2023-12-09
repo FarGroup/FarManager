@@ -142,6 +142,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	NOT_MOVE_CONSTRUCTIBLE(Type); \
 	NOT_MOVE_ASSIGNABLE(Type)
 
+#define POSTFIX_INCREMENT() \
+	auto operator++(int) { auto Copy = *this; ++*this; return Copy; }
+
+#define POSTFIX_DECREMENT() \
+	auto operator--(int) { auto Copy = *this; --*this; return Copy; }
+
+#define POSTFIX_OPS() \
+	POSTFIX_INCREMENT() \
+	POSTFIX_DECREMENT()
 
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)

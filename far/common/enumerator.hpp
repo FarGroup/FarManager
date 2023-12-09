@@ -108,12 +108,7 @@ public:
 			return *this;
 		}
 
-		auto operator++(int)
-		{
-			auto Copy = *this;
-			++*this;
-			return Copy;
-		}
+		POSTFIX_INCREMENT()
 
 		[[nodiscard]]
 		bool operator==(const iterator_t& rhs) const noexcept

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "preprocessor.hpp"
+
 #include <iterator>
 
 //----------------------------------------------------------------------------
@@ -48,7 +50,7 @@ public:
 
 	explicit null_iterator(T* Data) noexcept: m_Data(Data) {}
 	auto& operator++() noexcept { ++m_Data; return *this; }
-	auto operator++(int) noexcept { return null_iterator(m_Data++); }
+	POSTFIX_INCREMENT()
 
 	[[nodiscard]]
 	auto& operator*() noexcept { return *m_Data; }
