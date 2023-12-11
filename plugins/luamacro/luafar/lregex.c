@@ -132,7 +132,7 @@ int _Gmatch(lua_State *L, int is_function, int is_wide)
 	{
 		Text = is_wide ? check_utf16_string(L, 1, &len) : check_utf8_string(L, 1, &len);
 		pat = check_regex_pattern(L, 2, 3);
-    fr = push_far_regex(L, RegExpControl, pat); // upvalue 1
+		fr = push_far_regex(L, RegExpControl, pat); // upvalue 1
 	}
 	else
 	{
