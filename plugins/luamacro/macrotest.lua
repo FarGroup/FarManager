@@ -1593,6 +1593,12 @@ local function test_RegexControl()
   for cap in regex.gmatchW(L"abc", ".") do t[#t+1]=cap end
   assert(#t==6 and t[4]==L"a" and t[5]==L"b" and t[6]==L"c")
 
+  t, R = {}, regex.new(".")
+  for cap in R:gmatch("abc") do t[#t+1]=cap end
+  assert(#t==3 and t[1]=="a" and t[2]=="b" and t[3]=="c")
+  for cap in R:gmatchW(L"abc") do t[#t+1]=cap end
+  assert(#t==6 and t[4]==L"a" and t[5]==L"b" and t[6]==L"c")
+
   str, nfound, nrep = regex.gsub(";a;", "a*", "ITEM")
   assert(str=="ITEM;ITEM;ITEM" and nfound==3 and nrep==3)
   str, nfound, nrep = regex.gsub(";a;", "a*?", "ITEM")

@@ -119,14 +119,28 @@ int regex_gmatch_closure(lua_State *L) { return _regex_gmatch_closure(L, 0); }
 int regex_gmatch_closureW(lua_State *L) { return _regex_gmatch_closure(L, 1); }
 
 
-int _Gmatch(lua_State *L, int is_wide)
+int _Gmatch(lua_State *L, int is_function, int is_wide)
 {
-	size_t len;
-	const wchar_t* Text = is_wide ? check_utf16_string(L, 1, &len) : check_utf8_string(L, 1, &len);
-	const wchar_t* pat = check_regex_pattern(L, 2, 3);
 	FARAPIREGEXPCONTROL RegExpControl = GetRegExpControl(L);
-	TFarRegex* fr = push_far_regex(L, RegExpControl, pat); // upvalue 1
-	struct RegExpSearch* pData = (struct RegExpSearch*)lua_newuserdata(L, sizeof(struct RegExpSearch)); // upvalue 2
+	size_t len;
+	const wchar_t* Text;
+	const wchar_t* pat;
+	TFarRegex* fr;
+	struct RegExpSearch* pData;
+
+	if (is_function)
+	{
+		Text = is_wide ? check_utf16_string(L, 1, &len) : check_utf8_string(L, 1, &len);
+		pat = check_regex_pattern(L, 2, 3);
+    fr = push_far_regex(L, RegExpControl, pat); // upvalue 1
+	}
+	else
+	{
+		fr = CheckFarRegex(L, 1);
+		Text = is_wide ? check_utf16_string(L, 2, &len) : check_utf8_string(L, 2, &len);
+		lua_pushvalue(L, 1); // upvalue 1
+	}
+	pData = (struct RegExpSearch*)lua_newuserdata(L, sizeof(struct RegExpSearch)); // upvalue 2
 	memset(pData, 0, sizeof(struct RegExpSearch));
 	pData->Text = Text;
 	pData->Position = 0;
@@ -140,8 +154,10 @@ int _Gmatch(lua_State *L, int is_wide)
 	return 1;
 }
 
-int func_Gmatch(lua_State *L) { return _Gmatch(L, 0); }
-int func_GmatchW(lua_State *L) { return _Gmatch(L, 1); }
+int func_gmatch(lua_State *L)    { return _Gmatch(L, 1, 0); }
+int func_gmatchW(lua_State *L)   { return _Gmatch(L, 1, 1); }
+int method_gmatch(lua_State *L)  { return _Gmatch(L, 0, 0); }
+int method_gmatchW(lua_State *L) { return _Gmatch(L, 0, 1); }
 
 int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 {
@@ -546,11 +562,13 @@ int func_gsubW(lua_State *L)  { return rx_gsub(L, 1, 1); }
 const luaL_Reg regex_methods[] =
 {
 	{"find",          method_find},
+	{"gmatch",        method_gmatch},
 	{"gsub",          method_gsub},
 	{"match",         method_match},
 	{"exec",          method_exec},
 
 	{"findW",         method_findW},
+	{"gmatchW",       method_gmatchW},
 	{"gsubW",         method_gsubW},
 	{"matchW",        method_matchW},
 	{"execW",         method_execW},
@@ -566,13 +584,13 @@ const luaL_Reg regex_functions[] =
 	{"new",           func_New},
 
 	{"find",          func_find},
-	{"gmatch",        func_Gmatch},
+	{"gmatch",        func_gmatch},
 	{"gsub",          func_gsub},
 	{"match",         func_match},
 	{"exec",          func_exec},
 
 	{"findW",         func_findW},
-	{"gmatchW",       func_GmatchW},
+	{"gmatchW",       func_gmatchW},
 	{"gsubW",         func_gsubW},
 	{"matchW",        func_matchW},
 	{"execW",         func_execW},

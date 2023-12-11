@@ -1,3 +1,7 @@
+shmuel 2023-12-12 00:45:20+02:00 - build 797
+
+1. LuaFAR: add _methods_ gmatch and gmatchW.
+
 shmuel 2023-12-07 00:45:57+02:00 - build 796
 
 1. LuaFAR: refactoring.

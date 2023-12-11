@@ -8766,6 +8766,37 @@ mtime=3524034062
 </article>
 </node>
 <node>
+id=564
+lv=3
+dt=Text
+nm=methods gmatch, gmatchW
+ctime=3911503627
+mtime=3911503828
+<article>
+#_for c1 [,c2 ...] in regex_object:gmatch (subj) do
+#_  ......
+#_end
+#_
+#_**Parameters:**
+#_  subj    :  string
+#_
+#_**Returns:**
+#_  c1,...  :  strings (there can be *false* in place of captures
+#_                     not participated in the match)
+#_
+#_**Note:**
+#_*regex_object:gmatchW* receives its 1-st argument
+#_and returns captures in UTF-16LE encoding.
+#_
+#_**Far API used:**
+#_  RegExpControl
+#_
+#_@@@
+#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_
+</article>
+</node>
+<node>
 id=386
 lv=3
 dt=Text
