@@ -52,27 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-// Цветовые атрибуты - индексы в массиве цветов
-enum vmenu_colors
-{
-	VMenuColorBody                = 0,     // подложка
-	VMenuColorBox                 = 1,     // рамка
-	VMenuColorTitle               = 2,     // заголовок - верхний и нижний
-	VMenuColorText                = 3,     // Текст пункта
-	VMenuColorHighlight           = 4,     // HotKey
-	VMenuColorSeparator           = 5,     // separator
-	VMenuColorSelected            = 6,     // Выбранный
-	VMenuColorHSelect             = 7,     // Выбранный - HotKey
-	VMenuColorScrollBar           = 8,     // ScrollBar
-	VMenuColorDisabled            = 9,     // Disabled
-	VMenuColorArrows              =10,     // '<' & '>' обычные
-	VMenuColorArrowsSelect        =11,     // '<' & '>' выбранные
-	VMenuColorArrowsDisabled      =12,     // '<' & '>' Disabled
-	VMenuColorGrayed              =13,     // "серый"
-	VMenuColorSelGrayed           =14,     // выбранный "серый"
+class window;
+class Dialog;
+class SaveScreen;
 
-	VMENU_COLOR_COUNT,                     // всегда последняя - размерность массива
-};
+using vmenu_colors_t = std::array<FarColor, 15>;
 
 enum VMENU_FLAGS
 {
@@ -99,9 +83,6 @@ enum VMENU_FLAGS
 	VMENU_COMBOBOXEVENTKEY     = 30_bit, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
 	VMENU_COMBOBOXEVENTMOUSE   = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
-
-class Dialog;
-class SaveScreen;
 
 struct menu_item
 {
@@ -169,13 +150,13 @@ struct MenuItemEx: menu_item
 	std::list<std::pair<int, int>> Annotations;
 };
 
+struct item_layout;
+
 struct SortItemParam
 {
 	bool Reverse;
 	int Offset;
 };
-
-class window;
 
 class VMenu final: public Modal
 {
@@ -201,14 +182,12 @@ public:
 	void ShowConsoleTitle() override;
 	void OnClose() override;
 
-	void FastShow() { ShowMenu(); }
 	void ResetCursor();
 	void SetTitle(string_view Title);
 	void SetBottomTitle(string_view BottomTitle);
 	string &GetBottomTitle(string &strDest) const;
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
-	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags) { VMFlags.Set(Flags); }
 	void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
 	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
@@ -292,23 +271,37 @@ public:
 	static std::vector<string> AddHotkeys(std::span<menu_item> MenuItems);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
-	size_t MaxItemLength() const;
-	size_t GetServiceAreaSize();
+	[[nodiscard]] size_t GetNaturalMenuWidth() const;
 
 private:
+	friend struct item_layout;
+
 	void init(std::span<menu_item const> Data, DWORD Flags);
 
 	void DisplayObject() override;
+	void DrawMenu();
 
-	void ShowMenu(bool IsParent = false);
+	[[nodiscard]] static int CalculateBoxType(BitFlags Flags) noexcept;
+	[[nodiscard]] int CalculateBoxType() const noexcept { return CalculateBoxType(VMFlags); }
+	[[nodiscard]] rectangle GetClientRect(int BoxType) const noexcept;
 	void DrawTitles() const;
+	[[nodiscard]] int AdjustTopPos(int BoxType); // Sets TopPos
+	void DrawSeparator(size_t CurItemIndex, int BoxType, int Y) const;
+	void ConnectSeparator(size_t CurItemIndex, string& separator, int BoxType) const;
+	void ApplySeparatorName(const MenuItemEx& CurItem, string& separator) const;
+	void DrawRegularItem(const MenuItemEx& CurItem, const item_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
+
+	[[nodiscard]] size_t CalculateMaxLineWidth() const;
+
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
-	size_t GetItemMaxShowPos(int Item) const;
-	bool SetItemShowPos(int Item, int NewShowPos); // Negative NewShowPos is relative to the right side; -1 aligns the item to the right
-	bool ShiftItemShowPos(int Item,int Shift); // Shifts item's ShowPos; if Shift is positive, the item visually moves left
+	size_t GetItemMaxShowPos(int Item, size_t MaxLineWidth) const;
+	// Negative NewShowPos is relative to the right side; -1 aligns the item to the right
+	bool SetItemShowPos(int Item, int NewShowPos, size_t MaxLineWidth);
+	// Shifts item's ShowPos; if Shift is positive, the item visually moves left
+	bool ShiftItemShowPos(int Item,int Shift, size_t MaxLineWidth);
 	bool SetAllItemsShowPos(int NewShowPos);
 	bool ShiftAllItemsShowPos(int Shift);
 	void UpdateMaxLengthFromTitles();
@@ -329,7 +322,6 @@ private:
 	int MaxHeight;
 	bool WasAutoHeight{};
 	size_t m_MaxItemLength{};
-	int m_BoxType;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};
@@ -344,8 +336,7 @@ private:
 	std::vector<MenuItemEx> Items;
 	intptr_t ItemHiddenCount{};
 	intptr_t ItemSubMenusCount{};
-	FarColor Colors[VMENU_COLOR_COUNT]{};
-	size_t MaxLineWidth{};
+	vmenu_colors_t Colors{};
 	bool bRightBtnPressed{};
 	UUID MenuId;
 };
