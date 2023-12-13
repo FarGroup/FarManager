@@ -114,7 +114,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 		ProgressDlgItems[progress_items::pr_total_progress].Flags |= DIF_HIDDEN;
 		ProgressDlgItems[progress_items::pr_console_title].strData = ProgressDlgItems[progress_items::pr_doublebox].strData;
 
-		for (const auto& i: irange(progress_items::pr_total_progress + 1, progress_items::pr_count))
+		for (const auto i: std::views::iota(progress_items::pr_total_progress + 1, progress_items::pr_count))
 		{
 			--ProgressDlgItems[i].Y1;
 			--ProgressDlgItems[i].Y2;

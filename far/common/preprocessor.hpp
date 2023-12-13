@@ -43,10 +43,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __LINE__)
 
-#define DETAIL_STD_DEFAULT_MUTATOR(Function) std::Function
-#define DETAIL_STD_CONST_MUTATOR(Function) std::c##Function
-#define DETAIL_STD_REVERSE_MUTATOR(Function) std::r##Function
-#define DETAIL_STD_CONST_REVERSE_MUTATOR(Function) std::cr##Function
+#define DETAIL_STD_DEFAULT_MUTATOR(Function) std::ranges::Function
+#define DETAIL_STD_CONST_MUTATOR(Function) std::ranges::c##Function
+#define DETAIL_STD_REVERSE_MUTATOR(Function) std::ranges::r##Function
+#define DETAIL_STD_CONST_REVERSE_MUTATOR(Function) std::ranges::cr##Function
 
 
 #define DETAIL_REFERENCE_IMPL(Object, MUTATOR_PARAM) decltype(*MUTATOR_PARAM(begin)(Object))

@@ -1410,9 +1410,11 @@ static string collect_information(
 		LastErrorTitle = L"LastError:"sv,
 		NtStatusTitle = L"NTSTATUS: "sv;
 
-	using info_block = std::pair<string_view, string_view>;
-
-	info_block const ExceptionInfo[]
+	struct info_block
+	{
+		string_view Name, Value;
+	}
+	const ExceptionInfo[]
 	{
 		{ L"Exception:"sv, Exception,     },
 		{ L"Details:  "sv, Details,       },
@@ -1443,9 +1445,9 @@ static string collect_information(
 
 	const auto log_message = [](span<info_block const> const Info)
 	{
-		auto LogMessage = join(L"\n"sv, select(Info, [](string_view const ParamName, string_view const ParamValue)
+		auto LogMessage = join(L"\n"sv, Info | std::views::transform([](info_block const& Param)
 		{
-			return far::format(L"{} {}"sv, ParamName, ParamValue);
+			return far::format(L"{} {}"sv, Param.Name, Param.Value);
 		}));
 
 		LogMessage += L"\n\n"sv;

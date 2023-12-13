@@ -851,8 +851,8 @@ void FileList::SortFileList(bool KeepPosition)
 	{
 		custom_sort::CustomSort cs{};
 		custom_sort::FileListPtr = this;
-		std::vector<unsigned int> Positions(m_ListData.size());
-		std::iota(ALL_RANGE(Positions), 0);
+		const auto Enumerator = std::views::iota(0u, static_cast<unsigned>(m_ListData.size()));
+		std::vector Positions(ALL_CONST_RANGE(Enumerator));
 		cs.Positions = Positions.data();
 		cs.Items = m_ListData.data();
 		cs.ItemsCount = m_ListData.size();
@@ -3595,7 +3595,7 @@ long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 	const auto& m_ListData = *DataLock;
 
 	long II = -1;
-	for (const auto& I: irange(m_ListData.size()))
+	for (const auto I: std::views::iota(size_t{}, m_ListData.size()))
 	{
 		const auto CurPtrName = OnlyPartName? PointToName(m_ListData[I].FileName) : m_ListData[I].FileName;
 
@@ -3622,7 +3622,7 @@ long FileList::FindNext(int StartPos, string_view const Name)
 	if (static_cast<size_t>(StartPos) >= m_ListData.size())
 		return -1;
 
-	for (const auto& I: irange(StartPos, m_ListData.size()))
+	for (const auto I: std::views::iota(static_cast<size_t>(StartPos), m_ListData.size()))
 	{
 		if (CmpName(Name, m_ListData[I].FileName, true) && !IsParentDirectory(m_ListData[I]))
 			return static_cast<long>(I);
@@ -6651,7 +6651,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 	size_t result = 0;
 
-	for (const auto& i: irange(StartValue, m_ListData.size()))
+	for (const auto i: std::views::iota(StartValue, m_ListData.size()))
 	{
 		if (m_ListData[i].Selected)
 			CurSel++;
@@ -6706,7 +6706,7 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 	const auto DataLock = lock_data();
 	auto& m_ListData = *DataLock;
 
-	for (const auto& i: irange(StartValue, m_ListData.size()))
+	for (const auto i: std::views::iota(StartValue, m_ListData.size()))
 	{
 		if (m_ListData[i].Selected)
 		{
@@ -8531,7 +8531,7 @@ void FileList::PrepareStripes(const std::vector<column>& Columns)
 {
 	const auto ColumnsSize = static_cast<int>(Columns.size());
 
-	for (const auto& StripeStride: irange(1, ColumnsSize / 2 + 1))
+	for (const auto StripeStride: std::views::iota(1, ColumnsSize / 2 + 1))
 	{
 		if (CanMakeStripes(Columns, StripeStride))
 		{
@@ -8589,7 +8589,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		int StatusLine=FALSE;
 		int Level = 1;
 
-		for (const auto& K: irange(ColumnCount))
+		for (const auto K: std::views::iota(size_t{}, ColumnCount))
 		{
 			int ListPos=J+CurColumn*m_Height;
 

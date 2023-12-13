@@ -302,7 +302,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 
 	int SavedState[advanced_attributes_count];
 
-	for (const auto& i: irange(advanced_attributes_count))
+	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
 	{
 		const auto AbsoluteIndex = main_attributes_count + i;
 		auto& Attr = DlgParam->Attributes[main_attributes_count + i];
@@ -315,7 +315,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 	if (!Builder.ShowDialog())
 		return;
 
-	for (const auto& i: irange(advanced_attributes_count))
+	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
 	{
 		auto& Attr = DlgParam->Attributes[main_attributes_count + i];
 
@@ -382,7 +382,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 				}
 			}
 
-			for (const auto& i: irange(SA_ATTR_FIRST, SA_ATTR_LAST + 1))
+			for (const auto i: std::views::iota(SA_ATTR_FIRST + 0, SA_ATTR_LAST + 1))
 			{
 				const auto& Attr = DlgParam->Attributes[i - SA_ATTR_FIRST];
 				Dlg->SendMessage(DM_SET3STATE, i, ToPtr((Attr.Flags & DIF_3STATE) != 0));
@@ -842,7 +842,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags &= ~(DIF_DISABLE | DIF_HIDDEN);
 			AttrDlg[SA_DOUBLEBOX].Y2 += 2;
 
-			for (const auto& i: irange(SA_SEPARATOR5, SA_BUTTON_CANCEL + 1))
+			for (const auto i: std::views::iota(SA_SEPARATOR5 + 0, SA_BUTTON_CANCEL + 1))
 			{
 				AttrDlg[i].Y1 += 2;
 				AttrDlg[i].Y2 += 2;
@@ -1178,7 +1178,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			}
 		}
 
-		for (const auto& i: irange(SA_ATTR_FIRST, SA_ATTR_LAST + 1))
+		for (const auto i: std::views::iota(SA_ATTR_FIRST + 0, SA_ATTR_LAST + 1))
 		{
 			auto& DlgItem = AttrDlg[i];
 			const auto& State = DlgParam.Attributes[i - SA_ATTR_FIRST];

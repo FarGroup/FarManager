@@ -453,16 +453,16 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos) const
 
 void highlight::configuration::ProcessGroups()
 {
-	for (const auto& i: irange(FirstCount))
+	for (const auto i: std::views::iota(0, FirstCount))
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 
-	for (const auto& i: irange(FirstCount, FirstCount + UpperCount))
+	for (const auto i: std::views::iota(FirstCount, FirstCount + UpperCount))
 		HiData[i].SetSortGroup(i-FirstCount);
 
-	for (const auto& i: irange(FirstCount + UpperCount, FirstCount + UpperCount + LowerCount))
+	for (const auto i: std::views::iota(FirstCount + UpperCount, FirstCount + UpperCount + LowerCount))
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
 
-	for (const auto& i: irange(FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount))
+	for (const auto i: std::views::iota(FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount))
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 }
 
@@ -858,7 +858,7 @@ void highlight::configuration::Save(bool Always)
 	{
 		const auto root = cfg->CreateKey(cfg->root_key, i.KeyName);
 
-		for (const auto& j: irange(i.from, i.to))
+		for (const auto j: std::views::iota(i.from, i.to))
 		{
 			SaveHighlight(*cfg, cfg->CreateKey(root, i.GroupName + str(j - i.from)), HiData[j]);
 		}

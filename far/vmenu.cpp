@@ -499,7 +499,7 @@ int VMenu::DeleteItem(int ID, int Count)
 		return static_cast<int>(Items.size());
 	}
 
-	for (const auto& I: irange(Count))
+	for (const auto I: std::views::iota(0, Count))
 	{
 		if (Items[ID+I].Flags & MIF_SUBMENU)
 			--ItemSubMenusCount;
@@ -1824,7 +1824,7 @@ bool VMenu::SetAllItemsShowPos(int NewShowPos)
 {
 	bool NeedRedraw = false;
 
-	for (const auto& I : irange(Items.size()))
+	for (const auto I: std::views::iota(size_t{}, Items.size()))
 		NeedRedraw |= SetItemShowPos(static_cast<int>(I), NewShowPos);
 
 	return NeedRedraw;
@@ -1834,7 +1834,7 @@ bool VMenu::ShiftAllItemsShowPos(int Shift)
 {
 	bool NeedRedraw = false;
 
-	for (const auto& I : irange(Items.size()))
+	for (const auto I: std::views::iota(size_t{}, Items.size()))
 		NeedRedraw |= ShiftItemShowPos(static_cast<int>(I), Shift);
 
 	return NeedRedraw;
@@ -2149,7 +2149,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!CheckFlags(VMENU_NOMERGEBORDER) && SepWidth > 3)
 				{
-					for (const auto& J: irange(strTmpStr.size() - 3))
+					for (const auto J: std::views::iota(size_t{}, strTmpStr.size() - 3))
 					{
 						const auto AnyPrev = I > 0;
 						const auto AnyNext = I < static_cast<int>(Items.size() - 1);
@@ -2383,7 +2383,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
 	if (CheckSymbol)
 		CheckSymbol=upper(CheckSymbol);
 
-	for (const auto& I: irange(StartPos, Items.size()))
+	for (const auto I: std::views::iota(static_cast<size_t>(StartPos), Items.size()))
 	{
 		if (!item_is_visible(Items[I]))
 			continue;
@@ -2834,7 +2834,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 {
 	if (static_cast<size_t>(StartIndex) < Items.size())
 	{
-		for (const auto& I: irange(StartIndex, Items.size()))
+		for (const auto I: std::views::iota(static_cast<size_t>(StartIndex), Items.size()))
 		{
 			const auto strTmpBuf = remove_highlight(Items[I].Name);
 

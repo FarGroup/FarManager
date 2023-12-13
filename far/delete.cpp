@@ -130,7 +130,7 @@ public:
 		{
 			ProgressDlgItems[items::pr_wipe_progress].Flags |= DIF_HIDDEN;
 
-			for (const auto& i: irange(pr_separator, pr_total_progress + 1))
+			for (const auto i: std::views::iota(pr_separator + 0, pr_total_progress + 1))
 			{
 				--ProgressDlgItems[i].Y1;
 				--ProgressDlgItems[i].Y2;

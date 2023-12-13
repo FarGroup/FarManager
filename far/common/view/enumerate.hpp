@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename container>
 auto enumerate(container&& Container)
 {
-	return zip(FWD(Container), irange(std::numeric_limits<size_t>::max()));
+	return zip(FWD(Container), irange(size_t{}, std::numeric_limits<size_t>::max()));
 }
 
 #endif // ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C

@@ -1352,11 +1352,11 @@ int TreeList::GetNextNavPos() const
 {
 	int NextPos=m_CurFile;
 
-	if (static_cast<size_t>(m_CurFile) + 1 < m_ListData.size())
+	if (static_cast<size_t>(m_CurFile + 1) < m_ListData.size())
 	{
 		const auto CurDepth = m_ListData[m_CurFile].Depth;
 
-		for (const auto& I: irange(m_CurFile + 1, m_ListData.size()))
+		for (const auto I: std::views::iota(static_cast<size_t>(m_CurFile + 1), m_ListData.size()))
 		{
 			if (m_ListData[I].Depth == CurDepth)
 			{

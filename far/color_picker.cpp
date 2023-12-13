@@ -344,7 +344,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 			RefreshColor();
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-			for (const auto& i: irange(colors::index::nt_size + 2))
+			for (const auto i: std::views::iota(0, colors::index::nt_size + 2))
 			{
 				Dlg->SendMessage(DM_ENABLE, Offset + cb::color_first_radio + i, Param2);
 			}
@@ -542,7 +542,7 @@ static void disable_if_needed(COLORREF const Color, span<DialogItemEx> ColorDlgI
 {
 	if (colors::is_transparent(Color))
 	{
-		for (const auto& i: irange(cb::color_first_radio, cb::color_last_radio + 2))
+		for (const auto i: std::views::iota(cb::color_first_radio + 0, cb::color_last_radio + 2))
 		{
 			ColorDlgItems[Offset + i].Flags |= DIF_DISABLE;
 		}
@@ -704,7 +704,7 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 	case DM_UPDATEPREVIEW:
 		{
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-			for (const auto& i : irange(cd::sample_text_first, cd::sample_text_last + 1))
+			for (const auto i: std::views::iota(cd::sample_text_first + 0, cd::sample_text_last + 1))
 			{
 				Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(1));
 			}

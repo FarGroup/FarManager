@@ -523,7 +523,7 @@ TEST_CASE("enum_tokens")
 
 TEST_CASE("enumerator.static")
 {
-	using test_range = decltype(make_inline_enumerator<int>([](bool, int&){ return false; }));
+	using test_range = decltype(inline_enumerator<int>([](bool, int&){ return false; }));
 
 	STATIC_REQUIRE(std::ranges::range<test_range>);
 	STATIC_REQUIRE(std::ranges::input_range<test_range>);
@@ -548,7 +548,7 @@ TEST_CASE("enumerator.dynamic")
 	bool Finalised = false;
 
 	{
-		auto TestEnumerator = make_inline_enumerator<int>([Counter = static_cast<int>(e_begin)](bool const Reset, int& Value) mutable
+		auto TestEnumerator = inline_enumerator<int>([Counter = static_cast<int>(e_begin)](bool const Reset, int& Value) mutable
 		{
 			if (Reset)
 				Counter = e_begin;
@@ -796,13 +796,12 @@ TEST_CASE("monitored")
 
 TEST_CASE("movable")
 {
-	const auto Value = 42;
-	movable m1 = Value;
-	REQUIRE(m1 == Value);
+	movable m1;
+	REQUIRE(m1);
 
 	const auto m2 = std::move(m1);
-	REQUIRE(m2 == Value);
-	REQUIRE(m1 == 0);
+	REQUIRE(m2);
+	REQUIRE(!m1);
 }
 
 //----------------------------------------------------------------------------
@@ -1327,7 +1326,7 @@ TEST_CASE("range.dynamic")
 		size_t const Total = 10;
 		size_t Count = 0;
 
-		for (const auto& i: irange(Total))
+		for (const auto& i: irange(size_t{}, Total))
 		{
 			REQUIRE(i == Count);
 			++Count;
@@ -1812,7 +1811,7 @@ TEST_CASE("utility.base")
 
 TEST_CASE("utility.grow_exp_noshrink")
 {
-	for (const auto& i: irange(size_t{32}))
+	for (const auto i: std::views::iota(size_t{}, size_t{32}))
 	{
 		const auto ExpectedIncrease = std::max(size_t{1}, i / 2);
 		REQUIRE(grow_exp_noshrink(i, 0) == i);
@@ -2307,195 +2306,6 @@ TEST_CASE("view.enumerate")
 	}
 
 	REQUIRE(Index == 3u);
-}
-
-//----------------------------------------------------------------------------
-
-#include "common/view/reverse.hpp"
-
-TEST_CASE("view.reverse")
-{
-	const std::array Data    { 1, 2, 3, 4, 5 };
-	const std::array Reversed{ 5, 4, 3, 2, 1 };
-
-	auto Iterator = std::cbegin(Reversed);
-
-	for (const auto& i: reverse(Data))
-	{
-		REQUIRE(Iterator != std::cend(Reversed));
-		REQUIRE(i == *Iterator);
-		++Iterator;
-	}
-
-	REQUIRE(Iterator == std::cend(Reversed));
-}
-
-//----------------------------------------------------------------------------
-
-#include "common/view/select.hpp"
-
-TEST_CASE("view.select.static")
-{
-	using test_range = decltype(select(std::declval<span<int>&>(), [](int){ return 0.0; }));
-
-	STATIC_REQUIRE(std::ranges::range<test_range>);
-	STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
-	STATIC_REQUIRE(std::ranges::sized_range<test_range>);
-
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
-
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
-
-	STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
-}
-
-TEST_CASE("view.select.dynamic")
-{
-	const auto Test = [](const auto& Data, const auto& Selector)
-	{
-		auto Iterator = std::cbegin(Data);
-
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wrange-loop-analysis")
-		for (const auto& i: select(Data, Selector))
-WARNING_POP()
-		{
-			REQUIRE(Iterator != std::cend(Data));
-
-			if constexpr (requires { Selector(*Iterator); })
-				REQUIRE(i == Selector(*Iterator));
-			else
-				REQUIRE(i == std::apply(Selector, *Iterator));
-
-			++Iterator;
-		}
-
-		REQUIRE(Iterator == std::cend(Data));
-	};
-
-	{
-		std::pair<bool, int> const Data[]
-		{
-			{ true,  42 },
-			{ false, 33 },
-		};
-
-		Test(Data, [](const auto& i) { return i.second; });
-
-		std::vector DataCopy(std::cbegin(Data), std::cend(Data));
-		for (auto& i: select(DataCopy, [](auto& i) -> auto& { return i.second; }))
-		{
-			i *= 2;
-		}
-
-		for (size_t i = 0; i != std::size(Data); ++i)
-		{
-			REQUIRE(DataCopy[i].second == Data[i].second * 2);
-		}
-	}
-
-	{
-		std::vector const Data{ 1, 2, 3, 4, 5 };
-		Test(Data, [](const auto& i) { return i * 2; });
-	}
-
-	{
-		std::vector<int> const Data;
-		Test(Data, [](const auto& i) { return i; });
-	}
-
-	{
-		std::vector<std::pair<int, int>> const Data;
-		Test(Data, [](auto a, auto b) { return b; });
-	}
-}
-
-//----------------------------------------------------------------------------
-
-#include "common/view/where.hpp"
-
-TEST_CASE("view.where")
-{
-	const auto Test = [](const auto& Data, const auto& Baseline, const auto& Predicate)
-	{
-		auto BaselineIterator = std::cbegin(Baseline);
-
-		for (const auto& i: where(Data, Predicate))
-		{
-			REQUIRE(i == *BaselineIterator);
-			++BaselineIterator;
-		}
-
-		REQUIRE(BaselineIterator == std::cend(Baseline));
-	};
-
-	using ints = std::vector<int>;
-	const auto Even = [](const auto& Item) { return (Item & 1) == 0; };
-	const auto Odd = [](const auto& Item) { return (Item & 1) != 0; };
-
-	Test(
-		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-		[](const auto&) { return true; });
-
-	Test(
-		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-		ints{},
-		[](const auto&) { return false; });
-
-	Test(
-		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-		ints{ 0, 2, 4, 6, 8 },
-		Even);
-
-	Test(
-		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-		ints{ 1, 3, 5, 7, 9 },
-		Odd);
-
-	Test(
-		ints{ 2, 4, 6 },
-		ints{},
-		Odd);
-
-	Test(
-		ints{},
-		ints{},
-		Even);
-
-
-	using tuples = std::vector<std::tuple<int, int>>;
-	const auto Equal = [](int const a, int const b) { return a == b; };
-
-	Test(
-		tuples{ { 0, 0 }, { 1, 1 }, { 2, 2 } },
-		tuples{ { 0, 0 }, { 1, 1 }, { 2, 2 } },
-		Equal
-	);
-
-	Test(
-		tuples{ { 0, 1 }, { 1, 1 }, { 1, 2 } },
-		tuples{ { 1, 1 } },
-		Equal
-	);
-
-	Test(
-		tuples{ { 0, 1 }, { 1, 2 } },
-		tuples{},
-		Equal
-	);
-
-	Test(
-		tuples{},
-		tuples{},
-		Equal
-	);
 }
 
 //----------------------------------------------------------------------------

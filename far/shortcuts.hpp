@@ -75,7 +75,7 @@ public:
 	auto Enumerator() const
 	{
 		using value_type = data;
-		return make_inline_enumerator<value_type>([this, Index = size_t{}](bool Reset, value_type& Value) mutable
+		return inline_enumerator<value_type>([this, Index = size_t{}](bool Reset, value_type& Value) mutable
 		{
 			if (Reset)
 				Index = 0;

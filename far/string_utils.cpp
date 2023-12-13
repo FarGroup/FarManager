@@ -215,8 +215,9 @@ size_t find_icase(string_view const Str, string_view const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), string_comparer_icase{});
-	return It == Str.cend()? Str.npos : It - Str.cbegin();
+	const auto Where = Str.substr(Pos);
+	const auto Found = std::ranges::search(Where, What, string_comparer_icase{});
+	return Found.begin() == Where.cend()? Str.npos : Pos + Found.begin() - Where.cbegin();
 }
 
 size_t find_icase(string_view const Str, wchar_t const What, size_t Pos)
@@ -330,7 +331,7 @@ std::optional<std::pair<size_t, size_t>> detail::fuzzy_searcher_impl::find_in(co
 	size_t TransformedSize{};
 	std::optional<size_t> CorrectedOffset;
 
-	for (const auto& i: irange(Haystack.size()))
+	for (const auto i: std::views::iota(size_t{}, Haystack.size()))
 	{
 		TransformedSize += normalize(Haystack.substr(i, 1)).size();
 

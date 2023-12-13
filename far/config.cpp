@@ -349,7 +349,7 @@ void Options::InterfaceSettings()
 	std::vector<DialogBuilderListItem> IconIndices;
 	IconIndices.reserve(consoleicons::instance().size());
 
-	for (const auto& i: irange(consoleicons::instance().size()))
+	for (const auto i: std::views::iota(size_t{}, consoleicons::instance().size()))
 	{
 		IconIndices.emplace_back(str(i), static_cast<int>(i));
 	}
@@ -502,7 +502,7 @@ void Options::MaskGroupsSettings()
 			if(Filter && any_of(Key, KEY_ESC, KEY_F10, KEY_ENTER, KEY_NUMENTER))
 			{
 				Filter = false;
-				for (const auto& i: irange(MasksMenu->size()))
+				for (const auto i: std::views::iota(size_t{}, MasksMenu->size()))
 				{
 					MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 				}
@@ -593,7 +593,7 @@ void Options::MaskGroupsSettings()
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
-						for (const auto& i: irange(MasksMenu->size()))
+						for (const auto i: std::views::iota(size_t{}, MasksMenu->size()))
 						{
 							filemasks Masks;
 							Masks.assign(ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i)));
@@ -1142,12 +1142,12 @@ void Options::SetFilePanelModes()
 		// +1 for separator
 		std::vector<menu_item> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
-		for (const auto& i: irange(ViewSettings.size()))
+		for (const auto i: std::views::iota(size_t{}, ViewSettings.size()))
 		{
 			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 
-		for (const auto& i: irange(predefined_panel_modes_count))
+		for (const auto i: std::views::iota(size_t{}, predefined_panel_modes_count))
 		{
 			if (ModeListMenu[i].Name.empty())
 				ModeListMenu[i].Name = msg(PredefinedNames[i]);
@@ -1595,7 +1595,7 @@ bool IntOption::Edit(DialogBuilder& Builder, int const Param)
 			High.reserve(BitCount);
 			Low.reserve(BitCount);
 
-			for (const auto& i: irange(BitCount))
+			for (const auto i: std::views::iota(0, BitCount))
 			{
 				const auto Num = BitCount - 1 - i;
 				High.push_back(static_cast<wchar_t>(L'0' + Num / 10));
@@ -2256,7 +2256,7 @@ static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 
 static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)
 {
-	return join(L" "sv, select(Layers, serialise_sort_layer));
+	return join(L" "sv, Layers | std::views::transform(serialise_sort_layer));
 }
 
 void Options::ReadSortLayers()
@@ -2597,7 +2597,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
-						for (const auto& i: irange(ListInfo.ItemsNumber))
+						for (const auto i: std::views::iota(size_t{}, ListInfo.ItemsNumber))
 						{
 							FarListGetItem Item{ sizeof(Item), static_cast<intptr_t>(i) };
 
@@ -2944,7 +2944,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 {
 	const auto ApplyViewModesNames = [this](menu_item* Menu)
 	{
-		for (const auto& i: irange(predefined_panel_modes_count))
+		for (const auto i: std::views::iota(size_t{}, predefined_panel_modes_count))
 		{
 			if (!ViewSettings[i].Name.empty())
 				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;

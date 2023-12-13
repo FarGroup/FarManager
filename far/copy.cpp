@@ -900,13 +900,13 @@ ShellCopy::ShellCopy(
 		CopyDlg[ID_SC_SECURITY_INHERIT].Flags |= DIF_HIDDEN | DIF_DISABLE;
 		CopyDlg[ID_SC_SEPARATOR2].Flags       |= DIF_HIDDEN;
 
-		for (const auto& i: irange(ID_SC_SEPARATOR2, ID_SC_COMBO + 1))
+		for (const auto i: std::views::iota(ID_SC_SEPARATOR2 + 0, ID_SC_COMBO + 1))
 		{
 			CopyDlg[i].Y1-=2;
 			CopyDlg[i].Y2-=2;
 		}
 
-		for (const auto& i: irange(ID_SC_MULTITARGET, ID_SC_BTNCANCEL + 1))
+		for (const auto i: std::views::iota(ID_SC_MULTITARGET + 0, ID_SC_BTNCANCEL + 1))
 		{
 			CopyDlg[i].Y1-=3;
 			CopyDlg[i].Y2-=3;

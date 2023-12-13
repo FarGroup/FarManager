@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
-#include "common/movable.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
@@ -402,7 +401,7 @@ enum REOp
 
 struct REOpCode_data
 {
-	movable<int> op;
+	int op;
 #ifdef RE_DEBUG
 	int    srcpos;
 #endif
@@ -1735,7 +1734,7 @@ public:
 
 static const RegExp::StateStackItem& FindStateByPos(span<RegExp::StateStackItem const> const stack, RegExp::REOpCode* pos, int op)
 {
-	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](const auto& i){ return i.pos == pos && i.op == op; });
+	return *std::ranges::find_if(stack | std::views::reverse, [&](const auto& i){ return i.pos == pos && i.op == op; });
 }
 
 int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end) const

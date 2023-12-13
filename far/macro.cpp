@@ -1153,7 +1153,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
 			{
-				for (const auto& i: irange(1, 4))
+				for (const auto i: std::views::iota(1, 4))
 					Dlg->SendMessage(DM_ENABLE,Param1+i,Param2);
 			}
 			break;
@@ -3164,7 +3164,7 @@ void FarMacroApi::menushowFunc() const
 
 	if ((bAutoNumbering) && (bSorting || bPacking))
 	{
-		for (const auto& i: irange(Menu->GetShowItemCount()))
+		for (const auto i: std::views::iota(0, Menu->GetShowItemCount()))
 		{
 			auto& Item = Menu->at(i);
 			if (!(Item.Flags & LIF_SEPARATOR))
@@ -3224,7 +3224,7 @@ void FarMacroApi::menushowFunc() const
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for (const auto& i: irange(Menu->size()))
+					for (const auto i: std::views::iota(size_t{}, Menu->size()))
 					{
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
@@ -3276,7 +3276,7 @@ void FarMacroApi::menushowFunc() const
 		{
 			string StrResult;
 
-			for (const auto& i: irange(Menu->size()))
+			for (const auto i: std::views::iota(size_t{}, Menu->size()))
 			{
 				if (Menu->GetCheck(static_cast<int>(i)))
 				{
@@ -4310,7 +4310,7 @@ void FarMacroApi::panelsetposidxFunc() const
 				else
 				{
 					const auto CurPos = SelPanel->GetCurrentPos();
-					for (const auto& I: irange(EndPos))
+					for (const auto I: std::views::iota(size_t{}, EndPos))
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{
@@ -4552,7 +4552,7 @@ void FarMacroApi::strpadFunc() const
 
 			const auto& pFill = Fill.asString();
 
-			for (const auto& i: irange(FineLength))
+			for (const auto i: std::views::iota(size_t{}, static_cast<size_t>(FineLength)))
 			{
 				NewFill.push_back(pFill[i % LengthFill]);
 			}
@@ -5224,7 +5224,7 @@ TEST_CASE("macro.splitpath")
 
 	for (const auto& i: Tests)
 	{
-		for (const auto& Flags: irange(1, 0b1111))
+		for (const auto Flags: std::views::iota(1, 0b1111))
 		{
 			string Expected;
 

@@ -107,7 +107,7 @@ void KeyBar::DisplayObject()
 
 	static_assert(std::size(Mapping) == KBL_GROUP_COUNT);
 
-	for (const auto& i: irange(KEY_COUNT))
+	for (const auto i: std::views::iota(size_t{}, KEY_COUNT))
 	{
 		if (WhereX() + LabelWidth >= m_Where.right)
 			break;

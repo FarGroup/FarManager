@@ -249,7 +249,7 @@ public:
 	auto enum_selected()
 	{
 		using value_type = os::fs::find_data;
-		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
 		{
 			if (Reset)
 				GetSelName(nullptr);

@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/from_string.hpp"
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
-#include "common/view/where.hpp"
 
 // External:
 #include "format.hpp"
@@ -364,7 +363,7 @@ string error_state::to_string() const
 		StrNtError,
 	};
 
-	return join(L", "sv, where(Errors, [](string_view const Str){ return !Str.empty(); }));
+	return join(L", "sv, Errors | std::views::filter([](string_view const Str){ return !Str.empty(); }));
 }
 
 error_state last_error()
@@ -822,7 +821,7 @@ TEST_CASE("platform.string.receiver")
 
 	const auto validate = [](string const& Data)
 	{
-		for (const auto& i: irange(Data.size()))
+		for (const auto i: std::views::iota(size_t{}, Data.size()))
 		{
 			if (Data[i] != i + 1)
 				return false;

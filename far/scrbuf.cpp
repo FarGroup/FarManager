@@ -122,7 +122,7 @@ void ScreenBuf::DebugDump() const
 	string s;
 	s.reserve(Buf.width() + 1);
 
-	for (const auto& row_num: irange(Buf.height()))
+	for (const auto row_num: std::views::iota(size_t{}, Buf.height()))
 	{
 		const auto& row = Buf[row_num];
 		std::ranges::transform(row, std::back_inserter(s), [](const auto& i) { return i.Char; });
@@ -176,7 +176,7 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 	if (X + Text.size() > Buf.width())
 		Text = Text.first(Buf.width() - X);
 
-	for (const auto& i: irange(Text.size()))
+	for (const auto i: std::views::iota(size_t{}, Text.size()))
 	{
 		Buf[Y][X + i] = Text[i];
 	}
@@ -202,7 +202,7 @@ void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 
 	fix_coordinates(Where);
 
-	for (const auto& i: irange(Where.top + 0, Where.bottom + 1))
+	for (const auto i: std::views::iota(Where.top + 0, Where.bottom + 1))
 	{
 		const auto Row = Buf[i];
 		std::copy_n(Row.cbegin() + Where.left, Where.width(), Dest[i - Where.top].begin());
@@ -452,7 +452,7 @@ static void expand_write_region_if_needed(matrix<FAR_CHAR_INFO>& Buf, rectangle&
 			LeftChanged = false,
 			RightChanged = false;
 
-		for (const auto& Row: irange(WriteRegion.top + 0, WriteRegion.bottom + 1))
+		for (const auto Row: std::views::iota(WriteRegion.top + 0, WriteRegion.bottom + 1))
 		{
 			const auto RowData = Buf[Row];
 
@@ -586,7 +586,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 				const auto CharWidthEnabled = char_width::is_enabled();
 
 				auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
-				for (const auto& I: irange(Buf.height()))
+				for (const auto I: std::views::iota(size_t{}, Buf.height()))
 				{
 					for (size_t J = 0, Width = Buf.width(); J < Width; ++J, ++PtrBuf, ++PtrShadow)
 					{

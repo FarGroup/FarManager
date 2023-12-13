@@ -328,11 +328,6 @@ public:
 		range<i_iterator<integer_type>>(i_iterator{static_cast<integer_type>(Begin)}, i_iterator{static_cast<integer_type>(End)})
 	{
 	}
-
-	explicit irange(T1 End) noexcept:
-		range<i_iterator<integer_type>>(i_iterator{integer_type{}}, i_iterator{static_cast<integer_type>(End)})
-	{
-	}
 };
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

@@ -306,13 +306,13 @@ void InitKeysArray()
 
 	BYTE KeyState[256]{};
 
-	for (const auto& j: irange(2))
+	for (const auto j: std::views::iota(0, 2))
 	{
 		KeyState[VK_SHIFT] = j * 0x80;
 
 		for (const auto& i: Layout())
 		{
-			for (const auto& VK : irange(256))
+			for (const auto VK : std::views::iota(0, 256))
 			{
 				if (wchar_t idx; ToUnicodeEx(VK, 0, KeyState, &idx, 1, ToUnicodeFlags, i) > 0)
 				{
@@ -335,7 +335,7 @@ void InitKeysArray()
 	//***********
 	//Имея мапирование юникод -> VK строим обратное мапирование
 	//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-	for (const auto& i: irange(1, 0x80))
+	for (const auto i: std::views::iota(1, 0x80))
 	{
 		const auto x = KeyToVKey[i];
 
@@ -1524,7 +1524,7 @@ string KeyToLocalizedText(unsigned int const Key)
 
 string KeysListToLocalizedText(span<unsigned int const> const Keys)
 {
-	return join(L" "sv, select(Keys, [](unsigned int const Key){ return KeyToLocalizedText(Key); }));
+	return join(L" "sv, Keys | std::views::transform([](unsigned int const Key){ return KeyToLocalizedText(Key); }));
 }
 
 static int key_to_vk(unsigned int const Key)
@@ -2192,7 +2192,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 		{
 			static unsigned int const ScanCodes[]{ 82, 79, 80, 81, 75, 76, 77, 71, 72, 73 };
 
-			for (const auto& i: irange(std::size(ScanCodes)))
+			for (const auto i: std::views::iota(size_t{}, std::size(ScanCodes)))
 			{
 				if (ScanCodes[i] != ScanCode)
 					continue;

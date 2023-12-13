@@ -541,7 +541,7 @@ void Viewer::ShowPage(int nMode)
 
 				Strings.clear();
 
-				for (const auto& Y: irange(m_Where.top, m_Where.bottom + 1))
+				for (const auto Y: std::views::iota(m_Where.top, m_Where.bottom + 1))
 				{
 					ViewerString NewString;
 					NewString.nFilePos = vtell();
@@ -799,7 +799,7 @@ void Viewer::ShowDump()
 	int tail = 0;
 	string OutStr;
 
-	for (const auto& Y: irange(m_Where.top + 0, m_Where.bottom + 1))
+	for (const auto Y: std::views::iota(m_Where.top, m_Where.bottom + 1))
 	{
 		SetColor(COL_VIEWERTEXT);
 		GotoXY(m_Where.left, Y);
@@ -854,7 +854,7 @@ void Viewer::ShowHex()
 		}
 	}
 
-	for (const auto& Y: irange(m_Where.top + 0, m_Where.bottom + 1))
+	for (const auto Y: std::views::iota(m_Where.top, m_Where.bottom + 1))
 	{
 		bool bSelStartFound = false;
 		bool bSelEndFound = false;
@@ -924,7 +924,7 @@ void Viewer::ShowHex()
 				}
 			}
 
-			for (const auto& X: irange(m_BytesPerLine))
+			for (const auto X: std::views::iota(size_t{}, m_BytesPerLine))
 			{
 				if (X < BytesRead)
 					far::format_to(OutStr, L"{:02X} "sv, static_cast<int>(RawBuffer[X]));
@@ -2314,7 +2314,7 @@ void Viewer::Up(int nlines, bool adjust)
 
 		// backward CR-LF search
 		//
-		for (const auto& j: irange(max_backward_size / portion_size))
+		for (const auto j: std::views::iota(0, max_backward_size / portion_size))
 		{
 			int buff_size = (fpos > static_cast<long long>(portion_size)? portion_size : static_cast<int>(fpos));
 			if ( buff_size <= 0 )
@@ -3595,7 +3595,7 @@ wchar_t Viewer::vgetc_prev()
 			else
 			{
 				assert(MB.GetCP() == m_Codepage);
-				for (const auto& i: irange(BytesRead))
+				for (const auto i: std::views::iota(size_t{}, BytesRead))
 				{
 					wchar_t Char;
 					if (MB.GetChar({ RawBuffer + i, BytesRead - i }, Char) == BytesRead - i)

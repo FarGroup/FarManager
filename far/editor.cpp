@@ -3533,7 +3533,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 					TmpPtr=m_it_CurLine=CurPtr;
 
-					for ([[maybe_unused]] const auto& i: irange(FromTop))
+					for ([[maybe_unused]] const auto i: std::views::iota(0, FromTop))
 					{
 						if (TmpPtr != Lines.begin())
 							--TmpPtr;
@@ -5497,7 +5497,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				BeginStreamMarking(CurPtr);
 
-				for (const auto& i: irange(Sel->BlockHeight))
+				for (const auto i: std::views::iota(0, Sel->BlockHeight))
 				{
 					const auto SelStart = i? 0 : Sel->BlockStartPos;
 					const auto SelEnd = (i < Sel->BlockHeight - 1)? -1 : Sel->BlockStartPos + Sel->BlockWidth;
@@ -6161,7 +6161,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 
 	if(Forward)
 	{
-		for ([[maybe_unused]] const auto& Line: irange(DestLine - CurPtr.Number()))
+		for ([[maybe_unused]] const auto Line: std::views::iota(0, DestLine - CurPtr.Number()))
 		{
 			++CurPtr;
 			if (CurPtr == Lines.end())
@@ -6173,7 +6173,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 	}
 	else
 	{
-		for ([[maybe_unused]] const auto& Line: irange(CurPtr.Number() - DestLine))
+		for ([[maybe_unused]] const auto Line: std::views::iota(0, CurPtr.Number() - DestLine))
 		{
 			if (CurPtr == Lines.begin())
 				CurPtr = EndIterator();

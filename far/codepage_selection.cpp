@@ -297,9 +297,9 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 		}
 	};
 
-	const auto iRange = irange(start, start + length);
+	const auto iRange = std::views::iota(start, start + length);
 	const auto Pos = std::ranges::find_if(iRange, [&](size_t const i){ return GetCodePage(i) >= codePage; });
-	return Pos != iRange.cend()? *Pos : start + length;
+	return Pos != iRange.end()? *Pos : start + length;
 }
 
 static string_view unicode_codepage_name(uintptr_t const Codepage)
@@ -760,7 +760,7 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 		FarListInfo info{ sizeof(info) };
 		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
-		for (const auto& i: irange(info.ItemsNumber))
+		for (const auto i: std::views::iota(size_t{}, info.ItemsNumber))
 		{
 			if (GetListItemCodePage(i) == codePage)
 			{

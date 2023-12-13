@@ -241,7 +241,7 @@ bool CreatePath(string_view const InputPath, bool const AddToTreeCache)
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
 
-	for (const auto& i: irange(DirOffset, Path.size() + 1))
+	for (const auto i: std::views::iota(DirOffset, Path.size() + 1))
 	{
 		if (i != Path.size() && !path::is_separator(Path[i]))
 			continue;

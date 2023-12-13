@@ -1099,7 +1099,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #else
 		size_t CommandNumber = 0;
 
-		for (const auto& i: irange(DI_EDIT_COUNT))
+		for (const auto i: std::views::iota(size_t{}, DI_EDIT_COUNT))
 		{
 			if (!EditDlg[i + EM_EDITLINE_0].strData.empty())
 				CommandNumber = i + 1;
@@ -1107,7 +1107,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 		(*MenuItem)->Commands.clear();
 
-		for (const auto& i: irange(DI_EDIT_COUNT))
+		for (const auto i: std::views::iota(size_t{}, DI_EDIT_COUNT))
 		{
 			if (static_cast<size_t>(i) >= CommandNumber)
 				break;

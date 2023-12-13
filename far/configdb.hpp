@@ -104,7 +104,7 @@ public:
 	auto ValuesEnumerator(lvalue_string_view const Key) const
 	{
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
 			return Self->EnumValues(Key, Reset, Value.first, Value.second);
 		},
@@ -202,7 +202,7 @@ public:
 	auto KeysEnumerator(key const Root, string_view const Pattern = {}) const
 	{
 		using value_type = key;
-		return make_inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
 		{
 			return EnumKeys(Root, Reset, Value, Pattern);
 		},
@@ -216,7 +216,7 @@ public:
 	auto ValuesEnumerator(key const Root, string_view const Pattern = {}) const
 	{
 		using value_type = std::pair<string, int>;
-		return make_inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
 		{
 			return EnumValues(Root, Reset, Value.first, Value.second, Pattern);
 		},
@@ -282,7 +282,7 @@ public:
 	auto MasksEnumerator()
 	{
 		using value_type = std::pair<primary_key, string>;
-		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
 		{
 			return EnumMasks(Reset, Value.first, Value.second);
 		},
@@ -296,7 +296,7 @@ public:
 	auto TypedMasksEnumerator(int Type)
 	{
 		using value_type = std::pair<primary_key, string>;
-		return make_inline_enumerator<value_type>([this, Type](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this, Type](const bool Reset, value_type& Value)
 		{
 			return EnumMasksForType(Reset, Type, Value.first, Value.second);
 		},
@@ -454,7 +454,7 @@ public:
 	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, std::optional<lvalue_string_view> const ItemName = {}, bool const Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
 			return Self->Enum(Reset, HistoryType, HistoryName, ItemName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
 		},
@@ -468,7 +468,7 @@ public:
 	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([this, HistoryType, MinimumEntries](const bool Reset, value_type& Value)
+		return inline_enumerator<value_type>([this, HistoryType, MinimumEntries](const bool Reset, value_type& Value)
 		{
 			return EnumLargeHistories(Reset, HistoryType, MinimumEntries, Value);
 		},

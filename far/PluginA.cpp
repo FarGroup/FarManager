@@ -77,7 +77,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
-#include "common/view/select.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -279,7 +278,7 @@ static void LocalUpperInit()
 		const auto to_upper = [](char Char) { CharUpperBuffA(&Char, 1); return Char; };
 		const auto to_lower = [](char Char) { CharLowerBuffA(&Char, 1); return Char; };
 
-		for (const auto& I: irange(std::size(LowerToUpper)))
+		for (const auto I: std::views::iota(size_t{}, std::size(LowerToUpper)))
 		{
 			const auto Char = to_ansi(static_cast<char>(I));
 
@@ -617,7 +616,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 		return std::invoke(Item.first, kbtA)[i];
 	};
 
-	for (const auto& i: irange(LabelsCount))
+	for (const auto i: std::views::iota(size_t{}, LabelsCount))
 	{
 		const auto CheckLabel = [&](const auto& Item) { return Extract(Item, i) != nullptr; };
 
@@ -635,7 +634,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 	auto WideLabels = std::make_unique<KeyBarLabel[]>(kbtW.CountLabels);
 	auto WideLabelsIterator = WideLabels.get();
 
-	for (const auto& i: irange(LabelsCount))
+	for (const auto i: std::views::iota(size_t{}, LabelsCount))
 	{
 		const auto ProcessLabel = [&](const auto& Item)
 		{
@@ -1432,7 +1431,7 @@ static int GetEditorCodePageFavA()
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
 
-	for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
+	for (const auto [Name, Value]: codepages::GetFavoritesEnumerator())
 	{
 		if (!(Value & CPST_FAVORITE))
 			continue;
@@ -1480,7 +1479,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 		default:
 			{
 				int FavIndex = 2;
-				for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
+				for (const auto [Name, Value]: codepages::GetFavoritesEnumerator())
 				{
 					if (!(Value & CPST_FAVORITE))
 						continue;
@@ -3422,7 +3421,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 
 		const auto ret = pluginapi::apiDialogRun(hDlg);
 
-		for (const auto& i: irange(ItemsNumber))
+		for (const auto i: std::views::iota(0, ItemsNumber))
 		{
 			size_t const Size = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, nullptr);
 			block_ptr<FarDialogItem> Buffer(Size);
@@ -3456,7 +3455,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 
 		pluginapi::apiDialogFree(hDlg);
 
-		for (const auto& i: irange(ItemsNumber))
+		for (const auto i: std::views::iota(0, ItemsNumber))
 		{
 			if (di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
 				di[i].ListItems = &CurrentList(hDlg,i);
@@ -3539,7 +3538,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<PluginPanelItem> PPI;
 						size_t PPISize = 0;
 
-						for (const auto& i: irange(ItemsNumber))
+						for (const auto i: std::views::iota(size_t{}, ItemsNumber))
 						{
 							const auto NewPPISize = static_cast<size_t>(pluginapi::apiPanelControl(hPlugin, ControlCode, i, nullptr));
 
@@ -4615,7 +4614,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					return FALSE;
 				}
 				const auto oldbm = static_cast<const oldfar::EditorBookMarks*>(Param);
-				for (const auto& i: irange(newbm->Count))
+				for (const auto i: std::views::iota(size_t{}, newbm->Count))
 				{
 					if (oldbm->Line)
 						oldbm->Line[i] = newbm->Line[i];
@@ -4847,7 +4846,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			//Preset. Also if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
 			strcpy(TableSet.TableName,"<failed>");
 
-			for (const auto& i: irange(256u))
+			for (const auto i: std::views::iota(0u, 256u))
 			{
 				TableSet.EncodeTable[i] = TableSet.DecodeTable[i] = i;
 				TableSet.UpperTable[i] = LocalUpper(i);
@@ -5815,7 +5814,7 @@ WARNING_POP()
 				auto p = std::make_unique<const wchar_t*[]>(Size);
 				auto Uuid = std::make_unique<UUID[]>(Size);
 
-				for (const auto& i: irange(Size))
+				for (const auto i: std::views::iota(size_t{}, Size))
 				{
 					p[i] = AnsiToUnicode(Strings[i]);
 					Uuid[i].Data1 = static_cast<decltype(Uuid[i].Data1)>(i);

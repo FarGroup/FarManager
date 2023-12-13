@@ -211,7 +211,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 			offsetListItems=size;
 			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);
-			for (const auto& i: irange(ListBoxSize))
+			for (const auto i: std::views::iota(size_t{}, ListBoxSize))
 			{
 				size += (ListBox->at(i).Name.size() + 1) * sizeof(wchar_t);
 			}
@@ -240,7 +240,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 					auto text = edit_as<wchar_t*>(listItems + ListBoxSize);
 					assert(is_aligned(*text));
 
-					for (const auto& ii: irange(ListBoxSize))
+					for (const auto ii: std::views::iota(size_t{}, ListBoxSize))
 					{
 						auto& item = ListBox->at(ii);
 						listItems[ii].Flags = item.Flags;
@@ -659,7 +659,7 @@ void Dialog::InitDialogObjects(size_t ID)
 		m_FocusPos = static_cast<size_t>(-1); // будем искать сначала!
 
 	// предварительный цикл по поводу кнопок
-	for (const auto& I: irange(ID, InitItemCount))
+	for (const auto I: std::views::iota(ID, InitItemCount))
 	{
 		auto& Item = Items[I];
 
@@ -734,7 +734,7 @@ void Dialog::InitDialogObjects(size_t ID)
 	// а теперь все сначала и по полной программе...
 	ProcessCenterGroup(); // сначала отцентрируем
 
-	for (const auto& I : irange(ID, InitItemCount))
+	for (const auto I: std::views::iota(ID, InitItemCount))
 	{
 		auto& Item = Items[I];
 
@@ -1608,7 +1608,7 @@ void Dialog::ShowDialog(size_t ID)
 		SetCursorType(CursorVisible,CursorSize);
 	}
 
-	for (const auto& I : irange(ID, DrawItemCount))
+	for (const auto I: std::views::iota(ID, DrawItemCount))
 	{
 		const auto& Item = Items[I];
 
@@ -3990,7 +3990,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol, int StartPos) const
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (const auto& I: irange(StartPos, Items.size()))
+	for (const auto I: std::views::iota(static_cast<size_t>(StartPos), Items.size()))
 	{
 		const auto& Item = Items[I];
 		const auto Type = Item.Type;
@@ -4631,7 +4631,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			const auto& KeyArray = static_cast<INPUT_RECORD const*>(Param2);
 			DialogMode.Set(DMODE_KEY);
 
-			for (const auto& I: irange(Param1))
+			for (const auto I: std::views::iota(0, Param1))
 				ProcessKey(Manager::Key(InputRecordToKey(&KeyArray[I])));
 
 			DialogMode.Clear(DMODE_KEY);

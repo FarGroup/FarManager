@@ -368,7 +368,7 @@ static string& UnitStr(size_t Unit, bool Binary)
 
 void PrepareUnitStr()
 {
-	for (const auto& i: irange(std::size(BytesInUnit)))
+	for (const auto i: std::views::iota(size_t{}, std::size(BytesInUnit)))
 	{
 		UnitStr(i, true) = upper(msg(lng::MListBytes + i));
 		UnitStr(i, false) = lower(msg(lng::MListBytes + i));
@@ -1630,7 +1630,7 @@ TEST_CASE("xwcsncpy")
 
 	const auto MaxBufferSize = std::ranges::max_element(Tests, [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
 
-	for (const auto& BufferSize: irange(MaxBufferSize + 1))
+	for (const auto BufferSize: std::views::iota(size_t{}, MaxBufferSize + 1))
 	{
 		for (const auto& i: Tests)
 		{

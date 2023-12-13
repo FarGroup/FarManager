@@ -873,7 +873,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 	block_ptr<REPARSE_DATA_BUFFER> const Buffer(BufferSize);
 
 	{
-		char const ExpectedData[]
+		unsigned char const ExpectedData[]
 		{
 			// ReparseTag
 			0x03, 0x00, 0x00, 0xa0,
@@ -892,7 +892,6 @@ TEST_CASE("flink.fill.reparse.buffer")
 			// PathBuffer
 			0x5c, 0x00, 0x3f, 0x00, 0x3f, 0x00, 0x5c, 0x00, 0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00, 0x00, 0x00,
 			0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00, 0x00, 0x00,
-
 		};
 
 		static_assert(BufferSize >= std::size(ExpectedData));
@@ -908,11 +907,11 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameOffset == 30);
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameLength == 20);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
+		REQUIRE(std::ranges::equal(ExpectedData, std::span(view_as<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
 	}
 
 	{
-		char const ExpectedData[]
+		unsigned char const ExpectedData[]
 		{
 			// ReparseTag
 			0x0c, 0x00, 0x00, 0xa0,
@@ -950,7 +949,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameLength == 20);
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
+		REQUIRE(std::ranges::equal(ExpectedData, std::span(view_as<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
 	}
 }
 

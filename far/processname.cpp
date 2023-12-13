@@ -198,7 +198,7 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 
 				if (std::ranges::none_of(pattern, [](wchar_t Char) { return contains(L"*?["sv, Char); }))
 				{
-					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
+					const auto RDotIt = std::ranges::find(str | std::views::reverse, L'.');
 					const auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
 
 					if (pattern.size() == 1)

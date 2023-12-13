@@ -247,7 +247,7 @@ static bool isDevice(const string_view Filename, const string_view DevicePrefix)
 		return false;
 
 	const auto Tail = Filename.substr(DevicePrefix.size());
-	return std::all_of(ALL_CONST_RANGE(Tail), std::iswdigit);
+	return std::ranges::all_of(Tail, std::iswdigit);
 }
 
 bool GetFileInfoAndValidate(const string_view FilePath, PluginPanelItem& FindData, string& NameData, const bool Any)

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 #include <functional>
 #include <numeric>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -254,11 +255,10 @@ inline bool within(std::wstring_view const Haystack, std::wstring_view const Nee
 
 namespace detail
 {
-	template<typename begin_iterator, typename end_iterator>
 	[[nodiscard]]
-	size_t get_space_count(begin_iterator const Begin, end_iterator const End) noexcept
+	size_t get_leading_space_count(std::ranges::range auto const Range) noexcept
 	{
-		return std::find_if_not(Begin, End, std::iswspace) - Begin;
+		return std::ranges::find_if_not(Range, std::iswspace) - std::ranges::cbegin(Range);
 	}
 }
 
@@ -359,22 +359,22 @@ namespace inplace
 
 	inline void trim_left(std::wstring& Str)
 	{
-		Str.erase(0, detail::get_space_count(ALL_CONST_RANGE(Str)));
+		Str.erase(0, detail::get_leading_space_count(std::wstring_view(Str)));
 	}
 
 	inline void trim_left(std::wstring_view& Str) noexcept
 	{
-		Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
+		Str.remove_prefix(detail::get_leading_space_count(Str));
 	}
 
 	inline void trim_right(std::wstring& Str)
 	{
-		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
+		Str.resize(Str.size() - detail::get_leading_space_count(std::wstring_view(Str) | std::views::reverse));
 	}
 
 	inline void trim_right(std::wstring_view& Str) noexcept
 	{
-		Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
+		Str.remove_suffix(detail::get_leading_space_count(Str | std::views::reverse));
 	}
 
 	inline void trim(std::wstring& Str)
@@ -575,10 +575,9 @@ inline auto trim(std::wstring_view Str) noexcept
 	return Str;
 }
 
-template<typename container>
-void join(std::wstring& Str, std::wstring_view const Separator, const container& Container)
+void join(std::wstring& Str, std::wstring_view const Separator, std::ranges::range auto&& Range)
 {
-	const auto Size = std::accumulate(ALL_CONST_RANGE(Container), size_t{}, [Separator](size_t const Value, const auto& Element)
+	const auto Size = std::accumulate(ALL_RANGE(Range), size_t{}, [Separator](size_t const Value, const auto& Element)
 	{
 		return Value + Separator.size() + string_utils::detail::append_arg(Element).size();
 	});
@@ -587,7 +586,7 @@ void join(std::wstring& Str, std::wstring_view const Separator, const container&
 
 	bool First = true;
 
-	for (const auto& i: Container)
+	for (const auto& i: Range)
 	{
 		if (First)
 		{
@@ -601,12 +600,11 @@ void join(std::wstring& Str, std::wstring_view const Separator, const container&
 	}
 }
 
-template<typename container>
 [[nodiscard]]
-std::wstring join(std::wstring_view const Separator, const container& Container)
+std::wstring join(std::wstring_view const Separator, std::ranges::range auto&& Range)
 {
 	std::wstring Str;
-	join(Str, Separator, Container);
+	join(Str, Separator, Range);
 	return Str;
 }
 

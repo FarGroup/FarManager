@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/string_utils.hpp"
 #include "common/scope_exit.hpp"
-#include "common/view/select.hpp"
 
 // External:
 #include "format.hpp"
@@ -465,8 +464,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 			Str,
 			join(
 				L" "sv,
-				select(
-					SubstData.Default().Panel->enum_selected(),
+				SubstData.Default().Panel->enum_selected() | std::views::transform(
 					[&](os::fs::find_data const& i)
 					{
 						const auto Data = std::invoke(Selector, i);

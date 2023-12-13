@@ -358,7 +358,7 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		auto SubmenuIterator = std::find_if(REVERSE_RANGE(m_Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
+		auto SubmenuIterator = std::ranges::find_if(m_Item | std::views::reverse, [&](HMenuData const& i){ return MouseEvent->dwMousePosition.X >= i.XPos; });
 
 		if (SubmenuIterator == m_Item.rend())
 			--SubmenuIterator;
@@ -488,7 +488,7 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (const auto& I: irange(StartPos, m_Item.size()))
+	for (const auto I: std::views::iota(static_cast<size_t>(StartPos), m_Item.size()))
 	{
 		if (const auto Ch = GetHighlights(m_Item[I]))
 		{

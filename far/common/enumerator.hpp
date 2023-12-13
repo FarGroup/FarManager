@@ -32,8 +32,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "movable.hpp"
 #include "preprocessor.hpp"
 
+#include <functional>
 #include <iterator>
 
 #include <cassert>
@@ -186,49 +188,43 @@ private:
 
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type
 
-template<typename value_type, typename callable, typename finaliser>
-class [[nodiscard]] inline_enumerator: public enumerator<inline_enumerator<value_type, callable, finaliser>, value_type>
+template<typename value_type>
+class [[nodiscard]] inline_enumerator: public enumerator<inline_enumerator<value_type>, value_type>
 {
 	IMPLEMENTS_ENUMERATOR(inline_enumerator);
 
 public:
 	NONCOPYABLE(inline_enumerator);
 	MOVE_CONSTRUCTIBLE(inline_enumerator);
+	MOVE_ASSIGNABLE(inline_enumerator);
 
-	explicit inline_enumerator(callable&& Callable, finaliser&& Finaliser):
-		m_Callable(FWD(Callable)),
-		m_Finaliser(FWD(Finaliser))
+	using callable = std::function<bool(bool, value_type&)>;
+	using finaliser = std::function<void()>;
+
+	explicit inline_enumerator(callable Callable, finaliser Finaliser = {}):
+		m_Callable(std::move(Callable)),
+		m_Finaliser(std::move(Finaliser))
 	{
 	}
 
 	~inline_enumerator()
 	{
-		m_Finaliser();
+		if (m_Engaged && m_Finaliser)
+			m_Finaliser();
 	}
 
 private:
 	[[nodiscard]]
 	bool get(bool Reset, value_type& Value) const
 	{
+		assert(m_Callable);
+
 		return m_Callable(Reset, Value);
 	}
 
-	mutable callable m_Callable;
+	callable m_Callable;
 	finaliser m_Finaliser;
+	movable m_Engaged;
 };
-
-template<typename value_type, typename callable, typename finaliser>
-[[nodiscard]]
-auto make_inline_enumerator(callable&& Callable, finaliser&& Finaliser)
-{
-	return inline_enumerator<value_type, callable, finaliser>(FWD(Callable), FWD(Finaliser));
-}
-
-template<typename value_type, typename callable>
-[[nodiscard]]
-auto make_inline_enumerator(callable&& Callable)
-{
-	return make_inline_enumerator<value_type>(FWD(Callable), []{});
-}
 
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

@@ -47,7 +47,7 @@ template<class char_type>
 auto enum_substrings(char_type const* const Str, std::optional<size_t> const Size = {})
 {
 	using value_type = std::basic_string_view<char_type>;
-	return make_inline_enumerator<value_type>([Iterator = Str, Str, Size](const bool Reset, value_type& Value) mutable
+	return inline_enumerator<value_type>([Iterator = Str, Str, Size](const bool Reset, value_type& Value) mutable
 	{
 		if (Reset)
 			Iterator = Str;

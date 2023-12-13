@@ -144,7 +144,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	const auto Eol = eol::system.str();
 	const auto CharWidthEnabled = char_width::is_enabled();
 
-	for (const auto& i: irange(CharBuf.height()))
+	for (const auto i: std::views::iota(size_t{}, CharBuf.height()))
 	{
 		const auto& MatrixLine = CharBuf[i];
 		auto Begin = MatrixLine.cbegin(), End = MatrixLine.cend();
@@ -262,9 +262,9 @@ void Grabber::DisplayObject()
 		matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
 		GetText({ FromX, FromY, ToX, ToY }, CharBuf);
 
-		for (const auto& Y: irange(FromY, ToY + 1))
+		for (const auto Y: std::views::iota(FromY, ToY + 1))
 		{
-			for (const auto& X: irange(FromX, ToX + 1))
+			for (const auto X: std::views::iota(FromX, ToX + 1))
 			{
 				const auto& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
 				auto& Destination = CharBuf[Y - Y1][X - FromX].Attributes;

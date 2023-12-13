@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
-#include "common/view/select.hpp"
 
 // External:
 #include "format.hpp"
@@ -494,7 +493,7 @@ bool Help::ReadHelp(string_view const Mask)
 
 			size_t LastKeySize = 0;
 
-			strReadStr = join(L"\n"sv, select(enum_tokens(strKeyName, L" "sv),
+			strReadStr = join(L"\n"sv, enum_tokens(strKeyName, L" "sv) | std::views::transform(
 				[&](const auto& i)
 				{
 					LastKeySize = i.size();
@@ -885,7 +884,7 @@ void Help::FastShow()
 	*/
 	CurColor = colors::PaletteColorToFarColor(COL_HELPTEXT);
 
-	for (const auto& i: irange(CanvasHeight()))
+	for (const auto i: std::views::iota(0, CanvasHeight()))
 	{
 		int StrPos;
 

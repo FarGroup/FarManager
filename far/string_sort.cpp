@@ -194,7 +194,7 @@ static const auto& create_alt_sort_table()
 	});
 
 	int u_beg = 0, u_end = 0xffff;
-	for (const auto& ic: irange(0x10000))
+	for (const auto ic: std::views::iota(0, 0x10000))
 	{
 		if (chars[ic] == L'a')
 		{
@@ -216,13 +216,13 @@ static const auto& create_alt_sort_table()
 	assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
 
 	int cc = u_beg;
-	for (const auto& ic: irange(u_beg, u_end + 1)) // uppercase first
+	for (const auto ic: std::views::iota(u_beg, u_end + 1)) // uppercase first
 	{
 		if (is_upper(chars[ic]))
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
 	}
 
-	for (const auto& ic: irange(u_beg, u_end + 1)) // than not uppercase
+	for (const auto ic: std::views::iota(u_beg, u_end + 1)) // than not uppercase
 	{
 		if (!is_upper(chars[ic]))
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);

@@ -262,7 +262,7 @@ bool IsCurrentDirectory(string_view const Str)
 
 string_view PointToName(string_view const Path)
 {
-	const auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), path::is_separator);
+	const auto NameStart = std::ranges::find_if(Path | std::views::reverse, path::is_separator);
 	return Path.substr(Path.crend() - NameStart);
 }
 
@@ -279,7 +279,7 @@ string_view PointToFolderNameIfFolder(string_view Path)
 
 std::pair<string_view, string_view> name_ext(string_view const Path)
 {
-	auto ExtensionStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), [](wchar_t const Char){ return Char == L'.' || path::is_separator(Char); });
+	auto ExtensionStart = std::ranges::find_if(Path | std::views::reverse, [](wchar_t const Char){ return Char == L'.' || path::is_separator(Char); });
 	if (ExtensionStart != Path.crend() && *ExtensionStart != L'.')
 		ExtensionStart = Path.crend();
 
@@ -448,7 +448,7 @@ size_t FindSlash(const string_view Str)
 
 size_t FindLastSlash(const string_view Str)
 {
-	const auto SlashPos = std::find_if(ALL_CONST_REVERSE_RANGE(Str), path::is_separator);
+	const auto SlashPos = std::ranges::find_if(Str | std::views::reverse, path::is_separator);
 	return SlashPos == Str.crend()? string::npos : Str.crend() - SlashPos - 1;
 }
 

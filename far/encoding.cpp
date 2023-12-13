@@ -356,7 +356,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	u{};
 
 	size_t Size = 0;
-	for (const auto& i: irange(65536)) // only UCS2 range
+	for (const auto i: std::views::iota(0, 65536)) // only UCS2 range
 	{
 		encoding::diagnostics Diagnostics;
 		const auto Char = static_cast<wchar_t>(i);
@@ -1740,9 +1740,7 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 		return Result;
 	};
 
-	const irange Chars(std::numeric_limits<wchar_t>::max() + 1);
-
-	const auto AllValid = std::ranges::all_of(Chars, [&](wchar_t const Char)
+	const auto AllValid = std::ranges::all_of(std::views::iota(0, std::numeric_limits<wchar_t>::max() + 1), [&](wchar_t const Char)
 	{
 		const auto Result = round_trip(Char);
 
@@ -1781,9 +1779,7 @@ TEST_CASE("encoding.utf8-ucs2.round-trip")
 		return Byte;
 	};
 
-	const irange Bytes(std::numeric_limits<char>::max() + 1);
-
-	const auto AllValid = std::ranges::all_of(Bytes, [&](char const Byte)
+	const auto AllValid = std::ranges::all_of(std::views::iota(0, std::numeric_limits<char>::max() + 1), [&](char const Byte)
 	{
 		if (!(Byte & 0b10000000) || utf8::support_embedded_raw_bytes)
 		{

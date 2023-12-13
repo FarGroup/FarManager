@@ -62,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_substrings.hpp"
 #include "common/function_ref.hpp"
 #include "common/keep_alive.hpp"
-#include "common/view/select.hpp"
 
 // External:
 #include "format.hpp"
@@ -162,7 +161,7 @@ public:
 	auto DeviceInterfacesEnumerator(UUID const& InterfaceClassUuid) const
 	{
 		using value_type = SP_DEVICE_INTERFACE_DATA;
-		return make_inline_enumerator<value_type>([this, InterfaceClassUuid = keep_alive(FWD(InterfaceClassUuid)), Index = size_t{}](const bool Reset, value_type& Value) mutable
+		return inline_enumerator<value_type>([this, InterfaceClassUuid = keep_alive(FWD(InterfaceClassUuid)), Index = size_t{}](const bool Reset, value_type& Value) mutable
 		{
 			if (Reset)
 				Index = 0;
@@ -425,7 +424,7 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 	{
 		const auto Separator = L", "sv;
 
-		auto DisksStr = join(Separator, select(os::fs::enum_drives(Info.DevicePaths.Disks), [](wchar_t const Drive){ return os::fs::drive::get_device_path(Drive); }));
+		auto DisksStr = join(Separator, os::fs::enum_drives(Info.DevicePaths.Disks) | std::views::transform([](wchar_t const Drive){ return os::fs::drive::get_device_path(Drive); }));
 
 		if (DisksStr.empty())
 			DisksStr = join(Separator, Info.DevicePaths.Volumes);

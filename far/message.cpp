@@ -459,7 +459,7 @@ static message_result MessageImpl(
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
-	for (const auto& i: irange(Strings.size()))
+	for (const auto i: std::views::iota(size_t{}, Strings.size()))
 	{
 		const auto& SrcItem = Strings[i];
 

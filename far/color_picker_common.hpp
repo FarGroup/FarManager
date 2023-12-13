@@ -220,7 +220,7 @@ namespace color_picker_common
 
 			Dlg->SendMessage(DM_SETCHECK, dialog_items::cd_cube_first, ToPtr(BSTATE_3STATE));
 
-			for (const auto& i: irange(0, Cube.Cube.size()))
+			for (const auto i: std::views::iota(size_t{}, Cube.Cube.size()))
 			{
 				move_plane(NewPlane, Plane, Button, Cube.Slice, i);
 				Dlg->SendMessage(DM_REDRAW, 0, {});

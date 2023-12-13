@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
-#include "common/view/reverse.hpp"
 
 // External:
 #include "format.hpp"
@@ -444,7 +443,7 @@ window_ptr Manager::WindowMenu()
 		ModalMenu->SetPosition({ -1, -1, 0, 0 });
 		ModalMenu->SetId(ScreensSwitchId);
 
-		for (const auto& i: irange(Data.size()))
+		for (const auto i: std::views::iota(size_t{}, Data.size()))
 		{
 			auto& [Type, Name, Window] = Data[i];
 
@@ -1195,7 +1194,7 @@ desktop* Manager::Desktop() const
 
 Viewer* Manager::GetCurrentViewer() const
 {
-	for (const auto& i: reverse(m_windows))
+	for (const auto& i: std::views::reverse(m_windows))
 	{
 		if (const auto v = std::dynamic_pointer_cast<ViewerContainer>(i))
 		{
@@ -1208,7 +1207,7 @@ Viewer* Manager::GetCurrentViewer() const
 
 FileEditor* Manager::GetCurrentEditor() const
 {
-	for (const auto& i: reverse(m_windows))
+	for (const auto& i: std::views::reverse(m_windows))
 	{
 		if (const auto e = std::dynamic_pointer_cast<FileEditor>(i))
 		{

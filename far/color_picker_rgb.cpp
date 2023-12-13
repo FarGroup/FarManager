@@ -49,8 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/2d/algorithm.hpp"
 #include "common/range.hpp"
-#include "common/view/select.hpp"
-#include "common/view/where.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -359,9 +357,9 @@ static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 	{
 		bits NewCells;
 
-		for (const auto& r: irange(0, cube_size))
+		for (const auto r: std::views::iota(0, cube_size))
 		{
-			for (const auto& c: irange(0, cube_size))
+			for (const auto c: std::views::iota(0, cube_size))
 			{
 				check_neighbors(Steps[StepsSize - 1], NewCells, r, c);
 			}
@@ -383,7 +381,7 @@ static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 	os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
 	os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
 
-	for (const auto& i: irange(StepsSize))
+	for (const auto i: std::views::iota(size_t{}, StepsSize))
 	{
 		ColorState.Overlay = ZoomingIn?
 			~Steps[i] :
@@ -504,11 +502,11 @@ intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 
 					if (CustomColors != SavedCustomColors)
 					{
-						const auto Range = zip(SavedCustomColors, CustomColors, irange(std::size(SavedCustomColors)));
-						const auto Changed = [](auto const Old, auto const New, auto){ return Old != New; };
-						const auto Index = [](auto, auto, auto i){ return i; };
+						const auto Range = zip(SavedCustomColors, CustomColors, irange(size_t{}, std::size(SavedCustomColors)));
+						const auto Changed = [](auto const& Item){ return std::get<0>(Item) != std::get<1>(Item); };
+						const auto Index = [](auto const& Item){ return std::get<2>(Item); };
 
-						for (const auto i: select(where(Range, Changed), Index))
+						for (const auto i: Range | std::views::filter(Changed) | std::views::transform(Index))
 						{
 							Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(1));
 						}

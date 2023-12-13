@@ -2028,7 +2028,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	}
 	else
 	{
-		for (const auto& i: irange(Global->WindowManager->GetWindowCount()))
+		for (const auto i: std::views::iota(size_t{}, Global->WindowManager->GetWindowCount()))
 		{
 			if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>(Global->WindowManager->GetWindow(i)))
 			{
