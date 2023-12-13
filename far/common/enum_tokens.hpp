@@ -169,7 +169,7 @@ namespace detail
 		std::wstring_view extract(std::wstring_view const View, const std::wstring_view Separators, std::wstring_view& Value) const
 		{
 			const auto NewIterator = std::ranges::find_first_of(View, Separators);
-			Value = make_string_view(View.cbegin(), NewIterator);
+			Value = { View.cbegin(), NewIterator };
 			return { NewIterator, View.cend() };
 		}
 	};
@@ -188,7 +188,7 @@ namespace detail
 				return !m_Overrider.active(i) && contains(Separators, i);
 			});
 
-			Value = make_string_view(View.cbegin(), NewIterator);
+			Value = { View.cbegin(), NewIterator };
 
 			m_Overrider.postprocess(Value);
 

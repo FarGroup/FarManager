@@ -1679,9 +1679,6 @@ TEST_CASE("string_utils.misc")
 	REQUIRE(L"123"s + L"45"sv == L"12345"sv);
 	REQUIRE(L"123"sv + L"45"s == L"12345"sv);
 	REQUIRE(L"123"sv + L"45"sv == L"12345"sv);
-
-	const auto Str = L"12345"sv;
-	REQUIRE(make_string_view(Str.begin() + 1, Str.end() - 1) == L"234"sv);
 }
 
 #ifdef __cpp_lib_generic_unordered_lookup

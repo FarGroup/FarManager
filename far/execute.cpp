@@ -294,7 +294,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 		}
 	}
 
-	const auto Cmd = make_string_view(Begin, CmdEnd);
+	string_view const Cmd{ Begin, CmdEnd };
 	const auto ExcludeCmds = enum_tokens(exclude_cmds(), L";"sv);
 	if (std::ranges::any_of(ExcludeCmds, [&](string_view const i){ return equal_icase(i, Cmd); }))
 		return false;

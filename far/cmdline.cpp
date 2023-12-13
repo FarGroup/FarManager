@@ -637,7 +637,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 		{
 			bool Stop;
 			auto NewColor = PrefixColor;
-			const auto Str = make_string_view(Iterator, Format.cend());
+			string_view const Str{ Iterator, Format.cend() };
 			const auto Tail = colors::ExtractColorInNewFormat(Str, NewColor, Stop);
 			if (Tail.size() == Str.size())
 			{

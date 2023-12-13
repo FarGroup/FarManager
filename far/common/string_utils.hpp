@@ -653,19 +653,6 @@ auto operator+(T const Lhs, std::basic_string_view<T> const Rhs)
 }
 
 
-// string_view has iterators, but you cannot construct it from them
-// "Design by committee" *facepalm*
-template<typename T>
-[[nodiscard]]
-constexpr auto make_string_view(T const Begin, T const End) noexcept
-{
-	using char_type = std::iter_value_t<T>;
-	static_assert(std::same_as<typename std::basic_string_view<char_type>::const_iterator, T>);
-
-	const auto Size = static_cast<size_t>(End - Begin);
-	return std::basic_string_view<char_type>{ Size ? &*Begin : nullptr, Size };
-}
-
 class lvalue_string_view
 {
 public:

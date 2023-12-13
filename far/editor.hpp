@@ -277,7 +277,7 @@ private:
 	string Block2Text();
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	bool SetLineCodePage(iterator const& Iterator, uintptr_t CurrentCodepage, uintptr_t NewCodepage, bool Validate);
+	bool SetLineCodePage(Edit& Line, uintptr_t CurrentCodepage, uintptr_t NewCodepage, bool Validate);
 	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
 	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();

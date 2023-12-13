@@ -6643,17 +6643,17 @@ static std::string_view GetLineBytes(string_view const Str, std::vector<char>& B
 	}
 }
 
-bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t CurrentCodepage, uintptr_t const NewCodepage, bool const Validate)
+bool Editor::SetLineCodePage(Edit& Line, uintptr_t CurrentCodepage, uintptr_t const NewCodepage, bool const Validate)
 {
-	if (Iterator->m_Str.empty())
+	if (Line.m_Str.empty())
 		return true;
 
 	encoding::diagnostics Diagnostics;
-	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, CurrentCodepage, Validate? &Diagnostics : nullptr);
+	const auto Bytes = GetLineBytes(Line.m_Str, decoded, CurrentCodepage, Validate? &Diagnostics : nullptr);
 	auto Result = !Bytes.empty() && !Diagnostics.ErrorPosition;
-	encoding::get_chars(NewCodepage, Bytes, Iterator->m_Str, &Diagnostics);
-	Result = Result && !Iterator->m_Str.empty() && !Diagnostics.ErrorPosition;
-	Iterator->Changed();
+	encoding::get_chars(NewCodepage, Bytes, Line.m_Str, &Diagnostics);
+	Result = Result && !Line.m_Str.empty() && !Diagnostics.ErrorPosition;
+	Line.Changed();
 
 	return Result;
 }
@@ -6715,7 +6715,7 @@ bool Editor::SetCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 
 	auto Result = true;
 
-	FOR_RANGE(Lines, i)
+	for(auto& i: Lines)
 	{
 		if (!SetLineCodePage(i, CurrentCodepage, NewCodepage, Result))
 			Result = false;

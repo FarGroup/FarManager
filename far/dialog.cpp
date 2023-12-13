@@ -983,8 +983,6 @@ void Dialog::InitDialogObjects(size_t ID)
 
 string Dialog::GetTitle() const
 {
-	const DialogItemEx *CurItemList=nullptr;
-
 	FOR_CONST_RANGE(Items, i)
 	{
 		// по первому попавшемуся "тексту" установим заголовок консоли!
@@ -996,10 +994,10 @@ string Dialog::GetTitle() const
 		}
 
 		if (i->Type==DI_LISTBOX && i == Items.begin())
-			CurItemList = &*i;
+			return i->ListPtr->GetTitle();
 	}
 
-	return CurItemList? CurItemList->ListPtr->GetTitle() : L""s;
+	return {};
 }
 
 void Dialog::ProcessLastHistory(DialogItemEx& CurItem, int MsgIndex)
