@@ -1640,11 +1640,11 @@ bool PluginManager::ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugi
 			}
 		}
 	}
+
 	if (plugin_panel_stack)
 	{
 		FList->PushFilePlugin(hostfile, std::move(hNewPlugin));
 	}
-
 	else
 	{
 		if (fe_close && ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
@@ -2058,9 +2058,6 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 	if (items.empty())
 		return false;
 
-	if (Global->CtrlObject->Cp()->ActivePanel()->ProcessPluginEvent(FE_CLOSE,nullptr))
-		return false;
-
 	auto PluginIterator = items.cbegin();
 
 	if (items.size() > 1)
@@ -2077,8 +2074,9 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 
 		const auto ExitCode = Menu->Run();
 
+		// No point in giving the command to the OS if the user cancelled the operation
 		if (ExitCode < 0)
-			return false;
+			return true;
 
 		PluginIterator += ExitCode;
 	}
@@ -2088,7 +2086,7 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.c_str() };
 	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info)))
 	{
-		ProcessPluginPanel(std::move(hPlugin), false);
+		ProcessPluginPanel(std::move(hPlugin), true);
 	}
 	return true;
 }
