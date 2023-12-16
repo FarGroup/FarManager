@@ -1,4 +1,17 @@
 --------------------------------------------------------------------------------
+drkns 2023-12-16 16:35:29+00:00 - build 6227
+
+1. Fix deadlock after an external std::exit() call.
+
+2. Clarify calling plugins by prefix
+   - Do not pass the command to the OS if the user cancelled the operation.
+   - Do not send FE_CLOSE until we get a new panel.
+
+3. Fix calling FCTL_GETPANELINFO from ClosePanelW.
+
+4. Minor fixes & remove old workarounds.
+
+--------------------------------------------------------------------------------
 drkns 2023-12-13 22:11:00+00:00 - build 6226
 
 1. More ranges.
