@@ -534,7 +534,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 }
 
 
-FileList::~FileList()
+void FileList::dispose()
 {
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		while (PopPlugin(FALSE))
@@ -548,6 +548,11 @@ FileList::~FileList()
 	auto& m_ListData = *DataLock;
 
 	m_ListData.clear();
+}
+
+FileList::~FileList()
+{
+	dispose();
 }
 
 

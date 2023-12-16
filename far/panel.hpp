@@ -212,6 +212,7 @@ public:
 	virtual void OnDestroy() {}
 	virtual void InitCurDir(string_view CurDir);
 	virtual void on_swap() {}
+	virtual void dispose(){}
 
 	panel_mode GetMode() const { return m_PanelMode; }
 	void SetMode(panel_mode Mode) { m_PanelMode = Mode; }

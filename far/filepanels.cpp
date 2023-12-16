@@ -1009,7 +1009,8 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	}
 	else
 	{
-		NewPanel=CreatePanel(NewType);
+		NewPanel->dispose();
+		NewPanel = CreatePanel(NewType);
 	}
 
 	if (!UsedLastPanel)

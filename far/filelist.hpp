@@ -202,6 +202,7 @@ public:
 	void GoHome(string_view Drive) override;
 	bool GetSelectedFirstMode() const override;
 	void on_swap() override;
+	void dispose() override;
 
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;
