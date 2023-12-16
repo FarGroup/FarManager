@@ -196,29 +196,11 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	auto Spt = InitSCSIPassThrough();
 
 #if !IS_MICROSOFT_SDK()
-	// GCC headers incorrectly reserve only one bit for RequestType
-	struct CDB_FIXED
-	{
-		struct
-		{
-			UCHAR OperationCode;
-			UCHAR RequestType : 2;
-			UCHAR Reserved1 : 6;
-			UCHAR StartingFeature[2];
-			UCHAR Reserved2[3];
-			UCHAR AllocationLength[2];
-			UCHAR Control;
-		}
-		GET_CONFIGURATION;
-	};
-#define CDB CDB_FIXED
+	// Old GCC headers incorrectly reserve only one bit for RequestType
+	static_assert(decltype(CDB::GET_CONFIGURATION){.RequestType = 0b11 }.RequestType == 0b11);
 #endif
 
 	auto& GetConfiguration = edit_as<CDB>(Spt.Cdb).GET_CONFIGURATION;
-
-#if !IS_MICROSOFT_SDK()
-#undef CDB
-#endif
 
 	GetConfiguration.OperationCode = SCSIOP_GET_CONFIGURATION;
 	GetConfiguration.RequestType = SCSI_GET_CONFIGURATION_REQUEST_TYPE_ONE;

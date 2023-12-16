@@ -156,8 +156,7 @@ namespace detail
 	};
 }
 
-// the size_t is a workaround for GCC
-template<size_t, typename... args>
+template<typename... args>
 class [[nodiscard]] zip
 {
 public:
@@ -183,6 +182,6 @@ private:
 };
 
 template<typename... args>
-zip(args&&... Args) -> zip<sizeof...(args), keep_alive_type<decltype(Args)>...>;
+zip(args&&... Args) -> zip<keep_alive_type<decltype(Args)>...>;
 
 #endif // ZIP_HPP_92A80223_8204_4A14_AACC_93D632A39884

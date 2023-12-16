@@ -556,7 +556,7 @@ static void disable_if_needed(COLORREF const Color, span<DialogItemEx> ColorDlgI
 	{
 		ColorDlgItems[Offset + cb::color_active_checkbox].Selected = BSTATE_CHECKED;
 	}
-};
+}
 
 static bool pick_color_single(colors::single_color& Color, colors::single_color const BaseColor, std::array<COLORREF, 16>& CustomColors)
 {
