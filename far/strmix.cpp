@@ -749,7 +749,7 @@ string ReplaceBrackets(
 			if (const auto Part = ReplaceStr.substr(TokenStart); std::regex_search(ALL_CONST_RANGE(Part), CMatch, re))
 			{
 				TokenSize = CMatch[0].length();
-				if (const auto Iterator = NamedMatch->Matches.find(string_comparer::generic_key{ CMatch[1].first, CMatch[1].second }); Iterator != NamedMatch->Matches.cend())
+				if (const auto Iterator = NamedMatch->Matches.find(string_view{ CMatch[1].first, CMatch[1].second }); Iterator != NamedMatch->Matches.cend())
 				{
 					Replacement = get_match(SearchStr, Match[Iterator->second]);
 				}

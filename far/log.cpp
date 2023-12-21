@@ -702,7 +702,7 @@ namespace
 			for (const auto& i: enum_tokens(get_sink_parameter(name, L"sinks"sv), L",;"sv))
 			{
 				// No funny stuff
-				if (equal_icase(i, name) || SeenSinks.contains(string_comparer::generic_key{ i }))
+				if (equal_icase(i, name) || SeenSinks.contains(i))
 					continue;
 
 				const auto SinkMode = parse_sink_mode(get_sink_parameter(i, L"mode"sv));

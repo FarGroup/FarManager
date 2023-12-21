@@ -167,9 +167,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 {
 	struct sid_hash_eq
 	{
-#ifdef __cpp_lib_generic_unordered_lookup
 		using is_transparent = void;
-#endif
 
 		size_t operator()(const sid& Sid) const { return Sid.get_hash(); }
 		size_t operator()(const PSID Sid) const { return sid::get_hash(Sid, GetLengthSid(Sid)); }
@@ -181,14 +179,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 	static std::unordered_map<sid, string, sid_hash_eq, sid_hash_eq> SIDCache;
 
-#ifdef __cpp_lib_generic_unordered_lookup
-	const auto ItemIterator = SIDCache.find(Sid);
-#else
-	sid SidCopy(Sid);
-	const auto ItemIterator = SIDCache.find(SidCopy);
-#endif
-
-	if (ItemIterator != SIDCache.cend())
+	if (const auto ItemIterator = SIDCache.find(Sid); ItemIterator != SIDCache.cend())
 	{
 		Name = ItemIterator->second;
 		return true;
@@ -196,15 +187,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 	if (SidToName(Sid, Name, Computer))
 	{
-		SIDCache.emplace(
-#ifdef __cpp_lib_generic_unordered_lookup
-			Sid,
-#else
-			std::move(SidCopy),
-#endif
-			Name
-		);
-
+		SIDCache.emplace(Sid, Name);
 		return true;
 	}
 

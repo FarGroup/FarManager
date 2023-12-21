@@ -1681,7 +1681,6 @@ TEST_CASE("string_utils.misc")
 	REQUIRE(L"123"sv + L"45"sv == L"12345"sv);
 }
 
-#ifdef __cpp_lib_generic_unordered_lookup
 TEST_CASE("string_utils.generic_lookup")
 {
 	const unordered_string_map<int> Map
@@ -1692,7 +1691,6 @@ TEST_CASE("string_utils.generic_lookup")
 	REQUIRE(Map.find(L"123"sv) != Map.cend());
 	REQUIRE(Map.find(L"123") != Map.cend());
 }
-#endif
 
 //----------------------------------------------------------------------------
 

@@ -150,7 +150,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 		const auto MaskGroupNameWithBrackets = string_view(ExpandedGroups).substr(LBPos, RBPos - LBPos + 1);
 		const auto MaskGroupName = MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2);
 
-		if (UsedGroups.contains(string_comparer::generic_key{ MaskGroupName }))
+		if (UsedGroups.contains(MaskGroupName))
 		{
 			MaskGroupValue.clear();
 		}

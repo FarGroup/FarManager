@@ -237,10 +237,10 @@ string_view DizList::Get(const string_view Name, const string_view ShortName, co
 
 DizList::desc_map::iterator DizList::Find(const string_view Name, const string_view ShortName)
 {
-	auto Iterator = m_DizData.find(string_comparer::generic_key{ Name });
+	auto Iterator = m_DizData.find(Name);
 
 	if (Iterator == m_DizData.end())
-		Iterator = m_DizData.find(string_comparer::generic_key{ ShortName });
+		Iterator = m_DizData.find(ShortName);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (Iterator == m_DizData.end() && m_CodePage && !IsUnicodeOrUtfCodePage(*m_CodePage))

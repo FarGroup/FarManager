@@ -100,12 +100,7 @@ string lower(string_view Str);
 
 struct [[nodiscard]] string_comparer_icase
 {
-#ifdef __cpp_lib_generic_unordered_lookup
 	using is_transparent = void;
-	using generic_key = string_view;
-#else
-	using generic_key = string;
-#endif
 
 	[[nodiscard]]
 	size_t operator()(wchar_t Char) const;

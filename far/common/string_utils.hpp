@@ -680,12 +680,7 @@ private:
 
 struct string_comparer
 {
-#ifdef __cpp_lib_generic_unordered_lookup
 	using is_transparent = void;
-	using generic_key = std::wstring_view;
-#else
-	using generic_key = string;
-#endif
 
 	[[nodiscard]]
 	size_t operator()(const std::wstring_view Str) const

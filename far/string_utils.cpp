@@ -407,7 +407,6 @@ TEST_CASE("string.utils.hash_icase")
 	REQUIRE(hash(L"fooBAR"sv) != hash(L"Banana"sv));
 }
 
-#ifdef __cpp_lib_generic_unordered_lookup
 TEST_CASE("string_utils.generic_lookup_icase")
 {
 	const unordered_string_map_icase<int> Map
@@ -418,7 +417,6 @@ TEST_CASE("string_utils.generic_lookup_icase")
 	REQUIRE(Map.find(L"AbC"sv) != Map.cend());
 	REQUIRE(Map.find(L"aBc") != Map.cend());
 }
-#endif
 
 TEST_CASE("string.utils.icase")
 {
