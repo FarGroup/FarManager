@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 
+#include <ranges>
 #include <stdexcept>
 
 //----------------------------------------------------------------------------
@@ -79,7 +80,7 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 }
 
 template<typename Iter>
-void apply_permutation(range_like auto& Range, Iter Indices)
+void apply_permutation(std::ranges::range auto& Range, Iter Indices)
 {
 	return apply_permutation(ALL_RANGE(Range), Indices);
 }
@@ -97,7 +98,7 @@ void emplace(container& Container, args&&... Args)
 // uniform "contains"
 template<typename element>
 [[nodiscard]]
-constexpr bool contains(range_like auto const& Range, const element& Element)
+constexpr bool contains(std::ranges::range auto const& Range, const element& Element)
 {
 	if constexpr (requires { Range.contains(*Range.begin()); })
 	{

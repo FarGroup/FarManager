@@ -72,9 +72,9 @@ namespace os
 		[[nodiscard]]
 		bool ApiDynamicReceiver(
 			buffer_type&& Buffer,
-			function_ref<size_t(span<value_type<buffer_type>> WritableBuffer)> const Receiver,
+			function_ref<size_t(span<std::ranges::range_value_t<buffer_type>> WritableBuffer)> const Receiver,
 			function_ref<bool(size_t ReturnedSize, size_t AllocatedSize)> const Condition,
-			function_ref<void(span<value_type<buffer_type> const> ReadableBuffer)> const Assigner
+			function_ref<void(span<std::ranges::range_value_t<buffer_type> const> ReadableBuffer)> const Assigner
 		)
 		{
 			size_t Size = Receiver({ Buffer.data(), Buffer.size() });

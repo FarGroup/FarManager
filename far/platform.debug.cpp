@@ -533,7 +533,7 @@ namespace os::debug::symbols
 			header info;
 			static constexpr auto max_name_size = MAX_SYM_NAME;
 
-			using char_type = value_type<decltype(info.Name)>;
+			using char_type = std::ranges::range_value_t<decltype(info.Name)>;
 			char_type name[max_name_size + 1];
 
 			struct symbol

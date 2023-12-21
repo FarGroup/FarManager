@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "type_traits.hpp"
 
 #include <algorithm>
+#include <ranges>
 #include <string_view>
 
 //----------------------------------------------------------------------------
@@ -57,11 +58,11 @@ namespace detail
 	template<typename return_type, typename T>
 	auto bytes_impl(T& Object)
 	{
-		if constexpr (span_like<T>)
+		if constexpr (std::ranges::contiguous_range<T>)
 		{
-			static_assert(std::is_trivially_copyable_v<value_type<T>>);
+			static_assert(std::is_trivially_copyable_v<std::ranges::range_value_t<T>>);
 
-			return bytes_impl<return_type>(std::data(Object), std::size(Object) * sizeof(value_type<T>));
+			return bytes_impl<return_type>(std::ranges::data(Object), std::ranges::size(Object) * sizeof(std::ranges::range_value_t<T>));
 		}
 		else if constexpr (std::is_trivially_copyable_v<T>)
 		{

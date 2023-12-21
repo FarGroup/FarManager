@@ -283,13 +283,13 @@ namespace detail
 }
 
 [[nodiscard]]
-auto FlagsToString(unsigned long long const Flags, span_like auto const& From, wchar_t const Separator = L' ')
+auto FlagsToString(unsigned long long const Flags, std::ranges::contiguous_range auto const& From, wchar_t const Separator = L' ')
 {
 	return detail::FlagsToString(Flags, span(From), Separator);
 }
 
 [[nodiscard]]
-auto StringToFlags(string_view const strFlags, span_like auto const& From, string_view const Separators = L"|;, "sv)
+auto StringToFlags(string_view const strFlags, std::ranges::contiguous_range auto const& From, string_view const Separators = L"|;, "sv)
 {
 	return detail::StringToFlags(strFlags, span(From), Separators);
 }

@@ -405,10 +405,10 @@ auto view_as_opt(detail::buffer_type auto const* const Buffer, size_t const Size
 }
 
 template<typename T> requires std::is_trivially_copyable_v<T>
-auto view_as_opt(span_like auto const& Buffer, size_t const Offset = 0)
+auto view_as_opt(std::ranges::contiguous_range auto const& Buffer, size_t const Offset = 0)
 {
-	static_assert(detail::buffer_type<value_type<decltype(Buffer)>>);
-	return view_as_opt<T>(std::data(Buffer), std::size(Buffer), Offset);
+	static_assert(detail::buffer_type<std::ranges::range_value_t<decltype(Buffer)>>);
+	return view_as_opt<T>(std::ranges::data(Buffer), std::ranges::size(Buffer), Offset);
 }
 
 template<typename large_type, typename small_type>

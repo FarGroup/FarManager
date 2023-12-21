@@ -161,21 +161,59 @@ public:
 	NONCOPYABLE(block_ptr);
 	MOVABLE(block_ptr);
 
-	using array_ptr<std::byte, Size>::array_ptr;
+	using base = array_ptr<std::byte, Size>;
+	using base::base;
+
 	block_ptr() noexcept = default;
 
 	[[nodiscard]]
-	decltype(auto) data() const noexcept
+	auto data() const noexcept
 	{
-		assert(this->size() >= sizeof(T));
-		return edit_as<T*>(array_ptr<std::byte, Size>::data());
+		assert(size());
+		return edit_as<T*>(base::data());
 	}
 
 	[[nodiscard]]
-	decltype(auto) operator->() const noexcept { return data(); }
+	auto size() const noexcept
+	{
+		return base::size() / sizeof(T);
+	}
 
 	[[nodiscard]]
-	decltype(auto) operator*() const noexcept {return *data();}
+	auto begin() const noexcept
+	{
+		return data();
+	}
+
+	[[nodiscard]]
+	auto cbegin() const noexcept
+	{
+		return begin();
+	}
+
+	[[nodiscard]]
+	auto end() const noexcept
+	{
+		return begin() + size();
+	}
+
+	[[nodiscard]]
+	auto cend() const noexcept
+	{
+		return end();
+	}
+
+	[[nodiscard]]
+	auto operator->() const noexcept
+	{
+		return data();
+	}
+
+	[[nodiscard]]
+	auto& operator*() const noexcept
+	{
+		return *data();
+	}
 };
 
 template<typename T>

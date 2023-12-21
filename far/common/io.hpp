@@ -104,7 +104,7 @@ namespace io
 		}
 	}
 
-	void write(std::ostream& Stream, span_like auto const& Container)
+	void write(std::ostream& Stream, std::ranges::contiguous_range auto const& Container)
 	{
 		return detail::write(Stream, span(Container));
 	}

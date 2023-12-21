@@ -74,7 +74,7 @@ public:
 	{
 	}
 
-	constexpr explicit(false) range(range_like auto& Range):
+	constexpr explicit(false) range(std::ranges::range auto& Range):
 		range(ALL_RANGE(Range))
 	{
 	}
@@ -232,7 +232,7 @@ public:
 	// Can't use base_span alias here, Clang isn't smart enough.
 	using std::span<span_value_type>::span;
 
-	template<span_like SpanLike> requires requires { base_span(std::declval<SpanLike&>()); }
+	template<std::ranges::contiguous_range SpanLike> requires requires { base_span(std::declval<SpanLike&>()); }
 	constexpr explicit(false) span(SpanLike&& Span) noexcept:
 		base_span(Span)
 	{
@@ -269,7 +269,7 @@ span(Iterator Begin, size_t Size) -> span<std::remove_reference_t<decltype(*Begi
 template<std::contiguous_iterator Iterator, std::contiguous_iterator Centinel>
 span(Iterator Begin, Centinel End) -> span<std::remove_reference_t<decltype(*Begin)>>;
 
-template<span_like container>
+template<std::ranges::contiguous_range container>
 span(container&& c) -> span<std::remove_reference_t<decltype(*std::begin(c))>>;
 
 template<typename value_type>
