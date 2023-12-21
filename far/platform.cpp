@@ -383,7 +383,7 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	// is running in a different logon session than the application that made the connection.
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
 	// Deliberately initialised with an empty string to fix that.
-	Buffer.front() = {};
+	Buffer[0] = {};
 	auto Size = static_cast<DWORD>(Buffer.size());
 	const null_terminated C_LocalName(LocalName);
 	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.data(), &Size);

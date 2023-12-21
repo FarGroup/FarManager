@@ -1375,7 +1375,7 @@ TEST_CASE("singleton")
 
 #include "common/smart_ptr.hpp"
 
-TEST_CASE("smart_ptr")
+TEST_CASE("smart_ptr.char_ptr_n")
 {
 	const char_ptr_n<1> Ptr;
 	constexpr auto ActualStaticSize = sizeof(std::unique_ptr<char[]>) / sizeof(char);
@@ -1383,6 +1383,57 @@ TEST_CASE("smart_ptr")
 
 	STATIC_REQUIRE(sizeof(Ptr) == sizeof(Ptr2));
 	REQUIRE(Ptr.size() == Ptr2.size());
+}
+
+TEST_CASE("smart_ptr.block_ptr")
+{
+	struct s
+	{
+		int size;
+		char str[1];
+	};
+
+	{
+		const struct test
+		{
+			block_ptr<s, sizeof(s) + 8> S{ sizeof(s) + 8 };
+			int Sentinel = 0x12345678;
+		}
+		Test;
+
+		REQUIRE(in_closed_range(
+			reinterpret_cast<uintptr_t>(&Test.S),
+			reinterpret_cast<uintptr_t>(Test.S->str),
+			reinterpret_cast<uintptr_t>(&Test.Sentinel)
+		));
+
+		const auto Str = "01234657"sv;
+		const auto Ptr = Test.S->str;
+		copy_memory(Str.data(), Ptr, Str.size());
+		REQUIRE(Str == std::string_view(Ptr, Str.size()));
+		REQUIRE(Test.Sentinel == 0x12345678);
+	}
+
+	{
+		const struct test
+		{
+			block_ptr<s> S{ sizeof(s) + 8 };
+			int Sentinel = 0x12345678;
+		}
+		Test;
+
+		REQUIRE(!in_closed_range(
+			reinterpret_cast<uintptr_t>(&Test.S),
+			reinterpret_cast<uintptr_t>(Test.S->str),
+			reinterpret_cast<uintptr_t>(&Test.Sentinel)
+		));
+
+		const auto Str = "01234657"sv;
+		const auto Ptr = Test.S->str;
+		copy_memory(Str.data(), Ptr, Str.size());
+		REQUIRE(Str == std::string_view(Ptr, Str.size()));
+		REQUIRE(Test.Sentinel == 0x12345678);
+	}
 }
 
 //----------------------------------------------------------------------------

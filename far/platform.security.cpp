@@ -172,11 +172,11 @@ namespace os::security
 	{
 		block_ptr<TOKEN_PRIVILEGES> Result(1024);
 
-		if (!os::detail::ApiDynamicReceiver(Result,
-			[&](span<TOKEN_PRIVILEGES> const Buffer)
+		if (!os::detail::ApiDynamicReceiver(Result.bytes(),
+			[&](span<std::byte> const Buffer)
 			{
 				DWORD LengthNeeded = 0;
-				if (!GetTokenInformation(TokenHandle, TokenPrivileges, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
+				if (!GetTokenInformation(TokenHandle, TokenPrivileges, static_cast<TOKEN_PRIVILEGES*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
 					return static_cast<size_t>(LengthNeeded);
 				return Buffer.size();
 			},
@@ -184,7 +184,7 @@ namespace os::security
 			{
 				return ReturnedSize > AllocatedSize;
 			},
-			[](span<const TOKEN_PRIVILEGES>)
+			[](span<std::byte const>)
 			{}
 		))
 		{

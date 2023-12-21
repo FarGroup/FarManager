@@ -1613,11 +1613,11 @@ namespace os::fs
 		{
 			security::descriptor Result(default_buffer_size);
 
-			if (!os::detail::ApiDynamicReceiver(Result,
-				[&](span<SECURITY_DESCRIPTOR> const Buffer)
+			if (!os::detail::ApiDynamicReceiver(Result.bytes(),
+				[&](span<std::byte> const Buffer)
 				{
 					DWORD LengthNeeded = 0;
-					if (!::GetFileSecurity(Object, RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
+					if (!::GetFileSecurity(Object, RequestedInformation, static_cast<SECURITY_DESCRIPTOR*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
 						return static_cast<size_t>(LengthNeeded);
 					return Buffer.size();
 				},
@@ -1625,7 +1625,7 @@ namespace os::fs
 				{
 					return ReturnedSize > AllocatedSize;
 				},
-				[](span<const SECURITY_DESCRIPTOR>)
+				[](span<std::byte const>)
 				{}
 			))
 			{

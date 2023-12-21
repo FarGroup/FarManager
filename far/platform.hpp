@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/range.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/utility.hpp"
 
