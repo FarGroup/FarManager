@@ -169,14 +169,8 @@ public:
 	[[nodiscard]]
 	auto data() const noexcept
 	{
-		assert(size());
+		assert(this->size() >= sizeof(T));
 		return edit_as<T*>(base::data());
-	}
-
-	[[nodiscard]]
-	auto size() const noexcept
-	{
-		return base::size() / sizeof(T);
 	}
 
 	[[nodiscard]]
@@ -194,7 +188,7 @@ public:
 	[[nodiscard]]
 	auto end() const noexcept
 	{
-		return begin() + size();
+		return begin() + this->size() / sizeof(T);
 	}
 
 	[[nodiscard]]
