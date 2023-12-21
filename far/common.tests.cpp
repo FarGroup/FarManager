@@ -1644,10 +1644,21 @@ TEST_CASE("string_utils.split")
 	}
 }
 
-TEST_CASE("string_utils.misc")
+TEST_CASE("string_utils.null_terminated")
 {
-	REQUIRE(!null_terminated(L"12345"sv.substr(0, 2)).c_str()[2]);
+	const auto Str = L"12345"sv;
 
+	const auto HappyCase = null_terminated(Str.substr(1));
+	REQUIRE(!HappyCase.c_str()[4]);
+	REQUIRE(HappyCase.c_str() == Str.data() + 1);
+
+	const auto NotSoHappyCase = null_terminated(Str.substr(0, 2));
+	REQUIRE(!NotSoHappyCase.c_str()[2]);
+	REQUIRE(HappyCase.c_str() != Str.data());
+}
+
+TEST_CASE("string_utils.string_copyref")
+{
 	{
 		auto Str = L"Sempre assim em cima, em cima, em cima, em cima"s;
 		string_copyref StrCr1(Str);
@@ -1670,6 +1681,15 @@ TEST_CASE("string_utils.misc")
 		STATIC_REQUIRE(!std::is_move_constructible_v<string_copyref>);
 		STATIC_REQUIRE(!std::is_move_assignable_v<string_copyref>);
 	}
+}
+
+TEST_CASE("string_utils.concat")
+{
+	{
+		auto Str = L"ba"s;
+		append(Str, L"nan"sv, L'a');
+		REQUIRE(Str == L"banana"sv);
+	}
 
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
 	REQUIRE(concat(L""sv, L""sv).empty());
@@ -1679,6 +1699,15 @@ TEST_CASE("string_utils.misc")
 	REQUIRE(L"123"s + L"45"sv == L"12345"sv);
 	REQUIRE(L"123"sv + L"45"s == L"12345"sv);
 	REQUIRE(L"123"sv + L"45"sv == L"12345"sv);
+}
+
+TEST_CASE("string_utils.lvalue_string_view")
+{
+	STATIC_REQUIRE(std::constructible_from<lvalue_string_view, string_view>);
+	STATIC_REQUIRE(std::constructible_from<lvalue_string_view, string const&>);
+	STATIC_REQUIRE(std::constructible_from<lvalue_string_view, string&>);
+	STATIC_REQUIRE(!std::constructible_from<lvalue_string_view, string&&>);
+	STATIC_REQUIRE(!std::constructible_from<lvalue_string_view, string>);
 }
 
 TEST_CASE("string_utils.generic_lookup")
