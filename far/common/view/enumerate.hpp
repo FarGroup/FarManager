@@ -32,15 +32,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../range.hpp"
 #include "zip.hpp"
+
+#include <ranges>
 
 //----------------------------------------------------------------------------
 
 template<typename container>
 auto enumerate(container&& Container)
 {
-	return zip(FWD(Container), irange(size_t{}, std::numeric_limits<size_t>::max()));
+	// 0u instead of size_t{} below because iota's iterator is considered "input_iterator" only when its difference_type is "integral",
+	// and for iota(size_t) on x64 it is __int128, which is not considered "integral" on MSVC.
+	// This is as retarded as it gets.
+	return zip(FWD(Container), std::views::iota(0u));
 }
 
 #endif // ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C

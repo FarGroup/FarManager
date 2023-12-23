@@ -502,7 +502,7 @@ intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 
 					if (CustomColors != SavedCustomColors)
 					{
-						const auto Range = zip(SavedCustomColors, CustomColors, irange(size_t{}, std::size(SavedCustomColors)));
+						const auto Range = zip(SavedCustomColors, CustomColors, std::views::iota(0u));
 						const auto Changed = [](auto const& Item){ return std::get<0>(Item) != std::get<1>(Item); };
 						const auto Index = [](auto const& Item){ return std::get<2>(Item); };
 

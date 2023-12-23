@@ -70,36 +70,82 @@ namespace detail
 
 		template<size_t... index, typename predicate>
 		[[nodiscard]]
-		static bool binary_any_of_impl(std::index_sequence<index...>, predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		static bool binary_any_of_impl(std::index_sequence<index...>, predicate Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return (... || Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
 		}
 
 		template<typename predicate>
 		[[nodiscard]]
-		static bool binary_any_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		static bool binary_any_of(predicate Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return binary_any_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
 
 		template<size_t... index, typename predicate>
 		[[nodiscard]]
-		static bool binary_all_of_impl(std::index_sequence<index...>, predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		static bool binary_all_of_impl(std::index_sequence<index...>, predicate Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return (... && Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
 		}
 
 		template<typename predicate>
 		[[nodiscard]]
-		static bool binary_all_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		static bool binary_all_of(predicate Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return binary_all_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
 	};
 
 	template<typename... args>
+	auto tuple_difference(std::tuple<args...> const& a, std::tuple<args...> const& b)
+	{
+		return std::get<0>(a) - std::get<0>(b);
+	}
+
+	template<typename... iterators>
+	class zip_iterator;
+
+	template<typename... args>
+	class zip_sentinel
+	{
+		template<typename...>
+		friend class zip_iterator;
+
+	public:
+		MOVABLE(zip_sentinel);
+
+		zip_sentinel() = default;
+		explicit zip_sentinel(args&&... Args): m_Tuple(Args...) {}
+
+		zip_sentinel(zip_sentinel const& rhs):
+			m_Tuple(rhs.m_Tuple)
+		{
+		}
+
+		auto& operator=(zip_sentinel const& rhs)
+		{
+			m_Tuple = rhs.m_Tuple;
+			return *this;
+		}
+
+		template<typename... iterators>
+		[[nodiscard]]
+		auto operator-(zip_iterator<iterators...> const& rhs) const
+		{
+			return tuple_difference(m_Tuple, rhs.m_Tuple);
+		}
+
+	private:
+		std::tuple<args...> m_Tuple;
+	};
+
+	template<typename... args>
 	class zip_iterator
 	{
+		template<typename...>
+		friend class zip_sentinel;
+
 	public:
 		using iterator_category = typename traits<args...>::iterator_category;
 		using value_type        = typename traits<args...>::value_type;
@@ -127,7 +173,11 @@ namespace detail
 		auto& operator--() { std::apply([](auto&... Item){ (..., --Item); }, m_Tuple); return *this; }
 		POSTFIX_OPS()
 
-		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
+		template<typename... sentinels>
+		[[nodiscard]]
+		bool operator==(zip_sentinel<sentinels...> const& rhs) const { return traits<args...>::binary_any_of(std::equal_to{}, m_Tuple, rhs.m_Tuple); }
+
+		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on the shortest one
 		[[nodiscard]]
 		bool operator==(const zip_iterator& rhs) const { return traits<args...>::binary_any_of(std::equal_to{}, m_Tuple, rhs.m_Tuple); }
 
@@ -147,8 +197,12 @@ namespace detail
 			return *m_Value;
 		}
 
+		template<typename... sentinels>
 		[[nodiscard]]
-		auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
+		auto operator-(const zip_sentinel<sentinels...>& rhs) const { return tuple_difference(m_Tuple, rhs.m_Tuple); }
+
+		[[nodiscard]]
+		auto operator-(const zip_iterator& rhs) const { return tuple_difference(m_Tuple, rhs.m_Tuple); }
 
 	private:
 		pointer m_Tuple;
@@ -160,13 +214,21 @@ template<typename... args>
 class [[nodiscard]] zip
 {
 public:
-	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args&>()))...>;
+	using iterator = detail::zip_iterator<decltype(std::ranges::begin(std::declval<args&>()))...>;
+	using sentinel = std::conditional_t<
+		std::same_as<
+			std::tuple<decltype(std::ranges::begin(std::declval<args&>()))...>,
+			std::tuple<decltype(std::ranges::end(std::declval<args&>()))...>
+		>,
+		iterator,
+		detail::zip_sentinel<decltype(std::ranges::end(std::declval<args&>()))...>
+	>;
 
 	template<typename... args_ref>
 	explicit zip(args_ref&&... ArgsRef):
 		m_Args(FWD(ArgsRef)...),
-		m_Begin(std::apply([](auto&&... Args) { return iterator(std::begin(Args)...); }, m_Args)),
-		m_End(std::apply([](auto&&... Args) { return iterator(std::end(Args)...); }, m_Args))
+		m_Begin(std::apply([](auto&&... Args) { return iterator(std::ranges::begin(Args)...); }, m_Args)),
+		m_End(std::apply([](auto&&... Args) { return sentinel(std::ranges::end(Args)...); }, m_Args))
 	{
 	}
 
@@ -178,7 +240,8 @@ public:
 
 private:
 	std::tuple<args...> m_Args;
-	iterator m_Begin, m_End;
+	iterator m_Begin;
+	sentinel m_End;
 };
 
 template<typename... args>

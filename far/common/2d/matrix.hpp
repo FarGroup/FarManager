@@ -95,6 +95,8 @@ namespace detail
 		auto& operator++() { m_Data += m_Width; return *this; }
 		auto& operator--() { m_Data -= m_Width; return *this; }
 
+		POSTFIX_OPS()
+
 		auto& operator+=(size_t const n) { m_Data += n * m_Width; return *this; }
 		auto& operator-=(size_t const n) { m_Data -= n * m_Width; return *this; }
 

@@ -49,12 +49,12 @@ void repeat(size_t count, const T& f)
 	}
 }
 
-template<typename Iter1, typename Iter2>
-void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
+void apply_permutation(std::ranges::random_access_range auto& Range, std::random_access_iterator auto const indices)
 {
-	using difference_type = std::iter_value_t<Iter2>;
-	const difference_type length = std::distance(first, last);
-	for (difference_type i = 0; i < length; ++i)
+	auto first = std::ranges::begin(Range);
+	auto last = std::ranges::end(Range);
+
+	for (size_t i = 0, length = last - first; i != length; ++i)
 	{
 		auto current = i;
 		while (i != indices[current])
@@ -77,12 +77,6 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 		}
 		indices[current] = current;
 	}
-}
-
-template<typename Iter>
-void apply_permutation(std::ranges::range auto& Range, Iter Indices)
-{
-	return apply_permutation(ALL_RANGE(Range), Indices);
 }
 
 // Unified container emplace

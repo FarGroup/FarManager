@@ -1114,26 +1114,6 @@ TEST_CASE("range.static")
 	}
 
 	{
-		using test_range = irange<int>;
-
-		STATIC_REQUIRE(std::ranges::range<test_range>);
-		STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
-		STATIC_REQUIRE(std::ranges::sized_range<test_range>);
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
-	}
-
-	{
 		const auto Test = [](auto&& Container)
 		{
 			const auto TestImpl = [](auto& ContainerVersion)
@@ -1275,33 +1255,6 @@ TEST_CASE("range.dynamic")
 		Range.pop_back();
 		REQUIRE(Range.size() == Value.size() - 2);
 		REQUIRE(Range.data() == Value.data() + 1);
-	}
-
-	{
-		const auto Begin = 3, End = 7;
-		const irange Range(Begin, End);
-		auto Iterator = Range.begin();
-
-		for (auto i = Begin; i != End; ++i, ++Iterator)
-		{
-			REQUIRE(Iterator != Range.cend());
-			REQUIRE(*Iterator == i);
-		}
-
-		REQUIRE(Iterator == Range.cend());
-	}
-
-	{
-		size_t const Total = 10;
-		size_t Count = 0;
-
-		for (const auto& i: irange(size_t{}, Total))
-		{
-			REQUIRE(i == Count);
-			++Count;
-		}
-
-		REQUIRE(Count == Total);
 	}
 }
 
