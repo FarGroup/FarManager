@@ -52,8 +52,9 @@ void apply_permutation(std::ranges::random_access_range auto& Range, std::random
 {
 	auto first = std::ranges::begin(Range);
 	auto last = std::ranges::end(Range);
+	using index_type = std::iter_value_t<decltype(indices)>;
 
-	for (size_t i = 0, length = last - first; i != length; ++i)
+	for (index_type i = 0, length = static_cast<index_type>(last - first); i != length; ++i)
 	{
 		auto current = i;
 		while (i != indices[current])

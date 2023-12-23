@@ -482,40 +482,46 @@ void InfoList::DisplayObject()
 			PrintInfo(msg(MsgID));
 
 			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoPowerStatusBCLifePercent);
-			if (PowerStatus.BatteryLifePercent > 100)
-				PrintInfo(msg(lng::MInfoPowerStatusBCLifePercentUnknown));
-			else
-				PrintInfo(str(PowerStatus.BatteryLifePercent) + L'%');
 
-			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusBC);
-			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
-			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
+
+			if (PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
+			{
 				PrintInfo(msg(lng::MInfoPowerStatusBCUnknown));
-			else if (PowerStatus.BatteryFlag & BATTERY_FLAG_NO_BATTERY)
-				PrintInfo(msg(lng::MInfoPowerStatusBCNoSysBat));
+			}
 			else
 			{
-				auto strOutStr =
-					PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH? msg(lng::MInfoPowerStatusBCHigh) :
-					PowerStatus.BatteryFlag & BATTERY_FLAG_LOW? msg(lng::MInfoPowerStatusBCLow) :
-					PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL? msg(lng::MInfoPowerStatusBCCritical) :
-					L""s;
+				auto ChargeStatus = lng::MInfoPowerStatusBCUnknown;
+				switch (PowerStatus.BatteryFlag & (BATTERY_FLAG_HIGH | BATTERY_FLAG_LOW | BATTERY_FLAG_CRITICAL | BATTERY_FLAG_NO_BATTERY))
+				{
+				case 0:                        ChargeStatus = lng::MInfoPowerStatusBCMedium;    break;
+				case BATTERY_FLAG_HIGH:        ChargeStatus = lng::MInfoPowerStatusBCHigh;      break;
+				case BATTERY_FLAG_LOW:         ChargeStatus = lng::MInfoPowerStatusBCLow;       break;
+				case BATTERY_FLAG_CRITICAL:    ChargeStatus = lng::MInfoPowerStatusBCCritical;  break;
+				case BATTERY_FLAG_NO_BATTERY:  ChargeStatus = lng::MInfoPowerStatusBCNoSysBat;  break;
+				}
+
+				auto strOutStr = far::format(L"{} ({})"sv,
+					msg(ChargeStatus),
+					PowerStatus.BatteryLifePercent > 100?
+						msg(lng::MInfoPowerStatusBCLifePercentUnknown) :
+						str(PowerStatus.BatteryLifePercent) + L'%'
+				);
 
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
-				{
-					if (!strOutStr.empty())
-						strOutStr += L' ';
-					strOutStr += msg(lng::MInfoPowerStatusBCCharging);
-				}
+					append(strOutStr, L", "sv, msg(lng::MInfoPowerStatusBCCharging));
+
 				PrintInfo(strOutStr);
 			}
 
-			const auto GetBatteryTime = [](size_t SecondsCount)
+			const auto GetBatteryTime = [&](size_t SecondsCount)
 			{
 				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
-					return string(msg(lng::MInfoPowerStatusUnknown));
+				{
+					return PowerStatus.ACLineStatus == AC_LINE_ONLINE?
+						L"-"s :
+						msg(lng::MInfoPowerStatusUnknown);
+				}
 
 				return ConvertDurationToHMS(std::chrono::seconds{SecondsCount});
 			};
