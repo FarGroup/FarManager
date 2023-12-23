@@ -40,7 +40,8 @@ template<class span_value_type>
 class [[nodiscard]] span: public std::span<span_value_type>
 {
 	using base_span = std::span<span_value_type>;
-	using base_span::span;
+	// Can't use base_span alias here, Clang isn't smart enough.
+	using std::span<span_value_type>::span;
 
 public:
 	template<std::ranges::contiguous_range SpanLike> requires requires { base_span(std::declval<SpanLike&>()); }
