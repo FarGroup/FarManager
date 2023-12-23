@@ -272,16 +272,13 @@ namespace colors
 				return;
 			}
 
-			const auto to_rgba = [](COLORREF const Color, bool const IsIndex)
+			const auto to_rgba = [&](COLORREF const Color, bool const IsIndex)
 			{
-				return colors::to_rgba(IsIndex? ConsoleIndexToTrueColor(Color) : Color);
+				return colors::to_rgba(IsIndex? ConsoleIndexToTrueColor(resolve_default(Color, Flag == FCF_FG_INDEX)) : Color);
 			};
 
-			const auto ResolvedTopValue = resolve_default(TopValue, Flag == FCF_FG_INDEX);
-			const auto ResolvedBottomValue = resolve_default(BottomValue, Flag == FCF_FG_INDEX);
-
-			const auto TopRGBA = to_rgba(ResolvedTopValue, (Top.Flags & Flag) != 0);
-			const auto BottomRGBA = to_rgba(ResolvedBottomValue, (Bottom.Flags & Flag) != 0);
+			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);
+			const auto BottomRGBA = to_rgba(BottomValue, (Bottom.Flags & Flag) != 0);
 
 			const auto calc_channel = [&](unsigned char rgba::*Accessor)
 			{
@@ -484,7 +481,7 @@ namespace colors
 		};
 
 		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
-		const auto ClosestPointIterator = std::ranges::min_element(Palette | std::views::drop(Skip), [&](COLORREF const Item1, COLORREF const Item2)
+		const auto ClosestPointIterator = std::ranges::min_element(Palette.begin() + Skip, Palette.end(), [&](COLORREF const Item1, COLORREF const Item2)
 		{
 			return distance(Item1) < distance(Item2);
 		});

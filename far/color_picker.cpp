@@ -361,7 +361,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 		if (Param1 - Offset == cb::button_256)
 		{
-			const auto ResolvedColor = colors::resolve_default(CurColor.Value, Offset != cd::bg_first);
+			const auto ResolvedColor = CurColor.IsIndex? colors::resolve_default(CurColor.Value, Offset != cd::bg_first) : CurColor.Value;
 
 			FarColor FakeColor{ .BackgroundColor = ResolvedColor };
 			FakeColor.SetBgIndex(CurColor.IsIndex);
@@ -381,7 +381,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 		if (Param1 - Offset == cb::button_rgb)
 		{
-			const auto ResolvedColor = colors::resolve_default(CurColor.Value, Offset != cd::bg_first);
+			const auto ResolvedColor = CurColor.IsIndex? colors::resolve_default(CurColor.Value, Offset != cd::bg_first) : CurColor.Value;
 
 			auto Color = colors::color_value(
 				CurColor.IsIndex?
