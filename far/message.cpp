@@ -405,7 +405,7 @@ static message_result MessageImpl(
 		clear_and_shrink(Strings);
 		clear_and_shrink(Buttons);
 
-		const auto Dlg = Dialog::create(MsgDlg, &message_context::DlgProc, &Context, &strClipText);
+		const auto Dlg = Dialog::create(MsgDlg, std::bind_front(&message_context::DlgProc, &Context), &strClipText);
 		if (Position.left == -1)
 			Position.left = 0;
 		if (Position.top == -1)

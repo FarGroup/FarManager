@@ -1392,8 +1392,8 @@ void Options::SetFilePanelModes()
 
 struct FARConfigItem
 {
-	template<typename option_type, typename default_type>
-	FARConfigItem(size_t Root, string_view KeyName, string_view ValueName, option_type& Value, const default_type& Default):
+	template<typename option_type>
+	FARConfigItem(size_t Root, string_view KeyName, string_view ValueName, option_type& Value, const auto& Default):
 		ApiRoot(Root),
 		KeyName(KeyName),
 		ValName(ValueName),

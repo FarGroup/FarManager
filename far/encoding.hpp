@@ -186,8 +186,7 @@ namespace encoding
 		NONCOPYABLE(writer);
 		writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature = true, bool IgnoreEncodingErrors = false);
 
-		template<typename... args>
-		void write(string_view Str, const args&... Args)
+		void write(string_view Str, const auto&... Args)
 		{
 			write_impl(Str);
 			(..., write_impl(Args));

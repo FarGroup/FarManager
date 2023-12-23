@@ -48,8 +48,8 @@ namespace base64
 			return std::to_integer<bits_set>(Byte) << (8 * (2 - i));
 		}
 
-		template<typename iterator_t, size_t... I>
-		auto bytes_to_bits(iterator_t& Iterator, std::index_sequence<I...>) noexcept
+		template<size_t... I>
+		auto bytes_to_bits(std::forward_iterator auto& Iterator, std::index_sequence<I...>) noexcept
 		{
 			bits_set Result{};
 			(..., (Result |= byte_to_bits(*Iterator++, I)));
@@ -102,8 +102,8 @@ namespace base64
 			return static_cast<bits_set>((Bits & 0b111111) << (6 * (3 - i)));
 		}
 
-		template<typename iterator_t, size_t... I>
-		auto chars_to_bits(iterator_t& Iterator, std::index_sequence<I...>)
+		template<size_t... I>
+		auto chars_to_bits(std::forward_iterator auto& Iterator, std::index_sequence<I...>)
 		{
 			bits_set Result{};
 			(..., (Result |= char_to_bits(*Iterator++, I)));

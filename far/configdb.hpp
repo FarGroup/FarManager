@@ -538,8 +538,7 @@ public:
 	HierarchicalConfigUniquePtr CreatePanelModesConfig();
 
 private:
-	template<class T>
-	void ImportDatabase(T& Database, const char* ImportNodeName, bool IsPlugin);
+	void ImportDatabase(auto& Database, const char* ImportNodeName, bool IsPlugin);
 
 	template<class T>
 	[[nodiscard]]

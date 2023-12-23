@@ -499,8 +499,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 	return dKey;
 }
 
-template<class F1, class F2, class M>
-static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, const M& Map)
+static void FirstFlagsToSecond(const auto& FirstFlags, auto& SecondFlags, const auto& Map)
 {
 	for (const auto& [f1, f2]: Map)
 	{
@@ -511,8 +510,7 @@ static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, const M& M
 	}
 }
 
-template<class F1, class F2, class M>
-static void SecondFlagsToFirst(const F2& SecondFlags, F1& FirstFlags, const M& Map)
+static void SecondFlagsToFirst(const auto& SecondFlags, auto& FirstFlags, const auto& Map)
 {
 	for (const auto& [f1, f2]: Map)
 	{

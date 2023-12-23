@@ -38,8 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<class T, class P>
-void for_submatrix(T& Matrix, rectangle Rect, P Predicate)
+template<class P>
+void for_submatrix(auto& Matrix, rectangle Rect, P Predicate)
 {
 	for (auto i = Rect.top; i <= Rect.bottom; ++i)
 	{

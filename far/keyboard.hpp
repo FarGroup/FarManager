@@ -131,8 +131,7 @@ string InputRecordToText(const INPUT_RECORD *Rec);
 string KeyToText(unsigned int Key);
 string KeyToLocalizedText(unsigned int Key);
 string KeysListToLocalizedText(span<unsigned int const> Keys);
-template<typename... args>
-string KeysToLocalizedText(args const... Keys)
+string KeysToLocalizedText(auto const... Keys)
 {
 	return KeysListToLocalizedText({ Keys... });
 }

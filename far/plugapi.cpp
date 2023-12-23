@@ -2015,8 +2015,8 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 	});
 }
 
-template<class window_type, typename command_type, typename getter_type, typename control_type>
-static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, void* Param2, getter_type Getter, control_type Control)
+template<class window_type>
+static intptr_t apiTControl(intptr_t Id, auto Command, intptr_t Param1, void* Param2, auto Getter, auto Control)
 {
 	if (Global->WindowManager->ManagerIsDown())
 		return 0;

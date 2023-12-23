@@ -479,7 +479,7 @@ bool pick_color_256(uint8_t& Color)
 		ColorDlg[ControlId].Flags |= DIF_FOCUS;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, &color_256_state::GetColorDlgProc, &ColorState);
+	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&color_256_state::GetColorDlgProc, &ColorState));
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[cd_border].X2) + 4,

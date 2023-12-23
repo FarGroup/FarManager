@@ -290,8 +290,7 @@ private:
 	int CalculateSearchStartPosition(bool Continue, bool Backward, bool Regex) const;
 	int CalculateSearchNextPositionInTheLine(bool Backward, bool Regex) const;
 
-	template<class F>
-	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);
+	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const auto& Func);
 
 	numbered_iterator EndIterator();
 	numbered_const_iterator EndIterator() const;

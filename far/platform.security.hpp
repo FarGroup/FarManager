@@ -78,9 +78,8 @@ namespace os::security
 		explicit privilege(span<const wchar_t* const> Names);
 		~privilege();
 
-		template<class... args>
 		[[nodiscard]]
-		static bool check(args&&... Args) { return check({ FWD(Args)... }); }
+		static bool check(auto&&... Args) { return check({ FWD(Args)... }); }
 
 		[[nodiscard]]
 		static bool check(span<const wchar_t* const> Names);

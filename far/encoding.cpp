@@ -155,8 +155,7 @@ cp_info const* GetCodePageInfo(uintptr_t cp)
 	return {};
 }
 
-template<typename range1, typename range2>
-static std::optional<size_t> mismatch(range1 const& Range1, range2 const& Range2)
+static std::optional<size_t> mismatch(std::ranges::random_access_range auto const& Range1, std::ranges::random_access_range auto const& Range2)
 {
 	const auto [Mismatch1, Mismatch2] = std::ranges::mismatch(Range1, Range2);
 
@@ -1028,8 +1027,8 @@ namespace utf8
 			return (Char & (0b11111111 >> (continuation_bytes + 2))) << (6 * continuation_bytes);
 		}
 
-		template<size_t... I, typename... bytes>
-		static constexpr unsigned int extract_continuation_bits_impl(std::index_sequence<I...>, bytes... Bytes)
+		template<size_t... I>
+		static constexpr unsigned int extract_continuation_bits_impl(std::index_sequence<I...>, auto... Bytes)
 		{
 			return (... | ((Bytes & 0b00111111) << (6 * (sizeof...(Bytes) - 1 - I))));
 		}
@@ -1053,22 +1052,21 @@ namespace utf8
 			return 0b10000000 | ((Char >> (index * 6)) & 0b00111111);
 		}
 
-		template<size_t... I, typename iterator>
-		static void write_continuation_bytes(unsigned int const Char, iterator& Iterator, std::index_sequence<I...>)
+		template<size_t... I>
+		static void write_continuation_bytes(unsigned int const Char, std::output_iterator<char> auto& Iterator, std::index_sequence<I...>)
 		{
 			(..., (*Iterator++ = make_continuation_byte<sizeof...(I) - 1 - I>(Char)));
 		}
 	}
 
-	template<typename... bytes>
-	static constexpr unsigned int extract(unsigned char const Byte, bytes... Bytes)
+	static constexpr unsigned int extract(unsigned char const Byte, auto... Bytes)
 	{
 		static_assert(sizeof...(Bytes) < 4);
 		return detail::extract_leading_bits<sizeof...(Bytes)>(Byte) | detail::extract_continuation_bits(Bytes...);
 	}
 
-	template<size_t total, typename iterator>
-	static void write(unsigned int const Char, iterator& Iterator)
+	template<size_t total>
+	static void write(unsigned int const Char, std::output_iterator<char> auto& Iterator)
 	{
 		if constexpr (total == 1)
 		{

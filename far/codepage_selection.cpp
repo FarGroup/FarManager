@@ -647,7 +647,7 @@ void codepages::EditCodePageName()
 
 	EditDialog[EDITCP_EDIT].strHistory = L"CodePageName"sv;
 
-	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
+	const auto Dlg = Dialog::create(EditDialog, std::bind_front(&codepages::EditDialogProc, this));
 	Dlg->SetPosition({ -1, -1, 54, 7 });
 	Dlg->SetHelp(L"EditCodePageNameDlg"sv);
 	Dlg->Process();

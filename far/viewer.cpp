@@ -2220,8 +2220,8 @@ int Viewer::CacheFindUp( long long start )
 
 static const int portion_size = 250;
 
-template<typename T, typename F>
-static int process_back(int BufferSize, int pos, long long& fpos, const F& Reader, const raw_eol& eol)
+template<typename T>
+static int process_back(int BufferSize, int pos, long long& fpos, const auto& Reader, const raw_eol& eol)
 {
 	T Buffer[portion_size/sizeof(T)];
 	int nr = Reader({ Buffer, static_cast<size_t>(BufferSize) });

@@ -115,8 +115,7 @@ class [[nodiscard]] wrapped_text : public enumerator<wrapped_text, string_view>
 	IMPLEMENTS_ENUMERATOR(wrapped_text);
 
 public:
-	template<typename string_type>
-	explicit wrapped_text(string_type&& Str, size_t const Width):
+	explicit wrapped_text(auto&& Str, size_t const Width):
 		m_Str(FWD(Str)),
 		m_Tail(m_Str),
 		m_Width(Width? Width : m_Tail.size())

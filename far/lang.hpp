@@ -43,8 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<class T>
-constexpr lng operator+(lng Id, T Shift)
+constexpr lng operator+(lng Id, std::integral auto Shift)
 {
 	return static_cast<lng>(std::to_underlying(Id) + Shift);
 }

@@ -108,14 +108,12 @@ static os::security::privilege CreateBackupRestorePrivilege()
 	return { SE_BACKUP_NAME, SE_RESTORE_NAME };
 }
 
-template<typename T>
-static void WritePipe(const os::handle& Pipe, const T& Data)
+static void WritePipe(const os::handle& Pipe, const auto& Data)
 {
 	return pipe::write(Pipe, Data);
 }
 
-template<typename T>
-static void ReadPipe(const os::handle& Pipe, T& Data)
+static void ReadPipe(const os::handle& Pipe, auto& Data)
 {
 	pipe::read(Pipe, Data);
 }
@@ -266,8 +264,7 @@ T elevation::Read() const
 	return Data;
 }
 
-template<typename... args>
-void elevation::Write(const args&... Args) const
+void elevation::Write(const auto&... Args) const
 {
 	(..., WritePipe(m_Pipe, Args));
 }
@@ -286,8 +283,7 @@ T elevation::RetrieveLastErrorAndResult() const
 	return Read<T>();
 }
 
-template<typename T, typename F1, typename F2>
-auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
+auto elevation::execute(lng Why, string_view const Object, auto Fallback, const auto& PrivilegedHander, const auto& ElevatedHandler)
 {
 	SCOPED_ACTION(std::scoped_lock)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
@@ -1114,8 +1110,7 @@ private:
 		return Data;
 	}
 
-	template<typename... args>
-	void Write(const args&... Args) const
+	void Write(const auto&... Args) const
 	{
 		(..., WritePipe(m_Pipe, Args));
 	}

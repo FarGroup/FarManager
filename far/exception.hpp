@@ -92,8 +92,7 @@ namespace detail
 	class far_std_exception : public far_base_exception, public std::runtime_error
 	{
 	public:
-		template<typename... args>
-		explicit far_std_exception(args&&... Args):
+		explicit far_std_exception(auto&&... Args):
 			far_base_exception(FWD(Args)...),
 			std::runtime_error(convert_message(full_message()))
 		{}

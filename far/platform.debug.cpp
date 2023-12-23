@@ -241,8 +241,8 @@ namespace os::debug
 		return ADDRESS64{ Offset, 0, AddrModeFlat };
 	};
 
-	template<typename T, typename data>
-	static void stack_walk(data const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
+	template<typename T>
+	static void stack_walk(auto const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
 	{
 		T StackFrame{};
 		StackFrame.AddrPC = address(Data.PC);

@@ -71,20 +71,17 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 	return Desired? std::max(LowerBound, *Desired) : LowerBound;
 }
 
-template<typename container>
-void reserve_exp_noshrink(container& Container, size_t const DesiredCapacity)
+void reserve_exp_noshrink(auto& Container, size_t const DesiredCapacity)
 {
 	Container.reserve(grow_exp_noshrink(Container.capacity(), DesiredCapacity));
 }
 
-template<typename container>
-void resize_exp_noshrink(container& Container)
+void resize_exp_noshrink(auto& Container)
 {
 	Container.resize(grow_exp_noshrink(Container.size(), {}), {});
 }
 
-template<typename container>
-void resize_exp_noshrink(container& Container, size_t const DesiredSize)
+void resize_exp_noshrink(auto& Container, size_t const DesiredSize)
 {
 	Container.resize(grow_exp_noshrink(Container.size(), DesiredSize), {});
 }
@@ -115,8 +112,7 @@ auto make_hash(const T& value)
 	return std::hash<T>{}(value);
 }
 
-template<class type>
-void hash_combine(size_t& Seed, const type& Value)
+void hash_combine(size_t& Seed, const auto& Value)
 {
 	// https://en.wikipedia.org/wiki/Hash_function#Fibonacci_hashing
 	const auto MagicValue =
@@ -132,17 +128,14 @@ void hash_combine(size_t& Seed, const type& Value)
 	Seed ^= make_hash(Value) + MagicValue + (Seed << 6) + (Seed >> 2);
 }
 
-template<typename... args>
-size_t hash_combine_all(const args&... Args)
+size_t hash_combine_all(const auto&... Args)
 {
 	size_t Seed = 0;
 	(..., hash_combine(Seed, Args));
 	return Seed;
 }
 
-
-template<typename type>
-void hash_range(size_t& Seed, type const& Range)
+void hash_range(size_t& Seed, auto const& Range)
 {
 	for (const auto& i: Range)
 	{
@@ -150,8 +143,7 @@ void hash_range(size_t& Seed, type const& Range)
 	}
 }
 
-template<typename type>
-size_t hash_range(type const& Range)
+size_t hash_range(auto const& Range)
 {
 	size_t Seed = 0;
 	hash_range(Seed, Range);
@@ -201,20 +193,18 @@ namespace flags
 		}
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr bool check_any(const value_type& Value, flags_type Bits)
+	constexpr bool check_any(const auto& Value, auto const Bits)
 	{
 		return (detail::reveal(Value) & detail::reveal(Bits)) != 0;
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr bool check_all(const value_type& Value, flags_type Bits)
+	constexpr bool check_all(const auto& Value, auto const Bits)
 	{
 		return (detail::reveal(Value) & detail::reveal(Bits)) == detail::reveal(Bits);
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr void set(value_type& Value, flags_type Bits)
+	template<typename value_type>
+	constexpr void set(value_type& Value, auto const Bits)
 	{
 		if constexpr (requires { Value |= detail::reveal(Bits); })
 			Value |= detail::reveal(Bits);
@@ -222,8 +212,8 @@ namespace flags
 			Value = static_cast<value_type>(detail::reveal(Value) | detail::reveal(Bits));
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr void clear(value_type& Value, flags_type Bits)
+	template<typename value_type>
+	constexpr void clear(value_type& Value, auto const Bits)
 	{
 		const auto Mask = static_cast<std::remove_reference_t<decltype(detail::reveal(Value))>>(detail::reveal(Bits));
 		if constexpr (requires { Value &= ~Mask; })
@@ -232,8 +222,8 @@ namespace flags
 			Value = static_cast<value_type>(detail::reveal(Value) & ~Mask);
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr void invert(value_type& Value, flags_type Bits)
+	template<typename value_type>
+	constexpr void invert(value_type& Value, auto const Bits)
 	{
 		if constexpr (requires { Value ^= detail::reveal(Bits); })
 			Value ^= detail::reveal(Bits);
@@ -241,14 +231,12 @@ namespace flags
 			Value = static_cast<value_type>(detail::reveal(Value) ^ detail::reveal(Bits));
 	}
 
-	template<typename value_type, typename flags_type>
-	constexpr void change(value_type& Value, flags_type Bits, bool Set)
+	constexpr void change(auto& Value, auto const Bits, bool const Set)
 	{
 		Set? set(Value, Bits) : clear(Value, Bits);
 	}
 
-	template<typename value_type, typename mask_type, typename flags_type>
-	constexpr void copy(value_type& Value, mask_type Mask, flags_type Bits)
+	constexpr void copy(auto& Value, auto const Mask, auto const Bits)
 	{
 		clear(Value, Mask);
 		set(Value, detail::reveal(Bits) & detail::reveal(Mask));
@@ -322,14 +310,10 @@ template<typename... args> overload(args...) -> overload<args...>;
 namespace detail
 {
 	template<typename T>
-	inline constexpr bool is_void_or_trivially_copyable = std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>;
+	concept void_or_trivially_copyable = std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>;
 }
 
-template<typename src_type, typename dst_type>
-requires
-	detail::is_void_or_trivially_copyable<src_type> &&
-	detail::is_void_or_trivially_copyable<dst_type>
-void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size) noexcept
+void copy_memory(detail::void_or_trivially_copyable auto const* const Source, detail::void_or_trivially_copyable auto* const Destination, size_t const Size) noexcept
 {
 	if (Size) // paranoid gcc null checks are paranoid
 		std::memmove(Destination, Source, Size);

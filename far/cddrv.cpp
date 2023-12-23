@@ -87,15 +87,15 @@ static auto& operator|=(cdrom_device_capabilities& This, cdrom_device_capabiliti
 	return This = This | Rhs;
 }
 
-template<typename T, size_t N, size_t... I>
-static auto write_value_to_big_endian_impl(unsigned char (&Dest)[N], T const Value, std::index_sequence<I...>)
+template<size_t N, size_t... I>
+static auto write_value_to_big_endian_impl(unsigned char (&Dest)[N], auto const Value, std::index_sequence<I...>)
 {
 	static_assert(std::endian::native == std::endian::little, "No way");
 	(..., (Dest[N - I - 1] = (Value >> (8 * I) & 0xFF)));
 }
 
-template<typename T, size_t N>
-static auto write_value_to_big_endian(unsigned char (&Dest)[N], T const Value)
+template<size_t N>
+static auto write_value_to_big_endian(unsigned char (&Dest)[N], auto const Value)
 {
 	return write_value_to_big_endian_impl(Dest, Value, std::make_index_sequence<N>{});
 }

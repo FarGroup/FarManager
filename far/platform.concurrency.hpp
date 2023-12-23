@@ -91,8 +91,7 @@ namespace os::concurrency
 
 		thread() = default;
 
-		template<typename callable, typename... args>
-		explicit thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
+		explicit thread(mode Mode, auto&& Callable, auto&&... Args): m_Mode(Mode)
 		{
 			starter([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
@@ -214,8 +213,7 @@ namespace os::concurrency
 
 		timer() = default;
 
-		template<typename callable, typename... args>
-		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, callable&& Callable, args&&... Args):
+		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, auto&& Callable, auto&&... Args):
 			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
@@ -251,8 +249,7 @@ namespace os::concurrency
 			return m_Queue.empty();
 		}
 
-		template<typename... args>
-		void emplace(args&&... Args)
+		void emplace(auto&&... Args)
 		{
 			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);

@@ -142,14 +142,12 @@ public:
 	{
 	}
 
-	template<typename... args>
-	auto operator()(args&&... Args)
+	auto operator()(auto&&... Args)
 	{
 		return (*m_Callable)(FWD(Args)...);
 	}
 
-	template<typename... args>
-	auto operator()(args&&... Args) const
+	auto operator()(auto&&... Args) const
 	{
 		return (*m_Callable)(FWD(Args)...);
 	}

@@ -85,8 +85,7 @@ namespace os::com
 	class exception final: public far_exception
 	{
 	public:
-		template<typename... args>
-		explicit exception(HRESULT const ErrorCode, args&&... Args):
+		explicit exception(HRESULT const ErrorCode, auto&&... Args):
 			far_exception(false, FWD(Args)...)
 		{
 			Win32Error = ErrorCode;

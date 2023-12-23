@@ -556,8 +556,7 @@ namespace
 	class synchronized_impl: public impl
 	{
 	protected:
-		template<typename... args>
-		explicit synchronized_impl(args&&... Args):
+		explicit synchronized_impl(auto&&... Args):
 			impl(FWD(Args)...)
 		{}
 
@@ -574,7 +573,6 @@ namespace
 	class async_impl
 	{
 	protected:
-		template<typename... args>
 		explicit async_impl(bool const IsDiscardable, string_view const Name):
 			m_IsDiscardable(IsDiscardable),
 			m_Thread(os::thread::mode::join, &async_impl::poll, this, Name)

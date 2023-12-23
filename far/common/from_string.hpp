@@ -48,8 +48,8 @@ namespace detail
 		out_of_range,
 	};
 
-	template<typename result_type, typename converter_type>
-	result from_string(std::wstring_view const Str, result_type& Value, size_t* const Pos, int const Base, converter_type const Converter)
+	template<typename result_type>
+	result from_string(std::wstring_view const Str, result_type& Value, size_t* const Pos, int const Base, auto const Converter)
 	{
 		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
 			return result::invalid_argument;
@@ -146,9 +146,8 @@ namespace detail
 	}
 }
 
-template<typename T>
 [[nodiscard]]
-bool from_string(std::wstring_view const Str, T& Value, size_t* const Pos = {}, int const Base = 10)
+bool from_string(std::wstring_view const Str, auto& Value, size_t* const Pos = {}, int const Base = 10)
 {
 	return detail::from_string(Str, Value, Pos, Base) == detail::result::ok;
 }

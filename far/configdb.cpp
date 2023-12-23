@@ -238,8 +238,7 @@ void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
 	SetAttribute(e, "value", base64::encode(Value));
 }
 
-template<typename callable>
-bool deserialise_value(char const* Type, char const* Value, callable const& Setter)
+bool deserialise_value(char const* Type, char const* Value, auto const& Setter)
 {
 	if (!strcmp(Type, "qword"))
 	{
@@ -295,8 +294,7 @@ int sqlite_busy_handler(void* Param, int Retries) noexcept
 class sqlite_boilerplate : public SQLiteDb
 {
 protected:
-	template<typename... args>
-	explicit sqlite_boilerplate(args&&... Args) :
+	explicit sqlite_boilerplate(auto&&... Args) :
 		SQLiteDb(sqlite_busy_handler, FWD(Args)...)
 	{
 	}
@@ -443,8 +441,8 @@ private:
 
 	virtual const char* GetKeyName() const = 0;
 
-	template<column_type TypeId, class getter_t, class T>
-	bool GetValueT(const string_view Key, const string_view Name, T& Value, const getter_t Getter) const
+	template<column_type TypeId>
+	bool GetValueT(const string_view Key, const string_view Name, auto& Value, const auto Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Key, Name).Step() || Stmt->GetColType(0) != TypeId)
@@ -454,14 +452,12 @@ private:
 		return true;
 	}
 
-	template<class T>
-	void SetValueT(const string_view Key, const string_view Name, const T Value)
+	void SetValueT(const string_view Key, const string_view Name, const auto Value)
 	{
 		ExecuteStatement(stmtSetValue, Key, Name, Value);
 	}
 
-	template<class T, class getter_t>
-	bool EnumValuesT(const string_view Key, bool Reset, string& Name, T& Value, const getter_t Getter) const
+	bool EnumValuesT(const string_view Key, bool Reset, string& Name, auto& Value, const auto Getter) const
 	{
 		auto Stmt = EnumValuesStmt();
 
@@ -806,8 +802,7 @@ private:
 		}
 	}
 
-	template<class T, class getter_t>
-	bool GetValueT(const key& Root, const string_view Name, T& Value, const getter_t Getter) const
+	bool GetValueT(const key& Root, const string_view Name, auto& Value, const auto Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -817,8 +812,7 @@ private:
 		return true;
 	}
 
-	template<class T>
-	void SetValueT(const key& Root, const string_view Name, const T& Value)
+	void SetValueT(const key& Root, const string_view Name, const auto& Value)
 	{
 		ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
 	}
@@ -2408,8 +2402,7 @@ void config_provider::TryImportDatabase(representable& p, const char* NodeName, 
 	}
 }
 
-template<class T>
-void config_provider::ImportDatabase(T& Database, const char* ImportNodeName, bool IsPlugin)
+void config_provider::ImportDatabase(auto& Database, const char* ImportNodeName, bool IsPlugin)
 {
 	if (m_Mode != mode::m_import && Database.IsNew())
 	{

@@ -686,7 +686,7 @@ static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLO
 			ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, &color_rgb_state::GetColorDlgProc, &ColorState);
+	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&color_rgb_state::GetColorDlgProc, &ColorState));
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[cd_border].X2) + 4,

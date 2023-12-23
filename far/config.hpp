@@ -185,8 +185,7 @@ protected:
 	COPY_CONSTRUCTIBLE(Option);
 	COPY_ASSIGNABLE_DEFAULT(Option);
 
-	template<class T>
-	explicit Option(const T& Value): m_Value(Value) {}
+	explicit Option(const auto& Value): m_Value(Value) {}
 
 	template<class T>
 	[[nodiscard]]
@@ -211,8 +210,7 @@ namespace option
 	class validator_tag{};
 	class notifier_tag{};
 
-	template<typename callable>
-	auto validator(callable&& Callable)
+	auto validator(auto&& Callable)
 	{
 		return overload
 		{
@@ -221,8 +219,7 @@ namespace option
 		};
 	}
 
-	template<typename callable>
-	auto notifier(callable&& Callable)
+	auto notifier(auto&& Callable)
 	{
 		return overload
 		{

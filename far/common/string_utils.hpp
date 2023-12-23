@@ -51,8 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename string_type, typename iterator_type>
-auto copy_string(string_type const& Str, iterator_type const Destination)
+auto copy_string(std::ranges::contiguous_range auto const& Str, std::contiguous_iterator auto const Destination)
 {
 	return Destination + Str.copy(std::to_address(Destination), Str.npos);
 }
@@ -166,15 +165,15 @@ namespace string_utils::detail
 	}
 }
 
-template<typename... args>
+// Don't "auto" it yet, ICE in VS2019
+template <typename... args>
 void append(std::wstring& Str, args const&... Args)
 {
 	string_utils::detail::append_impl(Str, { string_utils::detail::append_arg(Args)... });
 }
 
-template<typename... args>
 [[nodiscard]]
-auto concat(args const&... Args)
+auto concat(auto const&... Args)
 {
 	static_assert(sizeof...(Args) > 1);
 
@@ -184,16 +183,16 @@ auto concat(args const&... Args)
 }
 
 // uniform "contains"
-template<typename find_type, typename... traits>
+template<typename... traits>
 [[nodiscard]]
-bool contains(const std::basic_string<traits...>& Str, const find_type& What) noexcept
+bool contains(const std::basic_string<traits...>& Str, const auto& What) noexcept
 {
 	return Str.find(What) != Str.npos;
 }
 
-template<typename find_type, typename... traits>
+template<typename... traits>
 [[nodiscard]]
-constexpr bool contains(const std::basic_string_view<traits...> Str, const find_type& What) noexcept
+constexpr bool contains(const std::basic_string_view<traits...> Str, const auto& What) noexcept
 {
 	return Str.find(What) != Str.npos;
 }
@@ -392,8 +391,7 @@ namespace inplace
 
 namespace copy
 {
-	template<typename iterator>
-	void unquote(const std::wstring_view Str, const iterator Destination)
+	void unquote(const std::wstring_view Str, std::output_iterator<wchar_t> auto const Destination)
 	{
 		std::ranges::remove_copy(Str, Destination, L'"');
 	}

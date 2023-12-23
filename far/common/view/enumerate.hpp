@@ -38,8 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename container>
-auto enumerate(container&& Container)
+auto enumerate(auto&& Container)
 {
 	// 0u instead of size_t{} below because iota's iterator is considered "input_iterator" only when its difference_type is "integral",
 	// and for iota(size_t) on x64 it is __int128, which is not considered "integral" on MSVC.

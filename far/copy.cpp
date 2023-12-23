@@ -238,8 +238,7 @@ enum COPY_FLAGS
 	FCOPY_UPDATEPPANEL            = 12_bit, // необходимо обновить пассивную панель
 };
 
-template<typename times_type>
-static bool set_file_time(const os::fs::file& File, const times_type& Times, bool const All)
+static bool set_file_time(const os::fs::file& File, const auto& Times, bool const All)
 {
 	const auto opt_time = [&](const os::chrono::time_point& Time)
 	{
@@ -970,7 +969,7 @@ ShellCopy::ShellCopy(
 		}
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
-		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
+		const auto Dlg = Dialog::create(CopyDlg, std::bind_front(&ShellCopy::CopyDlgProc, this));
 		Dlg->SetHelp(Link? L"HardSymLink"sv : L"CopyFiles"sv);
 		Dlg->SetId(Link?HardSymLinkId:(Move?(CurrentOnly?MoveCurrentOnlyFileId:MoveFilesId):(CurrentOnly?CopyCurrentOnlyFileId:CopyFilesId)));
 		Dlg->SetPosition({ -1, -1, DlgW, DlgH });

@@ -114,15 +114,13 @@ namespace path
 		}
 	}
 
-	template<typename... args>
-	void append(string& Str, args const&... Args)
+	void append(string& Str, auto const&... Args)
 	{
 		detail::append_impl(Str, { detail::append_arg(Args)... });
 	}
 
-	template<typename arg, typename... args>
 	[[nodiscard]]
-	string join(arg&& Arg, const args&... Args)
+	string join(auto&& Arg, const auto&... Args)
 	{
 		static_assert(sizeof...(Args) > 0);
 

@@ -135,8 +135,7 @@ public:
 class regex_exception: public far_exception
 {
 public:
-	template<typename... args>
-	explicit regex_exception(REError const Code, size_t const Position, args&&... Args):
+	explicit regex_exception(REError const Code, size_t const Position, auto&&... Args):
 		far_exception(false, to_string(Code), FWD(Args)...),
 		m_Code(Code),
 		m_Position(Position)

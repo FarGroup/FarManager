@@ -69,23 +69,23 @@ namespace uuid
 			fail("Invalid character");
 		}
 
-		template<typename char_type, size_t... I>
+		template<size_t... I>
 		[[nodiscard]]
-		constexpr auto parse_impl(char_type const* const Str, std::index_sequence<I...> const Sequence)
+		constexpr auto parse_impl(std::random_access_iterator auto const Iterator, std::index_sequence<I...> const Sequence)
 		{
 			constexpr auto N = Sequence.size();
 			static_assert(N <= 4);
 			using int_type = std::conditional_t<N == 1, uint8_t, std::conditional_t<N == 2, uint16_t, uint32_t>>;
 
 			return int_type((... | (
-				hex_to_int(Str[(N - 1 - I) * 2 + 0]) << (I * 8 + 4) |
-				hex_to_int(Str[(N - 1 - I) * 2 + 1]) << (I * 8 + 0)
+				hex_to_int(Iterator[(N - 1 - I) * 2 + 0]) << (I * 8 + 4) |
+				hex_to_int(Iterator[(N - 1 - I) * 2 + 1]) << (I * 8 + 0)
 				)));
 		}
 
-		template<size_t Bytes, typename char_type>
+		template<size_t Bytes>
 		[[nodiscard]]
-		constexpr auto parse(char_type const*& Iterator)
+		constexpr auto parse(std::random_access_iterator auto& Iterator)
 		{
 			auto Value = parse_impl(Iterator, std::make_index_sequence<Bytes>{});
 			Iterator += Bytes * 2;
@@ -94,9 +94,8 @@ namespace uuid
 
 		constexpr class separator_t{} Separator;
 
-		template<typename char_type>
 		[[nodiscard]]
-		constexpr auto& operator+=(char_type const*& Iterator, separator_t)
+		constexpr auto& operator+=(std::random_access_iterator auto& Iterator, separator_t)
 		{
 			if (*Iterator != L'-')
 				fail("Invalid character");
@@ -104,9 +103,8 @@ namespace uuid
 			return ++Iterator;
 		}
 
-		template<typename char_type>
 		[[nodiscard]]
-		constexpr UUID parse(char_type const* Iterator)
+		constexpr UUID parse(std::random_access_iterator auto Iterator)
 		{
 			return
 			{
@@ -134,8 +132,8 @@ namespace uuid
 			return i < 10? i + '0' : i - 10 + 'A';
 		}
 
-		template<typename int_type, typename handler, size_t... I>
-		constexpr void serialise_impl(int_type Value, handler const& Handler, std::index_sequence<I...> const Sequence)
+		template<size_t... I>
+		constexpr void serialise_impl(std::integral auto Value, auto const& Handler, std::index_sequence<I...> const Sequence)
 		{
 			constexpr auto N = Sequence.size() * 2;
 
@@ -145,8 +143,7 @@ namespace uuid
 			));
 		}
 
-		template<typename int_type, typename handler>
-		constexpr void serialise(int_type Value, handler const& Handler)
+		constexpr void serialise(std::integral auto Value, auto const& Handler)
 		{
 			serialise_impl(Value, Handler, std::make_index_sequence<sizeof(Value)>{});
 		}
@@ -214,7 +211,7 @@ namespace uuid
 			Result.push_back(c);
 		};
 
-		const auto serialise = [&](auto const i)
+		const auto serialise = [&](std::integral auto const i)
 		{
 			detail::serialise(i, put);
 		};

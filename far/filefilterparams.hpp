@@ -96,8 +96,7 @@ public:
 
 	explicit operator bool() const;
 
-	template<typename callable>
-	decltype(auto) visit(const callable& Callable) const
+	decltype(auto) visit(const auto& Callable) const
 	{
 		return m_Relative?
 			Callable(m_After, m_Before) :

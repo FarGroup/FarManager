@@ -153,15 +153,13 @@ public:
 		string_view ScopeName;
 	};
 
-	template<class id_type, typename callable_type>
-	listener(const id_type& EventId, const callable_type& EventHandler):
+	listener(const auto& EventId, const auto& EventHandler):
 		m_Handler(EventHandler),
 		m_Iterator(message_manager::instance().subscribe(EventId, m_Handler))
 	{
 	}
 
-	template<typename callable_type>
-	explicit listener(scope const Scope, callable_type const& EventHandler):
+	explicit listener(scope const Scope, auto const& EventHandler):
 		listener(CreateEventName(Scope.ScopeName), EventHandler)
 	{
 	}

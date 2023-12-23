@@ -85,7 +85,8 @@ namespace far
 		return fmt::vformat(fmt::string_view(Format), fmt::make_format_args(Args...));
 	}
 
-	template<typename... args>
+	// Don't "auto" it yet, ICE in VS2019
+	template <typename... args>
 	auto vformat(string_view const Format, args const&... Args)
 	{
 		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
@@ -106,8 +107,7 @@ namespace far
 
 #define FSTR(str) FMT_STRING(str)
 
-template<typename T>
-auto str(const T& Value)
+auto str(const auto& Value)
 {
 	return fmt::to_wstring(Value);
 }
@@ -133,8 +133,7 @@ namespace format_helpers
 {
 	struct parse_no_spec
 	{
-		template<typename ParseContext>
-		constexpr auto parse(ParseContext& ctx)
+		constexpr auto parse(auto& ctx)
 		{
 			return ctx.begin();
 		}
@@ -143,6 +142,7 @@ namespace format_helpers
 	template<typename object_type>
 	struct format_no_spec
 	{
+		// Don't "auto" it yet, ICE in VS2019
 		template<typename FormatContext>
 		auto format(object_type const& Value, FormatContext& ctx)
 		{

@@ -178,9 +178,9 @@ protected:
 	enumerator() { static_assert(std::derived_from<Derived, enumerator>); }
 
 private:
-	template<typename iterator_type, typename owner_type>
+	template<typename iterator_type>
 	[[nodiscard]]
-	static auto make_iterator(owner_type Owner, typename iterator_type::position Position = iterator_type::position::end)
+	static auto make_iterator(auto Owner, typename iterator_type::position Position = iterator_type::position::end)
 	{
 		return iterator_type{ static_cast<typename iterator_type::owner_type>(Owner), Position };
 	}

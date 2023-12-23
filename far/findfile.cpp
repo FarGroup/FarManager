@@ -2741,7 +2741,7 @@ bool FindFiles::FindFilesProcess()
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	const auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
+	const auto Dlg = Dialog::create(FindDlg, std::bind_front(&FindFiles::FindDlgProc, this));
 	Dlg->SetHelp(L"FindFileResult"sv);
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(FindFileResultId);
@@ -3175,7 +3175,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_RADIO_TEXT].Selected = !m_SearchDlgParams.Hex.value();
 		FindAskDlg[FAD_RADIO_HEX].Selected = m_SearchDlgParams.Hex.value();
 		m_IsHexActive = m_SearchDlgParams.Hex.value();
-		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
+		const auto Dlg = Dialog::create(FindAskDlg, std::bind_front(&FindFiles::MainDlgProc, this));
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile"sv);
 		Dlg->SetId(FindFileId);

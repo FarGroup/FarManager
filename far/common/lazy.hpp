@@ -71,8 +71,7 @@ public:
 		return &*this;
 	}
 
-	template<class U>
-	auto& operator=(U&& rhs)
+	auto& operator=(auto&& rhs)
 	{
 		m_Data.template emplace<T>(FWD(rhs));
 		return *this;

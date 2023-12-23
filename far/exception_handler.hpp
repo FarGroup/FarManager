@@ -129,8 +129,7 @@ namespace detail
 {
 	struct no_handler
 	{
-		template<typename T>
-		void operator()(T const&) const {}
+		void operator()(auto const&) const {}
 	};
 
 	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
@@ -141,8 +140,8 @@ namespace detail
 	void set_fp_exceptions(bool Enable);
 }
 
-template<typename callable, typename unknown_handler, typename std_handler = ::detail::no_handler>
-auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, std_handler const& StdHandler = {})
+template<typename callable, typename std_handler = ::detail::no_handler>
+auto cpp_try(callable const& Callable, auto const& UnknownHandler, std_handler const& StdHandler = {})
 {
 	using result_type = typename function_traits<callable>::result_type;
 	using std_handler_ref = function_ref<void(std::exception const&)>;
@@ -201,8 +200,8 @@ std::exception_ptr wrap_current_exception(std::string_view Function, std::string
 
 void rethrow_if(std::exception_ptr& Ptr);
 
-template<class function, class filter, class handler>
-auto seh_try(function const& Callable, filter const& Filter, handler const& Handler)
+template<typename function>
+auto seh_try(function const& Callable, auto const& Filter, auto const& Handler)
 {
 	using result_type = typename function_traits<function>::result_type;
 
@@ -221,8 +220,7 @@ WARNING_POP()
 	}
 }
 
-template<class function, class handler>
-auto seh_try_with_ui(function const& Callable, handler const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
+auto seh_try_with_ui(auto const& Callable, auto const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
 {
 	return seh_try(
 		Callable,
@@ -231,8 +229,7 @@ auto seh_try_with_ui(function const& Callable, handler const& Handler, const std
 	);
 }
 
-template<class function, class handler>
-auto seh_try_no_ui(function const& Callable, handler const& Handler)
+auto seh_try_no_ui(auto const& Callable, auto const& Handler)
 {
 	return seh_try(
 		Callable,
@@ -241,8 +238,7 @@ auto seh_try_no_ui(function const& Callable, handler const& Handler)
 	);
 }
 
-template<class function>
-auto seh_try_thread(seh_exception& Exception, function const& Callable)
+auto seh_try_thread(seh_exception& Exception, auto const& Callable)
 {
 	return seh_try(
 		Callable,

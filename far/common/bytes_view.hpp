@@ -94,30 +94,26 @@ using bytes = std::basic_string<std::byte>;
 }
 
 
-template<typename T>
 [[nodiscard]]
-auto view_bytes(T const* const Data, size_t const Size)
+auto view_bytes(auto const* const Data, size_t const Size)
 {
 	return detail::bytes_impl<bytes_view>(Data, Size);
 }
 
-template<typename T>
 [[nodiscard]]
-auto view_bytes(T const& Object)
+auto view_bytes(auto const& Object)
 {
 	return detail::bytes_impl<bytes_view>(Object);
 }
 
-template<typename T>
 [[nodiscard]]
-auto edit_bytes(T* const Data, size_t const Size)
+auto edit_bytes(auto* const Data, size_t const Size)
 {
 	return detail::bytes_impl<span<std::byte>>(Data, Size);
 }
 
-template<typename T>
 [[nodiscard]]
-auto edit_bytes(T& Object)
+auto edit_bytes(auto& Object)
 {
 	return detail::bytes_impl<span<std::byte>>(Object);
 }
@@ -128,9 +124,8 @@ inline std::string_view to_string_view(bytes_view const Bytes)
 	return { static_cast<char const*>(static_cast<void const*>(Bytes.data())), Bytes.size() };
 }
 
-template<typename T>
 [[nodiscard]]
-bool deserialise(bytes_view const Bytes, T& Value) noexcept
+bool deserialise(bytes_view const Bytes, auto& Value) noexcept
 {
 	const auto ValueBytes = edit_bytes(Value);
 

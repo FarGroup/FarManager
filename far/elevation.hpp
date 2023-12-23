@@ -113,8 +113,7 @@ private:
 	template<typename T>
 	void Read(T& Data) const { Data = Read<T>(); }
 
-	template<typename... args>
-	void Write(const args&... Args) const;
+	void Write(const auto&... Args) const;
 
 	void RetrieveLastError() const;
 
@@ -125,8 +124,7 @@ private:
 	bool ElevationApproveDlg(lng Why, string_view Object);
 	void TerminateChildProcess() const;
 
-	template<typename T, typename F1, typename F2>
-	auto execute(lng Why, string_view Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
+	auto execute(lng Why, string_view Object, auto Fallback, const auto& PrivilegedHander, const auto& ElevatedHandler);
 
 	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 

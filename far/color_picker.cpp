@@ -615,7 +615,7 @@ static bool pick_color_single(colors::single_color& Color, colors::single_color 
 		ColorDlg[scd_item(cb::color_active_checkbox)].Flags |= DIF_HIDDEN | DIF_DISABLE;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, &single_color_state::GetSingleColorDlgProc, &ColorState);
+	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&single_color_state::GetSingleColorDlgProc, &ColorState));
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[scd::border].X2) + 4,
@@ -896,7 +896,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		ColorDlg[bg_item(cb::color_active_checkbox)].Flags |= DIF_HIDDEN | DIF_DISABLE;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, &color_state::GetColorDlgProc, &ColorState);
+	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&color_state::GetColorDlgProc, &ColorState));
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[cd::border].X2) + 4,

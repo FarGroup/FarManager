@@ -37,14 +37,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: clean up & split
 
-template<typename T>
-bool CheckStructSize(const T* s)
+bool CheckStructSize(const auto* s)
 {
-	return s && (s->StructSize >= sizeof(T));
+	return s && (s->StructSize >= sizeof(*s));
 }
 
-template<typename T>
-bool CheckNullOrStructSize(const T* s)
+bool CheckNullOrStructSize(const auto* s)
 {
 	return !s || CheckStructSize(s);
 }
@@ -56,14 +54,12 @@ auto NullToEmpty(const T* Str)
 	return Str? Str : &empty;
 }
 
-template<class T>
-auto EmptyToNull(const T* Str)
+auto EmptyToNull(const auto* Str)
 {
 	return (Str && !*Str)? nullptr : Str;
 }
 
-template<class T>
-auto EmptyToNull(const T& Str)
+auto EmptyToNull(const auto& Str)
 {
 	return Str.empty()? nullptr : Str.c_str();
 }

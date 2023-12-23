@@ -278,8 +278,7 @@ public:
 
 	void SortItems(bool Reverse = false, int Offset = 0);
 
-	template<class predicate>
-	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
+	void SortItems(auto Pred, bool Reverse = false, int Offset = 0)
 	{
 		SortItemParam Param { Reverse, Offset };
 		std::ranges::sort(Items, [&](const auto& a, const auto& b) { return Pred(a, b, Param); });

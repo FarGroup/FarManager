@@ -3165,8 +3165,7 @@ void Editor::InsertString()
 	TextChanged(true);
 }
 
-template<class F>
-void Editor::UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func)
+void Editor::UpdateIteratorAndKeepPos(numbered_iterator& Iter, const auto& Func)
 {
 	const auto CurPos = Iter->GetTabCurPos();
 	const auto LeftPos = Iter->GetLeftPos();

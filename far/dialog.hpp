@@ -158,16 +158,8 @@ protected:
 public:
 	using dialog_handler = std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)>;
 
-	template<class T, class O>
-	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
-	{
-		auto Handler = (object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return std::invoke(function, object, Dlg, Msg, Param1, Param2); } : dialog_handler();
-		return std::make_shared<Dialog>(private_tag(), span(Src), Handler, InitParam);
-	}
-
-	template<class T>
 	static dialog_ptr create(
-		T&& Src, const dialog_handler& handler = nullptr, void* InitParam = nullptr)
+		auto&& Src, const dialog_handler& handler = nullptr, void* InitParam = nullptr)
 	{
 		return std::make_shared<Dialog>(private_tag(), span(Src), handler, InitParam);
 	}

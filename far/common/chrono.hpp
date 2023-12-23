@@ -41,8 +41,7 @@ template<typename... tuple_types>
 class split_duration: public std::tuple<tuple_types...>
 {
 public:
-	template<typename duration_type>
-	constexpr explicit split_duration(duration_type Duration)
+	constexpr explicit split_duration(auto Duration)
 	{
 		(..., (set_and_chop<tuple_types>(Duration)));
 	}
@@ -62,8 +61,8 @@ public:
 	}
 
 private:
-	template<typename cast_type, typename duration_type>
-	constexpr void set_and_chop(duration_type& Duration)
+	template<typename cast_type>
+	constexpr void set_and_chop(auto& Duration)
 	{
 		auto& Element = get<cast_type>();
 		Element = std::chrono::duration_cast<cast_type>(Duration);

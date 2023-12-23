@@ -68,30 +68,28 @@ namespace detail
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
 
-		template<size_t... index, typename predicate>
+		template<size_t... index>
 		[[nodiscard]]
-		static bool binary_any_of_impl(std::index_sequence<index...>, predicate Predicate, const auto& Tuple1, const auto& Tuple2)
+		static bool binary_any_of_impl(std::index_sequence<index...>, auto Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return (... || Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
 		}
 
-		template<typename predicate>
 		[[nodiscard]]
-		static bool binary_any_of(predicate Predicate, const auto& Tuple1, const auto& Tuple2)
+		static bool binary_any_of(auto Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return binary_any_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
 
-		template<size_t... index, typename predicate>
+		template<size_t... index>
 		[[nodiscard]]
-		static bool binary_all_of_impl(std::index_sequence<index...>, predicate Predicate, const auto& Tuple1, const auto& Tuple2)
+		static bool binary_all_of_impl(std::index_sequence<index...>, auto Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return (... && Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
 		}
 
-		template<typename predicate>
 		[[nodiscard]]
-		static bool binary_all_of(predicate Predicate, const auto& Tuple1, const auto& Tuple2)
+		static bool binary_all_of(auto Predicate, const auto& Tuple1, const auto& Tuple2)
 		{
 			return binary_all_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
@@ -224,8 +222,7 @@ public:
 		detail::zip_sentinel<decltype(std::ranges::end(std::declval<args&>()))...>
 	>;
 
-	template<typename... args_ref>
-	explicit zip(args_ref&&... ArgsRef):
+	explicit zip(auto&&... ArgsRef):
 		m_Args(FWD(ArgsRef)...),
 		m_Begin(std::apply([](auto&&... Args) { return iterator(std::ranges::begin(Args)...); }, m_Args)),
 		m_End(std::apply([](auto&&... Args) { return sentinel(std::ranges::end(Args)...); }, m_Args))
