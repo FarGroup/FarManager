@@ -18985,7 +18985,7 @@ MSetColorStyleBlink
 "Mirksėjimas"
 
 MSetColorStyleInverse
-"Мерцающий"
+"Обратный"
 "Inverse"
 "Inverzní"
 "Umgekehrt"
