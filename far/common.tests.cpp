@@ -1087,119 +1087,27 @@ TEST_CASE("preprocessor.predefined")
 
 //----------------------------------------------------------------------------
 
-#include "common/range.hpp"
+#include "common/span.hpp"
 
-TEST_CASE("range.static")
+TEST_CASE("span.static")
 {
-	{
-		using test_range = range<int*>;
-
-		STATIC_REQUIRE(std::ranges::range<test_range>);
-		STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
-		STATIC_REQUIRE(std::ranges::contiguous_range<test_range>);
-		STATIC_REQUIRE(std::ranges::random_access_range<test_range>);
-		STATIC_REQUIRE(std::ranges::sized_range<test_range>);
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::begin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cbegin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rbegin(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crbegin(Range); });
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::end(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::cend(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::rend(Range); });
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::crend(Range); });
-
-		STATIC_REQUIRE(requires(test_range Range){ std::ranges::find(Range, *Range.begin()); });
-	}
-
-	{
-		const auto Test = [](auto&& Container)
-		{
-			const auto TestImpl = [](auto& ContainerVersion)
-			{
-				const auto TestType = [&](const auto & ContainerGetter, const auto & RangeGetter)
-				{
-					range const Range(ContainerVersion);
-					STATIC_REQUIRE(std::same_as<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
-				};
-
-// std::cbegin and friends are broken in the standard for shallow-const containers, thus the member version.
-#define TEST_TYPE(x) TestType(LIFT(std::x), LIFT_MF(x))
-#define TEST_ALL_ACCESSORS(callable, x) callable(x), callable(c##x), callable(r##x), callable(cr##x)
-
-				TEST_ALL_ACCESSORS(TEST_TYPE, begin);
-				TEST_ALL_ACCESSORS(TEST_TYPE, end);
-
-#undef TEST_ALL_ACCESSORS
-#undef TEST_TYPE
-			};
-
-			TestImpl(Container);
-			TestImpl(std::as_const(Container));
-		};
-
-		{ Test(std::vector<int>{}); }
-		{ Test(std::list<int>{}); }
-		using ints = int[2];
-		{ Test(ints{}); }
-	}
-
-	{
-		int Data[2]{};
-		range Range(std::begin(Data), std::end(Data));
-		STATIC_REQUIRE(std::same_as<decltype(*Range.begin()), int&>);
-		STATIC_REQUIRE(std::same_as<decltype(*Range.cbegin()), const int&>);
-	}
-
-	{
-		std::vector<int> Data;
-		range Range(std::begin(Data), std::end(Data));
-		STATIC_REQUIRE(std::same_as<decltype(*Range.begin()), int&>);
-		// It's not possible to deduce const_iterator here
-		STATIC_REQUIRE(std::same_as<decltype(*Range.cbegin()), int&>);
-	}
-
 	{
 		int Data[2]{};
 		span Span(Data);
 		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int&>);
-
-		[](auto S)
-		{
-			if constexpr (requires(std::span<decltype(S)> s) { s.cbegin(); })
-			{
-				STATIC_REQUIRE(std::same_as<decltype(*S.cbegin()), const int&>);
-			}
-			else
-			{
-				STATIC_REQUIRE(std::same_as<decltype(*S.cbegin()), int&>);
-			}
-		}(Span);
 	}
 
 	{
 		int Data[2]{};
 		span Span{ Data };
 		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int* const&>);
-		// It's not possible to deduce const_iterator here
-		STATIC_REQUIRE(std::same_as<decltype(*Span.cbegin()), int* const&>);
 	}
 
 	{
 		using v = int;
 		using cv = int const;
-		using ptr = v*;
-		using cptr = cv*;
 
 		STATIC_REQUIRE(std::same_as<decltype(span({1, 2})), span<cv>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, 0)), span<v>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, 0)), span<cv>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, ptr{})), span<v>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, cptr{})), span<v>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, ptr{})), span<cv>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, cptr{})), span<cv>>);
-		STATIC_REQUIRE(std::same_as<decltype(span(std::vector<v>{})), span<v>>);
 		STATIC_REQUIRE(std::same_as<decltype(span(std::array<v, 0>{})), span<v>>);
 		STATIC_REQUIRE(std::same_as<decltype(span(std::array<cv, 0>{})), span<cv>>);
 	}
@@ -1237,24 +1145,6 @@ TEST_CASE("range.static")
 		STATIC_REQUIRE(!std::assignable_from<m_f_span&, c_f_span>);
 		STATIC_REQUIRE(!std::assignable_from<m_s_span&, c_f_span>);
 		STATIC_REQUIRE(!std::assignable_from<m_f_span&, c_s_span>);
-	}
-}
-
-TEST_CASE("range.dynamic")
-{
-	{
-		std::array Value{ 1, 2, 3, 4, 5 };
-		range Range(Value);
-		REQUIRE(Range.size() == Value.size());
-		REQUIRE(Range.data() == Value.data());
-
-		Range.pop_front();
-		REQUIRE(Range.size() == Value.size() - 1);
-		REQUIRE(Range.data() == Value.data() + 1);
-
-		Range.pop_back();
-		REQUIRE(Range.size() == Value.size() - 2);
-		REQUIRE(Range.data() == Value.data() + 1);
 	}
 }
 
@@ -2235,7 +2125,7 @@ TEST_CASE("view.enumerate")
 
 TEST_CASE("view.zip.static")
 {
-	using test_range = decltype(zip(std::declval<span<int>&>(), std::declval<span<int>&>()));
+	using test_range = decltype(zip(std::declval<std::span<int>&>(), std::declval<std::span<int>&>()));
 
 	STATIC_REQUIRE(std::ranges::range<test_range>);
 	STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);

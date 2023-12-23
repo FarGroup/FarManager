@@ -946,7 +946,7 @@ bool InfoList::ShowPluginDescription(int YPos) const
 	AnotherPanel->GetOpenPanelInfo(&Info);
 
 	int Y=YPos;
-	for (const auto& InfoLine: span(Info.InfoLines, Info.InfoLinesNumber))
+	for (const auto& InfoLine: std::span(Info.InfoLines, Info.InfoLinesNumber))
 	{
 		if (Y >= m_Where.bottom)
 			break;

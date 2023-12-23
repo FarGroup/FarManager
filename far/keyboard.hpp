@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/2d/point.hpp"
 #include "common/function_ref.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -130,10 +129,10 @@ int KeyNameToKey(string_view Name);
 string InputRecordToText(const INPUT_RECORD *Rec);
 string KeyToText(unsigned int Key);
 string KeyToLocalizedText(unsigned int Key);
-string KeysListToLocalizedText(span<unsigned int const> Keys);
+string KeysListToLocalizedText(std::span<unsigned int const> Keys);
 string KeysToLocalizedText(auto const... Keys)
 {
-	return KeysListToLocalizedText({ Keys... });
+	return KeysListToLocalizedText({{ Keys... }});
 }
 unsigned int InputRecordToKey(const INPUT_RECORD *Rec);
 bool KeyToInputRecord(int Key, INPUT_RECORD *Rec);

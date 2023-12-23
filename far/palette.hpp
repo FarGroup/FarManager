@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/noncopyable.hpp"
-#include "common/range.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -128,8 +127,8 @@ public:
 	void ResetToDefaultIndex();
 	void ResetToDefaultRGB();
 	FarColor Default(size_t Index) const;
-	void Set(size_t StartOffset, span<FarColor> Values);
-	void CopyTo(span<FarColor> Destination) const;
+	void Set(size_t StartOffset, std::span<FarColor const> Values);
+	void CopyTo(std::span<FarColor> Destination) const;
 	const FarColor& operator[](size_t Index) const;
 	size_t size() const;
 

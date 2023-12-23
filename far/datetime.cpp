@@ -398,7 +398,7 @@ string MkStrFTime(string_view const Format)
 	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, *std::localtime(&Time));
 }
 
-static void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)
+static void ParseTimeComponents(string_view const Src, std::span<const std::pair<size_t, size_t>> const Ranges, std::span<time_component> const Dst, time_component const Default)
 {
 	assert(Dst.size() == Ranges.size());
 	std::ranges::transform(Ranges, Dst.begin(), [Src, Default](const auto& i)

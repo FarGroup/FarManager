@@ -353,7 +353,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	return Result;
 }
 
-static void read_modules(span<HMODULE const> const Modules, string& To, string_view const Eol)
+static void read_modules(std::span<HMODULE const> const Modules, string& To, string_view const Eol)
 {
 	string Name;
 	for (const auto& i: Modules)
@@ -632,7 +632,7 @@ public:
 	{
 	}
 
-	void disassembly(string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
+	void disassembly(string_view const Module, std::span<os::debug::stack_frame const> const Stack, string_view const Eol)
 	{
 		if (Stack.empty())
 			return;
@@ -1106,7 +1106,7 @@ private:
 		return true;
 	}
 
-	span<int const> m_CatchableTypesRVAs;
+	std::span<int const> m_CatchableTypesRVAs;
 	size_t mutable m_Index{};
 	uintptr_t m_BaseAddress{};
 };
@@ -1239,7 +1239,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 			}(ExceptionRecord.ExceptionInformation[0]);
 
 			string Symbol;
-			tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
+			tracer.get_symbols(Module, {{{ ExceptionRecord.ExceptionInformation[1], 0 }}}, [&](string&& Line)
 			{
 				Symbol = std::move(Line);
 			});
@@ -1356,7 +1356,7 @@ static string collect_information(
 	string_view const Type,
 	string_view const Message,
 	error_state_ex const& ErrorState,
-	span<os::debug::stack_frame const> const NestedStack
+	std::span<os::debug::stack_frame const> const NestedStack
 )
 {
 	string Strings;
@@ -1443,7 +1443,7 @@ static string collect_information(
 		{ L"Access:   "sv, AccessLevel,   },
 	};
 
-	const auto log_message = [](span<info_block const> const Info)
+	const auto log_message = [](std::span<info_block const> const Info)
 	{
 		auto LogMessage = join(L"\n"sv, Info | std::views::transform([](info_block const& Param)
 		{
@@ -1457,7 +1457,7 @@ static string collect_information(
 
 	LOGERROR(L"\n{}\n"sv, log_message(ExceptionInfo));
 
-	const auto print_info_block = [&](span<info_block const> const Info)
+	const auto print_info_block = [&](std::span<info_block const> const Info)
 	{
 		for (const auto& [Label, Value] : Info)
 		{
@@ -1582,7 +1582,7 @@ static handler_result handle_generic_exception(
 	string_view const Type,
 	string_view const Message,
 	error_state_ex const& ErrorState,
-	span<os::debug::stack_frame const> const NestedStack = {}
+	std::span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
 	static bool ExceptionHandlingIgnored = false;
@@ -1690,7 +1690,7 @@ public:
 	{
 	}
 
-	span<os::debug::stack_frame const> get_stack() const noexcept { return m_Stack; }
+	std::span<os::debug::stack_frame const> get_stack() const noexcept { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
@@ -1777,7 +1777,7 @@ static bool handle_std_exception(
 		const auto NestedStack = [&]
 		{
 			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper? Wrapper->get_stack() : span<os::debug::stack_frame const>{};
+			return Wrapper? Wrapper->get_stack() : std::span<os::debug::stack_frame const>{};
 		}();
 
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;

@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/range.hpp"
 
 // External:
 
@@ -183,7 +182,7 @@ class VMenu final: public Modal
 	struct private_tag { explicit private_tag() = default; };
 
 public:
-	static vmenu_ptr create(string Title, span<menu_item const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, std::span<menu_item const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
 	~VMenu() override;
@@ -290,14 +289,14 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem);
-	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
+	static std::vector<string> AddHotkeys(std::span<menu_item> MenuItems);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
 	size_t MaxItemLength() const;
 	size_t GetServiceAreaSize();
 
 private:
-	void init(span<menu_item const> Data, DWORD Flags);
+	void init(std::span<menu_item const> Data, DWORD Flags);
 
 	void DisplayObject() override;
 

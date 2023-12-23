@@ -925,7 +925,7 @@ bool TreeList::FillLastData()
 	};
 
 	const auto RootLength = m_Root.empty()? 0 : m_Root.size()-1;
-	const range Range(m_ListData.begin() + 1, m_ListData.end());
+	const std::ranges::subrange Range(m_ListData.begin() + 1, m_ListData.end());
 	FOR_RANGE(Range, i)
 	{
 		const auto Pos = i->strName.rfind(path::separator);
@@ -938,7 +938,7 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		const range SubRange(i + 1, Range.end());
+		const std::ranges::subrange SubRange(i + 1, Range.end());
 		FOR_RANGE(SubRange, j)
 		{
 			if (CountSlash(j->strName, RootLength) > Depth)
@@ -954,7 +954,7 @@ bool TreeList::FillLastData()
 			}
 		}
 
-		for (auto& j: range(i, SubDirPos + 1))
+		for (auto& j: std::ranges::subrange(i, SubDirPos + 1))
 		{
 			if (Depth > j.Last.size())
 			{

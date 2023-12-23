@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enumerator.hpp"
-#include "common/range.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -117,7 +116,7 @@ enum class panel_mode
 enum class panel_sort: int;
 enum class sort_order: int;
 
-span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sort SortMode);
+std::span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sort SortMode);
 
 class VMenu2;
 class Edit;
@@ -147,7 +146,7 @@ public:
 	virtual void EditFilter() {}
 	virtual bool FileInFilter(size_t idxItem) {return true;}
 	virtual bool FilterIsEnabled() {return false;}
-	virtual void ReadDiz(span<PluginPanelItem> Items = {}) {}
+	virtual void ReadDiz(std::span<PluginPanelItem> Items = {}) {}
 	virtual void DeleteDiz(string_view Name, string_view ShortName) {}
 	virtual string GetDizName() const { return {}; }
 	virtual void FlushDiz() {}

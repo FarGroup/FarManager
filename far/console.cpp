@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/io.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 #include "common/view/enumerate.hpp"
 
@@ -389,7 +388,7 @@ protected:
 		}
 
 	private:
-		size_t read(span<wchar_t> const Str) const
+		size_t read(std::span<wchar_t> const Str) const
 		{
 			if (m_Redirected)
 			{
@@ -950,7 +949,7 @@ protected:
 		Set(&COORD::Y, &POINT::y, &SMALL_RECT::Top);
 	}
 
-	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta)
+	static void AdjustMouseEvents(std::span<INPUT_RECORD> const Buffer, short Delta)
 	{
 		std::optional<point> Size;
 
@@ -973,7 +972,7 @@ protected:
 		}
 	}
 
-	bool console::PeekInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
+	bool console::PeekInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
 		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
@@ -997,7 +996,7 @@ protected:
 		return PeekInput({ &Record, 1 }, Read) && Read == 1;
 	}
 
-	bool console::ReadInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
+	bool console::ReadInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
 		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
@@ -1022,7 +1021,7 @@ protected:
 		return ReadInput({ &Record, 1 }, Read) && Read == 1;
 	}
 
-	bool console::WriteInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsWritten) const
+	bool console::WriteInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsWritten) const
 	{
 		if (sWindowMode)
 		{
@@ -1347,7 +1346,7 @@ protected:
 			// Reserved contains non-BMP codepoints and is of no interest here.
 	}
 
-	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, FarColor& LastColor)
+	static void make_vt_sequence(std::span<FAR_CHAR_INFO> Input, string& Str, FarColor& LastColor)
 	{
 		const auto CharWidthEnabled = char_width::is_enabled();
 
@@ -1798,7 +1797,7 @@ WARNING_POP()
 		return implementation::WriteOutputNT(Buffer, BufferCoord, WriteRegion);
 	}
 
-	bool console::WriteOutputGather(matrix<FAR_CHAR_INFO>& Buffer, span<rectangle const> WriteRegions) const
+	bool console::WriteOutputGather(matrix<FAR_CHAR_INFO>& Buffer, std::span<rectangle const> WriteRegions) const
 	{
 		// TODO: VT can handle this in one go
 		for (const auto& i: WriteRegions)
@@ -1810,7 +1809,7 @@ WARNING_POP()
 		return true;
 	}
 
-	bool console::Read(span<wchar_t> const Buffer, size_t& Size) const
+	bool console::Read(std::span<wchar_t> const Buffer, size_t& Size) const
 	{
 		DWORD NumberOfCharsRead;
 		if (!ReadConsole(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, {}))
@@ -1930,7 +1929,7 @@ WARNING_POP()
 
 		null_terminated const C_Name(Name), C_ExeName(ExeName);
 
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](std::span<wchar_t> Buffer)
 		{
 			// This API design is mental:
 			// - If everything is ok, it return the string size, including the terminating \0
@@ -2593,7 +2592,7 @@ TEST_CASE("console.vt_sequence")
 {
 	FAR_CHAR_INFO const def{ L' ', {}, {}, colors::default_color() };
 
-	const auto check = [](span<FAR_CHAR_INFO> const Buffer, string_view const Expected)
+	const auto check = [](std::span<FAR_CHAR_INFO> const Buffer, string_view const Expected)
 	{
 		string Actual;
 		auto LastColor = colors::default_color();

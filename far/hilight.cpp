@@ -433,7 +433,7 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos) const
 
 	for (const auto& i: Data)
 	{
-		for (const auto& Item: range(HiData.cbegin() + i.from, HiData.cbegin() + i.to))
+		for (const auto& Item: std::ranges::subrange(HiData.cbegin() + i.from, HiData.cbegin() + i.to))
 		{
 			HiMenu->AddItem(MenuString(&Item, true));
 		}
@@ -555,7 +555,7 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 			++Iterator;
 		}
 
-		const span FileArea(Iterator, Row.end() - 1);
+		const std::span FileArea(Iterator, Row.end() - 1);
 		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
 
 		for (const auto& [Cell, Char]: zip(FileArea, Str))

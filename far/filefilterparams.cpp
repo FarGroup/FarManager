@@ -581,7 +581,7 @@ struct attribute_map
 struct context
 {
 	highlight::element* Colors;
-	span<attribute_map> Attributes;
+	std::span<attribute_map> Attributes;
 };
 
 // BUGBUG
@@ -619,7 +619,7 @@ static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 	}
 }
 
-static bool AttributesDialog(span<attribute_map> const Attributes)
+static bool AttributesDialog(std::span<attribute_map> const Attributes)
 {
 	DialogBuilder Builder(lng::MSetAttrTitle);
 

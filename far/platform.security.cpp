@@ -118,7 +118,7 @@ namespace os::security
 		return handle(Handle);
 	}
 
-	privilege::privilege(span<const wchar_t* const> const Names)
+	privilege::privilege(std::span<const wchar_t* const> const Names)
 	{
 		if (Names.empty())
 			return;
@@ -173,7 +173,7 @@ namespace os::security
 		block_ptr<TOKEN_PRIVILEGES> Result(1024);
 
 		if (!os::detail::ApiDynamicReceiver(Result.bytes(),
-			[&](span<std::byte> const Buffer)
+			[&](std::span<std::byte> const Buffer)
 			{
 				DWORD LengthNeeded = 0;
 				if (!GetTokenInformation(TokenHandle, TokenPrivileges, static_cast<TOKEN_PRIVILEGES*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
@@ -184,7 +184,7 @@ namespace os::security
 			{
 				return ReturnedSize > AllocatedSize;
 			},
-			[](span<std::byte const>)
+			[](std::span<std::byte const>)
 			{}
 		))
 		{
@@ -194,7 +194,7 @@ namespace os::security
 		return Result;
 	}
 
-	bool privilege::check(span<const wchar_t* const> const Names)
+	bool privilege::check(std::span<const wchar_t* const> const Names)
 	{
 		const auto Token = open_current_process_token(TOKEN_QUERY);
 		if (!Token)
@@ -210,7 +210,7 @@ namespace os::security
 			return false;
 		}
 
-		const span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
+		const std::span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
 
 		return std::ranges::all_of(Names, [&](const wchar_t* const Name)
 		{

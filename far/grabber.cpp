@@ -147,7 +147,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	for (const auto i: std::views::iota(size_t{}, CharBuf.height()))
 	{
 		const auto& MatrixLine = CharBuf[i];
-		auto Begin = MatrixLine.cbegin(), End = MatrixLine.cend();
+		auto Begin = MatrixLine.begin(), End = MatrixLine.end();
 
 		const auto IsFirstLine = i == 0;
 		const auto IsLastLine = i == CharBuf.height() - 1;
@@ -164,7 +164,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		{
 			std::optional<wchar_t> LeadingChar;
 
-			for (const auto& Char: span(Begin, End))
+			for (const auto& Char: std::span(Begin, End))
 			{
 				if (LeadingChar && Char.Char == *LeadingChar && Char.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
 				{

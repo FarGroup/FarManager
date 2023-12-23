@@ -445,11 +445,11 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUnicodeCodePage(cp))
 	{
-		return contains(span(view_as<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
+		return contains(std::span(view_as<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
-		return contains(span(Buffer, BytesRead), '\0');
+		return contains(std::span(Buffer, BytesRead), '\0');
 	}
 }
 
@@ -2324,7 +2324,7 @@ void Viewer::Up(int nlines, bool adjust)
 
 			if ( ch_size <= 1 )
 			{
-				const auto BufferReader = [&](span<char> Buffer)
+				const auto BufferReader = [&](std::span<char> Buffer)
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer.data(), buff_size, &nread);
@@ -2342,7 +2342,7 @@ void Viewer::Up(int nlines, bool adjust)
 			}
 			else
 			{
-				const auto BufferReader = [&](span<wchar_t> Buffer)
+				const auto BufferReader = [&](std::span<wchar_t> Buffer)
 				{
 					return vread(Buffer.data(), static_cast<int>(Buffer.size()));
 				};

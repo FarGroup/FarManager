@@ -143,7 +143,7 @@ bool CheckFileSizeStringFormat(string_view FileSizeStr);
 unsigned long long ConvertFileSizeString(string_view FileSizeStr);
 
 [[nodiscard]]
-string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, span<RegExpMatch const> Match, const named_regex_match* NamedMatch);
+string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, std::span<RegExpMatch const> Match, const named_regex_match* NamedMatch);
 
 [[nodiscard]]
 string GroupDigits(unsigned long long Value);
@@ -239,7 +239,7 @@ namespace detail
 {
 	template<typename flags_type>
 	[[nodiscard]]
-	auto FlagsToString(unsigned long long Flags, span<std::pair<flags_type, string_view> const> const From, wchar_t Separator = L' ')
+	auto FlagsToString(unsigned long long Flags, std::span<std::pair<flags_type, string_view> const> const From, wchar_t Separator = L' ')
 	{
 		string strFlags;
 		for (const auto& [Value, Name]: From)
@@ -260,7 +260,7 @@ namespace detail
 
 	template<typename flags_type>
 	[[nodiscard]]
-	auto StringToFlags(string_view const strFlags, span<std::pair<flags_type, string_view> const> const From, const string_view Separators = L"|;, "sv)
+	auto StringToFlags(string_view const strFlags, std::span<std::pair<flags_type, string_view> const> const From, const string_view Separators = L"|;, "sv)
 	{
 		flags_type Flags{};
 

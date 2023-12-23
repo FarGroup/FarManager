@@ -159,7 +159,7 @@ int TmpPanel::SetDirectory(const wchar_t* Dir, const OPERATION_MODES OpMode)
 }
 
 
-bool TmpPanel::PutFiles(const span<const PluginPanelItem> Files, const wchar_t* const SrcPath, const OPERATION_MODES)
+bool TmpPanel::PutFiles(const std::span<const PluginPanelItem> Files, const wchar_t* const SrcPath, const OPERATION_MODES)
 {
 	m_UpdateNotNeeded = false;
 	const auto Screen = BeginPutFiles();
@@ -210,7 +210,7 @@ bool TmpPanel::PutDirectoryContents(const wchar_t* Path)
 
 	SCOPE_EXIT{ PsInfo.FreeDirList(DirItems, DirItemsNumber); };
 
-	for (const auto& i: span(DirItems, DirItemsNumber))
+	for (const auto& i: std::span(DirItems, DirItemsNumber))
 	{
 		auto& NewItem = m_Panel->Items.emplace_back(i);
 		NewItem.FileName = m_Panel->StringData.emplace_back(NewItem.FileName).c_str();
@@ -262,7 +262,7 @@ void TmpPanel::CommitPutFiles(const HANDLE RestoreScreen, const bool Success)
 }
 
 
-int TmpPanel::SetFindList(const span<const PluginPanelItem> Files)
+int TmpPanel::SetFindList(const std::span<const PluginPanelItem> Files)
 {
 	const auto Screen = BeginPutFiles();
 	FindSearchResultsPanel();
@@ -420,7 +420,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 			const auto FindFile = Dir + L"*"sv;
 			const auto NtPath = FormNtPath(FindFile);
 
-			for (auto& j: range(CurItem, SameFolderItems))
+			for (auto& j: std::ranges::subrange(CurItem, CurItem + SameFolderItems))
 				j.Flags |= REMOVE_FLAG;
 
 			if (const auto FindHandle = FindFirstFile(NtPath.c_str(), &FindData); FindHandle != INVALID_HANDLE_VALUE)
@@ -429,7 +429,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 
 				do
 				{
-					for (auto& j: range(CurItem, SameFolderItems))
+					for (auto& j: std::ranges::subrange(CurItem, CurItem + SameFolderItems))
 					{
 						if ((j.Flags & REMOVE_FLAG) && same_name(FindData, j))
 						{

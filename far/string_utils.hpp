@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/range.hpp"
 
 // External:
 
@@ -70,8 +69,8 @@ bool is_lower(wchar_t Char);
 
 namespace inplace
 {
-	void upper(span<wchar_t> Str);
-	void lower(span<wchar_t> Str);
+	void upper(std::span<wchar_t> Str);
+	void lower(std::span<wchar_t> Str);
 
 	void upper(wchar_t& Char);
 	void lower(wchar_t& Char);

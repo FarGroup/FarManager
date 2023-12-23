@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/function_ref.hpp"
-#include "common/range.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/utility.hpp"
 
@@ -151,7 +150,7 @@ public:
 	auto ExportsNames() const { return m_ExportsNames; }
 
 protected:
-	span<const export_name> m_ExportsNames;
+	std::span<const export_name> m_ExportsNames;
 	PluginManager* const m_owner;
 	UUID m_Id{};
 };

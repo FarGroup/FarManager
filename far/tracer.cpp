@@ -104,7 +104,7 @@ tracer_detail::tracer::tracer():
 
 tracer_detail::tracer::~tracer() = default;
 
-void tracer_detail::tracer::get_symbols(string_view const Module, span<os::debug::stack_frame const> const Trace, function_ref<void(string&& Line)> const Consumer) const
+void tracer_detail::tracer::get_symbols(string_view const Module, std::span<os::debug::stack_frame const> const Trace, function_ref<void(string&& Line)> const Consumer) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 

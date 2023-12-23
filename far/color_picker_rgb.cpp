@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/2d/algorithm.hpp"
-#include "common/range.hpp"
 #include "common/view/zip.hpp"
 
 // External:

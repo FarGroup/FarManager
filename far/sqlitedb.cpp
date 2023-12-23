@@ -535,7 +535,7 @@ void SQLiteDb::Exec(std::string_view const Command) const
 	Exec(span{ Command });
 }
 
-void SQLiteDb::Exec(span<std::string_view const> const Commands) const
+void SQLiteDb::Exec(std::span<std::string_view const> const Commands) const
 {
 	for (const auto& i: Commands)
 	{

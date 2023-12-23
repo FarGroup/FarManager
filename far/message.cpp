@@ -187,7 +187,7 @@ static message_result MessageImpl(
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
 	const error_state_ex* const ErrorState,
-	span<string const> const Inserts,
+	std::span<string const> const Inserts,
 	string_view const HelpTopic,
 	Plugin* const PluginNumber,
 	const UUID* const Id

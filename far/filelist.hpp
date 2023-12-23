@@ -177,7 +177,7 @@ public:
 	void EditFilter() override;
 	bool FileInFilter(size_t idxItem) override;
 	bool FilterIsEnabled() override;
-	void ReadDiz(span<PluginPanelItem> Items = {}) override;
+	void ReadDiz(std::span<PluginPanelItem> Items = {}) override;
 	void DeleteDiz(string_view Name, string_view ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;
@@ -289,13 +289,13 @@ private:
 	void PrepareStripes(const std::vector<column>& Columns);
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
-	void PutDizToPlugin(FileList *DestPanel, span<PluginPanelItem> ItemList, bool Delete, bool Move, DizList *SrcDiz) const;
+	void PutDizToPlugin(FileList *DestPanel, std::span<PluginPanelItem> ItemList, bool Delete, bool Move, DizList *SrcDiz) const;
 	void PluginGetFiles(const string& DestPath, bool Move);
 	void PluginToPluginFiles(bool Move);
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
 	int PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel);
-	void PluginClearSelection(span<PluginPanelItem> ItemList);
+	void PluginClearSelection(std::span<PluginPanelItem> ItemList);
 	void ProcessCopyKeys(unsigned Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime = true);
 	int ProcessOneHostFile(const FileListItem* Item);

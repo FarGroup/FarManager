@@ -449,7 +449,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 			else if (pList)
 			{
-				for (const auto& i: span(pList->Items, pList->ItemsNumber))
+				for (const auto& i: std::span(pList->Items, pList->ItemsNumber))
 				{
 					if (!starts_with_icase(i.Text, Str))
 						continue;

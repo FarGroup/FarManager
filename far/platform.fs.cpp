@@ -545,7 +545,7 @@ namespace os::fs
 		const NTPath NtFileName(FileName);
 		find_handle Handle;
 		// BUGBUG check result
-		(void)os::detail::ApiDynamicStringReceiver(LinkName, [&](span<wchar_t> Buffer)
+		(void)os::detail::ApiDynamicStringReceiver(LinkName, [&](std::span<wchar_t> Buffer)
 		{
 			auto BufferSize = static_cast<DWORD>(Buffer.size());
 			Handle.reset(imports.FindFirstFileNameW(NtFileName.c_str(), Flags, &BufferSize, Buffer.data()));
@@ -562,7 +562,7 @@ namespace os::fs
 		if (!imports.FindNextFileNameW)
 			return false;
 
-		return os::detail::ApiDynamicStringReceiver(LinkName, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(LinkName, [&](std::span<wchar_t> Buffer)
 		{
 			auto BufferSize = static_cast<DWORD>(Buffer.size());
 			if (imports.FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer.data()))
@@ -1102,7 +1102,7 @@ namespace os::fs
 
 		const auto GetFinalPathNameByHandleImpl = [&]
 		{
-			return os::detail::ApiDynamicStringReceiver(FinalFilePath, [&](span<wchar_t> Buffer)
+			return os::detail::ApiDynamicStringReceiver(FinalFilePath, [&](std::span<wchar_t> Buffer)
 			{
 				return GetFinalPathNameByHandleGuarded(m_Handle.native_handle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), VOLUME_NAME_GUID);
 			});
@@ -1196,7 +1196,7 @@ namespace os::fs
 			if ((!QueryResult && GetLastError() != ERROR_MORE_DATA) || !BytesReturned)
 				break;
 
-			for (const auto& i: span(Ranges, BytesReturned / sizeof(*Ranges)))
+			for (const auto& i: std::span(Ranges, BytesReturned / sizeof(*Ranges)))
 			{
 				m_AllocSize += i.Length.QuadPart;
 				for (unsigned long long j = i.FileOffset.QuadPart, RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart; j < RangeEndOffset; j += m_ChunkSize)
@@ -1614,7 +1614,7 @@ namespace os::fs
 			security::descriptor Result(default_buffer_size);
 
 			if (!os::detail::ApiDynamicReceiver(Result.bytes(),
-				[&](span<std::byte> const Buffer)
+				[&](std::span<std::byte> const Buffer)
 				{
 					DWORD LengthNeeded = 0;
 					if (!::GetFileSecurity(Object, RequestedInformation, static_cast<SECURITY_DESCRIPTOR*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
@@ -1625,7 +1625,7 @@ namespace os::fs
 				{
 					return ReturnedSize > AllocatedSize;
 				},
-				[](span<std::byte const>)
+				[](std::span<std::byte const>)
 				{}
 			))
 			{
@@ -1669,7 +1669,7 @@ namespace os::fs
 
 	bool GetProcessRealCurrentDirectory(string& Directory)
 	{
-		return os::detail::ApiDynamicStringReceiver(Directory, [](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(Directory, [](std::span<wchar_t> Buffer)
 		{
 			return ::GetCurrentDirectory(static_cast<DWORD>(Buffer.size()), Buffer.data());
 		});
@@ -2028,7 +2028,7 @@ namespace os::fs
 
 	bool GetLongPathName(string_view const ShortPath, string& LongPath)
 	{
-		return os::detail::ApiDynamicStringReceiver(LongPath, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(LongPath, [&](std::span<wchar_t> Buffer)
 		{
 			return ::GetLongPathName(null_terminated(ShortPath).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
@@ -2036,7 +2036,7 @@ namespace os::fs
 
 	bool GetShortPathName(string_view const LongPath, string& ShortPath)
 	{
-		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](std::span<wchar_t> Buffer)
 		{
 			return ::GetShortPathName(null_terminated(LongPath).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
@@ -2084,7 +2084,7 @@ namespace os::fs
 		if (!imports.GetVolumePathNamesForVolumeNameW)
 			return false;
 
-		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](std::span<wchar_t> Buffer)
 		{
 			DWORD ReturnLength = 0;
 			return (imports.GetVolumePathNamesForVolumeNameW(VolumeName.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &ReturnLength) || !ReturnLength)?
@@ -2097,7 +2097,7 @@ namespace os::fs
 	{
 		null_terminated const C_DeviceName(DeviceName);
 		const auto DeviceNamePtr = EmptyToNull(C_DeviceName);
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](std::span<wchar_t> Buffer)
 		{
 			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer.data(), static_cast<DWORD>(Buffer.size()));
 			// Upon success it includes two trailing '\0', we don't need them
@@ -2107,7 +2107,7 @@ namespace os::fs
 
 	bool SearchPath(const wchar_t* Path, string_view const FileName, const wchar_t* Extension, string& strDest)
 	{
-		return os::detail::ApiDynamicStringReceiver(strDest, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(strDest, [&](std::span<wchar_t> Buffer)
 		{
 			return ::SearchPath(Path, null_terminated(FileName).c_str(), Extension, static_cast<DWORD>(Buffer.size()), Buffer.data(), nullptr);
 		});
@@ -2115,7 +2115,7 @@ namespace os::fs
 
 	bool GetTempPath(string& strBuffer)
 	{
-		return os::detail::ApiDynamicStringReceiver(strBuffer, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(strBuffer, [&](std::span<wchar_t> Buffer)
 		{
 			return ::GetTempPath(static_cast<DWORD>(Buffer.size()), Buffer.data());
 		});
@@ -2123,7 +2123,7 @@ namespace os::fs
 
 	bool get_module_file_name(HANDLE hProcess, HMODULE hModule, string &strFileName)
 	{
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](std::span<wchar_t> Buffer)
 		{
 			if (!hProcess)
 			{

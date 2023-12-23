@@ -380,7 +380,7 @@ namespace os::process
 			return 0;
 		}
 
-		for (const auto& i: span(Info->ProcessIdList, Info->NumberOfProcessIdsInList))
+		for (const auto& i: std::span(Info->ProcessIdList, Info->NumberOfProcessIdsInList))
 		{
 			const auto Name = get_process_name(i);
 			version::file_version Version;

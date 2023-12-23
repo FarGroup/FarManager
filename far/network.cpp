@@ -89,7 +89,7 @@ os::fs::drives_set GetSavedNetworkDrives()
 		if (Result != NO_ERROR || !Count)
 			break;
 
-		for (const auto& i: span(Buffer.data(), Count))
+		for (const auto& i: std::span(Buffer.data(), Count))
 		{
 			const auto Name = i.lpLocalName;
 			if (os::fs::drive::is_standard_letter(Name[0]) && Name[1] == L':')

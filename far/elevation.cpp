@@ -1048,7 +1048,7 @@ public:
 
 		const auto OptionalPrivilegesCount = 2; // Backup, restore
 
-		SCOPED_ACTION(os::security::privilege)((span(Privileges)).subspan(UsePrivileges? 0 : OptionalPrivilegesCount));
+		SCOPED_ACTION(os::security::privilege)(std::span{Privileges}.subspan(UsePrivileges? 0 : OptionalPrivilegesCount));
 
 		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, Uuid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);

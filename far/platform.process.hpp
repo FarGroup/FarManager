@@ -66,7 +66,7 @@ namespace os::process
 	{
 		DWORD Pid;
 		string_view Name;
-		span<SYSTEM_THREAD_INFORMATION const> Threads;
+		std::span<SYSTEM_THREAD_INFORMATION const> Threads;
 	};
 
 	class [[nodiscard]] enum_processes: public enumerator<enum_processes, enum_process_entry>

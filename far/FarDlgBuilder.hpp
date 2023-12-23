@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/range.hpp"
 
 // External:
 
@@ -151,18 +150,18 @@ public:
 	DialogItemEx& AddFixEditField(string& Value, int Width, const wchar_t* Mask = {});
 	DialogItemEx& AddFixEditField(StringOption& Value, int Width, const wchar_t* Mask = {});
 	DialogItemEx& AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx& AddComboBox(int& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx& AddComboBox(IntOption& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx& AddListBox(int& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx& AddListBox(IntOption& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	void AddRadioButtons(size_t& Value, span<lng const> Options, bool FocusOnSelected = false);
-	void AddRadioButtons(IntOption& Value, span<lng const> Options, bool FocusOnSelected = false);
+	DialogItemEx& AddComboBox(int& Value, int Width, std::span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddComboBox(IntOption& Value, int Width, std::span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddListBox(int& Value, int Width, int Height, std::span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddListBox(IntOption& Value, int Width, int Height, std::span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	void AddRadioButtons(size_t& Value, std::span<lng const> Options, bool FocusOnSelected = false);
+	void AddRadioButtons(IntOption& Value, std::span<lng const> Options, bool FocusOnSelected = false);
 	void LinkFlags(DialogItemEx& Parent, DialogItemEx& Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels = true);
 	void AddOK();
 	void AddOKCancel();
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
-	void AddButtons(span<lng const> Buttons);
-	void AddButtons(span<lng const> Buttons, size_t OkIndex, size_t CancelIndex);
+	void AddButtons(std::span<lng const> Buttons);
+	void AddButtons(std::span<lng const> Buttons, size_t OkIndex, size_t CancelIndex);
 	void SetDialogMode(DWORD Flags);
 	// BUGBUG
 	void SetScrObjFlags(DWORD Flags);
@@ -197,7 +196,7 @@ private:
 	DialogItemEx& AddCheckboxImpl(lng_string Text, value_type& Value, unsigned Mask, bool ThreeState);
 
 	template<typename value_type>
-	DialogItemEx& AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
+	DialogItemEx& AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, std::span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
 
 	static const int SECOND_COLUMN = -2;
 	static constexpr size_t npos = -1;

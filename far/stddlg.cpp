@@ -588,7 +588,7 @@ bool GetString(
 		StrDlg[gs_edit].strData = SrcText;
 
 	{
-		const auto Dlg = Dialog::create(span(StrDlg.data(), StrDlg.size() - Substract));
+		const auto Dlg = Dialog::create(std::span(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg->SetPosition({ -1, -1, 76, offset + (Flags & FIB_BUTTONS? 8 : 6) });
 		if(Id) Dlg->SetId(*Id);
 
@@ -1388,7 +1388,7 @@ progress_impl::~progress_impl()
 		m_Dialog->CloseDialog();
 }
 
-void progress_impl::init(span<DialogItemEx> const Items, rectangle const Position)
+void progress_impl::init(std::span<DialogItemEx> const Items, rectangle const Position)
 {
 	m_Dialog = Dialog::create(Items, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
 	{

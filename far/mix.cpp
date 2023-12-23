@@ -213,7 +213,7 @@ void PluginPanelItemHolderRef::set_owner(string_view Value)
 	Item.Owner = Value.data();
 }
 
-void PluginPanelItemHolderRef::set_columns(span<const wchar_t* const> Value)
+void PluginPanelItemHolderRef::set_columns(std::span<const wchar_t* const> Value)
 {
 	Item.CustomColumnData = Value.data();
 }
@@ -243,11 +243,11 @@ void PluginPanelItemHolderHeap::set_owner(string_view const Value)
 	Item.Owner = make_copy(Value);
 }
 
-void PluginPanelItemHolderHeap::set_columns(span<const wchar_t* const> const Values)
+void PluginPanelItemHolderHeap::set_columns(std::span<const wchar_t* const> const Values)
 {
 	auto Columns = std::make_unique<const wchar_t*[]>(Values.size());
 
-	for (const auto& [Column, Value]: zip(span(Columns.get(), Values.size()), Values))
+	for (const auto& [Column, Value]: zip(std::span(Columns.get(), Values.size()), Values))
 	{
 		Column = Value? make_copy(Value) : nullptr;
 	}
@@ -268,7 +268,7 @@ void FreePluginPanelItemData(const PluginPanelItem& Data)
 	delete[] Data.AlternateFileName;
 	delete[] Data.Description;
 	delete[] Data.Owner;
-	DeleteRawArray(span(Data.CustomColumnData, Data.CustomColumnNumber));
+	DeleteRawArray(std::span(Data.CustomColumnData, Data.CustomColumnNumber));
 }
 
 void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
@@ -280,7 +280,7 @@ void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
 	Data.FreeData(Data.Data, &info);
 }
 
-void FreePluginPanelItemsData(span<PluginPanelItem> const Items)
+void FreePluginPanelItemsData(std::span<PluginPanelItem> const Items)
 {
 	for (const auto& i: Items)
 	{

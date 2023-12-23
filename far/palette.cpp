@@ -269,7 +269,7 @@ FarColor palette::Default(size_t const Index) const
 	return index_color(Init[Index]);
 }
 
-void palette::Set(size_t StartOffset, span<FarColor> Values)
+void palette::Set(size_t StartOffset, std::span<FarColor const> Values)
 {
 	assert(Values.size() + StartOffset <= CurrentPalette.size());
 
@@ -277,7 +277,7 @@ void palette::Set(size_t StartOffset, span<FarColor> Values)
 	PaletteChanged = true;
 }
 
-void palette::CopyTo(span<FarColor> const Destination) const
+void palette::CopyTo(std::span<FarColor> const Destination) const
 {
 	const auto Size = std::min(CurrentPalette.size(), Destination.size());
 	std::copy_n(CurrentPalette.begin(), Size, Destination.begin());

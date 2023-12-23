@@ -81,7 +81,7 @@ string GroupDigits(unsigned long long Value)
 
 	auto Src = str(Value);
 
-	if (string Result; os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Result, [&](span<wchar_t> Buffer)
+	if (string Result; os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Result, [&](std::span<wchar_t> Buffer)
 	{
 		const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, Src.c_str(), &Fmt, Buffer.data(), static_cast<int>(Buffer.size()));
 		return Size? Size - 1 : 0;
@@ -155,7 +155,7 @@ void inplace::QuoteOuterSpace(string& Str)
 // TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?
 static const auto Dots = L"…"sv;
 
-static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(span<wchar_t>, size_t, string_view)> const Handler)
+static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(std::span<wchar_t>, size_t, string_view)> const Handler)
 {
 	assert(MaxLength >= 0);
 	const size_t Max = std::max(0, MaxLength);
@@ -174,7 +174,7 @@ static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(span
 
 wchar_t* legacy::truncate_right(wchar_t *Str, int MaxLength)
 {
-	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
 		*copy_string(CurrentDots, StrParam.data() + MaxLengthParam - CurrentDots.size()) = {};
 	});
@@ -202,7 +202,7 @@ string truncate_right(string_view const Str, size_t const MaxLength)
 
 wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
 {
-	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
 		const auto Iterator = copy_string(CurrentDots, StrParam.data());
 
@@ -235,7 +235,7 @@ string truncate_left(string_view const Str, size_t const MaxLength)
 
 wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
 {
-	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
 		const auto Iterator = copy_string(CurrentDots, StrParam.begin() + (MaxLengthParam - CurrentDots.size()) / 2);
 
@@ -275,7 +275,7 @@ static auto StartOffset(string_view const Str)
 
 wchar_t* legacy::truncate_path(wchar_t*Str, int MaxLength)
 {
-	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
 		const auto Offset = std::min(StartOffset(StrParam.data()), MaxLengthParam - CurrentDots.size());
 
@@ -703,7 +703,7 @@ unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 string ReplaceBrackets(
 		const string_view SearchStr,
 		const string_view ReplaceStr,
-		span<RegExpMatch const> Match,
+		std::span<RegExpMatch const> Match,
 		const named_regex_match* NamedMatch
 )
 {

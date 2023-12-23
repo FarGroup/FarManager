@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -56,7 +55,7 @@ class VMenu2 final: public Dialog
 	struct private_tag { explicit private_tag() = default; };
 
 public:
-	static vmenu2_ptr create(const string& Title, span<const menu_item> Data, int MaxHeight=0, DWORD Flags=0);
+	static vmenu2_ptr create(const string& Title, std::span<const menu_item> Data, int MaxHeight=0, DWORD Flags=0);
 
 	VMenu2(private_tag, int MaxHeight);
 

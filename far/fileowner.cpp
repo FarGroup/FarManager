@@ -155,7 +155,7 @@ namespace
 		static size_t get_hash(const PSID Data, size_t Size)
 		{
 			const auto Begin = static_cast<const std::byte*>(Data);
-			return hash_range(span(Begin, Size));
+			return hash_range(std::span(Begin, Size));
 		}
 
 	private:

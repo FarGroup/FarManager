@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_substrings.hpp"
-#include "common/range.hpp"
 #include "common/string_utils.hpp"
 
 // External:

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/noncopyable.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -64,7 +63,7 @@ public:
 	virtual void set_alt_name(string_view Value) = 0;
 	virtual void set_description(string_view Value) = 0;
 	virtual void set_owner(string_view Value) = 0;
-	virtual void set_columns(span<const wchar_t* const> Value) = 0;
+	virtual void set_columns(std::span<const wchar_t* const> Value) = 0;
 
 	PluginPanelItem Item{};
 
@@ -81,7 +80,7 @@ public:
 	void set_alt_name(string_view Value) override;
 	void set_description(string_view Value) override;
 	void set_owner(string_view Value) override;
-	void set_columns(span<const wchar_t* const> Value) override;
+	void set_columns(std::span<const wchar_t* const> Value) override;
 };
 
 class PluginPanelItemHolderHeap: public PluginPanelItemHolder
@@ -96,7 +95,7 @@ public:
 	void set_alt_name(string_view Value) override;
 	void set_description(string_view Value) override;
 	void set_owner(string_view Value) override;
-	void set_columns(span<const wchar_t* const> Values) override;
+	void set_columns(std::span<const wchar_t* const> Values) override;
 
 private:
 	static const wchar_t* make_copy(string_view Value);
@@ -115,7 +114,7 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 
 void FreePluginPanelItemData(const PluginPanelItem& Data);
 void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data);
-void FreePluginPanelItemsData(span<PluginPanelItem> Items);
+void FreePluginPanelItemsData(std::span<PluginPanelItem> Items);
 
 class plugin_item_list
 {
@@ -145,7 +144,7 @@ private:
 };
 
 template<class T>
-void DeleteRawArray(span<T> Data)
+void DeleteRawArray(std::span<T> Data)
 {
 	for (const auto& i: Data)
 	{

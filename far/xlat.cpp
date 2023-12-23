@@ -86,7 +86,7 @@ void xlat_initialize()
 		XLat.Layouts[0] = nullptr;
 }
 
-void Xlat(span<wchar_t> const Data, unsigned long long const Flags)
+void Xlat(std::span<wchar_t> const Data, unsigned long long const Flags)
 {
 	const auto& XLat = Global->Opt->XLat;
 

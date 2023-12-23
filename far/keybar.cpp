@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/enum_tokens.hpp"
-#include "common/range.hpp"
 
 // External:
 #include "format.hpp"
@@ -371,7 +370,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 
 	size_t Result = 0;
 
-	for (const auto& i: span(Kbt->Labels, Kbt->CountLabels))
+	for (const auto& i: std::span(Kbt->Labels, Kbt->CountLabels))
 	{
 		if (i.Key.VirtualKeyCode < VK_F1 || i.Key.VirtualKeyCode >= VK_F1 + KEY_COUNT)
 			continue;

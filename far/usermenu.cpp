@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -199,7 +198,7 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	return Result;
 }
 
-static void ParseMenu(UserMenu::menu_container& Menu, range<enum_lines::iterator> const FileStrings, bool OldFormat)
+static void ParseMenu(UserMenu::menu_container& Menu, std::ranges::subrange<enum_lines::iterator> const FileStrings, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 

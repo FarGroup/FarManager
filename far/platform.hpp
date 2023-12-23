@@ -41,8 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
-#include "common/range.hpp"
 #include "common/smart_ptr.hpp"
+#include "common/span.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -73,9 +73,9 @@ namespace os
 		[[nodiscard]]
 		bool ApiDynamicReceiver(
 			buffer_type&& Buffer,
-			function_ref<size_t(span<std::ranges::range_value_t<buffer_type>> WritableBuffer)> const Receiver,
+			function_ref<size_t(std::span<std::ranges::range_value_t<buffer_type>> WritableBuffer)> const Receiver,
 			function_ref<bool(size_t ReturnedSize, size_t AllocatedSize)> const Condition,
-			function_ref<void(span<std::ranges::range_value_t<buffer_type> const> ReadableBuffer)> const Assigner
+			function_ref<void(std::span<std::ranges::range_value_t<buffer_type> const> ReadableBuffer)> const Assigner
 		)
 		{
 			size_t Size = Receiver({ Buffer.data(), Buffer.size() });
@@ -94,10 +94,10 @@ namespace os
 		}
 
 		[[nodiscard]]
-		bool ApiDynamicStringReceiver(string& Destination, function_ref<size_t(span<wchar_t> WritableBuffer)> Callable);
+		bool ApiDynamicStringReceiver(string& Destination, function_ref<size_t(std::span<wchar_t> WritableBuffer)> Callable);
 
 		[[nodiscard]]
-		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, function_ref<size_t(span<wchar_t> WritableBuffer)> Callable);
+		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, function_ref<size_t(std::span<wchar_t> WritableBuffer)> Callable);
 
 		class handle_implementation
 		{

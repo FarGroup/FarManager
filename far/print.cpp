@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/io.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -71,7 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> const Printers)
+static void AddToPrintersMenu(VMenu2 *PrinterList, std::span<PRINTER_INFO_4W const> const Printers)
 {
 	string strDefaultPrinter;
 	// BUGBUG check result

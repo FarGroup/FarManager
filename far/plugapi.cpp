@@ -99,7 +99,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_tokens.hpp"
 #include "common/null_iterator.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -861,7 +860,7 @@ intptr_t WINAPI apiMenuFn(
 
 			size_t Selected=0;
 
-			for (const auto& i: span(Item, ItemsNumber))
+			for (const auto& i: std::span(Item, ItemsNumber))
 			{
 				MenuItemEx CurItem;
 				CurItem.Flags = i.Flags;
@@ -1031,7 +1030,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				struct private_tag { explicit private_tag() = default; };
 
 			public:
-				static dialog_ptr create(span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam)
+				static dialog_ptr create(std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam)
 				{
 					return std::make_shared<plugin_dialog>(private_tag(), Src, DlgProc, InitParam);
 				}
@@ -1041,7 +1040,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 					return m_Proc(hDlg, Msg, Param1, Param2);
 				}
 
-				plugin_dialog(private_tag, span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam):
+				plugin_dialog(private_tag, std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam):
 					Dialog(Dialog::private_tag(), Src, DlgProc? [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return Proc(Dlg, Msg, Param1, Param2); } : dialog_handler(), InitParam),
 					m_Proc(DlgProc)
 				{}
@@ -1574,7 +1573,7 @@ namespace magic
 	}
 
 	template<typename T>
-	static auto CastRawDataToVector(span<T> const RawItems)
+	static auto CastRawDataToVector(std::span<T> const RawItems)
 	{
 		const auto Items = edit_as<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
 		Items->pop_back(); // not needed anymore
@@ -1695,7 +1694,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 	return cpp_try(
 	[&]
 	{
-		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
+		const auto Items = magic::CastRawDataToVector(std::span{ PanelItems, ItemsNumber });
 		FreePluginPanelItemsData(*Items);
 	},
 	[]
@@ -1709,7 +1708,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 	return cpp_try(
 	[&]
 	{
-		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
+		const auto Items = magic::CastRawDataToVector(std::span{ PanelItems, ItemsNumber });
 		FreePluginDirList(hPlugin, *Items);
 	},
 	[]
@@ -2448,7 +2447,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 	});
 }
 
-static size_t apiPasteFromClipboardEx(bool Type, span<wchar_t> Data)
+static size_t apiPasteFromClipboardEx(bool Type, std::span<wchar_t> Data)
 {
 	string str;
 	if(Type? GetClipboardVText(str) : GetClipboardText(str))

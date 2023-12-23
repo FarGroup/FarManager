@@ -637,9 +637,6 @@
     <ClInclude Include="common\preprocessor.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\range.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\scope_exit.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -647,6 +644,9 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\smart_ptr.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\span.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_utils.hpp">

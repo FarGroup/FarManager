@@ -952,7 +952,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 								{
 									KnownReparseTag = true;
 
-									const span DfsStorages(DfsInfo->Storage, DfsInfo->NumberOfStorages);
+									const std::span DfsStorages(DfsInfo->Storage, DfsInfo->NumberOfStorages);
 									ListItems.resize(DfsStorages.size());
 									Links.resize(DfsStorages.size());
 
@@ -981,7 +981,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
-				for (auto& i: range(AttrDlg.begin() + SA_TEXT_REPARSE_POINT, AttrDlg.end()))
+				for (auto& i: std::ranges::subrange(AttrDlg.begin() + SA_TEXT_REPARSE_POINT, AttrDlg.end()))
 				{
 					i.Y1++;
 

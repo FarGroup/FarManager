@@ -123,7 +123,7 @@ public:
 		return !size;
 	}
 
-	constexpr operator span<color_item const>() const;
+	constexpr operator std::span<color_item const>() const;
 
 private:
 	color_item const* data{};
@@ -139,12 +139,12 @@ struct color_item
 	PaletteColors const* BottomColor;
 };
 
-constexpr color_item_span::operator span<color_item const>() const
+constexpr color_item_span::operator std::span<color_item const>() const
 {
 	return { data, data + size };
 }
 
-static void SetItemColors(span<const color_item> const Items, point Position = {})
+static void SetItemColors(std::span<const color_item> const Items, point Position = {})
 {
 	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), {});
 
@@ -399,7 +399,7 @@ void SetColors()
 		static constexpr struct
 		{
 			lng MenuId;
-			span<const color_item> Subitems;
+			std::span<const color_item> Subitems;
 		}
 		Groups[]
 		{

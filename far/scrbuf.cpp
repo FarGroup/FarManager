@@ -160,7 +160,7 @@ void ScreenBuf::FillBuf()
 
 /* Записать Text в виртуальный буфер
 */
-void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
+void ScreenBuf::Write(int X, int Y, std::span<const FAR_CHAR_INFO> Text)
 {
 	SCOPED_ACTION(std::scoped_lock)(CS);
 
@@ -205,7 +205,7 @@ void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 	for (const auto i: std::views::iota(Where.top + 0, Where.bottom + 1))
 	{
 		const auto Row = Buf[i];
-		std::copy_n(Row.cbegin() + Where.left, Where.width(), Dest[i - Where.top].begin());
+		std::copy_n(Row.begin() + Where.left, Where.width(), Dest[i - Where.top].begin());
 	}
 }
 

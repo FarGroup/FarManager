@@ -167,7 +167,7 @@ static constexpr auto order_indicator(sort_order const Order)
 	}
 }
 
-span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sort const SortMode)
+std::span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sort const SortMode)
 {
 	return SortModes[static_cast<size_t>(SortMode)].DefaultLayers;
 }
@@ -798,7 +798,7 @@ private:
 	const panel_sort m_ListSortMode;
 	const panel_mode m_ListPanelMode;
 	const plugin_panel* m_SortPlugin;
-	const span<std::pair<panel_sort, sort_order>> m_SortLayers;
+	const std::span<std::pair<panel_sort, sort_order>> m_SortLayers;
 	const bool m_Reverse;
 	bool m_ListSortGroups;
 	bool m_ListSelectedFirst;
@@ -5263,7 +5263,7 @@ void FileList::CountDirSize(bool IsRealNames)
 				return Callback(PluginCurDir, ItemsCount, Size);
 			};
 
-			for (const auto& i: range(m_ListData.begin() + 1, m_ListData.end()))
+			for (const auto& i: std::ranges::subrange(m_ListData.begin() + 1, m_ListData.end()))
 			{
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
@@ -5917,7 +5917,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		}
 
 		size_t ColumnOffset = ColumnsDataOffset;
-		for (const auto& [Column, Data]: zip(fi.CustomColumns, span(const_cast<const wchar_t**>(gpi->Item->CustomColumnData), fi.CustomColumns.size())))
+		for (const auto& [Column, Data]: zip(fi.CustomColumns, std::span(const_cast<const wchar_t**>(gpi->Item->CustomColumnData), fi.CustomColumns.size())))
 		{
 			if (!Column)
 			{
@@ -5974,7 +5974,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	{
 		CustomColumns.reserve(pi.CustomColumnNumber);
 
-		for (const auto& i: span(pi.CustomColumnData, pi.CustomColumnNumber))
+		for (const auto& i: std::span(pi.CustomColumnData, pi.CustomColumnNumber))
 		{
 			if (!i)
 			{
@@ -6082,7 +6082,7 @@ void FileList::PluginDelete()
 }
 
 
-void FileList::PutDizToPlugin(FileList *DestPanel, span<PluginPanelItem> const ItemList, bool Delete, bool Move, DizList *SrcDiz) const
+void FileList::PutDizToPlugin(FileList *DestPanel, std::span<PluginPanelItem> const ItemList, bool Delete, bool Move, DizList *SrcDiz) const
 {
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(DestPanel->GetPluginHandle(), &m_CachedOpenPanelInfo);
 
@@ -6326,7 +6326,7 @@ void FileList::PluginHostGetFiles()
 		if (UsedPlugins.contains(hCurPlugin->plugin()))
 			OpMode|=OPM_SILENT;
 
-		span<PluginPanelItem> Items;
+		std::span<PluginPanelItem> Items;
 
 		if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin.get(), Items, OpMode))
 		{
@@ -6556,7 +6556,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 	if (!hNewPlugin)
 		return Done;
 
-	span<PluginPanelItem> Items;
+	std::span<PluginPanelItem> Items;
 
 	if (Global->CtrlObject->Plugins->GetFindData(hNewPlugin.get(), Items, OPM_TOPLEVEL))
 	{
@@ -6763,7 +6763,7 @@ bool FileList::ProcessPluginEvent(int Event,void *Param)
 	return Global->CtrlObject->Plugins->ProcessEvent(GetPluginHandle(), Event, Param) != FALSE;
 }
 
-void FileList::PluginClearSelection(span<PluginPanelItem> const ItemList)
+void FileList::PluginClearSelection(std::span<PluginPanelItem> const ItemList)
 {
 	SaveSelection();
 	size_t FileNumber=0,PluginNumber=0;
@@ -7115,7 +7115,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 		string strPath(m_CurDir);
 		AddEndSlash(strPath);
-		span<PluginPanelItem> PanelData;
+		std::span<PluginPanelItem> PanelData;
 		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin, PanelData, strPath))
 		{
 			m_ListData.reserve(m_ListData.size() + PanelData.size());
@@ -7412,7 +7412,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 			FreeDiskSize = m_CachedOpenPanelInfo.FreeSize;
 	}
 
-	span<PluginPanelItem> PanelData;
+	std::span<PluginPanelItem> PanelData;
 
 	int result = FALSE;
 	{
@@ -7595,7 +7595,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 }
 
 
-void FileList::ReadDiz(span<PluginPanelItem> const Items)
+void FileList::ReadDiz(std::span<PluginPanelItem> const Items)
 {
 	if (DizRead)
 		return;
@@ -7616,7 +7616,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 
 		int GetCode=TRUE;
 
-		span<PluginPanelItem> PanelData;
+		std::span<PluginPanelItem> PanelData;
 
 		if (Items.empty())
 		{
@@ -7629,7 +7629,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 
 		if (GetCode)
 		{
-			for (const auto& i: span(m_CachedOpenPanelInfo.DescrFiles, m_CachedOpenPanelInfo.DescrFilesNumber))
+			for (const auto& i: std::span(m_CachedOpenPanelInfo.DescrFiles, m_CachedOpenPanelInfo.DescrFilesNumber))
 			{
 				for (auto& CurPanelData: PanelData)
 				{

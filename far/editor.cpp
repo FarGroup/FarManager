@@ -4074,7 +4074,7 @@ string Editor::Block2Text()
 	string CopyData;
 	CopyData.reserve(TotalChars);
 
-	for (const auto& i: range(m_it_AnyBlockStart.base(), SelEnd))
+	for (const auto& i: std::ranges::subrange(m_it_AnyBlockStart.base(), SelEnd))
 	{
 		CopyData += i.GetSelString();
 

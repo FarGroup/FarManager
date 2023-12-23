@@ -92,12 +92,12 @@ wchar_t lower(wchar_t Char)
 	return Char;
 }
 
-void inplace::upper(span<wchar_t> const Str)
+void inplace::upper(std::span<wchar_t> const Str)
 {
 	CharUpperBuff(Str.data(), static_cast<DWORD>(Str.size()));
 }
 
-void inplace::lower(span<wchar_t> const Str)
+void inplace::lower(std::span<wchar_t> const Str)
 {
 	CharLowerBuff(Str.data(), static_cast<DWORD>(Str.size()));
 }

@@ -429,7 +429,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 	}
 
 	enum_tokens const EnumWidths(ColumnWidths, L","sv);
-	range EnumWidthsRange(EnumWidths);
+	std::ranges::subrange EnumWidthsRange(EnumWidths);
 
 	for (auto& i: Columns)
 	{
@@ -437,8 +437,8 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 
 		if (!EnumWidthsRange.empty())
 		{
-			Width = EnumWidthsRange.front();
-			EnumWidthsRange.pop_front();
+			Width = *EnumWidthsRange.begin();
+			EnumWidthsRange.advance(1);
 		}
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -

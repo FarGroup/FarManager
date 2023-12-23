@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -97,7 +96,7 @@ namespace os::debug
 
 		void get(
 			string_view ModuleName,
-			span<stack_frame const> BackTrace,
+			std::span<stack_frame const> BackTrace,
 			std::unordered_map<uintptr_t, map_file>& MapFiles,
 			function_ref<void(uintptr_t, string_view, bool, symbol, location)> Consumer
 		);

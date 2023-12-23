@@ -1732,7 +1732,7 @@ public:
 };
 
 
-static const RegExp::StateStackItem& FindStateByPos(span<RegExp::StateStackItem const> const stack, RegExp::REOpCode* pos, int op)
+static const RegExp::StateStackItem& FindStateByPos(std::span<RegExp::StateStackItem const> const stack, RegExp::REOpCode* pos, int op)
 {
 	return *std::ranges::find_if(stack | std::views::reverse, [&](const auto& i){ return i.pos == pos && i.op == op; });
 }
@@ -3793,7 +3793,7 @@ static bool operator==(RegExpMatch const& a, RegExpMatch const& b)
 	return a.start == b.start && a.end == b.end;
 }
 
-static bool operator==(span<RegExpMatch const> const a, span<RegExpMatch const> const b)
+static bool operator==(std::span<RegExpMatch const> const a, std::span<RegExpMatch const> const b)
 {
 	return std::ranges::equal(a, b);
 }

@@ -751,7 +751,7 @@ namespace os::debug::symbols
 
 	void get(
 		string_view const ModuleName,
-		span<stack_frame const> const BackTrace,
+		std::span<stack_frame const> const BackTrace,
 		std::unordered_map<uintptr_t, map_file>& MapFiles,
 		function_ref<void(uintptr_t, string_view, bool, symbol, location)> const Consumer
 	)

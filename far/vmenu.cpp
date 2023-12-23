@@ -96,14 +96,14 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 {
 }
 
-vmenu_ptr VMenu::create(string Title, span<menu_item const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
+vmenu_ptr VMenu::create(string Title, std::span<menu_item const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), std::move(Title), MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, Flags);
 	return VmenuPtr;
 }
 
-void VMenu::init(span<menu_item const> const Data, DWORD Flags)
+void VMenu::init(std::span<menu_item const> const Data, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
@@ -397,7 +397,7 @@ int VMenu::AddItem(const FarList* List)
 {
 	if (List && List->Items)
 	{
-		for (const auto& Item: span(List->Items, List->ItemsNumber))
+		for (const auto& Item: std::span(List->Items, List->ItemsNumber))
 		{
 			AddItem(FarList2MenuItem(Item));
 		}
@@ -1415,7 +1415,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 						start--;
 
 					start++;
-					Xlat(span(strFilter).subspan(start), Global->Opt->XLat.Flags);
+					Xlat(std::span(strFilter).subspan(start), Global->Opt->XLat.Flags);
 					FilterStringUpdated();
 					DisplayObject();
 				}
@@ -2903,7 +2903,7 @@ const UUID& VMenu::Id() const
 	return MenuId;
 }
 
-std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
+std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
 {
 	std::vector<string> Result(MenuItems.size());
 

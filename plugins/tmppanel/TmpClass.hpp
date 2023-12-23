@@ -11,7 +11,7 @@ Temporary panel plugin class header file
 
 #include "TmpPanel.hpp"
 
-#include <range.hpp>
+#include <span>
 
 class TmpPanel
 {
@@ -24,14 +24,14 @@ public:
 	void GetOpenPanelInfo(OpenPanelInfo& Info);
 	int SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode);
 
-	bool PutFiles(span<const PluginPanelItem> Files, const wchar_t* SrcPath, OPERATION_MODES OpMode);
+	bool PutFiles(std::span<const PluginPanelItem> Files, const wchar_t* SrcPath, OPERATION_MODES OpMode);
 	HANDLE BeginPutFiles();
 	void CommitPutFiles(HANDLE RestoreScreen, bool Success);
 	bool PutDirectoryContents(const wchar_t* Path);
 	bool PutOneFile(const string& SrcPath, const PluginPanelItem& PanelItem);
 	bool PutOneFile(const string& FilePath);
 
-	int SetFindList(span<const PluginPanelItem> Files);
+	int SetFindList(std::span<const PluginPanelItem> Files);
 	int ProcessEvent(intptr_t Event, void* Param);
 	bool ProcessKey(const INPUT_RECORD* Rec);
 	void IfOptCommonPanel();

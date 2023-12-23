@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../preprocessor.hpp"
-#include "../range.hpp"
+#include "../span.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -46,10 +46,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename T>
-	class matrix_row: public span<T>
+	class matrix_row: public std::span<T>
 	{
 	public:
-		using span<T>::span;
+		using std::span<T>::span;
 
 		[[nodiscard]]
 		bool operator==(const matrix_row& rhs) const

@@ -372,7 +372,7 @@ static const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-static void AnsiToUnicodeBin(std::string_view const AnsiString, span<wchar_t> const UnicodeString, uintptr_t const CodePage = encoding::codepage::oem())
+static void AnsiToUnicodeBin(std::string_view const AnsiString, std::span<wchar_t> const UnicodeString, uintptr_t const CodePage = encoding::codepage::oem())
 {
 	UnicodeString.front() = {};
 	(void)encoding::get_chars(CodePage, AnsiString, UnicodeString);
@@ -391,7 +391,7 @@ static wchar_t *AnsiToUnicode(const char* AnsiString)
 	return AnsiString? AnsiToUnicodeBin(AnsiString) : nullptr;
 }
 
-static void UnicodeToAnsiBin(string_view const UnicodeString, span<char> const AnsiString, uintptr_t const CodePage = encoding::codepage::oem())
+static void UnicodeToAnsiBin(string_view const UnicodeString, std::span<char> const AnsiString, uintptr_t const CodePage = encoding::codepage::oem())
 {
 	AnsiString.front() = {};
 	// BUGBUG, error checking
@@ -416,14 +416,14 @@ static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 	return UnicodeString? UnicodeToAnsiBin(UnicodeString) : nullptr;
 }
 
-static wchar_t** AnsiArrayToUnicode(span<const char* const> const Strings)
+static wchar_t** AnsiArrayToUnicode(std::span<const char* const> const Strings)
 {
 	auto Result = std::make_unique<wchar_t*[]>(Strings.size());
 	std::ranges::transform(Strings, Result.get(), AnsiToUnicode);
 	return Result.release();
 }
 
-static wchar_t **AnsiArrayToUnicodeMagic(span<const char* const> const Strings)
+static wchar_t **AnsiArrayToUnicodeMagic(std::span<const char* const> const Strings)
 {
 	auto Result = std::make_unique<wchar_t*[]>(Strings.size() + 1);
 	Result[0] = static_cast<wchar_t*>(ToPtr(Strings.size()));
@@ -439,7 +439,7 @@ static void FreeUnicodeArrayMagic(const wchar_t* const* Array)
 	const auto RealPtr = Array - 1;
 	const auto Size = reinterpret_cast<size_t>(RealPtr[0]);
 
-	for (const auto& i: span(Array, Size))
+	for (const auto& i: std::span(Array, Size))
 	{
 		delete[] i;
 	}
@@ -521,7 +521,7 @@ static void SecondFlagsToFirst(const auto& SecondFlags, auto& FirstFlags, const 
 	}
 }
 
-static InfoPanelLine* ConvertInfoPanelLinesA(span<const oldfar::InfoPanelLine> const ipl)
+static InfoPanelLine* ConvertInfoPanelLinesA(std::span<const oldfar::InfoPanelLine> const ipl)
 {
 	auto Result = std::make_unique<InfoPanelLine[]>(ipl.size());
 
@@ -533,7 +533,7 @@ static InfoPanelLine* ConvertInfoPanelLinesA(span<const oldfar::InfoPanelLine> c
 	return Result.release();
 }
 
-static void FreeUnicodeInfoPanelLines(span<const InfoPanelLine> const Lines)
+static void FreeUnicodeInfoPanelLines(std::span<const InfoPanelLine> const Lines)
 {
 	for (const auto& i: Lines)
 	{
@@ -567,7 +567,7 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 		(Mode.CaseConversion? PMFLAGS_CASECONVERSION : 0);
 }
 
-static void ConvertPanelModesToUnicode(span<const oldfar::PanelMode> const Modes, span<PanelMode> const UnicodeModes)
+static void ConvertPanelModesToUnicode(std::span<const oldfar::PanelMode> const Modes, std::span<PanelMode> const UnicodeModes)
 {
 	for (const auto& [m, u]: zip(Modes, UnicodeModes))
 	{
@@ -575,7 +575,7 @@ static void ConvertPanelModesToUnicode(span<const oldfar::PanelMode> const Modes
 	}
 }
 
-static void FreeUnicodePanelModes(span<PanelMode const> const Modes)
+static void FreeUnicodePanelModes(std::span<PanelMode const> const Modes)
 {
 	for (const auto& i: Modes)
 	{
@@ -659,7 +659,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 
 static void FreeUnicodeKeyBarTitles(const KeyBarTitles& kbtW)
 {
-	for (const auto& Item: span(kbtW.Labels, kbtW.CountLabels))
+	for (const auto& Item: std::span(kbtW.Labels, kbtW.CountLabels))
 	{
 		delete[] Item.Text;
 	}
@@ -679,10 +679,10 @@ static const std::array PluginPanelItemFlagsMap
 	// PPIF_USERDATA is handled manually
 };
 
-static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(span<const oldfar::PluginPanelItem> const PanelItemA)
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(std::span<const oldfar::PluginPanelItem> const PanelItemA)
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
-	const span DstSpan(Result.get(), PanelItemA.size());
+	const std::span DstSpan(Result.get(), PanelItemA.size());
 	for(const auto& [Src, Dst]: zip(PanelItemA, DstSpan))
 	{
 		// Plugin can keep its own flags in the low word
@@ -775,7 +775,7 @@ static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelIt
 {
 	auto Result = std::make_unique<oldfar::PluginPanelItem[]>(ItemsNumber);
 
-	for (const auto& [Item, AnsiItem]: zip(span(PanelItemW, ItemsNumber), span(Result.get(), ItemsNumber)))
+	for (const auto& [Item, AnsiItem]: zip(std::span(PanelItemW, ItemsNumber), std::span(Result.get(), ItemsNumber)))
 	{
 		ConvertPanelItemToAnsi(Item, AnsiItem);
 	}
@@ -785,19 +785,19 @@ static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelIt
 
 static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	FreePluginPanelItemsData(span(PanelItem, ItemsNumber));
+	FreePluginPanelItemsData(std::span(PanelItem, ItemsNumber));
 
 	delete[] PanelItem;
 }
 
-static void FreePanelItemA(span<const oldfar::PluginPanelItem> const PanelItem)
+static void FreePanelItemA(std::span<const oldfar::PluginPanelItem> const PanelItem)
 {
 	for (const auto& Item: PanelItem)
 	{
 		delete[] Item.Description;
 		delete[] Item.Owner;
 
-		DeleteRawArray(span(Item.CustomColumnData, Item.CustomColumnNumber));
+		DeleteRawArray(std::span(Item.CustomColumnData, Item.CustomColumnNumber));
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
@@ -896,7 +896,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	if (!VBuf || !VBufA)
 		return;
 
-	for (const auto& [Src, Dst]: zip(span(VBufA, Size), span(VBuf, Size)))
+	for (const auto& [Src, Dst]: zip(std::span(VBufA, Size), std::span(VBuf, Size)))
 	{
 		if (NoCvt)
 		{
@@ -1082,7 +1082,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 		if (diA.ListItems && os::memory::is_pointer(diA.ListItems))
 		{
 			auto Items = std::make_unique<FarListItem[]>(diA.ListItems->ItemsNumber);
-			for (const auto& [Item, AnsiItem]: zip(span(Items.get(), diA.ListItems->ItemsNumber), span(diA.ListItems->Items, diA.ListItems->ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: zip(std::span(Items.get(), diA.ListItems->ItemsNumber), std::span(diA.ListItems->Items, diA.ListItems->ItemsNumber)))
 			{
 				AnsiListItemToUnicode(AnsiItem, Item);
 			}
@@ -1144,7 +1144,7 @@ static void FreeUnicodeDialogItem(FarDialogItem const& di)
 		{
 			if (di.ListItems->Items)
 			{
-				for (const auto& i: span(di.ListItems->Items, di.ListItems->ItemsNumber))
+				for (const auto& i: std::span(di.ListItems->Items, di.ListItems->ItemsNumber))
 				{
 					delete[] i.Text;
 				}
@@ -1446,7 +1446,7 @@ static int GetEditorCodePageFavA()
 	return result;
 }
 
-static void MultiByteRecode(uintptr_t const CPin, uintptr_t const CPout, span<char> const Buffer)
+static void MultiByteRecode(uintptr_t const CPin, uintptr_t const CPout, std::span<char> const Buffer)
 {
 	if (!Buffer.empty())
 	{
@@ -1593,7 +1593,7 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 	return cpp_try(
 	[&]
 	{
-		for (auto& i: span(Buf, Length))
+		for (auto& i: std::span(Buf, Length))
 		{
 			i = LowerToUpper[static_cast<size_t>(i)];
 		}
@@ -1615,7 +1615,7 @@ static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
 	return cpp_try(
 	[&]
 	{
-		for (auto& i: span(Buf, Length))
+		for (auto& i: std::span(Buf, Length))
 		{
 			i = UpperToLower[static_cast<size_t>(i)];
 		}
@@ -1633,7 +1633,7 @@ static void WINAPI LocalStrupr(char *s1) noexcept
 	{
 		const auto Iterator = null_iterator(s1);
 
-		for (auto& i: range(Iterator, Iterator.end()))
+		for (auto& i: std::ranges::subrange(Iterator, Iterator.end()))
 		{
 			i = LowerToUpper[static_cast<size_t>(i)];
 		}
@@ -1651,7 +1651,7 @@ static void WINAPI LocalStrlwr(char *s1) noexcept
 	{
 		const auto Iterator = null_iterator(s1);
 
-		for (auto& i: range(Iterator, Iterator.end()))
+		for (auto& i: std::ranges::subrange(Iterator, Iterator.end()))
 		{
 			i = UpperToLower[static_cast<size_t>(i)];
 		}
@@ -2515,7 +2515,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 				OLDFAR_TO_FAR_MAP(MIF_HIDDEN),
 			};
 
-			for (const auto& [Item, AnsiItem]: zip(mi, span(view_as<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: zip(mi, std::span(view_as<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
 			{
 				Item.Flags = MIF_NONE;
 				FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, ItemFlagsMap);
@@ -2531,7 +2531,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		}
 		else
 		{
-			for (const auto& [Item, AnsiItem]: zip(mi, span(Items, ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: zip(mi, std::span(Items, ItemsNumber)))
 			{
 				Item.Flags = 0;
 
@@ -2880,7 +2880,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				std::vector<INPUT_RECORD> Keys(Param1);
 
-				for (const auto& [Key, AnsiKey]: zip(Keys, span(static_cast<const DWORD*>(Param2), Param1)))
+				for (const auto& [Key, AnsiKey]: zip(Keys, std::span(static_cast<const DWORD*>(Param2), Param1)))
 				{
 					KeyToInputRecord(OldKeyToKey(AnsiKey), &Key);
 				}
@@ -3045,7 +3045,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (newlist.ItemsNumber)
 					{
 						Items.resize(newlist.ItemsNumber);
-						for (const auto& [Item, AnsiItem] : zip(Items, span(oldlist->Items, oldlist->ItemsNumber)))
+						for (const auto& [Item, AnsiItem] : zip(Items, std::span(oldlist->Items, oldlist->ItemsNumber)))
 						{
 							AnsiListItemToUnicode(AnsiItem, Item);
 						}
@@ -3255,7 +3255,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (newlist.ItemsNumber)
 					{
 						auto Items = std::make_unique<FarListItem[]>(newlist.ItemsNumber);
-						for (const auto& [Item, AnsiItem]: zip(span(Items.get(), newlist.ItemsNumber), span(oldlist->Items, oldlist->ItemsNumber)))
+						for (const auto& [Item, AnsiItem]: zip(std::span(Items.get(), newlist.ItemsNumber), std::span(oldlist->Items, oldlist->ItemsNumber)))
 						{
 							AnsiListItemToUnicode(AnsiItem, Item);
 						}
@@ -3267,7 +3267,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (newlist.Items)
 				{
-					for (const auto& i: span(newlist.Items, newlist.ItemsNumber))
+					for (const auto& i: std::span(newlist.Items, newlist.ItemsNumber))
 					{
 						delete[] i.Text;
 					}
@@ -3368,7 +3368,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 	return cpp_try(
 	[&]() -> intptr_t
 	{
-		span ItemsSpan(Items, ItemsNumber);
+		std::span ItemsSpan(Items, ItemsNumber);
 
 		std::vector<oldfar::FarDialogItem> diA(ItemsSpan.size());
 
@@ -3631,7 +3631,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				const auto& OldPI = *static_cast<const oldfar::PanelInfo*>(Param);
 				pluginapi::apiPanelControl(hPlugin, FCTL_BEGINSELECTION, 0, nullptr);
 
-				for (const auto& [Item, Index]: enumerate(span(OldPI.PanelItems, OldPI.ItemsNumber)))
+				for (const auto& [Item, Index]: enumerate(std::span(OldPI.PanelItems, OldPI.ItemsNumber)))
 				{
 					pluginapi::apiPanelControl(hPlugin, FCTL_SETSELECTION, Index, ToPtr(Item.Flags & oldfar::PPIF_SELECTED));
 				}
@@ -3818,7 +3818,7 @@ static int GetDirListGeneric(oldfar::PluginPanelItem*& PanelItems, int& ItemsSiz
 		auto AnsiItems = std::make_unique<oldfar::PluginPanelItem[]>(Size + 1);
 		AnsiItems[0].Reserved[0] = Size;
 
-		for (const auto& [Item, AnsiItem]: zip(span(Items, Size), span(AnsiItems.get() + 1, Size)))
+		for (const auto& [Item, AnsiItem]: zip(std::span(Items, Size), std::span(AnsiItems.get() + 1, Size)))
 		{
 			ConvertPanelItemToAnsi(Item, AnsiItem, PathOffset);
 		}
@@ -4045,7 +4045,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
 				auto strSequence = L"Keys(\""s;
-				for (const auto& Key: span(ksA->Sequence, ksA->Count))
+				for (const auto& Key: std::span(ksA->Sequence, ksA->Count))
 				{
 					if (const auto KeyText = KeyToText(OldKeyToKey(Key)); !KeyText.empty())
 					{
@@ -4998,7 +4998,7 @@ static void* TranslateResult(void* hResult)
 
 static void UpdatePluginPanelItemFlags(const oldfar::PluginPanelItem* From, PluginPanelItem* To, size_t Size)
 {
-	for (const auto& [AnsiItem, Item]: zip(span(From, Size), span(To, Size)))
+	for (const auto& [AnsiItem, Item]: zip(std::span(From, Size), std::span(To, Size)))
 	{
 		FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, PluginPanelItemFlagsMap);
 	}
@@ -5769,7 +5769,7 @@ WARNING_POP()
 	{
 		const auto DeleteItems = [](const PluginMenuItem& Item)
 		{
-			for (const auto& i: span(Item.Strings, Item.Count))
+			for (const auto& i: std::span(Item.Strings, Item.Count))
 			{
 				delete[] i;
 			}
@@ -5845,7 +5845,7 @@ WARNING_POP()
 		delete[] OPI.Format;
 		delete[] OPI.PanelTitle;
 		FreeUnicodeInfoPanelLines({ OPI.InfoLines, OPI.InfoLinesNumber });
-		DeleteRawArray(span(OPI.DescrFiles, OPI.DescrFilesNumber));
+		DeleteRawArray(std::span(OPI.DescrFiles, OPI.DescrFilesNumber));
 		FreeUnicodePanelModes({ OPI.PanelModesArray, OPI.PanelModesNumber });
 		if (OPI.KeyBar)
 		{

@@ -32,9 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "range.hpp"
-#include "type_traits.hpp"
-
 #include <algorithm>
 #include <ranges>
 #include <string_view>
@@ -109,13 +106,13 @@ auto view_bytes(auto const& Object)
 [[nodiscard]]
 auto edit_bytes(auto* const Data, size_t const Size)
 {
-	return detail::bytes_impl<span<std::byte>>(Data, Size);
+	return detail::bytes_impl<std::span<std::byte>>(Data, Size);
 }
 
 [[nodiscard]]
 auto edit_bytes(auto& Object)
 {
-	return detail::bytes_impl<span<std::byte>>(Object);
+	return detail::bytes_impl<std::span<std::byte>>(Object);
 }
 
 [[nodiscard]]

@@ -1522,7 +1522,7 @@ string KeyToLocalizedText(unsigned int const Key)
 	);
 }
 
-string KeysListToLocalizedText(span<unsigned int const> const Keys)
+string KeysListToLocalizedText(std::span<unsigned int const> const Keys)
 {
 	return join(L" "sv, Keys | std::views::transform([](unsigned int const Key){ return KeyToLocalizedText(Key); }));
 }

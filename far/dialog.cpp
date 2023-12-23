@@ -277,7 +277,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 	return size;
 }
 
-void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> const ItemsEx, bool const Short)
+void ItemsToItemsEx(std::span<const FarDialogItem> const Items, std::span<DialogItemEx> const ItemsEx, bool const Short)
 {
 	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
 	{
@@ -306,7 +306,7 @@ void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> co
 	}
 }
 
-std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items)
+std::vector<DialogItemEx> MakeDialogItems(std::span<const InitDialogItem> Items)
 {
 	std::vector<DialogItemEx> ItemsEx(Items.size());
 
@@ -370,7 +370,7 @@ bool DialogItemEx::AddAutomation(DialogItemEx& DlgItem,
 }
 
 
-void Dialog::Construct(span<DialogItemEx> const SrcItems)
+void Dialog::Construct(std::span<DialogItemEx> const SrcItems)
 {
 	SavedItems = SrcItems.data();
 
@@ -393,7 +393,7 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	Init();
 }
 
-void Dialog::Construct(span<const FarDialogItem> const SrcItems)
+void Dialog::Construct(std::span<const FarDialogItem> const SrcItems)
 {
 	SavedItems = nullptr;
 
@@ -578,7 +578,7 @@ void Dialog::ProcessCenterGroup()
 
 			int Length = 0;
 
-			for (auto& j: range(FirstVisibleButton, ButtonsEnd))
+			for (auto& j: std::ranges::subrange(FirstVisibleButton, ButtonsEnd))
 			{
 				if (IsVisible(j))
 				{
@@ -591,7 +591,7 @@ void Dialog::ProcessCenterGroup()
 
 			int StartX = std::max(0, (m_Where.width() - Length) / 2);
 
-			for (auto& j: range(FirstVisibleButton, ButtonsEnd))
+			for (auto& j: std::ranges::subrange(FirstVisibleButton, ButtonsEnd))
 			{
 				if (IsVisible(j))
 				{
@@ -925,11 +925,11 @@ void Dialog::InitDialogObjects(size_t ID)
 
 			if (Item.Type == DI_COMBOBOX && Item.strData.empty() && Item.ListItems)
 			{
-				span<FarListItem const> const ListItems{ Item.ListItems->Items, Item.ListItems->ItemsNumber };
+				std::span<FarListItem const> const ListItems{ Item.ListItems->Items, Item.ListItems->ItemsNumber };
 				//Item.ListPtr->AddItem(Item.ListItems);
 
 				const auto ItemIterator = std::ranges::find_if(ListItems, [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
-				if (ItemIterator != ListItems.cend())
+				if (ItemIterator != ListItems.end())
 				{
 					if (Item.Flags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
 						Item.strData = HiText2Str(ItemIterator->Text);

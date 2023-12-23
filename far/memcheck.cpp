@@ -333,7 +333,7 @@ private:
 				Stack[StackSize] = { reinterpret_cast<uintptr_t>(i->Stack[StackSize]), INLINE_FRAME_CONTEXT_INIT };
 			}
 
-			tracer.get_symbols({}, span(Stack, StackSize), [&](string_view const Line)
+			tracer.get_symbols({}, { Stack, StackSize }, [&](string_view const Line)
 			{
 				append(Message, Line, L'\n');
 			});

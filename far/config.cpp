@@ -931,7 +931,7 @@ void Options::SetFolderInfoFiles()
 	}
 }
 
-static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index = -1)
+static void ResetViewModes(std::span<PanelViewSettings> const Modes, int const Index = -1)
 {
 	static const struct
 	{
@@ -1102,8 +1102,8 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 
 	if (Index < 0)
 	{
-		for (const auto& i: zip(InitialModes, Modes))
-			std::apply(InitMode, i);
+		for (const auto& [Src, Dst]: zip(InitialModes, Modes))
+			InitMode(Src, Dst);
 	}
 	else
 	{
@@ -1433,7 +1433,7 @@ struct FARConfigItem
 		if (!Value->Edit(Builder, Mode))
 		{
 			Builder.AddSeparator();
-			Builder.AddButtons({ lng::MOk, lng::MReset, lng::MCancel });
+			Builder.AddButtons({{ lng::MOk, lng::MReset, lng::MCancel }});
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)
@@ -1650,7 +1650,7 @@ public:
 	using const_iterator = iterator;
 	using value_type = FARConfigItem;
 
-	farconfig(span<const FARConfigItem> Items, GeneralConfig* cfg):
+	farconfig(std::span<const FARConfigItem> Items, GeneralConfig* cfg):
 		m_items(Items),
 		m_cfg(cfg)
 	{
@@ -1673,7 +1673,7 @@ public:
 	GeneralConfig* GetConfig() const { return m_cfg; }
 
 private:
-	span<const FARConfigItem> m_items;
+	std::span<const FARConfigItem> m_items;
 	GeneralConfig* m_cfg;
 };
 
@@ -2254,7 +2254,7 @@ static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 	return far::format(L"S{}:O{}"sv, Layer.first, Layer.second);
 }
 
-static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)
+static auto serialise_sort_layers(std::span<std::pair<panel_sort, sort_order> const> const Layers)
 {
 	return join(L" "sv, Layers | std::views::transform(serialise_sort_layer));
 }
@@ -2735,7 +2735,7 @@ void Options::ReadPanelModes()
 		}
 	};
 
-	for (auto& [Item, Index]: enumerate(span(m_ViewSettings).subspan(0, predefined_panel_modes_count)))
+	for (auto& [Item, Index]: enumerate(std::span(m_ViewSettings).subspan(0, predefined_panel_modes_count)))
 	{
 		if (const auto Key = cfg->FindByName(cfg->root_key, str(Index)))
 			ReadMode(Key, Item);
@@ -2779,7 +2779,7 @@ void Options::SavePanelModes(bool always)
 		cfg->SetValue(Key, ModesFlagsName, Item.Flags);
 	};
 
-	for (const auto& [Value, Index]: enumerate(span(ViewSettings).subspan(0, predefined_panel_modes_count)))
+	for (const auto& [Value, Index]: enumerate(std::span(ViewSettings).subspan(0, predefined_panel_modes_count)))
 	{
 		SaveMode(cfg->root_key, Value, Index);
 	}
@@ -2791,7 +2791,7 @@ void Options::SavePanelModes(bool always)
 
 	const auto ModesKey = cfg->CreateKey(cfg->root_key, CustomModesKeyName);
 
-	for (const auto& [Value, Index]: enumerate(span(ViewSettings).subspan(predefined_panel_modes_count)))
+	for (const auto& [Value, Index]: enumerate(std::span(ViewSettings).subspan(predefined_panel_modes_count)))
 	{
 		SaveMode(ModesKey, Value, Index);
 	}

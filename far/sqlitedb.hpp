@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/preprocessor.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -173,7 +172,7 @@ protected:
 
 	void Exec(std::string const& Command) const;
 	void Exec(std::string_view Command) const;
-	void Exec(span<std::string_view const> Commands) const;
+	void Exec(std::span<std::string_view const> Commands) const;
 	void SetWALJournalingMode() const;
 	void EnableForeignKeysConstraints() const;
 

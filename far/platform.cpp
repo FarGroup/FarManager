@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
-#include "common/range.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -67,7 +66,7 @@ namespace os
 	{
 		static bool ApiDynamicStringReceiverImpl(
 			string& Destination,
-			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable,
+			function_ref<size_t(std::span<wchar_t> WritableBuffer)> const Callable,
 			function_ref<bool(size_t ReturnedSize, size_t AllocatedSize)> const Condition
 		)
 		{
@@ -75,7 +74,7 @@ namespace os
 				buffer<wchar_t>(),
 				Callable,
 				Condition,
-				[&](span<wchar_t const> const Buffer)
+				[&](std::span<wchar_t const> const Buffer)
 				{
 					Destination.assign(Buffer.data(), Buffer.size());
 				}
@@ -84,7 +83,7 @@ namespace os
 
 		bool ApiDynamicStringReceiver(
 			string& Destination,
-			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable
+			function_ref<size_t(std::span<wchar_t> WritableBuffer)> const Callable
 		)
 		{
 			return ApiDynamicStringReceiverImpl(
@@ -105,7 +104,7 @@ namespace os
 		bool ApiDynamicErrorBasedStringReceiver(
 			DWORD const ExpectedErrorCode,
 			string& Destination,
-			function_ref<size_t(span<wchar_t> WritableBuffer)> const Callable)
+			function_ref<size_t(std::span<wchar_t> WritableBuffer)> const Callable)
 		{
 			return ApiDynamicStringReceiverImpl(
 				Destination,
@@ -135,7 +134,7 @@ namespace os
 		}
 
 		[[nodiscard]]
-		static std::optional<size_t> multi_wait(span<HANDLE const> const Handles, bool const WaitAll, std::optional<std::chrono::milliseconds> Timeout = {})
+		static std::optional<size_t> multi_wait(std::span<HANDLE const> const Handles, bool const WaitAll, std::optional<std::chrono::milliseconds> Timeout = {})
 		{
 			assert(!Handles.empty());
 			assert(Handles.size() <= MAXIMUM_WAIT_OBJECTS);
@@ -411,7 +410,7 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 	last_error_guard ErrorGuard;
 	SetLastError(ERROR_SUCCESS);
 
-	if (detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
+	if (detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](std::span<wchar_t> Buffer)
 	{
 		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer.data(), static_cast<int>(Buffer.size()));
 		return ReturnedSize? ReturnedSize - 1 : 0;
@@ -441,7 +440,7 @@ string GetPrivateProfileString(string_view const AppName, string_view const KeyN
 {
 	string Value;
 
-	if (!detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
+	if (!detail::ApiDynamicStringReceiver(Value, [&](std::span<wchar_t> const Buffer)
 	{
 		const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
 		return Size == Buffer.size() - 1? Buffer.size() * 2 : Size;
@@ -471,7 +470,7 @@ bool GetWindowText(HWND Hwnd, string& Text)
 	last_error_guard ErrorGuard;
 	SetLastError(ERROR_SUCCESS);
 
-	if (detail::ApiDynamicStringReceiver(Text, [&](span<wchar_t> Buffer)
+	if (detail::ApiDynamicStringReceiver(Text, [&](std::span<wchar_t> Buffer)
 	{
 		const size_t Length = ::GetWindowTextLength(Hwnd);
 
@@ -539,7 +538,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 bool GetDefaultPrinter(string& Printer)
 {
-	return detail::ApiDynamicStringReceiver(Printer, [&](span<wchar_t> Buffer)
+	return detail::ApiDynamicStringReceiver(Printer, [&](std::span<wchar_t> Buffer)
 	{
 		auto Size = static_cast<DWORD>(Buffer.size());
 		if (::GetDefaultPrinter(Buffer.data(), &Size))
@@ -562,7 +561,7 @@ bool GetComputerName(string& Name)
 
 bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
+	return detail::ApiDynamicStringReceiver(Name, [&](std::span<wchar_t> Buffer)
 	{
 		auto Size = static_cast<DWORD>(Buffer.size());
 		if (!::GetComputerNameEx(NameFormat, Buffer.data(), &Size) && GetLastError() != ERROR_MORE_DATA)
@@ -584,7 +583,7 @@ bool GetUserName(string& Name)
 
 bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
+	return detail::ApiDynamicStringReceiver(Name, [&](std::span<wchar_t> Buffer)
 	{
 		auto Size = static_cast<DWORD>(Buffer.size());
 		if (!::GetUserNameEx(NameFormat, Buffer.data(), &Size) && GetLastError() != ERROR_MORE_DATA)
@@ -844,7 +843,7 @@ TEST_CASE("platform.string.receiver")
 	for (const auto& i: Tests)
 	{
 		string Data;
-		REQUIRE((i != 0) == os::detail::ApiDynamicStringReceiver(Data, [&](span<wchar_t> const Buffer)
+		REQUIRE((i != 0) == os::detail::ApiDynamicStringReceiver(Data, [&](std::span<wchar_t> const Buffer)
 		{
 			return api_function(i, Buffer.data(), Buffer.size());
 		}));

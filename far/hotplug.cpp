@@ -222,7 +222,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& Value)
 {
 	return GetDevicePropertyImpl(hDevInst, [&](const dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
 	{
-		return os::detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> Buffer)
+		return os::detail::ApiDynamicStringReceiver(Value, [&](std::span<wchar_t> Buffer)
 		{
 			DWORD RequiredSize = 0;
 			if (Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, edit_as<BYTE*>(Buffer.data()), static_cast<DWORD>(Buffer.size()), &RequiredSize))

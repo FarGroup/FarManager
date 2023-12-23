@@ -527,7 +527,7 @@ static std::optional<size_t> get_control_id(COLORREF const ColorPart, size_t con
 	return Offset + cb::color_first_radio + control_by_color[Index];
 }
 
-static auto activate_control(COLORREF const Color, span<DialogItemEx> ColorDlgItems, size_t const Offset)
+static auto activate_control(COLORREF const Color, std::span<DialogItemEx> ColorDlgItems, size_t const Offset)
 {
 	const auto ControlId = get_control_id(Color, Offset);
 	if (!ControlId)
@@ -538,7 +538,7 @@ static auto activate_control(COLORREF const Color, span<DialogItemEx> ColorDlgIt
 	return true;
 }
 
-static void disable_if_needed(COLORREF const Color, span<DialogItemEx> ColorDlgItems, size_t const Offset)
+static void disable_if_needed(COLORREF const Color, std::span<DialogItemEx> ColorDlgItems, size_t const Offset)
 {
 	if (colors::is_transparent(Color))
 	{

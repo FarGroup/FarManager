@@ -1018,7 +1018,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		m_windows_changed.pop_back();
 	};
 
-	for (const auto& i: range(std::next(m_windows.begin(), (Param->HasSaveScreen() && !IsSpecialWindow)?0:WindowIndex), m_windows.end()))
+	for (const auto& i: std::ranges::subrange(std::next(m_windows.begin(), (Param->HasSaveScreen() && !IsSpecialWindow)?0:WindowIndex), m_windows.end()))
 	{
 		i->Refresh();
 		if (m_windows_changed[ChangedIndex - 1]) //ой, всё!

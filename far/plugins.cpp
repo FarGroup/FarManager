@@ -728,7 +728,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	return std::make_unique<plugin_panel>(std::move(*PluginIterator));
 }
 
-std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const PluginPanelItem> const PanelItems) const
+std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(std::span<const PluginPanelItem> const PanelItems) const
 {
 	class plugin_panel_holder: public plugin_panel
 	{
@@ -978,7 +978,7 @@ intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 }
 
 
-intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, int OpMode)
+intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, std::span<PluginPanelItem>& PanelItems, int OpMode)
 {
 	GetFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -990,7 +990,7 @@ intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, span<PluginPane
 }
 
 
-void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool FreeUserData)
+void PluginManager::FreeFindData(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems, bool FreeUserData)
 {
 	if (FreeUserData)
 	{
@@ -1008,7 +1008,7 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelIt
 }
 
 
-intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, const string& Path)
+intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, std::span<PluginPanelItem>& PanelItems, const string& Path)
 {
 	GetVirtualFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -1020,7 +1020,7 @@ intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<Plu
 }
 
 
-void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems)
+void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems)
 {
 	FreeFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -1090,7 +1090,7 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 }
 
 
-intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
+intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems, int OpMode)
 {
 	DeleteFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -1115,7 +1115,7 @@ intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t
 }
 
 
-intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
+intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems, int OpMode)
 {
 	ProcessHostFileInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -1127,7 +1127,7 @@ intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<Plugin
 }
 
 
-intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, const wchar_t **DestPath, int OpMode)
+intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems, bool Move, const wchar_t **DestPath, int OpMode)
 {
 	GetFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
@@ -1143,7 +1143,7 @@ intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelIt
 }
 
 
-intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, int OpMode)
+intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, std::span<PluginPanelItem> const PanelItems, bool Move, int OpMode)
 {
 	static string strCurrentDirectory;
 	strCurrentDirectory = os::fs::get_current_directory();
@@ -1849,7 +1849,7 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 
 			const auto CopyData = [](const PluginMenuItem& Item, menu_items& Items)
 			{
-				for (const auto& [Str, Guid]: zip(span(Item.Strings, Item.Count), span(Item.Guids, Item.Count)))
+				for (const auto& [Str, Guid]: zip(std::span(Item.Strings, Item.Count), std::span(Item.Guids, Item.Count)))
 				{
 					Items.first.emplace_back(Str);
 					Items.second.emplace_back(Guid);
@@ -2283,7 +2283,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 			}
 			else
 			{
-				if (contains(span(MenuItems->Guids, MenuItems->Count), *Data->ItemUuid))
+				if (contains(std::span(MenuItems->Guids, MenuItems->Count), *Data->ItemUuid))
 				{
 					Data->FoundUuid = *Data->ItemUuid;
 					Data->ItemUuid = &Data->FoundUuid;
@@ -2425,7 +2425,7 @@ void PluginManager::GetContentData(
 		if (!i->GetContentData(&GetInfo) || !GetInfo.Values)
 			continue;
 
-		for (const auto& [ColName, Value]: zip(ColNames, span(GetInfo.Values, Count)))
+		for (const auto& [ColName, Value]: zip(ColNames, std::span(GetInfo.Values, Count)))
 		{
 			if (Value)
 				ContentData[ColName] += Value;

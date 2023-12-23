@@ -214,7 +214,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 		return CAPABILITIES_NONE;
 	}
 
-	span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
+	std::span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
 	const auto ConfigurationHeader = view_as_opt<GET_CONFIGURATION_HEADER>(Buffer);
 	if (!ConfigurationHeader || Buffer.size() < sizeof(ConfigurationHeader->DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader->DataLength))
@@ -227,7 +227,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	if (read_value_from_big_endian<FEATURE_NUMBER>(FeatureList->Header.FeatureCode) != FeatureProfileList)
 		return CAPABILITIES_NONE;
 
-	const span Profiles(FeatureList->Profiles, FeatureList->Header.AdditionalLength / sizeof(*FeatureList->Profiles));
+	const std::span Profiles(FeatureList->Profiles, FeatureList->Header.AdditionalLength / sizeof(*FeatureList->Profiles));
 
 	return std::accumulate(ALL_CONST_RANGE(Profiles), CAPABILITIES_NONE, [](auto const Value, auto const& i)
 	{

@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/bytes_view.hpp"
-#include "common/range.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -81,7 +80,7 @@ namespace encoding
 		[[nodiscard]] uintptr_t normalise(uintptr_t Codepage);
 	}
 
-	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, std::span<char> Buffer, diagnostics* Diagnostics = {});
 	void get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, diagnostics* Diagnostics = {});
 	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, diagnostics* Diagnostics = {});
 
@@ -89,9 +88,9 @@ namespace encoding
 
 	//-------------------------------------------------------------------------
 
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, std::span<wchar_t> Buffer, diagnostics* Diagnostics = {});
 	void get_chars(uintptr_t Codepage, std::string_view Str, string& Buffer, diagnostics* Diagnostics = {});
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, std::span<wchar_t> Buffer, diagnostics* Diagnostics = {});
 	void get_chars(uintptr_t Codepage, bytes_view Str, string& Buffer, diagnostics* Diagnostics = {});
 	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str, diagnostics* Diagnostics = {});
 	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str, diagnostics* Diagnostics = {});
@@ -112,7 +111,7 @@ namespace encoding
 		class codepage
 		{
 		public:
-			[[nodiscard]] static auto get_bytes(string_view const Str, span<char> const Buffer, diagnostics* const Diagnostics = {})
+			[[nodiscard]] static auto get_bytes(string_view const Str, std::span<char> const Buffer, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_bytes(T::id(), Str, Buffer, Diagnostics);
 			}
@@ -132,7 +131,7 @@ namespace encoding
 				return encoding::get_bytes_count(T::id(), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(std::string_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
@@ -142,7 +141,7 @@ namespace encoding
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(bytes_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
@@ -269,7 +268,7 @@ namespace Utf8
 		wchar_t& Second
 	);
 	// returns the number of decoded chars, up to Buffer.size(). Stops on buffer overflow. Tail contains the number of unprocessed bytes.
-	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
+	[[nodiscard]] size_t get_chars(std::string_view Str, std::span<wchar_t> Buffer, int& Tail);
 }
 
 //#############################################################################

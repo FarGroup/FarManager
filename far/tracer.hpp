@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/function_ref.hpp"
 #include "common/nifty_counter.hpp"
-#include "common/range.hpp"
 
 // External:
 
@@ -59,7 +58,7 @@ namespace tracer_detail
 		tracer();
 		~tracer();
 
-		void get_symbols(string_view Module, span<os::debug::stack_frame const> Trace, function_ref<void(string&& Line)> Consumer) const;
+		void get_symbols(string_view Module, std::span<os::debug::stack_frame const> Trace, function_ref<void(string&& Line)> Consumer) const;
 		void get_symbol(string_view Module, const void* Ptr, string& AddressStr, string& Name, string& Source) const;
 
 		// Same as os::debug::*, but with symbols initialized

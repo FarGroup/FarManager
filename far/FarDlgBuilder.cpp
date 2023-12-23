@@ -532,27 +532,27 @@ DialogItemEx& DialogBuilder::AddConstEditField(const string& Value, int Width, F
 	return Item;
 }
 
-DialogItemEx& DialogBuilder::AddComboBox(int& Value, int Width, span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx& DialogBuilder::AddComboBox(int& Value, int Width, std::span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
 	return AddListControlImpl(DI_COMBOBOX, Value, Width, 0, Items, Flags | DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx& DialogBuilder::AddComboBox(IntOption& Value, int Width, span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx& DialogBuilder::AddComboBox(IntOption& Value, int Width, std::span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
 	return AddListControlImpl(DI_COMBOBOX, Value, Width, 0, Items, Flags | DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx& DialogBuilder::AddListBox(int& Value, int Width, int Height, span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx& DialogBuilder::AddListBox(int& Value, int Width, int Height, std::span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
 	return AddListControlImpl(DI_LISTBOX, Value, Width, Height, Items, Flags | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx& DialogBuilder::AddListBox(IntOption& Value, int Width, int Height, span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx& DialogBuilder::AddListBox(IntOption& Value, int Width, int Height, std::span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
 	return AddListControlImpl(DI_LISTBOX, Value, Width, Height, Items, Flags | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT);
 }
 
-void DialogBuilder::AddRadioButtons(size_t& Value, span<lng const> const Options, bool FocusOnSelected)
+void DialogBuilder::AddRadioButtons(size_t& Value, std::span<lng const> const Options, bool FocusOnSelected)
 {
 	for (const auto i: std::views::iota(size_t{}, Options.size()))
 	{
@@ -574,7 +574,7 @@ void DialogBuilder::AddRadioButtons(size_t& Value, span<lng const> const Options
 	}
 }
 
-void DialogBuilder::AddRadioButtons(IntOption& Value, span<lng const> const Options, bool FocusOnSelected)
+void DialogBuilder::AddRadioButtons(IntOption& Value, std::span<lng const> const Options, bool FocusOnSelected)
 {
 	for (const auto i: std::views::iota(size_t{}, Options.size()))
 	{
@@ -625,7 +625,7 @@ void DialogBuilder::LinkFlags(DialogItemEx& Parent, DialogItemEx& Target, FARDIA
 void DialogBuilder::AddOK()
 {
 	AddSeparator();
-	AddButtons({ lng::MOk });
+	AddButtons({{ lng::MOk }});
 }
 
 void DialogBuilder::AddOKCancel()
@@ -636,15 +636,15 @@ void DialogBuilder::AddOKCancel()
 void DialogBuilder::AddOKCancel(lng OKMessageId, lng CancelMessageId)
 {
 	AddSeparator();
-	AddButtons({ OKMessageId, CancelMessageId });
+	AddButtons({{ OKMessageId, CancelMessageId }});
 }
 
-void DialogBuilder::AddButtons(span<lng const> Buttons)
+void DialogBuilder::AddButtons(std::span<lng const> Buttons)
 {
 	AddButtons(Buttons, 0, Buttons.size() - 1);
 }
 
-void DialogBuilder::AddButtons(span<lng const> const Buttons, size_t const OkIndex, size_t const CancelIndex)
+void DialogBuilder::AddButtons(std::span<lng const> const Buttons, size_t const OkIndex, size_t const CancelIndex)
 {
 	const auto LineY = m_NextY++;
 	DialogItemEx const* PrevButton = nullptr;
@@ -965,7 +965,7 @@ DialogItemEx& DialogBuilder::AddCheckboxImpl(lng_string const Text, value_type& 
 }
 
 template<typename value_type>
-DialogItemEx& DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx& DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, std::span<DialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
 	auto& Item = AddDialogItem(Type, L"");
 	SetNextY(Item);
