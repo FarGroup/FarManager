@@ -1,3 +1,8 @@
+shmuel 2023-12-23 21:37:06+02:00 - build 798
+
+1. mf.serialize, mf.msave:
+   fix "chunk has more than 65476 local variables" error.
+
 shmuel 2023-12-12 00:45:20+02:00 - build 797
 
 1. LuaFAR: add _methods_ gmatch and gmatchW.

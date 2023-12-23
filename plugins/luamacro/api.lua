@@ -497,10 +497,10 @@ local function tableSerialize (tbl)
   if type(tbl) == "table" then
     local idx = {}
     AddToIndex(idx, tbl)
-    local lines = { "local idx={}; for i=1,"..#idx.." do idx[i]={} end" }
+    local lines = { "local t; local idx={}; for i=1,"..#idx.." do idx[i]={} end" }
     for i,t in ipairs(idx) do
       local found
-      lines[#lines+1] = "do local t=idx["..i.."]"
+      lines[#lines+1] = "do t=idx["..i.."]"
       for k,v in pairs(t) do
         local k2 = basicSerialize(k) or type(k)=="table" and "idx["..idx[k].."]"
         if k2 then
