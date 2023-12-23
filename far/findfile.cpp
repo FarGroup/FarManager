@@ -1891,7 +1891,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			DlgWidth += IncX;
 			DlgHeight += IncY;
 
-			for (const auto i: std::views::iota(size_t{}, FD_SEPARATOR1))
+			for (const auto i: std::views::iota(size_t{}, static_cast<size_t>(FD_SEPARATOR1)))
 			{
 				SMALL_RECT rect;
 				Dlg->SendMessage( DM_GETITEMPOSITION, i, &rect);

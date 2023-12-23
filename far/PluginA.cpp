@@ -4846,7 +4846,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 
 			for (const auto i: std::views::iota(0u, 256u))
 			{
-				TableSet.EncodeTable[i] = TableSet.DecodeTable[i] = i;
+				TableSet.EncodeTable[i] = TableSet.DecodeTable[i] = static_cast<unsigned char>(i);
 				TableSet.UpperTable[i] = LocalUpper(i);
 				TableSet.LowerTable[i] = LocalLower(i);
 			}
