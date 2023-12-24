@@ -1,3 +1,8 @@
+shmuel 2023-12-24 20:24:12+02:00 - build 799
+
+1. Fix autostarting macros in Viewer area (when Far was run with /v switch)
+   - were broken since some Far build in the range [4034-4040].
+
 shmuel 2023-12-23 21:37:06+02:00 - build 798
 
 1. mf.serialize, mf.msave:

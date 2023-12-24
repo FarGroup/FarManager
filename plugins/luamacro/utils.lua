@@ -55,7 +55,9 @@ local function GetAreaCode(Area)     return AllAreaNames[Area:lower()] end
 local MCODE_F_CHECKALL     = 0x80C64
 local MCODE_F_GETOPTIONS   = 0x80C65
 local MCODE_F_MACROSETTINGS = 0x80C6A
+
 Shared.OnlyEditorViewerUsed = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) ~= 0
+local ReadOnlyConfig = band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) ~= 0
 
 local Areas
 local LoadedMacros
@@ -709,7 +711,6 @@ local function LoadMacros (unload, paths)
   export.GetContentFields = nil
   export.GetContentData = nil
 
-  local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   local numerrors=0
   local newAreas = {}
   Events = {}
@@ -722,7 +723,7 @@ local function LoadMacros (unload, paths)
   ContentColumns = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
-  local AreaNames = allAreas and AllAreaNames or SomeAreaNames
+  local AreaNames = Shared.OnlyEditorViewerUsed and SomeAreaNames or AllAreaNames
   for _,name in pairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
@@ -756,7 +757,7 @@ local function LoadMacros (unload, paths)
     LoadCounter = LoadCounter + 1
     local DummyFunc = function() end
     local DirMacros = win.GetEnv("farprofile").."\\Macros\\"
-    if 0 == band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then -- not ReadOnlyConfig
+    if not ReadOnlyConfig then
       for _,v in ipairs {"scripts", "modules", "lib32", "lib64"} do
         win.CreateDir(DirMacros..v)
       end
@@ -914,7 +915,7 @@ Macro {
 end
 
 local function WriteMacros()
-  if 0 ~= band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then return end -- ReadOnlyConfig
+  if ReadOnlyConfig then return end
 
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
   if not win.CreateDir(dir, true) then return end
@@ -1194,8 +1195,8 @@ local function RunStartMacro()
   if not LoadMacrosDone then return end
 
   local mode = far.MacroGetArea()
-  local opt = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3)
-  local mtable = opt==1 and Areas.editor or opt==2 and Areas.viewer or Areas.shell
+  local mtable = (mode==F.MACROAREA_EDITOR and Areas.editor)
+    or (mode==F.MACROAREA_VIEWER and Areas.viewer) or Areas.shell
 
   for k=1,2 do
     if k==2 then mtable = Areas.common end
