@@ -4,7 +4,7 @@ local ON = true -- set to false to turn the option OFF
 local Pattern = regex.new("^\\U+$")
 local F = far.Flags
 
-local GUID = far.Guids.MakeFolderId
+local GUID = win.Uuid(far.Guids.MakeFolderId)
 local itempos = 3
 
 local function Work (Event, FarDialogEvent)
