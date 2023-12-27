@@ -1015,7 +1015,7 @@ void CommandLine::ExecString(execute_info& Info)
 	SCOPE_EXIT
 	{
 		if (ExecutionContext)
-			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
+			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty(), true);
 
 		if (!IsUpdateNeeded)
 			return;

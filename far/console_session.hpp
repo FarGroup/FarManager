@@ -55,7 +55,7 @@ public:
 	virtual void Deactivate() = 0;
 	virtual void DrawCommand(string_view Command) = 0;
 	virtual void DoPrologue() = 0;
-	virtual void DoEpilogue(bool Scroll) = 0;
+	virtual void DoEpilogue(bool Scroll, bool IsLastInstance) = 0;
 	virtual void Consolise(bool SetTextColour = true) = 0;
 };
 
