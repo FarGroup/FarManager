@@ -260,7 +260,9 @@ private:
 
 constexpr string_view get_match(string_view const Str, RegExpMatch const& Match)
 {
-	assert(Match.start >= 0);
+	if (Match.start < 0)
+		return Str.substr(Str.size());
+
 	assert(Match.end >= Match.start);
 	return Str.substr(Match.start, Match.end - Match.start);
 }
