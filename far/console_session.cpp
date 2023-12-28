@@ -198,7 +198,6 @@ void console_session::EnterPluginContext(bool Scroll)
 
 void console_session::LeavePluginContext(bool Scroll)
 {
-	Global->ScrBuf->Flush();
 	if (m_PluginContextInvocations)
 		--m_PluginContextInvocations;
 
