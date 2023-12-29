@@ -172,17 +172,6 @@ std::span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sor
 	return SortModes[static_cast<size_t>(SortMode)].DefaultLayers;
 }
 
-template<typename T>
-auto compare_numbers(T const First, T const Second)
-{
-	return First < Second? -1 : First != Second;
-}
-
-static auto compare_time(os::chrono::time_point First, os::chrono::time_point Second)
-{
-	return compare_numbers(First, Second);
-}
-
 // FAT Last Write time is rounded up to the even number of seconds, e.g. 2s 1ms -> 4s
 static auto to_fat_write_time(os::chrono::time_point Point)
 {
@@ -199,13 +188,13 @@ static auto to_whole_seconds(os::chrono::time_point Point)
 // so we take an opportunistic approach and try both methods:
 static auto compare_fat_write_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	if (!compare_numbers(to_fat_write_time(First), to_fat_write_time(Second)))
-		return 0;
+	if (std::is_eq(to_fat_write_time(First) <=> to_fat_write_time(Second)))
+		return std::strong_ordering::equal;
 
-	if (!compare_numbers(to_whole_seconds(First), to_whole_seconds(Second)))
-		return 0;
+	if (std::is_eq(to_whole_seconds(First) <=> to_whole_seconds(Second)))
+		return std::strong_ordering::equal;
 
-	return compare_time(First, Second);
+	return First <=> Second;
 }
 
 
@@ -718,15 +707,15 @@ public:
 			const auto LayerSort = static_cast<panel_sort>(ModeValue);
 			const auto Reverse = LayerSort == m_ListSortMode || Order == sort_order::keep? m_Reverse : Order == sort_order::descend;
 
-			if (const auto Result = compare(LayerSort, Reverse, Item1, Item2))
-				return Result < 0;
+			if (const auto Result = compare(LayerSort, Reverse, Item1, Item2); !std::is_eq(Result))
+				return std::is_lt(Result);
 		}
 
 		return false;
 	}
 
 private:
-	int compare(panel_sort const SortMode, bool const Reverse, FileListItem const& Item1, FileListItem const& Item2) const
+	std::strong_ordering compare(panel_sort const SortMode, bool const Reverse, FileListItem const& Item1, FileListItem const& Item2) const
 	{
 		const auto& [a, b] = Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
@@ -745,7 +734,7 @@ private:
 		switch (SortMode)
 		{
 		case panel_sort::UNSORTED:
-			return compare_numbers(a.Position, b.Position);
+			return a.Position <=> b.Position;
 
 		case panel_sort::BY_NAME:
 			return string_sort::compare(ignore_path_opt(a.FileName), ignore_path_opt(b.FileName));
@@ -757,19 +746,19 @@ private:
 			return string_sort::compare(name_ext_opt(a).second, name_ext_opt(b).second);
 
 		case panel_sort::BY_MTIME:
-			return compare_time(a.LastWriteTime, b.LastWriteTime);
+			return a.LastWriteTime <=> b.LastWriteTime;
 
 		case panel_sort::BY_CTIME:
-			return compare_time(a.CreationTime, b.CreationTime);
+			return a.CreationTime <=> b.CreationTime;
 
 		case panel_sort::BY_ATIME:
-			return compare_time(a.LastAccessTime, b.LastAccessTime);
+			return a.LastAccessTime <=> b.LastAccessTime;
 
 		case panel_sort::BY_CHTIME:
-			return compare_time(a.ChangeTime, b.ChangeTime);
+			return a.ChangeTime <=> b.ChangeTime;
 
 		case panel_sort::BY_SIZE:
-			return compare_numbers(a.FileSize, b.FileSize);
+			return a.FileSize <=> b.FileSize;
 
 		case panel_sort::BY_DIZ:
 			return string_sort::compare(NullToEmpty(a.DizText), NullToEmpty(b.DizText));
@@ -778,16 +767,16 @@ private:
 			return string_sort::compare(a.Owner(m_Owner), b.Owner(m_Owner));
 
 		case panel_sort::BY_COMPRESSEDSIZE:
-			return compare_numbers(a.AllocationSize, b.AllocationSize);
+			return a.AllocationSize <=> b.AllocationSize;
 
 		case panel_sort::BY_NUMLINKS:
-			return compare_numbers(a.NumberOfLinks(m_Owner), b.NumberOfLinks(m_Owner));
+			return a.NumberOfLinks(m_Owner) <=> b.NumberOfLinks(m_Owner);
 
 		case panel_sort::BY_NUMSTREAMS:
-			return compare_numbers(a.NumberOfStreams(m_Owner), b.NumberOfStreams(m_Owner));
+			return a.NumberOfStreams(m_Owner) <=> b.NumberOfStreams(m_Owner);
 
 		case panel_sort::BY_STREAMSSIZE:
-			return compare_numbers(a.StreamsSize(m_Owner), b.StreamsSize(m_Owner));
+			return a.StreamsSize(m_Owner) <=> b.StreamsSize(m_Owner);
 
 		default:
 			std::unreachable();
@@ -4400,15 +4389,17 @@ void FileList::CompareDir()
 			if (!equal_icase(PointToName(This.FileName), PointToName(That.FileName)))
 				continue;
 
-			const auto Cmp = (UseFatTime? compare_fat_write_time : compare_time)(This.LastWriteTime, That.LastWriteTime);
+			const auto Cmp = UseFatTime?
+				compare_fat_write_time(This.LastWriteTime, That.LastWriteTime) :
+				This.LastWriteTime <=> That.LastWriteTime;
 
-			if (!Cmp && (This.FileSize != That.FileSize))
+			if (std::is_eq(Cmp) && (This.FileSize != That.FileSize))
 				continue;
 
-			if (Cmp <= 0)
+			if (std::is_lteq(Cmp))
 				Select(This, false);
 
-			if (Cmp >= 0)
+			if (std::is_gteq(Cmp))
 				Another->Select(That, false);
 
 			if (Another->m_PanelMode != panel_mode::PLUGIN_PANEL)
@@ -9169,40 +9160,45 @@ TEST_CASE("fat_time")
 {
 	using namespace std::chrono_literals;
 
+	constexpr auto
+		lt = std::strong_ordering::less,
+		eq = std::strong_ordering::equal,
+		gt = std::strong_ordering::greater;
+
 	static const struct
 	{
 		os::chrono::duration First, Second;
-		int Result;
+		std::strong_ordering Result;
 	}
 	Tests[]
 	{
-		{ 0s,          0s,    0, },
-		{ 0s + 1ms,    0s,    0, },
-		{ 0s + 1ms,    2s,    0, },
-		{ 1s - 1ms,    0s,    0, },
-		{ 1s - 1ms,    2s,    0, },
-		{ 1s,          2s,    0, },
-		{ 1s + 1ms,    1s,    0, },
-		{ 1s + 1ms,    2s,    0, },
-		{ 2s - 1ms,    1s,    0, },
-		{ 2s - 1ms,    2s,    0, },
-		{ 2s,          2s,    0, },
-		{ 2s + 1ms,    2s,    0, },
-		{ 2s + 1ms,    4s,    0, },
-		{ 3s - 1ms,    3s,    0, },
-		{ 3s - 1ms,    4s,    0, },
-		{ 3s,          4s,    0, },
-		{ 3s + 1ms,    3s,    0, },
-		{ 3s + 1ms,    4s,    0, },
-		{ 4s - 1ms,    3s,    0, },
-		{ 4s - 1ms,    4s,    0, },
-		{ 4s,          4s,    0, },
-		{ 4s + 1ms,    4s,    0, },
-		{ 4s + 1ms,    6s,    0, },
-		{ 0s,          2s,   -1, },
-		{ 2s,          4s,   -1, },
-		{ 2s,          0s,    1, },
-		{ 4s,          2s,    1, },
+		{ 0s,          0s,   eq, },
+		{ 0s + 1ms,    0s,   eq, },
+		{ 0s + 1ms,    2s,   eq, },
+		{ 1s - 1ms,    0s,   eq, },
+		{ 1s - 1ms,    2s,   eq, },
+		{ 1s,          2s,   eq, },
+		{ 1s + 1ms,    1s,   eq, },
+		{ 1s + 1ms,    2s,   eq, },
+		{ 2s - 1ms,    1s,   eq, },
+		{ 2s - 1ms,    2s,   eq, },
+		{ 2s,          2s,   eq, },
+		{ 2s + 1ms,    2s,   eq, },
+		{ 2s + 1ms,    4s,   eq, },
+		{ 3s - 1ms,    3s,   eq, },
+		{ 3s - 1ms,    4s,   eq, },
+		{ 3s,          4s,   eq, },
+		{ 3s + 1ms,    3s,   eq, },
+		{ 3s + 1ms,    4s,   eq, },
+		{ 4s - 1ms,    3s,   eq, },
+		{ 4s - 1ms,    4s,   eq, },
+		{ 4s,          4s,   eq, },
+		{ 4s + 1ms,    4s,   eq, },
+		{ 4s + 1ms,    6s,   eq, },
+		{ 0s,          2s,   lt, },
+		{ 2s,          4s,   lt, },
+		{ 2s,          0s,   gt, },
+		{ 4s,          2s,   gt, },
 	};
 
 	for (const auto& i: Tests)

@@ -2150,17 +2150,13 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	});
 }
 
-static int sign(int Value)
-{
-	return (Value > 0) - (Value < 0);
-}
 
 int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t MaxSize) noexcept
 {
 	return cpp_try(
 	[&]
 	{
-		return sign(string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize)));
+		return string_sort::ordering_as_int(string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize)));
 	},
 	[]
 	{
@@ -2174,7 +2170,7 @@ int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 	return cpp_try(
 	[&]
 	{
-		return sign(string_sort::compare(Str1, Str2));
+		return string_sort::ordering_as_int(string_sort::compare(Str1, Str2));
 	},
 	[]
 	{
@@ -2515,7 +2511,7 @@ int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* S
 	return cpp_try(
 	[&]
 	{
-		return string_sort::compare({ Str1, Size1 }, { Str2, Size2 });
+		return string_sort::ordering_as_int(string_sort::compare({ Str1, Size1 }, { Str2, Size2 }));
 	},
 	[]
 	{

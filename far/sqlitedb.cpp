@@ -619,17 +619,17 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 
 	if (reinterpret_cast<intptr_t>(Param) == SQLITE_UTF16)
 	{
-		return comparer(
+		return string_sort::ordering_as_int(comparer(
 			view<wchar_t>(Data1, Size1),
 			view<wchar_t>(Data2, Size2)
-		);
+		));
 	}
 
 	// TODO: stack buffer optimisation
-	return comparer(
+	return string_sort::ordering_as_int(comparer(
 		encoding::utf8::get_chars(view<char>(Data1, Size1)),
 		encoding::utf8::get_chars(view<char>(Data2, Size2))
-	);
+	));
 }
 
 using comparer_type = int(void*, int, const void*, int, const void*);

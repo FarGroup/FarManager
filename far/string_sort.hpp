@@ -50,14 +50,14 @@ namespace string_sort
 	// Default comparison entry point.
 	// Exact behaviour is controlled by the user settings.
 	[[nodiscard]]
-	int compare(string_view, string_view);
+	std::strong_ordering compare(string_view, string_view);
 
 	void adjust_comparer(size_t Collation, bool CaseSensitive, bool DigitsAsNumbers);
 
 	[[nodiscard]]
 	inline bool less(string_view Str1, string_view Str2)
 	{
-		return compare(Str1, Str2) < 0;
+		return std::is_lt(compare(Str1, Str2));
 	}
 
 	struct [[nodiscard]] less_t
@@ -74,9 +74,33 @@ namespace string_sort
 	class keyhole
 	{
 		friend SQLiteDb;
-		static int compare_ordinal_icase(string_view Str1, string_view Str2);
-		static int compare_ordinal_numeric(string_view Str1, string_view Str2);
+		static std::strong_ordering compare_ordinal_icase(string_view Str1, string_view Str2);
+		static std::strong_ordering compare_ordinal_numeric(string_view Str1, string_view Str2);
 	};
+
+	namespace detail
+	{
+		template<typename ordering>
+		concept sane_ordering =
+			std::bit_cast<signed char>(ordering::less) == -1 &&
+			std::bit_cast<signed char>(ordering::equal) == 0 &&
+			std::bit_cast<signed char>(ordering::greater) == 1;
+
+		constexpr auto ordering_as_int(sane_ordering auto const Value) noexcept
+		{
+			return std::bit_cast<signed char>(Value);
+		}
+
+		constexpr auto ordering_as_int(auto const Value) noexcept
+		{
+			return std::is_lt(Value)? -1 : !std::is_eq(Value);
+		}
+	}
+
+	constexpr int ordering_as_int(std::strong_ordering const Value) noexcept
+	{
+		return detail::ordering_as_int(Value);
+	}
 }
 
 #endif // STRING_SORT_HPP_CAE94F71_4292_45B5_9D34_C40E43E8C2AF

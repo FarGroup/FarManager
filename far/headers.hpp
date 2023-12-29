@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <bit>
 #include <bitset>
 #include <chrono>
+#include <compare>
 #include <concepts>
 #include <forward_list>
 #include <fstream>
