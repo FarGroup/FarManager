@@ -76,7 +76,7 @@ namespace detail
 
 	break_into_debugger::break_into_debugger()
 	{
-		os::debug::breakpoint(false);
+		os::debug::breakpoint_if_debugging();
 	}
 }
 

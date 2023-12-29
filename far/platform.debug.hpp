@@ -48,8 +48,11 @@ class map_file;
 
 namespace os::debug
 {
-	bool debugger_present();
-	void breakpoint(bool Always = true);
+	// TODO: std
+	bool is_debugger_present();
+	void breakpoint();
+	void breakpoint_if_debugging();
+
 	void print(const wchar_t* Str);
 	void print(string const& Str);
 	void set_thread_name(const wchar_t* Name);

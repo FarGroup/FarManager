@@ -60,15 +60,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::debug
 {
-	bool debugger_present()
+	bool is_debugger_present()
 	{
 		return IsDebuggerPresent() != FALSE;
 	}
 
-	void breakpoint(bool const Always)
+	void breakpoint()
 	{
-		if (Always || debugger_present())
-			DebugBreak();
+		DebugBreak();
+	}
+
+	void breakpoint_if_debugging()
+	{
+		if (is_debugger_present())
+			breakpoint();
 	}
 
 	void print(const wchar_t* const Str)
