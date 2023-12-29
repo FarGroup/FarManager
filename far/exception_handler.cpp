@@ -63,11 +63,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.debug.hpp"
+#include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.process.hpp"
 #include "platform.version.hpp"
 
 // Common:
+#include "common/enum_substrings.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -393,11 +395,29 @@ static void read_modules(string& To, string_view const Eol)
 	}
 }
 
+static void read_env(string& To, string_view const Eol)
+{
+	const os::env::provider::strings EnvStrings;
+	for (const auto& i: enum_substrings(EnvStrings.data()))
+	{
+		if (starts_with_icase(i, L"FAR"sv))
+		{
+			append(To, i, Eol);
+		}
+	}
+}
+
 static string self_version()
 {
 	const auto Version = far::format(L"{} {}"sv, version_to_string(build::version()), build::platform());
 	const auto ScmRevision = build::scm_revision();
 	return ScmRevision.empty()? Version : Version + far::format(L" ({:.7})"sv, ScmRevision);
+}
+
+static string timestamp(SYSTEMTIME const& SystemTime)
+{
+	const auto [Date, Time] = format_datetime(SystemTime);
+	return concat(Date, L' ', Time);
 }
 
 static string timestamp(os::chrono::time_point const Point)
@@ -410,8 +430,7 @@ static string timestamp(os::chrono::time_point const Point)
 		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
 	}
 
-	const auto [Date, Time] = format_datetime(SystemTime);
-	return concat(Date, L' ', Time);
+	return timestamp(SystemTime);
 }
 
 static string pe_timestamp()
@@ -440,6 +459,15 @@ static string file_timestamp()
 static string system_timestamp()
 {
 	return timestamp(os::chrono::nt_clock::now());
+}
+
+static string local_timestamp()
+{
+	SYSTEMTIME LocalTime;
+	if (!os::chrono::utc_to_local(os::chrono::nt_clock::now(), LocalTime))
+		return {};
+
+	return far::format(L"{} {}"sv, timestamp(LocalTime), MkStrFTime(L"%z, %Z"sv));
 }
 
 static void read_registers(string& To, CONTEXT const& Context, string_view const Eol)
@@ -962,6 +990,33 @@ static string get_uptime()
 	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
 }
 
+static auto memory_status()
+{
+	const auto size_to_str = [](uint64_t const Size)
+	{
+		return FileSizeToStr(Size, 0, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
+	};
+
+	string MemoryStatus;
+
+	if (MEMORYSTATUSEX ms{ sizeof(ms) }; GlobalMemoryStatusEx(&ms))
+	{
+		MemoryStatus = far::format(
+			L"{} out of {} free ({}%)"sv,
+			size_to_str(ms.ullAvailPageFile),
+			size_to_str(ms.ullTotalPageFile),
+			ToPercent(ms.ullAvailPageFile, ms.ullTotalPageFile)
+		);
+	}
+
+	if (PROCESS_MEMORY_COUNTERS pmc{ sizeof(pmc) }; GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)))
+	{
+		far::format_to(MemoryStatus, L"{}{} used by the process"sv, MemoryStatus.empty()? L""sv : L"; "sv, size_to_str(pmc.PagefileUsage));
+	}
+
+	return MemoryStatus;
+}
+
 namespace detail
 {
 	struct PMD
@@ -1398,6 +1453,7 @@ static string collect_information(
 	const auto PeTime = pe_timestamp();
 	const auto FileTime = file_timestamp();
 	const auto SystemTime = system_timestamp();
+	const auto LocalTime = local_timestamp();
 	const auto Uptime = get_uptime();
 	const auto OsVersion = os::version::os_version();
 	const auto Locale = get_locale();
@@ -1405,6 +1461,7 @@ static string collect_information(
 	const auto Parent = get_parent_process();
 	const auto Command = GetCommandLine();
 	const auto AccessLevel = os::security::is_admin()? L"Administrator"sv : L"User"sv;
+	const auto MemoryStatus = memory_status();
 
 	const auto
 		LastErrorTitle = L"LastError:"sv,
@@ -1434,6 +1491,7 @@ static string collect_information(
 		{ L"PE time:  "sv, PeTime,        },
 		{ L"File time:"sv, FileTime,      },
 		{ L"Time:     "sv, SystemTime,    },
+		{ L"Local:    "sv, LocalTime,     },
 		{ L"Uptime:   "sv, Uptime,        },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Locale:   "sv, Locale,        },
@@ -1441,6 +1499,7 @@ static string collect_information(
 		{ L"Parent:   "sv, Parent,        },
 		{ L"Command:  "sv, Command,       },
 		{ L"Access:   "sv, AccessLevel,   },
+		{ L"Memory:   "sv, MemoryStatus   },
 	};
 
 	const auto log_message = [](std::span<info_block const> const Info)
@@ -1570,6 +1629,9 @@ static string collect_information(
 
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
+
+	make_header(L"Environment"sv, append_line);
+	read_env(Strings, Eol);
 
 	return Strings;
 }
