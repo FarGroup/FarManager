@@ -4789,7 +4789,7 @@ static void edit_sort_layers(int MenuPos)
 				const auto OtherPos = Pos + ((Key & KEY_UP) == KEY_UP? -1 : 1);
 				if (in_closed_range(1, OtherPos, static_cast<int>(SortLayers.size() - 1)))
 				{
-					using std::swap;
+					using std::ranges::swap;
 					swap(SortLayersMenu->at(Pos), SortLayersMenu->at(OtherPos));
 					swap(SortLayers[Pos], SortLayers[OtherPos]);
 					SortLayersMenu->SetSelectPos(OtherPos);

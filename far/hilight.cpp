@@ -697,7 +697,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && SelectPos > 0)
 					{
-						using std::swap;
+						using std::ranges::swap;
 						swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						if (UpperCount && RealSelectPos==FirstCount && RealSelectPos<FirstCount+UpperCount)
 						{

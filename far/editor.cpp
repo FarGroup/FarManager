@@ -181,7 +181,7 @@ void Editor::FreeAllocatedData()
 void Editor::SwapState(Editor& swap_state)
 {
 	// BUGBUGBUG not all fields swapped
-	using std::swap;
+	using std::ranges::swap;
 	Lines.swap(swap_state.Lines);
 	swap(m_it_TopScreen, swap_state.m_it_TopScreen);
 	swap(m_it_CurLine, swap_state.m_it_CurLine);

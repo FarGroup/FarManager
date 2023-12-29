@@ -70,8 +70,8 @@ void apply_permutation(std::ranges::random_access_range auto& Range, std::random
 				indices[i] = next;
 				throw std::range_error("Not a permutation");
 			}
-			using std::swap;
-			swap(first[current], first[next]);
+
+			std::ranges::swap(first[current], first[next]);
 			indices[current] = current;
 			current = next;
 		}

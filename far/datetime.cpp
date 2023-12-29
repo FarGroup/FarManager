@@ -612,8 +612,7 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 		case date_type::ymd:
 			p1 = Year;
 			w1 = FullYear == 2? 5 : 2;
-			using std::swap;
-			swap(f1, f3);
+			std::ranges::swap(f1, f3);
 			p2 = st.wMonth;
 			p3 = st.wDay;
 			break;

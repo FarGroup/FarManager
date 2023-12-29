@@ -77,8 +77,7 @@ namespace color_picker_common
 		else
 			A = Size - 1 - A;
 
-		using std::swap;
-		swap(A, B);
+		std::ranges::swap(A, B);
 	}
 
 	template<typename cube>
@@ -133,8 +132,7 @@ namespace color_picker_common
 			}
 		}
 
-		using std::swap;
-		swap(Cube, NewCube);
+		std::ranges::swap(Cube, NewCube);
 	}
 
 	template<typename plane>

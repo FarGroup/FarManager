@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <optional>
 #include <utility>
 
+#include <concepts>
 #include <cstddef>
 #include <cstring>
 
@@ -91,8 +92,7 @@ template<class T>
 void clear_and_shrink(T& container)
 {
 	T Tmp;
-	using std::swap;
-	swap(container, Tmp);
+	std::ranges::swap(container, Tmp);
 }
 
 

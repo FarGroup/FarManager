@@ -2079,8 +2079,7 @@ bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			ManualSelectPos = mpos = filepos;
 		else if (filepos < ManualSelectPos)
 		{
-			using std::swap;
-			swap(filepos, ManualSelectPos);
+			std::ranges::swap(filepos, ManualSelectPos);
 		}
 
 		vseek(filepos, FILE_BEGIN);

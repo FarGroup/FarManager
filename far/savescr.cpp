@@ -247,7 +247,6 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 		}
 	}
 
-	using std::swap;
-	swap(ScreenBuf, NewBuf);
+	std::ranges::swap(ScreenBuf, NewBuf);
 	m_Where = NewWhere;
 }
