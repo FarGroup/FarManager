@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -79,7 +80,7 @@ namespace
 
 	auto parameter(string_view const Name)
 	{
-		return concat(L"far.log."sv, Name);
+		return L"far.log."sv + Name;
 	}
 
 	auto get_parameter(string_view const Name)
@@ -89,7 +90,7 @@ namespace
 
 	auto sink_parameter(string_view const SinkName, string_view const Name)
 	{
-		return parameter(concat(L"sink."sv, SinkName, L'.', Name));
+		return parameter(far::format(L"sink.{}.{}"sv, SinkName, Name));
 	}
 
 	auto get_sink_parameter(string_view const SinkName, string_view const Name)
@@ -256,13 +257,13 @@ namespace
 	public:
 		void handle_impl(message const& Message) const
 		{
-			os::debug::print(concat(
-				L'[', Message.m_Time, L']',
-				L'[', Message.m_ThreadId, L']',
-				L'[', Message.m_LevelString, L']',
-				L' ', Message.m_Data, L' ',
-				L'[', Message.m_Location, L']',
-				L'\n'
+			os::debug::print(far::format(
+				L"[{}][{}][{}] {} [{}]\n"sv,
+				Message.m_Time,
+				Message.m_ThreadId,
+				Message.m_LevelString,
+				Message.m_Data,
+				Message.m_Location
 			));
 		}
 
@@ -573,7 +574,8 @@ namespace
 	class async_impl
 	{
 	protected:
-		explicit async_impl(bool const IsDiscardable, string_view const Name):
+		explicit async_impl(std::function<void(message&&)> Out, bool const IsDiscardable, string_view const Name):
+			m_Out(std::move(Out)),
 			m_IsDiscardable(IsDiscardable),
 			m_Thread(os::thread::mode::join, &async_impl::poll, this, Name)
 		{
@@ -601,8 +603,6 @@ namespace
 	private:
 		const size_t QueueBufferSize = 8192;
 
-		virtual void out(message&& Message) = 0;
-
 		void poll(string_view const Name)
 		{
 			os::debug::set_thread_name(far::format(L"Log sink ({})"sv, Name));
@@ -622,7 +622,7 @@ namespace
 							if (m_IsDiscardable && m_FinishEvent.is_signaled())
 								return;
 
-							out(std::move(Messages.front()));
+							m_Out(std::move(Messages.front()));
 						}
 					}
 				},
@@ -635,7 +635,7 @@ namespace
 		os::synced_queue<message> m_Messages;
 		os::event m_MessageEvent { os::event::type::automatic, os::event::state::nonsignaled };
 		os::event m_FinishEvent { os::event::type::manual, os::event::state::nonsignaled };
-
+		std::function<void(message&&)> m_Out;
 		bool m_IsDiscardable;
 		os::thread m_Thread;
 	};
@@ -653,7 +653,7 @@ namespace
 		static constexpr auto mode = sink_mode::async;
 
 		explicit async(bool const IsDiscardable):
-			synchronized_impl<async_impl>(IsDiscardable, sink_type::name)
+			synchronized_impl([&](message const& Message){ sink_boilerplate<sink_type>::handle_impl(Message); }, IsDiscardable, sink_type::name)
 		{
 		}
 
@@ -661,12 +661,6 @@ namespace
 		void handle(message const& Message) override
 		{
 			this->handle_impl_synchronized(Message);
-		}
-
-		// async_impl
-		void out(message&& Message) override
-		{
-			return sink_boilerplate<sink_type>::handle_impl(std::move(Message));
 		}
 	};
 
@@ -796,6 +790,7 @@ namespace logging
 
 		~engine()
 		{
+			LOGINFO(L"Logger exit"sv);
 			s_Destroyed = true;
 		}
 
@@ -944,12 +939,12 @@ namespace logging
 		}
 
 		os::concurrency::critical_section m_CS;
-		std::unique_ptr<sink> m_Sink;
 		os::concurrency::synced_queue<message> m_QueuedMessages;
 		std::atomic<level> m_Level{ level::off };
 		level m_TraceLevel{ level::fatal };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
+		std::unique_ptr<sink> m_Sink;
 		static inline bool s_Destroyed;
 		static inline std::atomic_size_t s_Suppressed;
 	};
@@ -993,7 +988,7 @@ namespace logging
 	{
 		consoleicons::instance().set_icon(FAR_ICON_LOG);
 
-		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
+		console.SetTitle(L"Far Log Viewer: "sv + PipeName);
 		console.SetTextAttributes(colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		DWORD ConsoleMode = 0;
