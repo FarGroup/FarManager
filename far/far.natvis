@@ -30,17 +30,6 @@
 		</Expand>
 	</Type>
 
-	<Type Name="range&lt;*&gt;">
-		<DisplayString>{m_Begin,[m_End - m_Begin]na}</DisplayString>
-		<Expand>
-			<Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
-			<ArrayItems>
-				<Size>m_End - m_Begin</Size>
-				<ValuePointer>m_Begin</ValuePointer>
-			</ArrayItems>
-		</Expand>
-	</Type>
-
 	<Type Name="matrix_view&lt;*&gt;">
 		<Expand>
 			<CustomListItems>
@@ -86,7 +75,7 @@
 		</Expand>
 	</Type>
 
-	<Type Name="movable&lt;*&gt;">
+	<Type Name="movable">
 		<DisplayString>{m_Value}</DisplayString>
 		<StringView>m_Value</StringView>
 	</Type>
@@ -460,7 +449,5 @@
 			<ExpandedItem Condition="EventType == 0x10">Event.FocusEvent</ExpandedItem>
 		</Expand>
 	</Type>
-
-
 
 </AutoVisualizer>
