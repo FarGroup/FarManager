@@ -770,7 +770,6 @@ void Dialog::InitDialogObjects(size_t ID)
 						static_cast<int>(m_Where.left + Item.X2),
 						static_cast<int>(m_Where.top + Item.Y2)
 					});
-				ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 
 				// поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
 				if (!(Item.Flags & DIF_LISTNOBOX) && !DialogMode.Check(DMODE_OBJECTS_CREATED))
@@ -812,7 +811,6 @@ void Dialog::InitDialogObjects(size_t ID)
 			{
 				if (const auto& ListPtr = Item.ListPtr)
 				{
-					ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 					DialogEdit->SetDropDownBox((Item.Flags& DIF_DROPDOWNLIST) != 0);
 					ListPtr->ChangeFlags(VMENU_WRAPMODE, (Item.Flags& DIF_LISTWRAPMODE) != 0);
 					ListPtr->ChangeFlags(VMENU_DISABLED, (Item.Flags& DIF_DISABLE) != 0);
@@ -2034,8 +2032,8 @@ void Dialog::ShowDialog(size_t ID)
 				if (Item.ListPtr)
 				{
 					//   Перед отрисовкой спросим об изменении цветовых атрибутов
-					FarColor RealColors[VMENU_COLOR_COUNT]{};
-					FarDialogItemColors ListColors{ sizeof(ListColors), 0, VMENU_COLOR_COUNT, RealColors };
+					vmenu_colors_t RealColors{};
+					FarDialogItemColors ListColors{ sizeof(ListColors), 0, RealColors.size(), RealColors.data()};
 					Item.ListPtr->GetColors(&ListColors);
 
 					if (DlgProc(DN_CTLCOLORDLGLIST,I,&ListColors))
@@ -3867,8 +3865,8 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
 		SetComboBoxPos(&CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
-		FarColor RealColors[VMENU_COLOR_COUNT]{};
-		FarDialogItemColors ListColors{ sizeof(ListColors), 0, VMENU_COLOR_COUNT, RealColors };
+		vmenu_colors_t RealColors{};
+		FarDialogItemColors ListColors{ sizeof(ListColors), 0, RealColors.size(), RealColors.data()};
 		ComboBox->SetColors(nullptr);
 		ComboBox->GetColors(&ListColors);
 
