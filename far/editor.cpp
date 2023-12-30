@@ -3747,8 +3747,8 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 	if(FindAll && MatchFound)
 	{
-		const auto MenuY1 = ScrY - 20;
-		const auto MenuY2 = MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2;
+		const auto MenuY1 = std::max(0, ScrY - 20);
+		const auto MenuY2 = std::min(ScrY, MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2);
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
 		FindAllList->SetTitle(far::vformat(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
