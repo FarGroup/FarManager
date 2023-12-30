@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+MZK 2024-02-10 13:13:13-08:00 - build 6271
+
+1. `Ctrl+Numpad5` in Editor menu "All matching entries" vertically aligns
+   found text in all items. To preserve vertical alignment while scrolling items
+   horizontally, the items can be moved beyond the left or right window edges.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-10 14:45:04+00:00 - build 6270
 
 1. Refactoring.

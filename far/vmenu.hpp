@@ -60,28 +60,29 @@ using vmenu_colors_t = std::array<FarColor, 15>;
 
 enum VMENU_FLAGS
 {
-	VMENU_NONE                 = 0,
-	VMENU_ALWAYSSCROLLBAR      = 8_bit,  // всегда показывать скроллбар
-	VMENU_LISTBOX              = 9_bit,  // Это список в диалоге
-	VMENU_SHOWNOBOX            = 10_bit, // показать без рамки
-	VMENU_AUTOHIGHLIGHT        = 11_bit, // автоматически выбирать симолы подсветки
-	VMENU_REVERSEHIGHLIGHT     = 12_bit, // ... только с конца
-	VMENU_UPDATEREQUIRED       = 13_bit, // лист необходимо обновить (перерисовать)
-	VMENU_DISABLEDRAWBACKGROUND= 14_bit, // подложку не рисовать
-	VMENU_WRAPMODE             = 15_bit, // зацикленный список (при перемещении)
-	VMENU_SHOWAMPERSAND        = 16_bit, // символ '&' показывать AS IS
-	VMENU_WARNDIALOG           = 17_bit, //
-	VMENU_LISTHASFOCUS         = 21_bit, // меню является списком в диалоге и имеет фокус
-	VMENU_COMBOBOX             = 22_bit, // меню является комбобоксом и обрабатывается менеджером по-особому.
-	VMENU_MOUSEDOWN            = 23_bit, //
-	VMENU_CHANGECONSOLETITLE   = 24_bit, //
-	VMENU_MOUSEREACTION        = 25_bit, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
-	VMENU_DISABLED             = 26_bit, //
-	VMENU_NOMERGEBORDER        = 27_bit, //
-	VMENU_REFILTERREQUIRED     = 28_bit, // перед отрисовкой необходимо обновить фильтр
-	VMENU_LISTSINGLEBOX        = 29_bit, // список, всегда с одинарной рамкой
-	VMENU_COMBOBOXEVENTKEY     = 30_bit, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
-	VMENU_COMBOBOXEVENTMOUSE   = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
+	VMENU_NONE                   = 0,
+	VMENU_ALWAYSSCROLLBAR        = 8_bit,  // всегда показывать скроллбар
+	VMENU_LISTBOX                = 9_bit,  // Это список в диалоге
+	VMENU_SHOWNOBOX              = 10_bit, // показать без рамки
+	VMENU_AUTOHIGHLIGHT          = 11_bit, // автоматически выбирать симолы подсветки
+	VMENU_REVERSEHIGHLIGHT       = 12_bit, // ... только с конца
+	VMENU_UPDATEREQUIRED         = 13_bit, // лист необходимо обновить (перерисовать)
+	VMENU_DISABLEDRAWBACKGROUND  = 14_bit, // подложку не рисовать
+	VMENU_WRAPMODE               = 15_bit, // зацикленный список (при перемещении)
+	VMENU_SHOWAMPERSAND          = 16_bit, // символ '&' показывать AS IS
+	VMENU_WARNDIALOG             = 17_bit, //
+	VMENU_ENABLEALIGNANNOTATIONS = 18_bit, // Enable vertical alignment of item annotations and HscrollEnBlocMode
+	VMENU_LISTHASFOCUS           = 21_bit, // меню является списком в диалоге и имеет фокус
+	VMENU_COMBOBOX               = 22_bit, // меню является комбобоксом и обрабатывается менеджером по-особому.
+	VMENU_MOUSEDOWN              = 23_bit, //
+	VMENU_CHANGECONSOLETITLE     = 24_bit, //
+	VMENU_MOUSEREACTION          = 25_bit, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+	VMENU_DISABLED               = 26_bit, //
+	VMENU_NOMERGEBORDER          = 27_bit, //
+	VMENU_REFILTERREQUIRED       = 28_bit, // перед отрисовкой необходимо обновить фильтр
+	VMENU_LISTSINGLEBOX          = 29_bit, // список, всегда с одинарной рамкой
+	VMENU_COMBOBOXEVENTKEY       = 30_bit, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
+	VMENU_COMBOBOXEVENTMOUSE     = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
 struct menu_item
@@ -142,11 +143,9 @@ struct MenuItemEx: menu_item
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	size_t ShowPos{};
+	int HorizontalPosition{}; // Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
-	short Len[2]{};                  // размеры 2-х частей
-	short Idx2{};                    // начало 2-й части
 	std::list<std::pair<int, int>> Annotations;
 };
 
@@ -294,15 +293,19 @@ private:
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
-	size_t GetItemMaxShowPos(int Item, size_t MaxLineWidth) const;
-	// Negative NewShowPos is relative to the right side; -1 aligns the item to the right
-	bool SetItemShowPos(int Item, int NewShowPos, size_t MaxLineWidth);
-	// Shifts item's ShowPos; if Shift is positive, the item visually moves left
-	bool ShiftItemShowPos(int Item,int Shift, size_t MaxLineWidth);
-	bool SetAllItemsShowPos(int NewShowPos);
-	bool ShiftAllItemsShowPos(int Shift);
+
+	[[nodiscard]] bool SetItemHPos(MenuItemEx& Item, const auto& GetNewHPos);
+	[[nodiscard]] bool SetCurItemSmartHPos(int NewHPos);
+	[[nodiscard]] bool ShiftCurItemHPos(int Shift);
+	[[nodiscard]] bool SetAllItemsHPos(const auto& GetNewHPos);
+	[[nodiscard]] bool SetAllItemsSmartHPos(int NewHPos);
+	[[nodiscard]] bool ShiftAllItemsHPos(int Shift);
+	[[nodiscard]] bool AlignAnnotations();
+
 	void UpdateMaxLengthFromTitles();
-	void UpdateMaxLength(size_t Length);
+	void UpdateMaxLength(int ItemLength);
+	void ResetAllItemsBoundaries();
+	void UpdateAllItemsBoundaries(int ItemHPos, int ItemLength);
 	bool ShouldSendKeyToFilter(unsigned Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
@@ -318,7 +321,8 @@ private:
 	int TopPos{};
 	int MaxHeight;
 	bool WasAutoHeight{};
-	size_t m_MaxItemLength{};
+	int m_MaxItemLength{};
+	std::pair<int, int> m_AllItemsBoundaries{};
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};
