@@ -189,7 +189,7 @@ void ShowProcessList()
 		ProcList->clear();
 		Info.Windows.clear();
 
-		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&Info)))
+		if (!EnumWindows(EnumWindowsProc, std::bit_cast<LPARAM>(&Info)))
 		{
 			rethrow_if(Info.ExceptionPtr);
 			return false;

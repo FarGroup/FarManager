@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utility.hpp"
 
 #include <array>
+#include <bit>
 #include <memory>
 #include <variant>
 
@@ -158,7 +159,7 @@ public:
 	auto data() const noexcept
 	{
 		assert(this->size() >= sizeof(T));
-		return edit_as<T*>(base::data());
+		return std::bit_cast<T*>(base::data());
 	}
 
 	[[nodiscard]]

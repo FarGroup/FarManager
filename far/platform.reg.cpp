@@ -170,7 +170,7 @@ namespace os::reg
 		if (!query_value(native_handle(), Name, Type, Buffer) || !is_string_type(Type))
 			return false;
 
-		const auto Data = view_as<const wchar_t*>(Buffer.data());
+		const auto Data = std::bit_cast<const wchar_t*>(Buffer.data());
 		const auto Size = Buffer.size() / sizeof(wchar_t);
 		const auto IsNullTerminated = Data[Size - 1] == L'\0';
 		Value.assign(Data, Size - IsNullTerminated);

@@ -1054,7 +1054,7 @@ bool Panel::ExecFolder(string_view const Folder, const UUID& PluginUuid, const s
 						IsActive? FOSF_ACTIVE : FOSF_NONE
 					};
 
-					if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarUuid, reinterpret_cast<intptr_t>(&info)))
+					if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarUuid, std::bit_cast<intptr_t>(&info)))
 					{
 						const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
 						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());

@@ -157,7 +157,7 @@ static void SetItemColors(std::span<const color_item> const Items, point Positio
 	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
 	ItemsMenu->RunEx([&](int Msg, void *param)
 	{
-		const auto ItemsCode = reinterpret_cast<intptr_t>(param);
+		const auto ItemsCode = std::bit_cast<intptr_t>(param);
 		if (Msg != DN_CLOSE || ItemsCode < 0)
 			return 0;
 
@@ -448,7 +448,7 @@ void SetColors()
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
 		const auto GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
 		{
-			const auto ItemsCode = reinterpret_cast<intptr_t>(param);
+			const auto ItemsCode = std::bit_cast<intptr_t>(param);
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
 			SetItemColors(Groups[ItemsCode].Subitems);

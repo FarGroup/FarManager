@@ -655,10 +655,10 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 						break;
 					case WTYPE_VMENU:
 					case WTYPE_DIALOG:
-						wi->Id=reinterpret_cast<intptr_t>(f.get()); // BUGBUG
+						wi->Id = std::bit_cast<intptr_t>(f.get()); // BUGBUG
 						break;
 					case WTYPE_COMBOBOX:
-						wi->Id=reinterpret_cast<intptr_t>(std::static_pointer_cast<VMenu>(f)->GetDialog().get()); // BUGBUG
+						wi->Id = std::bit_cast<intptr_t>(std::static_pointer_cast<VMenu>(f)->GetDialog().get()); // BUGBUG
 						break;
 					default:
 						wi->Id=0;
@@ -694,7 +694,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return TRUE;
 
 		case ACTL_GETFARHWND:
-			return reinterpret_cast<intptr_t>(console.GetWindow());
+			return std::bit_cast<intptr_t>(console.GetWindow());
 
 		case ACTL_REDRAWALL:
 		{
@@ -1243,7 +1243,7 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
-			string_view StrItems = view_as<const wchar_t*>(Items);
+			string_view StrItems = std::bit_cast<const wchar_t*>(Items);
 
 			// Plugins expect that the trailing \n is ignored here, even though it's not promised anywhere.
 			if (StrItems.ends_with(L'\n'))
@@ -1565,7 +1565,7 @@ namespace magic
 	static auto CastVectorToRawData(std::unique_ptr<std::vector<T>>&& Items)
 	{
 		T Item{};
-		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
+		Item.Reserved[0] = std::bit_cast<intptr_t>(Items.get());
 		Items->emplace_back(Item);
 		const std::tuple Result(Items->data(), Items->size() - 1);
 		Items.release();
@@ -1575,7 +1575,7 @@ namespace magic
 	template<typename T>
 	static auto CastRawDataToVector(std::span<T> const RawItems)
 	{
-		const auto Items = edit_as<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
+		const auto Items = std::bit_cast<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
 		Items->pop_back(); // not needed anymore
 		return std::unique_ptr<std::vector<T>>(Items);
 	}
@@ -2642,7 +2642,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		case PCTL_LOADPLUGIN:
 		case PCTL_FORCEDLOADPLUGIN:
 			if (Param1 == PLT_PATH && Param2)
-				return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(static_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
+				return std::bit_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(static_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
 			break;
 
 		case PCTL_FINDPLUGIN:
@@ -2673,7 +2673,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			}
 			if (plugin && Global->CtrlObject->Plugins->IsPluginUnloaded(plugin))
 				plugin = nullptr;
-			return reinterpret_cast<intptr_t>(plugin);
+			return std::bit_cast<intptr_t>(plugin);
 		}
 
 		case PCTL_UNLOADPLUGIN:

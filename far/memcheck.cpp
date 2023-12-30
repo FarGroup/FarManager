@@ -330,7 +330,7 @@ private:
 
 			for (StackSize = 0; StackSize != std::size(Stack) && i->Stack[StackSize]; ++StackSize)
 			{
-				Stack[StackSize] = { reinterpret_cast<uintptr_t>(i->Stack[StackSize]), INLINE_FRAME_CONTEXT_INIT };
+				Stack[StackSize] = { std::bit_cast<uintptr_t>(i->Stack[StackSize]), INLINE_FRAME_CONTEXT_INIT };
 			}
 
 			tracer.get_symbols({}, { Stack, StackSize }, [&](string_view const Line)

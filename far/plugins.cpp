@@ -703,7 +703,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		OpenInfo oInfo{ sizeof(oInfo) };
 		oInfo.OpenFrom = OPEN_ANALYSE;
 		oInfo.Guid = &FarUuid;
-		oInfo.Data = reinterpret_cast<intptr_t>(&oainfo);
+		oInfo.Data = std::bit_cast<intptr_t>(&oainfo);
 
 		// If we have reached this point, the analyse handle will be passed to the plugin
 		// and supposed to be deleted by it, so we should not call CloseAnalyse.
@@ -1596,7 +1596,7 @@ bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histo
 	{
 		OpenCode=OPEN_DIALOG;
 		pd.hDlg = static_cast<HANDLE>(Global->WindowManager->GetCurrentWindow().get());
-		Item = reinterpret_cast<intptr_t>(&pd);
+		Item = std::bit_cast<intptr_t>(&pd);
 	}
 
 	auto hPlugin = Open(item.pPlugin, OpenCode, item.Uuid, Item);
@@ -1762,7 +1762,7 @@ static wchar_t* StrToBuf(const string_view Str, char*& Buf, size_t& Rest, size_t
 	if (!BufPtr)
 		return {};
 
-	const auto StrPtr = edit_as<wchar_t*>(BufPtr);
+	const auto StrPtr = std::bit_cast<wchar_t*>(BufPtr);
 	*copy_string(Str, StrPtr) = {};
 	return StrPtr;
 }
@@ -1776,7 +1776,7 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 
 	if (Menu.Count)
 	{
-		const auto Items = edit_as<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), alignof(wchar_t*), Rest, Size));
+		const auto Items = std::bit_cast<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), alignof(wchar_t*), Rest, Size));
 		if (Items)
 		{
 			assert(is_aligned(Items));
@@ -1784,7 +1784,7 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 			Menu.Strings = Items;
 		}
 
-		const auto Uuids = edit_as<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), alignof(UUID), Rest, Size));
+		const auto Uuids = std::bit_cast<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), alignof(UUID), Rest, Size));
 		if (Uuids)
 		{
 			assert(is_aligned(Uuids));
@@ -2084,7 +2084,7 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 	// Copy instead of string_view as it goes into the wild
 	const string PluginCommand(Command.substr(PluginIterator->PluginFlags & PF_FULLCMDLINE? 0 : Prefix->size() + 1));
 	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.c_str() };
-	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info)))
+	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarUuid, std::bit_cast<intptr_t>(&info)))
 	{
 		ProcessPluginPanel(std::move(hPlugin), true);
 	}
@@ -2111,7 +2111,7 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 	if (exception_handling_in_progress() || !pPlugin || !pPlugin->has(iOpen))
 		return false;
 
-	auto PluginPanel = Open(pPlugin, OpenFrom, FarUuid, reinterpret_cast<intptr_t>(Data));
+	auto PluginPanel = Open(pPlugin, OpenFrom, FarUuid, std::bit_cast<intptr_t>(Data));
 	bool process=false;
 
 	if (OpenFrom == OPEN_FROMMACRO)
@@ -2322,7 +2322,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 			{
 				OpenCode = OPEN_DIALOG;
 				pd.hDlg = static_cast<HANDLE>(Global->WindowManager->GetCurrentWindow().get());
-				Item = reinterpret_cast<intptr_t>(&pd);
+				Item = std::bit_cast<intptr_t>(&pd);
 			}
 
 			hPlugin=Open(Data->pPlugin,OpenCode,Data->FoundUuid,Item);
@@ -2338,7 +2338,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 		{
 			const string command = Data->Command; // Нужна копия строки
 			OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), command.c_str() };
-			hPlugin = Open(Data->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info));
+			hPlugin = Open(Data->pPlugin, OPEN_COMMANDLINE, FarUuid, std::bit_cast<intptr_t>(&info));
 			Result = true;
 		}
 		break;

@@ -66,7 +66,7 @@ auto EmptyToNull(const auto& Str)
 
 inline void* ToPtr(intptr_t Value) noexcept
 {
-	return reinterpret_cast<void*>(Value);
+	return std::bit_cast<void*>(Value);
 }
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

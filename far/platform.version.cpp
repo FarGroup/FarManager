@@ -56,7 +56,7 @@ namespace os::version
 	{
 		unsigned Length;
 		T* Result;
-		return VerQueryValue(Data.data(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+		return VerQueryValue(Data.data(), null_terminated(SubBlock).c_str(), std::bit_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
 	bool file_version::read(string_view const Filename)
@@ -161,7 +161,7 @@ namespace os::version
 
 	static bool get_os_version(OSVERSIONINFOEX& Info)
 	{
-		const auto InfoPtr = edit_as<OSVERSIONINFO*>(&Info);
+		const auto InfoPtr = std::bit_cast<OSVERSIONINFO*>(&Info);
 
 		if (imports.RtlGetVersion && NT_SUCCESS(imports.RtlGetVersion(InfoPtr)))
 			return true;

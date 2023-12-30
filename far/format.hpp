@@ -114,7 +114,7 @@ auto str(const auto& Value)
 
 inline auto str(const void* Value)
 {
-	return far::format(L"0x{:0{}X}"sv, reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return far::format(L"0x{:0{}X}"sv, std::bit_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 inline auto str(void* Value)

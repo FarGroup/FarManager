@@ -236,7 +236,7 @@ namespace imports_detail
 	{
 		static const auto Pointer = [&]
 		{
-			if (const auto DynamicPointer = reinterpret_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
+			if (const auto DynamicPointer = std::bit_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
 				return DynamicPointer;
 
 			return StubFunction;

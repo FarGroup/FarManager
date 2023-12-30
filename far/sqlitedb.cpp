@@ -336,7 +336,7 @@ static std::string_view get_column_text(sqlite::sqlite3_stmt* Stmt, int Col)
 	// https://www.sqlite.org/c3ref/column_blob.html
 	// call sqlite3_column_text() first to force the result into the desired format,
 	// then invoke sqlite3_column_bytes() to find the size of the result
-	const auto Data = view_as<char const*>(sqlite::sqlite3_column_text(Stmt, Col));
+	const auto Data = std::bit_cast<char const*>(sqlite::sqlite3_column_text(Stmt, Col));
 	const auto Size = static_cast<size_t>(sqlite::sqlite3_column_bytes(Stmt, Col));
 
 	return { Data, Size };
@@ -617,7 +617,7 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 	if (view<char>(Data1, Size1) == view<char>(Data2, Size2))
 		return 0;
 
-	if (reinterpret_cast<intptr_t>(Param) == SQLITE_UTF16)
+	if (std::bit_cast<intptr_t>(Param) == SQLITE_UTF16)
 	{
 		return string_sort::ordering_as_int(comparer(
 			view<wchar_t>(Data1, Size1),

@@ -464,7 +464,7 @@ namespace os::clipboard
 			Locale,
 				LOCALE_IDEFAULTANSICODEPAGE |
 				LOCALE_RETURN_NUMBER,
-			reinterpret_cast<wchar_t*>(&Acp),
+			std::bit_cast<wchar_t*>(&Acp),
 			SizeInChars
 		) != SizeInChars)
 		{

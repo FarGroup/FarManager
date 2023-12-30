@@ -223,7 +223,7 @@ void Xlat(std::span<wchar_t> const Data, unsigned long long const Flags)
 					Next = XLat.Layouts[XLat.CurrentLayout];
 			}
 
-			PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, reinterpret_cast<LPARAM>(Next));
+			PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, Next? 0 : INPUTLANGCHANGE_FORWARD, std::bit_cast<LPARAM>(Next));
 
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);

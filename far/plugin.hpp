@@ -1133,10 +1133,10 @@ struct FarPanelDirectory
 };
 
 #ifdef FAR_USE_INTERNALS
-#define PANEL_NONE    reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
-#define PANEL_ACTIVE  reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
-#define PANEL_PASSIVE reinterpret_cast<HANDLE>(static_cast<intptr_t>(-2))
-#define PANEL_STOP    reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
+#define PANEL_NONE    std::bit_cast<HANDLE>(static_cast<intptr_t>(-1))
+#define PANEL_ACTIVE  std::bit_cast<HANDLE>(static_cast<intptr_t>(-1))
+#define PANEL_PASSIVE std::bit_cast<HANDLE>(static_cast<intptr_t>(-2))
+#define PANEL_STOP    std::bit_cast<HANDLE>(static_cast<intptr_t>(-1))
 #else // ELSE FAR_USE_INTERNALS
 #define PANEL_NONE    ((HANDLE)(-1))
 #define PANEL_ACTIVE  ((HANDLE)(-1))

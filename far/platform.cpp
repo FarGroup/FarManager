@@ -282,7 +282,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		(Nt? GetModuleHandle(L"ntdll.dll") : nullptr),
 		ErrorCode,
 		0,
-		edit_as<wchar_t*>(&ptr_setter(Buffer)),
+		std::bit_cast<wchar_t*>(&ptr_setter(Buffer)),
 		0,
 		nullptr);
 
@@ -433,7 +433,7 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 {
-	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, edit_as<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
+	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, std::bit_cast<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
 }
 
 string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
@@ -613,7 +613,7 @@ HKL make_hkl(int32_t const Layout)
 	// For an unknown reason HKLs must be promoted as signed integers on x64:
 	// 0x1NNNNNNN -> 0x000000001NNNNNNN
 	// 0xFNNNNNNN -> 0xFFFFFFFFFNNNNNNN
-	return reinterpret_cast<HKL>(static_cast<intptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<int32_t, uint16_t>(Layout, Layout)));
+	return std::bit_cast<HKL>(static_cast<intptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<int32_t, uint16_t>(Layout, Layout)));
 }
 
 HKL make_hkl(string_view const LayoutStr)
@@ -759,10 +759,10 @@ namespace rtdl
 			return m_module->get();
 		}
 
-		void* module::get_proc_address(const char* const Name) const
+		FARPROC module::get_proc_address(const char* const Name) const
 		{
 			const auto& Module = get_module(true);
-			return reinterpret_cast<void*>(::GetProcAddress(Module, Name));
+			return ::GetProcAddress(Module, Name);
 		}
 
 		opaque_function_pointer::opaque_function_pointer(const module& Module, const char* Name):

@@ -78,7 +78,7 @@ static HICON load_icon(int IconId, bool Big)
 
 static HICON set_icon(HWND Wnd, bool Big, HICON Icon)
 {
-	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
+	return std::bit_cast<HICON>(SendMessage(Wnd, WM_SETICON, Big? ICON_BIG : ICON_SMALL, std::bit_cast<LPARAM>(Icon)));
 }
 
 void consoleicons::update_icon()

@@ -1421,7 +1421,7 @@ struct FARConfigItem
 			Item.Flags = LIF_CHECKED|L'*';
 		}
 		Item.Text = ListItemString.c_str();
-		Item.UserData = reinterpret_cast<intptr_t>(this);
+		Item.UserData = std::bit_cast<intptr_t>(this);
 		return Item;
 	}
 
@@ -2487,7 +2487,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	{
 		return Index == -1 ?
 			nullptr : // Everything is filtered out
-			view_as<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
+			std::bit_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
 	};
 
 	const auto EditItem = [&](edit_mode const EditMode)
@@ -2513,7 +2513,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-		auto& ConfigStrings = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+		auto& ConfigStrings = edit_as<std::vector<string>>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 		FarListUpdate flu{ sizeof(flu), ListInfo.SelectPos, CurrentItem->MakeListItem(ConfigStrings[ListInfo.SelectPos]) };
 		Dlg->SendMessage(DM_LISTUPDATE, ac_item_listbox, &flu);
 

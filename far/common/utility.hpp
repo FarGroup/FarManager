@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 
+#include <bit>
 #include <functional>
 #include <optional>
 #include <utility>
@@ -255,7 +256,7 @@ constexpr inline auto aligned_sizeof = aligned_size(sizeof(T), Alignment);
 [[nodiscard]]
 inline bool is_aligned(const void* Address, const size_t Alignment)
 {
-	return !(reinterpret_cast<uintptr_t>(Address) % Alignment);
+	return !(std::bit_cast<uintptr_t>(Address) % Alignment);
 }
 
 template<typename T>
@@ -420,7 +421,7 @@ constexpr small_type extract_integer(large_type const Value)
 	static_assert(sizeof(small_type) < sizeof(large_type));
 	static_assert(sizeof(small_type) * Index < sizeof(large_type));
 
-	return Value >> sizeof(small_type) * Index * CHAR_BIT;
+	return static_cast<small_type>(Value >> sizeof(small_type) * Index * CHAR_BIT);
 }
 
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

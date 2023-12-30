@@ -185,7 +185,7 @@ constexpr auto HookPushOffset = 35;
 template<auto Function>
 static auto GetProcAddressImpl(HMODULE const Module, const char* const Name) noexcept
 {
-	return reinterpret_cast<decltype(Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
+	return std::bit_cast<decltype(Function)>(std::bit_cast<void*>(GetProcAddress(Module, Name)));
 }
 
 #define GETPROCADDRESS(Module, Name) GetProcAddressImpl<&Name>(Module, #Name)
@@ -278,7 +278,7 @@ static void init_hook() noexcept
 		return;
 	}
 
-	const auto FunctionData = reinterpret_cast<BYTE*>(LdrLoadDll);
+	const auto FunctionData = std::bit_cast<BYTE*>(LdrLoadDll);
 
 	if (!
 		(
@@ -299,10 +299,10 @@ static void init_hook() noexcept
 		return;
 	}
 
-	auto loff = *reinterpret_cast<DWORD const*>(FunctionData + 1);
-	const auto p_loff = reinterpret_cast<BYTE*>(&hook_ldr) + HookPushOffset;
+	auto loff = *std::bit_cast<DWORD const*>(FunctionData + 1);
+	const auto p_loff = std::bit_cast<BYTE*>(&hook_ldr) + HookPushOffset;
 
-	if (loff != *reinterpret_cast<DWORD const*>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
+	if (loff != *std::bit_cast<DWORD const*>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
 	{
 		if (SCOPED_ACTION(remove_protection){ p_loff - 1, sizeof(loff) + 1 })
 		{
@@ -312,7 +312,7 @@ static void init_hook() noexcept
 				loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
 			}
 
-			*reinterpret_cast<DWORD*>(p_loff) = loff;
+			*std::bit_cast<DWORD*>(p_loff) = loff;
 		}
 		else
 		{
@@ -330,7 +330,7 @@ static void init_hook() noexcept
 	Data
 	{
 		0xE8,
-		reinterpret_cast<DWORD>(hook_ldr) - sizeof(Data) - reinterpret_cast<DWORD>(LdrLoadDll)
+		std::bit_cast<DWORD>(&hook_ldr) - sizeof(Data) - std::bit_cast<DWORD>(LdrLoadDll)
 	};
 	PACK_POP()
 

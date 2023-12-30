@@ -124,7 +124,7 @@ void PrintFiles(FileList* SrcPanel)
 			PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
 			nullptr,
 			4,
-			edit_as<BYTE*>(pi.data()),
+			std::bit_cast<BYTE*>(pi.data()),
 			static_cast<DWORD>(pi.size()),
 			&Needed,
 			&PrintersCount
@@ -258,7 +258,7 @@ void PrintFiles(FileList* SrcPanel)
 
 				DOC_INFO_1 di1{ UNSAFE_CSTR(FileName) };
 
-				if (!StartDocPrinter(Printer.native_handle(), 1, edit_as<BYTE*>(&di1)))
+				if (!StartDocPrinter(Printer.native_handle(), 1, std::bit_cast<BYTE*>(&di1)))
 					throw MAKE_FAR_EXCEPTION(L"StartDocPrinter error"sv);
 
 				SCOPE_EXIT{ EndDocPrinter(Printer.native_handle()); };

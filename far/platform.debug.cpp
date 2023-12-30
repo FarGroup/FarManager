@@ -195,7 +195,7 @@ namespace os::debug
 
 			std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
 			{
-				return stack_frame{ reinterpret_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT };
+				return stack_frame{ std::bit_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT };
 			});
 
 			i += Size;
@@ -426,7 +426,7 @@ namespace os::debug::symbols
 		{
 		case CBA_EVENT:
 			{
-				const auto& Event = *static_cast<IMAGEHLP_CBA_EVENT const*>(reinterpret_cast<void const*>(CallbackData));
+				const auto& Event = view_as<IMAGEHLP_CBA_EVENT>(static_cast<uintptr_t>(CallbackData));
 				const auto Level = event_level(Event.severity);
 
 				string Buffer;

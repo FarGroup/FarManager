@@ -1245,9 +1245,9 @@ TEST_CASE("smart_ptr.block_ptr")
 		Test;
 
 		REQUIRE(in_closed_range(
-			reinterpret_cast<uintptr_t>(&Test.S),
-			reinterpret_cast<uintptr_t>(Test.S->str),
-			reinterpret_cast<uintptr_t>(&Test.Sentinel)
+			std::bit_cast<uintptr_t>(&Test.S),
+			std::bit_cast<uintptr_t>(&Test.S->str),
+			std::bit_cast<uintptr_t>(&Test.Sentinel)
 		));
 
 		const auto Str = "01234657"sv;
@@ -1266,9 +1266,9 @@ TEST_CASE("smart_ptr.block_ptr")
 		Test;
 
 		REQUIRE(!in_closed_range(
-			reinterpret_cast<uintptr_t>(&Test.S),
-			reinterpret_cast<uintptr_t>(Test.S->str),
-			reinterpret_cast<uintptr_t>(&Test.Sentinel)
+			std::bit_cast<uintptr_t>(&Test.S),
+			std::bit_cast<uintptr_t>(&Test.S->str),
+			std::bit_cast<uintptr_t>(&Test.Sentinel)
 		));
 
 		const auto Str = "01234657"sv;

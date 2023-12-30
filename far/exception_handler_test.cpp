@@ -322,7 +322,7 @@ WARNING_POP()
 	{
 		using func_t = void(*)();
 
-		reinterpret_cast<func_t>(const_cast<int*>(&NotExecutable))();
+		std::bit_cast<func_t>(const_cast<int*>(&NotExecutable))();
 	}
 
 	static void seh_access_violation_ex_nul()
@@ -337,8 +337,8 @@ WARNING_POP()
 	{
 		using func_t = void(*)();
 
-		volatile const func_t InvalidAddress = reinterpret_cast<func_t>(1);
-		assert(!os::memory::is_pointer(reinterpret_cast<void const*>(InvalidAddress)));
+		volatile const func_t InvalidAddress = std::bit_cast<func_t>(intptr_t{1});
+		assert(!os::memory::is_pointer(std::bit_cast<void const*>(InvalidAddress)));
 		InvalidAddress();
 	}
 
@@ -356,7 +356,7 @@ WARNING_POP()
 		ULONG_PTR const Args[]
 		{
 			static_cast<ULONG_PTR>(EXCEPTION_READ_FAULT),
-			reinterpret_cast<ULONG_PTR>(&Symbol),
+			std::bit_cast<ULONG_PTR>(&Symbol),
 			static_cast<ULONG_PTR>(STATUS_IO_DEVICE_ERROR),
 		};
 
@@ -482,7 +482,7 @@ WARNING_POP()
 		}
 		Data{};
 		[[maybe_unused]]
-		volatile const auto Result = *reinterpret_cast<volatile const double*>(Data.Data + 3);
+		volatile const auto Result = *std::bit_cast<volatile const double*>(Data.Data + 3);
 	}
 
 	static void seh_unknown()

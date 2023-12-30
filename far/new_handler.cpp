@@ -108,7 +108,7 @@ static decltype(Function) get_address(const char* const Name)
 		return nullptr;
 	}
 
-	return reinterpret_cast<decltype(Function)>(reinterpret_cast<void*>(Ptr));
+	return std::bit_cast<decltype(Function)>(Ptr);
 }
 
 static crt_new_handler _set_new_handler(crt_new_handler const Handler)

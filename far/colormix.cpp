@@ -204,20 +204,12 @@ namespace colors
 
 	rgba to_rgba(COLORREF const Color)
 	{
-		rgba Rgba;
-		static_assert(sizeof(Rgba) == sizeof(Color));
-
-		copy_memory(&Color, &Rgba, sizeof(Color));
-		return Rgba;
+		return std::bit_cast<rgba>(Color);
 	}
 
 	COLORREF to_color(rgba const Rgba)
 	{
-		COLORREF Color;
-		static_assert(sizeof(Color) == sizeof(Rgba));
-
-		copy_memory(&Rgba, &Color, sizeof(Rgba));
-		return Color;
+		return std::bit_cast<COLORREF>(Rgba);
 	}
 
 	size_t color_hash(const FarColor& Value)

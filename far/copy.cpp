@@ -414,7 +414,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==ID_SC_USEFILTER) // "Use filter"
 			{
-				m_UseFilter = static_cast<FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
+				m_UseFilter = static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
 				return TRUE;
 			}
 
@@ -474,7 +474,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		case DN_LISTHOTKEY:
 			if(Param1==ID_SC_COMBO)
 			{
-				const auto Index = reinterpret_cast<intptr_t>(Param2);
+				const auto Index = std::bit_cast<intptr_t>(Param2);
 				if (Index == CM_ASKRO)
 				{
 					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
@@ -512,7 +512,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			     в списке.
 			*/
 			const auto MultiCopy = Dlg->SendMessage(DM_GETCHECK, ID_SC_MULTITARGET, nullptr) == BSTATE_CHECKED;
-			string strOldFolder = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, nullptr));
+			string strOldFolder = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, nullptr));
 			string strNewFolder;
 
 			if (AltF10 == 2)
@@ -2819,7 +2819,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			const auto& WFN = view_as<const file_names_for_overwrite_dialog>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& WFN = view_as<file_names_for_overwrite_dialog>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			NamesList List;
 			List.AddName(*WFN.Src);

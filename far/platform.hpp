@@ -306,7 +306,7 @@ namespace os
 			[[nodiscard]]
 			T GetProcAddress(const char* name) const
 			{
-				return reinterpret_cast<T>(get_proc_address(name));
+				return std::bit_cast<T>(get_proc_address(name));
 			}
 
 			[[nodiscard]]
@@ -319,7 +319,7 @@ namespace os
 			[[nodiscard]]
 			HMODULE get_module(bool Mandatory) const;
 
-			void* get_proc_address(const char* Name) const;
+			FARPROC get_proc_address(const char* Name) const;
 
 			struct module_deleter
 			{
@@ -365,7 +365,7 @@ namespace os
 			using opaque_function_pointer::opaque_function_pointer;
 
 			[[nodiscard]]
-			explicit(false) operator raw_function_pointer() const { return reinterpret_cast<raw_function_pointer>(get_pointer(true)); }
+			explicit(false) operator raw_function_pointer() const { return std::bit_cast<raw_function_pointer>(get_pointer(true)); }
 		};
 	}
 

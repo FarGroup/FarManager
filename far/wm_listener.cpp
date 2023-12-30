@@ -99,7 +99,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			{
 				// https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
 				// Some applications send this message with lParam set to NULL
-				const auto Area = NullToEmpty(view_as<const wchar_t*>(lParam));
+				const auto Area = NullToEmpty(std::bit_cast<const wchar_t*>(lParam));
 
 				if (Area == L"Environment"sv)
 				{

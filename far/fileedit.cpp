@@ -2400,7 +2400,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_DELETESESSIONBOOKMARK:
 		{
-			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark(static_cast<int>(reinterpret_cast<intptr_t>(Param2))));
+			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark(static_cast<int>(std::bit_cast<intptr_t>(Param2))));
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
@@ -2446,7 +2446,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				InitKeyBar();
 			else
 			{
-				if (reinterpret_cast<intptr_t>(Param2) != -1) // не только перерисовать?
+				if (std::bit_cast<intptr_t>(Param2) != -1) // не только перерисовать?
 				{
 					if(CheckStructSize(Kbt))
 						m_windowKeyBar->Change(Kbt->Titles);

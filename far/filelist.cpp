@@ -5867,7 +5867,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	FileListItemToPluginPanelItemBasic(fi, *gpi->Item);
 	gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 
-	const auto data = edit_as<std::byte*>(gpi->Item);
+	const auto data = std::bit_cast<std::byte*>(gpi->Item);
 	const auto end = data + gpi->Size;
 
 	const auto CopyToBuffer = [&](size_t const Offset, string_view const Str)

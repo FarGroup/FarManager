@@ -1228,8 +1228,8 @@ void regex_playground()
 	{
 		const auto update_substitution = [&]
 		{
-			const auto TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
-			const auto ReplaceStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
+			const auto TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+			const auto ReplaceStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
 
 			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match.Matches, &NamedMatch);
 			Status = status::normal;
@@ -1264,7 +1264,7 @@ void regex_playground()
 
 		const auto update_test = [&]
 		{
-			string_view const TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+			string_view const TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
 
 			bool IsMatch;
 
@@ -1322,7 +1322,7 @@ void regex_playground()
 		{
 			try
 			{
-				const string_view RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
+				const string_view RegexStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
 				Regex.Compile(RegexStr, RegexStr.starts_with(L'/')? OP_PERLSTYLE : 0);
 			}
 			catch (regex_exception const& e)
@@ -1459,7 +1459,7 @@ void single_progress::update(size_t const Percent) const
 {
 	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_progress, UNSAFE_CSTR(make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true)));
 
-	const auto Title = view_as<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
+	const auto Title = std::bit_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
 	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
 }
 

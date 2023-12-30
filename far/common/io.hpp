@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "utility.hpp"
 
+#include <bit>
 #include <istream>
 #include <span>
 #include <streambuf>
@@ -73,7 +74,7 @@ namespace io
 	{
 		try
 		{
-			Stream.read(edit_as<char*>(Buffer.data()), Buffer.size());
+			Stream.read(std::bit_cast<char*>(Buffer.data()), Buffer.size());
 		}
 		catch (std::ios::failure const&)
 		{

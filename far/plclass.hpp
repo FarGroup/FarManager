@@ -209,7 +209,7 @@ namespace detail
 	struct ExecuteStruct
 	{
 		auto& operator=(intptr_t value) { Result = value; return *this; }
-		auto& operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
+		auto& operator=(HANDLE value) { Result = std::bit_cast<intptr_t>(value); return *this; }
 		explicit(false) operator intptr_t() const { return Result; }
 		explicit(false) operator void*() const { return ToPtr(Result); }
 		explicit(false) operator bool() const { return Result != 0; }
@@ -329,7 +329,7 @@ protected:
 		ExecuteFunctionImpl(T::export_id, [&]
 		{
 			using function_type = typename T::type;
-			const auto Function = reinterpret_cast<function_type>(Exports[T::export_id]);
+			const auto Function = std::bit_cast<function_type>(Exports[T::export_id]);
 
 			if constexpr (std::is_void_v<std::invoke_result_t<function_type, args...>>)
 				Function(FWD(Args)...);

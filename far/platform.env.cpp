@@ -74,7 +74,7 @@ namespace os::env
 	{
 		if (const auto TokenHandle = security::open_current_process_token(TOKEN_QUERY))
 		{
-			CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Data), TokenHandle.native_handle(), TRUE);
+			CreateEnvironmentBlock(std::bit_cast<void**>(&m_Data), TokenHandle.native_handle(), TRUE);
 		}
 	}
 

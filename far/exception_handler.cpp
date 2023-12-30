@@ -959,7 +959,7 @@ static auto parent_process_id(process_basic_information_t const& Info)
 	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
 	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
 	else if constexpr (requires { Info.Reserved3; })
-		return static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.Reserved3));
+		return static_cast<DWORD>(std::bit_cast<uintptr_t>(Info.Reserved3));
 	else
 		static_assert(!sizeof(Info));
 }
@@ -1323,7 +1323,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 			if (!ExceptionRecord.NumberParameters)
 				return {};
 
-			const auto& Info = *reinterpret_cast<detail::DelayLoadInfo const*>(ExceptionRecord.ExceptionInformation[0]);
+			const auto& Info = view_as<detail::DelayLoadInfo>(ExceptionRecord.ExceptionInformation[0]);
 			return concat(
 				encoding::ansi::get_chars(Info.szDll),
 				L"::"sv,
@@ -1574,7 +1574,7 @@ static string collect_information(
 		{
 			for (const auto& i: CurrentEntry->Threads)
 			{
-				const auto Tid = reinterpret_cast<uintptr_t>(i.ClientId.UniqueThread);
+				const auto Tid = std::bit_cast<uintptr_t>(i.ClientId.UniqueThread);
 				if (Tid == CurrentThreadId)
 					continue;
 
@@ -1887,7 +1887,7 @@ void seh_exception::raise()
 
 	ULONG_PTR const Arguments[]
 	{
-		reinterpret_cast<ULONG_PTR>(this)
+		std::bit_cast<ULONG_PTR>(this)
 	};
 
 	RaiseException(STATUS_FAR_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
@@ -1915,7 +1915,7 @@ static handler_result handle_seh_exception(
 
 	if (Record.ExceptionCode == static_cast<DWORD>(STATUS_FAR_THREAD_RETHROW) && Record.NumberParameters == 1)
 	{
-		const auto& OriginalExceptionData = reinterpret_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
+		const auto& OriginalExceptionData = std::bit_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
 		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack
 		return handle_generic_exception(OriginalExceptionData.Context, Function, {}, PluginModule, {}, {}, OriginalExceptionData.ErrorState);
 	}

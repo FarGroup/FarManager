@@ -721,7 +721,7 @@ void elevation::progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const
 	const auto Data = Read<intptr_t>();
 	// BUGBUG: SourceFile, DestinationFile ignored
 
-	const auto Result = ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, reinterpret_cast<void*>(Data));
+	const auto Result = ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, ToPtr(Data));
 
 	Write(CallbackMagic, Result);
 }
@@ -736,7 +736,7 @@ bool elevation::copy_file(const string& From, const string& To, LPPROGRESS_ROUTI
 		},
 		[&]
 		{
-			Write(C_FUNCTION_COPYFILE, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
+			Write(C_FUNCTION_COPYFILE, From, To, std::bit_cast<intptr_t>(ProgressRoutine), std::bit_cast<intptr_t>(Data), Flags);
 			// BUGBUG: Cancel ignored
 
 			while (Read<int>() == CallbackMagic)
@@ -1157,7 +1157,7 @@ private:
 		const auto Flags = Read<DWORD>();
 		// BUGBUG: Cancel ignored
 
-		callback_param Param{ this, reinterpret_cast<void*>(Data) };
+		callback_param Param{ this, ToPtr(Data) };
 		const auto Result = os::fs::low::copy_file(From.c_str(), To.c_str(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
 
 		Write(0 /* not CallbackMagic */, os::last_error(), Result);
@@ -1267,7 +1267,7 @@ private:
 			}
 		}
 
-		Write(os::last_error(), reinterpret_cast<intptr_t>(Duplicate));
+		Write(os::last_error(), std::bit_cast<intptr_t>(Duplicate));
 	}
 
 	void SetEncryptionHandler() const
@@ -1354,7 +1354,7 @@ private:
 				StreamBytesTransferred,
 				StreamNumber,
 				CallbackReason,
-				reinterpret_cast<intptr_t>(Param->UserData));
+				std::bit_cast<intptr_t>(Param->UserData));
 			// BUGBUG: SourceFile, DestinationFile ignored
 
 			for (;;)

@@ -542,7 +542,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			long long Ret=-1;
 			InternalEditorBookmark ebm{};
-			const auto iMode = reinterpret_cast<intptr_t>(vParam);
+			const auto iMode = std::bit_cast<intptr_t>(vParam);
 
 			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark(static_cast<int>(iParam - 1), &ebm))
 			{
@@ -564,7 +564,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_EDITOR_SEL:
 		{
 			int iPos;
-			switch (const auto Action = reinterpret_cast<intptr_t>(vParam))
+			switch (const auto Action = std::bit_cast<intptr_t>(vParam))
 			{
 				case 0:  // Get Param
 				{
@@ -4476,7 +4476,7 @@ public:
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
 		// BUGBUG this is some dark magic
-		auto x = reinterpret_cast<size_t>(&*BM);
+		auto x = std::bit_cast<size_t>(&*BM);
 		x ^= (BM->Line << 16) ^ (BM->Cursor);
 		return x;
 	}
@@ -6098,7 +6098,7 @@ bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks* Param, size_t Count,
 	if (!Param || Param->Size < Size)
 		return false;
 
-	const auto data = edit_as<intptr_t*>(Param + 1);
+	const auto data = std::bit_cast<intptr_t*>(Param + 1);
 	Param->Count=Count;
 	Param->Line=data;
 	Param->Cursor=data+Count;

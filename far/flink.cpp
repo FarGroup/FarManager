@@ -907,7 +907,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameOffset == 30);
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameLength == 20);
 
-		REQUIRE(std::ranges::equal(ExpectedData, std::span(view_as<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
+		REQUIRE(std::ranges::equal(ExpectedData, std::span(std::bit_cast<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
 	}
 
 	{
@@ -949,7 +949,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameLength == 20);
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
 
-		REQUIRE(std::ranges::equal(ExpectedData, std::span(view_as<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
+		REQUIRE(std::ranges::equal(ExpectedData, std::span(std::bit_cast<unsigned char const*>(Buffer.data()), std::size(ExpectedData))));
 	}
 }
 

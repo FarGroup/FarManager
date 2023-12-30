@@ -319,7 +319,7 @@ struct comparer_helper
 
 static int WINAPI comparer_wrapper(const void *one, const void *two, void *user)
 {
-	return reinterpret_cast<comparer>(user)(one, two);
+	return std::bit_cast<comparer>(user)(one, two);
 }
 
 static int WINAPI comparer_ex_wrapper(const void *one, const void *two, void *user)
@@ -437,7 +437,7 @@ static void FreeUnicodeArrayMagic(const wchar_t* const* Array)
 		return;
 
 	const auto RealPtr = Array - 1;
-	const auto Size = reinterpret_cast<size_t>(RealPtr[0]);
+	const auto Size = std::bit_cast<size_t>(RealPtr[0]);
 
 	for (const auto& i: std::span(Array, Size))
 	{
@@ -702,7 +702,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(std::span<const oldfar::P
 
 		if (Src.Flags&oldfar::PPIF_USERDATA)
 		{
-			const auto UserData = view_as<const void*>(Src.UserData);
+			const auto UserData = std::bit_cast<const void*>(Src.UserData);
 			const auto Size = *static_cast<const DWORD*>(UserData);
 			Dst.UserData.Data = new char[Size];
 			copy_memory(UserData, Dst.UserData.Data, Size);
@@ -710,7 +710,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(std::span<const oldfar::P
 		}
 		else
 		{
-			Dst.UserData.Data = reinterpret_cast<void*>(Src.UserData);
+			Dst.UserData.Data = std::bit_cast<void*>(Src.UserData);
 			Dst.UserData.FreeData = nullptr;
 		}
 		Dst.CRC32 = Src.CRC32;
@@ -753,10 +753,10 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 		const auto Size = *static_cast<const DWORD*>(PanelItem.UserData.Data);
 		auto Data = std::make_unique<char[]>(Size);
 		copy_memory(PanelItem.UserData.Data, Data.get(), Size);
-		PanelItemA.UserData = reinterpret_cast<intptr_t>(Data.release());
+		PanelItemA.UserData = std::bit_cast<intptr_t>(Data.release());
 	}
 	else
-		PanelItemA.UserData = reinterpret_cast<intptr_t>(PanelItem.UserData.Data);
+		PanelItemA.UserData = std::bit_cast<intptr_t>(PanelItem.UserData.Data);
 
 	PanelItemA.CRC32 = PanelItem.CRC32;
 	PanelItemA.FindData.dwFileAttributes = PanelItem.FileAttributes;
@@ -801,7 +801,7 @@ static void FreePanelItemA(std::span<const oldfar::PluginPanelItem> const PanelI
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
-			delete[] edit_as<char*>(Item.UserData);
+			delete[] std::bit_cast<char*>(Item.UserData);
 		}
 	}
 
@@ -883,12 +883,12 @@ static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 
 static auto GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
-	return VBuf? *edit_as<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
+	return VBuf? *std::bit_cast<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
 }
 
 static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, CHAR_INFO* VBufA, size_t Size)
 {
-	*edit_as<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
+	*std::bit_cast<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
 }
 
 static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size, bool NoCvt)
@@ -1512,7 +1512,7 @@ static void WINAPI qsort(void *base, size_t nelem, size_t width, comparer cmp) n
 	return cpp_try(
 	[&]
 	{
-		return pluginapi::apiQsort(base, nelem, width, comparer_wrapper, reinterpret_cast<void*>(cmp));
+		return pluginapi::apiQsort(base, nelem, width, comparer_wrapper, std::bit_cast<void*>(cmp));
 	},
 	[]
 	{
@@ -1539,7 +1539,7 @@ static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, siz
 	return cpp_try(
 	[&]
 	{
-		return pluginapi::apiBsearch(key, base, nelem, width, comparer_wrapper, reinterpret_cast<void*>(cmp));
+		return pluginapi::apiBsearch(key, base, nelem, width, comparer_wrapper, std::bit_cast<void*>(cmp));
 	},
 	[]
 	{
@@ -2399,7 +2399,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 
 		if (Flags&oldfar::FMSG_ALLINONE)
 		{
-			AllInOneAnsiItem = encoding::oem::get_chars(view_as<const char*>(Items));
+			AllInOneAnsiItem = encoding::oem::get_chars(std::bit_cast<const char*>(Items));
 		}
 		else
 		{
@@ -2448,7 +2448,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			&FarUuid,
 			NewFlags,
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
-			AnsiItems.empty()? view_as<const wchar_t* const*>(AllInOneAnsiItem.data()) : AnsiItemsPtrs.data(),
+			AnsiItems.empty()? std::bit_cast<const wchar_t* const*>(AllInOneAnsiItem.data()) : AnsiItemsPtrs.data(),
 			ItemsNumber,
 			ButtonsNumber
 		);
@@ -2515,7 +2515,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 				OLDFAR_TO_FAR_MAP(MIF_HIDDEN),
 			};
 
-			for (const auto& [Item, AnsiItem]: zip(mi, std::span(view_as<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: zip(mi, std::span(std::bit_cast<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
 			{
 				Item.Flags = MIF_NONE;
 				FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, ItemFlagsMap);
@@ -2543,7 +2543,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					Item.Flags |= MIF_CHECKED;
 
 					if (AnsiItem.Checked > 1)
-						AnsiToUnicodeBin({ view_as<const char*>(&AnsiItem.Checked), 1 }, { edit_as<wchar_t*>(&Item.Flags), 1 });
+						AnsiToUnicodeBin({ std::bit_cast<const char*>(&AnsiItem.Checked), 1 }, { std::bit_cast<wchar_t*>(&Item.Flags), 1 });
 				}
 
 				if (AnsiItem.Separator)
@@ -2627,7 +2627,7 @@ static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Pa
 		{
 		case DN_CTLCOLORDIALOG:
 		case DN_CTLCOLORDLGITEM:
-			Result = reinterpret_cast<intptr_t>(Param2);
+			Result = std::bit_cast<intptr_t>(Param2);
 			break;
 		}
 		return Result;
@@ -2748,11 +2748,11 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			{
 				const std::unique_ptr<char[]> HelpTopicA(UnicodeToAnsi(static_cast<const wchar_t*>(Param2)));
 				auto ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, HelpTopicA.get());
-				if (ret && ret != reinterpret_cast<intptr_t>(Param2)) // changed
+				if (ret && ret != std::bit_cast<intptr_t>(Param2)) // changed
 				{
 					static std::unique_ptr<wchar_t[]> HelpTopic;
-					HelpTopic.reset(AnsiToUnicode(view_as<const char*>(ret)));
-					ret = reinterpret_cast<intptr_t>(HelpTopic.get());
+					HelpTopic.reset(AnsiToUnicode(std::bit_cast<const char*>(ret)));
+					ret = std::bit_cast<intptr_t>(HelpTopic.get());
 				}
 				return ret;
 			}
@@ -2967,7 +2967,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			case oldfar::DM_SETCHECK:
 			{
 				FARCHECKEDSTATE State = BSTATE_UNCHECKED;
-				switch (static_cast<oldfar::FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<oldfar::FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2)))
 				{
 				case oldfar::BSTATE_UNCHECKED:
 					State=BSTATE_UNCHECKED;
@@ -3283,7 +3283,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				FARDIALOGITEMFLAGS OldFlags = DlgItem.Flags;
 				DlgItem.Flags&=~(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS);
-				switch (static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<intptr_t>(Param2)))
+				switch (static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(std::bit_cast<intptr_t>(Param2)))
 				{
 				case oldfar::LMRT_ONLYFOCUS:
 					DlgItem.Flags|=DIF_LISTTRACKMOUSEINFOCUS;
@@ -3929,14 +3929,14 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 			case oldfar::ACTL_WAITKEY:
 				{
 					INPUT_RECORD input{};
-					KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&input);
+					KeyToInputRecord(OldKeyToKey(static_cast<int>(std::bit_cast<intptr_t>(Param))),&input);
 					return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
 				}
 
 			case oldfar::ACTL_GETCOLOR:
 				{
 					FarColor Color;
-					const auto ColorIndex = old_palette_to_palette(static_cast<int>(reinterpret_cast<intptr_t>(Param)));
+					const auto ColorIndex = old_palette_to_palette(static_cast<int>(std::bit_cast<intptr_t>(Param)));
 					return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? colors::FarColorToConsoleColor(Color) :-1;
 				}
 
@@ -4118,7 +4118,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 			case oldfar::ACTL_GETWINDOWCOUNT:
 				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETWINDOWCOUNT, 0, nullptr);
 			case oldfar::ACTL_SETCURRENTWINDOW:
-				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_SETCURRENTWINDOW, reinterpret_cast<intptr_t>(Param), nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_SETCURRENTWINDOW, std::bit_cast<intptr_t>(Param), nullptr);
 			case oldfar::ACTL_COMMIT:
 				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_COMMIT, 0, nullptr);
 			case oldfar::ACTL_GETFARHWND:
@@ -4392,7 +4392,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			case oldfar::ECTL_PROCESSKEY:
 			{
 				INPUT_RECORD r{};
-				KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&r);
+				KeyToInputRecord(OldKeyToKey(static_cast<int>(std::bit_cast<intptr_t>(Param))),&r);
 				return static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_PROCESSINPUT, 0, &r));
 			}
 			case oldfar::ECTL_READINPUT: //BUGBUG?
@@ -4418,7 +4418,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			}
 			case oldfar::ECTL_SETKEYBAR:
 			{
-				switch (reinterpret_cast<intptr_t>(Param))
+				switch (std::bit_cast<intptr_t>(Param))
 				{
 					case 0:
 					case -1:
@@ -4751,7 +4751,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				return static_cast<int>(pluginapi::apiViewerControl(-1, VCTL_REDRAW, 0, nullptr));
 			case oldfar::VCTL_SETKEYBAR:
 			{
-				switch (reinterpret_cast<intptr_t>(Param))
+				switch (std::bit_cast<intptr_t>(Param))
 				{
 					case 0:
 					case -1:
@@ -4862,16 +4862,16 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			auto sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', Info->Name);
 			(void)encoding::oem::get_bytes(sTableName, TableSet.TableName);
-			std::unique_ptr<wchar_t[]> const us(AnsiToUnicodeBin({ edit_as<char*>(TableSet.DecodeTable), std::size(TableSet.DecodeTable) }, nCP));
+			std::unique_ptr<wchar_t[]> const us(AnsiToUnicodeBin({ std::bit_cast<char*>(&TableSet.DecodeTable), std::size(TableSet.DecodeTable) }, nCP));
 
 			inplace::lower({ us.get(), std::size(TableSet.DecodeTable) });
-			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { edit_as<char*>(TableSet.LowerTable), std::size(TableSet.DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { std::bit_cast<char*>(&TableSet.LowerTable), std::size(TableSet.DecodeTable) });
 
 			inplace::upper({ us.get(), std::size(TableSet.DecodeTable) });
-			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { edit_as<char*>(TableSet.UpperTable), std::size(TableSet.DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { std::bit_cast<char*>(&TableSet.UpperTable), std::size(TableSet.DecodeTable) });
 
-			MultiByteRecode(nCP, encoding::codepage::oem(), { edit_as<char*>(TableSet.DecodeTable), std::size(TableSet.DecodeTable) });
-			MultiByteRecode(encoding::codepage::oem(), nCP, { edit_as<char*>(TableSet.EncodeTable), std::size(TableSet.EncodeTable) });
+			MultiByteRecode(nCP, encoding::codepage::oem(), { std::bit_cast<char*>(&TableSet.DecodeTable), std::size(TableSet.DecodeTable) });
+			MultiByteRecode(encoding::codepage::oem(), nCP, { std::bit_cast<char*>(&TableSet.EncodeTable), std::size(TableSet.EncodeTable) });
 			return Command;
 		}
 		return -1;
@@ -5088,7 +5088,7 @@ private:
 			while (nb > 0)
 			{
 				--nb;
-				edit_as<char*>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
+				std::bit_cast<char*>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
 			}
 		}
 
@@ -5194,7 +5194,7 @@ WARNING_POP()
 			auto InfoCopy = StartupInfo;
 			auto FsfCopy = StandardFunctions;
 			// скорректируем адреса и плагино-зависимые поля
-			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
+			InfoCopy.ModuleNumber = std::bit_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
 			(void)encoding::oem::get_bytes(ModuleName(), InfoCopy.ModuleName);
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->PluginsRootKey().c_str();
@@ -5236,7 +5236,7 @@ WARNING_POP()
 			if (Info->Data)
 			{
 				Buffer.reset(UnicodeToAnsi(view_as<OpenCommandLineInfo>(Info->Data).CommandLine));
-				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+				Ptr = std::bit_cast<intptr_t>(Buffer.get());
 			}
 			break;
 
@@ -5247,7 +5247,7 @@ WARNING_POP()
 				const auto& SInfo = view_as<OpenShortcutInfo>(Info->Data);
 				const auto shortcutdata = SInfo.ShortcutData? SInfo.ShortcutData : SInfo.HostFile;
 				Buffer.reset(UnicodeToAnsi(shortcutdata));
-				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+				Ptr = std::bit_cast<intptr_t>(Buffer.get());
 			}
 			break;
 
@@ -5290,14 +5290,14 @@ WARNING_POP()
 			// BUGBUG this is not how it worked in 1.7
 			OpenFromA = static_cast<int>(oldfar::OPEN_FROMMACRO) | static_cast<int>(Global->CtrlObject->Macro.GetArea());
 			Buffer.reset(UnicodeToAnsi(view_as<OpenMacroInfo>(Info->Data).Count? view_as<OpenMacroInfo>(Info->Data).Values[0].String : L""));
-			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+			Ptr = std::bit_cast<intptr_t>(Buffer.get());
 			break;
 
 		case OPEN_DIALOG:
 			OpenFromA = oldfar::OPEN_DIALOG;
 			DlgData.ItemNumber = Info->Guid->Data1;
 			DlgData.hDlg = view_as<OpenDlgPluginData>(Info->Data).hDlg;
-			Ptr = reinterpret_cast<intptr_t>(&DlgData);
+			Ptr = std::bit_cast<intptr_t>(&DlgData);
 			break;
 
 		default:

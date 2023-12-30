@@ -448,7 +448,7 @@ namespace os::fs
 		bool Result = false;
 		auto& Handle = *static_cast<far_find_file_handle_impl*>(Find.native_handle());
 		bool Status = true, set_errcode = true;
-		auto DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
+		auto DirectoryInfo = std::bit_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
 		if (Handle.NextOffset)
 		{
 			DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(DirectoryInfo, Handle.NextOffset);

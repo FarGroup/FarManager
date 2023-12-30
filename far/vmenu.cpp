@@ -978,7 +978,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			  3 - вернуть количество отфильтрованных (невидимых) строк\
 			  4 - (по умолчанию) подправить высоту списка под количество элементов
 			*/
-			const auto Parameter = reinterpret_cast<intptr_t>(vParam);
+			const auto Parameter = std::bit_cast<intptr_t>(vParam);
 			switch (iParam)
 			{
 				case 0:
@@ -1073,7 +1073,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			static string strId;
 			strId = uuid::str(MenuId);
-			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strId));
+			return std::bit_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
 
 	}

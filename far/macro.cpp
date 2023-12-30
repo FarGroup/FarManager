@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.env.hpp"
+#include "platform.memory.hpp"
 
 // Common:
 #include "common/from_string.hpp"
@@ -936,7 +937,7 @@ bool KeyMacro::AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data)
 
 	intptr_t Priority = 50;
 	if (Data->StructSize >= sizeof(MacroAddMacro))
-		Priority = view_as<const MacroAddMacro*>(Data)->Priority;
+		Priority = std::bit_cast<const MacroAddMacro*>(Data)->Priority;
 
 	FarMacroValue values[]
 	{
@@ -947,7 +948,7 @@ bool KeyMacro::AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data)
 		Flags,
 		Data->Description,
 		PluginId,
-		{reinterpret_cast<void*>(Data->Callback)},
+		{std::bit_cast<void*>(Data->Callback)},
 		Data->Id,
 		Priority
 	};
@@ -1161,13 +1162,13 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				const auto Sequence = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
+				const auto Sequence = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
 				if (*Sequence)
 				{
 					if (ParseMacroString(Sequence,KMFLAGS_LUA,true))
 					{
 						m_RecCode=Sequence;
-						m_RecDescription = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr));
+						m_RecDescription = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr));
 						return TRUE;
 					}
 				}
@@ -2209,8 +2210,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (SyncCall)
 				--m_InternalInput;
 
-			//в windows гарантируется, что не бывает указателей меньше 0x10000
-			if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
+			if (os::memory::is_pointer(ResultCallPlugin) && ResultCallPlugin != INVALID_HANDLE_VALUE)
 				return api.PassPointer(ResultCallPlugin);
 
 			return api.PassBoolean(ResultCallPlugin != nullptr);
@@ -2227,7 +2227,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			const auto Area = static_cast<FARMACROAREA>(static_cast<int>(Data->Values[0].Double));
 			const auto Flags = static_cast<MACROFLAGS_MFLAGS>(static_cast<int>(Data->Values[1].Double));
-			const auto Callback = (Data->Count >= 3 && Data->Values[2].Type == FMVT_POINTER)? reinterpret_cast<FARMACROCALLBACK>(Data->Values[2].Pointer) : nullptr;
+			const auto Callback = (Data->Count >= 3 && Data->Values[2].Type == FMVT_POINTER)? std::bit_cast<FARMACROCALLBACK>(Data->Values[2].Pointer) : nullptr;
 			const auto CallbackId = (Data->Count >= 4 && Data->Values[3].Type == FMVT_POINTER)? Data->Values[3].Pointer : nullptr;
 			return api.PassBoolean(CheckAll(Area, Flags) && (!Callback || Callback(CallbackId, AKMFLAGS_NONE)));
 		}
@@ -2438,7 +2438,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						if (tmpVar.isUnknown())
 							tmpVar = -1;
-						tmpVar = CurrentWindow->VMProcess(CheckCode, reinterpret_cast<void*>(tmpVar.toInteger()), tmpAction.toInteger());
+						tmpVar = CurrentWindow->VMProcess(CheckCode, std::bit_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
 						success=true;
 					}
 					else
@@ -2939,13 +2939,13 @@ void FarMacroApi::kbdLayoutFunc() const
 		else
 		{
 			WParam = 0;
-			LParam = reinterpret_cast<LPARAM>(os::make_hkl(dwLayout));
+			LParam = std::bit_cast<LPARAM>(os::make_hkl(dwLayout));
 		}
 
 		Ret = PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, WParam, LParam) != FALSE;
 	}
 
-	PassValue(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0);
+	PassValue(Ret? std::bit_cast<intptr_t>(RetLayout) : 0);
 }
 
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
@@ -3012,7 +3012,7 @@ void FarMacroApi::msgBoxFunc() const
 		Flags|=FMSG_MB_OK;
 
 	const auto TempBuf = concat(title, L'\n', text);
-	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, view_as<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
+	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, std::bit_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
 	PassValue(Result);
 }
 

@@ -284,7 +284,7 @@ static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry,
 	set_date_or_time(Dlg, TimeMapEntry.TimeId, Time, MakeUnchanged);
 }
 
-static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
+static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 {
 	DialogBuilder Builder(lng::MSetAttrTitle, {}, [](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
@@ -292,7 +292,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 		{
 		case DN_BTNCLICK:
 			// only remove or keep, not set
-			if (Param1 == SA_CHECKBOX_REPARSEPOINT && reinterpret_cast<intptr_t>(Param2) == BSTATE_CHECKED)
+			if (Param1 == SA_CHECKBOX_REPARSEPOINT && std::bit_cast<intptr_t>(Param2) == BSTATE_CHECKED)
 				return false;
 
 			break;
@@ -305,7 +305,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
 	{
 		const auto AbsoluteIndex = main_attributes_count + i;
-		auto& Attr = DlgParam->Attributes[main_attributes_count + i];
+		auto& Attr = DlgParam.Attributes[main_attributes_count + i];
 		SavedState[i] = Attr.CurrentValue;
 		Builder.AddCheckbox(AttributeMap[AbsoluteIndex].LngId, Attr.CurrentValue, 0, flags::check_any(Attr.Flags, DIF_3STATE));
 	}
@@ -317,7 +317,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 
 	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
 	{
-		auto& Attr = DlgParam->Attributes[main_attributes_count + i];
+		auto& Attr = DlgParam.Attributes[main_attributes_count + i];
 
 		if (Attr.CurrentValue != SavedState[i])
 			Attr.ChangedManually = true;
@@ -326,25 +326,25 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 
 static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	const auto DlgParam = edit_as<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	auto& DlgParam = edit_as<SetAttrDlgParam>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 	switch (Msg)
 	{
 	case DN_BTNCLICK:
 		if (Param1 >= SA_ATTR_FIRST && Param1 <= SA_ATTR_LAST)
 		{
-			DlgParam->Attributes[Param1 - SA_ATTR_FIRST].CurrentValue = static_cast<FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2));
-			DlgParam->Attributes[Param1 - SA_ATTR_FIRST].ChangedManually = true;
+			DlgParam.Attributes[Param1 - SA_ATTR_FIRST].CurrentValue = static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2));
+			DlgParam.Attributes[Param1 - SA_ATTR_FIRST].ChangedManually = true;
 
 			// Compressed / Encrypted are mutually exclusive
 			if ((Param1 == SA_CHECKBOX_COMPRESSED || Param1 == SA_CHECKBOX_ENCRYPTED) &&
-				static_cast<FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2)) == BSTATE_CHECKED)
+				static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2)) == BSTATE_CHECKED)
 			{
 				const auto OtherId = Param1 == SA_CHECKBOX_COMPRESSED? SA_CHECKBOX_ENCRYPTED : SA_CHECKBOX_COMPRESSED;
 
 				if (static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, OtherId, nullptr)) != BSTATE_UNCHECKED)
 				{
-					DlgParam->Attributes[OtherId - SA_ATTR_FIRST].CurrentValue = BSTATE_UNCHECKED;
+					DlgParam.Attributes[OtherId - SA_ATTR_FIRST].CurrentValue = BSTATE_UNCHECKED;
 					Dlg->SendMessage(DM_SETCHECK, OtherId, ToPtr(BSTATE_UNCHECKED));
 				}
 			}
@@ -358,16 +358,16 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 		{
 			// этот кусок всегда работает если есть хотя бы одна папка
 			// иначе SA_CHECKBOX_SUBFOLDERS недоступен и всегда снят.
-			const auto SubfoldersState = static_cast<FARCHECKEDSTATE>(reinterpret_cast<intptr_t>(Param2));
+			const auto SubfoldersState = static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2));
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
 			// Works in 2 modes: single directory or multiple selection
-			for(auto& i: DlgParam->Attributes)
+			for(auto& i: DlgParam.Attributes)
 			{
 				if (SubfoldersState == BSTATE_UNCHECKED)
 				{
-					if (DlgParam->DialogMode == MODE_FOLDER)
+					if (DlgParam.DialogMode == MODE_FOLDER)
 						i.Flags &= ~DIF_3STATE;
 
 					if (!i.ChangedManually)
@@ -384,14 +384,14 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			for (const auto i: std::views::iota(SA_ATTR_FIRST + 0, SA_ATTR_LAST + 1))
 			{
-				const auto& Attr = DlgParam->Attributes[i - SA_ATTR_FIRST];
+				const auto& Attr = DlgParam.Attributes[i - SA_ATTR_FIRST];
 				Dlg->SendMessage(DM_SET3STATE, i, ToPtr((Attr.Flags & DIF_3STATE) != 0));
 				Dlg->SendMessage(DM_SETCHECK, i, ToPtr(Attr.CurrentValue));
 			}
 
-			if (DlgParam->DialogMode == MODE_FOLDER)
+			if (DlgParam.DialogMode == MODE_FOLDER)
 			{
-				for (const auto& [i, State]: zip(TimeMap, DlgParam->Times))
+				for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 				{
 					const auto process = [&](int const Id, auto& Component)
 					{
@@ -407,10 +407,10 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 				}
 			}
 
-			if (!DlgParam->Owner.ChangedManually)
+			if (!DlgParam.Owner.ChangedManually)
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR, SA_EDIT_OWNER, SubfoldersState == BSTATE_UNCHECKED? UNSAFE_CSTR(DlgParam->Owner.InitialValue) : nullptr);
-				DlgParam->Owner.ChangedManually = false;
+				Dlg->SendMessage(DM_SETTEXTPTR, SA_EDIT_OWNER, SubfoldersState == BSTATE_UNCHECKED? UNSAFE_CSTR(DlgParam.Owner.InitialValue) : nullptr);
+				DlgParam.Owner.ChangedManually = false;
 			}
 		}
 		// Set Original? / Set All? / Clear All?
@@ -418,7 +418,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 		{
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			for (const auto& [i, State]: zip(TimeMap, DlgParam->Times))
+			for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 			{
 				const auto process = [&](int const Id, auto& Component)
 				{
@@ -488,21 +488,21 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 				break;
 
 			case SA_EDIT_OWNER:
-				DlgParam->Owner.ChangedManually = true;
+				DlgParam.Owner.ChangedManually = true;
 				break;
 
 			case SA_EDIT_WDATE:
 			case SA_EDIT_CDATE:
 			case SA_EDIT_ADATE:
 			case SA_EDIT_XDATE:
-				DlgParam->Times[label_to_time_map_index(Param1 - 1)].Date.ChangedManually = true;
+				DlgParam.Times[label_to_time_map_index(Param1 - 1)].Date.ChangedManually = true;
 				break;
 
 			case SA_EDIT_WTIME:
 			case SA_EDIT_CTIME:
 			case SA_EDIT_ATIME:
 			case SA_EDIT_XTIME:
-				DlgParam->Times[label_to_time_map_index(Param1 - 2)].Time.ChangedManually = true;
+				DlgParam.Times[label_to_time_map_index(Param1 - 2)].Time.ChangedManually = true;
 				break;
 			}
 		}
@@ -516,7 +516,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (locale.date_format() != date_type::ymd)
 				break;
 
-			if (view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] != L' ')
+			if (std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] != L' ')
 				break;
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);

@@ -445,7 +445,7 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUnicodeCodePage(cp))
 	{
-		return contains(std::span(view_as<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
+		return contains(std::span(std::bit_cast<const wchar_t*>(&Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
@@ -714,7 +714,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 
 	if (IsUnicodeCodePage(m_Codepage))
 	{
-		OutStr.assign(view_as<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
+		OutStr.assign(std::bit_cast<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
 		if (m_Codepage == CP_REVERSEBOM)
 		{
 			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(wchar_t));
@@ -3895,7 +3895,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				if (reinterpret_cast<intptr_t>(Param2) != -1) // не только перерисовать?
+				if (std::bit_cast<intptr_t>(Param2) != -1) // не только перерисовать?
 				{
 					if(CheckStructSize(Kbt))
 						m_ViewKeyBar->Change(Kbt->Titles);

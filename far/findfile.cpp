@@ -653,7 +653,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 			if (Param1==AD_BUTTON_OK)
 			{
-				const auto Data = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
+				const auto Data = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
 
 				if (Data && *Data && !CheckFileSizeStringFormat(Data))
 				{
@@ -757,7 +757,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_BUTTON_FIND:
 				{
-					string Mask(view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr)));
+					string Mask(std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr)));
 
 					if (Mask.empty())
 						Mask = AllFilesMask;
@@ -1155,7 +1155,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					else
 					{
 						// Если поиск в UTF-16 (little endian), то используем исходный буфер
-						buffer = edit_as<wchar_t*>(readBufferA.data());
+						buffer = std::bit_cast<wchar_t*>(readBufferA.data());
 					}
 				}
 				else

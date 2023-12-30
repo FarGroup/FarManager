@@ -159,7 +159,7 @@ namespace os::concurrency
 
 	void thread::starter_impl(proc_type Proc, void* Param)
 	{
-		reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Proc, Param, 0, &m_ThreadId)));
+		reset(std::bit_cast<HANDLE>(_beginthreadex(nullptr, 0, Proc, Param, 0, &m_ThreadId)));
 
 		if (!*this)
 			throw MAKE_FAR_FATAL_EXCEPTION(L"Can't create thread"sv);

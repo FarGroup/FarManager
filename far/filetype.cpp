@@ -407,7 +407,7 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 				case ETR_CHECK_ALTVIEW:
 				case ETR_CHECK_EDIT:
 				case ETR_CHECK_ALTEDIT:
-					Dlg->SendMessage(DM_ENABLE,Param1+1,ToPtr(reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED));
+					Dlg->SendMessage(DM_ENABLE,Param1+1,ToPtr(std::bit_cast<intptr_t>(Param2) == BSTATE_CHECKED));
 					break;
 				default:
 					break;
@@ -418,7 +418,7 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 			if (Param1==ETR_BUTTON_OK)
 			{
-				return filemasks().assign(view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
+				return filemasks().assign(std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
 			}
 			break;
 

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "function_traits.hpp"
 
+#include <bit>
 #include <functional>
 
 //----------------------------------------------------------------------------
@@ -51,7 +52,7 @@ WARNING_DISABLE_MSC(4180) // qualifier applied to function type has no meaning; 
 	template<typename callable_type> requires (!std::same_as<std::decay_t<callable_type>, function_ref>)
 	explicit(false) function_ref(callable_type&& Callable) noexcept:
 		m_Ptr(to_ptr(FWD(Callable))),
-		m_ErasedFn([](void* Ptr, args... Args) -> return_type
+		m_ErasedFn([](intptr_t Ptr, args... Args) -> return_type
 		{
 			return std::invoke(from_ptr<callable_type>(Ptr), FWD(Args)...);
 		})
@@ -73,7 +74,7 @@ WARNING_POP()
 	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
-		return m_Ptr != nullptr;
+		return m_Ptr != 0;
 	}
 
 private:
@@ -81,23 +82,23 @@ private:
 	static auto to_ptr(callable_type&& Callable)
 	{
 		if constexpr (std::is_pointer_v<callable_type>)
-			return const_cast<void*>(reinterpret_cast<const void*>(Callable));
+			return std::bit_cast<intptr_t>(Callable);
 		else
-			return const_cast<void*>(reinterpret_cast<const void*>(&Callable));
+			return std::bit_cast<intptr_t>(&Callable);
 	}
 
 	template<typename callable_type>
-	static auto& from_ptr(void* Ptr)
+	static decltype(auto) from_ptr(intptr_t Ptr)
 	{
 		if constexpr (std::is_pointer_v<callable_type>)
-			return *reinterpret_cast<callable_type>(Ptr);
+			return std::bit_cast<callable_type>(Ptr);
 		else
-			return *reinterpret_cast<std::add_pointer_t<callable_type>>(Ptr);
+			return *std::bit_cast<std::add_pointer_t<callable_type>>(Ptr);
 	}
 
-	using signature_type = return_type(void*, args...);
+	using signature_type = return_type(intptr_t, args...);
 
-	void* m_Ptr;
+	intptr_t m_Ptr;
 	signature_type* m_ErasedFn;
 };
 
