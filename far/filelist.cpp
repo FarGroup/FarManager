@@ -6517,7 +6517,7 @@ void FileList::ProcessHostFile()
 		}
 		else
 		{
-			if ((Done=ProcessOneHostFile(&*(m_ListData.begin() + m_CurFile))) == 1)
+			if ((Done = ProcessOneHostFile(std::to_address(m_ListData.begin() + m_CurFile))) == 1)
 				ClearSelection();
 		}
 	}
@@ -7294,7 +7294,7 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 			return EqualRange.begin();
 
 		MatchedNames.clear();
-		reserve_exp_noshrink(MatchedNames, EqualRange.size());
+		reserve_exp(MatchedNames, EqualRange.size());
 
 		for (auto Iterator = EqualRange.begin(); Iterator != EqualRange.end(); ++Iterator)
 		{
@@ -8219,7 +8219,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 
 bool FileList::ConvertName(const string_view SrcName, string& strDest, const size_t MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
 {
-	reserve_exp_noshrink(strDest, MaxLength);
+	reserve_exp(strDest, MaxLength);
 
 	const auto SrcLength = visual_string_length(SrcName);
 

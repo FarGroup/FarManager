@@ -2926,7 +2926,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 		}
 	}
 
-	m_AutoDeletedColors.erase(&*DelPtr);
+	m_AutoDeletedColors.erase(std::to_address(DelPtr));
 
 	const auto Result = numbered_iterator(Lines.erase(DelPtr), DelPtr.Number());
 
@@ -4476,7 +4476,7 @@ public:
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
 		// BUGBUG this is some dark magic
-		auto x = std::bit_cast<size_t>(&*BM);
+		auto x = std::bit_cast<size_t>(std::to_address(BM));
 		x ^= (BM->Line << 16) ^ (BM->Cursor);
 		return x;
 	}
@@ -5603,7 +5603,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			AddColor(CurPtr, newcol);
 			if (col->Flags & ECF_AUTODELETE)
-				m_AutoDeletedColors.emplace(&*CurPtr);
+				m_AutoDeletedColors.emplace(std::to_address(CurPtr));
 
 			return true;
 		}
@@ -6638,7 +6638,7 @@ static std::string_view GetLineBytes(string_view const Str, std::vector<char>& B
 		if (Length <= Buffer.size())
 			return { Buffer.data(), Length };
 
-		resize_exp_noshrink(Buffer, Length);
+		resize_exp(Buffer, Length);
 	}
 }
 
@@ -6885,7 +6885,7 @@ Editor::numbered_const_iterator Editor::LastLine() const
 
 bool Editor::IsLastLine(const Edit* Line) const
 {
-	return Line == &*LastLine();
+	return Line == std::to_address(LastLine());
 }
 
 bool Editor::IsLastLine(const iterator& Line) const

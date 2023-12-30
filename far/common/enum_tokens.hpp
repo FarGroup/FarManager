@@ -143,7 +143,7 @@ namespace detail
 				return;
 
 			m_Cache.clear();
-			reserve_exp_noshrink(m_Cache, Value.size());
+			reserve_exp(m_Cache, Value.size());
 			copy::unquote(Value, std::back_inserter(m_Cache));
 			Value = m_Cache;
 		}

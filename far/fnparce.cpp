@@ -232,7 +232,7 @@ static size_t ProcessBrackets(string_view const Str, wchar_t const EndMark, brac
 			if (*Iterator == L'(')
 			{
 				if (!Brackets.BeginBracket)
-					Brackets.BeginBracket = &*Iterator;
+					Brackets.BeginBracket = std::to_address(Iterator);
 
 				++BracketsCount;
 				continue;
@@ -248,7 +248,7 @@ static size_t ProcessBrackets(string_view const Str, wchar_t const EndMark, brac
 				if (BracketsCount)
 					continue;
 
-				Brackets.EndBracket = &*Iterator;
+				Brackets.EndBracket = std::to_address(Iterator);
 				continue;
 			}
 		}

@@ -144,7 +144,7 @@ static void fold(string_view const From, string& To, DWORD const Flags)
 
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
-			resize_exp_noshrink(To);
+			resize_exp(To);
 			continue;
 		}
 
@@ -289,10 +289,10 @@ string_view detail::fuzzy_searcher_impl::normalize(string_view const Str)
 	}
 
 	// This retarded function can't do both in one go :(
-	resize_exp_noshrink(m_Intermediate, Str.size());
+	resize_exp(m_Intermediate, Str.size());
 	fold(Str, m_Intermediate, MAP_EXPAND_LIGATURES);
 
-	resize_exp_noshrink(m_Result, m_Intermediate.size());
+	resize_exp(m_Result, m_Intermediate.size());
 
 	// For some insane reason trailing diacritics are not decomposed in old OS
 	m_Intermediate.push_back(0);
@@ -302,7 +302,7 @@ string_view detail::fuzzy_searcher_impl::normalize(string_view const Str)
 	if (!m_Result.back())
 		m_Result.pop_back();
 
-	resize_exp_noshrink(m_Types, m_Result.size());
+	resize_exp(m_Types, m_Result.size());
 	if (!GetStringTypeW(CT_CTYPE3, m_Result.data(), static_cast<int>(m_Result.size()), m_Types.data()))
 	{
 		m_Result = Str;

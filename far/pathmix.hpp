@@ -102,7 +102,7 @@ namespace path
 				return Value + Element.size();
 			});
 
-			reserve_exp_noshrink(Str, TotalSize);
+			reserve_exp(Str, TotalSize);
 
 			for (const auto& i: Args)
 			{

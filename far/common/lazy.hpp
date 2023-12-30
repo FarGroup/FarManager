@@ -63,12 +63,12 @@ public:
 
 	T const* operator->() const
 	{
-		return &*this;
+		return &**this;
 	}
 
 	T* operator->()
 	{
-		return &*this;
+		return &**this;
 	}
 
 	auto& operator=(auto&& rhs)

@@ -604,7 +604,7 @@ void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, s
 	};
 
 	// With this approach we can fill the buffer with only one attempt in many cases.
-	resize_exp_noshrink(Buffer, EstimatedCharsCount());
+	resize_exp(Buffer, EstimatedCharsCount());
 
 	for (auto Overflow = true; Overflow;)
 	{

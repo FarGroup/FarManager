@@ -645,7 +645,7 @@ const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
 const FarColor* StoreColor(const FarColor& Value)
 {
 	static std::unordered_set<FarColor> ColorSet;
-	return &*ColorSet.emplace(Value).first;
+	return std::to_address(ColorSet.emplace(Value).first);
 }
 
 COLORREF ARGB2ABGR(int Color)

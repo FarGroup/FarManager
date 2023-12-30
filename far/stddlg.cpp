@@ -1292,8 +1292,8 @@ void regex_playground()
 			ListItems.clear();
 			ListStrings.clear();
 
-			reserve_exp_noshrink(ListItems, Match.Matches.size());
-			reserve_exp_noshrink(ListStrings, Match.Matches.size());
+			reserve_exp(ListItems, Match.Matches.size());
+			reserve_exp(ListStrings, Match.Matches.size());
 
 			const auto match_str = [&](RegExpMatch const& m)
 			{

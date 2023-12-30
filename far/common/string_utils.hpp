@@ -157,7 +157,7 @@ namespace string_utils::detail
 			return Value + Element.size();
 		});
 
-		reserve_exp_noshrink(Str, TotalSize);
+		reserve_exp(Str, TotalSize);
 		for (const auto& i: Args)
 		{
 			Str += i;
@@ -580,7 +580,7 @@ void join(std::wstring& Str, std::wstring_view const Separator, std::ranges::ran
 		return Value + Separator.size() + string_utils::detail::append_arg(Element).size();
 	});
 
-	reserve_exp_noshrink(Str, Size? Size - Separator.size() : Size);
+	reserve_exp(Str, Size? Size - Separator.size() : Size);
 
 	bool First = true;
 

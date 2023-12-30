@@ -999,7 +999,7 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 
 		if (It != Items.end())
 		{
-			nResult = Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin, &*It, DestPath, strResultName, OPM_SILENT) != 0;
+			nResult = Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin, std::to_address(It), DestPath, strResultName, OPM_SILENT) != 0;
 		}
 
 		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin, Items, true);

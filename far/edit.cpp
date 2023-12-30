@@ -103,7 +103,7 @@ private:
 void ColorItem::SetOwner(const UUID& Value)
 {
 	static std::unordered_set<UUID> UuidSet;
-	Owner = &*UuidSet.emplace(Value).first;
+	Owner = std::to_address(UuidSet.emplace(Value).first);
 }
 
 void ColorItem::SetColor(const FarColor& Value)

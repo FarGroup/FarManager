@@ -403,7 +403,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	if (item.Mark.Inherit)
 		item.Mark.Mark.clear();
 
-	return &*m_Colors.emplace(item).first;
+	return std::to_address(m_Colors.emplace(item).first);
 }
 
 int highlight::configuration::GetGroup(const FileListItem& Object, const FileList* Owner)
@@ -680,7 +680,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 						{
 							(*Count)++;
 							const auto Iterator = HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
-							HiMenu->AddItem(MenuItemEx(MenuString(&*Iterator, true)), SelectPos);
+							HiMenu->AddItem(MenuItemEx(MenuString(std::to_address(Iterator), true)), SelectPos);
 							HiMenu->SetSelectPos(SelectPos, 1);
 							NeedUpdate = true;
 						}

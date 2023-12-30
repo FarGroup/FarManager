@@ -209,7 +209,7 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 			map_file::line Line;
 			Line.Name = get_match(i.Str, m[1]);
 			const auto File = get_match(i.Str, m[3]);
-			Line.File = &*Files.emplace(File).first;
+			Line.File = std::to_address(Files.emplace(File).first);
 
 			Symbols.emplace(Address, std::move(Line));
 			continue;
@@ -238,7 +238,7 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 		{
 			map_file::line Line;
 			Line.Name = get_match(i.Str, m[2]);
-			Line.File = &*Files.emplace(ObjName).first;
+			Line.File = std::to_address(Files.emplace(ObjName).first);
 			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
 			Symbols.emplace(Address, std::move(Line));
 			continue;
@@ -283,7 +283,7 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 		{
 			map_file::line Line;
 			Line.Name = get_match(i.Str, m[2]);
-			Line.File = &*Files.emplace(FileName).first;
+			Line.File = std::to_address(Files.emplace(FileName).first);
 			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16) + BaseAddress;
 			Symbols.emplace(Address, std::move(Line));
 			continue;

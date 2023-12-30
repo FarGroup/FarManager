@@ -772,6 +772,11 @@ TEST_CASE("lazy")
 		REQUIRE(CallCount == 0);
 	}
 
+	{
+		lazy<string> Str([&] { return L""s; });
+		STATIC_REQUIRE(std::same_as<decltype(*Str), string&>);
+		STATIC_REQUIRE(std::same_as<decltype(Str->c_str()), decltype(std::declval<string&>().c_str())>);
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -1620,19 +1625,19 @@ TEST_CASE("utility.base")
 	D;
 }
 
-TEST_CASE("utility.grow_exp_noshrink")
+TEST_CASE("utility.grow_exp")
 {
 	for (const auto i: std::views::iota(size_t{}, size_t{32}))
 	{
 		const auto ExpectedIncrease = std::max(size_t{1}, i / 2);
-		REQUIRE(grow_exp_noshrink(i, 0) == i);
-		REQUIRE(grow_exp_noshrink(i, {}) == i + ExpectedIncrease);
-		REQUIRE(grow_exp_noshrink(i, i + 1) == i + ExpectedIncrease);
-		REQUIRE(grow_exp_noshrink(i, i * 2) == i * 2);
+		REQUIRE(grow_exp(i, 0) == i);
+		REQUIRE(grow_exp(i, {}) == i + ExpectedIncrease);
+		REQUIRE(grow_exp(i, i + 1) == i + ExpectedIncrease);
+		REQUIRE(grow_exp(i, i * 2) == i * 2);
 	}
 }
 
-TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
+TEMPLATE_TEST_CASE("utility.reserve_exp", "", string, std::vector<int>)
 {
 	TestType Container;
 	Container.resize(42);
@@ -1640,19 +1645,20 @@ TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
 
 	SECTION("no shrink")
 	{
-		reserve_exp_noshrink(Container, 1);
+		// Mandated by the standard now, but just in case.
+		reserve_exp(Container, 1);
 		REQUIRE(Container.capacity() >= InitialCapacity);
 	}
 
 	SECTION("exponential < factor")
 	{
-		reserve_exp_noshrink(Container, InitialCapacity + InitialCapacity / 10);
+		reserve_exp(Container, InitialCapacity + InitialCapacity / 10);
 		REQUIRE(Container.capacity() >= InitialCapacity  + InitialCapacity / 2);
 	}
 
 	SECTION("exponential > factor")
 	{
-		reserve_exp_noshrink(Container, InitialCapacity * 2);
+		reserve_exp(Container, InitialCapacity * 2);
 		REQUIRE(Container.capacity() >= InitialCapacity * 2);
 	}
 }

@@ -410,7 +410,7 @@ namespace os::process
 
 			if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
 			{
-				m_Info.reset(ReturnSize? ReturnSize : grow_exp_noshrink(m_Info.size(), {}));
+				m_Info.reset(ReturnSize? ReturnSize : grow_exp(m_Info.size(), {}));
 				continue;
 			}
 
