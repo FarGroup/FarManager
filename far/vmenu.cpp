@@ -171,7 +171,7 @@ int find_nearest(std::ranges::contiguous_range auto const& Range, const int Pos,
 			: FindPos(drop(Pos), take(Pos) | reverse));
 }
 
-std::pair<int, int> Intersect(std::pair<int, int> A, std::pair<int, int> B)
+static std::pair<int, int> Intersect(std::pair<int, int> A, std::pair<int, int> B)
 {
 	assert(A.first < A.second);
 	assert(B.first < B.second);
@@ -185,7 +185,7 @@ std::pair<int, int> Intersect(std::pair<int, int> A, std::pair<int, int> B)
 	return { B.first, std::min(A.second, B.second) };
 }
 
-void MarkupSliceBoundaries(std::pair<int, int> Segment, std::ranges::input_range auto const& Slices, std::vector<int>& Markup)
+static void MarkupSliceBoundaries(std::pair<int, int> Segment, std::ranges::input_range auto const& Slices, std::vector<int>& Markup)
 {
 	assert(Segment.first < Segment.second);
 
@@ -1916,7 +1916,7 @@ struct item_layout
 	[[nodiscard]] static bool need_check_mark() noexcept { return true; }
 	[[nodiscard]] static bool need_left_hscroll() noexcept { return true; }
 	[[nodiscard]] static bool need_right_hscroll() noexcept { return true; }
-	[[nodiscard]] static bool need_submenu(const VMenu& Menu) noexcept { return Menu.ItemSubMenusCount > 0; };
+	[[nodiscard]] static bool need_submenu(const VMenu& Menu) noexcept { return Menu.ItemSubMenusCount > 0; }
 	[[nodiscard]] static bool need_scrollbar(const VMenu& Menu)
 	{
 		return (Menu.CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
