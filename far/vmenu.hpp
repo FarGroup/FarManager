@@ -150,7 +150,7 @@ struct MenuItemEx: menu_item
 	std::list<std::pair<int, int>> Annotations;
 };
 
-struct item_layout;
+struct menu_layout;
 
 struct SortItemParam
 {
@@ -274,24 +274,21 @@ public:
 	[[nodiscard]] size_t GetNaturalMenuWidth() const;
 
 private:
-	friend struct item_layout;
+	friend struct menu_layout;
 
 	void init(std::span<menu_item const> Data, DWORD Flags);
 
 	void DisplayObject() override;
 	void DrawMenu();
 
-	[[nodiscard]] static int CalculateBoxType(BitFlags Flags) noexcept;
-	[[nodiscard]] int CalculateBoxType() const noexcept { return CalculateBoxType(VMFlags); }
-	[[nodiscard]] rectangle GetClientRect(int BoxType) const noexcept;
 	void DrawTitles() const;
 	[[nodiscard]] int AdjustTopPos(int BoxType); // Sets TopPos
-	void DrawSeparator(size_t CurItemIndex, int BoxType, int Y) const;
-	void ConnectSeparator(size_t CurItemIndex, string& separator, int BoxType) const;
-	void ApplySeparatorName(const MenuItemEx& CurItem, string& separator) const;
-	void DrawRegularItem(const MenuItemEx& CurItem, const item_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
+	void DrawSeparator(size_t ItemIndex, int BoxType, int Y) const;
+	void ConnectSeparator(size_t ItemIndex, string& separator, int BoxType) const;
+	void ApplySeparatorName(const MenuItemEx& Item, string& separator) const;
+	void DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
 
-	[[nodiscard]] size_t CalculateMaxLineWidth() const;
+	[[nodiscard]] int CalculateTextAreaWidth() const;
 
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
