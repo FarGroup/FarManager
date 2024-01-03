@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/nifty_counter.hpp"
 #include "common/preprocessor.hpp"
+#include "common/source_location.hpp"
 
 // External:
 #include "format.hpp"
@@ -71,7 +72,7 @@ namespace logging
 	[[nodiscard]]
 	bool filter(level Level);
 
-	void log(string&& Str, level Level, std::string_view Function, std::string_view File, int Line);
+	void log(string&& Str, level Level, source_location const& Location = source_location::current());
 
 	void show();
 
@@ -100,10 +101,7 @@ namespace logging
 		{ \
 			logging::log( \
 				far::format(Format, ##__VA_ARGS__), \
-				log_level, \
-				CURRENT_FUNCTION_NAME, \
-				CURRENT_FILE_NAME, \
-				__LINE__ \
+				log_level \
 			); \
 		} \
 	} \

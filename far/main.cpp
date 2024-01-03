@@ -919,20 +919,18 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 
 	NoElevationDuringBoot.reset();
 
-	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
-
 	return cpp_try(
 	[&]
 	{
 		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	},
-	[&]() -> int
+	[&](source_location const& Location) -> int
 	{
-		handle_exception([&]{ return handle_unknown_exception(CurrentFunctionName); });
+		handle_exception([&]{ return handle_unknown_exception({}, Location); });
 	},
-	[&](std::exception const& e) -> int
+	[&](std::exception const& e, source_location const& Location) -> int
 	{
-		handle_exception([&]{ return handle_std_exception(e, CurrentFunctionName); });
+		handle_exception([&]{ return handle_std_exception(e, {}, Location); });
 	});
 }
 
@@ -997,8 +995,6 @@ static int wmain_seh()
 	os::env::set(L"ASAN_VCASAN_DEBUGGING"sv, L"1"sv);
 #endif
 
-	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
-
 	return cpp_try(
 	[&]
 	{
@@ -1013,13 +1009,13 @@ static int wmain_seh()
 			return EXIT_FAILURE;
 		}
 	},
-	[&]() -> int
+	[&](source_location const& Location) -> int
 	{
-		handle_exception_final([&]{ return handle_unknown_exception(CurrentFunctionName); });
+		handle_exception_final([&]{ return handle_unknown_exception({}, Location); });
 	},
-	[&](std::exception const& e) -> int
+	[&](std::exception const& e, source_location const& Location) -> int
 	{
-		handle_exception_final([&]{ return handle_std_exception(e, CurrentFunctionName); });
+		handle_exception_final([&]{ return handle_std_exception(e, {}, Location); });
 	});
 }
 
@@ -1034,8 +1030,7 @@ int main()
 	[](DWORD const ExceptionCode) -> int
 	{
 		os::process::terminate_by_user(ExceptionCode);
-	},
-	CURRENT_FUNCTION_NAME);
+	});
 }
 
 #ifdef ENABLE_TESTS

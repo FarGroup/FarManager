@@ -139,11 +139,8 @@ static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)
 		Info.Windows.emplace_back(Window, Pid);
 		return true;
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(Info.ExceptionPtr);
-		return false;
-	});
+	save_exception_and_return<false>(Info.ExceptionPtr)
+	);
 }
 
 static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidth, bool const ShowImage, vmenu2_ptr const& Menu)

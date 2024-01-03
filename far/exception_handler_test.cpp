@@ -108,10 +108,8 @@ namespace tests
 			{
 				throw std::runtime_error("Test nested std error"s);
 			},
-			[&]
-			{
-				SAVE_EXCEPTION_TO(Ptr);
-			});
+			save_exception_to(Ptr)
+			);
 		}();
 
 		assert(Ptr);
@@ -130,10 +128,8 @@ namespace tests
 			{
 				throw std::runtime_error("Test nested std error (thread)"s);
 			},
-			[&]
-			{
-				SAVE_EXCEPTION_TO(Ptr);
-			});
+			save_exception_to(Ptr)
+			);
 		});
 
 		assert(Ptr);
@@ -172,10 +168,8 @@ namespace tests
 		{
 			throw 69u;
 		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(Ptr);
-		});
+		save_exception_to(Ptr)
+		);
 
 		rethrow_if(Ptr);
 	}

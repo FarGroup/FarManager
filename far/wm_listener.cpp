@@ -142,10 +142,8 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 		}
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(*WndProcExceptionPtr);
-	});
+	save_exception_to(*WndProcExceptionPtr)
+	);
 
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }

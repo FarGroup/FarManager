@@ -646,6 +646,9 @@
     <ClInclude Include="common\smart_ptr.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\source_location.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\span.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

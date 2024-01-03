@@ -142,9 +142,6 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define EXPAND_TO_WIDE_LITERAL(x) WIDE(LITERAL(x))
 #define EXPAND_TO_WIDE_SV_LITERAL(x) WIDE_SV(LITERAL(x))
 
-#define CURRENT_FUNCTION_NAME std::string_view{ __func__, std::size(__func__) - 1 }
-#define CURRENT_FILE_NAME CHAR_SV(__FILE__)
-
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
 #define LIFT(...) [](auto&&... Args) noexcept(noexcept(__VA_ARGS__(FWD(Args)...))) -> decltype(auto) \

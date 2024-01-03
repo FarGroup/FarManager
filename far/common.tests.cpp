@@ -1075,19 +1075,31 @@ TEST_CASE("preprocessor.literals")
 	}
 }
 
-TEST_CASE("preprocessor.predefined")
+//----------------------------------------------------------------------------
+
+#include "common/source_location.hpp"
+
+TEST_CASE("source_location")
 {
 	struct test
 	{
 		static void method()
 		{
-			STATIC_REQUIRE(CURRENT_FUNCTION_NAME == "method"sv);
+			constexpr auto Location = source_location::current(); constexpr auto Line = __LINE__;
+
+			STATIC_REQUIRE(std::string_view(Location.file_name()) == __FILE__);
+			STATIC_REQUIRE(std::string_view(Location.function_name()) == __func__);
+			STATIC_REQUIRE(Location.line() == Line);
 		}
 	};
 
-	test::method();
+	{
+		source_location constexpr Location("squash", "banana", 42);
 
-	STATIC_REQUIRE(WIDE(CURRENT_FILE_NAME).ends_with(L"common.tests.cpp"sv));
+		STATIC_REQUIRE(Location.file_name() == "squash"sv);
+		STATIC_REQUIRE(Location.function_name() == "banana"sv);
+		STATIC_REQUIRE(Location.line() == 42);
+	}
 }
 
 //----------------------------------------------------------------------------

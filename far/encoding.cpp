@@ -127,11 +127,8 @@ private:
 
 			return TRUE;
 		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(m_ExceptionPtr);
-			return FALSE;
-		});
+		save_exception_and_return<FALSE>(m_ExceptionPtr)
+		);
 	}
 
 	cp_map m_InstalledCp;

@@ -1404,8 +1404,7 @@ static thread_status get_thread_status(HANDLE const Thread)
 
 static string collect_information(
 	exception_context const& Context,
-	std::string_view const Function,
-	string_view const Location,
+	source_location const& Location,
 	string_view const PluginInfo,
 	string_view ModuleName,
 	string_view const Type,
@@ -1439,13 +1438,13 @@ static string collect_information(
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
 
-	if (Source.empty())
-		Source = Location;
+	if (!Source.empty())
+		append(Address, L" ("sv, Source, L')');
 
 	const auto Errno = ErrorState.ErrnoStr();
 	const auto LastError = ErrorState.Win32ErrorStr();
 	const auto LastNtStatus = ErrorState.NtErrorStr();
-	const auto FunctionWide = encoding::utf8::get_chars(Function);
+	const auto LocationStr = source_location_to_string(Location);
 	const auto PluginInfoStr = PluginInfo.empty()? L"N/A"sv : PluginInfo;
 
 	const auto Version = self_version();
@@ -1479,9 +1478,8 @@ static string collect_information(
 		{ LastErrorTitle,  LastError,     },
 		{ NtStatusTitle,   LastNtStatus,  },
 		{ L"Address:  "sv, Address,       },
-		{ L"Function: "sv, FunctionWide,  },
-		{ L"Source:   "sv, Source,        },
-		{ L"File:     "sv, ModuleName,    },
+		{ L"Location: "sv, LocationStr,   },
+		{ L"Module:   "sv, ModuleName,    },
 		{ L"Plugin:   "sv, PluginInfoStr, },
 	},
 	SystemInfo[]
@@ -1638,8 +1636,7 @@ static string collect_information(
 
 static handler_result handle_generic_exception(
 	exception_context const& Context,
-	std::string_view const Function,
-	string_view const Location,
+	source_location const& Location,
 	Plugin const* const PluginModule,
 	string_view const Type,
 	string_view const Message,
@@ -1695,7 +1692,7 @@ static handler_result handle_generic_exception(
 
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
-	const auto BugReport = collect_information(Context, Function, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
+	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
@@ -1745,8 +1742,8 @@ void restore_system_exception_handler()
 class far_wrapper_exception final: public far_exception, public std::nested_exception
 {
 public:
-	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
-		far_exception(true, L"exception_ptr"sv, Function, File, Line),
+	explicit far_wrapper_exception(source_location const& Location):
+		far_exception(true, L"exception_ptr"sv, Location),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 		m_Stack(tracer.exception_stacktrace({}))
 	{
@@ -1761,11 +1758,11 @@ private:
 
 static_assert(std::derived_from<far_wrapper_exception, std::nested_exception>);
 
-std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
+std::exception_ptr wrap_current_exception(source_location const& Location)
 {
 	try
 	{
-		throw far_wrapper_exception(Function, File, Line);
+		throw far_wrapper_exception(Location);
 	}
 	catch (...)
 	{
@@ -1827,8 +1824,8 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 static bool handle_std_exception(
 	exception_context const& Context,
 	const std::exception& e,
-	std::string_view const Function,
-	const Plugin* const Module
+	const Plugin* const Module,
+	source_location const& Location
 )
 {
 	error_state_ex const LastError{ os::last_error(), {}, errno };
@@ -1842,15 +1839,15 @@ static bool handle_std_exception(
 			return Wrapper? Wrapper->get_stack() : std::span<os::debug::stack_frame const>{};
 		}();
 
-		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;
+		return handle_generic_exception(Context, FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;
 	}
 
-	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError) == handler_result::execute_handler;
+	return handle_generic_exception(Context, Location, Module, Type, What, LastError) == handler_result::execute_handler;
 }
 
-bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
+bool handle_std_exception(const std::exception& e, const Plugin* const Module, source_location const& Location)
 {
-	return handle_std_exception(exception_context(os::debug::exception_information()), e, Function, Module);
+	return handle_std_exception(exception_context(os::debug::exception_information()), e, Module, Location);
 }
 
 class seh_exception::seh_exception_impl
@@ -1906,8 +1903,8 @@ seh_exception::seh_exception_impl const& seh_exception::get() const
 
 static handler_result handle_seh_exception(
 	exception_context const& Context,
-	std::string_view const Function,
-	Plugin const* const PluginModule
+	Plugin const* const PluginModule,
+	source_location const& Location
 )
 {
 	error_state_ex const LastError{ os::last_error(), {}, errno };
@@ -1917,23 +1914,23 @@ static handler_result handle_seh_exception(
 	{
 		const auto& OriginalExceptionData = std::bit_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
 		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack
-		return handle_generic_exception(OriginalExceptionData.Context, Function, {}, PluginModule, {}, {}, OriginalExceptionData.ErrorState);
+		return handle_generic_exception(OriginalExceptionData.Context, Location, PluginModule, {}, {}, OriginalExceptionData.ErrorState);
 	}
 
 	for (const auto& i : enum_catchable_objects(Record))
 	{
 		if (std::strstr(i, "std::exception"))
-			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule)?
+			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), PluginModule, Location)?
 				handler_result::execute_handler :
 				handler_result::continue_search;
 	}
 
-	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {}, LastError);
+	return handle_generic_exception(Context, Location, PluginModule, {}, {}, LastError);
 }
 
-bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
+bool handle_unknown_exception(const Plugin* const Module, source_location const& Location)
 {
-	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module) == handler_result::execute_handler;
+	return handle_seh_exception(exception_context(os::debug::exception_information()), Module, Location) == handler_result::execute_handler;
 }
 
 bool use_terminate_handler()
@@ -1952,10 +1949,12 @@ static void seh_abort_handler_impl()
 
 	InsideHandler = true;
 
+	const auto Location = source_location::current();
+
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = os::debug::exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
-		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}) == handler_result::execute_handler)
+		if (handle_seh_exception(exception_context(Info), {}, Location) == handler_result::execute_handler)
 			os::process::terminate_by_user();
 	}
 
@@ -1968,12 +1967,12 @@ static void seh_abort_handler_impl()
 		}
 		catch (std::exception const& e)
 		{
-			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
+			if (handle_std_exception(e, {}, Location))
 				os::process::terminate_by_user();
 		}
 		catch (...)
 		{
-			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
+			if (handle_unknown_exception({}, Location))
 				os::process::terminate_by_user();
 		}
 	}
@@ -1982,7 +1981,7 @@ static void seh_abort_handler_impl()
 	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 
-	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError) == handler_result::execute_handler)
+	if (handle_generic_exception(Context, Location, {}, {}, L"Abnormal termination"sv, LastError) == handler_result::execute_handler)
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1990,7 +1989,7 @@ static void seh_abort_handler_impl()
 
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
+	const auto Result = detail::seh_filter(Pointers, {});
 	if (Result == EXCEPTION_EXECUTE_HANDLER)
 		os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 
@@ -2063,8 +2062,9 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 
 	if (handle_generic_exception(
 		Context,
-		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
-		far::format(L"{}({})"sv, File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
+		Function && File?
+			source_location(encoding::utf8::get_bytes(Function).c_str(), encoding::utf8::get_bytes(File).c_str(), Line) :
+			source_location::current(),
 		{},
 		{},
 		Expression? Expression : L"Invalid parameter"sv,
@@ -2090,7 +2090,7 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 	if (static_cast<NTSTATUS>(Pointers->ExceptionRecord->ExceptionCode) == STATUS_HEAP_CORRUPTION)
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
-		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
+		if (detail::seh_filter(Pointers, {}) == EXCEPTION_EXECUTE_HANDLER)
 			os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 	}
 
@@ -2110,7 +2110,12 @@ vectored_exception_handler::~vectored_exception_handler()
 
 namespace detail
 {
-	void cpp_try(function_ref<void()> const Callable, function_ref<void()> const UnknownHandler, function_ref<void(std::exception const&)> const StdHandler)
+	void cpp_try(
+		function_ref<void()> const Callable,
+		function_ref<void(source_location const&)> const UnknownHandler,
+		function_ref<void(std::exception const&, source_location const&)> const StdHandler,
+		source_location const& Location
+	)
 	{
 		if (!HandleCppExceptions)
 		{
@@ -2125,11 +2130,11 @@ namespace detail
 			}
 			catch (std::exception const& e)
 			{
-				return StdHandler(e);
+				return StdHandler(e, Location);
 			}
 			catch (...)
 			{
-				return UnknownHandler();
+				return UnknownHandler(Location);
 			}
 		}
 
@@ -2139,7 +2144,7 @@ namespace detail
 		}
 		catch (...)
 		{
-			return UnknownHandler();
+			return UnknownHandler(Location);
 		}
 	}
 
@@ -2181,7 +2186,7 @@ namespace detail
 #endif
 	}
 
-	int seh_filter(EXCEPTION_POINTERS const* const Info, std::string_view const Function, Plugin const* const Module)
+	int seh_filter(EXCEPTION_POINTERS const* const Info, Plugin const* const Module, source_location const& Location)
 	{
 		if (!HandleSehExceptions)
 		{
@@ -2199,7 +2204,7 @@ namespace detail
 				os::thread(os::thread::mode::join, [&]
 				{
 					os::debug::set_thread_name(L"Stack overflow handler");
-					Result = handle_seh_exception(Context, Function, Module);
+					Result = handle_seh_exception(Context, Module, Location);
 				});
 			}
 
@@ -2207,7 +2212,7 @@ namespace detail
 		}
 		else
 		{
-			Result = handle_seh_exception(Context, Function, Module);
+			Result = handle_seh_exception(Context, Module, Location);
 		}
 
 		switch (Result)

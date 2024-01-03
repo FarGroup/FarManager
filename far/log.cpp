@@ -163,11 +163,6 @@ namespace
 		return Colors[std::to_underlying(Level) / logging::detail::step];
 	}
 
-	auto get_location(std::string_view const Function, std::string_view const File, int const Line)
-	{
-		return far::format(L"{}, {}({})"sv, encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
-	}
-
 	auto get_thread_id()
 	{
 		return str(GetCurrentThreadId());
@@ -175,11 +170,11 @@ namespace
 
 	struct message
 	{
-		message(string&& Str, logging::level const Level, std::string_view const Function, std::string_view const File, int const Line, size_t const TraceDepth):
+		message(string&& Str, logging::level const Level, source_location const& Location, size_t const TraceDepth):
 			m_ThreadId(get_thread_id()),
 			m_LevelString(level_to_string(Level)),
 			m_Data(std::move(Str)),
-			m_Location(get_location(Function, File, Line)),
+			m_Location(source_location_to_string(Location)),
 			m_Level(Level)
 		{
 			std::tie(m_Date, m_Time) = format_datetime(os::chrono::now_utc());
@@ -849,18 +844,18 @@ namespace logging
 			}
 		}
 
-		void log(string&& Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
+		void log(string&& Str, level const Level, source_location const& Location)
 		{
 			if (m_Status == engine_status::in_progress)
 			{
-				m_QueuedMessages.push({ std::move(Str), Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
+				m_QueuedMessages.push({ std::move(Str), Level, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
 				return;
 			}
 
 			if (!filter(Level))
 				return;
 
-			submit({ std::move(Str), Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
+			submit({ std::move(Str), Level, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
 		}
 
 		static void suppress()
@@ -956,7 +951,7 @@ namespace logging
 
 	static thread_local size_t RecursionGuard{};
 
-	void log(string&& Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
+	void log(string&& Str, level const Level, source_location const& Location)
 	{
 		// Log can potentially log itself, directly or through other parts of the code.
 		// Allow one level of recursion for diagnostics
@@ -966,7 +961,7 @@ namespace logging
 		++RecursionGuard;
 		SCOPE_EXIT{ --RecursionGuard; };
 
-		log_engine.log(std::move(Str), Level, Function, File, Line);
+		log_engine.log(std::move(Str), Level, Location);
 	}
 
 	void show()
@@ -1109,7 +1104,6 @@ TEST_CASE("log.misc")
 {
 	REQUIRE(parameter(L"banana"sv) == L"far.log.banana"sv);
 	REQUIRE(sink_parameter(L"ham"sv, L"eggs"sv) == L"far.log.sink.ham.eggs"sv);
-	REQUIRE(get_location("banana"sv, "meow.cpp"sv, 123) == L"banana, meow.cpp(123)"sv);
 	REQUIRE(parse_sink_mode(L"sync"sv) == sink_mode::sync);
 	REQUIRE(parse_sink_mode(L"async"sv) == sink_mode::async);
 	REQUIRE(parse_sink_mode(L"whatever"sv) == sink_mode::async);

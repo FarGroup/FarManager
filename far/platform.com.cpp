@@ -79,10 +79,10 @@ namespace os::com
 		CoTaskMemFree(const_cast<void*>(Object));
 	}
 
-	void invoke(function_ref<HRESULT()> const Callable, string_view CallableName, std::string_view const Function, std::string_view const File, int const Line)
+	void invoke(function_ref<HRESULT()> const Callable, string_view CallableName, source_location const& Location)
 	{
 		if (const auto Result = Callable(); FAILED(Result))
-			throw exception(Result, CallableName, Function, File, Line);
+			throw exception(Result, CallableName, Location);
 	}
 
 	string get_shell_name(string_view Path)

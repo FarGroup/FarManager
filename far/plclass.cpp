@@ -1228,7 +1228,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	ExecuteFunction(es, Info);
 }
 
-void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void()> const Callback)
+void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void()> const Callback, source_location const& Location)
 {
 	const auto HandleFailure = [&](DWORD const ExceptionCode = EXIT_FAILURE)
 	{
@@ -1252,7 +1252,7 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 
 		const auto HandleException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
-			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[ExportId].AName, this)? HandleFailure() : throw;
+			Handler(FWD(ProcArgs)..., this, Location)? HandleFailure() : throw;
 		};
 
 		cpp_try(
@@ -1262,17 +1262,19 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 			rethrow_if(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[ExportId].AName);
 		},
-		[&]
+		[&](source_location const&)
 		{
 			HandleException(handle_unknown_exception);
 		},
-		[&](std::exception const& e)
+		[&](std::exception const& e, source_location const&)
 		{
 			HandleException(handle_std_exception, e);
-		});
+		},
+		Location);
 	},
 	HandleFailure,
-	m_Factory->ExportsNames()[ExportId].AName, this);
+	this,
+	Location);
 }
 
 class custom_plugin_module final: public i_plugin_module

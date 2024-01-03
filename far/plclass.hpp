@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/function_ref.hpp"
 #include "common/smart_ptr.hpp"
+#include "common/source_location.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -213,7 +214,9 @@ namespace detail
 		explicit(false) operator intptr_t() const { return Result; }
 		explicit(false) operator void*() const { return ToPtr(Result); }
 		explicit(false) operator bool() const { return Result != 0; }
+
 		intptr_t Result;
+		source_location m_Location;
 	};
 }
 
@@ -312,9 +315,10 @@ protected:
 	template<export_index Export, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
 	{
-		explicit ExecuteStruct(intptr_t FallbackValue = 0)
+		explicit ExecuteStruct(intptr_t FallbackValue = 0, source_location const& Location = source_location::current())
 		{
 			Result = FallbackValue;
+			m_Location = Location;
 		}
 
 		static constexpr inline auto export_id = Export;
@@ -335,7 +339,7 @@ protected:
 				Function(FWD(Args)...);
 			else
 				es = Function(FWD(Args)...);
-		});
+		}, es.m_Location);
 	}
 
 	virtual void Prologue() {}
@@ -365,7 +369,7 @@ private:
 		Object->Instance = m_Instance->opaque();
 	}
 
-	void ExecuteFunctionImpl(export_index ExportId, function_ref<void()> Callback);
+	void ExecuteFunctionImpl(export_index ExportId, function_ref<void()> Callback, source_location const& Location);
 
 	string strTitle;
 	string strDescription;

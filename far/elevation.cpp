@@ -1368,11 +1368,8 @@ private:
 				Context.Process(Result);
 			}
 		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(Param->ExceptionPtr);
-			return PROGRESS_CANCEL;
-		});
+		save_exception_and_return<PROGRESS_CANCEL>(Param->ExceptionPtr)
+		);
 	}
 
 	bool Process(int Command) const

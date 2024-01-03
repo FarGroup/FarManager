@@ -2657,10 +2657,8 @@ void background_searcher::Search()
 			m_PluginMode? DoPreparePluginList() : DoPrepareFileList();
 			ReleaseInFileSearch();
 		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(m_ExceptionPtr);
-		});
+		save_exception_to(m_ExceptionPtr)
+		);
 	});
 
 	m_Owner->m_Messages.emplace(messages::percent{});

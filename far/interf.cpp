@@ -225,7 +225,7 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 	{
 		return control_handler(CtrlType);
 	},
-	[&]
+	[&](source_location const&)
 	{
 		return FALSE;
 	});

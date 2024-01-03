@@ -160,6 +160,23 @@ namespace cfunctions
 	}
 }
 
+// BUGBUG duplicate
+auto cpp_try(auto const& Callable, source_location const& Location = source_location::current())
+{
+	return cpp_try(Callable, save_exception_to(GlobalExceptionPtr()), {}, Location);
+}
+
+auto cpp_try(auto const& Callable, auto const Fallback, source_location const& Location = source_location::current())
+{
+	return cpp_try(Callable, [&](source_location const&)
+	{
+		save_exception_to{ GlobalExceptionPtr() }(Location);
+		return Fallback;
+	},
+	{},
+	Location);
+}
+
 namespace pluginapi
 {
 int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?deprecated
@@ -238,11 +255,7 @@ wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
 	{
 		return legacy::QuoteSpace(Str);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
@@ -252,11 +265,7 @@ wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
 	{
 		return legacy::InsertQuotes(Str);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 void WINAPI apiUnquote(wchar_t *Str) noexcept
@@ -269,10 +278,6 @@ void WINAPI apiUnquote(wchar_t *Str) noexcept
 
 		const auto Iterator = null_iterator(Str);
 		*std::remove(Iterator, Iterator.end(), L'"') = 0;
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -289,11 +294,7 @@ wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
 		}
 		return Str;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
@@ -305,11 +306,7 @@ wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 		Str[REnd - std::find_if_not(REnd - std::wcslen(Str), REnd, std::iswspace)] = 0;
 		return Str;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept
@@ -325,11 +322,7 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
 	{
 		return legacy::QuoteSpaceOnly(Str);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 intptr_t WINAPI apiInputBox(
@@ -369,11 +362,7 @@ intptr_t WINAPI apiInputBox(
 		xwcsncpy(DestText, strDest.c_str(), DestSize);
 		return Result;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 /* Функция вывода помощи */
@@ -451,11 +440,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 
 		return help::show(strTopic, strMask, OFlags);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 /* $ 05.07.2000 IS
@@ -794,11 +779,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		return FALSE;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
-	});
+	FALSE);
 }
 
 intptr_t WINAPI apiMenuFn(
@@ -948,11 +929,7 @@ intptr_t WINAPI apiMenuFn(
 	//  CheckScreenLock();
 		return ExitCode;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
@@ -963,11 +940,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 	{
 		return static_cast<Dialog*>(hDlg)->DefProc(Msg, Param1, Param2);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 // Посылка сообщения диалогу
@@ -992,11 +965,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 		const auto dialog = static_cast<Dialog*>(hDlg);
 		return Dialog::IsValid(dialog)? dialog->SendMessage(Msg, Param1, Param2) : ErrorResult();
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return ErrorResult();
-	});
+	ErrorResult());
 }
 
 HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
@@ -1094,11 +1063,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 		}
 		return hDlg;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return INVALID_HANDLE_VALUE;
-	});
+	INVALID_HANDLE_VALUE);
 }
 
 intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
@@ -1117,11 +1082,7 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 		FarDialog->Process();
 		return FarDialog->GetExitCode();
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 void WINAPI apiDialogFree(HANDLE hDlg) noexcept
@@ -1143,10 +1104,6 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 			if (i->RemoveDialog(Dlg))
 				break;
 		}
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -1165,11 +1122,7 @@ const wchar_t* WINAPI apiGetMsgFn(const UUID* PluginId, intptr_t MsgId) noexcept
 		}
 		return L"";
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return L"";
-	});
+	L"");
 }
 
 intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long long Flags, const wchar_t* HelpTopic,
@@ -1282,11 +1235,7 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 			strTopic, Id, PluginNumber)
 		);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,void* Param2) noexcept
@@ -1487,11 +1436,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			return FALSE;
 		}
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
-	});
+	FALSE);
 }
 
 
@@ -1511,11 +1456,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noe
 
 		return std::make_unique<SaveScreen>(rectangle{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) }).release();
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return nullptr;
-	});
+	nullptr);
 }
 
 void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
@@ -1537,10 +1478,6 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 		{
 			Global->ScrBuf->FillBuf();
 		}
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -1553,10 +1490,6 @@ void WINAPI apiFreeScreen(HANDLE hScreen) noexcept
 
 		if (Screen)
 			Screen->Discard();
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -1641,11 +1574,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		}
 		return TRUE;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
-	});
+	FALSE);
 }
 
 intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const wchar_t* Dir, PluginPanelItem** pPanelItem, size_t* pItemsNumber) noexcept
@@ -1683,11 +1612,7 @@ intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const 
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
-	});
+	FALSE);
 }
 
 void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noexcept
@@ -1697,10 +1622,6 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 	{
 		const auto Items = magic::CastRawDataToVector(std::span{ PanelItems, ItemsNumber });
 		FreePluginPanelItemsData(*Items);
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -1711,10 +1632,6 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 	{
 		const auto Items = magic::CastRawDataToVector(std::span{ PanelItems, ItemsNumber });
 		FreePluginDirList(hPlugin, *Items);
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -1814,11 +1731,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 		return TRUE;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
-	});
+	FALSE);
 }
 
 intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned long long Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage) noexcept
@@ -1982,11 +1895,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 		return ExitCode;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return EEC_OPEN_ERROR;
-	});
+	EEC_OPEN_ERROR);
 }
 
 void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str) noexcept
@@ -2008,10 +1917,6 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 		{
 			Text({ static_cast<int>(X), static_cast<int>(Y) }, *Color, Str);
 		}
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -2050,11 +1955,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	{
 		return apiTControl<FileEditor>(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2064,11 +1965,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 	{
 		return apiTControl<ViewerContainer>(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
@@ -2077,10 +1974,6 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 	[&]
 	{
 		inplace::upper({ Buf, static_cast<size_t>(Length) });
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -2090,10 +1983,6 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 	[&]
 	{
 		inplace::lower({ Buf, static_cast<size_t>(Length) });
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -2103,10 +1992,6 @@ void WINAPI apiStrUpper(wchar_t *s1) noexcept
 	[&]
 	{
 		inplace::upper(s1);
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -2116,10 +2001,6 @@ void WINAPI apiStrLower(wchar_t *s1) noexcept
 	[&]
 	{
 		inplace::lower(s1);
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -2130,11 +2011,7 @@ wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 	{
 		return upper(Ch);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Ch;
-	});
+	Ch);
 }
 
 wchar_t WINAPI apiLower(wchar_t Ch) noexcept
@@ -2144,11 +2021,7 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	{
 		return lower(Ch);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Ch;
-	});
+	Ch);
 }
 
 
@@ -2159,11 +2032,7 @@ int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t MaxSiz
 	{
 		return string_sort::ordering_as_int(string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize)));
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
@@ -2173,11 +2042,7 @@ int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 	{
 		return string_sort::ordering_as_int(string_sort::compare(Str1, Str2));
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 int WINAPI apiIsLower(wchar_t Ch) noexcept
@@ -2187,11 +2052,7 @@ int WINAPI apiIsLower(wchar_t Ch) noexcept
 	{
 		return is_lower(Ch);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 int WINAPI apiIsUpper(wchar_t Ch) noexcept
@@ -2201,11 +2062,7 @@ int WINAPI apiIsUpper(wchar_t Ch) noexcept
 	{
 		return is_upper(Ch);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 int WINAPI apiIsAlpha(wchar_t Ch) noexcept
@@ -2215,11 +2072,7 @@ int WINAPI apiIsAlpha(wchar_t Ch) noexcept
 	{
 		return is_alpha(Ch);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
@@ -2229,11 +2082,7 @@ int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
 	{
 		return is_alphanumeric(Ch);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
@@ -2243,11 +2092,7 @@ wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 	{
 		return legacy::truncate_left(Str, MaxLength);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Str;
-	});
+	Str);
 }
 
 wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
@@ -2257,11 +2102,7 @@ wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
 	{
 		return legacy::truncate_left(Str, MaxLength);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Str;
-	});
+	Str);
 }
 
 wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
@@ -2271,11 +2112,7 @@ wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
 	{
 		return legacy::truncate_right(Str, MaxLength);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Str;
-	});
+	Str);
 }
 
 wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
@@ -2285,11 +2122,7 @@ wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
 	{
 		return legacy::truncate_path(Str, MaxLength);
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Str;
-	});
+	Str);
 }
 
 const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
@@ -2299,11 +2132,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 	{
 		return Path? PointToName(Path).data() : nullptr;
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Path;
-	});
+	Path);
 }
 
 size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wchar_t *Owner, size_t Size) noexcept
@@ -2320,11 +2149,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 
 		return strOwner.size() + 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 
 }
 
@@ -2356,11 +2181,7 @@ size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t 
 
 		return strDest.size() + 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept
@@ -2379,11 +2200,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 
 		return strDest.size()+1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
@@ -2394,11 +2211,7 @@ size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
 		const auto Hardlinks = GetNumberOfLinks(Name);
 		return Hardlinks? *Hardlinks : 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize) noexcept
@@ -2413,11 +2226,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 
 		return strRoot.size()+1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data) noexcept
@@ -2437,11 +2246,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 			return false;
 		}
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 static size_t apiPasteFromClipboardEx(bool Type, std::span<wchar_t> Data)
@@ -2486,11 +2291,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 		}
 		return size;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 unsigned long long WINAPI apiFarClock() noexcept
@@ -2500,11 +2301,7 @@ unsigned long long WINAPI apiFarClock() noexcept
 	{
 		return Global->FarUpTime() / 1us;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* Str2, size_t Size2) noexcept
@@ -2514,11 +2311,7 @@ int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* S
 	{
 		return string_sort::ordering_as_int(string_sort::compare({ Str1, Size1 }, { Str2, Size2 }));
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return -1;
-	});
+	-1);
 }
 
 intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2626,11 +2419,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 		return false;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2705,11 +2494,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		}
 		return 0;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2768,11 +2553,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 		}
 		return false;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2859,11 +2640,7 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			return false;
 		}
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2936,11 +2713,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 		}
 		return false;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
@@ -2957,11 +2730,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 
 		return strCurDir.size() + 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept
@@ -2991,11 +2760,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 
 		return strDestStr.size()+1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned long long Flags, void *Param) noexcept
@@ -3023,10 +2788,6 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 				Found = !Func(&fdata.Item, strFullName.c_str(), Param);
 			}
 		}
-	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
 	});
 }
 
@@ -3042,11 +2803,7 @@ size_t WINAPI apiMkTemp(wchar_t* Dest, size_t DestSize, const wchar_t *Prefix) n
 		}
 		return strDest.size() + 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags) noexcept
@@ -3109,11 +2866,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			return false;
 		}
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept
@@ -3123,11 +2876,7 @@ BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 	{
 		return !Global->WindowManager->ManagerIsDown() && GetColorDialog(*Color, true);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size) noexcept
@@ -3155,11 +2904,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 			*KeyText = 0;
 		return len + 1;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) noexcept
@@ -3170,11 +2915,7 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) n
 		const auto Key = KeyNameToKey(Name);
 		return Key && KeyToInputRecord(Key, RecKey);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags) noexcept
@@ -3236,11 +2977,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 
 		return Result;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
@@ -3250,11 +2987,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
 	{
 		return AddEndSlash(Path);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept
@@ -3265,11 +2998,7 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 		Xlat({ Line + StartPos, Line + EndPos }, Flags);
 		return Line;
 	},
-	[&]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return Line;
-	});
+	Line);
 }
 
 HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept
@@ -3280,11 +3009,7 @@ HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD Sh
 		const auto Result = os::fs::create_file(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile).release();
 		return Result? Result : INVALID_HANDLE_VALUE;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return INVALID_HANDLE_VALUE;
-	});
+	INVALID_HANDLE_VALUE);
 }
 
 DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
@@ -3294,11 +3019,7 @@ DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 	{
 		return os::fs::get_file_attributes(FileName);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return INVALID_FILE_ATTRIBUTES;
-	});
+	INVALID_FILE_ATTRIBUTES);
 }
 
 BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes) noexcept
@@ -3308,11 +3029,7 @@ BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes
 	{
 		return os::fs::set_file_attributes(FileName, dwFileAttributes);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFileName, DWORD dwFlags) noexcept
@@ -3322,11 +3039,7 @@ BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFil
 	{
 		return os::fs::move_file(ExistingFileName, NewFileName, dwFlags);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
@@ -3336,11 +3049,7 @@ BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 	{
 		return os::fs::delete_file(FileName);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
@@ -3350,11 +3059,7 @@ BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 	{
 		return os::fs::remove_directory(DirName);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* SecurityAttributes) noexcept
@@ -3364,11 +3069,7 @@ BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* Sec
 	{
 		return os::fs::create_directory(PathName, SecurityAttributes);
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return false;
-	});
+	false);
 }
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
@@ -3381,11 +3082,7 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 
 		return 0;
 	},
-	[]
-	{
-		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return 0;
-	});
+	0);
 }
 
 }

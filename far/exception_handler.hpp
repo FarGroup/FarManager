@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_ref.hpp"
 #include "common/function_traits.hpp"
 #include "common/preprocessor.hpp"
+#include "common/source_location.hpp"
 
 // External:
 
@@ -55,8 +56,8 @@ void force_stderr_exception_ui(bool Force);
 
 class Plugin;
 
-bool handle_std_exception(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
-bool handle_unknown_exception(std::string_view Function, const Plugin* Module = nullptr);
+bool handle_std_exception(const std::exception& e, const Plugin* Module = nullptr, source_location const& Location = source_location::current());
+bool handle_unknown_exception(const Plugin* Module = nullptr, source_location const& Location = source_location::current());
 bool use_terminate_handler();
 
 class unhandled_exception_filter
@@ -127,24 +128,27 @@ private:
 
 namespace detail
 {
+	template<typename callable>
+	concept unknown_handler = std::invocable<callable, source_location const&>;
+
 	struct no_handler
 	{
-		void operator()(auto const&) const {}
+		void operator()(auto const&, auto const&) const {}
 	};
 
-	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
+	void cpp_try(function_ref<void()> Callable, function_ref<void(source_location const&)> UnknownHandler, function_ref<void(std::exception const&, source_location const&)> StdHandler, source_location const& Location);
 	void seh_try(function_ref<void()> Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> Filter, function_ref<void(DWORD)> Handler);
-	int seh_filter(EXCEPTION_POINTERS const* Info, std::string_view Function, Plugin const* Module);
+	int seh_filter(EXCEPTION_POINTERS const* Info, Plugin const* Module, source_location const& Location = source_location::current());
 	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* Info);
 	void seh_thread_handler(DWORD ExceptionCode);
 	void set_fp_exceptions(bool Enable);
 }
 
 template<typename callable, typename std_handler = ::detail::no_handler>
-auto cpp_try(callable const& Callable, auto const& UnknownHandler, std_handler const& StdHandler = {})
+auto cpp_try(callable const& Callable, ::detail::unknown_handler auto const& UnknownHandler, std_handler const& StdHandler = {}, source_location const& Location = source_location::current())
 {
 	using result_type = typename function_traits<callable>::result_type;
-	using std_handler_ref = function_ref<void(std::exception const&)>;
+	using std_handler_ref = function_ref<void(std::exception const&, source_location const&)>;
 
 	enum
 	{
@@ -159,18 +163,21 @@ auto cpp_try(callable const& Callable, auto const& UnknownHandler, std_handler c
 		if constexpr (HasStdHandler)
 			StdHandlerRef = StdHandler;
 
-		::detail::cpp_try(Callable, UnknownHandler, StdHandlerRef);
+		::detail::cpp_try(Callable, UnknownHandler, StdHandlerRef, Location);
 	}
 	else
 	{
 		result_type Result;
 
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4702) // unreachable code
 		[[maybe_unused]]
-		const auto StdHandlerEx = [&](std::exception const& e)
+		const auto StdHandlerEx = [&](std::exception const& e, source_location const&)
 		{
 			if constexpr (HasStdHandler)
-				Result = StdHandler(e);
+				Result = StdHandler(e, Location);
 		};
+WARNING_POP()
 
 		if constexpr (HasStdHandler)
 			StdHandlerRef = StdHandlerEx;
@@ -180,23 +187,53 @@ auto cpp_try(callable const& Callable, auto const& UnknownHandler, std_handler c
 		{
 			Result = Callable();
 		},
-		[&]
-		{
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4702) // unreachable code
-			Result = UnknownHandler();
+		[&](source_location const&)
+		{
+			Result = UnknownHandler(Location);
 		},
-		StdHandlerRef);
 WARNING_POP()
+		StdHandlerRef,
+		Location);
 
 		return Result;
 	}
 }
 
-std::exception_ptr wrap_current_exception(std::string_view Function, std::string_view File, int Line);
+std::exception_ptr wrap_current_exception(source_location const& Location);
 
-#define SAVE_EXCEPTION_TO(ExceptionPtr) \
-	ExceptionPtr = wrap_current_exception(CURRENT_FUNCTION_NAME, CURRENT_FILE_NAME, __LINE__)
+class save_exception_to
+{
+public:
+	explicit save_exception_to(std::exception_ptr& Ptr):
+		m_Ptr(&Ptr)
+	{
+	}
+
+	void operator()(source_location const& Location) const
+	{
+		*m_Ptr = wrap_current_exception(Location);
+	}
+
+private:
+	std::exception_ptr* m_Ptr;
+};
+
+template<auto Fallback>
+class save_exception_and_return: save_exception_to
+{
+public:
+	explicit save_exception_and_return(std::exception_ptr& Ptr):
+		save_exception_to(Ptr)
+	{}
+
+	auto operator()(source_location const& Location) const
+	{
+		save_exception_to::operator()(Location);
+		return Fallback;
+	}
+};
 
 void rethrow_if(std::exception_ptr& Ptr);
 
@@ -220,11 +257,11 @@ WARNING_POP()
 	}
 }
 
-auto seh_try_with_ui(auto const& Callable, auto const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
+auto seh_try_with_ui(auto const& Callable, auto const& Handler, const Plugin* const Module = nullptr, source_location const& Location = source_location::current())
 {
 	return seh_try(
 		Callable,
-		[&](EXCEPTION_POINTERS const* const Info){ return detail::seh_filter(Info, Function, Module); },
+		[&](EXCEPTION_POINTERS const* const Info){ return detail::seh_filter(Info, Module, Location); },
 		Handler
 	);
 }

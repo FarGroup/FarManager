@@ -3317,11 +3317,8 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 				PROGRESS_CANCEL :
 				PROGRESS_CONTINUE;
 		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(ExceptionPtr);
-			return PROGRESS_CANCEL;
-		});
+		save_exception_and_return<PROGRESS_CANCEL>(ExceptionPtr)
+		);
 	};
 
 	const auto sd = GetSecurity(SrcName);

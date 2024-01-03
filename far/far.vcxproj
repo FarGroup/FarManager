@@ -283,6 +283,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\singleton.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
+    <ClInclude Include="common\source_location.hpp" />
     <ClInclude Include="common\span.hpp" />
     <ClInclude Include="common\string_utils.hpp" />
     <ClInclude Include="common\type_traits.hpp" />
