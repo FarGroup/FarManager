@@ -128,6 +128,36 @@ namespace std
 }
 #endif
 
+#ifndef __cpp_lib_ranges_fold
+#include <ranges>
+
+namespace std::ranges
+{
+	struct fold_left_fn
+	{
+		template<std::input_iterator I, std::sentinel_for<I> S, typename T, typename F>
+		constexpr auto operator()(I first, S last, T init, F f) const
+		{
+			using U = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
+			if (first == last)
+				return U(std::move(init));
+			U accum = std::invoke(f, std::move(init), *first);
+			for (++first; first != last; ++first)
+				accum = std::invoke(f, std::move(accum), *first);
+			return std::move(accum);
+		}
+
+		template<ranges::input_range R, typename T, typename F>
+		constexpr auto operator()(R&& r, T init, F f) const
+		{
+			return (*this)(ranges::begin(r), ranges::end(r), std::move(init), std::ref(f));
+		}
+	};
+
+	inline constexpr fold_left_fn fold_left;
+}
+#endif
+
 //----------------------------------------------------------------------------
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

@@ -981,7 +981,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
-				for (auto& i: std::ranges::subrange(AttrDlg.begin() + SA_TEXT_REPARSE_POINT, AttrDlg.end()))
+				for (auto& i: AttrDlg | std::views::drop(SA_TEXT_REPARSE_POINT))
 				{
 					i.Y1++;
 

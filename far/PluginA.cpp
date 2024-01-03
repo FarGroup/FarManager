@@ -744,7 +744,7 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	{
 		PanelItemA.CustomColumnNumber = static_cast<int>(PanelItem.CustomColumnNumber);
 		auto Data = std::make_unique<char*[]>(PanelItem.CustomColumnNumber);
-		std::transform(PanelItem.CustomColumnData, PanelItem.CustomColumnData + PanelItem.CustomColumnNumber, Data.get(), UnicodeToAnsi);
+		std::ranges::transform(std::views::counted(PanelItem.CustomColumnData, PanelItem.CustomColumnNumber), Data.get(), UnicodeToAnsi);
 		PanelItemA.CustomColumnData = Data.release();
 	}
 
@@ -2405,7 +2405,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		{
 			AnsiItems.reserve(ItemsNumber);
 			AnsiItemsPtrs.reserve(ItemsNumber);
-			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(NullToEmpty(Item)); });
+			std::ranges::transform(std::views::counted(Items, ItemsNumber), std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(NullToEmpty(Item)); });
 			std::ranges::transform(AnsiItems, std::back_inserter(AnsiItemsPtrs), [](const string& Item){ return Item.c_str(); });
 		}
 
@@ -2573,7 +2573,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 			if (BreakKeysCount)
 			{
 				NewBreakKeys.reserve(BreakKeysCount + 1);
-				std::transform(BreakKeys, BreakKeys + BreakKeysCount, std::back_inserter(NewBreakKeys), [](int i)
+				std::ranges::transform(std::views::counted(BreakKeys, BreakKeysCount), std::back_inserter(NewBreakKeys), [](int i)
 				{
 					FarKey NewItem;
 					NewItem.VirtualKeyCode = extract_integer<uint16_t, 0>(i);
@@ -2716,13 +2716,13 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				{
 					auto& lc = *static_cast<FarDialogItemColors*>(Param2);
 					std::vector<BYTE> AnsiColors(lc.ColorsCount);
-					std::transform(lc.Colors, lc.Colors + lc.ColorsCount, AnsiColors.begin(), colors::FarColorToConsoleColor);
+					std::ranges::transform(std::views::counted(lc.Colors, lc.ColorsCount), AnsiColors.begin(), colors::FarColorToConsoleColor);
 					oldfar::FarListColors lcA{ 0, 0, static_cast<int>(AnsiColors.size()), AnsiColors.data() };
 					const auto Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 					if(Result)
 					{
 						lc.ColorsCount = lcA.ColorCount;
-						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc.Colors, colors::NtColorToFarColor);
+						std::ranges::transform(std::views::counted(lcA.Colors, lcA.ColorCount), lc.Colors, colors::NtColorToFarColor);
 					}
 					return Result != 0;
 				}
@@ -4178,7 +4178,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				const auto scA = static_cast<const oldfar::FarSetColors*>(Param);
 				std::vector<FarColor> Colors(scA->ColorCount);
-				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), colors::NtColorToFarColor);
+				std::ranges::transform(std::views::counted(scA->Colors, scA->ColorCount), Colors.begin(), colors::NtColorToFarColor);
 				Colors.erase(Colors.begin() + oldfar::COL_RESERVED0);
 				FarSetColors sc{ sizeof(sc), 0, static_cast<size_t>(scA->StartIndex), Colors.size(), Colors.data() };
 				if (scA->Flags&oldfar::FCLR_REDRAW)

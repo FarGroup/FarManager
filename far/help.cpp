@@ -120,9 +120,9 @@ public:
 		return equal_icase(HelpStr, rhs.HelpStr);
 	}
 
-	bool operator<(const HelpRecord& rhs) const
+	auto operator<=>(const HelpRecord& rhs) const
 	{
-		return string_sort::less(HelpStr, rhs.HelpStr);
+		return string_sort::compare(HelpStr, rhs.HelpStr);
 	}
 };
 
@@ -2094,7 +2094,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	}
 
 	// сортируем по алфавиту
-	std::sort(HelpList.begin()+1, HelpList.end());
+	std::ranges::sort(HelpList | std::views::drop(1));
 }
 
 void Help::SetScreenPosition()

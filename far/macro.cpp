@@ -1540,7 +1540,7 @@ std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
 	const auto argNum = std::min(mData->Count, Count);
 	std::vector<TVar> Params;
 	Params.reserve(Count);
-	std::transform(mData->Values, mData->Values + argNum, std::back_inserter(Params), [](const auto& i)
+	std::ranges::transform(mData->Values, mData->Values + argNum, std::back_inserter(Params), [](const auto& i)
 	{
 		switch (i.Type)
 		{

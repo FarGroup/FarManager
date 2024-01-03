@@ -473,11 +473,7 @@ namespace colors
 		};
 
 		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
-		const auto ClosestPointIterator = std::ranges::min_element(Palette.begin() + Skip, Palette.end(), [&](COLORREF const Item1, COLORREF const Item2)
-		{
-			return distance(Item1) < distance(Item2);
-		});
-
+		const auto ClosestPointIterator = std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance);
 		const auto ClosestIndex = ClosestPointIterator - Palette.begin();
 
 		Map.emplace(Color, ClosestIndex);

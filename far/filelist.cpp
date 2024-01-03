@@ -824,7 +824,7 @@ void FileList::SortFileList(bool KeepPosition)
 
 	if (m_SortMode < panel_sort::COUNT)
 	{
-		const auto NameColumn = std::ranges::find_if(m_ViewSettings.PanelColumns, [](column const& i){ return i.type == column_type::name; });
+		const auto NameColumn = std::ranges::find(m_ViewSettings.PanelColumns, column_type::name, &column::type);
 		const auto IgnorePaths = NameColumn != m_ViewSettings.PanelColumns.cend() && NameColumn->type_flags & COLFLAGS_NAMEONLY;
 
 		list_less const Predicate(this, hSortPlugin, IgnorePaths);
@@ -5254,7 +5254,7 @@ void FileList::CountDirSize(bool IsRealNames)
 				return Callback(PluginCurDir, ItemsCount, Size);
 			};
 
-			for (const auto& i: std::ranges::subrange(m_ListData.begin() + 1, m_ListData.end()))
+			for (const auto& i: m_ListData | std::views::drop(1))
 			{
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
@@ -5831,7 +5831,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		FilenameSize    = StringSizeInBytes(fi.FileName),
 		AltNameSize     = StringSizeInBytes(fi.AlternateFileName()),
 		ColumnsSize     = fi.CustomColumns.size() * sizeof(wchar_t*),
-		ColumnsDataSize = std::accumulate(ALL_CONST_RANGE(fi.CustomColumns), size_t{}, [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }),
+		ColumnsDataSize = std::ranges::fold_left(fi.CustomColumns, size_t{}, [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }),
 		DescriptionSize = fi.DizText? StringSizeInBytes(fi.DizText) : 0,
 		OwnerSize       = fi.IsOwnerRead() && !fi.Owner(this).empty()? StringSizeInBytes(fi.Owner(this)) : 0;
 

@@ -82,12 +82,6 @@ namespace
 			UpperBound;
 
 		codepoint_width Width;
-
-		[[nodiscard]]
-		bool operator<(char_width::codepoint const Codepoint) const noexcept
-		{
-			return UpperBound < Codepoint;
-		}
 	};
 
 	// These mappings are based on src\types\CodepointWidthDetector.cpp from Windows Terminal.

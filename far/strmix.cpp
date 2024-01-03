@@ -1628,7 +1628,7 @@ TEST_CASE("xwcsncpy")
 		{ L"12345"sv, },
 	};
 
-	const auto MaxBufferSize = std::ranges::max_element(Tests, [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
+	const auto MaxBufferSize = std::ranges::fold_left(Tests, size_t{}, [](size_t const Value, auto const& Item){ return std::max(Value, Item.Src.size()); }) + 1;
 
 	for (const auto BufferSize: std::views::iota(size_t{}, MaxBufferSize + 1))
 	{

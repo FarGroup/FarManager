@@ -925,7 +925,7 @@ bool TreeList::FillLastData()
 	};
 
 	const auto RootLength = m_Root.empty()? 0 : m_Root.size()-1;
-	const std::ranges::subrange Range(m_ListData.begin() + 1, m_ListData.end());
+	const auto Range = m_ListData | std::views::drop(1);
 	FOR_RANGE(Range, i)
 	{
 		const auto Pos = i->strName.rfind(path::separator);

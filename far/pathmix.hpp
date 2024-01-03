@@ -97,7 +97,7 @@ namespace path
 			const auto LastCharPos = Str.find_last_not_of(separators);
 			Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
 
-			const auto TotalSize = std::accumulate(ALL_RANGE(Args), Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
+			const auto TotalSize = std::ranges::fold_left(Args, Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
 			{
 				return Value + Element.size();
 			});

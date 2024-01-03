@@ -108,9 +108,9 @@ void PrintFiles(FileList* SrcPanel)
 			return;
 
 		const auto Enumerator = SrcPanel->enum_selected();
-		const auto DirsCount = std::accumulate(ALL_CONST_RANGE(Enumerator), size_t{}, [](size_t Count, const os::fs::find_data& i)
+		const auto DirsCount = std::ranges::fold_left(Enumerator, size_t{}, [](size_t Count, const os::fs::find_data& i)
 		{
-			return Count + (i.Attributes & FILE_ATTRIBUTE_DIRECTORY? 1 : 0);
+			return Count + os::fs::is_directory(i);
 		});
 
 		if (DirsCount == SelCount)

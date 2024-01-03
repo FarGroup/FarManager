@@ -3059,7 +3059,7 @@ std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
 {
 	std::vector<string> Result(MenuItems.size());
 
-	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t{}, [](size_t Value, const auto& i)
+	const size_t MaxLength = std::ranges::fold_left(MenuItems, size_t{}, [](size_t Value, const auto& i)
 	{
 		return std::max(Value, i.Name.size());
 	});

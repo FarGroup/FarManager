@@ -403,7 +403,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 		}
 		else
 		{
-			const auto ItemIterator = std::ranges::find_if(ColumnInfo, [&](column_info const& i) { return Type == i.String; });
+			const auto ItemIterator = std::ranges::find(ColumnInfo, Type, [&](column_info const& i){ return i.String; });
 			if (ItemIterator != std::cend(ColumnInfo))
 				NewColumn.type = ItemIterator->Type;
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
@@ -708,7 +708,7 @@ string FormatStr_Size(
 			lng::MListFolder,
 		};
 
-		const auto LabelSize = msg(*std::ranges::max_element(FolderLabels, [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size();
+		const auto LabelSize = std::ranges::fold_left(FolderLabels, size_t{}, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); });
 
 		string TypeName;
 

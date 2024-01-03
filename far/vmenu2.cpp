@@ -106,7 +106,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 			};
 
 			const auto& colors = *static_cast<FarDialogItemColors const*>(Param2);
-			std::transform(MenuColors, MenuColors + std::min(colors.ColorsCount, std::size(MenuColors)), colors.Colors, &colors::PaletteColorToFarColor);
+			std::ranges::transform(MenuColors | std::views::take(std::min(colors.ColorsCount, std::size(MenuColors))), colors.Colors, &colors::PaletteColorToFarColor);
 			return true;
 		}
 

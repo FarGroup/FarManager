@@ -385,7 +385,7 @@ void PluginManager::LoadFactories()
 		{
 			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
-				if (std::ranges::find_if(PluginFactories, [&](const auto& i){ return i->Id() == CustomModel->Id(); }) == PluginFactories.cend())
+				if (std::ranges::find(PluginFactories, CustomModel->Id(), &plugin_factory::Id) == PluginFactories.cend())
 					PluginFactories.emplace_back(std::move(CustomModel));
 			}
 		}
@@ -1060,7 +1060,7 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	const auto GetCode = hPlugin->plugin()->GetFiles(&Info);
 
 	const auto Find = os::fs::enum_files(path::join(Info.DestPath, L'*'));
-	const auto ItemIterator = std::ranges::find_if(Find, [](os::fs::find_data const& i){ return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
+	const auto ItemIterator = std::ranges::find_if(Find, [](os::fs::find_data const& i){ return os::fs::is_file(i); });
 	if (ItemIterator != Find.cend())
 	{
 		const string_view Name = PanelItem->FileName;

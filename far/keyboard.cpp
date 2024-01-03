@@ -1673,12 +1673,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 				{'/','?'}
 			};
 
-			const auto ItemIterator = std::ranges::find_if(Keys, [&](KeysData const& Item)
-			{
-				return Item.FarKey == FKey;
-			});
-
-			if (ItemIterator != std::cend(Keys))
+			if (const auto ItemIterator = std::ranges::find(Keys, FKey, &KeysData::FarKey); ItemIterator != std::cend(Keys))
 			{
 				FKey = ItemIterator->Char;
 			}

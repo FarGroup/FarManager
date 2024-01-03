@@ -349,14 +349,14 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 		Data.emplace_back(std::move(Item));
 	}
 
-	const auto MaxElement = std::ranges::max_element(Data, [](const auto& a, const auto &b) { return a.Description.size() < b.Description.size(); });
+	const auto MaxElementSize = std::ranges::fold_left(Data, size_t{}, [](size_t const Value, data_item const & i){ return std::max(Value, i.Description.size()); });
 
 	TypesMenu->clear();
 
 	for (const auto& i: Data)
 	{
 		const auto AddLen = i.Description.size() - HiStrlen(i.Description);
-		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElement->Description.size() + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
+		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElementSize + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
 		TypesMenuItem.ComplexUserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
 	}

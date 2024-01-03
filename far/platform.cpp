@@ -806,16 +806,11 @@ TEST_CASE("platform.string.receiver")
 {
 	const auto api_function = [](size_t const EmulatedSize, wchar_t* const Buffer, size_t const BufferSize)
 	{
-		string Data;
-		Data.resize(EmulatedSize);
-		std::iota(ALL_RANGE(Data), L'\1');
+		if (BufferSize < EmulatedSize + 1)
+			return EmulatedSize + 1;
 
-		if (BufferSize < Data.size() + 1)
-			return Data.size() + 1;
-
-		*copy_string(Data, Buffer) = {};
-
-		return Data.size();
+		*std::ranges::transform(std::views::iota(size_t{}, EmulatedSize), Buffer, [](int const Value) { return static_cast<wchar_t>(Value + 1); }).out = {};
+		return EmulatedSize;
 	};
 
 	const auto validate = [](string const& Data)

@@ -1257,9 +1257,10 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 		}
 		else
 		{
-			std::vector<const wchar_t*> ItemsCopy(ItemsNumber);
+			std::vector<const wchar_t*> ItemsCopy;
+			ItemsCopy.reserve(ItemsNumber);
 			// They believe nullptr works as empty string /o
-			std::transform(Items, Items + ItemsNumber, ItemsCopy.begin(), NullToEmpty<wchar_t>);
+			std::ranges::transform(Items, Items + ItemsNumber, std::back_inserter(ItemsCopy), NullToEmpty<wchar_t>);
 			AssignStrings(std::move(ItemsCopy));
 		}
 
@@ -2978,7 +2979,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 			{ FFFS_SHOWBYTESINDEX, COLFLAGS_SHOW_MULTIPLIER },    // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		const auto strDestStr = FileSizeToStr(Size, Width, std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLFLAGS_MULTIPLIER_MASK, [Flags](auto FinalFlags, const auto& i)
+		const auto strDestStr = FileSizeToStr(Size, Width, std::ranges::fold_left(FlagsPair, Flags & COLFLAGS_MULTIPLIER_MASK, [Flags](auto FinalFlags, const auto& i)
 		{
 			return FinalFlags | ((Flags & i.first) ? i.second : 0);
 		}));

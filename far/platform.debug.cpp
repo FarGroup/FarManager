@@ -193,7 +193,7 @@ namespace os::debug
 			if (!Size)
 				break;
 
-			std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
+			std::ranges::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
 			{
 				return stack_frame{ std::bit_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT };
 			});

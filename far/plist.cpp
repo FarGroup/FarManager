@@ -72,7 +72,13 @@ struct menu_data
 
 struct ProcInfo
 {
-	std::vector<std::pair<HWND, DWORD>> Windows;
+	struct proc_item
+	{
+		HWND Window;
+		DWORD Pid;
+	};
+
+	std::vector<proc_item> Windows;
 	std::exception_ptr ExceptionPtr;
 };
 
@@ -195,12 +201,12 @@ void ShowProcessList()
 			return false;
 		}
 
-		const auto MaxPid = std::ranges::max_element(Info.Windows, [](const auto& a, const auto& b) { return a.second < b.second; })->second;
+		const auto MaxPid = std::ranges::max_element(Info.Windows, {}, &ProcInfo::proc_item::Pid)->Pid;
 		const auto PidWidth = static_cast<size_t>(std::log10(MaxPid)) + 1;
 
-		for (const auto& [Window, Pid]: Info.Windows)
+		for (const auto& i: Info.Windows)
 		{
-			AddMenuItem(Window, Pid, PidWidth, ShowImage, ProcList);
+			AddMenuItem(i.Window, i.Pid, PidWidth, ShowImage, ProcList);
 		}
 
 		return true;

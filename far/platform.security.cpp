@@ -73,11 +73,11 @@ namespace
 
 		return MapValue;
 	}
+}
 
-	bool operator==(const LUID& a, const LUID& b)
-	{
-		return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
-	}
+static bool operator==(const LUID& a, const LUID& b)
+{
+	return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
 }
 
 namespace os::security
@@ -218,7 +218,7 @@ namespace os::security
 			if (!Luid)
 				return false;
 
-			const auto ItemIterator = std::ranges::find_if(Privileges, [&](const auto& Item) { return Item.Luid == *Luid; });
+			const auto ItemIterator = std::ranges::find(Privileges, *Luid, &decltype(Privileges)::value_type::Luid);
 			return ItemIterator != Privileges.end() && ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT);
 		});
 	}

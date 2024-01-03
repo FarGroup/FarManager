@@ -838,10 +838,7 @@ TEST_CASE("datetime.ConvertDuration")
 	const auto check_digits = [](string_view const Expected, string_view const Actual)
 	{
 		// Time & decimal separators are locale-specific, so let's compare digits only
-		REQUIRE(std::ranges::equal(Expected, Actual, [](wchar_t const a, wchar_t const b)
-		{
-			return a == b || !std::iswdigit(a);
-		}));
+		REQUIRE(std::ranges::equal(Expected | std::views::filter(std::iswdigit), Actual | std::views::filter(std::iswdigit)));
 	};
 
 	for (const auto& i: Tests)

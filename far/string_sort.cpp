@@ -135,12 +135,9 @@ static auto windows_to_std(int const Value)
 {
 	switch (Value)
 	{
-	case CSTR_LESS_THAN:
-		return std::strong_ordering::less;
-	case CSTR_EQUAL:
-		return std::strong_ordering::equal;
-	case CSTR_GREATER_THAN:
-		return std::strong_ordering::greater;
+	case CSTR_LESS_THAN:     return std::strong_ordering::less;
+	case CSTR_EQUAL:         return std::strong_ordering::equal;
+	case CSTR_GREATER_THAN:  return std::strong_ordering::greater;
 	default:
 		std::unreachable();
 	}
@@ -197,18 +194,19 @@ static const auto& create_alt_sort_table()
 	static_assert(sizeof(wchar_t) == 2, "4 GB for a sort table is too much, rewrite it.");
 	static const auto TableSize = std::numeric_limits<wchar_t>::max() + 1;
 	static wchar_t alt_sort_table[TableSize];
-	std::vector<wchar_t> chars(TableSize);
-	std::iota(ALL_RANGE(chars), 0);
-	std::sort(chars.begin() + 1, chars.end(), [](wchar_t a, wchar_t b)
+
+	const auto Iota = std::views::iota(0, TableSize);
+	std::vector<wchar_t> chars(ALL_CONST_RANGE(Iota));
+	std::ranges::sort(chars | std::views::drop(1), [](wchar_t a, wchar_t b)
 	{
 		if (const auto Result = CompareString(LOCALE_INVARIANT, 0, &a, 1, &b, 1))
-			return Result - 2 < 0;
+			return std::is_lt(windows_to_std(Result));
 
 		return a < b;
 	});
 
 	int u_beg = 0, u_end = 0xffff;
-	for (const auto ic: std::views::iota(0, 0x10000))
+	for (const auto ic: std::views::iota(0, TableSize))
 	{
 		if (chars[ic] == L'a')
 		{
@@ -236,7 +234,7 @@ static const auto& create_alt_sort_table()
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
 	}
 
-	for (const auto ic: std::views::iota(u_beg, u_end + 1)) // than not uppercase
+	for (const auto ic: std::views::iota(u_beg, u_end + 1)) // then not uppercase
 	{
 		if (!is_upper(chars[ic]))
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);

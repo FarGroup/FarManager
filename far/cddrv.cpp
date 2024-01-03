@@ -229,7 +229,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	const std::span Profiles(FeatureList->Profiles, FeatureList->Header.AdditionalLength / sizeof(*FeatureList->Profiles));
 
-	return std::accumulate(ALL_CONST_RANGE(Profiles), CAPABILITIES_NONE, [](auto const Value, auto const& i)
+	return std::ranges::fold_left(Profiles, CAPABILITIES_NONE, [](auto const Value, auto const& i)
 	{
 		return Value | profile_to_capabilities(read_value_from_big_endian<FEATURE_PROFILE_TYPE>(i.ProfileNumber));
 	});
@@ -316,7 +316,7 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 		{ L"HDDVDRAM"sv,  {},        {},                            CAPABILITIES_HDDVDRAM },
 	};
 
-	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [Id = string_view(ProductIdFiltered)](auto const Value, auto const& i)
+	return std::ranges::fold_left(Capabilities, CAPABILITIES_NONE, [Id = string_view(ProductIdFiltered)](auto const Value, auto const& i)
 	{
 		const auto Pos = Id.find(i.Pattern);
 		if (Pos == i.Pattern.npos)
