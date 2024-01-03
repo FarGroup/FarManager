@@ -1949,7 +1949,7 @@ static void seh_abort_handler_impl()
 
 	InsideHandler = true;
 
-	const auto Location = source_location::current();
+	constexpr auto Location = source_location::current();
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = os::debug::exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
@@ -2059,12 +2059,13 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 
 	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
+	constexpr auto Location = source_location::current();
 
 	if (handle_generic_exception(
 		Context,
 		Function && File?
 			source_location(encoding::utf8::get_bytes(Function).c_str(), encoding::utf8::get_bytes(File).c_str(), Line) :
-			source_location::current(),
+			Location,
 		{},
 		{},
 		Expression? Expression : L"Invalid parameter"sv,

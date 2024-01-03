@@ -129,7 +129,11 @@ namespace std
 #endif
 
 #ifndef __cpp_lib_ranges_fold
+#include <functional>
+#include <iterator>
 #include <ranges>
+#include <type_traits>
+#include <utility>
 
 namespace std::ranges
 {

@@ -171,13 +171,13 @@ auto cpp_try(callable const& Callable, ::detail::unknown_handler auto const& Unk
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4702) // unreachable code
+
 		[[maybe_unused]]
 		const auto StdHandlerEx = [&](std::exception const& e, source_location const&)
 		{
 			if constexpr (HasStdHandler)
 				Result = StdHandler(e, Location);
 		};
-WARNING_POP()
 
 		if constexpr (HasStdHandler)
 			StdHandlerRef = StdHandlerEx;
@@ -187,15 +187,14 @@ WARNING_POP()
 		{
 			Result = Callable();
 		},
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4702) // unreachable code
 		[&](source_location const&)
 		{
 			Result = UnknownHandler(Location);
 		},
-WARNING_POP()
 		StdHandlerRef,
 		Location);
+
+WARNING_POP()
 
 		return Result;
 	}
