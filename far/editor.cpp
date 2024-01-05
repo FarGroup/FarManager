@@ -3579,7 +3579,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 									msg(lng::MEditAskReplaceWith),
 									quote_unconditional(strReplaceStrCurrent)
 								},
-								{ lng::MEditReplace, lng::MEditReplaceAll, lng::MEditSkip, lng::MEditCancel });
+								{ lng::MEditReplace, lng::MEditReplaceAll, lng::MEditSkip, lng::MEditCancel },
+								{},
+								&EditorConfirmReplaceId);
 
 							DeleteColor(CurPtr, [&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
