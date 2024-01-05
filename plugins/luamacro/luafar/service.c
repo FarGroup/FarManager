@@ -3805,7 +3805,6 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 
 	if (pcall_msg(L, 4, 1))  //+2
 	{
-		lua_pop(L, 1);
 		dd->wasError = TRUE;
 		Info->SendDlgMessage(hDlg, DM_CLOSE, -1, 0);
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);

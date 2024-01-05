@@ -1,3 +1,7 @@
+zg 2024-01-05 08:42:29+02:00 - build 800
+
+1. LuaFAR: crash when there is an error in the dialog procedure.
+
 shmuel 2023-12-24 20:24:12+02:00 - build 799
 
 1. Fix autostarting macros in Viewer area (when Far was run with /v switch)
