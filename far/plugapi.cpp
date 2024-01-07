@@ -177,6 +177,15 @@ auto cpp_try(auto const& Callable, auto const Fallback, source_location const& L
 	Location);
 }
 
+class pluginapi_sort_accessor
+{
+public:
+	static auto compare_ordinal_icase(string_view const Str1, string_view const Str2)
+	{
+		return string_sort::ordering_as_int(string_sort::keyhole::compare_ordinal_icase(Str1, Str2));
+	}
+};
+
 namespace pluginapi
 {
 int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?deprecated
@@ -2030,7 +2039,7 @@ int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t MaxSiz
 	return cpp_try(
 	[&]
 	{
-		return string_sort::ordering_as_int(string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize)));
+		return pluginapi_sort_accessor::compare_ordinal_icase(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize));
 	},
 	-1);
 }
@@ -2040,7 +2049,7 @@ int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 	return cpp_try(
 	[&]
 	{
-		return string_sort::ordering_as_int(string_sort::compare(Str1, Str2));
+		return pluginapi_sort_accessor::compare_ordinal_icase(Str1, Str2);
 	},
 	-1);
 }
