@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "interf.hpp"
 #include "dialog.hpp"
+#include "uuids.far.dialogs.hpp"
 
 // Platform:
 
@@ -131,7 +132,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	}
 
 	const int DialogHeight = ProgressDlgItems[progress_items::pr_doublebox].Y2 - ProgressDlgItems[progress_items::pr_doublebox].Y1 + 1 + 2;
-	init(ProgressDlgItems, { -1, -1, DlgW, DialogHeight });
+	init(ProgressDlgItems, { -1, -1, DlgW, DialogHeight }, &CopyProgressId);
 }
 
 size_t copy_progress::CanvasWidth()

@@ -138,7 +138,8 @@ namespace uuids::far::dialogs
 		PluginInformationId              = "FC4FD19A-43D2-4987-AC31-0F7A94901692"_uuid,
 		EditMaskGroupId                  = "C57682CA-8DC9-4D62-B3F5-9ED37CD207B9"_uuid,
 		ViewerSearchId                   = "03B6C098-A3D6-4DFB-AED4-EB32D711D9AA"_uuid,
-		EditorConfirmReplaceId           = "CCE538E9-5B53-4AD5-B8CF-C2302110B1F2"_uuid;
+		EditorConfirmReplaceId           = "CCE538E9-5B53-4AD5-B8CF-C2302110B1F2"_uuid,
+		CopyProgressId                   = "4F9B87FB-B822-4DEE-9630-22114653676B"_uuid;
 }
 
 // TODO: Use fully qualified names everywhere

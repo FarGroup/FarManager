@@ -206,7 +206,7 @@ protected:
 	progress_impl() = default;
 	~progress_impl();
 
-	void init(std::span<DialogItemEx> Items, rectangle Position);
+	void init(std::span<DialogItemEx> Items, rectangle Position, const UUID* Id = nullptr);
 
 	dialog_ptr m_Dialog;
 };

@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
-#include "copy_progress.hpp"
 #include "global.hpp"
 
 // Platform:

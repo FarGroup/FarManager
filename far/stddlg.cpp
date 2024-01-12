@@ -1388,7 +1388,7 @@ progress_impl::~progress_impl()
 		m_Dialog->CloseDialog();
 }
 
-void progress_impl::init(std::span<DialogItemEx> const Items, rectangle const Position)
+void progress_impl::init(std::span<DialogItemEx> const Items, rectangle const Position, const UUID* Id)
 {
 	m_Dialog = Dialog::create(Items, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
 	{
@@ -1409,6 +1409,8 @@ void progress_impl::init(std::span<DialogItemEx> const Items, rectangle const Po
 
 	m_Dialog->SetPosition(Position);
 	m_Dialog->SetCanLoseFocus(true);
+	if(Id)
+		m_Dialog->SetId(*Id);
 	m_Dialog->Process();
 
 	Global->WindowManager->PluginCommit();
