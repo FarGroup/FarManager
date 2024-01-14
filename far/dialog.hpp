@@ -334,6 +334,16 @@ private:
 	bool IdExist{};
 	MOUSE_EVENT_RECORD PrevMouseRecord{};
 	string m_ConsoleTitle;
+	enum class centered: uint8_t
+	{
+		none         = 0_bit,
+		horizontally = 1_bit,
+		vertically   = 2_bit,
+		both = horizontally | vertically,
+
+		is_bit_flags
+	}
+	m_Centered{centered::none};
 };
 
 // BUGBUG

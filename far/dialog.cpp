@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/singleton.hpp"
 #include "common/uuid.hpp"
+#include "common/utility.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -458,6 +459,7 @@ void Dialog::CheckDialogCoord()
 	{
 		m_Where.left = (ScrX + 1 - m_Where.right) / 2;
 		m_Where.right += m_Where.left - 1;
+		flags::set(m_Centered, centered::horizontally);
 	}
 
 	// задано центрирование диалога по вертикали?
@@ -466,6 +468,7 @@ void Dialog::CheckDialogCoord()
 	{
 		m_Where.top = (ScrY + 1 - m_Where.bottom) / 2;
 		m_Where.bottom += m_Where.top - 1;
+		flags::set(m_Centered, centered::vertically);
 	}
 }
 
@@ -2228,6 +2231,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_ENTER:
 			case KEY_CTRLF5:
 			case KEY_RCTRLF5:
+				m_Centered = centered::none;
 				DialogMode.Clear(DMODE_KEYDRAGGED); // закончим движение!
 				DlgProc(DN_DRAGGED, 1, nullptr);
 				Show();
@@ -3440,6 +3444,7 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (!buttons) // release key, drop dialog
 	{
+		m_Centered = centered::none;
 		Hide();
 		DialogMode.Clear(DMODE_MOUSEDRAGGED);
 		DlgProc(DN_DRAGGED, 1, nullptr);
@@ -4294,10 +4299,10 @@ void Dialog::ResizeConsole()
 	const auto Rect = GetPosition();
 	c.X = std::min(Rect.left, ScrX-1);
 	c.Y = std::min(Rect.top, ScrY-1);
-	if(c.X != Rect.left || c.Y != Rect.top)
+	if(c.X != Rect.left || c.Y != Rect.top || m_Centered != centered::none)
 	{
-		c.X = Rect.left;
-		c.Y = Rect.top;
+		c.X = flags::check_one(m_Centered, centered::horizontally)? -1 : Rect.left;
+		c.Y = flags::check_one(m_Centered, centered::vertically)? -1 : Rect.top;
 		SendMessage(DM_MOVEDIALOG, TRUE, &c);
 		SetComboBoxPos();
 	}
@@ -5983,15 +5988,27 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 void Dialog::SetPosition(rectangle Where)
 {
-	if (Where.left != -1)
-		RealWidth = Where.width();
-	else
+	if (Where.left == -1)
+	{
 		RealWidth = Where.right;
-
-	if (Where.top != -1)
-		RealHeight = Where.height();
+		flags::set(m_Centered, centered::horizontally);
+	}
 	else
+	{
+		RealWidth = Where.width();
+		flags::clear(m_Centered, centered::horizontally);
+	}
+
+	if (Where.top == -1)
+	{
 		RealHeight = Where.bottom;
+		flags::set(m_Centered, centered::vertically);
+	}
+	else
+	{
+		RealHeight = Where.height();
+		flags::clear(m_Centered, centered::vertically);
+	}
 
 	ScreenObjectWithShadow::SetPosition(Where);
 }
