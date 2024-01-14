@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-01-14 18:33:02+00:00 - build 6251
+
+1. gh-773: Preserve centered dialog state on console resize.
+
+2. Cancelling dialog drag with right mouse click didn't work.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 zg 2024-01-12 12:01:38+02:00 - build 6250
 
 1. guid for copy progress dialog.
