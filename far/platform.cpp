@@ -706,7 +706,7 @@ bool is_interactive_user_session()
 	}
 
 	// An invisible window station suggests that we aren't interactive.
-	return flags::check_all(Flags.dwFlags, WSF_VISIBLE);
+	return flags::check_one(Flags.dwFlags, WSF_VISIBLE);
 }
 
 namespace rtdl

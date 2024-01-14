@@ -1451,7 +1451,7 @@ namespace os::fs
 
 	bool is_file(attributes const Attributes)
 	{
-		return Attributes != INVALID_FILE_ATTRIBUTES && !flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
+		return Attributes != INVALID_FILE_ATTRIBUTES && !flags::check_one(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	bool is_directory(file_status Status)
@@ -1471,7 +1471,7 @@ namespace os::fs
 
 	bool is_directory(attributes const Attributes)
 	{
-		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
+		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_one(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	bool is_not_empty_directory(string_view const Object)

@@ -420,16 +420,16 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 
 void ScreenBuf::Invalidate(flush_type const FlushType)
 {
-	if (FlushType & flush_type::screen)
+	if (flags::check_one(FlushType, flush_type::screen))
 	{
 		SBFlags.Clear(SBFLAGS_FLUSHED);
 		Shadow.vector().assign(Shadow.vector().size(), {});
 	}
 
-	if (FlushType & flush_type::cursor)
+	if (flags::check_one(FlushType, flush_type::cursor))
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE);
 
-	if (FlushType & flush_type::title)
+	if (flags::check_one(FlushType, flush_type::title))
 		SBFlags.Clear(SBFLAGS_FLUSHEDTITLE);
 }
 
@@ -496,7 +496,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 {
 	SCOPED_ACTION(std::scoped_lock)(CS);
 
-	if (FlushType & flush_type::title && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
+	if (flags::check_one(FlushType, flush_type::title) && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
 	{
 		console.SetTitle(m_Title);
 		SBFlags.Set(SBFLAGS_FLUSHEDTITLE);
@@ -508,7 +508,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 	if (!console.IsViewportVisible())
 		return;
 
-	if (FlushType & flush_type::screen)
+	if (flags::check_one(FlushType, flush_type::screen))
 	{
 		ShowTime();
 
@@ -696,7 +696,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 		}
 	}
 
-	if (FlushType & flush_type::cursor)
+	if (flags::check_one(FlushType, flush_type::cursor))
 	{
 		// Example: a dialog with an edit control, dragged beyond the screen
 		const auto IsCursorInBuffer = is_visible(m_CurPos);

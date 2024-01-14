@@ -1747,19 +1747,20 @@ TEST_CASE("utility.flags")
 		auto Flags = scoped_flags::f0 | scoped_flags::f3;
 
 		REQUIRE(flags::check_any(Flags, scoped_flags::f0));
+		REQUIRE(flags::check_one(Flags, scoped_flags::f0));
 		REQUIRE(flags::check_all(Flags, scoped_flags::f3));
 
 		flags::set(Flags, scoped_flags::f1);
-		REQUIRE(flags::check_any(Flags, scoped_flags::f1));
+		REQUIRE(flags::check_one(Flags, scoped_flags::f1));
 
 		flags::clear(Flags, scoped_flags::f1);
-		REQUIRE(!flags::check_any(Flags, scoped_flags::f1));
+		REQUIRE(!flags::check_one(Flags, scoped_flags::f1));
 
 		flags::invert(Flags, scoped_flags::f0);
-		REQUIRE(!flags::check_any(Flags, scoped_flags::f0));
+		REQUIRE(!flags::check_one(Flags, scoped_flags::f0));
 
 		flags::change(Flags, scoped_flags::f0, true);
-		REQUIRE(flags::check_any(Flags, scoped_flags::f0));
+		REQUIRE(flags::check_one(Flags, scoped_flags::f0));
 
 		Flags = {};
 		flags::copy(Flags, scoped_flags::f1 | scoped_flags::f2, -1);
@@ -1881,15 +1882,15 @@ TEST_CASE("utility.enum_helpers")
 	};
 
 	{
-		constexpr auto r = enum_helpers::operation<std::plus<>>(e::foo, e::bar);
+		constexpr auto r = enum_helpers::detail::operation<std::plus<>>(e::foo, e::bar);
 		STATIC_REQUIRE(std::same_as<decltype(r), e const>);
 		STATIC_REQUIRE(std::to_underlying(r) == 3);
 	}
 
 	{
-		constexpr auto r = enum_helpers::operation<std::bit_and<>, int>(e::foo, e::bar);
-		STATIC_REQUIRE(std::same_as<decltype(r), int const>);
-		STATIC_REQUIRE(r == 0);
+		constexpr auto r = enum_helpers::detail::operation<std::bit_and<>>(e::foo, e::bar);
+		STATIC_REQUIRE(std::same_as<decltype(r), e const>);
+		STATIC_REQUIRE(std::to_underlying(r) == 0);
 	}
 }
 

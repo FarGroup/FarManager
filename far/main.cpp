@@ -1097,9 +1097,9 @@ TEST_CASE("Args")
 		{ { L"-v" },                     args::parameter_expected },
 		{ { L"-vw" },                    args::unknown_argument },
 		{ { L"-v", L"file" },            [&]{ return V_Param == L"file"sv; } },
-		{ { L"-m" },                     [&]{ return flags::check_all(MacroOptions, MDOL_ALL); } },
+		{ { L"-m" },                     [&]{ return flags::check_one(MacroOptions, MDOL_ALL); } },
 		{ { L"-mb" },                    args::unknown_argument },
-		{ { L"-ma" },                    [&]{ return flags::check_all(MacroOptions, MDOL_AUTOSTART); } },
+		{ { L"-ma" },                    [&]{ return flags::check_one(MacroOptions, MDOL_AUTOSTART); } },
 #ifndef NO_WRAPPER
 		{ { L"-u" },                     args::parameter_expected },
 		{ { L"-ua" },                    args::unknown_argument },

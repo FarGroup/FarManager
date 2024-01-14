@@ -157,8 +157,8 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 static bool sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 {
 	const auto
-		IsFirst = flags::check_any(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE),
-		IsSecond = flags::check_any(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+		IsFirst = flags::check_one(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE),
+		IsSecond = flags::check_one(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 
 	if (!IsFirst && !IsSecond)
 	{

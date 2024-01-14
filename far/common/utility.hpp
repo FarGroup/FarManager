@@ -196,6 +196,12 @@ namespace flags
 		return (detail::reveal(Value) & detail::reveal(Bits)) != 0;
 	}
 
+	constexpr bool check_one(const auto& Value, auto const Bit)
+	{
+		assert(std::has_single_bit(detail::reveal(Bit)));
+		return check_any(Value, Bit);
+	}
+
 	constexpr bool check_all(const auto& Value, auto const Bits)
 	{
 		return (detail::reveal(Value) & detail::reveal(Bits)) == detail::reveal(Bits);
@@ -265,31 +271,44 @@ bool is_aligned(const T& Object)
 
 namespace enum_helpers
 {
-	template<class O, class R = void, class T>
-	[[nodiscard]]
-	constexpr auto operation(T a, T b)
-	{
-		return static_cast<std::conditional_t<std::same_as<R, void>, T, R>>(O()(std::to_underlying(a), std::to_underlying(b)));
-	}
-
 	template<typename T>
-	concept enum_is_bit_flags = std::is_enum_v<T> && requires { T::is_bit_flags; };
+	concept bit_flags_enum = std::is_enum_v<T> && requires { T::is_bit_flags; };
 
-	template<typename T> requires enum_is_bit_flags<T>
-	constexpr auto operator|(T const a, T const b)
+	namespace detail
 	{
-		return operation<std::bit_or<>>(a, b);
+		template<class O, class T>
+		[[nodiscard]]
+		constexpr auto operation(T const a, T const b)
+		{
+			return static_cast<T>(O()(std::to_underlying(a), std::to_underlying(b)));
+		}
 	}
 
-	template<typename T> requires enum_is_bit_flags<T>
-	constexpr auto operator&(T const a, T const b)
+	[[nodiscard]] constexpr auto operator|(bit_flags_enum auto const a, bit_flags_enum auto const b)
 	{
-		return operation<std::bit_and<>, std::underlying_type_t<T>>(a, b);
+		return detail::operation<std::bit_or<>>(a, b);
+	}
+
+	[[nodiscard]] constexpr auto& operator|=(bit_flags_enum auto& a, bit_flags_enum auto const b)
+	{
+		return a = a | b;
+	}
+
+	[[nodiscard]] constexpr auto operator&(bit_flags_enum auto const a, bit_flags_enum auto const b)
+	{
+		return detail::operation<std::bit_and<>>(a, b);
+	}
+
+	[[nodiscard]] constexpr auto& operator&=(bit_flags_enum auto& a, bit_flags_enum auto const b)
+	{
+		return a = a & b;
 	}
 }
 
 using enum_helpers::operator|;
+using enum_helpers::operator|=;
 using enum_helpers::operator&;
+using enum_helpers::operator&=;
 
 template<typename... args>
 struct [[nodiscard]] overload: args...

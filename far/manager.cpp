@@ -180,13 +180,19 @@ static bool CASHook(const Manager::Key& key)
 	// AltGr + Shift is a legit way to enter the same characters in upper case (É, Ú, Ó etc.).
 	// AltGr is implemented as LeftCtrl + RightAlt and we don't want to trigger this witchcraft on AltGr+Shift.
 	// The second check is to allow RCtrl+AltGr+Shift (i.e. RCtrl+LCtrl+RAlt+Shift) to still be used for this.
-	if (flags::check_all(state, LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED) && !flags::check_all(state, RIGHT_CTRL_PRESSED))
+	if (flags::check_all(state, LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED) && !flags::check_one(state, RIGHT_CTRL_PRESSED))
 		return false;
 
+	enum
+	{
+		cas_left  = bit(0),
+		cas_right = bit(1)
+	};
+
 	const auto
-		CaseAny   = flags::check_all(Global->Opt->CASRule, 0b11) && AnyPressed(state),
-		CaseLeft  = flags::check_all(Global->Opt->CASRule, 0b01) && LeftPressed(state),
-		CaseRight = flags::check_all(Global->Opt->CASRule, 0b10) && RightPressed(state);
+		CaseAny   = flags::check_any(Global->Opt->CASRule, cas_left | cas_right) && AnyPressed(state),
+		CaseLeft  = flags::check_one(Global->Opt->CASRule, cas_left) && LeftPressed(state),
+		CaseRight = flags::check_one(Global->Opt->CASRule, cas_right) && RightPressed(state);
 
 	if (!CaseAny && !CaseLeft && !CaseRight)
 		return false;
