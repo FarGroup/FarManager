@@ -3437,6 +3437,27 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	const auto buttons = MouseEvent->dwButtonState;
+
+	if (!buttons) // release key, drop dialog
+	{
+		Hide();
+		DialogMode.Clear(DMODE_MOUSEDRAGGED);
+		DlgProc(DN_DRAGGED, 1, nullptr);
+		Show();
+		return;
+	}
+
+	if (buttons & RIGHTMOST_BUTTON_PRESSED) // abort
+	{
+		Hide();
+		AdjustEditPos(m_Drag.OldRect.left - m_Where.left, m_Drag.OldRect.top - m_Where.top);
+		m_Where = m_Drag.OldRect;
+		DialogMode.Clear(DMODE_MOUSEDRAGGED);
+		DlgProc(DN_DRAGGED, 1, ToPtr(TRUE));
+		Show();
+		return;
+	}
+
 	if (buttons&FROM_LEFT_1ST_BUTTON_PRESSED) // still dragging
 	{
 		int mx,my;
@@ -3469,22 +3490,6 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 				AdjustEditPos(AdjX,AdjY); //?
 			Show();
 		}
-	}
-	else if (buttons == RIGHTMOST_BUTTON_PRESSED) // abort
-	{
-		Hide();
-		AdjustEditPos(m_Drag.OldRect.left - m_Where.left, m_Drag.OldRect.top - m_Where.top);
-		m_Where = m_Drag.OldRect;
-		DialogMode.Clear(DMODE_MOUSEDRAGGED);
-		DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
-		Show();
-	}
-	else // release key, drop dialog
-	{
-		Hide();
-		DialogMode.Clear(DMODE_MOUSEDRAGGED);
-		DlgProc(DN_DRAGGED, 1, nullptr);
-		Show();
 	}
 }
 
