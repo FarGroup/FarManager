@@ -480,6 +480,8 @@ int ustring_GetDriveType(lua_State *L)
 int ustring_Uuid(lua_State* L)
 {
 	UUID uuid;
+	size_t len;
+	unsigned char *p, *q;
 
 	if(lua_gettop(L) == 0 || !lua_toboolean(L, 1))
 	{
@@ -490,16 +492,30 @@ int ustring_Uuid(lua_State* L)
 			return 1;
 		}
 	}
+	else if (lua_type(L, 1) == LUA_TSTRING && lua_objlen(L, 1) == 1)
+	{
+		int wantUpper = !_stricmp("U", lua_tostring(L, 1));
+		if (wantUpper || !_stricmp("L", lua_tostring(L, 1)))
+		{
+			if(UuidCreate(&uuid) == RPC_S_OK && UuidToStringA(&uuid, &p) == RPC_S_OK)
+			{
+				if (wantUpper)
+				{
+					for (q=p; *q; q++) *q = toupper(*q);
+				}
+				lua_pushstring(L, (char*)p);
+				RpcStringFreeA(&p);
+				return 1;
+			}
+		}
+	}
 	else
 	{
-		size_t len;
 		const char* arg1 = luaL_checklstring(L, 1, &len);
 
 		if(len == sizeof(UUID))
 		{
 			// convert given UUID to string
-			unsigned char* p;
-
 			if(UuidToStringA((UUID*)arg1, &p) == RPC_S_OK)
 			{
 				lua_pushstring(L, (char*)p);

@@ -1,3 +1,7 @@
+shmuel 2024-01-14 15:42:47+02:00 - build 801
+
+1. LuaFAR: extend win.Uuid function.
+
 zg 2024-01-05 08:42:29+02:00 - build 800
 
 1. LuaFAR: crash when there is an error in the dialog procedure.

@@ -10569,26 +10569,33 @@ lv=3
 dt=Text
 nm=win.Uuid
 ctime=3505937334
-mtime=3508317882
+mtime=3914408261
 <article>
-#_There are 3 actions available, depending on arguments.
+#_There are different actions available, depending on arguments.
 #_All arguments and return values are strings.
 #_
-#_**ret = win.Uuid ()**
-#_  Generate a new (binary) UUID
+#_**ret = win.Uuid()**
+#_  Generate a new UUID in binary representation
+#_
+#_**ret = win.Uuid("U")**
+#_  Generate a new UUID in upper-case text representation
+#_
+#_**ret = win.Uuid("L")**
+#_  Generate a new UUID in lower-case text representation
 #_
 #_**ret = win.Uuid (binUUID)**
-#_  Convert a UUID to string representation
+#_  Convert a binary UUID to text representation
 #_
-#_**ret = win.Uuid (strUUID)**
-#_  Convert a string UUID representation to binary
+#_**ret = win.Uuid (textUUID)**
+#_  Convert a text UUID to binary representation
 #_
 #_
 #_**Note:**
-#_If the function is given a string argument, it checks its length.
-#_When the length is 16, the function makes conversion from binary
-#_to string GUID representation, otherwise it tries to convert from
-#_string GUID representation to binary one.
+#_For the latter 2 cases the algorithm is as follows:
+#_- The length of the string argument is checked.
+#_  When it is 16, the function makes conversion from binary
+#_  to text representation, otherwise it tries to convert
+#_  from text representation to binary one.
 #_
 </article>
 </node>
