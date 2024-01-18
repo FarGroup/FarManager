@@ -82,15 +82,14 @@ private:
 	void SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
+	size_t GetWidth(intptr_t Index);
 
 	std::chrono::steady_clock::time_point m_CopyStartTime;
 	taskbar::indeterminate m_TB;
 	wakeful m_Wakeful;
 
-	size_t m_CurrentBarSize;
 	int m_CurrentPercent{};
 
-	size_t m_TotalBarSize;
 	int m_TotalPercent{};
 
 	bool m_Move;
