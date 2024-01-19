@@ -140,7 +140,7 @@ PluginManager::PluginManager():
 {
 }
 
-void PluginManager::NotifyExit()
+void PluginManager::NotifyExitLuaMacro() const
 {
 	if (const auto LuaMacro = m_Plugins.find(Global->Opt->KnownIDs.Luamacro.Id); LuaMacro != m_Plugins.cend())
 		LuaMacro->second->NotifyExit();
