@@ -297,7 +297,7 @@ public:
 
 	bool Load();
 	void NotifyExit();
-	bool Unload(bool bExitFAR = false);
+	bool Unload(bool bExitFAR);
 	bool LoadData();
 	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();

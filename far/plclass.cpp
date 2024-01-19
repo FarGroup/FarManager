@@ -620,7 +620,7 @@ bool Plugin::LoadData()
 			return true;
 		}
 	}
-	Unload();
+	Unload(false);
 	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 	WorkFlags.Set(PIWF_DONTLOADAGAIN);
 	return false;
@@ -653,7 +653,7 @@ bool Plugin::Load()
 	{
 		if (!bPendingRemove)
 		{
-			Unload();
+			Unload(false);
 		}
 
 		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
