@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-01-19 17:32:24+00:00 - build 6254
+
+1. Restore ExitFarW calls on plugins unload, dropped after 6139.
+   Also forum: crash on manual unload of anamorphosis.dll.
+   ExitFarW calls are meaningful, we can't just drop them.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 zg 2024-01-18 14:38:15+02:00 - build 6253
 
 1. copy progress dialog rendered according current size.
