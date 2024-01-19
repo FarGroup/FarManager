@@ -893,6 +893,10 @@ TEST_CASE("placement")
 
 	placement::destruct(Object);
 	REQUIRE(Value == 33);
+
+#ifdef _DEBUG
+	REQUIRE(std::ranges::all_of(Data, [](std::byte const Value) { return Value == std::byte{0xFE}; }));
+#endif
 }
 
 //----------------------------------------------------------------------------

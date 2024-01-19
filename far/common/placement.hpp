@@ -44,20 +44,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace placement
 {
-	template<typename T, typename... args>
-	auto& construct(T& Object, args&&... Args)
+	auto& construct(auto& Object, auto&&... Args)
 	{
-		return *new(std::addressof(Object)) T{ FWD(Args)... };
+		return *std::ranges::construct_at(std::addressof(Object), FWD(Args)...);
 	}
 
-	template<typename T>
-	void destruct(T& Object) noexcept
+	void destruct(auto& Object) noexcept
 	{
-		Object.~T();
+		std::ranges::destroy_at(&Object);
 
 #ifdef _DEBUG
 		// To increase the chance of crash on use-after-delete
-		std::memset(static_cast<void*>(&Object), 0xFE, sizeof(Object));
+		std::memset(static_cast<void*>(std::addressof(Object)), 0xFE, sizeof(Object));
 #endif
 	}
 }
