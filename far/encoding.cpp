@@ -1479,8 +1479,7 @@ string ShortReadableCodepageName(uintptr_t cp)
 	     ^^^   ^^^^^^   ^^^^^^   ^^^^^^
 */
 
-// PureAscii makes sense only if the function returned true
-bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialContent, bool& PureAscii)
+encoding::is_utf8 encoding::is_valid_utf8(std::string_view const Str, bool const PartialContent)
 {
 	bool Ascii = true;
 	size_t ContinuationBytes = 0;
@@ -1492,10 +1491,10 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 		if (ContinuationBytes)
 		{
 			if (!::utf8::is_continuation_byte(c))
-				return false;
+				return is_utf8::no;
 
 			if (c < NextMin || c > NextMax)
-				return false;
+				return is_utf8::no;
 
 			NextMin = Min;
 			NextMax = Max;
@@ -1518,11 +1517,11 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 		switch (ContinuationBytes)
 		{
 		default:
-			return false;
+			return is_utf8::no;
 
 		case 1:
 			if (c < 0b11000010)
-				return false;
+				return is_utf8::no;
 			break;
 
 		case 2:
@@ -1532,7 +1531,7 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 
 		case 3:
 			if (c > 0b11110100)
-				return false;
+				return is_utf8::no;
 			if (c == 0b11110000)
 				NextMin = 0b10010000;
 			else if (c == 0b11110100)
@@ -1541,8 +1540,13 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 		}
 	}
 
-	PureAscii = Ascii;
-	return !ContinuationBytes || PartialContent;
+	if (Ascii)
+		return is_utf8::yes_ascii;
+
+	if (!ContinuationBytes || PartialContent)
+		return is_utf8::yes;
+
+	return is_utf8::no;
 }
 
 #ifdef ENABLE_TESTS
@@ -1622,21 +1626,22 @@ TEST_CASE("encoding.basic")
 
 TEST_CASE("encoding.utf8")
 {
+	using encoding::is_utf8;
+
 	static const struct
 	{
-		bool Utf8;
-		bool Ascii;
+		is_utf8 IsUtf8;
 		std::string_view Str;
 	}
 	Tests[]
 	{
-		{ true, false, R"(
+		{ is_utf8::yes, R"(
 ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ
 ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ
 ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬
 )"sv },
 
-		{ true, false, R"(
+		{ is_utf8::yes, R"(
 ぀ ぁ あ ぃ い ぅ う ぇ え ぉ お か が き ぎ く
 ぐ け げ こ ご さ ざ し じ す ず せ ぜ そ ぞ た
 だ ち ぢ っ つ づ て で と ど な に ぬ ね の は
@@ -1645,7 +1650,7 @@ TEST_CASE("encoding.utf8")
 ゐ ゑ を ん ゔ ゕ ゖ ゗ ゘ ゙ ゚ ゛ ゜ ゝ ゞ ゟ
 )"sv },
 
-		{ true, false, R"(
+		{ is_utf8::yes, R"(
 ゠ ァ ア ィ イ ゥ ウ ェ エ ォ オ カ ガ キ ギ ク
 グ ケ ゲ コ ゴ サ ザ シ ジ ス ズ セ ゼ ソ ゾ タ
 ダ チ ヂ ッ ツ ヅ テ デ ト ド ナ ニ ヌ ネ ノ ハ
@@ -1655,14 +1660,14 @@ TEST_CASE("encoding.utf8")
 )"sv },
 
 		// Surrogate half width
-		{ true, false, R"(
+		{ is_utf8::yes, R"(
 𑀐 𑀑 𑀒 𑀓 𑀔 𑀕 𑀖 𑀗 𑀘 𑀙 𑀚 𑀛 𑀜 𑀝 𑀞 𑀟
 𑀠 𑀡 𑀢 𑀣 𑀤 𑀥 𑀦 𑀧 𑀨 𑀩 𑀪 𑀫 𑀬 𑀭 𑀮 𑀯
 𑀰 𑀱 𑀲 𑀳 𑀴 𑀵 𑀶 𑀷 𑀸 𑀹 𑀺 𑀻 𑀼 𑀽 𑀾 𑀿
 )"sv },
 
 		// Surrogate full width
-		{ true, false, R"(
+		{ is_utf8::yes, R"(
 𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎
 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼
 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕
@@ -1670,36 +1675,34 @@ TEST_CASE("encoding.utf8")
 𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍
 )"sv },
 
-		{ true, true, R"(
+		{ is_utf8::yes_ascii, R"(
 Lorem ipsum dolor sit amet,
 consectetur adipiscing elit,
 sed do eiusmod tempor incididunt
 ut labore et dolore magna aliqua.
 )"sv },
-		{ true,  false, "φ"sv },
-		{ false, false, "\x80"sv },
-		{ false, false, "\xFF"sv },
-		{ false, false, "\xC0"sv },
-		{ false, false, "\xC1"sv },
-		{ false, false, "\xC2\x20"sv },
-		{ false, false, "\xC2\xC0"sv },
-		{ false, false, "\xE0\xC0\xC0"sv },
-		{ false, false, "\xEB\x20\xA8"sv },
-		{ false, false, "\xEB\xA0\x28"sv },
-		{ false, false, "\xF0\xC0\xC0\xC0"sv },
-		{ false, false, "\xF4\xBF\xBF\xBF"sv },
-		{ false, false, "\xF0\xA0\xA0\x20"sv },
+		{ is_utf8::yes, "φ"sv },
+		{ is_utf8::no, "\x80"sv },
+		{ is_utf8::no, "\xFF"sv },
+		{ is_utf8::no, "\xC0"sv },
+		{ is_utf8::no, "\xC1"sv },
+		{ is_utf8::no, "\xC2\x20"sv },
+		{ is_utf8::no, "\xC2\xC0"sv },
+		{ is_utf8::no, "\xE0\xC0\xC0"sv },
+		{ is_utf8::no, "\xEB\x20\xA8"sv },
+		{ is_utf8::no, "\xEB\xA0\x28"sv },
+		{ is_utf8::no, "\xF0\xC0\xC0\xC0"sv },
+		{ is_utf8::no, "\xF4\xBF\xBF\xBF"sv },
+		{ is_utf8::no, "\xF0\xA0\xA0\x20"sv },
 	};
 
 	for (const auto& i: Tests)
 	{
-		bool PureAscii = false;
-		REQUIRE(i.Utf8 == encoding::is_valid_utf8(i.Str, false, PureAscii));
-		REQUIRE(i.Ascii == PureAscii);
+		REQUIRE(i.IsUtf8 == encoding::is_valid_utf8(i.Str, false));
 
 		const auto Str = encoding::utf8::get_chars(i.Str);
 
-		if (i.Utf8)
+		if (i.IsUtf8 == is_utf8::yes)
 		{
 			REQUIRE(utf8::wchars_count(i.Str) == Str.size());
 		}
@@ -1713,7 +1716,7 @@ ut labore et dolore magna aliqua.
 		else
 		{
 			// Lossy
-			if (!i.Utf8)
+			if (i.IsUtf8 == is_utf8::no)
 				REQUIRE(contains(Str, encoding::replace_char));
 		}
 	}

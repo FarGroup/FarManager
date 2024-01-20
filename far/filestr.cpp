@@ -425,11 +425,10 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 
 	unsigned long long FileSize = 0;
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
-	bool PureAscii = false;
 
-	if (encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead, PureAscii))
+	if (const auto IsUtf8 = encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead); IsUtf8 != encoding::is_utf8::no)
 	{
-		if (!PureAscii)
+		if (IsUtf8 == encoding::is_utf8::yes)
 			Codepage = CP_UTF8;
 		else if (DefaultCodepage == CP_UTF8 || DefaultCodepage == encoding::codepage::ansi() || DefaultCodepage == encoding::codepage::oem())
 			Codepage = DefaultCodepage;

@@ -131,42 +131,42 @@ namespace encoding
 				return encoding::get_bytes_count(T::id(), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(std::string_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
-			static auto get_chars(std::string_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			static auto get_chars(std::string_view const Str, string& Buffer, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(bytes_view const Str, std::span<wchar_t> const Buffer, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
-			static auto get_chars(bytes_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			static auto get_chars(bytes_view const Str, string& Buffer, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(std::string_view const Str, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars(bytes_view const Str, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars(T::id(), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars_count(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars_count(std::string_view const Str, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars_count(T::id(), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars_count(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
+			[[nodiscard]] static auto get_chars_count(bytes_view const Str, diagnostics* const Diagnostics = {})
 			{
 				return encoding::get_chars_count(T::id(), Str, Diagnostics);
 			}
@@ -201,7 +201,14 @@ namespace encoding
 		bool m_IgnoreEncodingErrors;
 	};
 
-	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);
+	enum class is_utf8
+	{
+		no,
+		yes,
+		yes_ascii
+	};
+
+	is_utf8 is_valid_utf8(std::string_view Str, bool PartialContent);
 
 	inline constexpr wchar_t bom_char      = L'﻿'; // Zero Length Space
 	inline constexpr wchar_t replace_char  = L'�'; // Replacement

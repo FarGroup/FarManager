@@ -455,8 +455,7 @@ string GetPrivateProfileString(string_view const AppName, string_view const KeyN
 	if (encoding::ansi::get_chars(AnsiBytes) != Value)
 		return Value;
 
-	bool PureAscii{};
-	if (!encoding::is_valid_utf8(AnsiBytes, false, PureAscii) || PureAscii)
+	if (const auto IsUtf8 = encoding::is_valid_utf8(AnsiBytes, false); IsUtf8 != encoding::is_utf8::yes)
 		return Value;
 
 	return encoding::utf8::get_chars(AnsiBytes);
