@@ -128,7 +128,7 @@ string error_state_ex::to_string() const
 
 string formattable<std::exception>::to_string(std::exception const& e)
 {
-	return with_exception_stacktrace(far::format(L"std::exception: {}"sv, encoding::utf8::get_chars(e.what())));
+	return with_exception_stacktrace(far::format(L"std::exception: {}"sv, encoding::utf8_or_ansi::get_chars(e.what())));
 }
 
 string unknown_exception_t::to_string()
