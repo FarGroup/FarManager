@@ -141,8 +141,14 @@ public:
 
 	void SaveValue(DialogItemEx const& Item, int const RadioGroupIndex) override
 	{
-		// Must be converted to unsigned type first regardless of underlying type
-		*m_IntValue = from_string<unsigned long long>(Item.strData, nullptr, 16);
+		unsigned long long Value;
+		if (from_string(Item.strData, Value, {}, 16))
+		{
+			*m_IntValue = Value;
+			return;
+		}
+
+		LOGWARNING(L"Invalid integer value {}"sv, Item.strData);
 	}
 
 	string_view GetMask() const
