@@ -611,7 +611,7 @@ public:
 	// IDebugOutputCallbacks
 	STDMETHOD(Output)(ULONG Mask, PCSTR Text) override
 	{
-		output_impl(Mask, encoding::utf8::get_chars(Text));
+		output_impl(Mask, encoding::ansi::get_chars(Text));
 		return S_OK;
 	}
 
