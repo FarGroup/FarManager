@@ -654,6 +654,18 @@ void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, 
 	);
 }
 
+string encoding::utf8_or_ansi::get_chars(std::string_view const Str, diagnostics* const Diagnostics)
+{
+	const auto Utf8 = codepage::utf8();
+	const auto Ansi = codepage::ansi();
+
+	const auto Encoding = Utf8 == Ansi || is_valid_utf8(Str, false) == is_utf8::yes?
+		Utf8 :
+		Ansi;
+
+	return encoding::get_chars(Encoding, Str, Diagnostics);
+}
+
 std::string_view encoding::get_signature_bytes(uintptr_t Cp)
 {
 	switch (Cp)
@@ -1917,4 +1929,13 @@ TEST_CASE("encoding.utf16.surrogate")
 	}
 }
 
+TEST_CASE("encoding.utf8_or_ansi")
+{
+	#define UTF8_SAMPLE "です"
+	REQUIRE(WIDE_SV(UTF8_SAMPLE) == encoding::utf8_or_ansi::get_chars(CHAR_SV(UTF8_SAMPLE)));
+	#undef UTF8_SAMPLE
+
+	const auto OpaqueSample = "\xC0\xC1\xC2\xC3\xC4"sv;
+	REQUIRE(encoding::ansi::get_chars(OpaqueSample) == encoding::utf8_or_ansi::get_chars(OpaqueSample));
+}
 #endif

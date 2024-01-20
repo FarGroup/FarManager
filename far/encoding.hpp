@@ -177,6 +177,11 @@ namespace encoding
 	using ansi = detail::codepage<codepage::detail::ansi>;
 	using oem = detail::codepage<codepage::detail::oem>;
 
+	struct utf8_or_ansi
+	{
+		[[nodiscard]] static string get_chars(std::string_view Str, diagnostics* Diagnostics = {});
+	};
+
 	[[nodiscard]] std::string_view get_signature_bytes(uintptr_t Cp);
 
 	class writer
