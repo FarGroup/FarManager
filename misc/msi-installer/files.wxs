@@ -1054,6 +1054,12 @@
             <Component Id="colorerr.lng" Guid="$(var.Guid.colorerr.lng)" Win64="$(var.Win64)">
               <File Id="colorerr.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorerr.lng" />
             </Component>
+            <Component Id="colorerpol.hlf" Guid="$(var.Guid.colorerpol.hlf)" Win64="$(var.Win64)">
+              <File Id="colorerpol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorerpol.hlf" />
+            </Component>
+            <Component Id="colorerpol.lng" Guid="$(var.Guid.colorerpol.lng)" Win64="$(var.Win64)">
+              <File Id="colorerpol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorerpol.lng" />
+            </Component>
             <Component Id="colorer.map" Guid="$(var.Guid.colorer.map)" Win64="$(var.Win64)">
               <File Id="colorer.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\bin\colorer.map" />
             </Component>

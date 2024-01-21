@@ -642,6 +642,10 @@
             <ComponentRef Id="colorerr.hlf" />
             <ComponentRef Id="colorerr.lng" />
           </Feature>
+		  <Feature Id="FarColorer.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="colorerpol.hlf" />
+            <ComponentRef Id="colorerpol.lng" />
+          </Feature>
           <Feature Id="FarColorer.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="colorer.map" />
           </Feature>
