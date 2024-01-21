@@ -351,6 +351,8 @@
 <?define Guid.colorere.lng = "27034CBD-AE86-4FF3-998F-83C1D0FB4F29" ?>
 <?define Guid.colorerr.hlf = "D00C9415-2A85-43FC-BBF9-2E4801CA9B6D" ?>
 <?define Guid.colorerr.lng = "14D5A3D2-4B3B-4CEF-97E1-6B57AA4F1262" ?>
+<?define Guid.colorerpol.hlf = "5125EC64-4923-41D2-87C0-B71C68ED941D" ?>
+<?define Guid.colorerpol.lng = "4441DA09-2AD3-47F2-BA10-F1DC6C75F432" ?>
 <?define Guid.colorer.map = "12DD4E6D-63A9-4D97-952A-BDB98D189F76" ?>
 <?define Guid.hrcsettings.xml = "C32BF528-B81E-4344-BA03-920DBE927F42" ?>
 <?define Guid.Plugin.Colorer.lua = "29F54450-E7DD-446A-8AC8-5F148BC860C1" ?>
