@@ -247,7 +247,11 @@ static bool write_readme(string_view const FullPath)
 {
 	os::fs::file const File(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!File)
+	{
+		const auto LastError = os::last_error();
+		LOGERROR(L"Error opening {}: {}"sv, FullPath, LastError);
 		return false;
+	}
 
 #define EOL "\r\n"
 
@@ -271,15 +275,30 @@ static bool write_readme(string_view const FullPath)
 
 #undef EOL
 
-	return File.Write(Data.data(), Data.size() * sizeof(Data[0]));
+	if (File.Write(Data.data(), Data.size() * sizeof(Data[0])))
+		return true;
+
+	const auto LastError = os::last_error();
+	LOGERROR(L"Error writing to {}: {}"sv, FullPath, LastError);
+	return false;
 }
 
 static bool write_report(string_view const Data, string_view const FullPath)
 {
 	os::fs::file const File(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!File)
+	{
+		const auto LastError = os::last_error();
+		LOGERROR(L"Error opening {}: {}"sv, FullPath, LastError);
 		return false;
-	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
+	}
+
+	if (File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type)))
+		return true;
+
+	const auto LastError = os::last_error();
+	LOGERROR(L"Error writing to {}: {}"sv, FullPath, LastError);
+	return false;
 }
 
 static bool write_minidump(const exception_context& Context, string_view const FullPath, MINIDUMP_TYPE const Type)
@@ -294,7 +313,11 @@ static bool write_minidump(const exception_context& Context, string_view const F
 
 	const os::fs::file DumpFile(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
+	{
+		const auto LastError = os::last_error();
+		LOGERROR(L"Error opening {}: {}"sv, FullPath, LastError);
 		return false;
+	}
 
 	auto ExceptionRecord = Context.exception_record();
 	auto ContextRecord = Context.context_record();
