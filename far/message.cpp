@@ -410,6 +410,13 @@ static message_result MessageImpl(
 			Position.left = 0;
 		if (Position.top == -1)
 			Position.top = 0;
+
+		// Make it "legally" centered:
+		Position.right = Position.width();
+		Position.left = -1;
+		Position.bottom = Position.height();
+		Position.top = -1;
+
 		Dlg->SetPosition(Position);
 		if(Id)
 			Dlg->SetId(*Id);
