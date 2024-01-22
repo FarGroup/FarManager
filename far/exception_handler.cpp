@@ -260,6 +260,9 @@ static bool write_readme(string_view const FullPath)
 		"  https://forum.farmanager.com/viewforum.php?f=37" EOL
 		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
 		EOL
+		"Please include the steps needed to reproduce the problem" EOL
+		"and any other potentially useful information." EOL
+		EOL
 		"------------------------------------------------------------" EOL
 		"DO NOT SHARE " FULLDUMP_NAME " UNLESS EXPLICITLY ASKED TO DO SO." EOL
 		"It could contain sensitive data." EOL
