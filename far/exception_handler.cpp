@@ -82,7 +82,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 #define BUGREPORT_NAME   "bug_report.txt"
-#define MINIDDUMP_NAME   "far.mdmp"
+#define MINIDUMP_NAME    "far.mdmp"
 #define FULLDUMP_NAME    "far_full.mdmp"
 
 class exception_context
@@ -253,7 +253,7 @@ static bool write_readme(string_view const FullPath)
 
 	// English text, ANSI will do fine.
 	const auto Data =
-		"Please send " BUGREPORT_NAME " and " MINIDDUMP_NAME " to the developers:" EOL
+		"Please send " BUGREPORT_NAME " and " MINIDUMP_NAME " to the developers:" EOL
 		EOL
 		"  https://github.com/FarGroup/FarManager/issues" EOL
 		"  https://bugs.farmanager.com" EOL
@@ -1690,7 +1690,7 @@ static handler_result handle_generic_exception(
 		MiniDumpIgnoreInaccessibleMemory
 	);
 
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MinidumpFlags);
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
 	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
