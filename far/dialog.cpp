@@ -4467,6 +4467,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			[[fallthrough]];
 		case DM_MOVEDIALOG:
 		{
+			// CheckDialogCoord will put it back if needed
+			m_Centered = centered::none;
+
 			auto W1 = m_Where.width();
 			auto H1 = m_Where.height();
 			m_Drag.OldRect = m_Where;
