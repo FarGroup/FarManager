@@ -1045,19 +1045,32 @@ TEST_CASE("colors.parser")
 
 TEST_CASE("colors.index_color_16")
 {
+#if COMPILER(CLANG)
+// "constexpr bit_cast involving bit-field is not yet supported"
+#define CONSTEXPR_OPT const
+#define STATIC_REQUIRE_OPT REQUIRE
+#else
+#define CONSTEXPR_OPT constexpr
+#define STATIC_REQUIRE_OPT STATIC_REQUIRE
+#endif
+
 	{
-		constexpr colors::index_color_16 Color(0xAB);
-		STATIC_REQUIRE(Color == 0xAB);
-		STATIC_REQUIRE(Color.BackgroundIndex == 0xA);
-		STATIC_REQUIRE(Color.ForegroundIndex == 0xB);
+		CONSTEXPR_OPT colors::index_color_16 Color(0xAB);
+
+		STATIC_REQUIRE_OPT(Color == 0xAB);
+		STATIC_REQUIRE_OPT(Color.BackgroundIndex == 0xA);
+		STATIC_REQUIRE_OPT(Color.ForegroundIndex == 0xB);
 	}
 
 	{
-		constexpr colors::index_color_16 Color(0xCD);
-		STATIC_REQUIRE(Color == 0xCD);
-		STATIC_REQUIRE(Color.BackgroundIndex == 0xC);
-		STATIC_REQUIRE(Color.ForegroundIndex == 0xD);
+		CONSTEXPR_OPT colors::index_color_16 Color(0xCD);
+		STATIC_REQUIRE_OPT(Color == 0xCD);
+		STATIC_REQUIRE_OPT(Color.BackgroundIndex == 0xC);
+		STATIC_REQUIRE_OPT(Color.ForegroundIndex == 0xD);
 	}
+
+#undef STATIC_REQUIRE_OPT
+#undef CONSTEXPR_OPT
 }
 
 TEST_CASE("colors.closest_palette_index")
