@@ -104,7 +104,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3785248441
+mtime=3915184011
 <article>
 #_<markdown>
 #_
@@ -121,7 +121,7 @@ mtime=3785248441
 #_    sortpriority = 50;                                            -- number (optional field)
 #_    selected     = true;                                          -- boolean (optional field)
 #_    condition    = function(key,data) return Far.Height>30 end;   -- function (optional field)
-#_    action       = function(data) msgbox("","Macro example") end; -- function
+#_    action       = function(data) msgbox("","Macro example") end; -- function (optional field)
 #_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (optional field)
 #_  }
 #_```
@@ -166,7 +166,7 @@ mtime=3785248441
 #_   * If it returns a number then this number is used instead of `priority`.
 #_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>
 #_
-#_1. Field `action` - a function.<br>
+#_1. Optional field `action` - a function.<br>
 #_   * If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
 #_     then this function is called.
 #_   * It is called with 1 argument: a copy of the table-argument received by function Macro.

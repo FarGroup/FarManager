@@ -1,3 +1,7 @@
+shmuel 2024-01-23 15:09:07+02:00 - build 802
+
+1. Regular macros: make the field 'action' optional.
+
 shmuel 2024-01-14 15:42:47+02:00 - build 801
 
 1. LuaFAR: extend win.Uuid function.

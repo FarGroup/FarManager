@@ -103,7 +103,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3785248540
+mtime=3915184059
 <article>
 #_<markdown>
 #_
@@ -120,7 +120,7 @@ mtime=3785248540
 #_    sortpriority = 50;                                            -- number (опциональное поле)
 #_    selected     = true;                                          -- boolean (опциональное поле)
 #_    condition    = function(key,data) return Far.Height>30 end;   -- function (опциональное поле)
-#_    action       = function(data) msgbox("","Macro example") end; -- function
+#_    action       = function(data) msgbox("","Macro example") end; -- function (опциональное поле)
 #_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (опциональное поле)
 #_  }
 #_```
@@ -165,7 +165,7 @@ mtime=3785248540
 #_   * Если возвращает число, то это число используется вместо `priority`.
 #_   * При других значениях возврата (например, `true`) используется `priority`.<br><br>
 #_
-#_1. Поле `action` - функция.<br>
+#_1. Опциональное поле `action` - функция.<br>
 #_   * Если макрос успешно прошёл все предварительные проверки (область действия, флаги,
 #_     маска файла, приоритет), то вызывается функция `action`.
 #_   * Вызывается с одним аргументом: копией таблицы-аргумента функции Macro.

@@ -385,7 +385,7 @@ local function AddRegularMacro (srctable, FileName)
       end
     end
   else
-    return
+    macro.action = function() end -- intended use: do all the things in condition()
   end
 
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
