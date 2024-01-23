@@ -728,6 +728,8 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 
 bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor, bool* const Reset)
 {
+	colors::invalidate_cache();
+
 	const auto IsVtActive = console.IsVtActive();
 	const auto IsVtSupported = console.IsVtSupported();
 	const auto ShowVtHint = !IsVtActive && !console.ExternalRendererLoaded();

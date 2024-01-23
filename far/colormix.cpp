@@ -53,12 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum
-{
-	ConsoleBgShift=4,
-	ConsoleFgShift=0,
-};
-
 namespace colors
 {
 	single_color single_color::foreground(FarColor const& Color)
@@ -321,7 +315,7 @@ namespace colors
 		return Result;
 	}
 
-	nt_palette_t nt_palette()
+	constexpr auto NtPalette = []
 	{
 		enum
 		{
@@ -351,47 +345,37 @@ namespace colors
 			RGB(C3, C3, C0), // bright yellow
 			RGB(C3, C3, C3)  // bright white
 		};
+	}();
+
+	nt_palette_t const& nt_palette()
+	{
+		return NtPalette;
 	}
 
-	static auto console_palette()
+	static const auto& console_palette(bool const Refresh = false)
 	{
-		if (nt_palette_t Palette; console.GetPalette(Palette))
-			return Palette;
+		const auto init = [&]
+		{
+			nt_palette_t Palette;
+			return console.GetPalette(Palette)?
+				Palette :
+				nt_palette();
+		};
 
-		return nt_palette();
+		static auto ConsolePalette = init();
+
+		if (Refresh)
+			ConsolePalette = init();
+
+		return ConsolePalette;
 	}
-
-	constexpr unsigned char Index8ToIndex4[]
-	{
-		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-		 0,  1,  1,  1,  9,  9,  2,  1,  1,  1,  1,  1,  2,  2,  3,  3,
-		 3,  3,  2,  2, 11, 11,  3,  3, 10, 10, 11, 11, 11, 11, 10, 10,
-		10, 10, 11, 11,  5,  5,  5,  5,  1,  1,  8,  8,  1,  1,  9,  9,
-		 2,  2,  3,  3,  3,  3,  2,  2, 11, 11,  3,  3, 10, 10, 11, 11,
-		11, 11, 10, 10, 10, 10, 11, 11,  4, 13,  5,  5,  5,  5,  4, 13,
-		13, 13, 13, 13,  6,  8,  8,  8,  9,  9, 10, 10, 11, 11,  3,  3,
-		10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 11, 11,  4, 13, 13, 13,
-		13, 13,  4, 12, 13, 13, 13, 13,  6,  6,  8,  8,  9,  9,  6,  6,
-		 7,  7,  7,  7, 10, 14, 14, 14,  7,  7, 10, 10, 14, 14, 11, 11,
-		 4, 12, 13, 13, 13, 13,  4, 12, 13, 13, 13, 13,  6,  6, 12, 12,
-		 7,  7,  6,  6,  7,  7,  7,  7,  6, 14, 14, 14,  7,  7, 14, 14,
-		14, 14, 15, 15, 12, 12, 13, 13, 13, 13, 12, 12, 12, 12, 13, 13,
-		 6, 12, 12, 12,  7,  7,  6,  6,  7,  7,  7,  7,  6, 14, 14, 14,
-		 7,  7, 14, 14, 14, 14, 15, 15,  0,  0,  0,  0,  0,  0,  8,  8,
-		 8,  8,  8,  8,  8,  8,  8,  8,  7,  7,  7,  7,  7,  7, 15, 15
-	};
-
-	static_assert(sizeof(Index8ToIndex4) == 256);
 
 	static constexpr auto Index8ToRGB = []
 	{
 		std::array<COLORREF, 256> Result;
 
 		// First 16 colors are dynamic, see console_palette()
-		for (auto i = 0; i != index::nt_size; ++i)
-		{
-			Result[i] = 0;
-		}
+		std::ranges::fill_n(Result.begin(), index::nt_size, 0);
 
 		// 6x6x6 color cube
 		enum
@@ -443,10 +427,12 @@ namespace colors
 
 	static_assert(Index8ToRGB.size() == 256);
 
-	static uint8_t get_closest_palette_index(COLORREF const Color, std::span<COLORREF const> const Palette)
+	static uint8_t get_closest_palette_index(COLORREF const Color, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
 	{
-		static std::unordered_map<COLORREF, uint8_t> Map16, Map256;
-		auto& Map = Palette.size() == index::nt_size? Map16 : Map256;
+		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
+
+		if (const auto Iterator = std::ranges::find(Palette.begin() + Skip, Palette.end(), Color); Iterator != Palette.end())
+			return Iterator - Palette.begin();
 
 		if (const auto Iterator = Map.find(Color); Iterator != Map.cend())
 			return Iterator->second;
@@ -472,41 +458,71 @@ namespace colors
 			);
 		};
 
-		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
-		const auto ClosestPointIterator = std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance);
-		const auto ClosestIndex = ClosestPointIterator - Palette.begin();
-
-		Map.emplace(Color, ClosestIndex);
-
-		return ClosestIndex;
+		return Map.emplace(Color, std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance) - Palette.begin()).first->second;
 	}
 
-	static WORD emulate_styles(WORD Color, FARCOLORFLAGS const Flags)
+	struct index_color_16
 	{
+		constexpr index_color_16(uint8_t const Background, uint8_t const Foreground) noexcept:
+			ForegroundIndex(Foreground),
+			BackgroundIndex(Background)
+		{
+		}
+
+		explicit(false) constexpr index_color_16(uint8_t const Byte) noexcept
+		{
+			*this = std::bit_cast<index_color_16>(Byte);
+		}
+
+		constexpr operator uint8_t() const noexcept
+		{
+			return std::bit_cast<uint8_t>(*this);
+		}
+
+		uint8_t ForegroundIndex: 4{};
+		uint8_t BackgroundIndex: 4{};
+	};
+
+	static WORD emulate_styles(uint8_t const Color, FARCOLORFLAGS const Flags)
+	{
+		auto ResultColor = Color;
+
 		if (Flags & FCF_FG_BOLD)
-			Color |= FOREGROUND_INTENSITY;
+			ResultColor |= FOREGROUND_INTENSITY;
 
 		if (Flags & FCF_FG_FAINT)
-			Color &= ~FOREGROUND_INTENSITY;
-
-		if (Flags & (FCF_FG_UNDERLINE_MASK))
-			Color |= COMMON_LVB_UNDERSCORE;
-
-		if (Flags & FCF_FG_OVERLINE)
-			Color |= COMMON_LVB_GRID_HORIZONTAL;
+			ResultColor &= ~FOREGROUND_INTENSITY;
 
 		// COMMON_LVB_REVERSE_VIDEO is a better way, but it only works on Windows 10.
 		// Manual swap works everywhere.
 		if (Flags & FCF_FG_INVERSE)
-			Color = ((Color & 0x00F0) >> 4) | ((Color & 0x000F) << 4);
+		{
+			index_color_16 Color16 = ResultColor;
+			const auto Tmp = Color16.ForegroundIndex;
+			Color16.ForegroundIndex = Color16.BackgroundIndex;
+			Color16.BackgroundIndex = Tmp;
+			ResultColor = Color16;
+		}
 
 		if (Flags & FCF_FG_INVISIBLE)
-			Color = (Color & 0x00F0) | ((Color & 0x00F0) >> 4);
+		{
+			index_color_16 Color16 = ResultColor;
+			Color16.ForegroundIndex = Color16.BackgroundIndex;
+			ResultColor = Color16;
+		}
 
-		return Color | (Flags & FCF_RAWATTR_MASK);
+		WORD Result = ResultColor | (Flags & FCF_RAWATTR_MASK);
+
+		if (Flags & FCF_FG_UNDERLINE_MASK)
+			Result |= COMMON_LVB_UNDERSCORE;
+
+		if (Flags & FCF_FG_OVERLINE)
+			Result |= COMMON_LVB_GRID_HORIZONTAL;
+
+		return Result;
 	}
 
-static index_color_256 FarColorToConsoleColor(FarColor Color, FarColor& LastColor, std::span<COLORREF const> const Palette)
+static index_color_256 color_to_palette_index(FarColor Color, FarColor& LastColor, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
 {
 	Color = resolve_defaults(Color);
 
@@ -520,17 +536,27 @@ static index_color_256 FarColorToConsoleColor(FarColor Color, FarColor& LastColo
 
 		Last = Current;
 
+		COLORREF CurrentColorValue;
+
 		if (Color.Flags & Flag)
 		{
 			const auto CurrentIndex = index_value(Current);
-			IndexColor = Palette.size() == index::nt_size?
-				Index8ToIndex4[CurrentIndex] :
-				ConsoleIndex16to256(CurrentIndex);
+			const auto IsNtPalette = Palette.size() == index::nt_size;
 
-			return;
+			if ((IsNtPalette && CurrentIndex <= index::nt_last) || (!IsNtPalette && CurrentIndex > index::nt_last))
+			{
+				IndexColor = CurrentIndex;
+				return;
+			}
+
+			CurrentColorValue = ConsoleIndexToTrueColor(CurrentIndex);
+		}
+		else
+		{
+			CurrentColorValue = color_value(Current);
 		}
 
-		IndexColor = get_closest_palette_index(color_value(Current), Palette);
+		IndexColor = get_closest_palette_index(CurrentColorValue, Palette, Map);
 	};
 
 	static index_color_256 Index{};
@@ -562,8 +588,10 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 	if (not_the_same_index(Color, LastColor))
 	{
-		static const auto Palette = console_palette();
-		Result = FarColorToConsoleColor(Color, LastColor, Palette);
+		const auto& Palette = console_palette();
+		static std::unordered_map<COLORREF, uint8_t> Map;
+
+		Result = color_to_palette_index(Color, LastColor, Palette, Map);
 
 		if (
 			Result.ForegroundIndex == Result.BackgroundIndex &&
@@ -576,7 +604,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		}
 	}
 
-	return emulate_styles(Result.ForegroundIndex << ConsoleFgShift | Result.BackgroundIndex << ConsoleBgShift, Color.Flags);
+	return emulate_styles(index_color_16(Result.BackgroundIndex, Result.ForegroundIndex), Color.Flags);
 }
 
 index_color_256 FarColorToConsole256Color(const FarColor& Color)
@@ -585,18 +613,23 @@ index_color_256 FarColorToConsole256Color(const FarColor& Color)
 	static index_color_256 Result{};
 
 	if (not_the_same_index(Color, LastColor))
-		Result = FarColorToConsoleColor(Color, LastColor, Index8ToRGB);
+	{
+		static std::unordered_map<COLORREF, uint8_t> Map;
+		Result = color_to_palette_index(Color, LastColor, Index8ToRGB, Map);
+	}
 
 	return Result;
 }
 
 FarColor NtColorToFarColor(WORD Color)
 {
+	index_color_16 const Color16 = Color;
+
 	return
 	{
 		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
-		{ opaque(index_bits(Color >> ConsoleFgShift) & index::nt_mask) },
-		{ opaque(index_bits(Color >> ConsoleBgShift) & index::nt_mask) }
+		{ opaque(Color16.ForegroundIndex) },
+		{ opaque(Color16.BackgroundIndex) }
 	};
 }
 
@@ -606,31 +639,6 @@ COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 
 	const auto Index = index_value(Color);
 	return alpha_bits(Color) | (Index < 16? console_palette()[Index] : Index8ToRGB[Index]);
-}
-
-static constexpr uint8_t color_16_to_256[]
-{
-	rgb6(0, 0, 0),
-	rgb6(0, 0, 2),
-	rgb6(0, 2, 0),
-	rgb6(0, 2, 2),
-	rgb6(2, 0, 0),
-	rgb6(2, 0, 2),
-	rgb6(2, 2, 0),
-	rgb6(3, 3, 3),
-	rgb6(2, 2, 2),
-	rgb6(0, 0, 5),
-	rgb6(0, 5, 0),
-	rgb6(0, 5, 5),
-	rgb6(5, 0, 0),
-	rgb6(5, 0, 5),
-	rgb6(5, 5, 0),
-	rgb6(5, 5, 5),
-};
-
-uint8_t ConsoleIndex16to256(uint8_t const Color)
-{
-	return Color < std::size(color_16_to_256)? color_16_to_256[Color] : Color;
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -644,7 +652,7 @@ const FarColor* StoreColor(const FarColor& Value)
 	return std::to_address(ColorSet.emplace(Value).first);
 }
 
-COLORREF ARGB2ABGR(int Color)
+COLORREF ARGB2ABGR(COLORREF Color)
 {
 	return (Color & 0xFF00FF00) | ((Color & 0x00FF0000) >> 16) | ((Color & 0x000000FF) << 16);
 }
@@ -866,6 +874,12 @@ void store_default_color(FarColor const& Color)
 {
 	s_ResolvedDefaultColor = Color;
 }
+
+void invalidate_cache()
+{
+	(void)console_palette(true);
+}
+
 }
 
 #ifdef ENABLE_TESTS
@@ -1026,6 +1040,69 @@ TEST_CASE("colors.parser")
 		const auto Tail = colors::ExtractColorInNewFormat(i.Input, Color, Stop);
 		REQUIRE(Tail.size() == i.Input.size());
 		REQUIRE(Stop == i.Stop);
+	}
+}
+
+TEST_CASE("colors.index_color_16")
+{
+	{
+		constexpr colors::index_color_16 Color(0xAB);
+		STATIC_REQUIRE(Color == 0xAB);
+		STATIC_REQUIRE(Color.BackgroundIndex == 0xA);
+		STATIC_REQUIRE(Color.ForegroundIndex == 0xB);
+	}
+
+	{
+		constexpr colors::index_color_16 Color(0xCD);
+		STATIC_REQUIRE(Color == 0xCD);
+		STATIC_REQUIRE(Color.BackgroundIndex == 0xC);
+		STATIC_REQUIRE(Color.ForegroundIndex == 0xD);
+	}
+}
+
+TEST_CASE("colors.closest_palette_index")
+{
+	{
+		const auto self_test = [](std::span<COLORREF const> const Palette, size_t const Begin)
+		{
+			// By definition, all palette colors should map into the palette as is
+			std::unordered_map<COLORREF, uint8_t> Map;
+			REQUIRE(std::ranges::all_of(Palette | std::views::drop(Begin), [&](COLORREF const& Color){ return colors::get_closest_palette_index(Color, Palette, Map) == &Color - Palette.data(); }));
+		};
+
+		self_test(colors::NtPalette, 0);
+		self_test(colors::Index8ToRGB, colors::index::nt_size);
+	}
+
+	static const struct
+	{
+		COLORREF Color;
+		uint8_t Index16, Index256;
+	}
+	Tests[]
+	{
+		{ 0x000000, 0x0, 0x10 },
+		{ 0x7F7F7F, 0x8, 0xF4 },
+		{ 0xFF0000, 0x9, 0x15 },
+		{ 0x00FF00, 0xA, 0x2E },
+		{ 0xFFFF00, 0xB, 0x33 },
+		{ 0x0000FF, 0xC, 0xC4 },
+		{ 0xFF00FF, 0xD, 0xC9 },
+		{ 0x00FFFF, 0xE, 0xE2 },
+		{ 0xFFFFFF, 0xF, 0xE7 },
+		{ 0x692101, 0x1, 0x11 },
+		{ 0x2E10C8, 0xC, 0xA0 },
+		{ 0x6B9AC1, 0x8, 0x89 },
+		{ 0x09A84E, 0x6, 0x46 },
+		{ 0xB68260, 0x8, 0x43 },
+	};
+
+	std::unordered_map<COLORREF, uint8_t> Map16, Map256;
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(colors::get_closest_palette_index(i.Color, colors::NtPalette, Map16) == i.Index16);
+		REQUIRE(colors::get_closest_palette_index(i.Color, colors::Index8ToRGB, Map256) == i.Index256);
 	}
 }
 #endif
