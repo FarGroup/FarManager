@@ -122,7 +122,7 @@ CFLAGS += \
 	-D PSAPI_VERSION=1 \
 
 CPPFLAGS = $(CFLAGS)\
-	-std=c++20 \
+	-std=c++23 \
 	-fvisibility=hidden \
 	-Werror=old-style-cast \
 	-Werror=vexing-parse \

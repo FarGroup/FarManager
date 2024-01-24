@@ -44,9 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstddef>
 #include <cstring>
 
-#ifndef __cpp_lib_to_underlying
 #include "cpp.hpp"
-#endif
 
 //----------------------------------------------------------------------------
 

@@ -24,7 +24,7 @@ public:
 	const char *begin() const noexcept { return ps; }
 	const char *end() const noexcept { return pe; }
 };
-constexpr auto operator "" _v(const char *_Str, size_t _Len) noexcept { return (str_view(_Str, _Len)); }
+constexpr auto operator ""_v(const char *_Str, size_t _Len) noexcept { return (str_view(_Str, _Len)); }
 inline bool operator==(const str_view& Lhs, const str_view& Rhs)
 { return std::equal(Lhs.begin(), Lhs.end(), Rhs.begin(), Rhs.end()); }
 inline bool operator!=(const str_view& Lhs, const str_view& Rhs) { return !(Lhs == Rhs); }

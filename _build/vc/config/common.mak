@@ -88,7 +88,7 @@ CFLAGS = $(CFLAGS)\
 CPPFLAGS = $(CPPFLAGS)\
 	$(CFLAGS)\
 	/EHsc\
-	/std:c++20\
+	/std:c++latest\
 	/Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\

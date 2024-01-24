@@ -3115,9 +3115,6 @@ size_t VMenu::Text(wchar_t const Char) const
 
 TEST_CASE("find.nearest.selectable.item")
 {
-	using namespace std::ranges;
-	using namespace std::views;
-
 	std::array<int, 10> arr{};
 
 	const auto Pred{ [](const int b) { return b != 0; } };
@@ -3125,7 +3122,7 @@ TEST_CASE("find.nearest.selectable.item")
 	const auto TestAllPositions{
 		[&](const int Found)
 		{
-			for (const auto Pos : iota(0, static_cast<int>(arr.size())))
+			for (const auto Pos : std::views::iota(0, static_cast<int>(arr.size())))
 			{
 				REQUIRE(find_nearest(arr, Pos, Pred, false, false) == Found);
 				REQUIRE(find_nearest(arr, Pos, Pred, false, true) == Found);
@@ -3136,14 +3133,14 @@ TEST_CASE("find.nearest.selectable.item")
 
 	TestAllPositions(-1);
 
-	for (const auto Found : iota(0, static_cast<int>(arr.size())))
+	for (const auto Found : std::views::iota(0, static_cast<int>(arr.size())))
 	{
-		fill(arr, int{});
+		std::ranges::fill(arr, int{});
 		arr[Found] = true;
 		TestAllPositions(Found);
 	}
 
-	fill(arr, int{});
+	std::ranges::fill(arr, int{});
 	arr[3] = arr[7] = true;
 
 	static constexpr struct
