@@ -400,11 +400,11 @@ namespace colors
 			C5,
 		};
 
-		for (auto r = 0; r != index::cube_size; ++r)
+		for (const auto r: std::views::iota(uint8_t{}, index::cube_size))
 		{
-			for (auto g = 0; g != index::cube_size; ++g)
+			for (const auto g: std::views::iota(uint8_t{}, index::cube_size))
 			{
-				for (auto b = 0; b != index::cube_size; ++b)
+				for (const auto b: std::views::iota(uint8_t{}, index::cube_size))
 				{
 					Result[rgb6(r, g, b)] = RGB(
 						channel_value[r],
@@ -416,7 +416,7 @@ namespace colors
 		}
 
 		// 24 shades of grey
-		for (auto i = 0; i != index::grey_count; ++i)
+		for (const auto i: std::views::iota(uint8_t{}, index::grey_count))
 		{
 			const auto Value = 8 + 10 * i;
 			Result[index::grey_first + i] = RGB(Value, Value, Value);

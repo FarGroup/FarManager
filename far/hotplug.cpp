@@ -259,7 +259,7 @@ static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 	if (!GetDeviceProperty(hDevInst, SPDRP_CAPABILITIES, Capabilities))
 		return false;
 
-	DWORD Status = 0, Problem = 0;
+	ULONG Status = 0, Problem = 0;
 	if (CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0) != CR_SUCCESS)
 		return false;
 
@@ -398,7 +398,7 @@ static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 {
 	std::vector<DeviceInfo> Result;
 
-	DEVNODE Root;
+	DEVINST Root;
 	if (CM_Locate_DevNode(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
 	{
 		GetHotplugDevicesInfo(Root, Result, IncludeSafeToRemove);

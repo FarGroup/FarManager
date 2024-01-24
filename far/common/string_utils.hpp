@@ -188,14 +188,28 @@ template<typename... traits>
 [[nodiscard]]
 bool contains(const std::basic_string<traits...>& Str, const auto& What) noexcept
 {
-	return Str.find(What) != Str.npos;
+	if constexpr (requires { Str.contains(What); })
+	{
+		return Str.contains(What);
+	}
+	else
+	{
+		return Str.find(What) != Str.npos;
+	}
 }
 
 template<typename... traits>
 [[nodiscard]]
 constexpr bool contains(const std::basic_string_view<traits...> Str, const auto& What) noexcept
 {
-	return Str.find(What) != Str.npos;
+	if constexpr (requires { Str.contains(What); })
+	{
+		return Str.contains(What);
+	}
+	else
+	{
+		return Str.find(What) != Str.npos;
+	}
 }
 
 namespace detail
