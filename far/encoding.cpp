@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "plugin.hpp"
 #include "codepage_selection.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -56,21 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
-
-static bool get_codepage_info(unsigned const Codepage, wchar_t const* const CodepageStr, CPINFOEX& Info)
-{
-	if (GetCPInfoEx(Codepage, 0, &Info))
-		return true;
-
-	CPINFO cpi;
-	if (!GetCPInfo(Codepage, &cpi))
-		return false;
-
-	Info = {};
-	Info.MaxCharSize = cpi.MaxCharSize;
-	xwcsncpy(Info.CodePageName, CodepageStr, std::size(Info.CodePageName));
-	return true;
-}
 
 static string_view extract_codepage_name(string_view const Str)
 {
@@ -89,25 +75,53 @@ static string_view extract_codepage_name(string_view const Str)
 	return Name.substr(0, CloseBracketPos);
 }
 
+static std::optional<cp_info> get_codepage_info(unsigned const Codepage, wchar_t const* const CodepageStr)
+{
+	if (CPINFOEX Info; GetCPInfoEx(Codepage, 0, &Info))
+	{
+		return
+		{{
+			string(extract_codepage_name(Info.CodePageName)),
+			static_cast<unsigned char>(Info.MaxCharSize)
+		}};
+	}
+
+	if (const auto LastError = os::last_error(); LastError.Win32Error)
+		LOGDEBUG(L"GetCPInfoEx({}): {}"sv, Codepage, LastError);
+
+	if (CPINFO Info; GetCPInfo(Codepage, &Info))
+	{
+		return
+		{{
+			CodepageStr,
+			static_cast<unsigned char>(Info.MaxCharSize)
+		}};
+	}
+
+	if (const auto LastError = os::last_error(); LastError.Win32Error)
+		LOGWARNING(L"GetCPInfo({}): {}"sv, Codepage, LastError);
+
+	return {};
+}
+
 class installed_codepages
 {
 public:
-	installed_codepages()
+	explicit installed_codepages(cp_map& InstalledCp):
+		m_InstalledCp(&InstalledCp)
 	{
 		Context = this;
-		EnumSystemCodePages(callback, CP_INSTALLED);
+
+		if (!EnumSystemCodePages(callback, CP_INSTALLED))
+			LOGWARNING(L"EnumSystemCodePages(): {}"sv, os::last_error());
+
 		Context = {};
 
 		rethrow_if(m_ExceptionPtr);
 	}
 
-	const auto& get() const
-	{
-		return m_InstalledCp;
-	}
-
 private:
-	static inline installed_codepages* Context;
+	static inline thread_local installed_codepages* Context;
 
 	static BOOL WINAPI callback(wchar_t* const cpNum)
 	{
@@ -121,9 +135,8 @@ private:
 		{
 			const auto Codepage = from_string<unsigned>(CpStr);
 
-			CPINFOEX cpix;
-			if (get_codepage_info(Codepage, CpStr, cpix) && cpix.MaxCharSize >= 1)
-				m_InstalledCp.try_emplace(Codepage, cp_info{ string(extract_codepage_name(cpix.CodePageName)), static_cast<unsigned char>(cpix.MaxCharSize) });
+			if (const auto Info = get_codepage_info(Codepage, CpStr); Info && Info->MaxCharSize)
+				m_InstalledCp->try_emplace(Codepage, *Info);
 
 			return TRUE;
 		},
@@ -131,14 +144,21 @@ private:
 		);
 	}
 
-	cp_map m_InstalledCp;
+	cp_map* m_InstalledCp;
 	std::exception_ptr m_ExceptionPtr;
 };
 
+static auto get_installed_codepages()
+{
+	cp_map InstalledCodepages;
+	SCOPED_ACTION(installed_codepages)(InstalledCodepages);
+	return InstalledCodepages;
+}
+
 const cp_map& InstalledCodepages()
 {
-	static const installed_codepages s_Icp;
-	return s_Icp.get();
+	static const auto s_InstalledCodepages = get_installed_codepages();
+	return s_InstalledCodepages;
 }
 
 cp_info const* GetCodePageInfo(uintptr_t cp)
