@@ -376,7 +376,7 @@ static void show_confirmation(
 	{
 		items.emplace_back(far::vformat(msg(MessageId), msg(lng::MAskDeleteObjects)));
 
-		const auto ItemsToShow = std::min(std::min(std::max(static_cast<size_t>(Global->Opt->DelOpt.ShowSelected), size_t{ 1 }), SelCount), size_t{ScrY / 2u});
+		const auto ItemsToShow = std::min(std::min(std::max(static_cast<size_t>(Global->Opt->DelOpt.ShowSelected), 1uz), SelCount), size_t{ScrY / 2u});
 		const auto ItemsMore = SelCount - ItemsToShow;
 
 		for (const auto& i: SrcPanel->enum_selected())

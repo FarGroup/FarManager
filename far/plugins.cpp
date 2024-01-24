@@ -1792,7 +1792,7 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 			Menu.Guids = Uuids;
 		}
 
-		for (const auto i: std::views::iota(size_t{}, Menu.Count))
+		for (const auto i: std::views::iota(0uz, Menu.Count))
 		{
 			const auto Str = StrToBuf(NamesArray[i], Buf, Rest, Size);
 			if (Items)

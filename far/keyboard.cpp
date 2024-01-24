@@ -2187,7 +2187,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 		{
 			static unsigned int const ScanCodes[]{ 82, 79, 80, 81, 75, 76, 77, 71, 72, 73 };
 
-			for (const auto i: std::views::iota(size_t{}, std::size(ScanCodes)))
+			for (const auto i: std::views::iota(0uz, std::size(ScanCodes)))
 			{
 				if (ScanCodes[i] != ScanCode)
 					continue;

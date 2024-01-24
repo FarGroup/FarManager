@@ -165,7 +165,7 @@ namespace os::clipboard
 		// Clipboard is a shared resource
 		const size_t Attempts = 5;
 
-		for (const auto i: std::views::iota(size_t{}, Attempts))
+		for (const auto i: std::views::iota(0uz, Attempts))
 		{
 			// TODO: this is bad, we should use a real window handle
 			if (OpenClipboard(console.GetWindow()))

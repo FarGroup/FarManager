@@ -349,7 +349,7 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 		Data.emplace_back(std::move(Item));
 	}
 
-	const auto MaxElementSize = std::ranges::fold_left(Data, size_t{}, [](size_t const Value, data_item const & i){ return std::max(Value, i.Description.size()); });
+	const auto MaxElementSize = std::ranges::fold_left(Data, 0uz, [](size_t const Value, data_item const & i){ return std::max(Value, i.Description.size()); });
 
 	TypesMenu->clear();
 

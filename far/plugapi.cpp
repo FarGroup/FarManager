@@ -1942,7 +1942,7 @@ static intptr_t apiTControl(intptr_t Id, auto Command, intptr_t Param1, void* Pa
 	}
 	else
 	{
-		for (const auto i: std::views::iota(size_t{}, Global->WindowManager->GetWindowCount()))
+		for (const auto i: std::views::iota(0uz, Global->WindowManager->GetWindowCount()))
 		{
 			if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>(Global->WindowManager->GetWindow(i)))
 			{
@@ -2151,7 +2151,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 	{
 		string strOwner;
 		if (!GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner))
-			return size_t{};
+			return 0uz;
 
 		if (Owner && Size)
 			xwcsncpy(Owner, strOwner.c_str(), Size);
@@ -2202,7 +2202,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 		string strDest;
 		AddEndSlash(strDest);
 		if (!GetReparsePointInfo(strSrc, strDest, nullptr))
-			return size_t{};
+			return 0uz;
 
 		if (DestSize && Dest)
 			xwcsncpy(Dest,strDest.c_str(),DestSize);

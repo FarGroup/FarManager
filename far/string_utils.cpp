@@ -331,7 +331,7 @@ std::optional<std::pair<size_t, size_t>> detail::fuzzy_searcher_impl::find_in(co
 	size_t TransformedSize{};
 	std::optional<size_t> CorrectedOffset;
 
-	for (const auto i: std::views::iota(size_t{}, Haystack.size()))
+	for (const auto i: std::views::iota(0uz, Haystack.size()))
 	{
 		TransformedSize += normalize(Haystack.substr(i, 1)).size();
 

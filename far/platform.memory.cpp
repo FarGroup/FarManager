@@ -112,7 +112,7 @@ namespace os::memory
 TEST_CASE("os.memory.is_pointer")
 {
 	REQUIRE(!os::memory::is_pointer(nullptr));
-	REQUIRE(!os::memory::is_pointer(std::bit_cast<void*>(size_t{42})));
+	REQUIRE(!os::memory::is_pointer(std::bit_cast<void*>(42uz)));
 	REQUIRE(os::memory::is_pointer("42"));
 }
 #endif

@@ -174,7 +174,7 @@ static void WritePipe(const os::handle& Pipe, SECURITY_ATTRIBUTES* Data)
 {
 	if (!Data)
 	{
-		pipe::write(Pipe, size_t{});
+		pipe::write(Pipe, 0uz);
 		return;
 	}
 	else

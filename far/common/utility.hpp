@@ -64,7 +64,7 @@ inline size_t grow_exp(size_t const Current, std::optional<size_t> const Desired
 
 	// reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	const auto LowerBound = Current + std::max(size_t{1}, Current / 2);
+	const auto LowerBound = Current + std::max(1uz, Current / 2);
 	return Desired? std::max(LowerBound, *Desired) : LowerBound;
 }
 

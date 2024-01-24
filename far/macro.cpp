@@ -3233,7 +3233,7 @@ void FarMacroApi::menushowFunc() const
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for (const auto i: std::views::iota(size_t{}, Menu->size()))
+					for (const auto i: std::views::iota(0uz, Menu->size()))
 					{
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
@@ -3285,7 +3285,7 @@ void FarMacroApi::menushowFunc() const
 		{
 			string StrResult;
 
-			for (const auto i: std::views::iota(size_t{}, Menu->size()))
+			for (const auto i: std::views::iota(0uz, Menu->size()))
 			{
 				if (Menu->GetCheck(static_cast<int>(i)))
 				{
@@ -4319,7 +4319,7 @@ void FarMacroApi::panelsetposidxFunc() const
 				else
 				{
 					const auto CurPos = SelPanel->GetCurrentPos();
-					for (const auto I: std::views::iota(size_t{}, EndPos))
+					for (const auto I: std::views::iota(0uz, EndPos))
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{
@@ -4561,7 +4561,7 @@ void FarMacroApi::strpadFunc() const
 
 			const auto& pFill = Fill.asString();
 
-			for (const auto i: std::views::iota(size_t{}, static_cast<size_t>(FineLength)))
+			for (const auto i: std::views::iota(0uz, static_cast<size_t>(FineLength)))
 			{
 				NewFill.push_back(pFill[i % LengthFill]);
 			}

@@ -212,7 +212,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 			offsetListItems=size;
 			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);
-			for (const auto i: std::views::iota(size_t{}, ListBoxSize))
+			for (const auto i: std::views::iota(0uz, ListBoxSize))
 			{
 				size += (ListBox->at(i).Name.size() + 1) * sizeof(wchar_t);
 			}
@@ -241,7 +241,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 					auto text = std::bit_cast<wchar_t*>(listItems + ListBoxSize);
 					assert(is_aligned(*text));
 
-					for (const auto ii: std::views::iota(size_t{}, ListBoxSize))
+					for (const auto ii: std::views::iota(0uz, ListBoxSize))
 					{
 						auto& item = ListBox->at(ii);
 						listItems[ii].Flags = item.Flags;

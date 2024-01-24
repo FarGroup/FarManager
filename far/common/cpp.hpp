@@ -162,6 +162,23 @@ namespace std::ranges
 }
 #endif
 
+#ifndef __cpp_size_t_suffix
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4455) // 'operator operator': literal suffix identifiers that do not start with an underscore are reserved
+
+[[nodiscard]] consteval size_t operator""uz(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""Uz(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""uZ(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""UZ(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""zu(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""Zu(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""zU(unsigned long long const Value) noexcept { return Value; }
+[[nodiscard]] consteval size_t operator""ZU(unsigned long long const Value) noexcept { return Value; }
+
+WARNING_POP()
+
+#endif
 //----------------------------------------------------------------------------
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

@@ -375,7 +375,7 @@ void string_sort::adjust_comparer(size_t const Collation, bool const CaseSensiti
 		},
 	};
 
-	const auto CollationIdex = std::clamp<size_t>(0, Collation, std::size(Comparers) - 1);
+	const auto CollationIdex = std::clamp(0uz, Collation, std::size(Comparers) - 1uz);
 
 	DefaultComparer = Comparers[CollationIdex][DigitsAsNumbers][CaseSensitive];
 }

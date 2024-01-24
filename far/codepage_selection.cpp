@@ -760,7 +760,7 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 		FarListInfo info{ sizeof(info) };
 		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
-		for (const auto i: std::views::iota(size_t{}, info.ItemsNumber))
+		for (const auto i: std::views::iota(0uz, info.ItemsNumber))
 		{
 			if (GetListItemCodePage(i) == codePage)
 			{

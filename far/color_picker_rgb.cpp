@@ -380,7 +380,7 @@ static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 	os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
 	os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
 
-	for (const auto i: std::views::iota(size_t{}, StepsSize))
+	for (const auto i: std::views::iota(0uz, StepsSize))
 	{
 		ColorState.Overlay = ZoomingIn?
 			~Steps[i] :

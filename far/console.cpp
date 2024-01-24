@@ -1089,7 +1089,7 @@ protected:
 
 		if (BufferSize.x * BufferSize.y * sizeof(CHAR_INFO) > MAXSIZE)
 		{
-			const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t{ 1 });
+			const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), 1uz);
 
 			const size_t Height = ReadRegion.bottom - ReadRegion.top + 1;
 
@@ -1671,7 +1671,7 @@ WARNING_POP()
 
 			if (BufferSize.x * BufferSize.y * sizeof(CHAR_INFO) > MAXSIZE)
 			{
-				const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t{ 1 });
+				const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), 1uz);
 
 				for (size_t i = 0, Height = WriteRegion.height(); i < Height; i += HeightStep)
 				{
@@ -1947,7 +1947,7 @@ WARNING_POP()
 			);
 
 			if (!ReturnedSizeInBytes || (ReturnedSizeInBytes == BufferSizeInBytes && GetLastError() == ERROR_INSUFFICIENT_BUFFER))
-				return size_t{};
+				return 0uz;
 
 			return ReturnedSizeInBytes / sizeof(wchar_t) - 1;
 		});

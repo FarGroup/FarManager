@@ -180,7 +180,7 @@ size_t CommandLine::DrawPrompt()
 		}
 
 		if (CurLength + str.size() > MaxLength)
-			inplace::truncate_path(str, std::max(size_t{}, MaxLength - CurLength));
+			inplace::truncate_path(str, std::max(0uz, MaxLength - CurLength));
 		SetColor(i.Colour);
 		Text(str);
 		CurLength += str.size();

@@ -142,7 +142,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 {
 	bool Separator = false;
-	for (const auto i: std::views::iota(size_t{}, Menu.size()))
+	for (const auto i: std::views::iota(0uz, Menu.size()))
 	{
 		if (Menu.at(i).Flags & LIF_SEPARATOR)
 		{

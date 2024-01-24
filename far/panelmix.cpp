@@ -708,7 +708,7 @@ string FormatStr_Size(
 			lng::MListFolder,
 		};
 
-		const auto LabelSize = std::ranges::fold_left(FolderLabels, size_t{}, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); });
+		const auto LabelSize = std::ranges::fold_left(FolderLabels, 0uz, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); });
 
 		string TypeName;
 

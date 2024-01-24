@@ -161,7 +161,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 	if (DesiredHeight > OriginalHeight)
 	{
-		for (const auto i: std::views::iota(size_t{}, CopyHeight))
+		for (const auto i: std::views::iota(0uz, CopyHeight))
 		{
 			const auto FromIndex = i * OriginalWidth;
 			const auto ToIndex = (i + DeltaY) * DesiredWidth;
@@ -170,7 +170,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	}
 	else
 	{
-		for (const auto i: std::views::iota(size_t{}, CopyHeight))
+		for (const auto i: std::views::iota(0uz, CopyHeight))
 		{
 			const auto FromIndex = (i + DeltaY) * OriginalWidth;
 			const auto ToIndex = i * DesiredWidth;
@@ -196,7 +196,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					matrix<FAR_CHAR_INFO> Tmp(DesiredHeight - OriginalHeight, std::max(DesiredWidth, OriginalWidth));
 					if (console.ReadOutput(Tmp, ReadRegion))
 					{
-						for (const auto i: std::views::iota(size_t{}, Tmp.height()))
+						for (const auto i: std::views::iota(0uz, Tmp.height()))
 						{
 							std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
 						}
@@ -206,7 +206,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			else if (rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, OriginalWidth - 1, -1 }; WriteRegion.left < ScrX && WindowRect.first.top && WriteRegion.top < ScrY)
 			{
 				matrix<FAR_CHAR_INFO> Tmp(OriginalHeight - DesiredHeight, std::max(DesiredWidth, OriginalWidth));
-				for (const auto i: std::views::iota(size_t{}, Tmp.height()))
+				for (const auto i: std::views::iota(0uz, Tmp.height()))
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
 				}
@@ -224,7 +224,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					rectangle const ReadRegion{ OriginalWidth, 0, DesiredWidth - 1, DesiredHeight - 1 };
 					matrix<FAR_CHAR_INFO> Tmp(ReadRegion.height(), ReadRegion.width());
 					console.ReadOutput(Tmp, ReadRegion);
-					for (const auto i: std::views::iota(size_t{}, NewBuf.height()))
+					for (const auto i: std::views::iota(0uz, NewBuf.height()))
 					{
 						std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OriginalWidth]);
 					}
@@ -237,7 +237,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				WriteRegion.left -= VtFixup;
 				matrix<FAR_CHAR_INFO> Tmp(WriteRegion.height(), WriteRegion.width());
 				const auto StartY = OriginalHeight - Tmp.height();
-				for (const auto i: std::views::iota(size_t{}, Tmp.height()))
+				for (const auto i: std::views::iota(0uz, Tmp.height()))
 				{
 					std::copy_n(&ScreenBuf[i + StartY][DesiredWidth - VtFixup], Tmp.width(), Tmp[i].data());
 				}

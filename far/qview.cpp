@@ -149,7 +149,7 @@ void QuickView::DisplayObject()
 	{
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
-		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MListFolder).size() - 5));
+		const auto DisplayName = truncate_path(strCurFileName, std::max(0uz, m_Where.width() - 2 - msg(lng::MListFolder).size() - 5));
 		PrintText(far::format(LR"({} "{}")", msg(lng::MListFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
@@ -181,7 +181,7 @@ void QuickView::DisplayObject()
 					break;
 				}
 
-				inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
+				inplace::truncate_path(Target, std::max(0uz, m_Where.width() - 2 - TypeName.size() - 5));
 			}
 			else if (reparse_tag_to_string(ReparseTag, TypeName, Global->Opt->ShowUnknownReparsePoint))
 			{
@@ -227,7 +227,7 @@ void QuickView::DisplayObject()
 				lng::MQuickViewSlack,
 			};
 
-			const auto ColumnSize = std::ranges::fold_left(TableLabels, size_t{}, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); }) + 1;
+			const auto ColumnSize = std::ranges::fold_left(TableLabels, 0uz, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); }) + 1;
 
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;

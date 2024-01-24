@@ -1643,9 +1643,9 @@ TEST_CASE("utility.base")
 
 TEST_CASE("utility.grow_exp")
 {
-	for (const auto i: std::views::iota(size_t{}, size_t{32}))
+	for (const auto i: std::views::iota(0uz, 32uz))
 	{
-		const auto ExpectedIncrease = std::max(size_t{1}, i / 2);
+		const auto ExpectedIncrease = std::max(1uz, i / 2);
 		REQUIRE(grow_exp(i, 0) == i);
 		REQUIRE(grow_exp(i, {}) == i + ExpectedIncrease);
 		REQUIRE(grow_exp(i, i + 1) == i + ExpectedIncrease);

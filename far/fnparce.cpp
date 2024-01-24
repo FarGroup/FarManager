@@ -496,7 +496,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		const auto ExclPos = Tail.find(L'!');
 		if (ExclPos == Tail.npos || Tail.substr(ExclPos + 1).starts_with(L'?'))
-			return size_t{};
+			return 0uz;
 
 		const auto Modifiers = Tail.substr(0, ExclPos);
 

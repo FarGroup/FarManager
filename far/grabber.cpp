@@ -144,7 +144,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	const auto Eol = eol::system.str();
 	const auto CharWidthEnabled = char_width::is_enabled();
 
-	for (const auto i: std::views::iota(size_t{}, CharBuf.height()))
+	for (const auto i: std::views::iota(0uz, CharBuf.height()))
 	{
 		const auto& MatrixLine = CharBuf[i];
 		auto Begin = MatrixLine.begin(), End = MatrixLine.end();

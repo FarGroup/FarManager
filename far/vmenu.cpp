@@ -2068,7 +2068,7 @@ bool VMenu::SetAllItemsShowPos(int NewShowPos)
 
 	const auto MaxLineWidth{ CalculateTextAreaWidth() };
 
-	for (const auto I: std::views::iota(size_t{}, Items.size()))
+	for (const auto I: std::views::iota(0uz, Items.size()))
 		NeedRedraw |= SetItemShowPos(static_cast<int>(I), NewShowPos, MaxLineWidth);
 
 	return NeedRedraw;
@@ -2080,7 +2080,7 @@ bool VMenu::ShiftAllItemsShowPos(int Shift)
 
 	const auto MaxLineWidth{ CalculateTextAreaWidth() };
 
-	for (const auto I: std::views::iota(size_t{}, Items.size()))
+	for (const auto I: std::views::iota(0uz, Items.size()))
 		NeedRedraw |= ShiftItemShowPos(static_cast<int>(I), Shift, MaxLineWidth);
 
 	return NeedRedraw;
@@ -2423,7 +2423,7 @@ void VMenu::ConnectSeparator(const size_t ItemIndex, string& separator, const in
 	if (CheckFlags(VMENU_NOMERGEBORDER) || separator.size() <= 3)
 		return;
 
-	for (const auto I : std::views::iota(size_t{}, separator.size() - 3))
+	for (const auto I : std::views::iota(0uz, separator.size() - 3))
 	{
 		const auto AnyPrev = ItemIndex > 0;
 		const auto AnyNext = ItemIndex < Items.size() - 1;
@@ -3059,7 +3059,7 @@ std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
 {
 	std::vector<string> Result(MenuItems.size());
 
-	const size_t MaxLength = std::ranges::fold_left(MenuItems, size_t{}, [](size_t Value, const auto& i)
+	const size_t MaxLength = std::ranges::fold_left(MenuItems, 0uz, [](size_t Value, const auto& i)
 	{
 		return std::max(Value, i.Name.size());
 	});

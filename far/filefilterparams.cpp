@@ -847,7 +847,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		{lng::MHighlightFileName4, {}},
 	};
 
-	const auto ColumnSize = std::ranges::fold_left(NameLabels, size_t{}, [](size_t const Value, auto const& i){ return std::max(Value, msg(i.first).size()); }) + 1;
+	const auto ColumnSize = std::ranges::fold_left(NameLabels, 0uz, [](size_t const Value, auto const& i){ return std::max(Value, msg(i.first).size()); }) + 1;
 
 	for (auto& [LngId, Label]: NameLabels)
 	{
@@ -990,7 +990,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
 
-	for (const auto i: std::views::iota(size_t{}, static_cast<size_t>(FDATE_COUNT)))
+	for (const auto i: std::views::iota(0uz, static_cast<size_t>(FDATE_COUNT)))
 		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).c_str();
 
 	DWORD DateType;

@@ -302,7 +302,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 
 	int SavedState[advanced_attributes_count];
 
-	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
+	for (const auto i: std::views::iota(0uz, advanced_attributes_count))
 	{
 		const auto AbsoluteIndex = main_attributes_count + i;
 		auto& Attr = DlgParam.Attributes[main_attributes_count + i];
@@ -315,7 +315,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 	if (!Builder.ShowDialog())
 		return;
 
-	for (const auto i: std::views::iota(size_t{}, advanced_attributes_count))
+	for (const auto i: std::views::iota(0uz, advanced_attributes_count))
 	{
 		auto& Attr = DlgParam.Attributes[main_attributes_count + i];
 

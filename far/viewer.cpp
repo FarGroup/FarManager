@@ -154,12 +154,12 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	m_DisplayMode(VMT_TEXT),
 	ViewerID(::ViewerID++),
 	m_bQuickView(bQuickView),
-	vread_buffer(std::max(MaxViewLineBufferSize(), size_t{ 8192 })),
+	vread_buffer(std::max(MaxViewLineBufferSize(), 8192uz)),
 	lcache_lines(16*1000),
 	// dirty magic numbers, fix them!
 	max_backward_size(std::min(Options::ViewerOptions::eMaxLineSize*3ll, std::max(Global->Opt->ViOpt.MaxLineSize*2, 1024ll) * 32)),
 	llengths(max_backward_size / 40),
-	Search_buffer(3 * std::max(MaxViewLineBufferSize(), size_t{ 8192 })),
+	Search_buffer(3 * std::max(MaxViewLineBufferSize(), 8192uz)),
 	ReadBuffer(MaxViewLineBufferSize())
 {
 	if (m_DefCodepage != CP_DEFAULT)
@@ -924,7 +924,7 @@ void Viewer::ShowHex()
 				}
 			}
 
-			for (const auto X: std::views::iota(size_t{}, m_BytesPerLine))
+			for (const auto X: std::views::iota(0uz, m_BytesPerLine))
 			{
 				if (X < BytesRead)
 					far::format_to(OutStr, L"{:02X} "sv, static_cast<int>(RawBuffer[X]));
@@ -1908,7 +1908,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			// Перейти на конец строк
 			if (ViewFile)
 			{
-				const size_t MaxLen = std::ranges::fold_left(Strings, size_t{}, [](size_t Value, const ViewerString& i)
+				const size_t MaxLen = std::ranges::fold_left(Strings, 0uz, [](size_t Value, const ViewerString& i)
 				{
 					return std::max(Value, i.Data.size());
 				});
@@ -3594,7 +3594,7 @@ wchar_t Viewer::vgetc_prev()
 			else
 			{
 				assert(MB.GetCP() == m_Codepage);
-				for (const auto i: std::views::iota(size_t{}, BytesRead))
+				for (const auto i: std::views::iota(0uz, BytesRead))
 				{
 					wchar_t Char;
 					if (MB.GetChar({ RawBuffer + i, BytesRead - i }, Char) == BytesRead - i)

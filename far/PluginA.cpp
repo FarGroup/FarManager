@@ -278,7 +278,7 @@ static void LocalUpperInit()
 		const auto to_upper = [](char Char) { CharUpperBuffA(&Char, 1); return Char; };
 		const auto to_lower = [](char Char) { CharLowerBuffA(&Char, 1); return Char; };
 
-		for (const auto I: std::views::iota(size_t{}, std::size(LowerToUpper)))
+		for (const auto I: std::views::iota(0uz, std::size(LowerToUpper)))
 		{
 			const auto Char = to_ansi(static_cast<char>(I));
 
@@ -614,7 +614,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 		return std::invoke(Item.first, kbtA)[i];
 	};
 
-	for (const auto i: std::views::iota(size_t{}, LabelsCount))
+	for (const auto i: std::views::iota(0uz, LabelsCount))
 	{
 		const auto CheckLabel = [&](const auto& Item) { return Extract(Item, i) != nullptr; };
 
@@ -632,7 +632,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles&
 	auto WideLabels = std::make_unique<KeyBarLabel[]>(kbtW.CountLabels);
 	auto WideLabelsIterator = WideLabels.get();
 
-	for (const auto i: std::views::iota(size_t{}, LabelsCount))
+	for (const auto i: std::views::iota(0uz, LabelsCount))
 	{
 		const auto ProcessLabel = [&](const auto& Item)
 		{
@@ -3377,7 +3377,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<PluginPanelItem> PPI;
 						size_t PPISize = 0;
 
-						for (const auto i: std::views::iota(size_t{}, ItemsNumber))
+						for (const auto i: std::views::iota(0uz, ItemsNumber))
 						{
 							const auto NewPPISize = static_cast<size_t>(pluginapi::apiPanelControl(hPlugin, ControlCode, i, nullptr));
 
@@ -4425,7 +4425,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					return FALSE;
 				}
 				const auto oldbm = static_cast<const oldfar::EditorBookMarks*>(Param);
-				for (const auto i: std::views::iota(size_t{}, newbm->Count))
+				for (const auto i: std::views::iota(0uz, newbm->Count))
 				{
 					if (oldbm->Line)
 						oldbm->Line[i] = newbm->Line[i];
@@ -5605,7 +5605,7 @@ WARNING_POP()
 				auto p = std::make_unique<const wchar_t*[]>(Size);
 				auto Uuid = std::make_unique<UUID[]>(Size);
 
-				for (const auto i: std::views::iota(size_t{}, Size))
+				for (const auto i: std::views::iota(0uz, Size))
 				{
 					p[i] = AnsiToUnicode(Strings[i]);
 					Uuid[i].Data1 = static_cast<decltype(Uuid[i].Data1)>(i);

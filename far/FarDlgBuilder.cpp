@@ -560,7 +560,7 @@ DialogItemEx& DialogBuilder::AddListBox(IntOption& Value, int Width, int Height,
 
 void DialogBuilder::AddRadioButtons(size_t& Value, std::span<lng const> const Options, bool FocusOnSelected)
 {
-	for (const auto i: std::views::iota(size_t{}, Options.size()))
+	for (const auto i: std::views::iota(0uz, Options.size()))
 	{
 		auto& Item = AddDialogItem(DI_RADIOBUTTON, msg(Options[i]).c_str());
 		SetNextY(Item);
@@ -582,7 +582,7 @@ void DialogBuilder::AddRadioButtons(size_t& Value, std::span<lng const> const Op
 
 void DialogBuilder::AddRadioButtons(IntOption& Value, std::span<lng const> const Options, bool FocusOnSelected)
 {
-	for (const auto i: std::views::iota(size_t{}, Options.size()))
+	for (const auto i: std::views::iota(0uz, Options.size()))
 	{
 		auto& Item = AddDialogItem(DI_RADIOBUTTON, msg(Options[i]).c_str());
 		SetNextY(Item);
@@ -655,7 +655,7 @@ void DialogBuilder::AddButtons(std::span<lng const> const Buttons, size_t const 
 	const auto LineY = m_NextY++;
 	DialogItemEx const* PrevButton = nullptr;
 
-	for (const auto i: std::views::iota(size_t{}, Buttons.size()))
+	for (const auto i: std::views::iota(0uz, Buttons.size()))
 	{
 		auto& NewButton = AddDialogItem(DI_BUTTON, msg(Buttons[i]).c_str());
 		NewButton.Flags = DIF_CENTERGROUP;
@@ -841,7 +841,7 @@ void DialogBuilder::UpdateBorderSize()
 	intptr_t MaxHeight = 0;
 	Title->X2 = Title->X1 + MaxWidth + 3;
 
-	for (const auto i: std::views::iota(size_t{ 1 }, m_DialogItems.size()))
+	for (const auto i: std::views::iota(1uz, m_DialogItems.size()))
 	{
 		if (m_DialogItems[i].Type == DI_SINGLEBOX)
 		{
@@ -868,7 +868,7 @@ void DialogBuilder::UpdateBorderSize()
 intptr_t DialogBuilder::MaxTextWidth() const
 {
 	intptr_t MaxWidth = 0;
-	for (const auto i: std::views::iota(size_t{ 1 }, m_DialogItems.size()))
+	for (const auto i: std::views::iota(1uz, m_DialogItems.size()))
 	{
 		if (m_DialogItems[i].X1 == SECOND_COLUMN)
 			continue;

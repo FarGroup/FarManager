@@ -330,7 +330,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 			}
 			case KEY_SHIFTBS:
 			{
-				for (const auto i: std::views::iota(size_t{}, FilterList->size()))
+				for (const auto i: std::views::iota(0uz, FilterList->size()))
 				{
 					FilterList->ClearCheck(static_cast<int>(i));
 				}
@@ -509,7 +509,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 
 static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 {
-	for (const auto i: std::views::iota(size_t{}, FilterList->size()))
+	for (const auto i: std::views::iota(0uz, FilterList->size()))
 	{
 		const auto Check = FilterList->GetCheck(static_cast<int>(i));
 		FileFilterParams* CurFilterData = nullptr;
@@ -531,7 +531,7 @@ static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 				{
 					bool bCheckedNowhere = true;
 
-					for (const auto n: std::views::iota(size_t{}, static_cast<size_t>(filter_area::count)))
+					for (const auto n: std::views::iota(0uz, static_cast<size_t>(filter_area::count)))
 					{
 						if (static_cast<filter_area>(n) != Area && Iterator->second.GetFlags(static_cast<filter_area>(n)))
 						{
@@ -867,7 +867,7 @@ static bool LoadAreaFlags(const HierarchicalConfig& Cfg, HierarchicalConfig::key
 
 	auto AnyLoaded = false;
 
-	for (const auto i: std::views::iota(size_t{}, std::size(FilterFlagNames)))
+	for (const auto i: std::views::iota(0uz, std::size(FilterFlagNames)))
 	{
 		unsigned long long Value;
 		if (Cfg.GetValue(FlagsKey, FilterFlagNames[i], Value))
@@ -891,7 +891,7 @@ static bool LoadLegacyAreaFlags(HierarchicalConfig const& Cfg, HierarchicalConfi
 	if (bytes Blob; !Cfg.GetValue(Key, Name, Blob) || !deserialise(Blob, LegacyFlags))
 		return false;
 
-	for (const auto i: std::views::iota(size_t{}, LegacyCount))
+	for (const auto i: std::views::iota(0uz, LegacyCount))
 		Item.SetFlags(static_cast<filter_area>(i), LegacyFlags[i]);
 
 	return true;
@@ -1026,7 +1026,7 @@ void filters::Save(bool always)
 
 	const auto root = cfg->CreateKey(cfg->root_key, names::Filters);
 
-	for (const auto i: std::views::iota(size_t{}, FilterData().size()))
+	for (const auto i: std::views::iota(0uz, FilterData().size()))
 	{
 		const auto Key = cfg->CreateKey(root, names::Filter + str(i));
 		const auto& CurFilterData = FilterData()[i];

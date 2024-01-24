@@ -218,7 +218,7 @@ static message_result MessageImpl(
 		}
 	}
 
-	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, size_t{}, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
+	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
 
 	string strClipText;
 
@@ -230,7 +230,7 @@ static message_result MessageImpl(
 		append(strClipText, Title, Eol, Eol);
 	}
 
-	size_t BtnLength = std::ranges::fold_left(Buttons, size_t{}, [](size_t Result, const auto& i)
+	size_t BtnLength = std::ranges::fold_left(Buttons, 0uz, [](size_t Result, const auto& i)
 	{
 		return Result + HiStrlen(i) + 2 + 2 + 1; // "[ ", " ]", " "
 	});
@@ -466,7 +466,7 @@ static message_result MessageImpl(
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
-	for (const auto i: std::views::iota(size_t{}, Strings.size()))
+	for (const auto i: std::views::iota(0uz, Strings.size()))
 	{
 		const auto& SrcItem = Strings[i];
 

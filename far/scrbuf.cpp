@@ -122,7 +122,7 @@ void ScreenBuf::DebugDump() const
 	string s;
 	s.reserve(Buf.width() + 1);
 
-	for (const auto row_num: std::views::iota(size_t{}, Buf.height()))
+	for (const auto row_num: std::views::iota(0uz, Buf.height()))
 	{
 		const auto& row = Buf[row_num];
 		std::ranges::transform(row, std::back_inserter(s), [](const auto& i) { return i.Char; });
@@ -176,7 +176,7 @@ void ScreenBuf::Write(int X, int Y, std::span<const FAR_CHAR_INFO> Text)
 	if (X + Text.size() > Buf.width())
 		Text = Text.first(Buf.width() - X);
 
-	for (const auto i: std::views::iota(size_t{}, Text.size()))
+	for (const auto i: std::views::iota(0uz, Text.size()))
 	{
 		Buf[Y][X + i] = Text[i];
 	}
@@ -586,7 +586,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 				const auto CharWidthEnabled = char_width::is_enabled();
 
 				auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
-				for (const auto I: std::views::iota(size_t{}, Buf.height()))
+				for (const auto I: std::views::iota(0uz, Buf.height()))
 				{
 					for (size_t J = 0, Width = Buf.width(); J < Width; ++J, ++PtrBuf, ++PtrShadow)
 					{

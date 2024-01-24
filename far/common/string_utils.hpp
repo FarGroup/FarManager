@@ -153,7 +153,7 @@ namespace string_utils::detail
 
 	inline void append_impl(std::wstring& Str, const std::initializer_list<append_arg>& Args)
 	{
-		const auto TotalSize = std::ranges::fold_left(Args, size_t{}, [](size_t const Value, const append_arg& Element)
+		const auto TotalSize = std::ranges::fold_left(Args, 0uz, [](size_t const Value, const append_arg& Element)
 		{
 			return Value + Element.size();
 		});
@@ -576,7 +576,7 @@ inline auto trim(std::wstring_view Str) noexcept
 
 void join(std::wstring& Str, std::wstring_view const Separator, std::ranges::range auto&& Range)
 {
-	const auto Size = std::ranges::fold_left(Range, size_t{}, [Separator](size_t const Value, const auto& Element)
+	const auto Size = std::ranges::fold_left(Range, 0uz, [Separator](size_t const Value, const auto& Element)
 	{
 		return Value + Separator.size() + string_utils::detail::append_arg(Element).size();
 	});
