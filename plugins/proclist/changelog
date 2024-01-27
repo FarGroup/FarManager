@@ -1,3 +1,7 @@
+drkns 2024-01-27 16:45:12+00:00 - build 210
+
+1. gh-782: Stack corruption in Process list plugin.
+
 drkns 2023-05-08 19:32:14+01:00 - build 209
 
 1. Enable consteval in fmt.

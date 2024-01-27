@@ -101,10 +101,10 @@ static std::wstring GetFileName(HANDLE Handle)
 		{
 			static DWORD WINAPI GetFileNameThread(PVOID Param)
 			{
-				DWORD iob[2];
-				BYTE info[256];
+				IO_STATUS_BLOCK iob;
+				FILE_BASIC_INFO info;
 				const auto FileBasicInformation = 4;
-				pNtQueryInformationFile(Param, iob, info, sizeof(info), FileBasicInformation);
+				pNtQueryInformationFile(Param, &iob, &info, sizeof(info), FileBasicInformation);
 				return 0;
 			}
 		};
