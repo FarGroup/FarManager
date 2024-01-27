@@ -2716,7 +2716,24 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		bool OpenedPlugin = false;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILE, m_CachedOpenPanelInfo);
 		string FileNameToDelete;
-		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin && !FileNameToDelete.empty()) GetPluginHandle()->delayed_delete(FileNameToDelete); };
+
+		SCOPE_EXIT
+		{
+			if (PluginMode && !OpenedPlugin && !FileNameToDelete.empty())
+			{
+				if (const auto PluginHandle = GetPluginHandle())
+				{
+					PluginHandle->delayed_delete(FileNameToDelete);
+				}
+				else
+				{
+					// gh-783: in some cases the panel could be gone before we get here
+					delayed_deleter Deleter(true);
+					Deleter.add(FileNameToDelete);
+				}
+			}
+		};
+
 		file_state SavedState;
 
 		string strTempDir;
