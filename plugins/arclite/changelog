@@ -1,3 +1,7 @@
+rohitab 2024-01-28 15:30:00+11:00 - build 340
+
+1. gh-781: Enable selection of compression methods for Zip archives.
+
 drkns 2023-09-21 19:20:10+01:00 - build 339
 
 1. Correction of 327.2.

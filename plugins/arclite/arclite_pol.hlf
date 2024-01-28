@@ -89,6 +89,8 @@ standardowy algorytm dla nowych archiwów 7z. Starsze wersje 7-Zip (4.65) nie po
 utworzonych za pomocą tego algorytmu.
  #PPMD# - Ten algorytm jest zalecany do plików tekstowych. Należy wziąć pod uwagę, że używa
 tej samej ilości pamięci do kompresji i do dekompresji.
+ #Deflate# - Standardowy algorytm dla archiwów zip.
+ #Deflate64# - algorytm ten ma dłuższy czas kompresji i potencjalnie nieco wyższy współczynnik kompresji niż Deflate.
 
  #Solidne archiwum# - Opcja ta może poprawić współczynnik kompresji, przechowując wszystkie pliki
 jako jeden strumień danych. Utrudnia to dostęp do poszczególnych plików, ponieważ podczas wyodrębniania
@@ -186,7 +188,7 @@ $ #Format przedrostków w linii poleceń#
  -pr = nazwa profilu (inne parametry zastępują ustawienia profilu)
  -t = typ archiwum (7z, zip, itp.)
  -l = poziom kompresji (0|1|3|5|7|9)
- -m = metoda kompresji (lzma|lzma2|ppmd)
+ -m = metoda kompresji (lzma|lzma2|ppmd|deflate|deflate64)
  -s = archiwum solidne
  -p = zakoduj archiwum za pomocą hasła
  -eh = zakoduj nagłówki archiwum (nazwy spakowanych plików)

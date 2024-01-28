@@ -198,10 +198,10 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
 // arc:u [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]]
 //   [-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] <archive> (<file1> <file2> ... | @<filelist>)
 //   <level> = 0|1|3|5|7|9
-//   <method> = lzma|lzma2|ppmd
+//   <method> = lzma|lzma2|ppmd|deflate|deflate64
 
 static const unsigned c_levels[] = { 0, 1, 3, 5, 7, 9 };
-static const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd" };
+static const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd", L"deflate", L"deflate64" };
 
 UpdateCommand parse_update_command(const CommandArgs& ca) {
   bool create = ca.cmd == cmdCreate;
