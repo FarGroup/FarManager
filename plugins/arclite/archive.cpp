@@ -12,6 +12,8 @@ const wchar_t* c_method_copy   = L"Copy";
 const wchar_t* c_method_lzma   = L"LZMA";
 const wchar_t* c_method_lzma2  = L"LZMA2";
 const wchar_t* c_method_ppmd   = L"PPMD";
+const wchar_t* c_method_deflate = L"Deflate";
+const wchar_t* c_method_deflate64 = L"Deflate64";
 
 #define DEFINE_ARC_ID(name, v) \
 static constexpr unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" v "\x00\x00"; \

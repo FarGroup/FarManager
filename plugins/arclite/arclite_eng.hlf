@@ -86,6 +86,8 @@ Compression will stop with "out of memory" error in this case.
 Older versions of 7-Zip (4.65) cannot open archives created using this algorithm.
 	#PPMD# - this algorithm is recommended for use with text files. Keep in mind that
 it uses equal amounts of memory for compression and decompression.
+	#Deflate# - standard algorithm for zip archives.
+	#Deflate64# - this algorithm has a longer compression time, and potentially a slightly higher compression ratio than Deflate.
 
 	#Solid archive# - This option can improve compression ratio by storing all files as one data stream.
 It also makes more difficult to access individual files because when extracting single file
@@ -181,7 +183,7 @@ $ #Prefix command line format#
 	-pr = profile name (other parameters overwrite profile settings)
 	-t = archive type (7z, zip, etc.)
 	-l = compression level (0|1|3|5|7|9)
-	-m = compression method (lzma|lzma2|ppmd)
+	-m = compression method (lzma|lzma2|ppmd|deflate|deflate64)
 	-s = solid archive
 	-p = encrypt archive with password
 	-eh = encrypt archive header (file names)

@@ -811,7 +811,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     static const ExternalCodec defopts { L"", 1,9,0, 1,3,5,7,9, false };
 
     std::wstring method;
-    if (options.arc_type == c_7z)
+    if (options.arc_type == c_7z || options.arc_type == c_zip)
       method = options.method;
     else if (ArcAPI::formats().count(options.arc_type))
       method = ArcAPI::formats().at(options.arc_type).name;
@@ -946,6 +946,13 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
           names.push_back(L"he"); values.push_back(options.encrypt_header == triTrue);
         }
       }
+    }
+    else if (options.arc_type == c_zip) {
+      if (!ignore_method) {
+        names.push_back(L"0"); values.push_back(method);
+        ++n_01;
+      }
+      names.push_back(L"x"); values.push_back(level);
     }
     else if (options.arc_type != c_bzip2 || level != 0) {
       names.push_back(L"x"); values.push_back(level);

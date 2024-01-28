@@ -31,6 +31,8 @@ extern const wchar_t* c_method_copy;   // pseudo method
 extern const wchar_t* c_method_lzma;   // standard 7z methods
 extern const wchar_t* c_method_lzma2;  //
 extern const wchar_t* c_method_ppmd;   //
+extern const wchar_t* c_method_deflate;
+extern const wchar_t* c_method_deflate64;
 
 extern const UInt64 c_min_volume_size;
 

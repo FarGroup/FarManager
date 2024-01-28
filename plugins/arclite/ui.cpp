@@ -591,7 +591,7 @@ bool operator==(const ProfileOptions& o1, const ProfileOptions& o2) {
   bool is_zip = o1.arc_type == c_zip;
   bool is_compressed = o1.level != 0;
 
-  if (is_7z) {
+  if (is_7z || is_zip) {
     if (is_compressed) {
       if (o1.method != o2.method)
         return false;
@@ -670,6 +670,8 @@ const CompressionMethod c_methods[] = {
   { MSG_COMPRESSION_METHOD_LZMA, c_method_lzma },
   { MSG_COMPRESSION_METHOD_LZMA2, c_method_lzma2 },
   { MSG_COMPRESSION_METHOD_PPMD, c_method_ppmd },
+  { MSG_COMPRESSION_METHOD_DEFLATE, c_method_deflate },
+  { MSG_COMPRESSION_METHOD_DEFLATE64, c_method_deflate64 },
 };
 
 static bool is_SWFu(const std::wstring& fname)
@@ -853,7 +855,7 @@ private:
     update_level_list();
     bool is_compressed = get_list_pos(level_ctrl_id) != 0;
     for (int i = method_ctrl_id - 1; i <= method_ctrl_id; i++) {
-      enable(i, is_7z & is_compressed);
+      enable(i, (is_7z || is_zip) && is_compressed);
     }
     enable(solid_ctrl_id, is_7z && is_compressed);
     enable(encrypt_ctrl_id, is_7z || is_zip);
@@ -937,7 +939,7 @@ private:
     bool is_compressed = options.level != 0;
 
     if (is_compressed) {
-      if (is_7z) {
+      if (is_7z || is_zip) {
         options.method.clear();
         unsigned method_sel = get_list_pos(method_ctrl_id);
         const auto& codecs = ArcAPI::codecs();
@@ -1111,8 +1113,18 @@ private:
     }
     else if (new_arc && msg == DN_BTNCLICK && !main_formats.empty() && param1 >= main_formats_ctrl_id && param1 < main_formats_ctrl_id + static_cast<int>(main_formats.size())) {
       if (param2) {
+        ArcType prev_arc_type = arc_type;
         arc_type = main_formats[param1 - main_formats_ctrl_id];
         arc_levels('g');
+        if (arc_type != prev_arc_type) {
+          unsigned method_sel = get_list_pos(method_ctrl_id);
+          if (method_sel == 3 && arc_type == c_7z) {
+            set_list_pos(method_ctrl_id, 0); // Deflate -> LZMA
+          }
+          else if (method_sel == 0 && arc_type == c_zip) {
+            set_list_pos(method_ctrl_id, 3); // LZMA -> Deflate
+          }
+        }
         set_control_state();
       }
     }

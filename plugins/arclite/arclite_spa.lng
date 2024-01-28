@@ -83,6 +83,8 @@
 "LZMA"
 "LZMA2"
 "PPMD"
+"Deflate"
+"Deflate64"
 
 // Delete files
 "Quiere borrar los archivos seleccionados?"
