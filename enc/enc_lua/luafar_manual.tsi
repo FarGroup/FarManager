@@ -9280,6 +9280,33 @@ mtime=3484723622
 </article>
 </node>
 <node>
+id=565
+lv=3
+dt=Text
+nm=win.ReplaceFile
+ctime=3915668129
+mtime=3915668880
+<article>
+#_result = win.ReplaceFile (replaced, replacement [, backup] [, flags])
+#_
+#_**Parameters:**
+#_  replaced:     string
+#_  replacement:  string
+#_  backup:       string (optional)
+#_  flags:        integer (optional)
+#_                  0x01: REPLACEFILE_WRITE_THROUGH
+#_                  0x02: REPLACEFILE_IGNORE_MERGE_ERRORS
+#_                  0x04: REPLACEFILE_IGNORE_ACL_ERRORS
+#_
+#_**Returns:**
+#_  result:  true (or: nil, errormessage)
+#_
+#_**Windows API used:**
+#_  ReplaceFileW
+#_
+</article>
+</node>
+<node>
 id=429
 lv=3
 dt=Text

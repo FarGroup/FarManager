@@ -944,6 +944,20 @@ static int win_SetFileTimes(lua_State *L)
 	return 1;
 }
 
+static int win_ReplaceFile(lua_State *L)
+{
+	const wchar_t* Replaced = check_utf8_string(L, 1, NULL);
+	const wchar_t* Replacement = check_utf8_string(L, 2, NULL);
+	const wchar_t* Backup = opt_utf8_string(L, 3, NULL);
+	DWORD Flags = (DWORD)luaL_optinteger(L, 4, 0);
+
+	if (!ReplaceFileW(Replaced, Replacement, Backup, Flags, NULL, NULL))
+		return SysErrorReturn(L);
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
 const luaL_Reg win_funcs[] =
 {
 	{"CompareString",       win_CompareString},
@@ -972,6 +986,7 @@ const luaL_Reg win_funcs[] =
 	{"MoveFile",            win_MoveFile},
 	{"RemoveDir",           win_RemoveDir},
 	{"RenameFile",          win_MoveFile}, // alias
+	{"ReplaceFile",         win_ReplaceFile},
 	{"SetEnv",              win_SetEnv},
 	{"SetFileTimes",        win_SetFileTimes},
 	{"SetRegKey",           win_SetRegKey},

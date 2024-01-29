@@ -1,3 +1,7 @@
+shmuel 2024-01-29 05:51:18+02:00 - build 803
+
+1. LuaFAR: add function win.ReplaceFile.
+
 shmuel 2024-01-23 15:09:07+02:00 - build 802
 
 1. Regular macros: make the field 'action' optional.
