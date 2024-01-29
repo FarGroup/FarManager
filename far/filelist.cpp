@@ -5846,7 +5846,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	const auto
 		StaticSize      = sizeof(PluginPanelItem),
 		FilenameSize    = StringSizeInBytes(fi.FileName),
-		AltNameSize     = StringSizeInBytes(fi.AlternateFileName()),
+		AltNameSize     = fi.HasAlternateFileName() ? StringSizeInBytes(fi.AlternateFileName()) : 0,
 		ColumnsSize     = fi.CustomColumns.size() * sizeof(wchar_t*),
 		ColumnsDataSize = std::ranges::fold_left(fi.CustomColumns, 0uz, [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }),
 		DescriptionSize = fi.DizText? StringSizeInBytes(fi.DizText) : 0,
@@ -5904,9 +5904,12 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		return size;
 	gpi->Item->FileName = CopyToBuffer(FilenameOffset, fi.FileName);
 
-	if (not_enough_for(AltNameOffset, AltNameSize))
-		return size;
-	gpi->Item->AlternateFileName = CopyToBuffer(AltNameOffset, fi.AlternateFileName());
+	if (AltNameSize)
+	{
+		if (not_enough_for(AltNameOffset, AltNameSize))
+			return size;
+		gpi->Item->AlternateFileName = CopyToBuffer(AltNameOffset, fi.AlternateFileName());
+	}
 
 	if (ColumnsSize)
 	{

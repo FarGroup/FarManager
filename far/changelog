@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+rohitab 2024-01-29 14:21:57+11:00 - build 6262
+
+1. gh-670: AlternateFileName returns different values with different Lua APIs.
+
+--------------------------------------------------------------------------------
 drkns 2024-01-27 16:45:12+00:00 - build 6261
 
 1. gh-783: Crash when opening a plugin via an association from a plugin panel.

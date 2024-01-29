@@ -209,7 +209,8 @@ static PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, s
   pi.file_size = panel_item->FileSize;
   pi.pack_size = panel_item->AllocationSize;
   pi.file_name = panel_item->FileName;
-  pi.alt_file_name = panel_item->AlternateFileName;
+  if (panel_item->AlternateFileName)
+    pi.alt_file_name = panel_item->AlternateFileName;
   pi.user_data = panel_item->UserData.Data;
   return pi;
 }

@@ -1,3 +1,7 @@
+rohitab 2024-01-29 14:20:54+11:00 - build 341
+
+1. Check AlternateFileName due to changes in Far for gh-670.
+
 rohitab 2024-01-28 15:30:00+11:00 - build 340
 
 1. gh-781: Enable selection of compression methods for Zip archives.
