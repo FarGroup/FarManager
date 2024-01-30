@@ -768,7 +768,10 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.PackSize = extract_integer<DWORD, 0>(PanelItem.AllocationSize);
 	PanelItemA.PackSizeHigh = extract_integer<DWORD, 1>(PanelItem.AllocationSize);
 	(void)encoding::oem::get_bytes(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName);
-	(void)encoding::oem::get_bytes(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
+	if (PanelItem.AlternateFileName)
+		(void)encoding::oem::get_bytes(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
+	else
+		*PanelItemA.FindData.cAlternateFileName = {};
 }
 
 static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, size_t ItemsNumber)
