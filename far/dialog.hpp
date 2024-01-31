@@ -252,7 +252,7 @@ public:
 	};
 
 protected:
-	void InitDialogObjects(size_t ID = static_cast<size_t>(-1));
+	void InitDialogObjects(size_t ID = static_cast<size_t>(-1), bool ReInit = false);
 
 private:
 	friend class History;

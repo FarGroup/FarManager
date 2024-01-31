@@ -79,6 +79,8 @@ public:
 	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
 	~DlgEdit() override;
 
+	void Init();
+
 	bool ProcessKey(const Manager::Key& Key) override;
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 

@@ -637,7 +637,7 @@ std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId) const
   TODO: Необходимо применить ProcessRadioButton для исправления
         кривых рук некоторых плагинописателей (а надо?)
 */
-void Dialog::InitDialogObjects(size_t ID)
+void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 {
 	size_t InitItemCount;
 	bool AllElements = false;
@@ -801,6 +801,10 @@ void Dialog::InitDialogObjects(size_t ID)
 					Item.ListPtr = VMenu::create({}, {}, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
 					Item.ListPtr->SetVDialogItemID(I);
 				}
+			}
+			else if (ReInit)
+			{
+				static_cast<DlgEdit*>(Item.ObjPtr)->Init();
 			}
 
 			const auto DialogEdit = static_cast<DlgEdit*>(Item.ObjPtr);
@@ -5770,7 +5774,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				CurItem.ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem.Flags&DIF_DISABLE)!=0);
 
 			// еще разок, т.к. данные могли быть изменены
-			InitDialogObjects(Param1);
+			InitDialogObjects(Param1, true);
 			ShowConsoleTitle();
 			if (DialogMode.Check(DMODE_SHOW))
 			{
