@@ -38,5 +38,8 @@
       <AdditionalIncludeDirectories>..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Remove="custom.ini" />
+  </ItemGroup>
   <Import Project="$(ProjectDir)..\..\_build\vc\config\common.targets" />
 </Project>

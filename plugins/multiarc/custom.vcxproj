@@ -42,6 +42,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="$(ProjectName).ini" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="libpcre\pcre.vcxproj">
       <Project>{50FCE411-DA6E-432A-8224-265D52D09058}</Project>
     </ProjectReference>
