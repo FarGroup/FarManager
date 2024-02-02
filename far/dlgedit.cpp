@@ -120,6 +120,11 @@ DlgEdit::~DlgEdit()
 void DlgEdit::SetHistory(string_view const Name)
 {
 	iHistory = std::make_unique<History>(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory, false);
+
+	if (lineEdit)
+	{
+		lineEdit.get()->pHistory = iHistory.get();
+	}
 }
 
 bool DlgEdit::ProcessKey(const Manager::Key& Key)
