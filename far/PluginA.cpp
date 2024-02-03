@@ -1860,45 +1860,7 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 	return cpp_try(
 	[&]
 	{
-		if (!Path)
-			return FALSE;
-		/* $ 06.12.2000 IS
-		! Теперь функция работает с обоими видами слешей, также происходит
-		изменение уже существующего конечного слеша на такой, который
-		встречается чаще.
-		*/
-		int Slash = 0, BackSlash = 0;
-
-		auto end = Path;
-
-		while (*end)
-		{
-			Slash += (*end == '\\');
-			BackSlash += (*end == '/');
-			end++;
-		}
-
-		const auto Length = end - Path;
-		const auto c = (Slash < BackSlash) ? '/' : '\\';
-
-		if (!Length)
-		{
-			*end = c;
-			end[1] = 0;
-		}
-		else
-		{
-			end--;
-
-			if (!IsSlashA(*end))
-			{
-				end[1] = c;
-				end[2] = 0;
-			}
-			else
-				*end = c;
-		}
-		return TRUE;
+		return legacy::AddEndSlash(Path)? TRUE : FALSE;
 	},
 	FALSE);
 }

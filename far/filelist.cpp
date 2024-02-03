@@ -1513,7 +1513,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								inplace::upper(strFullName);
 
 							if (!strFullName.empty())
-								AddEndSlash(strFullName,0);
+								AddEndSlash(strFullName);
 
 							if (Global->Opt->PanelCtrlFRule)
 							{

@@ -288,79 +288,60 @@ std::pair<string_view, string_view> name_ext(string_view const Path)
 	return { Path.substr(0, NameSize), Path.substr(NameSize) };
 }
 
-
-static size_t SlashType(const wchar_t* Begin, const wchar_t* End, wchar_t &TypeSlash)
-{
-	size_t Slash = 0, BackSlash = 0;
-
-	auto Iterator = Begin;
-	for (; End? Iterator != End : *Iterator; ++Iterator)
-	{
-		const auto c = *Iterator;
-		BackSlash += (c == L'\\');
-		Slash += (c == L'/');
-	}
-
-	TypeSlash = Slash > BackSlash? L'/' : L'\\';
-	return Iterator - Begin;
-}
-
-// Функция работает с обоими видами слешей, также происходит
-// изменение уже существующего конечного слеша на такой, который
-// указан, или встречается чаще (при равенстве '\').
-//
-bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
+template<typename char_type>
+bool legacy::AddEndSlash(char_type* const Path)
 {
 	if (!Path)
 		return false;
 
-	auto len = path::is_separator(TypeSlash)? std::wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
+	auto LastSeenSeparator = path::separator;
 
-	if (len && path::is_separator(Path[len-1]))
-		--len;
+	auto end = Path;
 
-	Path[len++] = TypeSlash;
-	Path[len] = {};
+	for (; *end; ++end)
+	{
+		if (path::is_separator(*end))
+			LastSeenSeparator = *end;
+	}
+
+	if (end != Path && path::is_separator(*(end - 1)))
+		return true;
+
+	end[0] = LastSeenSeparator;
+	end[1] = {};
 	return true;
 }
 
-bool AddEndSlash(wchar_t *Path)
+template bool legacy::AddEndSlash<wchar_t>(wchar_t* Path);
+#ifndef NO_WRAPPER
+template bool legacy::AddEndSlash<char>(char* Path);
+#endif
+
+void AddEndSlash(string& Path)
 {
-	return AddEndSlash(Path, {});
+	if (!Path.empty() && path::is_separator(Path.back()))
+		return;
+
+	auto LastSeenSeparator = path::separator;
+
+	if (const auto Pos = Path.find_last_of(path::separators); Pos != Path.npos)
+		LastSeenSeparator = Path[Pos];
+
+	Path += LastSeenSeparator;
 }
 
 string AddEndSlash(string_view const Path)
 {
-	string Result(Path);
+	string Result;
+	if (!Path.empty() && path::is_separator(Path.back()))
+		return Result = Path;
+
+	Result.reserve(Path.size() + 1);
 	AddEndSlash(Result);
 	return Result;
 }
 
-void AddEndSlash(string &strPath, wchar_t TypeSlash)
-{
-	if (!path::is_separator(TypeSlash))
-		SlashType(strPath.data(), strPath.data() + strPath.size(), TypeSlash);
-
-	wchar_t LastSlash{};
-
-	if (!strPath.empty() && path::is_separator(strPath.back()))
-		LastSlash = strPath.back();
-
-	if (TypeSlash != LastSlash)
-	{
-		if (LastSlash)
-			strPath.back() = TypeSlash;
-		else
-			strPath.push_back(TypeSlash);
-	}
-}
-
-void AddEndSlash(string &strPath)
-{
-	AddEndSlash(strPath, {});
-}
-
-void DeleteEndSlash(wchar_t *Path)
+void legacy::DeleteEndSlash(wchar_t* const Path)
 {
 	const auto REnd = std::make_reverse_iterator(Path);
 	Path[REnd - std::find_if_not(REnd - std::wcslen(Path), REnd, path::is_separator)] = 0;
@@ -915,7 +896,7 @@ TEST_CASE("path.AddEndSlash")
 		{ L"a"sv,          L"a\\"sv },
 		{ L"a\\"sv,        L"a\\"sv },
 		{ L"a\\\\"sv,      L"a\\\\"sv },
-		{ L"a\\b/"sv,      L"a\\b\\"sv },
+		{ L"a\\b/"sv,      L"a\\b/"sv },
 		{ L"a\\b/c/d"sv,   L"a\\b/c/d/"sv },
 	};
 
@@ -928,7 +909,7 @@ TEST_CASE("path.AddEndSlash")
 		wchar_t Buffer[64];
 		REQUIRE(i.Input.size() < std::size(Buffer));
 		*copy_string(i.Input, Buffer) = {};
-		AddEndSlash(Buffer);
+		legacy::AddEndSlash(Buffer);
 		REQUIRE(Buffer == i.Result);
 	}
 }
@@ -960,7 +941,7 @@ TEST_CASE("path.DeleteEndSlash")
 		wchar_t Buffer[64];
 		REQUIRE(i.Input.size() < std::size(Buffer));
 		*copy_string(i.Input, Buffer) = {};
-		DeleteEndSlash(Buffer);
+		legacy::DeleteEndSlash(Buffer);
 		REQUIRE(Buffer == i.Result);
 	}
 }

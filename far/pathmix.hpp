@@ -178,16 +178,22 @@ string_view PointToFolderNameIfFolder(string_view Path);
 [[nodiscard]]
 std::pair<string_view, string_view> name_ext(string_view Path);
 
-void AddEndSlash(string &strPath, wchar_t TypeSlash);
-void AddEndSlash(string &strPath);
-bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
-bool AddEndSlash(wchar_t *Path);
-[[nodiscard]]
-string AddEndSlash(string_view Path);
-void DeleteEndSlash(wchar_t* Path);
+namespace legacy
+{
+	template<typename char_type>
+	bool AddEndSlash(char_type* Path);
+
+	void DeleteEndSlash(wchar_t* Path);
+}
+
+void AddEndSlash(string& Path);
+[[nodiscard]] string AddEndSlash(string_view Path);
+bool AddEndSlash(wchar_t* Path) = delete;
+
 void DeleteEndSlash(string& Path);
-[[nodiscard]]
-string_view DeleteEndSlash(string_view Path);
+[[nodiscard]] string_view DeleteEndSlash(string_view Path);
+void DeleteEndSlash(wchar_t* Path) = delete;
+
 inline void ReplaceSlashToBackslash(string &strStr) { std::ranges::replace(strStr, L'/', L'\\'); }
 inline void ReplaceBackslashToSlash(string &strStr) { std::ranges::replace(strStr, L'\\', L'/'); }
 

@@ -2994,7 +2994,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
 	return cpp_try(
 	[&]
 	{
-		return AddEndSlash(Path);
+		return legacy::AddEndSlash(Path);
 	},
 	false);
 }

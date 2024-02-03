@@ -15,8 +15,7 @@
 </div>
 
 <div class=shortdescr>
-The <dfn>FSF.AddEndSlash</dfn> function is used to add a trailing backslash or slash to a path. The
-symbol that will be added depends on those used in the path.
+The <dfn>FSF.AddEndSlash</dfn> function appends a trailing backslash (<dfn>'\'</dfn>) or a slash (<dfn>'/'</dfn>) to a path if it is not there already.
 </div>
 
 <pre class=syntax>
@@ -30,7 +29,6 @@ int WINAPI AddEndSlash(
   <div class=dfn>Path</div>
   <div class=dfndescr>
 	A string containing the path to which you want to add a trailing slash or backslash.<p>
-	Note that Path must have enough space for an additional character.
   </div>
 </div>
 
@@ -42,12 +40,8 @@ On success return value is TRUE, otherwise return value is FALSE.
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>The string must be large enough to contain an additional character ('\' or '/').
-<li>This function works with both types of slashes - normal and backslashes.
-<li>If a string already has a trailing slash it will be converted to the slash
-    of such type which is more common in the <em>Path</em> string.
-<li>No slash will be added at the end of the string if the string already
-	contains a trailing slash.
+<li>The string must be large enough to contain an additional character.
+<li>If the path already contains some backslashes or slashes, the new one will be the same as the last one, otherwise <dfn>'\'</dfn>.
 </ol>
 </div>
 

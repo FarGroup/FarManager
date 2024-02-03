@@ -2843,7 +2843,7 @@ bool FindFiles::FindFilesProcess()
 
 							if (pi.Item.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 							{
-								DeleteEndSlash(const_cast<wchar_t*>(pi.Item.FileName));
+								legacy::DeleteEndSlash(const_cast<wchar_t*>(pi.Item.FileName));
 							}
 							PanelItems.emplace_back(pi.Item);
 						}
