@@ -1677,21 +1677,16 @@ namespace os::fs
 
 	bool SetProcessRealCurrentDirectory(const string_view Directory)
 	{
-		if constexpr (features::win10_curdir)
-		{
-			/*
-			The final character before the null character must be a backslash (''). If you do not specify the backslash, it will be added for you
-			https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
-			It seems that "it will be added for you" doesn't work for funny names with trailing dots or spaces, so we add it ourselves.
-			 */
-			string DirectoryWithSlash(Directory);
-			AddEndSlash(DirectoryWithSlash);
-			return ::SetCurrentDirectory(DirectoryWithSlash.c_str()) != FALSE;
-		}
-		else
-		{
+		// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
+		// The final character before the null character must be a backslash ('\').
+		// If you do not specify the backslash, it will be added for you
+
+		// It seems that "it will be added for you" doesn't work for funny names with trailing dots or spaces, so we add it ourselves.
+
+		if (!Directory.empty() && path::is_separator(Directory.back()))
 			return ::SetCurrentDirectory(null_terminated(Directory).c_str()) != FALSE;
-		}
+
+		return ::SetCurrentDirectory(AddEndSlash(Directory).c_str()) != FALSE;
 	}
 
 	void InitCurrentDirectory()

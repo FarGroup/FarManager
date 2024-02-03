@@ -75,9 +75,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static string short_name_if_too_long(const string& LongName)
+static string short_name_if_too_long(string_view const LongName, size_t const MaxSize)
 {
-	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
+	return LongName.size() >= MaxSize? ConvertNameToShort(LongName) : string(LongName);
+}
+
+static auto short_file_name_if_too_long(const string& LongName)
+{
+	return short_name_if_too_long(LongName, MAX_PATH - 1);
+}
+
+static auto short_directory_name_if_too_long(const string& LongName)
+{
+	assert(!LongName.empty());
+
+	const auto HasEndSlash = path::is_separator(LongName.back());
+
+	auto Dir = short_name_if_too_long(LongName, MAX_PATH - (HasEndSlash? 1 : 2));
+
+	// For funny names that end with spaces
+	// We do this for SetCurrentDirectory already
+	// Here it is for paths that go into CreateProcess & ShellExecuteEx
+	if (!HasEndSlash)
+		AddEndSlash(Dir);
+
+	return Dir;
 }
 
 static bool FindObject(string_view const Command, string& strDest)
@@ -756,7 +778,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 {
 	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
 	// SearchPath looks there as well and if it's set to something else we could get unexpected results.
-	const auto CurrentDirectory = short_name_if_too_long(Info.Directory.empty()? os::fs::get_current_directory() : Info.Directory);
+	const auto CurrentDirectory = short_directory_name_if_too_long(Info.Directory.empty()? os::fs::get_current_directory() : Info.Directory);
 	os::fs::process_current_directory_guard const Guard(CurrentDirectory);
 
 
@@ -772,7 +794,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 	if (Info.SourceMode != execute_info::source_mode::unknown)
 	{
 		FullCommand = Info.Command;
-		Command = short_name_if_too_long(Info.Command);
+		Command = short_file_name_if_too_long(Info.Command);
 	}
 	else
 	{
