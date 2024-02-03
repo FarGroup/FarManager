@@ -289,7 +289,7 @@ std::pair<string_view, string_view> name_ext(string_view const Path)
 }
 
 template<typename char_type>
-bool legacy::AddEndSlash(char_type* const Path)
+static bool LegacyAddEndSlash(char_type* const Path)
 {
 	if (!Path)
 		return false;
@@ -312,9 +312,16 @@ bool legacy::AddEndSlash(char_type* const Path)
 	return true;
 }
 
-template bool legacy::AddEndSlash<wchar_t>(wchar_t* Path);
+bool legacy::AddEndSlash(wchar_t* const Path)
+{
+	return LegacyAddEndSlash(Path);
+}
+
 #ifndef NO_WRAPPER
-template bool legacy::AddEndSlash<char>(char* Path);
+bool legacy::AddEndSlash(char* const Path)
+{
+	return LegacyAddEndSlash(Path);
+}
 #endif
 
 void AddEndSlash(string& Path)

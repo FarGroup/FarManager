@@ -180,8 +180,11 @@ std::pair<string_view, string_view> name_ext(string_view Path);
 
 namespace legacy
 {
-	template<typename char_type>
-	bool AddEndSlash(char_type* Path);
+	bool AddEndSlash(wchar_t* Path);
+
+#ifndef NO_WRAPPER
+	bool AddEndSlash(char* Path);
+#endif
 
 	void DeleteEndSlash(wchar_t* Path);
 }
