@@ -34,5 +34,5 @@ ipch
 __*.cmd
 
 #logs
-/plugins/*/*.log
+/plugins/**/*.log
 logs
