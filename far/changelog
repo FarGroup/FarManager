@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+rohitab 2024-02-04 15:53:24+11:00 - build 6268
+
+1. gh-790: DI_EDIT changes text after DM_SETDLGITEMSHORT.
+
+2. DM_SETMAXTEXTLENGTH
+   - Current text of edit control is preserved.
+   - Correct value of MaxLength is returned in DM_GETDLGITEM/DM_GETDLGITEMSHORT.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-03 16:21:32+00:00 - build 6267
 
 1. Improve handling of paths with trailing spaces.
