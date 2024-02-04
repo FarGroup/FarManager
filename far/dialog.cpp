@@ -5729,9 +5729,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				int MaxLen = static_cast<DlgEdit*>(CurItem.ObjPtr)->GetMaxLength();
 				// BugZ#628 - Неправильная длина редактируемого текста.
-				std::bit_cast<DlgEdit*>(CurItem.ObjPtr)->SetMaxLength(static_cast<int>(std::bit_cast<intptr_t>(Param2)));
-				//if (DialogMode.Check(DMODE_INITOBJECTS)) //???
-				InitDialogObjects(Param1); // переинициализируем элементы диалога
+				CurItem.MaxLength = static_cast<int>(std::bit_cast<intptr_t>(Param2));
+				std::bit_cast<DlgEdit*>(CurItem.ObjPtr)->SetMaxLength(CurItem.MaxLength);
 				ShowConsoleTitle();
 				return MaxLen;
 			}
@@ -5772,6 +5771,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem.ListPtr)
 				CurItem.ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem.Flags&DIF_DISABLE)!=0);
+
+			if (Msg == DM_SETDLGITEMSHORT && IsEdit(Type) && CurItem.ObjPtr)
+				CurItem.strData = static_cast<DlgEdit*>(CurItem.ObjPtr)->GetString();
 
 			// еще разок, т.к. данные могли быть изменены
 			InitDialogObjects(Param1, true);
