@@ -344,6 +344,7 @@ string AddEndSlash(string_view const Path)
 		return Result = Path;
 
 	Result.reserve(Path.size() + 1);
+	Result = Path;
 	AddEndSlash(Result);
 	return Result;
 }
@@ -912,6 +913,7 @@ TEST_CASE("path.AddEndSlash")
 		string Str(i.Input);
 		AddEndSlash(Str);
 		REQUIRE(Str == i.Result);
+		REQUIRE(AddEndSlash(i.Input) == i.Result);
 
 		wchar_t Buffer[64];
 		REQUIRE(i.Input.size() < std::size(Buffer));
