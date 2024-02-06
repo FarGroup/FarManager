@@ -1,3 +1,7 @@
+shmuel 2024-02-06 09:34:58+02:00 - build 805
+
+1. LuaFAR: refactoring.
+
 rohitab 2024-02-03 13:39:53+11:00 - build 804
 
 1. LuaFAR: add MOUSE_HWHEELED flag.

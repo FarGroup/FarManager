@@ -2,7 +2,9 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#define MAX53 0x1FFFFFFFFFFFFFLL
+#define MAX52 (1LL << 52)
+#define FIT52(v) ((v >= 0 && v < MAX52) || (v < 0 && v >= -MAX52))
+
 typedef __int64 INT64;
 typedef unsigned __int64 UINT64;
 static int f_new(lua_State *L); /* forward declaration */
@@ -19,7 +21,7 @@ int bit64_pushuserdata(lua_State *L, INT64 v)
 
 int bit64_push(lua_State *L, INT64 v)
 {
-	if((v >= 0 && v <= MAX53) || (v < 0 && v >= -MAX53))
+	if (FIT52(v))
 		lua_pushnumber(L, (double)v);
 	else
 		bit64_pushuserdata(L, v);
@@ -59,7 +61,7 @@ INT64 check64(lua_State *L, int pos, int* success)
 	if(tp == LUA_TNUMBER)
 	{
 		double dd = lua_tonumber(L, pos);
-		if ((dd>=0 && dd<=0x7fffffffffffffffULL) || (dd<0 && -dd<=0x8000000000000000ULL))
+		if (FIT52(dd))
 			return (INT64)dd;
 	}
 	else
