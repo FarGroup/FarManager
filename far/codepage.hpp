@@ -1,0 +1,83 @@
+﻿#ifndef CODEPAGE_HPP_7FE1DB9D_9D26_4A81_8F5B_8EFFF3A7B552
+#define CODEPAGE_HPP_7FE1DB9D_9D26_4A81_8F5B_8EFFF3A7B552
+#pragma once
+
+/*
+codepage.hpp
+*/
+/*
+Copyright © 2024 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+// Internal:
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
+namespace encoding::codepage
+{
+	namespace detail
+	{
+		struct utf8 { [[nodiscard]] static uintptr_t id(); };
+		struct ansi { [[nodiscard]] static uintptr_t id(); };
+		struct oem  { [[nodiscard]] static uintptr_t id(); };
+	}
+
+	[[nodiscard]] inline uintptr_t utf8() { return detail::utf8::id(); }
+	[[nodiscard]] inline uintptr_t ansi() { return detail::ansi::id(); }
+	[[nodiscard]] inline uintptr_t oem()  { return detail::oem::id(); }
+
+	[[nodiscard]] uintptr_t normalise(uintptr_t Codepage);
+}
+
+// TODO: namespace
+
+struct cp_info
+{
+	string Name;
+	unsigned char MaxCharSize;
+};
+
+using cp_map = std::unordered_map<unsigned, cp_info>;
+
+[[nodiscard]] const cp_map& InstalledCodepages();
+
+[[nodiscard]] cp_info const* GetCodePageInfo(uintptr_t cp);
+[[nodiscard]] bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = static_cast<size_t>(-1));
+
+[[nodiscard]] bool IsVirtualCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUnicodeCodePage(uintptr_t cp);
+[[nodiscard]] bool IsStandardCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUnicodeOrUtfCodePage(uintptr_t cp);
+
+[[nodiscard]] string ShortReadableCodepageName(uintptr_t cp);
+
+#endif // CODEPAGE_HPP_7FE1DB9D_9D26_4A81_8F5B_8EFFF3A7B552

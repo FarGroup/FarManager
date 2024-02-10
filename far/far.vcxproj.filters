@@ -50,6 +50,9 @@
     <ClCompile Include="cmdline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="codepage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="codepage_selection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -524,6 +527,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cmdline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="codepage.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="codepage_selection.hpp">

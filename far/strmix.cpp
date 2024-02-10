@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+#include "codepage.hpp"
 
 // Platform:
 

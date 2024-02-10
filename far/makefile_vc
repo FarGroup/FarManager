@@ -68,6 +68,7 @@ LINK_OBJS = \
 	"$(INTDIR)\char_width.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
+	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\codepage_selection.obj" \
 	"$(INTDIR)\color_picker.obj" \
 	"$(INTDIR)\color_picker_256.obj" \

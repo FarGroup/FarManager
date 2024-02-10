@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "file_io.hpp"
 #include "log.hpp"
 #include "stddlg.hpp"
+#include "encoding.hpp"
 
 // Platform:
 #include "platform.hpp"

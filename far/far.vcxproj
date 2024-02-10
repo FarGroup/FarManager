@@ -65,6 +65,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="char_width.cpp" />
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
+    <ClCompile Include="codepage.cpp" />
     <ClCompile Include="codepage_selection.cpp" />
     <ClCompile Include="color_picker.cpp" />
     <ClCompile Include="color_picker_256.cpp" />
@@ -243,6 +244,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="char_width.hpp" />
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />
+    <ClInclude Include="codepage.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
     <ClInclude Include="color_picker.hpp" />
     <ClInclude Include="color_picker_common.hpp" />

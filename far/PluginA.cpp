@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "exception_handler.hpp"
 #include "log.hpp"
+#include "codepage.hpp"
 
 // Platform:
 #include "platform.hpp"

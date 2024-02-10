@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+#include "codepage.hpp"
 
 // Platform:
 
@@ -5705,7 +5706,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 				else
 				{
-					if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp) || !SetCodePage(GetCodePage(), cp))
+					if (cp == CP_DEFAULT || !IsCodePageSupported(cp) || !SetCodePage(GetCodePage(), cp))
 						return false;
 				}
 				Show();

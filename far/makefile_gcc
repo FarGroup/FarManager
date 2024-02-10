@@ -29,6 +29,7 @@ SRCS = \
 	char_width.cpp \
 	clipboard.cpp \
 	cmdline.cpp \
+	codepage.cpp \
 	codepage_selection.cpp \
 	color_picker.cpp \
 	color_picker_256.cpp \

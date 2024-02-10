@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "flink.hpp"
 #include "cddrv.hpp"
+#include "codepage.hpp"
 
 // Platform:
 #include "platform.hpp"

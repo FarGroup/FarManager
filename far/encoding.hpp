@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "codepage.hpp"
 
 // Platform:
 
@@ -64,22 +65,6 @@ namespace encoding
 		size_t IncompleteBytes{};
 	};
 
-	namespace codepage
-	{
-		namespace detail
-		{
-			struct utf8 { [[nodiscard]] static uintptr_t id(); };
-			struct ansi { [[nodiscard]] static uintptr_t id(); };
-			struct oem  { [[nodiscard]] static uintptr_t id(); };
-		}
-
-		[[nodiscard]] inline uintptr_t utf8() { return detail::utf8::id(); }
-		[[nodiscard]] inline uintptr_t ansi() { return detail::ansi::id(); }
-		[[nodiscard]] inline uintptr_t oem()  { return detail::oem::id(); }
-
-		[[nodiscard]] uintptr_t normalise(uintptr_t Codepage);
-	}
-
 	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, std::span<char> Buffer, diagnostics* Diagnostics = {});
 	void get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, diagnostics* Diagnostics = {});
 	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, diagnostics* Diagnostics = {});
@@ -105,8 +90,6 @@ namespace encoding
 
 	namespace detail
 	{
-		namespace cp = codepage;
-
 		template<typename T>
 		class codepage
 		{
@@ -232,15 +215,7 @@ namespace encoding
 	}
 }
 
-void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
-
-[[nodiscard]] bool IsVirtualCodePage(uintptr_t cp);
-[[nodiscard]] bool IsUnicodeCodePage(uintptr_t cp);
-[[nodiscard]] bool IsStandardCodePage(uintptr_t cp);
-[[nodiscard]] bool IsUnicodeOrUtfCodePage(uintptr_t cp);
-[[nodiscard]] bool IsNoFlagsCodepage(uintptr_t cp);
-
-[[nodiscard]] string ShortReadableCodepageName(uintptr_t cp);
+void swap_bytes(void const* Src, void* Dst, size_t SizeInBytes);
 
 //#############################################################################
 
@@ -322,15 +297,5 @@ private:
 	const char m_Cr;
 	const char m_Lf;
 };
-
-struct cp_info
-{
-	string Name;
-	unsigned char MaxCharSize;
-};
-
-using cp_map = std::unordered_map<unsigned, cp_info>;
-[[nodiscard]] const cp_map& InstalledCodepages();
-[[nodiscard]] cp_info const* GetCodePageInfo(uintptr_t cp);
 
 #endif // ENCODING_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

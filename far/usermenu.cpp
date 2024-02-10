@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "file_io.hpp"
 #include "keyboard.hpp"
 #include "log.hpp"
+#include "codepage.hpp"
 
 // Platform:
 #include "platform.hpp"

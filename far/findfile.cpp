@@ -84,6 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "log.hpp"
 #include "stddlg.hpp"
+#include "codepage.hpp"
 
 // Platform:
 #include "platform.hpp"

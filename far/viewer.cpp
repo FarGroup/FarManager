@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "uuids.far.dialogs.hpp"
 #include "log.hpp"
+#include "encoding.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -127,9 +128,9 @@ static int ViewerID=0;
 
 static constexpr int s_BytesPerStripe = 8;
 
-static bool IsCodePageSupported(uintptr_t cp)
+static bool IsCodePageSupportedInViewer(uintptr_t cp)
 {
-	return codepages::IsCodePageSupported(cp, 2);
+	return IsCodePageSupported(cp, 2);
 }
 
 // seems like this initialization list is toooooo long
@@ -359,7 +360,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 			if (vo.SaveCodepage || vo.SavePos)
 			{
 				CachedCodePage = poscache.CodePage;
-				if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+				if (CachedCodePage && !IsCodePageSupportedInViewer(CachedCodePage))
 					CachedCodePage = 0;
 			}
 
@@ -400,7 +401,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 		{
 			const auto DefaultCodepage = GetDefaultCodePage();
 			const auto DetectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, vo.AutoDetectCodePage);
-			m_Codepage = IsCodePageSupported(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
+			m_Codepage = IsCodePageSupportedInViewer(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
 		}
 
 		MB.SetCP(m_Codepage);
@@ -1663,7 +1664,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 					const auto fpos = vtell();
 					const auto DecectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, true);
 					vseek(fpos, FILE_BEGIN);
-					nCodePage = IsCodePageSupported(DecectedCodepage)? DecectedCodepage : DefaultCodepage;
+					nCodePage = IsCodePageSupportedInViewer(DecectedCodepage)? DecectedCodepage : DefaultCodepage;
 				}
 				m_Codepage = nCodePage;
 				MB.SetCP(m_Codepage);
@@ -4057,7 +4058,7 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 uintptr_t Viewer::GetDefaultCodePage()
 {
 	const auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
-	return cp == CP_DEFAULT || !IsCodePageSupported(cp)?
+	return cp == CP_DEFAULT || !IsCodePageSupportedInViewer(cp)?
 		encoding::codepage::ansi() :
 		cp;
 }

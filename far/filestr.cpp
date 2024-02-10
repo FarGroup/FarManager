@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
+#include "codepage.hpp"
 #include "codepage_selection.hpp"
 #include "global.hpp"
 #include "log.hpp"

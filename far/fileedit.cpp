@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "file_io.hpp"
 #include "log.hpp"
 #include "elevation.hpp"
+#include "codepage.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -1251,7 +1252,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 		cp = EditFile? GetFileCodepage(EditFile, DefaultCodepage) : DefaultCodepage;
 	}
 
-	if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp))
+	if (cp == CP_DEFAULT || !IsCodePageSupported(cp))
 	{
 		Message(MSG_WARNING,
 			msg(lng::MEditTitle),
@@ -1451,7 +1452,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 			m_editor->m_Flags.Invert(Editor::FEDITOR_LOCKMODE);
 		}
 
-		if (Cached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
+		if (Cached && pc.CodePage && !IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
 		bool testBOM = true;
@@ -1470,7 +1471,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 			{
 				const auto Cp = GetFileCodepage(EditFile, GetDefaultCodePage(), &m_bAddSignature, Redetect || Global->Opt->EdOpt.AutoDetectCodePage);
 				testBOM = false;
-				if (codepages::IsCodePageSupported(Cp))
+				if (IsCodePageSupported(Cp))
 					m_codepage = Cp;
 			}
 
@@ -2683,7 +2684,7 @@ bool FileEditor::AskOverwrite(const string_view FileName)
 uintptr_t FileEditor::GetDefaultCodePage()
 {
 	const auto cp = encoding::codepage::normalise(Global->Opt->EdOpt.DefaultCodePage);
-	return cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp)?
+	return cp == CP_DEFAULT || !IsCodePageSupported(cp)?
 		encoding::codepage::ansi() :
 		cp;
 }
