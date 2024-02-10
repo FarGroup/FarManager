@@ -689,14 +689,14 @@ int Viewer::getCharSize() const
 	if (CP_UTF8 == m_Codepage)
 		return -1;
 	else if (IsUtf16CodePage(m_Codepage))
-		return +2;
+		return sizeof(char16_t);
 	else
 		return m_Codepage == MB.GetCP()? -static_cast<int>(MB.GetSize()) : +1;
 }
 
 static int getChSize(uintptr_t const cp)
 {
-	return IsUtf16CodePage(cp)? 2 : 1;
+	return IsUtf16CodePage(cp)? sizeof(char16_t) : 1;
 }
 
 int Viewer::GetModeDependentCharSize() const
@@ -718,7 +718,8 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 		OutStr.assign(std::bit_cast<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
 		if (m_Codepage == CP_UTF16BE)
 		{
-			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(wchar_t));
+			static_assert(std::endian::native == std::endian::little, "No way");
+			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(char16_t), sizeof(char16_t));
 		}
 		if (Str.size() & 1)
 		{
@@ -2235,20 +2236,20 @@ static int process_back(int BufferSize, int pos, long long& fpos, const auto& Re
 	{
 		const auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
 
-		if (PopEol(eol.lf<T>()))
+		if (PopEol(eol.lf()))
 		{
-			if (PopEol(eol.cr<T>()))
+			if (PopEol(eol.cr()))
 			{
-				PopEol(eol.cr<T>());
+				PopEol(eol.cr());
 			}
 		}
 		else
 		{
-			PopEol(eol.cr<T>());
+			PopEol(eol.cr());
 		}
 	}
 
-	const T crlf[]{ eol.cr<T>(), eol.lf<T>() };
+	const T crlf[]{ eol.cr(), eol.lf() };
 	const auto REnd = std::make_reverse_iterator(Buffer);
 	const auto RBegin = REnd - nr;
 	const auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
@@ -2300,7 +2301,7 @@ void Viewer::Up(int nlines, bool adjust)
 
 	const auto ch_size = getCharSize();
 
-	const raw_eol eol;
+	const raw_eol eol(m_Codepage);
 
 	while ( nlines > 0 )
 	{
@@ -3312,7 +3313,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 
 		if (CP_UTF16BE == m_Codepage)
 		{
-			swap_bytes(Buf, Buf, ReadSize);
+			(void)encoding::get_chars(m_Codepage, { view_as<char const*>(Buf), ReadSize }, { Buf, ReadSize });
 		}
 
 		if (ReadSize & 1)
@@ -3482,8 +3483,8 @@ bool Viewer::vgetc(wchar_t* pCh)
 			wchar_t w[2];
 			std::string_view const View(VgetcCache.cbegin(), VgetcCache.size());
 			auto Iterator = View.cbegin();
-			auto FullyConsumedIterator = Iterator;
-			const auto WideCharsNumber = Utf8::get_char(Iterator, FullyConsumedIterator, View.cend(), w[0], w[1]);
+			encoding::diagnostics Diagnostics;
+			const auto WideCharsNumber = Utf8::get_char(Iterator, View.cend(), w[0], w[1], Diagnostics);
 			VgetcCache.pop(Iterator - View.cbegin());
 			*pCh = w[0];
 			if (WideCharsNumber > 1)

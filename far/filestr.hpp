@@ -74,7 +74,7 @@ private:
 	bool fill() const;
 
 	template<typename T>
-	bool GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian = false) const;
+	bool GetTString(std::basic_string<T>& To, eol& Eol) const;
 
 	std::istream& m_Stream;
 	size_t m_BeginPos;

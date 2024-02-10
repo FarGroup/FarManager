@@ -559,7 +559,7 @@ namespace os::clipboard
 		encoding::diagnostics Diagnostics;
 		auto RecodedData = encoding::ansi::get_chars(AnsiData, &Diagnostics);
 
-		if (Diagnostics.ErrorPosition || Diagnostics.IncompleteBytes)
+		if (Diagnostics.ErrorPosition)
 			return;
 
 		if (RecodedData == Data)

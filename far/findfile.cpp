@@ -1149,7 +1149,8 @@ bool background_searcher::LookForString(string_view const FileName)
 					if (i.CodePage== CP_UTF16BE)
 					{
 						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
-						swap_bytes(readBufferA.data(), readBuffer.data(), readBlockSize);
+						static_assert(std::endian::native == std::endian::little, "No way");
+						swap_bytes(readBufferA.data(), readBuffer.data(), readBlockSize, sizeof(char16_t));
 						// Устанавливаем буфер сравнения
 						buffer = readBuffer.data();
 					}
@@ -1162,7 +1163,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					encoding::diagnostics Diagnostics{ encoding::diagnostics::incomplete_bytes };
+					encoding::diagnostics Diagnostics{ encoding::diagnostics::not_enough_data };
 					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data() + i.BytesToSkip, readBlockSize - i.BytesToSkip }, readBuffer, &Diagnostics);
 
 					// Выходим, если нам не удалось сконвертировать строку
@@ -1172,8 +1173,8 @@ bool background_searcher::LookForString(string_view const FileName)
 						continue;
 					}
 
-					if (Diagnostics.IncompleteBytes && !IsLastBlock)
-						--bufferCount;
+					if (!IsLastBlock)
+						bufferCount -= Diagnostics.PartialOutput;
 
 					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
 					if (m_SearchDlgParams.WholeWords.value() && i.WordFound)
@@ -1292,13 +1293,13 @@ bool background_searcher::LookForString(string_view const FileName)
 						// * 2 To make sure that we can decode at least one
 						bytes_view const TestStr(readBufferA.data() + readBlockSize - StepBackOffset, m_MaxCharSize * 2);
 
-						encoding::diagnostics Diagnostics{ encoding::diagnostics::incomplete_bytes };
+						encoding::diagnostics Diagnostics{ encoding::diagnostics::not_enough_data };
 						const auto TestStrChars = encoding::get_chars(i.CodePage, TestStr, readBuffer, &Diagnostics);
 
-						i.BytesToSkip = TestStr.size() - Diagnostics.IncompleteBytes;
+						i.BytesToSkip = TestStr.size() - Diagnostics.PartialInput;
 
 						// Запоминаем последний символ блока
-						i.LastSymbol = readBuffer[TestStrChars - (Diagnostics.IncompleteBytes != 0)];
+						i.LastSymbol = readBuffer[TestStrChars - Diagnostics.PartialOutput];
 					}
 				}
 			}

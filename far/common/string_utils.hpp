@@ -632,23 +632,25 @@ inline auto split(std::wstring_view const Str, wchar_t const Separator = L'=') n
 // std::string_view is a drop-in replacement for const std::string& they say
 template<typename T>
 [[nodiscard]]
+auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string_view<T> Rhs)
+{
+	std::basic_string<T> Result;
+	Result.reserve(Lhs.size() + Rhs.size());
+	return Result.append(Lhs).append(Rhs);
+}
+
+template<typename T>
+[[nodiscard]]
 auto operator+(const std::basic_string<T>& Lhs, const std::basic_string_view<T> Rhs)
 {
-	return concat(Lhs, Rhs);
+	return std::basic_string_view(Lhs) + Rhs;
 }
 
 template<typename T>
 [[nodiscard]]
 auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
-	return concat(Lhs, Rhs);
-}
-
-template<typename T>
-[[nodiscard]]
-auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string_view<T> Rhs)
-{
-	return concat(Lhs, Rhs);
+	return Lhs + std::basic_string_view(Rhs);
 }
 
 template<typename T>

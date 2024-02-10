@@ -5729,8 +5729,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				int MaxLen = static_cast<DlgEdit*>(CurItem.ObjPtr)->GetMaxLength();
 				// BugZ#628 - Неправильная длина редактируемого текста.
-				CurItem.MaxLength = static_cast<int>(std::bit_cast<intptr_t>(Param2));
-				std::bit_cast<DlgEdit*>(CurItem.ObjPtr)->SetMaxLength(CurItem.MaxLength);
+				CurItem.MaxLength = static_cast<size_t>(std::bit_cast<intptr_t>(Param2));
+				std::bit_cast<DlgEdit*>(CurItem.ObjPtr)->SetMaxLength(static_cast<int>(CurItem.MaxLength));
 				ShowConsoleTitle();
 				return MaxLen;
 			}

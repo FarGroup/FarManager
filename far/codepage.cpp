@@ -209,22 +209,22 @@ bool IsUtf16CodePage(uintptr_t cp)
 
 bool IsStandardCodePage(uintptr_t cp)
 {
-	return IsUtf16CodePage(cp) || cp == CP_UTF8 || cp == encoding::codepage::oem() || cp == encoding::codepage::ansi();
+	return IsUtfCodePage(cp) || cp == encoding::codepage::ansi() || cp == encoding::codepage::oem();
 }
 
 bool IsUtfCodePage(uintptr_t cp)
 {
-	return IsUtf16CodePage(cp) || cp == CP_UTF8 || cp == CP_UTF7;
+	return cp == CP_UTF8 || IsUtf16CodePage(cp) || cp == CP_UTF7;
 }
 
 string ShortReadableCodepageName(uintptr_t cp)
 {
 	switch (cp)
 	{
-	case CP_UTF7:        return L"UTF-7"s;
-	case CP_UTF8:        return L"UTF-8"s;
-	case CP_UTF16LE:     return L"U16LE"s;
-	case CP_UTF16BE:     return L"U16BE"s;
+	case CP_UTF7:    return L"UTF-7"s;
+	case CP_UTF8:    return L"UTF-8"s;
+	case CP_UTF16LE: return L"U16LE"s;
+	case CP_UTF16BE: return L"U16BE"s;
 	default: return
 		cp == encoding::codepage::ansi()? L"ANSI"s :
 		cp == encoding::codepage::oem()?  L"OEM"s :
