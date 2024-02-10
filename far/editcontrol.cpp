@@ -73,7 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback const* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
+EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback const* aCallback, History* iHistory, VMenu* iList, DWORD iFlags):
 	Edit(std::move(Owner)),
 	pHistory(iHistory),
 	pList(iList),
@@ -449,16 +449,18 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 			else if (pList)
 			{
-				for (const auto& i: std::span(pList->Items, pList->ItemsNumber))
+				for (const auto i: std::views::iota(0uz, pList->size()))
 				{
-					if (!starts_with_icase(i.Text, Str))
+					string_view const Text = pList->at(i).Name;
+
+					if (!starts_with_icase(Text, Str))
 						continue;
 
-					MenuItemEx Item(i.Text);
+					MenuItemEx Item(Text);
 					// Preserve the case of the already entered part
 					if (Global->Opt->AutoComplete.AppendCompletion)
 					{
-						Item.ComplexUserData = cmp_user_data{ Str + string_view(i.Text + Str.size()) };
+						Item.ComplexUserData = cmp_user_data{ Str + Text.substr(Str.size()) };
 					}
 					ComplMenu->AddItem(Item);
 				}
