@@ -4756,7 +4756,7 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 
 	if (file_pos)
 	{
-		if (Codepage == CP_UNICODE || Codepage == CP_REVERSEBOM)
+		if (Codepage == CP_UTF16LE || Codepage == CP_UTF16BE)
 		{
 			Multiplier = sizeof(wchar_t);
 			if (add_bom)
@@ -6547,7 +6547,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 		size_t TotalSize = 0;
 		const auto Codepage = GetCodePage();
 
-		if (Codepage == CP_UNICODE || Codepage == CP_REVERSEBOM)
+		if (Codepage == CP_UTF16LE || Codepage == CP_UTF16BE)
 		{
 			StartChar /= 2;
 			if ( count_bom )

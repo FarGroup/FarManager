@@ -114,8 +114,8 @@ static const auto& CpMap()
 	static const std::unordered_map<std::string_view, uintptr_t> Map
 	{
 		{ "UTF-8"sv,          CP_UTF8 },
-		{ "UTF-16LE"sv,       CP_UNICODE },
-		{ "UTF-16BE"sv,       CP_REVERSEBOM },
+		{ "UTF-16LE"sv,       CP_UTF16LE },
+		{ "UTF-16BE"sv,       CP_UTF16BE },
 		{ "IBM855"sv,         855 },
 		{ "IBM866"sv,         866 },
 		{ "windows-874"sv,    874 },

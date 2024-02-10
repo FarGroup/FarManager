@@ -146,7 +146,7 @@ private:
 	bool LoadFile(string_view Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UTF16LE, bool AddSignature = false);
 	bool SaveAction(bool SaveAsIntention);
 	void SetTitle(const string* Title);
 	void SetFileName(string_view NewFileName);

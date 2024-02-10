@@ -202,19 +202,19 @@ bool IsVirtualCodePage(uintptr_t cp)
 	return cp == CP_DEFAULT || cp == CP_REDETECT || cp == CP_ALL;
 }
 
-bool IsUnicodeCodePage(uintptr_t cp)
+bool IsUtf16CodePage(uintptr_t cp)
 {
-	return cp == CP_UNICODE || cp == CP_REVERSEBOM;
+	return cp == CP_UTF16LE || cp == CP_UTF16BE;
 }
 
 bool IsStandardCodePage(uintptr_t cp)
 {
-	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == encoding::codepage::oem() || cp == encoding::codepage::ansi();
+	return IsUtf16CodePage(cp) || cp == CP_UTF8 || cp == encoding::codepage::oem() || cp == encoding::codepage::ansi();
 }
 
-bool IsUnicodeOrUtfCodePage(uintptr_t cp)
+bool IsUtfCodePage(uintptr_t cp)
 {
-	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == CP_UTF7;
+	return IsUtf16CodePage(cp) || cp == CP_UTF8 || cp == CP_UTF7;
 }
 
 string ShortReadableCodepageName(uintptr_t cp)
@@ -223,8 +223,8 @@ string ShortReadableCodepageName(uintptr_t cp)
 	{
 	case CP_UTF7:        return L"UTF-7"s;
 	case CP_UTF8:        return L"UTF-8"s;
-	case CP_UNICODE:     return L"U16LE"s;
-	case CP_REVERSEBOM:  return L"U16BE"s;
+	case CP_UTF16LE:     return L"U16LE"s;
+	case CP_UTF16BE:     return L"U16BE"s;
 	default: return
 		cp == encoding::codepage::ansi()? L"ANSI"s :
 		cp == encoding::codepage::oem()?  L"OEM"s :

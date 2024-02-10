@@ -482,7 +482,7 @@ struct background_searcher::CodePageInfo
 
 	void initialize()
 	{
-		if (IsUnicodeCodePage(CodePage))
+		if (IsUtf16CodePage(CodePage))
 			MaxCharSize = 2;
 		else
 		{
@@ -543,8 +543,8 @@ void background_searcher::InitInFileSearch()
 				}
 
 				m_CodePages.emplace_back(CP_UTF8);
-				m_CodePages.emplace_back(CP_UNICODE);
-				m_CodePages.emplace_back(CP_REVERSEBOM);
+				m_CodePages.emplace_back(CP_UTF16LE);
+				m_CodePages.emplace_back(CP_UTF16BE);
 			}
 
 			// Добавляем избранные таблицы символов
@@ -1133,7 +1133,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				wchar_t const *buffer;
 
 				// Перегоняем буфер в UTF-16
-				if (IsUnicodeCodePage(i.CodePage))
+				if (IsUtf16CodePage(i.CodePage))
 				{
 					// Вычисляем размер буфера в UTF-16
 					bufferCount = readBlockSize/sizeof(wchar_t);
@@ -1146,7 +1146,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					}
 
 					// Копируем буфер чтения в буфер сравнения
-					if (i.CodePage==CP_REVERSEBOM)
+					if (i.CodePage== CP_UTF16BE)
 					{
 						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
 						swap_bytes(readBufferA.data(), readBuffer.data(), readBlockSize);
@@ -1273,7 +1273,7 @@ bool background_searcher::LookForString(string_view const FileName)
 
 				if (!IsLastBlock)
 				{
-					if (IsUnicodeCodePage(i.CodePage))
+					if (IsUtf16CodePage(i.CodePage))
 					{
 						i.LastSymbol = readBuffer[bufferCount - StepBackOffset / sizeof(wchar_t) - 1];
 					}

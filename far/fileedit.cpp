@@ -265,9 +265,9 @@ static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 				const uintptr_t cp = Dlg->GetListItemSimpleUserData(ID_SF_CODEPAGE, pos.SelectPos);
 				if (cp != CurrentCodepage)
 				{
-					if (IsUnicodeOrUtfCodePage(cp))
+					if (IsUtfCodePage(cp))
 					{
-						if (!IsUnicodeOrUtfCodePage(CurrentCodepage))
+						if (!IsUtfCodePage(CurrentCodepage))
 							Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(Global->Opt->EdOpt.AddUnicodeBOM));
 						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 					}
@@ -295,7 +295,7 @@ static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 
 static bool dlgSaveFileAs(string &strFileName, eol& Eol, uintptr_t &codepage, bool &AddSignature)
 {
-	const auto ucp = IsUnicodeOrUtfCodePage(codepage);
+	const auto ucp = IsUtfCodePage(codepage);
 
 	auto EditDlg = MakeDialogItems<ID_SF_COUNT>(
 	{
@@ -1270,8 +1270,8 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 
 	const auto need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
 		&& (BadConversion
-		|| IsUnicodeCodePage(m_codepage)
-		|| IsUnicodeCodePage(cp));
+		|| IsUtf16CodePage(m_codepage)
+		|| IsUtf16CodePage(cp));
 
 	if (need_reload)
 	{
@@ -1499,7 +1499,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		enum_lines EnumFileLines(Stream, m_codepage);
 		for (auto Str: EnumFileLines)
 		{
-			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
+			if (testBOM && IsUtfCodePage(m_codepage))
 			{
 				if (Str.Str.starts_with(encoding::bom_char))
 				{
@@ -1768,7 +1768,7 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 	*/
 	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
 
-	if (!IsUnicodeOrUtfCodePage(Codepage))
+	if (!IsUtfCodePage(Codepage))
 	{
 		int LineNumber=-1;
 		encoding::diagnostics Diagnostics;
@@ -2196,7 +2196,7 @@ void FileEditor::ShowStatus() const
 		auto [UnicodeStr, UnicodeSize] = char_code(Char, m_editor->EdOpt.CharCodeBase);
 		CharCode = std::move(UnicodeStr);
 
-		if (!IsUnicodeOrUtfCodePage(m_codepage))
+		if (!IsUtfCodePage(m_codepage))
 		{
 			const auto [AnsiStr, AnsiSize] = ansi_char_code(Char, m_editor->EdOpt.CharCodeBase, m_codepage);
 			if (!CharCode.empty() && !AnsiStr.empty())
@@ -2563,7 +2563,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				if (ESPT_SETBOM==espar->Type)
 				{
-					if(IsUnicodeOrUtfCodePage(m_codepage))
+					if(IsUtfCodePage(m_codepage))
 					{
 						m_bAddSignature=espar->iParam != 0;
 						return TRUE;

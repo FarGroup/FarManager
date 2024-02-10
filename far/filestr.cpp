@@ -70,7 +70,7 @@ enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 	m_Eol(m_CodePage),
 	m_Buffer(BufferSize)
 {
-	if (IsUnicodeCodePage(m_CodePage))
+	if (IsUtf16CodePage(m_CodePage))
 	{
 		m_Data.emplace<string>().reserve(default_capacity);
 	}
@@ -103,7 +103,7 @@ bool enum_lines::fill() const
 
 	m_BufferView = { m_Buffer.data(), Read };
 
-	if (IsUnicodeCodePage(m_CodePage))
+	if (IsUtf16CodePage(m_CodePage))
 	{
 		if (const auto MissingBytes = Read % sizeof(wchar_t))
 		{
@@ -118,7 +118,7 @@ bool enum_lines::fill() const
 			m_Diagnostics.ErrorPosition = 0;
 		}
 
-		if (m_CodePage == CP_REVERSEBOM)
+		if (m_CodePage == CP_UTF16BE)
 			swap_bytes(m_Buffer.data(), m_Buffer.data(), m_BufferView.size());
 	}
 
@@ -222,7 +222,7 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 	{
 		[&](string& String)
 		{
-			if (!GetTString(String, Eol, m_CodePage == CP_REVERSEBOM))
+			if (!GetTString(String, Eol, m_CodePage == CP_UTF16BE))
 				return false;
 
 			Str = String;
@@ -271,16 +271,16 @@ static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
 
 	if (BytesRead >= 2)
 	{
-		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_UNICODE))
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_UTF16LE))
 		{
-			Codepage = CP_UNICODE;
+			Codepage = CP_UTF16LE;
 			File.SetPointer(2, nullptr, FILE_BEGIN);
 			return true;
 		}
 
-		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_REVERSEBOM))
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_UTF16BE))
 		{
-			Codepage = CP_REVERSEBOM;
+			Codepage = CP_UTF16BE;
 			File.SetPointer(2, nullptr, FILE_BEGIN);
 			return true;
 		}
@@ -313,13 +313,13 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 
 	if (Test & IS_TEXT_UNICODE_UNICODE_MASK)
 	{
-		Codepage = CP_UNICODE;
+		Codepage = CP_UTF16LE;
 		return true;
 	}
 
 	if (Test & IS_TEXT_UNICODE_REVERSE_MASK)
 	{
-		Codepage = CP_REVERSEBOM;
+		Codepage = CP_UTF16BE;
 		return true;
 	}
 
@@ -454,7 +454,7 @@ uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, b
 	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics))
 	{
 		Codepage =
-			(NotUTF8 && DefaultCodepage == CP_UTF8) || (NotUTF16 && IsUnicodeCodePage(DefaultCodepage))?
+			(NotUTF8 && DefaultCodepage == CP_UTF8) || (NotUTF16 && IsUtf16CodePage(DefaultCodepage))?
 				encoding::codepage::ansi() :
 				DefaultCodepage;
 	}
@@ -561,7 +561,7 @@ TEST_CASE("enum_lines")
 
 	for (const auto& i: Tests)
 	{
-		for (const auto Codepage: { CP_UNICODE, CP_REVERSEBOM, static_cast<uintptr_t>(CP_UTF8) })
+		for (const auto Codepage: { CP_UTF16LE, CP_UTF16BE, static_cast<uintptr_t>(CP_UTF8) })
 		{
 			auto Str = encoding::get_bytes(Codepage, i.Str);
 			std::istringstream Stream(Str);

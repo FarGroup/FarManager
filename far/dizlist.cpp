@@ -244,7 +244,7 @@ DizList::desc_map::iterator DizList::Find(const string_view Name, const string_v
 		Iterator = m_DizData.find(ShortName);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (Iterator == m_DizData.end() && m_CodePage && !IsUnicodeOrUtfCodePage(*m_CodePage))
+	if (Iterator == m_DizData.end() && m_CodePage && !IsUtfCodePage(*m_CodePage))
 	{
 		const auto strRecoded = encoding::get_chars(*m_CodePage, encoding::get_bytes(*m_CodePage, Name));
 		if (strRecoded == Name)

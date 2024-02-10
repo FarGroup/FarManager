@@ -316,7 +316,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 			break;
 
 		case L'W':
-			CodePage = CP_UNICODE;
+			CodePage = CP_UTF16LE;
 			break;
 
 		case L'F':

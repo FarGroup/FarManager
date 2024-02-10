@@ -702,7 +702,7 @@ static void ReadLines(const os::fs::file& TreeFile, function_ref<void(string_vie
 	std::istream Stream(&StreamBuffer);
 	Stream.exceptions(Stream.badbit | Stream.failbit);
 
-	for (const auto& i: enum_lines(Stream, CP_UNICODE))
+	for (const auto& i: enum_lines(Stream, CP_UTF16LE))
 	{
 		if (i.Str.empty() || !path::is_separator(i.Str.front()))
 			continue;
@@ -730,7 +730,7 @@ static void WriteTree(auto& Name, const auto& Container, const auto& Opener, siz
 			os::fs::filebuf StreamBuffer(TreeFile, std::ios::out);
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
-			encoding::writer Writer(Stream, CP_UNICODE, false);
+			encoding::writer Writer(Stream, CP_UTF16LE, false);
 			const auto Eol = eol::system.str();
 
 			for (const auto& i: Container)

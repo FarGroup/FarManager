@@ -244,7 +244,7 @@ static bool IsValid(unsigned cp)
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
 		return false;
 
-	if (cp==CP_UTF8 || cp==CP_UNICODE || cp==CP_REVERSEBOM)
+	if (cp == CP_UTF8 || cp == CP_UTF16LE || cp == CP_UTF16BE)
 		return false;
 
 	const auto Info = GetCodePageInfo(cp);
@@ -350,11 +350,11 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, st
 	case CP_UTF8:
 		return utf8_get_bytes(Str, Buffer);
 
-	case CP_UNICODE:
-	case CP_REVERSEBOM:
+	case CP_UTF16LE:
+	case CP_UTF16BE:
 		{
 			const auto Size = std::min(Str.size() * sizeof(wchar_t), Buffer.size());
-			if (Codepage == CP_UNICODE)
+			if (Codepage == CP_UTF16LE)
 			{
 				copy_memory(Str.data(), Buffer.data(), Size);
 			}
@@ -436,12 +436,12 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, std
 	case CP_UTF7:
 		return utf7_get_chars(Str, Buffer, Diagnostics);
 
-	case CP_UNICODE:
+	case CP_UTF16LE:
 		copy_memory(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
 		validate_unicode();
 		return Str.size() / sizeof(wchar_t);
 
-	case CP_REVERSEBOM:
+	case CP_UTF16BE:
 		swap_bytes(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
 		validate_unicode();
 		return Str.size() / sizeof(wchar_t);
@@ -478,8 +478,8 @@ void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, s
 	{
 		switch (Codepage)
 		{
-		case CP_UNICODE:
-		case CP_REVERSEBOM:
+		case CP_UTF16LE:
+		case CP_UTF16BE:
 			return Str.size() / sizeof(wchar_t);
 
 		case CP_UTF7:
@@ -565,9 +565,9 @@ std::string_view encoding::get_signature_bytes(uintptr_t Cp)
 {
 	switch (Cp)
 	{
-	case CP_UNICODE:
+	case CP_UTF16LE:
 		return "\xFF\xFE"sv;
-	case CP_REVERSEBOM:
+	case CP_UTF16BE:
 		return "\xFE\xFF"sv;
 	case CP_UTF8:
 		return "\xEF\xBB\xBF"sv;
@@ -597,7 +597,7 @@ void encoding::writer::write_impl(const string_view Str)
 		return;
 
 	// No need to encode
-	if (m_Codepage == CP_UNICODE)
+	if (m_Codepage == CP_UTF16LE)
 		return io::write(*m_Stream, Str);
 
 	diagnostics Diagnostics{ diagnostics::error_position };

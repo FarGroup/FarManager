@@ -308,8 +308,8 @@ static string_view unicode_codepage_name(uintptr_t const Codepage)
 	switch (Codepage)
 	{
 	case CP_UTF8:       return L"UTF-8"sv;
-	case CP_UNICODE:    return L"UTF-16 (Little endian)"sv;
-	case CP_REVERSEBOM: return L"UTF-16 (Big endian)"sv;
+	case CP_UTF16LE:    return L"UTF-16 (Little endian)"sv;
+	case CP_UTF16BE:    return L"UTF-16 (Big endian)"sv;
 	default:            return {};
 	}
 }
@@ -374,8 +374,8 @@ void codepages::AddCodePages(DWORD codePages)
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));
 	AddStandardCodePage(unicode_codepage_name(CP_UTF8), CP_UTF8, -1, true);
-	AddStandardCodePage(unicode_codepage_name(CP_UNICODE), CP_UNICODE);
-	AddStandardCodePage(unicode_codepage_name(CP_REVERSEBOM), CP_REVERSEBOM);
+	AddStandardCodePage(unicode_codepage_name(CP_UTF16LE), CP_UTF16LE);
+	AddStandardCodePage(unicode_codepage_name(CP_UTF16BE), CP_UTF16BE);
 
 	// other codepages
 	//

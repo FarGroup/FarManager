@@ -74,9 +74,9 @@ using cp_map = std::unordered_map<unsigned, cp_info>;
 [[nodiscard]] bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = static_cast<size_t>(-1));
 
 [[nodiscard]] bool IsVirtualCodePage(uintptr_t cp);
-[[nodiscard]] bool IsUnicodeCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUtf16CodePage(uintptr_t cp);
 [[nodiscard]] bool IsStandardCodePage(uintptr_t cp);
-[[nodiscard]] bool IsUnicodeOrUtfCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUtfCodePage(uintptr_t cp);
 
 [[nodiscard]] string ShortReadableCodepageName(uintptr_t cp);
 
