@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2024-02-10 14:45:04+00:00 - build 6270
+
+1. Refactoring.
+
+2. Improve encoding diagnostics.
+
+3. Correction of 6251.
+
+4. gh-794: Dangling pointer deref in dialog autocompletion after DM_LISTSET & likely other list modifications.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-05 00:21:12+00:00 - build 6269
 
 1. Correction of 6267.
