@@ -643,14 +643,14 @@ template<typename T>
 [[nodiscard]]
 auto operator+(const std::basic_string<T>& Lhs, const std::basic_string_view<T> Rhs)
 {
-	return std::basic_string_view(Lhs) + Rhs;
+	return std::basic_string_view<T>(Lhs) + Rhs;
 }
 
 template<typename T>
 [[nodiscard]]
 auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
-	return Lhs + std::basic_string_view(Rhs);
+	return Lhs + std::basic_string_view<T>(Rhs);
 }
 
 template<typename T>
