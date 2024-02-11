@@ -136,12 +136,12 @@ struct menu_layout
 			return DOUBLE_BOX;
 	}
 
-	[[nodiscard]] static size_t get_service_area_size(const VMenu& Menu)
+	[[nodiscard]] static int get_service_area_size(const VMenu& Menu)
 	{
 		return get_service_area_size(Menu, need_box(Menu));
 	}
 
-	[[nodiscard]] static size_t get_service_area_size(const VMenu& Menu, const short BoxType)
+	[[nodiscard]] static int get_service_area_size(const VMenu& Menu, const short BoxType)
 	{
 		return get_service_area_size(Menu, need_box(BoxType));
 	}
@@ -155,7 +155,7 @@ private:
 		return { Menu.m_Where.left + 1, Menu.m_Where.top + 1, Menu.m_Where.right - 1, Menu.m_Where.bottom - 1 };
 	}
 
-	[[nodiscard]] static size_t get_service_area_size(const VMenu& Menu, const bool NeedBox)
+	[[nodiscard]] static int get_service_area_size(const VMenu& Menu, const bool NeedBox)
 	{
 		return NeedBox
 			+ need_check_mark()
@@ -280,6 +280,74 @@ namespace
 	bool item_is_visible(MenuItemEx const& Item)
 	{
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
+	}
+
+	int get_item_visual_length(const bool ShowAmpersand, const string_view ItemName)
+	{
+		return static_cast<int>(ShowAmpersand ? visual_string_length(ItemName) : HiStrlen(ItemName));
+	}
+
+	enum class item_hscroll_policy
+	{
+		unbound,            // The item can move freely beyond window edges.
+		cling_to_edge,      // The item can move beyond window edges, but at least one character is always visible.
+		bound,              // The item can move only within the window boundaries.
+		bound_stick_to_left // Like bound, but if the item shorter than TextAreaWidth, it is always attached to the left window edge.
+	};
+
+	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
+	{
+		using enum item_hscroll_policy;
+
+		assert(ItemLength > 0);
+		assert(TextAreaWidth > 0);
+
+		switch (Policy)
+		{
+		case unbound:
+			return{ std::numeric_limits<int>::min(), std::numeric_limits<int>::max()};
+
+		case cling_to_edge:
+			return{ 1 - ItemLength, TextAreaWidth - 1 };
+
+		case bound:
+			return{ std::min(0, TextAreaWidth - ItemLength), std::max(0, TextAreaWidth - ItemLength) };
+
+		case bound_stick_to_left:
+			return{ std::min(0, TextAreaWidth - ItemLength), 0 };
+
+		default:
+			std::unreachable();
+		}
+	}
+
+	int get_item_absolute_hpos(const int NewHPos, const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy)
+	{
+		const auto [HPosMin, HPosMax]{ item_hpos_limits(ItemLength, TextAreaWidth, Policy) };
+		return std::clamp(NewHPos, HPosMin, HPosMax);
+	}
+
+	int get_item_smart_hpos(const int NewHPos, const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy)
+	{
+		return get_item_absolute_hpos(NewHPos >= 0 ? NewHPos : TextAreaWidth - ItemLength + NewHPos + 1, ItemLength, TextAreaWidth, Policy);
+	}
+
+	int adjust_hpos_shift(const int Shift, const int Left, const int Right, const int TextAreaWidth)
+	{
+		assert(Left < Right);
+
+		if (Shift == 0) return 0;
+
+		// Shift left.
+		if (Shift > 0)
+		{
+			const auto ShiftLimit{ std::max(TextAreaWidth - Left - 1, 0) };
+			const auto GapLeftOfTextArea{ std::max(-Right, 0) };
+			return std::min(Shift + GapLeftOfTextArea, ShiftLimit);
+		}
+
+		// Shift right. It's just shift left seen from behind the screen.
+		return -adjust_hpos_shift(-Shift, TextAreaWidth - Right, TextAreaWidth - Left, TextAreaWidth);
 	}
 
 	// Indices in the color array
@@ -679,15 +747,14 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 
 	NewMenuItem.AutoHotkey = {};
 	NewMenuItem.AutoHotkeyPos = 0;
-	NewMenuItem.ShowPos = 0;
+	NewMenuItem.HorizontalPosition = 0;
 
 	if (PosAdd <= SelectPos)
 		SelectPos++;
 
-	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength(visual_string_length(NewMenuItem.Name));
-	else
-		UpdateMaxLength(HiStrlen(NewMenuItem.Name));
+	const auto ItemLength{ get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), NewMenuItem.Name) };
+	UpdateMaxLength(ItemLength);
+	UpdateAllItemsBoundaries(NewMenuItem.HorizontalPosition, ItemLength);
 
 	const auto NewFlags = NewMenuItem.Flags;
 	NewMenuItem.Flags = 0;
@@ -715,10 +782,9 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
 	Item.SimpleUserData = NewItem->Item.UserData;
 
-	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength(visual_string_length(Item.Name));
-	else
-		UpdateMaxLength(HiStrlen(Item.Name));
+	const auto ItemLength{ get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), Item.Name) };
+	UpdateMaxLength(ItemLength);
+	UpdateAllItemsBoundaries(Item.HorizontalPosition, ItemLength);
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -789,6 +855,7 @@ void VMenu::clear()
 	TopPos=0;
 	m_MaxItemLength = 0;
 	UpdateMaxLengthFromTitles();
+	ResetAllItemsBoundaries();
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
@@ -1434,6 +1501,17 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			}
 		}
 	};
+
+	const auto HScrollSmartPos = [&]
+	{
+		return any_of(LocalKey & ~KEY_CTRLMASK, KEY_HOME, KEY_NUMPAD7) ? 0 : -1;
+	};
+
+	const auto HScrollShiftSign = [&]
+	{
+		return any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT) ? 1 : -1;
+	};
+
 	switch (LocalKey)
 	{
 		case KEY_ALTF9:
@@ -1517,7 +1595,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTEND:            case KEY_ALT|KEY_NUMPAD1:
 		case KEY_RALTEND:           case KEY_RALT|KEY_NUMPAD1:
 		{
-			if (SetAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_HOME, KEY_NUMPAD7)? 0 : -1))
+			if (SetAllItemsSmartHPos(HScrollSmartPos()))
 				DrawMenu();
 
 			break;
@@ -1525,7 +1603,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTHOME:      case KEY_ALTSHIFT|KEY_NUMPAD7:
 		case KEY_ALTSHIFTEND:       case KEY_ALTSHIFT|KEY_NUMPAD1:
 		{
-			if (SetItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_HOME, KEY_NUMPAD7)? 0 : -1, CalculateTextAreaWidth()))
+			if (SetCurItemSmartHPos(HScrollSmartPos()))
 				DrawMenu();
 
 			break;
@@ -1535,7 +1613,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTRIGHT:  case KEY_ALT|KEY_NUMPAD6:  case KEY_MSWHEEL_RIGHT:
 		case KEY_RALTRIGHT: case KEY_RALT|KEY_NUMPAD6:
 		{
-			if (ShiftAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT)? -1 : 1))
+			if (ShiftAllItemsHPos(HScrollShiftSign()))
 				DrawMenu();
 
 			break;
@@ -1545,7 +1623,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLALTRIGHT:  case KEY_CTRLALTNUMPAD6:  case KEY_CTRL|KEY_MSWHEEL_RIGHT:
 		case KEY_CTRLRALTRIGHT: case KEY_CTRLRALTNUMPAD6:
 		{
-			if (ShiftAllItemsShowPos(any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4, KEY_MSWHEEL_LEFT)? -20 : 20))
+			if (ShiftAllItemsHPos(20 * HScrollShiftSign()))
 				DrawMenu();
 
 			break;
@@ -1555,7 +1633,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTRIGHT:     case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT:    case KEY_RALTSHIFTNUMPAD6:
 		{
-			if (ShiftItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4)? -1 : 1, CalculateTextAreaWidth()))
+			if (ShiftCurItemHPos(HScrollShiftSign()))
 				DrawMenu();
 
 			break;
@@ -1563,7 +1641,15 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTLEFT:     case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_CTRLSHIFTRIGHT:    case KEY_CTRLSHIFTNUMPAD6:
 		{
-			if (ShiftItemShowPos(SelectPos, any_of(LocalKey & ~KEY_CTRLMASK, KEY_LEFT, KEY_NUMPAD4)? -20 : 20, CalculateTextAreaWidth()))
+			if (ShiftCurItemHPos(20 * HScrollShiftSign()))
+				DrawMenu();
+
+			break;
+		}
+		case KEY_CTRLNUMPAD5:
+		case KEY_RCTRLNUMPAD5:
+		{
+			if (AlignAnnotations())
 				DrawMenu();
 
 			break;
@@ -2011,79 +2097,114 @@ int VMenu::VisualPosToReal(int VPos) const
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
-size_t VMenu::GetItemMaxShowPos(int Item, const size_t MaxLineWidth) const
+bool VMenu::SetItemHPos(MenuItemEx& Item, const auto& GetNewHPos)
 {
-	const auto Len{ VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Item].Name) : HiStrlen(Items[Item].Name) };
-	if (Len <= MaxLineWidth)
-		return 0;
-	return Len - MaxLineWidth;
-}
+	if (Item.Flags & LIF_SEPARATOR) return false;
 
-bool VMenu::SetItemShowPos(int Item, int NewShowPos, const size_t MaxLineWidth)
-{
-	const auto MaxShowPos{ GetItemMaxShowPos(Item, MaxLineWidth) };
-	auto OldShowPos{ Items[Item].ShowPos };
+	const auto ItemLength{ get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), Item.Name) };
+	if (ItemLength <= 0) return false;
 
-	if (NewShowPos >= 0)
+	const auto NewHPos = [&]
 	{
-		Items[Item].ShowPos = std::min(static_cast<size_t>(NewShowPos), MaxShowPos);
-	}
-	else
-	{
-		Items[Item].ShowPos = MaxShowPos - std::min(static_cast<size_t>(-(NewShowPos + 1)), MaxShowPos);
-	}
+		if constexpr (requires { GetNewHPos(Item); })
+			return GetNewHPos(Item);
+		if constexpr (requires { GetNewHPos(ItemLength); })
+			return GetNewHPos(ItemLength);
+		if constexpr (requires { GetNewHPos(Item.HorizontalPosition, ItemLength); })
+			return GetNewHPos(Item.HorizontalPosition, ItemLength);
+	}();
 
-	if (Items[Item].ShowPos == OldShowPos)
-		return false;
+	UpdateAllItemsBoundaries(NewHPos, ItemLength);
 
-	VMFlags.Set(VMENU_UPDATEREQUIRED);
+	if (Item.HorizontalPosition == NewHPos) return false;
+
+	Item.HorizontalPosition = NewHPos;
 	return true;
 }
 
-bool VMenu::ShiftItemShowPos(int Item, int Shift, const size_t MaxLineWidth)
+bool VMenu::SetCurItemSmartHPos(const int NewHPos)
 {
-	const auto MaxShowPos{ GetItemMaxShowPos(Item, MaxLineWidth) };
-	auto ItemShowPos{ std::min(Items[Item].ShowPos, MaxShowPos) }; // Just in case
+	const auto TextAreaWidth{ CalculateTextAreaWidth() };
+	if (TextAreaWidth <= 0) return false;
 
-	if (Shift >= 0)
+	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::cling_to_edge : item_hscroll_policy::bound_stick_to_left };
+
+	if (SetItemHPos(
+		Items[SelectPos],
+		[&](const int ItemLength) { return get_item_smart_hpos(NewHPos, ItemLength, TextAreaWidth, Policy); }))
 	{
-		ItemShowPos += std::min(static_cast<size_t>(Shift), MaxShowPos - ItemShowPos);
-	}
-	else
-	{
-		ItemShowPos -= std::min(static_cast<size_t>(-Shift), ItemShowPos);
+		SetMenuFlags(VMENU_UPDATEREQUIRED);
+		return true;
 	}
 
-	if (ItemShowPos == Items[Item].ShowPos)
-		return false;
-
-	Items[Item].ShowPos = ItemShowPos;
-	VMFlags.Set(VMENU_UPDATEREQUIRED);
-	return true;
+	return false;
 }
 
-bool VMenu::SetAllItemsShowPos(int NewShowPos)
+bool VMenu::ShiftCurItemHPos(const int Shift)
 {
-	bool NeedRedraw = false;
+	const auto TextAreaWidth{ CalculateTextAreaWidth() };
+	if (TextAreaWidth <= 0) return false;
 
-	const auto MaxLineWidth{ CalculateTextAreaWidth() };
+	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::cling_to_edge : item_hscroll_policy::bound_stick_to_left };
 
-	for (const auto I: std::views::iota(0uz, Items.size()))
-		NeedRedraw |= SetItemShowPos(static_cast<int>(I), NewShowPos, MaxLineWidth);
+	if (SetItemHPos(
+		Items[SelectPos],
+		[&](const int ItemHPos, const int ItemLength) { return get_item_absolute_hpos(ItemHPos + Shift, ItemLength, TextAreaWidth, Policy); }))
+	{
+		SetMenuFlags(VMENU_UPDATEREQUIRED);
+		return true;
+	}
 
+	return false;
+}
+
+bool VMenu::SetAllItemsHPos(const auto& GetNewHPos)
+{
+	ResetAllItemsBoundaries();
+	bool NeedRedraw{};
+
+	for (auto& Item : Items)
+		NeedRedraw |= SetItemHPos(Item, GetNewHPos);
+
+	if (NeedRedraw) SetMenuFlags(VMENU_UPDATEREQUIRED);
 	return NeedRedraw;
 }
 
-bool VMenu::ShiftAllItemsShowPos(int Shift)
+bool VMenu::SetAllItemsSmartHPos(const int NewHPos)
 {
-	bool NeedRedraw = false;
+	const auto TextAreaWidth{ CalculateTextAreaWidth() };
+	if (TextAreaWidth <= 0) return false;
 
-	const auto MaxLineWidth{ CalculateTextAreaWidth() };
+	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::unbound : item_hscroll_policy::bound_stick_to_left };
 
-	for (const auto I: std::views::iota(0uz, Items.size()))
-		NeedRedraw |= ShiftItemShowPos(static_cast<int>(I), Shift, MaxLineWidth);
+	return SetAllItemsHPos(
+		[&](const int ItemLength) { return get_item_smart_hpos(NewHPos, ItemLength, TextAreaWidth, Policy); });
+}
 
-	return NeedRedraw;
+bool VMenu::ShiftAllItemsHPos(const int Shift)
+{
+	const auto TextAreaWidth{ CalculateTextAreaWidth() };
+	if (TextAreaWidth <= 0) return false;
+
+	const auto AdjustedShift{ adjust_hpos_shift(Shift, m_AllItemsBoundaries.first, m_AllItemsBoundaries.second, TextAreaWidth) };
+	if (!AdjustedShift) return false;
+
+	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::unbound : item_hscroll_policy::bound_stick_to_left };
+
+	return SetAllItemsHPos(
+		[&](const int ItemHPos, const int ItemLength) { return get_item_absolute_hpos(ItemHPos + AdjustedShift, ItemLength, TextAreaWidth, Policy); });
+}
+
+bool VMenu::AlignAnnotations()
+{
+	if (!CheckFlags(VMENU_ENABLEALIGNANNOTATIONS)) return false;
+
+	const auto TextAreaWidth{ CalculateTextAreaWidth() };
+	if (TextAreaWidth <= 0 || TextAreaWidth + 2 <= 0) return false;
+	const auto AlignPos{ (TextAreaWidth + 2) / 4 };
+
+	return SetAllItemsHPos(
+		[&](const MenuItemEx& Item) { return Item.Annotations.empty() ? 0 : AlignPos - Item.Annotations.front().first; });
 }
 
 void VMenu::Show()
@@ -2097,7 +2218,7 @@ void VMenu::Show()
 
 		if (!CheckFlags(VMENU_COMBOBOX))
 		{
-			const auto VisibleMaxItemLength = std::min(static_cast<size_t>(ScrX) > ServiceAreaSize? ScrX - ServiceAreaSize : 0, m_MaxItemLength);
+			const auto VisibleMaxItemLength = std::min(ScrX > ServiceAreaSize? ScrX - ServiceAreaSize : 0, m_MaxItemLength);
 			const auto MenuWidth = ServiceAreaSize + VisibleMaxItemLength;
 
 			bool AutoCenter = false;
@@ -2318,7 +2439,6 @@ void VMenu::DrawTitles() const
 	if (CheckFlags(VMENU_SHOWNOBOX)) return;
 
 	const auto MaxTitleLength = m_Where.width() - 3;
-	int WidthTitle;
 
 	if (!strTitle.empty() || bFilterEnabled)
 	{
@@ -2334,7 +2454,7 @@ void VMenu::DrawTitles() const
 			append(strDisplayTitle, bFilterLocked? L'<' : L'[', strFilter, bFilterLocked? L'>' : L']');
 		}
 
-		WidthTitle = static_cast<int>(strDisplayTitle.size());
+		auto WidthTitle = static_cast<int>(strDisplayTitle.size());
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2347,7 +2467,7 @@ void VMenu::DrawTitles() const
 
 	if (!strBottomTitle.empty())
 	{
-		WidthTitle = static_cast<int>(strBottomTitle.size());
+		auto WidthTitle = static_cast<int>(strBottomTitle.size());
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2356,6 +2476,19 @@ void VMenu::DrawTitles() const
 		set_color(Colors, color_indices::Title);
 
 		Text(concat(L' ', string_view(strBottomTitle).substr(0, WidthTitle), L' '));
+	}
+
+	if constexpr ((false))
+	{
+		set_color(Colors, color_indices::Title);
+
+		const auto AllItemsBoundariesLabel{ std::format(L" [{}, {}] ", m_AllItemsBoundaries.first, m_AllItemsBoundaries.second) };
+		GotoXY(m_Where.left + 2, m_Where.bottom);
+		Text(AllItemsBoundariesLabel);
+
+		const auto TextAreaWidthLabel{ std::format(L" [{}] ", CalculateTextAreaWidth()) };
+		GotoXY(m_Where.right - 1 - static_cast<int>(TextAreaWidthLabel.size()), m_Where.bottom);
+		Text(TextAreaWidthLabel);
 	}
 }
 
@@ -2468,48 +2601,56 @@ void VMenu::DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, c
 {
 	if (!Layout.TextArea) return;
 
-	size_t HotkeyPos = string::npos;
-	auto ItemTextToDisplay = CheckFlags(VMENU_SHOWAMPERSAND)? Item.Name : HiText2Str(Item.Name, &HotkeyPos);
-	std::ranges::replace(ItemTextToDisplay, L'\t', L' ');
-	const auto ItemTextSize{ static_cast<int>(ItemTextToDisplay.size()) };
-
 	const auto [TextAreaBegin, TextAreaWidth] { Layout.TextArea.value() };
+
+	GotoXY(TextAreaBegin, Y);
 
 	const item_color_indicies ColorIndices{ Item };
 	auto CurColorIndex{ ColorIndices.Normal };
 	auto AltColorIndex{ ColorIndices.Highlighted };
 
-	auto CurPos{ static_cast<int>(Item.ShowPos) };
-	const auto EndPos{ std::min(CurPos + TextAreaWidth, ItemTextSize) };
+	size_t HotkeyPos = string::npos;
+	auto ItemTextToDisplay = CheckFlags(VMENU_SHOWAMPERSAND)? Item.Name : HiText2Str(Item.Name, &HotkeyPos);
+	std::ranges::replace(ItemTextToDisplay, L'\t', L' ');
+	const auto ItemTextSize{ static_cast<int>(ItemTextToDisplay.size()) };
 
-	HighlightMarkup.clear();
-	if (!Item.Annotations.empty())
-	{
-		markup_slice_boundaries(
-			std::pair{ CurPos, EndPos },
-			Item.Annotations | std::views::transform([](const auto Ann) { return std::pair{ Ann.first, Ann.first + Ann.second }; }),
-			HighlightMarkup);
-	}
-	else if (HotkeyPos != string::npos || Item.AutoHotkey)
-	{
-		const auto HighlightPos = static_cast<int>(HotkeyPos != string::npos? HotkeyPos : Item.AutoHotkeyPos);
-		markup_slice_boundaries(
-			std::pair{ CurPos, EndPos },
-			std::views::single(std::pair{ HighlightPos, HighlightPos + 1 }),
-			HighlightMarkup);
-	}
-	else
-	{
-		HighlightMarkup.emplace_back(EndPos);
-	}
+	const auto [ItemTextBegin, ItemTextEnd] { intersect({ 0, ItemTextSize }, { -Item.HorizontalPosition, TextAreaWidth - Item.HorizontalPosition }) };
 
-	GotoXY(TextAreaBegin, Y);
-	for (const auto SliceEnd : HighlightMarkup)
+	if (ItemTextBegin < ItemTextEnd)
 	{
-		set_color(Colors, CurColorIndex);
-		Text(string_view{ ItemTextToDisplay }.substr(CurPos, SliceEnd - CurPos));
-		std::ranges::swap(CurColorIndex, AltColorIndex);
-		CurPos = SliceEnd;
+		HighlightMarkup.clear();
+		if (!Item.Annotations.empty())
+		{
+			markup_slice_boundaries(
+				std::pair{ ItemTextBegin, ItemTextEnd },
+				Item.Annotations | std::views::transform([](const auto Ann) { return std::pair{ Ann.first, Ann.first + Ann.second }; }),
+				HighlightMarkup);
+		}
+		else if (HotkeyPos != string::npos || Item.AutoHotkey)
+		{
+			const auto HighlightPos = static_cast<int>(HotkeyPos != string::npos? HotkeyPos : Item.AutoHotkeyPos);
+			markup_slice_boundaries(
+				std::pair{ ItemTextBegin, ItemTextEnd },
+				std::views::single(std::pair{ HighlightPos, HighlightPos + 1 }),
+				HighlightMarkup);
+		}
+		else
+		{
+			HighlightMarkup.emplace_back(ItemTextEnd);
+		}
+
+		set_color(Colors, ColorIndices.Normal);
+		Text(BlankLine.substr(0, std::max(Item.HorizontalPosition, 0)));
+
+		auto ItemTextPos{ ItemTextBegin };
+
+		for (const auto SliceEnd : HighlightMarkup)
+		{
+			set_color(Colors, CurColorIndex);
+			Text(string_view{ ItemTextToDisplay }.substr(ItemTextPos, SliceEnd - ItemTextPos));
+			std::ranges::swap(CurColorIndex, AltColorIndex);
+			ItemTextPos = SliceEnd;
+		}
 	}
 
 	set_color(Colors, ColorIndices.Normal);
@@ -2526,13 +2667,13 @@ void VMenu::DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, c
 		DrawDecorator(Layout.CheckMark.value(), get_item_check_mark(Item, ColorIndices));
 
 	if (Layout.LeftHScroll)
-		DrawDecorator(Layout.LeftHScroll.value(), get_item_left_hscroll(Item.ShowPos > 0, ColorIndices));
+		DrawDecorator(Layout.LeftHScroll.value(), get_item_left_hscroll(Item.HorizontalPosition < 0, ColorIndices));
 
 	if (Layout.SubMenu)
 		DrawDecorator(Layout.SubMenu.value(), get_item_submenu(Item, ColorIndices));
 
 	if (Layout.RightHScroll)
-		DrawDecorator(Layout.RightHScroll.value(), get_item_right_hscroll(EndPos < ItemTextSize, ColorIndices));
+		DrawDecorator(Layout.RightHScroll.value(), get_item_right_hscroll(Item.HorizontalPosition + ItemTextSize > TextAreaWidth, ColorIndices));
 }
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
@@ -2613,7 +2754,7 @@ void VMenu::AssignHighlights(bool Reverse)
 		if (!ShowAmpersand && HotkeyVisualPos != string::npos)
 			continue;
 
-		MenuItemForDisplay.erase(0, Items[I].ShowPos);
+		MenuItemForDisplay.erase(0, std::max(-Items[I].HorizontalPosition, 0));
 
 		// TODO: проверка на LIF_HIDDEN
 		for (const auto& Ch: MenuItemForDisplay)
@@ -2664,12 +2805,26 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 void VMenu::UpdateMaxLengthFromTitles()
 {
 	//тайтл + 2 пробела вокруг
-	UpdateMaxLength(std::max(strTitle.size(), strBottomTitle.size()) + 2);
+	UpdateMaxLength(static_cast<int>(std::max(strTitle.size(), strBottomTitle.size()) + 2));
 }
 
-void VMenu::UpdateMaxLength(size_t const Length)
+void VMenu::UpdateMaxLength(int const ItemLength)
 {
-	m_MaxItemLength = std::max(m_MaxItemLength, Length);
+	m_MaxItemLength = std::max(m_MaxItemLength, ItemLength);
+}
+
+void VMenu::ResetAllItemsBoundaries()
+{
+	m_AllItemsBoundaries = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
+}
+
+void VMenu::UpdateAllItemsBoundaries(int const ItemHPos, int const ItemLength)
+{
+	m_AllItemsBoundaries =
+	{
+		std::min(m_AllItemsBoundaries.first, ItemHPos),
+		std::max(m_AllItemsBoundaries.second, ItemHPos + ItemLength)
+	};
 }
 
 void VMenu::SetMaxHeight(int NewMaxHeight)
@@ -2697,7 +2852,7 @@ void VMenu::SetBottomTitle(string_view const BottomTitle)
 
 	strBottomTitle = BottomTitle;
 
-	UpdateMaxLength(strBottomTitle.size() + 2);
+	UpdateMaxLength(static_cast<int>(strBottomTitle.size() + 2));
 }
 
 void VMenu::SetTitle(string_view const Title)
@@ -2706,7 +2861,7 @@ void VMenu::SetTitle(string_view const Title)
 
 	strTitle = Title;
 
-	UpdateMaxLength(strTitle.size() + 2);
+	UpdateMaxLength(static_cast<int>(strTitle.size() + 2));
 }
 
 void VMenu::ResizeConsole()
@@ -2898,7 +3053,7 @@ bool VMenu::GetVMenuInfo(FarListInfo* Info) const
 		Info->MaxHeight = MaxHeight;
 		// BUGBUG
 		const auto ServiceAreaSize = menu_layout::get_service_area_size(*this);
-		if (static_cast<size_t>(m_Where.width()) > ServiceAreaSize)
+		if (m_Where.width() > ServiceAreaSize)
 			Info->MaxLength = m_Where.width() - ServiceAreaSize;
 		else
 			Info->MaxLength = 0;
@@ -3080,7 +3235,7 @@ std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
 
 size_t VMenu::GetNaturalMenuWidth() const
 {
-	return m_MaxItemLength + menu_layout::get_service_area_size(*this);
+	return static_cast<size_t>(m_MaxItemLength) + menu_layout::get_service_area_size(*this);
 }
 
 void VMenu::EnableFilter(bool const Enable)
@@ -3204,12 +3359,14 @@ TEST_CASE("intersect.segments")
 
 TEST_CASE("markup.slice.boundaries")
 {
-	static const struct test_data
+	struct test_data
 	{
 		std::pair<int, int> Segment;
 		std::initializer_list<std::pair<int, int>> Slices;
 		std::initializer_list<int> Markup;
-	} TestDataPoints[] =
+	};
+
+	static const test_data TestDataPoints[] =
 	{
 		{ { 20, 50 }, { { 10, 15 } }, { 50 } },
 		{ { 20, 50 }, { { 10, 20 } }, { 50 } },
@@ -3243,6 +3400,139 @@ TEST_CASE("markup.slice.boundaries")
 		Markup.clear();
 		markup_slice_boundaries(TestDataPoint.Segment, TestDataPoint.Slices, Markup);
 		REQUIRE(std::ranges::equal(TestDataPoint.Markup, Markup));
+	}
+}
+
+TEST_CASE("item.hpos.limits")
+{
+	using enum item_hscroll_policy;
+
+	struct test_data
+	{
+		int ItemLength;
+		int TextAreaWidth;
+		// cling_to_edge, bound, bound_stick_to_left
+		std::initializer_list<std::pair<int, int>> Expected;
+	};
+
+	static const test_data TestDataPoints[] =
+	{
+		{ 1, 5, { { 0, 4 }, { 0, 4 }, { 0, 0 } } },
+		{ 3, 5, { { -2, 4 }, { 0, 2 }, { 0, 0 } } },
+		{ 5, 5, { { -4, 4 }, { 0, 0 }, { 0, 0 } } },
+		{ 7, 5, { { -6, 4 }, { -2, 0 }, { -2, 0 } } },
+		{ 10, 5, { { -9, 4 }, { -5, 0 }, { -5, 0 } } },
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(std::pair{ std::numeric_limits<int>::min(), std::numeric_limits<int>::max() }
+			== item_hpos_limits(TestDataPoint.ItemLength, TestDataPoint.TextAreaWidth, unbound));
+
+		for (const auto& Policy : { cling_to_edge, bound, bound_stick_to_left })
+		{
+			REQUIRE(std::ranges::data(TestDataPoint.Expected)[std::to_underlying(Policy) - 1]
+				== item_hpos_limits(TestDataPoint.ItemLength, TestDataPoint.TextAreaWidth, Policy));
+		}
+	}
+}
+
+TEST_CASE("adjust.hpos.shift")
+{
+	static constexpr int TextAreaWidth{ 10 };
+	static constexpr std::array Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10, -9, -7, -5, -3, -1, 0, 1, 3, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 20 };
+
+	struct test_data
+	{
+		int Left;
+		int Right;
+		std::array<int, Shifts.size()> Expected;
+	};
+
+	static constexpr test_data TestDataPoints[] =
+	{
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{ -10, -5, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 6, 8, 10, 12, 14, 15, 16, 18, 19, 19, 19, 19, 19, 19 } },
+		{ -10, -1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 2, 4,  6,  8, 10, 11, 12, 14, 15, 16, 18, 19, 19, 19 } },
+		{ -10,  0, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10,  1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10,  5, {  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+		{ -10, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 19 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{  -5, -1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 2, 4,  6,  8, 10, 11, 12, 14, 14, 14, 14, 14, 14, 14 } },
+		{  -5,  0, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5,  1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5,  5, {  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+		{  -5, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 14, 14, 14, 14, 14 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{  -1,  0, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1,  1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1,  5, {  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+		{  -1, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 10, 10, 10, 10, 10, 10, 10, 10 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{   0,  1, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0,  5, {  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+		{   0, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{   1,  5, {  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+		{   1,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+		{   1, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+		{   1, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+		{   1, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+		{   1, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{   5,  9, {  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -8,  -7,  -5, -3, -1, 0, 1, 3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } },
+		{   5, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 1, 3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } },
+		{   5, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } },
+		{   5, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } },
+		{   5, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{   9, 10, {  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{   9, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{   9, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{   9, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{  10, 11, { -10, -10, -10, -10, -10, -10, -10, -10, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{  10, 15, { -14, -14, -14, -14, -14, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{  10, 20, { -19, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{  11, 15, { -14, -14, -14, -14, -14, -14, -14, -12, -11, -10,  -8,  -6, -4, -2, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+		{  11, 20, { -19, -19, -19, -18, -16, -15, -14, -12, -11, -10,  -8,  -6, -4, -2, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+
+		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
+		{  15, 20, { -19, -19, -19, -19, -19, -19, -18, -16, -15, -14, -12, -10, -8, -6, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 } },
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		for (const auto& I : std::views::iota(0uz, Shifts.size()))
+		{
+			REQUIRE(TestDataPoint.Expected[I] == adjust_hpos_shift(Shifts[I], TestDataPoint.Left, TestDataPoint.Right, TextAreaWidth));
+		}
 	}
 }
 

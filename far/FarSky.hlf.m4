@@ -3449,6 +3449,9 @@ $ #Editor: All matching entries menu#
  #Ctrl+Enter#, #Ctrl+Left mouse click#
  Go to the position of the found text.
 
+ #Ctrl+Numpad5#
+ Vertically align all found entries.
+
  #Gray +#
  Add session bookmark with the current position.
 

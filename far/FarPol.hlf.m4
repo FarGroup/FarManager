@@ -3452,6 +3452,9 @@ $ #Edytor: menu wszystkich znalezionych wystąpień#
  #Ctrl+Enter#, #Ctrl+Kliknięcie lewym przyciskiem myszy#
  Przechodzi do pozycji znalezionego tekstu.
 
+ #Ctrl+Numpad5#
+ Vertically align all found entries.
+
  #Szary +#
  Dodaje zakładkę sesji w bieżącej pozycji.
 
