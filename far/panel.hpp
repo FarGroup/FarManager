@@ -227,7 +227,7 @@ public:
 	void SetSortGroups(bool Mode) {m_SortGroups=Mode;}
 	bool GetShowShortNamesMode() const { return m_ShowShortNames; }
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
-	bool ExecShortcutFolder(int Pos);
+	bool ExecShortcutFolder(size_t Index);
 	bool ExecFolder(string_view Folder, const UUID& PluginUuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool Silent);
 	bool SaveShortcutFolder(int Pos) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);

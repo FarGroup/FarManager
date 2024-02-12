@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2024-02-12 20:23:32+00:00 - build 6273
+
+1. gh-796 and other folder shortcuts improvements:
+   - RCtrl+<N> in folder shortcuts menu works the same as Down
+   - RCtrl+<N> in folder shortcuts menu switches to the corresponding list if needed
+   - If there are no shortcuts assigned to RCtrl+<N>, an empty menu will pop up.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-12 01:52:41+00:00 - build 6272
 
 1. gh-795: FindFile Trap.

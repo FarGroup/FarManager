@@ -979,10 +979,10 @@ bool Panel::SetPluginDirectory(string_view const Directory, bool Silent)
 	return Result;
 }
 
-bool Panel::ExecShortcutFolder(int Pos)
+bool Panel::ExecShortcutFolder(size_t const Index)
 {
 	Shortcuts::data Data;
-	if (!Shortcuts(Pos).Get(Data))
+	if (!Shortcuts::Get(Index, Data))
 		return false;
 
 	Data.Folder = os::env::expand(Data.Folder);

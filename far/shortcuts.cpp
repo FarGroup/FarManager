@@ -99,6 +99,11 @@ public:
 
 	bool operator==(const shortcut&) const = default;
 
+	bool is_service() const
+	{
+		return PluginUuid == FarUuid && Folder.empty();
+	}
+
 	string Name;
 };
 
@@ -191,7 +196,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 
 	if (Item.PluginUuid == FarUuid)
 	{
-		return !Item.Folder.empty()? escape_ampersands(os::env::expand(Item.Folder)) : msg(lng::MShortcutNone);
+		return !Item.Folder.empty()? escape_ampersands(os::env::expand(Item.Folder)) : L""s;
 	}
 
 	const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginUuid);
@@ -229,7 +234,7 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 			continue;
 
 		ListItem.ComplexUserData = i;
-		if (!raw_mode && i->PluginUuid == FarUuid && i->Folder.empty())
+		if (!raw_mode && i->is_service())
 		{
 			if (ListItem.Name != SeparatorToken)
 			{
@@ -344,18 +349,19 @@ static bool EditItem(VMenu2& Menu, Shortcuts::shortcut& Item, bool raw)
 	return true;
 }
 
-bool Shortcuts::Get(data& Data)
+std::variant<bool, size_t> Shortcuts::GetImpl(data& Data, size_t const Index, bool const CanSkipMenu)
 {
-	if (m_Items.empty())
-		return false;
-
-	if (m_Items.size() == 1)
+	if (CanSkipMenu && m_Items.size() == 1 && !m_Items.front().is_service())
 	{
 		Data = static_cast<const data&>(m_Items.front());
 		return true;
 	}
 
-	const auto Iterator = Select(false);
+	const auto Result = Select(false, Index);
+	if (std::holds_alternative<size_t>(Result))
+		return std::get<size_t>(Result);
+
+	const auto Iterator = std::get<0>(Result);
 	if (Iterator == m_Items.cend())
 		return false;
 
@@ -363,14 +369,16 @@ bool Shortcuts::Get(data& Data)
 	return true;
 }
 
-std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
+std::variant<std::list<Shortcuts::shortcut>::const_iterator, size_t> Shortcuts::Select(bool Raw, size_t const Index)
 {
-	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), {}, ScrY - 4);
+	const auto FolderList = VMenu2::create(far::format(L"{} ({})"sv, msg(lng::MFolderShortcutsTitle), Index), {}, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	FolderList->SetHelp(HelpFolderShortcuts);
 	FolderList->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_CTRLUP, KEY_CTRLDOWN));
 	FolderList->SetId(FolderShortcutsMoreId);
 	FillMenu(*FolderList, m_Items, Raw);
+
+	std::optional<size_t> OtherShortcutIndex;
 
 	const auto ExitCode = FolderList->Run([&](const Manager::Key& RawKey)
 	{
@@ -435,9 +443,25 @@ std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 			return true;
 
 		default:
+			if (Key == KEY_RCTRL0 + Index)
+			{
+				FolderList->ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			}
+
+			if (in_closed_range(KEY_RCTRL0, Key, KEY_RCTRL9))
+			{
+				OtherShortcutIndex = Key - KEY_RCTRL0;
+				FolderList->Close();
+				return true;
+			}
+
 			return false;
 		}
 	});
+
+	if (OtherShortcutIndex)
+		return *OtherShortcutIndex;
 
 	return ExitCode < 0? m_Items.end() : *FolderList->GetComplexUserDataPtr<std::ranges::iterator_t<decltype(m_Items)>>(ExitCode);
 }
@@ -455,6 +479,24 @@ void Shortcuts::Add(string_view const Folder, const UUID& PluginUuid, string_vie
 {
 	m_Items.emplace_back(string{}, Folder, PluginFile, PluginData, PluginUuid);
 	m_Changed = true;
+}
+
+bool Shortcuts::Get(size_t Index, data& Data)
+{
+	bool CanSkipMenu = true;
+
+	for (;;)
+	{
+		if (const auto Result = Shortcuts(Index).GetImpl(Data, Index, CanSkipMenu); std::holds_alternative<bool>(Result))
+		{
+			return std::get<bool>(Result);
+		}
+		else
+		{
+			Index = std::get<size_t>(Result);
+			CanSkipMenu = false;
+		}
+	}
 }
 
 static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, MenuItemEx& MenuItem)
@@ -518,7 +560,7 @@ int Shortcuts::Configure()
 		const auto EditSubmenu = [&]
 		{
 			// We don't care about the result here, just letting the user to edit the submenu
-			AllShortcuts[Pos].Select(true);
+			AllShortcuts[Pos].Select(true, Pos);
 			UpdateItem();
 		};
 

@@ -449,7 +449,7 @@ bool Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 
 	if (Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9)
 	{
-		if (!Shortcuts(Key - KEY_RCTRL0).Get(Data))
+		if (!Shortcuts::Get(Key - KEY_RCTRL0, Data))
 			return false;
 		Data.Folder = os::env::expand(Data.Folder);
 	}

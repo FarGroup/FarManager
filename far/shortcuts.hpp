@@ -67,7 +67,7 @@ public:
 		bool operator==(const data&) const = default;
 	};
 
-	bool Get(data& Data);
+	static bool Get(size_t Index, data& Data);
 	void Add(string_view Folder, const UUID& PluginUuid, string_view PluginFile, string_view PluginData);
 
 	static int Configure();
@@ -87,7 +87,8 @@ public:
 	class shortcut;
 
 private:
-	std::list<shortcut>::const_iterator Select(bool Raw);
+	std::variant<bool, size_t> GetImpl(data& Data, size_t Index, bool CanSkipMenu);
+	std::variant<std::list<shortcut>::const_iterator, size_t> Select(bool Raw, size_t Index);
 	bool GetOne(size_t Index, data& Data) const;
 	void Save();
 
