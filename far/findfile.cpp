@@ -1150,7 +1150,13 @@ bool background_searcher::LookForString(string_view const FileName)
 					{
 						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
 						static_assert(std::endian::native == std::endian::little, "No way");
-						swap_bytes(readBufferA.data(), readBuffer.data(), readBlockSize, sizeof(char16_t));
+						const auto EvenSize = readBlockSize / sizeof(char16_t) * sizeof(char16_t);
+						swap_bytes(readBufferA.data(), readBuffer.data(), EvenSize, sizeof(char16_t));
+						if (readBlockSize & 1)
+						{
+							readBuffer[EvenSize / sizeof(char16_t)] = make_integer<char16_t>('\0', static_cast<char>(readBufferA[readBlockSize - 1]));
+							++bufferCount;
+						}
 						// Устанавливаем буфер сравнения
 						buffer = readBuffer.data();
 					}
