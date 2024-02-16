@@ -732,7 +732,7 @@ void push_utf16_string(lua_State* L, const wchar_t* str, intptr_t numchars)
 	lua_pushlstring(L, (const char*)str, numchars*sizeof(wchar_t));
 }
 
-int ustring_sub(lua_State *L)
+int ustring_subW(lua_State *L)
 {
 	size_t len;
 	intptr_t from, to;
@@ -756,7 +756,7 @@ int ustring_sub(lua_State *L)
 	return 1;
 }
 
-int ustring_len(lua_State *L)
+int ustring_lenW(lua_State *L)
 {
 	size_t len;
 	(void) luaL_checklstring(L, 1, &len);
@@ -874,7 +874,7 @@ const luaL_Reg ustring_funcs[] =
 	PAIR( ustring, GetLogicalDriveStrings),
 	PAIR( ustring, GetOEMCP),
 	PAIR( ustring, GlobalMemoryStatus),
-	PAIR( ustring, len),
+	PAIR( ustring, lenW),
 	PAIR( ustring, MultiByteToWideChar ),
 	PAIR( ustring, OemToUtf8),
 	PAIR( ustring, OutputDebugString),
@@ -885,7 +885,7 @@ const luaL_Reg ustring_funcs[] =
 	PAIR( ustring, SetFileAttr),
 	PAIR( ustring, SHGetFolderPath),
 	PAIR( ustring, Sleep),
-	PAIR( ustring, sub),
+	PAIR( ustring, subW),
 	PAIR( ustring, system),
 	PAIR( ustring, Utf16ToUtf8),
 	PAIR( ustring, Utf8ToOem),
