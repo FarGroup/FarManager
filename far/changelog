@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-02-16 00:38:30+00:00 - build 6274
+
+1. Rework OS commands parsing. Should fix gh-792 and gh-798 too.
+
+2. Refactoring, tests
+
+--------------------------------------------------------------------------------
 drkns 2024-02-12 20:23:32+00:00 - build 6273
 
 1. gh-796 and other folder shortcuts improvements:
