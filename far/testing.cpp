@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "components.hpp"
+#include "locale.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -134,6 +135,8 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 
 	NewArgs.emplace_back(L"--warn");
 	NewArgs.emplace_back(L"NoAssertions");
+
+	locale.invariant();
 
 	return Catch::Session().run(static_cast<int>(NewArgs.size()), NewArgs.data());
 }

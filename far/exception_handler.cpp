@@ -1020,7 +1020,7 @@ static auto memory_status()
 {
 	const auto size_to_str = [](uint64_t const Size)
 	{
-		return FileSizeToStr(Size, 0, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
+		return FileSizeToStrInvariant(Size, 0, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
 	};
 
 	string MemoryStatus;

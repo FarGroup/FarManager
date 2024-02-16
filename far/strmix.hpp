@@ -137,6 +137,9 @@ void PrepareUnitStr();
 string FileSizeToStr(unsigned long long FileSize, int WidthWithSign = -1, unsigned long long ViewFlags = COLFLAGS_GROUPDIGITS);
 
 [[nodiscard]]
+string FileSizeToStrInvariant(unsigned long long FileSize, int WidthWithSign = -1, unsigned long long ViewFlags = COLFLAGS_GROUPDIGITS);
+
+[[nodiscard]]
 bool CheckFileSizeStringFormat(string_view FileSizeStr);
 
 [[nodiscard]]

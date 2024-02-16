@@ -374,4 +374,19 @@ namespace detail
 
 		m_Valid = true;
 	}
+
+	void locale::invariant()
+	{
+		m_IsCJK = false;
+		m_DateFormat = date_type::mdy;
+		m_DigitsGrouping = 3;
+		m_DateSeparator = L'/';
+		m_TimeSeparator = L':';
+		m_DecimalSeparator = L'.';
+		m_ThousandSeparator = L',';
+
+		m_LocalNames = m_EnglishNames = get_month_day_names(LANG_ENGLISH);
+
+		m_Valid = true;
+	}
 }

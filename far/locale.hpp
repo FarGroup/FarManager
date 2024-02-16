@@ -81,6 +81,7 @@ namespace detail
 		const locale_names& EnglishNames() const;
 		const locale_names& Names(bool Local) const;
 		void invalidate();
+		void invariant();
 
 	private:
 		void refresh() const;
