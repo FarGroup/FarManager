@@ -590,7 +590,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 	Processing = true;
 	SCOPE_EXIT{ Processing = false; };
 
-	static const std::pair<void(*)(), string_view> Tests[]
+	static constexpr std::pair<void(*)(), string_view> Tests[]
 	{
 		{ tests::cpp_far,                      L"C++ far_exception"sv },
 		{ tests::cpp_far_rethrow,              L"C++ far_exception (rethrow)"sv },
