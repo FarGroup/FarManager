@@ -342,7 +342,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 	}
 }
 
-void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileName)
+void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
@@ -374,6 +374,19 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 
 		default:
 			std::unreachable();
+		}
+	}
+	else
+	{
+		if (MenuFileName.empty())
+		{
+			strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
+		}
+		else
+		{
+			auto ParentDir = MenuFileName;
+			CutToParent(ParentDir);
+			strMenuFilePath = ParentDir;
 		}
 	}
 
@@ -458,6 +471,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 			{
 				if (m_MenuMode == menu_mode::local)
 				{
+					// Menu can be invoked from any file with any name
+					// Going up switches to standard names & logic
+					MenuFileName = {};
+
 					if (CutToParent(strMenuFilePath))
 					{
 						continue;
