@@ -498,6 +498,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName)
 				switch (m_MenuMode)
 				{
 					case menu_mode::local:
+						// Menu can be invoked from any file with any name
+						// Switching to global switches to standard names & logic
+						MenuFileName = {};
+
 						m_MenuMode = menu_mode::global;
 						strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 						break;
