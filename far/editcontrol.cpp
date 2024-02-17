@@ -564,7 +564,25 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					}
 
 					const auto& ReadRec = *static_cast<INPUT_RECORD const*>(Param);
-					auto MenuKey = InputRecordToKey(&ReadRec);
+
+					auto MenuKey = [&]() -> unsigned
+					{
+						// ugh
+						if (ReadRec.EventType == MOUSE_EVENT)
+						{
+							auto Position = ComplMenu->GetPosition();
+
+							++Position.left;
+							++Position.top;
+							--Position.right;
+							--Position.bottom;
+
+							if (!Position.contains(ReadRec.Event.MouseEvent.dwMousePosition))
+								return KEY_NONE;
+						}
+
+						return InputRecordToKey(&ReadRec);
+					}();
 
 					::SetCursorType(Visible, Size);
 
