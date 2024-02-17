@@ -2025,6 +2025,13 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				*/
 				int VisPos=m_it_CurLine->RealPosToVisual(CurPos),
 				           NextVisPos=m_it_CurLine->RealPosToVisual(CurPos+1);
+
+				if (NextVisPos == VisPos)
+				{
+					// If the next physical pos got resolved into the same visual pos, we're likely standing on a surrogate. Try +2:
+					NextVisPos = m_it_CurLine->RealPosToVisual(CurPos + 2);
+				}
+
 				const auto Delta=NextVisPos-VisPos;
 
 				if (m_it_CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)

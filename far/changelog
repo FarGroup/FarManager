@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-02-17 16:37:11+00:00 - build 6276
+
+1. Fix block selection of surrogate pairs.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-17 12:06:08+00:00 - build 6275
 
 1. gh-799: Issue with left mouse click outside of autocomplete history list.
