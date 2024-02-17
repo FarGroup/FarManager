@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-02-17 12:06:08+00:00 - build 6275
+
+1. gh-799: Issue with left mouse click outside of autocomplete history list.
+
+2. gh-800: Backspace does not open user menu of parent folder.
+
+--------------------------------------------------------------------------------
 drkns 2024-02-16 00:38:30+00:00 - build 6274
 
 1. Rework OS commands parsing. Should fix gh-792 and gh-798 too.
