@@ -2935,6 +2935,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	}
 
 	m_AutoDeletedColors.erase(std::to_address(DelPtr));
+	DeleteColor(DelPtr, [](ColorItem const&){ return true; });
 
 	const auto Result = numbered_iterator(Lines.erase(DelPtr), DelPtr.Number());
 
@@ -6770,7 +6771,10 @@ void Editor::AddColor(numbered_iterator const& It, ColorItem const& Item)
 
 void Editor::DeleteColor(Edit const* It, delete_color_condition const Condition)
 {
-	const auto [ColorsIterator, Inserted] = m_ColorList.try_emplace(It);
+	const auto ColorsIterator = m_ColorList.find(It);
+	if (ColorsIterator == m_ColorList.end())
+		return;
+
 	std::erase_if(ColorsIterator->second, Condition);
 	if (ColorsIterator->second.empty())
 		m_ColorList.erase(ColorsIterator);
