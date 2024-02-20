@@ -170,8 +170,8 @@ private:
 	wchar_t ZeroChar() const;
 	size_t MaxViewLineSize() const { return ViOpt.MaxLineSize; }
 	size_t MaxViewLineBufferSize() const { return ViOpt.MaxLineSize + 15; }
-	int CalculateMaxBytesPerLineByScreenWidth() const;
-	void AdjustBytesPerLine(int Amount);
+	void ChangeHexModeBytesPerLine(int Amount);
+	void AdjustHexModeBytesPerLineToViewWidth();
 
 	friend class FileViewer;
 
@@ -234,7 +234,10 @@ private:
 	std::list<ViewerUndoData> UndoData;
 
 	int LastKeyUndo{};
-	int Width{}, XX2{};  // используется при расчете ширины при скролбаре
+	// используется при расчете ширины при скролбаре
+	int ScrollbarAdjustedWidth{};
+	int ScrollbarAdjustedRight{};
+
 	int ViewerID;
 	bool OpenFailed{};
 	bool bVE_READ_Sent{};
@@ -307,8 +310,8 @@ private:
 	std::vector<wchar_t> ReadBuffer;
 	F8CP f8cps{true};
 	std::optional<bool> m_GotoHex;
-	int m_PrevXX2{};
-	size_t m_BytesPerLine{ 16 };
+	int m_HexModePrevScrollbarAdjustedWidth{};
+	int m_HexModeBytesPerLine{ 16 };
 };
 
 class ViewerContainer
