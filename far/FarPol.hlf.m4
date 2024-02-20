@@ -379,15 +379,15 @@ $ #Polecenia kontroli panelu#
                                                #Prawy przycisk myszy#
  Zaznacz grupę                                              #Szary +#
  Odznacz grupę                                              #Szary -#
- Odwróć zaznaczenie                                         #Szary *#
+ Odwróć zaznaczenie                                         #Szara *#
  Zaznacz pliki o tym samym rozszerzeniu              #Ctrl+<Szary +>#
  jak bieżący plik
  Odznacz pliki o tym samym rozszerzeniu              #Ctrl+<Szary ->#
  jak bieżący plik
- Odwróć selekcję włączając foldery                   #Ctrl+<Szary *>#
+ Odwróć selekcję włączając foldery                   #Ctrl+<Szara *>#
  Zaznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary +>#
  Odznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary ->#
- Odwróć selekcję plików, odznacz foldery              #Alt+<Szary *>#
+ Odwróć selekcję plików, odznacz foldery              #Alt+<Szara *>#
  Zaznacz wszystkie pliki                            #Shift+<Szary +>#
  Odznacz wszystkie pliki                            #Shift+<Szary ->#
  Przywróć poprzednie zaznaczenie                             #Ctrl+M#
@@ -2295,7 +2295,7 @@ będzie włączona, Far spróbuje do uruchomienia użyć przypisania z systemu W
 oraz "IF DEFINED" (jeżeli zdefiniowano) pozwalają na skonfigurowanie "inteligentniejszych"
 powiązań - jeżeli ustawiono kilka powiązań do danego typu pliku, menu zostanie
 wyświetlone tylko dla powiązań, których warunki zostaną spełnione (wartość TRUE).
-  3. ^<wrap>Jeżeli określona maska jest wyrażeniem regularnym, do jej grup przechwytujących
+ 3. ^<wrap>Jeżeli określona maska jest wyrażeniem regularnym, do jej grup przechwytujących
 można odwoływać się w poleceniach jako %RegexGroup#N# or %RegexGroup{#Nazwa#}.
 
 
@@ -2786,20 +2786,20 @@ znak opisuje jedną zapisaną ścieżkę.
   Kolor tła w formacie aarrggbb lub indeks w palecie konsoli.
 
   #style#
-  One or more text styles, separated by spaces:
-  #bold#
-  #italic#
-  #overline#
-  #strikeout#
-  #faint#
-  #blink#
-  #inverse#
-  #invisible#
-  #underline#
-  #underline_double#
-  #underline_curly#
-  #underline_dot#
-  #underline_dash#
+  Jeden lub więcej stylów tekstu, oddzielone spacjami:
+  #bold#               (pogrubienie)
+  #italic#             (kursywa)
+  #overline#           (nadkreślenie)
+  #strikeout#          (przekreślenie)
+  #faint#              (przygaszenie)
+  #blink#              (migotanie)
+  #inverse#            (odwrotność)
+  #invisible#          (niewidzialność)
+  #underline#          (podkreślenie pojedyncze)
+  #underline_double#   (podkreślenie podwójne)
+  #underline_curly#    (podkreślenie kręcone)
+  #underline_dot#      (podkreślenie kropkowane)
+  #underline_dash#     (podkreślenie przerywane)
 
   #UUUUUUUU#
   Kolor tła w formacie aarrggbb lub indeks w palecie konsoli.
@@ -3453,7 +3453,7 @@ $ #Edytor: menu wszystkich znalezionych wystąpień#
  Przechodzi do pozycji znalezionego tekstu.
 
  #Ctrl+Numpad5#
- Vertically align all found entries.
+ Pionowe wyrównanie wszystkich znalezionych wartości.
 
  #Szary +#
  Dodaje zakładkę sesji w bieżącej pozycji.
@@ -4431,7 +4431,7 @@ $ #Wybór kolorów#
 
  #Domyślny# to kolor używany przez terminal, gdy nie określono żadnych kolorów, np. \(800000:800000) C:\> \-.
  Zazwyczaj jest to jeden z kolorów palety, np. \(7:0)srebrny na czarnym\-, ale niekoniecznie: niektóre terminale
-mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty. XXXXX
+mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty.
 
  Wartość kolorów jest także przedstawiania w postaci szesnastkowej, gdzie:
  - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
@@ -4623,7 +4623,7 @@ z tą samą #nazwą#, jak element pod kursorem. #†#
  #Ctrl+<Szara *># odwraca bieżące zaznaczenie na wszystkich elementach,
 włączając foldery.
 
- #Alt+<Szary *># odwraca zaznaczenie tylko dla plików, foldery są odznaczane.
+ #Alt+<Szara *># odwraca zaznaczenie tylko dla plików, foldery są odznaczane.
 
  #Ctrl+M# przywraca ostatnie zaznaczenie.
 
