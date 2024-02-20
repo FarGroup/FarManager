@@ -19032,7 +19032,7 @@ MSetColorStyleUnderlineNone
 "Ne"
 "Nein"
 "Nem"
-"Nie"
+"Brak"
 "No"
 "Nie"
 "No"
