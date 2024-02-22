@@ -90,8 +90,10 @@ build_script:
   #build netbox
   - curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
   - set /p NETBOX_VERSION=<TEMP
-  - echo "Download NetBox %NETBOX_VERSION%"
-  - set NETBOX_BASE_NAME=NetBox.%platform_name%.%NETBOX_VERSION%
+  - curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" |  grep -E '"browser_download_url": ".+%platform_name%.+"'| grep -v pdb | sed -E 's/.+NetBox\.%platform_name%\.(.+)\.7z.+/\1/'
+  - set /p NETBOX_FILE_VERSION=<TEMP
+  - echo "Download NetBox %NETBOX_FILE_VERSION%"
+  - set NETBOX_BASE_NAME=NetBox.%platform_name%.%NETBOX_FILE_VERSION%
   - set NETBOX_FILE_NAME=%NETBOX_BASE_NAME%.7z
   - set NETBOX_PDB_NAME=%NETBOX_BASE_NAME%.pdb.7z
   - set NETBOX_BASE_URL=https://github.com/michaellukashov/Far-NetBox/releases/download/v%NETBOX_VERSION%/
