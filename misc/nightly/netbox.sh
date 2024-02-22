@@ -3,7 +3,7 @@
 function bnetbox {
   BIT=$1
   PLUGIN=NetBox
-  NETBOX_VERSION=$(curl --silent "https://api.github.com/repos/FarGroup/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+  NETBOX_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
   if [ -z "$NETBOX_VERSION" ]; then
     echo "Failed to get NetBox version"
     return 1
@@ -18,7 +18,7 @@ function bnetbox {
   rm -f ${NETBOX_FILE_NAME}
   rm -f ${NETBOX_PDB_NAME}
 
-  NETBOX_BASE_URL=https://github.com/FarGroup/Far-NetBox/releases/download/v${NETBOX_VERSION}/
+  NETBOX_BASE_URL=https://github.com/michaellukashov/Far-NetBox/releases/download/v${NETBOX_VERSION}/
   curl -fsLJO ${NETBOX_BASE_URL}${NETBOX_FILE_NAME}
   curl -fsLJO ${NETBOX_BASE_URL}${NETBOX_PDB_NAME}
   if [ ! -e ${NETBOX_FILE_NAME} ]; then

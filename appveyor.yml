@@ -88,13 +88,13 @@ build_script:
   - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform_name%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform_name%
   - cd ..
   #build netbox
-  - curl --silent "https://api.github.com/repos/FarGroup/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
+  - curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
   - set /p NETBOX_VERSION=<TEMP
   - echo "Download NetBox %NETBOX_VERSION%"
   - set NETBOX_BASE_NAME=NetBox.%platform_name%.%NETBOX_VERSION%
   - set NETBOX_FILE_NAME=%NETBOX_BASE_NAME%.7z
   - set NETBOX_PDB_NAME=%NETBOX_BASE_NAME%.pdb.7z
-  - set NETBOX_BASE_URL=https://github.com/FarGroup/Far-NetBox/releases/download/v%NETBOX_VERSION%/
+  - set NETBOX_BASE_URL=https://github.com/michaellukashov/Far-NetBox/releases/download/v%NETBOX_VERSION%/
   - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_FILE_NAME%
   - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_PDB_NAME%
   - set NETBOX_DIR=ci\%configuration%.%platform_name%\Plugins
