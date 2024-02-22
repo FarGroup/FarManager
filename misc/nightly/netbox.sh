@@ -5,7 +5,7 @@ function bnetbox {
   PLUGIN=NetBox
   NETBOX_PLATFORM=$2
   NETBOX_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-  NETBOX_FILE_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep -E '"browser_download_url": ".+'${NETBOX_PLATFORM}'.+"'| grep -v pdb | sed -E 's/.+NetBox\.'${NETBOX_PLATFORM}'\.(.+)\.7z.+/\1/')
+  NETBOX_FILE_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep -E '\"browser_download_url\": \".+'${NETBOX_PLATFORM}'.+[0-9]\.7z\"' | sed -E 's/.+NetBox\.'${NETBOX_PLATFORM}'\.(.+)\.7z.+/\1/')
 
   if [ -z "$NETBOX_VERSION" ]; then
     echo "Failed to get NetBox version"
