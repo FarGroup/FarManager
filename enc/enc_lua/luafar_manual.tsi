@@ -2438,6 +2438,167 @@ mtime=3907614477
 </article>
 </node>
 <node>
+id=566
+lv=3
+dt=Text
+nm=Methods of dialog handle
+ctime=3917897670
+mtime=3917898379
+<article>
+#_Besides passing the dialog handle as a parameter to `far.SendDlgMessage`
+#_there is an alternative way: using dialog handle methods. The latter
+#_is shorter and more expressive, e.g. the following 2 calls do the same
+#_thing:
+#_    1) `far.SendDlgMessage`(hDlg, "DM_SETTEXT", item2, "Hello")
+#_    2) hDlg:SetText(item2, "Hello")
+#_
+#_Below is a table of correspondence between dialog messages
+#_and dialog handle methods:
+#_
+#_  AddHistory              DM_ADDHISTORY
+#_  Close                   DM_CLOSE
+#_  EditUnchangedFlag       DM_EDITUNCHANGEDFLAG
+#_  Enable                  DM_ENABLE
+#_  EnableRedraw            DM_ENABLEREDRAW
+#_  GetCheck                DM_GETCHECK
+#_  GetComboboxEvent        DM_GETCOMBOBOXEVENT
+#_  GetConstTextPtr         DM_GETCONSTTEXTPTR
+#_  GetCursorPos            DM_GETCURSORPOS
+#_  GetCursorSize           DM_GETCURSORSIZE
+#_  GetDialogInfo           DM_GETDIALOGINFO
+#_  GetDialogTitle          DM_GETDIALOGTITLE
+#_  GetDlgData              DM_GETDLGDATA
+#_  GetDlgItem              DM_GETDLGITEM
+#_  GetDlgRect              DM_GETDLGRECT
+#_  GetDropdownOpened       DM_GETDROPDOWNOPENED
+#_  GetEditPosition         DM_GETEDITPOSITION
+#_  GetFocus                DM_GETFOCUS
+#_  GetItemData             DM_GETITEMDATA
+#_  GetItemPosition         DM_GETITEMPOSITION
+#_  GetSelection            DM_GETSELECTION
+#_  GetText                 DM_GETTEXT
+#_  Key                     DM_KEY
+#_  ListAdd                 DM_LISTADD
+#_  ListAddStr              DM_LISTADDSTR
+#_  ListDelete              DM_LISTDELETE
+#_  ListFindString          DM_LISTFINDSTRING
+#_  ListGetCurPos           DM_LISTGETCURPOS
+#_  ListGetData             DM_LISTGETDATA
+#_  ListGetDataSize         DM_LISTGETDATASIZE
+#_  ListGetItem             DM_LISTGETITEM
+#_  ListGetTitles           DM_LISTGETTITLES
+#_  ListInfo                DM_LISTINFO
+#_  ListInsert              DM_LISTINSERT
+#_  ListSet                 DM_LISTSET
+#_  ListSetCurPos           DM_LISTSETCURPOS
+#_  ListSetData             DM_LISTSETDATA
+#_  ListSetTitles           DM_LISTSETTITLES
+#_  ListSort                DM_LISTSORT
+#_  ListUpdate              DM_LISTUPDATE
+#_  MoveDialog              DM_MOVEDIALOG
+#_  Redraw                  DM_REDRAW
+#_  ResizeDialog            DM_RESIZEDIALOG
+#_  Set3State               DM_SET3STATE
+#_  SetCheck                DM_SETCHECK
+#_  SetComboboxEvent        DM_SETCOMBOBOXEVENT
+#_  SetCursorPos            DM_SETCURSORPOS
+#_  SetCursorSize           DM_SETCURSORSIZE
+#_  SetDlgData              DM_SETDLGDATA
+#_  SetDlgItem              DM_SETDLGITEM
+#_  SetDropdownOpened       DM_SETDROPDOWNOPENED
+#_  SetEditPosition         DM_SETEDITPOSITION
+#_  SetFocus                DM_SETFOCUS
+#_  SetHistory              DM_SETHISTORY
+#_  SetInputNotify          DM_SETINPUTNOTIFY
+#_  SetItemData             DM_SETITEMDATA
+#_  SetItemPosition         DM_SETITEMPOSITION
+#_  SetMaxTextLength        DM_SETMAXTEXTLENGTH
+#_  SetSelection            DM_SETSELECTION
+#_  SetText                 DM_SETTEXT
+#_  SetTextPtr              DM_SETTEXTPTR
+#_  ShowDialog              DM_SHOWDIALOG
+#_  ShowItem                DM_SHOWITEM
+#_  User                    DM_USER
+#_
+#_@@@
+#_[far.SendDlgMessage]: 71.html
+#_
+#_{dm_addhistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_addhistory.html
+#_{dm_close}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_close.html
+#_{dm_editunchangedflag}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_editunchangedflag.html
+#_{dm_enableredraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enableredraw.html
+#_{dm_enable}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enable.html
+#_{dm_getcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcheck.html
+#_{dm_getcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcomboboxevent.html
+#_{dm_getconsttextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getconsttextptr.html
+#_{dm_getcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorpos.html
+#_{dm_getcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorsize.html
+#_{dm_getdialoginfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialoginfo.html
+#_{dm_getdialogtitle}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialogtitle.html
+#_{dm_getdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgdata.html
+#_{dm_getdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgitem.html
+#_{dm_getdlgrect}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgrect.html
+#_{dm_getdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdropdownopened.html
+#_{dm_geteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_geteditposition.html
+#_{dm_getfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getfocus.html
+#_{dm_getitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemdata.html
+#_{dm_getitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemposition.html
+#_{dm_getselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getselection.html
+#_{dm_gettext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_gettext.html
+#_{dm_key}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_key.html
+#_{dm_listaddstr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listaddstr.html
+#_{dm_listadd}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listadd.html
+#_{dm_listdelete}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listdelete.html
+#_{dm_listfindstring}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listfindstring.html
+#_{dm_listgetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetcurpos.html
+#_{dm_listgetdatasize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdatasize.html
+#_{dm_listgetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdata.html
+#_{dm_listgetitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetitem.html
+#_{dm_listgettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgettitles.html
+#_{dm_listinfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinfo.html
+#_{dm_listinsert}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinsert.html
+#_{dm_listsetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetcurpos.html
+#_{dm_listsetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetdata.html
+#_{dm_listsettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsettitles.html
+#_{dm_listset}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listset.html
+#_{dm_listsort}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsort.html
+#_{dm_listupdate}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listupdate.html
+#_{dm_movedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_movedialog.html
+#_{dm_redraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_redraw.html
+#_{dm_resizedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_resizedialog.html
+#_{dm_set3state}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_set3state.html
+#_{dm_setcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcheck.html
+#_{dm_setcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcomboboxevent.html
+#_{dm_setcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorpos.html
+#_{dm_setcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorsize.html
+#_{dm_setdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgdata.html
+#_{dm_setdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgitem.html
+#_{dm_setdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdropdownopened.html
+#_{dm_seteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_seteditposition.html
+#_{dm_setfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setfocus.html
+#_{dm_sethistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_sethistory.html
+#_{dm_setitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemdata.html
+#_{dm_setitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemposition.html
+#_{dm_setmaxtextlength}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmaxtextlength.html
+#_{dm_setinputnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setmouseeventnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setselection.html
+#_{dm_settextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settextptr.html
+#_{dm_settext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settext.html
+#_{dm_showdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showdialog.html
+#_{dm_showitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showitem.html
+#_{dm_user}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_user.html
+#_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
+#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
+#_{dn_dragged}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dragged.html
+#_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
+#_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
+#_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
+#_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
+#_
+</article>
+</node>
+<node>
 id=72
 lv=2
 dt=Text
