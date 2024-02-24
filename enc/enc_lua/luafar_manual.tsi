@@ -1509,6 +1509,70 @@ mtime=3618304216
 </article>
 </node>
 <node>
+id=567
+lv=3
+dt=Text
+nm=actl namespace
+ctime=3917945155
+mtime=3917945509
+<article>
+#_This is an alternative interface to FAR's advanced control commands.
+#_It is shorter and more expressive, e.g. the following 2 calls do the
+#_same thing:
+#_    1) info = far.AdvControl("ACTL_GETWINDOWINFO", 2)
+#_    2) info = actl.GetWindowInfo(2)
+#_
+#_**actl** is a global table containing those alternative functions.
+#_Below is a table of correspondence between **ACTL_** messages
+#_and functions from the **actl** table:
+#_
+#_  Commit                  ACTL_COMMIT
+#_  GetArrayColor           ACTL_GETARRAYCOLOR
+#_  GetColor                ACTL_GETCOLOR
+#_  GetCursorPos            ACTL_GETCURSORPOS
+#_  GetFarHwnd              ACTL_GETFARHWND
+#_  GetFarmanagerVersion    ACTL_GETFARMANAGERVERSION
+#_  GetFarRect              ACTL_GETFARRECT
+#_  GetWindowCount          ACTL_GETWINDOWCOUNT
+#_  GetWindowInfo           ACTL_GETWINDOWINFO
+#_  GetWindowType           ACTL_GETWINDOWTYPE
+#_  ProgressNotify          ACTL_PROGRESSNOTIFY
+#_  Quit                    ACTL_QUIT
+#_  RedrawAll               ACTL_REDRAWALL
+#_  SetArrayColor           ACTL_SETARRAYCOLOR
+#_  SetCurrentWindow        ACTL_SETCURRENTWINDOW
+#_  SetCursorPos            ACTL_SETCURSORPOS
+#_  SetProgressState        ACTL_SETPROGRESSSTATE
+#_  SetProgressValue        ACTL_SETPROGRESSVALUE
+#_  Synchro                 ACTL_SYNCHRO
+#_  Waitkey                 ACTL_WAITKEY
+#_
+#_@@@
+#_{actl_commit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_COMMIT
+#_{actl_getarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
+#_{actl_getcolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCOLOR
+#_{actl_getcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCURSORPOS
+#_{actl_getfarhwnd}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARHWND
+#_{actl_getfarmanagerversion}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
+#_{actl_getfarrect}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARRECT
+#_{actl_getwindowcount}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
+#_{actl_getwindowinfo}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
+#_{actl_getwindowtype}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
+#_{actl_progressnotify}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
+#_{actl_quit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_QUIT
+#_{actl_redrawall}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_REDRAWALL
+#_{actl_setarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
+#_{actl_setcurrentwindow}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
+#_{actl_setcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURSORPOS
+#_{actl_setprogressstate}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
+#_{actl_setprogressvalue}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
+#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
+#_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
+#_{advcontrol}: http://api.farmanager.com/ru/service_functions/advcontrol.html
+#_
+</article>
+</node>
+<node>
 id=546
 lv=2
 dt=Text
