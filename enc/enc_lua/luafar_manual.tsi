@@ -2193,7 +2193,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3907614477
+mtime=3917983426
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -2369,7 +2369,7 @@ mtime=3907614477
 #_    Result:  table
 #_
 #_DM_SETCHECK:
-#_    Param2:  flag
+#_    Param2:  flag or boolean
 #_    Result:  integer
 #_
 #_DM_SETCURSORPOS:

@@ -3157,7 +3157,9 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			Param2 = (void*)opt_utf8_string(L, pos4, NULL);
 			break;
 		case DM_SETCHECK:
-			Param2 = (void*)(intptr_t)check_env_flag(L, pos4);
+			res = lua_isboolean(L,pos4) ? (lua_toboolean(L,pos4) ? BSTATE_CHECKED : BSTATE_UNCHECKED)
+				: check_env_flag(L, pos4);
+			Param2 = (void*) res;
 			break;
 		case DM_GETCURSORPOS:
 

@@ -1,3 +1,8 @@
+shmuel 2024-02-25 00:45:56+02:00 - build 811
+
+1. LuaFAR: DM_SETCHECK accepts also a boolean Param2
+   (false=BSTATE_UNCHECKED, true=BSTATE_CHECKED).
+
 shmuel 2024-02-24 14:15:27+02:00 - build 810
 
 1. LuaFAR: add actl global table and functions.
