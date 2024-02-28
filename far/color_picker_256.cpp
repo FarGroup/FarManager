@@ -192,8 +192,9 @@ enum color_256_dialog_items
 
 	cd_button_home,
 
-	cd_button_plus,
 	cd_button_minus,
+	cd_text_slice,
+	cd_button_plus,
 
 	cd_text_rgb,
 	cd_text_r,
@@ -380,6 +381,8 @@ intptr_t color_256_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 				}
 			}
 
+			Dlg->SendMessage(DM_SETTEXTPTR, cd_text_slice, UNSAFE_CSTR(Cube.slice_str()));
+
 			Dlg->SendMessage(DM_REDRAW, 0, {});
 		}
 		return true;
@@ -478,6 +481,8 @@ bool pick_color_256(uint8_t& Color)
 		ColorDlg[ControlId].Selected = BSTATE_CHECKED;
 		ColorDlg[ControlId].Flags |= DIF_FOCUS;
 	}
+
+	ColorDlg[cd_text_slice].strData = ColorState.Cube.slice_str();
 
 	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&color_256_state::GetColorDlgProc, &ColorState));
 

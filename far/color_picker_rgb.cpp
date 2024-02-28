@@ -138,8 +138,9 @@ enum color_rgb_dialog_items
 
 	cd_button_home,
 
-	cd_button_plus,
 	cd_button_minus,
+	cd_text_slice,
+	cd_button_plus,
 
 	cd_button_zoom,
 
@@ -550,6 +551,8 @@ intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 				}
 			}
 
+			Dlg->SendMessage(DM_SETTEXTPTR, cd_text_slice, UNSAFE_CSTR(Cube.slice_str()));
+
 			Dlg->SendMessage(DM_REDRAW, 0, {});
 		}
 		return true;
@@ -683,6 +686,8 @@ static bool pick_color_rgb_tui(COLORREF& Color, [[maybe_unused]] std::array<COLO
 
 		if (ColorState.CurColor == colors::to_color(cube_rgb(ColorState, ColorState.Cube.Index)))
 			ColorDlg[ControlId].Selected = BSTATE_CHECKED;
+
+		ColorDlg[cd_text_slice].strData = ColorState.Cube.slice_str();
 	}
 
 	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&color_rgb_state::GetColorDlgProc, &ColorState));
