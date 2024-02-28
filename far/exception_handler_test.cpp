@@ -224,6 +224,14 @@ namespace tests
 		}
 	}
 
+	WARNING_PUSH()
+	WARNING_DISABLE_CLANG("-Wmissing-noreturn")
+	static void cpp_reach_unreachable()
+	{
+		std::unreachable();
+	}
+	WARNING_POP()
+
 	static void cpp_pure_virtual_call()
 	{
 		struct base
@@ -273,8 +281,6 @@ namespace tests
 		copy_string(Str2, new wchar_t[Str2.size()]);
 
 		*new int = 42;
-
-		Global->WindowManager->ExitMainLoop(FALSE);
 	}
 
 	static void cpp_invalid_parameter()
@@ -499,21 +505,6 @@ WARNING_POP()
 			DbgRaiseAssertionFailure();
 	}
 
-	static void debug_bounds_check()
-	{
-		[[maybe_unused]] std::vector<int> v(1);
-		const volatile size_t Index = 1;
-		v[Index] = 42;
-	}
-
-	WARNING_PUSH()
-	WARNING_DISABLE_CLANG("-Wmissing-noreturn")
-	static void debug_reach_unreachable()
-	{
-		std::unreachable();
-	}
-	WARNING_POP()
-
 	static void asan_stack_buffer_overflow()
 	{
 		[[maybe_unused]] int v[1];
@@ -590,91 +581,125 @@ static bool ExceptionTestHook(Manager::Key const& key)
 	Processing = true;
 	SCOPE_EXIT{ Processing = false; };
 
-	static constexpr std::pair<void(*)(), string_view> Tests[]
+	using test_entry = std::pair<void(*)(), string_view>;
+
+	static constexpr test_entry CppTests[]
 	{
-		{ tests::cpp_far,                      L"C++ far_exception"sv },
-		{ tests::cpp_far_rethrow,              L"C++ far_exception (rethrow)"sv },
-		{ tests::cpp_far_fatal,                L"C++ far_fatal_exception"sv },
-		{ tests::cpp_std,                      L"C++ std::exception"sv },
-		{ tests::cpp_std_lib,                  L"C++ std::exception from stdlib"sv },
-		{ tests::cpp_std_nested,               L"C++ nested std::exception"sv },
-		{ tests::cpp_std_nested_thread,        L"C++ nested std::exception (thread)"sv },
-		{ tests::cpp_std_bad_alloc,            L"C++ std::bad_alloc"sv },
-		{ tests::cpp_bad_malloc,               L"C++ malloc failure"sv },
-		{ tests::cpp_unknown,                  L"C++ unknown exception"sv },
-		{ tests::cpp_unknown_nested,           L"C++ unknown exception (nested)"sv },
-		{ tests::cpp_abort,                    L"C++ abort"sv },
-		{ tests::cpp_terminate,                L"C++ terminate"sv },
-		{ tests::cpp_terminate_unwind,         L"C++ terminate unwind"sv },
-		{ tests::cpp_noexcept_throw,           L"C++ noexcept throw"sv },
-		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
-		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
-		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },
-		{ tests::cpp_assertion_failure,        L"C++ assertion failure"sv },
-		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
-		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
-		{ tests::seh_access_violation_ex_nx,   L"SEH access violation (execute NX)"sv },
-		{ tests::seh_access_violation_ex_nul,  L"SEH access violation (execute nullptr)"sv },
-		{ tests::seh_access_violation_ex_np,   L"SEH access violation (execute non-ptr)"sv },
-		{ tests::seh_access_violation_bad,     L"SEH access violation (malformed)"sv },
-		{ tests::seh_in_page_error,            L"SEH in page error"sv },
-		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },
-		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
-		{ tests::seh_int_overflow,             L"SEH int overflow"sv },
-		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
-		{ tests::seh_heap_corruption,          L"SEH heap corruption"sv },
-		{ tests::seh_heap_no_memory,           L"SEH heap no memory"sv },
-		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
-		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },
-		{ tests::seh_fp_underflow,             L"SEH floating-point underflow"sv },
-		{ tests::seh_fp_inexact_result,        L"SEH floating-point inexact result"sv },
-		{ tests::seh_fp_invalid,               L"SEH floating-point invalid operation"sv },
-		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
-		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
-		{ tests::seh_unknown,                  L"SEH unknown"sv },
-		{ tests::seh_unhandled,                L"SEH unhandled"sv },
-		{ tests::seh_assertion_failure,        L"SEH assertion failure"sv },
-		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
-		{ tests::debug_reach_unreachable,      L"Debug reach unreachable"sv },
-		{ tests::asan_stack_buffer_overflow,   L"ASan stack-buffer-overflow"sv },
-		{ tests::asan_heap_buffer_overflow,    L"ASan heap-buffer-overflow"sv },
-		{ tests::asan_stack_use_after_scope,   L"ASan stack-use-after-scope"sv },
+		{ tests::cpp_far,                      L"far_exception"sv },
+		{ tests::cpp_far_rethrow,              L"far_exception (rethrow)"sv },
+		{ tests::cpp_far_fatal,                L"far_fatal_exception"sv },
+		{ tests::cpp_std,                      L"std::exception"sv },
+		{ tests::cpp_std_lib,                  L"std::exception from stdlib"sv },
+		{ tests::cpp_std_nested,               L"nested std::exception"sv },
+		{ tests::cpp_std_nested_thread,        L"nested std::exception (thread)"sv },
+		{ tests::cpp_std_bad_alloc,            L"std::bad_alloc"sv },
+		{ tests::cpp_bad_malloc,               L"malloc failure"sv },
+		{ tests::cpp_unknown,                  L"unknown exception"sv },
+		{ tests::cpp_unknown_nested,           L"unknown exception (nested)"sv },
+		{ tests::cpp_abort,                    L"abort"sv },
+		{ tests::cpp_terminate,                L"terminate"sv },
+		{ tests::cpp_terminate_unwind,         L"terminate unwind"sv },
+		{ tests::cpp_noexcept_throw,           L"noexcept throw"sv },
+		{ tests::cpp_reach_unreachable,        L"reach unreachable"sv },
+		{ tests::cpp_pure_virtual_call,        L"pure virtual call"sv },
+		{ tests::cpp_memory_leak,              L"memory leak"sv },
+		{ tests::cpp_invalid_parameter,        L"invalid parameter"sv },
+		{ tests::cpp_assertion_failure,        L"assertion failure"sv },
 	};
 
-	const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
-	ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
-	ModalMenu->SetPosition({ -1, -1, 0, 0 });
-
-	for (const auto& [Ptr, Description]: Tests)
+	static constexpr test_entry SehTests[]
 	{
-		ModalMenu->AddItem(string(Description));
+		{ tests::seh_access_violation_read,    L"access violation (read)"sv },
+		{ tests::seh_access_violation_write,   L"access violation (write)"sv },
+		{ tests::seh_access_violation_ex_nx,   L"access violation (execute NX)"sv },
+		{ tests::seh_access_violation_ex_nul,  L"access violation (execute nullptr)"sv },
+		{ tests::seh_access_violation_ex_np,   L"access violation (execute non-ptr)"sv },
+		{ tests::seh_access_violation_bad,     L"access violation (malformed)"sv },
+		{ tests::seh_in_page_error,            L"in page error"sv },
+		{ tests::seh_divide_by_zero,           L"divide by zero"sv },
+		{ tests::seh_divide_by_zero_thread,    L"divide by zero (thread)"sv },
+		{ tests::seh_int_overflow,             L"int overflow"sv },
+		{ tests::seh_stack_overflow,           L"stack overflow"sv },
+		{ tests::seh_heap_corruption,          L"heap corruption"sv },
+		{ tests::seh_heap_no_memory,           L"heap no memory"sv },
+		{ tests::seh_fp_divide_by_zero,        L"floating-point divide by zero"sv },
+		{ tests::seh_fp_overflow,              L"floating-point overflow"sv },
+		{ tests::seh_fp_underflow,             L"floating-point underflow"sv },
+		{ tests::seh_fp_inexact_result,        L"floating-point inexact result"sv },
+		{ tests::seh_fp_invalid,               L"floating-point invalid operation"sv },
+		{ tests::seh_breakpoint,               L"breakpoint"sv },
+		{ tests::seh_alignment_fault,          L"alignment fault"sv },
+		{ tests::seh_unknown,                  L"unknown"sv },
+		{ tests::seh_unhandled,                L"unhandled"sv },
+		{ tests::seh_assertion_failure,        L"assertion failure"sv },
+	};
+
+	static constexpr test_entry AsanTests[]
+	{
+		{ tests::asan_stack_buffer_overflow,   L"stack-buffer-overflow"sv },
+		{ tests::asan_heap_buffer_overflow,    L"heap-buffer-overflow"sv },
+		{ tests::asan_stack_use_after_scope,   L"stack-use-after-scope"sv },
+	};
+
+	static constexpr std::pair<std::span<test_entry const>, string_view> TestGroups[]
+	{
+		{ CppTests,       L"C++"sv },
+		{ SehTests,       L"SEH"sv },
+		{ AsanTests,      L"ASan"sv },
+	};
+
+	const auto TestGroupsMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 3);
+	TestGroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
+	TestGroupsMenu->SetPosition({ -1, -1, 0, 0 });
+
+	for (const auto& [Ptr, Description]: TestGroups)
+	{
+		TestGroupsMenu->AddItem(string(Description));
 	}
 
 	static auto ForceStderrUI = false;
 
-	ModalMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
-	ModalMenu->AddItem(MenuItemEx{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
+	TestGroupsMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
+	TestGroupsMenu->AddItem(MenuItemEx{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
 
-	const auto ExitCode = ModalMenu->Run();
-	if (ExitCode < 0)
-		return true;
+	const auto StdErrId = static_cast<int>(TestGroupsMenu->size() - 1);
 
-	if (static_cast<size_t>(ExitCode) == ModalMenu->size() - 1)
+	for (;;)
 	{
-		ForceStderrUI = !ForceStderrUI;
-		return true;
-	}
+		const auto TestGroupsMenuExitCode = TestGroupsMenu->Run();
+		if (TestGroupsMenuExitCode < 0)
+			break;
 
-	force_stderr_exception_ui(ForceStderrUI);
-
-	Tests[ExitCode].first();
-
-	Message(MSG_WARNING,
-		L"Exception test failed"sv,
+		if (TestGroupsMenuExitCode == StdErrId)
 		{
-			string(Tests[ExitCode].second),
-		},
-		{ lng::MOk });
+			ForceStderrUI = !ForceStderrUI;
+			force_stderr_exception_ui(ForceStderrUI);
+			TestGroupsMenu->FlipCheck(StdErrId);
+			continue;
+		}
+
+		const auto& TestGroup = TestGroups[TestGroupsMenuExitCode];
+
+		const auto TestsMenu = VMenu2::create(string(TestGroup.second), {}, ScrY - 3);
+		TestsMenu->SetMenuFlags(VMENU_WRAPMODE);
+		TestsMenu->SetPosition({ -1, -1, 0, 0 });
+
+		for (const auto& [Ptr, Description]: TestGroup.first)
+		{
+			TestsMenu->AddItem(string(Description));
+		}
+
+		for (;;)
+		{
+			const auto TestsExitCode = TestsMenu->Run();
+			if (TestsExitCode < 0)
+				break;
+
+			const auto& Test = TestGroup.first[TestsExitCode];
+
+			Test.first();
+		}
+	}
 
 	return true;
 }

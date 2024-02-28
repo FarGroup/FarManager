@@ -367,9 +367,14 @@ namespace os::debug
 		// Use -service to set it back to _OUT_TO_STDERR (e.g. for macro tests on CI).
 		_set_error_mode(_OUT_TO_MSGBOX);
 
-		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
-		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
-		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
+		const auto ReportToUI = [](int const ReportType)
+		{
+			_CrtSetReportMode(ReportType, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_WNDW);
+		};
+
+		ReportToUI(_CRT_WARN);
+		ReportToUI(_CRT_ERROR);
+		ReportToUI(_CRT_ASSERT);
 #endif
 	}
 
@@ -378,13 +383,15 @@ namespace os::debug
 #ifdef _DEBUG
 		_set_error_mode(_OUT_TO_STDERR);
 
-		(void)_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-		(void)_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-		(void)_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+		const auto ReportToStdErr = [](int const ReportType)
+		{
+			(void)_CrtSetReportFile(ReportType, _CRTDBG_FILE_STDERR);
+			_CrtSetReportMode(ReportType, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_FILE);
+		};
 
-		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+		ReportToStdErr(_CRT_WARN);
+		ReportToStdErr(_CRT_ERROR);
+		ReportToStdErr(_CRT_ASSERT);
 #endif
 	}
 }
