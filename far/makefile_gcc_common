@@ -8,6 +8,7 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 # USE_LTO - use link-time optimisation in release mode
 # CLANG - use Clang compiler and LLD linker
 # USE_LLD - use LLD linker (useful for debug builds where ld is insanely slow)
+# PYTHON - use the python script for language files generation
 
 # Toolchain setup
 TOOLSDIR = $(FARDIR)tools/
@@ -58,7 +59,12 @@ AR = $(GCC_PREFIX)ar
 
 M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DBUILD_TYPE=$(FARMANAGER_BUILD_TYPE) -DSCM_REVISION=$(FARMANAGER_SCM_REVISION) -DHOSTTYPE=$(HOST_TYPE)
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
-LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
+
+ifdef PYTHON
+ LGEN = $(strip $(call os_name, python $(FARDIR)../misc/lng/lng.generator.py))
+else
+ LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
+endif
 # Toolchain setup end
 
 # Output directory setup
