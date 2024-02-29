@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "compiler.hpp"
 
+#include <algorithm>
 #include <version>
 
 //----------------------------------------------------------------------------
@@ -128,7 +129,7 @@ namespace std
 }
 #endif
 
-#ifndef __cpp_lib_ranges_fold
+#if !defined(__cpp_lib_ranges_fold) && !defined(_LIBCPP___ALGORITHM_FOLD_H)
 #include <functional>
 #include <iterator>
 #include <ranges>
