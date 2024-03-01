@@ -191,7 +191,7 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
-ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
+ADDINCLUDE=-I$(BOOTSTRAPDIR)..
 FORCEINCLUDE=$(patsubst %, -include %, headers.hpp $(FORCEINCLUDELIST_NO_PCH))
 
 CPPFLAGS += $(ADDINCLUDE)
@@ -247,10 +247,10 @@ $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJ
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 ifdef USE_OBJDUMP_MAPS
 	@echo Generating map file
-	objdump --syms --demangle $(EXEFULLNAME) > $(MAP)
+	$(OBJDUMP) --syms --demangle $(EXEFULLNAME) > $(MAP)
 endif
 ifndef DEBUG
-	strip $(EXEFULLNAME)
+	$(STRIP) $(EXEFULLNAME)
 endif
 ifdef ENABLE_TESTS
 	@echo Running unit tests

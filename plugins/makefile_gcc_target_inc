@@ -53,9 +53,9 @@ $(DLLFULLNAME): $(OBJS) $(DEF) $(USERTARGETS)
 	$(CXX) -o $@ $(DEF) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
 ifdef USE_OBJDUMP_MAPS
 	@echo Generating map file
-	objdump --syms --demangle $(DLLFULLNAME) > $(MAP)
+	$(OBJDUMP) --syms --demangle $(DLLFULLNAME) > $(MAP)
 ifndef DEBUG
-	strip $(DLLFULLNAME)
+	$(STRIP) $(DLLFULLNAME)
 endif
 endif
 

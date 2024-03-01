@@ -9,6 +9,7 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 # CLANG - use Clang compiler and LLD linker
 # USE_LLD - use LLD linker (useful for debug builds where ld is insanely slow)
 # PYTHON - use the python script for language files generation
+# LLVM - force the use of llvm tools and libraries
 
 # Toolchain setup
 TOOLSDIR = $(FARDIR)tools/
@@ -45,17 +46,29 @@ CP = $(UTILS_PREFIX)cp -f
 MV = $(UTILS_PREFIX)mv -f
 
 ifdef CLANG
-CXX = clang++
-CC = clang
+CXX = $(GCC_PREFIX)clang --driver-mode=g++
+CC = $(GCC_PREFIX)clang
 else # CLANG
 CXX = $(GCC_PREFIX)g++$(DW2)
 CC = $(GCC_PREFIX)gcc$(DW2)
 endif # CLANG
 
-WINDRES = $(GCC_PREFIX)windres
-DLLTOOL = $(GCC_PREFIX)dlltool
-RANLIB = $(GCC_PREFIX)ranlib
-AR = $(GCC_PREFIX)ar
+ifdef LLVM
+ifndef CLANG
+$(error LLVM requires CLANG)
+endif
+CXX += -stdlib=libc++
+TOOL_PREFIX = llvm-
+else
+TOOL_PREFIX = $(GCC_PREFIX)
+endif
+
+WINDRES = $(TOOL_PREFIX)windres
+DLLTOOL = $(TOOL_PREFIX)dlltool
+RANLIB = $(TOOL_PREFIX)ranlib
+AR = $(TOOL_PREFIX)ar
+OBJDUMP = $(TOOL_PREFIX)objdump
+STRIP = $(TOOL_PREFIX)strip
 
 M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DBUILD_TYPE=$(FARMANAGER_BUILD_TYPE) -DSCM_REVISION=$(FARMANAGER_SCM_REVISION) -DHOSTTYPE=$(HOST_TYPE)
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
@@ -218,9 +231,9 @@ LLD_FLAGS = \
 
 ifdef CLANG
 ifeq ($(DIRBIT), 32)
-CLANG_TARGET = i686-pc-windows-gnu
+CLANG_TARGET = i686-w64-windows-gnu
 else
-CLANG_TARGET = x86_64-pc-windows-gnu
+CLANG_TARGET = x86_64-w64-windows-gnu
 endif
 
 CLANG_FLAGS = \
@@ -229,7 +242,16 @@ CLANG_FLAGS = \
 	-fms-extensions \
 	-fno-emulated-tls \
 	-Weverything \
-	$(PDB_FLAGS)
+	$(PDB_FLAGS) \
+
+ifdef LLVM
+CLANG_FLAGS += \
+	--start-no-unused-arguments \
+	-rtlib=compiler-rt \
+	-unwindlib=libunwind \
+	--end-no-unused-arguments \
+
+endif
 
 CFLAGS += $(CLANG_FLAGS)
 
@@ -237,7 +259,6 @@ LNKFLAGS += \
 	$(CLANG_FLAGS) \
 	$(LLD_FLAGS) \
 
-else
 ifndef USE_LLD
 # LD map files are unusable for tracing,
 # so we keep the symbols, objdump them and strip manually.
