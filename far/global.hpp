@@ -75,6 +75,7 @@ public:
 	bool DisablePluginsOutput{};
 	int IsProcessAssignMacroKey{};
 	size_t PluginPanelsCount{};
+	int FarExitCode{EXIT_SUCCESS};
 
 	class far_clock
 	{

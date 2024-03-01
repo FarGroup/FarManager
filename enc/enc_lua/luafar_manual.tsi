@@ -1386,7 +1386,7 @@ id=153
 lv=2
 dt=Text
 nm=far.AdvControl
-mtime=3618304216
+mtime=3918497575
 <article>
 #_Result = far.AdvControl (Command, Param1, Param2)
 #_
@@ -1403,8 +1403,11 @@ mtime=3618304216
 #_ACTL_COMMIT,
 #_ACTL_GETWINDOWCOUNT,
 #_ACTL_PROGRESSNOTIFY,
-#_ACTL_QUIT,
 #_ACTL_REDRAWALL:
+#_    Result:  integer
+#_
+#_ACTL_QUIT:
+#_    Param1:  integer
 #_    Result:  integer
 #_
 #_ACTL_GETFARHWND:

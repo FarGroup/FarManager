@@ -118,7 +118,7 @@ public:
 	window_ptr FindWindowByFile(int ModalType, string_view FileName) const;
 	void EnterMainLoop();
 	void ProcessMainLoop();
-	void ExitMainLoop(int Ask);
+	void ExitMainLoop(int Ask, int ExitCode = EXIT_SUCCESS);
 	bool ProcessKey(Key key);
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	void PluginsMenu() const; // вызываем меню по F11

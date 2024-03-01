@@ -316,7 +316,7 @@ static int MainProcess(
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 
-		return EXIT_SUCCESS;
+		return Global->FarExitCode;
 }
 
 static auto full_path_expanded(string_view const Str)

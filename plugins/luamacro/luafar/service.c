@@ -4736,8 +4736,10 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 		case ACTL_COMMIT:
 		case ACTL_GETWINDOWCOUNT:
 		case ACTL_PROGRESSNOTIFY:
-		case ACTL_QUIT:
 		case ACTL_REDRAWALL:
+			break;
+		case ACTL_QUIT:
+			Param1 = luaL_optinteger(L, pos2, EXIT_SUCCESS);
 			break;
 		case ACTL_GETFARHWND:
 			lua_pushlightuserdata(L, CAST(void*, Info->AdvControl(PluginId, Command, 0, NULL)));

@@ -650,7 +650,7 @@ void Manager::ProcessMainLoop()
 	}
 }
 
-void Manager::ExitMainLoop(int Ask)
+void Manager::ExitMainLoop(int Ask, int ExitCode)
 {
 	if (!Ask || !Global->Opt->Confirm.Exit || Message(0,
 		msg(lng::MQuit),
@@ -666,6 +666,7 @@ void Manager::ExitMainLoop(int Ask)
 		*/
 		if (ExitAll() || Global->CloseFAR)
 		{
+			Global->FarExitCode = ExitCode;
 			Global->CtrlObject->Plugins->NotifyExitLuaMacro();
 
 			const auto cp = Global->CtrlObject->Cp();

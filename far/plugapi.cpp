@@ -714,7 +714,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_QUIT:
-			Global->WindowManager->ExitMainLoop(FALSE);
+			Global->WindowManager->ExitMainLoop(FALSE, Param1);
 			return TRUE;
 
 		case ACTL_GETFARRECT:
