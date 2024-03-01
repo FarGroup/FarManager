@@ -21,7 +21,7 @@ SRCS = \
 	luafar/win.c \
 
 USERLIBS = \
-	luasdk/$(DIRBIT)/lua51.lib \
+	luasdk/$(BITPREFIX)$(DIRBIT)/lua51.lib \
 	-Wl,--out-implib,$(OBJDIR)/luafar3.lib \
 
 USERC = \
@@ -58,8 +58,8 @@ DEF_NAME = -
 include ../makefile_gcc_def_inc
 
 DOCS = \
-	luasdk/$(DIRBIT)/lua51.dll \
-	luasdk/$(DIRBIT)/lpeg.dll \
+	luasdk/$(BITPREFIX)$(DIRBIT)/lua51.dll \
+	luasdk/$(BITPREFIX)$(DIRBIT)/lpeg.dll \
 
 include ../makefile_gcc_target_inc
 

@@ -1,4 +1,5 @@
-﻿#include "ustring.h"
+﻿#include <errno.h>
+#include "ustring.h"
 #include "luafar.h"
 
 extern int IsLuaJIT(void);

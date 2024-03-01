@@ -12,8 +12,8 @@ DEF_NAME=
 !include ..\makefile_vc_def_inc
 
 DOCS = \
-	luasdk\$(DIRBIT)\lua51.dll \
-	luasdk\$(DIRBIT)\lpeg.dll \
+	luasdk\$(BITPREFIX)$(DIRBIT)\lua51.dll \
+	luasdk\$(BITPREFIX)$(DIRBIT)\lpeg.dll \
 
 LINK_OBJS = \
 $(INTDIR)\bit64.obj \
@@ -34,7 +34,7 @@ $(INTDIR)\ustring.obj \
 $(INTDIR)\util.obj \
 $(INTDIR)\win.obj \
 
-LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua51.lib
+LINK_LIBS=$(LINK_LIBS) luasdk\$(BITPREFIX)$(DIRBIT)\lua51.lib
 
 !include ..\makefile_vc_target_inc
 
