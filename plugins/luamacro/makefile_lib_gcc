@@ -1,5 +1,10 @@
 NAME=luafar3
+
+ifdef SYS_LUA
+LUA=lua
+else
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
+endif
 
 SRCS = \
 	luafar/bit64.c \
