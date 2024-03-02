@@ -12,11 +12,13 @@ EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.dep
 
+ifndef ENABLE_TESTS
 ifdef DEBUG
 ENABLE_TESTS = 1
 endif
+endif
 
-ifdef ENABLE_TESTS
+ifeq ($(ENABLE_TESTS),1)
 CFLAGS += \
 	-D ENABLE_TESTS \
 
@@ -265,7 +267,7 @@ endif
 ifndef DEBUG
 	$(STRIP) $(EXEFULLNAME)
 endif
-ifdef ENABLE_TESTS
+ifeq ($(ENABLE_TESTS),1)
 	@echo Running unit tests
 	$@ /service:test
 endif
