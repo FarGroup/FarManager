@@ -499,12 +499,6 @@ WARNING_POP()
 		});
 	}
 
-	static void seh_assertion_failure()
-	{
-		if ([[maybe_unused]] volatile const auto Condition = true)
-			DbgRaiseAssertionFailure();
-	}
-
 	static void asan_stack_buffer_overflow()
 	{
 		[[maybe_unused]] int v[1];
@@ -631,7 +625,6 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_alignment_fault,          L"alignment fault"sv },
 		{ tests::seh_unknown,                  L"unknown"sv },
 		{ tests::seh_unhandled,                L"unhandled"sv },
-		{ tests::seh_assertion_failure,        L"assertion failure"sv },
 	};
 
 	static constexpr test_entry AsanTests[]

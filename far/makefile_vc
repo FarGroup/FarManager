@@ -28,6 +28,9 @@
 #ENABLE_TESTS - Enable unit tests in Release mode (always enabled in Debug)
 #
 #DEFUSERFLAGS -
+#
+#PYTHON - use the python script for language files generation
+
 
 #include for user defines if needed
 !ifdef DEFFILE
@@ -51,6 +54,12 @@ FARINCLUDE=Include
 
 M4=tools\m4 -P -DFARBIT=$(DIRBIT) -DBUILD_TYPE=$(FARMANAGER_BUILD_TYPE) -DSCM_REVISION=$(FARMANAGER_SCM_REVISION)
 GAWK=tools\gawk
+
+!ifdef PYTHON
+LGEN=python.exe ..\misc\lng\lng.generator.py
+!else
+LGEN=tools\lng.generator.exe
+!endif
 
 BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
 
@@ -248,7 +257,7 @@ ALL: AllDirs lng depfile include docs $(TEST_OBJS)
 .PHONY: lng
 lng: $(BOOTSTRAPDIR)farlang.templ
 	@echo Generating language files
-	tools\lng.generator.exe -nc -i "$(BOOTSTRAPDIR)lang.ini" -oh "$(BOOTSTRAPDIR)" -ol "$(OUTDIR)" "$(BOOTSTRAPDIR)farlang.templ"
+	$(LGEN) -nc -i "$(BOOTSTRAPDIR)lang.ini" -oh "$(BOOTSTRAPDIR)" -ol "$(OUTDIR)" "$(BOOTSTRAPDIR)farlang.templ"
 
 .PHONY: depfile
 depfile:

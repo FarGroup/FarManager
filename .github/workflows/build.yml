@@ -2,9 +2,14 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: master
   pull_request:
-    branches: [ master ]
+    branches: master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 #------------------------------------------------------------------------------
@@ -13,9 +18,6 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
 
       - name: Run checks
         working-directory: far
@@ -28,7 +30,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0'
 
@@ -70,7 +72,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: matrix.build == 'msbuild_cl_x64_debug'
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: cpp
 
@@ -89,13 +91,14 @@ jobs:
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'msbuild_cl_x64_debug'
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
       - name: Publish
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Far.${{ matrix.build_config }}.${{ matrix.platform_name }}
           path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.platform_sln }}
+          compression-level: 9
 
 #------------------------------------------------------------------------------
   build-nmake:
@@ -128,7 +131,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: matrix.build == 'nmake_cl_x64_debug'
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: cpp
 
@@ -167,121 +170,139 @@ jobs:
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'nmake_cl_x64_debug'
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
 #------------------------------------------------------------------------------
-  build-mingw:
-    runs-on: windows-2022
+  build-msys2:
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        build: [
-                 mingw_gcc_x64_debug,
-                 mingw_gcc_x64_release,
-                 mingw_clang_x64_debug,
-                 mingw_clang_x64_release,
-                 mingw_llvm_x64_debug,
-                 mingw_llvm_x64_release
-               ]
+        sys: [MINGW64, UCRT64, CLANG64, MINGW32, CLANG32]
+        compiler: [gcc, clang]
+        build_type: [Release, Debug]
+        exclude:
+          - sys: clang32
+            compiler: gcc
+          - sys: clang64
+            compiler: gcc
 
-        include:
-          - { build: mingw_gcc_x64_debug,     compiler: mingw_gcc,   arch: amd64, build_config: Debug }
-          - { build: mingw_gcc_x64_release,   compiler: mingw_gcc,   arch: amd64, build_config: Release }
-          - { build: mingw_clang_x64_debug,   compiler: mingw_clang, arch: amd64, build_config: Debug }
-          - { build: mingw_clang_x64_release, compiler: mingw_clang, arch: amd64, build_config: Release }
-          - { build: mingw_llvm_x64_debug,    compiler: mingw_llvm,  arch: amd64, build_config: Debug }
-          - { build: mingw_llvm_x64_release,  compiler: mingw_llvm,  arch: amd64, build_config: Release }
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        if: matrix.build == 'mingw_gcc_x64_debug'
-        uses: github/codeql-action/init@v2
+        if: matrix.sys == 'MINGW64' && matrix.compiler == 'gcc' && matrix.build_type == 'Debug'
+        uses: github/codeql-action/init@v3
         with:
           languages: cpp
 
-      - name: Set environment for debug build
-        if: matrix.build_config  == 'Debug'
-        run: |
-          Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
-          Add-Content -Path $env:GITHUB_ENV -Value "USE_LLD=1"
-
-      - name: Install GCC x64
-        if: matrix.compiler  == 'mingw_gcc'
+      - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
-          install: make gcc mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
+          update: true
+          msystem: ${{ matrix.sys }}
+          pacboy: toolchain:p
 
-      - name: Build Far (gcc)
-        if: matrix.compiler  == 'mingw_gcc'
+      - name: Setup clang build
+        if: matrix.compiler == 'clang'
+        run: |
+          echo "CLANG=1" >> "$GITHUB_ENV"
+          pacboy --noconfirm -S --needed clang:p lld:p
+
+      - name: Setup debug build
+        if: matrix.build_type == 'Debug'
+        run: |
+          echo "DEBUG=1" >> "$GITHUB_ENV"
+          echo "USE_LLD=1" >> "$GITHUB_ENV"
+          pacboy --noconfirm -S --needed lld:p
+
+      - name: Build Far
         working-directory: far
-        shell: msys2 {0}
         run: |
-          gcc --version
-          make -j4 -f makefile_gcc
+          ${{ matrix.compiler }} --version
+          mingw32-make -j $(($(nproc)+1)) -f makefile_gcc
 
-      - name: Build plugins (gcc)
-        if: matrix.compiler  == 'mingw_gcc'
+      - name: Build plugins
         working-directory: plugins
-        shell: msys2 {0}
         run: |
-          gcc --version
-          make -j4 -f makefile_all_gcc
+          ${{ matrix.compiler }} --version
+          mingw32-make -j $(($(nproc)+1)) -f makefile_all_gcc
 
-      - name: Install Clang x64
-        if: matrix.compiler  == 'mingw_clang'
-        uses: msys2/setup-msys2@v2
+      - name: Perform CodeQL Analysis
+        if: matrix.sys == 'MINGW64' && matrix.compiler == 'gcc' && matrix.build_type == 'Debug'
+        uses: github/codeql-action/analyze@v3
+
+#------------------------------------------------------------------------------
+  build-llvm-mingw:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        machine_target: [i686, x86_64, armv7, aarch64]
+        c_lib: [msvcrt, ucrt]
+        build_type: [Release, Debug]
+        exclude:
+          - machine_target: armv7
+            c_lib: msvcrt
+          - machine_target: aarch64
+            c_lib: msvcrt
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        if: matrix.machine_target == 'x86_64' && matrix.c_lib == 'msvcrt' && matrix.build_type == 'Debug'
+        uses: github/codeql-action/init@v3
         with:
-          msystem: MINGW64
-          install: make mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
+          languages: cpp
 
-      - name: Build Far (clang)
-        if: matrix.compiler  == 'mingw_clang'
-        working-directory: far
-        shell: msys2 {0}
-        run: |
-          clang --version
-          make -j4 CLANG=1 -f makefile_gcc
+      - name: Install luver
+        uses: MunifTanjim/luver-action@v1
 
-      - name: Build plugins (clang)
-        if: matrix.compiler  == 'mingw_clang'
-        working-directory: plugins
-        shell: msys2 {0}
-        run: |
-          clang --version
-          make -j4 CLANG=1 -f makefile_all_gcc
-
-      - name: Install llvm x64
-        id: install_llvm_x64
-        if: matrix.compiler  == 'mingw_llvm'
-        uses: robinraju/release-downloader@v1.8
+      - name: Download llvm-mingw
+        id: download_llvm_mingw
+        uses: robinraju/release-downloader@v1.9
         with:
           repository: "mstorsjo/llvm-mingw"
           latest: true
-          fileName: "llvm-mingw-*-msvcrt-x86_64.zip"
-          extract: true
+          preRelease: true
+          fileName: "llvm-mingw-*-${{ matrix.c_lib }}-ubuntu-*-x86_64.tar.xz"
 
-      - name: Build Far (llvm)
-        if: matrix.compiler  == 'mingw_llvm'
+      - name: Install llvm-mingw
+        run: |
+          LLVM_MINGW=${{ fromJson(steps.download_llvm_mingw.outputs.downloaded_files)[0] }}
+          tar -xf "$LLVM_MINGW"
+          echo "${{ github.workspace }}/$(basename -s .tar.xz $LLVM_MINGW)/bin" >> $GITHUB_PATH
+
+      - name: Setup build environment
+        run: |
+          echo "GCC_PREFIX=${{ matrix.machine_target }}-w64-mingw32-" >> "$GITHUB_ENV"
+          echo "CLANG=1" >> "$GITHUB_ENV"
+          echo "PYTHON=1" >> "$GITHUB_ENV"
+          echo "SYS_LUA=1" >> "$GITHUB_ENV"
+          echo "ENABLE_TESTS=0" >> "$GITHUB_ENV"
+          [[ ${{ matrix.build_type }} == Debug ]] && echo "DEBUG=1" >> "$GITHUB_ENV" && echo "USE_LLD=1" >> "$GITHUB_ENV" || true
+
+      - name: Build far
         working-directory: far
-        shell: cmd
         run: |
-          set path=${{github.workspace}}\llvm-mingw-${{steps.install_llvm_x64.outputs.tag_name}}-msvcrt-x86_64\bin;%path%
-          clang --version
-          make -j4 CLANG=1 -f makefile_gcc
+          ${GCC_PREFIX}clang --version
+          make -j $(($(nproc)+1)) -f makefile_gcc
 
-      - name: Build plugins (llvm)
-        if: matrix.compiler  == 'mingw_llvm'
+      - name: Build plugins
         working-directory: plugins
-        shell: cmd
         run: |
-          set path=${{github.workspace}}\llvm-mingw-${{steps.install_llvm_x64.outputs.tag_name}}-msvcrt-x86_64\bin;%path%
-          clang --version
-          make -j4 CLANG=1 -f makefile_all_gcc
+          ${GCC_PREFIX}clang --version
+          luver install lua 5.1.5
+          luver use 5.1.5
+          make -j $(($(nproc)+1)) -f makefile_all_gcc
 
       - name: Perform CodeQL Analysis
-        if: matrix.build == 'mingw_gcc_x64_debug'
-        uses: github/codeql-action/analyze@v2
+        if: matrix.machine_target == 'x86_64' && matrix.c_lib == 'msvcrt' && matrix.build_type == 'Debug'
+        uses: github/codeql-action/analyze@v3

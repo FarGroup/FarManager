@@ -5,8 +5,11 @@ Debug.*.vc*
 Release.*.vc*
 Debug.*.gcc
 Release.*.gcc
+Debug.*.clang
+Release.*.clang
 final.*.vc*
 final.*.gcc*
+final.*.clang*
 /plugins/arclite/7z/src/CPP/7zip/Bundles/Format7zF/Debug
 /plugins/arclite/7z/src/CPP/7zip/Bundles/Format7zF/x64
 

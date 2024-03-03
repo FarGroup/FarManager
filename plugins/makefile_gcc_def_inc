@@ -57,9 +57,9 @@ C_DEBUG := -g -D_DEBUG
 L_DEBUG :=
 endif
 
-BASEDIR = ./$(DIRNAME).$(DIRBIT).$(DIRSUFFIX)
+BASEDIR = ./$(DIRNAME).$(BITPREFIX)$(DIRBIT).$(DIRSUFFIX)
 OBJDIR := $(BASEDIR)/obj
-REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)\.$(DIRSUFFIX)\/obj\/
+REOBJDIR = \.\/$(DIRNAME)\.$(BITPREFIX)$(DIRBIT)\.$(DIRSUFFIX)\/obj\/
 DLLDIR ?= $(BASEDIR)$(ADDOUTDIR)
 COMMON ?= $(MAKEFILE_DIR)/common
 COMINC = $(COMMON)/$(if $(ANSI),ascii,unicode)
@@ -68,12 +68,21 @@ DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 
 ifeq ($(DIRBIT),32)
+ifeq ($(ARM), 0)
 DEF_DEF = $(NAME).gcc
 DLLTOOL_M = i386
 else
+DEF_DEF = $(NAME).vc
+DLLTOOL_M = arm
+endif
+else
 #for x64 vc.def is good enough
 DEF_DEF = $(NAME).vc
+ifeq ($(ARM), 0)
 DLLTOOL_M = i386:x86-64
+else
+DLLTOOL_M = arm64
+endif
 endif
 
 ifndef DEF_NAME
@@ -100,7 +109,7 @@ else
 COMMONLIB = -L $(COMMON) -lCRT64
 endif
 else
-COMMONLIB = 
+COMMONLIB =
 endif
 
 CFLAGS  += -I "$(FARDIR)/common" -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)

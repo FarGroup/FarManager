@@ -3,7 +3,7 @@
 include ./makefile_gcc_common
 THIS_MAKE = $(TOP_MAKEFILE)
 
-EXEDIR = $(DIRNAME).$(DIRBIT).$(DIRSUFFIX)/
+EXEDIR = $(DIRNAME).$(BITPREFIX)$(DIRBIT).$(DIRSUFFIX)/
 OBJDIR = $(EXEDIR)obj/
 export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
 FORCEINCLUDELIST_NO_PCH=memcheck.hpp disabled_warnings.hpp
@@ -12,11 +12,13 @@ EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.dep
 
+ifndef ENABLE_TESTS
 ifdef DEBUG
 ENABLE_TESTS = 1
 endif
+endif
 
-ifdef ENABLE_TESTS
+ifeq ($(ENABLE_TESTS),1)
 CFLAGS += \
 	-D ENABLE_TESTS \
 
@@ -180,8 +182,12 @@ SRCS = \
 	wm_listener.cpp \
 	xlat.cpp \
 
+ifeq ($(ARM),0)
 ifeq ($(DIRBIT),32)
-	SRCS += hook_wow64.cpp
+SRCS += \
+	hook_wow64.cpp \
+
+endif
 endif
 
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS)))
@@ -191,7 +197,7 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
-ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
+ADDINCLUDE=-I$(BOOTSTRAPDIR)..
 FORCEINCLUDE=$(patsubst %, -include %, headers.hpp $(FORCEINCLUDELIST_NO_PCH))
 
 CPPFLAGS += $(ADDINCLUDE)
@@ -216,6 +222,7 @@ depfile:
 dirs:
 	$(MKDIR) $(EXEDIR) $(OBJDIR) $(FARINCLUDE) $(BOOTSTRAPDIR)
 
+ifeq ($(ARM),0)
 .PHONY: include
 include: \
 	$(FARINCLUDE)PluginW.pas \
@@ -225,6 +232,14 @@ include: \
 	$(FARINCLUDE)vc_crt_fix_impl.cpp \
 	$(FARINCLUDE)vc_crt_fix.asm \
 	$(FARINCLUDE)vc_crt_fix_ulink.cpp
+else
+.PHONY: include
+include: \
+	$(FARINCLUDE)PluginW.pas \
+	$(FARINCLUDE)FarColorW.pas \
+	$(FARINCLUDE)farcolor.hpp \
+	$(FARINCLUDE)plugin.hpp
+endif
 
 .PHONY: docs
 docs: \
@@ -247,12 +262,12 @@ $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJ
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 ifdef USE_OBJDUMP_MAPS
 	@echo Generating map file
-	objdump --syms --demangle $(EXEFULLNAME) > $(MAP)
+	$(OBJDUMP) --syms --demangle $(EXEFULLNAME) > $(MAP)
 endif
 ifndef DEBUG
-	strip $(EXEFULLNAME)
+	$(STRIP) $(EXEFULLNAME)
 endif
-ifdef ENABLE_TESTS
+ifeq ($(ENABLE_TESTS),1)
 	@echo Running unit tests
 	$@ /service:test
 endif

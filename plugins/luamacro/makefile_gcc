@@ -47,7 +47,7 @@ endif
 
 USERLIBS = \
 	$(OBJDIR)/luafar3.lib \
-	luasdk/$(DIRBIT)/lua51.lib \
+	luasdk/$(BITPREFIX)$(DIRBIT)/lua51.lib \
 
 USERTARGETS = \
 	lualib \
@@ -64,7 +64,7 @@ FAR_DIRNAME=Release
 else
 FAR_DIRNAME=Debug
 endif
-FAR_WORKDIR := $(FARDIR)\$(FAR_DIRNAME).$(DIRBIT).$(DIRSUFFIX)
+FAR_WORKDIR := $(FARDIR)\$(FAR_DIRNAME).$(BITPREFIX)$(DIRBIT).$(DIRSUFFIX)
 endif
 
 .PHONY: lualib
@@ -73,9 +73,11 @@ lualib:
 
 .PHONY: lualegacy
 lualegacy:
+ifndef ARM
 ifeq ($(DIRBIT),32)
 	@$(MKDIR) $(FAR_WORKDIR)/Legacy
 	@$(CP) luasdk/32/legacy/lua51.dll $(FAR_WORKDIR)/Legacy
+endif
 endif
 
 .PHONY: clean

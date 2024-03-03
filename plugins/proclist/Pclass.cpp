@@ -30,7 +30,11 @@ public:
 		tok(token)
 	{
 		buf.reset(wcsdup(str));
+#if defined(_UCRT)
+		ptr = std::wcstok(buf.get(), token, &pt);
+#else
 		ptr = std::wcstok(buf.get(), token);
+#endif
 	}
 
 	operator wchar_t*() const
@@ -40,7 +44,11 @@ public:
 
 	void operator++()
 	{
+#if defined(_UCRT)
+		ptr = std::wcstok({}, tok, &pt);
+#else
 		ptr = std::wcstok({}, tok);
+#endif
 	}
 
 	explicit operator bool() const
@@ -52,6 +60,9 @@ private:
 	const wchar_t* tok;
 	wchar_t* ptr;
 	malloc_ptr<wchar_t> buf;
+#if defined(_UCRT)
+	wchar_t* pt;
+#endif
 };
 
 // Far: FileSizeToStr

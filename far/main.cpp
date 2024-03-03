@@ -476,7 +476,7 @@ static void handle_exception(function_ref<bool()> const Handler)
 	throw;
 }
 
-#ifndef _WIN64
+#ifdef _M_IX86
 std::pair<string_view, DWORD> get_hook_wow64_error();
 
 static void log_hook_wow64_status()
@@ -805,7 +805,7 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 
 	os::memory::enable_low_fragmentation_heap();
 
-#ifndef _WIN64
+#ifdef _M_IX86
 	log_hook_wow64_status();
 #endif
 
