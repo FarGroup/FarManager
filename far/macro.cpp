@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "macro.hpp"
-#include "macrovalues.hpp"
 
 // Internal:
+#include "macrovalues.hpp"
 #include "uuids.far.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
