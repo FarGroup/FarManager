@@ -223,9 +223,11 @@ CFLAGS += \
 	-O3 \
 
 ifeq ($(USE_LTO),1)
-CFLAGS += \
-	-flto \
-	-flto-odr-type-merging \
+CFLAGS += -flto
+
+ifndef CLANG
+CFLAGS += -flto-odr-type-merging
+endif
 
 endif # USE_LTO
 
