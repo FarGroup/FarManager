@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "macro.hpp"
+#include "macrovalues.hpp"
 
 // Internal:
 #include "uuids.far.hpp"
@@ -358,36 +359,6 @@ void print_opcodes()
 }
 #endif
 
-using MACROFLAGS_MFLAGS = unsigned long long;
-enum: MACROFLAGS_MFLAGS
-{
-	MFLAGS_NONE                    = 0,
-	// public flags, read from/saved to config
-	MFLAGS_ENABLEOUTPUT            = 0_bit, // не подавлять обновление экрана во время выполнения макроса
-	MFLAGS_NOSENDKEYSTOPLUGINS     = 1_bit, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
-	MFLAGS_RUNAFTERFARSTART        = 3_bit, // этот макрос запускается при старте ФАРа
-	MFLAGS_EMPTYCOMMANDLINE        = 4_bit, // запускать, если командная линия пуста
-	MFLAGS_NOTEMPTYCOMMANDLINE     = 5_bit, // запускать, если командная линия не пуста
-	MFLAGS_EDITSELECTION           = 6_bit, // запускать, если есть выделение в редакторе
-	MFLAGS_EDITNOSELECTION         = 7_bit, // запускать, если есть нет выделения в редакторе
-	MFLAGS_SELECTION               = 8_bit, // активная:  запускать, если есть выделение
-	MFLAGS_PSELECTION              = 9_bit, // пассивная: запускать, если есть выделение
-	MFLAGS_NOSELECTION             = 10_bit, // активная:  запускать, если есть нет выделения
-	MFLAGS_PNOSELECTION            = 11_bit, // пассивная: запускать, если есть нет выделения
-	MFLAGS_NOFILEPANELS            = 12_bit, // активная:  запускать, если это плагиновая панель
-	MFLAGS_PNOFILEPANELS           = 13_bit, // пассивная: запускать, если это плагиновая панель
-	MFLAGS_NOPLUGINPANELS          = 14_bit, // активная:  запускать, если это файловая панель
-	MFLAGS_PNOPLUGINPANELS         = 15_bit, // пассивная: запускать, если это файловая панель
-	MFLAGS_NOFOLDERS               = 16_bit, // активная:  запускать, если текущий объект "файл"
-	MFLAGS_PNOFOLDERS              = 17_bit, // пассивная: запускать, если текущий объект "файл"
-	MFLAGS_NOFILES                 = 18_bit, // активная:  запускать, если текущий объект "папка"
-	MFLAGS_PNOFILES                = 19_bit, // пассивная: запускать, если текущий объект "папка"
-	MFLAGS_PUBLIC_MASK             = 28_bit - 1,
-	// private flags, for runtime purposes only
-	MFLAGS_PRIVATE_MASK            = ~MFLAGS_PUBLIC_MASK,
-	MFLAGS_POSTFROMPLUGIN          = 28_bit  // последовательность пришла от АПИ
-};
-
 // для диалога назначения клавиши
 struct DlgParam
 {
@@ -396,19 +367,6 @@ struct DlgParam
 	FARMACROAREA Area;
 	int Recurse;
 	bool Changed;
-};
-
-enum
-{
-	OP_ISEXECUTING              = 1,
-	OP_ISDISABLEOUTPUT          = 2,
-	OP_HISTORYDISABLEMASK       = 3,
-	OP_ISHISTORYDISABLE         = 4,
-	OP_ISTOPMACROOUTPUTDISABLED = 5,
-	OP_ISPOSTMACROENABLED       = 6,
-	OP_SETMACROVALUE            = 8,
-	OP_GETINPUTFROMMACRO        = 9,
-	OP_GETLASTERROR             = 11,
 };
 
 static bool ToDouble(long long v, double& d)
@@ -501,7 +459,8 @@ static void SetMacroValue(bool Value)
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[]{ 10.0, static_cast<double>(Area), TextKey, static_cast<double>(IntKey) };
+	FarMacroValue values[]{ static_cast<double>(OP_TRYTOPOSTMACRO), static_cast<double>(Area),
+		TextKey, static_cast<double>(IntKey) };
 	FarMacroCall fmc{ sizeof(fmc), std::size(values), values };
 	OpenMacroPluginInfo info{ MCT_KEYMACRO, &fmc };
 	return CallMacroPlugin(&info);
@@ -973,7 +932,8 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	if (InputFlags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
 	if (InputFlags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-	FarMacroValue values[]{ 7.0, Lang, Sequence, static_cast<double>(Flags), static_cast<double>(AKey), onlyCheck };
+	FarMacroValue values[]{ static_cast<double>(OP_POSTNEWMACRO), Lang, Sequence,
+		static_cast<double>(Flags), static_cast<double>(AKey), onlyCheck };
 	FarMacroCall fmc{ sizeof(fmc), std::size(values), values };
 	OpenMacroPluginInfo info{ MCT_KEYMACRO, &fmc };
 	return CallMacroPlugin(&info);
@@ -2274,16 +2234,35 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 				switch (static_cast<int>(Data->Values[0].Double))
 				{
-					case 1: RestoreMacroChar(); break;
-					case 2: Global->ScrBuf->Lock(); break;
-					case 3: Global->ScrBuf->Unlock(); break;
-					case 4: Global->ScrBuf->ResetLockCount(); break;
-					case 5: api.PassValue(Global->ScrBuf->GetLockCount()); break;
-					case 6: if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double); break;
-					case 7: api.PassBoolean(default_clipboard_mode::get() == clipboard_mode::internal); break;
-					case 8: if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0? clipboard_mode::internal: clipboard_mode::system); break;
-					case 9: if (Data->Count > 1) api.PassValue(KeyNameToKey(Data->Values[1].String)); break;
-					case 10:
+					case IMP_RESTORE_MACROCHAR:
+						RestoreMacroChar();
+						break;
+					case IMP_SCRBUF_LOCK:
+						Global->ScrBuf->Lock();
+						break;
+					case IMP_SCRBUF_UNLOCK:
+						Global->ScrBuf->Unlock();
+						break;
+					case IMP_SCRBUF_RESETLOCKCOUNT:
+						Global->ScrBuf->ResetLockCount();
+						break;
+					case IMP_SCRBUF_GETLOCKCOUNT:
+						api.PassValue(Global->ScrBuf->GetLockCount());
+						break;
+					case IMP_SCRBUF_SETLOCKCOUNT:
+						if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double);
+						break;
+					case IMP_GET_USEINTERNALCLIPBOARD:
+						api.PassBoolean(default_clipboard_mode::get() == clipboard_mode::internal);
+						break;
+					case IMP_SET_USEINTERNALCLIPBOARD:
+						if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0?
+							clipboard_mode::internal: clipboard_mode::system);
+						break;
+					case IMP_KEYNAMETOKEY:
+						if (Data->Count > 1) api.PassValue(KeyNameToKey(Data->Values[1].String));
+						break;
+					case IMP_KEYTOTEXT:
 						if (Data->Count > 1)
 						{
 							api.PassValue(KeyToText(Data->Values[1].Double));
