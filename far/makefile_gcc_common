@@ -5,7 +5,7 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 #The following variables can be set by the user:
 #
 # DEBUG - set if a debug build is needed
-# USE_LTO - use link-time optimisation in release mode
+# NO_LTO - disable link-time optimisation in release mode
 # CLANG - use Clang compiler and LLD linker
 # USE_LLD - use LLD linker (useful for debug builds where ld is insanely slow)
 # PYTHON - use the python script for language files generation
@@ -222,14 +222,14 @@ CFLAGS += \
 	-DNDEBUG \
 	-O3 \
 
-ifeq ($(USE_LTO),1)
+ifneq ($(NO_LTO),1)
 CFLAGS += -flto
 
 ifndef CLANG
 CFLAGS += -flto-odr-type-merging
 endif
 
-endif # USE_LTO
+endif # NO_LTO
 
 LNKFLAGS += \
 	-Xlinker --gc-sections \
