@@ -3,8 +3,24 @@ name: Build
 on:
   push:
     branches: master
+    paths:
+      - .github/workflows/build.yml
+      - _build/**
+      - far/**
+      - misc/build-checks/ChangelogChecker/**
+      - misc/build-checks/HlfChecker/**
+      - misc/lng/lng.generator.py
+      - plugins/**
   pull_request:
     branches: master
+    paths:
+      - .github/workflows/build.yml
+      - _build/**
+      - far/**
+      - misc/build-checks/ChangelogChecker/**
+      - misc/build-checks/HlfChecker/**
+      - misc/lng/lng.generator.py
+      - plugins/**
   workflow_dispatch:
 
 concurrency:
