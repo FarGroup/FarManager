@@ -550,7 +550,7 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 	{
 		ConsoleActivator(Consolise);
 
-		if (!Thread)
+		if (Thread)
 		{
 			ResumeThread(Thread.native_handle());
 			Thread = {};
