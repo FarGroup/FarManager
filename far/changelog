@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2024-03-08 20:10:47+00:00 - build 6282
+
+1. Remove dependency on UI sorting settings from internal components.
+
+2. Optimize ExcludeCmds processing.
+
+3. Fix handle leak on process creation.
+
+4. Refactoring.
+
+--------------------------------------------------------------------------------
 shmuel 2024-03-06 21:05:50+02:00 - build 6281
 
 1. Refactoring.
