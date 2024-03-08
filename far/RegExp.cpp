@@ -74,7 +74,8 @@ string_view regex_exception::to_string(REError const Code)
 	case errSubpatternGroupNameMustBeUnique:   return L"A subpattern name must be unique"sv;
 	case errReferenceToUndefinedNamedBracket:  return L"Reference to an undefined named bracket"sv;
 	case errVariableLengthLookBehind:          return L"Only fixed length look behind assertions are supported"sv;
-	default:                                   return L"Unknown error"sv;
+	default:
+		std::unreachable();
 	}
 }
 

@@ -1730,8 +1730,8 @@ WARNING_POP()
 
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
-				const union { COLORREF Color; rgba RGBA; } Value{ Color };
-				far::format_to(Str, OSC(L"4;{};rgb:{:02x}/{:02x}/{:02x}"), vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				const auto RGBA = colors::to_rgba(Color);
+				far::format_to(Str, OSC(L"4;{};rgb:{:02x}/{:02x}/{:02x}"), vt_color_index(i), RGBA.r, RGBA.g, RGBA.b);
 			}
 
 			return ::console.Write(Str);

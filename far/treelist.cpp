@@ -711,7 +711,7 @@ static void ReadLines(const os::fs::file& TreeFile, function_ref<void(string_vie
 	}
 }
 
-static void WriteTree(auto& Name, const auto& Container, const auto& Opener, size_t offset)
+static void WriteTree(auto& Name, std::ranges::range auto const& Container, const auto& Opener, size_t offset)
 {
 	// получим и сразу сбросим атрибуты (если получится)
 	const auto SavedAttributes = os::fs::get_file_attributes(Name);

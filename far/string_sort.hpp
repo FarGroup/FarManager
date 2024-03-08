@@ -55,22 +55,17 @@ namespace string_sort
 
 	void adjust_comparer(size_t Collation, bool CaseSensitive, bool DigitsAsNumbers);
 
-	[[nodiscard]]
-	inline bool less(string_view Str1, string_view Str2)
-	{
-		return std::is_lt(compare(Str1, Str2));
-	}
-
-	struct [[nodiscard]] less_t
+	constexpr inline struct [[nodiscard]] less_t
 	{
 		using is_transparent = void;
 
 		[[nodiscard]]
 		bool operator()(string_view Str1, string_view Str2) const
 		{
-			return less(Str1, Str2);
+			return std::is_lt(compare(Str1, Str2));
 		}
-	};
+	}
+	less;
 
 	class keyhole
 	{

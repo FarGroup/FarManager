@@ -88,7 +88,7 @@ namespace components
 		components_list::instance().add(this);
 	}
 
-	const std::map<string_view, string, string_sort::less_t>& GetComponentsInfo()
+	const components_map& GetComponentsInfo()
 	{
 		static const auto sList = []
 		{
