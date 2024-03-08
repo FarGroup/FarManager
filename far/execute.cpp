@@ -544,22 +544,30 @@ static void log_process_exit_code(os::handle const& Process)
 	}
 }
 
-static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, HANDLE Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
+static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, os::handle Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
 {
+	const auto resume_process = [&](bool const Consolise)
+	{
+		ConsoleActivator(Consolise);
+
+		if (!Thread)
+		{
+			ResumeThread(Thread.native_handle());
+			Thread = {};
+		}
+	};
+
 	switch (WaitMode)
 	{
 	case execute_info::wait_mode::no_wait:
-		ConsoleActivator(false);
-		if (Thread)
-			ResumeThread(Thread);
+		resume_process(false);
 		return;
 
 	case execute_info::wait_mode::if_needed:
 		{
 			const auto NeedWaiting = os::process::get_process_subsystem(Process.get()) != os::process::image_type::graphical;
-			ConsoleActivator(NeedWaiting);
-			if (Thread)
-				ResumeThread(Thread);
+
+			resume_process(NeedWaiting);
 
 			if (!NeedWaiting)
 				return;
@@ -571,9 +579,7 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 		return;
 
 	case execute_info::wait_mode::wait_finish:
-		ConsoleActivator(true);
-		if (Thread)
-			ResumeThread(Thread);
+		resume_process(true);
 		Process.wait();
 		log_process_exit_code(Process);
 		return;
@@ -780,7 +786,7 @@ static bool execute_impl(
 		if (!execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
 			return false;
 
-		after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
+		after_process_creation(os::handle(pi.hProcess), Info.WaitMode, os::handle(pi.hThread), ConsoleSize, ConsoleWindowRect, ExtendedActivator);
 		return true;
 
 	};
