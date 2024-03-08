@@ -913,6 +913,9 @@
     <ClInclude Include="macroopcode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="macrovalues.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
