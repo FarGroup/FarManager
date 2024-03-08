@@ -1146,7 +1146,7 @@ namespace detail
 
 static bool is_cpp_exception(const EXCEPTION_RECORD& Record)
 {
-	return Record.ExceptionCode == static_cast<DWORD>(EH_EXCEPTION_NUMBER) && Record.NumberParameters;
+	return Record.ExceptionCode == static_cast<DWORD>(EH_EXCEPTION_NUMBER) && Record.NumberParameters >= 3;
 }
 
 static bool is_fake_cpp_exception(const EXCEPTION_RECORD& Record)
@@ -1164,7 +1164,7 @@ public:
 		if (!is_cpp_exception(Record))
 			return;
 
-		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
+		m_BaseAddress = Record.NumberParameters >= 4? Record.ExceptionInformation[3] : 0;
 		const auto& ThrowInfoRef = view_as<detail::ThrowInfo>(Record.ExceptionInformation[2]);
 		const auto& CatchableTypeArrayRef = view_as<detail::CatchableTypeArray>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
 		m_CatchableTypesRVAs = { &CatchableTypeArrayRef.arrayOfCatchableTypes, static_cast<size_t>(CatchableTypeArrayRef.nCatchableTypes) };
@@ -1319,17 +1319,25 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				}
 			}(ExceptionRecord.ExceptionInformation[0]);
 
-			string Symbol;
-			tracer.get_symbols(Module, {{{ ExceptionRecord.ExceptionInformation[1], 0 }}}, [&](string&& Line)
+			const auto Symbol = [&]
 			{
-				Symbol = std::move(Line);
-			});
+				if (ExceptionRecord.NumberParameters < 2)
+					return L"<unknown>"s;
 
-			if (Symbol.empty())
-				Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+				string SymbolName;
+				tracer.get_symbols(Module, {{{ ExceptionRecord.ExceptionInformation[1], 0 }}}, [&](string&& Line)
+				{
+					SymbolName = std::move(Line);
+				});
+
+				if (SymbolName.empty())
+					SymbolName = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+
+				return SymbolName;
+			}();
 
 			auto Result = far::format(L"Memory at {} could not be {}"sv, Symbol, Mode);
-			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters > 2)
+			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters >= 3)
 				append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
 
 			return Result;
@@ -1346,7 +1354,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 	case EH_DELAYLOAD_MODULE:
 	case EH_DELAYLOAD_PROCEDURE:
 		{
-			if (!ExceptionRecord.NumberParameters)
+			if (!ExceptionRecord.NumberParameters || !ExceptionRecord.ExceptionInformation[0])
 				return {};
 
 			const auto& Info = view_as<detail::DelayLoadInfo>(ExceptionRecord.ExceptionInformation[0]);

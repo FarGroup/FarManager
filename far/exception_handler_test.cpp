@@ -344,7 +344,17 @@ WARNING_POP()
 
 	static void seh_access_violation_bad()
 	{
-		RaiseException(STATUS_ACCESS_VIOLATION, 0, 0, {});
+		static const ULONG_PTR Args[]
+		{
+			EXCEPTION_WRITE_FAULT,
+			std::bit_cast<ULONG_PTR>(&seh_access_violation_bad),
+			static_cast<ULONG_PTR>(STATUS_ACCESS_DENIED),
+		};
+
+		// Use [ Continue ] to test all
+		RaiseException(STATUS_ACCESS_VIOLATION, 0, 0, Args);
+		RaiseException(STATUS_ACCESS_VIOLATION, 0, 1, Args);
+		RaiseException(STATUS_IN_PAGE_ERROR, 0, 2, Args);
 	}
 
 	static void seh_in_page_error()
