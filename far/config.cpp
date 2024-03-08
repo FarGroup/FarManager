@@ -1783,6 +1783,14 @@ Options::Options():
 		::SetPalette();
 	}));
 
+	Exec.strExcludeCmds.SetCallback(option::notifier([&](string_view const Value)
+	{
+		const auto Enum = enum_tokens(Value, L";"sv);
+		// TODO: assign_range
+		Exec.ExcludeCmds.assign(ALL_RANGE(Enum));
+		std::ranges::sort(Exec.ExcludeCmds, string_sort::less_icase);
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;

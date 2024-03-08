@@ -786,6 +786,7 @@ public:
 		BoolOption RestoreCPAfterExecute;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
+		std::vector<string_view> ExcludeCmds;
 		StringOption Comspec;
 		StringOption ComspecArguments;
 		struct
