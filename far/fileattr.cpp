@@ -138,7 +138,6 @@ void ESetFileTime(
 	os::chrono::time_point const* const CreationTime,
 	os::chrono::time_point const* const LastAccessTime,
 	os::chrono::time_point const* const ChangeTime,
-	os::fs::attributes const CurrentAttributes,
 	bool& SkipErrors)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)

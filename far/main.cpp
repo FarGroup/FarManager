@@ -973,8 +973,8 @@ static int wmain_seh()
 
 	// wmain is a non-standard extension and not available in gcc.
 	int Argc = 0;
-	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
-	std::span<wchar_t const* const> const AllArgs(Argv.get(), Argc), Args(AllArgs.subspan(1));
+	os::memory::local::ptr<wchar_t const* const> const Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+	std::span const AllArgs(Argv.get(), Argc), Args(AllArgs.subspan(1));
 
 	configure_exception_handling(Args);
 

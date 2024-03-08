@@ -52,7 +52,7 @@ void ESetFileAttributes(string_view Name, os::fs::attributes Attributes, bool& S
 void ESetFileCompression(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
 void ESetFileEncryption(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
 void ESetFileSparse(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
-void ESetFileTime(string_view Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, os::fs::attributes CurrentAttributes, bool& SkipErrors);
+void ESetFileTime(string_view Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, bool& SkipErrors);
 void ESetFileOwner(string_view Name, const string& Owner, bool& SkipErrors);
 void EDeleteReparsePoint(string_view Name, os::fs::attributes CurrentAttributes, bool& SkipErrors);
 

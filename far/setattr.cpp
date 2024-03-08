@@ -659,7 +659,7 @@ static bool process_single_file(
 
 	{
 		os::chrono::time_point WriteTime, CreationTime, AccessTime, ChangeTime;
-		std::array TimePointers{ &WriteTime, & CreationTime, & AccessTime, & ChangeTime };
+		std::array TimePointers{ &WriteTime, &CreationTime, &AccessTime, &ChangeTime };
 
 		for (const auto& [i, TimePointer] : zip(TimeMap, TimePointers))
 		{
@@ -671,7 +671,7 @@ static bool process_single_file(
 			}
 		}
 
-		ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], Current.FindData.Attributes, SkipErrors);
+		ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], SkipErrors);
 	}
 
 	return true;
