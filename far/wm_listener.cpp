@@ -180,7 +180,7 @@ void wm_listener::disable_power_notifications()
 wm_listener::wm_listener()
 {
 	os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
-	m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, std::ref(ReadyEvent));
+	m_Thread = os::thread(&wm_listener::WindowThreadRoutine, this, std::ref(ReadyEvent));
 	ReadyEvent.wait();
 }
 

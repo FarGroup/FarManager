@@ -93,22 +93,8 @@ namespace os::concurrency
 
 	void thread::finalise()
 	{
-		if (!joinable())
-			return;
-
-		switch (m_Mode)
-		{
-		case mode::join:
+		if (joinable())
 			join();
-			return;
-
-		case mode::detach:
-			detach();
-			return;
-
-		default:
-			std::unreachable();
-		}
 	}
 
 	thread& thread::operator=(thread&& rhs) noexcept
@@ -116,9 +102,6 @@ namespace os::concurrency
 		finalise();
 
 		handle::operator=(std::move(rhs));
-
-		m_Mode = rhs.m_Mode;
-		rhs.m_Mode = {};
 
 		m_ThreadId = rhs.m_ThreadId;
 		rhs.m_ThreadId = {};
@@ -352,7 +335,6 @@ TEMPLATE_TEST_CASE("platform.concurrency.locking", "", os::critical_section, os:
 
 	os::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
 	os::thread const Thread(
-		os::thread::mode::join,
 		[&]
 		{
 			SCOPED_ACTION(std::scoped_lock)(Lock2);
@@ -384,7 +366,6 @@ TEST_CASE("platform.concurrency.thread.forwarding")
 	{
 		const auto Magic = 42;
 		os::thread Thread(
-			os::thread::mode::join,
 			[Ptr = std::make_unique<int>(Magic)](auto&& Param)
 			{
 				REQUIRE(*Ptr * 2 == *Param);

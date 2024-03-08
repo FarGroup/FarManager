@@ -572,7 +572,7 @@ namespace
 		explicit async_impl(std::function<void(message&&)> Out, bool const IsDiscardable, string_view const Name):
 			m_Out(std::move(Out)),
 			m_IsDiscardable(IsDiscardable),
-			m_Thread(os::thread::mode::join, &async_impl::poll, this, Name)
+			m_Thread(&async_impl::poll, this, Name)
 		{
 		}
 

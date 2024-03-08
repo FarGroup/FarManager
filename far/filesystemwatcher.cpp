@@ -70,7 +70,7 @@ public:
 		m_Clients.emplace_back(Client);
 
 		if (!m_Thread.joinable() || m_Thread.is_signaled())
-			m_Thread = os::thread{ os::thread::mode::join, &background_watcher::process, this };
+			m_Thread = os::thread(&background_watcher::process, this);
 
 		m_Update.set();
 	}

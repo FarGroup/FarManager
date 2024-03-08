@@ -2775,7 +2775,7 @@ bool FindFiles::FindFilesProcess()
 			Dlg->InitDialog();
 			Dlg->Show();
 
-			os::thread FindThread(os::thread::mode::join, &background_searcher::Search, &BC);
+			os::thread FindThread(&background_searcher::Search, &BC);
 
 			// In case of an exception in the main thread
 			SCOPE_EXIT

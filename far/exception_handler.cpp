@@ -329,7 +329,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	// You can call the function from a new worker thread and filter this worker thread from the dump.
 
 	bool Result = false;
-	os::thread(os::thread::mode::join, [&]
+	os::thread([&]
 	{
 		struct writer_context
 		{
@@ -2228,7 +2228,7 @@ namespace detail
 		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
 		{
 			{
-				os::thread(os::thread::mode::join, [&]
+				os::thread([&]
 				{
 					os::debug::set_thread_name(L"Stack overflow handler");
 					Result = handle_seh_exception(Context, Module, Location);

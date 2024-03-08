@@ -83,15 +83,9 @@ namespace os::concurrency
 		NONCOPYABLE(thread);
 		MOVE_CONSTRUCTIBLE(thread);
 
-		enum class mode
-		{
-			join,
-			detach,
-		};
-
 		thread() = default;
 
-		explicit thread(mode Mode, auto&& Callable, auto&&... Args): m_Mode(Mode)
+		explicit thread(auto&& Callable, auto&&... Args)
 		{
 			starter([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
@@ -135,7 +129,6 @@ namespace os::concurrency
 			return 0;
 		}
 
-		mode m_Mode{};
 		unsigned int m_ThreadId{};
 	};
 

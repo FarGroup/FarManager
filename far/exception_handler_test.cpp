@@ -119,7 +119,7 @@ namespace tests
 	static void cpp_std_nested_thread()
 	{
 		std::exception_ptr Ptr;
-		os::thread(os::thread::mode::join, [&]
+		os::thread([&]
 		{
 			os::debug::set_thread_name(L"Nested thread exception test");
 
@@ -373,7 +373,7 @@ WARNING_POP()
 	static void seh_divide_by_zero_thread()
 	{
 		seh_exception SehException;
-		os::thread const Thread(os::thread::mode::join, [&]
+		os::thread const Thread([&]
 		{
 			os::debug::set_thread_name(L"Divide by zero test");
 
@@ -492,7 +492,7 @@ WARNING_POP()
 
 	static void seh_unhandled()
 	{
-		os::thread Thread(os::thread::mode::join, [&]
+		os::thread Thread([&]
 		{
 			os::debug::set_thread_name(L"Unhandled exception test");
 			RaiseException(-1, 0, 0, {});

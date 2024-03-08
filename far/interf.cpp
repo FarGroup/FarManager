@@ -187,7 +187,8 @@ static BOOL control_handler(DWORD CtrlType)
 		if(!CancelIoInProgress().is_signaled())
 		{
 			CancelIoInProgress().set();
-			os::thread(os::thread::mode::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
+			os::thread Thread(&CancelSynchronousIoWrapper, Global->MainThreadHandle());
+			Thread.detach();
 		}
 		WriteInput(KEY_BREAK);
 
