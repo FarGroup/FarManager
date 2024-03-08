@@ -380,6 +380,11 @@ void string_sort::adjust_comparer(size_t const Collation, bool const CaseSensiti
 	DefaultComparer = Comparers[CollationIdex][DigitsAsNumbers][CaseSensitive];
 }
 
+bool string_sort::less_icase_t::operator()(string_view Str1, string_view Str2) const
+{
+	return std::is_lt(compare_ordinal_icase(Str1, Str2));
+}
+
 std::strong_ordering string_sort::keyhole::compare_ordinal_icase(string_view const Str1, string_view const Str2)
 {
 	return ::compare_ordinal_icase(Str1, Str2);

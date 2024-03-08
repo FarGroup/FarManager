@@ -169,7 +169,7 @@ multifilter::multifilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, string_view const FileName, os::fs::attributes const FileAttr, int const Check)
+static void ParseAndAddMasks(std::map<string, int, string_sort::less_icase_t>& Extensions, string_view const FileName, os::fs::attributes const FileAttr, int const Check)
 {
 	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
 		return;
@@ -220,7 +220,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 
 	if (Area != filter_area::custom)
 	{
-		std::map<string, int, string_sort::less_t> Extensions;
+		std::map<string, int, string_sort::less_icase_t> Extensions;
 
 		{
 			for (const auto& [Key, CurFilterData]: TempFilterData())

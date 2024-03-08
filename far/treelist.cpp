@@ -363,7 +363,7 @@ public:
 	void SetTreeName(string_view const Name) { m_TreeName = Name; }
 
 private:
-	using cache_set = std::set<string, string_sort::less_t>;
+	using cache_set = std::set<string, string_sort::less_icase_t>;
 
 public:
 	using const_iterator = cache_set::const_iterator;

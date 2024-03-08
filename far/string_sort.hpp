@@ -67,6 +67,15 @@ namespace string_sort
 	}
 	less;
 
+	constexpr inline struct [[nodiscard]] less_icase_t
+	{
+		using is_transparent = void;
+
+		[[nodiscard]]
+		bool operator()(string_view Str1, string_view Str2) const;
+	}
+	less_icase;
+
 	class keyhole
 	{
 		friend SQLiteDb;
