@@ -578,7 +578,7 @@ struct attribute_map
 	int State;
 };
 
-struct context
+struct ffp_context
 {
 	highlight::element* Colors;
 	std::span<attribute_map> Attributes;
@@ -645,7 +645,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 		{
 			if (Param1 == ID_FF_BUTTON_ATTRIBUTES)
 			{
-				const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				AttributesDialog(Context.Attributes);
 				break;
 			}
@@ -681,7 +681,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			{
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-				const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
@@ -707,7 +707,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				for (auto& i: Context.Colors->Color)
 				{
@@ -740,7 +740,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 		if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			|| (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && static_cast<const INPUT_RECORD*>(Param2)->EventType == MOUSE_EVENT && static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 		{
-			const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (Msg==DN_CONTROLINPUT)
 			{
@@ -762,7 +762,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 	case DM_REFRESHCOLORS:
 		{
-			const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			const size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			const block_ptr<FarDialogItem> Buffer(Size);
 			FarGetDialogItem gdi{ sizeof(gdi), Size, Buffer.data() };
@@ -793,7 +793,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 			if (!Ok)
 			{
-				const auto& Context = view_as<context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				Message(MSG_WARNING,
 					msg(Context.Colors? lng::MFileHilightTitle : lng::MFileFilterTitle),
 					{
@@ -1068,7 +1068,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		FilterDlg[ID_FF_BUTTON_ATTRIBUTES].Flags |= DIF_DISABLE;
 	}
 
-	context Context{ ColorConfig? &Colors : nullptr, AttributeMapping };
+	ffp_context Context{ ColorConfig? &Colors : nullptr, AttributeMapping };
 
 	const auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, &Context);
 	Dlg->SetHelp(ColorConfig? L"HighlightEdit"sv : L"Filter"sv);

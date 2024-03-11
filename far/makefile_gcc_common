@@ -78,7 +78,10 @@ M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(BITPREFIX)$(DIRBI
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
 
 ifdef PYTHON
- LGEN = $(strip $(call os_name, python $(FARDIR)../misc/lng/lng.generator.py))
+ ifndef PYTHONBIN
+  PYTHONBIN = python
+ endif
+ LGEN = $(strip $(call os_name, $(PYTHONBIN) $(FARDIR)../misc/lng/lng.generator.py))
 else
  LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 endif

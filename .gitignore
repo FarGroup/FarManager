@@ -33,6 +33,9 @@ ipch
 /.idea
 /*.iml
 
+#VSCode
+/.vscode
+
 # Build scripts
 __*.cmd
 

@@ -8,6 +8,9 @@ m4_define(CMDAWK, m4_ifelse(
 	HOST_TYPE, `Windows', `tools\gawk.exe',
 	HOST_TYPE, `Msys', `./tools/gawk',
 	`gawk'))
+m4_define(DEVNULL, m4_ifelse(
+	HOST_TYPE, `Windows', `nul',
+	`/dev/null'))
 
 
 # Uncomment to create a special version
@@ -36,7 +39,7 @@ M4_MACRO_DEFINE(BUILD_PLATFORM, m4_ifelse(
 	FARBIT, ARM32, ARM,
 	FARBIT))
 
-M4_MACRO_DEFINE(BUILD_SCM_REVISION, m4_ifelse(SCM_REVISION, `', m4_patsubst(m4_esyscmd(git rev-parse HEAD 2>nul),`
+M4_MACRO_DEFINE(BUILD_SCM_REVISION, m4_ifelse(SCM_REVISION, `', m4_patsubst(m4_esyscmd(git rev-parse HEAD 2> DEVNULL),`
 ',`'), SCM_REVISION))
 
 M4_MACRO_DEFINE(BUILD_DATE, m4_esyscmd(CMDAWK -f ./scripts/gendate.awk))

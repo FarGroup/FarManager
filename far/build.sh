@@ -5,6 +5,7 @@
 #  build.sh 32
 #  build.sh clean 64
 #  build.sh clean 32/64
+#  build.sh clean python 64
 #-----------------------------------------------------------------
 nbits='32 64'
 deb_b=N
@@ -16,6 +17,7 @@ while [ $# -ne 0 ] ; do
     64|x64|win64|-64)              nbits=64    ;;
     32/64|32x64|32-64|-32/64)      nbits=32/64 ;;
     clean|rebuild|-clean|-rebuild) clean=Y     ;;
+    python|-python)                python=Y    ;;
   esac
   shift
 done
@@ -27,6 +29,7 @@ case `uname -o` in
   *)
     [ -z "${GCC_PREFIX_32}" ] && GCC_PREFIX_32=i686-w64-mingw32-
     [ -z "${GCC_PREFIX_64}" ] && GCC_PREFIX_64=x86_64-w64-mingw32-
+    python=Y
   ;;
 esac
 #-----------------------------------------------------------------
@@ -42,5 +45,7 @@ do
   esac
   [ -z "${pref}" ] || m="${m} GCC_PREFIX=${pref}"
   [ "Y" = "${clean}" ] && $m DIRBIT=${nbit} clean
+  [ "Y" = "${python}" ] && m="${m} PYTHON=1"
+  [ -n ${PYTHONBIN} ] && m="${m} PYTHONBIN=${PYTHONBIN}"
   ${m} DIRBIT=${nbit}
 done
