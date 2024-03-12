@@ -284,7 +284,7 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 
 	std::set<string, string_sort::less_t> ResultStrings;
 
-	if (const auto Range = std::ranges::equal_range(Global->Opt->Exec.ExcludeCmds, Token, {}, [&](string_view const Str){ return Str.substr(0, Token.size()); }); !Range.empty())
+	if (const auto Range = std::ranges::equal_range(Global->Opt->Exec.ExcludeCmds, Token, string_sort::less_icase, [&](string_view const Str){ return Str.substr(0, Token.size()); }); !Range.empty())
 	{
 		// TODO: insert_range
 		ResultStrings.insert(ALL_CONST_RANGE(Range));
