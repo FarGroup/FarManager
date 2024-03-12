@@ -177,6 +177,7 @@ Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 	const auto [Iterator, IsEmplaced] = m_Plugins.try_emplace(pPlugin->Id());
 	if (!IsEmplaced)
 	{
+		LOGWARNING(L"Plugin \"{}\" is already loaded from {}, ignoring {}"sv, Iterator->second->Title(), Iterator->second->ModuleName(), pPlugin->ModuleName());
 		pPlugin->Unload(true);
 		return nullptr;
 	}

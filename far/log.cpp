@@ -1016,17 +1016,23 @@ namespace logging
 			}
 			catch (far_exception const& e)
 			{
+				const auto pause = []
+				{
+					if (os::is_interactive_user_session())
+						std::system("pause");
+				};
+
 				if (e.Win32Error == ERROR_BROKEN_PIPE)
 				{
 					// If the last logged message was a warning or worse, the user probably wants to see it
 					if (Message.m_Level < level::info)
-						os::chrono::sleep_for(5s);
+						pause();
 
 					return EXIT_SUCCESS;
 				}
 
 				std::wcerr << far::format(L"Error reading pipe {}: {}"sv, PipeName, e) << std::endl;
-				os::chrono::sleep_for(5s);
+				pause();
 				return EXIT_FAILURE;
 			}
 

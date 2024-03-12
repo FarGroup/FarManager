@@ -733,6 +733,7 @@ bool Plugin::Unload(bool bExitFAR)
 	if (!WorkFlags.Check(PIWF_CACHED))
 	{
 		Result = m_Factory->Destroy(m_Instance);
+		LOGDEBUG(L"Unloaded {}"sv, ModuleName());
 		ClearExports();
 	}
 

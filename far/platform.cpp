@@ -712,7 +712,8 @@ namespace rtdl
 	{
 		void module::module_deleter::operator()(HMODULE Module) const
 		{
-			FreeLibrary(Module);
+			if (!FreeLibrary(Module))
+				LOGWARNING(L"FreeLibrary({}): {}"sv, static_cast<void const*>(Module), os::last_error());
 		}
 
 		module::module(string_view const Name, bool const AlternativeLoad):
