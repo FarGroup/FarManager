@@ -453,7 +453,7 @@ static bool wait_for_process(os::handle const& Process, int const ConsoleDetachK
 		if (Buffer.size() < NumberOfEvents)
 		{
 			Buffer.clear();
-			Buffer.resize(NumberOfEvents + NumberOfEvents / 2);
+			resize_exp(Buffer, NumberOfEvents);
 		}
 
 		if (!os::handle::is_signaled(console.GetInputHandle(), 100ms))
@@ -463,7 +463,7 @@ static bool wait_for_process(os::handle const& Process, int const ConsoleDetachK
 		if (!console.PeekInput(Buffer, EventsRead) || !EventsRead)
 			continue;
 
-		if (std::none_of(Buffer.cbegin(), Buffer.cbegin() + EventsRead, is_detach_key))
+		if (std::ranges::none_of(Buffer | std::views::take(EventsRead), is_detach_key))
 			continue;
 
 		return false;
