@@ -96,7 +96,7 @@ namespace console_detail
 		string GetTitle() const;
 		bool SetTitle(string_view Title) const;
 
-		bool GetKeyboardLayoutName(string &strName) const;
+		HKL GetKeyboardLayout() const;
 
 		uintptr_t GetInputCodepage() const;
 		bool SetInputCodepage(uintptr_t Codepage) const;

@@ -2892,11 +2892,7 @@ void FarMacroApi::kbdLayoutFunc() const
 	const auto dwLayout = static_cast<DWORD>(Params[0].asInteger());
 
 	auto Ret = true;
-	HKL RetLayout = nullptr;
-
-	string LayoutName;
-	if (console.GetKeyboardLayoutName(LayoutName))
-		RetLayout = os::make_hkl(LayoutName);
+	const auto RetLayout = console.GetKeyboardLayout();
 
 	const auto hWnd = console.GetWindow();
 

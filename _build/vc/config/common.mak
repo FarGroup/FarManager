@@ -212,5 +212,6 @@ LINK_LIBS =\
 	version.lib\
 	userenv.lib\
 	comdlg32.lib\
+	imm32.lib\
 	wbemuuid.lib\
 

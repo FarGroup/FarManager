@@ -100,11 +100,10 @@ void Xlat(std::span<wchar_t> const Data, unsigned long long const Flags)
 		return;
 
 	const auto MinLenTable = std::min(XLat.Table[0].size(), XLat.Table[1].size());
-	string strLayoutName;
 	bool ProcessLayoutName=false;
 	StringOption RulesNamed;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && console.GetKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME))
 	{
 		/*
 			Уточнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -133,9 +132,13 @@ void Xlat(std::span<wchar_t> const Data, unsigned long long const Flags)
 		      руками переключили раскладку,
 		      снова конвертим и...
 		*/
-		RulesNamed = ConfigProvider().GeneralCfg()->GetValue<string>(L"XLat"sv, strLayoutName);
-		if (!RulesNamed.empty())
-			ProcessLayoutName=true;
+
+		if (const auto Hkl = console.GetKeyboardLayout())
+		{
+			RulesNamed = ConfigProvider().GeneralCfg()->GetValue<string>(L"XLat"sv, far::format(L"{:08X}"sv, static_cast<int32_t>(std::bit_cast<intptr_t>(Hkl))));
+			if (!RulesNamed.empty())
+				ProcessLayoutName = true;
+		}
 	}
 
 	// цикл по всей строке

@@ -784,17 +784,38 @@ protected:
 		return true;
 	}
 
-	bool console::GetKeyboardLayoutName(string &strName) const
+	static HKL get_keyboard_layout_imm()
 	{
+		const auto ImeWnd = ImmGetDefaultIMEWnd(::console.GetWindow());
+		if (!ImeWnd)
+		{
+			LOGWARNING(L"ImmGetDefaultIMEWnd(): {}"sv, os::last_error());
+			return {};
+		}
+
+		const auto ThreadId = GetWindowThreadProcessId(ImeWnd, {});
+		if (!ThreadId)
+		{
+			LOGWARNING(L"GetWindowThreadProcessId(): {}"sv, os::last_error());
+			return {};
+		}
+
+		return GetKeyboardLayout(ThreadId);
+	}
+
+	HKL console::GetKeyboardLayout() const
+	{
+		if (const auto Hkl = get_keyboard_layout_imm())
+			return Hkl;
+
 		wchar_t Buffer[KL_NAMELENGTH];
 		if (!imports.GetConsoleKeyboardLayoutNameW(Buffer))
 		{
-			LOGERROR(L"GetConsoleKeyboardLayoutNameW(): {}"sv, os::last_error());
-			return false;
+			LOGWARNING(L"GetConsoleKeyboardLayoutNameW(): {}"sv, os::last_error());
+			return {};
 		}
 
-		strName = Buffer;
-		return true;
+		return os::make_hkl(Buffer);
 	}
 
 	uintptr_t console::GetInputCodepage() const
