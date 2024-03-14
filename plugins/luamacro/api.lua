@@ -92,6 +92,7 @@ end
 
 mf.GetMacroCopy = utils.GetMacroCopy
 mf.EnumScripts = utils.EnumScripts
+mf.ProcessEvent = utils.ProcessEvent
 --------------------------------------------------------------------------------
 
 Object = {
