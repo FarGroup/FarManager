@@ -201,6 +201,7 @@ LNKFLAGS += \
 	-lversion \
 	-luserenv \
 	-lcomdlg32 \
+	-limm32 \
 	-m$(DIRBIT) \
 	-static \
 	-Xlinker --tsaware \
