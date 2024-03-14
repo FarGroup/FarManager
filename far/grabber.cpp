@@ -184,7 +184,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 		else
 		{
-			std::ranges::transform(Begin, End, std::back_inserter(Line), [](const FAR_CHAR_INFO& Char){ return Char.Char; });
+			std::ranges::transform(Begin, End, std::back_inserter(Line), &FAR_CHAR_INFO::Char);
 		}
 
 		bool AddEol = !IsLastLine;

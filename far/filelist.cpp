@@ -127,7 +127,7 @@ constexpr auto operator+(panel_sort const Value) noexcept
 	return std::to_underlying(Value);
 }
 
-static const struct
+static const struct sort_mode
 {
 	lng Label;
 	int MenuPosition;
@@ -4693,7 +4693,7 @@ static void edit_sort_layers(int MenuPos)
 	if (MenuPos >= static_cast<int>(panel_sort::COUNT))
 		return;
 
-	const auto SortMode = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == MenuPos; }) - SortModes;
+	const auto SortMode = std::ranges::find(SortModes, MenuPos, &sort_mode::MenuPosition) - SortModes;
 	if (static_cast<panel_sort>(SortMode) == panel_sort::UNSORTED)
 		return;
 
@@ -4731,7 +4731,7 @@ static void edit_sort_layers(int MenuPos)
 		case KEY_NUMPAD0:
 			if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 			{
-				const auto NewSortModeIndex = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == Result; }) - SortModes;
+				const auto NewSortModeIndex = std::ranges::find(SortModes, Result, &sort_mode::MenuPosition) - SortModes;
 				const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
 				const auto InsertPos = Pos > 0? Pos : 1;
 				SortLayersMenu->AddItem(MenuItemEx{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, InsertPos);
@@ -4754,7 +4754,7 @@ static void edit_sort_layers(int MenuPos)
 			{
 				if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 				{
-					const auto NewSortModeIndex = std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == Result; }) - SortModes;
+					const auto NewSortModeIndex = std::ranges::find(SortModes, Result, &sort_mode::MenuPosition) - SortModes;
 					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
 					SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
 					SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
@@ -4983,7 +4983,7 @@ void FileList::SelectSortMode()
 			KeepOrder = true;
 		}
 
-		const auto SortMode = static_cast<panel_sort>(std::ranges::find_if(SortModes, [&](auto const& i){ return i.MenuPosition == SortCode; }) - SortModes);
+		const auto SortMode = static_cast<panel_sort>(std::ranges::find(SortModes, SortCode, &sort_mode::MenuPosition) - SortModes);
 		SetSortMode(SortMode, KeepOrder);
 	}
 	// custom sort modes

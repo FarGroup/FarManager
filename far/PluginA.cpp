@@ -241,7 +241,7 @@ private:
 	bool FindExport(const std::string_view ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
-		return std::ranges::includes(m_ExportsNames, std::views::single(ExportName), {}, [](const export_name& Item){ return Item.AName; });
+		return std::ranges::includes(m_ExportsNames, std::views::single(ExportName), {}, &export_name::AName);
 	}
 
 	string_view kind() const override { return L"legacy"sv; }

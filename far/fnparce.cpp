@@ -849,8 +849,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 	for (size_t n = 0; n != strStr.size(); ++n)
 	{
-		const auto ItemIterator = std::ranges::find(Positions, n, [&](pos_item const& i){ return i.Pos; });
-		if (ItemIterator != Positions.cend())
+		if (const auto ItemIterator = std::ranges::find(Positions, n, &pos_item::Pos); ItemIterator != Positions.cend())
 		{
 			strTmpStr += DlgData[(ItemIterator - Positions.cbegin()) * 2 + 2].strData;
 			n = ItemIterator->EndPos;

@@ -403,7 +403,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 		}
 		else
 		{
-			const auto ItemIterator = std::ranges::find(ColumnInfo, Type, [&](column_info const& i){ return i.String; });
+			const auto ItemIterator = std::ranges::find(ColumnInfo, Type, &column_info::String);
 			if (ItemIterator != std::cend(ColumnInfo))
 				NewColumn.type = ItemIterator->Type;
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')

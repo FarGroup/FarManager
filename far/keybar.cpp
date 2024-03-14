@@ -189,7 +189,7 @@ void KeyBar::SetLabels(lng StartIndex)
 
 static int FnGroup(unsigned ControlState)
 {
-	static const struct
+	static const struct area
 	{
 		unsigned Group;
 		unsigned ControlState;
@@ -207,11 +207,7 @@ static int FnGroup(unsigned ControlState)
 	};
 	static_assert(std::size(Area) == KBL_GROUP_COUNT);
 
-	const auto ItemIterator = std::ranges::find_if(Area, [&](auto const& i)
-	{
-		return i.ControlState == ControlState;
-	});
-
+	const auto ItemIterator = std::ranges::find(Area, ControlState, &area::ControlState);
 	return ItemIterator == std::cend(Area)? -1 : ItemIterator->Group;
 }
 

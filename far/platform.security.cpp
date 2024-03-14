@@ -218,7 +218,7 @@ namespace os::security
 			if (!Luid)
 				return false;
 
-			const auto ItemIterator = std::ranges::find(Privileges, *Luid, &decltype(Privileges)::value_type::Luid);
+			const auto ItemIterator = std::ranges::find(Privileges, *Luid, &LUID_AND_ATTRIBUTES::Luid);
 			return ItemIterator != Privileges.end() && ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT);
 		});
 	}

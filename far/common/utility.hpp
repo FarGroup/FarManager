@@ -407,7 +407,7 @@ template<typename T> requires std::is_trivially_copyable_v<T>
 auto view_as_opt(std::ranges::contiguous_range auto const& Buffer, size_t const Offset = 0)
 {
 	static_assert(detail::buffer_type<std::ranges::range_value_t<decltype(Buffer)>>);
-	return view_as_opt<T>(std::ranges::data(Buffer), std::ranges::size(Buffer), Offset);
+	return view_as_opt<T>(std::ranges::cdata(Buffer), std::ranges::size(Buffer), Offset);
 }
 
 template<typename large_type, typename small_type>

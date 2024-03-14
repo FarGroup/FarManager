@@ -553,7 +553,7 @@ void background_searcher::InitInFileSearch()
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
 					// Проверяем дубли
-					if (hasSelected || !std::ranges::any_of(m_CodePages, [&](const CodePageInfo& cp) { return cp.CodePage == Name; }))
+					if (hasSelected || std::ranges::find(m_CodePages, Name, &CodePageInfo::CodePage) == m_CodePages.cend())
 						m_CodePages.emplace_back(Name);
 				}
 			}
