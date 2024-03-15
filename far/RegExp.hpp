@@ -135,8 +135,8 @@ public:
 class regex_exception: public far_exception
 {
 public:
-	explicit regex_exception(REError const Code, size_t const Position, auto&&... Args):
-		far_exception(false, to_string(Code), FWD(Args)...),
+	explicit regex_exception(REError const Code, size_t const Position, source_location const& Location = source_location::current()):
+		far_exception(to_string(Code), false, Location),
 		m_Code(Code),
 		m_Position(Position)
 	{}

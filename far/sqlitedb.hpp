@@ -57,8 +57,8 @@ namespace sqlite
 class far_sqlite_exception final: public far_exception
 {
 public:
-	explicit far_sqlite_exception(int ErrorCode, auto&&... Args) :
-		far_exception(FWD(Args)...),
+	explicit far_sqlite_exception(int const ErrorCode, string_view const Message, source_location const& Location = source_location::current()) :
+		far_exception(Message, true, Location),
 		m_ErrorCode(ErrorCode)
 	{}
 

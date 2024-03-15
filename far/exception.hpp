@@ -83,7 +83,7 @@ namespace detail
 		[[nodiscard]] string to_string() const;
 
 	protected:
-		far_base_exception(bool CaptureErrors, string_view Message, source_location const& Location);
+		explicit far_base_exception(error_state_ex ErrorState, source_location const& Location);
 
 	private:
 		source_location m_Location;
@@ -93,10 +93,13 @@ namespace detail
 	class far_std_exception : public far_base_exception, public std::runtime_error
 	{
 	public:
-		explicit far_std_exception(auto&&... Args):
-			far_base_exception(FWD(Args)...),
+		explicit far_std_exception(error_state_ex ErrorState, source_location const& Location = source_location::current()):
+			far_base_exception(std::move(ErrorState), Location),
 			std::runtime_error(convert_message(full_message()))
-		{}
+		{
+		}
+
+		explicit far_std_exception(string_view Message, bool CaptureErrors = true, source_location const& Location = source_location::current());
 
 	private:
 		[[nodiscard]] static std::string convert_message(string_view Message);
@@ -136,13 +139,12 @@ class far_exception: public detail::far_std_exception
  */
 class far_known_exception final: public far_exception
 {
-	using far_exception::far_exception;
+public:
+	explicit far_known_exception(string_view const Message):
+		far_exception(Message, false, {})
+	{
+	}
 };
-
-#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, source_location::current())
-#define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, true, __VA_ARGS__)
-#define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, true, __VA_ARGS__)
-#define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, false, __VA_ARGS__)
 
 template<typename T>
 struct formattable;

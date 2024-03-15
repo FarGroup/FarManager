@@ -571,7 +571,7 @@ size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str,
 
 void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, size_t const Position)
 {
-	throw MAKE_FAR_KNOWN_EXCEPTION(
+	throw far_known_exception(
 		concat(
 			codepages::UnsupportedCharacterMessage(Str[Position]),
 			L"\n"sv,

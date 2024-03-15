@@ -70,12 +70,17 @@ namespace detail
 			far::format(L"far_base_exception: {}"sv, full_message());
 	}
 
-	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, source_location const& Location):
-		error_state_ex(CaptureErrors? os::last_error(): os::error_state{}, Message, CaptureErrors? errno : 0),
+	far_base_exception::far_base_exception(error_state_ex ErrorState, source_location const& Location):
+		error_state_ex(std::move(ErrorState)),
 		m_Location(Location),
-		m_FullMessage(far::format(L"{} ({})"sv, Message, source_location_to_string(m_Location)))
+		m_FullMessage(m_Location.function_name()? far::format(L"{} ({})"sv, What, source_location_to_string(m_Location)) : What)
 	{
 		LOGTRACE(L"{}"sv, *this);
+	}
+
+	far_std_exception::far_std_exception(string_view const Message, bool const CaptureErrors, source_location const& Location):
+		far_std_exception({ CaptureErrors? os::last_error() : error_state{}, Message, CaptureErrors? errno : 0 }, Location)
+	{
 	}
 
 	std::string far_std_exception::convert_message(string_view const Message)

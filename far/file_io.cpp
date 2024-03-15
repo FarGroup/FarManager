@@ -115,7 +115,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 
 		// TODO: lng?
 		if (!OutFile)
-			throw MAKE_FAR_EXCEPTION(
+			throw far_exception(
 				UseTemporaryFile?
 					L"Can't create a temporary file"sv :
 					IsFileExists?
@@ -143,7 +143,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 	if (UseTemporaryFile)
 	{
 		if (!os::fs::replace_file(FileName, OutFileName, CreateBackup? FileName + L".bak"sv : L""sv, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
-			throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
+			throw far_exception(L"Can't replace the file"sv);
 	}
 
 	// No error checking - non-critical

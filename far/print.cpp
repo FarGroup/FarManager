@@ -136,7 +136,7 @@ void PrintFiles(FileList* SrcPanel)
 				continue;
 			}
 
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotEnumeratePrinters));
+			throw far_exception(msg(lng::MCannotEnumeratePrinters));
 		}
 
 		if (!PrintersCount)
@@ -173,7 +173,7 @@ void PrintFiles(FileList* SrcPanel)
 		os::printer_handle Printer;
 
 		if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotOpenPrinter));
+			throw far_exception(msg(lng::MCannotOpenPrinter));
 
 		SCOPED_ACTION(SaveScreen);
 
@@ -219,11 +219,11 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				const auto strTempDir = MakeTemp();
 				if (!os::fs::create_directory(strTempDir))
-					throw MAKE_FAR_EXCEPTION(L"create_directory error"sv);
+					throw far_exception(L"create_directory error"sv);
 
 				const auto ListItem = SrcPanel->GetLastSelectedItem();
 				if (!ListItem)
-					throw MAKE_FAR_EXCEPTION(L"GetLastSelectedItem error"sv);
+					throw far_exception(L"GetLastSelectedItem error"sv);
 
 				PluginPanelItemHolderHeap PanelItem;
 				SrcPanel->FileListToPluginItem(*ListItem, PanelItem);
@@ -236,7 +236,7 @@ void PrintFiles(FileList* SrcPanel)
 						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 					}
 
-					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);
+					throw far_exception(L"GetFile error"sv);
 				}
 
 				Deleter.add(FileName);
@@ -250,7 +250,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				const os::fs::file SrcFile(FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 				if (!SrcFile)
-					throw MAKE_FAR_EXCEPTION(L"Cannot open the file"sv);
+					throw far_exception(L"Cannot open the file"sv);
 
 				os::fs::filebuf StreamBuffer(SrcFile, std::ios::in);
 				std::istream Stream(&StreamBuffer);
@@ -259,7 +259,7 @@ void PrintFiles(FileList* SrcPanel)
 				DOC_INFO_1 di1{ UNSAFE_CSTR(FileName) };
 
 				if (!StartDocPrinter(Printer.native_handle(), 1, std::bit_cast<BYTE*>(&di1)))
-					throw MAKE_FAR_EXCEPTION(L"StartDocPrinter error"sv);
+					throw far_exception(L"StartDocPrinter error"sv);
 
 				SCOPE_EXIT{ EndDocPrinter(Printer.native_handle()); };
 
@@ -272,7 +272,7 @@ void PrintFiles(FileList* SrcPanel)
 
 					DWORD Written;
 					if (!WritePrinter(Printer.native_handle(), Buffer, static_cast<DWORD>(Read), &Written))
-						throw MAKE_FAR_EXCEPTION(L"WritePrinter error"sv);
+						throw far_exception(L"WritePrinter error"sv);
 				}
 
 				SrcPanel->ClearLastGetSelection();

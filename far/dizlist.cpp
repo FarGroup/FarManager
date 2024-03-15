@@ -344,7 +344,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 		if (m_OrderForWrite.empty())
 		{
 			if (!os::fs::delete_file(m_DizFileName))
-				throw MAKE_FAR_EXCEPTION(L"Can't delete the file"sv);
+				throw far_exception(L"Can't delete the file"sv);
 
 			return true;
 		}

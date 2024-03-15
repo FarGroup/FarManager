@@ -86,8 +86,8 @@ namespace os::com
 	class exception final: public far_exception
 	{
 	public:
-		explicit exception(HRESULT const ErrorCode, auto&&... Args):
-			far_exception(false, FWD(Args)...)
+		explicit exception(HRESULT const ErrorCode, string_view const Message, source_location const& Location = source_location::current()):
+			far_exception(Message, false, Location)
 		{
 			Win32Error = ErrorCode;
 		}

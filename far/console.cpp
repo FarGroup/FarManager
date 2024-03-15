@@ -394,14 +394,14 @@ protected:
 			{
 				DWORD BytesRead;
 				if (!ReadFile(GetStdHandle(m_Type), Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &BytesRead, {}))
-					throw MAKE_FAR_FATAL_EXCEPTION(L"File read error"sv);
+					throw far_fatal_exception(L"File read error"sv);
 
 				return BytesRead / sizeof(wchar_t);
 			}
 
 			size_t Size;
 			if (!::console.Read(Str, Size))
-				throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
+				throw far_fatal_exception(L"Console read error"sv);
 
 			return Size;
 		}
@@ -417,7 +417,7 @@ protected:
 				{
 					DWORD BytesWritten;
 					if (!WriteFile(GetStdHandle(m_Type), Data, static_cast<DWORD>(Size), &BytesWritten, {}))
-						throw MAKE_FAR_FATAL_EXCEPTION(L"File write error"sv);
+						throw far_fatal_exception(L"File write error"sv);
 				};
 
 				if constexpr (constexpr auto UseUtf8Output = true)
@@ -445,7 +445,7 @@ protected:
 			SCOPE_EXIT{ if (ChangeColour) ::console.SetTextAttributes(CurrentColor); };
 
 			if (!::console.Write(Str))
-				throw MAKE_FAR_FATAL_EXCEPTION(L"Console write error"sv);
+				throw far_fatal_exception(L"Console write error"sv);
 		}
 
 		void flush() const

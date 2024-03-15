@@ -3069,7 +3069,7 @@ MenuItemEx& VMenu::at(size_t n)
 	const auto ItemPos = GetItemPosition(static_cast<int>(n));
 
 	if (ItemPos < 0)
-		throw MAKE_FAR_FATAL_EXCEPTION(L"menu index out of range"sv);
+		throw far_fatal_exception(L"menu index out of range"sv);
 
 	return Items[ItemPos];
 }

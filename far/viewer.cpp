@@ -2229,7 +2229,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const auto& Re
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{
-		throw MAKE_FAR_EXCEPTION(L"Wrong size"sv);
+		throw far_exception(L"Wrong size"sv);
 	}
 
 	if (!pos)

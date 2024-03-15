@@ -289,7 +289,7 @@ void Help::init(string_view const Topic, string_view const Mask, unsigned long l
 	}
 
 	if (HelpList.empty())
-		throw MAKE_FAR_KNOWN_EXCEPTION(concat(msg(lng::MHelpTopicNotFound), L'\n', StackData.strHelpTopic));
+		throw far_known_exception(concat(msg(lng::MHelpTopicNotFound), L'\n', StackData.strHelpTopic));
 
 	InitKeyBar();
 	SetMacroMode(MACROAREA_HELP);
@@ -2060,7 +2060,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			ContentsName = L"PluginContents"sv;
 			break;
 		default:
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported index"sv);
+			throw far_fatal_exception(L"Unsupported index"sv);
 	}
 
 	AddTitle(Title);
@@ -2090,7 +2090,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			break;
 		}
 		default:
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported index"sv);
+			throw far_fatal_exception(L"Unsupported index"sv);
 	}
 
 	// сортируем по алфавиту

@@ -64,7 +64,7 @@ namespace tests
 	[[noreturn]]
 	static void cpp_far()
 	{
-		throw MAKE_FAR_EXCEPTION(L"Test far error"sv);
+		throw far_exception(L"Test far error"sv);
 	}
 
 	[[noreturn]]
@@ -83,7 +83,7 @@ namespace tests
 	[[noreturn]]
 	static void cpp_far_fatal()
 	{
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Test far fatal error"sv);
+		throw far_fatal_exception(L"Test far fatal error"sv);
 	}
 
 	[[noreturn]]
@@ -193,14 +193,14 @@ namespace tests
 			~c() noexcept(false)
 			{
 				if ([[maybe_unused]] volatile const auto Throw = true)
-					throw MAKE_FAR_EXCEPTION(L"Dtor exception"s);
+					throw far_exception(L"Dtor exception"s);
 			}
 		};
 
 		try
 		{
 			c C;
-			throw MAKE_FAR_EXCEPTION(L"Regular exception"s);
+			throw far_exception(L"Regular exception"s);
 		}
 		catch (...)
 		{
@@ -211,7 +211,7 @@ namespace tests
 	{
 		try
 		{
-			const auto do_throw = []{ throw MAKE_FAR_EXCEPTION(L"throw from a noexcept function"); };
+			const auto do_throw = []{ throw far_exception(L"throw from a noexcept function"); };
 
 			[&]() noexcept
 			{

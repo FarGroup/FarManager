@@ -119,7 +119,7 @@ namespace
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0, string_view const Sql = {}, int const ErrorOffset = -1)
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, ErrorCode, true, far::format(L"[{}] - SQLite error {}: {}{}{}{}"sv,
+		throw far_sqlite_exception(ErrorCode, far::format(L"[{}] - SQLite error {}: {}{}{}{}"sv,
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,

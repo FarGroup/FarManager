@@ -6761,7 +6761,7 @@ uintptr_t Editor::GetCodePage() const
 	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
 		return HostFileEditor->GetCodePage();
 
-	throw MAKE_FAR_EXCEPTION(L"HostFileEditor is nullptr"sv);
+	throw far_exception(L"HostFileEditor is nullptr"sv);
 }
 
 void Editor::AddColor(numbered_iterator const& It, ColorItem const& Item)

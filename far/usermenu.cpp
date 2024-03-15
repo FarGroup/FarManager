@@ -316,7 +316,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 		if (SerialisedMenu.empty())
 		{
 			if (!os::fs::delete_file(MenuFileName))
-				throw MAKE_FAR_EXCEPTION(L"Can't delete the file"sv);
+				throw far_exception(L"Can't delete the file"sv);
 
 			return;
 		}

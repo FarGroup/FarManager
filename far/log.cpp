@@ -285,10 +285,10 @@ namespace
 				{
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
 					if (!get_console_screen_buffer_info(Buffer, &csbi))
-						throw MAKE_FAR_EXCEPTION(L"get_console_screen_buffer_info"sv);
+						throw far_exception(L"get_console_screen_buffer_info"sv);
 
 					if (!SetConsoleTextAttribute(Buffer, Color))
-						throw MAKE_FAR_EXCEPTION(L"SetConsoleTextAttributes"sv);
+						throw far_exception(L"SetConsoleTextAttributes"sv);
 
 					m_SavedAttributes = csbi.wAttributes;
 				}
@@ -308,7 +308,7 @@ namespace
 			{
 				DWORD Written;
 				if (!WriteConsole(Buffer, Str.data(), static_cast<DWORD>(Str.size()), &Written, {}))
-					throw MAKE_FAR_EXCEPTION(L"WriteConsole"sv);
+					throw far_exception(L"WriteConsole"sv);
 			};
 
 			const auto write = [&](string_view const Borders, WORD const Color, string_view const Str)
@@ -457,7 +457,7 @@ namespace
 		{
 			os::fs::file File(make_filename(), GENERIC_WRITE, os::fs::file_share_read, nullptr, OPEN_ALWAYS);
 			if (!File)
-				throw MAKE_FAR_EXCEPTION(L"Can't create a log file"sv);
+				throw far_exception(L"Can't create a log file"sv);
 
 			LOGINFO(L"Logging to {}"sv, File.GetName());
 

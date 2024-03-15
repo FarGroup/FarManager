@@ -957,15 +957,62 @@ static string get_locale()
 	);
 }
 
-static string get_console_host()
+static DWORD get_console_host_pid_from_nt()
 {
 	ULONG_PTR ConsoleHostProcess;
 	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
-		return os::format_ntstatus(Status);
+		throw far_exception({{ 0, Status }});
 
-	const auto ConsoleHostProcessId = ConsoleHostProcess & ~0b11;
+	return static_cast<DWORD>(ConsoleHostProcess & ~0b11);
+}
 
-	const auto ConhostName = os::process::get_process_name(ConsoleHostProcessId);
+static DWORD get_console_host_pid_from_window()
+{
+	// When you call GetWindowThreadProcessId(GetConsoleWindow()),
+	// Windows lies and returns the ids of the hosted console process,
+	// even though the console window is owned by the console host itself.
+	// Amusingly, the HWND returned from ImmGetDefaultIMEWnd is not covered
+	// by these shenanigans, allowing us to get real host ids.
+	// Apparently this is also the only way to do it on WOW64,
+	// since ProcessConsoleHostProcess does't work there.
+	// Yes, it's horrible, but it's better than nothing.
+	const auto ImeWnd = ImmGetDefaultIMEWnd(GetConsoleWindow());
+	if (!ImeWnd)
+		throw far_exception({{ GetLastError(), 0 }});
+
+	DWORD ProcessId;
+	if (!GetWindowThreadProcessId(ImeWnd, &ProcessId))
+		throw far_exception({{ GetLastError(), 0 }});
+
+	return ProcessId;
+}
+
+static std::variant<DWORD, string> get_console_host_pid()
+{
+	try
+	{
+		return get_console_host_pid_from_nt();
+	}
+	catch (far_exception const& e1)
+	{
+		try
+		{
+			return get_console_host_pid_from_window();
+		}
+		catch (far_exception const& e2)
+		{
+			return concat(e1.to_string(), L", "sv, e2.to_string());
+		}
+	}
+}
+
+static string get_console_host()
+{
+	const auto ConsoleHostProcessId = get_console_host_pid();
+	if (ConsoleHostProcessId.index() == 1)
+		return std::get<1>(ConsoleHostProcessId);
+
+	const auto ConhostName = os::process::get_process_name(std::get<0>(ConsoleHostProcessId));
 	if (ConhostName.empty())
 		return {};
 
@@ -1777,7 +1824,7 @@ class far_wrapper_exception final: public far_exception, public std::nested_exce
 {
 public:
 	explicit far_wrapper_exception(source_location const& Location):
-		far_exception(true, L"exception_ptr"sv, Location),
+		far_exception(L"exception_ptr"sv, true, Location),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 		m_Stack(tracer.exception_stacktrace({}))
 	{

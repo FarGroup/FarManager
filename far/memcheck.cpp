@@ -129,7 +129,7 @@ static string format_type(allocation_type Type, size_t Size)
 		break;
 
 	default:
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
+		throw far_fatal_exception(L"Unknown allocation type"sv);
 	}
 
 	return far::format(L"{} ({} bytes)"sv, sType, Size);
@@ -268,7 +268,7 @@ private:
 		{
 		case allocation_type::scalar: m_CallNewDeleteScalar += op; break;
 		case allocation_type::vector: m_CallNewDeleteVector += op; break;
-		default: throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
+		default: throw far_fatal_exception(L"Unknown allocation type"sv);
 		}
 	}
 

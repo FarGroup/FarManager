@@ -352,7 +352,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 
 	const os::fs::file ListFile(ListFileName, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
 	if (!ListFile)
-		throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
+		throw far_exception(msg(lng::MCannotCreateListTemp));
 
 	SCOPE_FAIL
 	{

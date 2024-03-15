@@ -1259,7 +1259,7 @@ namespace os::fs
 		m_Buffer(BufferSize)
 	{
 		if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported mode"sv);
+			throw far_fatal_exception(L"Unsupported mode"sv);
 
 		reset_get_area();
 		reset_put_area();
@@ -1268,14 +1268,14 @@ namespace os::fs
 	filebuf::int_type filebuf::underflow()
 	{
 		if (!m_File)
-			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
+			throw far_fatal_exception(L"File not opened"sv);
 
 		if (!(m_Mode & std::ios::in))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Buffer not opened for reading"sv);
+			throw far_fatal_exception(L"Buffer not opened for reading"sv);
 
 		size_t Read;
 		if (!m_File.Read(m_Buffer.data(), m_Buffer.size() * sizeof(char), Read))
-			throw MAKE_FAR_EXCEPTION(L"Read error"sv);
+			throw far_exception(L"Read error"sv);
 
 		if (!Read)
 			return traits_type::eof();
@@ -1287,15 +1287,15 @@ namespace os::fs
 	filebuf::int_type filebuf::overflow(int_type Ch)
 	{
 		if (!m_File)
-			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
+			throw far_fatal_exception(L"File not opened"sv);
 
 		if (!(m_Mode & std::ios::out))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Buffer not opened for writing"sv);
+			throw far_fatal_exception(L"Buffer not opened for writing"sv);
 
 		if (pptr() != pbase())
 		{
 			if (!m_File.Write(pbase(), static_cast<size_t>(pptr() - pbase()) * sizeof(char)))
-				throw MAKE_FAR_EXCEPTION(L"Write error"sv);
+				throw far_exception(L"Write error"sv);
 		}
 
 		reset_put_area();
@@ -1341,7 +1341,7 @@ namespace os::fs
 	filebuf::pos_type filebuf::seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which)
 	{
 		if (!m_File)
-			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
+			throw far_fatal_exception(L"File not opened"sv);
 
 		switch (Way)
 		{
@@ -1370,7 +1370,7 @@ namespace os::fs
 			return set_pointer(Offset, FILE_CURRENT);
 
 		default:
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown seekdir"sv);
+			throw far_fatal_exception(L"Unknown seekdir"sv);
 		}
 	}
 
@@ -1381,7 +1381,7 @@ namespace os::fs
 
 	filebuf::int_type filebuf::pbackfail(int_type Ch)
 	{
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Not implemented"sv);
+		throw far_fatal_exception(L"Not implemented"sv);
 	}
 
 	void filebuf::reset_get_area()
@@ -1400,7 +1400,7 @@ namespace os::fs
 	{
 		unsigned long long Result;
 		if (!m_File.SetPointer(Value, &Result, Way))
-			throw MAKE_FAR_EXCEPTION(L"SetFilePointer error"sv);
+			throw far_exception(L"SetFilePointer error"sv);
 
 		return Result;
 	}
@@ -2152,7 +2152,7 @@ namespace os::fs
 		// - It's tiresome to check every time
 		// - There's not much we can do without it anyways
 		if (!get_module_file_name({}, {}, FileName))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"get_current_process_file_name");
+			throw far_fatal_exception(L"get_current_process_file_name");
 
 		return FileName;
 	}

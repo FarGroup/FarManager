@@ -54,10 +54,10 @@ namespace pipe
 	{
 		DWORD BytesRead;
 		if (!ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesRead, nullptr))
-			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
+			throw far_exception(L"Pipe read error"sv);
 
 		if (BytesRead != DataSize)
-			throw MAKE_FAR_EXCEPTION(far::format(L"Pipe read error: {} bytes requested, but {} bytes read"sv, DataSize, BytesRead));
+			throw far_exception(far::format(L"Pipe read error: {} bytes requested, but {} bytes read"sv, DataSize, BytesRead));
 	}
 
 	void read(const os::handle& Pipe, string& Data)
@@ -75,10 +75,10 @@ namespace pipe
 	{
 		DWORD BytesWritten;
 		if (!WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesWritten, nullptr))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
+			throw far_exception(L"Pipe write error"sv);
 
 		if (BytesWritten != DataSize)
-			throw MAKE_FAR_EXCEPTION(far::format(L"Pipe write error: {} bytes sent, but {} bytes written"sv, DataSize, BytesWritten));
+			throw far_exception(far::format(L"Pipe write error: {} bytes sent, but {} bytes written"sv, DataSize, BytesWritten));
 	}
 
 	void write(const os::handle& Pipe, string_view const Data)

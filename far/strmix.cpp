@@ -1024,7 +1024,7 @@ bool SearchAndReplaceString(
 char IntToHex(int h)
 {
 	if (h > 0xF)
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
+		throw far_fatal_exception(L"Not a hex char"sv);
 	if (h >= 0xA)
 		return 'A' + h - 0xA;
 	return '0' + h;
@@ -1041,7 +1041,7 @@ int HexToInt(char h)
 	if (std::isdigit(h))
 		return h - '0';
 
-	throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
+	throw far_fatal_exception(L"Not a hex char"sv);
 }
 
 string BlobToHexString(bytes_view const Blob, wchar_t Separator)
@@ -1071,7 +1071,7 @@ bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Incomplete hex string"sv);
+		throw far_fatal_exception(L"Incomplete hex string"sv);
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;

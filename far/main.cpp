@@ -527,7 +527,7 @@ struct args_context
 [[noreturn]]
 static void invalid_argument(string_view const Argument, string_view const Str)
 {
-	throw MAKE_FAR_KNOWN_EXCEPTION(far::format(L"Error processing \"{}\": {}"sv, Argument, Str));
+	throw far_known_exception(far::format(L"Error processing \"{}\": {}"sv, Argument, Str));
 }
 
 namespace args
