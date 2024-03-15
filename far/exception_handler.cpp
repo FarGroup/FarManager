@@ -961,7 +961,7 @@ static DWORD get_console_host_pid_from_nt()
 {
 	ULONG_PTR ConsoleHostProcess;
 	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
-		throw far_exception({{ 0, Status }});
+		throw far_exception(error_state_ex{{ 0, Status }});
 
 	return static_cast<DWORD>(ConsoleHostProcess & ~0b11);
 }
@@ -978,11 +978,11 @@ static DWORD get_console_host_pid_from_window()
 	// Yes, it's horrible, but it's better than nothing.
 	const auto ImeWnd = ImmGetDefaultIMEWnd(GetConsoleWindow());
 	if (!ImeWnd)
-		throw far_exception({{ GetLastError(), 0 }});
+		throw far_exception(error_state_ex{{ GetLastError(), 0 }});
 
 	DWORD ProcessId;
 	if (!GetWindowThreadProcessId(ImeWnd, &ProcessId))
-		throw far_exception({{ GetLastError(), 0 }});
+		throw far_exception(error_state_ex{{ GetLastError(), 0 }});
 
 	return ProcessId;
 }

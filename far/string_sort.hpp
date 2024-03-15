@@ -55,7 +55,7 @@ namespace string_sort
 
 	void adjust_comparer(size_t Collation, bool CaseSensitive, bool DigitsAsNumbers);
 
-	constexpr inline struct [[nodiscard]] less_t
+	constexpr inline struct less_t
 	{
 		using is_transparent = void;
 
@@ -67,7 +67,7 @@ namespace string_sort
 	}
 	less;
 
-	constexpr inline struct [[nodiscard]] less_icase_t
+	constexpr inline struct less_icase_t
 	{
 		using is_transparent = void;
 
