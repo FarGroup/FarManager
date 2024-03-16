@@ -129,7 +129,4 @@ bool __proc_Link(int outputtofile,wchar_t *pCmd);
 bool IsTextUTF8(const char* Buffer,size_t Length);
 wchar_t *ConvertBuffer(wchar_t* Ptr,size_t PtrSize,BOOL outputtofile, size_t& shift,bool *unicode);
 
-#define CP_UNICODE    ((uintptr_t)1200)
-#define CP_REVERSEBOM ((uintptr_t)1201)
-
 UINT GetCPBuffer(const void* data, size_t size, size_t* off);

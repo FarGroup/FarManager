@@ -48,9 +48,6 @@ static std::vector<string> ReadFileLines(const HANDLE FileMapping, const DWORD F
 
 	string Line;
 
-#define CP_UNICODE    ((uintptr_t)1200)
-#define CP_REVERSEBOM ((uintptr_t)1201)
-
 	const auto Ptr = reinterpret_cast<wchar_t*>(FileData);
 
 	auto cp = CP_OEMCP;
