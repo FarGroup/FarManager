@@ -39,6 +39,10 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_PATH))
 
 DEP_FILTER := $(MAKEFILE_DIR)dep_filter.awk
 
+ifndef USE_LLD
+USE_OBJDUMP_MAPS=1
+endif
+
 include $(MAKEFILE_DIR)../far/makefile_gcc_common
 
 ifdef ANSI
@@ -90,10 +94,8 @@ DEF_NAME = $(DEF_DEF)
 endif
 ifeq ($(DEF_NAME),-)
 DEF =
-DEF_OPT =
 else
 DEF = $(DEF_NAME).def
-DEF_OPT = -d $(DEF)
 endif
 
 RC_NAME ?= $(NAME)

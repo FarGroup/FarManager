@@ -202,6 +202,9 @@ FORCEINCLUDE=$(patsubst %, -include %, headers.hpp $(FORCEINCLUDELIST_NO_PCH))
 
 CPPFLAGS += $(ADDINCLUDE)
 
+CPPFLAGS += \
+	-fvisibility=hidden \
+
 .PHONY: all
 all:
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) dirs
