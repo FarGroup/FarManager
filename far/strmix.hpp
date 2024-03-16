@@ -56,8 +56,6 @@ class named_regex_match;
 
 namespace legacy
 {
-	wchar_t* QuoteSpace(wchar_t* Str);
-	wchar_t* InsertQuotes(wchar_t* Str);
 	wchar_t* QuoteSpaceOnly(wchar_t* Str);
 }
 
@@ -163,8 +161,6 @@ bool FindWordInString(string_view Str, size_t CurPos, size_t& Begin, size_t& End
 namespace legacy
 {
 	wchar_t* truncate_left(wchar_t* Str, int MaxLength);
-	wchar_t* truncate_center(wchar_t* Str, int MaxLength);
-	wchar_t* truncate_right(wchar_t* Str, int MaxLength);
 	wchar_t* truncate_path(wchar_t* Str, int MaxLength);
 }
 

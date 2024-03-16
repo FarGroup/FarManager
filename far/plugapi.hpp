@@ -60,8 +60,6 @@ namespace pluginapi
 	int      WINAPI apiAtoi(const wchar_t *Str) noexcept;
 	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept;
 	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *), void *user) noexcept;
-	wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept;
-	wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept;
 	void     WINAPI apiUnquote(wchar_t *Str) noexcept;
 	wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept;
 	wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept;
@@ -80,8 +78,6 @@ namespace pluginapi
 	int      WINAPI apiIsAlpha(wchar_t Ch) noexcept;
 	int      WINAPI apiIsAlphaNum(wchar_t Ch) noexcept;
 	wchar_t* WINAPI apiTruncStr(wchar_t *Str, intptr_t MaxLength) noexcept;
-	wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept;
-	wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept;
 	wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept;
 	const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept;
 	size_t   WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wchar_t *Owner, size_t Size) noexcept;

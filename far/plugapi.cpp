@@ -258,26 +258,6 @@ void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t 
 	return cfunctions::bsearchex(key, base, nelem, width, fcmp, user);
 }
 
-wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
-{
-	return cpp_try(
-	[&]
-	{
-		return legacy::QuoteSpace(Str);
-	},
-	nullptr);
-}
-
-wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
-{
-	return cpp_try(
-	[&]
-	{
-		return legacy::InsertQuotes(Str);
-	},
-	nullptr);
-}
-
 void WINAPI apiUnquote(wchar_t *Str) noexcept
 {
 	return cpp_try(
@@ -2101,26 +2081,6 @@ wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 	[&]
 	{
 		return legacy::truncate_left(Str, MaxLength);
-	},
-	Str);
-}
-
-wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
-{
-	return cpp_try(
-	[&]
-	{
-		return legacy::truncate_left(Str, MaxLength);
-	},
-	Str);
-}
-
-wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
-{
-	return cpp_try(
-	[&]
-	{
-		return legacy::truncate_right(Str, MaxLength);
 	},
 	Str);
 }

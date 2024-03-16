@@ -93,7 +93,7 @@ string GroupDigits(unsigned long long Value)
 	return Src;
 }
 
-wchar_t* legacy::InsertQuotes(wchar_t *Str)
+static wchar_t* legacy_InsertQuotes(wchar_t *Str)
 {
 	const auto QuoteChar = L'"';
 	size_t l = std::wcslen(Str);
@@ -113,14 +113,6 @@ wchar_t* legacy::InsertQuotes(wchar_t *Str)
 	return Str;
 }
 
-wchar_t* legacy::QuoteSpace(wchar_t *Str)
-{
-	if (Global->Opt->strQuotedSymbols.Get().find_first_of(Str) != string::npos)
-		InsertQuotes(Str);
-
-	return Str;
-}
-
 string InsertRegexpQuote(string strStr)
 {
 	//выражение вида /regexp/i не дополняем слешами
@@ -136,7 +128,7 @@ string InsertRegexpQuote(string strStr)
 wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 {
 	if (contains(Str, L' '))
-		InsertQuotes(Str);
+		legacy_InsertQuotes(Str);
 
 	return Str;
 }
@@ -171,14 +163,6 @@ static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(std:
 
 	Handler({ Str, Size }, Max, Dots.substr(0, Max));
 	return Str;
-}
-
-wchar_t* legacy::truncate_right(wchar_t *Str, int MaxLength)
-{
-	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
-	{
-		*copy_string(CurrentDots, StrParam.data() + MaxLengthParam - CurrentDots.size()) = {};
-	});
 }
 
 void inplace::truncate_right(string& Str, size_t const MaxLength)
@@ -232,19 +216,6 @@ string truncate_left(string Str, size_t const MaxLength)
 string truncate_left(string_view const Str, size_t const MaxLength)
 {
 	return truncate_left(string(Str), MaxLength);
-}
-
-wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
-{
-	return legacy_operation(Str, MaxLength, [](std::span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
-	{
-		const auto Iterator = copy_string(CurrentDots, StrParam.begin() + (MaxLengthParam - CurrentDots.size()) / 2);
-
-		const auto StrEnd = StrParam.end();
-		const auto StrBegin = Iterator + (StrParam.size() - MaxLengthParam);
-
-		*std::copy(StrBegin, StrEnd, Iterator) = {};
-	});
 }
 
 void inplace::truncate_center(string& Str, size_t const MaxLength)
@@ -1663,8 +1634,8 @@ TEST_CASE("truncate")
 	Functions[]
 	{
 		{ truncate_left,   legacy::truncate_left,   &tests::size::ResultLeft   },
-		{ truncate_center, legacy::truncate_center, &tests::size::ResultCenter },
-		{ truncate_right,  legacy::truncate_right,  &tests::size::ResultRight  },
+		{ truncate_center, {},                      &tests::size::ResultCenter },
+		{ truncate_right,  {},                      &tests::size::ResultRight },
 		{ truncate_path,   legacy::truncate_path,   &tests::size::ResultPath   },
 	};
 
@@ -1678,8 +1649,11 @@ TEST_CASE("truncate")
 
 				REQUIRE(f.Truncate(string(i.Src), Size.Size) == Baseline);
 
-				string Buffer(i.Src);
-				REQUIRE(f.TruncateLegacy(Buffer.data(), static_cast<int>(Size.Size)) == Baseline);
+				if (f.TruncateLegacy)
+				{
+					string Buffer(i.Src);
+					REQUIRE(f.TruncateLegacy(Buffer.data(), static_cast<int>(Size.Size)) == Baseline);
+				}
 			}
 		}
 	}
