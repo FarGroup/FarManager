@@ -2505,7 +2505,7 @@ struct DetectCodePageInfo
 	const wchar_t* FileName;
 };
 
-typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAAGE)(struct DetectCodePageInfo* Info);
+typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAGE)(struct DetectCodePageInfo* Info);
 
 typedef struct FarStandardFunctions
 {
@@ -2565,7 +2565,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
-	FARSTDDETECTCODEPAAGE      DetectCodePage;
+	FARSTDDETECTCODEPAGE       DetectCodePage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
