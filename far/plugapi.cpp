@@ -91,6 +91,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "color_picker.hpp"
 #include "log.hpp"
+#include "filestr.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -2323,6 +2324,23 @@ int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* S
 	-1);
 }
 
+uintptr_t WINAPI apiDetectCodePage(DetectCodePageInfo* Info) noexcept
+{
+	return cpp_try(
+	[&]
+	{
+		assert(Info);
+		assert(Info->StructSize);
+
+		os::fs::file const File(Info->FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
+		if (!File)
+			return uintptr_t{};
+
+		return GetFileCodepage(File, CP_UTF8);
+	},
+	0);
+}
+
 intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	return cpp_try(
@@ -3147,6 +3165,7 @@ static constexpr FarStandardFunctions NativeFSF
 	pluginapi::apiFormatFileSize,
 	pluginapi::apiFarClock,
 	pluginapi::apiCompareStrings,
+	pluginapi::apiDetectCodePage,
 };
 
 static constexpr PluginStartupInfo NativeInfo

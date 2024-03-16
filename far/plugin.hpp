@@ -2499,6 +2499,14 @@ FAR_INLINE_CONSTANT FARFORMATFILESIZEFLAGS
 
 typedef size_t (WINAPI *FARFORMATFILESIZE)(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
 
+struct DetectCodePageInfo
+{
+	size_t StructSize;
+	const wchar_t* FileName;
+};
+
+typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAAGE)(struct DetectCodePageInfo* Info);
+
 typedef struct FarStandardFunctions
 {
 	size_t StructSize;
@@ -2557,6 +2565,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
+	FARSTDDETECTCODEPAAGE      DetectCodepage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
