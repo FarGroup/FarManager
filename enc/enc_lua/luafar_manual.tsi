@@ -6972,6 +6972,30 @@ mtime=3602447964
 </article>
 </node>
 <node>
+id=568
+lv=2
+dt=Text
+nm=far.DetectCodePage
+ctime=3919783582
+mtime=3919788905
+<article>
+#_codepage = far.DetectCodePage (filename)
+#_
+#_**Parameters:**
+#_  filename:  string
+#_
+#_**Returns:**
+#_  codepage:  integer
+#_
+#_**Far API used:**
+#_  DetectCodePage
+#_
+#_@@@
+#_{detectcodepage}: http://api.farmanager.com/ru/fsf/detectcodepage.html
+#_
+</article>
+</node>
+<node>
 id=509
 lv=2
 dt=Text
