@@ -2565,7 +2565,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
-	FARSTDDETECTCODEPAAGE      DetectCodepage;
+	FARSTDDETECTCODEPAAGE      DetectCodePage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
