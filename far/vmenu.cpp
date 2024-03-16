@@ -3529,7 +3529,7 @@ TEST_CASE("adjust.hpos.shift")
 
 	for (const auto& TestDataPoint : TestDataPoints)
 	{
-		for (const auto& I : std::views::iota(0uz, Shifts.size()))
+		for (const auto I: std::views::iota(0uz, Shifts.size()))
 		{
 			REQUIRE(TestDataPoint.Expected[I] == adjust_hpos_shift(Shifts[I], TestDataPoint.Left, TestDataPoint.Right, TextAreaWidth));
 		}

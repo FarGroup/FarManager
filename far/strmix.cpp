@@ -1372,7 +1372,18 @@ TEST_CASE("FileSizeToStrInvariant")
 		{ 10.14_K,    L"10.1 K"sv,   L"10.4 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 10.18_K,    L"10.2 K"sv,   L"10.4 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 100_K,      L"100 K"sv,    L"102 k"sv,      0, COLFLAGS_FLOATSIZE },
+		{ 1_K,        L"1.00 K"sv,   L"1.02 k"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_K,      L"1.00 K"sv,   L"1.02 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_M,        L"1.00 M"sv,   L"1.05 m"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_M,      L"1.00 M"sv,   L"1.05 m"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_G,        L"1.00 G"sv,   L"1.07 g"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_G,      L"1.00 G"sv,   L"1.07 g"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_T,        L"1.00 T"sv,   L"1.10 t"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_T,      L"1.00 T"sv,   L"1.10 t"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_P,        L"1.00 P"sv,   L"1.13 p"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_P,      L"1.00 P"sv,   L"1.13 p"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_E,        L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1.0_E,      L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
 		{ max,        L"16.0 E"sv,   L"18.4 e"sv,     0, COLFLAGS_FLOATSIZE },
 	};
 
