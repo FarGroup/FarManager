@@ -6977,7 +6977,7 @@ lv=2
 dt=Text
 nm=far.DetectCodePage
 ctime=3919783582
-mtime=3919788905
+mtime=3919797819
 <article>
 #_codepage = far.DetectCodePage (filename)
 #_
@@ -6985,7 +6985,7 @@ mtime=3919788905
 #_  filename:  string
 #_
 #_**Returns:**
-#_  codepage:  integer
+#_  codepage:  integer (or nil)
 #_
 #_**Far API used:**
 #_  DetectCodePage

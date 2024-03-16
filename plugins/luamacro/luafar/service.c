@@ -6407,10 +6407,15 @@ static int far_host_SetDirectory(lua_State *L)
 
 static int far_DetectCodePage(lua_State *L)
 {
+	int codepage;
 	struct DetectCodePageInfo Info;
 	Info.StructSize = sizeof(Info);
 	Info.FileName = check_utf8_string(L, 1, NULL);
-	lua_pushinteger(L, GetPluginData(L)->FSF->DetectCodePage(&Info));
+	codepage = GetPluginData(L)->FSF->DetectCodePage(&Info);
+	if (codepage)
+		lua_pushinteger(L, codepage);
+	else
+		lua_pushnil(L);
 	return 1;
 }
 

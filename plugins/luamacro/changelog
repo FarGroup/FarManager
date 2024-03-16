@@ -1,3 +1,7 @@
+shmuel 2024-03-17 00:41:21+02:00 - build 815
+
+1. LuaFAR: refactor far.DetectCodePage
+
 shmuel 2024-03-16 22:16:13+02:00 - build 814
 
 1. LuaFAR: add function far.DetectCodePage
