@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6288.0
+Plugin API for Far Manager 3.0.6290.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6288
+#define FARMANAGERVERSION_BUILD 6290
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -2372,7 +2372,7 @@ struct DetectCodePageInfo
 	const wchar_t* FileName;
 };
 
-typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAAGE)(struct DetectCodePageInfo* Info);
+typedef uintptr_t (WINAPI *FARSTDDETECTCODEPAGE)(struct DetectCodePageInfo* Info);
 
 typedef struct FarStandardFunctions
 {
@@ -2432,7 +2432,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
-	FARSTDDETECTCODEPAAGE      DetectCodePage;
+	FARSTDDETECTCODEPAGE       DetectCodePage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
