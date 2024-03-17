@@ -555,7 +555,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							return 0;
 						}
 
-						const auto CurPos = Msg == DN_LISTCHANGE ? (int)Param : ComplMenu->GetSelectPos();
+						const auto CurPos = Msg == DN_LISTCHANGE? static_cast<int>(std::bit_cast<intptr_t>(Param)) : ComplMenu->GetSelectPos();
 						if(CurPos>=0 && (PrevPos!=CurPos || IsChanged))
 						{
 							PrevPos=CurPos;
