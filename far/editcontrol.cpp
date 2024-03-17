@@ -549,7 +549,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						if (Global->Opt->AutoComplete.ModalList)
 							return 0;
 
-						const auto CurPos = ComplMenu->GetSelectPos();
+						if (!IsChanged && (Msg == DN_DRAWDIALOGDONE || Msg == DN_DRAWDLGITEMDONE))
+						{
+							::SetCursorType(Visible, Size);
+							return 0;
+						}
+
+						const auto CurPos = Msg == DN_LISTCHANGE ? (int)Param : ComplMenu->GetSelectPos();
 						if(CurPos>=0 && (PrevPos!=CurPos || IsChanged))
 						{
 							PrevPos=CurPos;
@@ -681,6 +687,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									}
 									m_ParentProcessKey(Manager::Key(MenuKey));
 									Show();
+									ComplMenu->Show();
 									return 1;
 								}
 

@@ -152,9 +152,6 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		break;
 
 	case DN_LISTCHANGE:
-		if (Dlg->CheckDialogMode(DMODE_ISMENU))
-			break;
-
 		if(!cancel)
 		{
 			if(Call(Msg, Param2))
