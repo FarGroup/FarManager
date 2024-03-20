@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/function_ref.hpp"
+#include "common/enum_tokens.hpp"
 
 // External:
 
@@ -472,31 +473,98 @@ namespace os::debug::symbols
 		return false;
 	}
 
-	bool initialize(string_view Module)
+	static void append_to_search_path(string& Path, string_view const Str)
 	{
-		auto Path = env::get(L"_NT_SYMBOL_PATH"sv);
+		append(Path, Path.empty()? L""sv : L";"sv, Str);
+	};
 
-		const auto append_to_path = [&](string_view const Str)
-		{
-			append(Path, Path.empty()? L""sv : L";"sv, Str);
-		};
+	static void update_symbols_search_path(HANDLE const Process, string_view const NewPath)
+	{
+		string ExistingPath;
 
-		if (const auto AltSymbolPath = env::get(L"_NT_ALTERNATE_SYMBOL_PATH"sv); !AltSymbolPath.empty())
+		if (imports.SymGetSearchPathW)
 		{
-			append_to_path(AltSymbolPath);
+			// This stupid function doesn't fill the buffer if it's not large enough.
+			// It also doesn't provide any way to detect that.
+			wchar_t Buffer[MAX_PATH * 4];
+			if (imports.SymGetSearchPathW(Process, Buffer, std::size(Buffer)))
+				ExistingPath = Buffer;
+			else
+				LOGWARNING(L"SymGetSearchPathW(): {}"sv, os::last_error());
+		}
+		else if (imports.SymGetSearchPath)
+		{
+			char Buffer[MAX_PATH * 4];
+			if (imports.SymGetSearchPath(Process, Buffer, std::size(Buffer)))
+				ExistingPath = encoding::ansi::get_chars(Buffer);
+			else
+				LOGWARNING(L"SymGetSearchPath(): {}"sv, os::last_error());
 		}
 
-		if (const auto FarPath = fs::get_current_process_file_name(); !FarPath.empty())
+		string_view Path;
+
+		if (ExistingPath.empty())
+		{
+			Path = NewPath;
+		}
+		else
+		{
+			const auto contains = [&](string_view const NewPathElement)
+			{
+				const auto Enumerator = enum_tokens(ExistingPath, L";"sv);
+				return std::ranges::find_if(Enumerator, [&](string_view const i){ return equal_icase(i, NewPathElement); }) != Enumerator.cend();
+			};
+
+			bool PathChanged = false;
+
+			for (const auto& i: enum_tokens(NewPath, L";"))
+			{
+				if (contains(i))
+					continue;
+
+				append_to_search_path(ExistingPath, i);
+				PathChanged = true;
+			}
+
+			if (!PathChanged)
+				return;
+
+			Path = ExistingPath;
+		}
+
+		if (imports.SymSetSearchPathW)
+		{
+			if (!imports.SymSetSearchPathW(Process, null_terminated(Path).c_str()))
+				LOGWARNING(L"SymSetSearchPathW({}): {}"sv, Path, os::last_error());
+		}
+		else if (imports.SymSetSearchPath)
+		{
+			if (!imports.SymSetSearchPath(Process, encoding::ansi::get_bytes(Path).c_str()))
+				LOGWARNING(L"SymSetSearchPath({}): {}"sv, Path, os::last_error());
+		}
+	}
+
+	bool initialize(string_view Module)
+	{
+		string Path;
+
+		if (const auto FarPath = fs::get_current_process_file_name(); !FarPath.empty() && FarPath != Module)
 		{
 			string_view FarPathView = FarPath;
 			CutToParent(FarPathView);
-			append_to_path(FarPathView);
+			append_to_search_path(Path, FarPathView);
 		}
 
 		if (!Module.empty())
 		{
 			CutToParent(Module);
-			append_to_path(Module);
+			append_to_search_path(Path, Module);
+		}
+
+		for (const auto& Var: { L"_NT_SYMBOL_PATH"sv, L"_NT_ALTERNATE_SYMBOL_PATH"sv })
+		{
+			if (const auto EnvSymbolPath = env::get(Var); !EnvSymbolPath.empty())
+				append_to_search_path(Path, EnvSymbolPath);
 		}
 
 		if (imports.SymSetOptions)
@@ -514,16 +582,22 @@ namespace os::debug::symbols
 
 		const auto Process = GetCurrentProcess();
 
-		if (!initialize(Process, Path))
+		const auto Result = initialize(Process, Path);
+		if (!Result)
 		{
-			LOGWARNING(L"SymInitialize({}): {}"sv, Path, last_error());
-			return false;
+			if (const auto LastError = last_error(); LastError.Win32Error == ERROR_INVALID_PARAMETER)
+			{
+				// Symbols are already initialized by something else; try to at least propagate our search paths
+				update_symbols_search_path(Process, Path);
+			}
+			else
+				LOGWARNING(L"SymInitialize({}): {}"sv, Path, LastError);
 		}
 
 		if (!register_callback(Process))
 			LOGWARNING(L"SymRegisterCallback(): {}"sv, last_error());
 
-		return true;
+		return Result;
 	}
 
 	void clean()

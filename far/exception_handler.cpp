@@ -974,7 +974,7 @@ static DWORD get_console_host_pid_from_window()
 	// Amusingly, the HWND returned from ImmGetDefaultIMEWnd is not covered
 	// by these shenanigans, allowing us to get real host ids.
 	// Apparently this is also the only way to do it on WOW64,
-	// since ProcessConsoleHostProcess does't work there.
+	// since ProcessConsoleHostProcess doesn't work there.
 	// Yes, it's horrible, but it's better than nothing.
 	const auto ImeWnd = ImmGetDefaultIMEWnd(GetConsoleWindow());
 	if (!ImeWnd)
@@ -1445,7 +1445,11 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				else
 					ExtraDetails = L"ASan report is missing, probably it is too large."s;
 
-				return { Record.u.Asan.pwRuntimeShortMessage, static_cast<size_t>(Record.u.Asan.uiRuntimeShortMessageLength) };
+				return far::format(
+					L"{} ({})"sv,
+					string_view{ Record.u.Asan.pwRuntimeShortMessage, static_cast<size_t>(Record.u.Asan.uiRuntimeShortMessageLength) },
+					string_view{ Record.u.Asan.pwRuntimeDescription, static_cast<size_t>(Record.u.Asan.uiRuntimeDescriptionLength) }
+				);
 
 			default:
 				return L"Unrecognized sanitizer kind"s;
