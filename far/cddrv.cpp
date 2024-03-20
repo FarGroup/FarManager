@@ -406,7 +406,7 @@ static auto get_cd_type(cdrom_device_capabilities const caps)
 
 	const auto ItemIterator = std::ranges::find_if(DeviceCaps, [caps](const auto& i)
 	{
-		return flags::check_one(caps, i.second);
+		return flags::check_all(caps, i.second);
 	});
 
 	return ItemIterator == std::cend(DeviceCaps)? cd_type::cdrom : ItemIterator->first;
