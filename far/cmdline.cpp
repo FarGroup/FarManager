@@ -1327,8 +1327,12 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 	if (equal_icase(Command, L"EXIT"sv))
 	{
+		int ExitCode = EXIT_SUCCESS;
+		if (!from_string(Arguments, ExitCode))
+			LOGWARNING(L"Error parsing exit arguments: {}"sv, Arguments);
+
 		ConsoleActivatior(false);
-		Global->WindowManager->ExitMainLoop(FALSE);
+		Global->WindowManager->ExitMainLoop(FALSE, ExitCode);
 		return true;
 	}
 
