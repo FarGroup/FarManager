@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-03-20 18:07:12+00:00 - build 6291
+
+1. Improve subsystem detection in rare cases.
+
+2. Improve exception diagnostics.
+
+--------------------------------------------------------------------------------
 drkns 2024-03-17 10:38:11+00:00 - build 6290
 
 1. From rohitab: gh-811: Autocomplete dropdown disappears on navigation with arrow keys.
