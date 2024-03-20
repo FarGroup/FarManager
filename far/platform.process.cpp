@@ -237,12 +237,33 @@ namespace os::process
 		}
 	}
 
+	static auto get_process_subsystem_from_handle(HANDLE const Process)
+	{
+#ifdef _M_IX86
+		if (IsWow64Process())
+			return image_type::unknown;
+
+		const auto HandleValue = std::bit_cast<uintptr_t>(Process);
+
+		if (HandleValue & 0b01)
+			return image_type::console; // VDM
+
+		if (HandleValue & 0b10)
+			return image_type::graphical; // WOW32
+#endif
+
+		return image_type::unknown;
+	}
+
 	image_type get_process_subsystem(HANDLE const Process)
 	{
 		if (const auto Type = get_process_subsystem_from_memory(Process); Type != image_type::unknown)
 			return Type;
 
 		if (const auto Type = get_process_subsystem_from_module(Process); Type != image_type::unknown)
+			return Type;
+
+		if (const auto Type = get_process_subsystem_from_handle(Process); Type != image_type::unknown)
 			return Type;
 
 		return image_type::unknown;
