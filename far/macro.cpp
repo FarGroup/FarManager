@@ -3184,9 +3184,9 @@ void FarMacroApi::menushowFunc() const
 		const auto Key=RawKey();
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
 		{
+			bSetMenuFilter = false;
 			string NewStr=VFindOrFilter.toString();
 			Menu->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, 1);
-			bSetMenuFilter = false;
 		}
 
 		SelectedPos=Menu->GetSelectPos();
