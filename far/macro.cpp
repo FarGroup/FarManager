@@ -363,8 +363,8 @@ void print_opcodes()
 struct DlgParam
 {
 	unsigned long long Flags;
-	DWORD Key;
 	FARMACROAREA Area;
+	DWORD Key;
 	int Recurse;
 	bool Changed;
 };
@@ -1239,7 +1239,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData = Src.empty()? m_RecCode : Src;
 	MacroSettingsDlg[MS_EDIT_DESCR].strData = Descr.empty()? m_RecDescription : Descr;
 
-	DlgParam Param{ 0, 0, MACROAREA_OTHER };
+	DlgParam Param{ 0, MACROAREA_OTHER, 0 };
 	const auto Dlg = Dialog::create(MacroSettingsDlg, std::bind_front(&KeyMacro::ParamMacroDlgProc, this), &Param);
 	Dlg->SetPosition({ -1, -1, 73, 21 });
 	Dlg->SetHelp(L"KeyMacroSetting"sv);
@@ -4887,6 +4887,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	static DlgParam *KMParam=nullptr;
 	const INPUT_RECORD* record=nullptr;
 	unsigned key = 0;
+	bool KeyIsValid = false;
 
 	if (Msg == DN_CONTROLINPUT)
 	{
@@ -4948,7 +4949,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		key = KeyNameToKey(static_cast<FarDialogItem*>(Param2)->Data);
 
 		if (key && !KMParam->Recurse)
-			goto M1;
+			KeyIsValid = true;
 	}
 	else if (Msg == DN_CONTROLINPUT && record->EventType==KEY_EVENT && (((key&KEY_END_SKEY) < KEY_END_FKEY) ||
 	                           (((key&KEY_END_SKEY) > INTERNAL_KEY_BASE) && (key&KEY_END_SKEY) < INTERNAL_KEY_BASE_2)))
@@ -4981,8 +4982,11 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		if (any_of(key, KEY_ENTER, KEY_NUMENTER) && LastKey && none_of(LastKey, KEY_ENTER, KEY_NUMENTER))
 			return FALSE;
 
-		// </Обработка особых клавиш: F1 & Enter>
-M1:
+		KeyIsValid = true;
+	}
+
+	if (KeyIsValid)
+	{
 		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
 			key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
@@ -5101,7 +5105,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 		{DI_COMBOBOX,  {{5,  3}, {28, 3}}, DIF_FOCUS | DIF_DEFAULTBUTTON, },
 	});
 
-	DlgParam Param{ Flags, 0, m_StartMode };
+	DlgParam Param{ Flags, m_StartMode, 0 };
 	Global->IsProcessAssignMacroKey++;
 	const auto Dlg = Dialog::create(MacroAssignDlg, std::bind_front(&KeyMacro::AssignMacroDlgProc, this), &Param);
 	Dlg->SetPosition({ -1, -1, 34, 6 });
