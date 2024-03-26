@@ -366,6 +366,7 @@ struct DlgParam
 	FARMACROAREA Area;
 	DWORD Key;
 	int Recurse;
+	bool Changed;
 };
 
 static bool ToDouble(long long v, double& d)
@@ -666,9 +667,9 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			DWORD MacroKey;
 			// выставляем флаги по умолчанию.
 			unsigned long long Flags = 0;
-			bool AssignRet=AssignMacroKey(MacroKey,Flags);
+			int AssignRet=AssignMacroKey(MacroKey,Flags);
 
-			if (AssignRet && !m_RecCode.empty())
+			if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 			{
 				m_RecCode = concat(L"Keys(\""sv, m_RecCode, L"\")"sv);
 				// добавим проверку на удаление
@@ -676,7 +677,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
 				if (ctrlshiftdot && !GetMacroSettings(MacroKey,Flags))
 				{
-					AssignRet=false;
+					AssignRet=0;
 				}
 			}
 			m_InternalInput=0;
@@ -5052,6 +5053,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 					if (GetMacroSettings(key, Data.Flags, strBufKey, strDescription))
 					{
 						KMParam->Flags = Data.Flags;
+						KMParam->Changed = true;
 						// в любом случае - вываливаемся
 						Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 						return TRUE;
@@ -5076,7 +5078,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
+int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 {
 	/*
 	          1         2         3
@@ -5112,11 +5114,11 @@ bool KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	Global->IsProcessAssignMacroKey--;
 
 	if (Dlg->GetExitCode() < 0)
-		return false;
+		return 0;
 
 	MacroKey = Param.Key;
 	Flags = Param.Flags;
-	return true;
+	return Param.Changed ? 2 : 1;
 }
 
 #ifdef ENABLE_TESTS
