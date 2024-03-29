@@ -332,7 +332,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 			if (Init || Empty != SearchStringWasEmpty)
 			{
 				SearchStringWasEmpty = Empty;
-				Dialog::suppress_redraw RedrawGuard{ Dlg };
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 				for (auto Item : { dlg_button_prev, dlg_button_action, dlg_button_all })
 					Dlg->SendMessage(DM_ENABLE, Item, ToPtr(!Empty));
 			}

@@ -84,6 +84,7 @@ private:
 
 	private:
 		auto get_pointer() const;
+		mutable function_type m_Pointer;
 	};
 
 #define DEFINE_IMPORT_FUNCTION(MODULE, FALLBACK_DO, FALLBACK_RET, CALLTYPE, RETTYPE, NAME, ...) \
@@ -238,24 +239,19 @@ namespace imports_detail
 	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
 	auto imports::unique_function_pointer<ModuleAccessor, Name, StubFunction>::get_pointer() const
 	{
-		static const auto Pointer = [&]
+		if (m_Pointer)
+			return m_Pointer;
+
+		if (const auto DynamicPointer = std::bit_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
 		{
-			if (const auto DynamicPointer = std::bit_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
-				return DynamicPointer;
-
-			return StubFunction;
-		}();
-
-		// Logged separately to avoid a deadlock in recursive static initialisation
-		if (static auto Logged = false; !Logged)
-		{
-			if (Pointer == StubFunction)
-				log_missing_import(std::invoke(ModuleAccessor, ::imports), Name);
-
-			Logged = true;
+			m_Pointer = DynamicPointer;
+			return m_Pointer;
 		}
 
-		return Pointer;
+		log_missing_import(std::invoke(ModuleAccessor, ::imports), Name);
+
+		m_Pointer = StubFunction;
+		return m_Pointer;
 	}
 }
 

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 #ifdef MEMCHECK
+#define MEMCHECK_ENABLED
 
 namespace memcheck
 {
@@ -135,26 +136,6 @@ static string format_type(allocation_type Type, size_t Size)
 	return far::format(L"{} ({} bytes)"sv, sType, Size);
 }
 
-static string printable_string(string_view const Str)
-{
-	string Result;
-	Result.reserve(Str.size());
-
-	std::ranges::replace_copy_if(Str, std::back_inserter(Result), [](wchar_t const Char){ return !std::iswprint(Char); }, L'.');
-
-	return Result;
-}
-
-static string printable_wide_string(void const* const Data, size_t const Size)
-{
-	return printable_string({ static_cast<const wchar_t*>(Data), Size / sizeof(wchar_t) });
-}
-
-static string printable_ansi_string(void const* const Data, size_t const Size)
-{
-	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
-}
-
 #ifdef __SANITIZE_ADDRESS__
 extern "C"
 {
@@ -168,6 +149,28 @@ extern "C"
 #define ASAN_POISON_MEMORY_REGION(addr, size)   ((void)(addr), (void)(size))
 #define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
 #endif
+
+static string printable_string(string_view const Str)
+{
+	string Result;
+	Result.reserve(Str.size());
+
+	std::ranges::replace_copy_if(Str, std::back_inserter(Result), [](wchar_t const Char){ return !std::iswprint(Char); }, L'.');
+
+	return Result;
+}
+
+static string printable_wide_string(void const* const Data, size_t const Size)
+{
+	ASAN_UNPOISON_MEMORY_REGION(Data, Size);
+	return printable_string({ static_cast<const wchar_t*>(Data), Size / sizeof(wchar_t) });
+}
+
+static string printable_ansi_string(void const* const Data, size_t const Size)
+{
+	ASAN_UNPOISON_MEMORY_REGION(Data, Size);
+	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
+}
 
 static void poison_block(MEMINFO* Block)
 {
@@ -429,6 +432,8 @@ static constexpr std::align_val_t default_alignment{ __STDCPP_DEFAULT_NEW_ALIGNM
 
 }
 
+#ifdef MEMCHECK_ENABLED
+
 // ReSharper disable CppParameterNamesMismatch
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wmissing-prototypes")
@@ -564,6 +569,8 @@ void operator delete[](void* const Block, std::align_val_t const Alignment, std:
 // ReSharper restore CppParameterNamesMismatch
 WARNING_POP()
 
+#endif // MEMCHECK_ENABLED
+
 NIFTY_DEFINE(memcheck::checker, Checker);
 
-#endif
+#endif // MEMCHECK

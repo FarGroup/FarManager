@@ -1946,7 +1946,7 @@ WARNING_POP()
 
 	bool console::GetAlias(string_view const Name, string& Value, string_view const ExeName) const
 	{
-		os::last_error_guard Guard;
+		SCOPED_ACTION(os::last_error_guard);
 
 		null_terminated const C_Name(Name), C_ExeName(ExeName);
 

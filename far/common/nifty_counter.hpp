@@ -58,6 +58,11 @@ namespace Instance##_nifty_objects\
 \
 extern Type& Instance
 
+#ifdef _DEBUG
+#define NIFTY_DEBUG(str) OutputDebugString(str "\n")
+#else
+#define NIFTY_DEBUG(str)
+#endif
 
 #define NIFTY_DEFINE(Type, Instance)\
 namespace Instance##_nifty_objects\
@@ -68,13 +73,19 @@ namespace Instance##_nifty_objects\
 	initialiser::initialiser()\
 	{\
 		if (!InitCounter++)\
+		{\
+			NIFTY_DEBUG(L"Construct " #Type); \
 			placement::construct(Instance);\
+		}\
 	}\
 \
 	initialiser::~initialiser()\
 	{\
 		if (!--InitCounter)\
+		{\
+			NIFTY_DEBUG(L"Destruct " #Type); \
 			placement::destruct(Instance);\
+		}\
 	}\
 }\
 \
