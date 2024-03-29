@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "exception_handler.hpp"
 #include "farversion.hpp"
+#include "imports.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "palette.hpp"
@@ -170,12 +171,13 @@ namespace
 
 	struct message
 	{
-		message(string&& Str, logging::level const Level, source_location const& Location, size_t const TraceDepth):
+		message(string&& Str, logging::level const Level, source_location const& Location, size_t const TraceDepth, bool const IsDebugMessage):
 			m_ThreadId(get_thread_id()),
 			m_LevelString(level_to_string(Level)),
 			m_Data(std::move(Str)),
 			m_Location(source_location_to_string(Location)),
-			m_Level(Level)
+			m_Level(Level),
+			m_IsDebugMessage(IsDebugMessage)
 		{
 			std::tie(m_Date, m_Time) = format_datetime(os::chrono::now_utc());
 
@@ -183,7 +185,7 @@ namespace
 			{
 				m_Data += L"\nLog stack:\n"sv;
 
-				const auto FramesToSkip = 3; // log -> engine::log -> this ctor
+				const auto FramesToSkip = IsDebugMessage? 2 : 3; // [log] -> engine::log -> this ctor
 				tracer.current_stacktrace({}, [&](string_view const TraceLine)
 				{
 					append(m_Data, TraceLine, L'\n');
@@ -201,6 +203,7 @@ namespace
 		string m_Data;
 		string m_Location;
 		logging::level m_Level{ logging::level::off };
+		bool m_IsDebugMessage;
 	};
 
 	class sink
@@ -252,6 +255,9 @@ namespace
 	public:
 		void handle_impl(message const& Message) const
 		{
+			if (Message.m_IsDebugMessage)
+				return;
+
 			os::debug::print(far::format(
 				L"[{}][{}][{}] {} [{}]\n"sv,
 				Message.m_Time,
@@ -786,6 +792,10 @@ namespace logging
 		~engine()
 		{
 			LOGINFO(L"Logger exit"sv);
+
+			if (m_VectoredHandler && imports.RemoveVectoredExceptionHandler)
+				imports.RemoveVectoredExceptionHandler(m_VectoredHandler);
+
 			s_Destroyed = true;
 		}
 
@@ -844,7 +854,7 @@ namespace logging
 			}
 		}
 
-		void log(string&& Str, level const Level, source_location const& Location)
+		void log(string&& Str, level const Level, bool const IsDebugMessage, source_location const& Location)
 		{
 			thread_local size_t RecursionGuard{};
 			// Log can potentially log itself, directly or through other parts of the code.
@@ -864,7 +874,7 @@ namespace logging
 				if (TraceDepth)
 					m_WithSymbols.emplace(L""sv);
 
-				m_QueuedMessages.push({ std::move(Str), Level, Location, TraceDepth });
+				m_QueuedMessages.push({ std::move(Str), Level, Location, TraceDepth, IsDebugMessage });
 				return;
 			}
 
@@ -874,7 +884,7 @@ namespace logging
 			if (TraceDepth)
 				m_WithSymbols.emplace(L""sv);
 
-			submit({ std::move(Str), Level, Location, TraceDepth });
+			submit({ std::move(Str), Level, Location, TraceDepth, IsDebugMessage });
 		}
 
 		static void suppress()
@@ -931,6 +941,10 @@ namespace logging
 			if (m_Status != engine_status::incomplete)
 				return;
 
+			m_VectoredHandler = imports.AddVectoredExceptionHandler?
+				imports.AddVectoredExceptionHandler(false, debug_print) :
+				nullptr;
+
 			m_Status = engine_status::in_progress;
 			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
 
@@ -952,6 +966,75 @@ namespace logging
 			m_Sink->handle(Message);
 		}
 
+		static void debug_print(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
+		{
+			const auto Level = level::debug;
+			if (!logging::filter(Level))
+				return;
+
+			try
+			{
+				log_engine.log(
+					far::format(
+						L"{}"sv,
+						IsUnicode?
+							string_view{ static_cast<wchar_t const*>(Ptr), Size } :
+							encoding::ansi::get_chars(std::string_view{ static_cast<char const*>(Ptr), Size })
+					),
+					Level,
+					true,
+					source_location::current()
+				);
+			}
+			catch (...)
+			{
+			}
+		}
+
+		static void debug_print_seh(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
+		{
+			return seh_try_no_ui(
+			[&]
+			{
+				return debug_print(Ptr, Size, IsUnicode);
+			},
+			[](DWORD)
+			{
+			});
+		}
+
+		static LONG NTAPI debug_print(EXCEPTION_POINTERS* const Pointers)
+		{
+			const auto& Record = *Pointers->ExceptionRecord;
+
+			switch (const auto Code = static_cast<NTSTATUS>(Record.ExceptionCode))
+			{
+			case DBG_PRINTEXCEPTION_WIDE_C:
+			case DBG_PRINTEXCEPTION_C:
+				{
+					if (Record.NumberParameters < 2 || !Record.ExceptionInformation[0] || !Record.ExceptionInformation[1])
+						break;
+
+					const auto IsUnicode = Code == DBG_PRINTEXCEPTION_WIDE_C;
+
+					if (thread_local bool IgnoreNextAnsiMessage; IgnoreNextAnsiMessage)
+					{
+						IgnoreNextAnsiMessage = false;
+						break;
+					}
+					else
+						IgnoreNextAnsiMessage = IsUnicode;
+
+					const auto Ptr = view_as<void const*>(Record.ExceptionInformation[1]);
+					const auto Size = static_cast<size_t>(Record.ExceptionInformation[0] - 1);
+
+					debug_print_seh(Ptr, Size, IsUnicode);
+				}
+				break;
+			}
+
+			return EXCEPTION_CONTINUE_SEARCH;
+		}
 
 		imports_nifty_objects::initialiser m_ImportsReference;
 		tracer_nifty_objects::initialiser m_TracerReference;
@@ -975,7 +1058,7 @@ namespace logging
 
 	void log(string&& Str, level const Level, source_location const& Location)
 	{
-		log_engine.log(std::move(Str), Level, Location);
+		log_engine.log(std::move(Str), Level, false, Location);
 	}
 
 	void show()
