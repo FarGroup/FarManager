@@ -846,16 +846,35 @@ namespace logging
 
 		void log(string&& Str, level const Level, source_location const& Location)
 		{
+			thread_local size_t RecursionGuard{};
+			// Log can potentially log itself, directly or through other parts of the code.
+			// Allow one level of recursion for diagnostics
+			if (RecursionGuard > 1)
+				return;
+
+			++RecursionGuard;
+			SCOPE_EXIT{ --RecursionGuard; };
+
+			const auto TraceDepth = Level <= m_TraceLevel? m_TraceDepth : 0;
+
+			SCOPED_ACTION(os::last_error_guard);
+
 			if (m_Status == engine_status::in_progress)
 			{
-				m_QueuedMessages.push({ std::move(Str), Level, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
+				if (TraceDepth)
+					m_WithSymbols.emplace(L""sv);
+
+				m_QueuedMessages.push({ std::move(Str), Level, Location, TraceDepth });
 				return;
 			}
 
 			if (!filter(Level))
 				return;
 
-			submit({ std::move(Str), Level, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
+			if (TraceDepth)
+				m_WithSymbols.emplace(L""sv);
+
+			submit({ std::move(Str), Level, Location, TraceDepth });
 		}
 
 		static void suppress()
@@ -933,6 +952,9 @@ namespace logging
 			m_Sink->handle(Message);
 		}
 
+
+		imports_nifty_objects::initialiser m_ImportsReference;
+		tracer_nifty_objects::initialiser m_TracerReference;
 		os::concurrency::critical_section m_CS;
 		os::concurrency::synced_queue<message> m_QueuedMessages;
 		std::atomic<level> m_Level{ level::off };
@@ -940,6 +962,8 @@ namespace logging
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 		std::unique_ptr<sink> m_Sink;
+		void* m_VectoredHandler{};
+		std::optional<tracer_detail::tracer::with_symbols> m_WithSymbols;
 		static inline bool s_Destroyed;
 		static inline std::atomic_size_t s_Suppressed;
 	};
@@ -949,18 +973,8 @@ namespace logging
 		return log_engine.filter(Level);
 	}
 
-	static thread_local size_t RecursionGuard{};
-
 	void log(string&& Str, level const Level, source_location const& Location)
 	{
-		// Log can potentially log itself, directly or through other parts of the code.
-		// Allow one level of recursion for diagnostics
-		if (RecursionGuard > 1)
-			return;
-
-		++RecursionGuard;
-		SCOPE_EXIT{ --RecursionGuard; };
-
 		log_engine.log(std::move(Str), Level, Location);
 	}
 
