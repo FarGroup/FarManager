@@ -308,9 +308,9 @@ AllDirs:
 <<
 !else
 	$(ULINK) +- @+<<
-	$(ULINKFLAGS) /out:"$(OUTDIR)\Far.exe" $(LINK_OBJS)
+	$(ULINKFLAGS) $(LINK_OBJS)
 	,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
-	,$(LINK_LIBS)
+	,$(LINK_LIBS) $(INTDIR)/sqlite3.lib
 	,,"$(RES_FILE)"
 <<
 !endif
@@ -325,9 +325,18 @@ AllDirs:
 
 $(OUTDIR)\sqlite3.dll: $(INTDIR)\sqlite.obj $(INTDIR)\sqlite.res
 	@echo Linking $@
+!ifndef LINK_ULINK
 	$(LINK) @<<
 	$(LINKFLAGS) /dll /implib:$(INTDIR)/sqlite3.lib /out:"$@" $(INTDIR)\sqlite.obj $(INTDIR)\sqlite.res
 <<
+!else
+	$(ULINK) +- @+<<
+	$(ULINKFLAGS) -Tpd -Gic -ZI:$(INTDIR)/sqlite3.lib
+	,"$@","$(@R).map"
+	,$(INTDIR)\sqlite.obj
+	,,$(INTDIR)\sqlite.res
+<<
+!endif
 
 $(INTDIR)\sqlite.res: thirdparty/sqlite/sqlite3.rc $(BOOTSTRAPDIR)sqlite_version.h
 	@echo sqlite3.rc
