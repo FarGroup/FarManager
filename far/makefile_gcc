@@ -34,7 +34,6 @@ CFLAGS += \
 endif
 
 SRCS = \
-	sqlite.c \
 	cache.cpp \
 	cddrv.cpp \
 	char_width.cpp \
@@ -269,9 +268,9 @@ docs: \
 .PHONY: build
 build: $(EXEFULLNAME)
 
-$(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
+$(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS) $(EXEDIR)sqlite3.dll
 	@echo Linking $@
-	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
+	$(CXX) -o $@ $(OBJS) $(EXEDIR)sqlite3.dll $(LNKFLAGS)
 ifdef USE_OBJDUMP_MAPS
 	@echo Generating map file
 	$(OBJDUMP) --syms --demangle $(EXEFULLNAME) > $(MAP)
@@ -282,6 +281,17 @@ endif
 ifeq ($(ENABLE_TESTS),1)
 	@echo Running unit tests
 	$@ /service:test
+endif
+
+$(EXEDIR)sqlite3.dll: $(OBJDIR)sqlite.o $(OBJDIR)sqlite.rc.o
+	@echo Linking $@
+	$(CXX) -o $@ $(OBJDIR)sqlite.o $(OBJDIR)sqlite.rc.o -shared $(LNKFLAGS)
+ifdef USE_OBJDUMP_MAPS
+	@echo Generating map file
+	$(OBJDUMP) --syms --demangle $(EXEDIR)sqlite3.dll > $(EXEDIR)sqlite3.map
+endif
+ifndef DEBUG
+	$(STRIP) $(EXEDIR)sqlite3.dll
 endif
 
 $(OBJDIR)%.o: %.c
@@ -311,6 +321,14 @@ endif
 $(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico Far.red.ico Far.black.ico Far.hack.ico Far.mono.ico Far.msg.ico
 	@echo $<
 	$(WINDRES) $(ADDINCLUDE) -i $< -o $@
+
+$(OBJDIR)sqlite.rc.o: thirdparty/sqlite/sqlite3.rc $(BOOTSTRAPDIR)sqlite_version.h
+	@echo $<
+	$(WINDRES) $(ADDINCLUDE) -i $< -o $@
+
+$(BOOTSTRAPDIR)sqlite_version.h: thirdparty/sqlite/sqlite3.h
+	@echo sqlite_version.h
+	$(GAWK) -f scripts/sqlite_version.awk -v target=$@ thirdparty/sqlite/sqlite3.h
 
 $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo Testing C plugin API
@@ -359,7 +377,8 @@ endif
 .PHONY: clean
 clean:
 	@echo Cleaning
-	$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch
+	$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch $(OBJDIR)sqlite.o $(OBJDIR)sqlite.rc.o
 	$(RM) $(EXEFULLNAME) $(MAP)
+	$(RM) $(EXEDIR)sqlite3.dll $(EXEDIR)sqlite3.map
 	$(RM) $(BOOTSTRAPDIR)*.* $(FARINCLUDE)*.*
 	$(RM) $(EXEDIR)*.lng $(EXEDIR)*.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini

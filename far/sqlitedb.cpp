@@ -148,7 +148,7 @@ namespace
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::info{ L"SQLite"sv, WIDE_S(SQLITE_VERSION) };
+		return components::info{ L"SQLite"sv, far::format(L"{} (API) / {} (library)"sv, WIDE_S(SQLITE_VERSION), encoding::utf8::get_chars(sqlite::sqlite3_libversion())) };
 	});
 }
 

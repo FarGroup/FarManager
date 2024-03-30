@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <ProjectName>sqlite</ProjectName>
+    <ProjectGuid>{7FFC46F3-7C9F-4849-AA03-44F47F616212}</ProjectGuid>
+    <RootNamespace>sqlite</RootNamespace>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>sqlite3</TargetName>
+  </PropertyGroup>
+
+  <PropertyGroup Label="UserMacros">
+    <ProjectSpecificOutDirName>.</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName>$(ProjectName)</ProjectSpecificIntDirName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(ProjectDir)..\_build\vc\config\common.props" />
+  </ImportGroup>
+
+  <PropertyGroup Label="UserMacros">
+    <BootstrapDir>$(IntDir)include\bootstrap\</BootstrapDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Message>Creating mandatory folders...</Message>
+      <Command>if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Link>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="sqlite.c">
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sqlite.config.h" />
+    <ClInclude Include="thirdparty\sqlite\sqlite3.c" />
+    <ClInclude Include="thirdparty\sqlite\sqlite3rc.h" />
+    <ClInclude Include="$(BootstrapDir)sqlite_version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="thirdparty\sqlite\sqlite3.rc">
+      <AdditionalIncludeDirectories>$(BootstrapDir)..</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="thirdparty\sqlite\sqlite3.h">
+      <Message>Generating sqlite_version.h...</Message>
+      <Command>tools\gawk.exe -f scripts/sqlite_version.awk -v target=$(BootstrapDir.Replace('\', '/'))sqlite_version.h thirdparty/sqlite/sqlite3.h</Command>
+      <AdditionalInputs>%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>$(BootstrapDir)sqlite_version.h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+
+  <Import Project="$(ProjectDir)..\_build\vc\config\common.targets" />
+</Project>

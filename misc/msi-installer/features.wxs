@@ -14,6 +14,7 @@
       <ComponentRef Id="Far.VisualElementsManifest.xml" />
       <ComponentRef Id="VisualElements.large.png" />
       <ComponentRef Id="VisualElements.small.png" />
+      <ComponentRef Id="sqlite3.dll" />
       <Feature Id="Addons" Level="1" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
         <ComponentRef Id="Descript.ion_1" />
         <ComponentRef Id="README.TXT_1" />
@@ -165,6 +166,7 @@
       </Feature>
       <Feature Id="MapFiles" Level="1" Title="!(loc.Feature.Title.MapFiles)" AllowAdvertise="no" Description="!(loc.Feature.Description.MapFiles)">
         <ComponentRef Id="Far.map" />
+        <ComponentRef Id="sqlite3.map" />
       </Feature>
       <Feature Id="Languages" Level="1" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
         <Feature Id="Belarusian" Level="1" Title="!(loc.Feature.Title.Belarusian)" AllowAdvertise="no">

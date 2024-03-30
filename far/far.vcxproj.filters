@@ -449,9 +449,6 @@
     <ClCompile Include="shortcuts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlite.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sqlitedb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -32,20 +32,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Self
-#define SQLITE_CONFIG_ONLY
-#include "sqlite.hpp"
-#undef SQLITE_CONFIG_ONLY
 
 // Internal:
 
 // Platform:
 
 // Common:
+#include "common/preprocessor.hpp"
 
 // External:
 
+#include "sqlite.config.h"
+
 //----------------------------------------------------------------------------
 
+#define SQLITE_API __declspec(dllexport)
 
 WARNING_PUSH(3)
 

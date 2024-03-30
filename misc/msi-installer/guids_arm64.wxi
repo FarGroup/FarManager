@@ -43,6 +43,9 @@
 <?define Guid.RestoreOldPluginSettings.cmd = "4D9EA960-3B1E-4863-AFE3-546899A7C228" ?>
 <?define Guid.SaveOldPluginSettings.cmd = "35434FDB-2080-4442-895E-450D06A4CF3D" ?>
 
+<?define Guid.sqlite3.dll = "8242B7C4-742B-4586-964F-6805BB7DCE16" ?>
+<?define Guid.sqlite3.map = "2FB4D525-4D68-458E-8ED4-51119121C4EF" ?>
+
 <?define Guid.Far.VisualElementsManifest.xml = "F225BC93-46F4-4D21-B363-3B16DBC8FD9E" ?>
 <?define Guid.VisualElements.large.png = "C523D276-BC8C-48C8-919B-D59B01CB56C1" ?>
 <?define Guid.VisualElements.small.png = "0FED8C62-FB5A-4C1E-9476-EEBC71E46001" ?>

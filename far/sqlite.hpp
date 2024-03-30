@@ -38,33 +38,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/compiler.hpp"
 
 // External:
 
+#include "sqlite.config.h"
+
 //----------------------------------------------------------------------------
 
-#define SQLITE_DEFAULT_MEMSTATUS 0
-#define SQLITE_DEFAULT_WAL_SYNCHRONOUS 1
-
-//#define SQLITE_OMIT_AUTHORIZATION 1
-//#define SQLITE_OMIT_AUTOINIT 1
-//#define SQLITE_OMIT_COMPILEOPTION_DIAGS 1
-//#define SQLITE_OMIT_DECLTYPE 1
-//#define SQLITE_OMIT_DEPRECATED 1
-//#define SQLITE_OMIT_EXPLAIN 1
-//#define SQLITE_OMIT_PROGRESS_CALLBACK 1
-
-#define SQLITE_WIN32_NO_ANSI 1
-
-#ifdef _DEBUG
-#define SQLITE_DEBUG 1
-#define SQLITE_ENABLE_API_ARMOR 1
-#endif
-
-#ifndef SQLITE_CONFIG_ONLY
 namespace sqlite
 {
 WARNING_PUSH(3)
@@ -81,7 +65,5 @@ WARNING_DISABLE_CLANG("-Wzero-as-null-pointer-constant")
 
 WARNING_POP()
 }
-
-#endif // !SQLITE_CONFIG_ONLY
 
 #endif // SQLITE_HPP_83511762_721C_4CB4_A7E3_C98B3605D2E2

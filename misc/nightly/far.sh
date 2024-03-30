@@ -52,6 +52,8 @@ gawk -f ./scripts/mkhlf.awk FarUkr.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarU
 gawk -f ./scripts/mkhlf.awk FarCze.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarCze.hlf
 gawk -f ./scripts/mkhlf.awk FarSky.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarSky.hlf
 
+gawk -f ./scripts/sqlite_version.awk -v target=${BOOTSTRAPDIR}sqlite_version.h thirdparty/sqlite/sqlite3.h
+
 wine tools/lng.generator.exe -nc -oh ${BOOTSTRAPDIR} -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 
 wine cmd /c ../mysetnew.${DIRBIT}.bat
@@ -60,6 +62,7 @@ cd ..
 
 ( \
 cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/Far.pdb $2/$OUTDIR/*.lng $BINDIR/ && \
+cp $2/$OUTDIR/sqlite3.dll $2/$OUTDIR/sqlite3.map $2/$OUTDIR/sqlite3.pdb $BINDIR/ && \
 cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/ && \
 cp $2/../far.git/plugins/common/unicode/DlgBuilder.hpp $BINDIR/PluginSDK/Headers.c/ && \
 cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/ && \
