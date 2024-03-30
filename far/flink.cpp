@@ -558,8 +558,13 @@ bool GetVHDInfo(string_view const RootDirectory, string &strVolumePath, VIRTUAL_
 	if (!StorageDependencyInfo->NumberEntries)
 		return false;
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds=")
+
 	if(StorageType)
 		*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
+
+WARNING_POP()
 
 	// trick: ConvertNameToReal also converts \\?\{UUID} to drive letter, if possible.
 	strVolumePath = ConvertNameToReal(concat(StorageDependencyInfo->Version2Entries[0].HostVolumeName, StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath));

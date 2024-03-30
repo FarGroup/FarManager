@@ -487,7 +487,7 @@ namespace os::debug::symbols
 			// This stupid function doesn't fill the buffer if it's not large enough.
 			// It also doesn't provide any way to detect that.
 			wchar_t Buffer[MAX_PATH * 4];
-			if (imports.SymGetSearchPathW(Process, Buffer, std::size(Buffer)))
+			if (imports.SymGetSearchPathW(Process, Buffer, static_cast<DWORD>(std::size(Buffer))))
 				ExistingPath = Buffer;
 			else
 				LOGWARNING(L"SymGetSearchPathW(): {}"sv, os::last_error());
@@ -495,7 +495,7 @@ namespace os::debug::symbols
 		else if (imports.SymGetSearchPath)
 		{
 			char Buffer[MAX_PATH * 4];
-			if (imports.SymGetSearchPath(Process, Buffer, std::size(Buffer)))
+			if (imports.SymGetSearchPath(Process, Buffer, static_cast<DWORD>(std::size(Buffer))))
 				ExistingPath = encoding::ansi::get_chars(Buffer);
 			else
 				LOGWARNING(L"SymGetSearchPath(): {}"sv, os::last_error());
