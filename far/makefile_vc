@@ -47,7 +47,7 @@ ENABLE_TESTS=1
 
 !ifdef CLANG
 OUTDIR=$(OUTDIR).clang
-INTDIR=$(OUTDIR)\obj
+INTDIR=$(OUTDIR)/obj
 !endif
 
 FARINCLUDE=Include
