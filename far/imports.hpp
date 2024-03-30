@@ -84,7 +84,7 @@ private:
 
 	private:
 		auto get_pointer() const;
-		mutable function_type m_Pointer;
+		mutable function_type m_Pointer{};
 	};
 
 #define DEFINE_IMPORT_FUNCTION(MODULE, FALLBACK_DO, FALLBACK_RET, CALLTYPE, RETTYPE, NAME, ...) \
