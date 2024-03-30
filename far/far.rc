@@ -56,6 +56,7 @@ PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 			VALUE "OriginalFilename", "Far.exe"
 			VALUE "ProductName", "Far Manager"
 			VALUE "ProductVersion", RC_FULLVERSION
+			VALUE "Platform", RC_PLATFORM
 #if RC_SPECIAL
 			VALUE "SpecialBuild", RC_SPECIAL_STRING
 			VALUE "Comments", RC_SPECIAL_STRING
