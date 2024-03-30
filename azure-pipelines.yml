@@ -16,7 +16,7 @@ pool:
   vmImage: 'windows-2022'
 
 variables:
-  solution: 'far/far.sln'
+  solution: '_build/vc/all.sln'
 
 strategy:
     matrix:
@@ -26,11 +26,17 @@ strategy:
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
+      ARM64_RELEASE:
+        buildPlatform: 'ARM64'
+        buildConfiguration: 'Release'
       x86_DEBUG:
         buildPlatform: 'Win32'
         buildConfiguration: 'Debug'
       x64_DEBUG:
         buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
+      ARM64_DEBUG:
+        buildPlatform: 'ARM64'
         buildConfiguration: 'Debug'
 
 steps:
