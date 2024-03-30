@@ -41,6 +41,7 @@ strategy:
 
 steps:
 - checkout: self
+- fetchTags: false
   clean: true
   fetchDepth: 1
 - task: VSBuild@1
