@@ -1,3 +1,7 @@
+shmuel 2024-04-01 20:34:42+03:00 - build 816
+
+1. LuaFAR: reformat some parts of code.
+
 shmuel 2024-03-17 00:41:21+02:00 - build 815
 
 1. LuaFAR: refactor far.DetectCodePage

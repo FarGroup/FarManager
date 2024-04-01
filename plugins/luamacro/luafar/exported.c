@@ -764,30 +764,37 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 		case FMVT_INTEGER:
 			bit64_push(L, val->Value.Integer);
 			break;
+
 		case FMVT_DOUBLE:
 			lua_pushnumber(L, val->Value.Double);
 			break;
+
 		case FMVT_STRING:
 		case FMVT_ERROR:
 			push_utf8_string(L, val->Value.String, -1);
 			break;
+
 		case FMVT_BOOLEAN:
 			lua_pushboolean(L, (int)val->Value.Boolean);
 			break;
+
 		case FMVT_POINTER:
 		case FMVT_PANEL:
 			lua_pushlightuserdata(L, val->Value.Pointer);
 			break;
+
 		case FMVT_BINARY:
 			lua_createtable(L,1,0);
 			lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
 			lua_rawseti(L,-2,1);
 			break;
+
 		case FMVT_ARRAY:
 			PackMacroValues(L, val->Value.Array.Count, val->Value.Array.Values); // recursion
 			lua_pushliteral(L, "array");
 			lua_setfield(L, -2, "type");
 			break;
+
 		default:
 			lua_pushnil(L);
 			break;
@@ -1114,7 +1121,9 @@ intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *
 		{
 			case FE_CHANGEVIEWMODE:
 			case FE_COMMAND:
-				push_utf8_string(L, (wchar_t*)Info->Param, -1); break;
+				push_utf8_string(L, (wchar_t*)Info->Param, -1);
+				break;
+
 			default:
 				lua_pushnil(L); break;         //+5
 		}
@@ -1351,6 +1360,7 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				PutNumToTable(L, "StringNumber", (double)(ec->StringNumber+1));
 				break;
 			}
+
 			case EE_SAVE:
 			{
 				struct EditorSaveFile *esf = (struct EditorSaveFile*)Info->Param;
@@ -1360,6 +1370,7 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 				PutIntToTable(L, "CodePage", esf->CodePage);
 				break;
 			}
+
 			default:
 				lua_pushinteger(L, (intptr_t)Info->Param);
 				break;

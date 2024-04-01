@@ -204,14 +204,17 @@ static HANDLE OptHandle(lua_State *L)
 		case LUA_TNONE:
 		case LUA_TNIL:
 			break;
+
 		case LUA_TNUMBER:
 		{
 			lua_Integer whatPanel = lua_tointeger(L,1);
 			HANDLE hh = (HANDLE)whatPanel;
 			return (hh==PANEL_PASSIVE || hh==PANEL_ACTIVE) ? hh : whatPanel%2 ? PANEL_ACTIVE:PANEL_PASSIVE;
 		}
+
 		case LUA_TLIGHTUSERDATA:
 			return lua_touserdata(L,1);
+
 		default:
 			luaL_typerror(L, 1, "integer or light userdata");
 	}
@@ -239,9 +242,11 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 		case LUA_TNONE:
 		case LUA_TNIL:
 			break;
+
 		case LUA_TNUMBER:
 			ret = (__int64)lua_tonumber(L, pos); // IMPORTANT: cast to signed integer.
 			break;
+
 		case LUA_TSTRING:
 			str = lua_tostring(L, pos);
 			lua_getfield(L, LUA_REGISTRYINDEX, FAR_FLAGSTABLE);
@@ -252,6 +257,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 				*success = FALSE;
 			lua_pop(L, 2);
 			break;
+
 		default:
 			if (!bit64_getvalue(L, pos, &ret))
 				*success = FALSE;
@@ -1519,19 +1525,24 @@ void PushInputRecord(lua_State *L, const INPUT_RECORD* ir)
 			PutWStrToTable(L, "UnicodeChar", &ir->Event.KeyEvent.uChar.UnicodeChar, 1);
 			PutNumToTable(L, "ControlKeyState", ir->Event.KeyEvent.dwControlKeyState);
 			break;
+
 		case MOUSE_EVENT:
 			PutMouseEvent(L, &ir->Event.MouseEvent, TRUE);
 			break;
+
 		case WINDOW_BUFFER_SIZE_EVENT:
 			PutNumToTable(L, "SizeX", ir->Event.WindowBufferSizeEvent.dwSize.X);
 			PutNumToTable(L, "SizeY", ir->Event.WindowBufferSizeEvent.dwSize.Y);
 			break;
+
 		case MENU_EVENT:
 			PutNumToTable(L, "CommandId", ir->Event.MenuEvent.dwCommandId);
 			break;
+
 		case FOCUS_EVENT:
 			PutBoolToTable(L,"SetFocus", ir->Event.FocusEvent.bSetFocus);
 			break;
+
 		default:
 			break;
 	}
@@ -1575,16 +1586,20 @@ void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir)
 			lua_pop(L, 1);
 			ir->Event.KeyEvent.dwControlKeyState = GetOptIntFromTable(L, "ControlKeyState", 0);
 			break;
+
 		case MOUSE_EVENT:
 			GetMouseEvent(L, &ir->Event.MouseEvent);
 			break;
+
 		case WINDOW_BUFFER_SIZE_EVENT:
 			ir->Event.WindowBufferSizeEvent.dwSize.X = GetOptIntFromTable(L, "SizeX", 0);
 			ir->Event.WindowBufferSizeEvent.dwSize.Y = GetOptIntFromTable(L, "SizeY", 0);
 			break;
+
 		case MENU_EVENT:
 			ir->Event.MenuEvent.dwCommandId = GetOptIntFromTable(L, "CommandId", 0);
 			break;
+
 		case FOCUS_EVENT:
 			ir->Event.FocusEvent.bSetFocus = GetOptBoolFromTable(L, "SetFocus", FALSE);
 			break;
@@ -3023,6 +3038,7 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 		case DM_CLOSE:
 			lua_pushinteger(L, Param1<=0 ? Param1 : Param1+1);
 			break;
+
 		case DM_ENABLEREDRAW:
 		case DM_GETDIALOGINFO:
 		case DM_GETDIALOGTITLE:
@@ -3040,6 +3056,7 @@ int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1)
 		case DM_USER:
 			lua_pushinteger(L, Param1);
 			break;
+
 		default: // dialog element position
 			lua_pushinteger(L, Param1+1);
 			break;
@@ -3073,9 +3090,11 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			Param1 = luaL_optinteger(L,pos3,-1);
 			if (Param1>0) --Param1;
 			break;
+
 		case DM_GETDLGDATA:
 		case DM_SETDLGDATA:
 			break;
+
 		case DM_ENABLEREDRAW:
 		case DM_GETDIALOGINFO:
 		case DM_GETDIALOGTITLE:
@@ -3095,6 +3114,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		case DN_DRAWDIALOGDONE:
 			Param1 = luaL_optinteger(L,pos3,0);
 			break;
+
 		default: // dialog element position
 			Param1 = luaL_optinteger(L,pos3,1) - 1;
 			break;
@@ -3107,6 +3127,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		case DM_LISTADDSTR:
 			res_incr=1;
 			break;
+
 		default:
 			res_incr=0;
 			break;
@@ -3117,6 +3138,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		default:
 			luaL_argerror(L, pos2, "operation not implemented");
 			break;
+
 		case DM_CLOSE:
 		case DM_EDITUNCHANGEDFLAG:
 		case DM_ENABLE:
@@ -3147,22 +3169,25 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		case DN_DROPDOWNOPENED:
 			Param2 = (void*)(intptr_t)luaL_optint(L,pos4,0);
 			break;
+
 		case DM_LISTGETDATASIZE:
 			Param2 = (void*)(intptr_t)(luaL_optint(L,pos4,1) - 1);
 			break;
+
 		case DM_LISTADDSTR:
 		case DM_ADDHISTORY:
 		case DM_SETHISTORY:
 		case DM_SETTEXTPTR:
 			Param2 = (void*)opt_utf8_string(L, pos4, NULL);
 			break;
+
 		case DM_SETCHECK:
 			res = lua_isboolean(L,pos4) ? (lua_toboolean(L,pos4) ? BSTATE_CHECKED : BSTATE_UNCHECKED)
 				: check_env_flag(L, pos4);
 			Param2 = (void*) res;
 			break;
-		case DM_GETCURSORPOS:
 
+		case DM_GETCURSORPOS:
 			if(Info->SendDlgMessage(hDlg, Msg, Param1, &coord))
 			{
 				lua_createtable(L,0,2);
@@ -3170,13 +3195,12 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				PutNumToTable(L, "Y", coord.Y);
 				return 1;
 			}
-
 			return lua_pushnil(L), 1;
+
 		case DM_GETDIALOGINFO:
 		{
 			struct DialogInfo dlg_info;
 			dlg_info.StructSize = sizeof(dlg_info);
-
 			if(Info->SendDlgMessage(hDlg, Msg, Param1, &dlg_info))
 			{
 				lua_createtable(L,0,2);
@@ -3184,7 +3208,6 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				PutLStrToTable(L, "Owner", (const char*)&dlg_info.Owner, sizeof(dlg_info.Owner));
 				return 1;
 			}
-
 			return lua_pushnil(L), 1;
 		}
 
@@ -3203,7 +3226,6 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 		case DM_GETDLGRECT:
 		case DM_GETITEMPOSITION:
-
 			if(Info->SendDlgMessage(hDlg, Msg, Param1, &small_rect))
 			{
 				lua_createtable(L,0,4);
@@ -3213,8 +3235,8 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				PutNumToTable(L, "Bottom", small_rect.Bottom);
 				return 1;
 			}
-
 			return lua_pushnil(L), 1;
+
 		case DM_GETEDITPOSITION:
 		{
 			struct EditorSetPosition esp;
@@ -3225,6 +3247,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return lua_pushnil(L), 1;
 		}
+
 		case DM_GETSELECTION:
 		{
 			struct EditorSelect es;
@@ -3240,9 +3263,9 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				PutNumToTable(L, "BlockHeight", (double) es.BlockHeight);
 				return 1;
 			}
-
 			return lua_pushnil(L), 1;
 		}
+
 		case DM_SETSELECTION:
 		{
 			struct EditorSelect es;
@@ -3256,6 +3279,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return 1;
 		}
+
 		case DM_GETTEXT:
 		case DM_GETDIALOGTITLE:
 		{
@@ -3269,12 +3293,14 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			free(fdid.PtrData);
 			return 1;
 		}
+
 		case DM_GETCONSTTEXTPTR:
 		{
 			wchar_t *ptr = (wchar_t*)Info->SendDlgMessage(hDlg, Msg, Param1, 0);
 			push_utf8_string(L, ptr ? ptr:L"", -1);
 			return 1;
 		}
+
 		case DM_SETTEXT:
 		{
 			struct FarDialogItemData fdid;
@@ -3284,6 +3310,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid));
 			return 1;
 		}
+
 		case DM_KEY:
 		{
 			size_t i, count;
@@ -3332,6 +3359,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return 1;
 		}
+
 		case DM_LISTADD:
 		case DM_LISTSET:
 		{
@@ -3342,6 +3370,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			Param2 = CreateList(L, 1);
 			break;
 		}
+
 		case DM_LISTDELETE:
 		{
 			struct FarListDelete fld;
@@ -3357,6 +3386,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			}
 			return 1;
 		}
+
 		case DM_LISTFINDSTRING:
 		{
 			struct FarListFind flf;
@@ -3371,6 +3401,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			res < 0 ? lua_pushnil(L) : lua_pushinteger(L, res+1);
 			return 1;
 		}
+
 		case DM_LISTGETCURPOS:
 		{
 			struct FarListPos flp;
@@ -3381,6 +3412,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			PutIntToTable(L, "TopPos", flp.TopPos+1);
 			return 1;
 		}
+
 		case DM_LISTGETITEM:
 		{
 			struct FarListGetItem flgi;
@@ -3396,6 +3428,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return lua_pushnil(L), 1;
 		}
+
 		case DM_LISTGETTITLES:
 		{
 			struct FarListTitles flt;
@@ -3414,6 +3447,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return lua_pushnil(L), 1;
 		}
+
 		case DM_LISTSETTITLES:
 		{
 			struct FarListTitles flt;
@@ -3426,6 +3460,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flt));
 			return 1;
 		}
+
 		case DM_LISTINFO:
 		{
 			struct FarListInfo fli;
@@ -3441,9 +3476,9 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				PutIntToTable(L, "MaxLength", fli.MaxLength);
 				return 1;
 			}
-
 			return lua_pushnil(L), 1;
 		}
+
 		case DM_LISTINSERT:
 		{
 			struct FarListInsert flins;
@@ -3457,6 +3492,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			res < 0 ? lua_pushnil(L) : lua_pushinteger(L, res);
 			return 1;
 		}
+
 		case DM_LISTUPDATE:
 		{
 			struct FarListUpdate flu;
@@ -3469,6 +3505,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushboolean(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flu) != 0);
 			return 1;
 		}
+
 		case DM_LISTSETCURPOS:
 		{
 			struct FarListPos flp;
@@ -3479,6 +3516,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushinteger(L, 1 + Info->SendDlgMessage(hDlg, Msg, Param1, &flp));
 			return 1;
 		}
+
 		case DM_LISTSETDATA:
 		{
 			listdata_t Data, *oldData;
@@ -3511,6 +3549,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
 			return 1;
 		}
+
 		case DM_LISTGETDATA:
 		{
 			intptr_t Index = luaL_checkinteger(L, pos4) - 1;
@@ -3531,10 +3570,13 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 
 			return 1;
 		}
+
 		case DM_GETDLGITEM:
 			return PushDlgItemNum(L, hDlg, (int)Param1, pos4, Info), 1;
+
 		case DM_SETDLGITEM:
 			return SetDlgItem(L, hDlg, (int)Param1, pos4, Info);
+
 		case DM_MOVEDIALOG:
 		case DM_RESIZEDIALOG:
 		case DM_SETCURSORPOS:
@@ -3549,13 +3591,13 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &coord));
 				return 1;
 			}
-
 			c = (COORD*) Info->SendDlgMessage(hDlg, Msg, Param1, &coord);
 			lua_createtable(L, 0, 2);
 			PutIntToTable(L, "X", c->X);
 			PutIntToTable(L, "Y", c->Y);
 			return 1;
 		}
+
 		case DM_SETITEMPOSITION:
 			luaL_checktype(L, pos4, LUA_TTABLE);
 			small_rect.Left = GetOptIntFromTable(L, "Left", 0);
@@ -3564,9 +3606,11 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			small_rect.Bottom = GetOptIntFromTable(L, "Bottom", 0);
 			Param2 = &small_rect;
 			break;
+
 		case DM_SETCOMBOBOXEVENT:
 			Param2 = (void*)(intptr_t)OptFlags(L, pos4, 0);
 			break;
+
 		case DM_SETEDITPOSITION:
 		{
 			struct EditorSetPosition esp;
@@ -3577,6 +3621,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &esp));
 			return 1;
 		}
+
 		case DN_CONTROLINPUT:
 		{
 			INPUT_RECORD rec;
@@ -4733,20 +4778,25 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 	{
 		default:
 			return luaL_argerror(L, 1, "command not supported");
+
 		case ACTL_COMMIT:
 		case ACTL_GETWINDOWCOUNT:
 		case ACTL_PROGRESSNOTIFY:
 		case ACTL_REDRAWALL:
 			break;
+
 		case ACTL_QUIT:
 			Param1 = luaL_optinteger(L, pos2, EXIT_SUCCESS);
 			break;
+
 		case ACTL_GETFARHWND:
 			lua_pushlightuserdata(L, CAST(void*, Info->AdvControl(PluginId, Command, 0, NULL)));
 			return 1;
+
 		case ACTL_SETCURRENTWINDOW:
 			Param1 = luaL_checkinteger(L, pos2) - 1;
 			break;
+
 		case ACTL_WAITKEY:
 		{
 			INPUT_RECORD ir;
@@ -4758,6 +4808,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, Param2));
 			return 1;
 		}
+
 		case ACTL_GETCOLOR:
 		{
 			struct FarColor fc;
@@ -4770,15 +4821,18 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 
 			return 1;
 		}
+
 		case ACTL_SYNCHRO:
 		{
 			intptr_t p = luaL_checkinteger(L, pos2);
 			Param2 = CreateSynchroData(NULL, 0, (int)p);
 			break;
 		}
+
 		case ACTL_SETPROGRESSSTATE:
 			Param1 = (intptr_t) check_env_flag(L, pos2);
 			break;
+
 		case ACTL_SETPROGRESSVALUE:
 		{
 			struct ProgressValue pv;
@@ -4789,6 +4843,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &pv));
 			return 1;
 		}
+
 		case ACTL_GETARRAYCOLOR:
 		{
 			intptr_t len = Info->AdvControl(PluginId, Command, 0, NULL), i;
@@ -4801,9 +4856,9 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 				PushFarColor(L, &arr[i]);
 				lua_rawseti(L, -2, (int)i+1);
 			}
-
 			return 1;
 		}
+
 		case ACTL_GETFARMANAGERVERSION:
 		{
 			struct VersionInfo vi;
@@ -4818,10 +4873,10 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 				lua_pushinteger(L, vi.Stage);
 				return 5;
 			}
-
 			lua_pushfstring(L, "%d.%d.%d.%d.%d", vi.Major, vi.Minor, vi.Revision, vi.Build, vi.Stage);
 			return 1;
 		}
+
 		case ACTL_GETWINDOWINFO:
 		{
 			intptr_t r;
@@ -4852,6 +4907,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 					NewDialogData(L, Info, CAST(HANDLE, wi.Id), FALSE);
 					lua_setfield(L, -2, "Id");
 					break;
+
 				default:
 					PutIntToTable(L, "Id", CAST(int, wi.Id));
 					break;
@@ -4864,6 +4920,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			PutWStrToTable(L, "Name", wi.Name, -1);
 			return 1;
 		}
+
 		case ACTL_SETARRAYCOLOR:
 		{
 			struct FarSetColors fsc;
@@ -4889,6 +4946,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &fsc));
 			return 1;
 		}
+
 		case ACTL_GETFARRECT:
 		{
 			SMALL_RECT sr;
@@ -4905,6 +4963,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 
 			return 1;
 		}
+
 		case ACTL_GETCURSORPOS:
 		{
 			COORD coord;
@@ -4919,6 +4978,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 
 			return 1;
 		}
+
 		case ACTL_SETCURSORPOS:
 		{
 			COORD coord;
@@ -4930,6 +4990,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &coord));
 			return 1;
 		}
+
 		case ACTL_GETWINDOWTYPE:
 		{
 			struct WindowType wt;
