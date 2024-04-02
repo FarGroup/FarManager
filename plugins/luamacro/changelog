@@ -1,3 +1,7 @@
+shmuel 2024-04-03 00:03:52+03:00 - build 817
+
+1. LuaFAR: DM_SETDLGDATA returns the previous value (was: returns nothing).
+
 shmuel 2024-04-01 20:34:42+03:00 - build 816
 
 1. LuaFAR: reformat some parts of code.
