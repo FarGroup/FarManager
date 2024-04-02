@@ -5652,7 +5652,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							SendMessage(DM_REDRAW, 0, nullptr);
 						}
 
-						return Len-(!Len?0:1);
+						return Len;
 					case DI_BUTTON:
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
