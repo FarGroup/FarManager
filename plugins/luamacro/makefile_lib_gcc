@@ -9,6 +9,7 @@ endif
 SRCS = \
 	luafar/bit64.c \
 	luafar/exported.c \
+	luafar/farhost.c \
 	luafar/flags.c \
 	luafar/keysandcolors.c \
 	luafar/lflua.c \

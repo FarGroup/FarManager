@@ -18,6 +18,7 @@ DOCS = \
 LINK_OBJS = \
 $(INTDIR)\bit64.obj \
 $(INTDIR)\exported.obj \
+$(INTDIR)\farhost.obj \
 $(INTDIR)\flags.obj \
 $(INTDIR)\keysandcolors.obj \
 $(INTDIR)\lflua.obj \

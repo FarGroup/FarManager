@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClCompile Include="luafar\bit64.c" />
     <ClCompile Include="luafar\exported.c" />
+    <ClCompile Include="luafar\farhost.c" />
     <ClCompile Include="luafar\flags.c" />
     <ClCompile Include="luafar\keysandcolors.c" />
     <ClCompile Include="luafar\lflua.c" />
