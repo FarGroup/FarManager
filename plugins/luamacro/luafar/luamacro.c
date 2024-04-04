@@ -60,7 +60,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 		return NULL;
 	}
 
-	if(pcall_msg(L, 2+(int)argc, 2) == 0)
+	if (pcall_msg(L, 2+(int)argc, 2) == 0)
 	{
 		intptr_t ReturnType;
 		if (!lua_toboolean(L,-2))
@@ -100,31 +100,31 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 				lua_rawgeti(L,-1,idx+1);
 				type = lua_type(L, -1);
 
-				if(type == LUA_TNUMBER)
+				if (type == LUA_TNUMBER)
 				{
 					Ret->Values[idx].Type = FMVT_DOUBLE;
 					Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
 					lua_pop(L,1);
 				}
-				else if(type == LUA_TSTRING)
+				else if (type == LUA_TSTRING)
 				{
 					Ret->Values[idx].Type = FMVT_STRING;
 					Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
 					lua_rawseti(L,-2,idx+1);
 				}
-				else if(type == LUA_TBOOLEAN)
+				else if (type == LUA_TBOOLEAN)
 				{
 					Ret->Values[idx].Type = FMVT_BOOLEAN;
 					Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
 					lua_pop(L,1);
 				}
-				else if(type == LUA_TLIGHTUSERDATA)
+				else if (type == LUA_TLIGHTUSERDATA)
 				{
 					Ret->Values[idx].Type = FMVT_POINTER;
 					Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
 					lua_rawseti(L,-2,idx+1);
 				}
-				else if(type == LUA_TTABLE)
+				else if (type == LUA_TTABLE)
 				{
 					Ret->Values[idx].Type = FMVT_BINARY;
 					lua_rawgeti(L,-1,1);
@@ -142,7 +142,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 					}
 					lua_pop(L,1);
 				}
-				else if(bit64_getvalue(L, -1, &val64))
+				else if (bit64_getvalue(L, -1, &val64))
 				{
 					Ret->Values[idx].Type = FMVT_INTEGER;
 					Ret->Values[idx].Value.Integer = val64;

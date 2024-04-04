@@ -30,16 +30,16 @@ static int win_GetEnv(lua_State *L)
 	wchar_t buf[256];
 	DWORD res = GetEnvironmentVariableW(name, buf, ARRSIZE(buf));
 	lua_pushnil(L);
-	if(res)
+	if (res)
 	{
-		if(res < ARRSIZE(buf))
+		if (res < ARRSIZE(buf))
 			push_utf8_string(L, buf, -1);
 		else
 		{
 			DWORD size = res + 1;
 			wchar_t *p = (wchar_t*)lua_newuserdata(L, size * sizeof(wchar_t));
 			res = GetEnvironmentVariableW(name, p, size);
-			if(res > 0 && res < size)
+			if (res > 0 && res < size)
 				push_utf8_string(L, p, -1);
 		}
 	}
@@ -58,15 +58,15 @@ static HKEY CheckHKey(lua_State *L, int pos)
 {
 	const char *str = luaL_checkstring(L, pos);
 
-	if(!strcmp(str, "HKLM")) return HKEY_LOCAL_MACHINE;
+	if (!strcmp(str, "HKLM")) return HKEY_LOCAL_MACHINE;
 
-	if(!strcmp(str, "HKCC")) return HKEY_CURRENT_CONFIG;
+	if (!strcmp(str, "HKCC")) return HKEY_CURRENT_CONFIG;
 
-	if(!strcmp(str, "HKCR")) return HKEY_CLASSES_ROOT;
+	if (!strcmp(str, "HKCR")) return HKEY_CLASSES_ROOT;
 
-	if(!strcmp(str, "HKCU")) return HKEY_CURRENT_USER;
+	if (!strcmp(str, "HKCU")) return HKEY_CURRENT_USER;
 
-	if(!strcmp(str, "HKU"))  return HKEY_USERS;
+	if (!strcmp(str, "HKU"))  return HKEY_USERS;
 
 	luaL_argerror(L, pos, "must be 'HKLM', 'HKCC', 'HKCR', 'HKCU' or 'HKU'");
 	return 0;
@@ -91,20 +91,20 @@ static int win_SetRegKey(lua_State *L)
 	size_t len;
 	BOOL result = FALSE;
 
-	if(!strcmp("string", DataType))
+	if (!strcmp("string", DataType))
 	{
 		result=SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL), samDesired);
 	}
-	else if(!strcmp("dword", DataType))
+	else if (!strcmp("dword", DataType))
 	{
 		result=SetRegKeyDword(hRoot, Key, ValueName, (DWORD)luaL_checkinteger(L, 5), samDesired);
 	}
-	else if(!strcmp("binary", DataType))
+	else if (!strcmp("binary", DataType))
 	{
 		BYTE *data = (BYTE*)luaL_checklstring(L, 5, &len);
 		result=SetRegKeyArr(hRoot, Key, ValueName, data, (DWORD)len, samDesired);
 	}
-	else if(!strcmp("expandstring", DataType))
+	else if (!strcmp("expandstring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
@@ -115,7 +115,7 @@ static int win_SetRegKey(lua_State *L)
 			RegCloseKey(hKey);
 		}
 	}
-	else if(!strcmp("multistring", DataType))
+	else if (!strcmp("multistring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
@@ -153,7 +153,7 @@ static int win_GetRegKey(lua_State *L)
 	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0);
 	hKey = OpenRegKey(hRoot, Key, samDesired);
 
-	if(hKey == NULL)
+	if (hKey == NULL)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "OpenRegKey failed.");
@@ -165,7 +165,7 @@ static int win_GetRegKey(lua_State *L)
 	ret = RegQueryValueExW(hKey, ValueName, NULL, &datatype, (BYTE*)data, &datasize);
 	RegCloseKey(hKey);
 
-	if(ret != ERROR_SUCCESS)
+	if (ret != ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "RegQueryValueEx failed.");
@@ -275,7 +275,7 @@ static int win_EnumRegKey(lua_State *L)
 	DWORD NameSize = ARRSIZE(Name);
 	FILETIME LastWriteTime;
 
-	if(RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
+	if (RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "RegOpenKeyExW failed.");
@@ -321,7 +321,7 @@ static int win_EnumRegValue(lua_State *L)
 	DWORD NameSize = ARRSIZE(Name);
 	DWORD Type;
 
-	if(RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
+	if (RegOpenKeyExW(hRoot, Key, 0, samDesired, &hKey)!=ERROR_SUCCESS)
 	{
 		lua_pushnil(L);
 		lua_pushstring(L, "RegOpenKeyExW failed.");
@@ -358,7 +358,7 @@ static WORD ExtractKey(INPUT_RECORD* rec)
 	if (PeekConsoleInput(hConInp,rec,1,&ReadCount), ReadCount)
 	{
 		ReadConsoleInput(hConInp,rec,1,&ReadCount);
-		if(rec->EventType==KEY_EVENT)
+		if (rec->EventType==KEY_EVENT)
 			return 1;
 	}
 	return 0;
@@ -372,7 +372,7 @@ static int win_ExtractKey(lua_State *L)
 	if (ExtractKey(&rec) && rec.Event.KeyEvent.bKeyDown)
 	{
 		WORD vKey = rec.Event.KeyEvent.wVirtualKeyCode & 0xff;
-		if(vKey && VirtualKeyStrings[vKey])
+		if (vKey && VirtualKeyStrings[vKey])
 		{
 			lua_pushstring(L, VirtualKeyStrings[vKey]);
 			return 1;
@@ -412,7 +412,7 @@ static int win_GetFileInfo(lua_State *L)
 	const wchar_t *fname = check_utf8_string(L, 1, NULL);
 	HANDLE h = FindFirstFileW(fname, &fd);
 
-	if(h == INVALID_HANDLE_VALUE)
+	if (h == INVALID_HANDLE_VALUE)
 		return SysErrorReturn(L);
 	else
 	{
@@ -471,7 +471,7 @@ static int win_FileTimeToSystemTime(lua_State *L)
 	ft.dwLowDateTime = llFileTime & 0xFFFFFFFF;
 	ft.dwHighDateTime = llFileTime >> 32;
 
-	if(! FileTimeToSystemTime(&ft, &st))
+	if (! FileTimeToSystemTime(&ft, &st))
 		return SysErrorReturn(L);
 
 	pushSystemTime(L, &st);
@@ -494,7 +494,7 @@ static int win_SystemTimeToFileTime(lua_State *L)
 	st.wSecond       = GetOptIntFromTable(L, "wSecond", 0);
 	st.wMilliseconds = GetOptIntFromTable(L, "wMilliseconds", 0);
 
-	if(! SystemTimeToFileTime(&st, &ft))
+	if (! SystemTimeToFileTime(&st, &ft))
 		return SysErrorReturn(L);
 
 	pushFileTime(L, &ft);
@@ -511,7 +511,7 @@ static int win_FileTimeToLocalFileTime(lua_State *L)
 	ft.dwLowDateTime = llFileTime & 0xFFFFFFFF;
 	ft.dwHighDateTime = llFileTime >> 32;
 
-	if(FileTimeToLocalFileTime(&ft, &local_ft))
+	if (FileTimeToLocalFileTime(&ft, &local_ft))
 		pushFileTime(L, &local_ft);
 	else
 		return SysErrorReturn(L);
@@ -530,20 +530,20 @@ static int win_CompareString(lua_State *L)
 	const char *sFlags  = luaL_optstring(L, 4, "");
 	LCID Locale = LOCALE_USER_DEFAULT;
 
-	if(!strcmp(sLocale, "s")) Locale = LOCALE_SYSTEM_DEFAULT;
-	else if(!strcmp(sLocale, "n")) Locale = LOCALE_NEUTRAL;
+	if (!strcmp(sLocale, "s")) Locale = LOCALE_SYSTEM_DEFAULT;
+	else if (!strcmp(sLocale, "n")) Locale = LOCALE_NEUTRAL;
 
-	if(strchr(sFlags, 'c')) dwFlags |= NORM_IGNORECASE;
+	if (strchr(sFlags, 'c')) dwFlags |= NORM_IGNORECASE;
 
-	if(strchr(sFlags, 'k')) dwFlags |= NORM_IGNOREKANATYPE;
+	if (strchr(sFlags, 'k')) dwFlags |= NORM_IGNOREKANATYPE;
 
-	if(strchr(sFlags, 'n')) dwFlags |= NORM_IGNORENONSPACE;
+	if (strchr(sFlags, 'n')) dwFlags |= NORM_IGNORENONSPACE;
 
-	if(strchr(sFlags, 's')) dwFlags |= NORM_IGNORESYMBOLS;
+	if (strchr(sFlags, 's')) dwFlags |= NORM_IGNORESYMBOLS;
 
-	if(strchr(sFlags, 'w')) dwFlags |= NORM_IGNOREWIDTH;
+	if (strchr(sFlags, 'w')) dwFlags |= NORM_IGNOREWIDTH;
 
-	if(strchr(sFlags, 'S')) dwFlags |= SORT_STRINGSORT;
+	if (strchr(sFlags, 'S')) dwFlags |= SORT_STRINGSORT;
 
 	result = CompareStringW(Locale, dwFlags, ws1, (int)len1, ws2, (int)len2) - 2;
 	(result == -2) ? lua_pushnil(L) : lua_pushinteger(L, result);
@@ -570,7 +570,7 @@ static int win_GetConsoleScreenBufferInfo(lua_State* L)
 	CONSOLE_SCREEN_BUFFER_INFO info;
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	if(!GetConsoleScreenBufferInfo(h, &info))
+	if (!GetConsoleScreenBufferInfo(h, &info))
 		return SysErrorReturn(L);
 
 	lua_createtable(L, 0, 11);
@@ -594,10 +594,10 @@ static int win_CopyFile(lua_State *L)
 	const wchar_t* trg = check_utf8_string(L, 2, NULL);
 	BOOL fail_if_exists = FALSE; // default = overwrite the target
 
-	if(lua_gettop(L) > 2)
+	if (lua_gettop(L) > 2)
 		fail_if_exists = lua_toboolean(L,3);
 
-	if(CopyFileW(src, trg, fail_if_exists))
+	if (CopyFileW(src, trg, fail_if_exists))
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);
@@ -610,15 +610,15 @@ static int win_MoveFile(lua_State *L)
 	const char* sFlags = luaL_optstring(L, 3, NULL);
 	int flags = 0;
 
-	if(sFlags)
+	if (sFlags)
 	{
-		if(strchr(sFlags, 'c')) flags |= MOVEFILE_COPY_ALLOWED;
-		if(strchr(sFlags, 'd')) flags |= MOVEFILE_DELAY_UNTIL_REBOOT;
-		if(strchr(sFlags, 'r')) flags |= MOVEFILE_REPLACE_EXISTING;
-		if(strchr(sFlags, 'w')) flags |= MOVEFILE_WRITE_THROUGH;
+		if (strchr(sFlags, 'c')) flags |= MOVEFILE_COPY_ALLOWED;
+		if (strchr(sFlags, 'd')) flags |= MOVEFILE_DELAY_UNTIL_REBOOT;
+		if (strchr(sFlags, 'r')) flags |= MOVEFILE_REPLACE_EXISTING;
+		if (strchr(sFlags, 'w')) flags |= MOVEFILE_WRITE_THROUGH;
 	}
 
-	if(MoveFileExW(src, trg, flags))
+	if (MoveFileExW(src, trg, flags))
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);
@@ -631,7 +631,7 @@ static int win_RenameFile(lua_State *L)
 
 static int win_DeleteFile(lua_State *L)
 {
-	if(DeleteFileW(check_utf8_string(L, 1, NULL)))
+	if (DeleteFileW(check_utf8_string(L, 1, NULL)))
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);
@@ -738,7 +738,7 @@ static int win_CreateDir(lua_State *L)
 		path = path2;
 	}
 
-	if(dir_exist(path))
+	if (dir_exist(path))
 	{
 		if (opt_tolerant) return lua_pushboolean(L,1), 1;
 
@@ -746,7 +746,7 @@ static int win_CreateDir(lua_State *L)
 	}
 
 	result = opt_original ? CreateDirectoryW(path,NULL) : mkdir(path);
-	if(result)
+	if (result)
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);
@@ -754,7 +754,7 @@ static int win_CreateDir(lua_State *L)
 
 static int win_RemoveDir(lua_State *L)
 {
-	if(RemoveDirectoryW(check_utf8_string(L, 1, NULL)))
+	if (RemoveDirectoryW(check_utf8_string(L, 1, NULL)))
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);

@@ -25,14 +25,14 @@ static const char *getF(lua_State *L, void *ud, size_t *size)
 	LoadF *lf = (LoadF *)ud;
 	(void)L;
 
-	if(lf->extraline)
+	if (lf->extraline)
 	{
 		lf->extraline = 0;
 		*size = 1;
 		return "\n";
 	}
 
-	if(feof(lf->f)) return NULL;
+	if (feof(lf->f)) return NULL;
 
 	*size = fread(lf->buff, 1, sizeof(lf->buff), lf->f);
 	return (*size > 0) ? lf->buff : NULL;
@@ -72,7 +72,7 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 	int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
 	lf.extraline = 0;
 
-	if(filename == NULL)
+	if (filename == NULL)
 	{
 		lua_pushliteral(L, "=stdin");
 		lf.f = stdin;
@@ -85,25 +85,25 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 		lua_concat(L, 2);
 		lf.f = _wfopen(filename, L"r");
 
-		if(lf.f == NULL) return errfile(L, "open", fnameindex);
+		if (lf.f == NULL) return errfile(L, "open", fnameindex);
 	}
 
 	c = IsLuaJIT() ? getc(lf.f) : skipBOM(lf.f);
 
-	if(c == '#')     /* Unix exec. file? */
+	if (c == '#')     /* Unix exec. file? */
 	{
 		lf.extraline = 1;
 
 		while((c = getc(lf.f)) != EOF && c != '\n') ;   /* skip first line */
 
-		if(c == '\n') c = getc(lf.f);
+		if (c == '\n') c = getc(lf.f);
 	}
 
-	if(c == LUA_SIGNATURE[0] && filename)     /* binary file? */
+	if (c == LUA_SIGNATURE[0] && filename)     /* binary file? */
 	{
 		lf.f = _wfreopen(filename, L"rb", lf.f);  /* reopen in binary mode */
 
-		if(lf.f == NULL) return errfile(L, "reopen", fnameindex);
+		if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
 
 		/* skip eventual `#!...' */
 		while((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
@@ -119,9 +119,9 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 #endif
 	readstatus = ferror(lf.f);
 
-	if(filename) fclose(lf.f);   /* close file (even in case of errors) */
+	if (filename) fclose(lf.f);   /* close file (even in case of errors) */
 
-	if(readstatus)
+	if (readstatus)
 	{
 		lua_settop(L, fnameindex);  /* ignore results from `lua_load' */
 		return errfile(L, "read", fnameindex);
@@ -136,7 +136,7 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 // Taken from Lua 5.1
 static int load_aux(lua_State *L, int status)
 {
-	if(status == 0)   /* OK? */
+	if (status == 0)   /* OK? */
 		return 1;
 	else
 	{

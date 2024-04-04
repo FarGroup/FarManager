@@ -1,3 +1,9 @@
+shmuel 2024-04-04 18:26:41+03:00 - build 819
+
+1. LuaFAR: fix DM_SETDLGDATA.
+
+2. Reformat the code.
+
 shmuel 2024-04-03 19:49:33+03:00 - build 818
 
 1. LuaFAR: refactoring.

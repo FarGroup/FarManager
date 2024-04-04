@@ -121,23 +121,23 @@ static int grab_one_utf8(const char **ps)
 	int c, min;
 	v = (unsigned char)*((*ps)++);
 
-	if(v <= 0x7F)
+	if (v <= 0x7F)
 	{
 		ext = 0; c = v; min = 0;
 	}
-	else if(v <= 0xC1)
+	else if (v <= 0xC1)
 	{
 		return -1;              /* bad sequence */
 	}
-	else if(v <= 0xDF)
+	else if (v <= 0xDF)
 	{
 		ext = 1; c = v & 0x1F; min = 0x80;
 	}
-	else if(v <= 0xEF)
+	else if (v <= 0xEF)
 	{
 		ext = 2; c = v & 0x0F; min = 0x800;
 	}
-	else if(v <= 0xF4)
+	else if (v <= 0xF4)
 	{
 		ext = 3; c = v & 0x07; min = 0x10000;
 	}
@@ -151,7 +151,7 @@ static int grab_one_utf8(const char **ps)
 	{
 		v = (unsigned char)*((*ps)++);
 
-		if(v < 0x80 || v > 0xBF)
+		if (v < 0x80 || v > 0xBF)
 		{
 			return -1;          /* bad sequence */
 		}
@@ -159,7 +159,7 @@ static int grab_one_utf8(const char **ps)
 		c = (c << 6) | (v & 0x3F);
 	}
 
-	if(c < min)
+	if (c < min)
 	{
 		return -1;              /* bad sequence */
 	}
@@ -232,24 +232,24 @@ static const char *scanformat(lua_State *L, const char *strfrmt, char *form,
 
 	while(strchr(FLAGS, *p)) p++;	/* skip flags */
 
-	if((size_t)(p - strfrmt) >= sizeof(FLAGS))
+	if ((size_t)(p - strfrmt) >= sizeof(FLAGS))
 		luaL_error(L, "invalid format (repeated flags)");
 
-	if(isdigit(uchar(*p))) p++;	/* skip width */
-	if(isdigit(uchar(*p))) p++;
-	if(isdigit(uchar(*p))) p++;	/* (3 digits at most) */
+	if (isdigit(uchar(*p))) p++;	/* skip width */
+	if (isdigit(uchar(*p))) p++;
+	if (isdigit(uchar(*p))) p++;	/* (3 digits at most) */
 
-	if(*p == '.')
+	if (*p == '.')
 	{
 		p++;
 		*hasprecision = 1;
 
-		if(isdigit(uchar(*p))) p++;	/* skip precision */
+		if (isdigit(uchar(*p))) p++;	/* skip precision */
 
-		if(isdigit(uchar(*p))) p++;	/* (2 digits at most) */
+		if (isdigit(uchar(*p))) p++;	/* (2 digits at most) */
 	}
 
-	if(isdigit(uchar(*p)))
+	if (isdigit(uchar(*p)))
 		luaL_error(L, "invalid format (width or precision too long)");
 
 	form[0] = L_ESC;
@@ -278,9 +278,9 @@ static int str_format(lua_State *L)
 
 	while(strfrmt < strfrmt_end)
 	{
-		if(*strfrmt != L_ESC)
+		if (*strfrmt != L_ESC)
 			luaL_addchar(&b, *strfrmt++);
-		else if(*++strfrmt == L_ESC)
+		else if (*++strfrmt == L_ESC)
 			luaL_addchar(&b, *strfrmt++);	/* %% */
 		else   /* format item */
 		{
@@ -351,7 +351,7 @@ static int str_format(lua_State *L)
 					size_t l;
 					wchar_t *s = check_utf8_string(L, arg, &l);
 
-					if(!hasprecision && l >= 1000)
+					if (!hasprecision && l >= 1000)
 					{
 						/* no precision and string is too long to be formatted;
 							 keep original string */

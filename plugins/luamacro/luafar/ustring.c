@@ -9,7 +9,7 @@ void pusherrorcode(lua_State *L, int error)
 	int num = FormatMessageW(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 	                         0, error, 0, buffer, BUFSZ, 0);
 
-	if(num)
+	if (num)
 		push_utf8_string(L, buffer, num);
 	else
 		lua_pushfstring(L, "system error %d\n", error);
@@ -90,7 +90,7 @@ double GetOptNumFromTable(lua_State *L, const char* key, double dflt)
 	double ret = dflt;
 	lua_getfield(L, -1, key);
 
-	if(lua_isnumber(L,-1))
+	if (lua_isnumber(L,-1))
 		ret = lua_tonumber(L, -1);
 
 	lua_pop(L, 1);
@@ -102,7 +102,7 @@ int GetOptIntFromTable(lua_State *L, const char* key, int dflt)
 	int ret = dflt;
 	lua_getfield(L, -1, key);
 
-	if(lua_isnumber(L,-1))
+	if (lua_isnumber(L,-1))
 		ret = (int)lua_tointeger(L, -1);
 
 	lua_pop(L, 1);
@@ -115,7 +115,7 @@ int GetOptIntFromArray(lua_State *L, int key, int dflt)
 	lua_pushinteger(L, key);
 	lua_gettable(L, -2);
 
-	if(lua_isnumber(L,-1))
+	if (lua_isnumber(L,-1))
 		ret = (int)lua_tointeger(L, -1);
 
 	lua_pop(L, 1);
@@ -152,14 +152,14 @@ wchar_t* convert_multibyte_string(lua_State *L, int pos, UINT codepage,
 	wchar_t *target;
 	int size;
 
-	if(pos < 0) pos += lua_gettop(L) + 1;
+	if (pos < 0) pos += lua_gettop(L) + 1;
 
-	if(!can_raise && !lua_isstring(L, pos))
+	if (!can_raise && !lua_isstring(L, pos))
 		return NULL;
 
 	source = luaL_checklstring(L, pos, &sourceLen);
 
-	if(!pTrgSize)
+	if (!pTrgSize)
 		++sourceLen;
 
 	size = MultiByteToWideChar(
@@ -171,9 +171,9 @@ wchar_t* convert_multibyte_string(lua_State *L, int pos, UINT codepage,
 	           0             // size of buffer (in wide characters)
 	       );
 
-	if(size == 0 && sourceLen != 0)
+	if (size == 0 && sourceLen != 0)
 	{
-		if(can_raise)
+		if (can_raise)
 			luaL_argerror(L, pos, "invalid multibyte string");
 
 		return NULL;
@@ -184,7 +184,7 @@ wchar_t* convert_multibyte_string(lua_State *L, int pos, UINT codepage,
 	target[size] = L'\0';
 	lua_replace(L, pos);
 
-	if(pTrgSize) *pTrgSize = size;
+	if (pTrgSize) *pTrgSize = size;
 
 	return target;
 }
@@ -215,7 +215,7 @@ char* push_multibyte_string(lua_State* L, UINT CodePage, const wchar_t* str,
 	int targetSize;
 	char *target;
 
-	if(str == NULL) { lua_pushnil(L); return NULL; }
+	if (str == NULL) { lua_pushnil(L); return NULL; }
 
 	targetSize = WideCharToMultiByte(
 	                 CodePage, // UINT CodePage,
@@ -228,7 +228,7 @@ char* push_multibyte_string(lua_State* L, UINT CodePage, const wchar_t* str,
 	                 NULL      // LPBOOL lpUsedDefaultChar
 	             );
 
-	if(targetSize == 0 && numchars == -1 && str[0])
+	if (targetSize == 0 && numchars == -1 && str[0])
 	{
 		luaL_error(L, "invalid UTF-16 string");
 	}
@@ -236,7 +236,7 @@ char* push_multibyte_string(lua_State* L, UINT CodePage, const wchar_t* str,
 	target = (char*)lua_newuserdata(L, targetSize+1);
 	WideCharToMultiByte(CodePage, dwFlags, str, (int)numchars, target, targetSize, NULL, NULL);
 
-	if(numchars == -1)
+	if (numchars == -1)
 		--targetSize;
 
 	lua_pushlstring(L, target, targetSize);
@@ -263,16 +263,16 @@ int ustring_WideCharToMultiByte(lua_State *L)
 	numchars /= sizeof(wchar_t);
 	codepage = (UINT)luaL_checkinteger(L, 2);
 
-	if(lua_isstring(L, 3))
+	if (lua_isstring(L, 3))
 	{
 		const char *s = lua_tostring(L, 3);
 
 		for(; *s; s++)
 		{
-			if(*s == 'c') dwFlags |= WC_COMPOSITECHECK;
-			else if(*s == 'd') dwFlags |= WC_DISCARDNS;
-			else if(*s == 's') dwFlags |= WC_SEPCHARS;
-			else if(*s == 'f') dwFlags |= WC_DEFAULTCHAR;
+			if (*s == 'c') dwFlags |= WC_COMPOSITECHECK;
+			else if (*s == 'd') dwFlags |= WC_DISCARDNS;
+			else if (*s == 's') dwFlags |= WC_SEPCHARS;
+			else if (*s == 'f') dwFlags |= WC_DEFAULTCHAR;
 		}
 	}
 
@@ -289,22 +289,22 @@ int ustring_MultiByteToWideChar(lua_State *L)
 	(void) luaL_checkstring(L, 1);
 	codepage = (UINT)luaL_checkinteger(L, 2);
 
-	if(lua_isstring(L, 3))
+	if (lua_isstring(L, 3))
 	{
 		const char *s = lua_tostring(L, 3);
 
 		for(; *s; s++)
 		{
-			if(*s == 'p') dwFlags |= MB_PRECOMPOSED;
-			else if(*s == 'c') dwFlags |= MB_COMPOSITE;
-			else if(*s == 'e') dwFlags |= MB_ERR_INVALID_CHARS;
-			else if(*s == 'u') dwFlags |= MB_USEGLYPHCHARS;
+			if (*s == 'p') dwFlags |= MB_PRECOMPOSED;
+			else if (*s == 'c') dwFlags |= MB_COMPOSITE;
+			else if (*s == 'e') dwFlags |= MB_ERR_INVALID_CHARS;
+			else if (*s == 'u') dwFlags |= MB_USEGLYPHCHARS;
 		}
 	}
 
 	Trg = convert_multibyte_string(L, 1, codepage, dwFlags, &TrgSize, FALSE);
 
-	if(Trg)
+	if (Trg)
 	{
 		lua_pushlstring(L, (const char*)Trg, TrgSize * sizeof(wchar_t));
 		return 1;
@@ -400,7 +400,7 @@ int ustring_EnumSystemCodePages(lua_State *L)
 	EnumCP.L = L;
 	EnumCP.N = 0;
 
-	if(EnumSystemCodePagesW(EnumCodePagesProc, flags))
+	if (EnumSystemCodePagesW(EnumCodePagesProc, flags))
 		return 1;
 
 	return SysErrorReturn(L);
@@ -413,7 +413,7 @@ int ustring_GetCPInfo(lua_State *L)
 	memset(&info, 0, sizeof(info));
 	codepage = (UINT)luaL_checkinteger(L, 1);
 
-	if(!GetCPInfoExW(codepage, 0, &info))
+	if (!GetCPInfoExW(codepage, 0, &info))
 		return SysErrorReturn(L);
 
 	lua_createtable(L, 0, 6);
@@ -432,17 +432,17 @@ int ustring_GetLogicalDriveStrings(lua_State *L)
 	wchar_t* buf;
 	DWORD len = GetLogicalDriveStringsW(0, NULL);
 
-	if(len)
+	if (len)
 	{
 		buf = (wchar_t*)lua_newuserdata(L, (len+1)*sizeof(wchar_t));
 
-		if(GetLogicalDriveStringsW(len, buf))
+		if (GetLogicalDriveStringsW(len, buf))
 		{
 			lua_newtable(L);
 
 			for(i=1; TRUE; i++)
 			{
-				if(*buf == 0) break;
+				if (*buf == 0) break;
 
 				PutWStrToArray(L, i, buf, -1);
 				buf += wcslen(buf) + 1;
@@ -483,10 +483,10 @@ int ustring_Uuid(lua_State* L)
 	size_t len;
 	unsigned char *p, *q;
 
-	if(lua_gettop(L) == 0 || !lua_toboolean(L, 1))
+	if (lua_gettop(L) == 0 || !lua_toboolean(L, 1))
 	{
 		// generate new UUID
-		if(UuidCreate(&uuid) == RPC_S_OK)
+		if (UuidCreate(&uuid) == RPC_S_OK)
 		{
 			lua_pushlstring(L, (const char*)&uuid, sizeof(UUID));
 			return 1;
@@ -497,7 +497,7 @@ int ustring_Uuid(lua_State* L)
 		int wantUpper = !_stricmp("U", lua_tostring(L, 1));
 		if (wantUpper || !_stricmp("L", lua_tostring(L, 1)))
 		{
-			if(UuidCreate(&uuid) == RPC_S_OK && UuidToStringA(&uuid, &p) == RPC_S_OK)
+			if (UuidCreate(&uuid) == RPC_S_OK && UuidToStringA(&uuid, &p) == RPC_S_OK)
 			{
 				if (wantUpper)
 				{
@@ -513,10 +513,10 @@ int ustring_Uuid(lua_State* L)
 	{
 		const char* arg1 = luaL_checklstring(L, 1, &len);
 
-		if(len == sizeof(UUID))
+		if (len == sizeof(UUID))
 		{
 			// convert given UUID to string
-			if(UuidToStringA((UUID*)arg1, &p) == RPC_S_OK)
+			if (UuidToStringA((UUID*)arg1, &p) == RPC_S_OK)
 			{
 				lua_pushstring(L, (char*)p);
 				RpcStringFreeA(&p);
@@ -526,7 +526,7 @@ int ustring_Uuid(lua_State* L)
 		else
 		{
 			// convert string UUID representation to UUID
-			if(UuidFromStringA((unsigned char*)arg1, &uuid) == RPC_S_OK)
+			if (UuidFromStringA((unsigned char*)arg1, &uuid) == RPC_S_OK)
 			{
 				lua_pushlstring(L, (const char*)&uuid, sizeof(UUID));
 				return 1;
@@ -554,7 +554,7 @@ int ustring_SearchPath(lua_State *L)
 	                   &lpFilePart 	  // address of pointer to file component
 	               );
 
-	if(result > 0)
+	if (result > 0)
 	{
 		push_utf8_string(L, buf, -1);
 		push_utf8_string(L, lpFilePart, -1);
@@ -569,7 +569,7 @@ int ustring_GlobalMemoryStatus(lua_State *L)
 	MEMORYSTATUSEX ms;
 	ms.dwLength = sizeof(ms);
 
-	if(0 == GlobalMemoryStatusEx(&ms))
+	if (0 == GlobalMemoryStatusEx(&ms))
 		return SysErrorReturn(L);
 
 	lua_createtable(L, 0, 8);
@@ -625,19 +625,19 @@ int DecodeAttributes(const char* str)
 		char c = *str;
 
 		if     (c == 'a' || c == 'A') attr |= FILE_ATTRIBUTE_ARCHIVE;
-		else if(c == 'c' || c == 'C') attr |= FILE_ATTRIBUTE_COMPRESSED;
-		else if(c == 'd' || c == 'D') attr |= FILE_ATTRIBUTE_DIRECTORY;
-		else if(c == 'e' || c == 'E') attr |= FILE_ATTRIBUTE_REPARSE_POINT;
-		else if(c == 'h' || c == 'H') attr |= FILE_ATTRIBUTE_HIDDEN;
-		else if(c == 'i' || c == 'I') attr |= FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
-		else if(c == 'n' || c == 'N') attr |= FILE_ATTRIBUTE_ENCRYPTED;
-		else if(c == 'o' || c == 'O') attr |= FILE_ATTRIBUTE_OFFLINE;
-		else if(c == 'p' || c == 'P') attr |= FILE_ATTRIBUTE_SPARSE_FILE;
-		else if(c == 'r' || c == 'R') attr |= FILE_ATTRIBUTE_READONLY;
-		else if(c == 's' || c == 'S') attr |= FILE_ATTRIBUTE_SYSTEM;
-		else if(c == 't' || c == 'T') attr |= FILE_ATTRIBUTE_TEMPORARY;
-		else if(c == 'u' || c == 'U') attr |= FILE_ATTRIBUTE_NO_SCRUB_DATA;
-		else if(c == 'v' || c == 'V') attr |= FILE_ATTRIBUTE_VIRTUAL;
+		else if (c == 'c' || c == 'C') attr |= FILE_ATTRIBUTE_COMPRESSED;
+		else if (c == 'd' || c == 'D') attr |= FILE_ATTRIBUTE_DIRECTORY;
+		else if (c == 'e' || c == 'E') attr |= FILE_ATTRIBUTE_REPARSE_POINT;
+		else if (c == 'h' || c == 'H') attr |= FILE_ATTRIBUTE_HIDDEN;
+		else if (c == 'i' || c == 'I') attr |= FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+		else if (c == 'n' || c == 'N') attr |= FILE_ATTRIBUTE_ENCRYPTED;
+		else if (c == 'o' || c == 'O') attr |= FILE_ATTRIBUTE_OFFLINE;
+		else if (c == 'p' || c == 'P') attr |= FILE_ATTRIBUTE_SPARSE_FILE;
+		else if (c == 'r' || c == 'R') attr |= FILE_ATTRIBUTE_READONLY;
+		else if (c == 's' || c == 'S') attr |= FILE_ATTRIBUTE_SYSTEM;
+		else if (c == 't' || c == 'T') attr |= FILE_ATTRIBUTE_TEMPORARY;
+		else if (c == 'u' || c == 'U') attr |= FILE_ATTRIBUTE_NO_SCRUB_DATA;
+		else if (c == 'v' || c == 'V') attr |= FILE_ATTRIBUTE_VIRTUAL;
 	}
 
 	return attr;
@@ -683,7 +683,7 @@ void SetAttrWords(const wchar_t* str, DWORD* incl, DWORD* excl)
 // for reusing code
 int SetAttr(lua_State *L, const wchar_t* fname, unsigned attr)
 {
-	if(SetFileAttributesW(fname, attr))
+	if (SetFileAttributesW(fname, attr))
 		return lua_pushboolean(L, 1), 1;
 
 	return SysErrorReturn(L);
@@ -698,7 +698,7 @@ int ustring_GetFileAttr(lua_State *L)
 {
 	DWORD attr = GetFileAttributesW(check_utf8_string(L,1,NULL));
 
-	if(attr == 0xFFFFFFFF) return SysErrorReturn(L);
+	if (attr == 0xFFFFFFFF) return SysErrorReturn(L);
 
 	PushAttrString(L, attr);
 	return 1;
@@ -716,7 +716,7 @@ int ustring_SHGetFolderPath(lua_State *L)
 	                     dwFlags,      // __in   DWORD dwFlags,
 	                     pszPath);     // __out  LPTSTR pszPath);
 
-	if(result == S_OK)
+	if (result == S_OK)
 		push_utf8_string(L, pszPath, -1);
 	else
 		lua_pushnil(L);
@@ -726,7 +726,7 @@ int ustring_SHGetFolderPath(lua_State *L)
 
 void push_utf16_string(lua_State* L, const wchar_t* str, intptr_t numchars)
 {
-	if(numchars < 0)
+	if (numchars < 0)
 		numchars = wcslen(str);
 
 	lua_pushlstring(L, (const char*)str, numchars*sizeof(wchar_t));
@@ -740,17 +740,17 @@ int ustring_subW(lua_State *L)
 	len /= sizeof(wchar_t);
 	from = luaL_optinteger(L, 2, 1);
 
-	if(from < 0) from += len+1;
+	if (from < 0) from += len+1;
 
-	if(--from < 0) from = 0;
-	else if((size_t)from > len) from = len;
+	if (--from < 0) from = 0;
+	else if ((size_t)from > len) from = len;
 
 	to = luaL_optinteger(L, 3, -1);
 
-	if(to < 0) to += len+1;
+	if (to < 0) to += len+1;
 
-	if(to < from) to = from;
-	else if((size_t)to > len) to = len;
+	if (to < from) to = from;
+	else if ((size_t)to > len) to = len;
 
 	lua_pushlstring(L, s + from*sizeof(wchar_t), (to-from)*sizeof(wchar_t));
 	return 1;
@@ -769,7 +769,7 @@ const wchar_t* check_utf16_string(lua_State *L, int pos, size_t *len)
 	size_t ln;
 	const wchar_t* s = (const wchar_t*)luaL_checklstring(L, pos, &ln);
 
-	if(len) *len = ln / sizeof(wchar_t);
+	if (len) *len = ln / sizeof(wchar_t);
 
 	return s;
 }
@@ -829,13 +829,13 @@ int ustring_GetCurrentDir (lua_State *L)
 {
 	wchar_t buf[256];
 	DWORD num = GetCurrentDirectoryW(ARRSIZE(buf), buf);
-	if(num) {
-		if(num < ARRSIZE(buf))
+	if (num) {
+		if (num < ARRSIZE(buf))
 			push_utf8_string(L, buf, -1);
 		else {
 			wchar_t* alloc = (wchar_t*) malloc(num * sizeof(wchar_t));
 			num = GetCurrentDirectoryW(num, alloc);
-			if(num) push_utf8_string(L, alloc, -1);
+			if (num) push_utf8_string(L, alloc, -1);
 			free(alloc);
 		}
 	}

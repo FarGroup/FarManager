@@ -29,7 +29,7 @@ int GetIntFromArray(lua_State *L, int index)
 	lua_pushinteger(L, index);
 	lua_gettable(L, -2);
 
-	if(!lua_isnumber(L,-1))
+	if (!lua_isnumber(L,-1))
 		return luaLF_SlotError(L, index, "number");
 
 	ret = (int)lua_tointeger(L, -1);
@@ -42,7 +42,7 @@ unsigned __int64 GetFileSizeFromTable(lua_State *L, const char *key)
 	unsigned __int64 size;
 	lua_getfield(L, -1, key);
 
-	if(lua_isnumber(L, -1))
+	if (lua_isnumber(L, -1))
 		size = (unsigned __int64) lua_tonumber(L, -1);
 	else
 		size = 0;
@@ -61,7 +61,7 @@ FILETIME GetFileTimeFromTable(lua_State *L, const char *key)
 
 	if (! (GetPluginData(L)->Flags & PDF_FULL_TIME_RESOLUTION))
 	{
-		if(lua_isnumber(L, -1))
+		if (lua_isnumber(L, -1))
 		{
 			tm = 10000 * (INT64)lua_tonumber(L, -1); // convert ms units to 100ns ones
 			OK = 1;
@@ -105,7 +105,7 @@ int GetAttrFromTable(lua_State *L)
 	int attr = 0;
 	lua_getfield(L, -1, "FileAttributes");
 
-	if(lua_isstring(L, -1))
+	if (lua_isstring(L, -1))
 		attr = DecodeAttributes(lua_tostring(L, -1));
 
 	lua_pop(L, 1);

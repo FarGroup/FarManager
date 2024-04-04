@@ -76,7 +76,7 @@ static int far_host_GetFiles(lua_State *L)
 	{
 		lua_pushinteger(L, i);
 		lua_gettable(L, 2);
-		if(lua_istable(L,-1))
+		if (lua_istable(L,-1))
 			FillPluginPanelItem(L, ppi_curr++, collectorPos);
 		lua_pop(L,1);
 	}
@@ -132,7 +132,7 @@ static int far_host_PutFiles(lua_State *L)
 	{
 		lua_pushinteger(L, i);
 		lua_gettable(L, 2);
-		if(lua_istable(L,-1))
+		if (lua_istable(L,-1))
 			FillPluginPanelItem(L, ppi_curr++, collectorPos);
 		lua_pop(L,1);
 	}

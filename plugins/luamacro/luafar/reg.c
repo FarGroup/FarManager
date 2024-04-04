@@ -5,7 +5,7 @@ HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
 	HKEY hKey;
 	DWORD Disposition;
 
-	if(RegCreateKeyExW(hRoot, Key, 0, NULL, 0, samDesired|KEY_WRITE, NULL, &hKey, &Disposition)!=ERROR_SUCCESS)
+	if (RegCreateKeyExW(hRoot, Key, 0, NULL, 0, samDesired|KEY_WRITE, NULL, &hKey, &Disposition)!=ERROR_SUCCESS)
 		return(NULL);
 
 	return(hKey);
@@ -16,7 +16,7 @@ HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
 {
 	HKEY hKey;
 
-	if(RegOpenKeyExW(hRoot, Key, 0, samDesired|KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+	if (RegOpenKeyExW(hRoot, Key, 0, samDesired|KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
 		return(NULL);
 
 	return(hKey);
@@ -27,7 +27,7 @@ BOOL SetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueDa
 {
 	BOOL result = FALSE;
 	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	if(hKey)
+	if (hKey)
 	{
 		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_SZ, (BYTE*)ValueData,
 			sizeof(wchar_t) *((DWORD)wcslen(ValueData) + 1)));
@@ -41,7 +41,7 @@ BOOL SetRegKeyDword(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, DWORD ValueDat
 {
 	BOOL result = FALSE;
 	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	if(hKey)
+	if (hKey)
 	{
 		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_DWORD, (BYTE *)&ValueData,
 			sizeof(DWORD)));
@@ -55,7 +55,7 @@ BOOL SetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData,
 {
 	BOOL result = FALSE;
 	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	if(hKey)
+	if (hKey)
 	{
 		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_BINARY, ValueData, ValueSize));
 		RegCloseKey(hKey);
@@ -71,7 +71,7 @@ int GetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueDat
 	int ExitCode=RegQueryValueExW(hKey, ValueName, 0, &Type, (BYTE*)ValueData, &DataSize);
 	RegCloseKey(hKey);
 
-	if(hKey==NULL || ExitCode!=ERROR_SUCCESS)
+	if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
 	{
 		wcscpy(ValueData, Default);
 		return(FALSE);
@@ -88,7 +88,7 @@ int GetRegKeyInt(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, int *ValueData, D
 	int ExitCode=RegQueryValueExW(hKey, ValueName, 0, &Type, (BYTE *)ValueData, &Size);
 	RegCloseKey(hKey);
 
-	if(hKey==NULL || ExitCode!=ERROR_SUCCESS)
+	if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
 	{
 		*ValueData=Default;
 		return(FALSE);
@@ -105,9 +105,9 @@ int GetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, 
 	int ExitCode=RegQueryValueExW(hKey, ValueName, 0, &Type, ValueData, &DataSize);
 	RegCloseKey(hKey);
 
-	if(hKey==NULL || ExitCode!=ERROR_SUCCESS)
+	if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
 	{
-		if(Default!=NULL)
+		if (Default!=NULL)
 			memcpy(ValueData, Default, DataSize);
 		else
 			memset(ValueData, 0, DataSize);
