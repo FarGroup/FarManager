@@ -326,10 +326,14 @@ AllDirs:
 LINK_SQLITE_OBJS = \
 	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\sqlite.res" \
+!ifndef LINK_ULINK
 !if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
 	"$(INTDIR)\vc_crt_fix.obj" \
 !endif
 	"$(INTDIR)\vc_crt_fix_impl.obj" \
+!else
+	"$(INTDIR)\vc_crt_fix_ulink.obj"
+!endif
 
 $(OUTDIR)\sqlite3.dll: $(LINK_SQLITE_OBJS)
 	@echo Linking $@
