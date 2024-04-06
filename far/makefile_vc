@@ -323,18 +323,25 @@ AllDirs:
 	$(OUTDIR)\Far.exe /service:test
 !endif
 
-$(OUTDIR)\sqlite3.dll: $(INTDIR)\sqlite.obj $(INTDIR)\sqlite.res
+LINK_SQLITE_OBJS = \
+	"$(INTDIR)\sqlite.obj" \
+	"$(INTDIR)\sqlite.res" \
+!if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
+	"$(INTDIR)\vc_crt_fix.obj" \
+!endif
+	"$(INTDIR)\vc_crt_fix_impl.obj" \
+
+$(OUTDIR)\sqlite3.dll: $(LINK_SQLITE_OBJS)
 	@echo Linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
-	$(LINKFLAGS) /dll /implib:$(INTDIR)/sqlite3.lib /out:"$@" $(INTDIR)\sqlite.obj $(INTDIR)\sqlite.res
+	$(LINKFLAGS) /dll /implib:$(INTDIR)/sqlite3.lib /out:"$@" $(LINK_SQLITE_OBJS)
 <<
 !else
 	$(ULINK) +- @+<<
 	$(ULINKFLAGS) -Tpd -Gic -ZI:$(INTDIR)/sqlite3.lib
 	,"$@","$(@R).map"
-	,$(INTDIR)\sqlite.obj
-	,,$(INTDIR)\sqlite.res
+	,$(LINK_SQLITE_OBJS)
 <<
 !endif
 
