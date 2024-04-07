@@ -5221,7 +5221,7 @@ użytkownika.
 @KeyMacro
 $ #Makropolecenia#
  Domyślnie makropolecenia są wczytywanie z plików z rozszerzeniami #.lua# i #.moon# zapisanych w folderze
-#%FARPROFILE%\\Macros\\scripts#. Więcej szczegółów w pliku #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
+#%FARPROFILE%\\Macros\\scripts#. Więcej szczegółów w pliku #%FARHOME%\\Encyclopedia\\macroapi_manual.pl.chm#.
 
  Makropolecenia klawiaturowe lub makropolecenia - są to nagrywane sekwencje
 klawiszy, które można wykorzystać do wykonania powtarzalnych zadań

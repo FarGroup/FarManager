@@ -583,5 +583,6 @@
 <?define Guid.luafar_manual.chm = "9E0DBDE0-F13A-487E-8378-FB9508909A81" ?>
 <?define Guid.macroapi_manual.ru.chm = "8DC9669E-9A90-4115-96C3-00B61990220B" ?>
 <?define Guid.macroapi_manual.en.chm = "74588035-C3BF-45DC-BA3C-23B809D5B361" ?>
+<?define Guid.macroapi_manual.pl.chm = "8104A326-8182-81F8-81E1-81144A899D3D" ?>
 <?define Guid.FarEncyclopedia.ru.chm = "45E1F734-6A8B-4CA8-BB3A-1310028BEB7A" ?>
 </Include>

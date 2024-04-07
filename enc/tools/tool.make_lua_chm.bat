@@ -10,6 +10,7 @@ if not '%1'=='' goto :make
 call :make luafar_manual      1252
 call :make macroapi_manual.ru 1251
 call :make macroapi_manual.en 1252
+call :make macroapi_manual.pl 1250
 
 goto :end
 
