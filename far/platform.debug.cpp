@@ -399,15 +399,15 @@ namespace os::debug
 
 namespace os::debug::symbols
 {
-	static bool initialize(HANDLE const Process, string const& Path)
+	static std::optional<bool> initialize(HANDLE const Process, string const& Path)
 	{
 		if (imports.SymInitializeW)
 			return imports.SymInitializeW(Process, EmptyToNull(Path), TRUE) != FALSE;
 
 		if (imports.SymInitialize)
-			return imports.SymInitialize(Process, EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE);
+			return imports.SymInitialize(Process, EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE) != FALSE;
 
-		return false;
+		return {};
 	}
 
 	static auto event_level(DWORD const EventSeverity)
@@ -462,7 +462,7 @@ namespace os::debug::symbols
 		}
 	}
 
-	static bool register_callback(HANDLE const Process)
+	static std::optional<bool> register_callback(HANDLE const Process)
 	{
 		if (imports.SymRegisterCallbackW64)
 			return imports.SymRegisterCallbackW64(Process, callback, context_encoding::unicode) != FALSE;
@@ -470,7 +470,7 @@ namespace os::debug::symbols
 		if (imports.SymRegisterCallback64)
 			return imports.SymRegisterCallback64(Process, callback, context_encoding::ansi) != FALSE;
 
-		return false;
+		return {};
 	}
 
 	static void append_to_search_path(string& Path, string_view const Str)
@@ -583,7 +583,7 @@ namespace os::debug::symbols
 		const auto Process = GetCurrentProcess();
 
 		const auto Result = initialize(Process, Path);
-		if (!Result)
+		if (Result == false) // optional
 		{
 			if (const auto LastError = last_error(); LastError.Win32Error == ERROR_INVALID_PARAMETER)
 			{
@@ -594,10 +594,10 @@ namespace os::debug::symbols
 				LOGWARNING(L"SymInitialize({}): {}"sv, Path, LastError);
 		}
 
-		if (!register_callback(Process))
+		if (register_callback(Process) == false) // optional
 			LOGWARNING(L"SymRegisterCallback(): {}"sv, last_error());
 
-		return Result;
+		return Result.value_or(false);
 	}
 
 	void clean()
@@ -784,8 +784,26 @@ namespace os::debug::symbols
 		if (!imports.SymGetModuleInfoW64 || !imports.SymGetModuleInfoW64(Process, Frame.Address, &*Module))
 			Module.reset();
 
-		const auto BaseAddress = Module? Module->BaseOfImage : 0;
-		const auto ImageName = Module? Module->ImageName : L""sv;
+		const auto BaseAddress = [&]() -> uintptr_t
+		{
+			if (Module)
+				return static_cast<uintptr_t>(Module->BaseOfImage);
+
+			const auto ModuleNamePtr = EmptyToNull(null_terminated(ModuleName).c_str());
+
+			if (const auto ModuleBaseAddress = std::bit_cast<uintptr_t>(GetModuleHandle(ModuleNamePtr)); ModuleBaseAddress < Frame.Address)
+				return ModuleBaseAddress;
+
+			if (!ModuleNamePtr)
+				return 0;
+
+			if (const auto ModuleBaseAddress = std::bit_cast<uintptr_t>(GetModuleHandle({})); ModuleBaseAddress < Frame.Address)
+				return ModuleBaseAddress;
+
+			return 0;
+		}();
+
+		const auto ImageName = Module && *Module->ImageName? Module->ImageName : ModuleName;
 
 		symbol Symbol;
 		location Location;
@@ -803,15 +821,9 @@ namespace os::debug::symbols
 				Location = frame_get_location(Process, Frame.Address, Storage);
 			}
 
-			if (Symbol.Name.empty() && Module)
+			if (Symbol.Name.empty())
 			{
-				auto& MapFile = MapFiles.try_emplace(
-					Module->BaseOfImage,
-					*Module->ImageName?
-					Module->ImageName :
-					ModuleName
-				).first->second;
-
+				auto& MapFile = MapFiles.try_emplace(BaseAddress, ImageName).first->second;
 				const auto Info = MapFile.get(Frame.Address - BaseAddress);
 				Symbol.Name = Info.Symbol;
 				Symbol.Displacement = Info.Displacement;

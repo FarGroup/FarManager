@@ -476,7 +476,7 @@ static string file_timestamp()
 	{
 		const auto LastError = os::last_error();
 		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, LastError);
-		return LastError.Win32ErrorStr();
+		return LastError.to_string();
 	}
 
 	return timestamp(Data.LastWriteTime);
@@ -1058,7 +1058,7 @@ static string get_uptime()
 {
 	os::chrono::time_point CreationTime;
 	if (!os::chrono::get_process_creation_time(GetCurrentProcess(), CreationTime))
-		return os::last_error().Win32ErrorStr();
+		return os::last_error().to_string();
 
 	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
 }
@@ -1460,28 +1460,21 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 	return default_details();
 }
 
-struct thread_status
-{
-	NTSTATUS Result;
-
-	DWORD LastError;
-	NTSTATUS LastStatus;
-};
+using thread_status = std::variant<NTSTATUS, os::error_state>;
 
 static thread_status get_thread_status(HANDLE const Thread)
 {
 	if (!imports.NtQueryInformationThread)
-		return { STATUS_NOT_IMPLEMENTED };
+		return STATUS_NOT_IMPLEMENTED;
 
 	constexpr auto ThreadBasicInformation = static_cast<THREADINFOCLASS>(0);
 	detail::THREAD_BASIC_INFORMATION BasicInformation;
 
 	if (const auto Status = imports.NtQueryInformationThread(Thread, ThreadBasicInformation, &BasicInformation, sizeof(BasicInformation), {}); !NT_SUCCESS(Status))
-		return { Status };
+		return Status;
 
-	return
+	return os::error_state
 	{
-		STATUS_SUCCESS,
 		os::get_last_error(BasicInformation.TebBaseAddress),
 		os::get_last_nt_status(BasicInformation.TebBaseAddress)
 	};
@@ -1679,15 +1672,18 @@ static string collect_information(
 
 				make_header(ThreadTitle, append_line);
 
-				if (const auto ThreadStatus = get_thread_status(Thread.native_handle()); NT_SUCCESS(ThreadStatus.Result))
+				std::visit(overload
 				{
-					append_line(concat(LastErrorTitle, ' ', os::format_error(ThreadStatus.LastError)));
-					append_line(concat(NtStatusTitle, ' ', os::format_ntstatus(ThreadStatus.LastStatus)));
-				}
-				else
-				{
-					append_line(far::format(L"Error getting thread status: {}"sv, os::format_ntstatus(ThreadStatus.Result)));
-				}
+					[&](NTSTATUS const Status)
+					{
+						append_line(far::format(L"Error getting thread status: {}"sv, os::format_ntstatus(Status)));
+					},
+					[&](os::error_state const& State)
+					{
+						append_line(concat(LastErrorTitle, ' ', State.Win32ErrorStr()));
+						append_line(concat(NtStatusTitle, ' ', State.NtErrorStr()));
+					}
+				}, get_thread_status(Thread.native_handle()));
 
 				CONTEXT ThreadContext{};
 				ThreadContext.ContextFlags = CONTEXT_ALL;

@@ -481,52 +481,12 @@ namespace
 	class sink_pipe: public no_config, public discardable<true>
 	{
 	public:
-		void connect()
-		{
-			if (!PeekNamedPipe(m_Pipe.native_handle(), {}, 0, {}, {}, {}))
-				disconnect();
-
-			if (m_Connected)
-				return;
-
-			STARTUPINFO si{ sizeof(si) };
-			PROCESS_INFORMATION pi{};
-
-			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(far::format(L"\"{}\" {} {}"sv, m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
-			{
-				LOGERROR(L"{}"sv, os::last_error());
-				return;
-			}
-
-			os::handle(pi.hThread);
-			os::handle(pi.hProcess);
-
-			while (!ConnectNamedPipe(m_Pipe.native_handle(), {}) && GetLastError() != ERROR_PIPE_CONNECTED)
-			{
-				LOGWARNING(L"ConnectNamedPipe({}): {}"sv, m_PipeName, os::last_error());
-			}
-
-			m_Connected = true;
-		}
-
-		void disconnect()
-		{
-			if (!m_Connected)
-				return;
-
-			DisconnectNamedPipe(m_Pipe.native_handle());
-			m_Connected = false;
-		}
-
 		void handle_impl(message const& Message)
 		{
-			connect();
-
-			if (!m_Connected)
-				return;
-
 			try
 			{
+				connect();
+
 				pipe::write(
 					m_Pipe,
 					Message.m_Level,
@@ -548,10 +508,52 @@ namespace
 		static constexpr auto name = L"pipe"sv;
 
 	private:
+		void connect()
+		{
+			if (m_Pipe)
+			{
+				if (PeekNamedPipe(m_Pipe.native_handle(), {}, 0, {}, {}, {}))
+					return;
+
+				LOGWARNING(L"PeekNamedPipe({}): {}"sv, m_PipeName, os::last_error());
+				disconnect();
+			}
+
+			m_Pipe.reset(CreateNamedPipe(m_PipeName.c_str(), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, {}));
+			if (!m_Pipe)
+				throw far_exception(far::format(L"CreateNamedPipe({})"sv, m_PipeName));
+
+			STARTUPINFO si{ sizeof(si) };
+			PROCESS_INFORMATION pi{};
+
+			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(far::format(L"\"{}\" {} {}"sv, m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
+				throw far_exception(L"CreateProcess()"sv);
+
+			os::handle(pi.hThread);
+			os::handle(pi.hProcess);
+
+			if (!ConnectNamedPipe(m_Pipe.native_handle(), {}))
+			{
+				const auto Error = os::last_error();
+				if (Error.Win32Error != ERROR_PIPE_CONNECTED)
+					throw far_exception(error_state_ex{ Error, far::format(L"ConnectNamedPipe({})"sv, m_PipeName) });
+			}
+		}
+
+		void disconnect()
+		{
+			if (!m_Pipe)
+				return;
+
+			if (!DisconnectNamedPipe(m_Pipe.native_handle()))
+				LOGWARNING(L"DisconnectNamedPipe({}): {}"sv, m_PipeName, os::last_error());
+
+			m_Pipe = {};
+		}
+
 		string m_PipeName{ far::format(L"\\\\.\\pipe\\far_{}.log"sv, GetCurrentProcessId()) };
-		os::handle m_Pipe{ CreateNamedPipe(m_PipeName.c_str(), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, {}) };
+		os::handle m_Pipe;
 		string m_ThisModule{ os::fs::get_current_process_file_name() };
-		bool m_Connected{};
 	};
 
 	template<typename impl>
@@ -941,12 +943,12 @@ namespace logging
 			if (m_Status != engine_status::incomplete)
 				return;
 
+			m_Status = engine_status::in_progress;
+			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
+
 			m_VectoredHandler = imports.AddVectoredExceptionHandler?
 				imports.AddVectoredExceptionHandler(false, debug_print) :
 				nullptr;
-
-			m_Status = engine_status::in_progress;
-			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
 
 			SCOPED_ACTION(os::last_error_guard);
 
@@ -1093,7 +1095,7 @@ namespace logging
 		{
 			const auto ErrorState = os::last_error();
 
-			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << far::format(L"Can't open pipe {}: {}"sv, PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
+			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << far::format(L"Can't open pipe {}: {}"sv, PipeName, ErrorState) << std::endl; }))
 				return EXIT_FAILURE;
 		}
 

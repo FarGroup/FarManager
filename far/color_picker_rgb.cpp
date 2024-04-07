@@ -74,9 +74,9 @@ static bool pick_color_rgb_gui(COLORREF& Color, std::array<COLORREF, 16>& Custom
 
 	if (!ChooseColor(&Params))
 	{
-		if (const auto LastError = os::last_error(); LastError.Win32Error)
+		if (const auto Error = CommDlgExtendedError())
 		{
-			LOGWARNING(L"ChooseColor(): {} ({:04X})"sv, LastError, CommDlgExtendedError());
+			LOGWARNING(L"ChooseColor(): Error {:04X} ({})"sv, Error, os::last_error());
 		}
 		return false;
 	}
