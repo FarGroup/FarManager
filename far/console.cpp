@@ -1389,15 +1389,9 @@ protected:
 						Cell.Char = bad_char_replacement;
 						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 					}
-					else
-WARNING_PUSH()
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80635
-WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
-
-						if (Cell.Char == *LeadingChar)
+					else if (Cell.Char == *LeadingChar)
 					{
 						if (Cell.Char == encoding::replace_char && !char_width::is_wide(encoding::replace_char))
-WARNING_POP()
 						{
 							// As of 13 Jul 2022 ReadConsoleOutputW doesn't work with surrogate pairs (see microsoft/terminal#10810)
 							// It returns two FFFDs instead with leading and trailing flags.

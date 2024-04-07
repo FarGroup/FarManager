@@ -192,7 +192,7 @@ namespace tests
 		{
 			~c() noexcept(false)
 			{
-				if ([[maybe_unused]] volatile const auto Throw = true)
+				if ([[maybe_unused]] volatile auto Throw = true)
 					throw far_exception(L"Dtor exception"s);
 			}
 		};
@@ -224,13 +224,11 @@ namespace tests
 		}
 	}
 
-	WARNING_PUSH()
-	WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	static void cpp_reach_unreachable()
 	{
-		std::unreachable();
+		if ([[maybe_unused]] volatile auto Reach = true)
+			std::unreachable();
 	}
-	WARNING_POP()
 
 	static void cpp_pure_virtual_call()
 	{
@@ -291,13 +289,11 @@ namespace tests
 #endif
 	}
 
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	static void cpp_assertion_failure()
 	{
-		assert(true == false);
+		if ([[maybe_unused]] volatile auto Value = true)
+			assert(!Value);
 	}
-WARNING_POP()
 
 	static void seh_access_violation_read()
 	{
