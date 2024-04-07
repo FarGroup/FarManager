@@ -1,3 +1,3 @@
 ﻿#include <farversion.hpp>
 
-#define PLUGIN_BUILD 819
+#define PLUGIN_BUILD 820
