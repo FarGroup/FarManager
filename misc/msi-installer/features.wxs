@@ -163,6 +163,7 @@
         <ComponentRef Id="Plugins.Install.txt_2" />
         <ComponentRef Id="Plugins.Review.txt_2" />
         <ComponentRef Id="TechInfo.txt_2" />
+        <ComponentRef Id="macroapi_manual.pl.chm" />
       </Feature>
       <Feature Id="MapFiles" Level="1" Title="!(loc.Feature.Title.MapFiles)" AllowAdvertise="no" Description="!(loc.Feature.Description.MapFiles)">
         <ComponentRef Id="Far.map" />
