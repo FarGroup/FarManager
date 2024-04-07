@@ -1136,6 +1136,28 @@ void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 
 #include "testing.hpp"
 
+TEST_CASE("InsertRegexpQuote")
+{
+	static const struct
+	{
+		string_view Str, Result;
+	}
+	Tests[]
+	{
+		{},
+		{ L"/"sv,         L"/"sv },
+		{ L"//"sv,        L"//"sv },
+		{ L"///"sv,       L"///"sv },
+		{ L"test"sv,      L"/test/"sv },
+		{ L"/test/i"sv,   L"/test/i"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(InsertRegexpQuote(string(i.Str)) == i.Result);
+	}
+}
+
 TEST_CASE("ConvertFileSizeString")
 {
 	constexpr auto
