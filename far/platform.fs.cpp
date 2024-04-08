@@ -1118,8 +1118,23 @@ namespace os::fs
 		};
 
 		// simple way to handle network paths
-		if (ReplaceRoot(L"\\Device\\LanmanRedirector"sv, L"\\"sv) || ReplaceRoot(L"\\Device\\Mup"sv, L"\\"sv))
+		for (const auto NetworkPrefix: {
+			L"\\Device\\LanmanRedirector\\"sv,
+			L"\\Device\\Mup\\"sv,
+			L"\\Device\\WinDfs\\Root\\"sv
+		})
+		{
+			if (ReplaceRoot(NetworkPrefix, L"\\\\"sv))
+				return true;
+		}
+
+		// Mapped drives resolve to \Device\WinDfs\X:<whatever>\server\share
+		if (const auto DfsPrefix = L"\\Device\\WinDfs\\"sv; NtPath.starts_with(DfsPrefix))
+		{
+			const auto ServerStart = NtPath.find(L"\\", DfsPrefix.size());
+			FinalFilePath = NtPath.replace(0, ServerStart, 1, L'\\');
 			return true;
+		}
 
 		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
 		for (const auto& i: enum_drives(get_logical_drives()))
@@ -1127,7 +1142,7 @@ namespace os::fs
 			const auto Device = drive::get_device_path(i);
 			if (const auto Len = MatchNtPathRoot(NtPath, Device))
 			{
-				FinalFilePath = NtPath.starts_with(L"\\Device\\WinDfs"sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
+				FinalFilePath = NtPath.replace(0, Len, Device);
 				return true;
 			}
 		}
