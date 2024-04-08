@@ -1360,17 +1360,12 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				NTPath strFullName(SingleSelFileName);
+				auto strFullName = SingleSelFileName;
 				if(SingleSelFindData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
 				}
 				seInfo.lpFile = strFullName.c_str();
-				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::win32nt_drive_letter)
-				{
-					// "\\?\c:\..." fails on old windows
-					seInfo.lpFile += 4;
-				}
 				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::get_current_directory();
 				seInfo.lpDirectory=strCurDir.c_str();
