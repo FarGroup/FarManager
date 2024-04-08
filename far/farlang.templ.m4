@@ -16486,7 +16486,7 @@ upd:"Volume:"
 
 MSetAttrDfsTargets
 "DFS цели:"
-"&DFS Targets:"
+"DFS Targets:"
 "DFS cíly:"
 "DFS Ziele:"
 upd:"DFS Targets:"

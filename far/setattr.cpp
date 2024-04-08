@@ -945,10 +945,14 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 							{
 								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
-								auto Result = imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, edit_as<BYTE**>(&ptr_setter(DfsInfo)));
-								if (Result != NERR_Success)
-									Result = imports.NetDfsGetClientInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, edit_as<BYTE**>(&ptr_setter(DfsInfo)));
-								if (Result == NERR_Success)
+
+								auto get_dfs_info = [&](const auto& Callable)
+								{
+									return Callable(UNSAFE_CSTR(path), {}, {}, 3, edit_as<BYTE**>(&ptr_setter(DfsInfo))) == NERR_Success;
+								};
+
+								// Client first - it should be faster and we want to see the activity flag, which is a client thing
+								if (get_dfs_info(imports.NetDfsGetClientInfo) || get_dfs_info(imports.NetDfsGetInfo))
 								{
 									KnownReparseTag = true;
 
