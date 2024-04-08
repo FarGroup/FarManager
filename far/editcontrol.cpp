@@ -173,7 +173,7 @@ static bool ParseStringWithQuotes(string_view const Str, string& Start, string& 
 	else
 	{
 		auto WordDiv = GetBlanks() + Global->Opt->strWordDiv.Get();
-		static const auto NoQuote = L"\":\\/%.-"sv;
+		static const auto NoQuote = L"\":\\/%.?-"sv;
 		std::erase_if(WordDiv, [&](wchar_t i){ return contains(NoQuote, i); });
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
@@ -272,6 +272,18 @@ static bool EnumFiles(VMenu2& Menu, const string_view strStart, const string_vie
 		if (NameMatch || AltNameMatch)
 		{
 			ResultStrings.emplace(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.FileName : i.AlternateFileName()));
+		}
+	}
+
+	if (HasPathPrefix(Token) && Token.substr(L"\\\\?\\"sv.size()).find_first_of(path::separators) == Token.npos)
+	{
+		for (const auto& Namespace: { L"\\??"sv, L"\\GLOBAL??"sv })
+		{
+			for (const auto& i: os::fs::enum_devices(Namespace))
+			{
+				if (starts_with_icase(i, FileName))
+					ResultStrings.emplace(Token.substr(0, Token.size() - FileName.size()) + i);
+			}
 		}
 	}
 
