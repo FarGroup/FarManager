@@ -185,7 +185,6 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 	case root_type::win32nt_drive_letter: //"\\?\whatever"
 	case root_type::unc_remote:
 	case root_type::volume:
-	case root_type::pipe:
 	case root_type::unknown_rootlike:
 		blIgnore=true;
 		PathOffset = 0;

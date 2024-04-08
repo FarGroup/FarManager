@@ -155,6 +155,12 @@ namespace os::fs
 			if (!FindCloseChangeNotification(Handle))
 				LOGWARNING(L"FindCloseChangeNotification(): {}"sv, last_error());
 		}
+
+		void find_nt_handle_closer::operator()(HANDLE const Handle) const noexcept
+		{
+			if (const auto Status = imports.NtClose(Handle); !NT_SUCCESS(Status))
+				LOGWARNING(L"NtClose(): {}"sv, Status);
+		}
 	}
 
 	namespace state
@@ -707,6 +713,64 @@ namespace os::fs
 		}
 
 		Value = VolumeName;
+		return true;
+	}
+
+	//-------------------------------------------------------------------------
+
+	enum_devices::enum_devices(string_view const Object)
+	{
+		m_Object.Buffer = const_cast<wchar_t*>(Object.data());
+		m_Object.Length = m_Object.MaximumLength = static_cast<USHORT>(Object.size() * sizeof(wchar_t));
+
+		OBJECT_ATTRIBUTES Attributes;
+		InitializeObjectAttributes(&Attributes, &m_Object, 0, nullptr, nullptr);
+
+		if (!NT_SUCCESS(imports.NtOpenDirectoryObject(&ptr_setter(m_Handle), GENERIC_READ, &Attributes)))
+			return;
+
+		m_Buffer.reset(32 * 1024);
+	}
+
+	bool enum_devices::get(bool Reset, string_view& Value) const
+	{
+		if (!m_Handle)
+			return false;
+
+		if (Reset)
+			m_Index.reset();
+
+		auto RestartScan = Reset;
+
+		const auto fill = [&]
+		{
+			ULONG Size;
+			if (!NT_SUCCESS(imports.NtQueryDirectoryObject(m_Handle.native_handle(), m_Buffer.data(), m_Buffer.size(), false, RestartScan, &m_Context, &Size)))
+				return false;
+
+			RestartScan = false;
+			m_Index = 0;
+			return true;
+		};
+
+		if (!m_Index)
+		{
+			if (!fill())
+				return false;
+		}
+
+		const auto Entries = std::bit_cast<OBJECT_DIRECTORY_INFORMATION const*>(m_Buffer.data());
+
+		if (!Entries[*m_Index].Name.Length)
+		{
+			m_Index.reset();
+			if (!fill())
+				return false;
+		}
+
+		Value = { Entries[*m_Index].Name.Buffer, Entries[*m_Index].Name.Length / sizeof(wchar_t) };
+		++*m_Index;
+
 		return true;
 	}
 

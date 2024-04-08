@@ -106,6 +106,8 @@ public: \
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtSetInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQueryObject, HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength); // NT4
+	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtOpenDirectoryObject, PHANDLE DirectoryHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes);
+	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQueryDirectoryObject, HANDLE DirectoryHandle, PVOID Buffer, ULONG Length, BOOLEAN ReturnSingleEntry, BOOLEAN RestartScan, PULONG  Context, PULONG  ReturnLength);
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtOpenSymbolicLinkObject, PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtQuerySymbolicLinkObject, HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength); // NT4
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtClose, HANDLE Handle); // NT4

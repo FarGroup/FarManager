@@ -527,6 +527,9 @@
         <Component Id="macroapi_manual.en.chm" Guid="$(var.Guid.macroapi_manual.en.chm)" Win64="$(var.Win64)">
           <File Id="macroapi_manual.en.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\macroapi_manual.en.chm" />
         </Component>
+        <Component Id="macroapi_manual.pl.chm" Guid="$(var.Guid.macroapi_manual.pl.chm)" Win64="$(var.Win64)">
+          <File Id="macroapi_manual.pl.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\macroapi_manual.pl.chm" />
+        </Component>
       </Directory>
       <Directory Id="Plugins" Name="Plugins">
         <Directory Id="Align" Name="Align">

@@ -153,7 +153,6 @@ enum class root_type
 	remote,
 	unc_remote,
 	volume,
-	pipe,
 	unknown_rootlike
 };
 

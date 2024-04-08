@@ -135,6 +135,7 @@ after_build:
   - copy /Y enc\build\lua\luafar_manual\luafar_manual.chm ci\%configuration%.%platform_name%\Encyclopedia
   - copy /Y enc\build\lua\macroapi_manual.en\macroapi_manual.en.chm ci\%configuration%.%platform_name%\Encyclopedia
   - copy /Y enc\build\lua\macroapi_manual.ru\macroapi_manual.ru.chm ci\%configuration%.%platform_name%\Encyclopedia
+  - copy /Y enc\build\lua\macroapi_manual.pl\macroapi_manual.pl.chm ci\%configuration%.%platform_name%\Encyclopedia
   #copy misc docs and addons
   - xcopy /e /q /y /k extra\* ci\%configuration%.%platform_name%\
   #test & archive 

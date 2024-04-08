@@ -71,6 +71,11 @@ namespace os::fs
 		{
 			void operator()(HANDLE Handle) const noexcept;
 		};
+
+		struct find_nt_handle_closer
+		{
+			void operator()(HANDLE Handle) const noexcept;
+		};
 	}
 
 	namespace state
@@ -82,6 +87,7 @@ namespace os::fs
 	using find_file_handle = os::detail::handle_t<detail::find_file_handle_closer>;
 	using find_volume_handle = os::detail::handle_t<detail::find_volume_handle_closer>;
 	using find_notification_handle = os::detail::handle_t<detail::find_notification_handle_closer>;
+	using find_nt_handle = os::detail::handle_t<detail::find_nt_handle_closer>;
 
 	using drives_set = std::bitset<26>;
 
@@ -216,6 +222,24 @@ namespace os::fs
 
 		string m_Object;
 		mutable find_volume_handle m_Handle;
+	};
+
+	class [[nodiscard]] enum_devices: public enumerator<enum_devices, string_view>
+	{
+		IMPLEMENTS_ENUMERATOR(enum_devices);
+
+	public:
+		explicit enum_devices(string_view Object);
+
+	private:
+		[[nodiscard]]
+		bool get(bool Reset, string_view& Value) const;
+
+		UNICODE_STRING m_Object;
+		mutable find_nt_handle m_Handle;
+		mutable char_ptr m_Buffer;
+		mutable std::optional<size_t> m_Index{};
+		mutable ULONG m_Context{};
 	};
 
 	class file

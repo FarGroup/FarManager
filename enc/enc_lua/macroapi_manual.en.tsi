@@ -1109,7 +1109,7 @@ mtime=3770399831
 #_
 #_**Parameters:**
 #_  handler:  function
-#_  ...    :  arbitrary number of sdditional values
+#_  ...    :  arbitrary number of additional values
 #_
 #_**Returns:**
 #_  values passed in ... (if any)

@@ -62,6 +62,7 @@ pushd enc/build/lua || exit 1
 ( \
 	blua macroapi_manual.ru utf-8-sig 1251 && \
 	blua macroapi_manual.en utf-8-sig 1252 && \
+	blua macroapi_manual.pl utf-8-sig 1250 && \
 	blua luafar_manual      utf-8-sig 1252 \
 ) || exit 1
 

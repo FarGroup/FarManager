@@ -141,11 +141,6 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 			re(RE_PATH_PREFIX(L"[Vv][Oo][Ll][Uu][Mm][Ee]" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE),
 		},
 		{
-			// \\?\pipe(\...)
-			root_type::pipe,
-			re(RE_PATH_PREFIX(L"[Pp][Ii][Pp][Ee]") RE_ANY_SLASH_OR_NONE),
-		},
-		{
 			// \\?\<anything_else>(\...)
 			root_type::unknown_rootlike,
 			re(RE_PATH_PREFIX(L"." RE_ONE_OR_MORE_LAZY) RE_ANY_SLASH_OR_NONE),
@@ -790,11 +785,11 @@ TEST_CASE("path.ParsePath")
 		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}\\p"sv,     root_type::volume,                 49,   false, },
 		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEZ}\\path"sv,  root_type::unknown_rootlike,       49,   false, },
 		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}_\\"sv,     root_type::unknown_rootlike,       50,   true,  },
-		{ L"\\\\?\\pipe"sv,                                                root_type::pipe,                    8,   true,  },
-		{ L"\\\\?\\PiPe"sv,                                                root_type::pipe,                    8,   true,  },
-		{ L"\\\\?\\pipe\\"sv,                                              root_type::pipe,                    9,   true,  },
-		{ L"\\\\?\\pipe\\path"sv,                                          root_type::pipe,                    9,   false, },
-		{ L"\\\\?\\pipe\\p"sv,                                             root_type::pipe,                    9,   false, },
+		{ L"\\\\?\\pipe"sv,                                                root_type::unknown_rootlike,        8,   true,  },
+		{ L"\\\\?\\PiPe"sv,                                                root_type::unknown_rootlike,        8,   true,  },
+		{ L"\\\\?\\pipe\\"sv,                                              root_type::unknown_rootlike,        9,   true,  },
+		{ L"\\\\?\\pipe\\path"sv,                                          root_type::unknown_rootlike,        9,   false, },
+		{ L"\\\\?\\pipe\\p"sv,                                             root_type::unknown_rootlike,        9,   false, },
 		{ L"\\\\?\\pepe\\path"sv,                                          root_type::unknown_rootlike,        9,   false, },
 		{ L"\\\\?\\pipe_\\"sv,                                             root_type::unknown_rootlike,       10,   true,  },
 		{ L"\\\\?\\storage#volume#_??_usbstor#disk&ven_usb&prod_flash_disk&rev_1100#6&295c6d19&0#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\"sv, root_type::unknown_rootlike, 160, true, },
