@@ -25,7 +25,7 @@ local function fputs_indent(s, fp_out, indent)
   fp_out:write(s)
 end
 
-local function writeProjectHeader (fp_out, ProjectName, Title, DefaultTopic)
+local function writeProjectHeader (fp_out, ProjectName, Title, DefaultTopic, codepage, language)
   local WindowName = "MyDefaultWindow"
   fprintf(fp_out, "[OPTIONS]\n")
   fprintf(fp_out, "Compatibility=1.1 or later\n")
@@ -36,8 +36,7 @@ local function writeProjectHeader (fp_out, ProjectName, Title, DefaultTopic)
   fprintf(fp_out, "Display compile progress=No\n")
   fprintf(fp_out, "Error log file=Logfile.txt\n")
   fprintf(fp_out, "Full-text search=Yes\n")
---fprintf(fp_out, "Language=0x809 English (British)\n")
-  fprintf(fp_out, "Language=0x419 Russian\n")
+  fprintf(fp_out, "Language=%s\n", language)
   fprintf(fp_out, "Title=%s\n", Title)
   fprintf(fp_out, "\n[WINDOWS]\n")
   fprintf(fp_out, "%s=,\"%s.hhc\",,,\"%s\",,,,,0x23520,,0x301e,,,,,,,,0\n",
@@ -57,7 +56,7 @@ local function writeTocHeader(fp_out)
     "</OBJECT>\n")
 end
 
-local function writeTopicHeader(fp_out, Title, fp_template)
+local function writeTopicHeader(fp_out, Title, fp_template, codepage)
   if not fp_template then
       fp_out:write("<HTML>\n<HEAD>\n<TITLE>\n")
       HTML_puts(Title, fp_out)
@@ -85,7 +84,12 @@ local function writeTopicHeader(fp_out, Title, fp_template)
       if "<!--Body-->" == line:sub(1,11) then return end
       local cp1, cp2 = line:find("<!--Title-->", 1, true)
       if not cp1 then
-          fp_out:write(line, "\n")
+          if "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-%s\">" == line then
+              fprintf(fp_out, line, codepage)
+              fp_out:write("\n")
+          else
+              fp_out:write(line, "\n")
+          end
       else
           fp_out:write(line:sub(1, cp1 - 1))
           HTML_puts(Title, fp_out)
@@ -189,7 +193,7 @@ local function process_article (article)
 end
 
 -- generate: files, project, TOC and FileIndex
-local function generateFPT (NodeIterator, ProjectName, fp_template)
+local function generateFPT (NodeIterator, ProjectName, fp_template, codepage, language)
   -- create a FileIndex, a project file and a TOC file
   local fIndex = io.open(ProjectName..".htm", "wt")
   fIndex:write("<HTML><HEAD><TITLE>\nFile Locator\n</TITLE></HEAD>\n<BODY>\n")
@@ -208,14 +212,14 @@ local function generateFPT (NodeIterator, ProjectName, fp_template)
     if ready then
       fCurrent:write(article)
     else
-      writeTopicHeader(fCurrent, node.name, fp_template)
+      writeTopicHeader(fCurrent, node.name, fp_template, codepage)
       fCurrent:write(article)
       writeTopicFooter(fCurrent, fp_template)
     end
     fCurrent:close()
 
     if not ProjectHeaderReady then
-      writeProjectHeader(fProj, ProjectName, node.name, filename)
+      writeProjectHeader(fProj, ProjectName, node.name, filename, codepage, language)
       ProjectHeaderReady = true
     end
 
@@ -271,20 +275,20 @@ end
 local function syntax()
   io.stderr:write[[
 TP2HH: Treepad to HTML Help Conversion Utility
-  Syntax: TP2HH <input file> <library> [<template file>]
+  Syntax: TP2HH <input file> <library> <language> [<template file>] [<codepage>]
 ]]
 end
 
 do
-  local datafile, lib, tem = ...
-  if not lib then
+  local datafile, lib, language, tem, codepage = ...
+  if not language then
     syntax(); return
   end
   assert(lib=="hjt" or lib=="tsi", "library not supported")
   lib = require(lib)
   local fp_template = tem and assert(io.open(tem))
   local project_name = datafile:match("[^/\\]+$"):gsub("%.[^.]+$", "")
-  generateFPT(lib.Nodes(datafile), project_name, fp_template)
+  generateFPT(lib.Nodes(datafile), project_name, fp_template, codepage, language)
   if fp_template then fp_template:close() end
 end
 
