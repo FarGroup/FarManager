@@ -745,7 +745,7 @@ namespace os::fs
 		const auto fill = [&]
 		{
 			ULONG Size;
-			if (!NT_SUCCESS(imports.NtQueryDirectoryObject(m_Handle.native_handle(), m_Buffer.data(), m_Buffer.size(), false, RestartScan, &m_Context, &Size)))
+			if (!NT_SUCCESS(imports.NtQueryDirectoryObject(m_Handle.native_handle(), m_Buffer.data(), static_cast<ULONG>(m_Buffer.size()), false, RestartScan, &m_Context, &Size)))
 				return false;
 
 			RestartScan = false;
