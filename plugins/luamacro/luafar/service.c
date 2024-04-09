@@ -782,7 +782,7 @@ static int _EditorGetString(lua_State *L, int is_wide)
 	struct EditorGetString egs = {0,0,0,NULL,NULL,0,0};
 	egs.StructSize = sizeof(egs);
 
-	if (mode == 0 || mode == 3)
+	if (mode == 0 || mode == 3 || mode == 4)
 	{
 		egs.StringNumber = line_num;
 		res = Info->EditorControl(EditorId, ECTL_GETSTRING, 0, &egs) != 0;
@@ -806,6 +806,13 @@ static int _EditorGetString(lua_State *L, int is_wide)
 			}
 
 			return 2;
+		}
+		else if (mode == 4)
+		{
+			lua_pushinteger(L, egs.SelStart+1);
+			lua_pushinteger(L, egs.SelEnd);
+			lua_pushinteger(L, egs.StringLength);
+			return 3;
 		}
 		else
 		{

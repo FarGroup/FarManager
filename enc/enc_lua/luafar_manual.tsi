@@ -3954,7 +3954,7 @@ id=31
 lv=2
 dt=Text
 nm=editor.GetString
-mtime=3682770766
+mtime=3921827714
 <article>
 #_**Note:**
 #_  This function is an extension over its prototype in Far API.
@@ -3980,10 +3980,11 @@ mtime=3682770766
 #_
 #_**Description:**
 #_  The function's behavior depends on its *Mode* argument:
-#_  Mode:  0 = returns: table LineInfo;        changes current position: no
-#_         1 = returns: table LineInfo;        changes current position: yes
-#_         2 = returns: StringText,StringEOL;  changes current position: yes
-#_         3 = returns: StringText,StringEOL;  changes current position: no
+#_  Mode:  0 = returns: table LineInfo;            changes current position: no
+#_         1 = returns: table LineInfo;            changes current position: yes
+#_         2 = returns: StringText,StringEOL;      changes current position: yes
+#_         3 = returns: StringText,StringEOL;      changes current position: no
+#_         4 = returns: SelStart,SelEnd,StringLength; changes cur. position: no
 #_
 #_  Modes 1 and 2 have a side effect: the current line position in the Editor
 #_  is set to *StringNumber*.
