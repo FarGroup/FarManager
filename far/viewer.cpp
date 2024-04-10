@@ -89,31 +89,123 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum SHOW_MODES
+namespace
 {
-	SHOW_RELOAD,
-	SHOW_HEX,
-	SHOW_UP,
-	SHOW_DOWN,
-	SHOW_DUMP
-};
+	enum SHOW_MODES
+	{
+		SHOW_RELOAD,
+		SHOW_HEX,
+		SHOW_UP,
+		SHOW_DOWN,
+		SHOW_DUMP
+	};
 
-enum saved_modes
-{
-	m_none            = 0,
+	enum saved_modes
+	{
+		m_none = 0,
 
-	m_mode_changed    = 0x10,
+		m_mode_changed = 0x10,
 
-	m_mode_text       = VMT_TEXT,
-	m_mode_hex        = VMT_HEX,
-	m_mode_dump       = VMT_DUMP,
+		m_mode_text = VMT_TEXT,
+		m_mode_hex = VMT_HEX,
+		m_mode_dump = VMT_DUMP,
 
-	m_mode_last       = m_mode_dump,
-	m_mode_mask       = 0xF,
+		m_mode_last = m_mode_dump,
+		m_mode_mask = 0xF,
 
-	m_mode_wrap       = 0x20,
-	m_mode_wrap_words = 0x40,
-};
+		m_mode_wrap = 0x20,
+		m_mode_wrap_words = 0x40,
+	};
+
+	bool is_code_page_supported_in_viewer(uintptr_t cp)
+	{
+		return IsCodePageSupported(cp, 2);
+	}
+
+	int get_char_size(uintptr_t const cp)
+	{
+		return IsUtf16CodePage(cp)? sizeof(char16_t) : 1;
+	}
+
+	// 0000000000: 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D  --------------------------
+	// 0         1         2         3         4         5         6         7         8         9         0         1         2
+	// 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+
+	constexpr int s_HexModeBytesPerStripe{ 8 };
+
+	constexpr int s_HexModeAddressAreaWidth{ 11 };
+	constexpr int s_HexModeByteWidth{ 3 };
+	constexpr int s_HexModeStripePadding{ 2 };
+	constexpr int s_HexModeCharsAreaLeader{ 2 };
+
+	constexpr int hex_mode_bytes_area_wdth(const int Bytes)
+	{
+		assert(Bytes > 0);
+		return s_HexModeByteWidth * Bytes + s_HexModeStripePadding * ((Bytes - 1) / s_HexModeBytesPerStripe);
+	}
+
+	constexpr int hex_mode_chars_area_width(const int Bytes, const int CharSize)
+	{
+		assert(CharSize == 1 || CharSize == 2);
+		return (Bytes + CharSize / 2) / CharSize;
+	}
+
+	constexpr int hex_mode_line_width_from_bytes(const int Bytes, const int CharSize)
+	{
+		assert(Bytes >= s_HexModeBytesPerStripe);
+		return s_HexModeAddressAreaWidth + hex_mode_bytes_area_wdth(Bytes) + s_HexModeCharsAreaLeader + hex_mode_chars_area_width(Bytes, CharSize);
+	}
+
+	constexpr int hex_mode_columns_per_stripe(const int CharSize)
+	{
+		return s_HexModeBytesPerStripe * s_HexModeByteWidth + s_HexModeStripePadding + hex_mode_chars_area_width(s_HexModeBytesPerStripe, CharSize);
+	}
+
+	constexpr int hex_mode_bytes_from_line_width(const int LineWidth, const int CharSize)
+	{
+		if (LineWidth <= hex_mode_line_width_from_bytes(s_HexModeBytesPerStripe, CharSize))
+			return s_HexModeBytesPerStripe;
+
+		const auto BytesAndCharsWidth{ LineWidth - s_HexModeAddressAreaWidth };
+		const auto ColumnsPerStripe{ hex_mode_columns_per_stripe(CharSize) };
+		const auto FullStripes{ BytesAndCharsWidth / ColumnsPerStripe };
+		const auto ColumnsInFullStripes{ ColumnsPerStripe * FullStripes };
+		const auto RemainingColumns{ BytesAndCharsWidth - s_HexModeCharsAreaLeader - ColumnsInFullStripes };
+
+		// If CharSize is 2, one byte accupies 3.5 columns. Double the nominator and denominator to stay in integral numbers.
+		const auto RemainingBytes{ (2 * RemainingColumns) / (2 * s_HexModeByteWidth + 2 / CharSize)};
+
+		return s_HexModeBytesPerStripe * FullStripes + RemainingBytes;
+	}
+
+	int hex_mode_byte_from_column(int Column, const int Bytes, const int CharSize)
+	{
+		if (Column < s_HexModeAddressAreaWidth) return 0;
+		Column -= s_HexModeAddressAreaWidth;
+
+		const auto BytesAreaWidth{ hex_mode_bytes_area_wdth(Bytes) };
+		if (Column < BytesAreaWidth)
+		{
+			const auto ColumnsPerStripe{ s_HexModeBytesPerStripe * s_HexModeByteWidth + s_HexModeStripePadding };
+			const auto FullStripes{ Column / ColumnsPerStripe };
+			const auto ColumnsInFullStripes{ ColumnsPerStripe * FullStripes };
+			const auto RemainingColumns{ Column - ColumnsInFullStripes };
+			const auto RemainingBytes{ RemainingColumns / s_HexModeByteWidth };
+			return s_HexModeBytesPerStripe * FullStripes + RemainingBytes;
+		}
+		Column -= BytesAreaWidth;
+
+		if (Column < s_HexModeCharsAreaLeader) return 0;
+		Column -= s_HexModeCharsAreaLeader;
+
+		if (Column < hex_mode_chars_area_width(Bytes, CharSize))
+		{
+			return Column * CharSize;
+		}
+
+		return Bytes;
+	}
+}
 
 enum class Viewer::SearchDisposition
 {
@@ -125,13 +217,6 @@ enum class Viewer::SearchDisposition
 };
 
 static int ViewerID=0;
-
-static constexpr int s_BytesPerStripe = 8;
-
-static bool IsCodePageSupportedInViewer(uintptr_t cp)
-{
-	return IsCodePageSupported(cp, 2);
-}
 
 // seems like this initialization list is toooooo long
 Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
@@ -209,34 +294,29 @@ wchar_t Viewer::ZeroChar() const
 	return ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? static_cast<wchar_t>(ViOpt.ZeroChar) : 0;
 }
 
-int Viewer::CalculateMaxBytesPerLineByScreenWidth() const
+void Viewer::ChangeHexModeBytesPerLine(int const Amount)
 {
-	const int OffsetWidth = 12; // includes offset plus colon and space
-	const int ByteWidth = 4; // two hex digits, one space, one character in dump
-	const int BytesGroupSeparatorWidth = 2;
-	const int MininumBytesCount = s_BytesPerStripe;
+	const auto NewValue =
+		std::clamp(m_HexModeBytesPerLine + Amount, s_HexModeBytesPerStripe, hex_mode_bytes_from_line_width(ScrollbarAdjustedWidth, get_char_size(m_Codepage)));
 
-	auto BytesCount = MininumBytesCount;
-	for (auto width = XX2 - (OffsetWidth + MininumBytesCount * ByteWidth + BytesGroupSeparatorWidth); width >= ByteWidth; width -= ByteWidth)
-	{
-		++BytesCount;
-
-		if (!(BytesCount % s_BytesPerStripe))
-			width -= BytesGroupSeparatorWidth;
-	}
-
-	return BytesCount;
-}
-
-void Viewer::AdjustBytesPerLine(int const Amount)
-{
-	const size_t NewValue = std::clamp(static_cast<int>(m_BytesPerLine) + Amount, s_BytesPerStripe, CalculateMaxBytesPerLineByScreenWidth());
-
-	if (NewValue == m_BytesPerLine)
+	if (NewValue == m_HexModeBytesPerLine)
 		return;
 
-	m_BytesPerLine = NewValue;
+	m_HexModeBytesPerLine = NewValue;
 	Show();
+}
+
+void Viewer::AdjustHexModeBytesPerLineToViewWidth()
+{
+	if (m_HexModePrevScrollbarAdjustedWidth != ScrollbarAdjustedWidth)
+	{
+		m_HexModePrevScrollbarAdjustedWidth = ScrollbarAdjustedWidth;
+		// TODO: Add an option
+		if constexpr ((false))
+		{
+			m_HexModeBytesPerLine = std::min(m_HexModeBytesPerLine, hex_mode_bytes_from_line_width(ScrollbarAdjustedWidth, get_char_size(m_Codepage)));
+		}
+	}
 }
 
 struct Viewer::ViewerUndoData
@@ -360,7 +440,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 			if (vo.SaveCodepage || vo.SavePos)
 			{
 				CachedCodePage = poscache.CodePage;
-				if (CachedCodePage && !IsCodePageSupportedInViewer(CachedCodePage))
+				if (CachedCodePage && !is_code_page_supported_in_viewer(CachedCodePage))
 					CachedCodePage = 0;
 			}
 
@@ -401,7 +481,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 		{
 			const auto DefaultCodepage = GetDefaultCodePage();
 			const auto DetectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, vo.AutoDetectCodePage);
-			m_Codepage = IsCodePageSupportedInViewer(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
+			m_Codepage = is_code_page_supported_in_viewer(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
 		}
 
 		MB.SetCP(m_Codepage);
@@ -456,13 +536,13 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 void Viewer::AdjustWidth()
 {
-	Width = m_Where.width();
-	XX2 = m_Where.right;
+	ScrollbarAdjustedWidth = m_Where.width();
+	ScrollbarAdjustedRight = m_Where.right;
 
 	if (ViOpt.ShowScrollbar && !m_bQuickView)
 	{
-		Width--;
-		XX2--;
+		ScrollbarAdjustedWidth--;
+		ScrollbarAdjustedRight--;
 	}
 }
 
@@ -512,7 +592,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(m_Where, L' ', colors::PaletteColorToFarColor(COL_VIEWERTEXT));
 			GotoXY(m_Where.left, m_Where.top);
 			SetColor(COL_WARNDIALOGTEXT);
-			Text(cut_right(msg(lng::MViewerCannotOpenFile), XX2 - m_Where.left + 1));
+			Text(cut_right(msg(lng::MViewerCannotOpenFile), ScrollbarAdjustedWidth));
 			ShowStatus();
 		}
 
@@ -598,11 +678,11 @@ void Viewer::ShowPage(int nMode)
 
 			if (static_cast<long long>(i.Data.size()) > LeftPos)
 			{
-				Text(fit_to_left(i.Data.substr(LeftPos), Width));
+				Text(fit_to_left(i.Data.substr(LeftPos), ScrollbarAdjustedWidth));
 			}
 			else
 			{
-				Text(string(Width, L' '));
+				Text(string(ScrollbarAdjustedWidth, L' '));
 			}
 
 			if (SelectSize >= 0 && i.bSelection)
@@ -614,7 +694,7 @@ void Viewer::ShowPage(int nMode)
 				else
 					SelX1 = i.nSelStart - LeftPos;
 
-				if (!m_Wrap && (i.nSelEnd < LeftPos || i.nSelStart > LeftPos + XX2 - m_Where.left))
+				if (!m_Wrap && (i.nSelEnd < LeftPos || i.nSelStart >= LeftPos + ScrollbarAdjustedWidth))
 				{
 					if (AdjustSelPosition)
 					{
@@ -640,9 +720,9 @@ void Viewer::ShowPage(int nMode)
 				}
 			}
 
-			if (static_cast<long long>(i.Data.size()) > LeftPos + Width && ViOpt.ShowArrows)
+			if (static_cast<long long>(i.Data.size()) > LeftPos + ScrollbarAdjustedWidth && ViOpt.ShowArrows)
 			{
-				GotoXY(XX2,Y);
+				GotoXY(ScrollbarAdjustedRight,Y);
 				SetColor(COL_VIEWERARROWS);
 				Text(L'»');
 			}
@@ -683,7 +763,6 @@ void Viewer::DisplayObject()
 	ShowPage(ShowMode);
 }
 
-
 int Viewer::getCharSize() const
 {
 	if (CP_UTF8 == m_Codepage)
@@ -694,19 +773,14 @@ int Viewer::getCharSize() const
 		return m_Codepage == MB.GetCP()? -static_cast<int>(MB.GetSize()) : +1;
 }
 
-static int getChSize(uintptr_t const cp)
-{
-	return IsUtf16CodePage(cp)? sizeof(char16_t) : 1;
-}
-
 int Viewer::GetModeDependentCharSize() const
 {
-	return m_DisplayMode == VMT_HEX? 1 : getChSize(m_Codepage);
+	return m_DisplayMode == VMT_HEX? 1 : get_char_size(m_Codepage);
 }
 
 int Viewer::GetModeDependentLineSize() const
 {
-	return static_cast<int>(m_DisplayMode == VMT_HEX? m_BytesPerLine : Width * getChSize(m_Codepage));
+	return m_DisplayMode == VMT_HEX? m_HexModeBytesPerLine : ScrollbarAdjustedWidth * get_char_size(m_Codepage);
 }
 
 int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const
@@ -789,10 +863,10 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 
 void Viewer::ShowDump()
 {
-	const int CharSize = getChSize(m_Codepage);
+	const int CharSize = get_char_size(m_Codepage);
 	const int xl = m_Codepage == CP_UTF8? 4 - 1 : m_Codepage == MB.GetCP()? static_cast<int>(MB.GetSize() - 1) : 0;
-	std::vector<char> line(Width * CharSize + xl);
-	const DWORD mb = Width * CharSize;
+	std::vector<char> line(ScrollbarAdjustedWidth * CharSize + xl);
+	const DWORD mb = ScrollbarAdjustedWidth * CharSize;
 
 	FilePos -= FilePos % CharSize;
 	vseek(SecondPos = FilePos, FILE_BEGIN);
@@ -822,13 +896,13 @@ void Viewer::ShowDump()
 		else
 			LastPage = EndFile = veof();
 
-		tail = txt_dump({ line.data(), BytesRead }, Width, OutStr, ZeroChar(), tail);
+		tail = txt_dump({ line.data(), BytesRead }, ScrollbarAdjustedWidth, OutStr, ZeroChar(), tail);
 
 		Text(fit_to_left(OutStr, ObjWidth()));
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos )
 		{
 			const int bsel = SelectPos > bpos? static_cast<int>(SelectPos - bpos) / CharSize : 0;
-			const int esel = SelectPos + SelectSize < bpos + mb? (static_cast<int>(SelectPos + SelectSize - bpos) + CharSize - 1) / CharSize : Width;
+			const int esel = SelectPos + SelectSize < bpos + mb? (static_cast<int>(SelectPos + SelectSize - bpos) + CharSize - 1) / CharSize : ScrollbarAdjustedWidth;
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(bsel, Y);
 			Text(cut_right(OutStr.substr(bsel), esel - bsel));
@@ -838,7 +912,6 @@ void Viewer::ShowDump()
 
 void Viewer::ShowHex()
 {
-	const auto HexLeftPos = ((LeftPos > 80 - ObjWidth())? std::max(80 - ObjWidth(), 0) : LeftPos);
 	const string BorderLine{ BoxSymbols[BS_V1], L' '};
 
 	int tail = 0;
@@ -846,15 +919,7 @@ void Viewer::ShowHex()
 
 	LastPage = false;
 
-	if (m_PrevXX2 != XX2)
-	{
-		m_PrevXX2 = XX2;
-		// TODO: Add an option
-		if constexpr ((false))
-		{
-			m_BytesPerLine = std::min(static_cast<size_t>(CalculateMaxBytesPerLineByScreenWidth()), m_BytesPerLine);
-		}
-	}
+	AdjustHexModeBytesPerLineToViewWidth();
 
 	for (const auto Y: std::views::iota(m_Where.top, m_Where.bottom + 1))
 	{
@@ -886,12 +951,14 @@ void Viewer::ShowHex()
 		if ( SelectSize < 0 )
 			bSelStartFound = bSelEndFound = false;
 
-		std::vector<char> RawBuffer(m_BytesPerLine + 3, 0);
+		std::vector<char> RawBuffer(m_HexModeBytesPerLine + 3, 0);
 		size_t BytesRead = 0;
-		const auto BytesToRead = CP_UTF8 == m_Codepage ? m_BytesPerLine + 4 - 1 : (m_Codepage == MB.GetCP() ? m_BytesPerLine + MB.GetSize() - 1 : m_BytesPerLine);
+		const auto BytesToRead = CP_UTF8 == m_Codepage
+			? m_HexModeBytesPerLine + 4 - 1
+			: (m_Codepage == MB.GetCP() ? m_HexModeBytesPerLine + MB.GetSize() - 1 : m_HexModeBytesPerLine);
 		Reader.Read(RawBuffer.data(), BytesToRead, &BytesRead);
-		if (BytesRead > m_BytesPerLine)
-			Reader.Unread(BytesRead - m_BytesPerLine);
+		if (BytesRead > static_cast<size_t>(m_HexModeBytesPerLine))
+			Reader.Unread(BytesRead - m_HexModeBytesPerLine);
 		else
 			LastPage = EndFile = veof();
 
@@ -904,20 +971,20 @@ void Viewer::ShowHex()
 		{
 			if ( SelectSize >= 0 )
 			{
-				if (SelectPos >= fpos && SelectPos < fpos + static_cast<long long>(m_BytesPerLine))
+				if (SelectPos >= fpos && SelectPos < fpos + m_HexModeBytesPerLine)
 				{
 					const auto off = static_cast<int>(SelectPos - fpos);
 					bSelStartFound = true;
-					SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < s_BytesPerStripe? 0 : BorderLine.size()));
+					SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < s_HexModeBytesPerStripe? 0 : BorderLine.size()));
 					if (!SelectSize)
 						--SelStart;
 				}
 				const auto selectEnd = SelectPos + SelectSize - 1;
-				if (selectEnd >= fpos && selectEnd < fpos + static_cast<long long>(m_BytesPerLine))
+				if (selectEnd >= fpos && selectEnd < fpos + m_HexModeBytesPerLine)
 				{
 					const auto off = static_cast<int>(selectEnd - fpos);
 					bSelEndFound = true;
-					SelEnd = SelectSize ? static_cast<int>(OutStr.size() + 3 * off + (off < s_BytesPerStripe? 0 : BorderLine.size()) + 1) : SelStart;
+					SelEnd = SelectSize ? static_cast<int>(OutStr.size() + 3 * off + (off < s_HexModeBytesPerStripe? 0 : BorderLine.size()) + 1) : SelStart;
 				}
 				else if ( SelectSize == 0 && SelectPos == fpos )
 				{
@@ -926,17 +993,17 @@ void Viewer::ShowHex()
 				}
 			}
 
-			for (const auto X: std::views::iota(0uz, m_BytesPerLine))
+			for (const auto X: std::views::iota(0, m_HexModeBytesPerLine))
 			{
-				if (X < BytesRead)
+				if (static_cast<size_t>(X) < BytesRead)
 					far::format_to(OutStr, L"{:02X} "sv, static_cast<int>(RawBuffer[X]));
 				else
 					OutStr.append(3, L' ');
 
-				if (X + 1 != m_BytesPerLine && (X + 1) % s_BytesPerStripe == 0)
+				if (X + 1 != m_HexModeBytesPerLine && (X + 1) % s_HexModeBytesPerStripe == 0)
 					OutStr += BorderLine;
 			}
-			tail = txt_dump({ RawBuffer.data(), BytesRead }, m_BytesPerLine, TextStr, ZeroChar(), tail);
+			tail = txt_dump({ RawBuffer.data(), BytesRead }, m_HexModeBytesPerLine, TextStr, ZeroChar(), tail);
 		}
 
 		if ((SelEnd <= SelStart) && bSelStartFound && bSelEndFound && SelectSize > 0 )
@@ -944,6 +1011,10 @@ void Viewer::ShowHex()
 
 		OutStr.push_back(L' ');
 		OutStr += TextStr;
+
+		const auto HexLeftPos = std::min(
+			LeftPos,
+			static_cast<long long>(std::max(hex_mode_line_width_from_bytes(m_HexModeBytesPerLine, get_char_size(m_Codepage)) - ScrollbarAdjustedWidth, 0)));
 
 		if (static_cast<int>(OutStr.size()) > HexLeftPos)
 		{
@@ -1102,18 +1173,18 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 		if ( !m_Wrap )
 			continue;
 
-		if (m_WordWrap && OutPtr <= Width && CanWrapLineAt(ch))
+		if (m_WordWrap && OutPtr <= ScrollbarAdjustedWidth && CanWrapLineAt(ch))
 		{
 			wrap_out = OutPtr;
 			wrap_pos = fpos1;
 		}
 
-		if ( OutPtr < Width )
+		if ( OutPtr < ScrollbarAdjustedWidth )
 			continue;
 		if ( !m_WordWrap )
 			break;
 
-		if ( OutPtr > Width )
+		if ( OutPtr > ScrollbarAdjustedWidth )
 		{
 			if ( wrap_out <= 0 || IsBlankOrEos(ch) )
 			{
@@ -1222,7 +1293,7 @@ long long Viewer::EndOfScreen(int line)
 		{
 			vseek(Strings.back().nFilePos, FILE_BEGIN);
 			int col = 0;
-			const auto rmargin = static_cast<int>(LeftPos) + Width;
+			const auto rmargin = static_cast<int>(LeftPos) + ScrollbarAdjustedWidth;
 			wchar_t ch;
 			while (vgetc(&ch))
 			{
@@ -1291,28 +1362,23 @@ long long Viewer::XYfilepos(int col, int row)
 {
 	long long pos = -1;
 
-	const auto csz = getChSize(m_Codepage);
+	const auto csz = get_char_size(m_Codepage);
 	switch (m_DisplayMode)
 	{
 	case VMT_DUMP:
-		pos = FilePos + csz*(Width*row + col);
+	{
+		pos = FilePos + csz * (static_cast<long long>(ScrollbarAdjustedWidth) * row + col);
 		break;
-
+	}
 	case VMT_HEX:
-		//0000000000: 32 30 2E 30 31 2E 32 30 | 31 35 20 31 30 3A 33 39  20.01.2015 10:39 - 1-byte
-		//0000000020: 31 00 2E 00 30 00 22 00 | 20 00 65 00 6E 00 63 00  1.0" enc         - 2-byte
-		if      (col < 11) col = 0;
-		else if (col < 35) col = (col-11)/3;
-		else if (col < 37) col = s_BytesPerStripe;
-		else if (col < 61) col = s_BytesPerStripe + (col-37)/3;
-		else if (col < 63) col = 0;
-		else if (col < 63 + 16 / csz) col = (col-63) * csz;
-		else               col = 16;
-		pos = FilePos + 16*row + col / csz * csz;
+	{
+		const long long byte{ hex_mode_byte_from_column(col, m_HexModeBytesPerLine, csz) };
+		pos = FilePos + 16LL * row + byte / csz * csz;
 		break;
-
+	}
 	case VMT_TEXT:
-		for (const auto& i: Strings)
+	{
+		for (const auto& i : Strings)
 		{
 			if (i.linesize <= 0)
 			{
@@ -1356,7 +1422,7 @@ long long Viewer::XYfilepos(int col, int row)
 			}
 		}
 		break;
-
+	}
 	default:
 		return -1;
 	}
@@ -1665,7 +1731,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 					const auto fpos = vtell();
 					const auto DecectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, true);
 					vseek(fpos, FILE_BEGIN);
-					nCodePage = IsCodePageSupportedInViewer(DecectedCodepage)? DecectedCodepage : DefaultCodepage;
+					nCodePage = is_code_page_supported_in_viewer(DecectedCodepage)? DecectedCodepage : DefaultCodepage;
 				}
 				m_Codepage = nCodePage;
 				MB.SetCP(m_Codepage);
@@ -1806,8 +1872,12 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			if (LeftPos>0 && ViewFile)
 			{
-				if (m_DisplayMode == VMT_HEX && LeftPos > 80 - Width)
-					LeftPos=std::max(80-Width,1);
+				if (m_DisplayMode == VMT_HEX)
+				{
+					LeftPos = std::min(
+						LeftPos,
+						static_cast<long long>(std::max(hex_mode_line_width_from_bytes(m_HexModeBytesPerLine, get_char_size(m_Codepage)) - ScrollbarAdjustedWidth, 1)));
+				}
 
 				LeftPos--;
 				Show();
@@ -1874,22 +1944,22 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
-			AdjustBytesPerLine(-1);
+			ChangeHexModeBytesPerLine(-1);
 			return true;
 
 		case KEY_CTRLALTLEFT: case KEY_RCTRLALTLEFT:
 		case KEY_CTRLRALTLEFT: case KEY_RCTRLRALTLEFT:
-			AdjustBytesPerLine(-16);
+			ChangeHexModeBytesPerLine(-16);
 			return true;
 
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
-			AdjustBytesPerLine(1);
+			ChangeHexModeBytesPerLine(1);
 			return true;
 
 		case KEY_CTRLALTRIGHT: case KEY_RCTRLALTRIGHT:
 		case KEY_CTRLRALTRIGHT: case KEY_RCTRLRALTRIGHT:
-			AdjustBytesPerLine(16);
+			ChangeHexModeBytesPerLine(16);
 			return true;
 
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
@@ -1914,7 +1984,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 				{
 					return std::max(Value, i.Data.size());
 				});
-				LeftPos = (MaxLen > static_cast<size_t>(Width))? MaxLen - Width : 0;
+				LeftPos = (MaxLen > static_cast<size_t>(ScrollbarAdjustedWidth))? MaxLen - ScrollbarAdjustedWidth : 0;
 				Show();
 			}
 
@@ -1949,7 +2019,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			if (ViewFile)
 			{
 				int max_counter = m_Where.height() - 1;
-				const auto CharSize = getChSize(m_Codepage);
+				const auto CharSize = get_char_size(m_Codepage);
 
 				if (m_DisplayMode == VMT_TEXT)
 				{
@@ -2121,7 +2191,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		return;
 
 	if ( lcache_ready
-		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != Width)
+		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != ScrollbarAdjustedWidth)
 	){
 		lcache_ready = false;
 	}
@@ -2136,7 +2206,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		lcache_lines[0] = (have_eol ? -start : +start);
 		lcache_lines[1] = start + length;
 
-		lcache_wrap = m_Wrap; lcache_wwrap = m_WordWrap; lcache_width = Width;
+		lcache_wrap = m_Wrap; lcache_wwrap = m_WordWrap; lcache_width = ScrollbarAdjustedWidth;
 		lcache_ready = true;
 	}
 	else if (start == lcache_last)
@@ -2197,7 +2267,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 int Viewer::CacheFindUp( long long start )
 {
 	if ( lcache_ready
-		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != Width)
+		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != ScrollbarAdjustedWidth)
 	){
 		lcache_ready = false;
 	}
@@ -3669,7 +3739,7 @@ void Viewer::AdjustFilePos()
 	if (m_DisplayMode == VMT_TEXT)
 	{
 		wchar_t ch;
-		FilePos -= FilePos % getChSize(m_Codepage);
+		FilePos -= FilePos % get_char_size(m_Codepage);
 
 		vseek(FilePos, FILE_BEGIN);
 		if (m_Codepage != CP_UTF8)
@@ -3759,8 +3829,8 @@ void Viewer::SelectText(const long long& MatchPos,const long long& SearchLength,
 			if ( vString.eol_length == 0 )
 			{
 				const auto found_offset = static_cast<int>(vString.Data.size());
-				if ( found_offset > Width-10 )
-					LeftPos = (Width <= 10 ? found_offset : found_offset + 10 - Width);
+				if ( found_offset > ScrollbarAdjustedWidth-10 )
+					LeftPos = (ScrollbarAdjustedWidth <= 10 ? found_offset : found_offset + 10 - ScrollbarAdjustedWidth);
 			}
 		}
 	}
@@ -4059,7 +4129,7 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 uintptr_t Viewer::GetDefaultCodePage()
 {
 	const auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
-	return cp == CP_DEFAULT || !IsCodePageSupportedInViewer(cp)?
+	return cp == CP_DEFAULT || !is_code_page_supported_in_viewer(cp)?
 		encoding::codepage::ansi() :
 		cp;
 }
@@ -4089,3 +4159,80 @@ void Viewer::vgetc_cache::compact()
 	m_End = std::copy(m_Iterator, m_End, m_Buffer);
 	m_Iterator = m_Buffer;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("viewer.hex_mode_bytes_area_width")
+{
+	struct test_data
+	{
+		int Bytes;
+		int Width;
+	};
+
+	static const test_data TestDataPoints[] =
+	{
+		{  8,  24 }, // > 2D 2D 2D 2D 2D 2D 2D 2D<
+		{  9,  29 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D<
+		{ 10,  32 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D<
+		{ 13,  41 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D<
+		{ 15,  47 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D<
+		{ 16,  50 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D<
+		{ 17,  55 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D<
+		{ 20,  64 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D<
+		{ 24,  76 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D<
+		{ 25,  81 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D<
+		{ 30,  96 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D<
+		{ 32, 102 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D<
+		{ 33, 107 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D 2D 2D 2D 2D 2D 2D 2D │ 2D<
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(TestDataPoint.Width == hex_mode_bytes_area_wdth(TestDataPoint.Bytes));
+	}
+}
+
+TEST_CASE("viewer.hex_mode_bytes_from_line_width")
+{
+	for (const auto CharSize : { 1, 2 })
+	{
+		for (const auto& Bytes : std::views::iota(8, 260))
+		{
+			for (const auto& LineWidth : std::views::iota(hex_mode_line_width_from_bytes(Bytes, CharSize), hex_mode_line_width_from_bytes(Bytes + 1, CharSize)))
+			{
+				REQUIRE(Bytes == hex_mode_bytes_from_line_width(LineWidth, CharSize));
+			}
+		}
+	}
+}
+
+static int HexModeByteFromColumn16BytesFixed(const int Column, const int CharSize)
+{
+/*
+0000000000: 32 30 2E 30 31 2E 32 30 | 31 35 20 31 30 3A 33 39  20.01.2015 10:39 - 1-byte
+0000000020: 31 00 2E 00 30 00 22 00 | 20 00 65 00 6E 00 63 00  1.0" enc         - 2-byte
+*/
+	if (Column < 11) return 0;
+	if (Column < 35) return (Column - 11) / 3;
+	if (Column < 37) return s_HexModeBytesPerStripe;
+	if (Column < 61) return s_HexModeBytesPerStripe + (Column - 37) / 3;
+	if (Column < 63) return 0;
+	if (Column < 63 + 16 / CharSize) return (Column - 63) * CharSize;
+	return 16;
+}
+
+TEST_CASE("viewer.hex_mode_byte_from_column")
+{
+	for (const auto CharSize : { 1, 2 })
+	{
+		for (const auto& Column : std::views::iota(0, 100))
+		{
+			REQUIRE(HexModeByteFromColumn16BytesFixed(Column, CharSize) == hex_mode_byte_from_column(Column, 16, CharSize));
+		}
+	}
+}
+
+#endif
