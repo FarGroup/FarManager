@@ -1373,7 +1373,7 @@ long long Viewer::XYfilepos(int col, int row)
 	case VMT_HEX:
 	{
 		const long long byte{ hex_mode_byte_from_column(col, m_HexModeBytesPerLine, csz) };
-		pos = FilePos + 16LL * row + byte / csz * csz;
+		pos = FilePos + static_cast<long long>(m_HexModeBytesPerLine) * row + byte / csz * csz;
 		break;
 	}
 	case VMT_TEXT:
