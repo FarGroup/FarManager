@@ -56,7 +56,7 @@ class FilePanels final: public window, public ViewerContainer
 	struct private_tag { explicit private_tag() = default; };
 
 public:
-	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
+	static filepanels_ptr create(bool CreateRealPanels);
 
 	explicit FilePanels(private_tag);
 	~FilePanels() override;
@@ -107,7 +107,7 @@ public:
 
 private:
 
-	void Init(int DirCount);
+	void Init();
 	static void SetPassivePanelInternal(panel_ptr ToBePassive);
 	void SetActivePanelInternal(panel_ptr ToBeActive);
 

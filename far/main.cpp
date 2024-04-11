@@ -204,8 +204,6 @@ static int MainProcess(
 		}
 		else
 		{
-			int DirCount=0;
-
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
 
@@ -215,7 +213,6 @@ static int MainProcess(
 
 			const auto SetupPanel = [&](bool active)
 			{
-				++DirCount;
 				string strPath = active? apanel : ppanel;
 				if (active? IsFileA : IsFileP)
 				{
@@ -246,7 +243,7 @@ static int MainProcess(
 			}
 
 			// теперь все готово - создаем панели!
-			Global->CtrlObject->Init(DirCount);
+			Global->CtrlObject->Init();
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (!apanel.empty())  // активная панель

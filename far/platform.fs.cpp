@@ -724,7 +724,7 @@ namespace os::fs
 		m_Object.Length = m_Object.MaximumLength = static_cast<USHORT>(Object.size() * sizeof(wchar_t));
 
 		OBJECT_ATTRIBUTES Attributes;
-		InitializeObjectAttributes(&Attributes, &m_Object, 0, nullptr, nullptr);
+		InitializeObjectAttributes(&Attributes, &m_Object, 0, nullptr, nullptr)
 
 		if (!NT_SUCCESS(imports.NtOpenDirectoryObject(&ptr_setter(m_Handle), GENERIC_READ, &Attributes)))
 			return;

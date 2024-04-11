@@ -85,9 +85,9 @@ ControlObject::ControlObject()
 }
 
 
-void ControlObject::Init(int DirCount)
+void ControlObject::Init()
 {
-	FPanels = FilePanels::create(true, DirCount);
+	FPanels = FilePanels::create(true);
 
 	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
 
@@ -113,7 +113,7 @@ void ControlObject::Init(int DirCount)
 
 void ControlObject::CreateDummyFilePanels()
 {
-	FPanels = FilePanels::create(false, 0);
+	FPanels = FilePanels::create(false);
 }
 
 ControlObject::~ControlObject() = default;
