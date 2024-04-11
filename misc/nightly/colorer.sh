@@ -1,9 +1,10 @@
 #!/bin/bash
 
 function bcolorer {
+  CURL="curl --fail --silent --retry 50 --connect-timeout 10 --retry-delay 10"
   BIT=$1
   PLUGIN=FarColorer
-  COLORER_VERSION=$(curl -fsLJ 'https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt')
+  COLORER_VERSION=$($CURL -LJ 'https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt')
   if [ -z "$COLORER_VERSION" ]; then
     echo "Failed to get Colorer version"
     return 1
@@ -19,8 +20,8 @@ function bcolorer {
   rm -f ${COLORER_PDB_NAME}
 
   COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/
-  curl -fsLJO ${COLORER_BASE_URL}${COLORER_FILE_NAME}
-  curl -fsLJO ${COLORER_BASE_URL}${COLORER_PDB_NAME}
+  $CURL -LJO ${COLORER_BASE_URL}${COLORER_FILE_NAME}
+  $CURL -LJO ${COLORER_BASE_URL}${COLORER_PDB_NAME}
   if [ ! -e ${COLORER_FILE_NAME} ]; then
     echo "Can't find ${COLORER_FILE_NAME}"
     return 1
@@ -30,7 +31,7 @@ function bcolorer {
     return 1
   fi
 
-  COLORER_SCHEMES_VERSION=$(curl --silent "https://api.github.com/repos/colorer/Colorer-schemes/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+  COLORER_SCHEMES_VERSION=$($CURL "https://api.github.com/repos/colorer/Colorer-schemes/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
   if [ -z "$COLORER_SCHEMES_VERSION" ]; then
     echo "Failed to get Colorer schemes version"
     return 1
@@ -41,7 +42,7 @@ function bcolorer {
   rm -f ${COLORER_SCHEMES_FILE_NAME}
 
   COLORER_SCHEMES_BASE_URL=https://github.com/colorer/Colorer-schemes/releases/download/v${COLORER_SCHEMES_VERSION}/
-  curl -fsLJO ${COLORER_SCHEMES_BASE_URL}${COLORER_SCHEMES_FILE_NAME}
+  $CURL -LJO ${COLORER_SCHEMES_BASE_URL}${COLORER_SCHEMES_FILE_NAME}
   if [ ! -e ${COLORER_SCHEMES_FILE_NAME} ]; then
     echo "Can't find ${COLORER_SCHEMES_FILE_NAME}"
     return 1

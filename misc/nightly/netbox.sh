@@ -1,11 +1,12 @@
 #!/bin/bash
 
 function bnetbox {
+  CURL="curl --fail --silent --retry 50 --connect-timeout 10 --retry-delay 10"
   BIT=$1
   PLUGIN=NetBox
   NETBOX_PLATFORM=$2
-  NETBOX_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-  NETBOX_FILE_VERSION=$(curl --silent "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep -E '"browser_download_url.+'${NETBOX_PLATFORM}'.+[0-9]\.7z\"' | sed -E 's/.+NetBox\.'${NETBOX_PLATFORM}'\.(.+)\.7z.+/\1/')
+  NETBOX_VERSION=$($CURL "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+  NETBOX_FILE_VERSION=$($CURL "https://api.github.com/repos/michaellukashov/Far-NetBox/releases/latest" | grep -E '"browser_download_url.+'${NETBOX_PLATFORM}'.+[0-9]\.7z\"' | sed -E 's/.+NetBox\.'${NETBOX_PLATFORM}'\.(.+)\.7z.+/\1/')
 
   if [ -z "$NETBOX_VERSION" ]; then
     echo "Failed to get NetBox version"
@@ -26,8 +27,8 @@ function bnetbox {
   rm -f ${NETBOX_PDB_NAME}
 
   NETBOX_BASE_URL=https://github.com/michaellukashov/Far-NetBox/releases/download/v${NETBOX_VERSION}/
-  curl -fsLJO ${NETBOX_BASE_URL}${NETBOX_FILE_NAME}
-  curl -fsLJO ${NETBOX_BASE_URL}${NETBOX_PDB_NAME}
+  $CURL -LJO ${NETBOX_BASE_URL}${NETBOX_FILE_NAME}
+  $CURL -LJO ${NETBOX_BASE_URL}${NETBOX_PDB_NAME}
   if [ ! -e ${NETBOX_FILE_NAME} ]; then
     echo "Can't find ${NETBOX_FILE_NAME}"
     return 1
