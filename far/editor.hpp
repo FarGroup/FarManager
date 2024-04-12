@@ -185,9 +185,7 @@ private:
 		std::conditional_t<std::derived_from<T, ConstT>, ConstT, T> const& base() const { return *this; }
 		std::conditional_t<std::derived_from<T, ConstT>, const ConstT&, ConstT> cbase() const { return *this; }
 
-		// Intentionally not implemented, use prefix forms.
-		numbered_iterator_t operator++(int) = delete;
-		numbered_iterator_t operator--(int) = delete;
+		POSTFIX_OPS()
 
 	private:
 		size_t m_Number;
