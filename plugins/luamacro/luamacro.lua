@@ -20,6 +20,7 @@ local Shared
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
 local utils, macrobrowser, panelsort, keymacro
+local PluginIsReady
 
 local function ExpandEnv(str) return (str:gsub("%%(.-)%%", win.GetEnv)) end
 
@@ -430,7 +431,10 @@ local CanCreatePanel = {
 }
 
 function export.Open (OpenFrom, guid, ...)
-  if OpenFrom == F.OPEN_LUAMACRO then
+  if not PluginIsReady then
+    return
+
+  elseif OpenFrom == F.OPEN_LUAMACRO then
     return Open_LuaMacro(guid, ...)
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -563,6 +567,7 @@ local function Init()
   package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
   package.moonpath = modules.."?.moon;"..modules.."?\\init.moon;"..package.moonpath
   package.cpath = macros..(win.IsProcess64bit() and "lib64" or "lib32").."\\?.dll;"..package.cpath
+  PluginIsReady = true
 
   if _G.IsLuaStateRecreated then
     _G.IsLuaStateRecreated = nil

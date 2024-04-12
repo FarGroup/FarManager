@@ -1,3 +1,7 @@
+shmuel 2024-04-12 23:23:51+03:00 - build 822
+
+1. Disable all macro-operations until the plugin is ready.
+
 shmuel 2024-04-09 12:25:58+03:00 - build 821
 
 1. LuaFAR: add new mode (4) to editor.GetString (only numeric values are returned).
