@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-04-14 19:36:02+01:00 - build 6308
+
+1. Show content of NFS reparse points.
+
+2. Attribute dialog minor fixes.
+
+--------------------------------------------------------------------------------
 drkns 2024-04-14 11:07:34+01:00 - build 6307
 
 1. Show content of LX_SYMLINK reparse points.
