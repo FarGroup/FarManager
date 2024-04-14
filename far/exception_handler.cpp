@@ -1697,11 +1697,11 @@ static string collect_information(
 				const auto ThreadStack = tracer.stacktrace(ModuleName, ThreadContext, Thread.native_handle());
 				tracer.get_symbols(ModuleName, ThreadStack, append_line);
 
-				make_subheader(DisassemblyTitle, append_line);
-				DebugClient.disassembly(ModuleName, ThreadStack, Eol);
-
 				make_subheader(RegistersTitle, append_line);
 				read_registers(Strings, ThreadContext, Eol);
+
+				make_subheader(DisassemblyTitle, append_line);
+				DebugClient.disassembly(ModuleName, ThreadStack, Eol);
 			}
 		}
 	}
