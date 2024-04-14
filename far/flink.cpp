@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "log.hpp"
 #include "exception.hpp"
+#include "encoding.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -419,6 +420,19 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				return true;
 			}
 			return false;
+		}
+
+	case IO_REPARSE_TAG_LX_SYMLINK:
+		{
+			struct LX_SYMLINK_REPARSE_DATA_BUFFER
+			{
+				DWORD FileType;
+				char  PathBuffer[1];
+			};
+
+			const auto& LxSymlinkReparseBuffer = view_as<LX_SYMLINK_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
+			DestBuffer = encoding::utf8::get_chars({ LxSymlinkReparseBuffer.PathBuffer, rdb->ReparseDataLength - sizeof(LxSymlinkReparseBuffer.FileType) });
+			return true;
 		}
 
 	default:
