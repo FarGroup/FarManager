@@ -677,6 +677,35 @@ static bool process_single_file(
 	return true;
 }
 
+static auto symlink_type(lng const Id, DWORD const ReparseTag)
+{
+	if (Id != lng::MSetAttrSymlink)
+		return msg(Id);
+
+	const auto Suffix = [ReparseTag]
+	{
+		switch (ReparseTag)
+		{
+		case IO_REPARSE_TAG_SYMLINK:
+			return L""sv;
+
+		case IO_REPARSE_TAG_DFS:
+			return L" DFS"sv;
+
+		case IO_REPARSE_TAG_NFS:
+			return L" NFS"sv;
+
+		case IO_REPARSE_TAG_LX_SYMLINK:
+			return L" LX"sv;
+
+		default:
+			return L" (?)"sv;
+		}
+	}();
+
+	return far::vformat(msg(Id), Suffix);
+}
+
 static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 {
 	short DlgX = 74, DlgY = 22;
@@ -882,12 +911,21 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			bool IsMountPoint;
+			const auto IsMountPoint = [&]
 			{
+				if (DlgParam.Plugin)
+					return false;
+
 				bool IsRoot = false;
 				const auto PathType = ParsePath(SingleSelFileName, nullptr, &IsRoot);
-				IsMountPoint = IsRoot && ((PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter));
-			}
+				if (!IsRoot)
+					return false;
+
+				if (none_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter))
+					return false;
+
+				return os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+			}();
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
 			{
@@ -904,7 +942,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						// BUGBUG, cheating
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
 						KnownReparseTag = true;
-						(void)os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 					}
 					else
 					{
@@ -923,11 +960,11 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						switch (ReparseTag)
 						{
 						case IO_REPARSE_TAG_MOUNT_POINT:
-							ID_Msg = lng::MSetAttrJunction;
 
-							if (bool Root; !IsMountPoint && ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
+							if (bool Root; IsMountPoint || (ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root))
 								ID_Msg = lng::MSetAttrVolMount;
-
+							else
+								ID_Msg = lng::MSetAttrJunction;
 							break;
 
 						case IO_REPARSE_TAG_SYMLINK:
@@ -999,7 +1036,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				if (KnownReparseTag)
 				{
-					AttrDlg[SA_TEXT_REPARSE_POINT].strData = msg(ID_Msg);
+					AttrDlg[SA_TEXT_REPARSE_POINT].strData = symlink_type(ID_Msg, ReparseTag);
 
 					if (ReparseTag == IO_REPARSE_TAG_DFS)
 					{
