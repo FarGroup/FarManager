@@ -390,6 +390,24 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 	case IO_REPARSE_TAG_MOUNT_POINT:
 		return Extract(rdb->MountPointReparseBuffer);
 
+	case IO_REPARSE_TAG_NFS:
+		{
+			constexpr auto NFS_SPECFILE_LNK = 0x014B4E4C;
+
+			struct NFS_REPARSE_DATA_BUFFER
+			{
+				ULONG64 Type;
+				WCHAR   DataBuffer[1];
+			};
+
+			const auto& NfsReparseBuffer = view_as<NFS_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
+			if (NfsReparseBuffer.Type != NFS_SPECFILE_LNK)
+				return false;
+
+			DestBuffer.assign(NfsReparseBuffer.DataBuffer, (rdb->ReparseDataLength - sizeof(NfsReparseBuffer.Type)) / sizeof(wchar_t));
+			return true;
+		}
+
 	case IO_REPARSE_TAG_APPEXECLINK:
 		{
 			// The current protocol version is 3. It is known that in all 3 versions the third string in the list is the target filename.
