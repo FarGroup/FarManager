@@ -1117,8 +1117,22 @@ namespace logging
 			{
 				const auto pause = []
 				{
-					if (os::is_interactive_user_session())
-						std::system("pause");
+					if (!os::is_interactive_user_session())
+						return;
+
+					// Q: Why not just system("pause") or cin.get() or whatever?
+					// A: We want to keep the log window open, but we don't want to do it ourselves,
+					//    because otherwise this log process stays alive, lingers in the background
+					//    and prevents you from recompiling the binary during development, which is annoying.
+					//    With this approach we basically transfer the console to cmd, so it's someone else's problem.
+
+					STARTUPINFO si{ sizeof(si) };
+					PROCESS_INFORMATION pi{};
+					if (CreateProcess({}, UNSAFE_CSTR(L"cmd.exe /c pause"s), {}, {}, false, 0, {}, {}, &si, &pi))
+					{
+						os::handle(pi.hThread);
+						os::handle(pi.hProcess);
+					}
 				};
 
 				if (e.Win32Error == ERROR_BROKEN_PIPE)
