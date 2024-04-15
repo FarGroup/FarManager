@@ -444,21 +444,26 @@ namespace os::process
 
 	bool enum_processes::get(bool Reset, enum_process_entry& Value) const
 	{
+		constexpr auto InvalidOffset = static_cast<size_t>(-1);
+
 		if (m_Info.empty())
 			return false;
 
 		if (Reset)
 			m_Offset = 0;
+		else if (m_Offset == InvalidOffset)
+			return false;
 
 		const auto& Info = view_as<SYSTEM_PROCESS_INFORMATION>(m_Info.data(), m_Offset);
-
-		if (!Info.NextEntryOffset)
-			return false;
 
 		Value.Pid = static_cast<DWORD>(std::bit_cast<uintptr_t>(Info.UniqueProcessId));
 		Value.Name = { Info.ImageName.Buffer, Info.ImageName.Length / sizeof(wchar_t) };
 		Value.Threads = { view_as<SYSTEM_THREAD_INFORMATION const*>(&Info, sizeof(Info)), Info.NumberOfThreads };
-		m_Offset += Info.NextEntryOffset;
+
+		if (Info.NextEntryOffset)
+			m_Offset += Info.NextEntryOffset;
+		else
+			m_Offset = InvalidOffset;
 
 		return true;
 	}
