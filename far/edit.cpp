@@ -485,7 +485,7 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_V_ITEMCOUNT:
 			return m_Str.size();
 		case MCODE_V_CURPOS:
-			return GetLineCursorPos()+1;
+			return m_CurPos+1;
 		case MCODE_F_EDITOR_SEL:
 		{
 			const auto Action = static_cast<int>(std::bit_cast<intptr_t>(vParam));
