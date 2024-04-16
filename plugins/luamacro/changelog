@@ -1,3 +1,9 @@
+shmuel 2024-04-16 14:30:12+03:00 - build 823
+
+1. LuaFAR: add function win.JoinPath.
+
+2. Refactoring.
+
 shmuel 2024-04-12 23:23:51+03:00 - build 822
 
 1. Disable all macro-operations until the plugin is ready.

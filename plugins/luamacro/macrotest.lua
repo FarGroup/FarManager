@@ -49,7 +49,7 @@ local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
 
-local TmpFileName = assert(win.GetEnv"tmp" or win.GetEnv"temp").."\\tmp.tmp"
+local TmpFileName = win.JoinPath(assert(win.GetEnv"tmp" or win.GetEnv"temp"), "tmp.tmp")
 
 local function WriteTmpFile(...)
   local fp = assert(io.open(TmpFileName,"w"))
@@ -1316,7 +1316,7 @@ local function Test_Panel_Select()
 
   --------------------------------------------------------------
   MODE = 2
-  local list = dir.."\\FarEng.hlf\nFarEng.lng" -- the 1-st file with path, the 2-nd without
+  local list = win.JoinPath(dir,"FarEng.hlf").."\nFarEng.lng" -- the 1-st file with path, the 2-nd without
   assert_eq(2,PS(0,ADD,MODE,list))
   pi = assert_table(panel.GetPanelInfo(1))
   assert_eq(2, pi.SelectedItemsNumber)
@@ -2001,7 +2001,7 @@ end
 
 -- "Several lines are merged into one".
 local function test_issue_3129()
-  local fname = (win.GetEnv("TEMP") or ".").."\\far3-"..win.Uuid(win.Uuid()):sub(1,8)
+  local fname = win.JoinPath(win.GetEnv("TEMP") or ".", "far3-"..win.Uuid("L"):sub(1,8))
   local fp = assert(io.open(fname, "w"))
   fp:close()
   local flags = {EF_NONMODAL=1, EF_IMMEDIATERETURN=1, EF_DISABLEHISTORY=1}

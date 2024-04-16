@@ -10,6 +10,7 @@ end
 
 local F, Msg = far.Flags, nil
 local bor = bit64.bor
+local JoinPath = win.JoinPath
 local co_yield, co_resume, co_status = coroutine.yield, coroutine.resume, coroutine.status
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
@@ -335,8 +336,8 @@ local function ShowCmdLineHelp()
   local windir, fardir = win.GetEnv("WINDIR"), win.GetEnv("FARHOME")
   if windir and fardir then
     local suffix = win.GetEnv("FARLANG")=="Russian" and "ru" or "en"
-    local topic = fardir.."\\Encyclopedia\\macroapi_manual."..suffix..".chm::/92.html"
-    win.ShellExecute(nil, nil, windir.."\\hh.exe", topic)
+    local topic = JoinPath(fardir, "Encyclopedia", "macroapi_manual."..suffix..".chm::/92.html")
+    win.ShellExecute(nil, nil, JoinPath(windir,"hh.exe"), topic)
   end
 end
 
@@ -517,7 +518,7 @@ local function Init()
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)
-    local func,msg = assert(loadfile(ModuleDir..fname))
+    local func,msg = assert(loadfile(JoinPath(ModuleDir,fname)))
     return func(param)
   end
 
@@ -562,11 +563,21 @@ local function Init()
 
   utils.FixInitialModules()
   utils.InitMacroSystem()
-  local macros = win.GetEnv("farprofile").."\\Macros\\"
-  local modules = macros .. "modules\\"
-  package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
-  package.moonpath = modules.."?.moon;"..modules.."?\\init.moon;"..package.moonpath
-  package.cpath = macros..(win.IsProcess64bit() and "lib64" or "lib32").."\\?.dll;"..package.cpath
+
+  local macros = JoinPath(win.GetEnv("FARPROFILE"), "Macros")
+  local modules = JoinPath(macros, "modules")
+  package.path =
+    JoinPath(modules, "?.lua;") ..
+    JoinPath(modules, "?", "init.lua;") ..
+    package.path
+  package.moonpath =
+    JoinPath(modules, "?.moon;") ..
+    JoinPath(modules, "?", "init.moon;") ..
+    package.moonpath
+  package.cpath =
+    JoinPath(macros, win.IsProcess64bit() and "lib64" or "lib32", "?.dll;") ..
+    package.cpath
+
   PluginIsReady = true
 
   if _G.IsLuaStateRecreated then

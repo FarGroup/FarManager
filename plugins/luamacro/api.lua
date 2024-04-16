@@ -81,7 +81,7 @@ mf.usermenu = function(mode, filename)
   elseif (mode==2 or mode==3) and type(filename)=="string" then
     if mode==3 then
       if not (filename:find("^%a:") or filename:find("^[\\/]")) then
-        filename = win.GetEnv("farprofile").."\\Menus\\"..filename
+        filename = win.JoinPath(win.GetEnv("FARPROFILE"), "Menus", filename)
       end
     end
     if sync_call then MacroCallFar(MCODE_F_USERMENU, filename)

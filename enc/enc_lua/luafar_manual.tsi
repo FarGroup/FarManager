@@ -9472,6 +9472,26 @@ mtime=3504247079
 </article>
 </node>
 <node>
+id=569
+lv=3
+dt=Text
+nm=win.JoinPath
+ctime=3922434993
+mtime=3922435036
+<article>
+#_path = win.JoinPath (...)
+#_
+#_**Parameters:**
+#_  ... :  0 or more strings (nils allowed)
+#_
+#_**Returns:**
+#_  path:  string
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=362
 lv=3
 dt=Text

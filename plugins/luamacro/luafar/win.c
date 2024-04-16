@@ -963,6 +963,30 @@ static int win_ReplaceFile(lua_State *L)
 	return 1;
 }
 
+static int win_JoinPath(lua_State *L)
+{
+	const int DELIM = '\\';
+	int empty=1, was_slash=0;
+	int top = lua_gettop(L), idx;
+	luaL_Buffer buf;
+	luaL_buffinit(L, &buf);
+
+	for (idx=1; idx <= top; idx++) {
+		const char *s = luaL_optstring(L, idx, "");
+		if (*s == 0)
+			continue;
+		if (!empty && !was_slash && *s != DELIM)
+			luaL_addchar(&buf, DELIM);
+		else if (was_slash && *s == DELIM)
+			s++;
+		luaL_addstring(&buf, s);
+		was_slash = s[(int)strlen(s) - 1] == DELIM;
+		empty = 0;
+	}
+	luaL_pushresult(&buf);
+	return 1;
+}
+
 #define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
 
 const luaL_Reg win_funcs[] =
@@ -990,6 +1014,7 @@ const luaL_Reg win_funcs[] =
 	PAIR( win, GetVirtualKeys),
 	PAIR( win, IsProcess64bit),
 	PAIR( win, IsWinVersion),
+	PAIR( win, JoinPath),
 	PAIR( win, MoveFile),
 	PAIR( win, RemoveDir),
 	PAIR( win, RenameFile), // alias
