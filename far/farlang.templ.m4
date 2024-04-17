@@ -29321,6 +29321,20 @@ upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly se&quential"
 
+MFileFilterAttrDevice
+"Устройство"
+"Device"
+"Přístroj"
+"Gerät"
+"Eszköz"
+"Urządzenie"
+"Dispositivo"
+"Zariadenie"
+"Dispositivo"
+"Пристрій"
+"Прылада"
+"Įrenginys"
+
 MFileFilterReset
 "Очистит&ь"
 "&Reset"

@@ -1053,6 +1053,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		{ FILE_ATTRIBUTE_RECALL_ON_OPEN,               lng::MFileFilterAttrRecallOnOpen,       },
 		{ FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS,        lng::MFileFilterAttrRecallOnDataAccess, },
 		{ FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL,          lng::MFileFilterAttrStrictlySequential, },
+		{ FILE_ATTRIBUTE_DEVICE,                       lng::MFileFilterAttrDevice,             },
 	};
 
 	os::fs::attributes AttrSet, AttrClear;
