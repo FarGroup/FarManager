@@ -28882,29 +28882,29 @@ MFileFilterDate
 "Dát&um/Čas:"
 "Data&/Ora:"
 "&Дата/Час:"
-"&дата/Час"
-upd:"Date&/Time:"
+"&дата/Час:"
+"Data/Laikas:"
 
-MFileFilterWrited
+MFileFilterWrite
 "&записи"
 "&write"
 "&zápisu"
 "&Schreiben"
-upd:"&write"
+"írás"
 "&zapisu"
-"&modificación"
+"escritura"
 "&zápisu"
 "&Scrittura"
 "&запису"
 "&запісу"
-upd:"&write"
+"rašy&mas"
 
-MFileFilterCreated
+MFileFilterCreation
 "&создания"
 "&creation"
 "&vytvoření"
 "E&rstellung"
-"&Létrehozás"
+"&létrehozás"
 "&utworzenia"
 "&creación"
 "&vytvorenia"
@@ -28913,21 +28913,21 @@ MFileFilterCreated
 "&стварэння"
 upd:"&creation"
 
-MFileFilterOpened
+MFileFilterAccess
 "&доступа"
 "&access"
 "&přístupu"
 "Z&ugriff"
-"&Hozzáférés"
+"&hozzáférés"
 "&dostępu"
 "&acceso"
 "&prístupu"
 "Acce&sso"
 "д&оступу"
 "&доступу"
-upd:"&access"
+"&naudotas"
 
-MFileFilterChanged
+MFileFilterChange
 "&изменения"
 "c&hange"
 "z&měny"

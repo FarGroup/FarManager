@@ -991,7 +991,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	DateList.ItemsNumber=FDATE_COUNT;
 
 	for (const auto i: std::views::iota(0uz, static_cast<size_t>(FDATE_COUNT)))
-		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).c_str();
+		TableItemDate[i].Text = msg(lng::MFileFilterWrite+i).c_str();
 
 	DWORD DateType;
 	filter_dates Dates;
