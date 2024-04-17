@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-04-17 21:09:16+01:00 - build 6312
+
+1. Reshape Attributes dialog.
+
+2. Add FILE_ATTRIBUTE_DEVICE to Filters.
+
+3. A few minor fixes.
+
+--------------------------------------------------------------------------------
 shmuel 2024-04-17 00:53:14+03:00 - build 6311
 
 1. Macro-API: fix CmdLine.CurPos
