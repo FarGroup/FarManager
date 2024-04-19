@@ -133,7 +133,7 @@ namespace format_helpers
 {
 	struct parse_no_spec
 	{
-		constexpr auto parse(auto& ctx)
+		constexpr auto parse(auto& ctx) const
 		{
 			return ctx.begin();
 		}
@@ -144,7 +144,7 @@ namespace format_helpers
 	{
 		// Don't "auto" it yet, ICE in VS2019
 		template<typename FormatContext>
-		auto format(object_type const& Value, FormatContext& ctx)
+		auto format(object_type const& Value, FormatContext& ctx) const
 		{
 			return fmt::format_to(ctx.out(), L"{}"sv, fmt::formatter<object_type, wchar_t>::to_string(Value));
 		}
