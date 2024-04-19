@@ -155,6 +155,8 @@ public:
 	string GetSelString() const;
 	int GetLength() const;
 
+	void ProcessMask(string_view Str, string_view Mask, size_t From);
+
 	void SetString(string_view Str, bool KeepSelection = false);
 	void InsertString(string_view Str);
 	void AppendString(string_view Str);

@@ -1535,6 +1535,40 @@ eol Edit::GetEOL() const
 	return get_eol();
 }
 
+void Edit::ProcessMask(string_view const Str, string_view const Mask, size_t const From)
+{
+	for (size_t i = From, j = 0, MaskLen = Mask.size(); i < MaskLen && j < MaskLen && j < Str.size();)
+	{
+		// After 5050 InsertKey below redraws the dialog.
+		// This might affect m_CurPos in mysterious ways.
+		m_CurPos = static_cast<int>(i);
+
+		if (CheckCharMask(Mask[i]))
+		{
+			bool goLoop = false;
+
+			if (j < Str.size() && CharInMask(Str[j], Mask[i]))
+				InsertKey(Str[j]);
+			else
+				goLoop = true;
+
+			j++;
+
+			if (goLoop)
+				continue;
+		}
+		else
+		{
+			if (Mask[j] == Str[j])
+			{
+				j++;
+			}
+		}
+
+		i++;
+	}
+}
+
 /* $ 25.07.2000 tran
    примечание:
    в этом методе DropDownBox не обрабатывается
@@ -1596,41 +1630,10 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 
 	m_CurPos=0;
 
-	// BUGBUG almost the same code in InsertString
-	// TODO Move to a function
 	if (const auto Mask = GetInputMask(); !Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
-		for (size_t i = 0, j = 0, MaskLen = Mask.size(); i < MaskLen && j < MaskLen && j < Str.size();)
-		{
-			// After 5050 InsertKey above redraws the dialog.
-			// This might affect m_CurPos in mysterious ways.
-			m_CurPos = static_cast<int>(i);
-
-			if (CheckCharMask(Mask[i]))
-			{
-				bool goLoop = false;
-
-				if (CharInMask(Str[j], Mask[m_CurPos]))
-					InsertKey(Str[j]);
-				else
-					goLoop = true;
-
-				j++;
-
-				if (goLoop)
-					continue;
-			}
-			else
-			{
-				if (Mask[j] == Str[j])
-				{
-					j++;
-				}
-			}
-
-			i++;
-		}
+		ProcessMask(Str, Mask, 0);
 
 		/* Здесь необходимо условие (!*Str), т.к. для очистки строки
 		   обычно вводится нечто вроде SetString("",0)
@@ -1689,50 +1692,9 @@ void Edit::InsertString(string_view Str)
 		return;
 	}
 
-	// BUGBUG almost the same code in SetString
-	// TODO Move to a function
 	if (const auto Mask = GetInputMask(); !Mask.empty())
 	{
-		const auto MaskLen = Mask.size();
-
-		if (static_cast<size_t>(m_CurPos) < MaskLen)
-		{
-			const auto StrLen = std::min(MaskLen - m_CurPos, Str.size());
-
-			for (size_t i = m_CurPos, j = 0; i != MaskLen && j != StrLen;)
-			{
-				// After 5050 InsertKey above redraws the dialog.
-				// This might affect m_CurPos in mysterious ways.
-				m_CurPos = static_cast<int>(i);
-
-				if (CheckCharMask(Mask[i]))
-				{
-					bool goLoop = false;
-
-					if (j < Str.size() && CharInMask(Str[j], Mask[i]))
-					{
-						InsertKey(Str[j]);
-					}
-					else
-						goLoop = true;
-
-					j++;
-
-					if (goLoop)
-						continue;
-				}
-				else
-				{
-					if(Mask[j] == Str[j])
-					{
-						j++;
-					}
-				}
-
-				i++;
-			}
-		}
-
+		ProcessMask(Str, Mask, m_CurPos);
 		RefreshStrByMask();
 	}
 	else
