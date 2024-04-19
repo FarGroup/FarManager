@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-04-19 18:28:14+01:00 - build 6313
+
+1. New versions of fmt, tinyxml2, Catch2 and character width mappings.
+
+2. Remove duplicated code.
+
+3. Warnings.
+
+--------------------------------------------------------------------------------
 drkns 2024-04-17 21:09:16+01:00 - build 6312
 
 1. Reshape Attributes dialog.
