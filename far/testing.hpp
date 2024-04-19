@@ -59,6 +59,10 @@ WARNING_DISABLE_CLANG("-Weverything")
 // It's rubbish
 #define CATCH_CONFIG_NO_WINDOWS_SEH
 
+#ifdef _M_ARM64
+#define CATCH_CONFIG_NO_MSVC_UMUL128
+#endif
+
 #include "thirdparty/catch2/catch_amalgamated.hpp"
 #ifdef CATCH_CONFIG_RUNNER
 #include "thirdparty/catch2/catch_amalgamated.cpp"
