@@ -103,7 +103,7 @@ distribution.
 #if defined(_WIN64)
 	#define TIXML_FSEEK _fseeki64
 	#define TIXML_FTELL _ftelli64
-#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || (__CYGWIN__)
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__CYGWIN__)
 	#define TIXML_FSEEK fseeko
 	#define TIXML_FTELL ftello
 #elif defined(__ANDROID__) 
@@ -114,9 +114,6 @@ distribution.
         #define TIXML_FSEEK fseeko
         #define TIXML_FTELL ftello
     #endif
-#elif defined(__unix__) && defined(__x86_64__)
-	#define TIXML_FSEEK fseeko64
-	#define TIXML_FTELL ftello64
 #else
 	#define TIXML_FSEEK fseek
 	#define TIXML_FTELL ftell
@@ -715,7 +712,7 @@ bool XMLUtil::ToUnsigned64(const char* str, uint64_t* value) {
 }
 
 
-char* XMLDocument::Identify( char* p, XMLNode** node )
+char* XMLDocument::Identify( char* p, XMLNode** node, bool first )
 {
     TIXMLASSERT( node );
     TIXMLASSERT( p );
@@ -767,9 +764,19 @@ char* XMLDocument::Identify( char* p, XMLNode** node )
         p += dtdHeaderLen;
     }
     else if ( XMLUtil::StringEqual( p, elementHeader, elementHeaderLen ) ) {
-        returnNode =  CreateUnlinkedNode<XMLElement>( _elementPool );
-        returnNode->_parseLineNum = _parseCurLineNum;
-        p += elementHeaderLen;
+
+        // Preserve whitespace pedantically before closing tag, when it's immediately after opening tag
+        if (WhitespaceMode() == PEDANTIC_WHITESPACE && first && p != start && *(p + elementHeaderLen) == '/') {
+            returnNode = CreateUnlinkedNode<XMLText>(_textPool);
+            returnNode->_parseLineNum = startLine;
+            p = start;	// Back it up, all the text counts.
+            _parseCurLineNum = startLine;
+        }
+        else {
+            returnNode = CreateUnlinkedNode<XMLElement>(_elementPool);
+            returnNode->_parseLineNum = _parseCurLineNum;
+            p += elementHeaderLen;
+        }
     }
     else {
         returnNode = CreateUnlinkedNode<XMLText>( _textPool );
@@ -820,6 +827,34 @@ XMLNode::~XMLNode()
     if ( _parent ) {
         _parent->Unlink( this );
     }
+}
+
+// ChildElementCount was originally suggested by msteiger on the sourceforge page for TinyXML and modified by KB1SPH for TinyXML-2.
+
+int XMLNode::ChildElementCount(const char *value) const {
+	int count = 0;
+
+	const XMLElement *e = FirstChildElement(value);
+
+	while (e) {
+		e = e->NextSiblingElement(value);
+		count++;
+	}
+
+	return count;
+}
+
+int XMLNode::ChildElementCount() const {
+	int count = 0;
+
+	const XMLElement *e = FirstChildElement();
+
+	while (e) {
+		e = e->NextSiblingElement();
+		count++;
+	}
+
+	return count;
 }
 
 const char* XMLNode::Value() const
@@ -1070,14 +1105,16 @@ char* XMLNode::ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr )
 	if (_document->Error())
 		return 0;
 
+	bool first = true;
 	while( p && *p ) {
         XMLNode* node = 0;
 
-        p = _document->Identify( p, &node );
+        p = _document->Identify( p, &node, first );
         TIXMLASSERT( p );
         if ( node == 0 ) {
             break;
         }
+        first = false;
 
        const int initialLineNum = node->_parseLineNum;
 
