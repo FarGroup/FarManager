@@ -4199,9 +4199,9 @@ TEST_CASE("viewer.hex_mode_bytes_from_line_width")
 {
 	for (const auto CharSize : { 1, 2 })
 	{
-		for (const auto& Bytes : std::views::iota(8, 260))
+		for (const auto Bytes: std::views::iota(8, 260))
 		{
-			for (const auto& LineWidth : std::views::iota(hex_mode_line_width_from_bytes(Bytes, CharSize), hex_mode_line_width_from_bytes(Bytes + 1, CharSize)))
+			for (const auto LineWidth: std::views::iota(hex_mode_line_width_from_bytes(Bytes, CharSize), hex_mode_line_width_from_bytes(Bytes + 1, CharSize)))
 			{
 				REQUIRE(Bytes == hex_mode_bytes_from_line_width(LineWidth, CharSize));
 			}
@@ -4228,7 +4228,7 @@ TEST_CASE("viewer.hex_mode_byte_from_column")
 {
 	for (const auto CharSize : { 1, 2 })
 	{
-		for (const auto& Column : std::views::iota(0, 100))
+		for (const auto Column: std::views::iota(0, 100))
 		{
 			REQUIRE(HexModeByteFromColumn16BytesFixed(Column, CharSize) == hex_mode_byte_from_column(Column, 16, CharSize));
 		}
