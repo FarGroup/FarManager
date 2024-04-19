@@ -49,6 +49,7 @@ WARNING_DISABLE_MSC(5220) // 'name': a non-static data member with a volatile qu
 WARNING_DISABLE_MSC(5267) // definition of implicit assignment operator for 'class' is deprecated because it has a user-provided destructor
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 WARNING_DISABLE_GCC("-Wdouble-promotion")
+WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 WARNING_DISABLE_GCC("-Wredundant-decls")
 WARNING_DISABLE_GCC("-Wsubobject-linkage")
 WARNING_DISABLE_CLANG("-Weverything")
