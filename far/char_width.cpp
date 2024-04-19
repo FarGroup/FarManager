@@ -85,7 +85,7 @@ namespace
 	};
 
 	// These mappings are based on src\types\CodepointWidthDetector.cpp from Windows Terminal.
-	// Generated on 10/25/2020 7:32:04 AM (UTC) from Unicode 13.0.0.
+	// Generated on 2022-11-15 19:54:23Z from Unicode 15.0.0.
 
 	// Note: unlike Terminal, we don't use any overrides since we don't control any drawing code
 	// and have no other choice but to do as the Romans do.
@@ -326,8 +326,13 @@ namespace
 		{ U'\U00017000', U'\U000187F7', cpw::wide      },
 		{ U'\U00018800', U'\U00018CD5', cpw::wide      },
 		{ U'\U00018D00', U'\U00018D08', cpw::wide      },
-		{ U'\U0001B000', U'\U0001B11E', cpw::wide      },
+		{ U'\U0001AFF0', U'\U0001AFF3', cpw::wide      },
+		{ U'\U0001AFF5', U'\U0001AFFB', cpw::wide      },
+		{ U'\U0001AFFD', U'\U0001AFFE', cpw::wide      },
+		{ U'\U0001B000', U'\U0001B122', cpw::wide      },
+		{ U'\U0001B132', U'\U0001B132', cpw::wide      },
 		{ U'\U0001B150', U'\U0001B152', cpw::wide      },
+		{ U'\U0001B155', U'\U0001B155', cpw::wide      },
 		{ U'\U0001B164', U'\U0001B167', cpw::wide      },
 		{ U'\U0001B170', U'\U0001B2FB', cpw::wide      },
 		{ U'\U0001F004', U'\U0001F004', cpw::wide      },
@@ -367,21 +372,21 @@ namespace
 		{ U'\U0001F6CC', U'\U0001F6CC', cpw::wide      },
 		{ U'\U0001F6D0', U'\U0001F6D2', cpw::wide      },
 		{ U'\U0001F6D5', U'\U0001F6D7', cpw::wide      },
+		{ U'\U0001F6DC', U'\U0001F6DF', cpw::wide      },
 		{ U'\U0001F6EB', U'\U0001F6EC', cpw::wide      },
 		{ U'\U0001F6F4', U'\U0001F6FC', cpw::wide      },
 		{ U'\U0001F7E0', U'\U0001F7EB', cpw::wide      },
+		{ U'\U0001F7F0', U'\U0001F7F0', cpw::wide      },
 		{ U'\U0001F90C', U'\U0001F93A', cpw::wide      },
 		{ U'\U0001F93C', U'\U0001F945', cpw::wide      },
-		{ U'\U0001F947', U'\U0001F978', cpw::wide      },
-		{ U'\U0001F97A', U'\U0001F9CB', cpw::wide      },
-		{ U'\U0001F9CD', U'\U0001F9FF', cpw::wide      },
-		{ U'\U0001FA70', U'\U0001FA74', cpw::wide      },
-		{ U'\U0001FA78', U'\U0001FA7A', cpw::wide      },
-		{ U'\U0001FA80', U'\U0001FA86', cpw::wide      },
-		{ U'\U0001FA90', U'\U0001FAA8', cpw::wide      },
-		{ U'\U0001FAB0', U'\U0001FAB6', cpw::wide      },
-		{ U'\U0001FAC0', U'\U0001FAC2', cpw::wide      },
-		{ U'\U0001FAD0', U'\U0001FAD6', cpw::wide      },
+		{ U'\U0001F947', U'\U0001F9FF', cpw::wide      },
+		{ U'\U0001FA70', U'\U0001FA7C', cpw::wide      },
+		{ U'\U0001FA80', U'\U0001FA88', cpw::wide      },
+		{ U'\U0001FA90', U'\U0001FABD', cpw::wide      },
+		{ U'\U0001FABF', U'\U0001FAC5', cpw::wide      },
+		{ U'\U0001FACE', U'\U0001FADB', cpw::wide      },
+		{ U'\U0001FAE0', U'\U0001FAE8', cpw::wide      },
+		{ U'\U0001FAF0', U'\U0001FAF8', cpw::wide      },
 		{ U'\U00020000', U'\U0002FFFD', cpw::wide      },
 		{ U'\U00030000', U'\U0003FFFD', cpw::wide      },
 		{ U'\U000E0100', U'\U000E01EF', cpw::ambiguous },
