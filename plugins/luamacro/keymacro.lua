@@ -5,7 +5,7 @@ local Msg, ErrMsg = Shared.Msg, Shared.ErrMsg
 local MacroStep = Shared.MacroStep
 local pack, loadmacro, utils = Shared.pack, Shared.loadmacro, Shared.utils
 local MacroCallFar = Shared.MacroCallFar
-local FarMacroCallToLua = Shared.FarMacroCallToLua
+local MacroCallToLua = Shared.MacroCallToLua
 local GetLastParseError = Shared.GetLastParseError
 Shared = nil
 
@@ -279,7 +279,7 @@ local function GetInputFromMacro()
     local value, handle = macro:GetValue(), macro:GetHandle()
     local r1,r2
     if type(value) == "userdata" then  -- Plugin.Call/SyncCall
-      r1,r2 = MacroStep(handle, FarMacroCallToLua(value))
+      r1,r2 = MacroStep(handle, MacroCallToLua(value))
     elseif type(value) == "table" then -- mf.acall, eval
       r1,r2 = MacroStep(handle, unpack(value,1,value.n))
     elseif value ~= nil then           -- Plugin.Menu/Config/Command, ...

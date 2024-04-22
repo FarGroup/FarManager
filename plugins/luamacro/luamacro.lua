@@ -482,7 +482,8 @@ function export.Open (OpenFrom, guid, ...)
       return far.MacroPost([[far.Message"macropost"]])
     end
 
-  else
+  else -- OPEN_DIALOG, OPEN_EDITOR, OPEN_FILEPANEL, OPEN_LEFTDISKMENU,
+       -- OPEN_PLUGINSMENU, OPEN_RIGHTDISKMENU, OPEN_VIEWER
     local items = utils.GetMenuItems()
     if items[guid] then
       local mod, obj = items[guid].action(OpenFrom, ...)
@@ -514,7 +515,7 @@ local function Init()
     yieldcall         = yieldcall,
   }
   Shared.MacroCallFar, far.MacroCallFar = far.MacroCallFar, nil
-  Shared.FarMacroCallToLua, far.FarMacroCallToLua = far.FarMacroCallToLua, nil
+  Shared.MacroCallToLua, far.MacroCallToLua = far.MacroCallToLua, nil
 
   local ModuleDir = far.PluginStartupInfo().ModuleDir
   local function RunPluginFile (fname, param)

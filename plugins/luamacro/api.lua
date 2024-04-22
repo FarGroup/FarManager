@@ -335,7 +335,7 @@ Plugin = {
 
   SyncCall = function(...)
     local v = Shared.keymacro.CallPlugin(Shared.pack(...), false)
-    if type(v)=="userdata" then return Shared.FarMacroCallToLua(v) else return v end
+    if type(v)=="userdata" then return Shared.MacroCallToLua(v) else return v end
   end
 }
 --------------------------------------------------------------------------------

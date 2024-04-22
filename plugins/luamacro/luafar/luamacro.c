@@ -223,7 +223,7 @@ int far_MacroCallFar(lua_State *L)
 	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
 }
 
-int far_FarMacroCallToLua(lua_State *L)
+int far_MacroCallToLua(lua_State *L)
 {
   if (lua_type(L,1) == LUA_TLIGHTUSERDATA)
 	{
