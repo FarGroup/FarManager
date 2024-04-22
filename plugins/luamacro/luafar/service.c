@@ -6557,26 +6557,39 @@ const luaL_Reg far_funcs[] =
 	{NULL, NULL}
 };
 
-const char far_Dialog[] =
-"function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n\
-  local hDlg = far.DialogInit(Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n\
-  if hDlg == nil then return nil end\n\
-\n\
-  local ret = far.DialogRun(hDlg)\n\
-  for i, item in ipairs(Items) do\n\
-    local newitem = far.GetDlgItem(hDlg, i)\n\
-    if type(item[6]) == 'table' then\n\
-      local pos = far.SendDlgMessage(hDlg, 'DM_LISTGETCURPOS', i, 0)\n\
-      item[6].SelectIndex = pos.SelectPos\n\
-    else\n\
-      item[6] = newitem[6]\n\
-    end\n\
-    item[10] = newitem[10]\n\
-  end\n\
-\n\
-  far.DialogFree(hDlg)\n\
-  return ret\n\
-end";
+static const char far_Dialog[] =
+"function far.Dialog (Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n"
+  "local hDlg = far.DialogInit(Id,X1,Y1,X2,Y2,HelpTopic,Items,Flags,DlgProc,Param)\n"
+  "if hDlg == nil then return nil end\n"
+
+  "local ret = far.DialogRun(hDlg)\n"
+  "for i, item in ipairs(Items) do\n"
+    "local newitem = far.GetDlgItem(hDlg, i)\n"
+    "if type(item[6]) == 'table' then\n"
+      "local pos = far.SendDlgMessage(hDlg, 'DM_LISTGETCURPOS', i, 0)\n"
+      "item[6].SelectIndex = pos.SelectPos\n"
+    "else\n"
+      "item[6] = newitem[6]\n"
+    "end\n"
+    "item[10] = newitem[10]\n"
+  "end\n"
+
+  "far.DialogFree(hDlg)\n"
+  "return ret\n"
+"end";
+
+static const char utf8_reformat[] =
+"function utf8.reformat (patt, ...)\n"
+  "local args = { ... }\n"
+  "local function Subst (i, m, f)\n"
+    "i = tonumber(i)\n"
+    "f = f:match('[^s]')\n"
+    "return args[i] and ('%' .. m .. (f or 's')):format(f and args[i] or tostring(args[i])) or ''\n"
+  "end\n"
+
+  "patt = patt:gsub('%f[%%{]{(%d+):?(%-?%d*%.?%d*)([A-Za-z]?)}', Subst):gsub('%%{', '{')\n"
+  "return patt:format(...)\n"
+"end";
 
 static int luaopen_far(lua_State *L)
 {
@@ -6747,6 +6760,8 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_pushvalue(L, -4);                       //+5
 	lua_setfield(L, -2, "__index");	            //+4
 	lua_pop(L, 4);                              //+0
+	// add utf8.reformat
+	(void) luaL_dostring(L, utf8_reformat);
 
 	// unicode.utf8 = utf8 (for backward compatibility;)
 	lua_newtable(L);
@@ -6823,6 +6838,9 @@ static void LoadExtraLibraries(lua_State *L)
 	lua_pushcfunction(L, far_FileTimeResolution);
 	lua_setfield(L, -2, "FileTimeResolution");
 	lua_setglobal(L, "luafar");
+
+	// add utf8.reformat
+	(void) luaL_dostring(L, utf8_reformat);
 
 	// getmetatable("").__index = utf8
 	lua_pushliteral(L, "");
