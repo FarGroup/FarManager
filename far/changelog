@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-04-23 23:43:58+01:00 - build 6314
+
+1. Show elevation status in InfoPanel.
+
+2. Exception handling improvements.
+
+3. Fix mapping of OEM keys to US keyboard and pass current layout to mapping functions.
+
+--------------------------------------------------------------------------------
 drkns 2024-04-19 18:28:14+01:00 - build 6313
 
 1. New versions of fmt, tinyxml2, Catch2 and character width mappings.
