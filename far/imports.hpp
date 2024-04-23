@@ -134,6 +134,7 @@ public: \
 	DEFINE_IMPORT_FUNCTION(kernel32, le, nullptr, WINAPI,  PVOID,   AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler); // XP
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  ULONG,   RemoveVectoredExceptionHandler, PVOID Handle); // XP
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // XP
+	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetModuleHandleExW, DWORD Flags, LPCWSTR ModuleName, HMODULE* Module);
 	DEFINE_IMPORT_FUNCTION(kernel32, le, handle,  WINAPI,  HANDLE,  FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags); // 2k3
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData); // 2k3
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength); // 2k3

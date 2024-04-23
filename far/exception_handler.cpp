@@ -198,6 +198,7 @@ static constexpr NTSTATUS
 
 static const auto DoubleSeparator = L"======================================================================"sv;
 static const auto Separator       = L"----------------------------------------------------------------------"sv;
+static const auto ColumnSeparator = L" | "sv;
 
 static void make_header(string_view const Message, function_ref<void(string_view)> const Consumer)
 {
@@ -384,12 +385,35 @@ static bool write_minidump(const exception_context& Context, string_view const F
 static void read_modules(std::span<HMODULE const> const Modules, string& To, string_view const Eol)
 {
 	string Name;
+	os::version::file_version FileVersion;
+
 	for (const auto& i: Modules)
 	{
-		if (os::fs::get_module_file_name({}, i, Name))
-			append(To, Name, L' ', os::version::get_file_version(Name), Eol);
+		To += str(static_cast<void const*>(i));
+
+		if (!os::fs::get_module_file_name({}, i, Name))
+		{
+			append(To, ColumnSeparator, os::last_error().to_string());
+			continue;
+		}
+
+		append(To, ColumnSeparator, Name);
+
+		if (!FileVersion.read(Name))
+		{
+			append(To, ColumnSeparator, os::last_error().Win32ErrorStr());
+			continue;
+		}
+
+		if (const auto Description = FileVersion.description(); !Description.empty())
+			append(To, ColumnSeparator, Description);
+
+		if (const auto Version = FileVersion.version(); !Version.empty())
+			append(To, ColumnSeparator, Version);
 		else
-			append(To, str(static_cast<void const*>(i)), Eol);
+			append(To, ColumnSeparator, os::last_error().Win32ErrorStr());
+
+		To += Eol;
 	}
 }
 

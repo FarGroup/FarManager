@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "map_file.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -766,6 +767,18 @@ namespace os::debug::symbols
 		return { Buffer.FileName, Buffer.LineNumber, Displacement };
 	}
 
+	static HMODULE module_from_address(uintptr_t const Address)
+	{
+		if (HMODULE Module; imports.GetModuleHandleExW && imports.GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, std::bit_cast<LPCWSTR>(Address), &Module))
+			return Module;
+
+		MEMORY_BASIC_INFORMATION mbi;
+		if (VirtualQuery(std::bit_cast<void*>(Address), &mbi, sizeof(mbi)))
+			return std::bit_cast<HMODULE>(mbi.AllocationBase);
+
+		return {};
+	}
+
 	static void handle_frame(
 		HANDLE const Process,
 		string_view const ModuleName,
@@ -782,7 +795,17 @@ namespace os::debug::symbols
 		Module->SizeOfStruct = static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8));
 
 		if (!imports.SymGetModuleInfoW64 || !imports.SymGetModuleInfoW64(Process, Frame.Address, &*Module))
-			Module.reset();
+		{
+			if (const auto ModuleFromAddress = module_from_address(Frame.Address))
+			{
+				Module->BaseOfImage = std::bit_cast<uintptr_t>(ModuleFromAddress);
+
+				if (string ModuleFromAddressFileName; fs::get_module_file_name({}, ModuleFromAddress, ModuleFromAddressFileName))
+					xwcsncpy(Module->ImageName, ModuleFromAddressFileName.data(), std::size(Module->ImageName));
+			}
+			else
+				Module.reset();
+		}
 
 		const auto BaseAddress = [&]() -> uintptr_t
 		{

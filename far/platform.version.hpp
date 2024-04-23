@@ -52,6 +52,9 @@ namespace os::version
 		wchar_t const* get_string(string_view Value) const;
 		VS_FIXEDFILEINFO const* get_fixed_info() const;
 
+		string version() const;
+		string_view description() const;
+
 	private:
 		string m_BlockPath;
 		std::vector<std::byte> m_Buffer;

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.reg.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -95,6 +96,28 @@ namespace os::version
 		return get_value<VS_FIXEDFILEINFO>(m_Buffer, L"\\"sv);
 	}
 
+	string file_version::version() const
+	{
+		if (const auto Str = get_string(L"FileVersion"sv))
+			return string(Str);
+
+		const auto FixedInfo = get_fixed_info();
+		if (!FixedInfo)
+			return {};
+
+		return far::format(L"{}.{}.{}.{}"sv,
+			extract_integer<WORD, 1>(FixedInfo->dwFileVersionMS),
+			extract_integer<WORD, 0>(FixedInfo->dwFileVersionMS),
+			extract_integer<WORD, 1>(FixedInfo->dwFileVersionLS),
+			extract_integer<WORD, 0>(FixedInfo->dwFileVersionLS)
+		);
+	}
+
+	string_view file_version::description() const
+	{
+		return NullToEmpty(get_string(L"FileDescription"sv));
+	}
+
 
 	template<DWORD... Components>
 	static unsigned long long condition_mask(DWORD const Operation)
@@ -144,19 +167,10 @@ namespace os::version
 		if (!Version.read(Name))
 			return last_error().Win32ErrorStr();
 
-		if (const auto Str = Version.get_string(L"FileVersion"sv))
+		if (auto Str = Version.version(); !Str.empty())
 			return Str;
 
-		const auto FixedInfo = Version.get_fixed_info();
-		if (!FixedInfo)
-			return last_error().Win32ErrorStr();
-
-		return far::format(L"{}.{}.{}.{}"sv,
-			extract_integer<WORD, 1>(FixedInfo->dwFileVersionMS),
-			extract_integer<WORD, 0>(FixedInfo->dwFileVersionMS),
-			extract_integer<WORD, 1>(FixedInfo->dwFileVersionLS),
-			extract_integer<WORD, 0>(FixedInfo->dwFileVersionLS)
-		);
+		return last_error().Win32ErrorStr();
 	}
 
 	static bool get_os_version(OSVERSIONINFOEX& Info)

@@ -193,7 +193,7 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 
 	uintptr_t BaseAddress{};
 
-	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	for (const auto& i: enum_lines(Stream, encoding::codepage::ansi()))
 	{
 		if (i.Str.empty())
 			continue;
