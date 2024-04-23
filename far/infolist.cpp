@@ -429,8 +429,8 @@ void InfoList::DisplayObject()
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
 		/* #2.2 - disk info: size */
-		if (unsigned long long TotalSize, UserFree; os::fs::get_disk_size(m_CurDir, &TotalSize, {}, &UserFree))
-			PrintMetric(lng::MInfoDiskSpace, TotalSize, UserFree);
+		if (unsigned long long UserTotal, UserFree; os::fs::get_disk_size(m_CurDir, &UserTotal, {}, &UserFree))
+			PrintMetric(lng::MInfoDiskSpace, UserTotal, UserFree);
 
 		/* #4 - disk info: label & SN */
 		GotoXY(m_Where.left + 2, CurY++);

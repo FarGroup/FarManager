@@ -2285,16 +2285,16 @@ namespace os::fs
 		return false;
 	}
 
-	bool get_disk_size(const string_view Path, unsigned long long* const TotalSize, unsigned long long* const TotalFree, unsigned long long* const UserFree)
+	bool get_disk_size(const string_view Path, unsigned long long* const UserTotal, unsigned long long* const TotalFree, unsigned long long* const UserFree)
 	{
 		NTPath strPath(Path);
 		AddEndSlash(strPath);
 
-		if (low::get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree))
+		if (low::get_disk_free_space(strPath.c_str(), UserFree, UserTotal, TotalFree))
 			return true;
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
-			return elevation::instance().get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree);
+			return elevation::instance().get_disk_free_space(strPath.c_str(), UserFree, UserTotal, TotalFree);
 
 		return false;
 	}

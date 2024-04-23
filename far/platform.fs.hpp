@@ -612,7 +612,7 @@ namespace os::fs
 	bool move_to_recycle_bin(string_view Object);
 
 	[[nodiscard]]
-	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
+	bool get_disk_size(string_view Path, unsigned long long* UserTotal, unsigned long long* TotalFree, unsigned long long* UserFree);
 
 	[[nodiscard]]
 	bool GetFileTimeSimple(string_view FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);

@@ -802,8 +802,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				if (DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 				{
-					unsigned long long TotalSize = 0, UserFree = 0;
-					if (os::fs::get_disk_size(RootDirectory, &TotalSize, nullptr, &UserFree))
+					unsigned long long UserTotal = 0, UserFree = 0;
+					if (os::fs::get_disk_size(RootDirectory, &UserTotal, {}, &UserFree))
 					{
 						const auto SizeFlags = DriveMode & DRIVE_SHOW_SIZE?
 							//размер как минимум в мегабайтах
@@ -816,7 +816,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 							return trim(FileSizeToStr(Size, 9, SizeFlags));
 						};
 
-						NewItem.TotalSize = FormatSize(TotalSize);
+						NewItem.TotalSize = FormatSize(UserTotal);
 						NewItem.FreeSize = FormatSize(UserFree);
 					}
 				}
