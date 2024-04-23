@@ -318,6 +318,12 @@ void InitKeysArray()
 				{
 					if (!KeyToVKey[idx])
 						KeyToVKey[idx] = VK + j * 0x100;
+
+					// VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
+					// Имея мапирование юникод -> VK строим обратное мапирование
+					// VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
+					if (idx < 0x80 && !VKeyToASCII[VK + j * 0x100])
+						VKeyToASCII[VK + j * 0x100] = upper(idx);
 				}
 			}
 		}
@@ -330,18 +336,6 @@ void InitKeysArray()
 		if (!KeyToVKey[Local])
 			KeyToVKey[Local] = KeyToVKey[English];
 	});
-
-	//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
-	//***********
-	//Имея мапирование юникод -> VK строим обратное мапирование
-	//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-	for (const auto i: std::views::iota(1, 0x80))
-	{
-		const auto x = KeyToVKey[i];
-
-		if (x && !VKeyToASCII[x])
-			VKeyToASCII[x] = upper(i);
-	}
 }
 
 //Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках
@@ -425,10 +419,10 @@ void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec)
 		Rec->Event.KeyEvent.bKeyDown=1;
 		Rec->Event.KeyEvent.wRepeatCount=1;
 		Rec->Event.KeyEvent.wVirtualKeyCode=Key.VirtualKeyCode;
-		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
 
-		//BUGBUG
-		Rec->Event.KeyEvent.uChar.UnicodeChar=MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR);
+		const auto Layout = console.GetKeyboardLayout();
+		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode, MAPVK_VK_TO_VSC, Layout);
+		Rec->Event.KeyEvent.uChar.UnicodeChar = MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR, Layout);
 
 		Rec->Event.KeyEvent.dwControlKeyState=Key.ControlKeyState;
 	}
@@ -1564,7 +1558,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey && FKey < WCHAR_MAX)
 		{
-			short Vk = VkKeyScan(static_cast<wchar_t>(FKey));
+			short Vk = VkKeyScanEx(static_cast<wchar_t>(FKey), console.GetKeyboardLayout());
 			if (Vk == -1)
 			{
 				for (const auto& i: Layout())
@@ -1696,7 +1690,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 					{
 						// При нажатии RCtrl и RAlt в консоль приходит VK_CONTROL и VK_MENU а не их правые аналоги
 						Rec->Event.KeyEvent.wVirtualKeyCode = (VirtKey==VK_RCONTROL)?VK_CONTROL:(VirtKey==VK_RMENU)?VK_MENU:VirtKey;
-						Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
+						Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode, MAPVK_VK_TO_VSC, console.GetKeyboardLayout());
 					}
 					else
 					{
@@ -1867,31 +1861,43 @@ static int GetDirectlyMappedKey(int VKey)
 }
 
 // These VK_* map to different characters if Shift (and only Shift) is pressed
-static int GetMappedCharacter(int VKey)
+static int GetMappedCharacter(int VKey, int const ScanCode)
 {
+	// VK_OEM_* are mapped to different physical keys on different national keyboards.
+	// We map them to US keyboard characters via scan codes to ensure consistency.
+	// The key names will likely be incorrect for, say, German keyboards,
+	// but at least default actions and macros will work regardless of the input language.
 	switch (VKey)
 	{
-	case VK_OEM_PERIOD: return KEY_DOT;
-	case VK_OEM_COMMA: return KEY_COMMA;
-	case VK_OEM_MINUS: return '-';
-	case VK_OEM_PLUS: return '=';
-
-	// BUGBUG hard-coded for the US standard keyboard
-	case VK_OEM_1: return KEY_SEMICOLON;
-	case VK_OEM_2: return KEY_SLASH;
-	case VK_OEM_3: return '`';
-	case VK_OEM_4: return KEY_BRACKET;
-	case VK_OEM_5: return KEY_BACKSLASH;
-	case VK_OEM_6: return KEY_BACKBRACKET;
-	case VK_OEM_7: return '\'';
-
-	// BUGBUG does not exist in the US standard keyboard,
-	// but does exist in some others (e.g. the UK)
-	// '`' might not always be accurate, but it's better than nothing
-	case VK_OEM_8: return '`';
-
-	case VK_OEM_102: return KEY_BACKSLASH; // <> \|
-
+	case VK_OEM_PERIOD:
+	case VK_OEM_COMMA:
+	case VK_OEM_MINUS:
+	case VK_OEM_PLUS:
+	case VK_OEM_1:
+	case VK_OEM_2:
+	case VK_OEM_3:
+	case VK_OEM_4:
+	case VK_OEM_5:
+	case VK_OEM_6:
+	case VK_OEM_7:
+	case VK_OEM_8:
+	case VK_OEM_102:
+		switch (ScanCode)
+		{
+		case 12: return '-';
+		case 13: return '=';
+		case 26: return KEY_BRACKET;
+		case 27: return KEY_BACKBRACKET;
+		case 39: return KEY_SEMICOLON;
+		case 40: return '\'';
+		case 41: return '`';
+		case 43: return KEY_BACKSLASH;
+		case 51: return KEY_COMMA;
+		case 52: return KEY_DOT;
+		case 53: return KEY_SLASH;
+		case 86: return KEY_BACKSLASH;
+		default: return 0;
+		}
 	default: return 0;
 	}
 }
@@ -2262,7 +2268,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 	if (in_closed_range(L'0',  KeyCode, L'9') || in_closed_range(L'A', KeyCode, L'Z'))
 		return Modif | KeyCode;
 
-	if (const auto OemKey = GetMappedCharacter(KeyCode))
+	if (const auto OemKey = GetMappedCharacter(KeyCode, ScanCode))
 	{
 		return Modif + OemKey;
 	}
