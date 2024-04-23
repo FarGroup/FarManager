@@ -278,6 +278,10 @@ void InfoList::DisplayObject()
 			PrintText(lng::MInfoUserAccessLevel);
 			PrintInfo(LabelId);
 		}
+
+		GotoXY(m_Where.left + 2, CurY++);
+		PrintText(lng::MInfoUserAccessElevated);
+		PrintInfo(os::security::is_admin()? lng::MYes : lng::MNo);
 	}
 
 	string SectionTitle;

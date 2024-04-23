@@ -12685,6 +12685,20 @@ upd:"Unknown"
 "Невядома"
 upd:"Unknown"
 
+MInfoUserAccessElevated
+upd:"Elevated"
+"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+upd:"Elevated"
+
 MInfoDiskTitle
 "Диск"
 "Disk"
