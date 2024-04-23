@@ -6697,11 +6697,6 @@ void LF_RunLuafarInit(lua_State* L)
 	}
 }
 
-// This exported function is needed for old builds of the plugins.
-void LF_ProcessEnvVars(lua_State *L, const wchar_t* aEnvPrefix, const wchar_t* PluginDir)
-{
-}
-
 static const luaL_Reg lualibs[] =
 {
 #if LUA_VERSION_NUM == 501
