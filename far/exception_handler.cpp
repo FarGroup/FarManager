@@ -393,7 +393,7 @@ static void read_modules(std::span<HMODULE const> const Modules, string& To, str
 
 		if (!os::fs::get_module_file_name({}, i, Name))
 		{
-			append(To, ColumnSeparator, os::last_error().to_string());
+			append(To, ColumnSeparator, os::last_error().to_string(), Eol);
 			continue;
 		}
 
@@ -401,7 +401,7 @@ static void read_modules(std::span<HMODULE const> const Modules, string& To, str
 
 		if (!FileVersion.read(Name))
 		{
-			append(To, ColumnSeparator, os::last_error().Win32ErrorStr());
+			append(To, ColumnSeparator, os::last_error().Win32ErrorStr(), Eol);
 			continue;
 		}
 
