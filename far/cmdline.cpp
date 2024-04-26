@@ -1127,7 +1127,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	const auto FindKey = [&](string_view const Where, wchar_t const Key)
 	{
 		const wchar_t Param[] = { L'/', Key, {} };
-		return Where.starts_with(Param) && (Where.size() == 2 || Where[2] == L' ');
+		return starts_with_icase(Where, Param) && (Where.size() == 2 || Where[2] == L' ');
 	};
 
 	if (Command.size() == 2 && Command[1] == L':' && Arguments.empty())
