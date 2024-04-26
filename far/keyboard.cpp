@@ -422,7 +422,9 @@ void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec)
 
 		const auto Layout = console.GetKeyboardLayout();
 		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode, MAPVK_VK_TO_VSC, Layout);
-		Rec->Event.KeyEvent.uChar.UnicodeChar = MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR, Layout);
+		// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mapvirtualkeyexw
+		// an unshifted character value in the low order word of the return value
+		Rec->Event.KeyEvent.uChar.UnicodeChar = extract_integer<wchar_t, 0>(MapVirtualKeyEx(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR, Layout));
 
 		Rec->Event.KeyEvent.dwControlKeyState=Key.ControlKeyState;
 	}
