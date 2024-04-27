@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+shmuel 2024-04-27 16:37:38+03:00 - build 6317
+
+1. Macro-API: add the following function to mf table:
+              fileassociations, filehighlight, filepanelmodes, foldershortcuts.
+
+--------------------------------------------------------------------------------
 drkns 2024-04-26 19:16:40+01:00 - build 6316
 
 1. Correction of 6274.

@@ -447,6 +447,7 @@ public:
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 	void SetSearchColumns(string_view Columns, string_view Widths);
+	void SetFilePanelModes();
 
 	struct SortingOptions
 	{
@@ -1067,7 +1068,6 @@ private:
 	static void MaskGroupsSettings();
 	void AutoCompleteSettings();
 	void TreeSettings();
-	void SetFilePanelModes();
 	void SetViewSettings(size_t Index, PanelViewSettings&& Data);
 	void AddViewSettings(size_t Index, PanelViewSettings&& Data);
 	void DeleteViewSettings(size_t Index);

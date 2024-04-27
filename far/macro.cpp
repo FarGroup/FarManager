@@ -77,6 +77,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "string_sort.hpp"
 #include "tvar.hpp"
+#include "filetype.hpp"
+#include "hilight.hpp"
+#include "shortcuts.hpp"
 #include "global.hpp"
 
 // Platform:
@@ -829,6 +832,34 @@ int KeyMacro::GetKey()
 
 			case MPRT_USERMENU:
 				ShowUserMenu(mpr.Count,mpr.Values);
+				break;
+
+			case MPRT_FOLDERSHORTCUTS:
+				if (IsPanelsArea(m_Area))
+				{
+					Shortcuts::Configure();
+				}
+				break;
+
+			case MPRT_FILEASSOCIATIONS:
+				if (IsPanelsArea(m_Area))
+				{
+					EditFileTypes();
+				}
+				break;
+
+			case MPRT_FILEHIGHLIGHT:
+				if (IsPanelsArea(m_Area))
+				{
+					Global->CtrlObject->HiFiles->HiEdit(0);
+				}
+				break;
+
+			case MPRT_FILEPANELMODES:
+				if (IsPanelsArea(m_Area))
+				{
+					Global->Opt->SetFilePanelModes();
+				}
 				break;
 		}
 	}

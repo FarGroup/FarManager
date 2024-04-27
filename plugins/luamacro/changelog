@@ -1,3 +1,8 @@
+shmuel 2024-04-27 16:40:25+03:00 - build 827
+
+1. Macro-API: add the following function to mf table:
+              fileassociations, filehighlight, filepanelmodes, foldershortcuts.
+
 shmuel 2024-04-23 13:37:42+03:00 - build 826
 
 1. Refactoring.

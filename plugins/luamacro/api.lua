@@ -64,6 +64,11 @@ mf = {
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
+mf.fileassociations = function() yieldcall(F.MPRT_FILEASSOCIATIONS) end
+mf.filehighlight    = function() yieldcall(F.MPRT_FILEHIGHLIGHT) end
+mf.filepanelmodes   = function() yieldcall(F.MPRT_FILEPANELMODES) end
+mf.foldershortcuts  = function() yieldcall(F.MPRT_FOLDERSHORTCUTS) end
+
 mf.iif = function(Expr, res1, res2)
   if Expr and Expr~=0 and Expr~="" then return res1 else return res2 end
 end
