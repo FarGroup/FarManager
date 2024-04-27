@@ -958,40 +958,44 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3923399518
+mtime=3923406901
 <article>
 #_**Properties:**
 #_  none.
 #_
 #_**Functions:**
-#_  abs                
-#_  `acall`            
-#_  `AddExitHandler`   
-#_  akey               
-#_  asc                
-#_  atoi               
-#_  beep               
-#_  chr                
-#_  clip               
-#_  date               
-#_  `deserialize`      
-#_  `EnumScripts`      
-#_  env                
-#_  `eval`             
-#_  `exit`             
-#_  fattr              
-#_  fexist             
-#_  float              
-#_  flock              
-#_  fmatch             
-#_  fsplit             
-#_  `GetMacroCopy`     
-#_  iif                
-#_  index              
-#_  int                
-#_  itoa               
-#_  key                
-#_  `Keys`             
+#_  abs
+#_  `acall`
+#_  `AddExitHandler`
+#_  akey
+#_  asc
+#_  atoi
+#_  beep
+#_  chr
+#_  clip
+#_  date
+#_  `deserialize`
+#_  `EnumScripts`
+#_  env
+#_  `eval`
+#_  `exit`
+#_  fattr
+#_  fexist
+#_  `fileassociations`
+#_  `filehighlighting`
+#_  `filepanelmodes`
+#_  float
+#_  flock
+#_  fmatch
+#_  `foldershortcuts`
+#_  fsplit
+#_  `GetMacroCopy`
+#_  iif
+#_  index
+#_  int
+#_  itoa
+#_  key
+#_  `Keys`
 #_  lcase
 #_  len
 #_  max
@@ -1023,6 +1027,10 @@ mtime=3923399518
 #_  xlat
 #_
 #_@@@
+#_[fileassociations]: 107.html
+#_[filehighlighting]: 108.html
+#_[filepanelmodes]: 109.html
+#_[foldershortcuts]: 110.html
 #_[acall]: 91.html
 #_[deserialize]: 104.html
 #_[EnumScripts]: 106.html
