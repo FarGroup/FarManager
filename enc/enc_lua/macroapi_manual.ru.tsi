@@ -952,46 +952,77 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3833367888
+mtime=3923399926
 <article>
-#_**Свойства:** нет.
+#_**Свойства:**
+#_  нет
 #_
-#_**Функции:**
-#_
-#_  abs                len
-#_  `acall`              max
-#_  `AddExitHandler`     `mdelete`
-#_  akey               min
-#_  asc                `mload`
-#_  atoi               mmode
-#_  beep               mod
-#_  chr                `msave`
-#_  clip               msgbox
-#_  date               `postmacro`
-#_  `deserialize`        print
-#_  `EnumScripts`        `printconsole`
-#_  env                prompt
-#_  `eval`               replace
-#_  `exit`               rindex
-#_  fattr              `serialize`
-#_  fexist             size2str
-#_  float              sleep
-#_  flock              string
-#_  fmatch             strpad
-#_  fsplit             strwrap
-#_  `GetMacroCopy`       substr
-#_  iif                testfolder
-#_  index              trim
-#_  int                ucase
-#_  itoa               `usermenu`
-#_  key                waitkey
-#_  `Keys`               xlat
+#_**Функции**
+#_  abs
+#_  `acall`
+#_  `AddExitHandler`
+#_  akey
+#_  asc
+#_  atoi
+#_  beep
+#_  chr
+#_  clip
+#_  date
+#_  `deserialize`
+#_  `EnumScripts`
+#_  env
+#_  `eval`
+#_  `exit`
+#_  fattr
+#_  fexist
+#_  `fileassociations`
+#_  `filehighlighting`
+#_  `filepanelmodes`
+#_  float
+#_  flock
+#_  fmatch
+#_  `foldershortcuts`
+#_  fsplit
+#_  `GetMacroCopy`
+#_  iif
+#_  index
+#_  int
+#_  itoa
+#_  key
+#_  `Keys`
 #_  lcase
+#_  len
+#_  max
+#_  `mdelete`
+#_  min
+#_  `mload`
+#_  mmode
+#_  mod
+#_  `msave`
+#_  msgbox
+#_  `postmacro`
+#_  print
+#_  `printconsole`
+#_  prompt
+#_  replace
+#_  rindex
+#_  `serialize`
+#_  size2str
+#_  sleep
+#_  string
+#_  strpad
+#_  strwrap
+#_  substr
+#_  testfolder
+#_  trim
+#_  ucase
+#_  `usermenu`
+#_  waitkey
+#_  xlat
 #_
 #_@@@
 #_[acall]: 91.html
 #_[deserialize]: 104.html
-#_[EnumScripts]: 106.html
 #_[eval]: 79.html
 #_[exit]: 61.html
 #_[GetMacroCopy]: 72.html
@@ -1004,49 +1035,50 @@ mtime=3833367888
 #_[AddExitHandler]: 100.html
 #_[printconsole]: 101.html
 #_[serialize]: 105.html
+#_[EnumScripts]: 106.html
 #_
-#_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
-#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
-#_{asc}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
-#_{atoi}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#atoi
-#_{beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
-#_{chr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
-#_{clip}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
-#_{date}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#date
-#_{env}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#env
-#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fattr
-#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
-#_{float}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#float
-#_{flock}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#flock
-#_{fmatch}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fmatch
-#_{fsplit}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fsplit
-#_{iif}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
-#_{index}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
-#_{int}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
-#_{itoa}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#itoa
-#_{key}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
-#_{lcase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
-#_{len}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
-#_{max}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#max
-#_{min}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#min
-#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
-#_{mod}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mod
-#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
-#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
-#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
-#_{replace}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#replace
-#_{rindex}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#rindex
-#_{size2str}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#size2str
-#_{sleep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#sleep
-#_{string}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#string
-#_{strpad}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strpad
-#_{strwrap}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strwrap
-#_{substr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#substr
-#_{testfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#testfolder
-#_{trim}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#trim
-#_{ucase}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#ucase
-#_{waitkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#waitkey
-#_{xlat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
+#_{abs}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
+#_{akey}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
+#_{asc}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
+#_{atoi}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#atoi
+#_{beep}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
+#_{chr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
+#_{clip}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
+#_{date}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#date
+#_{env}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#env
+#_{fattr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fattr
+#_{fexist}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
+#_{float}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#float
+#_{flock}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#flock
+#_{fmatch}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fmatch
+#_{fsplit}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fsplit
+#_{iif}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
+#_{index}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
+#_{int}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
+#_{itoa}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#itoa
+#_{key}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
+#_{lcase}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
+#_{len}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
+#_{max}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#max
+#_{min}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#min
+#_{mmode}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
+#_{mod}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mod
+#_{msgbox}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{replace}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#replace
+#_{rindex}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#rindex
+#_{size2str}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#size2str
+#_{sleep}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#sleep
+#_{string}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#string
+#_{strpad}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strpad
+#_{strwrap}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strwrap
+#_{substr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#substr
+#_{testfolder}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#testfolder
+#_{trim}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#trim
+#_{ucase}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#ucase
+#_{waitkey}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#waitkey
+#_{xlat}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
 #_
 </article>
 </node>
@@ -1251,6 +1283,102 @@ mtime=3633295284
 #_
 #_@@@
 #_--{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_
+</article>
+</node>
+<node>
+id=107
+lv=3
+dt=Text
+nm=fileassociations
+ctime=3923399955
+mtime=3923400425
+<article>
+#_mf.fileassociations()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  *fileassociations* invokes the "File associations" menu.
+#_
+#_**Примечание:**
+#_  Функция является асинхронной и немедленно возвращается.
+#_
+</article>
+</node>
+<node>
+id=108
+lv=3
+dt=Text
+nm=filehighlighting
+ctime=3923399979
+mtime=3923400442
+<article>
+#_mf.filehighlighting()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  *filehighlighting* invokes the "Files highlighting and sort groups" menu.
+#_
+#_**Примечание:**
+#_  Функция является асинхронной и немедленно возвращается.
+#_
+</article>
+</node>
+<node>
+id=109
+lv=3
+dt=Text
+nm=filepanelmodes
+ctime=3923399992
+mtime=3923400450
+<article>
+#_mf.filepanelmodes()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  *filepanelmodes* invokes the "File panel modes" menu.
+#_
+#_**Примечание:**
+#_  Функция является асинхронной и немедленно возвращается.
+#_
+</article>
+</node>
+<node>
+id=110
+lv=3
+dt=Text
+nm=foldershortcuts
+ctime=3923400005
+mtime=3923400532
+<article>
+#_mf.foldershortcuts()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  *foldershortcuts* invokes the "Folder shortcuts" menu.
+#_
+#_**Примечание:**
+#_  Функция является асинхронной и немедленно возвращается.
 #_
 </article>
 </node>
