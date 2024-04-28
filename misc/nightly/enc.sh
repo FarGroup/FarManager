@@ -23,9 +23,9 @@ function blua {
 mkdir $1
 cd $1 || return 1
 
-python ../../../tools/convert.py "../../../enc_lua/${1}.tsi" ${2} "${1}.tsi" windows-${3}
-wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "${1}.tsi" tsi "C:/src/enc/tools/lua/templates/api.tem"
-wine "../../../tools/hh_compiler/hh_compiler.exe" ${3} ${1}.hhp
+python ../../../tools/convert.py "../../../enc_lua/${1}.tsi" utf-8-sig "${1}.tsi" windows-${2}
+wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "${1}.tsi" tsi "${3}" "C:/src/enc/tools/lua/templates/api.tem" ${2}
+wine "../../../tools/hh_compiler/hh_compiler.exe" ${2} ${1}.hhp
 
 ( \
 	cp -f ${1}.chm ../../../../outfinalnew32/Encyclopedia/ && \
@@ -60,10 +60,10 @@ mkdir -p enc/build/lua
 pushd enc/build/lua || exit 1
 
 ( \
-	blua macroapi_manual.ru utf-8-sig 1251 && \
-	blua macroapi_manual.en utf-8-sig 1252 && \
-	blua macroapi_manual.pl utf-8-sig 1250 && \
-	blua luafar_manual      utf-8-sig 1252 \
+	blua macroapi_manual.ru 1251 "0x419 Russian" && \
+	blua macroapi_manual.en 1252 "0x809 English (British)" && \
+	blua macroapi_manual.pl 1250 "0x415 Polish" && \
+	blua luafar_manual      1252 "0x809 English (British)" \
 ) || exit 1
 
 popd
