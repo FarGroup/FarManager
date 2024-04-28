@@ -837,7 +837,9 @@ int KeyMacro::GetKey()
 			case MPRT_FOLDERSHORTCUTS:
 				if (IsPanelsArea(m_Area))
 				{
-					Shortcuts::Configure();
+					const auto Result = Shortcuts::Configure();
+					if (Result != -1)
+						Global->CtrlObject->Cp()->ActivePanel()->ExecShortcutFolder(Result);
 				}
 				break;
 
@@ -2606,7 +2608,11 @@ void FarMacroApi::atoiFunc() const
 {
 	auto Params = parseParams(2);
 	long long Value = 0;
-	PassValue(from_string(Params[0].toString(), Value, nullptr, static_cast<int>(Params[1].toInteger()))? Value : 0);
+	int radix = static_cast<int>(Params[1].toInteger());
+	if (radix >= 2 && radix <= 36)
+		PassValue(from_string(Params[0].toString(), Value, nullptr, radix)? Value : 0);
+	else
+		PassValue(0);
 }
 
 // N=Window.Scroll(Lines[,Axis])
