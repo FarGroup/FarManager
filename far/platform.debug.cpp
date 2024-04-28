@@ -111,12 +111,22 @@ namespace os::debug
 		return Name.get();
 	}
 
-	static void** dummy_current_exception(NTSTATUS const Code)
+	static void** dummy_noncontinuable_exception(NTSTATUS const Code)
 	{
 		static EXCEPTION_RECORD DummyRecord{};
 
 		DummyRecord.ExceptionCode = static_cast<DWORD>(Code);
 		DummyRecord.ExceptionFlags = EXCEPTION_NONCONTINUABLE;
+
+		static void* DummyRecordPtr = &DummyRecord;
+		return &DummyRecordPtr;
+	}
+
+	static void** dummy_continuable_exception(NTSTATUS const Code)
+	{
+		static EXCEPTION_RECORD DummyRecord{};
+
+		DummyRecord.ExceptionCode = static_cast<DWORD>(Code);
 
 		static void* DummyRecordPtr = &DummyRecord;
 		return &DummyRecordPtr;
@@ -135,7 +145,7 @@ namespace os::debug
 #else
 	static void** __current_exception()
 	{
-		return dummy_current_exception(EH_EXCEPTION_NUMBER);
+		return dummy_noncontinuable_exception(EH_EXCEPTION_NUMBER);
 	}
 
 	static void** __current_exception_context()
@@ -156,11 +166,11 @@ namespace os::debug
 		};
 	}
 
-	EXCEPTION_POINTERS fake_exception_information(unsigned const Code)
+	EXCEPTION_POINTERS fake_exception_information(unsigned const Code, bool const Continuable)
 	{
 		return
 		{
-			static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(Code)),
+			static_cast<EXCEPTION_RECORD*>(*(Continuable? dummy_continuable_exception : dummy_noncontinuable_exception)(Code)),
 			static_cast<CONTEXT*>(*dummy_current_exception_context())
 		};
 	}

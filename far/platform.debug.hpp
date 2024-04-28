@@ -68,7 +68,7 @@ namespace os::debug
 	constexpr NTSTATUS EH_EXCEPTION_NUMBER = 0xE06D7363; // 'msc'
 
 	EXCEPTION_POINTERS exception_information();
-	EXCEPTION_POINTERS fake_exception_information(unsigned Code);
+	EXCEPTION_POINTERS fake_exception_information(unsigned Code, bool Continuable = false);
 
 	// Symbols should be initialized before calling these.
 	// Use tracer.*, they do exactly that.
