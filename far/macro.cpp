@@ -2609,7 +2609,8 @@ void FarMacroApi::atoiFunc() const
 	auto Params = parseParams(2);
 	long long Value = 0;
 	int radix = static_cast<int>(Params[1].toInteger());
-	if (radix >= 2 && radix <= 36)
+
+	if (radix == 0 || (radix >= 2 && radix <= 36))
 		PassValue(from_string(Params[0].toString(), Value, nullptr, radix)? Value : 0);
 	else
 		PassValue(0);
