@@ -439,34 +439,16 @@ static bool wait_for_process(os::handle const& Process, int const ConsoleDetachK
 		return ConfigVKey == i.Event.KeyEvent.wVirtualKeyCode && match(ConfigCtrl, Ctrl) && match(ConfigAlt, Alt) && match(ConfigShift, Shift);
 	};
 
-	std::vector<INPUT_RECORD> Buffer(256);
+	// Everywhere else we peek & read input records one by one,
+	// so it does not make much sense to complicate things
+	// and support multiple records everywhere because of this single case.
+	::console_detail::console::input_queue_inspector QueueInspector;
 
 	//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 	while (!Process.is_signaled(100ms))
 	{
-		const auto NumberOfEvents = []
-		{
-			size_t Result;
-			return console.GetNumberOfInputEvents(Result)? Result : 0;
-		}();
-
-		if (Buffer.size() < NumberOfEvents)
-		{
-			Buffer.clear();
-			resize_exp(Buffer, NumberOfEvents);
-		}
-
-		if (!os::handle::is_signaled(console.GetInputHandle(), 100ms))
-			continue;
-
-		size_t EventsRead;
-		if (!console.PeekInput(Buffer, EventsRead) || !EventsRead)
-			continue;
-
-		if (std::ranges::none_of(Buffer | std::views::take(EventsRead), is_detach_key))
-			continue;
-
-		return false;
+		if (QueueInspector.search(is_detach_key))
+			return false;
 	}
 
 	return true;

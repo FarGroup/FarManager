@@ -111,9 +111,7 @@ namespace console_detail
 
 		bool IsVtSupported() const;
 
-		bool PeekInput(std::span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool PeekOneInput(INPUT_RECORD& Record) const;
-		bool ReadInput(std::span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool ReadOneInput(INPUT_RECORD& Record) const;
 		bool WriteInput(std::span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& ReadRegionRelative) const;
@@ -201,19 +199,31 @@ namespace console_detail
 		void set_progress_state(TBPFLAG State) const;
 		void set_progress_value(TBPFLAG State, size_t Percent) const;
 
+		[[nodiscard]]
+		short GetDelta() const;
+
+		class input_queue_inspector
+		{
+		public:
+			bool search(function_ref<bool(INPUT_RECORD const&)> Predicate);
+
+		private:
+			std::vector<INPUT_RECORD> m_Buffer{ 256 };
+		};
+
 	private:
 		class implementation;
 		friend class implementation;
 
 		[[nodiscard]]
 		bool IsVtEnabled() const;
-		[[nodiscard]]
-		short GetDelta() const;
 		bool ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
 		bool GetCursorRealPosition(point& Position) const;
 		bool SetCursorRealPosition(point Position) const;
 
 		bool send_vt_command(string_view Command) const;
+
+		std::optional<KEY_EVENT_RECORD> queued() const;
 
 		HANDLE m_OriginalInputHandle;
 		HANDLE m_ActiveConsoleScreenBuffer{};
@@ -223,6 +233,8 @@ namespace console_detail
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
 
 		os::handle m_WidthTestScreen;
+
+		KEY_EVENT_RECORD mutable m_QueuedKeys{};
 	};
 }
 

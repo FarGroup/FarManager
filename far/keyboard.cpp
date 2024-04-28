@@ -2162,14 +2162,10 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 	//ralt+a/ralt+shift+a
 	//ralt+c/ralt+shift+c
 	//и т.д.
-	if ((CtrlState & (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED)) == (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED))
+	if ((CtrlState & (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED)) == (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED) && Char >= L' ')
 	{
-		if (Char >= L' ')
-		{
-			return Char;
-		}
-
 		IntKeyState.LeftCtrlPressed = IntKeyState.RightCtrlPressed = false;
+		return Char;
 	}
 
 	if (KeyCode==VK_MENU)

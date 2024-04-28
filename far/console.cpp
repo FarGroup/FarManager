@@ -970,76 +970,108 @@ protected:
 		Set(&COORD::Y, &POINT::y, &SMALL_RECT::Top);
 	}
 
-	static void AdjustMouseEvents(std::span<INPUT_RECORD> const Buffer, short Delta)
+	static void postprocess_mouse_event(MOUSE_EVENT_RECORD& MouseEvent)
 	{
-		std::optional<point> Size;
+		if (!sWindowMode)
+			return;
 
-		for (auto& i: Buffer)
+		fix_wheel_coordinates(MouseEvent);
+
+		MouseEvent.dwMousePosition.Y = std::max(0, MouseEvent.dwMousePosition.Y - ::console.GetDelta());
+
+		if (point Size; ::console.GetSize(Size))
+			MouseEvent.dwMousePosition.X = std::min(MouseEvent.dwMousePosition.X, static_cast<short>(Size.x - 1));
+	}
+
+	static void postprocess_event(INPUT_RECORD& Record)
+	{
+		switch (Record.EventType)
 		{
-			if (i.EventType != MOUSE_EVENT)
-				continue;
+		case MOUSE_EVENT:
+			postprocess_mouse_event(Record.Event.MouseEvent);
+			break;
 
-			if (!Size)
-			{
-				Size.emplace();
-				if (!::console.GetSize(*Size))
-					return;
-			}
-
-			fix_wheel_coordinates(i.Event.MouseEvent);
-
-			i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
-			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, static_cast<short>(Size->x - 1));
+		default:
+			break;
 		}
 	}
 
-	bool console::PeekInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
+	std::optional<KEY_EVENT_RECORD> console::queued() const
 	{
-		DWORD dwNumberOfEventsRead = 0;
-		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+		if (!m_QueuedKeys.wRepeatCount)
+			return {};
+
+		auto Result = m_QueuedKeys;
+		Result.wRepeatCount = 1;
+		return Result;
+	}
+
+	bool console::PeekOneInput(INPUT_RECORD& Record) const
+	{
+		// See below
+		if (const auto Key = queued())
+		{
+			Record.EventType = KEY_EVENT;
+			Record.Event.KeyEvent = *Key;
+			return true;
+		}
+
+		DWORD NumberOfEvents = 0;
+		if (!PeekConsoleInput(GetInputHandle(), &Record, 1, &NumberOfEvents))
 		{
 			LOGERROR(L"PeekConsoleInput(): {}"sv, os::last_error());
 			return false;
 		}
 
-		NumberOfEventsRead = dwNumberOfEventsRead;
-
-		if (sWindowMode)
-		{
-			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta());
-		}
-		return true;
-	}
-
-	bool console::PeekOneInput(INPUT_RECORD& Record) const
-	{
-		size_t Read;
-		return PeekInput({ &Record, 1 }, Read) && Read == 1;
-	}
-
-	bool console::ReadInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
-	{
-		DWORD dwNumberOfEventsRead = 0;
-		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
-		{
-			LOGERROR(L"ReadConsoleInput(): {}"sv, os::last_error());
+		if (!NumberOfEvents)
 			return false;
-		}
 
-		NumberOfEventsRead = dwNumberOfEventsRead;
-
-		if (sWindowMode)
-		{
-			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta());
-		}
+		postprocess_event(Record);
 
 		return true;
 	}
 
 	bool console::ReadOneInput(INPUT_RECORD& Record) const
 	{
-		size_t Read;
-		return ReadInput({ &Record, 1 }, Read) && Read == 1;
+		// See below
+		if (const auto Key = queued())
+		{
+			Record.EventType = KEY_EVENT;
+			Record.Event.KeyEvent = *Key;
+			--m_QueuedKeys.wRepeatCount;
+			return true;
+		}
+
+		DWORD NumberOfEvents = 0;
+		if (!ReadConsoleInput(GetInputHandle(), &Record, 1, &NumberOfEvents))
+		{
+			LOGERROR(L"ReadConsoleInput(): {}"sv, os::last_error());
+			return false;
+		}
+
+		if (!NumberOfEvents)
+			return false;
+
+		postprocess_event(Record);
+
+		// https://learn.microsoft.com/en-us/windows/console/key-event-record-str
+		// wRepeatCount
+		// The repeat count, which indicates that a key is being held down.
+		// For example, when a key is held down, you might get five events
+		// with this member equal to 1, one event with this member equal to 5,
+		// or multiple events with this member greater than or equal to 1.
+
+		// We do not burden the rest of the code with these shenanigans
+		// always yield key events with the repeat count equal to 1
+		// and maintain an internal "queue" to yield the rest during the next calls.
+		if (Record.Event.KeyEvent.wRepeatCount > 1)
+		{
+			m_QueuedKeys = Record.Event.KeyEvent;
+			Record.Event.KeyEvent.wRepeatCount = 1;
+			--m_QueuedKeys.wRepeatCount;
+		}
+
+		return true;
 	}
 
 	bool console::WriteInput(std::span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsWritten) const
@@ -2278,6 +2310,33 @@ protected:
 			return 0;
 
 		return ::GetDelta(csbi);
+	}
+
+	bool console::input_queue_inspector::search(function_ref<bool(INPUT_RECORD const&)> Predicate)
+	{
+		const auto NumberOfEvents = []
+		{
+			size_t Result;
+			return ::console.GetNumberOfInputEvents(Result)? Result : 0;
+		}();
+
+		if (m_Buffer.size() < NumberOfEvents)
+		{
+			m_Buffer.clear();
+			resize_exp(m_Buffer, NumberOfEvents);
+		}
+
+		if (!os::handle::is_signaled(::console.GetInputHandle(), 100ms))
+			return false;
+
+		DWORD EventsRead = 0;
+		if (!PeekConsoleInput(::console.GetInputHandle(), m_Buffer.data(), static_cast<DWORD>(m_Buffer.size()), &EventsRead))
+		{
+			LOGERROR(L"PeekConsoleInput(): {}"sv, os::last_error());
+			return false;
+		}
+
+		return std::ranges::any_of(m_Buffer | std::views::take(EventsRead), Predicate);
 	}
 
 	bool console::ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const
