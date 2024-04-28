@@ -64,10 +64,18 @@ mf = {
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
-mf.fileassociations = function() yieldcall(F.MPRT_FILEASSOCIATIONS) end
-mf.filehighlight    = function() yieldcall(F.MPRT_FILEHIGHLIGHT) end
-mf.filepanelmodes   = function() yieldcall(F.MPRT_FILEPANELMODES) end
-mf.foldershortcuts  = function() yieldcall(F.MPRT_FOLDERSHORTCUTS) end
+mf.mainmenu = function(param)
+  local mprt =
+    param == "fileassociations" and F.MPRT_FILEASSOCIATIONS or
+    param == "filehighlight"    and F.MPRT_FILEHIGHLIGHT    or
+    param == "filepanelmodes"   and F.MPRT_FILEPANELMODES   or
+    param == "foldershortcuts"  and F.MPRT_FOLDERSHORTCUTS
+  if mprt then
+    yieldcall(mprt)
+  else
+    error("parameter not supported: "..tostring(param), 2)
+  end
+end
 
 mf.iif = function(Expr, res1, res2)
   if Expr and Expr~=0 and Expr~="" then return res1 else return res2 end

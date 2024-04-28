@@ -952,7 +952,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3923406957
+mtime=3923469735
 <article>
 #_**Свойства:**
 #_  нет
@@ -975,13 +975,9 @@ mtime=3923406957
 #_  `exit`
 #_  fattr
 #_  fexist
-#_  `fileassociations`
-#_  `filehighlighting`
-#_  `filepanelmodes`
 #_  float
 #_  flock
 #_  fmatch
-#_  `foldershortcuts`
 #_  fsplit
 #_  `GetMacroCopy`
 #_  iif
@@ -992,6 +988,7 @@ mtime=3923406957
 #_  `Keys`
 #_  lcase
 #_  len
+#_  `mainmenu`
 #_  max
 #_  `mdelete`
 #_  min
@@ -1021,10 +1018,7 @@ mtime=3923406957
 #_  xlat
 #_
 #_@@@
-#_[fileassociations]: 107.html
-#_[filehighlighting]: 108.html
-#_[filepanelmodes]: 109.html
-#_[foldershortcuts]: 110.html
+#_[mainmenu]: 111.html
 #_[acall]: 91.html
 #_[deserialize]: 104.html
 #_[eval]: 79.html
@@ -1291,102 +1285,6 @@ mtime=3633295284
 </article>
 </node>
 <node>
-id=107
-lv=3
-dt=Text
-nm=fileassociations
-ctime=3923399955
-mtime=3923400425
-<article>
-#_mf.fileassociations()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  *fileassociations* invokes the "File associations" menu.
-#_
-#_**Примечание:**
-#_  Функция является асинхронной и немедленно возвращается.
-#_
-</article>
-</node>
-<node>
-id=108
-lv=3
-dt=Text
-nm=filehighlighting
-ctime=3923399979
-mtime=3923400442
-<article>
-#_mf.filehighlighting()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  *filehighlighting* invokes the "Files highlighting and sort groups" menu.
-#_
-#_**Примечание:**
-#_  Функция является асинхронной и немедленно возвращается.
-#_
-</article>
-</node>
-<node>
-id=109
-lv=3
-dt=Text
-nm=filepanelmodes
-ctime=3923399992
-mtime=3923400450
-<article>
-#_mf.filepanelmodes()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  *filepanelmodes* invokes the "File panel modes" menu.
-#_
-#_**Примечание:**
-#_  Функция является асинхронной и немедленно возвращается.
-#_
-</article>
-</node>
-<node>
-id=110
-lv=3
-dt=Text
-nm=foldershortcuts
-ctime=3923400005
-mtime=3923400532
-<article>
-#_mf.foldershortcuts()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  *foldershortcuts* invokes the "Folder shortcuts" menu.
-#_
-#_**Примечание:**
-#_  Функция является асинхронной и немедленно возвращается.
-#_
-</article>
-</node>
-<node>
 id=72
 lv=3
 dt=Text
@@ -1417,6 +1315,33 @@ mtime=3833369950
 #_
 #_@@@
 #_[EnumScripts]: 106.html
+</article>
+</node>
+<node>
+id=111
+lv=3
+dt=Text
+nm=mainmenu
+ctime=3923469402
+mtime=3923469625
+<article>
+#_mf.mainmenu (Param)
+#_
+#_**Параметры:**
+#_  Param:  string
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Значения Param:**
+#_  "fileassociations" : вызвать меню "File associations"
+#_  "filehighlighting" : вызвать меню "Files highlighting and sort groups"
+#_  "filepanelmodes"   : вызвать меню "File panel modes"
+#_  "foldershortcuts"  : вызвать меню "Folder shortcuts"
+#_
+#_**Примечание:**
+#_  Данная функция являктся асинхронной и немедленно возвращается.
+#_
 </article>
 </node>
 <node>

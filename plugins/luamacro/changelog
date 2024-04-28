@@ -1,3 +1,7 @@
+shmuel 2024-04-28 12:20:33+03:00 - build 828
+
+1. A new function mf.mainmenu replacing the 4 functions from the last commit.
+
 shmuel 2024-04-27 16:40:25+03:00 - build 827
 
 1. Macro-API: add the following function to mf table:
