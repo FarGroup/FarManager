@@ -2165,6 +2165,17 @@ signal_handler::~signal_handler()
 		std::signal(SIGABRT, m_PreviousHandler);
 }
 
+#if IS_MICROSOFT_SDK()
+#ifndef _DEBUG // 🤦
+extern "C" void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t);
+#endif
+#else
+static void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t)
+{
+	os::process::terminate(STATUS_INVALID_CRUNTIME_PARAMETER);
+}
+#endif
+
 static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
 	if (!HandleCppExceptions)
