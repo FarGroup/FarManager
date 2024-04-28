@@ -1,3 +1,7 @@
+shmuel 2024-04-28 21:47:10+03:00 - build 829
+
+1. LuaFAR: far.InputRecordToName - improve error message.
+
 shmuel 2024-04-28 12:20:33+03:00 - build 828
 
 1. A new function mf.mainmenu replacing the 4 functions from the last commit.

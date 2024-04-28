@@ -2644,7 +2644,7 @@ void FarMacroApi::itowFunc() const
 		wchar_t value[65];
 		auto Radix = static_cast<int>(Params[1].toInteger());
 
-		if (!Radix)
+		if (Radix < 2 || Radix > 36)
 			Radix = 10;
 
 		Params[0] = TVar(_i64tow(Params[0].toInteger(), value, Radix));
