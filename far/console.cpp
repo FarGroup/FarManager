@@ -1064,7 +1064,7 @@ protected:
 		// We do not burden the rest of the code with these shenanigans
 		// always yield key events with the repeat count equal to 1
 		// and maintain an internal "queue" to yield the rest during the next calls.
-		if (Record.Event.KeyEvent.wRepeatCount > 1)
+		if (Record.EventType == KEY_EVENT && Record.Event.KeyEvent.wRepeatCount > 1)
 		{
 			m_QueuedKeys = Record.Event.KeyEvent;
 			Record.Event.KeyEvent.wRepeatCount = 1;
@@ -1959,15 +1959,25 @@ protected:
 
 	bool console::FlushInputBuffer() const
 	{
+		if (m_QueuedKeys.wRepeatCount)
+			m_QueuedKeys = {};
+
 		return FlushConsoleInputBuffer(GetInputHandle()) != FALSE;
 	}
 
 	bool console::GetNumberOfInputEvents(size_t& NumberOfEvents) const
 	{
-		DWORD dwNumberOfEvents = 0;
-		const auto Result = GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents) != FALSE;
-		NumberOfEvents = dwNumberOfEvents;
-		return Result;
+		if (DWORD dwNumberOfEvents = 0; GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents))
+		{
+			NumberOfEvents = m_QueuedKeys.wRepeatCount + dwNumberOfEvents;
+			return true;
+		}
+
+		if (!m_QueuedKeys.wRepeatCount)
+			return false;
+
+		NumberOfEvents = m_QueuedKeys.wRepeatCount;
+		return true;
 	}
 
 	bool console::GetAlias(string_view const Name, string& Value, string_view const ExeName) const
