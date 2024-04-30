@@ -489,7 +489,7 @@ void Options::MaskGroupsSettings()
 	const auto BottomTitle = KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_F7, KEY_CTRLR);
 	MasksMenu->SetBottomTitle(BottomTitle);
 	MasksMenu->SetHelp(L"MaskGroupsSettings"sv);
-        MasksMenu->SetId(MaskGroupsMenuId);
+	MasksMenu->SetId(MaskGroupsMenuId);
 	FillMasksMenu(*MasksMenu);
 	MasksMenu->SetPosition({ -1, -1, -1, -1 });
 
