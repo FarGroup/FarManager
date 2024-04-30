@@ -90,6 +90,7 @@ namespace uuids::far::dialogs
 		FiltersConfigId                  = "EDDB9286-3B08-4593-8F7F-E5925A3A0FF8"_uuid,
 		HighlightMenuId                  = "D0422DF0-AAF5-46E0-B98B-1776B427E70D"_uuid,
 		HighlightConfigId                = "51B6E342-B499-464D-978C-029F18ECCE59"_uuid,
+		MaskGroupsMenuId                 = "F8CE8646-BC51-4EEF-8162-ED5BA4C913E0"_uuid,
 		PluginsConfigMenuId              = "B4C242E7-AA8E-4449-B0C3-BD8D9FA11AED"_uuid,
 		ChangeDiskMenuId                 = "252CE4A3-C415-4B19-956B-83E2FDD85960"_uuid,
 		FileAssocMenuId                  = "F6D2437C-FEDC-4075-AA56-275666FC8979"_uuid,
