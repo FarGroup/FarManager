@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+johnd0e 2024-05-01 22:52:00+02:00 - build 6325
+
+1. gh-835 / M3557: Enhance the function mf.flock to enable switching the Lock-state
+   even when a key is held.
+
+--------------------------------------------------------------------------------
 drkns 2024-05-01 21:20:54+01:00 - build 6324
 
 1. 0004042: In text fields the "unchanged text" color is applied to the whole field.

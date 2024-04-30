@@ -382,8 +382,16 @@ int SetFLockState(unsigned const vkKey, int const State)
 	{
 		if (State == 2 || (State==1 && !oldState) || (!State && oldState))
 		{
-			keybd_event(vkKey, 0, ExKey, 0);
-			keybd_event(vkKey, 0, ExKey | KEYEVENTF_KEYUP, 0);
+			if (oldState & 0x8000) // key is down
+			{
+				keybd_event(vkKey, 0, ExKey | KEYEVENTF_KEYUP, 0);
+				keybd_event(vkKey, 0, ExKey, 0);
+			}
+			else
+			{
+				keybd_event(vkKey, 0, ExKey, 0);
+				keybd_event(vkKey, 0, ExKey | KEYEVENTF_KEYUP, 0);
+			}
 		}
 	}
 
