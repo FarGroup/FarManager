@@ -1421,51 +1421,81 @@ bool ScrollBarRequired(size_t Length, unsigned long long ItemsCount)
 
 bool ScrollBar(size_t X1, size_t Y1, size_t Length, unsigned long long TopItem, unsigned long long ItemsCount)
 {
-	return ScrollBarRequired(Length, ItemsCount) && ScrollBarEx(X1, Y1, Length, TopItem, TopItem + Length, ItemsCount);
+	if (!ScrollBarRequired(Length, ItemsCount))
+		return false;
+
+	return ScrollBarEx(X1, Y1, Length, TopItem, TopItem + Length, ItemsCount);
+}
+
+static string MakeScrollBarEx(
+	size_t const Length,
+	unsigned long long const Start,
+	unsigned long long End,
+	unsigned long long const Size,
+	wchar_t const FirstButton,
+	wchar_t const SecondButton,
+	wchar_t const BackgroundChar,
+	wchar_t const SliderChar
+)
+{
+	assert(Start <= End);
+
+	if (Length < 2)
+		return {};
+
+	string Buffer(Length, BackgroundChar);
+	Buffer.front() = FirstButton;
+	Buffer.back() = SecondButton;
+
+	if (Buffer.size() == 2)
+		return Buffer;
+
+	const auto FieldBegin = Buffer.begin() + 1;
+	const auto FieldSize = static_cast<unsigned>(Buffer.size() - 2);
+
+	if (FieldSize == 1)
+	{
+		Buffer[1] = SliderChar;
+		return Buffer;
+	}
+
+	End = std::min(End, Size);
+
+	const auto rounded = [FieldSize](unsigned long long const Nom, unsigned long long const Den)
+	{
+		return static_cast<unsigned long long>(std::round(ToPercent(Nom, Den, FieldSize * 10) / 10.0));
+	};
+
+	auto SliderBegin = std::max(Start? 1ull : 0ull, rounded(Start, Size));
+	if (!SliderBegin && Start)
+		++SliderBegin;
+	if (SliderBegin == FieldSize)
+		--SliderBegin;
+
+	const auto SliderSize = rounded(End - Start, Size);
+
+	auto SliderEnd = End == Size? FieldSize : SliderBegin + SliderSize;
+	if (SliderEnd == FieldSize && End < Size)
+	{
+		--SliderEnd;
+		if (SliderBegin > 1)
+			--SliderBegin;
+	}
+
+	if (SliderEnd > SliderBegin)
+		std::fill(FieldBegin + SliderBegin, FieldBegin + SliderEnd, SliderChar);
+
+	return Buffer;
 }
 
 bool ScrollBarEx(size_t X1, size_t Y1, size_t Length, unsigned long long Start, unsigned long long End, unsigned long long Size)
 {
-	if ( Length < 2)
+	const auto Scrollbar = MakeScrollBarEx(Length, Start, End, Size, L'▲', L'▼', BoxSymbols[BS_X_B0], BoxSymbols[BS_X_DB]);
+	if (Scrollbar.empty())
 		return false;
 
-	string Buffer(Length, BoxSymbols[BS_X_B0]);
-	Buffer.front() = L'▲';
-	Buffer.back() = L'▼';
-
-	const auto FieldBegin = Buffer.begin() + 1;
-	const auto FieldEnd = Buffer.end() - 1;
-	const size_t FieldSize = FieldEnd - FieldBegin;
-
-	End = std::min(End, Size);
-
-	auto SliderBegin = FieldBegin, SliderEnd = SliderBegin;
-
-	if (Size && Start < End)
-	{
-		const auto SliderSize = std::max(1ull, (End - Start) * FieldSize / Size);
-
-		if (SliderSize >= FieldSize)
-		{
-			SliderBegin = FieldBegin;
-			SliderEnd = FieldEnd;
-		}
-		else if (End >= Size)
-		{
-			SliderBegin = FieldEnd - SliderSize;
-			SliderEnd = FieldEnd;
-		}
-		else
-		{
-			SliderBegin = std::min(FieldBegin + Start * FieldSize / Size, FieldEnd);
-			SliderEnd = std::min(SliderBegin + SliderSize, FieldEnd);
-		}
-	}
-
-	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_DB]);
-
 	GotoXY(static_cast<int>(X1), static_cast<int>(Y1));
-	VText(Buffer);
+	VText(Scrollbar);
 
 	return true;
 }
@@ -1930,5 +1960,60 @@ TEST_CASE("tabs")
 			REQUIRE(i.VisualPos == string_pos_to_visual_pos(Strs[i.Str], i.RealPos, i.TabSize));
 	}
 }
+TEST_CASE("Scrollbar")
+{
+	static const struct
+	{
+		size_t const Length;
+		unsigned long long const Start, Size;
+		string_view Expected;
+	}
+	Tests[]
+	{
+		{},
+		{  1,  0,   1 },
 
+		{  2,  0,   1, L"<>"sv },
+		{  2,  0,   2, L"<>"sv },
+		{  2,  0,   3, L"<>"sv },
+		{  2,  1,   3, L"<>"sv },
+
+		{  3,  0,   4, L"<->"sv },
+
+		{  4,  0,   5, L"<- >"sv },
+		{  4,  1,   5, L"< ->"sv },
+
+		{  5,  0,   6, L"<-- >"sv },
+		{  5,  1,   6, L"< -->"sv },
+		{  5,  0,   7, L"<-- >"sv },
+		{  5,  1,   7, L"< - >"sv },
+		{  5,  0,   8, L"<-- >"sv },
+		{  5,  1,   8, L"< - >"sv },
+		{  5,  2,   8, L"< - >"sv },
+		{  5,  3,   8, L"< -->"sv },
+
+		{ 10,  0,   1, L"<-------->"sv },
+		{ 10,  0,  10, L"<-------->"sv },
+		{ 10,  0,  11, L"<------- >"sv },
+		{ 10,  1,  11, L"< ------->"sv },
+		{ 10,  0,  12, L"<------- >"sv },
+		{ 10,  1,  12, L"< ------ >"sv },
+		{ 10,  2,  12, L"< ------->"sv },
+
+		{ 8,  0,   50, L"<-     >"sv },
+		{ 8,  1,   50, L"< -    >"sv },
+		{ 8, 10,   50, L"< -    >"sv },
+		{ 8, 11,   50, L"< -    >"sv },
+		{ 8, 12,   50, L"< -    >"sv },
+		{ 8, 13,   50, L"<  -   >"sv },
+		{ 8, 41,   50, L"<    - >"sv },
+		{ 8, 42,   50, L"<     ->"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Scrollbar = MakeScrollBarEx(i.Length, i.Start, i.Start + i.Length, i.Size, L'<', L'>', L' ', L'-');
+		REQUIRE(i.Expected == Scrollbar);
+	}
+}
 #endif

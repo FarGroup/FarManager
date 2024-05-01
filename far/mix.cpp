@@ -62,21 +62,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 constexpr auto max_integer_in_double = bit(std::numeric_limits<double>::digits);
 
-unsigned int ToPercent(unsigned long long const Value, unsigned long long const Base)
+unsigned int ToPercent(unsigned long long const Value, unsigned long long const Base, unsigned const Max)
 {
-	if (!Value || !Base)
+	if (!Value || !Base || !Max)
 		return 0;
 
 	if (Value == Base)
-		return 100;
+		return Max;
 
 	if (Value <= max_integer_in_double && Base <= max_integer_in_double)
-		return static_cast<int>(static_cast<double>(Value) / static_cast<double>(Base) * 100);
+		return static_cast<int>(static_cast<double>(Value) / static_cast<double>(Base) * Max);
 
-	const auto Step = Base / 100;
+	const auto Step = Base / Max;
 	const auto Result = Value / Step;
 
-	return Result == 100? 99 : Result;
+	return Result == Max? Max - 1 : Result;
 }
 
 unsigned long long FromPercent(unsigned int const Percent, unsigned long long const Base)

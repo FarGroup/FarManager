@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-unsigned int ToPercent(unsigned long long Value, unsigned long long Base);
+unsigned int ToPercent(unsigned long long Value, unsigned long long Base, unsigned Max = 100);
 unsigned long long FromPercent(unsigned int Percent, unsigned long long Base);
 
 string MakeTemp(string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
