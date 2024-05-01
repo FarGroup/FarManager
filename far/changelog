@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-05-01 21:20:54+01:00 - build 6324
+
+1. 0004042: In text fields the "unchanged text" color is applied to the whole field.
+
+2. Fix menu scrollbars.
+
+3. (Hopefully) correct scrollbar logic in corner cases.
+
+--------------------------------------------------------------------------------
 drkns 2024-04-29 17:21:29+01:00 - build 6323
 
 1. Correction of 6318.1.
