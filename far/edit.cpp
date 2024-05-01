@@ -283,8 +283,6 @@ void Edit::FastShow(const ShowInfo* Info)
 
 	const size_t EditLength = ObjWidth();
 
-	const size_t RealRight = VisualToReal.get(static_cast<int>(EditLength) + LeftPos) - RealLeftPos;
-
 	string OutStr;
 	OutStr.reserve(EditLength);
 
@@ -385,11 +383,10 @@ void Edit::FastShow(const ShowInfo* Info)
 	// Basic color
 	SetColor(GetNormalColor());
 
-	const auto MaxRight = std::max(RealRight, EditLength);
-	if (OutStr.size() < MaxRight)
-		OutStr.append(MaxRight - OutStr.size(), L' ');
+	const auto VisualTextLength = Text(OutStr, EditLength);
 
-	Text(OutStr, EditLength);
+	if (VisualTextLength < EditLength)
+		Text(string(EditLength - VisualTextLength, L' '), EditLength);
 
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
@@ -409,7 +406,12 @@ void Edit::FastShow(const ShowInfo* Info)
 		{
 			if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 			{
-				Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
+				// BUGBUG multiline
+				auto UnchangedArea = m_Where;
+				if (VisualTextLength < static_cast<size_t>(UnchangedArea.width()))
+					UnchangedArea.right = static_cast<short>(UnchangedArea.left + VisualTextLength - 1);
+
+				Global->ScrBuf->ApplyColor(UnchangedArea, GetUnchangedColor());
 			}
 		}
 		else
