@@ -94,7 +94,7 @@ struct menu_layout
 
 	explicit menu_layout(const VMenu& Menu)
 		: BoxType{ get_box_type(Menu) }
-		, ClientRect{ get_client_rect(Menu) }
+		, ClientRect{ get_client_rect(Menu, BoxType) }
 	{
 		auto Left{ Menu.m_Where.left };
 		if (need_box(BoxType))       LeftBox = Left++;
@@ -103,7 +103,7 @@ struct menu_layout
 
 		auto Right{ Menu.m_Where.right };
 		if (need_box(BoxType))       RightBox = Right;
-		if (need_scrollbar(Menu))    Scrollbar = Right;
+		if (need_scrollbar(Menu, BoxType)) Scrollbar = Right;
 		if (RightBox || Scrollbar)   Right--;
 		if (need_submenu(Menu))      SubMenu = Right--;
 		if (need_right_hscroll())    RightHScroll = Right--;
@@ -143,11 +143,18 @@ struct menu_layout
 
 	[[nodiscard]] static int get_service_area_size(const VMenu& Menu, const short BoxType)
 	{
-		return get_service_area_size(Menu, need_box(BoxType));
+		const auto NeedBox = need_box(BoxType);
+
+		return NeedBox
+			+ need_check_mark()
+			+ need_left_hscroll()
+			+ need_right_hscroll()
+			+ need_submenu(Menu)
+			+ (NeedBox || need_scrollbar(Menu, BoxType));
 	}
 
 private:
-	[[nodiscard]] rectangle get_client_rect(const VMenu& Menu) const noexcept
+	[[nodiscard]] static rectangle get_client_rect(const VMenu& Menu, short const BoxType) noexcept
 	{
 		if (!need_box(BoxType))
 			return Menu.m_Where;
@@ -155,25 +162,15 @@ private:
 		return { Menu.m_Where.left + 1, Menu.m_Where.top + 1, Menu.m_Where.right - 1, Menu.m_Where.bottom - 1 };
 	}
 
-	[[nodiscard]] static int get_service_area_size(const VMenu& Menu, const bool NeedBox)
-	{
-		return NeedBox
-			+ need_check_mark()
-			+ need_left_hscroll()
-			+ need_right_hscroll()
-			+ need_submenu(Menu)
-			+ (NeedBox || need_scrollbar(Menu));
-	}
-
 	[[nodiscard]] static bool need_box(short BoxType) noexcept { return BoxType != NO_BOX; }
 	[[nodiscard]] static bool need_check_mark() noexcept { return true; }
 	[[nodiscard]] static bool need_left_hscroll() noexcept { return true; }
 	[[nodiscard]] static bool need_right_hscroll() noexcept { return true; }
 	[[nodiscard]] static bool need_submenu(const VMenu& Menu) noexcept { return Menu.ItemSubMenusCount > 0; }
-	[[nodiscard]] static bool need_scrollbar(const VMenu& Menu)
+	[[nodiscard]] static bool need_scrollbar(const VMenu& Menu, short const BoxType)
 	{
 		return (Menu.CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
-			&& ScrollBarRequired(Menu.m_Where.height(), Menu.GetShowItemCount());
+			&& ScrollBarRequired(get_client_rect(Menu, BoxType).height(), Menu.GetShowItemCount());
 	}
 };
 
