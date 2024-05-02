@@ -169,8 +169,15 @@ private:
 	[[nodiscard]] static bool need_submenu(const VMenu& Menu) noexcept { return Menu.ItemSubMenusCount > 0; }
 	[[nodiscard]] static bool need_scrollbar(const VMenu& Menu, short const BoxType)
 	{
-		return (Menu.CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
-			&& ScrollBarRequired(get_client_rect(Menu, BoxType).height(), Menu.GetShowItemCount());
+		if (!Menu.CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) && !Global->Opt->ShowMenuScrollbar)
+			return false;
+
+		// Check separately because passing an empty menu to get_client_rect will trigger an assertion
+		const auto ItemsCount = Menu.GetShowItemCount();
+		if (!ItemsCount)
+			return false;
+
+		return ScrollBarRequired(get_client_rect(Menu, BoxType).height(), ItemsCount);
 	}
 };
 
