@@ -1472,7 +1472,7 @@ static string MakeScrollBarEx(
 	if (SliderBegin == FieldSize)
 		--SliderBegin;
 
-	const auto SliderSize = rounded(End - Start, Size);
+	const auto SliderSize = std::max(1ull, rounded(End - Start, Size));
 
 	auto SliderEnd = End == Size? FieldSize : SliderBegin + SliderSize;
 	if (SliderEnd == FieldSize && End < Size)
@@ -2008,6 +2008,8 @@ TEST_CASE("Scrollbar")
 		{ 8, 13,   50, L"<  -   >"sv },
 		{ 8, 41,   50, L"<    - >"sv },
 		{ 8, 42,   50, L"<     ->"sv },
+
+		{ 8, 0, 10000, L"<-     >"sv },
 	};
 
 	for (const auto& i: Tests)
