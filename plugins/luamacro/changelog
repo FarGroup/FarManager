@@ -1,3 +1,7 @@
+shmuel 2024-05-04 16:04:43+03:00 - build 830
+
+1. mf.mainmenu: add parameter 'filemaskgroups'.
+
 shmuel 2024-04-28 21:47:10+03:00 - build 829
 
 1. LuaFAR: far.InputRecordToName - improve error message.

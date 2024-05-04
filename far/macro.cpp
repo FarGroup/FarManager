@@ -863,6 +863,13 @@ int KeyMacro::GetKey()
 					Global->Opt->SetFilePanelModes();
 				}
 				break;
+
+			case MPRT_FILEMASKGROUPS:
+				if (IsPanelsArea(m_Area))
+				{
+					Global->Opt->MaskGroupsSettings();
+				}
+				break;
 		}
 	}
 

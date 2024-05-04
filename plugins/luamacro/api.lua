@@ -68,6 +68,7 @@ mf.mainmenu = function(param)
   local mprt =
     param == "fileassociations" and F.MPRT_FILEASSOCIATIONS or
     param == "filehighlight"    and F.MPRT_FILEHIGHLIGHT    or
+    param == "filemaskgroups"   and F.MPRT_FILEMASKGROUPS   or
     param == "filepanelmodes"   and F.MPRT_FILEPANELMODES   or
     param == "foldershortcuts"  and F.MPRT_FOLDERSHORTCUTS
   if mprt then
