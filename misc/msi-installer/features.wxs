@@ -801,6 +801,7 @@
           <ComponentRef Id="NetBoxEng.lng" />
           <ComponentRef Id="README.md" />
           <ComponentRef Id="LICENSE.txt" />
+          <ComponentRef Id="cacert.pem" />
           <Feature Id="NetBox.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="README.RU.md" />
             <ComponentRef Id="NetBoxRus.lng" />
@@ -808,6 +809,12 @@
           <Feature Id="NetBox.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="README.PL.md" />
             <ComponentRef Id="NetBoxPol.lng" />
+          </Feature>
+          <Feature Id="NetBox.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetBoxSpa.lng" />
+          </Feature>
+          <Feature Id="NetBox.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetBox.map" />
           </Feature>
           <Feature Id="NetBox.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ChangeLog_11" />

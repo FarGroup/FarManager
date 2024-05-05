@@ -1295,6 +1295,9 @@
           <Component Id="NetBox.dll" Guid="$(var.Guid.NetBox.dll)" Win64="$(var.Win64)">
             <File Id="NetBox.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBox.dll" />
           </Component>
+          <Component Id="NetBox.map" Guid="$(var.Guid.NetBox.map)" Win64="$(var.Win64)">
+            <File Id="NetBox.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBox.map" />
+          </Component>
           <Component Id="NetBoxEng.lng" Guid="$(var.Guid.NetBoxEng.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxEng.lng" />
           </Component>
@@ -1303,6 +1306,9 @@
           </Component>
           <Component Id="NetBoxPol.lng" Guid="$(var.Guid.NetBoxPol.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxPol.lng" />
+          </Component>
+          <Component Id="NetBoxSpa.lng" Guid="$(var.Guid.NetBoxSpa.lng)" Win64="$(var.Win64)">
+            <File Id="NetBoxSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxSpa.lng" />
           </Component>
           <Component Id="README.md" Guid="$(var.Guid.README.md)" Win64="$(var.Win64)">
             <File Id="README.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.md" />
@@ -1315,6 +1321,9 @@
           </Component>
           <Component Id="LICENSE.txt" Guid="$(var.Guid.LICENSE.txt)" Win64="$(var.Win64)">
             <File Id="LICENSE.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\LICENSE.txt" />
+          </Component>
+          <Component Id="cacert.pem" Guid="$(var.Guid.cacert.pem)" Win64="$(var.Win64)">
+            <File Id="cacert.pem" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\cacert.pem" />
           </Component>
         </Directory>
         <Directory Id="HlfViewer" Name="HlfViewer">
