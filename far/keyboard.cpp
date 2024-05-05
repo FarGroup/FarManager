@@ -1604,12 +1604,13 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 		{
 			static const std::pair<far_key_code, DWORD> ExtKeyMap[]
 			{
+				// the order is important, because "the key" is the last component of e.g. `CtrlAltShift`
 				{KEY_SHIFT, VK_SHIFT},
-				{KEY_CTRL, VK_CONTROL},
-				{KEY_ALT, VK_MENU},
 				{KEY_RSHIFT, VK_RSHIFT},
-				{KEY_RCTRL, VK_RCONTROL},
+				{KEY_ALT, VK_MENU},
 				{KEY_RALT, VK_RMENU},
+				{KEY_CTRL, VK_CONTROL},
+				{KEY_RCTRL, VK_RCONTROL},
 			};
 
 			// In case of CtrlShift, CtrlAlt, AltShift, CtrlAltShift there is no unambiguous mapping.
@@ -1730,10 +1731,18 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 						KEY_DOWN,
 						KEY_INS,
 						KEY_DEL,
-						KEY_NUMENTER
+						KEY_NUMENTER,
+						//todo Browser*, Launch*, Media*, ... (Standby, Spec*, Oem* ?)
+						KEY_LWIN,
+						KEY_RWIN,
+						KEY_APPS,
+						KEY_PRNTSCRN,
+						KEY_BREAK,
+						KEY_DIVIDE,
+						KEY_NUMLOCK
 					};
 
-					if (contains(ExtKey, FKey))
+					if (contains(ExtKey, FKey) || VirtKey==VK_RCONTROL || VirtKey==VK_RMENU)
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
 				break;
