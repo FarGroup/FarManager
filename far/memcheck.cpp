@@ -87,8 +87,7 @@ struct MEMINFO
 	}
 };
 
-static MEMINFO FirstMemBlock{ {}, sizeof(FirstMemBlock) };
-static auto LastMemBlock = &FirstMemBlock;
+static MEMINFO* FirstMemBlock, *LastMemBlock;
 
 static auto to_real(void* address, std::align_val_t Alignment)
 {
@@ -104,7 +103,10 @@ static void check_chain()
 {
 	if constexpr ((false))
 	{
-		auto p = &FirstMemBlock;
+		if (!FirstMemBlock)
+			return;
+
+		auto p = FirstMemBlock;
 
 		while (p->next)
 			p = p->next;
@@ -112,7 +114,7 @@ static void check_chain()
 
 		while (p->prev)
 			p = p->prev;
-		assert(p == &FirstMemBlock);
+		assert(p == FirstMemBlock);
 	}
 }
 
@@ -210,17 +212,23 @@ public:
 		if (!m_Enabled)
 			return;
 
+		check_chain();
 
 		block->prev = LastMemBlock;
 		block->next = nullptr;
 
-		unpoison_block(LastMemBlock);
-		LastMemBlock->next = block;
-		poison_block(LastMemBlock);
+		if (LastMemBlock)
+		{
+			unpoison_block(LastMemBlock);
+			LastMemBlock->next = block;
+			poison_block(LastMemBlock);
+		}
+		else
+		{
+			FirstMemBlock = block;
+		}
 
 		LastMemBlock = block;
-
-		check_chain();
 
 		update_call_count(block->AllocationType, true);
 		++m_AllocatedMemoryBlocks;
@@ -233,6 +241,8 @@ public:
 	{
 		if (!m_Enabled)
 			return;
+
+		check_chain();
 
 		if (block->prev)
 		{
@@ -251,7 +261,8 @@ public:
 		if (block == LastMemBlock)
 			LastMemBlock = LastMemBlock->prev;
 
-		check_chain();
+		if (block == FirstMemBlock)
+			FirstMemBlock = {};
 
 		update_call_count(block->AllocationType, false);
 		++m_TotalDeallocationCalls;
@@ -312,7 +323,7 @@ private:
 		Print(Message);
 		Message.clear();
 
-		for (auto i = FirstMemBlock.next; i; i = i->next)
+		for (auto i = FirstMemBlock->next; i; i = i->next)
 		{
 			unpoison_block(i);
 
@@ -360,14 +371,15 @@ private:
 
 static void* debug_allocator(size_t const size, std::align_val_t Alignment, allocation_type const type, bool const Noexcept)
 {
-	const auto HeaderSize = static_cast<unsigned>(aligned_size(sizeof(MEMINFO), static_cast<size_t>(Alignment)));
+	const auto BlockAlignment = std::max(alignof(MEMINFO), static_cast<size_t>(Alignment));
+	const auto HeaderSize = static_cast<unsigned>(aligned_size(sizeof(MEMINFO), BlockAlignment));
 	assert(std::numeric_limits<size_t>::max() - size >= HeaderSize + sizeof(EndMarker));
 
-	const auto realSize = HeaderSize + size + sizeof(EndMarker);
+	const auto realSize = HeaderSize + aligned_size(size, alignof(int)) + sizeof(EndMarker);
 
 	for(;;)
 	{
-		if (const auto RawBlock = _aligned_malloc(realSize, static_cast<size_t>(Alignment)))
+		if (const auto RawBlock = _aligned_malloc(realSize, BlockAlignment))
 		{
 			const auto Info = static_cast<MEMINFO*>(RawBlock);
 			placement::construct(*Info, type, HeaderSize, realSize);
@@ -421,7 +433,7 @@ static void debug_deallocator(void* const Block, std::optional<size_t> const Siz
 
 	if (Size)
 	{
-		assert(Info->Size == Info->HeaderSize + *Size + sizeof(EndMarker));
+		assert(Info->Size == Info->HeaderSize + aligned_size(*Size, alignof(int)) + sizeof(EndMarker));
 	}
 
 	placement::destruct(*Info);
