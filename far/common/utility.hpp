@@ -345,11 +345,16 @@ namespace detail
 
 		if constexpr (std::is_pointer_v<T>)
 		{
+			if constexpr (!std::is_void_v<std::remove_pointer_t<T>>)
+				assert(is_aligned(Ptr, alignof(std::remove_pointer_t<T>)));
+
 			return static_cast<T>(Ptr);
 		}
 		else
 		{
 			assert(Ptr);
+			assert(is_aligned(Ptr, alignof(T)));
+
 			return *static_cast<std::conditional_t<IsConst, const T, T>*>(Ptr);
 		}
 	}

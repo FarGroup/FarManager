@@ -1874,14 +1874,13 @@ TEST_CASE("utility.is_aligned")
 	}
 
 	{
-		alignas(int) const char data[sizeof(int) * 2]{};
+		alignas(int) const char data[sizeof(int) * 3]{};
 		static_assert(sizeof(int) > sizeof(char));
 
 		REQUIRE(is_aligned(view_as<int>(data, 0)));
-		REQUIRE(!is_aligned(view_as<int>(data, 1)));
-		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) - 1)));
+		REQUIRE(!is_aligned(*std::bit_cast<int*>(data + 1))); // view_as asserts alignof(T)
 		REQUIRE(is_aligned(view_as<int>(data, sizeof(int))));
-		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) + 1)));
+		REQUIRE(!is_aligned(*std::bit_cast<int*>(data + sizeof(int) + 1))); // view_as asserts alignof(T)
 	}
 }
 
