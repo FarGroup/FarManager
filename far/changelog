@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-05-05 18:00:54+01:00 - build 6330
+
+1. Experimental: handle AltGr as Alt when nothing is mapped to it.
+
+--------------------------------------------------------------------------------
 johnd0e 2024-05-05 18:03:00+02:00 - build 6329
 
 1. gh-836: Apply ENHANCED_KEY for more relevant keys in TranslateKeyToVK

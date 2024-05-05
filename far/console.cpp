@@ -910,6 +910,76 @@ protected:
 		return Result;
 	}
 
+	static bool layout_has_altgr(HKL const Layout, unsigned const ToUnicodeFlags)
+	{
+		static std::unordered_map<HKL, bool> LayoutState;
+		const auto [Iterator, Inserted] = LayoutState.emplace(Layout, false);
+		if (!Inserted)
+			return Iterator->second;
+
+		BYTE KeyState[256]{};
+		KeyState[VK_CONTROL] = 0b10000000;
+		KeyState[VK_MENU]    = 0b10000000;
+
+		for (const auto VK: std::views::iota(0, 256))
+		{
+			if (VK == VK_PACKET)
+				continue;
+
+			if (wchar_t AltChar; ToUnicodeEx(VK, 0, KeyState, &AltChar, 1, ToUnicodeFlags, Layout) > 0)
+			{
+				return Iterator->second = true;
+			}
+		}
+
+		return false;
+	}
+
+	static void undo_altgr_if_redundant(KEY_EVENT_RECORD& KeyEvent)
+	{
+		const auto AltGr = LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED;
+
+		if ((KeyEvent.dwControlKeyState & AltGr) != AltGr)
+			return; // It's not AltGr
+
+		if (KeyEvent.uChar.UnicodeChar)
+			return; // It produces a character
+
+		const auto Layout = ::console.GetKeyboardLayout();
+
+		// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mapvirtualkeyexw
+		// Dead keys (diacritics) are indicated by setting the top bit of the return value
+		if (MapVirtualKeyEx(KeyEvent.wVirtualKeyCode, MAPVK_VK_TO_CHAR, Layout) & 0x80000000)
+			return; // It produces a dead key
+
+		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
+		// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
+		const auto DontChangeKeyboardState = 0b100;
+		static const auto ToUnicodeFlags = os::version::is_win10_1607_or_later()?
+			DontChangeKeyboardState :
+			0;
+
+		if (!layout_has_altgr(Layout, ToUnicodeFlags))
+			return; // It's not AltGr
+
+		// It's AltGr that produces nothing. We can safely patch it to normal RAlt
+		KeyEvent.dwControlKeyState &= ~LEFT_CTRL_PRESSED;
+
+		BYTE KeyState[256]{};
+		(void)GetKeyboardState(KeyState);
+
+		KeyState[VK_SHIFT] = KeyEvent.dwControlKeyState & SHIFT_PRESSED? 0b10000000 : 0;
+		KeyState[VK_CAPITAL] = KeyEvent.dwControlKeyState & CAPSLOCK_ON? 0b00000001 : 0;
+
+		if (wchar_t Char; ToUnicodeEx(KeyEvent.wVirtualKeyCode, KeyEvent.wVirtualScanCode, KeyState, &Char, 1, ToUnicodeFlags, Layout) > 0)
+			KeyEvent.uChar.UnicodeChar = Char;
+	}
+
+	static void postprocess_key_event(KEY_EVENT_RECORD& KeyEvent)
+	{
+		undo_altgr_if_redundant(KeyEvent);
+	}
+
 	static bool get_current_console_font(HANDLE OutputHandle, CONSOLE_FONT_INFO& FontInfo)
 	{
 		if (!GetCurrentConsoleFont(OutputHandle, FALSE, &FontInfo))
@@ -987,6 +1057,10 @@ protected:
 	{
 		switch (Record.EventType)
 		{
+		case KEY_EVENT:
+			postprocess_key_event(Record.Event.KeyEvent);
+			break;
+
 		case MOUSE_EVENT:
 			postprocess_mouse_event(Record.Event.MouseEvent);
 			break;
