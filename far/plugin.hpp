@@ -138,7 +138,11 @@ FAR_INLINE_CONSTANT FARCOLORFLAGS
 
 	FCF_NONE               = 0;
 
-struct rgba
+struct
+#ifdef __cplusplus
+alignas(COLORREF)
+#endif
+rgba
 {
 	unsigned char
 		r,
@@ -147,7 +151,11 @@ struct rgba
 		a;
 };
 
-struct color_index
+struct
+#ifdef __cplusplus
+alignas(COLORREF)
+#endif
+color_index
 {
 	unsigned char
 		i,
