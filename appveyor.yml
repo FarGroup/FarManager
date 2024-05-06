@@ -152,14 +152,14 @@ after_build:
   - if "%configuration%" == "Release" 7z a -m0=LZMA -mf=BCJ2 -mx9 -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z"
   - cd ..\..
   #create msi
-  - cd misc\msi-installer
-  - appveyor DownloadFile https://raw.githubusercontent.com/FarGroup/thirdparty/master/wix314-binaries-v3-14-0-5722.zip
-  - 7z x wix314-binaries-v3-14-0-5722.zip -owix
-  - set PATH=%PATH%;wix
-  - set SOURCE_DIR=%APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform_name%
-  - set NIGHTLY=1
-  - nmake -nologo %ADD_MAKE_MSI%
-  - cd ..\..
+  - if "%configuration%" == "Release" cd misc\msi-installer
+  - if "%configuration%" == "Release" appveyor DownloadFile https://raw.githubusercontent.com/FarGroup/thirdparty/master/wix314-binaries-v3-14-0-5722.zip
+  - if "%configuration%" == "Release" 7z x wix314-binaries-v3-14-0-5722.zip -owix
+  - if "%configuration%" == "Release" set PATH=%PATH%;wix
+  - if "%configuration%" == "Release" set SOURCE_DIR=%APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform_name%
+  - if "%configuration%" == "Release" set NIGHTLY=1
+  - if "%configuration%" == "Release" nmake -nologo %ADD_MAKE_MSI%
+  - if "%configuration%" == "Release" cd ..\..
   - if "%configuration%" == "Release" move ci\%configuration%.%platform_name%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
 
 artifacts:
