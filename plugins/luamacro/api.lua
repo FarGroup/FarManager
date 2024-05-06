@@ -414,19 +414,27 @@ local EVAL_MACROCANCELED = -3  -- было выведено меню выбор�
 local EVAL_RUNTIMEERROR  = -4  -- макрос был прерван в результате ошибки времени исполнения
 
 local function Eval_GetData (str) -- Получение данных макроса для Eval(S,2).
-  local Mode=far.MacroGetArea()
-  local UseCommon=false
+  local Mode = far.MacroGetArea()
+  local UseCommon = false
   str = str:match("^%s*(.-)%s*$")
 
-  local strArea,strKey = str:match("^(.-)/(.+)$")
-  if strArea then
+  local slash, strArea, strKey = str:match("^(/?)(.-)/(.+)$")
+  if slash == '/' then
+    strKey = str:sub(2)
+    UseCommon = true
+  elseif strArea then
     if strArea ~= "." then -- вариант "./Key" не подразумевает поиск в макрообласти Common
-      Mode=utils.GetAreaCode(strArea)
-      if Mode==nil then return end
+      local SpecifiedMode = utils.GetAreaCode(strArea)
+      if SpecifiedMode then
+        Mode = SpecifiedMode
+      else
+        strKey = str
+        UseCommon = true
+      end
     end
   else
-    strKey=str
-    UseCommon=true
+    strKey = str
+    UseCommon = true
   end
 
   return Mode, strKey, UseCommon

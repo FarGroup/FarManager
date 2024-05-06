@@ -1,3 +1,9 @@
+shmuel 2024-05-06 11:34:46+03:00 - build 831
+
+1. mf.eval(S,2): invalid area in 'S' is treated as a part of key
+
+2. mf.eval(S,2): a leading slash in 'S' indicates that no area is specified
+
 shmuel 2024-05-04 16:04:43+03:00 - build 830
 
 1. mf.mainmenu: add parameter 'filemaskgroups'.
