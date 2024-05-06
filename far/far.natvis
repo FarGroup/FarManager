@@ -450,4 +450,56 @@
 		</Expand>
 	</Type>
 
+	<Type Name="memcheck::memory_block">
+		<DisplayString Condition="AllocationType == allocation_type::scalar">{{ scalar, {DataSize} bytes }}</DisplayString>
+		<DisplayString Condition="AllocationType == allocation_type::vector">{{ vector, {DataSize} bytes }}</DisplayString>
+		<Expand>
+			<Item Name="Type">AllocationType</Item>
+			<Synthetic Name="Data (char)">
+				<DisplayString>{{ {DataSize} bytes }}</DisplayString>
+				<StringView>(unsigned char*)this + HeaderSize,[DataSize]na</StringView>
+				<Expand>
+					<Item Name="[size]" ExcludeView="simple">DataSize</Item>
+					<ArrayItems>
+						<Size>DataSize</Size>
+						<ValuePointer>(unsigned char const*)this + HeaderSize</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Synthetic Name="Data (wchar_t)">
+				<DisplayString>{{ {DataSize} bytes }}</DisplayString>
+				<StringView>(wchar_t const*)((unsigned char const*)this + HeaderSize),[DataSize / sizeof(wchar_t)]na</StringView>
+				<Expand>
+					<Item Name="[size]" ExcludeView="simple">DataSize / sizeof(wchar_t)</Item>
+					<ArrayItems>
+						<Size>DataSize / sizeof(wchar_t)</Size>
+						<ValuePointer>(wchar_t const*)((unsigned char const*)this + HeaderSize)</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Synthetic Name="Stack">
+				<DisplayString>{{ {sizeof(Stack) / sizeof(Stack[0])} frames }}</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>sizeof(Stack) / sizeof(Stack[0])</Size>
+						<ValuePointer>Stack, na</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="memcheck::blocks_list">
+		<DisplayString>{{Count = {m_Size}}}</DisplayString>
+		<Expand>
+			<Item Name="Count">m_Size</Item>
+			<LinkedListItems>
+				<Size>m_Size</Size>
+				<HeadPointer>m_First</HeadPointer>
+				<NextPointer>next</NextPointer>
+				<ValueNode>this,na</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
+
 </AutoVisualizer>

@@ -60,63 +60,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace memcheck
 {
-enum class allocation_type: unsigned
+enum class allocation_type: uint8_t
 {
-	scalar = 0xa75ca1ae,
-	vector = 0xa77ec10e,
+	scalar = 0x5C,
+	vector = 0x7E,
 };
 
 static const int EndMarker = 0xDEADBEEF;
 
-struct MEMINFO
+struct memory_block
 {
+	unsigned short HeaderSize;
 	allocation_type AllocationType;
-	unsigned HeaderSize;
-
-	size_t Size;
+	size_t DataSize;
+	size_t TotalSize;
 
 	// Initializers aren't really needed here, just to stop GCC from complaining about them.
 	void* Stack[10]{};
 
-	MEMINFO* prev{};
-	MEMINFO* next{};
+	memory_block* prev{};
+	memory_block* next{};
 
-	int& end_marker()
+	static constexpr auto from_data(void* address, std::align_val_t Alignment)
 	{
-		return *edit_as<int*>(this, Size - sizeof(EndMarker));
+		return edit_as<memory_block*>(address, 0 - aligned_size(sizeof(memory_block), static_cast<size_t>(Alignment)));
+	}
+
+	constexpr void* data()
+	{
+		return edit_as<char*>(this, this->HeaderSize);
+	}
+
+	constexpr int& end_marker()
+	{
+		return *edit_as<int*>(this, HeaderSize + aligned_size(DataSize, alignof(int)));
 	}
 };
-
-static MEMINFO* FirstMemBlock, *LastMemBlock;
-
-static auto to_real(void* address, std::align_val_t Alignment)
-{
-	return edit_as<MEMINFO*>(address, 0 - aligned_size(sizeof(MEMINFO), static_cast<size_t>(Alignment)));
-}
-
-static void* to_user(MEMINFO* address)
-{
-	return edit_as<char*>(address, address->HeaderSize);
-}
-
-static void check_chain()
-{
-	if constexpr ((false))
-	{
-		if (!FirstMemBlock)
-			return;
-
-		auto p = FirstMemBlock;
-
-		while (p->next)
-			p = p->next;
-		assert(p == LastMemBlock);
-
-		while (p->prev)
-			p = p->prev;
-		assert(p == FirstMemBlock);
-	}
-}
 
 static string format_type(allocation_type Type, size_t Size)
 {
@@ -174,18 +153,105 @@ static string printable_ansi_string(void const* const Data, size_t const Size)
 	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
 }
 
-static void poison_block(MEMINFO* Block)
+static void poison_block(memory_block* Block)
 {
 	ASAN_POISON_MEMORY_REGION(&Block->end_marker(), sizeof(EndMarker));
 	ASAN_POISON_MEMORY_REGION(Block, Block->HeaderSize);
 }
 
-static void unpoison_block(MEMINFO* Block)
+static void unpoison_block(memory_block* Block)
 {
 	ASAN_UNPOISON_MEMORY_REGION(Block, sizeof(*Block));
 	ASAN_UNPOISON_MEMORY_REGION(Block + 1, Block->HeaderSize - sizeof(*Block));
 	ASAN_UNPOISON_MEMORY_REGION(&Block->end_marker(), sizeof(EndMarker));
 }
+
+static class blocks_list
+{
+public:
+	void add(memory_block* const Block)
+	{
+		check_chain();
+
+		Block->prev = m_Last;
+		Block->next = nullptr;
+
+		if (m_Last)
+		{
+			unpoison_block(m_Last);
+			m_Last->next = Block;
+			poison_block(m_Last);
+		}
+		else
+			m_First = Block;
+
+		m_Last = Block;
+
+		++m_Size;
+	}
+
+	void remove(memory_block const* const Block)
+	{
+		check_chain();
+
+		if (Block->prev)
+		{
+			unpoison_block(Block->prev);
+			Block->prev->next = Block->next;
+			poison_block(Block->prev);
+		}
+
+		if (Block->next)
+		{
+			unpoison_block(Block->next);
+			Block->next->prev = Block->prev;
+			poison_block(Block->next);
+		}
+
+		if (Block == m_Last)
+			m_Last = m_Last->prev;
+
+		if (Block == m_First)
+			m_First = Block->next;
+
+		--m_Size;
+	}
+
+	auto begin() const
+	{
+		return m_First;
+	}
+
+	auto size() const
+	{
+		return m_Size;
+	}
+
+private:
+	void check_chain() const
+	{
+		if constexpr ((false))
+		{
+			if (!m_First)
+				return;
+
+			auto p = m_First;
+
+			while (p->next)
+				p = p->next;
+			assert(p == m_Last);
+
+			while (p->prev)
+				p = p->prev;
+			assert(p == m_First);
+		}
+	}
+
+	memory_block* m_First{};
+	memory_block* m_Last{};
+	size_t m_Size{};
+}
+Blocks;
 
 class checker
 {
@@ -207,68 +273,30 @@ public:
 		}
 	}
 
-	void register_block(MEMINFO *block)
+	void register_block(memory_block* const Block)
 	{
 		if (!m_Enabled)
 			return;
 
-		check_chain();
+		Blocks.add(Block);
 
-		block->prev = LastMemBlock;
-		block->next = nullptr;
+		update_call_count(Block->AllocationType, true);
 
-		if (LastMemBlock)
-		{
-			unpoison_block(LastMemBlock);
-			LastMemBlock->next = block;
-			poison_block(LastMemBlock);
-		}
-		else
-		{
-			FirstMemBlock = block;
-		}
-
-		LastMemBlock = block;
-
-		update_call_count(block->AllocationType, true);
-		++m_AllocatedMemoryBlocks;
-		++m_TotalAllocationCalls;
-		m_AllocatedMemorySize += block->Size;
-		m_AllocatedPayloadSize += block->Size - block->HeaderSize - sizeof(EndMarker);
+		m_AllocatedMemorySize += Block->TotalSize;
+		m_AllocatedPayloadSize += Block->DataSize;
 	}
 
-	void unregister_block(MEMINFO *block)
+	void unregister_block(memory_block const* const Block)
 	{
 		if (!m_Enabled)
 			return;
 
-		check_chain();
+		Blocks.remove(Block);
 
-		if (block->prev)
-		{
-			unpoison_block(block->prev);
-			block->prev->next = block->next;
-			poison_block(block->prev);
-		}
+		update_call_count(Block->AllocationType, false);
 
-		if (block->next)
-		{
-			unpoison_block(block->next);
-			block->next->prev = block->prev;
-			poison_block(block->next);
-		}
-
-		if (block == LastMemBlock)
-			LastMemBlock = LastMemBlock->prev;
-
-		if (block == FirstMemBlock)
-			FirstMemBlock = {};
-
-		update_call_count(block->AllocationType, false);
-		++m_TotalDeallocationCalls;
-		--m_AllocatedMemoryBlocks;
-		m_AllocatedMemorySize -= block->Size;
-		m_AllocatedPayloadSize -= block->Size - block->HeaderSize - sizeof(EndMarker);
+		m_AllocatedMemorySize -= Block->TotalSize;
+		m_AllocatedPayloadSize -= Block->DataSize;
 	}
 
 	void lock() { m_CS.lock(); }
@@ -314,7 +342,7 @@ private:
 
 		Message += L'\n';
 
-		far::format_to(Message, L" Blocks:  {}\n"sv, m_AllocatedMemoryBlocks);
+		far::format_to(Message, L" Blocks:  {}\n"sv, Blocks.size());
 		far::format_to(Message, L" Payload: {}\n"sv, m_AllocatedPayloadSize);
 		far::format_to(Message, L" Bytes:   {}\n"sv, m_AllocatedMemorySize);
 
@@ -323,23 +351,23 @@ private:
 		Print(Message);
 		Message.clear();
 
-		for (auto i = FirstMemBlock->next; i; i = i->next)
+		for (auto i = Blocks.begin(); i; i = i->next)
 		{
 			unpoison_block(i);
 
-			const auto BlockSize = i->Size - i->HeaderSize - sizeof(EndMarker);
-			const auto UserAddress = to_user(i);
+			const auto Data = i->data();
+			const auto Size = i->DataSize;
 			const size_t Width = 80 - 7 - 1;
 
 			Message = concat(
 				L"--------------------------------------------------------------------------------\n"sv,
-				str(UserAddress), L", "sv, format_type(i->AllocationType, BlockSize),
-				L"\nData: "sv, BlobToHexString({ static_cast<std::byte const*>(UserAddress), std::min(BlockSize, Width / 3) }, L' '),
-				L"\nAnsi: "sv, printable_ansi_string(UserAddress, std::min(BlockSize, Width)),
-				L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))),
+				str(Data), L", "sv, format_type(i->AllocationType, Size),
+				L"\nData: "sv, BlobToHexString({ static_cast<std::byte const*>(Data), std::min(Size, Width / 3) }, L' '),
+				L"\nAnsi: "sv, printable_ansi_string(Data, std::min(Size, Width)),
+				L"\nWide: "sv, printable_wide_string(Data, std::min(Size, Width * sizeof(wchar_t))),
 				L"\nStack:\n"sv);
 
-			os::debug::stack_frame Stack[ARRAYSIZE(MEMINFO::Stack)];
+			os::debug::stack_frame Stack[ARRAYSIZE(memory_block::Stack)];
 			size_t StackSize;
 
 			for (StackSize = 0; StackSize != std::size(Stack) && i->Stack[StackSize]; ++StackSize)
@@ -360,19 +388,16 @@ private:
 
 	intptr_t m_CallNewDeleteVector{};
 	intptr_t m_CallNewDeleteScalar{};
-	size_t m_AllocatedMemoryBlocks{};
 	size_t m_AllocatedMemorySize{};
 	size_t m_AllocatedPayloadSize{};
-	size_t m_TotalAllocationCalls{};
-	size_t m_TotalDeallocationCalls{};
 
 	bool m_Enabled{true};
 };
 
 static void* debug_allocator(size_t const size, std::align_val_t Alignment, allocation_type const type, bool const Noexcept)
 {
-	const auto BlockAlignment = std::max(alignof(MEMINFO), static_cast<size_t>(Alignment));
-	const auto HeaderSize = static_cast<unsigned>(aligned_size(sizeof(MEMINFO), BlockAlignment));
+	const auto BlockAlignment = std::max(alignof(memory_block), static_cast<size_t>(Alignment));
+	const auto HeaderSize = static_cast<unsigned>(aligned_size(sizeof(memory_block), BlockAlignment));
 	assert(std::numeric_limits<size_t>::max() - size >= HeaderSize + sizeof(EndMarker));
 
 	const auto realSize = HeaderSize + aligned_size(size, alignof(int)) + sizeof(EndMarker);
@@ -381,27 +406,26 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 	{
 		if (const auto RawBlock = _aligned_malloc(realSize, BlockAlignment))
 		{
-			const auto Info = static_cast<MEMINFO*>(RawBlock);
-			placement::construct(*Info, type, HeaderSize, realSize);
+			const auto Block = static_cast<memory_block*>(RawBlock);
+			placement::construct(*Block, HeaderSize, type, size, realSize);
 
 			const auto FramesToSkip = 2; // This function and the operator
 			// RtlCaptureStackBackTrace is invoked directly since we don't need to make debug builds Win2k compatible
-			if (const auto Captured = RtlCaptureStackBackTrace(FramesToSkip, static_cast<DWORD>(std::size(Info->Stack)), Info->Stack, {}); Captured < std::size(Info->Stack))
-				Info->Stack[Captured] = {};
+			if (const auto Captured = RtlCaptureStackBackTrace(FramesToSkip, static_cast<DWORD>(std::size(Block->Stack)), Block->Stack, {}); Captured < std::size(Block->Stack))
+				Block->Stack[Captured] = {};
 
-			Info->end_marker() = EndMarker;
-
-			const auto Address = to_user(Info);
-
-			assert(is_aligned(Address, static_cast<size_t>(Alignment)));
+			Block->end_marker() = EndMarker;
 
 			{
 				SCOPED_ACTION(std::scoped_lock)(Checker);
-				Checker.register_block(Info);
-				poison_block(Info);
+				Checker.register_block(Block);
+				poison_block(Block);
 			}
 
-			return Address;
+			const auto Data = Block->data();
+			assert(is_aligned(Data, static_cast<size_t>(Alignment)));
+
+			return Data;
 		}
 
 		if (const auto Handler = std::get_new_handler())
@@ -415,29 +439,33 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 	}
 }
 
-static void debug_deallocator(void* const Block, std::optional<size_t> const Size, std::align_val_t Alignment, allocation_type type) noexcept
+static void debug_deallocator(void* const Data, std::optional<size_t> const Size, std::align_val_t Alignment, allocation_type type) noexcept
 {
-	if (!Block)
+	if (!Data)
 		return;
 
-	const auto Info = to_real(Block, Alignment);
+	const auto Block = memory_block::from_data(Data, Alignment);
 
 	{
 		SCOPED_ACTION(std::scoped_lock)(Checker);
-		unpoison_block(Info);
-		Checker.unregister_block(Info);
+		unpoison_block(Block);
+		Checker.unregister_block(Block);
 	}
 
-	assert(Info->AllocationType == type);
-	assert(Info->end_marker() == EndMarker);
+	const auto BlockAlignment = std::max(alignof(memory_block), static_cast<size_t>(Alignment));
+
+	assert(Block->HeaderSize == static_cast<unsigned>(aligned_size(sizeof(memory_block), BlockAlignment)));
+	assert(Block->AllocationType == type);
+	assert(Block->end_marker() == EndMarker);
 
 	if (Size)
 	{
-		assert(Info->Size == Info->HeaderSize + aligned_size(*Size, alignof(int)) + sizeof(EndMarker));
+		assert(Block->DataSize == Size);
+		assert(Block->TotalSize == Block->HeaderSize + aligned_size(*Size, alignof(int)) + sizeof(EndMarker));
 	}
 
-	placement::destruct(*Info);
-	_aligned_free(Info);
+	placement::destruct(*Block);
+	_aligned_free(Block);
 }
 
 static constexpr std::align_val_t default_alignment{ __STDCPP_DEFAULT_NEW_ALIGNMENT__ };
