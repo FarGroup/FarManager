@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+shmuel 2024-05-10 14:07:17+03:00 - build 6332
+
+1. Fix: NumEnter and NumDel posted from a macro were incorrectly converted
+        to INPUT_RECORD (EventType was set to 0).
+        That caused problems in plugins processing DN_CONTROLINPUT.
+
+--------------------------------------------------------------------------------
 drkns 2024-05-06 12:34:28+01:00 - build 6331
 
 1. Refactoring.
