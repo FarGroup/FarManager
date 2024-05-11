@@ -693,7 +693,7 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 		rec->EventType =
 			in_closed_range(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
 			in_closed_range(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
-			(MacroKey&~0xFF000000) >= KEY_END_FKEY?
+			((MacroKey & ~0xFF000000) >= KEY_END_FKEY && !any_of(MacroKey & ~0xFF000000, KEY_NUMENTER, KEY_NUMDEL))?
 			0 : KEY_EVENT;
 
 		if (!(MacroKey&KEY_SHIFT))
@@ -1542,6 +1542,7 @@ static int key_to_vk(unsigned int const Key)
 	case KEY_NUMENTER:    return VK_RETURN;
 	case KEY_ESC:         return VK_ESCAPE;
 	case KEY_SPACE:       return VK_SPACE;
+	case KEY_NUMDEL:      return VK_DELETE;
 	case KEY_NUMPAD5:     return VK_CLEAR;
 	default:              return 0;
 	}
@@ -1623,13 +1624,6 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 			VirtKey=FKey;
 			switch (FKey)
 			{
-				case KEY_NUMDEL:
-					VirtKey=VK_DELETE;
-					break;
-				case KEY_NUMENTER:
-					VirtKey=VK_RETURN;
-					break;
-
 				case KEY_NONE:
 					EventType=MENU_EVENT;
 					break;
@@ -2315,4 +2309,33 @@ TEST_CASE("keyboard.KeyNames")
 			REQUIRE(Str.empty());
 	}
 }
+
+TEST_CASE("keyboard.TranslateKeyToVK")
+{
+	static const struct
+	{
+		far_key_code Key;
+		unsigned ExpectedVK;
+	}
+	Tests[]
+	{
+		{ KEY_ESC,           VK_ESCAPE, },
+		{ KEY_SHIFTSPACE,    VK_SPACE, },
+		{ KEY_ALTF1,         VK_F1, },
+		{ KEY_NUMENTER,      VK_RETURN, },
+		{ KEY_SHIFTNUMENTER, VK_RETURN, },
+		{ KEY_NUMDEL,        VK_DELETE, },
+		{ KEY_CTRLNUMDEL,    VK_DELETE, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		INPUT_RECORD Record;
+		TranslateKeyToVK(i.Key, &Record);
+		REQUIRE(Record.EventType == KEY_EVENT);
+		REQUIRE(Record.Event.KeyEvent.bKeyDown);
+		REQUIRE(Record.Event.KeyEvent.wVirtualKeyCode == i.ExpectedVK);
+	}
+}
+
 #endif

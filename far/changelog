@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-05-11 12:07:52+01:00 - build 6333
+
+1. Reimplement 6332 slightly differently to not break the tests, OEM keys and compatibility with 1.x plugins.
+
+--------------------------------------------------------------------------------
 shmuel 2024-05-10 14:07:17+03:00 - build 6332
 
 1. Fix: NumEnter and NumDel posted from a macro were incorrectly converted
