@@ -788,10 +788,7 @@ protected:
 	{
 		const auto ImeWnd = ImmGetDefaultIMEWnd(::console.GetWindow());
 		if (!ImeWnd)
-		{
-			LOGWARNING(L"ImmGetDefaultIMEWnd(): {}"sv, os::last_error());
 			return {};
-		}
 
 		const auto ThreadId = GetWindowThreadProcessId(ImeWnd, {});
 		if (!ThreadId)
@@ -910,7 +907,7 @@ protected:
 		return Result;
 	}
 
-	static bool layout_has_altgr(HKL const Layout, unsigned const ToUnicodeFlags)
+	static bool layout_has_altgr(HKL const Layout)
 	{
 		static std::unordered_map<HKL, bool> LayoutState;
 		const auto [Iterator, Inserted] = LayoutState.emplace(Layout, false);
@@ -926,7 +923,7 @@ protected:
 			if (VK == VK_PACKET)
 				continue;
 
-			if (wchar_t AltChar; ToUnicodeEx(VK, 0, KeyState, &AltChar, 1, ToUnicodeFlags, Layout) > 0)
+			if (wchar_t Buffer[2]; os::to_unicode(VK, 0, KeyState, Buffer, 0, Layout) > 0)
 			{
 				return Iterator->second = true;
 			}
@@ -947,32 +944,21 @@ protected:
 
 		const auto Layout = ::console.GetKeyboardLayout();
 
-		// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mapvirtualkeyexw
-		// Dead keys (diacritics) are indicated by setting the top bit of the return value
-		if (MapVirtualKeyEx(KeyEvent.wVirtualKeyCode, MAPVK_VK_TO_CHAR, Layout) & 0x80000000)
+		if (os::is_dead_key(KeyEvent, Layout))
 			return; // It produces a dead key
 
-		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
-		// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
-		const auto DontChangeKeyboardState = 0b100;
-		static const auto ToUnicodeFlags = os::version::is_win10_1607_or_later()?
-			DontChangeKeyboardState :
-			0;
-
-		if (!layout_has_altgr(Layout, ToUnicodeFlags))
+		if (!layout_has_altgr(Layout))
 			return; // It's not AltGr
 
 		// It's AltGr that produces nothing. We can safely patch it to normal RAlt
 		KeyEvent.dwControlKeyState &= ~LEFT_CTRL_PRESSED;
 
 		BYTE KeyState[256]{};
-		(void)GetKeyboardState(KeyState);
-
 		KeyState[VK_SHIFT] = KeyEvent.dwControlKeyState & SHIFT_PRESSED? 0b10000000 : 0;
 		KeyState[VK_CAPITAL] = KeyEvent.dwControlKeyState & CAPSLOCK_ON? 0b00000001 : 0;
 
-		if (wchar_t Char; ToUnicodeEx(KeyEvent.wVirtualKeyCode, KeyEvent.wVirtualScanCode, KeyState, &Char, 1, ToUnicodeFlags, Layout) > 0)
-			KeyEvent.uChar.UnicodeChar = Char;
+		if (wchar_t Buffer[2]; os::to_unicode(KeyEvent.wVirtualKeyCode, KeyEvent.wVirtualScanCode, KeyState, Buffer, 0, Layout) > 0)
+			KeyEvent.uChar.UnicodeChar = Buffer[0];
 	}
 
 	static void postprocess_key_event(KEY_EVENT_RECORD& KeyEvent)

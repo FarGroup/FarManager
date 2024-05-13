@@ -397,6 +397,9 @@ namespace os
 	HKL make_hkl(string_view LayoutStr);
 	std::vector<HKL> get_keyboard_layout_list();
 
+	int to_unicode(unsigned VirtKey, unsigned ScanCode, BYTE const* KeyState, span<wchar_t> Buffer, unsigned Flags, HKL Hkl);
+	bool is_dead_key(KEY_EVENT_RECORD const& Key, HKL Layout);
+
 	bool is_interactive_user_session();
 }
 

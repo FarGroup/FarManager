@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
 #include "platform.reg.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -686,6 +687,46 @@ std::vector<HKL> get_keyboard_layout_list()
 		Result.emplace_back(make_hkl(0x04090409)); // Fallback to US
 
 	return Result;
+}
+
+int to_unicode(
+	unsigned const VirtKey,
+	unsigned const ScanCode,
+	BYTE const* const KeyState,
+	span<wchar_t> const Buffer,
+	unsigned const Flags,
+	HKL const Hkl)
+{
+	const auto Call = [&](unsigned const ExtraFlags = 0)
+	{
+		return ToUnicodeEx(VirtKey, ScanCode, KeyState, Buffer.data(), static_cast<int>(Buffer.size()), Flags | ExtraFlags, Hkl);
+	};
+
+	// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
+	// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
+	static const auto FastPath = version::is_win10_1607_or_later();
+	if (FastPath)
+		return Call(2_bit);
+
+	// http://www.siao2.com/2005/01/19/355870.aspx
+	// You can keep calling ToUnicode with the same info until it is cleared out
+	// and then call it one more time to put the state back where it was if you had never typed anything
+	if (const auto Count = Call(); Count != 2 || Buffer[0] != Buffer[1])
+		return Count;
+
+	return Call();
+}
+
+bool is_dead_key(KEY_EVENT_RECORD const& Key, HKL const Layout)
+{
+	BYTE KeyState[256]{};
+	KeyState[VK_CONTROL] = Key.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)? 0b10000000 : 0;
+	KeyState[VK_MENU] = Key.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)? 0b10000000 : 0;
+	KeyState[VK_SHIFT] = Key.dwControlKeyState & SHIFT_PRESSED? 0b10000000 : 0;
+	KeyState[VK_CAPITAL] = Key.dwControlKeyState & CAPSLOCK_ON? 0b00000001 : 0;
+
+	wchar_t Buffer[2];
+	return to_unicode(Key.wVirtualKeyCode, Key.wVirtualScanCode, KeyState, Buffer, 0, Layout) < 0;
 }
 
 bool is_interactive_user_session()

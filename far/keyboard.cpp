@@ -297,13 +297,6 @@ void InitKeysArray()
 	//раскладки которая вернула этот символ
 	//
 
-	// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
-	// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
-	const auto DontChangeKeyboardState = 0b100;
-	const auto ToUnicodeFlags = os::version::is_win10_1607_or_later()?
-		DontChangeKeyboardState :
-		0;
-
 	BYTE KeyState[256]{};
 
 	for (const auto j: std::views::iota(0, 2))
@@ -314,8 +307,9 @@ void InitKeysArray()
 		{
 			for (const auto VK : std::views::iota(0, 256))
 			{
-				if (wchar_t idx; ToUnicodeEx(VK, 0, KeyState, &idx, 1, ToUnicodeFlags, i) > 0)
+				if (wchar_t Buffer[2]; os::to_unicode(VK, 0, KeyState, Buffer, 0, i) > 0)
 				{
+					const auto idx = Buffer[0];
 					if (!KeyToVKey[idx])
 						KeyToVKey[idx] = VK + j * 0x100;
 
@@ -2150,9 +2144,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 		return KEY_NONE;
 	}
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mapvirtualkeyexw
-	// Dead keys (diacritics) are indicated by setting the top bit of the return value
-	if (!Char && MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, console.GetKeyboardLayout()) & 0x80000000)
+	if (!Char && os::is_dead_key(rec->Event.KeyEvent, console.GetKeyboardLayout()))
 		return KEY_NONE;
 
 	//прежде, чем убирать это шаманство, поставьте себе раскладку, в которой по ralt+символ можно вводить символы.
