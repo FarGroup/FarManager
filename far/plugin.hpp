@@ -139,7 +139,7 @@ FAR_INLINE_CONSTANT FARCOLORFLAGS
 	FCF_NONE               = 0;
 
 struct
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
 alignas(COLORREF)
 #endif
 rgba
@@ -152,7 +152,7 @@ rgba
 };
 
 struct
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
 alignas(COLORREF)
 #endif
 color_index
