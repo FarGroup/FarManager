@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6327.0
+Plugin API for Far Manager 3.0.6334.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6327
+#define FARMANAGERVERSION_BUILD 6334
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -114,7 +114,11 @@ FAR_INLINE_CONSTANT FARCOLORFLAGS
 
 	FCF_NONE               = 0;
 
-struct rgba
+struct
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
+alignas(COLORREF)
+#endif
+rgba
 {
 	unsigned char
 		r,
@@ -123,7 +127,11 @@ struct rgba
 		a;
 };
 
-struct color_index
+struct
+#if defined(__cplusplus) && !defined(__cplusplus_cli)
+alignas(COLORREF)
+#endif
+color_index
 {
 	unsigned char
 		i,
