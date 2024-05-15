@@ -13,7 +13,7 @@
 "F1          mostrar esta ventana de ayuda"
 "F3          mostrar info acerca de macro/evento"
 "F4          abrir archivo en editor"
-"Alt+F4      abrir archivo en modo editor"
+"Shift+F4    abrir archivo en modo editor"
 "Ctrl+PgUp   localizar archivo en panel activo"
 "Ctrl+F1     ordenar macros por área"
 "Ctrl+F2     ordenar macros por tecla"

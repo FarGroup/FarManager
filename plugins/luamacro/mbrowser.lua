@@ -438,7 +438,7 @@ local function MenuLoop()
 
   local bkeys = {
     {BreakKey="F1"}, {BreakKey="F3"}, {BreakKey="F4"}, {BreakKey="A+F4"}, {BreakKey="C+H"},
-    {BreakKey="C+PRIOR"}, {BreakKey="C+R"},
+    {BreakKey="C+PRIOR"}, {BreakKey="C+R"}, {BreakKey="S+F4"}
   }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
@@ -550,7 +550,7 @@ local function MenuLoop()
       ShowOnlyActive = not ShowOnlyActive
       props.SelectIndex = nil
     ----------------------------------------------------------------------------
-    elseif (BrKey=="F4" or BrKey=="A+F4") and items[pos] then -- edit
+    elseif (BrKey=="F4" or BrKey=="A+F4" or BrKey=="S+F4") and items[pos] then -- edit
       local m = items[pos].macro
       if m.FileName then
         local isMoonScript = string.find(m.FileName, "[nN]", -1)
@@ -558,7 +558,7 @@ local function MenuLoop()
         if isMoonScript then
           startline = utils.GetMoonscriptLineNumber(m.FileName,startline) or startline
         end
-        if BrKey=="A+F4" then -- modal editor
+        if BrKey=="A+F4" or BrKey=="S+F4" then -- modal editor
           editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
         elseif BrKey=="F4" then -- non-modal editor
           local a = far.MacroGetArea()

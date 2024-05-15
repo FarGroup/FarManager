@@ -339,16 +339,25 @@ local function Open_CommandLine (strCmdLine)
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
-    if text=="" then ShowCmdLineHelp(); return;  end
+    if text == "" then
+      ShowCmdLineHelp(); return;
+    end
     local cmd = text:match("%S*"):lower()
     if cmd == "load" then
       local paths = text:match("%S.*",5)
       paths = paths and paths:gsub([[^"(.+)"$]], "%1")
       far.MacroLoadAll(paths)
-    elseif cmd == "save" then utils.WriteMacros()
-    elseif cmd == "unload" then utils.UnloadMacros()
-    elseif cmd == "about" then About()
-    elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
+    elseif cmd == "save" then
+      utils.WriteMacros()
+    elseif cmd == "unload" then
+      utils.UnloadMacros()
+    elseif cmd == "about" then
+      About()
+    elseif cmd == "browser" then
+      macrobrowser()
+    elseif cmd ~= "" then
+      ErrMsg(Msg.CL_UnsupportedCommand .. cmd)
+    end
   elseif prefix == "lua" or prefix == "moon" or prefix == "luas" or prefix == "moons" then
     if text=="" then ShowCmdLineHelp(); return;  end
     local show = false

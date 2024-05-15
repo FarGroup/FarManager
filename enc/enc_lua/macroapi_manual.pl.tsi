@@ -616,7 +616,7 @@ lv=2
 dt=Text
 nm=Operacje wiersza poleceń
 ctime=3617997112
-mtime=3637689351
+mtime=3924957438
 <article>
 #_<markdown>
 #_* `macro: load [ścieżka]`<br>
@@ -628,6 +628,8 @@ mtime=3637689351
 #_   Wyładuj makra (poza tymi utworzonymi z operacją `MCTL_ADDMACRO`) i uchwyty zdarzeń z pamięci.
 #_* `macro: about`<br>
 #_   Pokazuje wersję wtyczki i bibliotek jakie są używane.
+#_* `macro: browser`<br>
+#_   Run macro browser.
 #_* `lua: [=] <kod>`
 #_* `moon: [=] <kod>`<br>
 #_   Wykonuje kod `<kod>` napisany odpowiednio w Lua lub MoonScript.<br>

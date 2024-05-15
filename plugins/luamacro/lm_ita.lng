@@ -13,7 +13,7 @@
 "F1          Mostra Questa Finestra Di Aiuto"
 "F3          Mostra Info Riguardo La Macro"
 "F4          Apri File Per La Modifica"
-"Alt+F4      Apre File In Popup Editor"
+"Shift+F4    Apre File In Popup Editor"
 "Ctrl+PgUp   Trova Il File Nel Pannello Attivo"
 "Ctrl+F1     Ordina Macro Per Area"
 "Ctrl+F2     Ordina Macro Per Tasti"

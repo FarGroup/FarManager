@@ -1,3 +1,9 @@
+shmuel 2024-05-15 17:51:04+03:00 - build 832
+
+1. Add command lm:browser (or macro:browser).
+
+2. Shift+F4 in macro browser does the same as Alt+F4.
+
 shmuel 2024-05-06 11:34:46+03:00 - build 831
 
 1. mf.eval(S,2): invalid area in 'S' is treated as a part of key

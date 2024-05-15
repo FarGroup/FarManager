@@ -13,7 +13,7 @@
 "F1          show this help window"
 "F3          show info about macro/event handler"
 "F4          open file in editor"
-"Alt+F4      open file in modal editor"
+"Shift+F4    open file in modal editor"
 "Ctrl+PgUp   locate file in active panel"
 "Ctrl+F1     sort macros by area"
 "Ctrl+F2     sort macros by key"

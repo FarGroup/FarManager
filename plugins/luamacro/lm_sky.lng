@@ -13,7 +13,7 @@
 "F1          zobraziť toto okno Pomocníka"
 "F3          show info about macro/event"
 "F4          otvoriť súbor v editore"
-"Alt+F4      otvoriť súbor v modálnom editore"
+"Shift+F4    otvoriť súbor v modálnom editore"
 "Ctrl+PgUp   prejsť na súbor v aktívnom paneli"
 "Ctrl+F1     triediť makrá podľa oblasti"
 "Ctrl+F2     triediť makrá podľa klávesu"
