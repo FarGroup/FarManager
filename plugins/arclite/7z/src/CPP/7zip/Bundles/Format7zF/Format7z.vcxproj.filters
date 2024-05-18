@@ -168,6 +168,9 @@
     <Image Include="..\..\Archive\Icons\zip.ico">
       <Filter>Spec\Icons</Filter>
     </Image>
+    <Image Include="..\..\Archive\Icons\zst.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Archive\ArchiveExports.cpp">
@@ -225,6 +228,9 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\Wildcard.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\Xxh64Reg.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\XzCrc64Reg.cpp">
@@ -369,6 +375,9 @@
       <Filter>Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\ZDecoder.cpp">
+      <Filter>Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\ZstdDecoder.cpp">
       <Filter>Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Crypto\7zAes.cpp">
@@ -525,6 +534,12 @@
       <Filter>Windows\C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Threads.c">
+      <Filter>Windows\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Xxh64.c">
+      <Filter>Windows\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\ZstdDec.c">
       <Filter>Windows\C</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\7z\7zCompressionMode.cpp">
@@ -842,6 +857,9 @@
     <ClCompile Include="..\..\Archive\ZHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\ZstdHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Windows\FileDir.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
@@ -993,7 +1011,13 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Spec</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Common\AutoPtr.h">
+      <Filter>Common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Common\Common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\Common0.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Common\Defs.h">
@@ -1185,6 +1209,9 @@
     <ClInclude Include="..\..\Compress\ZDecoder.h">
       <Filter>Compress</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Compress\ZstdDecoder.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Crypto\7zAes.h">
       <Filter>Crypto</Filter>
     </ClInclude>
@@ -1321,6 +1348,12 @@
       <Filter>Windows\C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Threads.h">
+      <Filter>Windows\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Xxh64.h">
+      <Filter>Windows\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\ZstdDec.h">
       <Filter>Windows\C</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Archive\7z\7zCompressionMode.h">

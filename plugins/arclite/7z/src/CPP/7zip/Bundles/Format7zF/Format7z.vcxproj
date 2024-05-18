@@ -309,6 +309,7 @@
     <Image Include="..\..\Archive\Icons\xz.ico" />
     <Image Include="..\..\Archive\Icons\z.ico" />
     <Image Include="..\..\Archive\Icons\zip.ico" />
+    <Image Include="..\..\Archive\Icons\zst.ico" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Archive\Archive2.def" />
@@ -368,6 +369,7 @@
     <ClCompile Include="..\..\..\..\C\Sort.c" />
     <ClCompile Include="..\..\..\..\C\SwapBytes.c" />
     <ClCompile Include="..\..\..\..\C\Threads.c" />
+    <ClCompile Include="..\..\..\..\C\Xxh64.c" />
     <ClCompile Include="..\..\..\..\C\Xz.c" />
     <ClCompile Include="..\..\..\..\C\XzCrc64.c" />
     <ClCompile Include="..\..\..\..\C\XzCrc64Opt.c">
@@ -376,6 +378,7 @@
     <ClCompile Include="..\..\..\..\C\XzDec.c" />
     <ClCompile Include="..\..\..\..\C\XzEnc.c" />
     <ClCompile Include="..\..\..\..\C\XzIn.c" />
+    <ClCompile Include="..\..\..\..\C\ZstdDec.c" />
     <ClCompile Include="..\..\..\Common\CRC.cpp" />
     <ClCompile Include="..\..\..\Common\CrcReg.cpp" />
     <ClCompile Include="..\..\..\Common\DynLimBuf.cpp" />
@@ -396,6 +399,7 @@
     <ClCompile Include="..\..\..\Common\UTFConvert.cpp" />
     <ClCompile Include="..\..\..\Common\Wildcard.cpp" />
     <ClCompile Include="..\..\..\Common\XzCrc64Init.cpp" />
+    <ClCompile Include="..\..\..\Common\Xxh64Reg.cpp" />
     <ClCompile Include="..\..\..\Common\XzCrc64Reg.cpp" />
     <ClCompile Include="..\..\..\Windows\FileDir.cpp" />
     <ClCompile Include="..\..\..\Windows\FileFind.cpp" />
@@ -507,6 +511,7 @@
     <ClCompile Include="..\..\Archive\XarHandler.cpp" />
     <ClCompile Include="..\..\Archive\XzHandler.cpp" />
     <ClCompile Include="..\..\Archive\ZHandler.cpp" />
+    <ClCompile Include="..\..\Archive\ZstdHandler.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipAddCommon.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipHandler.cpp" />
     <ClCompile Include="..\..\Archive\Zip\ZipHandlerOut.cpp" />
@@ -600,22 +605,15 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\Compress\Rar3Vm.cpp" />
-    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\Compress\Rar5Decoder.cpp" />
     <ClCompile Include="..\..\Compress\RarCodecsRegister.cpp" />
     <ClCompile Include="..\..\Compress\ShrinkDecoder.cpp" />
-    <ClCompile Include="..\..\Compress\XpressDecoder.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\Compress\XpressDecoder.cpp" />
     <ClCompile Include="..\..\Compress\XzDecoder.cpp" />
     <ClCompile Include="..\..\Compress\XzEncoder.cpp" />
     <ClCompile Include="..\..\Compress\ZDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibDecoder.cpp" />
+    <ClCompile Include="..\..\Compress\ZstdDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibEncoder.cpp" />
     <ClCompile Include="..\..\Crypto\7zAes.cpp" />
     <ClCompile Include="..\..\Crypto\7zAesRegister.cpp" />
@@ -696,10 +694,14 @@
     <ClInclude Include="..\..\..\..\C\StdAfx.h" />
     <ClInclude Include="..\..\..\..\C\SwapBytes.h" />
     <ClInclude Include="..\..\..\..\C\Threads.h" />
+    <ClInclude Include="..\..\..\..\C\Xxh64.h" />
     <ClInclude Include="..\..\..\..\C\Xz.h" />
     <ClInclude Include="..\..\..\..\C\XzCrc64.h" />
     <ClInclude Include="..\..\..\..\C\XzEnc.h" />
+    <ClInclude Include="..\..\..\..\C\ZstdDec.h" />
+    <ClInclude Include="..\..\..\Common\AutoPtr.h" />
     <ClInclude Include="..\..\..\Common\Common.h" />
+    <ClInclude Include="..\..\..\Common\Common0.h" />
     <ClInclude Include="..\..\..\Common\ComTry.h" />
     <ClInclude Include="..\..\..\Common\Defs.h" />
     <ClInclude Include="..\..\..\Common\DynamicBuffer.h" />
@@ -866,6 +868,7 @@
     <ClInclude Include="..\..\Compress\XzEncoder.h" />
     <ClInclude Include="..\..\Compress\ZDecoder.h" />
     <ClInclude Include="..\..\Compress\ZlibDecoder.h" />
+    <ClInclude Include="..\..\Compress\ZstdDecoder.h" />
     <ClInclude Include="..\..\Compress\ZlibEncoder.h" />
     <ClInclude Include="..\..\Crypto\7zAes.h" />
     <ClInclude Include="..\..\Crypto\HmacSha1.h" />
