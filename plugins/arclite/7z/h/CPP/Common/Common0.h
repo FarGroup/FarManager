@@ -1,25 +1,20 @@
-﻿// Common.h
+// Common0.h
 
 #if defined(_MSC_VER) && _MSC_VER >= 1800
 #pragma warning(disable : 4464) // relative include path contains '..'
 #endif
-	
-#ifndef ZIP7_INC_COMMON_H
-#define ZIP7_INC_COMMON_H
+
+#ifndef ZIP7_INC_COMMON0_H
+#define ZIP7_INC_COMMON0_H
 
 #include "../../C/Compiler.h"
 
 /*
-This file is included to all cpp files in 7-Zip.
-Each folder contains StdAfx.h file that includes "Common.h".
-So 7-Zip includes "Common.h" in both modes:
-  with precompiled StdAfx.h
-and
-  without precompiled StdAfx.h
-
-If you use 7-Zip code, you must include "Common.h" before other h files of 7-zip.
-If you don't need some things that are used in 7-Zip,
-you can change this h file or h files included in this file.
+This file contains compiler related things for cpp files.
+This file is included to all cpp files in 7-Zip via "Common.h".
+Also this file is included in "IDecl.h" (that is included in interface files).
+So external modules can use 7-Zip interfaces without
+predefined macros defined in "Common.h".
 */
 
 #ifdef _MSC_VER
@@ -102,16 +97,38 @@ you can change this h file or h files included in this file.
 
 #if defined(__clang__)
 
+#if /* defined(_WIN32) && */ __clang_major__ >= 16
+#pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+#endif
+
+#if __clang_major__ >= 4 && __clang_major__ < 12 && !defined(_WIN32)
+/*
+if compiled with new GCC libstdc++, GCC libstdc++ can use:
+13.2.0/include/c++/
+    <new> : #define _NEW
+    <stdlib.h> : #define _GLIBCXX_STDLIB_H 1
+*/
+#pragma GCC diagnostic ignored "-Wreserved-id-macro"
+#endif
+
 // noexcept, final, = delete
 #pragma GCC diagnostic ignored "-Wc++98-compat"
 #if __clang_major__ >= 4
 // throw() dynamic exception specifications are deprecated
 #pragma GCC diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
 #endif
+
+#if __clang_major__ <= 6 // check it
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wglobal-constructors"
 #pragma GCC diagnostic ignored "-Wexit-time-destructors"
 
+#if defined(Z7_LLVM_CLANG_VERSION) && __clang_major__ >= 18 // 18.1.0RC
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#endif
 // #pragma GCC diagnostic ignored "-Wunused-private-field"
 // #pragma GCC diagnostic ignored "-Wnonportable-system-include-path"
 // #pragma GCC diagnostic ignored "-Wsuggest-override"
@@ -144,7 +161,7 @@ you can change this h file or h files included in this file.
    So we can use Z7_ARRAY_NEW macro instead of new[] operator. */
 
 #if defined(_MSC_VER) && (_MSC_VER == 1200) && !defined(_WIN64)
-  #define Z7_ARRAY_NEW(p, T, size)  p = new T[((size) > (unsigned)0xFFFFFFFF / sizeof(T)) ? (unsigned)0xFFFFFFFF / sizeof(T) : (size)];
+  #define Z7_ARRAY_NEW(p, T, size)  p = new T[((size) > 0xFFFFFFFFu / sizeof(T)) ? 0xFFFFFFFFu / sizeof(T) : (size)];
 #else
   #define Z7_ARRAY_NEW(p, T, size)  p = new T[size];
 #endif
@@ -235,7 +252,7 @@ protected:
 // #define MY_UNCOPYABLE
 
 
-typedef void (*Z7_void_Function)(void);
+// typedef void (*Z7_void_Function)(void);
 
 #if defined(__clang__) || defined(__GNUC__)
 #define Z7_CAST_FUNC(t, e) reinterpret_cast<t>(reinterpret_cast<Z7_void_Function>(e))
@@ -269,7 +286,7 @@ _Pragma("GCC diagnostic pop")
 #endif
 
 // NewHandler.h and NewHandler.cpp redefine operator new() to throw exceptions, if compiled with old MSVC compilers
-	#include "NewHandler.h"
+#include "NewHandler.h"
 
 /*
 // #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -278,7 +295,7 @@ _Pragma("GCC diagnostic pop")
 #endif
 */
 
-#endif // ZIP7_INC_COMMON_H
+#endif // ZIP7_INC_COMMON0_H
 
 
 
@@ -310,4 +327,4 @@ _Pragma("GCC diagnostic pop")
 #endif // Z7_REDEFINE_NULL
 
 // for precompiler:
-#include "MyWindows.h"
+// #include "MyWindows.h"

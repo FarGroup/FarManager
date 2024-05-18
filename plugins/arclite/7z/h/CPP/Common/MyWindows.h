@@ -1,10 +1,12 @@
-// MyWindows.h
+﻿// MyWindows.h
 
 #ifdef Z7_DEFINE_GUID
-# undef Z7_DEFINE_GUID
+#undef Z7_DEFINE_GUID
 #endif
+
+// get rid of dancing with a tambourine (aka INITGUID)
 #define Z7_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-  constexpr inline GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+    constexpr inline GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
 
 #ifndef ZIP7_INC_MY_WINDOWS_H
 #define ZIP7_INC_MY_WINDOWS_H
@@ -58,8 +60,8 @@ typedef int BOOL;
 typedef Int64 LONGLONG;
 typedef UInt64 ULONGLONG;
 
-typedef struct _LARGE_INTEGER { LONGLONG QuadPart; } LARGE_INTEGER;
-typedef struct _ULARGE_INTEGER { ULONGLONG QuadPart; } ULARGE_INTEGER;
+typedef struct { LONGLONG QuadPart; } LARGE_INTEGER;
+typedef struct { ULONGLONG QuadPart; } ULARGE_INTEGER;
 
 typedef const CHAR *LPCSTR;
 typedef CHAR TCHAR;
@@ -71,7 +73,7 @@ typedef OLECHAR *BSTR;
 typedef const OLECHAR *LPCOLESTR;
 typedef OLECHAR *LPOLESTR;
 
-typedef struct _FILETIME
+typedef struct
 {
   DWORD dwLowDateTime;
   DWORD dwHighDateTime;
@@ -284,7 +286,7 @@ typedef enum tagSTREAM_SEEK
 
 
 
-typedef struct _SYSTEMTIME
+typedef struct
 {
   WORD wYear;
   WORD wMonth;
@@ -304,12 +306,13 @@ BOOL WINAPI FileTimeToSystemTime(const FILETIME *fileTime, SYSTEMTIME *systemTim
 DWORD GetTickCount();
 
 
+/*
 #define CREATE_NEW          1
 #define CREATE_ALWAYS       2
 #define OPEN_EXISTING       3
 #define OPEN_ALWAYS         4
 #define TRUNCATE_EXISTING   5
-
+*/
 
 #endif // _WIN32
 
