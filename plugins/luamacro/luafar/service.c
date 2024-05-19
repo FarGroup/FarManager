@@ -1702,7 +1702,7 @@ static int far_Menu(lua_State *L)
 	const GUID* MenuGuid = NULL;
 	struct FarMenuItem *Items, *pItem;
 	struct FarKey *pBreakKeys;
-	lua_settop(L, POS_BKEYS);     // cut unneeded parameters; make stack predictable
+
 	luaL_checktype(L, POS_PROPS, LUA_TTABLE);
 	luaL_checktype(L, POS_ITEMS, LUA_TTABLE);
 	ItemsNumber = lua_objlen(L, POS_ITEMS);
@@ -1710,37 +1710,37 @@ static int far_Menu(lua_State *L)
 	if (!lua_isnil(L,POS_BKEYS) && !lua_istable(L,POS_BKEYS) && lua_type(L,POS_BKEYS)!=LUA_TSTRING)
 		return luaL_argerror(L, POS_BKEYS, "must be table, string or nil");
 
+	lua_settop(L, POS_BKEYS);     // cut unneeded parameters; make stack predictable
 	lua_newtable(L); // temporary store; at stack position 4
+
 	// Properties
-	lua_pushvalue(L, POS_PROPS);                //+1
+	lua_pushvalue(L, POS_PROPS);
 	X = GetOptIntFromTable(L, "X", -1);
 	Y = GetOptIntFromTable(L, "Y", -1);
 	MaxHeight = GetOptIntFromTable(L, "MaxHeight", 0);
-	lua_getfield(L, POS_PROPS, "Flags");        //+2
 
+	lua_getfield(L, POS_PROPS, "Flags");
 	if (!lua_isnil(L, -1)) Flags = CheckFlags(L, -1);
 
-	lua_getfield(L, POS_PROPS, "Title");        //+3
-
+	lua_getfield(L, POS_PROPS, "Title");
 	if (lua_isstring(L,-1))    Title = StoreTempString(L, POS_STORE);
 
-	lua_getfield(L, POS_PROPS, "Bottom");       //+3
-
+	lua_getfield(L, POS_PROPS, "Bottom");
 	if (lua_isstring(L,-1))    Bottom = StoreTempString(L, POS_STORE);
 
-	lua_getfield(L, POS_PROPS, "HelpTopic");    //+3
-
+	lua_getfield(L, POS_PROPS, "HelpTopic");
 	if (lua_isstring(L,-1))    HelpTopic = StoreTempString(L, POS_STORE);
 
-	lua_getfield(L, POS_PROPS, "SelectIndex");  //+3
+	lua_getfield(L, POS_PROPS, "SelectIndex");
 	if ((SelectIndex = lua_tointeger(L,-1)) > ItemsNumber)
 		SelectIndex = 0;
 
-	lua_getfield(L, POS_PROPS, "Id");           //+4
+	lua_getfield(L, POS_PROPS, "Id");
 	if (lua_type(L,-1)==LUA_TSTRING && lua_objlen(L,-1)==sizeof(GUID))
 		MenuGuid = (const GUID*)lua_tostring(L, -1);
 
-	lua_pop(L, 4);
+	lua_settop (L, POS_STORE);
+
 	// Items
 	Items = (struct FarMenuItem*)lua_newuserdata(L, ItemsNumber*sizeof(struct FarMenuItem));
 	memset(Items, 0, ItemsNumber*sizeof(struct FarMenuItem));
