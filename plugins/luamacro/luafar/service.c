@@ -1707,11 +1707,11 @@ static int far_Menu(lua_State *L)
 	luaL_checktype(L, POS_ITEMS, LUA_TTABLE);
 	ItemsNumber = lua_objlen(L, POS_ITEMS);
 
-	if (!lua_isnil(L,POS_BKEYS) && !lua_istable(L,POS_BKEYS) && lua_type(L,POS_BKEYS)!=LUA_TSTRING)
-		return luaL_argerror(L, POS_BKEYS, "must be table, string or nil");
-
 	lua_settop(L, POS_BKEYS);     // cut unneeded parameters; make stack predictable
 	lua_newtable(L); // temporary store; at stack position 4
+
+	if (!lua_isnil(L,POS_BKEYS) && !lua_istable(L,POS_BKEYS) && lua_type(L,POS_BKEYS)!=LUA_TSTRING)
+		return luaL_argerror(L, POS_BKEYS, "must be table, string or nil");
 
 	// Properties
 	lua_pushvalue(L, POS_PROPS);
