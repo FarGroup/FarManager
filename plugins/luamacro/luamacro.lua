@@ -353,6 +353,18 @@ local function Open_CommandLine (strCmdLine)
       utils.UnloadMacros()
     elseif cmd == "about" then
       About()
+    elseif cmd == "test" then
+      far.MacroPost( [[
+        local function Quit(n) actl.Quit(n) Keys("Esc") end
+        local OK, R
+        R = win.JoinPath(far.PluginStartupInfo().ModuleDir, "macrotest.lua")
+        R = loadfile(R) or Quit(1)
+        OK, R = pcall(R)
+        OK = OK or Quit(2)
+        R.test_all = R.test_all or Quit(3)
+        OK = pcall(R.test_all)
+        Quit(OK and 0 or 4)
+      ]], 0, "CtrlShiftF12")
     elseif cmd == "browser" then
       macrobrowser()
     elseif cmd ~= "" then
