@@ -2060,8 +2060,7 @@ void FileEditor::SetFileName(const string_view NewFileName)
 {
 	if (!NewFileName.empty())
 	{
-		strFullFileName = ConvertNameToFull(NewFileName);
-		ReplaceSlashToBackslash(strFullFileName);
+		strFullFileName = path::normalize_separators(ConvertNameToFull(NewFileName));
 		strFileName = PointToName(strFullFileName);
 		return;
 	}
@@ -2606,8 +2605,7 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 	}
 	else
 	{
-		strCacheName = strFullFileName;
-		ReplaceSlashToBackslash(strCacheName);
+		strCacheName = path::normalize_separators(strFullFileName);
 	}
 
 	pc.Clear();

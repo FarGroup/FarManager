@@ -373,7 +373,7 @@ namespace os::fs
 
 	static find_file_handle FindFirstFileInternal(string_view const Name, find_data& FindData)
 	{
-		if (Name.empty() || path::is_separator(Name.back()))
+		if (Name.empty() || path::get_is_separator(Name)(Name.back()))
 			return nullptr;
 
 		auto Handle = std::make_unique<far_find_file_handle_impl>();
@@ -1756,7 +1756,7 @@ namespace os::fs
 
 		// It seems that "it will be added for you" doesn't work for funny names with trailing dots or spaces, so we add it ourselves.
 
-		if (!Directory.empty() && path::is_separator(Directory.back()))
+		if (!Directory.empty() && path::get_is_separator(Directory)(Directory.back()))
 			return ::SetCurrentDirectory(null_terminated(Directory).c_str()) != FALSE;
 
 		return ::SetCurrentDirectory(AddEndSlash(Directory).c_str()) != FALSE;
@@ -1785,8 +1785,7 @@ namespace os::fs
 	bool set_current_directory(const string_view PathName, const bool Validate)
 	{
 		// correct path to our standard
-		string strDir(PathName);
-		ReplaceSlashToBackslash(strDir);
+		auto strDir = path::normalize_separators(PathName);
 		bool Root = false;
 		ParsePath(strDir, nullptr, &Root);
 		if (Root)
@@ -1984,7 +1983,7 @@ namespace os::fs
 		const auto strFrom = nt_path(ExistingFileName);
 		auto strTo = nt_path(NewFileName);
 
-		if (path::is_separator(strTo.back()))
+		if (path::get_is_separator(strTo)(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
 		}
@@ -2020,7 +2019,7 @@ namespace os::fs
 		const auto strFrom = nt_path(ExistingFileName);
 		auto strTo = nt_path(NewFileName);
 
-		if (path::is_separator(strTo.back()))
+		if (path::get_is_separator(strTo)(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
 		}

@@ -102,7 +102,7 @@ bool FarChDir(string_view const NewDir)
 	}
 
 	AddEndSlash(Directory);
-	ReplaceSlashToBackslash(Directory);
+	path::inplace::normalize_separators(Directory);
 	PrepareDiskPath(Directory, false); // resolving not needed, very slow
 
 	const auto PathType = ParsePath(Directory);

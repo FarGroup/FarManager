@@ -480,7 +480,7 @@ void PluginManager::LoadPluginsFromCache()
 
 	for (size_t i = 0; ConfigProvider().PlCacheCfg()->EnumPlugins(i, strModuleName); ++i)
 	{
-		ReplaceSlashToBackslash(strModuleName);
+		path::inplace::normalize_separators(strModuleName);
 
 		os::fs::find_data FindData;
 

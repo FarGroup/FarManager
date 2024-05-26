@@ -1366,7 +1366,7 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 
 	if (IsAbsolutePath(strExpandedDir))
 	{
-		ReplaceSlashToBackslash(strExpandedDir);
+		path::inplace::normalize_separators(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,true);
 		return true;
 	}

@@ -57,6 +57,76 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static string_view append_arg_process(string_view Str)
+{
+	const auto Begin = Str.find_first_not_of(path::separators);
+	if (Begin == Str.npos)
+		return {};
+
+	Str.remove_prefix(Begin);
+
+	const auto LastCharPos = Str.find_last_not_of(path::separators);
+	if (LastCharPos == Str.npos)
+		return {};
+
+	Str.remove_suffix(Str.size() - LastCharPos - 1);
+
+	return Str;
+}
+
+path::detail::append_arg::append_arg(string_view const Str):
+	string_view(append_arg_process(Str))
+{
+}
+
+path::detail::append_arg::append_arg(const wchar_t& Char):
+	string_view(&Char, ::contains(separators, Char)? 0 : 1)
+{
+}
+
+void path::detail::append_impl(string& Str, const std::initializer_list<append_arg>& Args)
+{
+	const auto LastCharPos = HasPathPrefix(Str)? Str.find_last_not_of(separator) : Str.find_last_not_of(separators);
+	Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
+
+	const auto TotalSize = std::ranges::fold_left(Args, Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
+	{
+		return Value + Element.size();
+	});
+
+	reserve_exp(Str, TotalSize);
+
+	for (const auto& i: Args)
+	{
+		if (!Str.empty() && (!i.empty() || &i + 1 == Args.end()))
+			Str += separators.front();
+
+		Str += i;
+	}
+}
+
+void path::inplace::normalize_separators(string& Path)
+{
+	if (!HasPathPrefix(Path))
+		ReplaceSlashToBackslash(Path);
+}
+
+decltype(path::is_separator)* path::get_is_separator(string_view const Path)
+{
+	return HasPathPrefix(Path)? is_nt_separator : is_separator;
+}
+
+string path::normalize_separators(string Path)
+{
+	inplace::normalize_separators(Path);
+	return Path;
+}
+
+string path::normalize_separators(string_view Path)
+{
+	return normalize_separators(string(Path));
+}
+
 string nt_path(string Path)
 {
 	if (Path.empty())
@@ -138,7 +208,7 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 		{
 			// \\?\x:(\...)
 			root_type::win32nt_drive_letter,
-			re(RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE),
+			re(RE_PATH_PREFIX(L".\\:") RE_BACKSLASH_OR_NONE),
 		},
 		{
 			// \\server\share(\...)
@@ -148,20 +218,20 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 		{
 			// \\?\unc\server\share(\...)
 			root_type::unc_remote,
-			re(RE_PATH_PREFIX(L"[Uu][Nn][Cc]" RE_BACKSLASH RE_NONE_OF(RE_DOT RE_SPACE RE_SLASHES RE_Q_MARK) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ZERO_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE),
+			re(RE_PATH_PREFIX(L"[Uu][Nn][Cc]" RE_BACKSLASH RE_NONE_OF(RE_DOT RE_SPACE RE_SLASHES RE_Q_MARK) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ZERO_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_BACKSLASH_OR_NONE),
 		},
 		{
 			// \\?\Volume{UUID}(\...)
 			root_type::volume,
-			re(RE_PATH_PREFIX(L"[Vv][Oo][Ll][Uu][Mm][Ee]" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE),
+			re(RE_PATH_PREFIX(L"[Vv][Oo][Ll][Uu][Mm][Ee]" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_BACKSLASH_OR_NONE),
 		},
 		{
 			// \\?\<anything_else>(\...)
 			root_type::unknown_rootlike,
-			re(RE_PATH_PREFIX(L"." RE_ONE_OR_MORE_LAZY) RE_ANY_SLASH_OR_NONE),
+			re(RE_PATH_PREFIX(L"." RE_ONE_OR_MORE_LAZY) RE_BACKSLASH_OR_NONE),
 		}
 
-#undef RE_PATH_REFIX
+#undef RE_PATH_PREFIX
 	};
 
 	std::wcmatch Match;
@@ -192,6 +262,14 @@ bool IsAbsolutePath(const string_view Path)
 	return
 		(Type != root_type::unknown && Type != root_type::drive_letter) ||
 		(Type == root_type::drive_letter && (Path.size() > 2 && path::is_separator(Path[2])));
+}
+
+static bool HasPathPrefix(const std::string_view Path)
+{
+	return
+		Path.starts_with("\\\\?\\"sv) ||
+		Path.starts_with("\\\\.\\"sv) ||
+		Path.starts_with("\\??\\"sv);
 }
 
 bool HasPathPrefix(const string_view Path)
@@ -272,7 +350,7 @@ bool IsCurrentDirectory(string_view const Str)
 
 string_view PointToName(string_view const Path)
 {
-	const auto NameStart = std::ranges::find_if(Path | std::views::reverse, path::is_separator);
+	const auto NameStart = std::ranges::find_if(Path | std::views::reverse, path::get_is_separator(Path));
 	return Path.substr(Path.crend() - NameStart);
 }
 
@@ -281,10 +359,7 @@ string_view PointToName(string_view const Path)
 //   строку
 string_view PointToFolderNameIfFolder(string_view Path)
 {
-	while(!Path.empty() && path::is_separator(Path.back()))
-		Path.remove_suffix(1);
-
-	return PointToName(Path);
+	return PointToName(DeleteEndSlash(Path));
 }
 
 std::pair<string_view, string_view> name_ext(string_view const Path)
@@ -314,7 +389,16 @@ static bool LegacyAddEndSlash(char_type* const Path)
 			LastSeenSeparator = *end;
 	}
 
-	if (end != Path && path::is_separator(*(end - 1)))
+	std::basic_string_view const PathView(Path, end);
+
+	if (HasPathPrefix(PathView) && PathView.back() != path::separator)
+	{
+		end[0] = path::separator;
+		end[1] = {};
+		return true;
+	}
+
+	if (!PathView.empty() && path::is_separator(PathView.back()))
 		return true;
 
 	end[0] = LastSeenSeparator;
@@ -336,6 +420,12 @@ bool legacy::AddEndSlash(char* const Path)
 
 void AddEndSlash(string& Path)
 {
+	if (HasPathPrefix(Path) && Path.back() != path::separator)
+	{
+		Path += path::separator;
+		return;
+	}
+
 	if (!Path.empty() && path::is_separator(Path.back()))
 		return;
 
@@ -350,7 +440,8 @@ void AddEndSlash(string& Path)
 string AddEndSlash(string_view const Path)
 {
 	string Result;
-	if (!Path.empty() && path::is_separator(Path.back()))
+
+	if (!Path.empty() && path::get_is_separator(Path)(Path.back()))
 		return Result = Path;
 
 	Result.reserve(Path.size() + 1);
@@ -359,21 +450,30 @@ string AddEndSlash(string_view const Path)
 	return Result;
 }
 
-void legacy::DeleteEndSlash(wchar_t* const Path)
+static auto final_separators_count(string_view const Path)
 {
-	const auto REnd = std::make_reverse_iterator(Path);
-	Path[REnd - std::find_if_not(REnd - std::wcslen(Path), REnd, path::is_separator)] = 0;
+	return std::find_if_not(Path.rbegin(), Path.rend(), path::get_is_separator(Path)) - Path.rbegin();
 }
 
-void DeleteEndSlash(string &Path)
+void legacy::DeleteEndSlash(wchar_t* const Path)
 {
-	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), path::is_separator));
+	string_view NewPath = Path;
+	NewPath.remove_suffix(final_separators_count(Path));
+	Path[NewPath.size()] = 0;
+}
+
+void DeleteEndSlash(string& Path)
+{
+	string_view NewPath = Path;
+	NewPath.remove_suffix(final_separators_count(Path));
+	Path.resize(NewPath.size());
 }
 
 string_view DeleteEndSlash(string_view Path)
 {
-	Path.remove_suffix(std::find_if_not(Path.rbegin(), Path.rend(), path::is_separator) - Path.rbegin());
-	return Path;
+	auto NewPath = Path;
+	NewPath.remove_suffix(final_separators_count(Path));
+	return NewPath;
 }
 
 bool CutToSlash(string_view& Str, bool const RemoveSlash)
@@ -411,10 +511,11 @@ bool CutToParent(string_view& Str)
 	if (RootLength == Str.size())
 		return false;
 
+	const auto IsSeparator = path::get_is_separator(Str);
 	const auto REnd = Str.crend() - RootLength;
-	const auto LastNotSlash = std::find_if_not(Str.crbegin(), REnd, path::is_separator);
-	const auto PrevSlash = std::find_if(LastNotSlash, REnd, path::is_separator);
-	const auto PrevNotSlash = std::find_if_not(PrevSlash, REnd, path::is_separator);
+	const auto LastNotSlash = std::find_if_not(Str.crbegin(), REnd, IsSeparator);
+	const auto PrevSlash = std::find_if(LastNotSlash, REnd, IsSeparator);
+	const auto PrevNotSlash = std::find_if_not(PrevSlash, REnd, IsSeparator);
 
 	const auto NewSize = RootLength + REnd - PrevNotSlash;
 	if (!NewSize)
@@ -441,13 +542,13 @@ bool ContainsSlash(const string_view Str)
 
 size_t FindSlash(const string_view Str)
 {
-	const auto SlashPos = std::ranges::find_if(Str, path::is_separator);
+	const auto SlashPos = std::ranges::find_if(Str, path::get_is_separator(Str));
 	return SlashPos == Str.cend()? string::npos : SlashPos - Str.cbegin();
 }
 
 size_t FindLastSlash(const string_view Str)
 {
-	const auto SlashPos = std::ranges::find_if(Str | std::views::reverse, path::is_separator);
+	const auto SlashPos = std::ranges::find_if(Str | std::views::reverse, path::get_is_separator(Str));
 	return SlashPos == Str.crend()? string::npos : Str.crend() - SlashPos - 1;
 }
 
@@ -464,7 +565,7 @@ string_view extract_root_device(string_view const Path)
 	if (!RootSize)
 		return{};
 
-	return Path.substr(0, RootSize - (path::is_separator(Path[RootSize - 1])? 1 : 0));
+	return Path.substr(0, RootSize - (path::get_is_separator(Path)(Path[RootSize - 1])? 1 : 0));
 }
 
 string extract_root_directory(string_view const Path)
@@ -473,7 +574,7 @@ string extract_root_directory(string_view const Path)
 	if (!RootSize)
 		return{};
 
-	if (path::is_separator(Path[RootSize - 1]))
+	if (path::get_is_separator(Path)(Path[RootSize - 1]))
 		return string{ Path.substr(0, RootSize) };
 
 	// A fancy way to add a trailing slash
@@ -526,7 +627,7 @@ bool IsRootPath(const string_view Path)
 bool PathStartsWith(const string_view Path, const string_view Start)
 {
 	const auto PathPart = DeleteEndSlash(Start);
-	return Path.starts_with(PathPart) && (Path.size() == PathPart.size() || path::is_separator(Path[PathPart.size()]));
+	return Path.starts_with(PathPart) && (Path.size() == PathPart.size() || path::get_is_separator(Path)(Path[PathPart.size()]));
 }
 
 #ifdef ENABLE_TESTS
@@ -550,6 +651,7 @@ TEST_CASE("path.join")
 	REQUIRE(path::join(L"foo\\"sv, L'\\', L"\\bar"sv)           == L"foo\\bar"sv);
 	REQUIRE(path::join(L"foo\\"sv, L""sv, L"\\bar"sv)           == L"foo\\bar"sv);
 	REQUIRE(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv)        == L"\\\\foo\\bar"sv);
+	REQUIRE(path::join(L"\\\\?\\foo/"sv, L"bar"sv)              == L"\\\\?\\foo/\\bar"sv);
 }
 
 TEST_CASE("path.extract_root")
@@ -916,6 +1018,9 @@ TEST_CASE("path.AddEndSlash")
 		{ L"a\\\\"sv,      L"a\\\\"sv },
 		{ L"a\\b/"sv,      L"a\\b/"sv },
 		{ L"a\\b/c/d"sv,   L"a\\b/c/d/"sv },
+		{ L"\\\\?\\1"sv,   L"\\\\?\\1\\"sv },
+		{ L"\\\\?\\1/"sv,  L"\\\\?\\1/\\"sv },
+		{ L"\\\\?\\1/2"sv, L"\\\\?\\1/2\\"sv },
 	};
 
 	for (const auto& i: Tests)
@@ -949,6 +1054,8 @@ TEST_CASE("path.DeleteEndSlash")
 		{ L"a\\\\"sv,      L"a"sv },
 		{ L"a\\b/"sv,      L"a\\b"sv },
 		{ L"a\\b/c/d"sv,   L"a\\b/c/d"sv },
+		{ L"\\??\\1/"sv,   L"\\??\\1/"sv },
+		{ L"\\??\\1/\\"sv, L"\\??\\1/"sv },
 	};
 
 	for (const auto& i : Tests)

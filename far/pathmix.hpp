@@ -56,62 +56,24 @@ namespace path
 {
 	inline constexpr wchar_t separator = L'\\';
 	inline constexpr auto separators = L"\\/"sv;
+
+	static_assert(separators.front() == separator);
+
+	constexpr bool is_nt_separator(wchar_t x) noexcept { return x == separator; }
 	constexpr bool is_separator(wchar_t x) noexcept { return contains(separators, x); }
+
+	decltype(is_separator)* get_is_separator(string_view Path);
 
 	namespace detail
 	{
 		class append_arg: public string_view
 		{
 		public:
-			explicit append_arg(string_view const Str):
-				string_view(process(Str))
-			{
-			}
-
-			explicit append_arg(const wchar_t& Char):
-				string_view(&Char, ::contains(separators, Char)? 0 : 1)
-			{
-			}
-
-		private:
-			string_view process(string_view Str)
-			{
-				const auto Begin = Str.find_first_not_of(separators);
-				if (Begin == Str.npos)
-					return {};
-
-				Str.remove_prefix(Begin);
-
-				const auto LastCharPos = Str.find_last_not_of(separators);
-				if (LastCharPos == Str.npos)
-					return {};
-
-				Str.remove_suffix(Str.size() - LastCharPos - 1);
-
-				return Str;
-			}
+			explicit append_arg(string_view Str);
+			explicit append_arg(const wchar_t& Char);
 		};
 
-		inline void append_impl(string& Str, const std::initializer_list<append_arg>& Args)
-		{
-			const auto LastCharPos = Str.find_last_not_of(separators);
-			Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
-
-			const auto TotalSize = std::ranges::fold_left(Args, Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
-			{
-				return Value + Element.size();
-			});
-
-			reserve_exp(Str, TotalSize);
-
-			for (const auto& i: Args)
-			{
-				if (!Str.empty() && (!i.empty() || &i + 1 == Args.end()))
-					Str += separators.front();
-
-				Str += i;
-			}
-		}
+		void append_impl(string& Str, const std::initializer_list<append_arg>& Args);
 	}
 
 	void append(string& Str, auto const&... Args)
@@ -128,6 +90,14 @@ namespace path
 		detail::append_impl(Str, { detail::append_arg(Args)... });
 		return Str;
 	}
+
+	namespace inplace
+	{
+		void normalize_separators(string& Path);
+	}
+
+	string normalize_separators(string Path);
+	string normalize_separators(string_view Path);
 }
 
 string nt_path(string_view Path);

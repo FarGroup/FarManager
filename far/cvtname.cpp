@@ -414,7 +414,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 	// elevation not required during cosmetic operation
 	SCOPED_ACTION(elevation::suppress);
 
-	ReplaceSlashToBackslash(strPath);
+	path::inplace::normalize_separators(strPath);
 	const auto DoubleSlash = strPath[1] == L'\\';
 	remove_duplicates(strPath, L'\\');
 	if(DoubleSlash)
