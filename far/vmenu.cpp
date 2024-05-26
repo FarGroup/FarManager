@@ -2726,13 +2726,20 @@ void VMenu::AssignHighlights(bool Reverse)
 
 	const auto Delta = Reverse? -1 : 1;
 
-	const auto RegisterHotkey = [&Used](wchar_t Hotkey)
+	const auto RegisterHotkey = [&](wchar_t const Hotkey)
 	{
+		const auto Upper = upper(Hotkey);
+		if (Used[Upper])
+			return false;
+
+		Used[Upper] = true;
+		Used[lower(Hotkey)] = true;
+
 		const auto OtherHotkey = KeyToKeyLayout(Hotkey);
 		Used[upper(OtherHotkey)] = true;
 		Used[lower(OtherHotkey)] = true;
-		Used[upper(Hotkey)] = true;
-		Used[lower(Hotkey)] = true;
+
+		return true;
 	};
 
 	const auto ShowAmpersand = CheckFlags(VMENU_SHOWAMPERSAND);
@@ -2742,9 +2749,8 @@ void VMenu::AssignHighlights(bool Reverse)
 		wchar_t Hotkey{};
 		size_t HotkeyVisualPos{};
 		// TODO: проверка на LIF_HIDDEN
-		if (!ShowAmpersand && HiTextHotkey(Items[I].Name, Hotkey, &HotkeyVisualPos) && !Used[upper(Hotkey)] && !Used[lower(Hotkey)])
+		if (!ShowAmpersand && HiTextHotkey(Items[I].Name, Hotkey, &HotkeyVisualPos) && RegisterHotkey(Hotkey))
 		{
-			RegisterHotkey(Hotkey);
 			Items[I].AutoHotkey = Hotkey;
 			Items[I].AutoHotkeyPos = HotkeyVisualPos;
 		}
@@ -2763,9 +2769,8 @@ void VMenu::AssignHighlights(bool Reverse)
 		// TODO: проверка на LIF_HIDDEN
 		for (const auto& Ch: MenuItemForDisplay)
 		{
-			if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
+			if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && RegisterHotkey(Ch))
 			{
-				RegisterHotkey(Ch);
 				Items[I].AutoHotkey = Ch;
 				Items[I].AutoHotkeyPos = &Ch - MenuItemForDisplay.data();
 				break;

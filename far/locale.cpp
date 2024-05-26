@@ -286,6 +286,30 @@ static auto get_month_day_names(int const Language)
 
 namespace detail
 {
+	locale::locale(bool const Invariant):
+		m_IsInvariant(Invariant)
+	{
+		if (m_IsInvariant)
+		{
+			m_IsCJK = false;
+			m_DateFormat = date_type::mdy;
+			m_DigitsGrouping = 3;
+			m_DateSeparator = L'/';
+			m_TimeSeparator = L':';
+			m_DecimalSeparator = L'.';
+			m_ThousandSeparator = L',';
+
+			m_LocalNames = m_EnglishNames = get_month_day_names(LANG_ENGLISH);
+
+			m_Valid = true;
+		}
+	}
+
+	bool locale::is_invariant() const
+	{
+		return m_IsInvariant;
+	}
+
 	bool locale::is_cjk() const
 	{
 		refresh();
@@ -348,6 +372,9 @@ namespace detail
 
 	void locale::invalidate()
 	{
+		if (m_IsInvariant)
+			return;
+
 		m_Valid = false;
 
 		if (Global)
@@ -358,7 +385,7 @@ namespace detail
 
 	void locale::refresh() const
 	{
-		if (m_Valid)
+		if (m_Valid || m_IsInvariant)
 			return;
 
 		m_IsCJK = get_is_cjk();
@@ -374,19 +401,10 @@ namespace detail
 
 		m_Valid = true;
 	}
+}
 
-	void locale::invariant()
-	{
-		m_IsCJK = false;
-		m_DateFormat = date_type::mdy;
-		m_DigitsGrouping = 3;
-		m_DateSeparator = L'/';
-		m_TimeSeparator = L':';
-		m_DecimalSeparator = L'.';
-		m_ThousandSeparator = L',';
-
-		m_LocalNames = m_EnglishNames = get_month_day_names(LANG_ENGLISH);
-
-		m_Valid = true;
-	}
+detail::locale const& invariant_locale()
+{
+	static const detail::locale s_InvariantLocale(true);
+	return s_InvariantLocale;
 }

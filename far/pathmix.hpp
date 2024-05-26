@@ -130,17 +130,8 @@ namespace path
 	}
 }
 
-class NTPath:public string
-{
-	void Transform();
-public:
-	explicit(false) NTPath(const string_view Src):
-		string(Src)
-	{
-		Transform();
-	}
-};
-
+string NTPath(string_view Path);
+string NTPath(string Path);
 
 string KernelPath(string_view NtPath);
 string KernelPath(string NtPath);

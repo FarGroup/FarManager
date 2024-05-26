@@ -148,6 +148,8 @@ string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, std::span<
 
 [[nodiscard]]
 string GroupDigits(unsigned long long Value);
+[[nodiscard]]
+string GroupDigitsInvariant(unsigned long long Value);
 
 [[nodiscard]]
 inline bool IsWordDiv(string_view const WordDiv, wchar_t const Chr)

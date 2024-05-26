@@ -57,31 +57,44 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void NTPath::Transform()
+string NTPath(string Path)
 {
-	string& Data = *this;
-	if (!Data.empty())
-	{
-		if(!HasPathPrefix(Data))
-		{
-			Data = ConvertNameToFull(Data);
+	if (Path.empty())
+		return Path;
 
-			if (!HasPathPrefix(Data))
-			{
-				ReplaceSlashToBackslash(Data);
-				const auto Prefix = ParsePath(Data) == root_type::drive_letter? L"\\\\?\\"sv : L"\\\\?\\UNC"sv;
-				remove_duplicates(Data, path::separator);
-				Data.insert(0, Prefix);
-			}
-		}
-		static const bool is_win2k = !IsWindowsXPOrGreater();
-		if(is_win2k && Data.size() > 5 && Data[5] == L':')
+	if(!HasPathPrefix(Path))
+	{
+		Path = ConvertNameToFull(Path);
+
+		if (!HasPathPrefix(Path))
 		{
-			// "\\?\C:" -> "\\?\c:"
-			// Some file operations fail on Win2k if a drive letter is in upper case
-			inplace::lower(Data, 4, 1);
+			ReplaceSlashToBackslash(Path);
+
+			const auto RootType = ParsePath(Path);
+			if (RootType == root_type::unknown)
+				return Path;
+
+			const auto Prefix = ParsePath(Path) == root_type::drive_letter? L"\\\\?\\"sv : L"\\\\?\\UNC"sv;
+			remove_duplicates(Path, path::separator);
+			Path.insert(0, Prefix);
 		}
 	}
+
+	static const bool is_win2k = !IsWindowsXPOrGreater();
+
+	if(is_win2k && Path.size() > 5 && Path[5] == L':')
+	{
+		// "\\?\C:" -> "\\?\c:"
+		// Some file operations fail on Win2k if a drive letter is in upper case
+		inplace::lower(Path, 4, 1);
+	}
+
+	return Path;
+}
+
+string NTPath(string_view const Path)
+{
+	return NTPath(string(Path));
 }
 
 string KernelPath(string_view const NtPath)
@@ -102,7 +115,7 @@ string KernelPath(string NtPath)
 root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const RootOnly)
 {
 	// Do not use regex::icase here.
-	// The case-insensitive data is minimal here ("unc" / "volume{hex}" / "pipe") and ASCII by definition.
+	// The case-insensitive data is minimal here ("unc" / "volume{hex}") and ASCII by definition.
 	// Doing it manually should be way faster than letting wregex delegate it to OS locale facilities.
 	const auto re = [](const wchar_t* const Str) { return std::wregex(Str, std::regex::optimize); };
 

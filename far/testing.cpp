@@ -136,7 +136,7 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 	NewArgs.emplace_back(L"--warn");
 	NewArgs.emplace_back(L"NoAssertions");
 
-	locale.invariant();
+	locale = invariant_locale();
 
 	return Catch::Session().run(static_cast<int>(NewArgs.size()), NewArgs.data());
 }

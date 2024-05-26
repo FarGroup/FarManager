@@ -8,6 +8,5 @@
     "Microsoft.VisualStudio.Workload.NativeDesktop",
     "Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core",
     "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-    "Microsoft.VisualStudio.Component.Windows10SDK.18362"
   ]
 }

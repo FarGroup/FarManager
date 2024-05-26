@@ -964,6 +964,10 @@ static void handle_exception_final(function_ref<bool()> const Handler)
 	throw;
 }
 
+#ifdef _DEBUG
+static void premain();
+#endif
+
 static int wmain_seh()
 {
 	os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX);
@@ -986,6 +990,10 @@ static int wmain_seh()
 	{
 		return *Result;
 	}
+#endif
+
+#ifdef _DEBUG
+	premain();
 #endif
 
 #ifdef __SANITIZE_ADDRESS__
@@ -1164,5 +1172,11 @@ TEST_CASE("Args")
 			}
 		}, i.Validator);
 	}
+}
+#endif
+
+#ifdef _DEBUG
+static void premain()
+{
 }
 #endif

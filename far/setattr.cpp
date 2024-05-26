@@ -1126,7 +1126,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				SrcPanel->GetCurDir() :
 				ConvertNameToFull(SingleSelFileName));
 
-			// BANANA
 			GetFileOwner(ComputerName, SingleSelFileName, DlgParam.Owner.InitialValue);
 		}
 		else

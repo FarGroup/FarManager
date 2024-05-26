@@ -150,12 +150,6 @@ namespace os::fs
 				LOGWARNING(L"FindVolumeClose(): {}"sv, last_error());
 		}
 
-		void find_notification_handle_closer::operator()(HANDLE Handle) const noexcept
-		{
-			if (!FindCloseChangeNotification(Handle))
-				LOGWARNING(L"FindCloseChangeNotification(): {}"sv, last_error());
-		}
-
 		void find_nt_handle_closer::operator()(HANDLE const Handle) const noexcept
 		{
 			if (const auto Status = imports.NtClose(Handle); !NT_SUCCESS(Status))
@@ -244,7 +238,7 @@ namespace os::fs
 				return GetDriveType(get_root_directory(PathType == root_type::drive_letter? Path[0] : Path[4]).c_str());
 			}
 
-			NTPath NtPath(Path.empty()? os::fs::get_current_directory() : Path);
+			auto NtPath = NTPath(Path.empty()? os::fs::get_current_directory() : Path);
 			AddEndSlash(NtPath);
 
 			return GetDriveType(NtPath.c_str());
@@ -548,7 +542,7 @@ namespace os::fs
 		if (!imports.FindFirstFileNameW)
 			return {};
 
-		const NTPath NtFileName(FileName);
+		const auto NtFileName = NTPath(FileName);
 		find_handle Handle;
 		// BUGBUG check result
 		(void)os::detail::ApiDynamicStringReceiver(LinkName, [&](std::span<wchar_t> Buffer)
@@ -1847,7 +1841,7 @@ namespace os::fs
 
 	bool create_directory(const string_view TemplateDirectory, const string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		const NTPath NtNewDirectory(NewDirectory);
+		const auto NtNewDirectory = NTPath(NewDirectory);
 
 		const auto Create = [&](const string& Template)
 		{
@@ -1879,7 +1873,7 @@ namespace os::fs
 
 	bool remove_directory(const string_view DirName)
 	{
-		const NTPath strNtName(DirName);
+		const auto strNtName = NTPath(DirName);
 		if (low::remove_directory(strNtName.c_str()))
 			return true;
 
@@ -1900,7 +1894,7 @@ namespace os::fs
 
 	handle create_file(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, const bool ForceElevation)
 	{
-		const NTPath strObject(Object);
+		const auto strObject = NTPath(Object);
 		FlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
 		if (CreationDistribution == OPEN_EXISTING || CreationDistribution == TRUNCATE_EXISTING)
 		{
@@ -1941,7 +1935,7 @@ namespace os::fs
 
 	bool delete_file(const string_view FileName)
 	{
-		const NTPath strNtName(FileName);
+		const auto strNtName = NTPath(FileName);
 
 		if (low::delete_file(strNtName.c_str()))
 			return true;
@@ -1987,8 +1981,8 @@ namespace os::fs
 
 	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, progress_routine ProgressRoutine, BOOL* const Cancel, const DWORD CopyFlags)
 	{
-		const NTPath strFrom(ExistingFileName);
-		NTPath strTo(NewFileName);
+		const auto strFrom = NTPath(ExistingFileName);
+		auto strTo = NTPath(NewFileName);
 
 		if (path::is_separator(strTo.back()))
 		{
@@ -2023,8 +2017,8 @@ namespace os::fs
 
 	bool move_file(const string_view ExistingFileName, const string_view NewFileName, const DWORD Flags)
 	{
-		const NTPath strFrom(ExistingFileName);
-		NTPath strTo(NewFileName);
+		const auto strFrom = NTPath(ExistingFileName);
+		auto strTo = NTPath(NewFileName);
 
 		if (path::is_separator(strTo.back()))
 		{
@@ -2061,7 +2055,10 @@ namespace os::fs
 
 	bool replace_file(string_view ReplacedFileName, string_view ReplacementFileName, string_view BackupFileName, DWORD Flags)
 	{
-		const NTPath To(ReplacedFileName), From(ReplacementFileName), Backup(BackupFileName);
+		const auto
+			To = NTPath(ReplacedFileName),
+			From = NTPath(ReplacementFileName),
+			Backup = NTPath(BackupFileName);
 
 		if (low::replace_file(To.c_str(), From.c_str(), Backup.c_str(), Flags))
 			return true;
@@ -2075,7 +2072,7 @@ namespace os::fs
 
 	attributes get_file_attributes(const string_view FileName)
 	{
-		const NTPath NtName(FileName);
+		const auto NtName = NTPath(FileName);
 
 		const auto Result = low::get_file_attributes(NtName.c_str());
 		if (Result != INVALID_FILE_ATTRIBUTES)
@@ -2089,7 +2086,7 @@ namespace os::fs
 
 	bool set_file_attributes(string_view const FileName, attributes const Attributes)
 	{
-		const NTPath NtName(FileName);
+		const auto NtName = NTPath(FileName);
 
 		if (low::set_file_attributes(NtName.c_str(), Attributes))
 			return true;
@@ -2144,7 +2141,7 @@ namespace os::fs
 	bool GetVolumeNameForVolumeMountPoint(string_view const VolumeMountPoint, string& VolumeName)
 	{
 		wchar_t VolumeNameBuffer[50];
-		NTPath strVolumeMountPoint(VolumeMountPoint);
+		auto strVolumeMountPoint = NTPath(VolumeMountPoint);
 		AddEndSlash(strVolumeMountPoint);
 		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
 			return false;
@@ -2238,7 +2235,7 @@ namespace os::fs
 
 	security::descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
 	{
-		NTPath const NtObject(Object);
+		const auto NtObject = NTPath(Object);
 
 		if (auto Result = low::get_file_security(NtObject.c_str(), RequestedInformation))
 			return Result;
@@ -2251,7 +2248,7 @@ namespace os::fs
 
 	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor)
 	{
-		NTPath const NtObject(Object);
+		const auto NtObject = NTPath(Object);
 
 		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.data()))
 			return true;
@@ -2264,7 +2261,7 @@ namespace os::fs
 
 	bool reset_file_security(string_view const Object)
 	{
-		NTPath const NtObject(Object);
+		const auto NtObject = NTPath(Object);
 		if (low::reset_file_security(NtObject.c_str()))
 			return true;
 
@@ -2287,7 +2284,7 @@ namespace os::fs
 
 	bool get_disk_size(const string_view Path, unsigned long long* const UserTotal, unsigned long long* const TotalFree, unsigned long long* const UserFree)
 	{
-		NTPath strPath(Path);
+		auto strPath = NTPath(Path);
 		AddEndSlash(strPath);
 
 		if (low::get_disk_free_space(strPath.c_str(), UserFree, UserTotal, TotalFree))
@@ -2349,16 +2346,6 @@ namespace os::fs
 		return true;
 	}
 
-	find_notification_handle find_first_change_notification(const string_view PathName, bool WatchSubtree, DWORD NotifyFilter)
-	{
-		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
-	}
-
-	bool find_next_change_notification(find_notification_handle const& Handle)
-	{
-		return FindNextChangeNotification(Handle.native_handle()) != FALSE;
-	}
-
 	bool IsDiskInDrive(string_view const Root)
 	{
 		string strDrive(Root);
@@ -2391,7 +2378,7 @@ namespace os::fs
 
 	bool CreateSymbolicLink(string_view const SymlinkFileName, string_view const TargetFileName, DWORD Flags)
 	{
-		const NTPath NtSymlinkFileName(SymlinkFileName);
+		const auto NtSymlinkFileName = NTPath(SymlinkFileName);
 
 		if (CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, Flags))
 			return true;
@@ -2404,7 +2391,7 @@ namespace os::fs
 
 	bool set_file_encryption(const string_view FileName, const bool Encrypt)
 	{
-		const NTPath NtName(FileName);
+		const auto NtName = NTPath(FileName);
 
 		if (low::set_file_encryption(NtName.c_str(), Encrypt))
 			return true;
@@ -2417,7 +2404,7 @@ namespace os::fs
 
 	bool detach_virtual_disk(const string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 	{
-		const NTPath NtObject(Object);
+		const auto NtObject = NTPath(Object);
 
 		if (low::detach_virtual_disk(NtObject.c_str(), VirtualStorageType))
 			return true;

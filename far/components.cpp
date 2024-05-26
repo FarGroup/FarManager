@@ -93,8 +93,7 @@ namespace components
 		static const auto sList = []
 		{
 			FN_RETURN_TYPE(GetComponentsInfo) Result;
-			const auto& ComponentsList = components_list::instance();
-			std::ranges::transform(ComponentsList, std::inserter(Result, Result.end()), [](const auto& i)
+			std::ranges::transform(components_list::instance(), std::inserter(Result, Result.end()), [](const auto& i)
 			{
 				return i();
 			});

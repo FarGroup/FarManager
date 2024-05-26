@@ -2127,7 +2127,7 @@ static size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, w
 		switch (Mode)
 		{
 		case CPM_NATIVE:
-			strDest=NTPath(Src);
+			strDest = NTPath(string_view{ Src });
 			break;
 
 		case CPM_REAL:

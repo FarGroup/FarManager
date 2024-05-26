@@ -117,23 +117,14 @@ using disk_menu_item = std::variant<disk_item, plugin_item>;
 [[nodiscard]]
 static bool is_disk(string_view const RootDirectory)
 {
-	return RootDirectory.size() == L"\\\\?\\C:\\"sv.size();
+	return RootDirectory.size() == L"C:\\"sv.size();
 }
 
 [[nodiscard]]
 static string_view dos_drive_name(string_view const RootDirectory)
 {
 	if (is_disk(RootDirectory))
-		return RootDirectory.substr(L"\\\\?\\"sv.size(), L"C:"sv.size());
-
-	return RootDirectory;
-}
-
-[[nodiscard]]
-static string_view dos_drive_root_directory(string_view const RootDirectory)
-{
-	if (is_disk(RootDirectory))
-		return RootDirectory.substr(L"\\\\?\\"sv.size(), L"C:\\"sv.size());
+		return RootDirectory.substr(0, L"C:"sv.size());
 
 	return RootDirectory;
 }
@@ -661,7 +652,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &
 static string GetShellName(string_view const RootDirectory)
 {
 	return is_disk(RootDirectory)?
-		os::com::get_shell_name(dos_drive_root_directory(RootDirectory)) :
+		os::com::get_shell_name(RootDirectory):
 		L""s;
 }
 
@@ -846,7 +837,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		for (const auto& i: os::fs::enum_drives(AllDrives))
 		{
-			process_location(os::fs::drive::get_win32nt_root_directory(i));
+			process_location(os::fs::drive::get_root_directory(i));
 		}
 
 		if (DriveMode & DRIVE_SHOW_UNMOUNTED_VOLUMES)
@@ -880,7 +871,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (IsDisk)
 				{
-					const auto DiskNumber = os::fs::drive::get_number(i.RootDirectory[L"\\\\?\\"sv.size()]);
+					const auto DiskNumber = os::fs::drive::get_number(i.RootDirectory[0]);
 
 					ChDiskItem.SetSelect(static_cast<int>(DiskNumber) == Pos);
 
@@ -981,7 +972,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				std::visit(overload{[&](disk_item const& item)
 				{
-					OpenFolderInShell(dos_drive_root_directory(item.Path));
+					OpenFolderInShell(item.Path);
 				},
 				[](plugin_item const&){}}, *MenuItem);
 				break;
@@ -1094,7 +1085,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						return;
 
 					//вызовем EMenu если он есть
-					null_terminated const RootDirectory(dos_drive_root_directory(item.Path));
+					null_terminated const RootDirectory(item.Path);
 					struct DiskMenuParam
 					{
 						const wchar_t* CmdLine; BOOL Apps; COORD MousePos;
@@ -1335,7 +1326,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		const auto IsDisk = is_disk(item.Path);
 
-		while (!(FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(dos_drive_root_directory(item.Path)))))
+		while (!(FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(item.Path))))
 		{
 			error_state_ex const ErrorState = os::last_error();
 
@@ -1369,7 +1360,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (Builder.ShowDialog())
 			{
 				if (IsDisk)
-					item.Path = os::fs::drive::get_win32nt_root_directory(upper(DriveLetter[0]));
+					item.Path = os::fs::drive::get_root_directory(upper(DriveLetter[0]));
 			}
 			else
 			{

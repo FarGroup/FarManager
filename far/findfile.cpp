@@ -2915,13 +2915,16 @@ bool FindFiles::FindFilesProcess()
 				}
 				else
 				{
-					size_t Length=strFileName.size();
-
-					if (!Length)
+					if (strFileName.empty())
 						break;
 
-					if (Length>1 && path::is_separator(strFileName[Length-1]) && strFileName[Length-2] != L':')
-						strFileName.pop_back();
+					const auto remove_trailing_slash_if_not_root = [](string& Path)
+					{
+						if (Path.size() > 1 && path::is_separator(Path.back()) && Path[Path.size() - 2] != L':')
+							Path.pop_back();
+					};
+
+					remove_trailing_slash_if_not_root(strFileName);
 
 					if (!os::fs::exists(strFileName) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
@@ -2938,10 +2941,8 @@ bool FindFiles::FindFilesProcess()
 					}
 
 					strFileName.resize(strFileName.size() - NamePtr.size());
-					Length=strFileName.size();
 
-					if (Length>1 && path::is_separator(strFileName[Length-1]) && strFileName[Length-2] != L':')
-						strFileName.pop_back();
+					remove_trailing_slash_if_not_root(strFileName);
 
 					if (strFileName.empty())
 						break;
@@ -2960,10 +2961,8 @@ bool FindFiles::FindFilesProcess()
 					// ! Не меняем каталог, если мы уже в нем находимся.
 					// Тем самым добиваемся того, что выделение с элементов панели не сбрасывается.
 					string strDirTmp = FindPanel->GetCurDir();
-					Length=strDirTmp.size();
 
-					if (Length>1 && path::is_separator(strDirTmp[Length-1]) && strDirTmp[Length-2] != L':')
-						strDirTmp.pop_back();
+					remove_trailing_slash_if_not_root(strDirTmp);
 
 					if (!equal_icase(strFileName, strDirTmp))
 						FindPanel->SetCurDir(strFileName,true);

@@ -67,11 +67,6 @@ namespace os::fs
 			void operator()(HANDLE Handle) const noexcept;
 		};
 
-		struct find_notification_handle_closer
-		{
-			void operator()(HANDLE Handle) const noexcept;
-		};
-
 		struct find_nt_handle_closer
 		{
 			void operator()(HANDLE Handle) const noexcept;
@@ -86,7 +81,6 @@ namespace os::fs
 	using find_handle = os::detail::handle_t<detail::find_handle_closer>;
 	using find_file_handle = os::detail::handle_t<detail::find_file_handle_closer>;
 	using find_volume_handle = os::detail::handle_t<detail::find_volume_handle_closer>;
-	using find_notification_handle = os::detail::handle_t<detail::find_notification_handle_closer>;
 	using find_nt_handle = os::detail::handle_t<detail::find_nt_handle_closer>;
 
 	using drives_set = std::bitset<26>;
@@ -619,12 +613,6 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool get_find_data(string_view FileName, find_data& FindData, bool ScanSymLink = true);
-
-	[[nodiscard]]
-	find_notification_handle find_first_change_notification(string_view PathName, bool WatchSubtree, DWORD NotifyFilter);
-
-	[[nodiscard]]
-	bool find_next_change_notification(find_notification_handle const& Handle);
 
 	[[nodiscard]]
 	bool IsDiskInDrive(string_view Root);

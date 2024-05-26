@@ -62,10 +62,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-string GroupDigits(unsigned long long Value)
+static auto GroupDigitsImpl(unsigned long long Value, detail::locale const& Locale)
 {
-	wchar_t DecimalSeparator[]{ locale.decimal_separator(), L'\0' };
-	wchar_t ThousandSeparator[]{ locale.thousand_separator(), L'\0' };
+	wchar_t DecimalSeparator[]{ Locale.decimal_separator(), L'\0' };
+	wchar_t ThousandSeparator[]{ Locale.thousand_separator(), L'\0' };
 
 	NUMBERFMT const Fmt
 	{
@@ -73,7 +73,7 @@ string GroupDigits(unsigned long long Value)
 		.NumDigits = 0,
 		// Don't care - can't be decimal
 		.LeadingZero = 1,
-		.Grouping = locale.digits_grouping(),
+		.Grouping = Locale.digits_grouping(),
 		.lpDecimalSep = DecimalSeparator,
 		.lpThousandSep = ThousandSeparator,
 		// Don't care - can't be negative
@@ -91,6 +91,16 @@ string GroupDigits(unsigned long long Value)
 
 	// Better than nothing
 	return Src;
+}
+
+string GroupDigits(unsigned long long Value)
+{
+	return GroupDigitsImpl(Value, locale);
+}
+
+string GroupDigitsInvariant(unsigned long long Value)
+{
+	return GroupDigitsImpl(Value, invariant_locale());
 }
 
 static wchar_t* legacy_InsertQuotes(wchar_t *Str)
@@ -371,12 +381,14 @@ void PrepareUnitStr()
 	}
 }
 
-static string FileSizeToStrImpl(unsigned long long const FileSize, int const WidthWithSign, unsigned long long const ViewFlags, bool const Localized)
+static string FileSizeToStrImpl(unsigned long long const FileSize, int const WidthWithSign, unsigned long long const ViewFlags, detail::locale const& Locale)
 {
-	if (Localized && !UnitSymbol[id::localized][0][0])
+	const auto IsInvariantLocale = Locale.is_invariant();
+
+	if (!IsInvariantLocale && !UnitSymbol[id::localized][0][0])
 		PrepareUnitStr();
 
-	const auto& Symbol = UnitSymbol[Localized? id::localized : id::invariant];
+	const auto& Symbol = UnitSymbol[IsInvariantLocale? id::invariant : id::localized];
 	const size_t Width = std::abs(WidthWithSign);
 	const bool LeftAlign = WidthWithSign < 0;
 	const bool UseGroupDigits = (ViewFlags & COLFLAGS_GROUPDIGITS) != 0;
@@ -454,7 +466,7 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 					return RoundedFractionalDigits == Multiplier? std::pair(RawIntegral + 1, 0u) : std::pair(RawIntegral, RoundedFractionalDigits);
 				}();
 
-				Str = concat(str(IntegralPart), locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0'));
+				Str = concat(str(IntegralPart), Locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0'));
 			}
 			else
 			{
@@ -465,9 +477,9 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 		return FormatSize(std::move(Str), UnitIndex);
 	}
 
-	const auto ToStr = [UseGroupDigits](auto Size)
+	const auto ToStr = [&](auto Size)
 	{
-		return UseGroupDigits? GroupDigits(Size) : str(Size);
+		return UseGroupDigits? GroupDigitsImpl(Size, Locale) : str(Size);
 	};
 
 	size_t UnitIndex = 0;
@@ -497,12 +509,12 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 
 string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned long long ViewFlags)
 {
-	return FileSizeToStrImpl(FileSize, WidthWithSign, ViewFlags, true);
+	return FileSizeToStrImpl(FileSize, WidthWithSign, ViewFlags, locale);
 }
 
 string FileSizeToStrInvariant(unsigned long long FileSize, int WidthWithSign, unsigned long long ViewFlags)
 {
-	return FileSizeToStrImpl(FileSize, WidthWithSign, ViewFlags, false);
+	return FileSizeToStrImpl(FileSize, WidthWithSign, ViewFlags, invariant_locale());
 }
 
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
