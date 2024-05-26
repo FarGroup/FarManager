@@ -276,7 +276,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 
 bool SetFileOwner(string_view const Object, const string& Owner)
 {
-	const auto NtObject = NTPath(Object);
+	const auto NtObject = nt_path(Object);
 
 	if (SetOwnerInternal(NtObject, Owner))
 		return true;

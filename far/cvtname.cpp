@@ -332,7 +332,7 @@ static string ConvertName(string_view const Object, bool(*Mutator)(string_view, 
 
 	strDest = Object;
 
-	if (HasPathPrefix(Object) || !Mutator(NTPath(Object), strDest))
+	if (HasPathPrefix(Object) || !Mutator(nt_path(Object), strDest))
 		return string(Object);
 
 	switch (ParsePath(strDest))

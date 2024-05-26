@@ -110,9 +110,9 @@ void ScanTree::SetFindPath(string_view const Path, string_view const Mask)
 	strFindPathOriginal = Path;
 	AddEndSlash(strFindPathOriginal);
 
-	const auto FullPath = NTPath(ConvertNameToFull(Path));
+	const auto FullPath = nt_path(ConvertNameToFull(Path));
 
-	strFindPath = NTPath(ConvertNameToReal(FullPath));
+	strFindPath = nt_path(ConvertNameToReal(FullPath));
 
 	scantree_item Item;
 	Item.RealPath = strFindPath;
@@ -229,7 +229,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			auto RealPath = path::join(ScanItems.back().RealPath, fdata.FileName);
 
 			if (is_link)
-				RealPath = NTPath(ConvertNameToReal(RealPath));
+				RealPath = nt_path(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
 			if (!ScanItems.back().ActiveDirectories.contains(RealPath))

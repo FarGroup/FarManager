@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-string NTPath(string Path)
+string nt_path(string Path)
 {
 	if (Path.empty())
 		return Path;
@@ -92,17 +92,17 @@ string NTPath(string Path)
 	return Path;
 }
 
-string NTPath(string_view const Path)
+string nt_path(string_view const Path)
 {
-	return NTPath(string(Path));
+	return nt_path(string(Path));
 }
 
-string KernelPath(string_view const NtPath)
+string kernel_path(string_view const NtPath)
 {
-	return KernelPath(string(NtPath));
+	return kernel_path(string(NtPath));
 }
 
-string KernelPath(string NtPath)
+string kernel_path(string NtPath)
 {
 	if (HasPathPrefix(NtPath))
 	{

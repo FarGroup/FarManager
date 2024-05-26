@@ -205,7 +205,7 @@ static bool PrepareAndSetREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_vi
 	case IO_REPARSE_TAG_MOUNT_POINT:
 		{
 			const auto PrintName = ConvertNameToFull(Target);
-			const auto SubstituteName = KernelPath(NTPath(PrintName));
+			const auto SubstituteName = kernel_path(nt_path(PrintName));
 			if (!FillREPARSE_DATA_BUFFER(rdb, PrintName, SubstituteName))
 			{
 				SetLastError(ERROR_INSUFFICIENT_BUFFER);
@@ -222,7 +222,7 @@ static bool PrepareAndSetREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_vi
 
 			if (IsAbsolutePath(Target))
 			{
-				SubstituteNameBuffer = KernelPath(NTPath(SubstituteName));
+				SubstituteNameBuffer = kernel_path(nt_path(SubstituteName));
 				SubstituteName = SubstituteNameBuffer;
 				rdb.SymbolicLinkReparseBuffer.Flags = 0;
 			}

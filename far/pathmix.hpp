@@ -130,11 +130,11 @@ namespace path
 	}
 }
 
-string NTPath(string_view Path);
-string NTPath(string Path);
+string nt_path(string_view Path);
+string nt_path(string Path);
 
-string KernelPath(string_view NtPath);
-string KernelPath(string NtPath);
+string kernel_path(string_view NtPath);
+string kernel_path(string NtPath);
 
 enum class root_type
 {

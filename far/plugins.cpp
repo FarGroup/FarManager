@@ -2415,7 +2415,7 @@ void PluginManager::GetContentData(
 	unordered_string_map<string>& ContentData
 ) const
 {
-	const auto Path = NTPath(FilePath);
+	const auto Path = nt_path(FilePath);
 	const auto Count = ColNames.size();
 
 	for (const auto& i: Plugins)

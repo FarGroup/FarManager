@@ -180,7 +180,7 @@ static os::handle open(const string_view Directory)
 
 FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_view Directory, const bool WatchSubtree):
 	m_EventId(EventId),
-	m_Directory(NTPath(Directory)),
+	m_Directory(nt_path(Directory)),
 	m_WatchSubtree(WatchSubtree),
 	m_DirectoryHandle(open(m_Directory))
 {
