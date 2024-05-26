@@ -615,7 +615,7 @@ lv=2
 dt=Text
 nm=Command line operations
 ctime=3617997112
-mtime=3924957302
+mtime=3925879779
 <article>
 #_<markdown>
 #_* `macro: load [path]`<br>
@@ -629,6 +629,8 @@ mtime=3924957302
 #_   Show versions of the plugin and the libraries it is using.
 #_* `macro: browser`<br>
 #_   Run macro browser.
+#_* `macro: test`<br>
+#_   Run tests and exit Far (exit code 0 = success)
 #_* `lua: [=] <code>`
 #_* `moon: [=] <code>`<br>
 #_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
