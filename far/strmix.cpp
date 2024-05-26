@@ -687,9 +687,18 @@ bool FindWordInString(string_view const Str, size_t CurPos, size_t& Begin, size_
 
 bool CheckFileSizeStringFormat(string_view const FileSizeStr)
 {
-	// NumberSuffix
-	static const std::wregex SizeRegex(RE_BEGIN RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_LAZY RE_ANY_OF(L"BbKkMmGgTtPpEe") RE_ZERO_OR_ONE_GREEDY RE_END, std::regex::optimize);
-	return std::regex_search(ALL_CONST_RANGE(FileSizeStr), SizeRegex);
+	// <Number>[Suffix]
+	const auto Iterator = std::ranges::find_if_not(FileSizeStr, std::iswdigit);
+	if (Iterator == FileSizeStr.cbegin())
+		return false;
+
+	if (Iterator == FileSizeStr.cend())
+		return true;
+
+	if (Iterator + 1 != FileSizeStr.cend())
+		return false;
+
+	return contains(L"BbKkMmGgTtPpEe"sv, *Iterator);
 }
 
 unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
@@ -757,18 +766,17 @@ string ReplaceBrackets(
 		else if (NamedMatch)
 		{
 			// {some text}
-			static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
-			std::match_results<string_view::const_iterator> CMatch;
-			if (const auto Part = ReplaceStr.substr(TokenStart); std::regex_search(ALL_CONST_RANGE(Part), CMatch, re))
+			const auto Part = ReplaceStr.substr(TokenStart);
+
+			if (const auto MatchFirst = Part.find(L'{'); MatchFirst != Part.npos)
 			{
-				TokenSize = CMatch[0].length();
-				if (const auto Iterator = NamedMatch->Matches.find(string_view{ CMatch[1].first, CMatch[1].second }); Iterator != NamedMatch->Matches.cend())
+				if (const auto MatchLast = Part.find(L'}', MatchFirst + 1); MatchLast != Part.npos)
 				{
-					Replacement = get_match(SearchStr, Match[Iterator->second]);
-				}
-				else
-				{
-					Replacement = ReplaceStr.substr(i, CMatch.length() + 1);
+					TokenSize = MatchLast - MatchFirst + 1;
+					const auto Iterator = NamedMatch->Matches.find(Part.substr(MatchFirst + 1, TokenSize - 2));
+					Replacement = Iterator == NamedMatch->Matches.cend()?
+						ReplaceStr.substr(i, TokenSize + 1) :
+						get_match(SearchStr, Match[Iterator->second]);
 				}
 			}
 		}

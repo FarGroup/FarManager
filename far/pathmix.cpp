@@ -119,6 +119,8 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 	// Doing it manually should be way faster than letting wregex delegate it to OS locale facilities.
 	const auto re = [](const wchar_t* const Str) { return std::wregex(Str, std::regex::optimize); };
 
+
+	// TODO: get rid of regexes
 	static const struct
 	{
 		root_type Type;

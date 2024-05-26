@@ -2358,9 +2358,7 @@ private:
 
 bool is_uuid(string_view const Str)
 {
-	// "HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH"
-	static const std::wregex re(RE_BEGIN RE_ANY_UUID RE_END, std::regex::optimize);
-	return std::regex_search(ALL_CONST_RANGE(Str), re);
+	return uuid::try_parse(Str).has_value();
 }
 
 }
