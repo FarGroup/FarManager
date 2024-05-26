@@ -141,7 +141,7 @@ after_build:
   #test & archive 
   - cd ci\%configuration%.%platform_name%
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
-  - Far.exe -service "macro:test"
+  - if not "%platform_name%" == "ARM64" Far.exe -service "macro:test"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
   - set NAME_PREFIX="Far%NAME_ADD%.%platform_name%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
