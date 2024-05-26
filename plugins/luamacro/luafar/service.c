@@ -5320,7 +5320,7 @@ static int far_MakeMenuItems(lua_State *L)
 			if (lua_type(L, -1) != LUA_TSTRING)
 				luaL_error(L, "tostring() returned a non-string value");
 
-			sprintf(buf_prefix, "%*d%s", maxno, i, delim);
+			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
 			start = lua_tolstring(L, -1, &len_arg);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);
