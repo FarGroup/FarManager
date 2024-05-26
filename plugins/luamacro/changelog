@@ -1,3 +1,7 @@
+shmuel 2024-05-26 14:21:23+03:00 - build 837
+
+1. LuaFAR: refactoring
+
 shmuel 2024-05-26 08:19:05+03:00 - build 836
 
 1. Add command macro:test (lm:test) for automatic testing.
