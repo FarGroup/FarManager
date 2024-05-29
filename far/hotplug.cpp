@@ -492,7 +492,7 @@ bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancel
 	}
 
 	const auto PathType = ParsePath(Path);
-	if (PathType != root_type::win32nt_drive_letter && PathType != root_type::volume)
+	if (none_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter, root_type::volume))
 	{
 		Cancelled = true;
 		return false;
@@ -503,9 +503,9 @@ bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancel
 
 	const auto ItemIterator = [&]
 	{
-		if (PathType == root_type::win32nt_drive_letter)
+		if (any_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter))
 		{
-			const auto DiskNumber = os::fs::drive::get_number(Path[L"\\\\?\\"sv.size()]);
+			const auto DiskNumber = os::fs::drive::get_number(Path[PathType == root_type::drive_letter? 0 : L"\\\\?\\"sv.size()]);
 			return std::ranges::find_if(Info, [&](DeviceInfo const& i){ return i.DevicePaths.Disks[DiskNumber]; });
 		}
 
