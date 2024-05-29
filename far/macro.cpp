@@ -2235,9 +2235,6 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	case MCODE_F_GETOPTIONS:
 		{
 			DWORD Options = 0;
-			if (Global->OnlyEditorViewerUsed)                   Options |= 0_bit;
-			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 2_bit;
-			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 3_bit;
 			if (Global->Opt->ReadOnlyConfig)                    Options |= 4_bit;
 			return api.PassValue(Options);
 		}

@@ -57,7 +57,6 @@ local MCODE_F_CHECKALL     = 0x80C64
 local MCODE_F_GETOPTIONS   = 0x80C65
 local MCODE_F_MACROSETTINGS = 0x80C6A
 
-Shared.OnlyEditorViewerUsed = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) ~= 0
 local ReadOnlyConfig = band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) ~= 0
 
 local Areas
@@ -724,7 +723,7 @@ local function LoadMacros (unload, paths)
   ContentColumns = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
-  local AreaNames = Shared.OnlyEditorViewerUsed and SomeAreaNames or AllAreaNames
+  local AreaNames = panel.CheckPanelsExist() and AllAreaNames or SomeAreaNames
   for _,name in pairs(AreaNames) do newAreas[name]={} end
   for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
