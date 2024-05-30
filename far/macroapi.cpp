@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.headers.hpp"
 
 // Self:
-#include "macro.hpp"
+#include "macroapi.hpp"
 
 // Internal:
 #include "clipboard.hpp"

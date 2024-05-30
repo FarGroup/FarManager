@@ -287,6 +287,9 @@
     <ClCompile Include="macro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="macroapi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -905,6 +908,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="macro.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="macroapi.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="macroopcode.hpp">
