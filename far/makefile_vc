@@ -154,6 +154,7 @@ LINK_OBJS = \
 	"$(INTDIR)\lockscrn.obj" \
 	"$(INTDIR)\log.obj" \
 	"$(INTDIR)\macro.obj" \
+	"$(INTDIR)\macroapi.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\map_file.obj" \

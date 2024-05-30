@@ -117,6 +117,7 @@ SRCS = \
 	lockscrn.cpp \
 	log.cpp \
 	macro.cpp \
+	macroapi.cpp \
 	main.cpp \
 	manager.cpp \
 	map_file.cpp \

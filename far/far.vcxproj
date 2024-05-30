@@ -151,6 +151,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="lockscrn.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="macro.cpp" />
+    <ClCompile Include="macroapi.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="map_file.cpp" />
