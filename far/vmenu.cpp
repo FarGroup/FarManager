@@ -612,6 +612,9 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 // установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
+	if (Items.empty())
+		return -1;
+
 	const auto pos = std::clamp(ListPos->SelectPos, intptr_t{}, static_cast<intptr_t>(Items.size() - 1));
 	const auto Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 

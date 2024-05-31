@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2024-05-31 15:20:31+03:00 - build 6340
+
+1. Fix crash in debug builds on sending DM_LISTSETCURPOS to an empty menu.
+
+--------------------------------------------------------------------------------
 shmuel 2024-05-31 00:00:44+03:00 - build 6339
 
 1. Split macro.cpp into 2 files (new file: macroapi.cpp).
