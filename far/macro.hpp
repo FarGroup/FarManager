@@ -67,7 +67,6 @@ enum MACRODISABLEONLOAD
 	MDOL_ALL            = 31_bit, // дисаблим все макросы при загрузке
 };
 
-class TVar;
 struct point;
 
 struct MacroPanelSelect
