@@ -1006,6 +1006,13 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 
 			if (FarDialog->InitOK())
 			{
+				bool modalInPlace = (Flags & FDLG_NONMODAL) && Global->WindowManager->InModal();
+
+				if (modalInPlace)
+				{
+					Flags &= ~FDLG_NONMODAL;
+				}
+
 				if (Flags & FDLG_NONMODAL)
 					FarDialog->SetCanLoseFocus(TRUE);
 				else
@@ -1042,6 +1049,13 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				{
 					FarDialog->Process();
 					Global->WindowManager->PluginCommit();
+				}
+
+				if (modalInPlace)
+				{
+					apiDialogRun(hDlg);
+					apiDialogFree(hDlg);
+					hDlg = INVALID_HANDLE_VALUE;
 				}
 			}
 		}
