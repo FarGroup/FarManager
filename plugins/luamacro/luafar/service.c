@@ -3985,7 +3985,7 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 	PSInfo *Info = GetPluginData(L)->Info;
 	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
-	if (Msg == DN_INITDIALOG && NonModal(dd))
+	if (Msg == DN_INITDIALOG && dd->hDlg == INVALID_HANDLE_VALUE)
 	{
 		dd->hDlg = hDlg;
 	}
@@ -4053,7 +4053,6 @@ static int far_DialogInit(lua_State *L)
 	// 8-th parameter (flags)
 	Flags = OptFlags(L, 8, 0);
 	dd = NewDialogData(L, pd->Info, INVALID_HANDLE_VALUE, TRUE);
-	dd->isModal = (Flags&FDLG_NONMODAL) == 0;
 	// 9-th parameter (DlgProc function)
 	Proc = NULL;
 	Param = NULL;
@@ -4091,6 +4090,10 @@ static int far_DialogInit(lua_State *L)
 	{
 		RemoveDialogFromRegistry(L, dd);
 		lua_pushnil(L);
+	}
+	else
+	{
+		dd->isModal = (Flags&FDLG_NONMODAL) == 0;
 	}
 
 	return 1;
