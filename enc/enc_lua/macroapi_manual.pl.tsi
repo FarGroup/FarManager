@@ -2594,7 +2594,7 @@ lv=2
 dt=Text
 nm=Ograniczenia w korzystaniu z niektórych funkcji
 ctime=3557323094
-mtime=3732332374
+mtime=3926597548
 <article>
 #_<markdown>
 #_The following functions have certain restrictions on their use in macros: 
@@ -2602,6 +2602,7 @@ mtime=3732332374
 #_* [`exit`][exit]
 #_* [`mf.acall`][acall]
 #_* [`mf.AddExitHandler`][AddExitHandler]
+#_* [`mf.mainmenu`][mainmenu]
 #_* [`mf.usermenu`][usermenu] (in the "asynchronous" call mode)
 #_* [`Keys`][keys]
 #_* [`Plugin.Call`][plugincall]
@@ -2633,6 +2634,7 @@ mtime=3732332374
 #_[exit]: 61.html
 #_[keys]: 4.html
 #_[AddExitHandler]: 100.html
+#_[mainmenu]: 111.html
 #_
 #_@@@
 #_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command
