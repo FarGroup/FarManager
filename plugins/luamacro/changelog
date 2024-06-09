@@ -1,3 +1,7 @@
+shmuel 2024-06-09 21:52:16+03:00 - build 841
+
+1.  LuaFAR: make tostring on bit64 output in hex.
+
 zg 2024-06-04 00:07:01+03:00 - build 840
 
 1. Adaptation to Far 3.0.6342.
