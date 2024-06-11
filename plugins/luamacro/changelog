@@ -1,3 +1,7 @@
+shmuel 2024-06-12 01:00:14+03:00 - build 842
+
+1. LuaFAR: refactoring
+
 shmuel 2024-06-09 21:52:16+03:00 - build 841
 
 1.  LuaFAR: make tostring on bit64 output in hex.
