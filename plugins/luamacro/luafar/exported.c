@@ -406,9 +406,10 @@ void UpdateFileSelection(lua_State* L, struct PluginPanelItem *PanelItem,
 
 intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "GetFiles"))         //+1: Func
 	{
-		intptr_t ret;
 		Info->StructSize = sizeof(*Info);
 		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Item
 		lua_insert(L,-2);                  //+2: Item,Func
@@ -417,9 +418,8 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 		lua_pushboolean(L, Info->Move);
 		push_utf8_string(L, Info->DestPath, -1);
 		bit64_push(L, Info->OpMode);       //+8: Item,Func,Pair,Item,Move,Dest,OpMode
-		ret = pcall_msg(L, 6, 2);          //+3: Item,Res,Dest
 
-		if (ret == 0)
+		if (!pcall_msg(L, 6, 2))           //+3: Item,Res,Dest
 		{
 			if (lua_isstring(L,-1))
 			{
@@ -432,13 +432,10 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 			ret = lua_tointeger(L,-1);
 			lua_pop(L,1);                    //+1: Item
 			UpdateFileSelection(L, Info->PanelItem, Info->ItemsNumber);
-			return lua_pop(L,1), ret;
 		}
-
-		return lua_pop(L,1), 0;
+		lua_pop(L,1); //+0
 	}
-
-	return 0;
+	return ret;
 }
 //---------------------------------------------------------------------------
 
@@ -1140,52 +1137,51 @@ intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *
 
 intptr_t LF_ProcessHostFile(lua_State* L, const struct ProcessHostFileInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "ProcessHostFile"))      //+1: Func
 	{
-		intptr_t ret;
 		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Item
 		lua_insert(L,-2);                  //+2: Item,Func
 		PushPluginPair(L, Info->hPanel);   //+4: Item,Func,Pair
 		lua_pushvalue(L,-4);               //+5: Item,Func,Pair,Item
 		bit64_push(L, Info->OpMode);       //+6: Item,Func,Pair,Item,OpMode
-		ret = pcall_msg(L, 4, 1);          //+2: Item,Res
 
-		if (ret == 0)
+		if (!pcall_msg(L, 4, 1))           //+2: Item,Res
 		{
 			ret = lua_toboolean(L,-1);
 			lua_pop(L,1);                    //+1: Item
 			UpdateFileSelection(L, Info->PanelItem, Info->ItemsNumber);
-			return lua_pop(L,1), ret;
 		}
-
-		lua_pop(L,1);
+		lua_pop(L,1); //+0
 	}
-
-	return FALSE;
+	return ret;
 }
 
 intptr_t LF_ProcessPanelInput(lua_State* L, const struct ProcessPanelInputInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "ProcessPanelInput"))      //+1: Func
 	{
 		PushPluginPair(L, Info->hPanel);                 //+3: Func,Pair
 		PushInputRecord(L, &Info->Rec);                  //+4
 
-		if (pcall_msg(L, 3, 1) == 0)                      //+1: Res
+		if (!pcall_msg(L, 3, 1))                         //+1: Res
 		{
-			intptr_t ret = lua_toboolean(L,-1);
-			return lua_pop(L,1), ret;
+			ret = lua_toboolean(L,-1);
+			lua_pop(L,1);
 		}
 	}
-
-	return FALSE;
+	return ret;
 }
 
 intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "PutFiles"))       //+1: Func
 	{
-		intptr_t ret;
 		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Items
 		lua_insert(L,-2);                        //+2: Items,Func
 		PushPluginPair(L, Info->hPanel);         //+4: Items,Func,Pair
@@ -1193,27 +1189,24 @@ intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info)
 		lua_pushboolean(L, Info->Move);          //+6: Items,Func,Pair,Items,Move
 		push_utf8_string(L, Info->SrcPath, -1);  //+7: Items,Func,Pair,Items,Move,SrcPath
 		bit64_push(L, Info->OpMode);             //+8: Items,Func,Pair,Items,Move,SrcPath,OpMode
-		ret = pcall_msg(L, 6, 1);                //+2: Items,Res
 
-		if (ret == 0)
+		if (!pcall_msg(L, 6, 1))                 //+2: Items,Res
 		{
 			ret = lua_tointeger(L,-1);
 			lua_pop(L,1);                    //+1: Items
 			UpdateFileSelection(L, Info->PanelItem, Info->ItemsNumber);
-			return lua_pop(L,1), ret;
 		}
-
-		lua_pop(L,1);
+		lua_pop(L,1); //+0
 	}
-
-	return 0;
+	return ret;
 }
 
 intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "SetDirectory"))      //+1: Func
 	{
-		intptr_t ret;
 		PushPluginPair(L, Info->hPanel);     //+3: Func,Pair
 		push_utf8_string(L, Info->Dir, -1);  //+4: Func,Pair,Dir
 		bit64_push(L, Info->OpMode);         //+5: Func,Pair,Dir,OpMode
@@ -1226,35 +1219,33 @@ intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info)
 		{
 			lua_pushnil(L);
 		}
-		ret = pcall_msg(L, 5, 1);            //+1: Res
 
-		if (ret == 0)
+		if (!pcall_msg(L, 5, 1))             //+1: Res
 		{
 			ret = lua_toboolean(L,-1);
-			return lua_pop(L,1), ret;
+			lua_pop(L,1);
 		}
 	}
-
-	return FALSE;
+	return ret;
 }
 
 intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (GetExportFunction(L, "SetFindList"))                  //+1: Func
 	{
-		intptr_t ret;
 		PushPluginPair(L, Info->hPanel);                          //+3: Func,Pair
 		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+4: Func,Pair,Items
-		ret = pcall_msg(L, 3, 1);                                 //+1: Res
 
-		if (ret == 0)
+		if (!pcall_msg(L, 3, 1))                                  //+1: Res
 		{
 			ret = lua_toboolean(L,-1);
-			return lua_pop(L,1), ret;
+			lua_pop(L,1);
 		}
 	}
 
-	return FALSE;
+	return ret;
 }
 
 void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
@@ -1326,6 +1317,8 @@ void LF_GetPluginInfo(lua_State* L, struct PluginInfo *PI)
 
 intptr_t LF_ProcessEditorInput(lua_State* L, const struct ProcessEditorInputInfo *Info)
 {
+	intptr_t ret = 0;
+
 	if (!GetExportFunction(L, "ProcessEditorInput"))    //+1: Func
 		return 0;
 
@@ -1333,11 +1326,10 @@ intptr_t LF_ProcessEditorInput(lua_State* L, const struct ProcessEditorInputInfo
 
 	if (pcall_msg(L, 1, 1) == 0)        //+1: Res
 	{
-		intptr_t ret = lua_toboolean(L,-1);
-		return lua_pop(L,1), ret;
+		ret = lua_toboolean(L,-1);
+		lua_pop(L,1);
 	}
-
-	return 0;
+	return ret;
 }
 
 intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo *Info)

@@ -939,13 +939,11 @@ static int win_SetFileTimes(lua_State *L)
 				p_access = &t_access;
 			if (ExtractFileTime(L, "LastWriteTime", &t_write, hFile))
 				p_write = &t_write;
-			lua_pushboolean(L, (p_create||p_access||p_write) && SetFileTime(hFile,p_create,p_access,p_write));
+			res = (p_create||p_access||p_write) && SetFileTime(hFile,p_create,p_access,p_write);
 			CloseHandle(hFile);
-			res = 1;
 		}
 	}
-	if (res == 0)
-		lua_pushboolean(L, 0);
+	lua_pushboolean(L, res);
 	return 1;
 }
 
