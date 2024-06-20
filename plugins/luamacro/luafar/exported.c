@@ -302,13 +302,13 @@ void FillFindData(lua_State* L, struct GetFindDataInfo *Info)
 	size_t i, num;
 	size_t numLines = lua_objlen(L,-1);
 
-	// allocate array with an additional element at its beginning to keep the reference to collector
-	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * (1 + numLines));
+	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * numLines);
 	lua_newtable(L);                                     //+3  Tbl,FindData,Coll
-	lua_pushvalue(L,-1);                                 //+4: Tbl,FindData,Coll,Coll
-	ppi[0].CustomColumnNumber = (size_t)luaL_ref(L,-4);  //+3: Tbl,FindData,Coll
+	lua_pushlightuserdata(L, ppi);                       //+4  Tbl,FindData,Coll,ppi
+	lua_pushvalue(L,-2);                                 //+5: Tbl,FindData,Coll,ppi,Coll
+	lua_rawset(L, -5);                                   //+3: Tbl,FindData,Coll
 
-	for(i=1,num=1; i<=numLines; i++)
+	for(i=1,num=0; i<=numLines; i++)
 	{
 		lua_pushinteger(L, i);                   //+4
 		lua_gettable(L, -3);                     //+4: Tbl,FindData,Coll,FindData[i]
@@ -323,8 +323,8 @@ void FillFindData(lua_State* L, struct GetFindDataInfo *Info)
 	}
 
 	lua_pop(L,3);                              //+0
-	Info->ItemsNumber = num-1;
-	Info->PanelItem = ppi+1;
+	Info->ItemsNumber = num;
+	Info->PanelItem = ppi;
 }
 
 intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
@@ -364,12 +364,13 @@ void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 {
 	if (Info->ItemsNumber > 0)
 	{
-		struct PluginPanelItem *auxItem = Info->PanelItem - 1;
 		PushPluginTable(L, Info->hPanel);
-		luaL_unref(L, -1, (int)auxItem->CustomColumnNumber); //free the collector
+		lua_pushlightuserdata(L, Info->PanelItem);
+		lua_pushnil(L);
+		lua_rawset(L, -3); //free the collector
 		lua_pop(L, 1);
 		lua_gc(L, LUA_GCCOLLECT, 0); //free memory taken by Collector
-		free(auxItem);
+		free(Info->PanelItem);
 	}
 }
 //---------------------------------------------------------------------------
