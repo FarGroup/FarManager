@@ -50,15 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-/* $ 09.10.2000 IS
-    Генерация нового имени по маске
-    (взял из ShellCopy::ShellCopyConvertWildcards)
-*/
-// На основе имени файла (SrcName) и маски (Mask) генерируем новое имя
-// SelectedFolderNameLength - длина каталога. Например, есть
-// каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
-// Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
-// или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
 string ConvertWildcards(string_view const SrcName, string_view const Mask)
 {
 	const auto WildName = PointToName(Mask);
@@ -71,7 +62,7 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask)
 	Result.reserve(SrcName.size());
 	Result = Mask.substr(0, Mask.size() - WildName.size());
 
-	const auto BeforeNameLength = Result.empty()? 0 : SrcName.size() - SrcNamePart.size();
+	const auto BeforeNameLength = Result.empty()? SrcName.size() - SrcNamePart.size() : 0;
 
 	auto WildPtr = WildName;
 
