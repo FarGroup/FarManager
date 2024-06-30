@@ -1,3 +1,7 @@
+shmuel 2024-06-30 22:27:03+03:00 - build 845
+
+1. LuaFAR: fix a memory leak.
+
 shmuel 2024-06-20 17:41:53+03:00 - build 844
 
 1. LuaFAR: refactoring

@@ -73,7 +73,10 @@ TFarRegex* push_far_regex(lua_State *L, FARAPIREGEXPCONTROL RegExpControl, const
 		luaL_error(L, "RECTL_CREATE failed");
 
 	if (!RegExpControl(fr->hnd, RECTL_COMPILE, 0, (void*)pat))
+	{
+		RegExpControl(fr->hnd, RECTL_FREE, 0, 0);
 		luaL_error(L, "invalid regular expression");
+	}
 
 //(void)RegExpControl(fr->hnd, RECTL_OPTIMIZE, 0, 0); // very slow operation
 	luaL_getmetatable(L, TYPE_REGEX);
