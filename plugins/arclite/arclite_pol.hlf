@@ -90,7 +90,7 @@ utworzonych za pomocą tego algorytmu.
  #PPMD# - Ten algorytm jest zalecany do plików tekstowych. Należy wziąć pod uwagę, że używa
 tej samej ilości pamięci do kompresji i do dekompresji.
  #Deflate# - Standardowy algorytm dla archiwów zip.
- #Deflate64# - algorytm ten ma dłuższy czas kompresji i potencjalnie nieco wyższy współczynnik kompresji niż Deflate.
+ #Deflate64# - Algorytm ten ma dłuższy czas kompresji i potencjalnie nieco wyższy współczynnik kompresji niż Deflate.
 
  #Solidne archiwum# - Opcja ta może poprawić współczynnik kompresji, przechowując wszystkie pliki
 jako jeden strumień danych. Utrudnia to dostęp do poszczególnych plików, ponieważ podczas wyodrębniania
