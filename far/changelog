@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-07-08 22:55:36+01:00 - build 6345
+
+1. gh-854: Windows 10 32-bit crash.
+   A relatively large value of Layout.WidthDecrement, persisted into the config,
+   could cause havoc after rerunning with a smaller window size.
+
+--------------------------------------------------------------------------------
 drkns 2024-06-26 18:12:34+01:00 - build 6344
 
 1. Fix 5281.2.

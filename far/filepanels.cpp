@@ -222,15 +222,8 @@ void FilePanels::Init()
 
 void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const
 {
-	if (const auto MaxWidth = ScrX / 2; MaxWidth > 10)
-	{
-		if (Global->Opt->WidthDecrement < -MaxWidth)
-			Global->Opt->WidthDecrement = -MaxWidth;
-
-		if (Global->Opt->WidthDecrement > MaxWidth)
-			Global->Opt->WidthDecrement = MaxWidth;
-	}
-
+	const auto AbsMaxWidthDecrement = std::max(0ll, ScrX / 2 - 10ll);
+	Global->Opt->WidthDecrement = std::max(-AbsMaxWidthDecrement, std::min(Global->Opt->WidthDecrement.Get(), AbsMaxWidthDecrement));
 	Global->Opt->LeftHeightDecrement = std::max(0ll, std::min(Global->Opt->LeftHeightDecrement.Get(), ScrY - 7ll));
 	Global->Opt->RightHeightDecrement = std::max(0ll, std::min(Global->Opt->RightHeightDecrement.Get(), ScrY - 7ll));
 
