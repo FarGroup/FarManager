@@ -2909,14 +2909,19 @@ $ #Вбудована програма перегляду#
  #Ctrl+Shift+Left#    На початок рядків на екрані
  #Ctrl+Shift+Right#   На кінець рядків на екрані
 
- In the #hex# and #dump# ~view modes~@ViewerMode@, #Ctrl+Left# and
-#Ctrl+Right# keys shift the content within the window one byte at a time
-in the corresponding direction.
+ The following additional keys work in #dump# and #hex# modes:
 
- В режимі #hex# ~view mode~@ViewerMode@, #Alt+Left# та #Alt+Right# комбінації
-зменьшують чи збільшують число байтів, що відображаються в кожному рядку, на 1.
-Комбінації #Ctrl+Alt+Left# та #Ctrl+Alt+Right# вирівнюють кількість байтів до
-найближчої кількості, кратної 16.
+ #Ctrl+Left#          ^<wrap>Shift all characters (#dump# mode) or bytes (#hex# mode) to the right
+moving the last character (byte) of a row to the first positions of the next row
+ #Ctrl+Right#         Shift all characters (#dump# mode) or bytes (#hex# mode) to the left
+moving the first character (byte) of a row to the last position of the previous row
+
+ The following additional keys work in #hex mode#:
+
+ #Alt+Left#           ^<wrap>Decrement the number of bytes per row
+ #Alt+Right#          Inrement the number of bytes per row
+ #Ctrl+Alt+Left#      Decrease the number of bytes per row to the nearest multiple of 16-bytes
+ #Ctrl+Alt+Right#     Increase the number of bytes per row to the nearest multiple of 16-bytes
 
  Команди програми перегляду
 
@@ -3020,9 +3025,11 @@ of the base mode (#dump# or #text#) most recently selected in the
 #View mode# menu. Note: #F4# and #F2# switch #hex# mode to different
 modes.
 
+ See also the full list of ~viewer commands~@Viewer@.
+
  #Text# mode
 
- In the #text# mode, viewer renders file content interpreting byte
+ In the #text# mode viewer renders file content interpreting byte
 sequences as character strings using the encoding defined by the current
 code page. (Note that some encodings can use more than one byte
 to represent a character.) Byte sequences invalid in the current
@@ -3055,7 +3062,8 @@ are split into several screen rows even in #truncate# mode.
 
  #Dump# mode
 
- In the #dump# mode, viewer renders file content character by character
+ In the #dump# mode there is no notion of a text line.
+The viewer renders file content character by character
 without regard of line breaks or control codes which are treated
 as ordinary characters. The characters are displayed on screen rows from
 left to right. After reaching the end of the row, the next character
@@ -3078,30 +3086,22 @@ the positions of continuation bytes are filled with the #›# characters
  Code page 1200 (UTF-16): each screen position represents two
 consecutive bytes starting at an even offset in the file.
 
- In the #dump# mode, there is no notion of a text line. Instead
-of horizontal scrolling (cf. #text# #truncate# mode), the text
-is shifted one character at a time. The #Ctrl+Right# key combination
-shifts all characters to the left; the first character on a row becomes
-the last on the previous row. The #Ctrl+Left# key combination shifts all
-characters to the right moving the last character of a row to the first
-positions of the next row. The text “flows” from row to row. The #Right#
-and #Left# keys are ignored.
-
  #Hex# mode (hexadecimal codes)
 
- In the #hex# mode, viewer renders file content 16 bytes per screen
-row, with the hexadecimal offset of the first byte of each row at the
-left, followed by the hexadecimal representation of the bytes, followed
-by the character representation.
+ In the #hex# mode viewer renders hexadecimal representation of the
+bytes in the file. Each row starts with the hexadecimal offset of the
+first byte and ends with the character representation of the bytes
+of the row.
 
- The rendition depends on the encoding defined by the current code
-page. For single-byte encodings (e.g. all ANSI code pages), the bytes
-on each row are represented by 16 double-digit hex values followed by 16
-characters. For UTF-8 encoding, the bytes are represented the same way,
-while the characters are displayed at the positions of the leading bytes
-of the UTF-8 sequences with the positions of continuation bytes being
-filled with the #›# characters (code point U+203A). For UTF-16(BE)
-encodings the hex values are followed by eight characters. For example:
+ The rendition depends on the encoding defined by the current code page.
+For single-byte encodings (e.g. all ANSI code pages), the bytes on each
+row are represented by the sequence of double-digit hex values followed
+by the character sequence of the same length. For UTF-8 encoding, the
+bytes are represented the same way, while the characters are displayed
+at the positions of the leading bytes of the UTF-8 sequences with the
+positions of continuation bytes being filled with the #›# characters
+(code point U+203A). For UTF-16(BE) encodings, each pair of double-digit
+hex values is represented by one character. For example:
 
  Code page 1252 (ANSI - Latin I)
 
@@ -3128,21 +3128,6 @@ encodings the hex values are followed by eight characters. For example:
  \1b00000000C2: 35 04 3C 04 3F 04 3B 04 │ 4F 04 40 04 2C 00 20 00  емпляр, \-
  \1b00000000D2: 34 04 30 04 2E 00 0D 00 │ 0A 00                    да.♪◙   \-
 @+
-
- The #Ctrl+Right# key combination shifts all bytes to the left; the
-first byte on a row becomes the last on the previous row. The
-#Ctrl+Left# key combination shifts all bytes to the right moving the
-last byte of a row to the first positions of the next row. Unlike
-in #dump# mode, the content is shifted by a byte, not by a character.
-
- The #Alt+Right# key combination increases the number of bytes displayed
-on each row by one byte. The #Ctrl+Alt+Right# key combination increases
-the number of bytes by 16 at a time. The #Alt+Left# key combination
-decreases the number of bytes displayed on each row by one byte. The
-#Ctrl+Alt+Left# key combination decreases the number of bytes by 16 at
-a time.
-
- The #Right# and #Left# keys are ignored.
 
 
 @ViewerGotoPos

@@ -1,4 +1,18 @@
 --------------------------------------------------------------------------------
+MZK 2024-07-15 22:26:34-04:00 - build 6347
+
+1. If Hex View of the Internal Viewer is wider than the window, it can be properly
+   scrolled horizontally with arrow keys. (The width of the Hex View depends only
+   on the number of bytes per line and does not change with the Far window width.)
+
+2. Ctrl+Alt+Arrow keys snap the number of bytes per line in Hex View of the
+   Internal Viewer to the multiples of 16 (instead of changing the number by 16).
+
+3. Help files updated accordingly.
+
+4. Refactoring
+
+--------------------------------------------------------------------------------
 drkns 2024-07-15 20:17:50+01:00 - build 6346
 
 1. microsoft/terminal#10337 again.

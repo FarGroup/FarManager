@@ -2851,14 +2851,19 @@ $ #Podgląd: sterowanie klawiszami#
  #Ctrl+Shift+Lewo#    Pokazuje pierwszą kolumnę z lewej
  #Ctrl+Shift+Prawo#   Pokazuje ostatnią kolumnę z prawej ze wszystkich linii widocznych na ekranie
 
- W ~trybach podglądu~@ViewerMode@ #hex# (szesnastkowo) i #źródło#, skróty #Ctrl+Lewo#
-oraz #Ctrl+Prawo# przesuwają zawartość okna o jeden bajt w odpowiednim
-kierunku.
+ The following additional keys work in #dump# and #hex# modes:
 
- W trybie #hex# ~podglądu~@ViewerMode@, skróty #Alt+Lewo# i #Alt+Prawo#
-odpowiednio zmniejszają lub zwiększają liczbę bajtów widocznych o jeden.
-Skróty #Ctrl+Alt+Lewo# i #Ctrl+Alt+Prawo# zmieniają liczbę wyświetlanych
-bajtów o 16.
+ #Ctrl+Left#          ^<wrap>Shift all characters (#dump# mode) or bytes (#hex# mode) to the right
+moving the last character (byte) of a row to the first positions of the next row
+ #Ctrl+Right#         Shift all characters (#dump# mode) or bytes (#hex# mode) to the left
+moving the first character (byte) of a row to the last position of the previous row
+
+ The following additional keys work in #hex mode#:
+
+ #Alt+Left#           ^<wrap>Decrement the number of bytes per row
+ #Alt+Right#          Inrement the number of bytes per row
+ #Ctrl+Alt+Left#      Decrease the number of bytes per row to the nearest multiple of 16-bytes
+ #Ctrl+Alt+Right#     Increase the number of bytes per row to the nearest multiple of 16-bytes
 
  Polecenia podglądu
 
@@ -2961,6 +2966,8 @@ przełącza tryb #źródło# na #tekstowy#, i przełącza tryb #hex# na przeciwn
 do trybu podstawowego (#źródło# lub #tekst#) ostatnio wybranego w menu
 #Tryb widoku#. Uwaga: klawisze #F4# i #F2# przełączają tryb #hex# na inne tryby.
 
+ See also the full list of ~viewer commands~@Viewer@.
+
  Tryb #tekstowy#
 
  W trybie #tekstowym#, przeglądarka renderuje zawartość pliku bajt po bajcie
@@ -2995,7 +3002,8 @@ Dłuższe linie są dzielone na kilka wierszy, nawet w trybie #obcinania#.
 
  Tryb #źródło# (ang. dump)
 
- W trybie #źródła#, przeglądarka renderuje zawartość pliku znak po znaku
+ W trybie #źródłowym# nie ma pojęcia linii tekstu.
+Przeglądarka renderuje zawartość pliku znak po znaku
 bez uwzględniania znaków końca wiersza lub kodów sterujących, które traktowane
 są jak zwykłe znaki. Znaki są wyświetlane na ekranie rzędami od lewej
 do prawej. Po osiągnięciu końca wiersza, następny znak jest wyświetlany
@@ -3017,29 +3025,22 @@ znakiem #›# (kod znaku U+203A).
  Strona kodowa 1200 (UTF-16): każda pozycja na ekranie odpowiada dwóm
 kolejnym bajtom rozpoczynając od równego przesunięcia w pliku.
 
- W trybie #źródłowym# nie ma pojęcia linii tekstu. Zamiast przewijania
-w poziomie (tak jak w trybie #tekst# i #obcinanie#), tekst jest przesuwany
-o jeden znak. Klawisze #Ctrl+Prawo# przesuwają wszystkie znaki w lewo;
-pierwszy znak w rzędzie staje się ostatnim w poprzednim rzędzie.
-Klawisze #Ctrl+Lewo# przesuwają wszystkie znaki w prawo, przenosząc ostatni
-znak rzędu do pierwszej pozycji następnego rzędu. Tekst "przepływa" z wiersza
-do wiersza. Klawisze #Prawo# i #Lewo# są ignorowane.
-
  Tryb #hex# (kody szesnastkowe)
 
- W trybie #hex#, przeglądarka renderuje zawartość pliku w formacie
-16 bajtów na wiersz ekranu, z szesnastkowym przesunięciem pierwszego bajtu
-w każdym rzędzie w lewo, po którym następuje szesnastkowa reprezentacja
-każdego bajtu, a następnie reprezentację znaków.
+ In the #hex# mode viewer renders hexadecimal representation of the
+bytes in the file. Each row starts with the hexadecimal offset of the
+first byte and ends with the character representation of the bytes
+of the row.
 
- Odwzorowanie zależy od kodowania zdefiniowanego przez bieżącą stronę kodową.
-Dla kodowań jednobajtowych (np. wszystkie strony kodowe ANSI), bajty w każdym
-wierszu są reprezentowane przez 16 dwucyfrowych wartości szesnastkowych
-po których następuje 16 znaków. Dla kodowania UTF-8, bajty są reprezentowane
-w ten sam sposób, gdy znaki są wyświetlanie w pozycjach bajtów wiodących
-sekwencji UTF-8, a bajty kontynuacji są wypełniane znakiem #›#
-(kod znaku U+203A). Dla kodowania UTF-16(BE) kodowanie wartości szesnastkowych
-przedstawia 8 znaków. Na przykład:
+ The rendition depends on the encoding defined by the current code page.
+For single-byte encodings (e.g. all ANSI code pages), the bytes on each
+row are represented by the sequence of double-digit hex values followed
+by the character sequence of the same length. For UTF-8 encoding, the
+bytes are represented the same way, while the characters are displayed
+at the positions of the leading bytes of the UTF-8 sequences with the
+positions of continuation bytes being filled with the #›# characters
+(code point U+203A). For UTF-16(BE) encodings, each pair of double-digit
+hex values is represented by one character. For example:
 
  Strona kodowa 1250 (ANSI - Europa Środkowa)
 
@@ -3066,20 +3067,6 @@ Za: [L. Jakubowicz; "Wiadomości Literackie" (nr 1, 1936, str. 7)]
  \1b00000000C2: 35 04 3C 04 3F 04 3B 04 │ 4F 04 40 04 2C 00 20 00  емпляр, \-
  \1b00000000D2: 34 04 30 04 2E 00 0D 00 │ 0A 00                    да.♪◙   \-
 @+
-
- Kombinacja klawiszy #Ctrl+Prawo# przesuwa wszystkie bajty w lewo; pierwszy
-bajt w wierszu staje się ostatnim w poprzednim wierszu. Kombinacja #Ctrl+Lewo#
-przesuwa wszystkie bajty w praco, przesuwając ostatni bajt w rzędzie do pierwszej
-pozycji następnie wiersza. Inaczej niż w trybie #źródłowym# zawartość jest
-przesuwana o bajt, a nie o znak.
-
- Kombinacja klawiszy #Alt+Prawo# zwiększa liczbę wyświetlanych bajtów w każdym
-rzędzie o jeden bajt. Kombinacja #Ctrl+Alt+Prawo# zwiększa liczbę bajtów
-o 16 jednocześnie. Kombinacja #Alt+Lewo# zmniejsza liczbę wyświetlanych bajtów
-w każdej linii o jeden bajt. Kombinacja #Ctrl+Alt+Lewo# zmniejsza liczbę bajtów
-o 16 jednocześnie.
-
- Klawisze #Prawy# i #Lewy# są ignorowane.
 
 
 @ViewerGotoPos
