@@ -2157,8 +2157,8 @@ protected:
 	{
 		// https://github.com/microsoft/terminal/issues/10337
 
-		// As of 7 Oct 2022 GetLargestConsoleWindowSize is broken in WT.
-		// It takes the current screen resolution and divides it by an inadequate font size, e.g. 1x16.
+		// As of 15 Jul 2024 GetLargestConsoleWindowSize is broken in WT.
+		// It takes the current screen size in pixels and divides it by an inadequate font size, e.g. 1x16 or 1x1.
 
 		// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
 
@@ -2175,6 +2175,20 @@ protected:
 		// The API works with SHORTs, anything larger than that makes no sense.
 		if (Size.x >= std::numeric_limits<SHORT>::max() || Size.y >= std::numeric_limits<SHORT>::max())
 			return false;
+
+		// If we got here, it is either legit or they used some fallback 1x1 font and the proportions are not screwed enough to fail the checks above.
+		if (const auto Monitor = MonitorFromWindow(::console.GetWindow(), MONITOR_DEFAULTTONEAREST))
+		{
+			if (MONITORINFO Info{ sizeof(Info) }; GetMonitorInfo(Monitor, &Info))
+			{
+				// The smallest selectable in the UI font is 5x2. Anything smaller than that is likely rubbish and unreadable anyway.
+				if (const auto AssumedFontHeight = (Info.rcWork.bottom - Info.rcWork.top) / Size.y; AssumedFontHeight < 5)
+					return false;
+
+				if (const auto AssumedFontWidth = (Info.rcWork.right - Info.rcWork.left) / Size.x; AssumedFontWidth < 2)
+					return false;
+			}
+		}
 
 		return true;
 	}
