@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2024-07-18 01:23:45+01:00 - build 6348
+
+1. Use console pages (DECCRA) to preserve content, not supported by ReadConsoleOutput.
+   See microsoft/terminal#10810 for details.
+
+2. Propagate command execution information to the terminal (OSC133 & OSC9001).
+
+--------------------------------------------------------------------------------
 MZK 2024-07-15 22:26:34-04:00 - build 6347
 
 1. If Hex View of the Internal Viewer is wider than the window, it can be properly
