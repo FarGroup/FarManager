@@ -299,6 +299,7 @@ void Grabber::DisplayObject()
 				colors::make_invert(Destination.ForegroundColor, Destination.IsFgIndex());
 				colors::make_invert(Destination.BackgroundColor, Destination.IsBgIndex());
 				colors::make_invert(Destination.UnderlineColor, Destination.IsUnderlineIndex());
+				flags::clear(Destination.Flags, FCF_FOREIGN);
 			}
 		}
 

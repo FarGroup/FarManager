@@ -88,10 +88,8 @@ public:
 	void DrawCommand(string_view const Command) override
 	{
 		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
-		ScrollScreen(1);
 
 		m_Command = Command;
-		m_ShowCommand = true;
 	}
 
 	void Consolise(bool SetTextColour) override
@@ -155,7 +153,8 @@ public:
 
 		if (Scroll && DoWeReallyHaveToScroll(Global->Opt->ShowKeyBar? 3 : 2))
 		{
-			ScrollScreen(1);
+			std::wcout << std::endl;
+			Global->ScrBuf->FillBuf();
 		}
 
 		console.ResetViewportPosition();
@@ -173,7 +172,6 @@ public:
 
 private:
 	string m_Command;
-	bool m_ShowCommand{};
 	bool m_Activated{};
 	bool m_Finalised{};
 	bool m_Consolised{};
@@ -210,13 +208,13 @@ void console_session::LeavePluginContext(bool Scroll)
 		// FCTL_SETUSERSCREEN without corresponding FCTL_GETUSERSCREEN
 		// Old (1.x) behaviour emulation:
 		if (Global->Opt->ShowKeyBar)
-		{
+				std::wcout << L'\n';
+
+		if (Scroll)
 			std::wcout << L'\n';
-		}
+
 		std::wcout.flush();
 		Global->ScrBuf->FillBuf();
-		if (Scroll)
-			ScrollScreen(1);
 		Global->WindowManager->Desktop()->TakeSnapshot();
 	}
 

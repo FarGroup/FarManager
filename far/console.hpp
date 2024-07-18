@@ -199,6 +199,9 @@ namespace console_detail
 		void set_progress_state(TBPFLAG State) const;
 		void set_progress_value(TBPFLAG State, size_t Percent) const;
 
+		void stash_output() const;
+		void unstash_output(rectangle Coordinates) const;
+
 		[[nodiscard]]
 		short GetDelta() const;
 

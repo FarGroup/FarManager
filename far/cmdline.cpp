@@ -1046,9 +1046,10 @@ void CommandLine::ExecString(execute_info& Info)
 			ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
 
 		ExecutionContext->DoPrologue();
+		ExecutionContext->Consolise();
 
-		if (DoConsolise)
-			ExecutionContext->Consolise();
+		if (Info.Echo)
+			std::wcout << std::endl;
 	};
 
 	if (Info.Command.empty())
@@ -1286,7 +1287,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		ConsoleActivatior(false);
 
 		Text(ChcpParams);
-		ScrollScreen(1);
+
 		return true;
 	}
 

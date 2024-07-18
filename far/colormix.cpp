@@ -227,6 +227,8 @@ namespace colors
 
 		auto Result = Bottom;
 
+		flags::clear(Result.Flags, FCF_FOREIGN);
+
 		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopValue = std::invoke(ColorAccessor, Top);

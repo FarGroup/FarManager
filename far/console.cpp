@@ -1637,6 +1637,32 @@ protected:
 				// Save cursor position
 				Str = ANSISYSSC L""sv;
 
+				std::vector<rectangle> ForeignBlocks;
+				std::optional<rectangle> ForeignBlock;
+
+				const auto queue_block = [&]
+				{
+					if (!ForeignBlock)
+						return;
+
+					for (auto& Block: ForeignBlocks)
+					{
+						if (
+							Block.left == ForeignBlock->left &&
+							Block.right == ForeignBlock->right &&
+							Block.bottom == ForeignBlock->top - 1
+							)
+						{
+							Block.bottom = ForeignBlock->bottom;
+							ForeignBlock.reset();
+							return;
+						}
+					}
+
+					ForeignBlocks.emplace_back(*ForeignBlock);
+					ForeignBlock.reset();
+				};
+
 				for (const auto i: std::views::iota(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
 				{
 					if (i != SubRect.top + SubrectOffset)
@@ -1653,7 +1679,8 @@ protected:
 						LastColor = colors::default_color();
 					}
 
-					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+					const auto BlockRow = Buffer[i].subspan(SubRect.left, SubRect.width());
+					make_vt_sequence(BlockRow, Str, LastColor);
 
 					if (SubRect.right == ScrX && i != ScrY)
 					{
@@ -1663,13 +1690,40 @@ protected:
 						// Surprisingly, it also fixes terminal#15153.
 						Str += L'\n';
 					}
+
+					for (const auto& Cell: BlockRow)
+					{
+						const auto CellIndex = &Cell - BlockRow.data();
+
+						if (
+							Cell.Attributes.Flags & FCF_FOREIGN &&
+							colors::is_transparent(Cell.Attributes.ForegroundColor) &&
+							colors::is_transparent(Cell.Attributes.BackgroundColor)
+						)
+						{
+							if (!ForeignBlock)
+								ForeignBlock.emplace(SubRect.left + CellIndex, i, SubRect.left + CellIndex, i);
+							else
+								++ForeignBlock->right;
+
+							continue;
+						}
+
+						queue_block();
+					}
+
+					queue_block();
 				}
+
+				queue_block();
 
 				if (!::console.Write(Str))
 					return false;
 
-				Str.clear();
+				for (const auto& Block: ForeignBlocks)
+					::console.unstash_output(Block);
 
+				Str.clear();
 			}
 
 			return ::console.Write(CSI L"m"sv);
@@ -2660,6 +2714,29 @@ protected:
 		// 🤦
 		send_vt_command(far::format(OSC(L"9;4;{};{}"), state_to_vt(State), Percent));
 	}
+
+// I'd prefer a more obscure number, but looks like only 1-6 are supported
+#define SERVICE_PAGE_NUMBER "3"
+
+	void console::stash_output() const
+	{
+		send_vt_command(CSI L";;;;1;;;" SERVICE_PAGE_NUMBER "$v"sv);
+	}
+
+	void console::unstash_output(rectangle const Coordinates) const
+	{
+		send_vt_command(far::format(
+			CSI L"{};{};{};{};" SERVICE_PAGE_NUMBER ";{};{};1$v"sv,
+			1 + Coordinates.top,
+			1 + Coordinates.left,
+			1 + Coordinates.bottom,
+			1 + Coordinates.right,
+			1 + Coordinates.top,
+			1 + Coordinates.left
+		));
+	}
+
+#undef SERVICE_PAGE_NUMBER
 
 	bool console::GetCursorRealPosition(point& Position) const
 	{

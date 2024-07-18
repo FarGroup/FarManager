@@ -92,7 +92,6 @@ public:
 	void ApplyColor(rectangle Where, const FarColor& Color);
 	void FillRect(rectangle Where, const FAR_CHAR_INFO& Info);
 
-	void Scroll(size_t Count);
 	void Invalidate(flush_type FlushType = flush_type::all);
 	void Flush(flush_type FlushType = flush_type::all);
 

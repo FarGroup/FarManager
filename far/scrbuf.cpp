@@ -152,6 +152,16 @@ void ScreenBuf::FillBuf()
 
 	rectangle const ReadRegion{ 0, 0, static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1) };
 	console.ReadOutput(Buf, ReadRegion);
+
+	for (auto& i: Buf.vector())
+	{
+		colors::make_transparent(i.Attributes.ForegroundColor);
+		colors::make_transparent(i.Attributes.BackgroundColor);
+		i.Attributes.Flags |= FCF_FOREIGN;
+	}
+
+	console.stash_output();
+
 	Shadow = Buf;
 	point CursorPosition;
 	console.GetCursorPosition(CursorPosition);
@@ -813,51 +823,6 @@ void ScreenBuf::RestoreElevationChar()
 		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), { &ElevationChar, 1 });
 		ElevationCharUsed=false;
 	}
-}
-
-//  проскроллировать буфер вверх.
-void ScreenBuf::Scroll(size_t Count)
-{
-	assert(Count);
-
-	SCOPED_ACTION(std::scoped_lock)(CS);
-
-	const FAR_CHAR_INFO Fill{ L' ', {}, {}, colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
-
-	if (Global->Opt->WindowMode)
-	{
-		if (console.IsScrollbackPresent())
-		{
-			rectangle Region{ 0, 0, ScrX, static_cast<int>(Count - 1) };
-
-			// TODO: matrix_view to avoid copying
-			matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
-			Read(Region, BufferBlock);
-
-			console.ScrollNonClientArea(Count, Fill);
-
-			Region.top = -static_cast<int>(Count);
-			Region.bottom = -1;
-			console.WriteOutput(BufferBlock, Region);
-		}
-		else
-		{
-			// Even if there's no scrollback there might be the right area
-			console.ScrollNonClientArea(Count, Fill);
-		}
-	}
-
-	if (Count && Count < Buf.height())
-	{
-		auto& RawBuf = Buf.vector();
-		const auto size = RawBuf.size();
-		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Count * Buf.width());
-		RawBuf.resize(size, Fill);
-
-		SBFlags.Clear(SBFLAGS_FLUSHED);
-	}
-
-	debug_flush();
 }
 
 void ScreenBuf::SetClearTypeFix(int const ClearTypeFix)

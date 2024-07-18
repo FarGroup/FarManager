@@ -158,7 +158,6 @@ void ShowCursor();
 void SetInitialCursorType();
 void GetCursorType(bool& Visible, size_t& Size);
 void MoveRealCursor(int X,int Y);
-void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
 struct position_parser_state

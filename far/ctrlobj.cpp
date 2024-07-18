@@ -66,12 +66,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ControlObject::ControlObject()
 {
-	SetColor(COL_COMMANDLINEUSERSCREEN);
-	GotoXY(0, ScrY - 3);
-	ShowVersion(false);
-	GotoXY(0, ScrY - 2);
-	MoveCursor({ 0, ScrY - 1 });
-
 	Global->WindowManager->InitDesktop();
 
 	filters::InitFilters();
@@ -142,30 +136,6 @@ void ControlObject::close()
 
 	FPanels.reset();
 	Plugins->UnloadPlugins();
-}
-
-
-void ControlObject::ShowVersion(bool const Direct)
-{
-	if (Direct)
-	{
-		std::wcout << build::version_string() << L'\n' << build::copyright() << L'\n' << std::endl;
-		return;
-	}
-
-	point Size;
-	console.GetSize(Size);
-	point CursorPosition;
-	console.GetCursorPosition(CursorPosition);
-	const auto FreeSpace = Size.y - CursorPosition.y - 1;
-
-	if (FreeSpace < 5 && DoWeReallyHaveToScroll(5))
-		ScrollScreen(5-FreeSpace);
-
-	GotoXY(0,ScrY-4);
-	Text(build::version_string());
-	GotoXY(0,ScrY-3);
-	Text(build::copyright());
 }
 
 FilePanels* ControlObject::Cp() const

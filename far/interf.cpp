@@ -392,7 +392,6 @@ void InitConsole()
 	SetPalette();
 
 	UpdateScreenSize();
-	Global->ScrBuf->FillBuf();
 
 	consoleicons::instance().update_icon();
 }
@@ -1195,12 +1194,6 @@ void ClearScreen(const FarColor& Color)
 const FarColor& GetColor()
 {
 	return CurColor;
-}
-
-
-void ScrollScreen(int Count)
-{
-	Global->ScrBuf->Scroll(Count);
 }
 
 bool DoWeReallyHaveToScroll(short Rows)

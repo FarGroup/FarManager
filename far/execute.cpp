@@ -476,6 +476,7 @@ static void detach(point const& ConsoleSize, rectangle const& ConsoleWindowRect)
 	console.Allocate();
 
 	InitConsole();
+	Global->ScrBuf->FillBuf();
 
 	console.SetSize(ConsoleSize);
 	console.SetWindowRect(ConsoleWindowRect);
