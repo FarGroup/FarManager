@@ -2738,6 +2738,37 @@ protected:
 
 #undef SERVICE_PAGE_NUMBER
 
+	void console::start_prompt() const
+	{
+		send_vt_command(OSC("133;D"));
+ 		send_vt_command(OSC("133;A"));
+	}
+
+	void console::start_command() const
+	{
+		send_vt_command(OSC("133;B"));
+	}
+
+	void console::start_output() const
+	{
+		send_vt_command(OSC("133;C"));
+	}
+
+	void console::command_finished() const
+	{
+		send_vt_command(OSC("133;D"));
+	}
+
+	void console::command_finished(int const ExitCode) const
+	{
+		send_vt_command(far::format(OSC("133;D;{}"), ExitCode));
+	}
+
+	void console::command_not_found(string_view const Command) const
+	{
+		send_vt_command(far::format(OSC("9001;CmdNotFound;{}"), Command));
+	}
+
 	bool console::GetCursorRealPosition(point& Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;

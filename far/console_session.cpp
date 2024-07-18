@@ -117,6 +117,8 @@ public:
 
 		if (SetTextColour)
 			console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+
+		console.start_output();
 	}
 
 	void DoPrologue() override

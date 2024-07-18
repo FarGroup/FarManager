@@ -206,7 +206,12 @@ void CommandLine::DisplayObject()
 
 void CommandLine::DrawFakeCommand(string_view const FakeCommand)
 {
+	console.SetCursorPosition({ m_Where.left, m_Where.top });
+	console.start_prompt();
 	DrawPrompt();
+
+	console.SetCursorPosition({ WhereX(), WhereY() });
+	console.start_command();
 	SetColor(COL_COMMANDLINE);
 	// TODO: wrap & scroll if too long
 	Text(FakeCommand);
@@ -1056,6 +1061,8 @@ void CommandLine::ExecString(execute_info& Info)
 	{
 		// Just scroll the screen
 		Activator(false);
+		console.start_output();
+		console.command_finished();
 		return;
 	}
 
@@ -1098,7 +1105,10 @@ void CommandLine::ExecString(execute_info& Info)
 				return;
 
 			if (ProcessOSCommands(Info.Command, Activator))
+			{
+				console.command_finished(EXIT_SUCCESS);
 				return;
+			}
 		}
 	}
 

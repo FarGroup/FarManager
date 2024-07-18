@@ -214,7 +214,7 @@ using fuzzy_ic_searcher = fuzzy_searcher<icase_searcher>;
 
 using searchers = std::variant
 <
-	bool, // Just to make it default-constructible
+	std::monostate, // Just to make it default-constructible
 	exact_searcher,
 	icase_searcher,
 	fuzzy_cs_searcher,

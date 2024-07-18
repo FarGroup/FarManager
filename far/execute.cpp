@@ -503,12 +503,12 @@ static os::handle wait_for_process_or_detach(os::handle Process, int const Conso
 	return {};
 }
 
-static void log_process_exit_code(os::handle const& Process)
+static void log_process_exit_code(execute_info const& Info, os::handle const& Process, bool const UsingComspec)
 {
 	DWORD ExitCode;
 	if (!GetExitCodeProcess(Process.native_handle(), &ExitCode))
 	{
-		LOGWARNING(L"GetExitCodeProcess(): {}"sv, os::last_error());
+		LOGWARNING(L"GetExitCodeProcess({}): {}"sv, Info.Command, os::last_error());
 		return;
 	}
 
@@ -525,9 +525,23 @@ static void log_process_exit_code(os::handle const& Process)
 		LOGWARNING(L"{}"sv, os::format_error(ExitCode));
 		LOGWARNING(L"{}"sv, os::format_ntstatus(ExitCode));
 	}
+
+	console.command_finished(ExitCode);
+
+	if (UsingComspec && ExitCode == EXIT_FAILURE)
+		console.command_not_found(Info.Command);
 }
 
-static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, os::handle Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
+static void after_process_creation(
+	execute_info const& Info,
+	os::handle Process,
+	execute_info::wait_mode const WaitMode,
+	os::handle Thread,
+	point const& ConsoleSize,
+	rectangle const& ConsoleWindowRect,
+	function_ref<void(bool)> const ConsoleActivator,
+	bool const UsingComspec
+)
 {
 	const auto resume_process = [&](bool const Consolise)
 	{
@@ -557,14 +571,14 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 
 			Process = wait_for_process_or_detach(std::move(Process), KeyNameToKey(Global->Opt->ConsoleDetachKey), ConsoleSize, ConsoleWindowRect);
 			if (Process)
-				log_process_exit_code(Process);
+				log_process_exit_code(Info, Process, UsingComspec);
 		}
 		return;
 
 	case execute_info::wait_mode::wait_finish:
 		resume_process(true);
 		Process.wait();
-		log_process_exit_code(Process);
+		log_process_exit_code(Info, Process, UsingComspec);
 		return;
 	}
 }
@@ -769,7 +783,7 @@ static bool execute_impl(
 		if (!execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
 			return false;
 
-		after_process_creation(os::handle(pi.hProcess), Info.WaitMode, os::handle(pi.hThread), ConsoleSize, ConsoleWindowRect, ExtendedActivator);
+		after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, os::handle(pi.hThread), ConsoleSize, ConsoleWindowRect, ExtendedActivator, UsingComspec);
 		return true;
 
 	};
@@ -796,7 +810,7 @@ static bool execute_impl(
 			return false;
 
 		if (Process)
-			after_process_creation(os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool){});
+			after_process_creation(Info, os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool){}, UsingComspec);
 		return true;
 	};
 

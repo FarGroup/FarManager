@@ -202,6 +202,13 @@ namespace console_detail
 		void stash_output() const;
 		void unstash_output(rectangle Coordinates) const;
 
+		void start_prompt() const;
+		void start_command() const;
+		void start_output() const;
+		void command_finished() const;
+		void command_finished(int ExitCode) const;
+		void command_not_found(string_view Command) const;
+
 		[[nodiscard]]
 		short GetDelta() const;
 
