@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        if: matrix.platform == 'x64' && matrix.build_type == 'Debug'
+        if: matrix.platform == 'x64' && matrix.build_type == 'Debug' && matrix.compiler == 'cl'
         uses: github/codeql-action/init@v3
         with:
           languages: cpp
@@ -136,7 +136,7 @@ jobs:
           nmake /f makefile_all_vc
 
       - name: Perform CodeQL Analysis
-        if: matrix.platform == 'x64' && matrix.build_type == 'Debug'
+        if: matrix.platform == 'x64' && matrix.build_type == 'Debug' && matrix.compiler == 'cl'
         uses: github/codeql-action/analyze@v3
 
       - name: Publish
