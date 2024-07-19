@@ -2855,7 +2855,7 @@ $ #Viewer: control keys#
  The following additional keys work in #dump# and #hex# modes:
 
  #Ctrl+Left#          ^<wrap>Shift all characters (#dump# mode) or bytes (#hex# mode) to the right
-moving the last character (byte) of a row to the first positions of the next row
+moving the last character (byte) of a row to the first position of the next row
  #Ctrl+Right#         Shift all characters (#dump# mode) or bytes (#hex# mode) to the left
 moving the first character (byte) of a row to the last position of the previous row
 
