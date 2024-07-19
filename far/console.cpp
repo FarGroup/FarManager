@@ -2741,7 +2741,7 @@ protected:
 	void console::start_prompt() const
 	{
 		send_vt_command(OSC("133;D"));
- 		send_vt_command(OSC("133;A"));
+		send_vt_command(OSC("133;A"));
 	}
 
 	void console::start_command() const
