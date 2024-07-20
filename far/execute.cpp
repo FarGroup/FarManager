@@ -558,6 +558,7 @@ static void after_process_creation(
 	{
 	case execute_info::wait_mode::no_wait:
 		resume_process(false);
+		console.command_finished();
 		return;
 
 	case execute_info::wait_mode::if_needed:
@@ -567,11 +568,16 @@ static void after_process_creation(
 			resume_process(NeedWaiting);
 
 			if (!NeedWaiting)
+			{
+				console.command_finished();
 				return;
+			}
 
 			Process = wait_for_process_or_detach(std::move(Process), KeyNameToKey(Global->Opt->ConsoleDetachKey), ConsoleSize, ConsoleWindowRect);
 			if (Process)
 				log_process_exit_code(Info, Process, UsingComspec);
+			else
+				console.command_finished();
 		}
 		return;
 
@@ -798,7 +804,11 @@ static bool execute_impl(
 			return true;
 
 		if (os::last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+		{
+			SCOPED_ACTION(os::last_error_guard);
+			ExtendedActivator(false);
 			return false;
+		}
 	}
 
 	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
@@ -912,7 +922,12 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 	const auto ErrorState = os::last_error();
 
 	if (ErrorState.Win32Error == ERROR_CANCELLED)
+	{
+		console.command_finished();
 		return;
+	}
+
+	console.command_finished(ErrorState.Win32Error);
 
 	std::vector<string> Strings;
 	if (UsingComspec)
