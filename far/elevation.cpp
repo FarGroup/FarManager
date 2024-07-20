@@ -971,8 +971,7 @@ bool elevation::set_file_security(string const& Object, SECURITY_INFORMATION con
 		[&]
 		{
 
-			Write(C_FUNCTION_SETFILESECURITY, Object, RequestedInformation);
-			pipe::write(m_Pipe, Descriptor.data(), Descriptor.size());
+			Write(C_FUNCTION_SETFILESECURITY, Object, RequestedInformation, Descriptor);
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
@@ -1319,9 +1318,7 @@ private:
 	{
 		const auto Object = Read<string>();
 		const auto SecurityInformation = Read<SECURITY_INFORMATION>();
-		const auto Size = Read<size_t>();
-		const os::security::descriptor SecurityDescriptor(Size);
-		pipe::read(m_Pipe, SecurityDescriptor.data(), Size);
+		const auto SecurityDescriptor = Read<os::security::descriptor>();
 
 		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.data());
 
