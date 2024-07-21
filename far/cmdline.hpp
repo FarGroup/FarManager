@@ -99,7 +99,7 @@ public:
 private:
 	void DisplayObject() override;
 	size_t DrawPrompt();
-	bool ProcessOSCommands(string_view CmdLine, function_ref<void(bool)> ConsoleActivatior);
+	bool ProcessOSCommands(string_view CmdLine, function_ref<void()> ConsoleActivatior);
 	struct segment
 	{
 		string Text;

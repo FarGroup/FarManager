@@ -2319,6 +2319,25 @@ protected:
 		return true;
 	}
 
+	bool console::Clear(const FarColor& Color) const
+	{
+		ClearExtraRegions(Color, CR_BOTH);
+
+		point ViewportSize;
+		if (!GetSize(ViewportSize))
+			return false;
+
+		const auto ConColor = colors::FarColorToConsoleColor(Color);
+		const DWORD Size = ViewportSize.x * ViewportSize.y;
+
+		COORD const Coord{ 0, GetDelta() };
+		DWORD CharsWritten;
+		FillConsoleOutputCharacter(GetOutputHandle(), L' ', Size, Coord, &CharsWritten);
+		FillConsoleOutputAttribute(GetOutputHandle(), ConColor, Size, Coord, &CharsWritten);
+
+		return true;
+	}
+
 	bool console::ScrollWindow(int Lines, int Columns) const
 	{
 		bool process = false;

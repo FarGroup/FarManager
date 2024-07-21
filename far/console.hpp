@@ -163,6 +163,8 @@ namespace console_detail
 
 		bool ClearExtraRegions(const FarColor& Color, int Mode) const;
 
+		bool Clear(const FarColor& Color) const;
+
 		bool ScrollWindow(int Lines, int Columns = 0) const;
 
 		bool ScrollWindowToBegin() const;
