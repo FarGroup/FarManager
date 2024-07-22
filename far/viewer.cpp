@@ -296,6 +296,8 @@ wchar_t Viewer::ZeroChar() const
 
 void Viewer::ChangeHexModeBytesPerLine(int const Amount)
 {
+	assert(m_DisplayMode == VMT_HEX);
+
 	if (Amount == 0) return;
 
 	const auto AbsAmount = std::abs(Amount);
@@ -1964,22 +1966,30 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
-			ChangeHexModeBytesPerLine(-1);
+			if (m_DisplayMode == VMT_HEX)
+				ChangeHexModeBytesPerLine(-1);
+
 			return true;
 
 		case KEY_CTRLALTLEFT: case KEY_RCTRLALTLEFT:
 		case KEY_CTRLRALTLEFT: case KEY_RCTRLRALTLEFT:
-			ChangeHexModeBytesPerLine(-16);
+			if (m_DisplayMode == VMT_HEX)
+				ChangeHexModeBytesPerLine(-16);
+
 			return true;
 
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
-			ChangeHexModeBytesPerLine(1);
+			if (m_DisplayMode == VMT_HEX)
+				ChangeHexModeBytesPerLine(1);
+
 			return true;
 
 		case KEY_CTRLALTRIGHT: case KEY_RCTRLALTRIGHT:
 		case KEY_CTRLRALTRIGHT: case KEY_RCTRLRALTRIGHT:
-			ChangeHexModeBytesPerLine(16);
+			if (m_DisplayMode == VMT_HEX)
+				ChangeHexModeBytesPerLine(16);
+
 			return true;
 
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
