@@ -1181,7 +1181,7 @@ function MT.test_Mouse()
   assert_num (Mouse.LastCtrlState)
 end
 
-function MT.test_XPanel(pan) -- (@pan: either APanel or PPanel)
+local function test_XPanel(pan) -- (@pan: either APanel or PPanel)
   assert_bool (pan.Bof)
   assert_num  (pan.ColumnCount)
   assert_num  (pan.CurPos)
@@ -1216,6 +1216,9 @@ function MT.test_XPanel(pan) -- (@pan: either APanel or PPanel)
     Keys "Home" assert_true(pan.Bof)
   end
 end
+
+MT.test_APanel = function() test_XPanel(APanel) end
+MT.test_PPanel = function() test_XPanel(PPanel) end
 
 local function test_Panel_Item()
   for pt=0,1 do
@@ -2273,8 +2276,8 @@ function MT.test_all()
   MT.test_Object()
   MT.test_Panel()
   MT.test_Plugin()
-  MT.test_XPanel(APanel)
-  MT.test_XPanel(PPanel)
+  MT.test_APanel()
+  MT.test_PPanel()
   MT.test_mantis_1722()
   MT.test_luafar()
   MT.test_coroutine()
