@@ -824,7 +824,7 @@ namespace rtdl
 			if (const auto Pointer = *m_Pointer; Pointer || !Mandatory)
 				return Pointer;
 
-			throw far_fatal_exception(far::format(L"{}!{} is missing: {}"sv, m_Module->name(), encoding::ansi::get_chars(m_Name), last_error()));
+			throw far_fatal_exception(far::format(L"{}!{} is missing: {}"sv, m_Module->name(), encoding::ascii::get_chars(m_Name), last_error()));
 		}
 	}
 

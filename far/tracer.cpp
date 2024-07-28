@@ -73,7 +73,7 @@ static auto format_address(uintptr_t const Value)
 static auto format_symbol(uintptr_t const Address, string_view const ImageName, os::debug::symbols::symbol const Symbol)
 {
 	// If it's not a legit pointer, it's likely a member of a struct at nullptr or something like that, no point in suggesting PDBs.
-	if (ImageName.empty() && Symbol.Name.empty() && !os::memory::is_pointer(ToPtr(Address)))
+	if (ImageName.empty() && Symbol.Name.empty() && !os::memory::is_pointer(Address))
 		return L""s;
 
 	return far::format(

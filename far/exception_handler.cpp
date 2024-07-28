@@ -765,7 +765,6 @@ public:
 		{
 			LOGWARNING(L"{}"sv, e);
 		}
-
 	}
 
 private:

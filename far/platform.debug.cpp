@@ -781,10 +781,14 @@ namespace os::debug::symbols
 	{
 		if (HMODULE Module; imports.GetModuleHandleExW && imports.GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, std::bit_cast<LPCWSTR>(Address), &Module))
 			return Module;
+		return {};
+	}
 
+	static uintptr_t base_from_address(uintptr_t const Address)
+	{
 		MEMORY_BASIC_INFORMATION mbi;
 		if (VirtualQuery(std::bit_cast<void*>(Address), &mbi, sizeof(mbi)))
-			return std::bit_cast<HMODULE>(mbi.AllocationBase);
+			return std::bit_cast<uintptr_t>(mbi.AllocationBase);
 
 		return {};
 	}
@@ -812,6 +816,14 @@ namespace os::debug::symbols
 
 				if (string ModuleFromAddressFileName; fs::get_module_file_name({}, ModuleFromAddress, ModuleFromAddressFileName))
 					xwcsncpy(Module->ImageName, ModuleFromAddressFileName.data(), std::size(Module->ImageName));
+			}
+			else if (const auto BaseFromAddress = base_from_address(Frame.Address))
+			{
+				if (string ModuleFromAddressFileName; fs::get_module_file_name({}, std::bit_cast<HMODULE>(BaseFromAddress), ModuleFromAddressFileName))
+				{
+					Module->BaseOfImage = std::bit_cast<uintptr_t>(BaseFromAddress);
+					xwcsncpy(Module->ImageName, ModuleFromAddressFileName.data(), std::size(Module->ImageName));
+				}
 			}
 			else
 				Module.reset();
@@ -841,7 +853,7 @@ namespace os::debug::symbols
 		symbol Symbol;
 		location Location;
 
-		if (Frame.Address)
+		if (os::memory::is_pointer(Frame.Address))
 		{
 			if (IsInlineFrame)
 			{
@@ -854,7 +866,7 @@ namespace os::debug::symbols
 				Location = frame_get_location(Process, Frame.Address, Storage);
 			}
 
-			if (Symbol.Name.empty())
+			if (Symbol.Name.empty() && BaseAddress)
 			{
 				auto& MapFile = MapFiles.try_emplace(BaseAddress, ImageName).first->second;
 				const auto Info = MapFile.get(Frame.Address - BaseAddress);

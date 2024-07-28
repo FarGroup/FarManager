@@ -82,12 +82,12 @@ namespace imports_detail
 		};
 
 		const auto LastError = os::last_error();
-		LOGWARNING(L"{}::{}: {}"sv, Module.name(), encoding::utf8::get_chars(Name), LastError);
+		LOGWARNING(L"{}::{}: {}"sv, Module.name(), encoding::ascii::get_chars(Name), LastError);
 	}
 
 	void imports::log_usage(std::string_view const Name)
 	{
-		LOGWARNING(L"Stub call to {}"sv, encoding::ansi::get_chars(Name));
+		LOGWARNING(L"Stub call to {}"sv, encoding::ascii::get_chars(Name));
 	}
 
 	void imports::do_le()  { SetLastError(ERROR_CALL_NOT_IMPLEMENTED); }

@@ -104,7 +104,7 @@ static decltype(Function) get_address(const char* const Name)
 	const auto Ptr = GetProcAddress(Crt, Name);
 	if (!Ptr)
 	{
-		LOGWARNING(L"GetProcAddress({}): {}"sv, encoding::ansi::get_chars(Name), os::last_error());
+		LOGWARNING(L"GetProcAddress({}): {}"sv, encoding::ascii::get_chars(Name), os::last_error());
 		return nullptr;
 	}
 

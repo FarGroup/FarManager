@@ -166,6 +166,11 @@ namespace encoding
 		[[nodiscard]] static string get_chars(std::string_view Str, diagnostics* Diagnostics = {});
 	};
 
+	struct ascii
+	{
+		[[nodiscard]] static string get_chars(std::string_view Str);
+	};
+
 	[[nodiscard]] std::string_view get_signature_bytes(uintptr_t Cp);
 
 	class writer

@@ -62,6 +62,9 @@ namespace os::memory
 	[[nodiscard]]
 	bool is_pointer(const void* Address);
 
+	[[nodiscard]]
+	bool is_pointer(uintptr_t Address);
+
 	void enable_low_fragmentation_heap();
 }
 

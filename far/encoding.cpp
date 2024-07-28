@@ -592,6 +592,13 @@ string encoding::utf8_or_ansi::get_chars(std::string_view const Str, diagnostics
 	return encoding::get_chars(Encoding, Str, Diagnostics);
 }
 
+string encoding::ascii::get_chars(std::string_view const Str)
+{
+	assert(std::ranges::all_of(Str, [](char const Char) { return Char < 128; }));
+
+	return { ALL_CONST_RANGE(Str) };
+}
+
 std::string_view encoding::get_signature_bytes(uintptr_t Cp)
 {
 	switch (Cp)

@@ -496,4 +496,12 @@
 		</Expand>
 	</Type>
 
+	<Type Name="os::debug::stack_frame">
+		<DisplayString>{(void*)Address}</DisplayString>
+		<Expand>
+			<Item Name="Address">Address</Item>
+			<Item Name="InlineContext">*(INLINE_FRAME_CONTEXT*)&amp;InlineContext</Item>
+		</Expand>
+	</Type>
+
 </AutoVisualizer>

@@ -143,13 +143,11 @@ static string printable_string(string_view const Str)
 
 static string printable_wide_string(void const* const Data, size_t const Size)
 {
-	ASAN_UNPOISON_MEMORY_REGION(Data, Size);
 	return printable_string({ static_cast<const wchar_t*>(Data), Size / sizeof(wchar_t) });
 }
 
 static string printable_ansi_string(void const* const Data, size_t const Size)
 {
-	ASAN_UNPOISON_MEMORY_REGION(Data, Size);
 	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
 }
 
@@ -416,14 +414,14 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 
 			Block->end_marker() = EndMarker;
 
+			const auto Data = Block->data();
+			assert(is_aligned(Data, static_cast<size_t>(Alignment)));
+
 			{
 				SCOPED_ACTION(std::scoped_lock)(Checker);
 				Checker.register_block(Block);
 				poison_block(Block);
 			}
-
-			const auto Data = Block->data();
-			assert(is_aligned(Data, static_cast<size_t>(Alignment)));
 
 			return Data;
 		}

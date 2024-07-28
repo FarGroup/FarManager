@@ -279,6 +279,8 @@ namespace tests
 		copy_string(Str2, new wchar_t[Str2.size()]);
 
 		*new int = 42;
+
+		Global->WindowManager->ExitMainLoop(TRUE);
 	}
 
 	static void cpp_invalid_parameter()
@@ -334,7 +336,7 @@ namespace tests
 		using func_t = void(*)();
 
 		volatile const func_t InvalidAddress = std::bit_cast<func_t>(intptr_t{1});
-		assert(!os::memory::is_pointer(std::bit_cast<void const*>(InvalidAddress)));
+		assert(!os::memory::is_pointer(InvalidAddress));
 		InvalidAddress();
 	}
 

@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
 #include <ranges>
+#include <string>
 #include <string_view>
 
 //----------------------------------------------------------------------------
