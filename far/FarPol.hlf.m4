@@ -2851,19 +2851,19 @@ $ #Podgląd: sterowanie klawiszami#
  #Ctrl+Shift+Lewo#    Pokazuje pierwszą kolumnę z lewej
  #Ctrl+Shift+Prawo#   Pokazuje ostatnią kolumnę z prawej ze wszystkich linii widocznych na ekranie
 
- The following additional keys work in #dump# and #hex# modes:
+ Następujące skróty klawiszowe są dostępne w trybach #źródłowym# i #hex# (szesnastkowym):
 
- #Ctrl+Left#          ^<wrap>Shift all characters (#dump# mode) or bytes (#hex# mode) to the right
-moving the last character (byte) of a row to the first position of the next row
- #Ctrl+Right#         Shift all characters (#dump# mode) or bytes (#hex# mode) to the left
-moving the first character (byte) of a row to the last position of the previous row
+ #Ctrl+Lewo#          ^<wrap>Przesuwa wszystkie znaki (tryb #źródłowy#) lub bajty (tryb #hex#) w prawo
+przesuwając ostatni znak (bajt) z wiersza na pierwszą pozycję następnego wiersza
+ #Ctrl+Prawo#         Przesuwa wszystkie znaki (tryb #źródłowy#) lub bajty (tryb #hex#) w lewo
+przesuwając pierwszy znak (bajt) z rzędu na ostatnią pozycję poprzedniego wiersza
 
- The following additional keys work in #hex mode#:
+ Następujące dodatkowe skróty dostępne są w trybie #hex#:
 
- #Alt+Left#           ^<wrap>Decrement the number of bytes per row
- #Alt+Right#          Inrement the number of bytes per row
- #Ctrl+Alt+Left#      Decrease the number of bytes per row to the nearest multiple of 16-bytes
- #Ctrl+Alt+Right#     Increase the number of bytes per row to the nearest multiple of 16-bytes
+ #Alt+Lewo#           ^<wrap>Zmniejszenie liczby bajtów w wierszu
+ #Alt+Prawo#          Zwiększenie liczby bajtów w wierszu
+ #Ctrl+Alt+Lewo#      Zmniejszenie liczby bajtów w wierszu do następnej wielokrotności 16 bajtów
+ #Ctrl+Alt+Prawo#     Zwiększenie liczby bajtów w wierszu do następnej wielokrotności 16 bajtów
 
  Polecenia podglądu
 
@@ -2966,7 +2966,7 @@ przełącza tryb #źródło# na #tekstowy#, i przełącza tryb #hex# na przeciwn
 do trybu podstawowego (#źródło# lub #tekst#) ostatnio wybranego w menu
 #Tryb widoku#. Uwaga: klawisze #F4# i #F2# przełączają tryb #hex# na inne tryby.
 
- See also the full list of ~viewer commands~@Viewer@.
+ Zobacz także pełną listę ~poleceń podglądu~@Viewer@.
 
  Tryb #tekstowy#
 
@@ -3027,20 +3027,19 @@ kolejnym bajtom rozpoczynając od równego przesunięcia w pliku.
 
  Tryb #hex# (kody szesnastkowe)
 
- In the #hex# mode viewer renders hexadecimal representation of the
-bytes in the file. Each row starts with the hexadecimal offset of the
-first byte and ends with the character representation of the bytes
-of the row.
+ W trybie #hex#, przeglądarka renderuje szesnastkowo reprezentację bajtów
+w pliku. Każdy wiersz rozpoczyna sie szesnastkową wartością przesunięcia
+od pierwszego bajtu pliku, a kończy reprezentacją znakową bajtów wiersza.
 
- The rendition depends on the encoding defined by the current code page.
-For single-byte encodings (e.g. all ANSI code pages), the bytes on each
-row are represented by the sequence of double-digit hex values followed
-by the character sequence of the same length. For UTF-8 encoding, the
-bytes are represented the same way, while the characters are displayed
-at the positions of the leading bytes of the UTF-8 sequences with the
-positions of continuation bytes being filled with the #›# characters
-(code point U+203A). For UTF-16(BE) encodings, each pair of double-digit
-hex values is represented by one character. For example:
+ Odwzorowanie zależy od kodowania zdefiniowanego przez bieżącą stronę kodową.
+Dla kodowań jednobajtowych (np. wszystkie strony kodowe ANSI), bajty w każdym
+wierszu są reprezentowane przez sekwencję dwucyfrowych wartości szesnastkowych,
+po których następuje sekwencja znaów o tej samej długości. Dla kodowania UTF-8,
+bajty są reprezentowane w ten sam sposób, podczas gdy znaki są wyświetlanie
+na pozycjach wiodących bajtów sekwencji UTF-8, a bajty kontynuacji są wypełniane
+znakiem #›# (kod znaku U+203A). W przypadku kodowania UTF-16(BE) każda para
+dwucyfrowych wartości szesnastkowych jest reprezentowana przez jeden znak.
+Na przykład:
 
  Strona kodowa 1250 (ANSI - Europa Środkowa)
 
@@ -3054,18 +3053,19 @@ Za: [L. Jakubowicz; "Wiadomości Literackie" (nr 1, 1936, str. 7)]
  Strona kodowa 65001 (UTF-8)
 
 @-
- \1b0000000035: D0 92 20 D1 87 D0 B0 D1 │ 89 D0 B0 D1 85 20 D1 8E  В› ч›а›щ›а›х› ю›\-
- \1b0000000045: D0 B3 D0 B0 20 D0 B6 D0 │ B8 D0 BB 2D D0 B1 D1 8B  г›а› ж›и›л›-б›ы›\-
- \1b0000000055: D0 BB 20 D1 86 D0 B8 D1 │ 82 D1 80 D1 83 D1 81 2C  л› ц›и›т›р›у›с›,\-
+ \1b00000000C0: 57 20 7A 61 72 6F C5 9B │ 6C 61 63 68 20 70 6F C5  W zaroś›lach poł\-
+ \1b00000000D0: 82 75 64 6E 69 61 20 62 │ C4 99 64 7A 69 65 20 72  ›udnia bę›dzie r\-
+ \1b00000000E0: 6F 73 C5 82 6F 20 64 72 │ 7A 65 77 6F 20 63 79 74  osł›o drzewo cyt\-
+ \1b00000000F0: 72 75 73 6F 77 65 2C 0D │ 0A                       rusowe,         \-
 @+
 
  Strona kodowa 1200 (UTF-16)
 
 @-
- \1b00000000A2: 3D 04 3E 04 20 00 44 04 │ 30 04 3B 04 4C 04 48 04  но фальш\-
- \1b00000000B2: 38 04 32 04 4B 04 39 04 │ 20 00 4D 04 3A 04 37 04  ивый экз\-
- \1b00000000C2: 35 04 3C 04 3F 04 3B 04 │ 4F 04 40 04 2C 00 20 00  емпляр, \-
- \1b00000000D2: 34 04 30 04 2E 00 0D 00 │ 0A 00                    да.♪◙   \-
+ \1b0000000180: 41 00 6C 00 65 00 20 00 │ 66 00 61 00 42 01 73 00  Ale fałs\-
+ \1b0000000190: 7A 00 79 00 77 00 05 01 │ 20 00 6B 00 6F 00 70 00  zywą kop\-
+ \1b00000001A0: 69 00 19 01 2C 00 20 00 │ 74 00 61 00 6B 00 2E 00  ię, tak.\-
+ \1b00000001B0: 0D 00 0A 00             │                          ♪◙      \-
 @+
 
 
@@ -6850,5 +6850,5 @@ tworzenia, usuwania lub zmiany nazw folderów.
 
 
 @Index
-$ #Index help file#
+$ #Index pliku pomocy#
 <%INDEX%>
