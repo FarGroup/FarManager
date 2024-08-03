@@ -1,4 +1,4 @@
-﻿/*
+/*
 filelist.cpp
 
 Файловая панель
@@ -3690,7 +3690,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 		NameView.remove_suffix(1);
 	}
 
-	const auto strMask = exclude_sets(NameView + L'*');
+	auto strMask = exclude_sets(NameView + L'*');
 
 	const auto Match = [&](int const I)
 	{
@@ -3710,17 +3710,24 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 		return false;
 	};
 
-
-	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(m_ListData.size()); I+=Direct)
+	//Две попытки найти нужный файл - сначала строгий поиск по началам строк, потом более мягкий по серединам строк
+	//TODO: в будущем можно добавить опцию в настройки (выполнять или не выполнять вторую попытку)
+	for (int attempt=0; attempt<2; attempt++)
 	{
-		if (Match(I))
-			return true;
-	}
+		for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(m_ListData.size()); I+=Direct)
+		{
+			if (Match(I))
+				return true;
+		}
 
-	for (int I=(Direct > 0)?0:static_cast<int>(m_ListData.size()-1); (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
-	{
-		if (Match(I))
-			return true;
+		for (int I=(Direct > 0)?0:static_cast<int>(m_ListData.size()-1); (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
+		{
+			if (Match(I))
+				return true;
+		}
+		//Смягчаем критерий поиска, если строгий поиск ни к чему не привёл, и повторяем попытку
+		if (!strMask.starts_with(L'*'))
+			strMask = L'*' + strMask;
 	}
 
 	return false;
