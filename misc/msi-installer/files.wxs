@@ -376,6 +376,9 @@
           <Component Id="ShiftTab.lua" Guid="$(var.Guid.ShiftTab.lua)" Win64="$(var.Win64)">
             <File Id="ShiftTab.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.lua" />
           </Component>
+          <Component Id="SwapHorizontalScrollDirection.lua" Guid="$(var.Guid.SwapHorizontalScrollDirection.lua)" Win64="$(var.Win64)">
+            <File Id="SwapHorizontalScrollDirection.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\SwapHorizontalScrollDirection.lua" />
+          </Component>
           <Component Id="Symlink.lua" Guid="$(var.Guid.Symlink.lua)" Win64="$(var.Win64)">
             <File Id="Symlink.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Symlink.lua" />
           </Component>
