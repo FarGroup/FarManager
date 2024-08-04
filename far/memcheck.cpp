@@ -282,6 +282,9 @@ public:
 
 		m_AllocatedMemorySize += Block->TotalSize;
 		m_AllocatedPayloadSize += Block->DataSize;
+
+		++m_OverallAllocations;
+		m_OverallSize += Block->DataSize;
 	}
 
 	void unregister_block(memory_block const* const Block)
@@ -314,6 +317,11 @@ private:
 
 	void print_summary() const
 	{
+		if constexpr ((false))
+		{
+			std::wcout << far::format(L"\nAllocations: {}\nSize: {}\n"sv, m_OverallAllocations, m_OverallSize);
+		}
+
 		if (!m_AllocatedMemorySize)
 			return;
 
@@ -360,7 +368,7 @@ private:
 			Message = concat(
 				L"--------------------------------------------------------------------------------\n"sv,
 				str(Data), L", "sv, format_type(i->AllocationType, Size),
-				L"\nData: "sv, BlobToHexString({ static_cast<std::byte const*>(Data), std::min(Size, Width / 3) }, L' '),
+				L"\nData: "sv, BlobToHexString(view_bytes(Data, std::min(Size, Width / 3)), L' '),
 				L"\nAnsi: "sv, printable_ansi_string(Data, std::min(Size, Width)),
 				L"\nWide: "sv, printable_wide_string(Data, std::min(Size, Width * sizeof(wchar_t))),
 				L"\nStack:\n"sv);
@@ -384,10 +392,15 @@ private:
 
 	os::critical_section m_CS;
 
+	// These can go up and down and should be 0 in the end
 	intptr_t m_CallNewDeleteVector{};
 	intptr_t m_CallNewDeleteScalar{};
 	size_t m_AllocatedMemorySize{};
 	size_t m_AllocatedPayloadSize{};
+
+	// These can only grow and can be used for a rough performance estimation
+	size_t m_OverallAllocations{};
+	size_t m_OverallSize{};
 
 	bool m_Enabled{true};
 };

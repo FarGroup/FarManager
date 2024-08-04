@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "eol.hpp"
 #include "log.hpp"
+#include "wm_listener.hpp"
 
 // Platform:
 #include "platform.chrono.hpp"
@@ -163,15 +164,22 @@ namespace os::clipboard
 	bool open()
 	{
 		// Clipboard is a shared resource
-		const size_t Attempts = 5;
+		const auto Attempts = 5uz;
+		const auto Delay = 100ms;
+
+		const auto ServiceWindow = wm_listener::service_window();
+		const auto NewOwner = ServiceWindow? ServiceWindow : console.GetWindow();
+
+		error_state Error;
 
 		for (const auto i: std::views::iota(0uz, Attempts))
 		{
-			// TODO: this is bad, we should use a real window handle
-			if (OpenClipboard(console.GetWindow()))
+			if (OpenClipboard(NewOwner))
 				return true;
 
-			const auto Error = last_error();
+			Error = last_error();
+
+			LOGDEBUG(L"OpenClipboard(): {}"sv, Error);
 
 			if (Error.Win32Error == ERROR_ACCESS_DENIED)
 			{
@@ -185,12 +193,10 @@ namespace os::clipboard
 				}
 			}
 
-			LOGDEBUG(L"OpenClipboard(): {}"sv, Error);
-
-			os::chrono::sleep_for((i + 1) * 50ms);
+			chrono::sleep_for((i + 1) * Delay);
 		}
 
-		LOGERROR(L"OpenClipboard(): {}"sv, last_error());
+		LOGERROR(L"OpenClipboard(): {}"sv, Error);
 		return false;
 	}
 

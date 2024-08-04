@@ -177,6 +177,11 @@ void wm_listener::disable_power_notifications()
 	m_PowerNotify.reset();
 }
 
+HWND wm_listener::service_window()
+{
+	return m_Hwnd;
+}
+
 wm_listener::wm_listener()
 {
 	os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);

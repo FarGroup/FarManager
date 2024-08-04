@@ -166,6 +166,9 @@ namespace
 
 	auto get_thread_id()
 	{
+		if (const auto ThreadName = os::debug::get_thread_name(GetCurrentThread()); !ThreadName.empty())
+			return far::format(L"{}|{}"sv, GetCurrentThreadId(), ThreadName);
+
 		return str(GetCurrentThreadId());
 	}
 

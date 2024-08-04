@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.version.hpp"
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
 #include "common/null_iterator.hpp"
 #include "common/scope_exit.hpp"
@@ -775,16 +774,16 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 		*PanelItemA.FindData.cAlternateFileName = {};
 }
 
-static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, size_t ItemsNumber)
+static std::span<oldfar::PluginPanelItem> ConvertPanelItemsArrayToAnsi(std::span<PluginPanelItem const> const Items)
 {
-	auto Result = std::make_unique<oldfar::PluginPanelItem[]>(ItemsNumber);
+	auto Result = std::make_unique<oldfar::PluginPanelItem[]>(Items.size());
 
-	for (const auto& [Item, AnsiItem]: zip(std::span(PanelItemW, ItemsNumber), std::span(Result.get(), ItemsNumber)))
+	for (const auto& [Item, AnsiItem]: zip(Items, std::span(Result.get(), Items.size())))
 	{
 		ConvertPanelItemToAnsi(Item, AnsiItem);
 	}
 
-	return Result.release();
+	return { Result.release(), Items.size() };
 }
 
 static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
@@ -5195,17 +5194,17 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi({ Info->PanelItem, Info->ItemsNumber });
 		char DestA[oldfar::NM];
 		(void)encoding::oem::get_bytes(Info->DestPath, DestA);
 		int OpMode = 0;
 		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, OpMode);
-		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
+		ExecuteFunction(es, Info->hPanel, PanelItemA.data(), static_cast<int>(PanelItemA.size()), Info->Move, DestA, OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA.data(), Info->PanelItem, Info->ItemsNumber);
 		static wchar_t DestW[oldfar::NM];
 		(void)encoding::oem::get_chars(DestA, DestW);
 		Info->DestPath = DestW;
-		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
+		FreePanelItemA(PanelItemA);
 		return es;
 	}
 
@@ -5215,12 +5214,12 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi({ Info->PanelItem, Info->ItemsNumber });
 		int OpMode = 0;
 		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, OpMode);
-		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
-		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
+		ExecuteFunction(es, Info->hPanel, PanelItemA.data(), static_cast<int>(PanelItemA.size()), Info->Move, OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA.data(), Info->PanelItem, Info->ItemsNumber);
+		FreePanelItemA(PanelItemA);
 		return es;
 	}
 
@@ -5230,12 +5229,12 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi({ Info->PanelItem, Info->ItemsNumber });
 		int OpMode = 0;
 		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
-		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
-		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
+		ExecuteFunction(es, Info->hPanel, PanelItemA.data(), static_cast<int>(PanelItemA.size()), OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA.data(), Info->PanelItem, Info->ItemsNumber);
+		FreePanelItemA(PanelItemA);
 		return es;
 	}
 
@@ -5262,11 +5261,11 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi({ Info->PanelItem, Info->ItemsNumber });
 		int OpMode = 0;
 		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
-		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
+		ExecuteFunction(es, Info->hPanel, PanelItemA.data(), static_cast<int>(PanelItemA.size()), OpMode);
+		FreePanelItemA(PanelItemA);
 		return es;
 	}
 
@@ -5276,9 +5275,9 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber));
-		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi({ Info->PanelItem, Info->ItemsNumber });
+		ExecuteFunction(es, Info->hPanel, PanelItemA.data(), static_cast<int>(PanelItemA.size()));
+		FreePanelItemA(PanelItemA);
 		return es;
 	}
 
@@ -5372,11 +5371,11 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !has(es))
 			return es;
 
-		const auto Item1A = ConvertPanelItemsArrayToAnsi(Info->Item1, 1);
-		const auto Item2A = ConvertPanelItemsArrayToAnsi(Info->Item2, 1);
-		ExecuteFunction(es, Info->hPanel, Item1A, Item2A, Info->Mode);
-		FreePanelItemA({ Item1A, 1 });
-		FreePanelItemA({ Item2A, 1 });
+		const auto Item1A = ConvertPanelItemsArrayToAnsi({ Info->Item1, 1 });
+		const auto Item2A = ConvertPanelItemsArrayToAnsi({ Info->Item2, 1 });
+		ExecuteFunction(es, Info->hPanel, Item1A.data(), Item2A.data(), Info->Mode);
+		FreePanelItemA(Item1A);
+		FreePanelItemA(Item2A);
 		return es;
 	}
 

@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 #include "char_width.hpp"
 #include "string_sort.hpp"
+#include "datetime.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -512,19 +513,24 @@ static void log_process_exit_code(execute_info const& Info, os::handle const& Pr
 		return;
 	}
 
-	LOG(
-		ExitCode == EXIT_SUCCESS?
-			logging::level::debug :
-			logging::level::warning,
-		L"Exit code: {}"sv,
-		ExitCode
-	);
+	string ElapsedTime;
+	if (os::chrono::time_point CreationTime; os::chrono::get_process_creation_time(Process.native_handle(), CreationTime))
+		ElapsedTime = ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
+	else
+		LOGWARNING(L"get_process_creation_time(): {}"sv, os::last_error());
 
-	if (ExitCode != EXIT_SUCCESS && ExitCode != EXIT_FAILURE)
-	{
-		LOGWARNING(L"{}"sv, os::format_error(ExitCode));
-		LOGWARNING(L"{}"sv, os::format_ntstatus(ExitCode));
-	}
+	if (ExitCode == EXIT_SUCCESS)
+		LOGINFO(L"Command [{}] took {}"sv, Info.Command, ElapsedTime);
+	else
+		LOGWARNING(
+			L"Command [{}] took {} and failed (exit code {}{})"sv,
+			Info.Command,
+			ElapsedTime,
+			ExitCode,
+			ExitCode == EXIT_FAILURE?
+				L""sv :
+				far::format(L", {}"sv, os::error_state{ExitCode, static_cast<NTSTATUS>(ExitCode)}.to_string())
+		);
 
 	console.command_finished(ExitCode);
 

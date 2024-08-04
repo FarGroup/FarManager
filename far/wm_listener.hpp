@@ -55,10 +55,12 @@ public:
 	void enable_power_notifications();
 	void disable_power_notifications();
 
+	static HWND service_window();
+
 private:
 	void WindowThreadRoutine(const os::event& ReadyEvent);
 
-	HWND m_Hwnd{};
+	static inline HWND m_Hwnd{};
 	std::exception_ptr m_ExceptionPtr;
 	os::thread m_Thread;
 	struct powernotify_deleter
