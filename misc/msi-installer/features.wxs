@@ -103,6 +103,7 @@
           <ComponentRef Id="Search.CtrlIns.lua" />
           <ComponentRef Id="ShiftBS.lua" />
           <ComponentRef Id="ShiftTab.lua" />
+          <ComponentRef Id="SwapHorizontalScrollDirection.lua" />
           <ComponentRef Id="Symlink.lua" />
           <ComponentRef Id="UppercaseFolders.lua" />
           <ComponentRef Id="View.CtrlUpDown.lua" />

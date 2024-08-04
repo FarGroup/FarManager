@@ -134,6 +134,7 @@
 <?define Guid.Panel.Search.CtrlIns.lua = "B9CBBDC4-B167-49CB-953C-B0B08042C93E" ?>
 <?define Guid.ShiftBS.lua = "0B71229B-261D-4127-A0D0-6419D8442899" ?>
 <?define Guid.ShiftTab.lua = "A9B2DE85-138B-4CDE-B2A8-215CBBBF7BC6" ?>
+<?define Guid.SwapHorizontalScrollDirection.lua = "3D02B97C-AA72-4171-98B0-495F3B7CA69D" ?>
 <?define Guid.Symlink.lua = "D9B253AB-303A-4261-AB14-29C6A61E3C74" ?>
 <?define Guid.UppercaseFolders.lua = "67D059B3-6345-4A0E-A364-D9DF274D311E" ?>
 <?define Guid.View.CtrlUpDown.lua = "1066C05D-0F43-4E26-AF14-80F8AB89D543" ?>

@@ -37,6 +37,7 @@ Panel.SpaceToSelect.lua Panel: Use Space to select files
 Search.CtrlIns.lua Close Fast find and send key to panel
 ShiftBS.lua Converts the word before cursor using XLat function.
 ShiftTab.lua Shift+Tab = Ctrl+Shift+Tab
+SwapHorizontalScrollDirection.lua Panel, Viewer and Menu: Swap horizontal scroll direction
 Symlink.lua Alternative way to create symbolic links
 UppercaseFolders.lua Restore the option "Create folders in uppercase" that was removed in Far 3.0.4184
 View.CtrlUpDown.lua Viewer: Scroll screen (using keys like in editor)
