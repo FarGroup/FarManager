@@ -77,33 +77,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static string short_name_if_too_long(string_view const LongName, size_t const MaxSize)
-{
-	return LongName.size() >= MaxSize? ConvertNameToShort(LongName) : string(LongName);
-}
-
-static auto short_file_name_if_too_long(const string& LongName)
-{
-	return short_name_if_too_long(LongName, MAX_PATH - 1);
-}
-
-static auto short_directory_name_if_too_long(const string& LongName)
-{
-	assert(!LongName.empty());
-
-	const auto HasEndSlash = path::is_separator(LongName.back());
-
-	auto Dir = short_name_if_too_long(LongName, MAX_PATH - (HasEndSlash? 1 : 2));
-
-	// For funny names that end with spaces
-	// We do this for SetCurrentDirectory already
-	// Here it is for paths that go into CreateProcess & ShellExecuteEx
-	if (!HasEndSlash)
-		AddEndSlash(Dir);
-
-	return Dir;
-}
-
 static bool FindObject(string_view const Command, string& strDest)
 {
 	const auto Module = unquote(Command);
@@ -786,15 +759,43 @@ static bool execute_impl(
 		Context.emplace();
 	};
 
+	const auto exec_with_short_names_fallback = [&](auto Invocable, string const& ExecCommand, string const& ExecDirectory)
+	{
+		if (Invocable(ExecCommand, ExecDirectory))
+			return true;
+
+		string ShortCommand, ShortDirectory;
+
+		for ([[maybe_unused]] const auto i: std::views::iota(0uz, 2uz))
+		{
+			const auto Error = os::last_error();
+
+			if (Error.Win32Error == ERROR_FILENAME_EXCED_RANGE && ShortCommand.empty() && os::fs::is_file_name_too_long(ExecCommand))
+				ShortCommand = ConvertNameToShort(ExecCommand);
+
+			if (Error.Win32Error == ERROR_DIRECTORY && ShortDirectory.empty() && os::fs::is_file_name_too_long(ExecDirectory))
+				ShortDirectory = ConvertNameToShort(ExecDirectory);
+
+			if (Invocable(ShortCommand.empty()? ExecCommand : ShortCommand, ShortDirectory.empty()? ExecDirectory : ShortDirectory))
+				return true;
+		}
+
+		return false;
+	};
+
 	const auto execute_process = [&]
 	{
 		PROCESS_INFORMATION pi{};
-		if (!execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
+		const auto exec = [&](string const& ExecCommand, string const& ExecDirectory)
+		{
+			return execute_createprocess(ExecCommand, Parameters, ExecDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi);
+		};
+
+		if (!exec_with_short_names_fallback(exec, Command, CurrentDirectory))
 			return false;
 
 		after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, os::handle(pi.hThread), ConsoleSize, ConsoleWindowRect, ExtendedActivator, UsingComspec);
 		return true;
-
 	};
 
 	// Filter out the cases where the source is known, but is not a known executable (exe, com, bat, cmd, see IsExecutable in filelist.cpp)
@@ -819,11 +820,18 @@ static bool execute_impl(
 	const auto execute_shell = [&]
 	{
 		HANDLE Process;
-		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+
+		const auto exec = [&](string const& ExecCommand, string const& ExecDirectory)
+		{
+			return ::execute_shell(ExecCommand, Parameters, ExecDirectory, Info.SourceMode, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process);
+		};
+
+		if (!exec_with_short_names_fallback(exec, Command, CurrentDirectory))
 			return false;
 
 		if (Process)
 			after_process_creation(Info, os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, []{}, UsingComspec);
+
 		return true;
 	};
 
@@ -839,11 +847,15 @@ static bool execute_impl(
 
 void Execute(execute_info& Info, function_ref<void()> const ConsoleActivator)
 {
+	auto CurrentDirectory = Info.Directory.empty()? os::fs::get_current_directory() : Info.Directory;
+	// For funny names that end with spaces
+	// We do this for SetCurrentDirectory already
+	// Here it is for paths that go into CreateProcess & ShellExecuteEx
+	AddEndSlash(CurrentDirectory);
+
 	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
 	// SearchPath looks there as well and if it's set to something else we could get unexpected results.
-	const auto CurrentDirectory = short_directory_name_if_too_long(Info.Directory.empty()? os::fs::get_current_directory() : Info.Directory);
 	os::fs::process_current_directory_guard const Guard(CurrentDirectory);
-
 
 	string FullCommand, Command, Parameters;
 
@@ -857,7 +869,7 @@ void Execute(execute_info& Info, function_ref<void()> const ConsoleActivator)
 	if (Info.SourceMode != execute_info::source_mode::unknown)
 	{
 		FullCommand = Info.Command;
-		Command = short_file_name_if_too_long(Info.Command);
+		Command = Info.Command;
 	}
 	else
 	{
