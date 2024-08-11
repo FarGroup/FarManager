@@ -692,7 +692,7 @@ string duration_to_string_hr(os::chrono::duration Duration)
 
 	const auto Parts = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
 
-	const std::array Values
+	const int Values[]
 	{
 		Parts.get<days>() / 1_d,
 		Parts.get<hours>() / 1h,
