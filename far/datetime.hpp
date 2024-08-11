@@ -84,6 +84,8 @@ std::tuple<string, string> duration_to_string(os::chrono::duration Duration);
 
 string duration_to_string_hms(os::chrono::duration Duration);
 
+string duration_to_string_hr(os::chrono::duration Duration);
+
 string MkStrFTime(string_view Format = {});
 
 class time_check: noncopyable

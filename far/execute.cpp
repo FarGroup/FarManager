@@ -486,9 +486,9 @@ static void log_process_exit_code(execute_info const& Info, os::handle const& Pr
 		return;
 	}
 
-	string ElapsedTime;
+	string ElapsedTime{ L"?s"sv };
 	if (os::chrono::time_point CreationTime; os::chrono::get_process_creation_time(Process.native_handle(), CreationTime))
-		ElapsedTime = duration_to_string_hms(os::chrono::nt_clock::now() - CreationTime);
+		ElapsedTime = duration_to_string_hr(os::chrono::nt_clock::now() - CreationTime);
 	else
 		LOGWARNING(L"get_process_creation_time(): {}"sv, os::last_error());
 
@@ -768,13 +768,21 @@ static bool execute_impl(
 
 		for ([[maybe_unused]] const auto i: std::views::iota(0uz, 2uz))
 		{
-			const auto Error = os::last_error();
+			switch (os::last_error().Win32Error)
+			{
+			case ERROR_FILENAME_EXCED_RANGE:
+				if (!os::fs::shorten(ExecCommand, ShortCommand, os::fs::is_file_name_too_long))
+					continue;
+				break;
 
-			if (Error.Win32Error == ERROR_FILENAME_EXCED_RANGE && ShortCommand.empty() && os::fs::is_file_name_too_long(ExecCommand))
-				ShortCommand = ConvertNameToShort(ExecCommand);
+			case ERROR_DIRECTORY:
+				if (!os::fs::shorten(ExecDirectory, ShortDirectory, os::fs::is_directory_name_too_long))
+					continue;
+				break;
 
-			if (Error.Win32Error == ERROR_DIRECTORY && ShortDirectory.empty() && os::fs::is_file_name_too_long(ExecDirectory))
-				ShortDirectory = ConvertNameToShort(ExecDirectory);
+			default:
+				return false;
+			}
 
 			if (Invocable(ShortCommand.empty()? ExecCommand : ShortCommand, ShortDirectory.empty()? ExecDirectory : ShortDirectory))
 				return true;

@@ -1569,6 +1569,25 @@ namespace os::fs
 		return LongName.size() >= MAX_PATH - (HasEndSlash? 1uz : 2uz);
 	}
 
+	bool shorten(string_view Name, string& ShortName, function_ref<bool(string_view)> IsTooLong)
+	{
+		if (!ShortName.empty() || !IsTooLong(Name))
+			return false;
+
+		ShortName = ConvertNameToShort(Name);
+
+		// Short names can still exceed the limit or be disabled entirely
+		if (IsTooLong(ShortName))
+		{
+			ShortName.clear();
+			LOGWARNING(L"Name [{}] is too long"sv, Name);
+			return false;
+		}
+
+		LOGWARNING(L"Name [{}] is too long, trying [{}]"sv, Name, ShortName);
+		return true;
+	}
+
 	current_directory_guard::current_directory_guard(const string_view Directory):
 		m_Directory(get_current_directory()),
 		m_Active(set_current_directory(Directory))
@@ -1582,14 +1601,22 @@ namespace os::fs
 			set_current_directory(m_Directory, false);
 	}
 
+	static bool set_current_directory_with_short_names_fallback(string_view const Directory)
+	{
+		if (SetProcessRealCurrentDirectory(Directory))
+			return true;
+
+		if (last_error().Win32Error == ERROR_FILENAME_EXCED_RANGE)
+		{
+			if (string ShortDirectory; shorten(Directory, ShortDirectory, is_directory_name_too_long))
+				return SetProcessRealCurrentDirectory(ShortDirectory);
+		}
+
+		return false;
+	}
+
 	process_current_directory_guard::process_current_directory_guard(const string_view Directory):
-		m_Active(
-			GetProcessRealCurrentDirectory(m_Directory) &&
-			(
-				SetProcessRealCurrentDirectory(Directory) ||
-				(is_directory_name_too_long(Directory) && SetProcessRealCurrentDirectory(ConvertNameToShort(Directory)))
-			)
-		)
+		m_Active(GetProcessRealCurrentDirectory(m_Directory) && set_current_directory_with_short_names_fallback(Directory))
 	{
 	}
 

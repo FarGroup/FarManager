@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/chrono.hpp"
 #include "common/from_string.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -684,6 +685,48 @@ string duration_to_string_hms(os::chrono::duration Duration)
 	);
 }
 
+string duration_to_string_hr(os::chrono::duration Duration)
+{
+	using namespace std::chrono;
+	using namespace os::chrono;
+
+	const auto Parts = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
+
+	const std::array Values
+	{
+		Parts.get<days>() / 1_d,
+		Parts.get<hours>() / 1h,
+		Parts.get<minutes>() / 1min,
+	};
+
+	string Result;
+
+	for (const auto [v, s]: zip(Values, L"dhm"sv))
+	{
+		if (v)
+			far::format_to(Result, L"{}{} "sv, v, s);
+	}
+
+	const auto Seconds = Parts.get<seconds>() / 1s;
+	const auto Decimals = Parts.get<hectonanoseconds>() / 1_hns;
+
+	if (Seconds || Decimals || Result.empty())
+	{
+		far::format_to(Result, L"{}"sv, Seconds);
+
+		if (Decimals)
+			far::format_to(Result, L".{:07}"sv, Decimals);
+
+		Result += L's';
+	}
+	else
+	{
+		Result.pop_back();
+	}
+
+	return Result;
+}
+
 time_check::time_check(mode Mode) noexcept:
 	time_check(Mode, GetRedrawTimeout())
 {
@@ -826,14 +869,16 @@ TEST_CASE("datetime.duration_to_string")
 	static const struct
 	{
 		os::chrono::duration Duration;
-		string_view Days, Timestamp, HMS;
+		string_view Days, Timestamp, HMS, HR;
 	}
 	Tests[]
 	{
-		{ 0s,                                         L"0"sv, L"00:00:00.0000000"sv, L"00:00:00"sv,  },
-		{ 7_d,                                        L"7"sv, L"00:00:00.0000000"sv, L"168:00:00"sv, },
-		{ 2_d +  7h + 13min +  47s +   7654321_hns,   L"2"sv, L"07:13:47.7654321"sv, L"55:13:47"sv,  },
-		{ 3_d + 25h + 81min + 120s + 123456789_hns,   L"4"sv, L"02:23:12.3456789"sv, L"98:23:12"sv,  },
+		{ 0s,                                         L"0"sv, L"00:00:00.0000000"sv, L"00:00:00"sv,  L"0s"sv },
+		{ 5min,                                       L"0"sv, L"00:05:00.0000000"sv, L"00:05:00"sv,  L"5m"sv },
+		{ 1_d + 1_hns,                                L"1"sv, L"00:00:00.0000001"sv, L"24:00:00"sv,  L"1d 0.0000001s"sv },
+		{ 7_d,                                        L"7"sv, L"00:00:00.0000000"sv, L"168:00:00"sv, L"7d"sv },
+		{ 2_d +  7h + 13min +  47s +   7654321_hns,   L"2"sv, L"07:13:47.7654321"sv, L"55:13:47"sv,  L"2d 7h 13m 47.7654321s"sv },
+		{ 3_d + 25h + 81min + 120s + 123456789_hns,   L"4"sv, L"02:23:12.3456789"sv, L"98:23:12"sv,  L"4d 2h 23m 12.3456789s"sv },
 	};
 
 	for (const auto& i: Tests)
@@ -842,6 +887,7 @@ TEST_CASE("datetime.duration_to_string")
 		REQUIRE(i.Days == Days);
 		REQUIRE(i.Timestamp == Timestamp);
 		REQUIRE(i.HMS == duration_to_string_hms(i.Duration));
+		REQUIRE(i.HR == duration_to_string_hr(i.Duration));
 	}
 }
 
