@@ -3046,27 +3046,29 @@ Na przykład:
 @-
  \1b0000000000: 44 6F 9C E6 20 62 B3 61 │ 7A 65 F1 73 74 77 2C 20  Dość błazeństw, \-
  \1b0000000010: BF 72 B9 20 6D F3 6A 20 │ 70 EA 6B 20 6C 75 9F 6E  żrą mój pęk luźn\-
- \1b0000000020: 79 63 68 20 66 69 67 0D │ 0A                       ych fig         \-
+ \1b0000000020: 79 63 68 20 66 69 67 2E │ 0D 0A                    ych fig.        \-
 @+
-Za: [L. Jakubowicz; "Wiadomości Literackie" (nr 1, 1936, str. 7)]
 
  Strona kodowa 65001 (UTF-8)
 
 @-
- \1b00000000C0: 57 20 7A 61 72 6F C5 9B │ 6C 61 63 68 20 70 6F C5  W zaroś›lach poł\-
- \1b00000000D0: 82 75 64 6E 69 61 20 62 │ C4 99 64 7A 69 65 20 72  ›udnia bę›dzie r\-
- \1b00000000E0: 6F 73 C5 82 6F 20 64 72 │ 7A 65 77 6F 20 63 79 74  osł›o drzewo cyt\-
- \1b00000000F0: 72 75 73 6F 77 65 2C 0D │ 0A                       rusowe,         \-
+ \1b0000000000: EF BB BF 44 6F C5 9B C4 │ 87 20 62 C5 82 61 7A 65  �››Doś›ć› bł›aze\-
+ \1b0000000010: C5 84 73 74 77 2C 20 C5 │ BC 72 C4 85 20 6D C3 B3  ń›stw, ż›rą› mó›\-
+ \1b0000000020: 6A 20 70 C4 99 6B 20 6C │ 75 C5 BA 6E 79 63 68 20  j pę›k luź›nych \-
+ \1b0000000030: 66 69 67 2E 0D 0A       │                          fig.            \-
 @+
 
  Strona kodowa 1200 (UTF-16)
 
 @-
- \1b0000000180: 41 00 6C 00 65 00 20 00 │ 66 00 61 00 42 01 73 00  Ale fałs\-
- \1b0000000190: 7A 00 79 00 77 00 05 01 │ 20 00 6B 00 6F 00 70 00  zywą kop\-
- \1b00000001A0: 69 00 19 01 2C 00 20 00 │ 74 00 61 00 6B 00 2E 00  ię, tak.\-
- \1b00000001B0: 0D 00 0A 00             │                          ♪◙      \-
+ \1b0000000000: 44 00 6F 00 5B 01 07 01 │ 20 00 62 00 42 01 61 00  Dość bła\-
+ \1b0000000010: 7A 00 65 00 44 01 73 00 │ 74 00 77 00 2C 00 20 00  zeństw, \-
+ \1b0000000020: 7C 01 72 00 05 01 20 00 │ 6D 00 F3 00 6A 00 20 00  żrą mój \-
+ \1b0000000030: 70 00 19 01 6B 00 20 00 │ 6C 00 75 00 7A 01 6E 00  pęk luźn\-
+ \1b0000000040: 79 00 63 00 68 00 20 00 │ 66 00 69 00 67 00 2E 00  ych fig.\-
+ \1b0000000050: 0D 00 0A 00             │                                  \-
 @+
+ Za: [L. Jakubowicz; "Wiadomości Literackie" (nr 1, 1936, str. 7)]
 
 
 @ViewerGotoPos
@@ -6850,5 +6852,5 @@ tworzenia, usuwania lub zmiany nazw folderów.
 
 
 @Index
-$ #Index pliku pomocy#
+$ #Indeks pliku pomocy#
 <%INDEX%>
