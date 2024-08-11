@@ -527,7 +527,7 @@ void InfoList::DisplayObject()
 						msg(lng::MInfoPowerStatusUnknown);
 				}
 
-				return ConvertDurationToHMS(std::chrono::seconds{SecondsCount});
+				return duration_to_string_hms(std::chrono::seconds{SecondsCount});
 			};
 
 			GotoXY(m_Where.left + 2, CurY++);

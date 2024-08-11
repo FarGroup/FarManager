@@ -488,7 +488,7 @@ static void log_process_exit_code(execute_info const& Info, os::handle const& Pr
 
 	string ElapsedTime;
 	if (os::chrono::time_point CreationTime; os::chrono::get_process_creation_time(Process.native_handle(), CreationTime))
-		ElapsedTime = ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
+		ElapsedTime = duration_to_string_hms(os::chrono::nt_clock::now() - CreationTime);
 	else
 		LOGWARNING(L"get_process_creation_time(): {}"sv, os::last_error());
 

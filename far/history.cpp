@@ -306,7 +306,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string Time;
-					std::tie(Separator.Name, Time) = ConvertDate(i.Time, 8, 1);
+					std::tie(Separator.Name, Time) = time_point_to_string(i.Time, 8, 1);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;

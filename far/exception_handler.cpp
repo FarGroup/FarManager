@@ -1083,7 +1083,7 @@ static string get_uptime()
 	if (!os::chrono::get_process_creation_time(GetCurrentProcess(), CreationTime))
 		return os::last_error().to_string();
 
-	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
+	return duration_to_string_hms(os::chrono::nt_clock::now() - CreationTime);
 }
 
 static auto memory_status()

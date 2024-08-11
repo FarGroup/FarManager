@@ -268,9 +268,9 @@ struct SetAttrDlgParam
 	Owner;
 };
 
-static auto convert_date(os::chrono::time_point const TimePoint)
+static auto time_point_to_string(os::chrono::time_point const TimePoint)
 {
-	return ConvertDate(TimePoint, 16, 2);
+	return time_point_to_string(TimePoint, 16, 2);
 }
 
 static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
@@ -285,7 +285,7 @@ static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry,
 
 	if (TimePoint)
 	{
-		std::tie(Date, Time) = convert_date(*TimePoint);
+		std::tie(Date, Time) = time_point_to_string(*TimePoint);
 	}
 
 	set_date_or_time(Dlg, TimeMapEntry.DateId, Date, MakeUnchanged);
@@ -927,7 +927,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 				{
-					std::tie(State.Date.InitialValue, State.Time.InitialValue) = convert_date(std::invoke(i.Accessor, SingleSelFindData));
+					std::tie(State.Date.InitialValue, State.Time.InitialValue) = time_point_to_string(std::invoke(i.Accessor, SingleSelFindData));
 
 					AttrDlg[i.DateId].strData = State.Date.InitialValue;
 					AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1219,7 +1219,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!Time)
 					continue;
 
-				std::tie(State.Date.InitialValue, State.Time.InitialValue) = convert_date(*Time);
+				std::tie(State.Date.InitialValue, State.Time.InitialValue) = time_point_to_string(*Time);
 
 				AttrDlg[i.DateId].strData = State.Date.InitialValue;
 				AttrDlg[i.TimeId].strData = State.Time.InitialValue;

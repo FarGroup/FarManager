@@ -652,7 +652,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
 				const auto& [Date, Time] = Param1==ID_FF_CURRENT?
-					ConvertDate(os::chrono::nt_clock::now(), 16, 2) :
+					time_point_to_string(os::chrono::nt_clock::now(), 16, 2) :
 					std::tuple<string, string>{};
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -1002,13 +1002,13 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	const auto ProcessDuration = [&](auto Duration, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_CHECKED;
-		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = ConvertDuration(Duration);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = duration_to_string(Duration);
 	};
 
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = ConvertDate(Point, 16, 2);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = time_point_to_string(Point, 16, 2);
 	};
 
 	Dates.visit(overload

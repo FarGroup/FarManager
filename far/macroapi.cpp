@@ -3176,7 +3176,7 @@ void FarMacroApi::panelitemFunc() const
 
 		const auto FormatDate = [](const os::chrono::time_point TimePoint)
 		{
-			const auto& [Date, Time] = ConvertDate(TimePoint, 8, 1);
+			const auto& [Date, Time] = time_point_to_string(TimePoint, 8, 1);
 			return concat(Date, L' ', Time);
 		};
 

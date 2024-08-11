@@ -2977,7 +2977,7 @@ bool ShellCopy::AskOverwrite(
 
 	const auto FormatLine = [&](const os::chrono::time_point TimePoint, lng Label, unsigned long long Size)
 	{
-		const auto [Date, Time] = ConvertDate(TimePoint, 8, 1);
+		const auto [Date, Time] = time_point_to_string(TimePoint, 8, 1);
 		return far::format(L"{:26} {:20} {} {}"sv, msg(Label), Size, Date, Time);
 	};
 

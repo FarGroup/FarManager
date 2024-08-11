@@ -535,7 +535,7 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
 
-std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
+std::tuple<string, string> time_point_to_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
 {
 	if (Point == os::chrono::time_point{})
 	{
@@ -649,36 +649,37 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 	return { std::move(DateText), std::move(TimeText) };
 }
 
-std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
+std::tuple<string, string> duration_to_string(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
+	using namespace os::chrono;
 
-	const auto Result = split_duration<days, hours, minutes, seconds, os::chrono::hectonanoseconds>(Duration);
+	const auto Parts = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
 
 	return
 	{
-		str(Result.get<days>() / 1_d),
+		str(Parts.get<days>() / 1_d),
 		far::format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"sv,
-			Result.get<hours>() / 1h,
-			Result.get<minutes>() / 1min,
-			Result.get<seconds>() / 1s,
-			Result.get<os::chrono::hectonanoseconds>() / 1_hns,
+			Parts.get<hours>() / 1h,
+			Parts.get<minutes>() / 1min,
+			Parts.get<seconds>() / 1s,
+			Parts.get<hectonanoseconds>() / 1_hns,
 			locale.time_separator(),
 			locale.decimal_separator()
 		)
 	};
 }
 
-string ConvertDurationToHMS(os::chrono::duration Duration)
+string duration_to_string_hms(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
 
-	const auto Result = split_duration<hours, minutes, seconds>(Duration);
+	const auto Parts = split_duration<hours, minutes, seconds>(Duration);
 
 	return far::format(L"{0:02}{3}{1:02}{3}{2:02}"sv,
-		Result.get<hours>() / 1h,
-		Result.get<minutes>() / 1min,
-		Result.get<seconds>() / 1s,
+		Parts.get<hours>() / 1h,
+		Parts.get<minutes>() / 1min,
+		Parts.get<seconds>() / 1s,
 		locale.time_separator()
 	);
 }
@@ -778,7 +779,7 @@ TEST_CASE("datetime.parse.duration")
 	for (const auto& i: Tests)
 	{
 		REQUIRE(ParseDuration(i.Date, i.Time) == i.Duration);
-		const auto& [Date, Time] = ConvertDuration(i.Duration);
+		const auto& [Date, Time] = duration_to_string(i.Duration);
 		REQUIRE(ParseDuration(Date, Time) == i.Duration);
 	}
 }
@@ -820,7 +821,7 @@ TEST_CASE("datetime.parse.timepoint")
 	}
 }
 
-TEST_CASE("datetime.ConvertDuration")
+TEST_CASE("datetime.duration_to_string")
 {
 	static const struct
 	{
@@ -837,10 +838,10 @@ TEST_CASE("datetime.ConvertDuration")
 
 	for (const auto& i: Tests)
 	{
-		const auto [Days, Timestamp] = ConvertDuration(i.Duration);
+		const auto [Days, Timestamp] = duration_to_string(i.Duration);
 		REQUIRE(i.Days == Days);
 		REQUIRE(i.Timestamp == Timestamp);
-		REQUIRE(i.HMS == ConvertDurationToHMS(i.Duration));
+		REQUIRE(i.HMS == duration_to_string_hms(i.Duration));
 	}
 }
 
