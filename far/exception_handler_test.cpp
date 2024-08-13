@@ -264,7 +264,7 @@ namespace tests
 		};
 
 		// Nondeterminitic condition to prevent devirtualization
-		if (std::chrono::system_clock().now().time_since_epoch() / 1s & 1)
+		if ([[maybe_unused]] volatile const auto Condition = true)
 			derived1{};
 		else
 			derived2{};

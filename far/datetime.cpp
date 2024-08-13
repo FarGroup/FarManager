@@ -650,6 +650,17 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 	return { std::move(DateText), std::move(TimeText) };
 }
 
+template<typename T> requires (T::period::num < T::period::den && T::period::num == 1 && T::period::den % 10 == 0)
+static constexpr auto decimal_duration_width()
+{
+	size_t Result = 0;
+
+	for (auto i = T::period::den; i != 1; i /= 10)
+		++Result;
+
+	return Result;
+}
+
 std::tuple<string, string> duration_to_string(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
@@ -660,13 +671,14 @@ std::tuple<string, string> duration_to_string(os::chrono::duration Duration)
 	return
 	{
 		str(Parts.get<days>() / 1_d),
-		far::format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"sv,
+		far::format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:0{6}}"sv,
 			Parts.get<hours>() / 1h,
 			Parts.get<minutes>() / 1min,
 			Parts.get<seconds>() / 1s,
 			Parts.get<hectonanoseconds>() / 1_hns,
 			locale.time_separator(),
-			locale.decimal_separator()
+			locale.decimal_separator(),
+			decimal_duration_width<hectonanoseconds>()
 		)
 	};
 }
@@ -701,7 +713,7 @@ string duration_to_string_hr(os::chrono::duration Duration)
 
 	string Result;
 
-	for (const auto [v, s]: zip(Values, L"dhm"sv))
+	for (const auto& [v, s]: zip(Values, L"dhm"sv))
 	{
 		if (v)
 			far::format_to(Result, L"{}{} "sv, v, s);
@@ -715,7 +727,7 @@ string duration_to_string_hr(os::chrono::duration Duration)
 		far::format_to(Result, L"{}"sv, Seconds);
 
 		if (Decimals)
-			far::format_to(Result, L".{:07}"sv, Decimals);
+			far::format_to(Result, L".{:0{}}"sv, Decimals, decimal_duration_width<hectonanoseconds>());
 
 		Result += L's';
 	}
@@ -862,6 +874,25 @@ TEST_CASE("datetime.parse.timepoint")
 		REQUIRE(Result.Second == i.TimePoint.Second);
 		REQUIRE(Result.Hectonanosecond == i.TimePoint.Hectonanosecond);
 	}
+}
+
+TEST_CASE("datetime.decimal_duration_width")
+{
+	using namespace std::chrono;
+	using namespace os::chrono;
+
+	using bad_duration_1 = std::chrono::duration<int, std::ratio<2, 3>>;
+	using bad_duration_2 = std::chrono::duration<int, std::ratio<1, 3>>;
+
+	STATIC_REQUIRE_ERROR(bad_duration_1, decimal_duration_width<TestType>());
+	STATIC_REQUIRE_ERROR(bad_duration_2, decimal_duration_width<TestType>());
+	STATIC_REQUIRE_ERROR(minutes, decimal_duration_width<TestType>());
+	STATIC_REQUIRE_ERROR(seconds, decimal_duration_width<TestType>());
+
+	STATIC_REQUIRE(decimal_duration_width<milliseconds>() == 3);
+	STATIC_REQUIRE(decimal_duration_width<microseconds>() == 6);
+	STATIC_REQUIRE(decimal_duration_width<hectonanoseconds>() == 9 - 2);
+	STATIC_REQUIRE(decimal_duration_width<nanoseconds>() == 9);
 }
 
 TEST_CASE("datetime.duration_to_string")
