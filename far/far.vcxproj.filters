@@ -598,6 +598,9 @@
     <ClInclude Include="common\enumerator.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\expected.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\from_string.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

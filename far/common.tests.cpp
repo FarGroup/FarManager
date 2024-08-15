@@ -580,6 +580,23 @@ TEST_CASE("enumerator.dynamic")
 
 //----------------------------------------------------------------------------
 
+#include "common/expected.hpp"
+
+TEST_CASE("expected")
+{
+	expected<string, int> const GoodValue(L"42"s), BadValue(42);
+
+	REQUIRE(GoodValue.has_value());
+	REQUIRE(GoodValue.value() == L"42"sv);
+	REQUIRE_THROWS_AS(GoodValue.error(), std::logic_error);
+
+	REQUIRE(!BadValue.has_value());
+	REQUIRE(BadValue.error() == 42);
+	REQUIRE_THROWS_AS(BadValue.value(), int);
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/from_string.hpp"
 
 TEST_CASE("from_string")
