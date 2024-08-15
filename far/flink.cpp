@@ -591,7 +591,7 @@ bool GetVHDInfo(string_view const RootDirectory, string &strVolumePath, VIRTUAL_
 		return false;
 
 WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds=")
+WARNING_DISABLE_GCC("-Warray-bounds")
 
 	if(StorageType)
 		*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;

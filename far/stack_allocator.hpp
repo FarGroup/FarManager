@@ -41,7 +41,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 
 // External:
+
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wcast-align")
+
 #include "thirdparty/short_alloc/short_alloc.h"
+
+WARNING_POP()
 
 //----------------------------------------------------------------------------
 

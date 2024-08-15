@@ -229,7 +229,10 @@ ifneq ($(NO_LTO),1)
 CFLAGS += -flto
 
 ifndef CLANG
-CFLAGS += -flto-odr-type-merging
+CFLAGS += \
+	-flarge-source-files \
+	-flto-odr-type-merging \
+
 endif
 
 endif # NO_LTO
@@ -243,7 +246,9 @@ endif # DEBUG
 # Compiler-specific flags
 PDB_FLAGS = \
 	-g \
+	--start-no-unused-arguments \
 	-gcodeview \
+	--end-no-unused-arguments \
 
 LLD_FLAGS = \
 	-fuse-ld=lld \

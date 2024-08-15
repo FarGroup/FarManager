@@ -450,7 +450,13 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 		Mask = EscapedMask;
 	}
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
+WARNING_DISABLE_GCC("-Wstringop-overflow")
+
 	const auto AttrStr = AttributesString(IncludeAttr, ExcludeAttr);
+
+WARNING_POP()
 
 	string OtherFlags;
 	OtherFlags.reserve(4);

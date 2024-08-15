@@ -203,6 +203,11 @@ SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 #define DEBUG_DISASM_SOURCE_LINE_NUMBER 0x00000004
 #define DEBUG_DISASM_SOURCE_FILE_NAME   0x00000008
 
+// This particular name is unrelated, it was just added soon after IID_IDebugClient5
+// https://sourceforge.net/p/mingw-w64/mingw-w64/ci/aa3060039963b6e0c2950dd78b3db66faf8d79f8/
+// https://sourceforge.net/p/mingw-w64/mingw-w64/ci/c37b1cd2058f25b02e8d7ffcf21db255e5cc3774/
+#ifndef DBG_FRAME_DEFAULT
+
 DEFINE_GUID(IID_IDebugClient5,0xe3acb9d7,0x7ec2,0x4f0c,0xa0,0xda,0xe8,0x1e,0x0c,0xbb,0xe6,0x28);
 DEFINE_GUID(IID_IDebugOutputCallbacksWide,0x4c7fd663,0xc394,0x4e26,0x8e,0xf1,0x34,0xad,0x5e,0xd3,0x76,0x4c);
 
@@ -323,10 +328,13 @@ DECLARE_INTERFACE_(IDebugOutputCallbacksWide, IUnknown)
 
 #endif
 
+#endif // DBG_FRAME_DEFAULT
+
 #ifndef STACK_FRAME_TYPE_INLINE
 #define STACK_FRAME_TYPE_INLINE 0x02
 #define STACK_FRAME_TYPE_IGNORE 0xFF
 
+// dbghelp.h
 #define SYM_STKWALK_DEFAULT 0x00000000
 
 typedef union _INLINE_FRAME_CONTEXT
