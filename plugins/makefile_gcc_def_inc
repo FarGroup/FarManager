@@ -39,15 +39,6 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_PATH))
 
 DEP_FILTER := $(MAKEFILE_DIR)dep_filter.awk
 
-ifndef CLANG
-ifndef USE_LLD
-# LD map files are unusable for tracing,
-# so we keep the symbols, objdump them and strip manually.
-# LLD, on the contrary, generates good maps and doesn't need this trickery.
-USE_OBJDUMP_MAPS=1
-endif
-endif
-
 include $(MAKEFILE_DIR)../far/makefile_gcc_common
 
 ifdef ANSI

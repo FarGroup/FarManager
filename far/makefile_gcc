@@ -1,14 +1,5 @@
 .SILENT:
 
-ifndef CLANG
-ifndef USE_LLD
-# LD map files are unusable for tracing,
-# so we keep the symbols, objdump them and strip manually.
-# LLD, on the contrary, generates good maps and doesn't need this trickery.
-USE_OBJDUMP_MAPS=1
-endif
-endif
-
 include ./makefile_gcc_common
 THIS_MAKE = $(TOP_MAKEFILE)
 

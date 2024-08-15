@@ -230,7 +230,6 @@ CFLAGS += -flto
 
 ifndef CLANG
 CFLAGS += \
-	-flarge-source-files \
 	-flto-odr-type-merging \
 
 endif
@@ -244,11 +243,16 @@ endif # DEBUG
 # Configuration-specific flags end
 
 # Compiler-specific flags
+ifdef CLANG
+START_NO_UNUSED_ARGS=--start-no-unused-arguments
+END_NO_UNUSED_ARGS=--end-no-unused-arguments
+endif
+
 PDB_FLAGS = \
 	-g \
-	--start-no-unused-arguments \
+	$(START_NO_UNUSED_ARGS) \
 	-gcodeview \
-	--end-no-unused-arguments \
+	$(END_NO_UNUSED_ARGS) \
 
 LLD_FLAGS = \
 	-fuse-ld=lld \
@@ -294,13 +298,16 @@ LNKFLAGS += \
 	$(CLANG_FLAGS) \
 	$(LLD_FLAGS) \
 
-ifndef CLANG
+else
+
+CFLAGS += \
+	-flarge-source-files \
+
 ifndef USE_LLD
 # LD map files are unusable for tracing,
 # so we keep the symbols, objdump them and strip manually.
 # LLD, on the contrary, generates good maps and doesn't need this trickery.
 USE_OBJDUMP_MAPS=1
-endif
 endif
 
 endif
