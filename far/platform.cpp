@@ -652,7 +652,7 @@ std::vector<HKL> get_keyboard_layout_list()
 
 	Result.reserve(10);
 
-	for (const auto& i: Key.enum_values())
+	for (const auto& i: Key->enum_values())
 	{
 		try
 		{
@@ -663,14 +663,14 @@ std::vector<HKL> get_keyboard_layout_list()
 			const auto Preload = from_string<uint32_t>(PreloadStr, {}, 16);
 			const auto PrimaryLanguageId = extract_integer<uint16_t, 0>(Preload);
 
-			const auto LayoutStr = reg::key::current_user.get<string>(L"Keyboard Layout\\Substitutes"sv, PreloadStr);
+			const auto LayoutStr = reg::key::current_user.get_string(L"Keyboard Layout\\Substitutes"sv, PreloadStr);
 			const auto LayoutValue = LayoutStr? from_string<uint32_t>(*LayoutStr, {}, 16) : Preload;
 
 			const auto SecondaryLanguageId = extract_integer<uint16_t, 0>(LayoutValue);
 
 			const string_view LayoutView = LayoutValue == Preload? PreloadStr : *LayoutStr;
 
-			const auto LayoutIdStr = reg::key::local_machine.get<string>(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv);
+			const auto LayoutIdStr = reg::key::local_machine.get_string(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv);
 			const auto LayoutId = LayoutIdStr? from_string<int>(*LayoutIdStr, {}, 16) : 0;
 
 			const auto FinalLayout = make_integer<uint32_t, uint16_t>(PrimaryLanguageId, LayoutId? (LayoutId & 0xfff) | 0xf000 : SecondaryLanguageId);

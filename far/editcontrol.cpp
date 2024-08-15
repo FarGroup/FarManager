@@ -338,9 +338,9 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 		if (!AppPathsKey)
 			return;
 
-		for (const auto& SubkeyName: AppPathsKey.enum_keys())
+		for (const auto& SubkeyName: AppPathsKey->enum_keys())
 		{
-			if (const auto SubKey = AppPathsKey.open(SubkeyName, SamDesired); SubKey.exits({}) && starts_with_icase(SubkeyName, Token))
+			if (const auto SubKey = AppPathsKey->open(SubkeyName, SamDesired); SubKey && SubKey->exits({}) && starts_with_icase(SubkeyName, Token))
 			{
 				ResultStrings.emplace(SubkeyName);
 			}

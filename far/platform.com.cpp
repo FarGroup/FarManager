@@ -153,28 +153,28 @@ namespace os::com
 			}
 		}
 
-		if (const auto UserKey = reg::key::current_user.open(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
+		try
 		{
-			if (string Value; UserKey.get(L"ProgId"sv, Value) && is_proper_progid(Value))
+			if (const auto UserKey = reg::key::current_user.open(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
 			{
-				return Value;
+				if (const auto ProgId = UserKey->get_string(L"ProgId"sv); ProgId && is_proper_progid(*ProgId))
+					return *ProgId;
+
+				if (const auto Application = UserKey->get_string(L"Application"sv))
+					if (const auto ProgId = L"Applications\\"sv + *Application; is_proper_progid(ProgId))
+						return ProgId;
 			}
 
-			if (string Value; UserKey.get(L"Application"sv, Value))
+			if (const auto CRKey = reg::key::classes_root.open(Ext, KEY_QUERY_VALUE))
 			{
-				if (auto ProgId = L"Applications\\"sv + Value; is_proper_progid(ProgId))
-				{
-					return ProgId;
-				}
+				if (const auto ProgId = CRKey->get_string({}); ProgId && is_proper_progid(*ProgId))
+					return *ProgId;
 			}
 		}
-
-		if (const auto CRKey = reg::key::classes_root.open(Ext, KEY_QUERY_VALUE))
+		catch (far_exception const& e)
 		{
-			if (string Value; CRKey.get({}, Value) && is_proper_progid(Value))
-			{
-				return Value;
-			}
+			// This is informational, debug will do fine
+			LOGDEBUG(L"{}"sv, e);
 		}
 
 		return {};
@@ -186,7 +186,10 @@ namespace os::com
 		if (Type.empty())
 			return {};
 
-		return reg::key::classes_root.get<string>(Type, {}).value_or(L""s);
+		if (const auto Description = reg::key::classes_root.get_string(Type, {}))
+			return *Description;
+
+		return {};
 	}
 
 	ptr<IFileIsInUse> create_file_is_in_use(const string& File)

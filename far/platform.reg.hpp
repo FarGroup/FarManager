@@ -34,10 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "exception.hpp"
 
 // Platform:
 
 // Common:
+#include "common/expected.hpp"
 #include "common/enumerator.hpp"
 #include "common/noncopyable.hpp"
 #include "common/type_traits.hpp"
@@ -52,6 +54,21 @@ namespace os::reg
 	class enum_key;
 	class enum_value;
 
+	struct error
+	{
+		string What;
+		LSTATUS Code{};
+	};
+
+	class exception: public far_exception
+	{
+	public:
+		explicit exception(error const& Error);
+	};
+
+	template<typename T>
+	using result = expected<T, error, exception>;
+
 	class key
 	{
 		friend enum_key;
@@ -65,7 +82,7 @@ namespace os::reg
 		static const key local_machine;
 
 		[[nodiscard]]
-		key open(string_view SubKey, DWORD SamDesired) const;
+		result<key> open(string_view SubKeyName, DWORD SamDesired) const;
 
 		void close();
 
@@ -81,30 +98,16 @@ namespace os::reg
 		[[nodiscard]]
 		bool exits(string_view Name) const;
 
-		[[nodiscard]]
-		bool get(string_view Name, string& Value) const;
+		result<string> get_string(string_view Name) const;
 
 		[[nodiscard]]
-		bool get(string_view Name, unsigned int& Value) const;
-
-		template<class T>
-		[[nodiscard]]
-		std::optional<T> get(string_view const SubKeyName, string_view const Name) const
-		{
-			static_assert(is_one_of_v<T, string, unsigned int>);
-
-			const auto SubKey = open(SubKeyName, KEY_QUERY_VALUE);
-			if (!SubKey)
-				return {};
-
-			if (T Value; SubKey.get(Name, Value))
-				return Value;
-
-			return {};
-		}
+		result<string> get_string(string_view SubKeyName, string_view Name) const;
 
 		[[nodiscard]]
-		explicit operator bool() const;
+		result<uint32_t> get_dword(string_view Name) const;
+
+		[[nodiscard]]
+		result<uint32_t> get_dword(string_view SubKeyName, string_view Name) const;
 
 	private:
 		explicit key(HKEY Key);
@@ -136,7 +139,7 @@ namespace os::reg
 		string get_string() const;
 
 		[[nodiscard]]
-		unsigned int get_unsigned() const;
+		uint32_t get_dword() const;
 
 	private:
 		friend class key;

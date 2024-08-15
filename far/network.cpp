@@ -59,7 +59,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	return os::reg::key::current_user.get<string>(concat(L"Network\\"sv, Drive), L"UserName"sv).value_or(L""s);
+	if (const auto Value = os::reg::key::current_user.get_string(concat(L"Network\\"sv, Drive), L"UserName"sv))
+		return *Value;
+
+	return {};
 }
 
 os::fs::drives_set GetSavedNetworkDrives()

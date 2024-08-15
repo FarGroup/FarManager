@@ -292,21 +292,22 @@ WARNING_POP()
 				0;
 		}();
 
-		const auto Key = reg::key::local_machine.open(L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
-		if (!Key)
-			return {};
+		try
+		{
+			const auto Key = reg::key::local_machine.open(L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
 
-		string ProductName, DisplayVersion, CurrentBuild;
-		unsigned UBR;
-		if (
-			!Key.get(L"ProductName"sv, ProductName) ||
-			(!Key.get(L"DisplayVersion"sv, DisplayVersion) && !Key.get(L"ReleaseId"sv, DisplayVersion)) ||
-			!Key.get(L"CurrentBuild"sv, CurrentBuild) ||
-			!Key.get(L"UBR"sv, UBR)
-		)
-			return {};
+			const auto ProductName = Key->get_string(L"ProductName"sv);
+			const auto DisplayVersion = Key->get_string(L"DisplayVersion"sv);
+			const auto ReleaseId = Key->get_string(L"ReleaseId"sv);
+			const auto CurrentBuild = Key->get_string(L"CurrentBuild"sv);
+			const auto UBR = Key->get_dword(L"UBR"sv);
 
-		return far::format(L" ({}, version {}, OS build {}.{})"sv, ProductName, DisplayVersion, CurrentBuild, UBR);
+			return far::format(L" ({}, version {}, OS build {}.{})"sv, *ProductName, DisplayVersion? *DisplayVersion : *ReleaseId, *CurrentBuild, *UBR);
+		}
+		catch (far_exception const&)
+		{
+			return {};
+		}
 	}
 
 	string os_version()
