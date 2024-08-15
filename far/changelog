@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-08-15 01:55:21+01:00 - build 6369
+
+1. gh-864: Confusion between ² and ' keys on AZERTY (french) keyboard for Macro Shortcuts.
+
+2. Various refactoring, related to #1.
+
+--------------------------------------------------------------------------------
 yjh 2024-08-14 00:19:45+03:00 - build 6358
 
 1. SQLite 3.46.1
