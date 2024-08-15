@@ -61,7 +61,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
-#include "platform.version.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -271,10 +270,10 @@ static const TFKey ModifKeyName[]
 	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
 };
 
-static auto& Layout()
+static const auto& Layouts()
 {
-	static auto s_Layout = os::get_keyboard_layout_list();
-	return s_Layout;
+	static const auto s_Layouts = os::get_keyboard_layout_list();
+	return s_Layouts;
 }
 
 /*
@@ -303,7 +302,7 @@ void InitKeysArray()
 	{
 		KeyState[VK_SHIFT] = j * 0x80;
 
-		for (const auto& i: Layout())
+		for (const auto& i: Layouts())
 		{
 			for (const auto VK : std::views::iota(0, 256))
 			{
@@ -1566,7 +1565,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 			short Vk = VkKeyScanEx(static_cast<wchar_t>(FKey), console.GetKeyboardLayout());
 			if (Vk == -1)
 			{
-				for (const auto& i: Layout())
+				for (const auto& i: Layouts())
 				{
 					if ((Vk = VkKeyScanEx(static_cast<wchar_t>(FKey), i)) != -1)
 						break;
