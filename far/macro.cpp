@@ -588,11 +588,8 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			if (!m_WaitKey && IsPostMacroEnabled())
 			{
 				auto key = Rec->IntKey;
-				if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
-					key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
-
-				if (key<0xFFFF)
-					key=upper(static_cast<wchar_t>(key));
+				if ((key & 0x00FFFFFF) < 0xFFFF)
+					key = upper(KeyToKeyLayout(key & 0x0000FFFF)) | (key & 0xFFFF0000);
 
 				if (TryToPostMacro(m_Area, key == Rec->IntKey? textKey : KeyToText(key), Rec->IntKey))
 					return true;
@@ -1426,13 +1423,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 	if (KeyIsValid)
 	{
-		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
-			key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
-
-		if (key<0xFFFF)
-		{
-			key=upper(static_cast<wchar_t>(key));
-		}
+		if ((key & 0x00FFFFFF) < 0xFFFF)
+			key = upper(KeyToKeyLayout(key & 0x0000FFFF)) | (key & 0xFFFF0000);
 
 		KMParam->Key = static_cast<DWORD>(key);
 		auto strKeyText = KeyToText(key);
