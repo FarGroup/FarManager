@@ -676,6 +676,9 @@ static auto get_keyboard_layout_list_registry_ctf()
 
 		// GUID_TFCAT_TIP_KEYBOARD
 		const auto LayoutsKey = os::reg::key::current_user.open(far::format(L"{}\\AssemblyItem\\0x{:08X}\\{{34745C63-B2F0-4784-8B67-5E12C8701A31}}"sv, CtfSortOrderPath, Language.Id), KEY_ENUMERATE_SUB_KEYS);
+		if (!LayoutsKey)
+			continue;
+
 		for (const auto& IndexStr: LayoutsKey->enum_keys())
 		{
 			try
@@ -773,15 +776,28 @@ static auto default_keyboard_layout()
 	return GetKeyboardLayout(0);
 }
 
+static std::vector<HKL> try_get_keyboard_list(function_ref<std::vector<HKL>()> Callable)
+{
+	try
+	{
+		return Callable();
+	}
+	catch (far_exception const& e)
+	{
+		LOGWARNING(L"{}", e);
+		return {};
+	}
+}
+
 std::vector<HKL> get_keyboard_layout_list()
 {
-	auto Result = get_keyboard_layout_list_registry_ctf();
+	auto Result = try_get_keyboard_list(get_keyboard_layout_list_registry_ctf);
 
 	if (Result.empty())
-		Result = get_keyboard_layout_list_api();
+		Result = try_get_keyboard_list(get_keyboard_layout_list_api);
 
 	if (Result.empty())
-		Result = get_keyboard_layout_list_registry_base();
+		Result = try_get_keyboard_list(get_keyboard_layout_list_registry_base);
 
 	// Only the CTF method returns layouts in the correct order.
 	// We want to prioritise the default layout, because InitKeysArray uses the first match strategy,
