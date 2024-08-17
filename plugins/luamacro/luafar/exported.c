@@ -1707,7 +1707,8 @@ intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *In
 {
 	intptr_t ret = 0;
 
-	if (GetExportFunction(L, "ProcessConsoleInput"))    //+1: Func
+	if (!(GetPluginData(L)->Flags & PDF_PROCESSINGERROR) &&
+			GetExportFunction(L, "ProcessConsoleInput"))    //+1: Func
 	{
 		PushInputRecord(L, &Info->Rec);                  //+2
 		bit64_push(L, Info->Flags);                      //+3
