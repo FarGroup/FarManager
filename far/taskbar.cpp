@@ -66,6 +66,8 @@ public:
 
 		m_State = State;
 
+		console.set_progress_state(m_State);
+
 		m_StateEvent.set();
 	}
 
@@ -79,6 +81,8 @@ public:
 		m_State = NewState;
 		m_Completed = Completed;
 		m_Total = Total;
+
+		console.set_progress_value(m_State, ToPercent(m_Completed, m_Total));
 
 		m_ValueEvent.set();
 	}
@@ -131,12 +135,10 @@ private:
 
 			case 1:
 				TaskbarList->SetProgressState(console.GetWindow(), m_State);
-				console.set_progress_state(m_State);
 				break;
 
 			case 2:
 				TaskbarList->SetProgressValue(console.GetWindow(), m_Completed, m_Total);
-				console.set_progress_value(m_State, ToPercent(m_Completed, m_Total));
 				break;
 			}
 		}
