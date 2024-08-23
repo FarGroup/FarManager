@@ -1083,14 +1083,13 @@ namespace logging
 
 	int main(string_view const PipeName)
 	{
+		console.UpdateMode(console.GetInputHandle(), ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE, ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+
 		consoleicons::instance().set_icon(FAR_ICON_LOG);
 
 		console.SetTitle(L"Far Log Viewer: "sv + PipeName);
 		console.SetTextAttributes(colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
-		DWORD ConsoleMode = 0;
-		console.GetMode(console.GetInputHandle(), ConsoleMode);
-		console.SetMode(console.GetInputHandle(), ConsoleMode | ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE);
 
 		os::fs::file PipeFile;
 

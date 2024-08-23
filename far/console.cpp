@@ -66,7 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ESC L"\u001b"
 #define CSI ESC L"["
-#define OSC(Command) ESC L"]" Command ESC L"\\"sv
+#define ST ESC L"\\"
+#define OSC(Command) ESC L"]" Command ST ""sv
 #define ANSISYSSC CSI L"s"
 #define ANSISYSRC CSI L"u"
 
@@ -532,6 +533,31 @@ protected:
 		bool m_Restore{};
 	};
 
+	class scoped_vt_output
+	{
+	public:
+		NONCOPYABLE(scoped_vt_output);
+
+		scoped_vt_output():
+			m_ConsoleMode(::console.UpdateMode(::console.GetOutputHandle(), ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING, 0))
+		{
+		}
+
+		~scoped_vt_output()
+		{
+			if (m_ConsoleMode)
+				::console.SetMode(::console.GetOutputHandle(), *m_ConsoleMode);
+		}
+
+		explicit operator bool() const
+		{
+			return m_ConsoleMode.has_value();
+		}
+
+	private:
+		std::optional<DWORD> m_ConsoleMode;
+	};
+
 	console::console():
 		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
 		m_StreamBuffersOverrider(std::make_unique<stream_buffers_overrider>())
@@ -586,18 +612,21 @@ protected:
 		return m_OriginalInputHandle;
 	}
 
+	static bool is_pseudo_console(HWND const Window)
+	{
+		wchar_t ClassName[MAX_PATH];
+		const auto Size = GetClassName(Window, ClassName, static_cast<int>(std::size(ClassName)));
+		return string_view(ClassName, Size) == L"PseudoConsoleWindow"sv;
+	}
+
 	HWND console::GetWindow() const
 	{
 		const auto Window = GetConsoleWindow();
 
-		wchar_t ClassName[MAX_PATH];
-		if (const auto Size = GetClassName(Window, ClassName, static_cast<int>(std::size(ClassName))); Size)
+		if (is_pseudo_console(Window))
 		{
-			if (string_view(ClassName, Size) == L"PseudoConsoleWindow"sv)
-			{
-				if (const auto Owner = ::GetWindow(Window, GW_OWNER))
-					return Owner;
-			}
+			if (const auto Owner = ::GetWindow(Window, GW_OWNER))
+				return Owner;
 		}
 
 		return Window;
@@ -878,6 +907,19 @@ protected:
 		}
 
 		return true;
+	}
+
+	std::optional<DWORD> console::UpdateMode(HANDLE const ConsoleHandle, DWORD const ToSet, DWORD const ToClear) const
+	{
+		DWORD CurrentMode;
+
+		if (!GetMode(ConsoleHandle, CurrentMode))
+			return {};
+
+		if (const auto NewMode = (CurrentMode | ToSet) & ~ToClear; NewMode != CurrentMode && !SetMode(ConsoleHandle, NewMode))
+			return {};
+
+		return CurrentMode;
 	}
 
 	bool console::IsVtSupported() const
@@ -1887,7 +1929,7 @@ protected:
 		static bool SetPaletteVT(std::array<COLORREF, 16> const& Palette)
 		{
 			string Str;
-			Str.reserve(OSC(L"4;15;rgb:ff/ff/ff").size() * 16);
+			Str.reserve(OSC(L"4;15;rgb:ff/ff/ff").size() * Palette.size() - 100 - 10);
 
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
@@ -2631,7 +2673,7 @@ protected:
 			if (GetLastError() != ERROR_INVALID_HANDLE)
 				return false;
 
-			LOGINFO(L"Reinitializing");
+			LOGINFO(L"Reinitializing"sv);
 			initialize();
 			return false;
 		}
@@ -2677,11 +2719,12 @@ protected:
 	bool console::SetPalette(std::array<COLORREF, 16> const& Palette) const
 	{
 		// Happy path
-		if (IsVtEnabled())
-			return implementation::SetPaletteVT(Palette);
+		const auto VtEnabled = IsVtEnabled();
+		if (VtEnabled && implementation::SetPaletteVT(Palette))
+			return true;
 
 		// Legacy console
-		if (!IsVtSupported())
+		if (VtEnabled || !IsVtSupported())
 			return implementation::SetPaletteNT(Palette);
 
 		// These methods are currently not synchronized in WT 🤦
@@ -2689,11 +2732,8 @@ protected:
 		// VT does and updates the CSBI too.
 
 		// If VT is not enabled, we enable it temporarily and use VT method if we can:
-		if (std::pair<HANDLE, DWORD> Data{ GetOutputHandle(), 0 }; GetMode(Data.first, Data.second) && SetMode(Data.first, Data.second | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
-		{
-			SCOPE_EXIT { SetMode(Data.first, Data.second); };
+		if ([[maybe_unused]] scoped_vt_output const VtOutput{})
 			return implementation::SetPaletteVT(Palette);
-		}
 
 		// Otherwise fallback to NT
 		return implementation::SetPaletteNT(Palette);
@@ -2820,11 +2860,8 @@ protected:
 			return false;
 
 		// If VT is not enabled, we enable it temporarily
-		if (std::pair<HANDLE, DWORD> Data{ GetOutputHandle(), 0 }; GetMode(Data.first, Data.second) && SetMode(Data.first, Data.second | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
-		{
-			SCOPE_EXIT{ SetMode(Data.first, Data.second); };
+		if ([[maybe_unused]] scoped_vt_output const VtOutput{})
 			return Write(Command);
-		}
 
 		return false;
 	}

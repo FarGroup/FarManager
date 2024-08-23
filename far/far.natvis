@@ -389,7 +389,6 @@
 			<Item Name="VkCode">wVirtualKeyCode</Item>
 			<Item Name="ScanCode">wVirtualScanCode</Item>
 			<Item Name="wchar_t">uChar.UnicodeChar</Item>
-			<Item Name="char">uChar.AsciiChar</Item>
 			<Synthetic Name="Control keys">
 				<DisplayString>RAlt: {(dwControlKeyState &amp; 0x1) != 0}, LAlt: {(dwControlKeyState &amp; 0x2) != 0}, RCtrl: {(dwControlKeyState &amp; 0x4) != 0}, LCtrl: {(dwControlKeyState &amp; 0x8) != 0}, Shift: {(dwControlKeyState &amp; 0x10) != 0}, NumLock: {(dwControlKeyState &amp; 0x20) != 0}, ScrollLock: {(dwControlKeyState &amp; 0x40) != 0}, CapsLock: {(dwControlKeyState &amp; 0x80) != 0}, Enhanced: {(dwControlKeyState &amp; 0x100) != 0}</DisplayString>
 			</Synthetic>

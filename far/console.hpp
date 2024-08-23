@@ -108,6 +108,7 @@ namespace console_detail
 
 		bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
 		bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
+		std::optional<DWORD> UpdateMode(HANDLE ConsoleHandle, DWORD ToSet, DWORD ToClear) const;
 
 		bool IsVtSupported() const;
 
