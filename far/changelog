@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-08-23 23:13:12+01:00 - build 6362
+
+1. Read palette via VT.
+
+2. Extend palette operations to 256 colors.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2024-08-19 17:15:46+01:00 - build 6361
 
 1. gh-866: Strange characters in console after cd.
