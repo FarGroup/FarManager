@@ -1926,10 +1926,10 @@ protected:
 			return true;
 		}
 
-		static bool SetPaletteVT(std::array<COLORREF, 16> const& Palette)
+		static bool SetPaletteVT(std::array<COLORREF, 256> const& Palette)
 		{
 			string Str;
-			Str.reserve(OSC(L"4;15;rgb:ff/ff/ff").size() * Palette.size() - 100 - 10);
+			Str.reserve(OSC(L"4;255;rgb:ff/ff/ff").size() * Palette.size() - 100 - 10);
 
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
@@ -1940,7 +1940,7 @@ protected:
 			return ::console.Write(Str);
 		}
 
-		static bool SetPaletteNT(std::array<COLORREF, 16> const& Palette)
+		static bool SetPaletteNT(std::array<COLORREF, 256> const& Palette)
 		{
 			if (!imports.GetConsoleScreenBufferInfoEx)
 				return false;
@@ -1954,10 +1954,12 @@ protected:
 				return false;
 			}
 
-			if (std::ranges::equal(Palette, csbi.ColorTable))
+			std::span const NtPalette(Palette.data(), colors::index::nt_size);
+
+			if (std::ranges::equal(NtPalette, csbi.ColorTable))
 				return true;
 
-			std::ranges::copy(Palette, std::begin(csbi.ColorTable));
+			std::ranges::copy(NtPalette, std::begin(csbi.ColorTable));
 
 			if (!imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
 			{
@@ -2699,7 +2701,7 @@ protected:
 		m_WidthTestScreen = {};
 	}
 
-	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const
+	bool console::GetPalette(std::array<COLORREF, 256>& Palette) const
 	{
 		if (!imports.GetConsoleScreenBufferInfoEx)
 			return false;
@@ -2716,7 +2718,7 @@ protected:
 		return true;
 	}
 
-	bool console::SetPalette(std::array<COLORREF, 16> const& Palette) const
+	bool console::SetPalette(std::array<COLORREF, 256> const& Palette) const
 	{
 		// Happy path
 		const auto VtEnabled = IsVtEnabled();

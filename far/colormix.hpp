@@ -120,8 +120,8 @@ namespace colors
 
 	FarColor merge(FarColor Bottom, FarColor Top);
 
-	using nt_palette_t = std::array<COLORREF, index::nt_size>;
-	nt_palette_t const& nt_palette();
+	using palette_t = std::array<COLORREF, 256>;
+	palette_t const& default_palette();
 
 	// TODO: Rename these uniformly
 	WORD FarColorToConsoleColor(const FarColor& Color);

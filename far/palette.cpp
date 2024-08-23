@@ -229,7 +229,7 @@ static auto index_color(ColorsInit const& i)
 
 void palette::Reset(bool const RGB)
 {
-	const auto rgb_color = [&Palette = colors::nt_palette()](ColorsInit const& i)
+	const auto rgb_color = [&Palette = colors::default_palette()](ColorsInit const& i)
 	{
 		auto Color = index_color(i);
 

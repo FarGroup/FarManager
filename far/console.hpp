@@ -193,8 +193,8 @@ namespace console_detail
 		bool IsWidePreciseExpensive(char32_t Codepoint);
 		void ClearWideCache();
 
-		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
-		bool SetPalette(std::array<COLORREF, 16> const& Palette) const;
+		bool GetPalette(std::array<COLORREF, 256>& Palette) const;
+		bool SetPalette(std::array<COLORREF, 256> const& Palette) const;
 
 		static void EnableWindowMode(bool Value);
 		static void EnableVirtualTerminal(bool Value);

@@ -317,67 +317,40 @@ namespace colors
 		return Result;
 	}
 
-	constexpr auto NtPalette = []
-	{
-		enum
-		{
-			C0 = 0,
-			C1 = 128,
-			C2 = 192,
-			C3 = 255,
-		};
-
-		return std::array
-		{
-			RGB(C0, C0, C0), // black
-			RGB(C0, C0, C1), // blue
-			RGB(C0, C1, C0), // green
-			RGB(C0, C1, C1), // cyan
-			RGB(C1, C0, C0), // red
-			RGB(C1, C0, C1), // magenta
-			RGB(C1, C1, C0), // yellow
-			RGB(C2, C2, C2), // white
-
-			RGB(C1, C1, C1), // bright black
-			RGB(C0, C0, C3), // bright blue
-			RGB(C0, C3, C0), // bright green
-			RGB(C0, C3, C3), // bright cyan
-			RGB(C3, C0, C0), // bright red
-			RGB(C3, C0, C3), // bright magenta
-			RGB(C3, C3, C0), // bright yellow
-			RGB(C3, C3, C3)  // bright white
-		};
-	}();
-
-	nt_palette_t const& nt_palette()
-	{
-		return NtPalette;
-	}
-
-	static const auto& console_palette(bool const Refresh = false)
-	{
-		const auto init = [&]
-		{
-			nt_palette_t Palette;
-			return console.GetPalette(Palette)?
-				Palette :
-				nt_palette();
-		};
-
-		static auto ConsolePalette = init();
-
-		if (Refresh)
-			ConsolePalette = init();
-
-		return ConsolePalette;
-	}
-
-	static constexpr auto Index8ToRGB = []
+	static constexpr auto DefaultPalette = []
 	{
 		std::array<COLORREF, 256> Result;
 
-		// First 16 colors are dynamic, see console_palette()
-		std::ranges::fill_n(Result.begin(), index::nt_size, 0);
+		// The system colors
+		// Note: for historic reasons these are in NT order and must stay so.
+		// The console layer will translate to & from VT as needed.
+		{
+			enum
+			{
+				C0 = 0,
+				C1 = 128,
+				C2 = 192,
+				C3 = 255,
+			};
+
+			Result[0x0] = RGB(C0, C0, C0); // black
+			Result[0x1] = RGB(C0, C0, C1); // blue
+			Result[0x2] = RGB(C0, C1, C0); // green
+			Result[0x3] = RGB(C0, C1, C1); // cyan
+			Result[0x4] = RGB(C1, C0, C0); // red
+			Result[0x5] = RGB(C1, C0, C1); // magenta
+			Result[0x6] = RGB(C1, C1, C0); // yellow
+			Result[0x7] = RGB(C2, C2, C2); // white
+
+			Result[0x8] = RGB(C1, C1, C1); // bright black
+			Result[0x9] = RGB(C0, C0, C3); // bright blue
+			Result[0xA] = RGB(C0, C3, C0); // bright green
+			Result[0xB] = RGB(C0, C3, C3); // bright cyan
+			Result[0xC] = RGB(C3, C0, C0); // bright red
+			Result[0xD] = RGB(C3, C0, C3); // bright magenta
+			Result[0xE] = RGB(C3, C3, C0); // bright yellow
+			Result[0xF] = RGB(C3, C3, C3); // bright white
+		}
 
 		// 6x6x6 color cube
 		enum
@@ -427,7 +400,28 @@ namespace colors
 		return Result;
 	}();
 
-	static_assert(Index8ToRGB.size() == 256);
+	palette_t const& default_palette()
+	{
+		return DefaultPalette;
+	}
+
+	static const auto& console_palette(bool const Refresh = false)
+	{
+		const auto init = [&]
+		{
+			auto Palette = DefaultPalette;
+			return console.GetPalette(Palette)?
+				Palette :
+				DefaultPalette;
+		};
+
+		static auto ConsolePalette = init();
+
+		if (Refresh)
+			ConsolePalette = init();
+
+		return ConsolePalette;
+	}
 
 	static uint8_t get_closest_palette_index(COLORREF const Color, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
 	{
@@ -617,7 +611,7 @@ index_color_256 FarColorToConsole256Color(const FarColor& Color)
 	if (not_the_same_index(Color, LastColor))
 	{
 		static std::unordered_map<COLORREF, uint8_t> Map;
-		Result = color_to_palette_index(Color, LastColor, Index8ToRGB, Map);
+		Result = color_to_palette_index(Color, LastColor, DefaultPalette, Map);
 	}
 
 	return Result;
@@ -640,7 +634,7 @@ COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 	assert(!is_default(Color));
 
 	const auto Index = index_value(Color);
-	return alpha_bits(Color) | (Index < 16? console_palette()[Index] : Index8ToRGB[Index]);
+	return alpha_bits(Color) | console_palette()[Index];
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -1085,8 +1079,8 @@ TEST_CASE("colors.closest_palette_index")
 			REQUIRE(std::ranges::all_of(Palette | std::views::drop(Begin), [&](COLORREF const& Color){ return colors::get_closest_palette_index(Color, Palette, Map) == &Color - Palette.data(); }));
 		};
 
-		self_test(colors::NtPalette, 0);
-		self_test(colors::Index8ToRGB, colors::index::nt_size);
+		self_test({ colors::DefaultPalette.data(), colors::index::nt_size }, 0);
+		self_test(colors::DefaultPalette, colors::index::nt_size);
 	}
 
 	static const struct
@@ -1116,8 +1110,8 @@ TEST_CASE("colors.closest_palette_index")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(colors::get_closest_palette_index(i.Color, colors::NtPalette, Map16) == i.Index16);
-		REQUIRE(colors::get_closest_palette_index(i.Color, colors::Index8ToRGB, Map256) == i.Index256);
+		REQUIRE(colors::get_closest_palette_index(i.Color, { colors::DefaultPalette.data(), colors::index::nt_size }, Map16) == i.Index16);
+		REQUIRE(colors::get_closest_palette_index(i.Color, colors::DefaultPalette, Map256) == i.Index256);
 	}
 }
 #endif

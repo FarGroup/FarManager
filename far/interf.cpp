@@ -1668,7 +1668,7 @@ void AdjustConsoleScreenBufferSize()
 void SetPalette()
 {
 	if (Global->Opt->SetPalette)
-		console.SetPalette(colors::nt_palette());
+		console.SetPalette(colors::default_palette());
 }
 
 static point& NonMaximisedBufferSize()
