@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/algorithm.hpp"
 #include "common/algorithm.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/from_string.hpp"
 #include "common/io.hpp"
 #include "common/scope_exit.hpp"
 #include "common/view/enumerate.hpp"
@@ -557,6 +558,119 @@ protected:
 	private:
 		std::optional<DWORD> m_ConsoleMode;
 	};
+
+	class scoped_vt_input
+	{
+	public:
+		NONCOPYABLE(scoped_vt_input);
+
+		scoped_vt_input():
+			m_ConsoleMode(::console.UpdateMode(::console.GetInputHandle(), ENABLE_VIRTUAL_TERMINAL_INPUT, 0))
+		{
+		}
+
+		~scoped_vt_input()
+		{
+			if (m_ConsoleMode)
+				::console.SetMode(::console.GetInputHandle(), *m_ConsoleMode);
+		}
+
+		explicit operator bool() const
+		{
+			return m_ConsoleMode.has_value();
+		}
+
+	private:
+		std::optional<DWORD> m_ConsoleMode;
+	};
+
+	static string query_vt(string_view const Command)
+	{
+		// A VT query works as follows:
+		// - We cast an unpronounceable spell into the output stream.
+		// - If the terminal recognizes the spell, it conjures
+		//   an equally unpronounceable answer into the input stream.
+		//   Notably, it takes its time at that and answers asynchronously.
+		// - If the terminal does not recognize the spell, it does not
+		//   burden itself with explanations and stays silent.
+
+		// A classic, timeless design, a pinnacle of 70's or whatever.
+
+		// The only problem with it is that there is no way to tell what will happen.
+		// You conjure a dodgy incantation, which may or may not be supported, and pray.
+		// Maybe the response comes immediately.
+		// Maybe later.
+		// Maybe never.
+
+		// 🤦
+
+		// To make sure that we do not deadlock ourselves here we prepend & append
+		// this dummy DA command that always works (since it was in the initial WT release),
+		// so that the response is always non-empty and we know exactly where it starts and ends.
+		// In other words:
+		// - <attributes>[the response we are actually after]<attributes>: yay.
+		// - <attributes><attributes>: nay, the request is unsupported.
+
+		// Ah, and since it is input stream, the user can type any rubbish into it at the same time.
+		// Fortunately, it seems that user input is queued before and/or after the responses,
+		// but does not interlace with them.
+
+		// We also need to enable VT input, otherwise it will only work in a real console.
+		// Are you not entertained?
+
+		scoped_vt_input const VtInput;
+		if (!VtInput)
+			throw far_exception(L"scoped_vt_input"sv);
+
+		const auto Dummy = CSI L"0c"sv;
+
+		if (!::console.Write(concat(Dummy, Command, Dummy)))
+			throw far_exception(L"WriteConsole"sv);
+
+		string Response;
+
+		std::optional<size_t>
+			FirstTokenPrefixPos,
+			FirstTokenSuffixPos,
+			SecondTokenPrefixPos,
+			SecondTokenSuffixPos;
+
+		const auto
+			TokenPrefix = CSI "?"sv,
+			TokenSuffix = L"c"sv;
+
+		while (!SecondTokenSuffixPos)
+		{
+			wchar_t ResponseBuffer[8192];
+			size_t ResponseSize;
+
+			if (!::console.Read(ResponseBuffer, ResponseSize))
+				throw far_exception(L"ReadConsole"sv);
+
+			Response.append(ResponseBuffer, ResponseSize);
+
+			if (!FirstTokenPrefixPos)
+				if (const auto Pos = Response.find(TokenPrefix); Pos != Response.npos)
+					FirstTokenPrefixPos = Pos;
+
+			if (FirstTokenPrefixPos && !FirstTokenSuffixPos)
+				if (const auto Pos = Response.find(TokenSuffix, *FirstTokenPrefixPos + TokenPrefix.size()); Pos != Response.npos)
+					FirstTokenSuffixPos = Pos;
+
+			if (FirstTokenSuffixPos && !SecondTokenPrefixPos)
+				if (const auto Pos = Response.find(TokenPrefix, *FirstTokenSuffixPos + TokenSuffix.size()); Pos != Response.npos)
+					SecondTokenPrefixPos = Pos;
+
+			if (SecondTokenPrefixPos && !SecondTokenSuffixPos)
+				if (const auto Pos = Response.find(TokenSuffix, *SecondTokenPrefixPos + TokenPrefix.size()); Pos != Response.npos)
+					SecondTokenSuffixPos = Pos;
+		}
+
+		Response.resize(*SecondTokenPrefixPos);
+		Response.erase(0, *FirstTokenSuffixPos + TokenSuffix.size());
+
+		return Response;
+	}
 
 	console::console():
 		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
@@ -1926,6 +2040,128 @@ protected:
 			return true;
 		}
 
+		static bool GetPaletteVT(std::array<COLORREF, 256>& Palette)
+		{
+			try
+			{
+				LOGDEBUG(L"Reading VT palette - here be dragons"sv);
+
+				const auto
+					OSCPrefix = ESC L"]4"sv,
+					OSCSuffix = ST L""sv;
+
+				string Request;
+				Request.reserve(OSCPrefix.size() + L";255;?"sv.size() * Palette.size() - 100 - 10 + OSCSuffix.size());
+
+				// A single OSC for the whole thing.
+				// Querying the palette was introduced after the terse syntax, so it's fine.
+				Request = OSCPrefix;
+
+				for (const auto i: std::views::iota(0uz, Palette.size()))
+					far::format_to(Request, L";{};?"sv, vt_color_index(static_cast<uint8_t>(i)));
+
+				Request += OSCSuffix;
+
+				const auto ResponseData = query_vt(Request);
+				if (ResponseData.empty())
+				{
+					LOGWARNING(L"OSC 4 query is not supported"sv, Request);
+					return false;
+				}
+
+				const auto give_up = [&]
+				{
+					throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
+				};
+
+				string_view Response = ResponseData;
+				if (!Response.ends_with(L'\\'))
+					give_up();
+
+				Response.remove_suffix(1);
+
+				const auto
+					Prefix = ESC "]"sv,
+					Suffix = ESC ""sv,
+					RGBPrefix = L"rgb:"sv;
+
+				size_t ColorsSet = 0;
+
+				for (auto PaletteToken: enum_tokens(Response, L"\\"sv))
+				{
+					if (!PaletteToken.starts_with(Prefix) || !PaletteToken.ends_with(Suffix))
+						give_up();
+
+					PaletteToken.remove_prefix(Prefix.size());
+					PaletteToken.remove_suffix(Suffix.size());
+
+					enum_tokens const Subtokens(PaletteToken, L";"sv);
+
+					auto SubIterator = Subtokens.cbegin();
+					if (SubIterator == Subtokens.cend())
+						give_up();
+
+					if (*SubIterator++ != L"4"sv)
+						give_up();
+
+					const auto VtIndex = from_string<unsigned>(*SubIterator++);
+					if (VtIndex >= Palette.size())
+						give_up();
+
+					auto& PaletteColor = Palette[vt_color_index(VtIndex)];
+
+					auto ColorStr = *SubIterator;
+					if (!ColorStr.starts_with(RGBPrefix))
+						give_up();
+
+					ColorStr.remove_prefix(RGBPrefix.size());
+
+					if (ColorStr.size() != L"0000"sv.size() * 3 + 2)
+						give_up();
+
+					const auto color = [&](size_t const Offset)
+					{
+						const auto Value = from_string<unsigned>(ColorStr.substr(Offset * L"0000/"sv.size(), 4), {}, 16);
+						if (Value > 0xffff)
+							give_up();
+
+						return Value / 0x0101;
+					};
+
+					PaletteColor = RGB(color(0), color(1), color(2));
+					++ColorsSet;
+				}
+
+				if (ColorsSet != Palette.size())
+					give_up();
+
+				LOGDEBUG(L"VT palette read successfuly"sv);
+				return true;
+			}
+			catch (far_exception const& e)
+			{
+				LOGERROR(L"{}"sv, e);
+				return false;
+			}
+		}
+
+		static bool GetPaletteNT(std::array<COLORREF, 256>& Palette)
+		{
+			if (!imports.GetConsoleScreenBufferInfoEx)
+				return false;
+
+			CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
+			if (!imports.GetConsoleScreenBufferInfoEx(::console.GetOutputHandle(), &csbi))
+			{
+				LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
+				return false;
+			}
+
+			std::ranges::copy(csbi.ColorTable, Palette.begin());
+
+			return true;
+		}
+
 		static bool SetPaletteVT(std::array<COLORREF, 256> const& Palette)
 		{
 			string Str;
@@ -1934,6 +2170,7 @@ protected:
 			for (const auto& [Color, i] : enumerate(Palette))
 			{
 				const auto RGBA = colors::to_rgba(Color);
+				// A separate OSC for every color: unfortunately the terse syntax was only added in 2020
 				far::format_to(Str, OSC(L"4;{};rgb:{:02x}/{:02x}/{:02x}"), vt_color_index(i), RGBA.r, RGBA.g, RGBA.b);
 			}
 
@@ -2703,19 +2940,21 @@ protected:
 
 	bool console::GetPalette(std::array<COLORREF, 256>& Palette) const
 	{
-		if (!imports.GetConsoleScreenBufferInfoEx)
-			return false;
+		// Happy path
+		const auto VtEnabled = IsVtEnabled();
+		if (VtEnabled && implementation::GetPaletteVT(Palette))
+			return true;
 
-		CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
-		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbi))
-		{
-			LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
-			return false;
-		}
+		// Legacy console
+		if (VtEnabled || !IsVtSupported())
+			return implementation::GetPaletteNT(Palette);
 
-		std::ranges::copy(csbi.ColorTable, Palette.begin());
+		// If VT is not enabled, we enable it temporarily and use VT method if we can:
+		if ([[maybe_unused]] scoped_vt_output const VtOutput{})
+			return implementation::GetPaletteVT(Palette);
 
-		return true;
+		// Otherwise fallback to NT
+		return implementation::GetPaletteNT(Palette);
 	}
 
 	bool console::SetPalette(std::array<COLORREF, 256> const& Palette) const
