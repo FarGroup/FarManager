@@ -587,7 +587,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		const auto& Palette = console_palette();
 		static std::unordered_map<COLORREF, uint8_t> Map;
 
-		Result = color_to_palette_index(Color, LastColor, Palette, Map);
+		Result = color_to_palette_index(Color, LastColor, std::span(Palette.data(), index::nt_size), Map);
 
 		if (
 			Result.ForegroundIndex == Result.BackgroundIndex &&
