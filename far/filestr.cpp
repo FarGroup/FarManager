@@ -346,7 +346,7 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	if (const auto Result = ML->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char*>(Str.data()), &Size, Info, &InfoCount); FAILED(Result))
 		return false;
 
-	const auto Scores = std::span(Info, InfoCount);
+	std::span const Scores(Info, InfoCount);
 	std::ranges::sort(Scores, [](DetectEncodingInfo const& a, DetectEncodingInfo const& b) { return a.nDocPercent > b.nDocPercent; });
 
 	const auto It = std::ranges::find_if(Scores, [&](DetectEncodingInfo const& i) { return i.nLangID != 0xffffffff && IsCodepageAcceptable(i.nCodePage); });

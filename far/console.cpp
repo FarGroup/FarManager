@@ -565,7 +565,7 @@ protected:
 		NONCOPYABLE(scoped_vt_input);
 
 		scoped_vt_input():
-			m_ConsoleMode(::console.UpdateMode(::console.GetInputHandle(), ENABLE_VIRTUAL_TERMINAL_INPUT, 0))
+			m_ConsoleMode(::console.UpdateMode(::console.GetInputHandle(), ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_LINE_INPUT))
 		{
 		}
 

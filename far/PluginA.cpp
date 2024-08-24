@@ -788,7 +788,7 @@ static std::span<oldfar::PluginPanelItem> ConvertPanelItemsArrayToAnsi(std::span
 
 static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	FreePluginPanelItemsData(std::span(PanelItem, ItemsNumber));
+	FreePluginPanelItemsData({ PanelItem, ItemsNumber });
 
 	delete[] PanelItem;
 }
