@@ -9,6 +9,7 @@
   <PropertyGroup Label="UserMacros">
     <ProjectSpecificOutDirName>Plugins\..</ProjectSpecificOutDirName>
     <ProjectSpecificIntDirName>Plugins\luamacro\$(ProjectName)</ProjectSpecificIntDirName>
+    <VersionLuaSDK>20240301</VersionLuaSDK>
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
     <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
@@ -26,7 +27,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(LuaLib).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>luasdk/$(DirBit)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>luasdk/$(VersionLuaSDK)/$(DirBit);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
     </Link>
     <PreBuildEvent>
@@ -72,9 +73,9 @@
     <ClInclude Include="luasdk\include\lualib.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="luasdk\$(DirBit)\$(LuaLib).dll" />
-    <CopyFileToFolders Include="luasdk\$(DirBit)\lpeg.dll" />
-    <CopyFileToFolders Include="luasdk\32\legacy\$(LuaLib).dll">
+    <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\$(DirBit)\$(LuaLib).dll" />
+    <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\$(DirBit)\lpeg.dll" />
+    <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\32\legacy\$(LuaLib).dll">
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32'">true</ExcludedFromBuild>
     </CopyFileToFolders>
   </ItemGroup>

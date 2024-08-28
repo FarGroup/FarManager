@@ -1,4 +1,5 @@
 NAME = arclite
+VERSION_7Z=24.08
 
 PRECOMPILED_HEADER=headers
 
@@ -28,11 +29,11 @@ LINK_OBJS = \
 !ifdef DEBUG_7Z
 7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\$(DIRBIT)\7z.dll
 !else
-7ZDLL = 7z\dll\$(DIRBIT)\7z.dll
+7ZDLL = 7z\$(VERSION_7Z)\dll\$(DIRBIT)\7z.dll
 !endif
 
 DOCS = \
-	7z\sfx\*.sfx \
+	7z\$(VERSION_7Z)\sfx\*.sfx \
 	arclite.xml \
 	$(7ZDLL) \
 
@@ -41,7 +42,7 @@ DOCS = \
 !ifndef BUILD
 
 .PHONY: all
-all: depfile
+all: depfile $(7ZDLL)
 	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) all BUILD=1 USEDEP=1
 
 .PHONY: depfile
@@ -49,6 +50,11 @@ depfile:
 	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@echo Rebuilding dependencies
 	dir /b *.cpp *.hpp *.rc | "$(FARDIR)\tools\gawk" -f $(FARDIR)\scripts\mkdep.awk - > $(INTDIR)\$(NAME).dep
+
+$(7ZDLL):
+	@echo Downloading 7-Zip binaries
+	powershell -c "Invoke-WebRequest -Uri 'https://github.com/FarGroup/thirdparty/blob/master/7z-$(VERSION_7Z).zip' -OutFile '7z\7z-$(VERSION_7Z).zip'; Expand-Archive 7z\7z-$(VERSION_7Z).zip -DestinationPath 7z\$(VERSION_7Z)"
+
 
 clean:
 	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) clean BUILD=1

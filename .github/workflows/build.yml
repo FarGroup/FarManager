@@ -183,6 +183,7 @@ jobs:
         with:
           update: true
           msystem: ${{ matrix.sys }}
+          install: unzip
           pacboy: toolchain:p
 
       - name: Setup clang build

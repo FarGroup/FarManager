@@ -1,9 +1,10 @@
 NAME=luafar3
+VERSION_LUASDK=20240301
 
 ifdef SYS_LUA
 LUA=lua
 else
-LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
+LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/$(VERSION_LUASDK)/32/lua.exe))
 endif
 
 SRCS = \
@@ -27,7 +28,7 @@ SRCS = \
 	luafar/win.c \
 
 USERLIBS = \
-	luasdk/$(BITPREFIX)$(DIRBIT)/lua51.lib \
+	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib \
 	-Wl,--out-implib,$(OBJDIR)/luafar3.lib \
 
 USERC = \
@@ -58,24 +59,33 @@ USERC += \
 
 endif
 
+USERTARGETS = luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
+
 RC_NAME = luafar/$(NAME)
 DEF_NAME = -
 
 include ../makefile_gcc_def_inc
 
 DOCS = \
-	luasdk/$(BITPREFIX)$(DIRBIT)/lua51.dll \
-	luasdk/$(BITPREFIX)$(DIRBIT)/lpeg.dll \
+	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll \
+	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lpeg.dll \
 
 include ../makefile_gcc_target_inc
 
-luafar/flags.c: $(COMINC)/plugin.hpp luafar/makeflags.lua
+luafar/flags.c: $(COMINC)/plugin.hpp luafar/makeflags.lua luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
 	@echo generating $@
 	@$(LUA) luafar/makeflags.lua $(COMINC)/plugin.hpp > $@
 
-luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp
+luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
 	@echo generating $@
 	@$(LUA) luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp $@
+
+$(LUA): luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
+luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib: luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
+luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lpeg.dll: luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
+luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll:
+	@echo Downloading 7-Zip binaries
+	curl -o luasdk/LuaSDK-$(VERSION_LUASDK).zip https://github.com/FarGroup/thirdparty/blob/master/LuaSDK-$(VERSION_LUASDK).zip && unzip luasdk/LuaSDK-$(VERSION_LUASDK).zip -d luasdk/$(VERSION_LUASDK)
 
 clean::
 	@$(RM) $(DLLDIR)/lua*.* $(OBJS) $(DEPS)

@@ -5,6 +5,13 @@
     <ProjectGuid>{06BE01E6-7DC0-4D83-877C-B7ADE32175F8}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <VersionLuaSDK>20240301</VersionLuaSDK>
+    <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
+    <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
+    <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
+    <LuaLib>lua51</LuaLib>
+  </PropertyGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.main.props" />
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.rules.copy.props" />
@@ -17,10 +24,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>lua51.lib;luafar3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IntDir)luafar3;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">luasdk/64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">luasdk/32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='ARM64'">luasdk/ARM64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(IntDir)luafar3;luasdk/$(VersionLuaSDK)/$(DirBit);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

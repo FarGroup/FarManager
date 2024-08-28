@@ -10,7 +10,8 @@
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
     <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
-    <Release7ZDll>7z\dll\$(DirBit)\7z.dll</Release7ZDll>
+    <Version7Z>24.08</Version7Z>
+    <Release7ZDll>7z\$(Version7Z)\dll\$(DirBit)\7z.dll</Release7ZDll>
     <Debug7ZDll>7z\src\CPP\7zip\Bundles\Format7zF\Debug\$(DirBit)\7z.dll</Debug7ZDll>
     <IsDebug>0</IsDebug>
     <IsDebug Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">1</IsDebug>
@@ -23,6 +24,13 @@
     <CopyFileToFolders Condition="'$(IsDebug)'=='0'" Include="$(Release7ZDll)" />
     <CopyFileToFolders Condition="'$(IsDebug)'=='1' and  Exists('$(Debug7ZDll)') " Include="$(Debug7ZDll)" />
     <CopyFileToFolders Condition="'$(IsDebug)'=='1' and !Exists('$(Debug7ZDll)') " Include="$(Release7ZDll)" />
-    <CopyFileToFolders Include="7z\sfx\*.sfx" />
+    <CopyFileToFolders Include="7z\$(Version7Z)\sfx\*.sfx" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Message>Downloading 7-Zip binaries</Message>
+      <Command>if not exist $(Release7ZDll) powershell -c "Invoke-WebRequest -Uri 'https://github.com/FarGroup/thirdparty/blob/master/7z-$(Version7Z).zip' -OutFile '7z\7z-$(Version7Z).zip'; Expand-Archive 7z\7z-$(Version7Z).zip -DestinationPath 7z\$(Version7Z)"
+</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
 </Project>

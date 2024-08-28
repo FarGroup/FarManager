@@ -1,7 +1,8 @@
 NAME=luafar3
+VERSION_LUASDK=20240301
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua51.dll\"
 !ifndef LUA
-LUA=luasdk\32\lua.exe
+LUA=luasdk\$(VERSION_LUASDK)\32\lua.exe
 !endif
 
 GEN_IMPLIB=1
@@ -12,8 +13,8 @@ DEF_NAME=
 !include ..\makefile_vc_def_inc
 
 DOCS = \
-	luasdk\$(BITPREFIX)$(DIRBIT)\lua51.dll \
-	luasdk\$(BITPREFIX)$(DIRBIT)\lpeg.dll \
+	luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll \
+	luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll \
 
 LINK_OBJS = \
 $(INTDIR)\bit64.obj \
@@ -35,7 +36,7 @@ $(INTDIR)\ustring.obj \
 $(INTDIR)\util.obj \
 $(INTDIR)\win.obj \
 
-LINK_LIBS=$(LINK_LIBS) luasdk\$(BITPREFIX)$(DIRBIT)\lua51.lib
+LINK_LIBS=$(LINK_LIBS) luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib
 
 !include ..\makefile_vc_target_inc
 
@@ -51,10 +52,17 @@ $(LINK_OBJS): luafar\flags.c luafar\keysandcolors.c
 	@$(CC) $(CPPFLAGS) { $< }
 !endif
 
-luafar\flags.c: $(COMINC)\plugin.hpp luafar\makeflags.lua
+luafar\flags.c: $(COMINC)\plugin.hpp luafar\makeflags.lua luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 	@echo generating flags.c
 	@$(LUA) luafar\makeflags.lua $(COMINC)\plugin.hpp > luafar\flags.c
 
-luafar\keysandcolors.c: luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\uuids.far.dialogs.hpp
+luafar\keysandcolors.c: luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\uuids.far.dialogs.hpp luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 	@echo generating keysandcolors.c
 	@$(LUA) luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\uuids.far.dialogs.hpp $@
+
+$(LUA): luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
+luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
+luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
+luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll:
+	@echo Downloading Lua binaries
+	powershell -c "Invoke-WebRequest -Uri 'https://github.com/FarGroup/thirdparty/blob/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)
