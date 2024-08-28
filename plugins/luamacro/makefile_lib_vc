@@ -65,4 +65,4 @@ luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib: luasdk\$(VERSION_LUASD
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll:
 	@echo Downloading Lua binaries
-	powershell -c "Invoke-WebRequest -Uri 'https://github.com/FarGroup/thirdparty/blob/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)
+	powershell -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)

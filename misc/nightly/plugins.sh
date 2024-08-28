@@ -35,11 +35,11 @@ mkdir -p outfinalnewARM64/Plugins
 cd plugins
 
 VERSION_7Z=24.08
-curl -o arclite/7z/7z-${VERSION_7Z}.zip https://github.com/FarGroup/thirdparty/blob/master/7z-${VERSION_7Z}.zip
+curl -o arclite/7z/7z-${VERSION_7Z}.zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-${VERSION_7Z}.zip
 unzip arclite/7z/7z-${VERSION_7Z}.zip -d arclite/7z/${VERSION_7Z}
 
 VERSION_LUASDK=20240301
-curl -o luamacro/luasdk/LuaSDK-${VERSION_LUASDK}.zip https://github.com/FarGroup/thirdparty/blob/master/LuaSDK-${VERSION_LUASDK}.zip
+curl -o luamacro/luasdk/LuaSDK-${VERSION_LUASDK}.zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-${VERSION_LUASDK}.zip
 unzip luamacro/luasdk/LuaSDK-${VERSION_LUASDK}.zip -d luamacro/luasdk/${VERSION_LUASDK}
 
 MASKS="*.dll *.hlf *.lng *.farconfig *.lua *.map *.pdb"

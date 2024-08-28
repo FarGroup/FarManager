@@ -54,7 +54,7 @@ depfile:
 
 $(7ZDLL):
 	@echo Downloading 7-Zip binaries
-	curl -o 7z/7z-$(VERSION_7Z).zip https://github.com/FarGroup/thirdparty/blob/master/7z-$(VERSION_7Z).zip && unzip 7z/7z-$(VERSION_7Z).zip -d 7z/$(VERSION_7Z)
+	curl -o 7z/7z-$(VERSION_7Z).zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(VERSION_7Z).zip && unzip 7z/7z-$(VERSION_7Z).zip -d 7z/$(VERSION_7Z)
 
 clean:
 	$(MAKE) -f makefile_gcc $(MK_FLAGS) clean BUILD=1

@@ -85,7 +85,7 @@ luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib: luasdk/$(VERSION_LUASD
 luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lpeg.dll: luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
 luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll:
 	@echo Downloading 7-Zip binaries
-	curl -o luasdk/LuaSDK-$(VERSION_LUASDK).zip https://github.com/FarGroup/thirdparty/blob/master/LuaSDK-$(VERSION_LUASDK).zip && unzip luasdk/LuaSDK-$(VERSION_LUASDK).zip -d luasdk/$(VERSION_LUASDK)
+	curl -o luasdk/LuaSDK-$(VERSION_LUASDK).zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip && unzip luasdk/LuaSDK-$(VERSION_LUASDK).zip -d luasdk/$(VERSION_LUASDK)
 
 clean::
 	@$(RM) $(DLLDIR)/lua*.* $(OBJS) $(DEPS)

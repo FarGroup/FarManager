@@ -53,7 +53,7 @@ depfile:
 
 $(7ZDLL):
 	@echo Downloading 7-Zip binaries
-	powershell -c "Invoke-WebRequest -Uri 'https://github.com/FarGroup/thirdparty/blob/master/7z-$(VERSION_7Z).zip' -OutFile '7z\7z-$(VERSION_7Z).zip'; Expand-Archive 7z\7z-$(VERSION_7Z).zip -DestinationPath 7z\$(VERSION_7Z)"
+	powershell -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(VERSION_7Z).zip' -OutFile '7z\7z-$(VERSION_7Z).zip'; Expand-Archive 7z\7z-$(VERSION_7Z).zip -DestinationPath 7z\$(VERSION_7Z)"
 
 
 clean:
