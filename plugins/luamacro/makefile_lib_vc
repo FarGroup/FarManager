@@ -60,9 +60,12 @@ luafar\keysandcolors.c: luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\
 	@echo generating keysandcolors.c
 	@$(LUA) luafar\makefarkeys.lua $(COMINC)\farcolor.hpp $(FARDIR)\uuids.far.dialogs.hpp $@
 
+!ifndef POWERSHELL
+POWERSHELL=powershell
+!endif
 $(LUA): luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll:
 	@echo Downloading Lua binaries
-	powershell -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)
+	$(POWERSHELL) -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)
