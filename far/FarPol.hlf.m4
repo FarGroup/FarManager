@@ -4412,7 +4412,7 @@ $ #Wybór kolorów#
 
  Kolory wyświetlanych znaków i tła mogą być:
  - jednym z 16 kolorów ze standardowej palety Konsoli Windows,
- - jednym z 256 kolorów z palety Xterm, lub
+ - jednym z 256 kolorów z palety ANSI, lub
  - jednym z 16 milionów kolorów z przestrzeni barw RGB.
 
  Standardowa 16-kolorowa paleta jest dostępna w oknie dialogowym.
@@ -4426,6 +4426,8 @@ mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty.
  - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
  - #______##### - indeks palety od 00 do FF.
  - #__RRGGBB# - kanały czerwony (Red), zielony (Green) i niebieski (Blue) z przestrzeni barw RGB, każdy od 00 do FF.
+
+ Palette indices 00-0F are arranged in Windows/DOS/CGA/IBM PC order, not ANSI (e.g. color ##1 is blue, not red).
 
  Jeżeli kolor nie jest w pełni nieprzezroczysty, brany jest pod uwagę poprzedni kolor w logicznym porządku Z.
 
@@ -4461,7 +4463,7 @@ Więcej informacji znajdziesz ~tutaj~@https://docs.microsoft.com/en-us/windows/c
 
 @ColorPicker256
 $ #Wybór z 256 kolorów#
- To okno dialogowe pozwala wybrać kolor z 256-kolorowej palety Xterm.
+ To okno dialogowe pozwala wybrać kolor z 256-kolorowej palety ANSI.
 
  Pierwsze 16 kolorów są takie same, jak standardowa paleta dostępna w ~głównym oknie~@ColorPicker@.
 
