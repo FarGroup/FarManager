@@ -1708,6 +1708,63 @@ protected:
 
 	class console::implementation
 	{
+		class foreign_blocks_list
+		{
+		public:
+			void queue(FAR_CHAR_INFO const& Cell, point const& Point, rectangle const WorkingArea)
+			{
+				const auto IsForeign = check(Cell);
+				if (IsForeign)
+				{
+					if (!m_ForeignBlock)
+						m_ForeignBlock.emplace(WorkingArea.left + Point.x, WorkingArea.top + Point.y, WorkingArea.left + Point.x, WorkingArea.top + Point.y);
+					else
+						++m_ForeignBlock->right;
+				}
+
+				if (m_ForeignBlock && (!IsForeign || Point.x == WorkingArea.width() - 1 || Point.y == WorkingArea.height() - 1))
+					queue();
+			}
+
+			void unstash() const
+			{
+				for (const auto& Block : m_ForeignBlocks)
+					::console.unstash_output(Block);
+			}
+
+		private:
+			static bool check(FAR_CHAR_INFO const& Cell)
+			{
+				return
+					Cell.Attributes.Flags & FCF_FOREIGN &&
+					colors::is_transparent(Cell.Attributes.ForegroundColor) &&
+					colors::is_transparent(Cell.Attributes.BackgroundColor);
+			}
+
+			void queue()
+			{
+				for (auto& Block: m_ForeignBlocks)
+				{
+					if (
+						Block.left == m_ForeignBlock->left &&
+						Block.right == m_ForeignBlock->right &&
+						Block.bottom == m_ForeignBlock->top - 1
+						)
+					{
+						Block.bottom = m_ForeignBlock->bottom;
+						m_ForeignBlock.reset();
+						return;
+					}
+				}
+
+				m_ForeignBlocks.emplace_back(*m_ForeignBlock);
+				m_ForeignBlock.reset();
+			}
+
+			std::vector<rectangle> m_ForeignBlocks;
+			std::optional<rectangle> m_ForeignBlock;
+		};
+
 	public:
 		static bool WriteOutputVT(matrix<FAR_CHAR_INFO>& Buffer, point const BufferCoord, rectangle const& WriteRegion)
 		{
@@ -1793,31 +1850,7 @@ protected:
 				// Save cursor position
 				Str = ANSISYSSC L""sv;
 
-				std::vector<rectangle> ForeignBlocks;
-				std::optional<rectangle> ForeignBlock;
-
-				const auto queue_block = [&]
-				{
-					if (!ForeignBlock)
-						return;
-
-					for (auto& Block: ForeignBlocks)
-					{
-						if (
-							Block.left == ForeignBlock->left &&
-							Block.right == ForeignBlock->right &&
-							Block.bottom == ForeignBlock->top - 1
-							)
-						{
-							Block.bottom = ForeignBlock->bottom;
-							ForeignBlock.reset();
-							return;
-						}
-					}
-
-					ForeignBlocks.emplace_back(*ForeignBlock);
-					ForeignBlock.reset();
-				};
+				foreign_blocks_list ForeignBlocksList;
 
 				for (const auto i: std::views::iota(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
 				{
@@ -1849,35 +1882,14 @@ protected:
 
 					for (const auto& Cell: BlockRow)
 					{
-						const auto CellIndex = &Cell - BlockRow.data();
-
-						if (
-							Cell.Attributes.Flags & FCF_FOREIGN &&
-							colors::is_transparent(Cell.Attributes.ForegroundColor) &&
-							colors::is_transparent(Cell.Attributes.BackgroundColor)
-						)
-						{
-							if (!ForeignBlock)
-								ForeignBlock.emplace(SubRect.left + CellIndex, i, SubRect.left + CellIndex, i);
-							else
-								++ForeignBlock->right;
-
-							continue;
-						}
-
-						queue_block();
+						ForeignBlocksList.queue(Cell, { static_cast<int>(&Cell - BlockRow.data()), i - (SubRect.top + SubrectOffset) }, SubRect);
 					}
-
-					queue_block();
 				}
-
-				queue_block();
 
 				if (!::console.Write(Str))
 					return false;
 
-				for (const auto& Block: ForeignBlocks)
-					::console.unstash_output(Block);
+				ForeignBlocksList.unstash();
 
 				Str.clear();
 			}
@@ -1939,6 +1951,9 @@ protected:
 			std::vector<CHAR_INFO> ConsoleBuffer;
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
 
+			foreign_blocks_list ForeignBlocksList;
+			std::optional<rectangle> ForeignBlock;
+
 			if (char_width::is_enabled())
 			{
 				for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& Cell, point const Point)
@@ -1974,13 +1989,15 @@ protected:
 					}
 
 					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(Cell.Char) }, colors::FarColorToConsoleColor(Cell.Attributes) });
+					ForeignBlocksList.queue(Cell, Point, SubRect);
 				});
 			}
 			else
 			{
-				for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+				for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& Cell, point const Point)
 				{
-					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(Cell.Char) }, colors::FarColorToConsoleColor(Cell.Attributes) });
+					ForeignBlocksList.queue(Cell, Point, SubRect);
 				});
 			}
 
@@ -2015,6 +2032,8 @@ protected:
 				if (!WriteOutputNTImpl(ConsoleBuffer.data(), BufferSize, WriteRegion))
 					return false;
 			}
+
+			ForeignBlocksList.unstash();
 
 			return true;
 		}
