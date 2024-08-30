@@ -1240,7 +1240,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 		{
 			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
 			CharStringIncrement = Codepoint > std::numeric_limits<char16_t>::max()? 2 : 1;
-			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
+			CharVisualIncrement = char_width::get(Codepoint);
 		}
 		else
 		{
@@ -1295,7 +1295,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 		else if (CharWidthEnabled)
 		{
 			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
-			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
+			CharVisualIncrement = char_width::get(Codepoint);
 			CharStringIncrement = Codepoint > std::numeric_limits<char16_t>::max()? 2 : 1;
 		}
 		else
@@ -1592,7 +1592,7 @@ size_t HiStrlen(string_view const Str)
 
 		const auto Codepoint = First && IsLow? encoding::utf16::extract_codepoint(*First, Char) : Char;
 
-		Result += char_width::is_wide(Codepoint)? 2 : 1;
+		Result += char_width::get(Codepoint);
 		return true;
 	});
 

@@ -2879,7 +2879,7 @@ protected:
 		return ExternalConsole.Imports.pWriteOutput.operator bool();
 	}
 
-	bool console::IsWidePreciseExpensive(char32_t const Codepoint)
+	size_t console::GetWidthPreciseExpensive(char32_t const Codepoint)
 	{
 		// It ain't stupid if it works
 
@@ -2910,11 +2910,11 @@ protected:
 			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, os::last_error());
 
 			if (GetLastError() != ERROR_INVALID_HANDLE)
-				return false;
+				return 1;
 
 			LOGINFO(L"Reinitializing"sv);
 			initialize();
-			return false;
+			return 1;
 		}
 
 		DWORD Written;
@@ -2923,14 +2923,14 @@ protected:
 		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
 		{
 			LOGWARNING(L"WriteConsole(): {}"sv, os::last_error());
-			return false;
+			return 1;
 		}
 
 		CONSOLE_SCREEN_BUFFER_INFO Info;
 		if (!get_console_screen_buffer_info(m_WidthTestScreen.native_handle(), &Info))
-			return false;
+			return 1;
 
-		return Info.dwCursorPosition.X > 1;
+		return Info.dwCursorPosition.X;
 	}
 
 	void console::ClearWideCache()

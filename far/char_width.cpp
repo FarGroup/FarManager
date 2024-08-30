@@ -60,11 +60,11 @@ namespace
 
 	auto s_FullWidthState = full_width::off;
 
-	enum class codepoint_width: char
+	enum class codepoint_width: signed char
 	{
-		ambiguous,
-		narrow,
-		wide,
+		ambiguous = -1,
+		narrow    = 1,
+		wide      = 2,
 	};
 
 	[[nodiscard]]
@@ -417,12 +417,16 @@ namespace
 	[[nodiscard]]
 	auto device_width(char_width::codepoint const Codepoint, bool const ClearCacheOnly = false)
 	{
-		static std::array<codepoint_width, std::numeric_limits<char16_t>::max()> FastCache;
+		static std::array<uint8_t, std::numeric_limits<char16_t>::max()> FastCache;
 		static std::unordered_map<char_width::codepoint, codepoint_width> SlowCache;
+
+		// The static array above is 0-initialized by default, so we need to adjust accordingly
+		auto to_raw = [](codepoint_width const Width){ return static_cast<uint8_t>(std::to_underlying(Width) + 1); };
+		auto from_raw = [](uint8_t const Width){ return static_cast<codepoint_width>(Width - 1); };
 
 		if (ClearCacheOnly)
 		{
-			FastCache.fill(codepoint_width::ambiguous);
+			FastCache.fill(to_raw(codepoint_width::ambiguous));
 			SlowCache.clear();
 			console.ClearWideCache();
 			return codepoint_width::ambiguous;
@@ -432,8 +436,8 @@ namespace
 
 		if (IsBMP)
 		{
-			if (FastCache[Codepoint] != codepoint_width::ambiguous)
-				return FastCache[Codepoint];
+			if (const auto Width = from_raw(FastCache[Codepoint]); Width != codepoint_width::ambiguous)
+				return Width;
 		}
 		else
 		{
@@ -441,9 +445,12 @@ namespace
 				return Iterator->second;
 		}
 
-		const auto Result = console.IsWidePreciseExpensive(Codepoint)? codepoint_width::wide : codepoint_width::narrow;
+		const auto Result = static_cast<codepoint_width>(console.GetWidthPreciseExpensive(Codepoint));
 
-		(IsBMP? FastCache[Codepoint] : SlowCache[Codepoint]) = Result;
+		if (IsBMP)
+			FastCache[Codepoint] = to_raw(Result);
+		else
+			SlowCache[Codepoint] = Result;
 
 		return Result;
 	}
@@ -477,23 +484,29 @@ namespace
 namespace char_width
 {
 	[[nodiscard]]
-	bool is_wide(codepoint const Codepoint)
+	size_t get(codepoint const Codepoint)
 	{
 		switch (s_FullWidthState)
 		{
 		default:
 		case full_width::off:
-			return !is_bmp(Codepoint);
+			return 1;
 
 		case full_width::automatic:
 			if (!is_fullwidth_needed())
-				return false;
+				return 1;
 
 			[[fallthrough]];
 
 		case full_width::on:
-			return get_width(Codepoint) == codepoint_width::wide;
+			return static_cast<size_t>(get_width(Codepoint));
 		}
+	}
+
+	[[nodiscard]]
+	bool is_wide(codepoint const Codepoint)
+	{
+		return get(Codepoint) > 1;
 	}
 
 	void enable(int const Value)
@@ -527,6 +540,7 @@ namespace char_width
 			(void)device_width(0, true);
 	}
 
+	[[nodiscard]]
 	bool is_half_width_surrogate_broken()
 	{
 		// As of 23 Jun 2022 conhost and WT render half-width surrogates as half-width,
@@ -535,7 +549,7 @@ namespace char_width
 		// They might fix it eventually, so it's better to detect it dynamically.
 
 		// Mathematical Bold Fraktur Small A, U+1D586, half-width
-		static const auto Result = console.IsWidePreciseExpensive(U'𝖆');
-		return Result;
+		static const auto Result = console.GetWidthPreciseExpensive(U'𝖆');
+		return Result > 1;
 	}
 }
