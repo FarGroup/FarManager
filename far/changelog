@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-08-30 22:15:07+01:00 - build 6365
+
+1. Extend character width detection to support arbitrary values.
+
+2. Extend 6348.1 to classic rendering.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2024-08-24 11:06:55+01:00 - build 6364
 
 1. Correction of 6362.1.
