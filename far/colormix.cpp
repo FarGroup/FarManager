@@ -53,6 +53,81 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+struct color_mapping
+{
+	colors::single_color From;
+	uint8_t To{};
+};
+
+struct colors_mapping
+{
+	color_mapping
+	Foreground,
+	Background;
+
+	colors_mapping(FarColor const& Color, colors::index_color_256 const Index):
+		Foreground{ { Color.ForegroundColor, Color.IsFgIndex() }, Index.ForegroundIndex },
+		Background{ { Color.BackgroundColor, Color.IsBgIndex() }, Index.BackgroundIndex }
+	{
+	}
+};
+
+static class colors_cache
+{
+public:
+	const auto& palette()
+	{
+		if (!m_Palette)
+		{
+			m_Palette = colors::default_palette();
+			(void)console.GetPalette(*m_Palette);
+		}
+
+		return *m_Palette;
+	}
+
+	auto& closest_index_16()
+	{
+		return m_ClosestIndex16;
+	}
+
+	auto& closest_index_256()
+	{
+		return m_ClosestIndex256;
+	}
+
+	auto& last_16()
+	{
+		return m_Last16;
+	}
+
+	auto& last_256()
+	{
+		return m_Last256;
+	}
+
+	void invalidate()
+	{
+		m_Palette.reset();
+		m_ClosestIndex16.clear();
+		m_ClosestIndex256.clear();
+		m_Last16.reset();
+		m_Last256.reset();
+	}
+
+private:
+	std::optional<std::array<COLORREF, 256>> m_Palette;
+	std::unordered_map<COLORREF, uint8_t>
+		m_ClosestIndex16,
+		m_ClosestIndex256;
+
+
+	std::optional<colors_mapping>
+		m_Last16,
+		m_Last256;
+}
+ColorsCache;
+
 namespace colors
 {
 	single_color single_color::foreground(FarColor const& Color)
@@ -353,26 +428,20 @@ namespace colors
 		}
 
 		// 6x6x6 color cube
-		enum
-		{
-			C_Step = 40,
 
-			C0 = 0,
-			C1 = 95,
-			C2 = C1 + C_Step,
-			C3 = C2 + C_Step,
-			C4 = C3 + C_Step,
-			C5 = C4 + C_Step
+		const auto step = [](uint8_t const Step)
+		{
+			return 255 - 40 * (5 - Step);
 		};
 
 		constexpr uint8_t channel_value[]
 		{
-			C0,
-			C1,
-			C2,
-			C3,
-			C4,
-			C5,
+			0,
+			step(1),
+			step(2),
+			step(3),
+			step(4),
+			step(5)
 		};
 
 		for (const auto r: std::views::iota(uint8_t{}, index::cube_size))
@@ -403,24 +472,6 @@ namespace colors
 	palette_t const& default_palette()
 	{
 		return DefaultPalette;
-	}
-
-	static const auto& console_palette(bool const Refresh = false)
-	{
-		const auto init = [&]
-		{
-			auto Palette = DefaultPalette;
-			return console.GetPalette(Palette)?
-				Palette :
-				DefaultPalette;
-		};
-
-		static auto ConsolePalette = init();
-
-		if (Refresh)
-			ConsolePalette = init();
-
-		return ConsolePalette;
 	}
 
 	static uint8_t get_closest_palette_index(COLORREF const Color, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
@@ -463,6 +514,8 @@ namespace colors
 			ForegroundIndex(Foreground),
 			BackgroundIndex(Background)
 		{
+			assert(Foreground < colors::index::nt_size);
+			assert(Background < colors::index::nt_size);
 		}
 
 		explicit(false) constexpr index_color_16(uint8_t const Byte) noexcept
@@ -479,35 +532,29 @@ namespace colors
 		uint8_t BackgroundIndex: 4{};
 	};
 
-	static WORD emulate_styles(uint8_t const Color, FARCOLORFLAGS const Flags)
+	static WORD emulate_styles(index_color_16 Color, FARCOLORFLAGS const Flags)
 	{
-		auto ResultColor = Color;
-
 		if (Flags & FCF_FG_BOLD)
-			ResultColor |= FOREGROUND_INTENSITY;
+			Color.ForegroundIndex |= FOREGROUND_INTENSITY;
 
 		if (Flags & FCF_FG_FAINT)
-			ResultColor &= ~FOREGROUND_INTENSITY;
+			Color.ForegroundIndex &= ~FOREGROUND_INTENSITY;
 
 		// COMMON_LVB_REVERSE_VIDEO is a better way, but it only works on Windows 10.
 		// Manual swap works everywhere.
 		if (Flags & FCF_FG_INVERSE)
 		{
-			index_color_16 Color16 = ResultColor;
-			const auto Tmp = Color16.ForegroundIndex;
-			Color16.ForegroundIndex = Color16.BackgroundIndex;
-			Color16.BackgroundIndex = Tmp;
-			ResultColor = Color16;
+			const auto Tmp = Color.ForegroundIndex;
+			Color.ForegroundIndex = Color.BackgroundIndex;
+			Color.BackgroundIndex = Tmp;
 		}
 
 		if (Flags & FCF_FG_INVISIBLE)
 		{
-			index_color_16 Color16 = ResultColor;
-			Color16.ForegroundIndex = Color16.BackgroundIndex;
-			ResultColor = Color16;
+			Color.ForegroundIndex = Color.BackgroundIndex;
 		}
 
-		WORD Result = ResultColor | (Flags & FCF_RAWATTR_MASK);
+		WORD Result = Color | (Flags & FCF_RAWATTR_MASK);
 
 		if (Flags & FCF_FG_UNDERLINE_MASK)
 			Result |= COMMON_LVB_UNDERSCORE;
@@ -518,76 +565,71 @@ namespace colors
 		return Result;
 	}
 
-static index_color_256 color_to_palette_index(FarColor Color, FarColor& LastColor, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
+static index_color_256 color_to_palette_index(FarColor Color, std::optional<colors_mapping> const& Last, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
 {
 	Color = resolve_defaults(Color);
 
-	const auto convert_and_save = [&](COLORREF FarColor::* const Getter, FARCOLORFLAGS const Flag, uint8_t& IndexColor)
+	const auto convert = [&](single_color const From, color_mapping colors_mapping::* const Getter)
 	{
-		const auto Current = std::invoke(Getter, Color);
-		auto& Last = std::invoke(Getter, LastColor);
-
-		if (Current == Last)
-			return;
-
-		Last = Current;
+		if (Last)
+		{
+			if (const auto& LastPart = std::invoke(Getter, *Last); From == LastPart.From)
+				return LastPart.To;
+		}
 
 		COLORREF CurrentColorValue;
 
-		if (Color.Flags & Flag)
+		if (From.IsIndex)
 		{
-			const auto CurrentIndex = index_value(Current);
+			const auto CurrentIndex = index_value(From.Value);
 			const auto IsNtPalette = Palette.size() == index::nt_size;
 
 			if ((IsNtPalette && CurrentIndex <= index::nt_last) || (!IsNtPalette && CurrentIndex > index::nt_last))
-			{
-				IndexColor = CurrentIndex;
-				return;
-			}
+				return CurrentIndex;
 
 			CurrentColorValue = ConsoleIndexToTrueColor(CurrentIndex);
 		}
 		else
 		{
-			CurrentColorValue = color_value(Current);
+			CurrentColorValue = color_value(From.Value);
 		}
 
-		IndexColor = get_closest_palette_index(CurrentColorValue, Palette, Map);
+		return get_closest_palette_index(CurrentColorValue, Palette, Map);
 	};
 
-	static index_color_256 Index{};
-
-	convert_and_save(&FarColor::ForegroundColor, FCF_FG_INDEX, Index.ForegroundIndex);
-	convert_and_save(&FarColor::BackgroundColor, FCF_BG_INDEX, Index.BackgroundIndex);
-
-	LastColor.Flags = Color.Flags;
-
-	return Index;
+	return
+	{
+		convert(single_color::foreground(Color), &colors_mapping::Foreground),
+		convert(single_color::background(Color), &colors_mapping::Background)
+	};
 }
 
-static bool not_the_same_index(const FarColor& a, const FarColor& b)
+static bool same_index(const FarColor& Color, colors_mapping const& Last)
 {
 	// No need to check underline here
 	return
-		a.ForegroundColor != b.ForegroundColor ||
-		a.BackgroundColor != b.BackgroundColor ||
-		(
-			flags::check_all(a.Flags, FCF_FG_INDEX | FCF_BG_INDEX) !=
-			flags::check_all(b.Flags, FCF_FG_INDEX | FCF_BG_INDEX)
-		);
+		Color.ForegroundColor == Last.Foreground.From.Value &&
+		Color.BackgroundColor == Last.Background.From.Value &&
+		Color.IsFgIndex() == Last.Foreground.From.IsIndex &&
+		Color.IsBgIndex() == Last.Background.From.IsIndex;
 }
 
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
-	static FarColor LastColor{};
-	static index_color_256 Result{};
+	auto& Last = ColorsCache.last_16();
+	index_color_256 Result;
 
-	if (not_the_same_index(Color, LastColor))
+	if (Last && same_index(Color, *Last))
 	{
-		const auto& Palette = console_palette();
-		static std::unordered_map<COLORREF, uint8_t> Map;
-
-		Result = color_to_palette_index(Color, LastColor, { Palette.data(), index::nt_size }, Map);
+		Result =
+		{
+			Last->Foreground.To,
+			Last->Background.To
+		};
+	}
+	else
+	{
+		Result = color_to_palette_index(Color, Last, { ColorsCache.palette().data(), index::nt_size }, ColorsCache.closest_index_16());
 
 		if (
 			Result.ForegroundIndex == Result.BackgroundIndex &&
@@ -598,20 +640,31 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 			// since background is more pronounced we adjust the foreground only
 			flags::invert(Result.ForegroundIndex, FOREGROUND_INTENSITY);
 		}
+
+		Last.emplace(Color, Result);
 	}
 
-	return emulate_styles(index_color_16(Result.BackgroundIndex, Result.ForegroundIndex), Color.Flags);
+	return emulate_styles({ Result.BackgroundIndex, Result.ForegroundIndex }, Color.Flags);
 }
 
 index_color_256 FarColorToConsole256Color(const FarColor& Color)
 {
-	static FarColor LastColor{};
-	static index_color_256 Result{};
+	auto& Last = ColorsCache.last_256();
+	index_color_256 Result;
 
-	if (not_the_same_index(Color, LastColor))
+	if (Last && same_index(Color, *Last))
 	{
-		static std::unordered_map<COLORREF, uint8_t> Map;
-		Result = color_to_palette_index(Color, LastColor, DefaultPalette, Map);
+		Result =
+		{
+			Last->Foreground.To,
+			Last->Background.To
+		};
+	}
+	else
+	{
+		Result = color_to_palette_index(Color, Last, ColorsCache.palette(), ColorsCache.closest_index_256());
+		Last.emplace(Color, Result);
+		// This conversion is only used to select the closest color in the picker, no need to care about readability
 	}
 
 	return Result;
@@ -634,7 +687,7 @@ COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 	assert(!is_default(Color));
 
 	const auto Index = index_value(Color);
-	return alpha_bits(Color) | console_palette()[Index];
+	return alpha_bits(Color) | ColorsCache.palette()[Index];
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -873,7 +926,7 @@ void store_default_color(FarColor const& Color)
 
 void invalidate_cache()
 {
-	(void)console_palette(true);
+	ColorsCache.invalidate();
 }
 
 }
@@ -1056,13 +1109,7 @@ TEST_CASE("colors.index_color_16")
 		STATIC_REQUIRE_OPT(Color == 0xAB);
 		STATIC_REQUIRE_OPT(Color.BackgroundIndex == 0xA);
 		STATIC_REQUIRE_OPT(Color.ForegroundIndex == 0xB);
-	}
-
-	{
-		CONSTEXPR_OPT colors::index_color_16 Color(0xCD);
-		STATIC_REQUIRE_OPT(Color == 0xCD);
-		STATIC_REQUIRE_OPT(Color.BackgroundIndex == 0xC);
-		STATIC_REQUIRE_OPT(Color.ForegroundIndex == 0xD);
+		STATIC_REQUIRE_OPT(Color == colors::index_color_16(0xA, 0xB));
 	}
 
 #undef STATIC_REQUIRE_OPT
