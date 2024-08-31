@@ -452,7 +452,7 @@ static message_result MessageImpl(
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
 		SetScreen(Position, L' ', colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGTEXT : COL_DIALOGTEXT));
-		DropShadow(Position, true);
+		DropShadow(Position);
 		Box({ Position.left + 3, Position.top + 1, Position.right - 3, Position.bottom - 1 }, colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGBOX : COL_DIALOGBOX), DOUBLE_BOX);
 	}
 

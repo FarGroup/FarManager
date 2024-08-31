@@ -1149,15 +1149,15 @@ void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)
 	Global->ScrBuf->FillRect(Where, { Ch, {}, {}, Color });
 }
 
-void MakeShadow(rectangle const Where, bool const IsLegacy)
+void MakeShadow(rectangle const Where)
 {
-	Global->ScrBuf->ApplyShadow(Where, IsLegacy);
+	Global->ScrBuf->ApplyShadow(Where);
 }
 
-void DropShadow(rectangle const Where, bool const IsLegacy)
+void DropShadow(rectangle const Where)
 {
-	MakeShadow({ Where.left + 2, Where.bottom + 1, Where.right + 2, Where.bottom + 1 }, IsLegacy);
-	MakeShadow({ Where.right + 1, Where.top + 1, Where.right + 2, Where.bottom }, IsLegacy);
+	MakeShadow({ Where.left + 2, Where.bottom + 1, Where.right + 2, Where.bottom + 1 });
+	MakeShadow({ Where.right + 1, Where.top + 1, Where.right + 2, Where.bottom });
 }
 
 void SetColor(int Color)

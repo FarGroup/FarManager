@@ -181,24 +181,17 @@ void ScreenObjectWithShadow::Hide()
 
 void ScreenObjectWithShadow::Shadow(bool Full)
 {
-	if (m_Flags.Check(FSCROBJ_VISIBLE))
+	if (!m_Flags.Check(FSCROBJ_VISIBLE) || ShadowSaveScr)
+		return;
+
+	if(Full)
 	{
-		if(Full)
-		{
-			if (!ShadowSaveScr)
-			{
-				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ 0, 0, ScrX, ScrY });
-				MakeShadow({ 0, 0, ScrX, ScrY });
-				DropShadow(m_Where);
-			}
-		}
-		else
-		{
-			if (!ShadowSaveScr)
-			{
-				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left, m_Where.top, m_Where.right + 2, m_Where.bottom + 1 });
-				DropShadow(m_Where, m_Flags.Check(FSCROBJ_SPECIAL));
-			}
-		}
+		ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ 0, 0, ScrX, ScrY });
+		MakeShadow({ 0, 0, ScrX, ScrY });
+	}
+	else
+	{
+		ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left, m_Where.top, m_Where.right + 2, m_Where.bottom + 1 });
+		DropShadow(m_Where);
 	}
 }
