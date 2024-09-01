@@ -228,10 +228,13 @@ local CmpFuncs = {
                function (a,b) return LStricmp(a.description,b.description) > 0 end, "3↑", "3↓" },
 }
 
-local Data = mf.mload("LuaMacro", "MacroBrowser")
-local SortKey = Data and Data.SortKey or "C+F1"
-local InvSort = Data and Data.InvSort or 1
-local ShowOnlyActive = Data and Data.ShowOnlyActive
+local Data = mf.mload("LuaMacro", "MacroBrowser") or {}
+local SortKey = Data.SortKey
+local InvSort = Data.InvSort
+local ShowOnlyActive = Data.ShowOnlyActive
+
+if SortKey ~= "C+F1" and SortKey ~= "C+F2" and SortKey ~= "C+F3" then SortKey = "C+F1" end
+if InvSort ~= 1 and InvSort ~= 2 then InvSort = 1 end
 
 local function ShowHelp()
   far.Message(
