@@ -323,20 +323,6 @@ static void bake_shadows(matrix<FAR_CHAR_INFO>& Buffer, std::span<rectangle cons
 	}
 }
 
-static void reset_shadows(matrix<FAR_CHAR_INFO>& Buffer, matrix<FAR_CHAR_INFO> const& Backup, std::span<rectangle const> const WriteRegions)
-{
-	for (const auto& Rect: WriteRegions)
-	{
-		for (auto i = Rect.top; i <= Rect.bottom; ++i)
-		{
-			for (auto j = Rect.left; j <= Rect.right; ++j)
-			{
-				Buffer[i][j].Attributes = Backup[i][j].Attributes;
-			}
-		}
-	}
-}
-
 void ScreenBuf::ApplyShadow(rectangle Where)
 {
 	if (!is_visible(Where))
@@ -659,18 +645,22 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (!WriteList.empty())
 			{
-				// WriteOutput can make changes to the buffer to patch DBSC collisions,
-				// which means that the screen output will effectively be different from Shadow
-				// and certain areas won't be updated properly.
-				// To address this, we allow it to write into the buffer and pass Shadow instead:
-
 				Shadow = Buf;
 
-				bake_shadows(Shadow, WriteList);
+				// TODO
+				// Legalize shadows as a FarColor flag and move this to console layer?
+				bake_shadows(Buf, WriteList);
 
-				console.WriteOutputGather(Shadow, WriteList);
+				console.WriteOutputGather(Buf, WriteList);
 
-				reset_shadows(Shadow, Buf, WriteList);
+				// TODO
+				// WriteOutput can make changes to the buffer to patch DBSC collisions,
+				// which means that the screen output will effectively be different from Shadow
+				// and certain areas won't be updated properly in certain corner cases.
+
+				// No easy way to fix it without falling into a flickering loop of constant redraw,
+				// so just ignore and revert for now.
+				Buf = Shadow;
 
 				console.Commit();
 			}
