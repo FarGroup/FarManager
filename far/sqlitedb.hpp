@@ -170,7 +170,6 @@ protected:
 		});
 	}
 
-	void Exec(std::string const& Command) const;
 	void Exec(std::string_view Command) const;
 	void Exec(std::span<std::string_view const> Commands) const;
 	void SetWALJournalingMode() const;

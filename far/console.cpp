@@ -1952,7 +1952,6 @@ protected:
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
 
 			foreign_blocks_list ForeignBlocksList;
-			std::optional<rectangle> ForeignBlock;
 
 			if (char_width::is_enabled())
 			{

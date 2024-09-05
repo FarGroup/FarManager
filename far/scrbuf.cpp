@@ -287,16 +287,16 @@ static void apply_shadow(FarColor& Color, COLORREF FarColor::* ColorAccessor, co
 	Color = colors::merge(Color, TrueShadow);
 }
 
-static constexpr FarColor
-	TrueShadowFull{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x80'000000 }, { 0x80'000000 } },
-	TrueShadowFore{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x00'000000 }, { 0x00'000000 } },
-	TrueShadowBack{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x80'000000 }, { 0x00'000000 } },
-	TrueShadowUndl{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x00'000000 }, { 0x80'000000 } };
-
 static void bake_shadows(matrix<FAR_CHAR_INFO>& Buffer, std::span<rectangle const> const WriteRegions)
 {
 	const auto IsTrueColorAvailable = console.IsVtActive() || console.ExternalRendererLoaded();
 	const auto Is256ColorAvailable = IsTrueColorAvailable;
+
+	static constexpr FarColor
+		TrueShadowFull{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x80'000000 }, { 0x80'000000 } },
+		TrueShadowFore{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x00'000000 }, { 0x00'000000 } },
+		TrueShadowBack{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x80'000000 }, { 0x00'000000 } },
+		TrueShadowUndl{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x00'000000 }, { 0x80'000000 } };
 
 	for (const auto& i: WriteRegions)
 	{
@@ -539,7 +539,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 		if (!SBFlags.Check(SBFLAGS_FLUSHED))
 		{
 			std::vector<rectangle> WriteList;
-			bool Changes=false;
 
 			if (m_ClearTypeFix == BSTATE_CHECKED)
 			{
@@ -565,7 +564,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 					if (WriteRegion.bottom >= WriteRegion.top)
 					{
 						WriteList.emplace_back(WriteRegion);
-						Changes=true;
 					}
 				}
 			}
@@ -587,7 +585,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 							WriteRegion.top = std::min(WriteRegion.top, static_cast<int>(I));
 							WriteRegion.right = std::max(WriteRegion.right, static_cast<int>(J));
 							WriteRegion.bottom = std::max(WriteRegion.bottom, static_cast<int>(I));
-							Changes=true;
 							Started=true;
 						}
 						else if (Started && static_cast<int>(I) > WriteRegion.bottom && static_cast<int>(J) >= WriteRegion.left)
@@ -650,17 +647,17 @@ void ScreenBuf::Flush(flush_type FlushType)
 				}
 			}
 
-			if (Changes)
+			if (!WriteList.empty())
 			{
 				if (IsConsoleViewportSizeChanged())
 				{
 					// We must draw something, but canvas has been changed, drawing on it will make things only worse
-					Changes = false;
+					WriteList.clear();
 					GenerateWINDOW_BUFFER_SIZE_EVENT();
 				}
 			}
 
-			if (Changes)
+			if (!WriteList.empty())
 			{
 				// WriteOutput can make changes to the buffer to patch DBSC collisions,
 				// which means that the screen output will effectively be different from Shadow

@@ -155,14 +155,23 @@ static_assert(std::size(grey_control_by_index) == colors::index::grey_count);
 static constexpr auto grey_index_by_control = column_major_iota<uint8_t, 4, 6>();
 static_assert(std::size(grey_index_by_control) == colors::index::grey_count);
 
-static constexpr uint8_t grey_stripe_mapping[]
+static constexpr auto grey_stripe_mapping = []
 {
-	 0,  1,  2,  3,  4,  5,
-	11, 10,  9,  8,  7,  6,
-	12, 13, 14, 15, 16, 17,
-	23, 22, 21, 20, 19, 18
-};
+	std::array<uint8_t, colors::index::grey_count> Result;
 
+	for (auto& i: Result)
+	{
+		const auto Index = &i - Result.data();
+		const auto RowSize = 6;
+		const auto Row = Index / RowSize;
+
+		i = Row & 1?
+			Row * RowSize + RowSize - 1 - Index % RowSize :
+			Index;
+	}
+
+	return Result;
+}();
 static_assert(std::size(grey_stripe_mapping) == colors::index::grey_count);
 
 static bool is_rgb(uint8_t const Color)

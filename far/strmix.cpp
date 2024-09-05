@@ -1122,6 +1122,8 @@ string BytesToString(bytes_view const Bytes, uintptr_t const Codepage)
 
 string HexMask(size_t ByteCount)
 {
+	assert(ByteCount);
+
 	string Result(ByteCount * 3 - 1, L'H');
 	for (size_t i{ 2 }; i < Result.size(); i += 3)
 	{
@@ -1749,6 +1751,13 @@ TEST_CASE("hex")
 		REQUIRE(HexStringToBlob(i.Numbers, 0) == i.Bytes);
 		REQUIRE(BlobToHexString(i.Bytes, 0) == i.Numbers);
 	}
+}
+
+TEST_CASE("hex.mask")
+{
+	REQUIRE(HexMask(1) == L"HH"sv);
+	REQUIRE(HexMask(2) == L"HH HH"sv);
+	REQUIRE(HexMask(3) == L"HH HH HH"sv);
 }
 
 TEST_CASE("xwcsncpy")

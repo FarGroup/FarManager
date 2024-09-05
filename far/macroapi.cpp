@@ -2296,11 +2296,10 @@ void FarMacroApi::farcfggetFunc() const
 // V=Far.GetConfig(Key.Name)
 void FarMacroApi::fargetconfigFunc() const
 {
-	const wchar_t *Keyname = (mData->Count >= 1 && mData->Values[0].Type==FMVT_STRING) ?
+	const auto Keyname = (mData->Count >= 1 && mData->Values[0].Type==FMVT_STRING) ?
 		mData->Values[0].String : L"";
 
-	const auto Dot = wcsrchr(Keyname, L'.');
-	if (Dot)
+	if (const auto Dot = std::wcsrchr(Keyname, L'.'))
 	{
 		const string_view Key(Keyname, Dot - Keyname);
 
