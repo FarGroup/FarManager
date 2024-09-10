@@ -424,7 +424,7 @@ static void ShowVersion(bool const Direct)
 	if (!Direct)
 	{
 		// Version, copyright, empty line, command line, keybar
-		if (const auto SpaceNeeded = 5; !DoWeReallyHaveToScroll(SpaceNeeded))
+		if (const auto SpaceNeeded = 5; NumberOfEmptyLines(SpaceNeeded) == SpaceNeeded)
 		{
 			EnoughSpace = true;
 			console.SetCursorPosition({ 0, ScrY - (SpaceNeeded - 1) });

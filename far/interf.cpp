@@ -1185,7 +1185,7 @@ const FarColor& GetColor()
 	return CurColor;
 }
 
-bool DoWeReallyHaveToScroll(short Rows)
+size_t NumberOfEmptyLines(size_t const Desired)
 {
 	/*
 	Q: WTF is this magic?
@@ -1200,13 +1200,20 @@ bool DoWeReallyHaveToScroll(short Rows)
 	This function reads the specified number of the last lines from the screen buffer and checks if there's anything else in them but spaces.
 	*/
 
-	rectangle const Region{ 0, ScrY - Rows + 1, ScrX, ScrY };
+	rectangle const Region{ 0, static_cast<int>(ScrY - Desired + 1), ScrX, ScrY };
 
 	// TODO: matrix_view to avoid copying
-	matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);
+	matrix<FAR_CHAR_INFO> BufferBlock(Desired, ScrX + 1);
 	Global->ScrBuf->Read(Region, BufferBlock);
 
-	return !std::ranges::all_of(BufferBlock.vector(), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
+	for (size_t i = 0, Height = BufferBlock.height(); i != Height; ++i)
+	{
+		const auto& Row = BufferBlock[Height - 1 - i];
+		if (!std::ranges::all_of(Row, [](const FAR_CHAR_INFO& i){ return i.Char == L' '; }))
+			return i;
+	}
+
+	return Desired;
 }
 
 size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t const TabSize, position_parser_state* SavedState)

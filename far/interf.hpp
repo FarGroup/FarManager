@@ -158,7 +158,7 @@ void ShowCursor();
 void SetInitialCursorType();
 void GetCursorType(bool& Visible, size_t& Size);
 void MoveRealCursor(int X,int Y);
-bool DoWeReallyHaveToScroll(short Rows);
+size_t NumberOfEmptyLines(size_t Desired);
 
 struct position_parser_state
 {

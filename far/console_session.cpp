@@ -153,9 +153,13 @@ public:
 				m_Consolised = false;
 		}
 
-		if (Scroll && DoWeReallyHaveToScroll(Global->Opt->ShowKeyBar? 3 : 2))
+		if (Scroll)
 		{
-			std::wcout << std::endl;
+			const auto SpaceNeeded = Global->Opt->ShowKeyBar? 3uz : 2uz;
+
+			if (const auto SpaceAvailable = NumberOfEmptyLines(SpaceNeeded); SpaceAvailable < SpaceNeeded)
+				std::wcout << string(SpaceNeeded - SpaceAvailable, L'\n') << std::flush;
+
 			Global->ScrBuf->FillBuf();
 		}
 
