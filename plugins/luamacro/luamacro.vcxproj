@@ -6,7 +6,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">
-    <VersionLuaSDK>20240301</VersionLuaSDK>
+    <VersionLuaSDK>20240911</VersionLuaSDK>
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
     <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
