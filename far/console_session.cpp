@@ -158,7 +158,7 @@ public:
 			const auto SpaceNeeded = Global->Opt->ShowKeyBar? 3uz : 2uz;
 
 			if (const auto SpaceAvailable = NumberOfEmptyLines(SpaceNeeded); SpaceAvailable < SpaceNeeded)
-				std::wcout << string(SpaceNeeded - SpaceAvailable, L'\n') << std::flush;
+				std::wcout << string_view(L"\n\n\n", SpaceNeeded - SpaceAvailable) << std::flush;
 
 			Global->ScrBuf->FillBuf();
 		}

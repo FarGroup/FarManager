@@ -1206,11 +1206,10 @@ size_t NumberOfEmptyLines(size_t const Desired)
 	matrix<FAR_CHAR_INFO> BufferBlock(Desired, ScrX + 1);
 	Global->ScrBuf->Read(Region, BufferBlock);
 
-	for (size_t i = 0, Height = BufferBlock.height(); i != Height; ++i)
+	for (const auto& Row: std::views::reverse(BufferBlock))
 	{
-		const auto& Row = BufferBlock[Height - 1 - i];
 		if (!std::ranges::all_of(Row, [](const FAR_CHAR_INFO& i){ return i.Char == L' '; }))
-			return i;
+			return BufferBlock.height() - 1 - BufferBlock.row_number(Row);
 	}
 
 	return Desired;

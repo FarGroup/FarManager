@@ -110,6 +110,12 @@ TEST_CASE("cpp.const_return")
 
 #include "common/2d/matrix.hpp"
 
+namespace detail
+{
+	template<typename T>
+	constexpr bool is_const = std::is_const_v<std::remove_reference_t<T>>;
+};
+
 TEST_CASE("2d.matrix")
 {
 	static const size_t Data[]
@@ -126,9 +132,33 @@ TEST_CASE("2d.matrix")
 	matrix Copy(Matrix);
 	Copy = Matrix;
 
+	matrix_view<const size_t> const ConstView(Copy);
+
 	REQUIRE(Matrix.width() == Width);
 	REQUIRE(Matrix.height() == Height);
 	REQUIRE(Matrix.size() == Height * Width);
+
+	REQUIRE(std::views::reverse(Matrix).front().front() == Data[Width * (Height - 1)]);
+
+	STATIC_REQUIRE(detail::is_const<decltype(*Matrix.data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(*Matrix[0].data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(*Matrix.front().data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(Matrix.at(0, 0))>);
+
+	STATIC_REQUIRE(!detail::is_const<decltype(*Copy.data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(*Copy[0].data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(*Copy.front().data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(Copy.at(0, 0))>);
+
+	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy).data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy)[0].data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy).front().data())>);
+	STATIC_REQUIRE(!detail::is_const<decltype(std::as_const(Copy).at(0, 0))>);
+
+	STATIC_REQUIRE(detail::is_const<decltype(*ConstView.data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(*ConstView[0].data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(*ConstView.front().data())>);
+	STATIC_REQUIRE(detail::is_const<decltype(ConstView.at(0, 0))>);
 
 	size_t Counter = 0;
 	size_t RowNumber = 0;
