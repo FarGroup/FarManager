@@ -888,8 +888,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 
 static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
-	if (!os::handle::is_signaled(console.GetInputHandle()))
-		message_manager::instance().dispatch();
+	message_manager::instance().dispatch();
 
 	DWORD CalcKey;
 
@@ -970,7 +969,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		if (!os::handle::is_signaled(console.GetInputHandle()) && message_manager::instance().dispatch())
+		if (message_manager::instance().dispatch())
 		{
 			*rec = {};
 			return KEY_NONE;
