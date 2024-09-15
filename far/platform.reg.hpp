@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/expected.hpp"
 #include "common/enumerator.hpp"
 #include "common/noncopyable.hpp"
+#include "common/source_location.hpp"
 #include "common/type_traits.hpp"
 
 // External:
@@ -63,7 +64,7 @@ namespace os::reg
 	class exception: public far_exception
 	{
 	public:
-		explicit exception(error const& Error);
+		explicit exception(error const& Error, source_location const& Location = source_location::current());
 	};
 
 	template<typename T>

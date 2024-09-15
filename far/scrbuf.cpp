@@ -222,16 +222,16 @@ void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 static unsigned char apply_nt_index_shadow(unsigned char const Color)
 {
 	// If it's intense then remove the intensity.
-	if (Color & FOREGROUND_INTENSITY)
-		return Color & ~FOREGROUND_INTENSITY;
+	if (Color & C_INTENSE)
+		return Color & ~C_INTENSE;
 
 	// 0x07 (silver) is technically "non-intense white", so it should become black as all the other non-intense colours.
 	// However, making it 0x08 (grey or "intense black") instead gives better results.
-	if (Color == F_LIGHTGRAY)
-		return F_DARKGRAY;
+	if (Color == C_LIGHTGRAY)
+		return C_DARKGRAY;
 
 	// Non-intense can't get any darker, so just return black.
-	return F_BLACK;
+	return C_BLACK;
 }
 
 static bool apply_index_shadow(FarColor& Color, COLORREF FarColor::* ColorAccessor, bool const Is256ColorAvailable)

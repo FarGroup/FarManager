@@ -69,14 +69,14 @@ namespace
 
 		static const inline int Colours[]
 		{
-			F_BLUE,
-			F_CYAN,
-			F_RED,
-			F_MAGENTA,
-			F_BROWN
+			C_BLUE,
+			C_CYAN,
+			C_RED,
+			C_MAGENTA,
+			C_BROWN
 		};
 
-		static const int DefaultColour = F_LIGHTGRAY;
+		static const int DefaultColour = C_LIGHTGRAY;
 
 		static const int DefaultColorPercentage = 95;
 
@@ -163,7 +163,7 @@ namespace
 				const size_t Size = (Horizon - i.Z) / static_cast<double>(Horizon * std::size(StarSprites));
 				assert(Size < std::size(StarSprites));
 
-				const auto Bright = Size >= std::size(StarSprites) / 2? FOREGROUND_INTENSITY : 0;
+				const auto Bright = Size >= std::size(StarSprites) / 2? C_INTENSE : 0;
 				SetColor(i.Color | Bright | B_BLACK);
 
 				GotoXY(X, Y);

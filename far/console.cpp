@@ -1480,7 +1480,7 @@ protected:
 			if (colors::is_default(Color.Value))
 				append(Str, Mapping.Default);
 			else if (const auto Index = vt_color_index(colors::index_value(Color.Value)); Index < colors::index::nt_size && Mapping.PreferBasicIndex)
-				append(Str, Color.Value & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + (Index & 0b111)));
+				append(Str, Color.Value & C_INTENSE? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + (Index & 0b111)));
 			else
 				far::format_to(Str, L"{1}{0}5{0}{2}"sv, Mapping.Separator, Mapping.ExtendedColour, Index);
 		}
@@ -1530,6 +1530,15 @@ protected:
 				UnderlineStyle(Color.GetUnderline()),
 				UnderlineColor(single_color::underline(Color))
 			{
+				if (Color.Flags & COMMON_LVB_GRID_HORIZONTAL)
+					Style |= FCF_FG_OVERLINE;
+
+				if (Color.Flags & COMMON_LVB_REVERSE_VIDEO)
+					Style |= FCF_FG_INVERSE;
+
+				if (Color.Flags & COMMON_LVB_UNDERSCORE && UnderlineStyle == UNDERLINE_STYLE::UNDERLINE_NONE)
+					UnderlineStyle = UNDERLINE_STYLE::UNDERLINE_SINGLE;
+
 				if (
 					// If there's no underline, no point in emitting its color
 					UnderlineStyle == UNDERLINE_NONE ||
@@ -3191,8 +3200,8 @@ TEST_CASE("console.vt_sequence")
 
 	{
 		FAR_CHAR_INFO Buffer[]{ def, def, def, def };
-		Buffer[1].Attributes.BackgroundColor = colors::opaque(F_MAGENTA);
-		Buffer[2].Attributes.ForegroundColor = colors::opaque(F_GREEN);
+		Buffer[1].Attributes.BackgroundColor = colors::opaque(C_MAGENTA);
+		Buffer[2].Attributes.ForegroundColor = colors::opaque(C_GREEN);
 		Buffer[3].Attributes.Flags |= FCF_FG_BOLD;
 		check(Buffer, VTSTR(
 			" "
@@ -3205,8 +3214,8 @@ TEST_CASE("console.vt_sequence")
 	{
 		FAR_CHAR_INFO Buffer[]{ def, def, def };
 		Buffer[0].Attributes.Flags |= FCF_FG_BOLD;
-		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
-		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(C_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(C_LIGHTGREEN);
 
 		Buffer[1] = Buffer[0];
 
@@ -3221,8 +3230,8 @@ TEST_CASE("console.vt_sequence")
 
 	{
 		FAR_CHAR_INFO Buffer[]{ def, def, def, def, def };
-		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
-		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_YELLOW);
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(C_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(C_YELLOW);
 
 		Buffer[1] = Buffer[0];
 		Buffer[1].Attributes.SetUnderline(UNDERLINE_CURLY);
@@ -3230,13 +3239,13 @@ TEST_CASE("console.vt_sequence")
 		Buffer[1].Attributes.SetUnderlineIndex(Buffer[1].Attributes.IsFgIndex());
 
 		Buffer[2] = Buffer[1];
-		Buffer[2].Attributes.UnderlineColor = colors::opaque(F_RED);
+		Buffer[2].Attributes.UnderlineColor = colors::opaque(C_RED);
 
 		Buffer[3] = Buffer[1];
 
 		Buffer[4] = Buffer[3];
-		Buffer[4].Attributes.ForegroundColor = colors::opaque(F_MAGENTA);
-		Buffer[4].Attributes.UnderlineColor = colors::opaque(F_MAGENTA);
+		Buffer[4].Attributes.ForegroundColor = colors::opaque(C_MAGENTA);
+		Buffer[4].Attributes.UnderlineColor = colors::opaque(C_MAGENTA);
 
 
 		check(Buffer, VTSTR(
@@ -3251,13 +3260,13 @@ TEST_CASE("console.vt_sequence")
 	{
 		FAR_CHAR_INFO Buffer[]{ def, def, def, def, def, def };
 
-		Buffer[0].Attributes.BackgroundColor = colors::opaque(F_BLUE);
-		Buffer[0].Attributes.ForegroundColor = colors::opaque(F_LIGHTGREEN);
+		Buffer[0].Attributes.BackgroundColor = colors::opaque(C_BLUE);
+		Buffer[0].Attributes.ForegroundColor = colors::opaque(C_LIGHTGREEN);
 		Buffer[0].Attributes.SetUnderline(UNDERLINE_DOUBLE);
 
 		Buffer[1] = Buffer[0];
 		Buffer[1].Attributes.SetUnderline(UNDERLINE_CURLY);
-		Buffer[1].Attributes.UnderlineColor = colors::opaque(F_YELLOW);
+		Buffer[1].Attributes.UnderlineColor = colors::opaque(C_YELLOW);
 
 		Buffer[2] = Buffer[1];
 		Buffer[2].Attributes.SetUnderline(UNDERLINE_DOT);

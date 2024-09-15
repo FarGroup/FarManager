@@ -78,9 +78,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const FarColor DefaultColor
 {
-	FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE,
-	{colors::transparent(F_BLACK)},
-	{colors::transparent(F_BLACK)}
+	FCF_INDEXMASK | FCF_INHERIT_STYLE,
+	{colors::transparent(C_BLACK)},
+	{colors::transparent(C_BLACK)},
+	{colors::transparent(C_BLACK)}
 };
 
 namespace names
@@ -167,12 +168,12 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 	}
 	DefaultHighlighting[]
 	{
-		{ {},          FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(F_CYAN),         MakeFarColor(F_DARKGRAY) },
-		{ {},          FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(F_CYAN),         MakeFarColor(F_DARKGRAY) },
-		{ {},          FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(F_WHITE),        MakeFarColor(F_WHITE) },
-		{ L"<exec>"sv, 0,                        MakeFarColor(F_LIGHTGREEN),   MakeFarColor(F_LIGHTGREEN) },
-		{ L"<arc>"sv,  0,                        MakeFarColor(F_LIGHTMAGENTA), MakeFarColor(F_LIGHTMAGENTA) },
-		{ L"<temp>"sv, 0,                        MakeFarColor(F_BROWN),        MakeFarColor(F_BROWN) },
+		{ {},          FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(C_CYAN),         MakeFarColor(C_DARKGRAY) },
+		{ {},          FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(C_CYAN),         MakeFarColor(C_DARKGRAY) },
+		{ {},          FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(C_WHITE),        MakeFarColor(C_WHITE) },
+		{ L"<exec>"sv, 0,                        MakeFarColor(C_LIGHTGREEN),   MakeFarColor(C_LIGHTGREEN) },
+		{ L"<arc>"sv,  0,                        MakeFarColor(C_LIGHTMAGENTA), MakeFarColor(C_LIGHTMAGENTA) },
+		{ L"<temp>"sv, 0,                        MakeFarColor(C_BROWN),        MakeFarColor(C_BROWN) },
 	};
 
 	const auto root = cfg.CreateKey(cfg.root_key, names::Highlight);

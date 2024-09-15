@@ -140,8 +140,8 @@ class far_exception: public detail::far_std_exception
 class far_known_exception final: public far_exception
 {
 public:
-	explicit far_known_exception(string_view const Message):
-		far_exception(Message, false, {})
+	explicit far_known_exception(string_view const Message, source_location const& Location = source_location::current()):
+		far_exception(Message, false, Location)
 	{
 	}
 };

@@ -70,7 +70,7 @@ static FarColor Console256ColorToFarColor(index_color_256 const Color)
 {
 	return
 	{
-		FCF_FG_INDEX | FCF_BG_INDEX,
+		FCF_INDEXMASK,
 		{ colors::opaque(colors::index_bits(Color.ForegroundIndex)) },
 		{ colors::opaque(colors::index_bits(Color.BackgroundIndex)) }
 	};

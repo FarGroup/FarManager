@@ -535,10 +535,10 @@ namespace colors
 	static WORD emulate_styles(index_color_16 Color, FARCOLORFLAGS const Flags)
 	{
 		if (Flags & FCF_FG_BOLD)
-			Color.ForegroundIndex |= FOREGROUND_INTENSITY;
+			Color.ForegroundIndex |= F_INTENSE;
 
 		if (Flags & FCF_FG_FAINT)
-			Color.ForegroundIndex &= ~FOREGROUND_INTENSITY;
+			Color.ForegroundIndex &= ~F_INTENSE;
 
 		// COMMON_LVB_REVERSE_VIDEO is a better way, but it only works on Windows 10.
 		// Manual swap works everywhere.
@@ -638,7 +638,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		{
 			// oops, unreadable
 			// since background is more pronounced we adjust the foreground only
-			flags::invert(Result.ForegroundIndex, FOREGROUND_INTENSITY);
+			flags::invert(Result.ForegroundIndex, C_INTENSE);
 		}
 
 		Last.emplace(Color, Result);
@@ -676,7 +676,7 @@ FarColor NtColorToFarColor(WORD Color)
 
 	return
 	{
-		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
+		FCF_INDEXMASK | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
 		{ opaque(Color16.ForegroundIndex) },
 		{ opaque(Color16.BackgroundIndex) }
 	};
@@ -842,8 +842,9 @@ unsigned long long ColorStringToFlags(string_view const Flags)
 static FarColor s_ResolvedDefaultColor
 {
 	FCF_INDEXMASK,
-	{ opaque(F_LIGHTGRAY) },
-	{ opaque(F_BLACK) },
+	{ opaque(C_LIGHTGRAY) },
+	{ opaque(C_BLACK) },
+	{ transparent(C_BLACK) }
 };
 
 COLORREF resolve_default(COLORREF Color, bool IsForeground)

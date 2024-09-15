@@ -96,8 +96,8 @@ namespace os::reg
 	const key key::current_user = key(HKEY_CURRENT_USER);
 	const key key::local_machine = key(HKEY_LOCAL_MACHINE);
 
-	exception::exception(error const& Error):
-		far_exception({{ static_cast<DWORD>(Error.Code), STATUS_SUCCESS }, Error.What })
+	exception::exception(error const& Error, source_location const& Location):
+		far_exception({{ static_cast<DWORD>(Error.Code), STATUS_SUCCESS }, Error.What }, Location)
 	{}
 
 	result<key> key::open(string_view const SubKeyName, DWORD const SamDesired) const
