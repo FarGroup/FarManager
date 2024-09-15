@@ -463,12 +463,13 @@ void Archive::load_update_props() {
 
   m_level = (unsigned)-1;
   m_method.clear();
-  if (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) {
+  if ((in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) || (in_arc->GetProperty(0, kpidMethod, prop.ref()) == S_OK && prop.is_str())) {
     std::list<std::wstring> m_list = split(prop.get_str(), L' ');
 
     static const wchar_t *known_methods[] = { c_method_lzma, c_method_lzma2, c_method_ppmd, c_method_deflate, c_method_deflate64 };
 
-    for (const auto& m_str: m_list) {
+    for (const auto& m_full_str: m_list) {
+      const auto m_str = m_full_str.substr(0, m_full_str.find(L':'));
       if (_wcsicmp(m_str.c_str(), c_method_copy) == 0) {
         m_level = 0;
         m_method = c_method_lzma;
