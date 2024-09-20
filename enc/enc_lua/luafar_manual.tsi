@@ -1864,7 +1864,7 @@ lv=4
 dt=Text
 nm=ACTL_WAITKEY
 ctime=3936005270
-mtime=3936009937
+mtime=3936018950
 <article>
 #_Result = far.AdvControl (ACTL_WAITKEY, Param1, Param2)
 #_
@@ -1876,6 +1876,8 @@ mtime=3936009937
 #_  Result:   integer
 #_
 #_@@@
+#_[tInputRecord]: 187.html
+#_
 #_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
 #_
 </article>
