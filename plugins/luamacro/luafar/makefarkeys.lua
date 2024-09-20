@@ -4,17 +4,14 @@ local function extract_enums (src)
   local collector = {}
   for enum in src:gmatch("%senum%s*[%w_]*%s*(%b{})") do
     for line in enum:gmatch("[^\n]+") do
-      if line:match("^%s*#") then table.insert(collector, line)
-      else
-        local var = line:match("^%s*([%a_][%w_]*)")
-        if var then table.insert(collector, var) end
-      end
+      local var = line:match("^%s*([%a_][%w_]*)")
+      if var then table.insert(collector, var) end
     end
   end
   return collector
 end
 
- 
+
 local sOutFile = [[
 // This is a generated file.
 #include <lua.h>
@@ -66,7 +63,7 @@ local function makefarcolors (colors_file, guids_file, out_file)
   assert(not errmsg, errmsg)
   assert(#collect >= 83, "too few GUIDs collected")
   local guids = table.concat(collect, ",")
-  
+
   fp = assert(io.open(out_file, "w"))
   fp:write(sOutFile:format(colors, guids))
   fp:close()
