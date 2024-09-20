@@ -1382,11 +1382,21 @@ nm=Common functions
 </article>
 </node>
 <node>
-id=153
+id=571
 lv=2
 dt=Text
+nm=Advanced Control
+ctime=3936004770
+mtime=3936004770
+<article>
+</article>
+</node>
+<node>
+id=153
+lv=3
+dt=Text
 nm=far.AdvControl
-mtime=3918497575
+mtime=3936010544
 <article>
 #_Result = far.AdvControl (Command, Param1, Param2)
 #_
@@ -1398,116 +1408,475 @@ mtime=3918497575
 #_**Returns:**
 #_  Result:   *(depends on Command)*
 #_
-#_**Details:**
-#_
-#_ACTL_COMMIT,
-#_ACTL_GETWINDOWCOUNT,
-#_ACTL_PROGRESSNOTIFY,
-#_ACTL_REDRAWALL:
-#_    Result:  integer
-#_
-#_ACTL_QUIT:
-#_    Param1:  integer
-#_    Result:  integer
-#_
-#_ACTL_GETFARHWND:
-#_    Result:  light userdata
-#_
-#_ACTL_SETCURRENTWINDOW,
-#_ACTL_SYNCHRO:
-#_    Param1:  integer
-#_    Result:  integer
-#_
-#_ACTL_WAITKEY:
-#_    Param2:  table `tInputRecord`, or string (e.g. "CtrlF12"), or nil (for any key)
-#_    Result:  integer
-#_
-#_ACTL_GETCOLOR:
-#_    Param1:  integer
-#_    Result:  table `tFarColor`, or nil
-#_
-#_ACTL_GETARRAYCOLOR:
-#_    Result:  table (array of `tFarColor` tables)
-#_
-#_ACTL_GETFARMANAGERVERSION:
-#_    Param1:  boolean (optional)
-#_    Result:  string (e.g. "3.0.0.2040.0"), if Param==false;
-#_             5 numbers (e.g. 3,0,0,2040,0), if Param==true;
-#_
-#_ACTL_GETWINDOWINFO:
-#_    Param1:  window number; 1-based integer (optional; default=0)
-#_    Result:  table (see its fields below), or nil.
-#_        Type:      integer
-#_        Id:        userdata (if Type is WTYPE_DIALOG or WTYPE_VMENU), or integer
-#_        Pos:       integer (1-based)
-#_        Flags:     flags
-#_        TypeName:  string
-#_        Name:      string
-#_
-#_ACTL_SETARRAYCOLOR:
-#_    Param2:  table (see its fields below;
-#_             its array part contains colors
-#_             (each color can be supplied as either a `tFarColor` table or a number)
-#_        Flags:       flags
-#_        StartIndex:  integer
-#_    Result:  integer    
-#_
-#_ACTL_SETPROGRESSSTATE:
-#_    Param1:  flags
-#_    Result:  integer    
-#_
-#_ACTL_SETPROGRESSVALUE:
-#_    Param2:  table (see its fields below)
-#_        Completed, Total:  numbers
-#_    Result:  integer    
-#_
-#_ACTL_GETFARRECT:
-#_    Result:  table (see its fields below), or nil
-#_        Left, Top, Right, Bottom: integers
-#_
-#_ACTL_GETCURSORPOS:
-#_    Result:  table (see its fields below), or nil
-#_        X, Y: integers
-#_
-#_ACTL_SETCURSORPOS:
-#_    Param2:  table (see its fields below)
-#_        X, Y: integers
-#_    Result:  integer    
-#_
-#_ACTL_GETWINDOWTYPE:
-#_    Result:  table (see its fields below), or nil
-#_        Type: integer
-#_
 #_**Far API used:**
 #_  AdvControl
 #_
 #_@@@
-#_[tFarColor]: 427.html
-#_[tInputRecord]: 187.html
-#_
-#_{actl_commit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_COMMIT
-#_{actl_getarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
-#_{actl_getcolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCOLOR
-#_{actl_getcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCURSORPOS
-#_{actl_getfarhwnd}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARHWND
-#_{actl_getfarmanagerversion}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
-#_{actl_getfarrect}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARRECT
-#_{actl_getwindowcount}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
-#_{actl_getwindowinfo}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
-#_{actl_getwindowtype}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
-#_{actl_progressnotify}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
-#_{actl_quit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_QUIT
-#_{actl_redrawall}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_REDRAWALL
-#_{actl_setarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
-#_{actl_setcurrentwindow}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
-#_{actl_setcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURSORPOS
-#_{actl_setprogressstate}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
-#_{actl_setprogressvalue}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
-#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
-#_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
 #_{advcontrol}: http://api.farmanager.com/ru/service_functions/advcontrol.html
+#_
+</article>
+</node>
+<node>
+id=572
+lv=4
+dt=Text
+nm=ACTL_COMMIT
+ctime=3936005095
+mtime=3936009086
+<article>
+#_Result = far.AdvControl (ACTL_COMMIT)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_commit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_COMMIT
+#_
+</article>
+</node>
+<node>
+id=582
+lv=4
+dt=Text
+nm=ACTL_GETARRAYCOLOR
+ctime=3936005309
+mtime=3936010034
+<article>
+#_Result = far.AdvControl (ACTL_GETARRAYCOLOR)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   table (array of `tFarColor` tables)
+#_
+#_@@@
+#_[tFarColor]: 427.html
+#_
+#_{actl_getarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
+#_
+</article>
+</node>
+<node>
+id=581
+lv=4
+dt=Text
+nm=ACTL_GETCOLOR
+ctime=3936005286
+mtime=3936009976
+<article>
+#_Result = far.AdvControl (ACTL_GETCOLOR, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   integer
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   table `tFarColor`, or nil
+#_
+#_@@@
+#_[tFarColor]: 427.html
+#_
+#_{actl_getcolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCOLOR
+#_
+</article>
+</node>
+<node>
+id=589
+lv=4
+dt=Text
+nm=ACTL_GETCURSORPOS
+ctime=3936005443
+mtime=3936010317
+<article>
+#_Result = far.AdvControl (ACTL_GETCURSORPOS)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:  table (see its fields below), or nil
+#_             X, Y: integers
+#_
+#_@@@
+#_{actl_getcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCURSORPOS
+#_
+</article>
+</node>
+<node>
+id=577
+lv=4
+dt=Text
+nm=ACTL_GETFARHWND
+ctime=3936005201
+mtime=3936009831
+<article>
+#_Result = far.AdvControl (ACTL_GETFARHWND)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   light userdata
+#_
+#_@@@
+#_{actl_getfarhwnd}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARHWND
+#_
+</article>
+</node>
+<node>
+id=583
+lv=4
+dt=Text
+nm=ACTL_GETFARMANAGERVERSION
+ctime=3936005324
+mtime=3936010062
+<article>
+#_Result = far.AdvControl (ACTL_GETFARMANAGERVERSION, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   boolean (optional)
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:  string (e.g. "3.0.0.2040.0"), if Param1==false;
+#_           5 numbers (e.g. 3,0,0,2040,0), if Param1==true;
+#_
+#_@@@
+#_{actl_getfarmanagerversion}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
+#_
+</article>
+</node>
+<node>
+id=588
+lv=4
+dt=Text
+nm=ACTL_GETFARRECT
+ctime=3936005424
+mtime=3936010262
+<article>
+#_Result = far.AdvControl (ACTL_GETFARRECT)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:  table (see its fields below), or nil
+#_             Left, Top, Right, Bottom: integers
+#_
+#_@@@
+#_{actl_getfarrect}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARRECT
+#_
+</article>
+</node>
+<node>
+id=573
+lv=4
+dt=Text
+nm=ACTL_GETWINDOWCOUNT
+ctime=3936005127
+mtime=3936009129
+<article>
+#_Result = far.AdvControl (ACTL_GETWINDOWCOUNT)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_getwindowcount}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
+#_
+</article>
+</node>
+<node>
+id=584
+lv=4
+dt=Text
+nm=ACTL_GETWINDOWINFO
+ctime=3936005340
+mtime=3936010559
+<article>
+#_Result = far.AdvControl (ACTL_GETWINDOWINFO, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   window number; 1-based integer (optional; default=0)
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:  table (see its fields below), or nil.
+#_      Type:      integer
+#_      Id:        userdata (if Type is WTYPE_DIALOG or WTYPE_VMENU), or integer
+#_      Pos:       integer (1-based)
+#_      Flags:     flags
+#_      TypeName:  string
+#_      Name:      string
+#_
+#_@@@
+#_{actl_getwindowinfo}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
 #_{wtype_dialog}: http://api.farmanager.com/ru/structures/windowtype.html#WTYPE_DIALOG
 #_{wtype_vmenu}: http://api.farmanager.com/ru/structures/windowtype.html#WTYPE_VMENU
+#_
+</article>
+</node>
+<node>
+id=591
+lv=4
+dt=Text
+nm=ACTL_GETWINDOWTYPE
+ctime=3936005473
+mtime=3936010377
+<article>
+#_Result = far.AdvControl (ACTL_GETWINDOWTYPE)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   table (see its fields below), or nil
+#_              Type: integer
+#_
+#_@@@
+#_{actl_getwindowtype}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
+#_
+</article>
+</node>
+<node>
+id=574
+lv=4
+dt=Text
+nm=ACTL_PROGRESSNOTIFY
+ctime=3936005143
+mtime=3936009712
+<article>
+#_Result = far.AdvControl (ACTL_PROGRESSNOTIFY)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_progressnotify}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
+#_
+</article>
+</node>
+<node>
+id=576
+lv=4
+dt=Text
+nm=ACTL_QUIT
+ctime=3936005189
+mtime=3936009800
+<article>
+#_Result = far.AdvControl (ACTL_QUIT, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   integer
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_quit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_QUIT
+#_
+</article>
+</node>
+<node>
+id=575
+lv=4
+dt=Text
+nm=ACTL_REDRAWALL
+ctime=3936005164
+mtime=3936009761
+<article>
+#_Result = far.AdvControl (ACTL_REDRAWALL)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_redrawall}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_REDRAWALL
+#_
+</article>
+</node>
+<node>
+id=585
+lv=4
+dt=Text
+nm=ACTL_SETARRAYCOLOR
+ctime=3936005366
+mtime=3936010169
+<article>
+#_Result = far.AdvControl (ACTL_SETARRAYCOLOR, Param1, Param2)
+#_
+#_**Parameters:**
+#_  Param1:  N/A
+#_  Param2:  table (see its fields below;
+#_             Flags:       flags
+#_             StartIndex:  integer
+#_           Its array part contains colors (each color can be
+#_           supplied as either a `tFarColor` table or a number)
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_[tFarColor]: 427.html
+#_
+#_{actl_setarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
+#_
+</article>
+</node>
+<node>
+id=578
+lv=4
+dt=Text
+nm=ACTL_SETCURRENTWINDOW
+ctime=3936005227
+mtime=3936009881
+<article>
+#_Result = far.AdvControl (ACTL_SETCURRENTWINDOW, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   integer
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_setcurrentwindow}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
+#_
+</article>
+</node>
+<node>
+id=590
+lv=4
+dt=Text
+nm=ACTL_SETCURSORPOS
+ctime=3936005458
+mtime=3936010346
+<article>
+#_Result = far.AdvControl (ACTL_SETCURSORPOS, Param1, Param2)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   table (see its fields below)
+#_              X, Y: integers
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_setcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURSORPOS
+#_
+</article>
+</node>
+<node>
+id=586
+lv=4
+dt=Text
+nm=ACTL_SETPROGRESSSTATE
+ctime=3936005382
+mtime=3936010200
+<article>
+#_Result = far.AdvControl (ACTL_SETPROGRESSSTATE, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   flags
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_setprogressstate}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
+#_
+</article>
+</node>
+<node>
+id=587
+lv=4
+dt=Text
+nm=ACTL_SETPROGRESSVALUE
+ctime=3936005404
+mtime=3936010225
+<article>
+#_Result = far.AdvControl (ACTL_SETPROGRESSVALUE, Param1, Param2)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   table (see its fields below)
+#_              Completed, Total:  numbers
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_setprogressvalue}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
+#_
+</article>
+</node>
+<node>
+id=579
+lv=4
+dt=Text
+nm=ACTL_SYNCHRO
+ctime=3936005255
+mtime=3936009912
+<article>
+#_Result = far.AdvControl (ACTL_SYNCHRO, Param1)
+#_
+#_**Parameters:**
+#_  Param1:   integer
+#_  Param2:   N/A
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
+#_
+</article>
+</node>
+<node>
+id=580
+lv=4
+dt=Text
+nm=ACTL_WAITKEY
+ctime=3936005270
+mtime=3936009937
+<article>
+#_Result = far.AdvControl (ACTL_WAITKEY, Param1, Param2)
+#_
+#_**Parameters:**
+#_  Param1:   N/A
+#_  Param2:   table `tInputRecord`, or string (e.g. "CtrlF12"), or nil (for any key)
+#_
+#_**Returns:**
+#_  Result:   integer
+#_
+#_@@@
+#_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
 #_
 </article>
 </node>
