@@ -906,9 +906,13 @@ static size_t BytesToUnicode(
 		if (!BytesConsumed)
 			break;
 
-		if (Diagnostics && LocalDiagnostics.ErrorPosition && !Diagnostics->ErrorPosition)
+		if (Diagnostics)
 		{
-			Diagnostics->ErrorPosition = StrIterator - Str.begin() + *LocalDiagnostics.ErrorPosition;
+			if (LocalDiagnostics.ErrorPosition && !Diagnostics->ErrorPosition)
+				Diagnostics->ErrorPosition = StrIterator - Str.begin() + *LocalDiagnostics.ErrorPosition;
+
+			if (LocalDiagnostics.SeenValidUtf8)
+				Diagnostics->SeenValidUtf8 = true;
 		}
 
 		const auto StoreChar = [&](wchar_t Char)
@@ -1132,6 +1136,7 @@ size_t Utf8::get_char(
 		// legal 2-byte
 		First = utf8::extract(c1, c2);
 		++StrIterator;
+		Diagnostics.SeenValidUtf8 = true;
 		return 1;
 	}
 
@@ -1158,6 +1163,7 @@ size_t Utf8::get_char(
 		}
 
 		StrIterator += 2;
+		Diagnostics.SeenValidUtf8 = true;
 		return 1;
 	}
 
@@ -1174,6 +1180,7 @@ size_t Utf8::get_char(
 	// legal 4-byte (produces 2 WCHARs)
 	std::tie(First, Second) = encoding::utf16::to_surrogate(utf8::extract(c1, c2, c3, c4));
 	StrIterator += 3;
+	Diagnostics.SeenValidUtf8 = true;
 	return 2;
 }
 

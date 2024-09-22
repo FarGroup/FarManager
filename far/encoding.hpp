@@ -64,6 +64,8 @@ namespace encoding
 		std::optional<size_t> ErrorPosition;
 		size_t PartialInput{};
 		size_t PartialOutput{};
+
+		bool SeenValidUtf8{};
 	};
 
 	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, std::span<char> Buffer, diagnostics* Diagnostics = {});
