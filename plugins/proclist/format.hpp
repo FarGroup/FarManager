@@ -14,6 +14,8 @@ WARNING_DISABLE_CLANG("-Weverything")
 #define FMT_CONSTEVAL consteval
 #define FMT_HAS_CONSTEVAL
 
+#include <algorithm>
+
 #include <fmt/format.h>
 #include <fmt/xchar.h>
 
