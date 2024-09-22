@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-09-22 22:30:28+01:00 - build 6372
+
+1. Continue 6371: fallback to OEM if we have not seen any valid UTF-8 yet.
+
+2. Fix libc++ build.
+
+3. Warnings.
+
+--------------------------------------------------------------------------------
 drkns 2024-09-22 14:58:10+01:00 - build 6371
 
 1. Assume that hlf and lng files are in UTF-8 by default, even if there is no BOM.
