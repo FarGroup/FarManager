@@ -422,7 +422,7 @@ protected:
 						throw far_fatal_exception(L"File write error"sv);
 				};
 
-				if constexpr (constexpr auto UseUtf8Output = true)
+				if constexpr ([[maybe_unused]] constexpr auto UseUtf8Output = true)
 				{
 					const auto Utf8Str = encoding::utf8::get_bytes(Str);
 					write(Utf8Str.data(), Utf8Str.size());
