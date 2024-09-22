@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <cstdarg>
+#include <cstdlib>
 #include <cwchar>
 
 #define __SIMPLE_STRING_USED
@@ -27,7 +29,7 @@ typedef class SimpleString
 
 		SimpleString() { Alloc(__DEF_DELTA); }
 		SimpleString(const SimpleString &strCopy) { Alloc(strCopy.Len()+1); Copy(strCopy); }
-		SimpleString(const wchar_t *data) { size_t l = lstrlen(data?data:L""); Alloc(l+1); Copy(data, l); }
+		SimpleString(const wchar_t *data) { size_t l = wcslen(data?data:L""); Alloc(l+1); Copy(data, l); }
 		SimpleString(const wchar_t *data, size_t len) { Alloc(len+1); Copy(data, len); }
 		explicit SimpleString(size_t size) { Alloc(size); }
 
@@ -47,7 +49,7 @@ typedef class SimpleString
 		}
 
 		wchar_t *GetBuf(size_t size = (size_t)-1) { Inflate(size == (size_t)-1 ? m_size : size); return m_str; }
-		void ReleaseBuf(size_t len = (size_t)-1) { (len == (size_t)-1) ? SetLen(lstrlen(m_str)) : (len >= m_size ? SetLen(m_size-1) : SetLen(len)); }
+		void ReleaseBuf(size_t len = (size_t)-1) { (len == (size_t)-1) ? SetLen(wcslen(m_str)) : (len >= m_size ? SetLen(m_size-1) : SetLen(len)); }
 
 		size_t Len() const { return m_len; }
 		size_t SetLen(size_t len) { if (len < m_size) { m_len = len; m_str[m_len] = 0; } return m_len; }
@@ -61,7 +63,7 @@ typedef class SimpleString
 		int __cdecl Format(const wchar_t * format, ...)
 		{
 			wchar_t *buffer = nullptr;
-			size_t Size = MAX_PATH;
+			size_t Size = 260;
 			int retValue = -1;
 			va_list argptr;
 			va_start(argptr, format);
@@ -126,21 +128,21 @@ typedef class SimpleString
 		}
 
 		SimpleString& Replace(size_t Pos, size_t Len, const SimpleString& Str) { return Replace(Pos, Len, Str.CPtr(), Str.Len()); }
-		SimpleString& Replace(size_t Pos, size_t Len, const wchar_t* Str) { return Replace(Pos, Len, Str, lstrlen(Str?Str:L"")); }
+		SimpleString& Replace(size_t Pos, size_t Len, const wchar_t* Str) { return Replace(Pos, Len, Str, wcslen(Str?Str:L"")); }
 		SimpleString& Replace(size_t Pos, size_t Len, wchar_t Ch) { return Replace(Pos, Len, &Ch, 1); }
 
 		SimpleString& Append(const wchar_t* Str, size_t StrLen) { return Replace(Len(), 0, Str, StrLen); }
 		SimpleString& Append(const SimpleString& Str) { return Append(Str.CPtr(), Str.Len()); }
-		SimpleString& Append(const wchar_t* Str) { return Append(Str, lstrlen(Str?Str:L"")); }
+		SimpleString& Append(const wchar_t* Str) { return Append(Str, wcslen(Str?Str:L"")); }
 		SimpleString& Append(wchar_t Ch) { return Append(&Ch, 1); }
 
 		SimpleString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return Replace(Pos, 0, Str, StrLen); }
 		SimpleString& Insert(size_t Pos, const SimpleString& Str) { return Insert(Pos, Str.CPtr(), Str.Len()); }
-		SimpleString& Insert(size_t Pos, const wchar_t* Str) { return Insert(Pos, Str, lstrlen(Str?Str:L"")); }
+		SimpleString& Insert(size_t Pos, const wchar_t* Str) { return Insert(Pos, Str, wcslen(Str?Str:L"")); }
 		SimpleString& Insert(size_t Pos, wchar_t Ch) { return Insert(Pos, &Ch, 1); }
 
 		SimpleString& Copy(const wchar_t *Str, size_t StrLen) { return Replace(0, Len(), Str, StrLen); }
-		SimpleString& Copy(const wchar_t *Str) { return Copy(Str, lstrlen(Str?Str:L"")); }
+		SimpleString& Copy(const wchar_t *Str) { return Copy(Str, wcslen(Str?Str:L"")); }
 		SimpleString& Copy(wchar_t Ch) { return Copy(&Ch, 1); }
 		SimpleString& Copy(const SimpleString &Str) { return Copy(Str.CPtr(), Str.Len()); }
 
