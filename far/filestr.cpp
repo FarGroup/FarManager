@@ -63,10 +63,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 const auto BufferSize = 65536;
 static_assert(BufferSize % sizeof(wchar_t) == 0);
 
-enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
+enum_lines::enum_lines(std::istream& Stream, uintptr_t const CodePage, bool* TryUtf8):
 	m_Stream(Stream),
 	m_BeginPos(m_Stream.tellg()),
 	m_CodePage(CodePage),
+	m_TryUtf8(TryUtf8),
 	m_Eol(m_CodePage),
 	m_Buffer(BufferSize)
 {
@@ -249,9 +250,19 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 			if (Data.m_Bytes.size() > Data.m_wBuffer.size())
 				Data.m_wBuffer.reset(Data.m_Bytes.size());
 
+			const auto Utf8CP = encoding::codepage::utf8();
+			const auto IsUtf8Cp = m_CodePage == Utf8CP;
+
 			for (;;)
 			{
-				const auto Size = encoding::get_chars(m_CodePage, Data.m_Bytes, Data.m_wBuffer, &m_Diagnostics);
+				const auto TryUtf8 = m_TryUtf8 && *m_TryUtf8 && !IsUtf8Cp;
+				const auto Size = encoding::get_chars(TryUtf8? Utf8CP : m_CodePage, Data.m_Bytes, Data.m_wBuffer, &m_Diagnostics);
+				if (TryUtf8 && m_Diagnostics.ErrorPosition)
+				{
+					*m_TryUtf8 = false;
+					continue;
+				}
+
 				if (Size <= Data.m_wBuffer.size())
 				{
 					Data.m_Bytes.clear();

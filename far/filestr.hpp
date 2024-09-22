@@ -61,7 +61,7 @@ class [[nodiscard]] enum_lines: public enumerator<enum_lines, file_line>
 	IMPLEMENTS_ENUMERATOR(enum_lines);
 
 public:
-	enum_lines(std::istream& Stream, uintptr_t CodePage);
+	enum_lines(std::istream& Stream, uintptr_t CodePage, bool* TryUtf8 = {});
 
 	bool conversion_error() const { return m_Diagnostics.ErrorPosition.has_value(); }
 
@@ -79,6 +79,7 @@ private:
 	std::istream& m_Stream;
 	size_t m_BeginPos;
 	uintptr_t m_CodePage;
+	bool* m_TryUtf8;
 	raw_eol m_Eol;
 
 	mutable char_ptr m_Buffer;

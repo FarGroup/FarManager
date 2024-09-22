@@ -102,9 +102,21 @@ private:
 	~far_language() override = default;
 };
 
-// (file, name, codepage)
-std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view Path, string_view Mask, string_view Language);
-bool GetLangParam(const os::fs::file& LangFile, string_view ParamName, string& Param, uintptr_t CodePage);
+struct lang_file
+{
+	os::fs::file File;
+	string Name, Description;
+	uintptr_t Codepage{};
+	bool TryUtf8{};
+
+	explicit operator bool() const
+	{
+		return File.operator bool();
+	}
+};
+
+lang_file OpenLangFile(string_view Path, string_view Mask, string_view Language);
+bool GetLangParam(lang_file& LangFile, string_view ParamName, string& Param);
 bool SelectInterfaceLanguage(string& Dest);
 bool SelectHelpLanguage(string& Dest);
 

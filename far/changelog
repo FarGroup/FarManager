@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2024-09-22 14:58:10+01:00 - build 6371
+
+1. Assume that hlf and lng files are in UTF-8 by default, even if there is no BOM.
+   Fallback to OEM only if decoding fails.
+
+--------------------------------------------------------------------------------
 drkns 2024-09-15 14:01:29+01:00 - build 6370
 
 1. Refactoring.

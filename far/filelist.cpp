@@ -5536,8 +5536,8 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	string_view strPath = hPlugin->plugin()->ModuleName();
 	CutToSlash(strPath);
-	const auto [File, Name, Codepage] = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
-	if (!File)
+	const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+	if (!HelpFile)
 		return false;
 
 	help::show(help::make_link(strPath, L"Contents"sv));

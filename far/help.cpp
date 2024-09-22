@@ -183,7 +183,7 @@ private:
 	bool GetTopic(int realX, int realY, string& strTopic) const;
 	void MoveToReference(int Forward, int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
-	void Search(const os::fs::file& HelpFile, uintptr_t nCodePage);
+	void Search(lang_file& HelpFile);
 	bool JumpTopic(string_view Topic);
 	bool JumpTopic();
 	int CanvasHeight() const { return ObjHeight() - 1 - 1; }
@@ -224,9 +224,9 @@ private:
 	SearchReplaceDlgParams m_SearchDlgParams;
 };
 
-static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, unsigned CodePage)
+static bool GetOptionsParam(lang_file& LangFile, string_view const KeyName, string& Value)
 {
-	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, CodePage);
+	return GetLangParam(LangFile, L"Options "sv + KeyName, Value);
 }
 
 Help::Help(private_tag):
@@ -328,7 +328,7 @@ bool Help::ReadHelp(string_view const Mask)
 		return true;
 	}
 
-	const auto [HelpFile, Name, HelpFileCodePage] = OpenLangFile(strPath, Mask.empty()? Global->HelpFileMask : Mask, Global->Opt->strHelpLanguage);
+	auto HelpFile = OpenLangFile(strPath, Mask.empty()? Global->HelpFileMask : Mask, Global->Opt->strHelpLanguage);
 	if (!HelpFile)
 	{
 		ErrorHelp = true;
@@ -352,11 +352,11 @@ bool Help::ReadHelp(string_view const Mask)
 		return false;
 	}
 
-	strFullHelpPathName = HelpFile.GetName();
+	strFullHelpPathName = HelpFile.File.GetName();
 
 	string strReadStr;
 
-	if (GetOptionsParam(HelpFile, L"TabSize"sv, strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"TabSize"sv, strReadStr))
 	{
 		unsigned UserTabSize;
 		if (from_string(strReadStr, UserTabSize))
@@ -376,12 +376,12 @@ bool Help::ReadHelp(string_view const Mask)
 		}
 	}
 
-	if (GetOptionsParam(HelpFile, L"CtrlColorChar"sv, strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlColorChar"sv, strReadStr))
 		m_CtrlColorChar = strReadStr.front();
 	else
 		m_CtrlColorChar = 0;
 
-	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar"sv, strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar"sv, strReadStr))
 		strCtrlStartPosChar = strReadStr;
 	else
 		strCtrlStartPosChar.clear();
@@ -389,7 +389,7 @@ bool Help::ReadHelp(string_view const Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents,  HelpFileCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -398,7 +398,7 @@ bool Help::ReadHelp(string_view const Mask)
 
 	if (StackData.strHelpTopic == FoundContents)
 	{
-		Search(HelpFile, HelpFileCodePage);
+		Search(HelpFile);
 		return true;
 	}
 
@@ -419,11 +419,11 @@ bool Help::ReadHelp(string_view const Mask)
 	int MI=0;
 	string strMacroArea;
 
-	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
+	os::fs::filebuf StreamBuffer(HelpFile.File, std::ios::in);
 	std::istream Stream(&StreamBuffer);
 	Stream.exceptions(Stream.badbit | Stream.failbit); // BUGBUG, add try/catch
 
-	enum_lines EnumFileLines(Stream, HelpFileCodePage);
+	enum_lines EnumFileLines(Stream, HelpFile.Codepage, &HelpFile.TryUtf8);
 	auto FileIterator = EnumFileLines.begin();
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
@@ -1944,7 +1944,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
+void Help::Search(lang_file& HelpFile)
 {
 	FixCount=1;
 	StackData.TopStr=0;
@@ -1980,11 +1980,11 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	searchers Searchers;
 	const auto& Searcher = init_searcher(Searchers, m_SearchDlgParams.CaseSensitive.value(), m_SearchDlgParams.Fuzzy.value(), m_SearchDlgParams.SearchStr);
 
-	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
+	os::fs::filebuf StreamBuffer(HelpFile.File, std::ios::in);
 	std::istream Stream(&StreamBuffer);
 	Stream.exceptions(Stream.badbit | Stream.failbit); // BUGBUG, add try/catch
 
-	for (const auto& i: enum_lines(Stream, nCodePage))
+	for (const auto& i: enum_lines(Stream, HelpFile.Codepage, &HelpFile.TryUtf8))
 	{
 		auto Str = trim_right(i.Str);
 
@@ -2076,12 +2076,12 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			{
 				string_view Path = i->ModuleName();
 				CutToSlash(Path);
-				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(Path, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+				auto HelpFile = OpenLangFile(Path, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 				if (!HelpFile)
 					continue;
 
 				string strEntryName;
-				if (!GetLangParam(HelpFile, ContentsName, strEntryName, HelpFileCodePage))
+				if (!GetLangParam(HelpFile, ContentsName, strEntryName))
 					continue;
 
 				AddLine(far::format(L"   ~{}~@{}@"sv, strEntryName, help::make_link(Path, HelpContents)));
