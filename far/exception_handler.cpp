@@ -1557,6 +1557,7 @@ static string collect_information(
 
 	const auto Version = self_version();
 	const auto Compiler = build::compiler();
+	const auto Library = build::library();
 	const auto PeTime = pe_timestamp();
 	const auto FileTime = file_timestamp();
 	const auto SystemTime = system_timestamp();
@@ -1594,6 +1595,7 @@ static string collect_information(
 	{
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
+		{ L"Library:  "sv, Library,       },
 		{ L"PE time:  "sv, PeTime,        },
 		{ L"File time:"sv, FileTime,      },
 		{ L"Time:     "sv, SystemTime,    },

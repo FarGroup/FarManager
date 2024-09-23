@@ -346,7 +346,7 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, st
 		return 0;
 
 	if (Diagnostics)
-		*Diagnostics = {};
+		Diagnostics->clear();
 
 	switch(Codepage)
 	{
@@ -378,6 +378,30 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, st
 	default:
 		return widechar_to_multibyte_with_validation(Codepage, Str, Buffer, Diagnostics);
 	}
+}
+
+encoding::diagnostics::diagnostics(unsigned Diagnostics):
+	EnabledDiagnostics(Diagnostics)
+{
+}
+
+void encoding::diagnostics::clear()
+{
+	ErrorPosition.reset();
+	PartialInput = {};
+	PartialOutput = {};
+	m_IsUtf8 = is_utf8::yes_ascii;
+}
+
+void encoding::diagnostics::set_is_utf8(is_utf8 const IsUtf8)
+{
+	if (m_IsUtf8 == is_utf8::yes_ascii)
+		m_IsUtf8 = IsUtf8;
+}
+
+encoding::is_utf8 encoding::diagnostics::get_is_utf8() const
+{
+	return m_IsUtf8;
 }
 
 size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, std::span<char> const Buffer, diagnostics* const Diagnostics)
@@ -444,7 +468,7 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, std
 		return 0;
 
 	if (Diagnostics)
-		*Diagnostics = {};
+		Diagnostics->clear();
 
 	const auto validate_unicode = [&]
 	{
@@ -911,8 +935,7 @@ static size_t BytesToUnicode(
 			if (LocalDiagnostics.ErrorPosition && !Diagnostics->ErrorPosition)
 				Diagnostics->ErrorPosition = StrIterator - Str.begin() + *LocalDiagnostics.ErrorPosition;
 
-			if (LocalDiagnostics.SeenValidUtf8)
-				Diagnostics->SeenValidUtf8 = true;
+			Diagnostics->set_is_utf8(LocalDiagnostics.get_is_utf8());
 		}
 
 		const auto StoreChar = [&](wchar_t Char)
@@ -1094,6 +1117,7 @@ size_t Utf8::get_char(
 			encoding::replace_char;
 
 		Diagnostics.ErrorPosition = Position;
+		Diagnostics.set_is_utf8(encoding::is_utf8::no);
 		return 1;
 	};
 
@@ -1136,7 +1160,7 @@ size_t Utf8::get_char(
 		// legal 2-byte
 		First = utf8::extract(c1, c2);
 		++StrIterator;
-		Diagnostics.SeenValidUtf8 = true;
+		Diagnostics.set_is_utf8(encoding::is_utf8::yes);
 		return 1;
 	}
 
@@ -1155,15 +1179,17 @@ size_t Utf8::get_char(
 		// legal 3-byte
 		First = utf8::extract(c1, c2, c3);
 
-		if constexpr (!utf8::support_unpaired_surrogates)
+		// invalid: surrogate area code
+		if (in_closed_range(utf16::surrogate_first, First, utf16::surrogate_last))
 		{
-			// invalid: surrogate area code
-			if (in_closed_range(utf16::surrogate_first, First, utf16::surrogate_last))
+			Diagnostics.set_is_utf8(encoding::is_utf8::no);
+
+			if constexpr (!utf8::support_unpaired_surrogates)
 				return InvalidChar(c1, 2);
 		}
 
 		StrIterator += 2;
-		Diagnostics.SeenValidUtf8 = true;
+		Diagnostics.set_is_utf8(encoding::is_utf8::yes);
 		return 1;
 	}
 
@@ -1180,7 +1206,7 @@ size_t Utf8::get_char(
 	// legal 4-byte (produces 2 WCHARs)
 	std::tie(First, Second) = encoding::utf16::to_surrogate(utf8::extract(c1, c2, c3, c4));
 	StrIterator += 3;
-	Diagnostics.SeenValidUtf8 = true;
+	Diagnostics.set_is_utf8(encoding::is_utf8::yes);
 	return 2;
 }
 

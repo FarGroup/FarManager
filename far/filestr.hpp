@@ -80,7 +80,7 @@ private:
 	size_t m_BeginPos;
 	uintptr_t m_CodePage;
 	bool* m_TryUtf8;
-	mutable bool m_SeenValidUtf8{};
+	mutable encoding::is_utf8 m_IsUtf8{encoding::is_utf8::yes_ascii};
 	raw_eol m_Eol;
 
 	mutable char_ptr m_Buffer;

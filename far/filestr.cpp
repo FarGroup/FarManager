@@ -258,10 +258,10 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 				const auto TryUtf8 = m_TryUtf8 && *m_TryUtf8 && !IsUtf8Cp;
 				const auto Size = encoding::get_chars(TryUtf8? Utf8CP : m_CodePage, Data.m_Bytes, Data.m_wBuffer, &m_Diagnostics);
 
-				if (m_Diagnostics.SeenValidUtf8)
-					m_SeenValidUtf8 = true;
+				if (m_IsUtf8 == encoding::is_utf8::yes_ascii)
+					m_IsUtf8 = m_Diagnostics.get_is_utf8();
 
-				if (TryUtf8 && m_Diagnostics.ErrorPosition && !m_SeenValidUtf8)
+				if (TryUtf8 && m_Diagnostics.ErrorPosition && m_IsUtf8 != encoding::is_utf8::yes)
 				{
 					*m_TryUtf8 = false;
 					continue;
