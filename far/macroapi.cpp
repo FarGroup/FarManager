@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "filepanels.hpp"
 #include "flink.hpp"
+#include "history.hpp"
 #include "global.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -1715,8 +1716,10 @@ void FarMacroApi::promptFunc() const
 
 	const auto oldHistoryDisable = GetHistoryDisableMask();
 
-	if (history.empty()) // Mantis#0001743: Возможность отключения истории
-		SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
+	// Mantis#0001743: Возможность отключения истории
+	// если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
+	if (history.empty())
+		SetHistoryDisableMask(1 << HISTORYTYPE_DIALOG);
 
 	if (GetString(title, prompt, history, src, strDest, {}, (Flags&~FIB_CHECKBOX) | FIB_ENABLEEMPTY))
 		PassValue(strDest);

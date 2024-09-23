@@ -414,7 +414,7 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 
 KeyMacro::KeyMacro():
 	m_Area(MACROAREA_SHELL),
-	m_StartMode(MACROAREA_OTHER),
+	m_StartArea(MACROAREA_OTHER),
 	m_Recording(MACROSTATE_NOMACRO)
 {
 }
@@ -573,7 +573,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			}
 
 			// Где мы?
-			m_StartMode=m_Area;
+			m_StartArea=m_Area;
 			// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 			// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
 			m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
@@ -622,7 +622,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			{
 				const auto strKey = KeyToText(MacroKey);
 				Flags |= m_Recording == MACROSTATE_RECORDING_COMMON? MFLAGS_NONE : MFLAGS_NOSENDKEYSTOPLUGINS;
-				LM_ProcessRecordedMacro(m_StartMode, strKey, m_RecCode, Flags, m_RecDescription);
+				LM_ProcessRecordedMacro(m_StartArea, strKey, m_RecCode, Flags, m_RecDescription);
 			}
 
 			m_Recording=MACROSTATE_NOMACRO;
@@ -1536,7 +1536,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 		{DI_COMBOBOX,  {{5,  3}, {28, 3}}, DIF_FOCUS | DIF_DEFAULTBUTTON, },
 	});
 
-	DlgParam Param{ Flags, m_StartMode, 0 };
+	DlgParam Param{ Flags, m_StartArea, 0 };
 	Global->IsProcessAssignMacroKey++;
 	const auto Dlg = Dialog::create(MacroAssignDlg, std::bind_front(&KeyMacro::AssignMacroDlgProc, this), &Param);
 	Dlg->SetPosition({ -1, -1, 34, 6 });

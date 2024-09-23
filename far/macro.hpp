@@ -123,7 +123,7 @@ private:
 	void RestoreMacroChar() const;
 
 	FARMACROAREA m_Area;
-	FARMACROAREA m_StartMode;
+	FARMACROAREA m_StartArea;
 	FARMACROSTATE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;
