@@ -76,6 +76,7 @@ static int uc_newindex(lua_State* L)
 static TFarUserControl* push_far_usercontrol(lua_State* L, intptr_t X, intptr_t Y)
 {
 	TFarUserControl* fuc = (TFarUserControl*)lua_newuserdata(L, sizeof(TFarUserControl) + sizeof(struct FAR_CHAR_INFO)*(X*Y-1));
+	memset(fuc->VBuf, 0, sizeof(struct FAR_CHAR_INFO) * X * Y);
 	fuc->X = X;
 	fuc->Y = Y;
 	fuc->Size = X*Y;

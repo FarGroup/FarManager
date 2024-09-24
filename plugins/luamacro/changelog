@@ -1,3 +1,7 @@
+drkns 2024-09-24 16:09:16+01:00 - build 850
+
+1. Initialize all fields in user controls.
+
 shmuel 2024-09-21 01:58:53+03:00 - build 849
 
 1. LuaFAR: a fix in makefarkeys.lua.
