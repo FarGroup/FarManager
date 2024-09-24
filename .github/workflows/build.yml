@@ -153,12 +153,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sys: [mingw32, clang32, mingw64, ucrt64, clang64]
+        sys: [mingw32, mingw64, ucrt64, clang64]
         compiler: [gcc, clang]
         build_type: [Release, Debug]
         exclude:
-          - sys: clang32
-            compiler: gcc
           - sys: clang64
             compiler: gcc
 
