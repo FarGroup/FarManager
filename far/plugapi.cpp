@@ -2333,7 +2333,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 		// Param1=0, Param2 - 0
 		case MCTL_SAVEALL:
-			return !Macro.IsRecording() && Macro.SaveMacros(true);
+			return !Macro.IsRecording() && Macro.SaveMacros();
 
 		// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 		case MCTL_SENDSTRING:
