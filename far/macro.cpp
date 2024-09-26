@@ -600,7 +600,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			m_InternalInput=1;
 			DlgParam Param {0,0,false};
-			int AssignRet = AssignMacroKey(&Param);
+			bool AssignRet = AssignMacroKey(&Param);
 
 			if (AssignRet && !Param.Changed && !m_RecCode.empty())
 			{
