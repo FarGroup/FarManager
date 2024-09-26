@@ -78,6 +78,7 @@ struct MacroPanelSelect
 };
 
 class Dialog;
+struct DlgParam;
 
 class KeyMacro: noncopyable
 {
@@ -117,7 +118,7 @@ public:
 private:
 	static int GetExecutingState();
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	int  AssignMacroKey(DWORD& MacroKey, unsigned long long& Flags);
+	bool AssignMacroKey(DlgParam *Param);
 	bool GetMacroSettings(int Key, unsigned long long &Flags, string_view Src = {}, string_view Descr = {});
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;
