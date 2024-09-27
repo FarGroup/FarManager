@@ -7,6 +7,8 @@
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(4267) // 'var' : conversion from 'size_t' to 'type', possible loss of data
+
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_DISABLE_CLANG("-Weverything")

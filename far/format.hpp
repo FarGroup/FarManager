@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(4267) // 'var' : conversion from 'size_t' to 'type', possible loss of data
+
 WARNING_DISABLE_GCC("-Warray-bounds")
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 WARNING_DISABLE_GCC("-Wdangling-reference")
@@ -180,7 +182,7 @@ struct fmt::formatter<object_type, wchar_t>: format_helpers::no_spec<object_type
 	static string to_string(object_type const& Value)
 	{
 		if constexpr(::detail::is_formattable<object_type>)
-			return formattable<object_type>::to_string(Value);
+			return ::formattable<object_type>::to_string(Value);
 		else
 			return Value.to_string();
 	}
