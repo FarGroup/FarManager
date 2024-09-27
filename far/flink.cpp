@@ -362,32 +362,31 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 	const auto Extract = [&](const auto& Buffer)
 	{
-		const wchar_t* PathBuffer;
-		auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t);
-
-		if (NameLength)
+		if (const auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t))
 		{
-			PathBuffer = &Buffer.PathBuffer[Buffer.PrintNameOffset / sizeof(wchar_t)];
-		}
-		else
-		{
-			NameLength = Buffer.SubstituteNameLength / sizeof(wchar_t);
-			PathBuffer = &Buffer.PathBuffer[Buffer.SubstituteNameOffset / sizeof(wchar_t)];
+			DestBuffer.assign(Buffer.PathBuffer + Buffer.PrintNameOffset / sizeof(wchar_t), NameLength);
+			return true;
 		}
 
-		if (!NameLength)
-			return false;
+		if (const auto NameLength = Buffer.SubstituteNameLength / sizeof(wchar_t))
+		{
+			DestBuffer.assign(Buffer.PathBuffer + Buffer.SubstituteNameOffset / sizeof(wchar_t), NameLength);
+			return true;
+		}
 
-		DestBuffer.assign(PathBuffer, NameLength);
-		return true;
+		return false;
 	};
 
 	switch (rdb->ReparseTag)
 	{
 	case IO_REPARSE_TAG_SYMLINK:
+		if (rdb->ReparseDataLength < sizeof(rdb->SymbolicLinkReparseBuffer))
+			return false;
 		return Extract(rdb->SymbolicLinkReparseBuffer);
 
 	case IO_REPARSE_TAG_MOUNT_POINT:
+		if (rdb->ReparseDataLength < sizeof(rdb->MountPointReparseBuffer))
+			return false;
 		return Extract(rdb->MountPointReparseBuffer);
 
 	case IO_REPARSE_TAG_NFS:
@@ -399,6 +398,9 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				ULONG64 Type;
 				WCHAR   DataBuffer[1];
 			};
+
+			if (rdb->ReparseDataLength < sizeof(NFS_REPARSE_DATA_BUFFER))
+				return false;
 
 			const auto& NfsReparseBuffer = view_as<NFS_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
 			if (NfsReparseBuffer.Type != NFS_SPECFILE_LNK)
@@ -419,6 +421,9 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				ULONG Version;
 				WCHAR StringList[1];
 			};
+
+			if (rdb->ReparseDataLength < sizeof(APPEXECLINK_REPARSE_DATA_BUFFER))
+				return false;
 
 			const auto& AppExecLinkReparseBuffer = view_as<APPEXECLINK_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
 
@@ -448,8 +453,33 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				char  PathBuffer[1];
 			};
 
+			if (rdb->ReparseDataLength < sizeof(LX_SYMLINK_REPARSE_DATA_BUFFER))
+				return false;
+
 			const auto& LxSymlinkReparseBuffer = view_as<LX_SYMLINK_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
 			DestBuffer = encoding::utf8::get_chars({ LxSymlinkReparseBuffer.PathBuffer, rdb->ReparseDataLength - sizeof(LxSymlinkReparseBuffer.FileType) });
+			return true;
+		}
+
+	case IO_REPARSE_TAG_WCI:
+	case IO_REPARSE_TAG_WCI_1:
+	case IO_REPARSE_TAG_WCI_LINK:
+	case IO_REPARSE_TAG_WCI_LINK_1:
+		{
+			struct WCI_REPARSE_DATA_BUFFER
+			{
+				ULONG Version;
+				ULONG Reserved;
+				GUID LookupGuid;
+				USHORT WciNameLength;
+				WCHAR WciName[1];
+			};
+
+			if (rdb->ReparseDataLength < sizeof(WCI_REPARSE_DATA_BUFFER))
+				return false;
+
+			const auto& WciReparseBuffer = view_as<WCI_REPARSE_DATA_BUFFER>(rdb->GenericReparseBuffer.DataBuffer);
+			DestBuffer.assign(WciReparseBuffer.WciName, WciReparseBuffer.WciNameLength / sizeof(wchar_t));
 			return true;
 		}
 
