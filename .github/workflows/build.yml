@@ -235,7 +235,7 @@ jobs:
       CLANG: 1
       PYTHON: 1
       SYS_LUA: 1
-      LUA_VER: '5.1.5'
+      LUA_VER: '5.1'
       ENABLE_TESTS: 0
 
     steps:
@@ -248,13 +248,10 @@ jobs:
         with:
           languages: cpp
 
-      - name: Install luver
-        uses: MunifTanjim/luver-action@v1
-
       - name: Install lua ${{ env.LUA_VER }}
         run: |
-          luver install lua $LUA_VER
-          luver use $LUA_VER
+          sudo apt-get update
+          sudo apt-get install lua${{ env.LUA_VER }}
 
       - name: Download llvm-mingw
         id: download_llvm_mingw
