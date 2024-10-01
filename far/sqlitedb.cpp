@@ -604,36 +604,66 @@ static auto view(const void* const Data, int const Size)
 	return std::basic_string_view<char_type>{ static_cast<char_type const*>(Data), static_cast<size_t>(Size) / sizeof(char_type) };
 }
 
-template<auto comparer>
+using comparer = std::strong_ordering(string_view, string_view);
+
+struct collation_context
+{
+	static inline struct cache
+	{
+		string Buffer1, Buffer2;
+	}
+	CollationCache;
+
+	comparer* Comparer;
+	int Encoding;
+};
+
+static void context_deleter(void* Param)
+{
+	std::unique_ptr<collation_context>(static_cast<collation_context*>(Param));
+}
+
 static int combined_comparer(void* const Param, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
 {
-	if (view<char>(Data1, Size1) == view<char>(Data2, Size2))
+	const auto
+		RawView1 = view<char>(Data1, Size1),
+		RawView2 = view<char>(Data2, Size2);
+
+	if (RawView1 == RawView2)
 		return 0;
 
-	if (std::bit_cast<intptr_t>(Param) == SQLITE_UTF16)
+	const auto Context = static_cast<collation_context*>(Param);
+
+	if (Context->Encoding == SQLITE_UTF16)
 	{
-		return string_sort::ordering_as_int(comparer(
+		return string_sort::detail::ordering_as_int(Context->Comparer(
 			view<wchar_t>(Data1, Size1),
 			view<wchar_t>(Data2, Size2)
 		));
 	}
 
-	// TODO: stack buffer optimisation
-	return string_sort::ordering_as_int(comparer(
-		encoding::utf8::get_chars(view<char>(Data1, Size1)),
-		encoding::utf8::get_chars(view<char>(Data2, Size2))
+	encoding::utf8::get_chars(RawView1, Context->CollationCache.Buffer1);
+	encoding::utf8::get_chars(RawView2, Context->CollationCache.Buffer2);
+
+	return string_sort::detail::ordering_as_int(Context->Comparer(
+		Context->CollationCache.Buffer1,
+		Context->CollationCache.Buffer2
 	));
 }
 
-using comparer_type = int(void*, int, const void*, int, const void*);
-
-static void create_combined_collation(sqlite::sqlite3* const Db, const char* const Name, comparer_type Comparer)
+static void create_combined_collation(sqlite::sqlite3* const Db, const char* const Name, comparer* const Comparer)
 {
 	const auto create_collation = [&](int const Encoding)
 	{
 		invoke(Db, [&]
 		{
-			return sqlite::sqlite3_create_collation(Db, Name, Encoding, ToPtr(Encoding), Comparer) == SQLITE_OK;
+			auto Context = std::make_unique<collation_context>(Comparer, Encoding);
+
+			if (sqlite::sqlite3_create_collation_v2(Db, Name, Encoding, Context.get(), combined_comparer, context_deleter) != SQLITE_OK)
+				return false;
+
+			Context.release();
+			return true;
 		});
 	};
 
@@ -643,10 +673,10 @@ static void create_combined_collation(sqlite::sqlite3* const Db, const char* con
 
 void SQLiteDb::add_nocase_collation() const
 {
-	create_combined_collation(m_Db.get(), "nocase", combined_comparer<string_sort::keyhole::compare_ordinal_icase>);
+	create_combined_collation(m_Db.get(), "nocase", &string_sort::keyhole::compare_ordinal_icase);
 }
 
 void SQLiteDb::add_numeric_collation() const
 {
-	create_combined_collation(m_Db.get(), "numeric", combined_comparer<string_sort::keyhole::compare_ordinal_numeric>);
+	create_combined_collation(m_Db.get(), "numeric", &string_sort::keyhole::compare_ordinal_numeric);
 }
