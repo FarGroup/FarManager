@@ -636,7 +636,7 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 
 	if (Context->Encoding == SQLITE_UTF16)
 	{
-		return string_sort::detail::ordering_as_int(Context->Comparer(
+		return string_sort::ordering_as_int(Context->Comparer(
 			view<wchar_t>(Data1, Size1),
 			view<wchar_t>(Data2, Size2)
 		));
@@ -645,7 +645,7 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 	encoding::utf8::get_chars(RawView1, Context->CollationCache.Buffer1);
 	encoding::utf8::get_chars(RawView2, Context->CollationCache.Buffer2);
 
-	return string_sort::detail::ordering_as_int(Context->Comparer(
+	return string_sort::ordering_as_int(Context->Comparer(
 		Context->CollationCache.Buffer1,
 		Context->CollationCache.Buffer2
 	));
