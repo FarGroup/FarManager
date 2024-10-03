@@ -2752,10 +2752,6 @@ static int far_SaveScreen(lua_State *L)
 
 	*(void**)lua_newuserdata(L, sizeof(void*)) = GetPluginData(L)->Info->SaveScreen(X1,Y1,X2,Y2);
 	luaL_getmetatable(L, SavedScreenType);
-	lua_pushcfunction(L, far_FreeScreen);
-	lua_setfield(L, -2, "__gc");
-	lua_pushcfunction(L, SavedScreen_tostring);
-	lua_setfield(L, -2, "__tostring");
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -6709,6 +6705,8 @@ static int luaopen_far(lua_State *L)
 	luaL_newmetatable(L, SavedScreenType);
 	lua_pushcfunction(L, far_FreeScreen);
 	lua_setfield(L, -2, "__gc");
+	lua_pushcfunction(L, SavedScreen_tostring);
+	lua_setfield(L, -2, "__tostring");
 
 	return 0;
 }
