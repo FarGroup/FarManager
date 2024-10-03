@@ -2700,6 +2700,16 @@ static int far_GetPluginDirList(lua_State *L)
 	return 1;
 }
 
+static int SavedScreen_tostring (lua_State *L)
+{
+	void **pp = (void**)luaL_checkudata(L, 1, SavedScreenType);
+	if (*pp)
+		lua_pushfstring(L, "%s (%p)", SavedScreenType, *pp);
+	else
+		lua_pushfstring(L, "%s (freed)", SavedScreenType);
+	return 1;
+}
+
 // RestoreScreen (handle)
 //   handle:    handle of saved screen.
 static int far_RestoreScreen(lua_State *L)
@@ -2742,6 +2752,10 @@ static int far_SaveScreen(lua_State *L)
 
 	*(void**)lua_newuserdata(L, sizeof(void*)) = GetPluginData(L)->Info->SaveScreen(X1,Y1,X2,Y2);
 	luaL_getmetatable(L, SavedScreenType);
+	lua_pushcfunction(L, far_FreeScreen);
+	lua_setfield(L, -2, "__gc");
+	lua_pushcfunction(L, SavedScreen_tostring);
+	lua_setfield(L, -2, "__tostring");
 	lua_setmetatable(L, -2);
 	return 1;
 }

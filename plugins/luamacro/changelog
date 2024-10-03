@@ -1,3 +1,7 @@
+shmuel 2024-10-03 22:41:21+03:00 - build 851
+
+1. LuaFAR: refactoring.
+
 drkns 2024-09-24 16:09:16+01:00 - build 850
 
 1. Initialize all fields in user controls.
