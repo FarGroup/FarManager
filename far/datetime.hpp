@@ -48,22 +48,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 using time_component = unsigned int;
-constexpr auto time_none = std::numeric_limits<time_component>::max();
 
-struct detailed_time_point
+constexpr inline struct
 {
-	unsigned
-		Year,
-		Month,
-		Day,
-		Hour,
-		Minute,
-		Second,
-		Hectonanosecond;
-};
+	operator uint8_t() const { return static_cast<uint8_t>(time_none); }
+	operator uint16_t() const { return static_cast<uint16_t>(time_none); }
+	operator uint32_t() const { return time_none; }
 
-detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat);
+private:
+	enum { time_none = std::numeric_limits<time_component>::max() };
 
+}
+time_none;
+
+constexpr bool is_time_none(auto const Component)
+{
+	return Component == static_cast<decltype(Component)>(time_none);
+}
+
+os::chrono::time parse_time(string_view Date, string_view Time, int DateFormat);
 os::chrono::time_point ParseTimePoint(string_view Date, string_view Time, int DateFormat);
 os::chrono::duration ParseDuration(string_view Date, string_view Time);
 
@@ -107,7 +110,7 @@ private:
 };
 
 // { "YYYY-MM-DD", "hh:mm:ss.sss" }, ISO 8601-like
-std::pair<string, string> format_datetime(SYSTEMTIME const& SystemTime);
+std::pair<string, string> format_datetime(os::chrono::time Time);
 
 std::chrono::milliseconds till_next_second();
 std::chrono::milliseconds till_next_minute();

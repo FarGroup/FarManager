@@ -296,13 +296,13 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					}
 				}
 
-				SYSTEMTIME SavedTime;
+				os::chrono::local_time SavedTime;
 				utc_to_local(i.Time, SavedTime);
-				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
+				if(LastDay != SavedTime.Day || LastMonth != SavedTime.Month || LastYear != SavedTime.Year)
 				{
-					LastDay = SavedTime.wDay;
-					LastMonth = SavedTime.wMonth;
-					LastYear = SavedTime.wYear;
+					LastDay = SavedTime.Day;
+					LastMonth = SavedTime.Month;
+					LastYear = SavedTime.Year;
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string Time;

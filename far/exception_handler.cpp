@@ -464,7 +464,7 @@ static string self_version()
 	return ScmRevision.empty()? Version : Version + far::format(L" ({:.7})"sv, ScmRevision);
 }
 
-static string timestamp(SYSTEMTIME const& SystemTime)
+static string timestamp(os::chrono::time const SystemTime)
 {
 	const auto [Date, Time] = format_datetime(SystemTime);
 	return concat(Date, L' ', Time);
@@ -472,15 +472,14 @@ static string timestamp(SYSTEMTIME const& SystemTime)
 
 static string timestamp(os::chrono::time_point const Point)
 {
-	const auto FileTime = os::chrono::nt_clock::to_filetime(Point);
-	SYSTEMTIME SystemTime{};
-	if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+	os::chrono::utc_time UtcTime;
+	if (!timepoint_to_utc_time(Point, UtcTime))
 	{
 		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
 		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
 	}
 
-	return timestamp(SystemTime);
+	return timestamp(UtcTime);
 }
 
 static string pe_timestamp()
@@ -513,7 +512,7 @@ static string system_timestamp()
 
 static string local_timestamp()
 {
-	SYSTEMTIME LocalTime;
+	os::chrono::local_time LocalTime;
 	if (!os::chrono::utc_to_local(os::chrono::nt_clock::now(), LocalTime))
 		return {};
 

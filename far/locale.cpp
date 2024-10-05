@@ -122,37 +122,34 @@ static auto get_date_separator()
 {
 	const auto KnownSeparators = L"/-."sv;
 
-	string Value;
-	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
+	if (string Value; os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
 	{
-		size_t pos = 0;
+		size_t StartPos = 0;
 		const auto Weekday = L"ddd"sv;
 		const auto dMyg = L"dMyg"sv;
 
 		// Skip day of week, if any
 		if (Value.starts_with(Weekday))
 		{
-			pos = Value.find_first_not_of(L'd', Weekday.size());
+			StartPos = Value.find_first_not_of(L'd', Weekday.size());
 			// skip separators
-			pos = Value.find_first_of(dMyg, pos);
+			StartPos = Value.find_first_of(dMyg, StartPos);
 		}
 
 		// Find a preferable separator
-		pos = Value.find_first_of(KnownSeparators);
-		if (pos != Value.npos)
-			return Value[pos];
+		if (const auto SeparatorPos = Value.find_first_of(KnownSeparators, StartPos); SeparatorPos != Value.npos)
+			return Value[SeparatorPos];
 
 		// Find any other separator
-		pos = Value.find_first_not_of(dMyg, pos);
-		if (pos != Value.npos)
-			return Value[pos];
+		if (const auto SeparatorPos = Value.find_first_not_of(dMyg, StartPos); SeparatorPos != Value.npos)
+			return Value[SeparatorPos];
 	}
 	else
 	{
 		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {}"sv, os::last_error());
 	}
 
-	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value))
+	if (string Value; os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value))
 	{
 		return Value.empty()? KnownSeparators.front() : Value.front();
 	}

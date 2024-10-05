@@ -86,11 +86,49 @@ namespace os::chrono
 	using duration = nt_clock::duration;
 	using time_point = nt_clock::time_point;
 
-	SYSTEMTIME now_utc();
-	SYSTEMTIME now_local();
+	struct time
+	{
+		uint16_t Year;                 // 1601 - 30827
+		uint8_t Month;                 // 1 - 12
+		uint8_t Day;                   // 1 - 31
+		uint8_t Hours;                 // 0 - 23
+		uint8_t Minutes;               // 0 - 59
+		uint8_t Seconds;               // 0 - 59
+		uint32_t Hectonanoseconds;     // 0 - 9999999
 
-	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime);
-	bool local_to_utc(const SYSTEMTIME& LocalTime, time_point& UtcTime);
+		bool operator==(time const&) const = default;
+	};
+
+	namespace detail
+	{
+		template<typename tag>
+		struct typed_time: time
+		{
+			typed_time() = default;
+
+			explicit typed_time(time const Time):
+				time(Time)
+			{
+			}
+
+			template<typename other_tag> requires (!std::same_as<tag, other_tag>)
+			explicit typed_time(typed_time<other_tag>) = delete;
+		};
+
+		struct utc_tag{};
+		struct local_tag{};
+	}
+
+	using utc_time = detail::typed_time<detail::utc_tag>;
+	using local_time = detail::typed_time<detail::local_tag>;
+
+	utc_time now_utc();
+	local_time now_local();
+
+	bool timepoint_to_utc_time(time_point TimePoint, utc_time& UtcTime);
+
+	bool utc_to_local(time_point UtcTime, local_time& LocalTime);
+	bool local_to_utc(local_time LocalTime, time_point& UtcTime);
 
 	// Q: WTF is this, it's in the standard!
 	// A: MSVC implemented it in terms of sleep_until, which is mental

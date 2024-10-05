@@ -589,37 +589,27 @@ static bool construct_time(
 	string_view const OSrcDate,
 	string_view const OSrcTime)
 {
-	SYSTEMTIME ost;
-	if (!utc_to_local(OriginalFileTime, ost))
+	os::chrono::local_time OriginalLocalTime;
+	if (!utc_to_local(OriginalFileTime, OriginalLocalTime))
 		return false;
 
-	const auto Point = parse_detailed_time_point(OSrcDate, OSrcTime, static_cast<int>(locale.date_format()));
+	os::chrono::local_time LocalTime{ parse_time(OSrcDate, OSrcTime, static_cast<int>(locale.date_format())) };
 
-	SYSTEMTIME st{};
-
-	const auto set_or_inherit = [&](WORD SYSTEMTIME::* const Field, time_component const New)
+	const auto inherit = [&](auto Getter)
 	{
-		std::invoke(Field, st) = New != time_none? New : std::invoke(Field, ost);
+		if (auto& Value = std::invoke(Getter, LocalTime); is_time_none(Value))
+			 Value = std::invoke(Getter, OriginalLocalTime);
 	};
 
-	const auto Milliseconds = Point.Hectonanosecond == time_none? time_none : os::chrono::hectonanoseconds(Point.Hectonanosecond) / 1ms;
+	inherit(&os::chrono::local_time::Year);
+	inherit(&os::chrono::local_time::Month);
+	inherit(&os::chrono::local_time::Day);
+	inherit(&os::chrono::local_time::Hours);
+	inherit(&os::chrono::local_time::Minutes);
+	inherit(&os::chrono::local_time::Seconds);
+	inherit(&os::chrono::local_time::Hectonanoseconds);
 
-	set_or_inherit(&SYSTEMTIME::wYear,         Point.Year);
-	set_or_inherit(&SYSTEMTIME::wMonth,        Point.Month);
-	set_or_inherit(&SYSTEMTIME::wDay,          Point.Day);
-	set_or_inherit(&SYSTEMTIME::wHour,         Point.Hour);
-	set_or_inherit(&SYSTEMTIME::wMinute,       Point.Minute);
-	set_or_inherit(&SYSTEMTIME::wSecond,       Point.Second);
-	set_or_inherit(&SYSTEMTIME::wMilliseconds, Milliseconds);
-
-	if (!local_to_utc(st, FileTime))
-		return false;
-
-	FileTime += (Point.Hectonanosecond != time_none?
-		os::chrono::hectonanoseconds(Point.Hectonanosecond) :
-		OriginalFileTime.time_since_epoch()) % 1ms;
-
-	return true;
+	return local_to_utc(LocalTime, FileTime);
 }
 
 struct state

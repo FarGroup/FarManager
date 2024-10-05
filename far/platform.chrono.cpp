@@ -103,31 +103,100 @@ namespace os::chrono
 		return Duration / 1_hns;
 	}
 
-	SYSTEMTIME now_utc()
+	static time make_time(SYSTEMTIME const Time)
 	{
+		return
+		{
+			.Year = static_cast<uint16_t>(Time.wYear),
+			.Month = static_cast<uint8_t>(Time.wMonth),
+			.Day = static_cast<uint8_t>(Time.wDay),
+			.Hours = static_cast<uint8_t>(Time.wHour),
+			.Minutes = static_cast<uint8_t>(Time.wMinute),
+			.Seconds = static_cast<uint8_t>(Time.wSecond),
+			.Hectonanoseconds = static_cast<uint32_t>(Time.wMilliseconds * (1ms / 1_hns)),
+		};
+	}
+
+	static SYSTEMTIME make_system_time(time const Time)
+	{
+		return
+		{
+			.wYear = Time.Year,
+			.wMonth = Time.Month,
+			.wDay = Time.Day,
+			.wHour = Time.Hours,
+			.wMinute = Time.Minutes,
+			.wSecond = Time.Seconds,
+			.wMilliseconds = static_cast<WORD>(Time.Hectonanoseconds / (1ms / 1_hns)),
+		};
+	}
+
+	utc_time now_utc()
+	{
+		// hns precision
+		if (utc_time UtcTime; timepoint_to_utc_time(nt_clock::now(), UtcTime))
+			return UtcTime;
+
+		// ms precision
 		SYSTEMTIME SystemTime{};
 		GetSystemTime(&SystemTime);
-		return SystemTime;
+		return utc_time{ make_time(SystemTime) };
 	}
 
-	SYSTEMTIME now_local()
+	local_time now_local()
 	{
+		// hns precision
+		if (local_time LocalTime; utc_to_local(nt_clock::now(), LocalTime))
+			return LocalTime;
 
+		// ms precision
 		SYSTEMTIME LocalTime;
 		GetLocalTime(&LocalTime);
-		return LocalTime;
+		return local_time{ make_time(LocalTime) };
 	}
 
-	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime)
+	bool timepoint_to_utc_time(time_point const TimePoint, utc_time& UtcTime)
+	{
+		const auto FileTime = nt_clock::to_filetime(TimePoint);
+
+		SYSTEMTIME SystemTime;
+		if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+			return false;
+
+		UtcTime = utc_time{ make_time(SystemTime) };
+
+		UtcTime.Hectonanoseconds += TimePoint.time_since_epoch() % 1ms / 1_hns;
+
+		return true;
+	}
+
+	static bool utc_to_local_impl(SYSTEMTIME const& UtcTime, SYSTEMTIME& LocalTime)
+	{
+		return SystemTimeToTzSpecificLocalTime({}, &UtcTime, &LocalTime) != FALSE;
+	}
+
+	bool utc_to_local(time_point UtcTime, local_time& LocalTime)
 	{
 		const auto FileTime = nt_clock::to_filetime(UtcTime);
+
 		SYSTEMTIME SystemTime;
-		return FileTimeToSystemTime(&FileTime, &SystemTime) && SystemTimeToTzSpecificLocalTime(nullptr, &SystemTime, &LocalTime);
+		if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+			return false;
+
+		SYSTEMTIME LocalSystemTime;
+		if (!utc_to_local_impl(SystemTime, LocalSystemTime))
+			return false;
+
+		LocalTime = local_time{ make_time(LocalSystemTime) };
+
+		LocalTime.Hectonanoseconds += UtcTime.time_since_epoch() % 1ms / 1_hns;
+
+		return true;
 	}
 
-	static bool local_to_utc(const SYSTEMTIME& lst, SYSTEMTIME& ust)
+	static bool local_to_utc_impl(SYSTEMTIME const& LocalTime, SYSTEMTIME& UtcTime)
 	{
-		if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust))
+		if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime(nullptr, &LocalTime, &UtcTime))
 			return true;
 
 		TIME_ZONE_INFORMATION Tz;
@@ -136,19 +205,19 @@ namespace os::chrono
 			Tz.Bias = -Tz.Bias;
 			Tz.StandardBias = -Tz.StandardBias;
 			Tz.DaylightBias = -Tz.DaylightBias;
-			if (SystemTimeToTzSpecificLocalTime(&Tz, &lst, &ust))
+			if (SystemTimeToTzSpecificLocalTime(&Tz, &LocalTime, &UtcTime))
 				return true;
 		}
 
 		std::tm ltm
 		{
-			lst.wSecond,
-			lst.wMinute,
-			lst.wHour,
-			lst.wDay,
-			lst.wMonth - 1,
-			lst.wYear - 1900,
-			lst.wDayOfWeek,
+			LocalTime.wSecond,
+			LocalTime.wMinute,
+			LocalTime.wHour,
+			LocalTime.wDay,
+			LocalTime.wMonth - 1,
+			LocalTime.wYear - 1900,
+			LocalTime.wDayOfWeek,
 			-1,
 			-1
 		};
@@ -157,26 +226,26 @@ namespace os::chrono
 		{
 			if (const auto ptm = std::gmtime(&gtim))
 			{
-				ust.wYear = ptm->tm_year + 1900;
-				ust.wMonth = ptm->tm_mon + 1;
-				ust.wDay = ptm->tm_mday;
-				ust.wHour = ptm->tm_hour;
-				ust.wMinute = ptm->tm_min;
-				ust.wSecond = ptm->tm_sec;
-				ust.wDayOfWeek = ptm->tm_wday;
-				ust.wMilliseconds = lst.wMilliseconds;
+				UtcTime.wYear = ptm->tm_year + 1900;
+				UtcTime.wMonth = ptm->tm_mon + 1;
+				UtcTime.wDay = ptm->tm_mday;
+				UtcTime.wHour = ptm->tm_hour;
+				UtcTime.wMinute = ptm->tm_min;
+				UtcTime.wSecond = ptm->tm_sec;
+				UtcTime.wDayOfWeek = ptm->tm_wday;
+				UtcTime.wMilliseconds = LocalTime.wMilliseconds;
 				return true;
 			}
 		}
 
-		FILETIME lft, uft;
-		return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
+		FILETIME LocalFileTime, UtcFileTime;
+		return SystemTimeToFileTime(&LocalTime, &LocalFileTime) && LocalFileTimeToFileTime(&LocalFileTime, &UtcFileTime) && FileTimeToSystemTime(&UtcFileTime, &UtcTime);
 	}
 
-	bool local_to_utc(const SYSTEMTIME& LocalTime, time_point& UtcTime)
+	bool local_to_utc(local_time const LocalTime, time_point& UtcTime)
 	{
 		SYSTEMTIME SystemUtcTime;
-		if (!local_to_utc(LocalTime, SystemUtcTime))
+		if (!local_to_utc_impl(make_system_time(LocalTime), SystemUtcTime))
 			return false;
 
 		FILETIME FileUtcTime;
@@ -184,6 +253,7 @@ namespace os::chrono
 			return false;
 
 		UtcTime = nt_clock::from_filetime(FileUtcTime);
+		UtcTime += LocalTime.Hectonanoseconds % 1000 * 1_hns;
 		return true;
 	}
 
@@ -204,7 +274,7 @@ namespace os::chrono
 
 	string wall_time(time_point const Time)
 	{
-		SYSTEMTIME LocalTime;
+		local_time LocalTime;
 		if (!utc_to_local(Time, LocalTime))
 		{
 			return {};
@@ -214,7 +284,8 @@ namespace os::chrono
 		// BUGBUG check result
 		(void)os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](std::span<wchar_t> Buffer)
 		{
-			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, &LocalTime, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
+			const auto LocalSystemTime = make_system_time(LocalTime);
+			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, &LocalSystemTime, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
 			return ReturnedSize? ReturnedSize - 1 : 0;
 		});
 		return Value;
