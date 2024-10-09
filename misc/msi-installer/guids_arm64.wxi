@@ -575,10 +575,9 @@
 <?define Guid.lm_pol.lng = "8D96ED24-5D9E-4727-B0F1-A1E45C4B7C92" ?>
 <?define Guid.luamacro.example.ini = "C68D05A2-A7D3-4E7F-9FC3-3E2ABD176A24" ?>
 <?define Guid.lua51.dll = "9989AAA6-DDA2-47D0-A022-08C792D5D53D" ?>
- 
-<?define Guid.lpeg.dll = "260CD73D-3211-453B-A8DA-CB1A0697B69A" ?>
 <?define Guid.luafar3.dll = "DEB2BE08-4961-4657-B9C5-672B32FC4E9E" ?>
 <?define Guid.luafar3.map = "968DB915-1A89-4409-ABC5-05B4C5394889" ?>
+
 <?define Guid.DlgBuilder.hpp = "97E9F467-D07C-4953-B6A5-4C953FA3F1DC" ?>
 <?define Guid.farcolor.hpp = "E2422E03-0F25-4D52-B46C-A88CD6499117" ?>
 <?define Guid.plugin.hpp = "FCD81F8A-330F-4242-89C0-4ABD803A4357" ?>
