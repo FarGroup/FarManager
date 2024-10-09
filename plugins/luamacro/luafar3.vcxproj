@@ -60,6 +60,12 @@
     <ClCompile Include="luafar\ustring.c" />
     <ClCompile Include="luafar\util.c" />
     <ClCompile Include="luafar\win.c" />
+    <ClCompile Include="luafar\LPeg\lpcap.c" />
+    <ClCompile Include="luafar\LPeg\lpcode.c" />
+    <ClCompile Include="luafar\LPeg\lpcset.c" />
+    <ClCompile Include="luafar\LPeg\lpprint.c" />
+    <ClCompile Include="luafar\LPeg\lptree.c" />
+    <ClCompile Include="luafar\LPeg\lpvm.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="luafar\luafar.h" />
@@ -68,6 +74,13 @@
     <ClInclude Include="luafar\ustring.h" />
     <ClInclude Include="luafar\util.h" />
     <ClInclude Include="luafar\version.h" />
+    <ClInclude Include="luafar\LPeg\lpcap.h" />
+    <ClInclude Include="luafar\LPeg\lpcode.h" />
+    <ClInclude Include="luafar\LPeg\lpcset.h" />
+    <ClInclude Include="luafar\LPeg\lpprint.h" />
+    <ClInclude Include="luafar\LPeg\lptree.h" />
+    <ClInclude Include="luafar\LPeg\lptypes.h" />
+    <ClInclude Include="luafar\LPeg\lpvm.h" />
     <ClInclude Include="luasdk\include\lauxlib.h" />
     <ClInclude Include="luasdk\include\lua.h" />
     <ClInclude Include="luasdk\include\lualib.h" />
