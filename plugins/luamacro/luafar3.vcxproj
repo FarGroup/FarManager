@@ -87,7 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\$(DirBit)\$(LuaLib).dll" />
-    <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\$(DirBit)\lpeg.dll" />
     <CopyFileToFolders Include="luasdk\$(VersionLuaSDK)\32\legacy\$(LuaLib).dll">
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32'">true</ExcludedFromBuild>
     </CopyFileToFolders>
