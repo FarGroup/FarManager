@@ -11593,6 +11593,19 @@ mtime=3887368189
 </article>
 </node>
 <node>
+id=593
+lv=1
+dt=Text
+nm=lpeg
+ctime=3937670947
+mtime=3937670954
+<article>
+#_<markdown>
+#_See the documentation [here](https://www.inf.puc-rio.br/~roberto/lpeg/).
+#_
+</article>
+</node>
+<node>
 id=524
 lv=0
 dt=Text
@@ -12833,6 +12846,43 @@ mtime=3776336416
 #_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #_SOFTWARE.
+</article>
+</node>
+<node>
+id=592
+lv=1
+dt=Text
+nm=LPeg
+ctime=3937670870
+mtime=3937670904
+<article>
+#_Home page: https://www.inf.puc-rio.br/~roberto/lpeg/
+#_
+#_License
+#_
+#_Copyright © 2007-2023 Lua.org, PUC-Rio.
+#_
+#_Permission is hereby granted, free of charge, to any person
+#_obtaining a copy of this software and associated documentation
+#_files (the "Software"), to deal in the Software without
+#_restriction, including without limitation the rights to use,
+#_copy, modify, merge, publish, distribute, sublicense, and/or
+#_sell copies of the Software, and to permit persons to whom the
+#_Software is furnished to do so, subject to the following
+#_conditions:
+#_
+#_The above copyright notice and this permission notice shall be
+#_included in all copies or substantial portions of the Software.
+#_
+#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#_EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+#_OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#_NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#_HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#_WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+#_FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+#_OTHER DEALINGS IN THE SOFTWARE.
+#_
 </article>
 </node>
 <node>

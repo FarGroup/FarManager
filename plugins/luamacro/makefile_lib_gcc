@@ -26,6 +26,12 @@ SRCS = \
 	luafar/ustring.c \
 	luafar/util.c \
 	luafar/win.c \
+	luafar/LPeg/lpcap.c \
+	luafar/LPeg/lpcode.c \
+	luafar/LPeg/lpcset.c \
+	luafar/LPeg/lpprint.c \
+	luafar/LPeg/lptree.c \
+	luafar/LPeg/lpvm.c \
 
 USERLIBS = \
 	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib \
@@ -68,7 +74,6 @@ include ../makefile_gcc_def_inc
 
 DOCS = \
 	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll \
-	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lpeg.dll \
 
 include ../makefile_gcc_target_inc
 
@@ -82,7 +87,6 @@ luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/
 
 $(LUA): luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
 luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib: luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
-luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lpeg.dll: luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll
 luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.dll:
 	@echo Downloading 7-Zip binaries
 	curl -o luasdk/LuaSDK-$(VERSION_LUASDK).zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip && unzip luasdk/LuaSDK-$(VERSION_LUASDK).zip -d luasdk/$(VERSION_LUASDK)

@@ -33,6 +33,7 @@ extern int luaopen_unicode(lua_State *L);
 extern int luaopen_utf8(lua_State *L);
 extern int luaopen_upackage(lua_State *L);
 extern int luaopen_win(lua_State *L);
+extern int luaopen_lpeg(lua_State *L);
 
 extern int  luaB_dofileW(lua_State *L);
 extern int  luaB_loadfileW(lua_State *L);
@@ -6755,6 +6756,7 @@ static const luaL_Reg lualibs[] =
 	{"unicode",       luaopen_unicode},
 	{"utf8",          luaopen_utf8},
 	{"win",           luaopen_win},
+	{"lpeg",          luaopen_lpeg},
 	{NULL, NULL}
 };
 
@@ -6845,6 +6847,7 @@ static const luaL_Reg lualibs_extra[] =
 	{"unicode",       luaopen_unicode},
 	{"utf8",          luaopen_utf8},
 	{"win",           luaopen_win},
+	{"lpeg",          luaopen_lpeg},
 	{NULL, NULL}
 };
 

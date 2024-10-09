@@ -1,3 +1,7 @@
+shmuel 2024-10-09 17:41:49+03:00 - build 853
+
+1. Lpeg is now part of LuaFAR (no need for lpeg.dll).
+
 shmuel 2024-10-03 22:53:54+03:00 - build 852
 
 1. LuaFAR: refactoring.

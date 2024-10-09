@@ -14,7 +14,6 @@ DEF_NAME=
 
 DOCS = \
 	luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll \
-	luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll \
 
 LINK_OBJS = \
 $(INTDIR)\bit64.obj \
@@ -35,6 +34,12 @@ $(INTDIR)\uloadlib51.obj \
 $(INTDIR)\ustring.obj \
 $(INTDIR)\util.obj \
 $(INTDIR)\win.obj \
+$(INTDIR)\lptree.obj \
+$(INTDIR)\lpcap.obj \
+$(INTDIR)\lpcode.obj \
+$(INTDIR)\lpcset.obj \
+$(INTDIR)\lpprint.obj \
+$(INTDIR)\lpvm.obj \
 
 LINK_LIBS=$(LINK_LIBS) luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib
 
@@ -52,6 +57,16 @@ $(LINK_OBJS): luafar\flags.c luafar\keysandcolors.c
 	@$(CC) $(CPPFLAGS) { $< }
 !endif
 
+!ifndef __MAKE__
+{luafar\LPeg}.c{$(INTDIR)}.obj::
+	$(CC) @<<
+	$(CPPFLAGS) $<
+<<
+!else
+{luafar\LPeg}.c{$(INTDIR)}.obj:
+	@$(CC) $(CPPFLAGS) { $< }
+!endif
+
 luafar\flags.c: $(COMINC)\plugin.hpp luafar\makeflags.lua luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 	@echo generating flags.c
 	@$(LUA) luafar\makeflags.lua $(COMINC)\plugin.hpp > luafar\flags.c
@@ -65,7 +80,6 @@ POWERSHELL=powershell
 !endif
 $(LUA): luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.lib: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
-luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lpeg.dll: luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll
 luasdk\$(VERSION_LUASDK)\$(BITPREFIX)$(DIRBIT)\lua51.dll:
 	@echo Downloading Lua binaries
 	$(POWERSHELL) -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-$(VERSION_LUASDK).zip' -OutFile 'luasdk\LuaSDK-$(VERSION_LUASDK).zip'; Expand-Archive luasdk\LuaSDK-$(VERSION_LUASDK).zip -DestinationPath luasdk\$(VERSION_LUASDK)
