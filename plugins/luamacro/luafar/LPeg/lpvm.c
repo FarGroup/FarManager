@@ -381,7 +381,7 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
           ndyncap -= removedyncap(L, capture, stack->caplevel, captop);
         captop = stack->caplevel;
         p = stack->p;
-#if defined(DEBUG)
+#if defined(LPEG_DEBUG)
         printf("**FAIL**\n");
 #endif
         continue;
