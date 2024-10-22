@@ -280,7 +280,7 @@ private:
 	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
-	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);
+	bool ProcessKeyInternal(unsigned KeyCode, bool& Refresh, Manager::Key const* RealKey = {});
 
 	enum class SearchReplaceDisposition;
 	SearchReplaceDisposition ShowSearchReplaceDialog(bool ReplaceMode);
