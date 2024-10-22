@@ -126,6 +126,9 @@ namespace os::security
 		const block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
 		NewState->PrivilegeCount = 0;
 
+		std::vector<size_t> NameIndices;
+		NameIndices.reserve(Names.size());
+
 		for (const auto& i: Names)
 		{
 			const auto& Luid = lookup_privilege_value(i);
@@ -133,6 +136,7 @@ namespace os::security
 				continue;
 
 			NewState->Privileges[NewState->PrivilegeCount++] = { *Luid, SE_PRIVILEGE_ENABLED };
+			NameIndices.emplace_back(&i - Names.data());
 		}
 
 		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
@@ -145,9 +149,26 @@ namespace os::security
 		DWORD ReturnLength;
 		m_SavedState.reset(NewState.size());
 		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
+		const auto LastError = last_error();
+		if (LastError.Win32Error == ERROR_SUCCESS)
+			return;
 
-		if (m_SavedState->PrivilegeCount != NewState->PrivilegeCount)
-			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, last_error());
+		LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, LastError);
+
+		if (LastError.Win32Error != ERROR_NOT_ALL_ASSIGNED)
+			return;
+
+		std::span const
+			Privileges(NewState->Privileges, NewState->PrivilegeCount),
+			Changed(m_SavedState->Privileges, m_SavedState->PrivilegeCount);
+
+		for (const auto& i: Privileges)
+		{
+			if (std::ranges::find(Changed, i.Luid, &LUID_AND_ATTRIBUTES::Luid) == Changed.cend())
+			{
+				LOGWARNING(L"{} not enabled"sv, Names[NameIndices[&i - Privileges.data()]]);
+			}
+		}
 	}
 
 	privilege::~privilege()
@@ -164,8 +185,10 @@ namespace os::security
 
 		SCOPED_ACTION(os::last_error_guard);
 
-		if (!AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr))
-			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, last_error());
+		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, {}, {});
+		if (const auto LastError = last_error(); LastError.Win32Error != ERROR_SUCCESS)
+			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, LastError);
+
 	}
 
 	static auto get_token_privileges(HANDLE TokenHandle)
