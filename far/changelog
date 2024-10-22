@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-10-22 02:30:00+01:00 - build 6381
+
+1. Drop redundant (and expensive) conversions.
+
+2. Improve logging.
+
+3. Warnings.
+
+--------------------------------------------------------------------------------
 shmuel 2024-10-09 07:18:28+03:00 - build 6380
 
 1. Change KeyMacros.CONVFMT from .6g to .14g to be consistent with Lua.
