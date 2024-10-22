@@ -164,7 +164,7 @@ namespace os::security
 
 		for (const auto& i: Privileges)
 		{
-			if (std::ranges::find(Changed, i.Luid, &LUID_AND_ATTRIBUTES::Luid) == Changed.cend())
+			if (std::ranges::find(Changed, i.Luid, &LUID_AND_ATTRIBUTES::Luid) == Changed.end())
 			{
 				LOGWARNING(L"{} not enabled"sv, Names[NameIndices[&i - Privileges.data()]]);
 			}
