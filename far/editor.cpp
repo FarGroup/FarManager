@@ -2556,7 +2556,7 @@ bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::
 				//AY: Это что бы при FastShow LeftPos не становился в конец строки.
 				m_it_CurLine->SetRightCoord(XX2);
 
-				if (m_it_CurLine->ProcessKey(RealKey? *RealKey : Manager::Key(LocalKey)))
+				if (m_it_CurLine->ProcessKey(LocalKey == KeyCode && RealKey? *RealKey : Manager::Key(LocalKey)))
 				{
 					intptr_t CurSelStart, CurSelEnd;
 
