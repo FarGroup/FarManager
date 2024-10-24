@@ -448,18 +448,27 @@ static bool connect_pipe_to_process(const os::handle& Process, const os::handle&
 	os::event const AEvent(os::event::type::automatic, os::event::state::nonsignaled);
 	OVERLAPPED Overlapped;
 	AEvent.associate(Overlapped);
-	if (!ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
+	if (ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
+		return true;
+
+	switch (const auto LastError = os::last_error(); LastError.Win32Error)
 	{
-		const auto LastError = GetLastError();
-		if (LastError != ERROR_IO_PENDING && LastError != ERROR_PIPE_CONNECTED)
-			return false;
-	}
+	case ERROR_PIPE_CONNECTED:
+		return true;
 
-	if (const auto Result = os::handle::wait_any({ AEvent.native_handle(), Process.native_handle() }, 15s); !Result || *Result == 1)
+	case ERROR_IO_PENDING:
+		{
+			if (const auto Result = os::handle::wait_any({ AEvent.native_handle(), Process.native_handle() }, 15s); !Result || *Result == 1)
+				CancelIo(Pipe.native_handle());
+
+			DWORD NumberOfBytesTransferred;
+			return GetOverlappedResult(Pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, TRUE) != FALSE;
+		}
+
+	default:
+		LOGWARNING(L"ConnectNamedPipe(): {}"sv, LastError);
 		return false;
-
-	DWORD NumberOfBytesTransferred;
-	return GetOverlappedResult(Pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE) != FALSE;
+	}
 }
 
 void elevation::TerminateChildProcess() const
