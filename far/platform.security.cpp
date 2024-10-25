@@ -185,33 +185,6 @@ namespace os::security
 		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, {}, {});
 		if (const auto LastError = last_error(); LastError.Win32Error != ERROR_SUCCESS)
 			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, LastError);
-
-	}
-
-	static auto get_token_privileges(HANDLE TokenHandle)
-	{
-		block_ptr<TOKEN_PRIVILEGES> Result(1024);
-
-		if (!os::detail::ApiDynamicReceiver(Result.bytes(),
-			[&](std::span<std::byte> const Buffer)
-			{
-				DWORD LengthNeeded = 0;
-				if (!GetTokenInformation(TokenHandle, TokenPrivileges, static_cast<TOKEN_PRIVILEGES*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
-					return static_cast<size_t>(LengthNeeded);
-				return Buffer.size();
-			},
-			[](size_t ReturnedSize, size_t AllocatedSize)
-			{
-				return ReturnedSize > AllocatedSize;
-			},
-			[](std::span<std::byte const>)
-			{}
-		))
-		{
-			Result.reset();
-		}
-
-		return Result;
 	}
 
 	bool privilege::check(std::span<const wchar_t* const> const Names)
@@ -220,23 +193,26 @@ namespace os::security
 		if (!Token)
 			return false;
 
-		const auto TokenPrivileges = get_token_privileges(Token.native_handle());
-		if (!TokenPrivileges)
-		{
-			LOGWARNING(L"get_token_privileges: {}"sv, last_error());
-			return false;
-		}
+		const block_ptr<PRIVILEGE_SET> PrivilegeSet(sizeof(PRIVILEGE_SET) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
+		PrivilegeSet->PrivilegeCount = 0;
+		PrivilegeSet->Control = PRIVILEGE_SET_ALL_NECESSARY;
 
-		const std::span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
-
-		return std::ranges::all_of(Names, [&](const wchar_t* const Name)
+		for (const auto& i: Names)
 		{
-			const auto& Luid = lookup_privilege_value(Name);
+			const auto& Luid = lookup_privilege_value(i);
 			if (!Luid)
 				return false;
 
-			const auto ItemIterator = std::ranges::find(Privileges, *Luid, &LUID_AND_ATTRIBUTES::Luid);
-			return ItemIterator != Privileges.end() && ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT);
-		});
+			PrivilegeSet->Privilege[PrivilegeSet->PrivilegeCount++] = { *Luid };
+		}
+
+		BOOL Result;
+		if (!PrivilegeCheck(Token.native_handle(), PrivilegeSet.data(), &Result))
+		{
+			LOGWARNING(L"PrivilegeCheck(): {}"sv, os::last_error());
+			return false;
+		}
+
+		return Result != FALSE;
 	}
 }
