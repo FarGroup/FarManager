@@ -113,7 +113,10 @@ namespace os::security
 	{
 		HANDLE Handle;
 		if (!OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle))
+		{
+			LOGWARNING(L"open_current_process_token({}): {}"sv, DesiredAccess, last_error());
 			return {};
+		}
 
 		return handle(Handle);
 	}
@@ -141,10 +144,7 @@ namespace os::security
 
 		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
-		{
-			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return;
-		}
 
 		DWORD ReturnLength;
 		m_SavedState.reset(NewState.size());
@@ -178,10 +178,7 @@ namespace os::security
 
 		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
-		{
-			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return;
-		}
 
 		SCOPED_ACTION(os::last_error_guard);
 
@@ -221,10 +218,7 @@ namespace os::security
 	{
 		const auto Token = open_current_process_token(TOKEN_QUERY);
 		if (!Token)
-		{
-			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return false;
-		}
 
 		const auto TokenPrivileges = get_token_privileges(Token.native_handle());
 		if (!TokenPrivileges)
