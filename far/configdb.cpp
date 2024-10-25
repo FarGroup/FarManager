@@ -1784,7 +1784,7 @@ public:
 	}
 
 private:
-	os::event StopEvent{os::event::type::automatic, os::event::state::nonsignaled};
+	os::event StopEvent{os::event::type::manual, os::event::state::nonsignaled};
 	os::event AsyncDeleteAddDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncCommitDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncWork{os::event::type::automatic, os::event::state::nonsignaled};

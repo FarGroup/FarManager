@@ -208,6 +208,8 @@ FileSystemWatcher::~FileSystemWatcher()
 
 void FileSystemWatcher::read_async() const
 {
+	m_Event.reset();
+
 	if (!ReadDirectoryChangesW(
 		m_DirectoryHandle.native_handle(),
 		&Buffer,

@@ -445,7 +445,7 @@ static os::handle create_elevated_process(const string& Parameters)
 
 static bool connect_pipe_to_process(const os::handle& Process, const os::handle& Pipe)
 {
-	os::event const AEvent(os::event::type::automatic, os::event::state::nonsignaled);
+	os::event const AEvent(os::event::type::manual, os::event::state::nonsignaled);
 	OVERLAPPED Overlapped;
 	AEvent.associate(Overlapped);
 	if (ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
@@ -653,7 +653,7 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 
 		if(!Global->IsMainThread())
 		{
-			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
+			os::event SyncEvent(os::event::type::manual, os::event::state::nonsignaled);
 			listener const Listener(listener::scope{L"Elevation"sv}, [&SyncEvent](const std::any& Payload)
 			{
 				ElevationApproveDlgSync(*std::any_cast<EAData*>(Payload));

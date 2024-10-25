@@ -333,7 +333,7 @@ TEMPLATE_TEST_CASE("platform.concurrency.locking", "", os::critical_section, os:
 	std::atomic_int Cookie;
 	TestType Lock1, Lock2;
 
-	os::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+	os::event const Event(os::event::type::manual, os::event::state::nonsignaled);
 	os::thread const Thread(
 		[&]
 		{

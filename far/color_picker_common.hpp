@@ -219,7 +219,7 @@ namespace color_picker_common
 			const auto Delay = 250ms / (Cube.Cube.size() - 1);
 
 			// Sleep won't do, the rendering time is non-negligible and unpredictable
-			os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+			os::concurrency::event const Event(os::event::type::manual, os::event::state::nonsignaled);
 			os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
 
 			Dlg->SendMessage(DM_SETCHECK, dialog_items::cd_cube_first, ToPtr(BSTATE_3STATE));

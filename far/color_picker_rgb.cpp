@@ -378,7 +378,7 @@ static void zoom(Dialog* const Dlg, color_rgb_state& ColorState)
 	const auto Delay = 250ms / (cube_size - 1);
 
 	// Sleep won't do, the rendering time is non-negligible and unpredictable
-	os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+	os::concurrency::event const Event(os::event::type::manual, os::event::state::nonsignaled);
 	os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
 
 	for (const auto i: std::views::iota(0uz, StepsSize))

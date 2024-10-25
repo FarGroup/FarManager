@@ -64,7 +64,7 @@ private:
 	string m_Directory;
 	bool m_WatchSubtree{};
 	os::handle m_DirectoryHandle;
-	os::event m_Event{ os::event::type::automatic, os::event::state::nonsignaled };
+	os::event m_Event{ os::event::type::manual, os::event::state::nonsignaled };
 	// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 	// If the buffer overflows, ReadDirectoryChangesW will still return true, but the entire contents
 	// of the buffer are discarded and the BytesReturned parameter will be zero, which indicates

@@ -184,7 +184,7 @@ HWND wm_listener::service_window()
 
 wm_listener::wm_listener()
 {
-	os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
+	os::event ReadyEvent(os::event::type::manual, os::event::state::nonsignaled);
 	m_Thread = os::thread(&wm_listener::WindowThreadRoutine, this, std::ref(ReadyEvent));
 	ReadyEvent.wait();
 }
