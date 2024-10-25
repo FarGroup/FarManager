@@ -253,7 +253,7 @@ namespace os::chrono
 			return false;
 
 		UtcTime = nt_clock::from_filetime(FileUtcTime);
-		UtcTime += LocalTime.Hectonanoseconds % 1000 * 1_hns;
+		UtcTime += hectonanoseconds{ LocalTime.Hectonanoseconds } % 1ms;
 		return true;
 	}
 
