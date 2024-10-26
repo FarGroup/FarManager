@@ -68,6 +68,7 @@ private:
 		void operator()(HPOWERNOTIFY Ptr) const;
 	};
 	std::unique_ptr<std::remove_pointer_t<HPOWERNOTIFY>, powernotify_deleter> m_PowerNotify;
+	size_t m_PowerNotifyRefCount{};
 };
 
 #endif // WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00

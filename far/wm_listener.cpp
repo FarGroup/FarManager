@@ -161,10 +161,11 @@ void wm_listener::powernotify_deleter::operator()(HPOWERNOTIFY const Ptr) const
 // for PBT_POWERSETTINGCHANGE
 void wm_listener::enable_power_notifications()
 {
-	if (!imports.RegisterPowerSettingNotification)
+	if (++m_PowerNotifyRefCount > 1)
 		return;
 
-	assert(!m_PowerNotify);
+	if (!imports.RegisterPowerSettingNotification)
+		return;
 
 	m_PowerNotify.reset(imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
 
@@ -174,7 +175,10 @@ void wm_listener::enable_power_notifications()
 
 void wm_listener::disable_power_notifications()
 {
-	m_PowerNotify.reset();
+	assert(m_PowerNotifyRefCount);
+
+	if (!--m_PowerNotifyRefCount)
+		m_PowerNotify.reset();
 }
 
 HWND wm_listener::service_window()
