@@ -58,12 +58,13 @@ private:
 	friend class background_watcher;
 
 	void read_async() const;
+	bool get_result() const;
 	void callback_notify() const;
 
 	string m_EventId;
 	string m_Directory;
 	bool m_WatchSubtree{};
-	os::handle m_DirectoryHandle;
+	os::critical_section m_CS;
 	os::event m_Event{ os::event::type::manual, os::event::state::nonsignaled };
 	// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 	// If the buffer overflows, ReadDirectoryChangesW will still return true, but the entire contents
@@ -72,6 +73,12 @@ private:
 	// We don't care about individual changes, so the buffer is intentionally small.
 	mutable FILE_NOTIFY_INFORMATION Buffer;
 	mutable OVERLAPPED m_Overlapped{};
+
+	// The order is important:
+	// CancelIo doesn't work reliably with ReadDirectoryChangesW.
+	// Just closing the handle does, even though it's not documented.
+	// It must be destroyed before the associated event.
+	os::handle m_DirectoryHandle;
 };
 
 #endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD

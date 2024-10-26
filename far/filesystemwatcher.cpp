@@ -69,6 +69,8 @@ public:
 
 		m_Clients.emplace_back(Client);
 
+		m_Synchronised = false;
+
 		if (!m_Thread.joinable() || m_Thread.is_signaled())
 			m_Thread = os::thread(&background_watcher::process, this);
 
@@ -77,17 +79,13 @@ public:
 
 	void remove(const FileSystemWatcher* Client)
 	{
-		{
-			SCOPED_ACTION(std::scoped_lock)(m_CS);
+		SCOPED_ACTION(std::scoped_lock)(m_CS);
 
-			std::erase(m_Clients, Client);
-		}
+		std::erase(m_Clients, Client);
 
-		m_UpdateDone.reset();
+		m_Synchronised = false;
+
 		m_Update.set();
-
-		// We have to ensure that the client event handle is no longer used by the watcher before letting the client go
-		(void)os::handle::wait_any({ m_UpdateDone.native_handle(), m_Thread.native_handle()});
 	}
 
 private:
@@ -95,27 +93,39 @@ private:
 	{
 		os::debug::set_thread_name(L"FS watcher");
 
+		std::vector Handles{ m_Update.native_handle() };
+		HANDLE PendingHandle{};
+
 		for (;;)
 		{
 			{
-				m_UpdateDone.reset();
-				SCOPE_EXIT{ m_UpdateDone.set(); };
+				SCOPED_ACTION(std::scoped_lock)(m_CS);
 
+				if (!m_Synchronised)
 				{
-					SCOPED_ACTION(std::scoped_lock)(m_CS);
-
 					if (m_Clients.empty())
 					{
 						LOGDEBUG(L"FS Watcher exit"sv);
 						return;
 					}
 
-					m_Handles.resize(1);
-					std::ranges::transform(m_Clients, std::back_inserter(m_Handles), [](const FileSystemWatcher* const Client) { return Client->m_Event.native_handle(); });
+					auto PendingHandleCopy = std::exchange(PendingHandle, {});
+					Handles.resize(1);
+					std::ranges::transform(m_Clients, std::back_inserter(Handles), [&](const FileSystemWatcher* const Client)
+					{
+						const auto Handle = Client->m_Event.native_handle();
+						if (Handle == PendingHandleCopy)
+						{
+							Client->callback_notify();
+						}
+						return Handle;
+					});
+
+					m_Synchronised = true;
 				}
 			}
 
-			const auto Result = os::handle::wait_any(m_Handles);
+			const auto Result = os::handle::wait_any(Handles);
 
 			if (Result == 0)
 			{
@@ -128,9 +138,15 @@ private:
 			{
 				SCOPED_ACTION(std::scoped_lock)(m_CS);
 
+				if (!m_Synchronised)
+				{
+					PendingHandle = Handles[Result];
+					continue;
+				}
+
 				m_Clients[Result - 1]->callback_notify();
 
-				for (const auto& Client : m_Clients)
+				for (const auto& Client: m_Clients)
 				{
 					if (Client != m_Clients[Result - 1] && Client->m_Event.is_signaled())
 						Client->callback_notify();
@@ -150,12 +166,9 @@ private:
 	}
 
 	os::critical_section m_CS;
-	os::event
-		m_Update{ os::event::type::automatic, os::event::state::nonsignaled },
-		m_UpdateDone{ os::event::type::automatic, os::event::state::nonsignaled };
+	os::event m_Update{ os::event::type::automatic, os::event::state::nonsignaled };
 	std::vector<const FileSystemWatcher*> m_Clients;
-	std::vector<HANDLE> m_Handles{ m_Update.native_handle() };
-	std::atomic_bool m_Exit{};
+	std::atomic_bool m_Exit{}, m_Synchronised{};
 	os::thread m_Thread;
 };
 
@@ -191,19 +204,31 @@ FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_vie
 	}
 
 	m_Overlapped.hEvent = m_Event.native_handle();
-	read_async();
 
-	LOGDEBUG(L"Start monitoring {}"sv, m_Directory);
 	background_watcher::instance().add(this);
+
+	LOGDEBUG(L"Start monitoring {} {}"sv, m_Directory, WatchSubtree? L"tree"sv : L"directory"sv);
+	read_async();
 }
 
 FileSystemWatcher::~FileSystemWatcher()
 {
-	if (!m_DirectoryHandle)
-		return;
-
-	LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 	background_watcher::instance().remove(this);
+
+	{
+		SCOPED_ACTION(std::scoped_lock)(m_CS);
+
+		if (!m_DirectoryHandle)
+			return;
+
+		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
+
+		m_DirectoryHandle = {};
+
+		m_Event.wait();
+
+		assert(m_Overlapped.Internal == STATUS_NOTIFY_CLEANUP);
+	}
 }
 
 void FileSystemWatcher::read_async() const
@@ -232,16 +257,36 @@ void FileSystemWatcher::read_async() const
 	}
 }
 
+bool FileSystemWatcher::get_result() const
+{
+	if (DWORD BytesReturned; GetOverlappedResult(m_DirectoryHandle.native_handle(), &m_Overlapped, &BytesReturned, true))
+		return true;
+
+	switch (const auto LastError = os::last_error(); LastError.Win32Error)
+	{
+	case ERROR_OPERATION_ABORTED:
+		return false; // BAU, no need to make noise
+
+	case ERROR_ACCESS_DENIED:
+		if (LastError.NtError == STATUS_DELETE_PENDING)
+			return false; // BAU, no need to make noise
+
+		[[fallthrough]];
+
+	default:
+		// Something exotic, better to report
+		LOGWARNING(L"GetOverlappedResult({}): {}"sv, m_Directory, LastError);
+		return false;
+	}
+}
+
 void FileSystemWatcher::callback_notify() const
 {
-	if (DWORD BytesReturned = 0; !GetOverlappedResult(m_DirectoryHandle.native_handle(), &m_Overlapped, &BytesReturned, false))
-	{
-		const auto LastError = os::last_error();
-		if (!(LastError.Win32Error == ERROR_ACCESS_DENIED && LastError.NtError == STATUS_DELETE_PENDING))
-		{
-			LOGWARNING(L"GetOverlappedResult({}): {}"sv, m_Directory, LastError);
-		}
+	if (!m_DirectoryHandle)
+		return;
 
+	if (!get_result())
+	{
 		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 		return;
 	}
