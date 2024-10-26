@@ -1391,6 +1391,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		{
 			const auto IsActive = Owner->IsFocused();
 			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, FALSE);
+			// BUGBUG gh-674 make sure to recreate FS watcher
+			// SetCurDir below should do that
 			NewPanel->SetCurDir(strNewCurDir, true);
 			NewPanel->Show();
 

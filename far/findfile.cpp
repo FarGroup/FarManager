@@ -2889,6 +2889,8 @@ bool FindFiles::FindFilesProcess()
 						if (FindPanel->GetType() != panel_type::FILE_PANEL)
 						{
 							FindPanel = Global->CtrlObject->Cp()->ChangePanel(FindPanel, panel_type::FILE_PANEL, TRUE, TRUE);
+							// BUGBUG gh-674 make sure to recreate FS watcher
+							// SetCurDir below should do that
 						}
 
 						string_view ArcPath=strArcName;
@@ -2956,6 +2958,9 @@ bool FindFiles::FindFilesProcess()
 						FindPanel = Global->CtrlObject->Cp()->ChangePanel(FindPanel, panel_type::FILE_PANEL, TRUE, TRUE);
 						FindPanel->SetVisible(true);
 						FindPanel->Update(0);
+
+						// BUGBUG gh-674 make sure to recreate FS watcher
+						FindPanel->InitCurDir(FindPanel->GetCurDir());
 					}
 
 					// ! Не меняем каталог, если мы уже в нем находимся.

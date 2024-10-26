@@ -501,9 +501,13 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 					else
 						AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
-					if (ActivePanel() == AnotherPanel && (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL))
+					if (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL)
 					{
-						os::fs::set_current_directory(AnotherPanel->GetCurDir());
+						// BUGBUG gh-674 make sure to recreate FS watcher
+						AnotherPanel->InitCurDir(AnotherPanel->GetCurDir());
+
+						if (ActivePanel() == AnotherPanel)
+							os::fs::set_current_directory(AnotherPanel->GetCurDir());
 					}
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 
@@ -861,6 +865,10 @@ panel_ptr FilePanels::ChangePanelToFilled(panel_ptr Current, panel_type NewType)
 	{
 		Current->Hide();
 		Current=ChangePanel(Current,NewType,FALSE,FALSE);
+
+		// BUGBUG gh-674 make sure to recreate FS watcher
+		Current->InitCurDir(Current->GetCurDir());
+
 		Current->Update(0);
 		Current->Show();
 	}
