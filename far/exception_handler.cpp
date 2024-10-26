@@ -1076,6 +1076,28 @@ static string get_parent_process()
 	return concat(ParentName, L' ', ParentVersion);
 }
 
+static string get_elevation()
+{
+	const auto IsElevated = os::security::is_admin();
+	const auto ElevationType = os::security::elevation_type();
+
+	const auto ElevationTypeStr = [&]
+	{
+		switch (ElevationType)
+		{
+		case TokenElevationTypeDefault:    return L"Default"sv;
+		case TokenElevationTypeFull:       return L"Full"sv;
+		case TokenElevationTypeLimited:    return L"Limited"sv;
+		default:                           return L""sv;
+		}
+	}();
+
+	return far::format(L"{} ({})"sv,
+		IsElevated? L"Yes"sv : L"No"sv,
+		!ElevationTypeStr.empty()? ElevationTypeStr : str(ElevationType)
+	);
+}
+
 static string get_uptime()
 {
 	os::chrono::time_point CreationTime;
@@ -1567,7 +1589,7 @@ static string collect_information(
 	const auto ConsoleHost = get_console_host();
 	const auto Parent = get_parent_process();
 	const auto Command = GetCommandLine();
-	const auto AccessLevel = os::security::is_admin()? L"Administrator"sv : L"User"sv;
+	const auto IsElevated = get_elevation();
 	const auto MemoryStatus = memory_status();
 
 	const auto
@@ -1605,7 +1627,7 @@ static string collect_information(
 		{ L"Host:     "sv, ConsoleHost,   },
 		{ L"Parent:   "sv, Parent,        },
 		{ L"Command:  "sv, Command,       },
-		{ L"Access:   "sv, AccessLevel,   },
+		{ L"Elevated: "sv, IsElevated,    },
 		{ L"Memory:   "sv, MemoryStatus   },
 	};
 

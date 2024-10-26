@@ -281,7 +281,15 @@ void InfoList::DisplayObject()
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintText(lng::MInfoUserAccessElevated);
-		PrintInfo(os::security::is_admin()? lng::MYes : lng::MNo);
+
+		const auto IsElevated = os::security::is_admin();
+		const auto ElevationType = os::security::elevation_type();
+		const auto IsElevatedId = IsElevated? lng::MYes : lng::MNo;
+
+		if (any_of(ElevationType, TokenElevationTypeLimited, TokenElevationTypeFull))
+			PrintInfo(far::format(L"{} ({})"sv, msg(IsElevatedId), msg(ElevationType == TokenElevationTypeLimited? lng::MInfoUserAccessElevationTypeLimited : lng::MInfoUserAccessElevationTypeFull)));
+		else
+			PrintInfo(IsElevatedId);
 	}
 
 	string SectionTitle;

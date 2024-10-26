@@ -97,6 +97,13 @@ namespace os::security
 	{
 		static const auto Result = []
 		{
+			// Vista+
+			TOKEN_ELEVATION Elevation;
+			DWORD ReturnLength;
+			if (GetTokenInformation(GetCurrentProcessToken(), TokenElevation, &Elevation, sizeof(Elevation), &ReturnLength))
+				return Elevation.TokenIsElevated != 0;
+
+			// Old method
 			SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 			const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 			if (!AdministratorsGroup)
@@ -107,6 +114,15 @@ namespace os::security
 		}();
 
 		return Result;
+	}
+
+	TOKEN_ELEVATION_TYPE elevation_type()
+	{
+		TOKEN_ELEVATION_TYPE ElevationType;
+		DWORD ReturnLength;
+		return GetTokenInformation(GetCurrentProcessToken(), TokenElevationType, &ElevationType, sizeof(ElevationType), &ReturnLength)?
+			ElevationType :
+			TokenElevationTypeDefault;
 	}
 
 	handle open_current_process_token(DWORD const DesiredAccess)

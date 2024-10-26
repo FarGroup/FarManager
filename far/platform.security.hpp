@@ -65,6 +65,9 @@ namespace os::security
 	bool is_admin();
 
 	[[nodiscard]]
+	TOKEN_ELEVATION_TYPE elevation_type();
+
+	[[nodiscard]]
 	handle open_current_process_token(DWORD DesiredAccess);
 
 	class privilege
