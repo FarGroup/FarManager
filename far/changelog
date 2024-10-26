@@ -1,4 +1,17 @@
 --------------------------------------------------------------------------------
+drkns 2024-10-26 20:17:00+01:00 - build 6385
+
+1. Show elevation type in InfoPanel & bug reports.
+
+2. Preserve inherited attributes when saving files.
+
+3. Fix power notifications when 2 InfoPanels are opened simultaneously.
+
+4. gh-674: Panel refresh stops working after certain actions.
+
+5. Experimental: FS monitor refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2024-10-26 00:32:56+01:00 - build 6384
 
 1. gh-878: FAR sets nanosecond filetime incorrectly.
