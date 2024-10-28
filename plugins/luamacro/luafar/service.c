@@ -4272,8 +4272,8 @@ static int viewer_Quit(lua_State *L)
 {
 	intptr_t ViewerId = luaL_optinteger(L, 1, -1);
 	PSInfo *Info = GetPluginData(L)->Info;
-	Info->ViewerControl(ViewerId, VCTL_QUIT, 0, 0);
-	return 0;
+	lua_pushboolean(L, Info->ViewerControl(ViewerId, VCTL_QUIT, 0, 0));
+	return 1;
 }
 
 static int viewer_Redraw(lua_State *L)

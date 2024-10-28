@@ -1,3 +1,7 @@
+shmuel 2024-10-28 21:17:03+02:00 - build 855
+
+1. LuaFAR: viewer.Quit() returns a boolean (was: nothing).
+
 shmuel 2024-10-09 23:52:28+03:00 - build 854
 
 1. Refactoring
