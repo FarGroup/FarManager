@@ -5986,15 +5986,15 @@ id=134
 lv=2
 dt=Text
 nm=viewer.Quit
-mtime=3507624360
+mtime=3939312062
 <article>
-#_viewer.Quit (ViewerID)
+#_result = viewer.Quit (ViewerID)
 #_
 #_**Parameters:**
 #_  ViewerID: integer, or nil
 #_
 #_**Returns:**
-#_  nothing
+#_  result:   boolean
 #_
 #_**Far API used:**
 #_  ViewerControl, VCTL_QUIT
