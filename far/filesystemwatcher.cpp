@@ -63,7 +63,7 @@ class background_watcher: public singleton<background_watcher>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	void add(const FileSystemWatcher* Client)
+	void add(FileSystemWatcher* Client)
 	{
 		SCOPED_ACTION(std::scoped_lock)(m_CS);
 
@@ -117,7 +117,7 @@ private:
 
 					auto PendingHandleCopy = std::exchange(PendingHandle, {});
 					Handles.resize(1);
-					std::ranges::transform(m_Clients, std::back_inserter(Handles), [&](const FileSystemWatcher* const Client)
+					std::ranges::transform(m_Clients, std::back_inserter(Handles), [&](FileSystemWatcher* const Client)
 					{
 						const auto Handle = Client->m_Event.native_handle();
 						if (Handle == PendingHandleCopy)
@@ -151,7 +151,7 @@ private:
 
 				m_Clients[Result - 1]->callback_notify();
 
-				for (const auto& Client: m_Clients)
+				for (auto& Client: m_Clients)
 				{
 					if (Client != m_Clients[Result - 1] && Client->m_Event.is_signaled())
 						Client->callback_notify();
@@ -173,7 +173,7 @@ private:
 	os::critical_section m_CS;
 	os::event m_Update{ os::event::type::automatic, os::event::state::nonsignaled };
 	os::event m_Synchronised{ os::event::type::manual, os::event::state::nonsignaled };
-	std::vector<const FileSystemWatcher*> m_Clients;
+	std::vector<FileSystemWatcher*> m_Clients;
 	std::atomic_bool m_Exit{};
 	os::thread m_Thread;
 };
@@ -248,7 +248,7 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 }
 
-void FileSystemWatcher::read_async() const
+void FileSystemWatcher::read_async()
 {
 	m_Event.reset();
 
@@ -271,6 +271,7 @@ void FileSystemWatcher::read_async() const
 	))
 	{
 		LOGERROR(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, os::last_error());
+		m_DirectoryHandle = {};
 	}
 }
 
@@ -297,7 +298,7 @@ bool FileSystemWatcher::get_result() const
 	}
 }
 
-void FileSystemWatcher::callback_notify() const
+void FileSystemWatcher::callback_notify()
 {
 	if (!m_DirectoryHandle)
 		return;

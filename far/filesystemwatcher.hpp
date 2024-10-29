@@ -57,9 +57,9 @@ public:
 private:
 	friend class background_watcher;
 
-	void read_async() const;
+	void read_async();
 	bool get_result() const;
-	void callback_notify() const;
+	void callback_notify();
 
 	string m_EventId;
 	string m_Directory;
