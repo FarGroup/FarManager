@@ -69,7 +69,7 @@ public:
 
 		m_Clients.emplace_back(Client);
 
-		m_Synchronised = false;
+		m_Synchronised.reset();
 
 		if (!m_Thread.joinable() || m_Thread.is_signaled())
 			m_Thread = os::thread(&background_watcher::process, this);
@@ -79,13 +79,17 @@ public:
 
 	void remove(const FileSystemWatcher* Client)
 	{
-		SCOPED_ACTION(std::scoped_lock)(m_CS);
+		{
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
 
-		std::erase(m_Clients, Client);
+			std::erase(m_Clients, Client);
 
-		m_Synchronised = false;
+			m_Synchronised.reset();
+			m_Update.set();
+		}
 
-		m_Update.set();
+		// We have to ensure that the client event handle is no longer used by the watcher before letting the client go
+		m_Synchronised.wait();
 	}
 
 private:
@@ -101,8 +105,10 @@ private:
 			{
 				SCOPED_ACTION(std::scoped_lock)(m_CS);
 
-				if (!m_Synchronised)
+				if (!m_Synchronised.is_signaled())
 				{
+					SCOPE_EXIT{ m_Synchronised.set(); };
+
 					if (m_Clients.empty())
 					{
 						LOGDEBUG(L"FS Watcher exit"sv);
@@ -121,7 +127,6 @@ private:
 						return Handle;
 					});
 
-					m_Synchronised = true;
 				}
 			}
 
@@ -138,7 +143,7 @@ private:
 			{
 				SCOPED_ACTION(std::scoped_lock)(m_CS);
 
-				if (!m_Synchronised)
+				if (!m_Synchronised.is_signaled())
 				{
 					PendingHandle = Handles[Result];
 					continue;
@@ -167,8 +172,9 @@ private:
 
 	os::critical_section m_CS;
 	os::event m_Update{ os::event::type::automatic, os::event::state::nonsignaled };
+	os::event m_Synchronised{ os::event::type::manual, os::event::state::nonsignaled };
 	std::vector<const FileSystemWatcher*> m_Clients;
-	std::atomic_bool m_Exit{}, m_Synchronised{};
+	std::atomic_bool m_Exit{};
 	os::thread m_Thread;
 };
 
@@ -225,9 +231,20 @@ FileSystemWatcher::~FileSystemWatcher()
 
 		m_DirectoryHandle = {};
 
-		m_Event.wait();
+		switch (const auto Status = m_Overlapped.Internal)
+		{
+		case STATUS_NOTIFY_CLEANUP:
+		case STATUS_NOTIFY_ENUM_DIR:
+			break;
 
-		assert(m_Overlapped.Internal == STATUS_NOTIFY_CLEANUP);
+		case STATUS_PENDING:
+			(void)get_result();
+			break;
+
+		default:
+			LOGDEBUG(L"Overlapped.Internal: {}"sv, os::error_state{ ERROR_SUCCESS, static_cast<NTSTATUS>(m_Overlapped.Internal) });
+			break;
+		}
 	}
 }
 
