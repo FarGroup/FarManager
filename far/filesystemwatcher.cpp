@@ -65,16 +65,22 @@ class background_watcher: public singleton<background_watcher>
 public:
 	void add(FileSystemWatcher* Client)
 	{
-		SCOPED_ACTION(std::scoped_lock)(m_CS);
+		{
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
 
-		m_Clients.emplace_back(Client);
+			m_Clients.emplace_back(Client);
 
-		m_Synchronised.reset();
+			m_Synchronised.reset();
+			m_Update.set();
 
-		if (!m_Thread.joinable() || m_Thread.is_signaled())
-			m_Thread = os::thread(&background_watcher::process, this);
+			if (!m_Thread.joinable() || m_Thread.is_signaled())
+			{
+				LOGINFO(L"MAKING THREAD"sv);
+				m_Thread = os::thread(&background_watcher::process, this);
+			}
+		}
 
-		m_Update.set();
+		m_Synchronised.wait();
 	}
 
 	void remove(const FileSystemWatcher* Client)
@@ -109,12 +115,6 @@ private:
 				{
 					SCOPE_EXIT{ m_Synchronised.set(); };
 
-					if (m_Clients.empty())
-					{
-						LOGDEBUG(L"FS Watcher exit"sv);
-						return;
-					}
-
 					auto PendingHandleCopy = std::exchange(PendingHandle, {});
 					Handles.resize(1);
 					std::ranges::transform(m_Clients, std::back_inserter(Handles), [&](FileSystemWatcher* const Client)
@@ -126,7 +126,6 @@ private:
 						}
 						return Handle;
 					});
-
 				}
 			}
 
@@ -135,7 +134,10 @@ private:
 			if (Result == 0)
 			{
 				if (m_Exit)
+				{
+					LOGDEBUG(L"FS Watcher exit"sv);
 					return;
+				}
 
 				continue;
 			}
