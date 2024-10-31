@@ -4907,7 +4907,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 			struct VersionInfo vi;
 			Info->AdvControl(PluginId, Command, 0, &vi);
 
-			if (lua_toboolean(L, 2))
+			if (lua_toboolean(L, pos2))
 			{
 				lua_pushinteger(L, vi.Major);
 				lua_pushinteger(L, vi.Minor);
@@ -5065,7 +5065,7 @@ AdvCommand( GetArrayColor,          ACTL_GETARRAYCOLOR)
 AdvCommand( GetColor,               ACTL_GETCOLOR)
 AdvCommand( GetCursorPos,           ACTL_GETCURSORPOS)
 AdvCommand( GetFarHwnd,             ACTL_GETFARHWND)
-AdvCommand( GetFarmanagerVersion,   ACTL_GETFARMANAGERVERSION)
+AdvCommand( GetFarManagerVersion,   ACTL_GETFARMANAGERVERSION)
 AdvCommand( GetFarRect,             ACTL_GETFARRECT)
 AdvCommand( GetWindowCount,         ACTL_GETWINDOWCOUNT)
 AdvCommand( GetWindowInfo,          ACTL_GETWINDOWINFO)
@@ -6372,7 +6372,7 @@ static const luaL_Reg actl_funcs[] =
 	PAIR( adv, GetColor),
 	PAIR( adv, GetCursorPos),
 	PAIR( adv, GetFarHwnd),
-	PAIR( adv, GetFarmanagerVersion),
+	PAIR( adv, GetFarManagerVersion),
 	PAIR( adv, GetFarRect),
 	PAIR( adv, GetWindowCount),
 	PAIR( adv, GetWindowInfo),

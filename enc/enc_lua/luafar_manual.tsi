@@ -1888,7 +1888,7 @@ lv=3
 dt=Text
 nm=actl namespace
 ctime=3917945155
-mtime=3917945509
+mtime=3939576259
 <article>
 #_This is an alternative interface to FAR's advanced control commands.
 #_It is shorter and more expressive, e.g. the following 2 calls do the
@@ -1905,7 +1905,7 @@ mtime=3917945509
 #_  GetColor                ACTL_GETCOLOR
 #_  GetCursorPos            ACTL_GETCURSORPOS
 #_  GetFarHwnd              ACTL_GETFARHWND
-#_  GetFarmanagerVersion    ACTL_GETFARMANAGERVERSION
+#_  GetFarManagerVersion    ACTL_GETFARMANAGERVERSION
 #_  GetFarRect              ACTL_GETFARRECT
 #_  GetWindowCount          ACTL_GETWINDOWCOUNT
 #_  GetWindowInfo           ACTL_GETWINDOWINFO

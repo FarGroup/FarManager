@@ -1,3 +1,9 @@
+shmuel 2024-10-31 22:45:33+02:00 - build 856
+
+1. LuaFAR: fix actl.GetFarmanagerVersion(true)
+
+2. LuaFAR: rename actl.GetFarmanagerVersion to actl.GetFarManagerVersion
+
 shmuel 2024-10-28 21:17:03+02:00 - build 855
 
 1. LuaFAR: viewer.Quit() returns a boolean (was: nothing).
