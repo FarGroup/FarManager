@@ -3563,6 +3563,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					}
 					else
 					{
+						if (!SearchLength && strReplaceStrCurrent.empty())
+							ZeroLength = true;
+
 						auto MsgCode = message_result::first_button;
 
 						if (!IsReplaceAll)
@@ -3574,9 +3577,6 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 							newcol.SetOwner(FarUuid);
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							AddColor(CurPtr, newcol);
-
-							if (!SearchLength && strReplaceStrCurrent.empty())
-								ZeroLength = true;
 
 							Progress.reset();
 
