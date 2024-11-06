@@ -970,9 +970,14 @@ static int win_JoinPath(lua_State *L)
 	luaL_buffinit(L, &buf);
 
 	for (idx=1; idx <= top; idx++) {
-		const char *s = luaL_optstring(L, idx, "");
-		if (*s == 0)
+		const char *s = luaL_checkstring(L, idx);
+		if (*s == 0) {
+			if (idx == top && !was_slash) { // treat empty string in last arg as delimiter
+				luaL_addchar(&buf, DELIM);
+				break;
+			}
 			continue;
+		}
 		if (!empty && !was_slash && *s != DELIM)
 			luaL_addchar(&buf, DELIM);
 		else if (was_slash && *s == DELIM)

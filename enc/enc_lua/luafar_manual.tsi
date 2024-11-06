@@ -9848,15 +9848,19 @@ lv=3
 dt=Text
 nm=win.JoinPath
 ctime=3922434993
-mtime=3922435036
+mtime=3940098857
 <article>
 #_path = win.JoinPath (...)
 #_
 #_**Parameters:**
-#_  ... :  0 or more strings (nils allowed)
+#_  ... :  0 or more strings
 #_
 #_**Returns:**
 #_  path:  string
+#_
+#_**Note:**
+#_  Empty string arguments are ignored except the last
+#_  argument where it's treated as the path delimiter.
 #_
 #_@@@
 #_

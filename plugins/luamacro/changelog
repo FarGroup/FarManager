@@ -1,3 +1,7 @@
+shmuel 2024-11-06 23:51:17+02:00 - build 857
+
+1. LuaFAR: change win.JoinPath a little (see the manual)
+
 shmuel 2024-10-31 22:45:33+02:00 - build 856
 
 1. LuaFAR: fix actl.GetFarmanagerVersion(true)
