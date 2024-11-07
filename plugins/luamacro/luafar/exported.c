@@ -110,10 +110,12 @@ int pcall_msg(lua_State* L, int narg, int nret)
 			status2 = lua_pcall(L,1,0,0);
 		}
 
-		if (status2 != 0)
-		{
-			LF_Error(L, check_utf8_string(L, -1, NULL));
-			lua_pop(L, 1);
+		if (status2 != 0) {
+			if (lua_isstring(L, -1)) // this check prevents crashes
+				LF_Error (L, check_utf8_string(L, -1, NULL));
+			else
+				LF_Error (L, L"error object is not a string");
+			lua_pop (L, 1);
 		}
 
 		*Flags &= ~PDF_PROCESSINGERROR;

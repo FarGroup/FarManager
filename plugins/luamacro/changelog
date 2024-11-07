@@ -1,3 +1,8 @@
+shmuel 2024-11-07 19:43:26+02:00 - build 858
+
+1. LuaFAR: prevent a certain kind of crashes
+   E.g. lua:far.Timer(1000, function() error {} end)
+
 shmuel 2024-11-06 23:51:17+02:00 - build 857
 
 1. LuaFAR: change win.JoinPath a little (see the manual)
