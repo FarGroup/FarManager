@@ -8685,11 +8685,11 @@ lv=2
 dt=Text
 nm=far.GetLuafarVersion
 ctime=3792338906
-mtime=3792339365
+mtime=3940520281
 <article>
 #_strVersion = far.GetLuafarVersion()
 #_  or
-#_major,minor,revision,build = far.LuafarVersion(true)
+#_major,minor,revision,build = far.GetLuafarVersion(true)
 #_
 #_**Returns:**
 #_  strVersion: string
