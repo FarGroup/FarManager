@@ -1,3 +1,7 @@
+shmuel 2024-11-11 17:26:22+02:00 - build 859
+
+1. LuaFAR: allow another API for actl.Synchro
+
 shmuel 2024-11-07 19:43:26+02:00 - build 858
 
 1. LuaFAR: prevent a certain kind of crashes

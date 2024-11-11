@@ -1499,9 +1499,9 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 		TSynchroData sd = *(TSynchroData*)Info->Param; // copy
 		free(Info->Param);
 
-		if (sd.regAction != 0)
+		if (sd.type & (SYNCHRO_TIMER_CALL | SYNCHRO_TIMER_UNREF))
 		{
-			if (!sd.timerData->needClose && (sd.regAction & LUAFAR_TIMER_CALL))
+			if (!sd.timerData->needClose && (sd.type & SYNCHRO_TIMER_CALL))
 			{
 				lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->tabRef); //+1: Table
 
@@ -1524,14 +1524,26 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 				else lua_pop(L, 1);
 			}
 
-			if (sd.regAction & LUAFAR_TIMER_UNREF)
+			if (sd.type & SYNCHRO_TIMER_UNREF)
 			{
 				luaL_unref(L, LUA_REGISTRYINDEX, sd.timerData->tabRef);
 			}
 		}
-		else
+		else if (sd.type == SYNCHRO_COMMON)
 		{
 			Common_ProcessSynchroEvent(L, Info->Event, sd.data);
+		}
+		else if (sd.type == SYNCHRO_FUNCTION)
+		{
+			lua_rawgeti(L, LUA_REGISTRYINDEX, sd.ref);
+			luaL_unref(L, LUA_REGISTRYINDEX, sd.ref);
+			if (lua_istable(L,-1) && lua_checkstack(L, sd.narg)) {
+				for (int i=1; i <= sd.narg; i++) {
+					lua_rawgeti(L, -i, i);
+				}
+				pcall_msg(L, sd.narg - 1, 0);
+			}
+			lua_pop(L, 1);
 		}
 	}
 	else if (Info->Event == SE_FOLDERCHANGED)

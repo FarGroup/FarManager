@@ -1842,16 +1842,34 @@ lv=4
 dt=Text
 nm=ACTL_SYNCHRO
 ctime=3936005255
-mtime=3936009912
+mtime=3940507744
 <article>
-#_Result = far.AdvControl (ACTL_SYNCHRO, Param1)
+#_**Syntax 1**
+#_**--------**
+#_  Result = far.AdvControl (ACTL_SYNCHRO, Param1)
 #_
-#_**Parameters:**
-#_  Param1:   integer
-#_  Param2:   N/A
+#_  **Parameters:**
+#_    Param1:   integer
+#_    Param2:   N/A
 #_
-#_**Returns:**
-#_  Result:   integer
+#_  **Returns:**
+#_    Result:   integer
+#_
+#_
+#_**Syntax 2**
+#_**--------**
+#_  Result = far.AdvControl (ACTL_SYNCHRO, Handler, ...)
+#_
+#_  **Parameters:**
+#_    Handler:  function
+#_    ...:      0 or more Lua values of any type
+#_
+#_  **Returns:**
+#_    Result:   integer
+#_
+#_  **Description:**
+#_     When Far Manager gets control it will call *Handler*
+#_     passing it the extra arguments (if any)
 #_
 #_@@@
 #_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
