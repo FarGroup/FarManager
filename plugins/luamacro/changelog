@@ -1,3 +1,7 @@
+shmuel 2024-11-16 12:39:17+02:00 - build 860
+
+1. Fix winapi.lua for arm64
+
 shmuel 2024-11-11 17:26:22+02:00 - build 859
 
 1. LuaFAR: allow another API for actl.Synchro

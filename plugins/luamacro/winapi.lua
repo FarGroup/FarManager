@@ -3,7 +3,7 @@
 
 local ffi = require "ffi"
 
-if jit.arch == "x64" then
+if jit.arch == "x64" or jit.arch == "arm64" then
 ffi.cdef[[
 typedef __int64 INT_PTR;
 typedef unsigned __int64 UINT_PTR;
