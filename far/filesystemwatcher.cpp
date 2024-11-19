@@ -75,7 +75,6 @@ public:
 
 			if (!m_Thread.joinable() || m_Thread.is_signaled())
 			{
-				LOGINFO(L"MAKING THREAD"sv);
 				m_Thread = os::thread(&background_watcher::process, this);
 			}
 		}
