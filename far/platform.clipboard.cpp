@@ -463,18 +463,11 @@ namespace os::clipboard
 
 	static unsigned get_locale_codepage(LCID const Locale)
 	{
-		unsigned Acp;
-		const int SizeInChars = sizeof(Acp) / sizeof(wchar_t);
+		int Acp;
 
-		if (GetLocaleInfo(
-			Locale,
-				LOCALE_IDEFAULTANSICODEPAGE |
-				LOCALE_RETURN_NUMBER,
-			std::bit_cast<wchar_t*>(&Acp),
-			SizeInChars
-		) != SizeInChars)
+		if (!get_locale_value(Locale, LOCALE_IDEFAULTANSICODEPAGE, Acp))
 		{
-			LOGWARNING(L"GetLocaleInfo(LOCALE_IDEFAULTANSICODEPAGE): {}"sv, last_error());
+			LOGWARNING(L"get_locale_value(LOCALE_IDEFAULTANSICODEPAGE): {}"sv, last_error());
 			return 0;
 		}
 
