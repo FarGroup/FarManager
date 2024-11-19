@@ -685,7 +685,12 @@ static auto get_keyboard_layout_list_registry_ctf()
 			{
 				const auto Index = from_string<size_t>(IndexStr);
 				const auto Layout = LayoutsKey->get_dword(IndexStr, L"KeyboardLayout"sv);
-				Layouts.emplace_back(Index, *Layout);
+
+				// Seems to be IME
+				if (!*Layout && !extract_integer<uint16_t, 1>(Language.Id))
+					Layouts.emplace_back(Index, make_integer<uint32_t, uint16_t>(Language.Id, Language.Id));
+				else
+					Layouts.emplace_back(Index, *Layout);
 			}
 			catch (far_exception const& e)
 			{
@@ -694,6 +699,8 @@ static auto get_keyboard_layout_list_registry_ctf()
 		}
 
 		std::ranges::sort(Layouts, {}, &layout_item::Index);
+		const auto [First, Last] = std::ranges::unique(Layouts, {}, &layout_item::Id);
+		Layouts.erase(First, Last);
 		std::ranges::transform(Layouts, std::back_inserter(Result), [](layout_item const& i){ return os::make_hkl(i.Id); });
 	}
 
