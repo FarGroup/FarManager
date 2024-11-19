@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-11-19 01:13:08+00:00 - build 6390
+
+1. Refactoring.
+
+2. Improve keyboard layouts detection.
+
+3. Log detected keyboard layouts.
+
+--------------------------------------------------------------------------------
 drkns 2024-11-04 18:56:51+00:00 - build 6389
 
 1. Fix replacing empty strings in Editor.
