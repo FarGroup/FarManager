@@ -60,8 +60,6 @@ class language;
 class PluginsCacheConfig;
 class listener;
 
-std::exception_ptr& GlobalExceptionPtr();
-
 enum export_index
 {
 	iGetGlobalInfo,

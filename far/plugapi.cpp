@@ -96,6 +96,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.fs.hpp"
+#include "platform.process.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
@@ -162,20 +163,34 @@ namespace cfunctions
 }
 
 // BUGBUG duplicate
-auto cpp_try(auto const& Callable, source_location const& Location = source_location::current())
+template<typename callable_type>
+auto cpp_try(callable_type const& Callable, source_location const& Location = source_location::current())
 {
-	return cpp_try(Callable, save_exception_to(GlobalExceptionPtr()), {}, Location);
-}
+	using return_type = typename function_traits<callable_type>::result_type;
 
-auto cpp_try(auto const& Callable, auto const Fallback, source_location const& Location = source_location::current())
-{
-	return cpp_try(Callable, [&](source_location const&)
+	const auto& handle_exception = [&] /*[[noreturn]]*/ (const auto& Handler, auto&&... Args)
 	{
-		save_exception_to{ GlobalExceptionPtr() }(Location);
-		return Fallback;
-	},
-	{},
-	Location);
+		if (Handler(FWD(Args)..., nullptr, Location))
+			if (use_terminate_handler())
+				os::process::terminate_by_user(EXIT_FAILURE);
+
+		throw;
+	};
+
+	return cpp_try(
+		Callable,
+		[&](source_location const&) -> return_type
+		{
+			handle_exception(handle_unknown_exception);
+			std::unreachable();
+		},
+		[&](std::exception const& e, source_location const&) -> return_type
+		{
+			handle_exception(handle_std_exception, e);
+			std::unreachable();
+		},
+		Location
+	);
 }
 
 class pluginapi_sort_accessor
@@ -283,8 +298,7 @@ static wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
 			*std::copy(NewBegin, Iterator.end(), Str) = {};
 		}
 		return Str;
-	},
-	nullptr);
+	});
 }
 
 static wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
@@ -295,8 +309,7 @@ static wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 		const auto REnd = std::make_reverse_iterator(Str);
 		Str[REnd - std::find_if_not(REnd - std::wcslen(Str), REnd, std::iswspace)] = 0;
 		return Str;
-	},
-	nullptr);
+	});
 }
 
 static wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept
@@ -311,8 +324,7 @@ static wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
 	[&]
 	{
 		return legacy::QuoteSpaceOnly(Str);
-	},
-	nullptr);
+	});
 }
 
 intptr_t WINAPI apiInputBox(
@@ -351,8 +363,7 @@ intptr_t WINAPI apiInputBox(
 
 		xwcsncpy(DestText, strDest.c_str(), DestSize);
 		return Result;
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FARHELPFLAGS Flags) noexcept
@@ -428,8 +439,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		}
 
 		return help::show(strTopic, strMask, OFlags);
-	},
-	false);
+	});
 }
 
 intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -764,8 +774,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		return FALSE;
-	},
-	FALSE);
+	});
 }
 
 intptr_t WINAPI apiMenuFn(
@@ -914,8 +923,7 @@ intptr_t WINAPI apiMenuFn(
 		}
 	//  CheckScreenLock();
 		return ExitCode;
-	},
-	-1);
+	});
 }
 
 intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
@@ -924,8 +932,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 	[&]
 	{
 		return static_cast<Dialog*>(hDlg)->DefProc(Msg, Param1, Param2);
-	},
-	0);
+	});
 }
 
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
@@ -948,8 +955,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 	{
 		const auto dialog = static_cast<Dialog*>(hDlg);
 		return Dialog::IsValid(dialog)? dialog->SendMessage(Msg, Param1, Param2) : ErrorResult();
-	},
-	ErrorResult());
+	});
 }
 
 HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
@@ -1060,8 +1066,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 			}
 		}
 		return hDlg;
-	},
-	INVALID_HANDLE_VALUE);
+	});
 }
 
 intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
@@ -1079,8 +1084,7 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 
 		FarDialog->Process();
 		return FarDialog->GetExitCode();
-	},
-	-1);
+	});
 }
 
 void WINAPI apiDialogFree(HANDLE hDlg) noexcept
@@ -1119,8 +1123,7 @@ static const wchar_t* WINAPI apiGetMsgFn(const UUID* PluginId, intptr_t MsgId) n
 				return pPlugin->Msg(MsgId);
 		}
 		return L"";
-	},
-	L"");
+	});
 }
 
 intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long long Flags, const wchar_t* HelpTopic,
@@ -1232,8 +1235,7 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 			std::move(Buttons),
 			strTopic, Id, PluginNumber)
 		);
-	},
-	-1);
+	});
 }
 
 intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,void* Param2) noexcept
@@ -1433,8 +1435,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		default:
 			return FALSE;
 		}
-	},
-	FALSE);
+	});
 }
 
 
@@ -1453,8 +1454,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noe
 			Y2 = ScrY;
 
 		return std::make_unique<SaveScreen>(rectangle{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) }).release();
-	},
-	nullptr);
+	});
 }
 
 void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
@@ -1571,8 +1571,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		}
 		return TRUE;
-	},
-	FALSE);
+	});
 }
 
 intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const wchar_t* Dir, PluginPanelItem** pPanelItem, size_t* pItemsNumber) noexcept
@@ -1609,8 +1608,7 @@ intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const 
 		const auto Result = GetPluginDirList(UuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items, DirInfoCallback);
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
-	},
-	FALSE);
+	});
 }
 
 void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noexcept
@@ -1728,8 +1726,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		}
 
 		return TRUE;
-	},
-	FALSE);
+	});
 }
 
 intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned long long Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage) noexcept
@@ -1892,8 +1889,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		}
 
 		return ExitCode;
-	},
-	EEC_OPEN_ERROR);
+	});
 }
 
 void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str) noexcept
@@ -1952,8 +1948,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	[&]
 	{
 		return apiTControl<FileEditor>(EditorID, Command, Param1, Param2, &Manager::GetCurrentEditor, &FileEditor::EditorControl);
-	},
-	0);
+	});
 }
 
 intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -1962,8 +1957,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 	[&]
 	{
 		return apiTControl<ViewerContainer>(ViewerID, Command, Param1, Param2, &Manager::GetCurrentViewer, &Viewer::ViewerControl);
-	},
-	0);
+	});
 }
 
 static void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
@@ -2008,8 +2002,7 @@ static wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 	[&]
 	{
 		return upper(Ch);
-	},
-	Ch);
+	});
 }
 
 static wchar_t WINAPI apiLower(wchar_t Ch) noexcept
@@ -2018,8 +2011,7 @@ static wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	[&]
 	{
 		return lower(Ch);
-	},
-	Ch);
+	});
 }
 
 
@@ -2029,8 +2021,7 @@ static int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t
 	[&]
 	{
 		return pluginapi_sort_accessor::compare_ordinal_icase(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize));
-	},
-	-1);
+	});
 }
 
 static int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
@@ -2039,8 +2030,7 @@ static int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 	[&]
 	{
 		return pluginapi_sort_accessor::compare_ordinal_icase(Str1, Str2);
-	},
-	-1);
+	});
 }
 
 static int WINAPI apiIsLower(wchar_t Ch) noexcept
@@ -2049,8 +2039,7 @@ static int WINAPI apiIsLower(wchar_t Ch) noexcept
 	[&]
 	{
 		return is_lower(Ch);
-	},
-	false);
+	});
 }
 
 static int WINAPI apiIsUpper(wchar_t Ch) noexcept
@@ -2059,8 +2048,7 @@ static int WINAPI apiIsUpper(wchar_t Ch) noexcept
 	[&]
 	{
 		return is_upper(Ch);
-	},
-	false);
+	});
 }
 
 static int WINAPI apiIsAlpha(wchar_t Ch) noexcept
@@ -2069,8 +2057,7 @@ static int WINAPI apiIsAlpha(wchar_t Ch) noexcept
 	[&]
 	{
 		return is_alpha(Ch);
-	},
-	false);
+	});
 }
 
 static int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
@@ -2079,8 +2066,7 @@ static int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
 	[&]
 	{
 		return is_alphanumeric(Ch);
-	},
-	false);
+	});
 }
 
 static wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
@@ -2089,8 +2075,7 @@ static wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 	[&]
 	{
 		return legacy::truncate_left(Str, MaxLength);
-	},
-	Str);
+	});
 }
 
 static wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
@@ -2099,8 +2084,7 @@ static wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcep
 	[&]
 	{
 		return legacy::truncate_path(Str, MaxLength);
-	},
-	Str);
+	});
 }
 
 static const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
@@ -2109,8 +2093,7 @@ static const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 	[&]
 	{
 		return Path? PointToName(Path).data() : nullptr;
-	},
-	Path);
+	});
 }
 
 size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wchar_t *Owner, size_t Size) noexcept
@@ -2126,8 +2109,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 			xwcsncpy(Owner, strOwner.c_str(), Size);
 
 		return strOwner.size() + 1;
-	},
-	0);
+	});
 
 }
 
@@ -2158,8 +2140,7 @@ static size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, w
 			xwcsncpy(Dest, strDest.c_str(), DestSize);
 
 		return strDest.size() + 1;
-	},
-	0);
+	});
 }
 
 size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t DestSize) noexcept
@@ -2177,8 +2158,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 			xwcsncpy(Dest,strDest.c_str(),DestSize);
 
 		return strDest.size()+1;
-	},
-	0);
+	});
 }
 
 size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
@@ -2188,8 +2168,7 @@ size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
 	{
 		const auto Hardlinks = GetNumberOfLinks(Name);
 		return Hardlinks? *Hardlinks : 1;
-	},
-	0);
+	});
 }
 
 size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize) noexcept
@@ -2203,8 +2182,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 			xwcsncpy(Root,strRoot.c_str(),DestSize);
 
 		return strRoot.size()+1;
-	},
-	0);
+	});
 }
 
 BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data) noexcept
@@ -2223,8 +2201,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 		default:
 			return false;
 		}
-	},
-	false);
+	});
 }
 
 static size_t apiPasteFromClipboardEx(bool Type, std::span<wchar_t> Data)
@@ -2268,8 +2245,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 			break;
 		}
 		return size;
-	},
-	0);
+	});
 }
 
 static unsigned long long WINAPI apiFarClock() noexcept
@@ -2278,8 +2254,7 @@ static unsigned long long WINAPI apiFarClock() noexcept
 	[&]
 	{
 		return Global->FarUpTime() / 1us;
-	},
-	0);
+	});
 }
 
 static int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* Str2, size_t Size2) noexcept
@@ -2288,8 +2263,7 @@ static int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wch
 	[&]
 	{
 		return string_sort::ordering_as_int(string_sort::compare({ Str1, Size1 }, { Str2, Size2 }));
-	},
-	-1);
+	});
 }
 
 static uintptr_t WINAPI apiDetectCodePage(DetectCodePageInfo* Info) noexcept
@@ -2305,8 +2279,7 @@ static uintptr_t WINAPI apiDetectCodePage(DetectCodePageInfo* Info) noexcept
 			return uintptr_t{};
 
 		return GetFileCodepage(File, CP_UTF8);
-	},
-	0);
+	});
 }
 
 intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2413,8 +2386,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 		}
 
 		return false;
-	},
-	false);
+	});
 }
 
 intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2488,8 +2460,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			break;
 		}
 		return 0;
-	},
-	0);
+	});
 }
 
 static intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2547,8 +2518,7 @@ static intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONT
 			return static_cast<multifilter*>(hHandle)->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
 		}
 		return false;
-	},
-	false);
+	});
 }
 
 static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2634,8 +2604,7 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		default:
 			return false;
 		}
-	},
-	false);
+	});
 }
 
 intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
@@ -2707,8 +2676,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			}
 		}
 		return false;
-	},
-	false);
+	});
 }
 
 static size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
@@ -2724,8 +2692,7 @@ static size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexce
 		}
 
 		return strCurDir.size() + 1;
-	},
-	0);
+	});
 }
 
 static size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept
@@ -2754,8 +2721,7 @@ static size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, 
 		}
 
 		return strDestStr.size()+1;
-	},
-	0);
+	});
 }
 
 void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned long long Flags, void *Param) noexcept
@@ -2797,8 +2763,7 @@ size_t WINAPI apiMkTemp(wchar_t* Dest, size_t DestSize, const wchar_t *Prefix) n
 			xwcsncpy(Dest, strDest.c_str(), DestSize);
 		}
 		return strDest.size() + 1;
-	},
-	0);
+	});
 }
 
 size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags) noexcept
@@ -2860,8 +2825,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		default:
 			return false;
 		}
-	},
-	0);
+	});
 }
 
 static BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept
@@ -2870,8 +2834,7 @@ static BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, 
 	[&]
 	{
 		return !Global->WindowManager->ManagerIsDown() && GetColorDialog(*Color, true);
-	},
-	false);
+	});
 }
 
 static size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size) noexcept
@@ -2898,8 +2861,7 @@ static size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *K
 		else if (KeyText)
 			*KeyText = 0;
 		return len + 1;
-	},
-	0);
+	});
 }
 
 static BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) noexcept
@@ -2909,8 +2871,7 @@ static BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* Re
 	{
 		const auto Key = KeyNameToKey(Name);
 		return Key && KeyToInputRecord(Key, RecKey);
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE Type, MKLINK_FLAGS Flags) noexcept
@@ -2971,8 +2932,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 			ShellUpdatePanels(nullptr, false);
 
 		return Result;
-	},
-	false);
+	});
 }
 
 static BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
@@ -2981,8 +2941,7 @@ static BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
 	[&]
 	{
 		return legacy::AddEndSlash(Path);
-	},
-	false);
+	});
 }
 
 wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept
@@ -2992,8 +2951,7 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 	{
 		Xlat({ Line + StartPos, Line + EndPos }, Flags);
 		return Line;
-	},
-	Line);
+	});
 }
 
 HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept
@@ -3003,8 +2961,7 @@ HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD Sh
 	{
 		const auto Result = os::fs::create_file(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile).release();
 		return Result? Result : INVALID_HANDLE_VALUE;
-	},
-	INVALID_HANDLE_VALUE);
+	});
 }
 
 DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
@@ -3013,8 +2970,7 @@ DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 	[&]
 	{
 		return os::fs::get_file_attributes(FileName);
-	},
-	INVALID_FILE_ATTRIBUTES);
+	});
 }
 
 BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes) noexcept
@@ -3023,8 +2979,7 @@ BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes
 	[&]
 	{
 		return os::fs::set_file_attributes(FileName, dwFileAttributes);
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFileName, DWORD dwFlags) noexcept
@@ -3033,8 +2988,7 @@ BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFil
 	[&]
 	{
 		return os::fs::move_file(ExistingFileName, NewFileName, dwFlags);
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
@@ -3043,8 +2997,7 @@ BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 	[&]
 	{
 		return os::fs::delete_file(FileName);
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
@@ -3053,8 +3006,7 @@ BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 	[&]
 	{
 		return os::fs::remove_directory(DirName);
-	},
-	false);
+	});
 }
 
 BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* SecurityAttributes) noexcept
@@ -3063,8 +3015,7 @@ BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* Sec
 	[&]
 	{
 		return os::fs::create_directory(PathName, SecurityAttributes);
-	},
-	false);
+	});
 }
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
@@ -3076,8 +3027,7 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 			Global->CtrlObject->Macro.CallFar(CheckCode, Data);
 
 		return 0;
-	},
-	0);
+	});
 }
 
 }

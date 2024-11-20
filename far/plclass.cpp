@@ -73,12 +73,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-std::exception_ptr& GlobalExceptionPtr()
-{
-	static std::exception_ptr ExceptionPtr;
-	return ExceptionPtr;
-}
-
 #define DECLARE_PLUGIN_FUNCTION(name, signature) DECLARE_GEN_PLUGIN_FUNCTION(name, true, signature)
 
 DECLARE_PLUGIN_FUNCTION(iClosePanel,          void     (WINAPI*)(const ClosePanelInfo *Info))
@@ -1260,7 +1254,6 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 		[&]
 		{
 			Callback();
-			rethrow_if(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[ExportId].AName);
 		},
 		[&](source_location const&)

@@ -69,10 +69,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
+#include "platform.process.hpp"
 #include "platform.version.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/function_traits.hpp"
 #include "common/null_iterator.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
@@ -1509,20 +1511,34 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 static const char* GetPluginMsg(const Plugin& PluginInstance, int MsgId);
 
 // BUGBUG duplicate
-auto cpp_try(auto const& Callable, source_location const& Location = source_location::current())
+template<typename callable_type>
+auto cpp_try(callable_type const& Callable, source_location const& Location = source_location::current())
 {
-	return cpp_try(Callable, save_exception_to(GlobalExceptionPtr()), {}, Location);
-}
+	using return_type = typename function_traits<callable_type>::result_type;
 
-auto cpp_try(auto const& Callable, auto const Fallback, source_location const& Location = source_location::current())
-{
-	return cpp_try(Callable, [&](source_location const&)
+	const auto& handle_exception = [&] /*[[noreturn]]*/ (const auto& Handler, auto&&... Args)
 	{
-		save_exception_to{ GlobalExceptionPtr() }(Location);
-		return Fallback;
-	},
-	{},
-	Location);
+		if (Handler(FWD(Args)..., nullptr, Location))
+			if (use_terminate_handler())
+				os::process::terminate_by_user(EXIT_FAILURE);
+
+		throw;
+	};
+
+	return cpp_try(
+		Callable,
+		[&](source_location const&) -> return_type
+		{
+			handle_exception(handle_unknown_exception);
+			std::unreachable();
+		},
+		[&](std::exception const& e, source_location const&) -> return_type
+		{
+			handle_exception(handle_std_exception, e);
+			std::unreachable();
+		},
+		Location
+	);
 }
 
 namespace oldpluginapi
@@ -1552,8 +1568,7 @@ static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, siz
 	[&]
 	{
 		return pluginapi::apiBsearch(key, base, nelem, width, comparer_wrapper, std::bit_cast<void*>(cmp));
-	},
-	nullptr);
+	});
 }
 
 static int WINAPI LocalIslower(unsigned Ch) noexcept
@@ -1660,8 +1675,7 @@ static int WINAPI LStricmp(const char *s1, const char *s2) noexcept
 	[&]
 	{
 		return LocalStricmp(s1, s2);
-	},
-	-1);
+	});
 }
 
 static int WINAPI LStrnicmp(const char *s1, const char *s2, int n) noexcept
@@ -1670,8 +1684,7 @@ static int WINAPI LStrnicmp(const char *s1, const char *s2, int n) noexcept
 	[&]
 	{
 		return LocalStrnicmp(s1, s2, n);
-	},
-	-1);
+	});
 }
 
 static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
@@ -1692,8 +1705,7 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 		}
 
 		return Str;
-	},
-	Str);
+	});
 }
 
 static char *WINAPI FarItoaA(int value, char *string, int radix) noexcept
@@ -1737,8 +1749,7 @@ static char* WINAPI PointToNameA(char *Path) noexcept
 		}
 
 		return NamePtr;
-	},
-	Path);
+	});
 }
 
 static void WINAPI UnquoteA(char *Str) noexcept
@@ -1774,8 +1785,7 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 			std::copy_n(ChPtr, strlen(ChPtr) + 1, Str);
 
 		return Str;
-	},
-	Str);
+	});
 }
 
 static char* WINAPI RemoveExternalSpacesA(char *Str) noexcept
@@ -1804,8 +1814,7 @@ static char* WINAPI TruncStrA(char *Str, int MaxLength) noexcept
 			Str[MaxLength] = 0;
 		}
 		return Str;
-	},
-	Str);
+	});
 }
 
 static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
@@ -1839,8 +1848,7 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 			std::copy_n("...", 3, Start);
 		}
 		return Str;
-	},
-	Str);
+	});
 }
 
 static char* WINAPI QuoteSpaceOnlyA(char *Str) noexcept
@@ -1851,8 +1859,7 @@ static char* WINAPI QuoteSpaceOnlyA(char *Str) noexcept
 		if (contains(Str, ' '))
 			InsertQuoteA(Str);
 		return Str;
-	},
-	Str);
+	});
 }
 
 static BOOL WINAPI AddEndSlashA(char *Path) noexcept
@@ -1861,8 +1868,7 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 	[&]
 	{
 		return legacy::AddEndSlash(Path)? TRUE : FALSE;
-	},
-	FALSE);
+	});
 }
 
 static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
@@ -1882,8 +1888,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 	[&]
 	{
 		return pluginapi::apiCopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).c_str() : nullptr);
-	},
-	FALSE);
+	});
 }
 
 static char* WINAPI PasteFromClipboardA() noexcept
@@ -1898,8 +1903,7 @@ static char* WINAPI PasteFromClipboardA() noexcept
 			return UnicodeToAnsiBin({ p.data(), p.size() });
 		}
 		return nullptr;
-	},
-	nullptr);
+	});
 }
 
 static void WINAPI DeleteBufferA(void* Buffer) noexcept
@@ -1945,8 +1949,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 			(void)encoding::oem::get_bytes({ p.data(), static_cast<size_t>(ret - 1) }, { Param2, static_cast<size_t>(size) });
 
 		return ret;
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI KeyNameToKeyA(const char *Name) noexcept
@@ -1956,8 +1959,7 @@ static int WINAPI KeyNameToKeyA(const char *Name) noexcept
 	{
 		const auto Key = KeyNameToKey(encoding::oem::get_chars(Name));
 		return Key? KeyToOldKey(Key) : -1;
-	},
-	-1);
+	});
 }
 
 static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
@@ -1971,8 +1973,7 @@ static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
 
 		(void)encoding::oem::get_bytes(strKT, { KeyText, static_cast<size_t>(Size > 0? Size + 1 : 32) });
 		return TRUE;
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI InputRecordToKeyA(const INPUT_RECORD *r) noexcept
@@ -1981,8 +1982,7 @@ static int WINAPI InputRecordToKeyA(const INPUT_RECORD *r) noexcept
 	[&]
 	{
 		return KeyToOldKey(InputRecordToKey(r));
-	},
-	0);
+	});
 }
 
 static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
@@ -1994,8 +1994,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 		if (const auto Size = pluginapi::apiMkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).c_str()))
 			(void)encoding::oem::get_bytes({ D, Size - 1 }, { Dest, std::size(D) });
 		return Dest;
-	},
-	Dest);
+	});
 }
 
 static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) noexcept
@@ -2022,8 +2021,7 @@ static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) 
 			Flags |= MLF_DONOTUPDATEPANEL;
 
 		return pluginapi::apiMkLink(encoding::oem::get_chars(Src).c_str(), encoding::oem::get_chars(Dest).data(), Type, Flags);
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
@@ -2032,8 +2030,7 @@ static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
 	[&]
 	{
 		return static_cast<int>(pluginapi::apiGetNumberOfLinks(encoding::oem::get_chars(Name).c_str()));
-	},
-	0);
+	});
 }
 
 static int WINAPI ConvertNameToRealA(const char *Src, char *Dest, int DestSize) noexcept
@@ -2048,8 +2045,7 @@ static int WINAPI ConvertNameToRealA(const char *Src, char *Dest, int DestSize) 
 
 		(void)encoding::oem::get_bytes(strDest, { Dest, static_cast<size_t>(DestSize) });
 		return std::min(static_cast<int>(strDest.size()), DestSize);
-	},
-	0);
+	});
 }
 
 static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestSize) noexcept
@@ -2074,8 +2070,7 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 			}
 		}
 		return static_cast<int>(Result);
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, const wchar_t *FullName, void *param) noexcept
@@ -2097,8 +2092,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 
 		const auto& CallbackParam = *static_cast<const FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 		return CallbackParam.Func(&FindData, FullNameA, CallbackParam.Param);
-	},
-	FALSE);
+	});
 }
 
 static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, oldfar::FRSUSERFUNC Func, DWORD Flags, void *Param) noexcept
@@ -2133,8 +2127,7 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 		const auto len = std::min(strD.size(), size - 1);
 		(void)encoding::oem::get_bytes(strD, { dest, len + 1 });
 		return static_cast<DWORD>(len);
-	},
-	0);
+	});
 }
 
 static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, int Y1, int X2, int Y2, DWORD Flags) noexcept
@@ -2143,8 +2136,7 @@ static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, in
 	[&]
 	{
 		return pluginapi::apiViewer(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, int Y1, int X2, int Y2, DWORD Flags, int StartLine, int StartChar) noexcept
@@ -2153,8 +2145,7 @@ static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, in
 	[&]
 	{
 		return pluginapi::apiEditor(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
-	},
-	EEC_OPEN_ERROR);
+	});
 }
 
 static int WINAPI FarCmpNameA(const char *pattern, const char *str, int skippath) noexcept
@@ -2179,8 +2170,7 @@ static BOOL WINAPI FarShowHelpA(const char *ModuleName, const char *HelpTopic, D
 	[&]
 	{
 		return pluginapi::apiShowHelp(encoding::oem::get_chars(ModuleName).c_str(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), Flags);
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char *HistoryName, const char *SrcText, char *DestText, int DestLength, const char *HelpTopic, DWORD Flags) noexcept
@@ -2220,8 +2210,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 			(void)encoding::oem::get_bytes(Buffer.data(), { DestText, static_cast<size_t>(DestLength) + 1 });
 
 		return ret;
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *HelpTopic, const char * const *Items, int ItemsNumber, int ButtonsNumber) noexcept
@@ -2290,8 +2279,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			ItemsNumber,
 			ButtonsNumber
 		);
-	},
-	-1);
+	});
 }
 
 static const char* WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcept
@@ -2308,8 +2296,7 @@ static const char* WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcep
 			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
-	},
-	"");
+	});
 }
 
 static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight, DWORD Flags, const char *Title, const char *Bottom, const char *HelpTopic, const int *BreakKeys, int *BreakCode, const oldfar::FarMenuItem *Items, int ItemsNumber) noexcept
@@ -2438,8 +2425,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		}
 
 		return ret;
-	},
-	-1);
+	});
 }
 
 static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2) noexcept
@@ -2457,8 +2443,7 @@ static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Pa
 			break;
 		}
 		return Result;
-	},
-	0);
+	});
 }
 
 static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2) noexcept
@@ -2468,8 +2453,7 @@ static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 	{
 		const auto Data = FindDialogData(hDlg);
 		return (Data->DlgProc ? Data->DlgProc : FarDefDlgProcA)(hDlg, Msg, Param1, Param2);
-	},
-	0);
+	});
 }
 
 static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2) noexcept
@@ -2629,8 +2613,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				break;
 		}
 		return CurrentDlgProc(hDlg, Msg, Param1, Param2);
-	},
-	0);
+	});
 }
 
 static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Param2) noexcept
@@ -3169,8 +3152,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				break;
 		}
 		return pluginapi::apiSendDlgMessage(hDlg, Msg, Param1, Param2);
-	},
-	0);
+	});
 }
 
 static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, int Y2, const char *HelpTopic, oldfar::FarDialogItem *Items, int ItemsNumber, DWORD, DWORD Flags, oldfar::FARWINDOWPROC DlgProc, void* Param) noexcept
@@ -3272,8 +3254,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		}
 
 		return ret;
-	},
-	-1);
+	});
 }
 
 static int WINAPI FarDialogFnA(intptr_t PluginNumber, int X1, int Y1, int X2, int Y2, const char *HelpTopic, oldfar::FarDialogItem *Item, int ItemsNumber) noexcept
@@ -3572,8 +3553,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				return static_cast<int>(pluginapi::apiPanelControl(hPlugin, FCTL_SETUSERSCREEN, 0, nullptr));
 		}
 		return FALSE;
-	},
-	FALSE);
+	});
 }
 
 static HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2) noexcept
@@ -3582,8 +3562,7 @@ static HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2) noexcept
 	[&]
 	{
 		return pluginapi::apiSaveScreen(X1, Y1, X2, Y2);
-	},
-	nullptr);
+	});
 }
 
 static void WINAPI FarRestoreScreenA(HANDLE Screen) noexcept
@@ -3639,8 +3618,7 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 			PathOffset = ExtractFilePath(strDir).size() + 1;
 			return pluginapi::apiGetDirList(strDir.c_str(), &Items, &Size);
 		});
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, const char *Dir, oldfar::PluginPanelItem **pPanelItem, int *pItemsNumber) noexcept
@@ -3653,8 +3631,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 			PathOffset = 0;
 			return pluginapi::apiGetPluginDirList(GetPluginUuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).c_str(), &Items, &Size);
 		});
-	},
-	FALSE);
+	});
 }
 
 static void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem) noexcept
@@ -3984,8 +3961,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_REDRAWALL, 0, nullptr);
 		}
 		return FALSE;
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, void* Param) noexcept
@@ -4464,8 +4440,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				return FALSE;
 		}
 		return static_cast<int>(pluginapi::apiEditorControl(-1, Command, 0, Param));
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
@@ -4596,8 +4571,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			}
 		}
 		return TRUE;
-	},
-	FALSE);
+	});
 }
 
 static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexcept
@@ -4645,8 +4619,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			return Command;
 		}
 		return -1;
-	},
-	-1);
+	});
 }
 
 static char* WINAPI XlatA(
@@ -4674,8 +4647,7 @@ static char* WINAPI XlatA(
 		pluginapi::apiXlat(WideLine.data(), StartPos, EndPos, NewFlags);
 		(void)encoding::oem::get_bytes(WideLine, { Line, WideLine.size() });
 		return Line;
-	},
-	Line);
+	});
 }
 
 static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Owner) noexcept
@@ -4690,8 +4662,7 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 			(void)encoding::oem::get_bytes({ wOwner, Ret - 1 }, { Owner, static_cast<size_t>(oldfar::NM) });
 		}
 		return static_cast<int>(Ret);
-	},
-	FALSE);
+	});
 }
 
 }
