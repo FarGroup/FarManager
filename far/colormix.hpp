@@ -55,6 +55,7 @@ namespace colors
 		constexpr inline uint8_t
 			nt_mask = 0xf,
 			nt_size = 16,
+			nt_first = 0,
 			nt_last = nt_size - 1,
 			cube_first = nt_size,
 			cube_size = 6,
