@@ -881,10 +881,8 @@ namespace os::debug::symbols
 			}
 		}
 
-		const auto Fixup = IsInlineFrame && !is_inline_frame(Frame.InlineContext)? 1 : 0;
-
 		Consumer(
-			Frame.Address? Frame.Address + Fixup - BaseAddress : 0,
+			Frame.Address? Frame.Address - BaseAddress : 0,
 			ImageName,
 			IsInlineFrame,
 			Symbol,
@@ -914,19 +912,21 @@ namespace os::debug::symbols
 			// StackWalk64 and RtlCaptureStackBackTrace do not include inline frames, we have to ask for them manually.
 			if (imports.SymAddrIncludeInlineTrace)
 			{
-				auto Frame = i;
-				if (Frame.Address != 0)
-					--Frame.Address;
+				const auto Address = i.Address? i.Address - 1 : i.Address;
+				DWORD InlineContext{};
 
-				if (const auto InlineFramesCount = imports.SymAddrIncludeInlineTrace(Process, Frame.Address))
+				if (const auto InlineFramesCount = imports.SymAddrIncludeInlineTrace(Process, Address))
 				{
 					ULONG FrameIndex{};
-					if (imports.SymQueryInlineTrace(Process, Frame.Address, INLINE_FRAME_CONTEXT_INIT, Frame.Address, Frame.Address, &Frame.InlineContext, &FrameIndex))
+					if (imports.SymQueryInlineTrace(Process, Address, INLINE_FRAME_CONTEXT_INIT, Address, Address, &InlineContext, &FrameIndex))
 					{
 						for (DWORD n = FrameIndex; n != InlineFramesCount; ++n)
 						{
-							handle_frame(Process, ModuleName, Frame, true, Storage, MapFiles, Consumer);
-							++Frame.InlineContext;
+							// Handle frames as StackWalkEx frames (same address, STACK_FRAME_TYPE_RA) for consistency
+							INLINE_FRAME_CONTEXT FrameContext{ InlineContext };
+							FrameContext.FrameType |= STACK_FRAME_TYPE_RA;
+							handle_frame(Process, ModuleName, { i.Address, FrameContext.ContextValue }, true, Storage, MapFiles, Consumer);
+							++InlineContext;
 						}
 					}
 				}

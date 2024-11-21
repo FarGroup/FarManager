@@ -389,7 +389,10 @@ static void read_modules(std::span<HMODULE const> const Modules, string& To, str
 
 	for (const auto& i: Modules)
 	{
-		To += str(static_cast<void const*>(i));
+		if (MODULEINFO Info; GetModuleInformation(GetCurrentProcess(), i, &Info, sizeof(Info)))
+			far::format_to(To, L"{} - {}"sv, str(Info.lpBaseOfDll), str(std::bit_cast<void*>(std::bit_cast<uintptr_t>(Info.lpBaseOfDll) + Info.SizeOfImage)));
+		else
+			To += str(static_cast<void const*>(i));
 
 		if (!os::fs::get_module_file_name({}, i, Name))
 		{
