@@ -393,7 +393,7 @@ namespace tests
 			});
 		});
 
-		const auto Result = os::handle::wait_any({ Thread.native_handle(), SehException.native_handle() });
+		const auto Result = os::handle::wait_any(Thread, SehException);
 
 		assert(Result == 1);
 		if (Result == 1)

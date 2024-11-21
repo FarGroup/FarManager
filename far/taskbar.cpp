@@ -123,12 +123,7 @@ private:
 
 		for (;;)
 		{
-			switch (os::handle::wait_any(
-			{
-				m_ExitEvent.native_handle(),
-				m_StateEvent.native_handle(),
-				m_ValueEvent.native_handle(),
-			}))
+			switch (os::handle::wait_any(m_ExitEvent, m_StateEvent, m_ValueEvent))
 			{
 			case 0:
 				return;

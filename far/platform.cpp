@@ -172,12 +172,12 @@ namespace os
 			return *multi_wait(Handles, false);
 		}
 
-		std::optional<size_t> handle_implementation::wait_any(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
+		std::optional<size_t> handle_implementation::wait_any(std::chrono::milliseconds const Timeout, span<HANDLE const> const Handles)
 		{
 			return multi_wait(Handles, false, Timeout);
 		}
 
-		bool handle_implementation::wait_all(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
+		bool handle_implementation::wait_all(std::chrono::milliseconds const Timeout, span<HANDLE const> const Handles)
 		{
 			return multi_wait(Handles, true, Timeout).has_value();
 		}

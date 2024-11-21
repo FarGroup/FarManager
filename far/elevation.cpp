@@ -455,7 +455,7 @@ static bool connect_pipe_to_process(const os::handle& Process, const os::handle&
 
 	case ERROR_IO_PENDING:
 		{
-			if (const auto Result = os::handle::wait_any({ AEvent.native_handle(), Process.native_handle() }, 15s); !Result || *Result == 1)
+			if (const auto Result = os::handle::wait_any(15s, AEvent, Process); !Result || *Result == 1)
 				CancelIo(Pipe.native_handle());
 
 			DWORD NumberOfBytesTransferred;

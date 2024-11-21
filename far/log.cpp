@@ -373,7 +373,7 @@ namespace
 
 				for (;;)
 				{
-					os::handle::wait_all({ console.GetInputHandle() });
+					os::handle::wait(console.GetInputHandle());
 
 					if (CheckForEscSilent())
 					{
@@ -620,7 +620,7 @@ namespace
 
 					for (;;)
 					{
-						if (os::handle::wait_any({ m_MessageEvent.native_handle(), m_FinishEvent.native_handle() }) != 0)
+						if (os::handle::wait_any(m_MessageEvent, m_FinishEvent) != 0)
 							return;
 
 						for (auto Messages = m_Messages.pop_all(); !Messages.empty(); Messages.pop())

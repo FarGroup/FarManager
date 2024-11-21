@@ -977,11 +977,9 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		static auto LastActivity = std::chrono::steady_clock::now();
 
-		std::optional<std::chrono::milliseconds> Timeout;
-		if (s_WakeupForClock || s_WakeupForScreensaver)
-			Timeout = till_next_minute();
-
-		const auto Status = os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, Timeout);
+		const auto Status = s_WakeupForClock || s_WakeupForScreensaver?
+			os::handle::wait_any(till_next_minute(), console.GetInputHandle(), wake_event::ref()) :
+			os::handle::wait_any(console.GetInputHandle(), wake_event::ref());
 
 		if (!Status)
 		{

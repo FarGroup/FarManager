@@ -1808,7 +1808,7 @@ private:
 
 	void WaitAllAsync() const
 	{
-		os::handle::wait_all({ AsyncDeleteAddDone.native_handle(), AsyncCommitDone.native_handle() });
+		os::handle::wait_all(AsyncDeleteAddDone, AsyncCommitDone);
 	}
 
 	void WaitCommitAsync() const
@@ -1822,7 +1822,7 @@ private:
 
 		// TODO: SEH guard, try/catch, exception_ptr
 
-		while (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) != 1)
+		while (os::handle::wait_any(AsyncWork, StopEvent) != 1)
 		{
 			bool bAddDelete=false, bCommit=false;
 
