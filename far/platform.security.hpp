@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.memory.hpp"
 
 // Common:
 #include "common/smart_ptr.hpp"
@@ -91,7 +92,7 @@ namespace os::security
 		bool m_Changed{};
 	};
 
-	using descriptor = block_ptr<SECURITY_DESCRIPTOR, 512>;
+	using descriptor = memory::local::ptr<SECURITY_DESCRIPTOR>;
 }
 
 #endif // PLATFORM_SECURITY_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C

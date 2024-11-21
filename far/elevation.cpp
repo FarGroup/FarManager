@@ -139,7 +139,7 @@ public:
 			return nullptr;
 
 		auto& Attributes = *m_Attributes;
-		Attributes.lpSecurityDescriptor = m_Descriptor ? m_Descriptor.data() : nullptr;
+		Attributes.lpSecurityDescriptor = m_Descriptor ? m_Descriptor.get() : nullptr;
 		return &Attributes;
 	}
 
@@ -147,17 +147,6 @@ private:
 	os::security::descriptor m_Descriptor;
 	mutable std::optional<SECURITY_ATTRIBUTES> m_Attributes;
 };
-
-static void WritePipe(const os::handle& Pipe, os::security::descriptor const& Data)
-{
-	const auto Size = Data.size();
-	pipe::write(Pipe, Size);
-
-	if (!Size)
-		return;
-
-	pipe::write(Pipe, Data.data(), Size);
-}
 
 static void WritePipe(const os::handle& Pipe, SECURITY_DESCRIPTOR* Data)
 {
@@ -168,6 +157,11 @@ static void WritePipe(const os::handle& Pipe, SECURITY_DESCRIPTOR* Data)
 		return;
 
 	pipe::write(Pipe, Data, Size);
+}
+
+static void WritePipe(const os::handle& Pipe, os::security::descriptor const& Data)
+{
+	return WritePipe(Pipe, Data.get());
 }
 
 static void WritePipe(const os::handle& Pipe, SECURITY_ATTRIBUTES* Data)
@@ -196,8 +190,11 @@ static void ReadPipe(const os::handle& Pipe, os::security::descriptor& Data)
 	if (!Size)
 		return;
 
-	Data.reset(Size);
-	pipe::read(Pipe, Data.data(), Size);
+	Data.reset(static_cast<SECURITY_DESCRIPTOR*>(LocalAlloc(LMEM_FIXED, Size)));
+	if (!Data)
+		throw far_exception(far::format(L"LocalAlloc({}): {}"sv, Size, os::last_error()));
+
+	pipe::read(Pipe, Data.get(), Size);
 }
 
 static void ReadPipe(const os::handle& Pipe, security_attributes_wrapper& Data)
@@ -373,8 +370,8 @@ static os::handle create_named_pipe(string_view const Name)
 static bool grant_duplicate_handle()
 {
 	PACL Acl;
-	os::memory::local::ptr<std::remove_pointer_t<PSECURITY_DESCRIPTOR>> Descriptor;
-	if (const auto Result = GetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, &Acl, {}, &ptr_setter(Descriptor)); Result != ERROR_SUCCESS)
+	os::security::descriptor Descriptor;
+	if (const auto Result = GetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, &Acl, {}, std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor))); Result != ERROR_SUCCESS)
 	{
 		LOGWARNING(L"GetSecurityInfo: {}"sv, os::format_error(Result));
 		return false;
@@ -975,7 +972,7 @@ bool elevation::set_file_security(string const& Object, SECURITY_INFORMATION con
 		false,
 		[&]
 		{
-			return os::fs::low::set_file_security(Object.c_str(), RequestedInformation, Descriptor.data());
+			return os::fs::low::set_file_security(Object.c_str(), RequestedInformation, Descriptor.get());
 		},
 		[&]
 		{
@@ -1329,7 +1326,7 @@ private:
 		const auto SecurityInformation = Read<SECURITY_INFORMATION>();
 		const auto SecurityDescriptor = Read<os::security::descriptor>();
 
-		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.data());
+		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.get());
 
 		Write(os::last_error(), Result);
 	}

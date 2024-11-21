@@ -1956,7 +1956,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						const auto tmpsd = GetSecurity(Src);
 
-						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.data() : nullptr };
+						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.get() : nullptr };
 
 						while (!os::fs::create_directory(strDestPath, tmpsd? &TmpSecAttr : nullptr))
 						{
@@ -2005,7 +2005,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			const auto sd = GetSecurity(Src);
 
-			SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.data() : nullptr };
+			SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.get() : nullptr };
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(
@@ -2552,7 +2552,7 @@ bool ShellCopy::ShellCopyFile(
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.data() : nullptr };
+		SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.get() : nullptr };
 
 		const auto attrs = SrcData.Attributes & ~(Flags & FCOPY_DECRYPTED_DESTINATION? FILE_ATTRIBUTE_ENCRYPTED : 0);
 		const auto IsSystemEncrypted = flags::check_all(attrs, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_ENCRYPTED);

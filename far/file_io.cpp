@@ -91,7 +91,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 		// ReplaceFileW handles DAC, but just in case if it can't for whatever reason (see M#3730):
 		SecurityDescriptor = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
 		if (SecurityDescriptor)
-			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor.data();
+			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor.get();
 	}
 
 	{

@@ -202,7 +202,7 @@ static bool ProcessFileOwner(string_view const Name, function_ref<bool(PSID)> co
 
 	PSID pOwner;
 	BOOL OwnerDefaulted;
-	if (!GetSecurityDescriptorOwner(SecurityDescriptor.data(), &pOwner, &OwnerDefaulted))
+	if (!GetSecurityDescriptorOwner(SecurityDescriptor.get(), &pOwner, &OwnerDefaulted))
 		return false;
 
 	if (!IsValidSid(pOwner))
@@ -269,9 +269,21 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 
 	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
 
-	const auto Result = SetNamedSecurityInfo(const_cast<wchar_t*>(Object.c_str()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
-	SetLastError(Result);
-	return Result == ERROR_SUCCESS;
+	if (const auto Result = SetNamedSecurityInfo(
+		const_cast<wchar_t*>(Object.c_str()),
+		SE_FILE_OBJECT,
+		OWNER_SECURITY_INFORMATION,
+		Sid.get(),
+		{},
+		{},
+		{}
+	); Result != ERROR_SUCCESS)
+	{
+		SetLastError(Result);
+		return false;
+	}
+
+	return true;
 }
 
 bool SetFileOwner(string_view const Object, const string& Owner)

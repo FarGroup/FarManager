@@ -1731,33 +1731,79 @@ namespace os::fs
 
 		security::descriptor get_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation)
 		{
-			security::descriptor Result(default_buffer_size);
+			security::descriptor Descriptor;
 
-			if (!os::detail::ApiDynamicReceiver(Result.bytes(),
-				[&](std::span<std::byte> const Buffer)
-				{
-					DWORD LengthNeeded = 0;
-					if (!::GetFileSecurity(Object, RequestedInformation, static_cast<SECURITY_DESCRIPTOR*>(static_cast<void*>(Buffer.data())), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
-						return static_cast<size_t>(LengthNeeded);
-					return Buffer.size();
-				},
-				[](size_t ReturnedSize, size_t AllocatedSize)
-				{
-					return ReturnedSize > AllocatedSize;
-				},
-				[](std::span<std::byte const>)
-				{}
-			))
-			{
-				Result.reset();
-			}
+			if (const auto Result = GetNamedSecurityInfo(
+				Object,
+				SE_FILE_OBJECT,
+				RequestedInformation,
+				{},
+				{},
+				{},
+				{},
+				std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor)
+				)
+			); Result != ERROR_SUCCESS)
+				SetLastError(Result);
 
-			return Result;
+			return Descriptor;
 		}
 
 		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor)
 		{
-			return ::SetFileSecurity(Object, RequestedInformation, SecurityDescriptor) != FALSE;
+			SECURITY_DESCRIPTOR_CONTROL Control;
+			DWORD Revision;
+			if (!GetSecurityDescriptorControl(SecurityDescriptor, &Control, &Revision))
+				return false;
+
+			BOOL Defaulted;
+
+			PSID Owner{};
+			if (!GetSecurityDescriptorOwner(SecurityDescriptor, &Owner, &Defaulted))
+				return false;
+
+			PSID Group{};
+			if (!GetSecurityDescriptorGroup(SecurityDescriptor, &Group, &Defaulted))
+				return false;
+
+			BOOL Present;
+
+			PACL Dacl{};
+			if (!GetSecurityDescriptorDacl(SecurityDescriptor, &Present, &Dacl, &Defaulted))
+				return false;
+
+			PACL Sacl{};
+			if (!GetSecurityDescriptorSacl(SecurityDescriptor, &Present, &Sacl, &Defaulted))
+				return false;
+
+			if (RequestedInformation & DACL_SECURITY_INFORMATION)
+			{
+				RequestedInformation |= Control & SE_DACL_PROTECTED?
+					PROTECTED_DACL_SECURITY_INFORMATION :
+					UNPROTECTED_DACL_SECURITY_INFORMATION;
+			}
+			if (RequestedInformation & SACL_SECURITY_INFORMATION)
+			{
+				RequestedInformation |= Control & SE_SACL_PROTECTED?
+					PROTECTED_SACL_SECURITY_INFORMATION :
+					UNPROTECTED_SACL_SECURITY_INFORMATION;
+			}
+
+			if (const auto Result = SetNamedSecurityInfo(
+				const_cast<wchar_t*>(Object),
+				SE_FILE_OBJECT,
+				RequestedInformation,
+				Owner,
+				Group,
+				Dacl,
+				Sacl
+			); Result != ERROR_SUCCESS)
+			{
+				SetLastError(Result);
+				return false;
+			}
+
+			return true;
 		}
 
 		bool reset_file_security(const wchar_t* Object)
@@ -1766,9 +1812,21 @@ namespace os::fs
 			if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
 				return false;
 
-			const auto Result = SetNamedSecurityInfo(const_cast<wchar_t*>(Object), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION, nullptr, nullptr, &EmptyAcl, nullptr);
-			SetLastError(Result);
-			return Result == ERROR_SUCCESS;
+			if (const auto Result = SetNamedSecurityInfo(
+				const_cast<wchar_t*>(Object),
+				SE_FILE_OBJECT,
+				DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+				{},
+				{},
+				&EmptyAcl,
+				{}
+			); Result != ERROR_SUCCESS)
+			{
+				SetLastError(Result);
+				return false;
+			}
+
+			return true;
 		}
 
 		bool move_to_recycle_bin(string_view const Object)
@@ -2296,7 +2354,7 @@ namespace os::fs
 	{
 		const auto NtObject = nt_path(Object);
 
-		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.data()))
+		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.get()))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
