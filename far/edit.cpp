@@ -86,7 +86,7 @@ public:
 			return *Value;
 		}
 
-		const auto [Iterator, IsNew] = m_BigPositions.emplace(Position, 0);
+		const auto [Iterator, IsNew] = m_BigPositions.try_emplace(Position, 0);
 		if (IsNew)
 			Iterator->second = m_Accessor(Position, &m_State);
 

@@ -1125,7 +1125,7 @@ namespace os::fs
 		// Mapped drives resolve to \Device\WinDfs\X:<whatever>\server\share
 		if (const auto DfsPrefix = L"\\Device\\WinDfs\\"sv; NtPath.starts_with(DfsPrefix))
 		{
-			const auto ServerStart = NtPath.find(L"\\", DfsPrefix.size());
+			const auto ServerStart = NtPath.find(L'\\', DfsPrefix.size());
 			FinalFilePath = NtPath.replace(0, ServerStart, 1, L'\\');
 			return true;
 		}
@@ -2395,7 +2395,7 @@ namespace os::fs
 			return true;
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
-			return elevation::instance().get_disk_free_space(strPath.c_str(), UserFree, UserTotal, TotalFree);
+			return elevation::instance().get_disk_free_space(strPath, UserFree, UserTotal, TotalFree);
 
 		return false;
 	}

@@ -1303,7 +1303,7 @@ void regex_playground()
 			for (const auto& [i, Index] : enumerate(Match.Matches))
 			{
 				ListStrings.emplace_back(far::format(L"${}: {}"sv, Index, match_str(i)));
-				ListItems.push_back({ i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0 });
+				ListItems.emplace_back(i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0);
 			}
 
 			for (const auto& [k, v] : NamedMatch.Matches)

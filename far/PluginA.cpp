@@ -2665,7 +2665,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				FarDialogItemData did{ sizeof(did), static_cast<size_t>(didA->PtrLength), text.data() };
 				intptr_t ret = pluginapi::apiSendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 				didA->PtrLength = static_cast<int>(did.PtrLength);
-				(void)encoding::oem::get_bytes({ text.data(), did.PtrLength }, { didA->PtrData, static_cast<size_t>(didA->PtrLength + 1) });
+				(void)encoding::oem::get_bytes({ text.data(), did.PtrLength }, { didA->PtrData, static_cast<size_t>(didA->PtrLength) + 1 });
 				return ret;
 			}
 			case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
@@ -3206,7 +3206,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		NewDialogData.di = di.data();
 		NewDialogData.l = l.data();
 
-		Dialogs().emplace(hDlg, NewDialogData);
+		Dialogs().try_emplace(hDlg, NewDialogData);
 		SCOPE_EXIT{ Dialogs().erase(hDlg); };
 
 		const auto ret = pluginapi::apiDialogRun(hDlg);
@@ -3706,7 +3706,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					{
 						std::vector<FarColor> Color(PaletteSize + 1);
 						pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETARRAYCOLOR, Color.size(), Color.data());
-						Color.insert(Color.begin() + oldfar::COL_RESERVED0, FarColor{});
+						Color.emplace(Color.begin() + oldfar::COL_RESERVED0);
 						const auto OldColors = static_cast<LPBYTE>(Param);
 						std::ranges::transform(Color, OldColors, colors::FarColorToConsoleColor);
 					}

@@ -175,7 +175,7 @@ static void ParseAndAddMasks(std::map<string, int, string_sort::less_icase_t>& E
 		return;
 
 	const auto Ext = name_ext(FileName).second;
-	Extensions.emplace(Ext.empty()? L"*."s : concat(L'*', Ext), Check);
+	Extensions.emplace(Ext.empty()? L"*."sv : concat(L'*', Ext), Check);
 }
 
 static wchar_t GetCheck(filter_area const Type, const FileFilterParams& FFP)
@@ -555,7 +555,7 @@ static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 				NewFilter.SetMask(true, Mask.find_first_of(L",;"sv, L"*."sv.size()) == string::npos? Mask : quote(Mask));
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
 				NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
-				const auto NewIterator = TempFilterData().emplace(Mask, std::move(NewFilter)).first;
+				const auto NewIterator = TempFilterData().try_emplace(Mask, std::move(NewFilter)).first;
 				CurFilterData = &NewIterator->second;
 			}
 		}
@@ -964,7 +964,7 @@ void filters::InitFilters()
 			}
 		}
 
-		TempFilterData().emplace(unquote(std::move(Mask)), std::move(NewItem));
+		TempFilterData().try_emplace(unquote(std::move(Mask)), std::move(NewItem));
 	}
 }
 

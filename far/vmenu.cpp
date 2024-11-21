@@ -2207,7 +2207,7 @@ bool VMenu::AlignAnnotations()
 	if (!CheckFlags(VMENU_ENABLEALIGNANNOTATIONS)) return false;
 
 	const auto TextAreaWidth{ CalculateTextAreaWidth() };
-	if (TextAreaWidth <= 0 || TextAreaWidth + 2 <= 0) return false;
+	if (TextAreaWidth <= 0) return false;
 	const auto AlignPos{ (TextAreaWidth + 2) / 4 };
 
 	return SetAllItemsHPos(
@@ -2437,7 +2437,7 @@ void VMenu::DrawMenu()
 	if (Layout.Scrollbar)
 	{
 		set_color(Colors, color_indices::ScrollBar);
-		ScrollBar(Layout.Scrollbar.value(), Layout.ClientRect.top, Layout.ClientRect.height(), VisualTopPos, GetShowItemCount());
+		ScrollBar(*Layout.Scrollbar, Layout.ClientRect.top, Layout.ClientRect.height(), VisualTopPos, GetShowItemCount());
 	}
 }
 
@@ -2608,7 +2608,7 @@ void VMenu::DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, c
 {
 	if (!Layout.TextArea) return;
 
-	const auto [TextAreaBegin, TextAreaWidth] { Layout.TextArea.value() };
+	const auto [TextAreaBegin, TextAreaWidth] { *Layout.TextArea };
 
 	GotoXY(TextAreaBegin, Y);
 
@@ -2671,16 +2671,16 @@ void VMenu::DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, c
 		};
 
 	if (Layout.CheckMark)
-		DrawDecorator(Layout.CheckMark.value(), get_item_check_mark(Item, ColorIndices));
+		DrawDecorator(*Layout.CheckMark, get_item_check_mark(Item, ColorIndices));
 
 	if (Layout.LeftHScroll)
-		DrawDecorator(Layout.LeftHScroll.value(), get_item_left_hscroll(Item.HorizontalPosition < 0, ColorIndices));
+		DrawDecorator(*Layout.LeftHScroll, get_item_left_hscroll(Item.HorizontalPosition < 0, ColorIndices));
 
 	if (Layout.SubMenu)
-		DrawDecorator(Layout.SubMenu.value(), get_item_submenu(Item, ColorIndices));
+		DrawDecorator(*Layout.SubMenu, get_item_submenu(Item, ColorIndices));
 
 	if (Layout.RightHScroll)
-		DrawDecorator(Layout.RightHScroll.value(), get_item_right_hscroll(Item.HorizontalPosition + ItemTextSize > TextAreaWidth, ColorIndices));
+		DrawDecorator(*Layout.RightHScroll, get_item_right_hscroll(Item.HorizontalPosition + ItemTextSize > TextAreaWidth, ColorIndices));
 }
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
@@ -3263,7 +3263,7 @@ void VMenu::EnableFilter(bool const Enable)
 int VMenu::CalculateTextAreaWidth() const
 {
 	const auto TextArea = menu_layout{ *this }.TextArea;
-	return TextArea ? TextArea.value().second : 0;
+	return TextArea? TextArea->second : 0;
 }
 
 size_t VMenu::Text(string_view const Str) const

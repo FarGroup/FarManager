@@ -105,7 +105,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	{
 		for (const auto& i: Data.Matches)
 		{
-			Context.Variables.emplace(
+			Context.Variables.try_emplace(
 				far::format(L"RegexGroup{}"sv, &i - Data.Matches.data()),
 				get_match(Context.Name, i)
 			);
@@ -114,7 +114,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		for (const auto& [GroupName, GroupNumber]: Data.NamedMatches)
 		{
 			const auto& Match = Data.Matches[GroupNumber];
-			Context.Variables.emplace(
+			Context.Variables.try_emplace(
 				far::format(L"RegexGroup{{{}}}"sv, GroupName),
 				get_match(Context.Name, Match)
 			);

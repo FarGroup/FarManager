@@ -342,7 +342,7 @@ static void LoadCustomStrings(string_view const FileName, unordered_string_map<s
 			break;
 
 		case lng_line_type::text:
-			Strings.emplace(std::move(SavedLabel), ConvertString(Line.Text));
+			Strings.try_emplace(std::move(SavedLabel), ConvertString(Line.Text));
 			SavedLabel.clear();
 			break;
 

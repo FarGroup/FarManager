@@ -303,7 +303,7 @@ namespace os::debug
 
 		const auto handler = [&](uintptr_t const Address, DWORD const InlineFrameContext)
 		{
-			Result.push_back({ Address, InlineFrameContext });
+			Result.emplace_back(Address, InlineFrameContext);
 		};
 
 		if (imports.StackWalkEx)

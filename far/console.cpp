@@ -1066,7 +1066,7 @@ protected:
 	static bool layout_has_altgr(HKL const Layout)
 	{
 		static std::unordered_map<HKL, bool> LayoutState;
-		const auto [Iterator, Inserted] = LayoutState.emplace(Layout, false);
+		const auto [Iterator, Inserted] = LayoutState.try_emplace(Layout, false);
 		if (!Inserted)
 			return Iterator->second;
 
@@ -1906,7 +1906,7 @@ protected:
 			return ::console.Write(CSI L"m"sv);
 		}
 
-		class cursor_suppressor: public hide_cursor
+		class cursor_suppressor: hide_cursor
 		{
 		public:
 			NONCOPYABLE(cursor_suppressor);
@@ -2941,7 +2941,6 @@ protected:
 
 			LOGINFO(L"Reinitializing"sv);
 			initialize();
-			return 1;
 		}
 
 		DWORD Written;

@@ -511,8 +511,8 @@ FileList::FileList(private_tag, window_ptr Owner):
 {
 	if (const auto& data = msg(lng::MPanelBracketsForLongName); data.size() > 1)
 	{
-		*openBracket = data[0];
-		*closeBracket = data[1];
+		openBracket = data[0];
+		closeBracket = data[1];
 	}
 
 	m_CurDir = os::fs::get_current_directory();

@@ -808,7 +808,7 @@ static auto keyboard_layout_list_hr(std::span<HKL const> const List)
 				if (!from_string(*LayoutIdStr, LayoutId, {}, 16))
 					continue;
 
-				SpecialLayouts.emplace(LayoutId, Key);
+				SpecialLayouts.try_emplace(LayoutId, Key);
 			}
 		}
 	}

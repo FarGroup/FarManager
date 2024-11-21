@@ -185,7 +185,7 @@ bool message_manager::dispatch()
 			const auto [Begin, End] = Handlers.equal_range(EventId);
 			for (const auto& [Key, Value]: std::ranges::subrange(Begin, End))
 			{
-				EligibleHandlers.emplace(Value, false);
+				EligibleHandlers.try_emplace(Value, false);
 			}
 		};
 

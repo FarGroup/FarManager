@@ -195,7 +195,7 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 #endif // NO_WRAPPER
 					LIF_NONE;
 
-				MenuInitItems.push_back({ std::move(strPluginText), Flags, HotKey, { pPlugin, Uuid } });
+				MenuInitItems.emplace_back(std::move(strPluginText), Flags, HotKey, plugin_item{ pPlugin, Uuid });
 			}
 		}
 	}

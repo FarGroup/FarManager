@@ -365,7 +365,7 @@ void Manager::ExecuteNonModal(const window_ptr& NonModal)
 void Manager::ExecuteModal(const window_ptr& Executed)
 {
 	bool stop=false;
-	if (!m_Executed.emplace(Executed, &stop).second)
+	if (!m_Executed.try_emplace(Executed, &stop).second)
 		return;
 
 	const auto OriginalStartManager = StartManager;

@@ -506,7 +506,7 @@ namespace colors
 			);
 		};
 
-		return Map.emplace(Color, std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance) - Palette.begin()).first->second;
+		return Map.try_emplace(Color, std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance) - Palette.begin()).first->second;
 	}
 
 	struct index_color_16

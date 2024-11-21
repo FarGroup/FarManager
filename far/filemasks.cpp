@@ -421,7 +421,7 @@ bool filemasks::masks::operator==(const string_view FileName) const
 
 			Data.Match.assign(ALL_CONST_RANGE(Match.Matches));
 			for (const auto& [k, v]: NamedMatch.Matches)
-				Data.NamedMatch.emplace(k, v);
+				Data.NamedMatch.try_emplace(k, v);
 			return true;
 		}
 	}, m_Masks);

@@ -318,7 +318,7 @@ private:
 		 Открывающий и закрывающий символ, которые используются для показа
 		 имени, которое не помещается в панели. По умолчанию - фигурные скобки.
 	*/
-	wchar_t openBracket[2]{L'{'}, closeBracket[2]{L'}'};
+	wchar_t openBracket{L'{'}, closeBracket{L'}'};
 
 	string strOriginalCurDir;
 	string strPluginDizName;
