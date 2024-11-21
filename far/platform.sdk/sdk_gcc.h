@@ -332,6 +332,7 @@ DECLARE_INTERFACE_(IDebugOutputCallbacksWide, IUnknown)
 
 #ifndef STACK_FRAME_TYPE_INLINE
 #define STACK_FRAME_TYPE_INLINE 0x02
+#define STACK_FRAME_TYPE_RA     0x80
 #define STACK_FRAME_TYPE_IGNORE 0xFF
 
 // dbghelp.h
