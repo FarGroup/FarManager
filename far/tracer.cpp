@@ -134,7 +134,7 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
-	os::debug::stack_frame const Stack[]{ { std::bit_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT } };
+	os::debug::stack_frame const Stack[]{ { std::bit_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_IGNORE } };
 
 	os::debug::symbols::get(Module, Stack, *m_MapFiles, [&](uintptr_t const Address, string_view const ImageName, bool const InlineFrame, os::debug::symbols::symbol const Symbol, os::debug::symbols::location const Location)
 	{
