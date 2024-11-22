@@ -16568,6 +16568,20 @@ upd:"Unknown reparse point"
 "Невядомая кропка паўторнага аналізу"
 upd:"Unknown reparse point"
 
+MSetAttrDiskDevice
+"Устройство:"
+"Device:"
+"Přístroj:"
+"Gerät:"
+"Eszköz:"
+"Urządzenie:"
+"Dispositivo:"
+"Zariadenie:"
+"Dispositivo:"
+"Пристрій:"
+"Прылада:"
+"Įrenginys:"
+
 MSetAttrReadOnly
 "&Только для чтения"
 "&Read only"

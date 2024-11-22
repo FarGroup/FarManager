@@ -90,6 +90,8 @@ enum SETATTRDLG
 	SA_TEXT_REPARSE_POINT,
 	SA_EDIT_REPARSE_POINT,
 	SA_COMBO_REPARSE_POINT,
+	SA_TEXT_DEVICE,
+	SA_EDIT_DEVICE,
 	SA_SEPARATOR_AFTER_HEADER,
 
 	SA_ATTR_FIRST,
@@ -722,6 +724,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		{ DI_TEXT,      {{5,       3     }, {17,      3     }}, DIF_HIDDEN, },
 		{ DI_EDIT,      {{18,      3     }, {DlgX-6,  3     }}, DIF_HIDDEN | DIF_EDITPATH, },
 		{ DI_COMBOBOX,  {{18,      3     }, {DlgX-6,  3     }}, DIF_SHOWAMPERSAND | DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_HIDDEN, },
+		{ DI_TEXT,      {{5,       3     }, {17,      3     }}, DIF_HIDDEN, msg(lng::MSetAttrDiskDevice), },
+		{ DI_EDIT,      {{18,      3     }, {DlgX-6,  3     }}, DIF_HIDDEN | DIF_READONLY, },
 		{ DI_TEXT,      {{-1,      4     }, {0,       4     }}, DIF_SEPARATOR, },
 
 		{ DI_CHECKBOX,  {{C1,      5     }, {0,       5     }}, DIF_FOCUS, msg(AttributeMap[SA_CHECKBOX_READONLY - SA_ATTR_FIRST].LngId), },
@@ -924,7 +928,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			const auto IsMountPoint = [&]
+			const auto IsDriveLetterPath = [&]
 			{
 				if (DlgParam.Plugin)
 					return false;
@@ -934,11 +938,10 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!IsRoot)
 					return false;
 
-				if (none_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter))
-					return false;
-
-				return os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+				return any_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter);
 			}();
+
+			const auto IsMountPoint = IsDriveLetterPath && os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
 			{
@@ -1037,12 +1040,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				for (auto& i: AttrDlg | std::views::drop(SA_TEXT_REPARSE_POINT))
 				{
-					i.Y1++;
-
-					if (i.Y2)
-					{
-						i.Y2++;
-					}
+					++i.Y1;
+					++i.Y2;
 				}
 
 				AttrDlg[SA_TEXT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
@@ -1110,7 +1109,30 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
+			if (IsDriveLetterPath)
+			{
+				const auto DriveLetter = HasPathPrefix(SingleSelFileName)? SingleSelFileName[L"\\\\?\\"sv.size()] : SingleSelFileName.front();
+
+				AttrDlg[SA_TEXT_NAME].strData = os::fs::drive::get_root_directory(DriveLetter);
+
+				if (string Device; os::fs::QueryDosDevice(os::fs::drive::get_device_path(DriveLetter), Device))
+				{
+					++DlgY;
+					++AttrDlg[SA_DOUBLEBOX].Y2;
+
+					for (auto& i: AttrDlg | std::views::drop(SA_TEXT_DEVICE))
+					{
+						++i.Y1;
+						++i.Y2;
+					}
+
+					AttrDlg[SA_TEXT_DEVICE].Flags &= ~DIF_HIDDEN;
+					AttrDlg[SA_EDIT_DEVICE].Flags &= ~DIF_HIDDEN;
+					AttrDlg[SA_EDIT_DEVICE].strData = Device;
+				}
+			}
+			else
+				AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
 
 			const auto ComputerName = ExtractComputerName(SrcPanel?
 				SrcPanel->GetCurDir() :
