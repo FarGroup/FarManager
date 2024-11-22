@@ -4427,7 +4427,7 @@ mogą go obsługiwać inaczej, np. renderować jako półprzezroczysty.
  - #______##### - indeks palety od 00 do FF.
  - #__RRGGBB# - kanały czerwony (Red), zielony (Green) i niebieski (Blue) z przestrzeni barw RGB, każdy od 00 do FF.
 
- Palette indices 00-0F are arranged in Windows/DOS/CGA/IBM PC order, not ANSI (e.g. color ##1 is blue, not red).
+ Indeksy palety 00-0F są ułożone zgodnie z systemem Windows/DOS/CGA/IBC PC, a nie ANSI (np. kolor ##1 to niebieskie, a nie czerwony).
 
  Jeżeli kolor nie jest w pełni nieprzezroczysty, brany jest pod uwagę poprzedni kolor w logicznym porządku Z.
 
