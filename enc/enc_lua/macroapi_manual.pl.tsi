@@ -616,7 +616,7 @@ lv=2
 dt=Text
 nm=Operacje wiersza poleceń
 ctime=3617997112
-mtime=3925879972
+mtime=3941471686
 <article>
 #_<markdown>
 #_* `macro: load [ścieżka]`<br>
@@ -629,9 +629,9 @@ mtime=3925879972
 #_* `macro: about`<br>
 #_   Pokazuje wersję wtyczki i bibliotek jakie są używane.
 #_* `macro: browser`<br>
-#_   Run macro browser.
+#_   Uruchamia przeglądarkę makropoleceń.
 #_* `macro: test`<br>
-#_   Run tests and exit Far (exit code 0 = success)
+#_   Uruchamia makropolecenie test i wykochodzi z Far (kod wyjścia 0 = sukces)
 #_* `lua: [=] <kod>`
 #_* `moon: [=] <kod>`<br>
 #_   Wykonuje kod `<kod>` napisany odpowiednio w Lua lub MoonScript.<br>
@@ -1092,7 +1092,7 @@ lv=3
 dt=Text
 nm=acall
 ctime=3614688602
-mtime=3717266648
+mtime=3941471799
 <article>
 #_... = mf.acall (funk, ...)
 #_
@@ -1104,7 +1104,7 @@ mtime=3717266648
 #_  ...:     0 lub więcej wartości Lua
 #_
 #_**Opis:**
-#_  Ta funkcja wywołuje "asynchronicznie" funkcję *funk*, przekazując jej wszystkie następujące
+#_  Ta funkcja wywołuje "asynchronicznie" funkcję *funk*, przekazując jej wszystkie kolejne
 #_  argumenty.
 #_
 #_  *mf.acall* jest swego rodzaju specjalizacją `Plugin.Call` dla wtyczki `LuaMacro`,
@@ -1134,7 +1134,7 @@ lv=3
 dt=Text
 nm=AddExitHandler
 ctime=3732331676
-mtime=3770399831
+mtime=3941471927
 <article>
 #_mf.AddExitHandler (uchwyt [, ...])
 #_
@@ -1143,22 +1143,22 @@ mtime=3770399831
 #_  ...    :  dowolna liczba dodatkowych wartości
 #_
 #_**Zwracana wartość:**
-#_  values passed in ... (if any)
+#_  wartości przekazane w ... (jeżeli istnieją)
 #_
 #_**Opis:**
-#_  1. This function adds a handler that will be called at the end
-#_     of the macro execution. All values specified in ... (if any)
-#_     will be passed as arguments to the handler.
-#_  2. The handler will be called both in the case of normal macro
-#_     completion and in the case of error completion.
-#_  3. If multiple handlers were added during macro execution then they
-#_     will be called in the order reverse to the order of their adding.
+#_  1. Ta funkcja dodaje uchwytm który zostanie wywołany po zakończeniu
+#_     wykonywania makra. Wszystkie wartości podane jako parametry
+#_     (jeśli zostaną podane), zostaną przekazane jako argumenty uchwytu.
+#_  2. Uchwyt zostanie wywołany zarówno przy poprawnym, jak i niepoprawnym
+#_     zakończeniu makra.
+#_  3. Jeżeli wiele uchwytów zostanie dodanych podczas wykonywania makra,
+#_     zostaną one wywołane w odwrotnej kolejności niż zostały dodane.
 #_
-#_**Usage example:**
+#_**Przykład użycia:**
 #_  local fp = mf.AddExitHandler(
 #_      function(p) if p then p:close() end; end,
-#_      io.open("some file.txt") )
-#_  -- *use fp; return from multiple places; do not care about closing fp*
+#_      io.open("jakis_plik.txt") )
+#_  -- *użyj fp; powrót z wielu miejsc nie dbamy o zamknięcie fp*
 #_
 #_**Zobacz także:**
 #_`Restrykcje w użyciu niektórych funkcji`
@@ -1174,23 +1174,24 @@ lv=3
 dt=Text
 nm=deserialize
 ctime=3778310150
-mtime=3778310982
+mtime=3941472027
 <article>
-#_value, errmsg = mf.deserialize (str)
+#_value, errmsg = mf.deserialize (tekst)
 #_
 #_**Parametry:**
-#_  str:       string
+#_  tekst:       łańcuch
 #_
 #_**Zwracana wartość:**
-#_  value:     number, string, boolean, table, int64 or nil.
-#_  errmsg:    nil on success, string on failure.
+#_  value:     liczba, łańcuch, wart. logiczna, tablica, int64 lub nil.
+#_  errmsg:    nil przy sukcesie, łańcuch w przypadku błędu.
 #_
 #_**Opis:**
-#_  Function *deserialize* recreates a copy of a previously serialized value.
-#_  If the second return value is nil then the first return value is valid.
+#_  Funkcja *deserialize* odtwarza kopię poprzednio serializowanej wartości.
+#_  Jeżeli drugą zwracaną wartością jest nil, to pierwsza zwracana wartość
+#_  jest prawidłowa.
 #_
-#_**Note:**
-#_  int64 - a distinguished type of userdata, created by the bit64 library.
+#_**Uwaga:**
+#_  int64 - wyróżniony typ danych userdata, utworzony przez bibliotekę bit64.
 #_
 #_**Zobacz także:**
 #_`serialize`
@@ -1206,36 +1207,37 @@ lv=3
 dt=Text
 nm=EnumScripts
 ctime=3833370836
-mtime=3833370836
+mtime=3941472203
 <article>
-#_next_script = mf.EnumScripts (ScriptType)
+#_next_script = mf.EnumScripts (TypSkryptu)
 #_
 #_**Parametry:**
-#_  ScriptType:  string
+#_  TypSkryptu:  łańcuch
 #_
 #_**Zwracana wartość:**
-#_  next_script:  function
+#_  next_script:  funkcja
 #_
 #_**Opis:**
-#_  The *EnumScripts* function returns an iterator function *next_script* that allows
-#_  to traverse over all scripts of the specified *ScriptType* type, where *ScriptType* is one of the values:
+#_  Funkcja *EnumScripts* zwraca funkcję iteratora *next_script*, która umożliwia przeglądanie
+#_  wszystkich skryptów okreśonego typu *TypSkryptu*, gdzie *TypSkryptu* jest jedną z wartości:
 #_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
-#_  (by the name of the loader function), and also "CustomSortModes".
+#_  (wg nazwy funkcji ładującej), a także "CustomSoftModes".
 #_
 #_script, index = next_script()
 #_
-#_  Each subsequent call to *next_script* returns a copy of the next table
-#_  from loaded scripts, or nil if all scripts have already been traversed.
-#_  Thus, for convenient enumeration, you can use the construction:
+#_  Każde kolejne wywołanie *next_Script* zwraca kopią następnej tabeli
+#_  z załadowanych skryptów lub nil jeżeli wszystkie skrypty zostały
+#_  już przejrzane.
+#_  Tak więc, dla wygodnego wyliczenia można użyć konstrukcji:
 #_
-#_  for script,index in mf.EnumScripts(ScriptType) do *actions* end
+#_  for script,index in mf.EnumScripts(ScriptType) do *akcje* end
 #_
-#_**Uwagi:**
-#_- The second returned value of *next_script* is script index in the corresponding internal array.
-#_- The behavior of *next_script* is undefined if further scripts are loaded while traversing.
+#_**Uwaga:**
+#_- Drugą wartością zwracaną przez *next_script* jest indeks skryptu w odpowiedniej tablicy wewnętrznej.
+#_- Zachowanie *next_script* jest niezdefiniowane, jeżeli podczas przechodzenia ładowane są kolejne skrypty.
 #_
 #_**Zobacz także:**
-#_`GetMacroCopy` - for work with "Macro" and "Event" only.
+#_`GetMacroCopy` - do pracy tylko z "Macro" i "Event".
 #_
 #_@@@
 #_[GetMacroCopy]: 72.html
@@ -1248,43 +1250,43 @@ lv=3
 dt=Text
 nm=eval
 ctime=3581755102
-mtime=3633294473
+mtime=3941472461
 <article>
 #_<markdown>
-#_`ret = eval(S[,Mode[,Lang]])`
+#_`ret = eval(S[,Tryb[,Język]])`
 #_
-#_This function corresponds to the [description][1] in Far Manager Encyclopedia,
-#_with the following extensions:
+#_Funkcja ta odpowiada [opisowi][1] w Encyklopedii Far Manager, z następującymi
+#_rozszerzeniami:
 #_
-#_### 1. `eval` can execute either Lua or MoonScript code
+#_### 1. `eval` może wykonać kod Lua lub MoonScript
 #_
-#_Added an optional 3-rd parameter `Lang` specifying the programming language
-#_of the parameter `S` in modes 1, 2 and 3. Acceptable values are `"lua"` and
-#_`"moonscript"`. The default value is `"lua"`.
+#_Dodano opcjonalny trzeci parametr `Język` określający język programowania
+#_parametru `S` w trybach 1, 2 lub 3. Akceptowalne wartości to `"lua"`
+#_i `"moonscript"`. Domyślną wartością jest `"lua"`.
 #_
-#_### 2. Parameter `S` can specify a script-file
+#_### 2. Parametr `S` może określać nazwę pliku skryptowego
 #_
-#_In modes 0, 1 and 3 parameter `S` can refer to a script-file, if this parameter
-#_begins with a `@` character. In this case the `S` parameter must be in the
-#_following format:
+#_W trybach 0, 1 i 3 parametr `S` może odnosić się do pliku sskryptu, jeżeli parametr
+#_zaczyna się od znaku `@`. W tym przypadku parametr `S` musi być w następującym
+#_formacie:
 #_
-#_        @<script-file name> [<script parameters>]
+#_        @<nazwa pliku skryptu> [<parametry skryptu>]
 #_
-#_- The file name can contain environment variables, they will be expanded.
-#_- Optional script parameters are a list of expressions separated by commas.
-#_- The expression should use the same programming language as the script.
+#_- Nazwa pliku może zawierać zmienne środowiskowe, zostaną one rozwinięte.
+#_- Opcjonalne parametry skryptu są listą wyrażeń oddzielonych przecinkami.
+#_- Wyrażenie powinno używać tego samego języka programowania co skrypt.
 #_
-#_#### Example:
+#_#### Przykład:
 #_```
-#_    eval("@%MyFarScripts%\\calc.moon 'factorial', 3+5", 0, "moonscript")
+#_    eval("@%MojeSkryptyFar%\\calc.moon 'factorial', 3+5", 0, "moonscript")
 #_```
 #_
-#_### 3. New return codes of `eval(S, 2)`
+#_### 3. Nowe kody zwrotne funkcji `eval(S, 2)`
 #_
-#_* `0` (normal return) : is followed by any additional values that might be returned
-#_   by the "evaluated" macro.
-#_* `-3` : if the macro selection menu was displayed and cancelled by the user.
-#_* `-4` : if the "evaluated" macro was interrupted by a run-time error.
+#_* `0` (normalny powrót) : następują wszelkie dodatkowe wartości, które mogą zostać
+#_   zwrócone przed "obliczone" makro.
+#_* `-3` : jeżeli menu wyboru makr zostało wyświetlone i anulowane przez użytkownika.
+#_* `-4` : jeżeli "obliczone" makro zostało przerwane przez błąd uruchomienia.
 #_
 #_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
 #_
@@ -1299,29 +1301,29 @@ lv=3
 dt=Text
 nm=GetMacroCopy
 ctime=3578176338
-mtime=3833370856
+mtime=3941472826
 <article>
-#_macro = mf.GetMacroCopy (index)
+#_macro = mf.GetMacroCopy (indeks)
 #_
 #_**Parametry:**
-#_  index:  integer
+#_  indeks:  liczba całkowita
 #_
 #_**Zwracana wartość:**
-#_  macro:  table or nil
+#_  macro:  tabela lub nil
 #_
 #_**Opis:**
-#_  *GetMacroCopy* returns a copy of a loaded macro (or event handler) table
-#_  by its index in the internal array (starting from 1). If the index is greater
-#_  than the size of the array, the function returns nil, so one can determine
-#_  the end of the array.
+#_  *GetMacroCopy* zwrac kopię załadowanej tablicy makr (lub obsługi zdarzeń)
+#_  według jej indeksu w wewnętrznej tablicy (zaczynając od 1). Jeżeli indeks
+#_  jest większy niż rozmiar tablicy, funkcja zwraca nil, dzięki czemu można
+#_  określić konic tablicy.
 #_
 #_**Uwagi:**
-#_  * Inactive (unloaded or deleted) elements have the field "disabled" == true.
-#_  * To distinguish between macro table from event handler table: there is the field
-#_    "area" of type string that is present only in macro tables.
+#_  * Nieaktywne (wyładowane lub usunięte) elementy mają pole "disabled" == true.
+#_  * Aby odróżnić tabelę makr od tabeli obsługi zdarzeń: istnieje pole
+#_    "area" typu łańcuchowego, które istnieje tylko w tabelach makr.
 #_
 #_**Zobacz także:**
-#_`EnumScripts` - allows to work with other types of scripts
+#_`EnumScripts` - pozwala na pracę z innymi typami skryptów
 #_
 #_@@@
 #_[EnumScripts]: 106.html
@@ -1333,25 +1335,25 @@ lv=3
 dt=Text
 nm=mainmenu
 ctime=3923469785
-mtime=3924000602
+mtime=3941473241
 <article>
 #_mf.mainmenu (Param)
 #_
-#_**Parameters:**
-#_  Param:  string
+#_**Parametry:**
+#_  Param:  łańcuch
 #_
-#_**Returns:**
+#_**Zwracana wartość:**
 #_  nothing
 #_
-#_**Param values:**
-#_  "fileassociations" : call "File associations" menu
-#_  "filehighlighting" : call "Files highlighting and sort groups" menu
-#_  "filemaskgroups"   : call "Groups of file masks" menu
-#_  "filepanelmodes"   : call "File panel modes" menu
-#_  "foldershortcuts"  : call "Folder shortcuts" menu
+#_**Wartości parametru:**
+#_  "fileassociations" : wywołuje menu "Powiązania plików (File associations)"
+#_  "filehighlighting" : wywołuje menu "Wyróżnianie plików i sortowanie grup (Files highlighting and sort groups)"
+#_  "filemaskgroups"   : wywołuje menu "Grupy masek plików (Groups of file masks)"
+#_  "filepanelmodes"   : wywołuje menu "Tryby panelu plików (File panel mode)"
+#_  "foldershortcuts"  : wywołuje menu "Skróty folderów (Folder shortcuts)"
 #_
-#_**Note:**
-#_  The function is asynchronous and returns immediately.
+#_**Uwaga:**
+#_  Funkcja jest asynchroniczna i powraca natychmiast.
 #_
 </article>
 </node>
