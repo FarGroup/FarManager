@@ -1,3 +1,7 @@
+drkns 2024-11-24 11:48:49+00:00 - build 121
+
+1. Remove quadratic complexity from panel updates.
+
 drkns 2023-02-14 21:56:31+00:00 - build 120
 
 1. A few fixes.

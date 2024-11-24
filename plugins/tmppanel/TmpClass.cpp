@@ -366,11 +366,6 @@ void TmpPanel::RemoveEmptyItems()
 	m_Panel->Items.resize(m_Panel->Items.size() - EmptyCount);
 }
 
-static bool same_name(const WIN32_FIND_DATA& wfd, const PluginPanelItem& ffd)
-{
-	return !lstrcmp(wfd.cFileName, FSF.PointToName(ffd.FileName));
-}
-
 void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 {
 	if (m_UpdateNotNeeded || m_Panel->Items.empty())
@@ -385,13 +380,15 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 	m_LastOwnersRead = ShowOwners;
 	m_LastLinksRead = ShowLinks;
 
+	std::unordered_map<string_view, PluginPanelItem*> SameFolderItems;
+
 	auto NameDataIterator = m_Panel->StringData.begin();
 	for (auto CurItem = m_Panel->Items.begin(), end = m_Panel->Items.end(); CurItem != end; ++CurItem, ++NameDataIterator)
 	{
 		const string_view FullName(CurItem->FileName);
 		const auto SlashPos = FullName.rfind(L'\\');
 		const auto Dir = FullName.substr(0, SlashPos == FullName.npos? 0 : SlashPos + 1);
-		size_t SameFolderItems = 1;
+		size_t SameFolderItemsNumber = 1;
 
 		/* $ 23.12.2001 DJ
 		   если FullName - это каталог, то FindFirstFile (FullName+"*.*")
@@ -404,7 +401,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 			{
 				const string_view NextName = Next->FileName;
 				if (NextName.starts_with(Dir) && !contains(NextName.substr(Dir.size()), L'\\'))
-					SameFolderItems++;
+					SameFolderItemsNumber++;
 				else
 					break;
 			}
@@ -414,14 +411,20 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 		// несколько файлов из одного и того же каталога. При этом
 		// FindFirstFile() делается один раз на каталог, а не отдельно для
 		// каждого файла.
-		if (SameFolderItems > 2)
+		if (SameFolderItemsNumber > 2)
 		{
 			WIN32_FIND_DATA FindData;
 			const auto FindFile = Dir + L"*"sv;
 			const auto NtPath = FormNtPath(FindFile);
 
-			for (auto& j: std::ranges::subrange(CurItem, CurItem + SameFolderItems))
+			SameFolderItems.clear();
+			SameFolderItems.reserve(SameFolderItemsNumber);
+
+			for (auto& j: std::ranges::subrange(CurItem, CurItem + SameFolderItemsNumber))
+			{
 				j.Flags |= REMOVE_FLAG;
+				SameFolderItems.try_emplace(FSF.PointToName(j.FileName), &j);
+			}
 
 			if (const auto FindHandle = FindFirstFile(NtPath.c_str(), &FindData); FindHandle != INVALID_HANDLE_VALUE)
 			{
@@ -429,21 +432,20 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 
 				do
 				{
-					for (auto& j: std::ranges::subrange(CurItem, CurItem + SameFolderItems))
+					if (const auto& SameFolderItem = SameFolderItems.find(FindData.cFileName); SameFolderItem != SameFolderItems.end())
 					{
-						if ((j.Flags & REMOVE_FLAG) && same_name(FindData, j))
-						{
-							j.Flags &= ~REMOVE_FLAG;
-							WFD2FFD(FindData, j, {});
-							break;
-						}
+						SameFolderItem->second->Flags &= ~REMOVE_FLAG;
+						WFD2FFD(FindData, *SameFolderItem->second, {});
+						SameFolderItems.erase(SameFolderItem);
 					}
 				}
 				while (FindNextFile(FindHandle, &FindData));
 			}
 
-			CurItem += SameFolderItems - 1;
-			std::advance(NameDataIterator, SameFolderItems - 1);
+			SameFolderItems.clear();
+
+			CurItem += SameFolderItemsNumber - 1;
+			std::advance(NameDataIterator, SameFolderItemsNumber - 1);
 		}
 		else
 		{
