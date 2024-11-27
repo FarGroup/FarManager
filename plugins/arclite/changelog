@@ -1,3 +1,8 @@
+drkns 2024-11-27 17:23:01+00:00 - build 346
+
+1. gh-886: ArcLite crash during an archive update.
+   Improve compression method detection when updating empty archives.
+
 drkns 2024-09-15 14:00:02+01:00 - build 345
 
 1. Improve compression method detection when updating archives.

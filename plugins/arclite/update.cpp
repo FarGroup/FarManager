@@ -1206,7 +1206,7 @@ void Archive::create_dir(const std::wstring& dir_name, const std::wstring& dst_d
 
   UpdateOptions options;
   options.arc_type = arc_chain.back().type;
-  load_update_props();
+  load_update_props(options.arc_type);
   options.level = m_level;
   options.method = m_method;
   options.solid = m_solid;

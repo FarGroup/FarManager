@@ -881,7 +881,7 @@ public:
           FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
         }
       }
-      archive->load_update_props();
+      archive->load_update_props(options.arc_type);
       options.method = archive->m_method;
       options.solid = archive->m_solid;
       options.encrypt = archive->m_encrypted;
@@ -1127,7 +1127,7 @@ public:
       archive->make_index();
 
       options.arc_type = archive->arc_chain.back().type;
-      archive->load_update_props();
+      archive->load_update_props(options.arc_type);
       if (!cmd.level_defined)
         options.level = archive->m_level;
       if (!cmd.method_defined)
