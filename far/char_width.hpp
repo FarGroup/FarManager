@@ -63,6 +63,9 @@ namespace char_width
 
 	[[nodiscard]]
 	bool is_half_width_surrogate_broken();
+
+	[[nodiscard]]
+	bool is_grapheme_clusters_on();
 }
 
 #endif // CHAR_WIDTH_HPP_D66C86AC_3415_4FD1_89DA_0AB843FFEEB8

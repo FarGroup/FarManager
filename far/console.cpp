@@ -2906,7 +2906,7 @@ protected:
 		return ExternalConsole.Imports.pWriteOutput.operator bool();
 	}
 
-	size_t console::GetWidthPreciseExpensive(char32_t const Codepoint)
+	size_t console::GetWidthPreciseExpensive(string_view const Str)
 	{
 		// It ain't stupid if it works
 
@@ -2944,19 +2944,24 @@ protected:
 		}
 
 		DWORD Written;
-		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
-		const std::array Chars{ Pair.first, Pair.second };
-		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
+		if (!WriteConsole(m_WidthTestScreen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &Written, {}))
 		{
 			LOGWARNING(L"WriteConsole(): {}"sv, os::last_error());
-			return 1;
+			return Str.size();
 		}
 
 		CONSOLE_SCREEN_BUFFER_INFO Info;
 		if (!get_console_screen_buffer_info(m_WidthTestScreen.native_handle(), &Info))
-			return 1;
+			return Str.size();
 
 		return Info.dwCursorPosition.X;
+	}
+
+	size_t console::GetWidthPreciseExpensive(char32_t const Codepoint)
+	{
+		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
+		const std::array Chars{ Pair.first, Pair.second };
+		return GetWidthPreciseExpensive({ Chars.data(), Pair.second? 2uz : 1uz });
 	}
 
 	void console::ClearWideCache()

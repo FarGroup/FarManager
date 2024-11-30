@@ -190,6 +190,7 @@ namespace console_detail
 		bool ExternalRendererLoaded() const;
 
 		[[nodiscard]]
+		size_t GetWidthPreciseExpensive(string_view Str);
 		size_t GetWidthPreciseExpensive(char32_t Codepoint);
 		void ClearWideCache();
 

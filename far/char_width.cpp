@@ -552,4 +552,10 @@ namespace char_width
 		static const auto Result = console.GetWidthPreciseExpensive(U'𝖆');
 		return Result > 1;
 	}
+
+	bool is_grapheme_clusters_on()
+	{
+		static const auto Result = console.GetWidthPreciseExpensive(L"à"sv);
+		return Result == 1;
+	}
 }
