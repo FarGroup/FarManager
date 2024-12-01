@@ -1224,7 +1224,6 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 
 		const DWORD InternalFlags =
 			((Flags & FMSG_WARNING)? MSG_WARNING : 0) |
-			((Flags & FMSG_KEEPBACKGROUND)? MSG_KEEPBACKGROUND : 0) |
 			((Flags & FMSG_LEFTALIGN)? MSG_LEFTALIGN : 0);
 
 		return static_cast<intptr_t>(Message(
