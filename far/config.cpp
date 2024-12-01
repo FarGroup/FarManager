@@ -364,6 +364,8 @@ void Options::InterfaceSettings()
 	Builder.AddEditField(strTitleAddons, 47);
 	Builder.AddOKCancel();
 
+	const auto PreviousFullWidthAwareRendering = FullWidthAwareRendering.Get();
+
 	if (Builder.ShowDialog())
 	{
 		if (CMOpt.CopyTimeRule)
@@ -379,7 +381,7 @@ void Options::InterfaceSettings()
 		// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
 		Panels->Redraw();
 
-		if (FullWidthAwareRendering && char_width::is_grapheme_clusters_on())
+		if (!PreviousFullWidthAwareRendering && FullWidthAwareRendering && char_width::is_grapheme_clusters_on())
 		{
 			Message(FMSG_WARNING, msg(lng::MWarning),
 			{
