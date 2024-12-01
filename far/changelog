@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2024-12-01 23:24:48+00:00 - build 6397
+
+1. Experimental: FMSG_KEEPBACKGROUND is a no-op.
+
+2. Correction of 6396.
+
+--------------------------------------------------------------------------------
 drkns 2024-11-30 23:34:14+00:00 - build 6396
 
 1. Warn the user when the terminal uses grapheme clusters.
