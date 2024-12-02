@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-12-02 20:39:53+00:00 - build 6398
+
+1. Use DECRQM 2027 to check grapheme clusters state (thanks to DHowett).
+
+--------------------------------------------------------------------------------
 drkns 2024-12-01 23:24:48+00:00 - build 6397
 
 1. Experimental: FMSG_KEEPBACKGROUND is a no-op.

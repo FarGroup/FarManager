@@ -191,6 +191,7 @@ namespace console_detail
 
 		[[nodiscard]]
 		size_t GetWidthPreciseExpensive(string_view Str);
+		[[nodiscard]]
 		size_t GetWidthPreciseExpensive(char32_t Codepoint);
 		void ClearWideCache();
 
@@ -212,6 +213,9 @@ namespace console_detail
 		void command_finished() const;
 		void command_finished(int ExitCode) const;
 		void command_not_found(string_view Command) const;
+
+		[[nodiscard]]
+		std::optional<bool> is_grapheme_clusters_on() const;
 
 		[[nodiscard]]
 		short GetDelta() const;

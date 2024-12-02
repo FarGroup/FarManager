@@ -631,15 +631,15 @@ protected:
 
 		std::optional<size_t>
 			FirstTokenPrefixPos,
-			FirstTokenSuffixPos,
-			SecondTokenPrefixPos,
-			SecondTokenSuffixPos;
+			FirstTokenSuffixPos;
 
 		const auto
 			TokenPrefix = CSI "?"sv,
 			TokenSuffix = L"c"sv;
 
-		while (!SecondTokenSuffixPos)
+		size_t DA_ResponseSize{};
+
+		for (;;)
 		{
 			wchar_t ResponseBuffer[8192];
 			size_t ResponseSize;
@@ -655,21 +655,19 @@ protected:
 
 			if (FirstTokenPrefixPos && !FirstTokenSuffixPos)
 				if (const auto Pos = Response.find(TokenSuffix, *FirstTokenPrefixPos + TokenPrefix.size()); Pos != Response.npos)
+				{
 					FirstTokenSuffixPos = Pos;
+					DA_ResponseSize = Pos + TokenSuffix.size();
+				}
 
-			if (FirstTokenSuffixPos && !SecondTokenPrefixPos)
-				if (const auto Pos = Response.find(TokenPrefix, *FirstTokenSuffixPos + TokenSuffix.size()); Pos != Response.npos)
-					SecondTokenPrefixPos = Pos;
-
-			if (SecondTokenPrefixPos && !SecondTokenSuffixPos)
-				if (const auto Pos = Response.find(TokenSuffix, *SecondTokenPrefixPos + TokenPrefix.size()); Pos != Response.npos)
-					SecondTokenSuffixPos = Pos;
+			if (DA_ResponseSize && Response.size() >= DA_ResponseSize * 2)
+			{
+				if (const auto DA_Response = string_view(Response).substr(*FirstTokenPrefixPos, DA_ResponseSize); Response.ends_with(DA_Response))
+					break;
+			}
 		}
 
-		Response.resize(*SecondTokenPrefixPos);
-		Response.erase(0, *FirstTokenSuffixPos + TokenSuffix.size());
-
-		return Response;
+		return Response.substr(DA_ResponseSize, Response.size() - DA_ResponseSize * 2);
 	}
 
 	console::console():
@@ -3098,6 +3096,49 @@ protected:
 	void console::command_not_found(string_view const Command) const
 	{
 		send_vt_command(far::format(OSC("9001;CmdNotFound;{}"), Command));
+	}
+
+	std::optional<bool> console::is_grapheme_clusters_on() const
+	{
+		try
+		{
+#define DECRQM_REQUEST "?2027"
+
+			const auto ResponseData = query_vt(CSI DECRQM_REQUEST "$p"sv);
+			if (ResponseData.empty())
+			{
+				LOGWARNING(L"DECRQM 2027 query is not supported"sv);
+				return {};
+			}
+
+			const auto
+				Prefix = CSI DECRQM_REQUEST ";"sv,
+				Suffix = L"$y"sv;
+
+#undef DECRQM_REQUEST
+
+			const auto give_up = [&]
+			{
+				throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
+			};
+
+			if (ResponseData.size() != Prefix.size() + 1 + Suffix.size() || !ResponseData.starts_with(Prefix) || !ResponseData.ends_with(Suffix))
+				give_up();
+
+			switch (ResponseData[Prefix.size()])
+			{
+			case L'3': return true;
+			case L'4': return false;
+			default:
+				give_up();
+				std::unreachable();
+			}
+		}
+		catch (far_exception const& e)
+		{
+			LOGERROR(L"{}"sv, e);
+			return {};
+		}
 	}
 
 	bool console::GetCursorRealPosition(point& Position) const
