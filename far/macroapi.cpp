@@ -1018,7 +1018,11 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							clipboard_mode::internal: clipboard_mode::system);
 						break;
 					case IMP_KEYNAMETOKEY:
-						if (Data->Count > 1) api.PassValue(KeyNameToKey(Data->Values[1].String));
+						if (Data->Count > 1)
+						{
+							const auto Key = KeyNameToKey(Data->Values[1].String);
+							api.PassValue(Key? Key : -1);
+						}
 						break;
 					case IMP_KEYTOTEXT:
 						if (Data->Count > 1)
