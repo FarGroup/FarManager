@@ -259,7 +259,7 @@ namespace os::debug
 		return ADDRESS64{ Offset, 0, AddrModeFlat };
 	};
 
-	static BOOL legacy_walk(DWORD const MachineType, HANDLE const Process, HANDLE const Thread, LPSTACKFRAME_EX const StackFrame, PVOID const ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 const ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 const FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 const GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 const TranslateAddress, DWORD)
+	static BOOL WINAPI legacy_walk(DWORD const MachineType, HANDLE const Process, HANDLE const Thread, LPSTACKFRAME_EX const StackFrame, PVOID const ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 const ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 const FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 const GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 const TranslateAddress, DWORD)
 	{
 		return imports.StackWalk64(MachineType, Process, Thread, std::bit_cast<LPSTACKFRAME64>(StackFrame), ContextRecord, ReadMemoryRoutine, FunctionTableAccessRoutine, GetModuleBaseRoutine, TranslateAddress);
 	}
@@ -283,7 +283,7 @@ namespace os::debug
 		StackFrame.AddrStack = address(Data.Stack);
 		StackFrame.StackFrameSize = sizeof(StackFrame);
 
-		const auto Walker = imports.StackWalkEx? imports.StackWalkEx : legacy_walk;
+		const auto Walker = imports.StackWalkEx? *imports.StackWalkEx : legacy_walk;
 		const auto Process = GetCurrentProcess();
 
 		while (Walker(Data.MachineType, Process, ThreadHandle, &StackFrame, &ContextRecord, {}, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, {}, SYM_STKWALK_DEFAULT))
