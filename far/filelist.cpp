@@ -3742,9 +3742,11 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	strMask = exclude_sets(strMask + L'*');
 */
 
+	const auto CurrentTime = os::chrono::nt_clock::now();
+
 	for (int I = m_CurFile + (Next ? Direct : 0); I >= 0 && static_cast<size_t>(I) < m_ListData.size(); I += Direct)
 	{
-		if (GetPlainString(Dest,I) && contains(upper(Dest), strMask))
+		if (GetPlainString(Dest,I, CurrentTime) && contains(upper(Dest), strMask))
 		//if (CmpName(strMask,ListData[I].FileName,true,I==CurFile))
 		{
 			if (!IsParentDirectory(m_ListData[I]))
@@ -3763,7 +3765,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	for (int I = (Direct > 0)? 0 : static_cast<int>(m_ListData.size() - 1); (Direct > 0)? I < m_CurFile : I > m_CurFile; I += Direct)
 	{
 		if (
-			!GetPlainString(Dest, I) ||
+			!GetPlainString(Dest, I, CurrentTime) ||
 			!contains(upper(Dest), strMask) ||
 			IsParentDirectory(m_ListData[I]) ||
 			(DirFind && !(m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -3782,7 +3784,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 }
 
 // собрать в одну строку все данные в отображаемых колонках
-bool FileList::GetPlainString(string& Dest, int ListPos) const
+bool FileList::GetPlainString(string& Dest, int ListPos, os::chrono::time_point const CurrentTime) const
 {
 	Dest.clear();
 
@@ -3892,7 +3894,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 					break;
 				}
 
-				Dest += FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), Column.type, Column.type_flags, Column.width); // BUGBUG width_type
+				Dest += FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), Column.type, Column.type_flags, Column.width, CurrentTime); // BUGBUG width_type
 				break;
 			}
 
@@ -8588,6 +8590,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 	size_t ColumnCount=ShowStatus ? m_ViewSettings.StatusColumns.size() : m_ViewSettings.PanelColumns.size();
 	const auto& Columns = ShowStatus ? m_ViewSettings.StatusColumns : m_ViewSettings.PanelColumns;
 
+	const auto CurrentTime = os::chrono::nt_clock::now();
+
 	for (int I = m_Where.top + 1 + Global->Opt->ShowColumnTitles, J = m_CurTopFile; I < m_Where.bottom - 2 * Global->Opt->ShowPanelStatus; I++, J++)
 	{
 		int CurColumn=StartColumn;
@@ -8926,7 +8930,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								break;
 							}
 
-							Text(FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), ColumnType, Columns[K].type_flags, ColumnWidth));
+							Text(FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), ColumnType, Columns[K].type_flags, ColumnWidth, CurrentTime));
 							break;
 						}
 

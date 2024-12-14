@@ -1705,7 +1705,7 @@ bool TreeList::ReadTreeFile()
 	return FillLastData();
 }
 
-bool TreeList::GetPlainString(string& Dest, int ListPos) const
+bool TreeList::GetPlainString(string& Dest, int ListPos, os::chrono::time_point CurrentTime) const
 {
 	Dest.clear();
 

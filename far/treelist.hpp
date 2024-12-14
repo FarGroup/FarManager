@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fwd.hpp"
+#include "platform.chrono.hpp"
 
 // Common:
 
@@ -115,7 +116,7 @@ private:
 	bool GetCurName(string &strName, string &strShortName) const override;
 	void UpdateViewPanel() override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	bool GetPlainString(string& Dest, int ListPos) const override;
+	bool GetPlainString(string& Dest, int ListPos, os::chrono::time_point CurrentTime) const override;
 	bool GoToFile(long idxItem) override;
 	long FindFile(string_view Name, bool OnlyPartName = false) override;
 	long FindFirst(string_view Name) override;

@@ -607,7 +607,7 @@ string FormatStr_Attribute(os::fs::attributes FileAttributes, size_t const Width
 	return OutStr;
 }
 
-string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const ColumnType, unsigned long long Flags, int Width)
+string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const ColumnType, unsigned long long Flags, int Width, os::chrono::time_point const CurrentTime)
 {
 	if (Width < 0)
 	{
@@ -653,7 +653,7 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 			break;
 	}
 
-	const auto& [Date, Time] = time_point_to_string(FileTime, ColumnWidth, FullYear, Brief, TextMonth);
+	const auto& [Date, Time] = time_point_to_string(FileTime, ColumnWidth, FullYear, Brief, TextMonth, CurrentTime);
 
 	string OutStr;
 

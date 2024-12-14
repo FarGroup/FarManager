@@ -271,6 +271,8 @@ private:
 	// This flag is set to true if the hotkey of either of Text/Hex radio is pressed.
 	// If true, the handler of Text/Hex radio button click will set focus on the Text/Hex editor
 	bool m_IsTextOrHexHotkeyUsed{};
+
+	os::chrono::time_point m_CurrentTime{};
 };
 
 // TODO BUGBUG DELETE THIS
@@ -2156,7 +2158,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 					break;
 				}
 
-				append(MenuText, FormatStr_DateTime(std::invoke(FileTime, FindData), i.type, i.type_flags, Width), BoxSymbols[BS_V1]);
+				append(MenuText, FormatStr_DateTime(std::invoke(FileTime, FindData), i.type, i.type_flags, Width, m_CurrentTime), BoxSymbols[BS_V1]);
 				break;
 			}
 
@@ -3052,6 +3054,7 @@ FindFiles::FindFiles():
 
 	do
 	{
+		m_CurrentTime = os::chrono::nt_clock::now();
 		FindExitItem = nullptr;
 		FindFoldersChanged=false;
 		SearchFromChanged=false;

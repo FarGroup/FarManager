@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fwd.hpp"
+#include "platform.chrono.hpp"
 
 // Common:
 #include "common/enumerator.hpp"
@@ -183,7 +184,7 @@ public:
 	virtual void UpdateIfRequired() {}
 	virtual void StopFSWatcher() {}
 	virtual bool FindPartName(string_view Name,int Next,int Direct=1) {return false;}
-	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
+	virtual bool GetPlainString(string& Dest, int ListPos, os::chrono::time_point CurrentTime) const { return false; }
 	virtual bool GoToFile(long idxItem) {return true;}
 	virtual bool GoToFile(string_view Name, bool OnlyPartName = false) {return true;}
 	virtual long FindFile(string_view Name, bool OnlyPartName = false) {return -1;}

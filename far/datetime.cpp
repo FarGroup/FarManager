@@ -531,7 +531,7 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
 
-std::tuple<string, string> time_point_to_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
+std::tuple<string, string> time_point_to_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth, os::chrono::time_point const CurrentTime)
 {
 	if (Point == os::chrono::time_point{})
 	{
@@ -638,7 +638,7 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 		DateText.resize(TextMonth? 6 : 5);
 
 		os::chrono::local_time Now;
-		if (utc_to_local(os::chrono::nt_clock::now(), Now) && Now.Year != LocalTime.Year)
+		if (utc_to_local(CurrentTime, Now) && Now.Year != LocalTime.Year)
 			TimeText = far::format(L"{:5}"sv, LocalTime.Year);
 	}
 

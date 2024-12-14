@@ -80,7 +80,7 @@ FullYear:
    Windows supports years 1601 through 30827.
 */
 // (date, time)
-std::tuple<string, string> time_point_to_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false);
+std::tuple<string, string> time_point_to_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false, os::chrono::time_point CurrentTime = {});
 
 // (days, time)
 std::tuple<string, string> duration_to_string(os::chrono::duration Duration);

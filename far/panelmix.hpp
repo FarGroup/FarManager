@@ -58,7 +58,7 @@ bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool Shor
 bool MakePathForUI(DWORD Key, string &strPathName);
 
 string FormatStr_Attribute(os::fs::attributes FileAttributes, size_t Width);
-string FormatStr_DateTime(os::chrono::time_point FileTime, column_type ColumnType, unsigned long long Flags, int Width);
+string FormatStr_DateTime(os::chrono::time_point FileTime, column_type ColumnType, unsigned long long Flags, int Width, os::chrono::time_point CurrentTime);
 string FormatStr_Size(long long Size, string_view strName,
 	os::fs::attributes FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, column_type ColumnType,
 	unsigned long long Flags, int Width, string_view CurDir = {});
