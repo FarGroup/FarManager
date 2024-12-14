@@ -246,6 +246,7 @@ namespace os::debug
 			ContextRecord.R11,
 			ContextRecord.Sp
 #else
+			COMPILER_WARNING("Unknown platform")
 			IMAGE_FILE_MACHINE_UNKNOWN
 #endif
 		};
@@ -258,33 +259,9 @@ namespace os::debug
 		return ADDRESS64{ Offset, 0, AddrModeFlat };
 	};
 
-	template<typename T>
-	static void stack_walk(auto const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
+	static BOOL legacy_walk(DWORD const MachineType, HANDLE const Process, HANDLE const Thread, LPSTACKFRAME_EX const StackFrame, PVOID const ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 const ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 const FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 const GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 const TranslateAddress, DWORD)
 	{
-		T StackFrame{};
-		StackFrame.AddrPC = address(Data.PC);
-		StackFrame.AddrFrame = address(Data.Frame);
-		StackFrame.AddrStack = address(Data.Stack);
-
-		if constexpr (std::same_as<T, STACKFRAME_EX>)
-		{
-			StackFrame.StackFrameSize = sizeof(StackFrame);
-		}
-
-		while (Walker(StackFrame))
-		{
-			// Cast to uintptr_t is ok here: although this function can be used
-			// to capture a stack of 64-bit process from a 32-bit one,
-			// we always use it with the current process only.
-
-			DWORD InlineFrameContext;
-			if constexpr (std::same_as<T, STACKFRAME_EX>)
-				InlineFrameContext = StackFrame.InlineFrameContext;
-			else
-				InlineFrameContext = 0;
-
-			Handler(static_cast<uintptr_t>(StackFrame.AddrPC.Offset), InlineFrameContext);
-		}
+		return imports.StackWalk64(MachineType, Process, Thread, std::bit_cast<LPSTACKFRAME64>(StackFrame), ContextRecord, ReadMemoryRoutine, FunctionTableAccessRoutine, GetModuleBaseRoutine, TranslateAddress);
 	}
 
 	// StackWalk64() may modify context record passed to it, so we will use a copy.
@@ -295,59 +272,26 @@ namespace os::debug
 		if (!imports.StackWalkEx && !imports.StackWalk64)
 			return Result;
 
-		const auto Process = GetCurrentProcess();
 		const auto Data = platform_specific_data(ContextRecord);
 
 		if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
 			return Result;
 
-		const auto handler = [&](uintptr_t const Address, DWORD const InlineFrameContext)
-		{
-			Result.emplace_back(Address, InlineFrameContext);
-		};
+		STACKFRAME_EX StackFrame{};
+		StackFrame.AddrPC = address(Data.PC);
+		StackFrame.AddrFrame = address(Data.Frame);
+		StackFrame.AddrStack = address(Data.Stack);
+		StackFrame.StackFrameSize = sizeof(StackFrame);
 
-		if (imports.StackWalkEx)
+		const auto Walker = imports.StackWalkEx? imports.StackWalkEx : legacy_walk;
+		const auto Process = GetCurrentProcess();
+
+		while (Walker(Data.MachineType, Process, ThreadHandle, &StackFrame, &ContextRecord, {}, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, {}, SYM_STKWALK_DEFAULT))
 		{
-			stack_walk<STACKFRAME_EX>(
-				Data,
-				[&](STACKFRAME_EX& StackFrame)
-				{
-					return imports.StackWalkEx(
-						Data.MachineType,
-						Process,
-						ThreadHandle,
-						&StackFrame,
-						&ContextRecord,
-						{},
-						imports.SymFunctionTableAccess64,
-						imports.SymGetModuleBase64,
-						{},
-						SYM_STKWALK_DEFAULT
-					);
-				},
-				handler
-			);
-		}
-		else
-		{
-			stack_walk<STACKFRAME64>(
-				Data,
-				[&](STACKFRAME64& StackFrame)
-				{
-					return imports.StackWalk64(
-						Data.MachineType,
-						Process,
-						ThreadHandle,
-						&StackFrame,
-						&ContextRecord,
-						{},
-						imports.SymFunctionTableAccess64,
-						imports.SymGetModuleBase64,
-						{}
-					);
-				},
-				handler
-			);
+			// Cast to uintptr_t is ok here: although this function can be used
+			// to capture a stack of 64-bit process from a 32-bit one,
+			// we always use it with the current process only.
+			Result.emplace_back(static_cast<uintptr_t>(StackFrame.AddrPC.Offset), StackFrame.InlineFrameContext);
 		}
 
 		return Result;
