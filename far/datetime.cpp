@@ -637,8 +637,11 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 	{
 		DateText.resize(TextMonth? 6 : 5);
 
-		os::chrono::local_time Now;
-		if (utc_to_local(CurrentTime, Now) && Now.Year != LocalTime.Year)
+		const auto IsRecent =
+			CurrentTime >= Point &&
+			CurrentTime - Point < std::chrono::months{ 6 };
+
+		if (!IsRecent)
 			TimeText = far::format(L"{:5}"sv, LocalTime.Year);
 	}
 
