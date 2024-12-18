@@ -273,6 +273,9 @@ jobs:
         run: |
           echo "DEBUG=1" >> "$GITHUB_ENV"
           echo "USE_LLD=1" >> "$GITHUB_ENV"
+        if: matrix.c_lib == 'ucrt' && matrix.build_type == 'Debug'
+        run: |
+          echo "USER_LIBS=-lucrtbased" >> "$GITHUB_ENV"
 
       - name: Build far
         working-directory: far
