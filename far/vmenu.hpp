@@ -209,8 +209,6 @@ public:
 	void RestoreFilteredItems();
 	void FilterStringUpdated();
 	void FilterUpdateHeight(bool bShrink = false);
-	void SetFilterEnabled(bool bEnabled) { bFilterEnabled = bEnabled; }
-	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
 	bool AddToFilter(string_view Str);
 	size_t size() const { return Items.size(); }
 	bool empty() const { return Items.empty(); }

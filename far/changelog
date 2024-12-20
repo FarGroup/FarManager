@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2024-12-19 16:56:14-05:00 - build 6403
+
+1. gh-763: Fixed drawing of History menu border after refresh (`Ctrl+R`)
+   and clear (`Del`).
+
+--------------------------------------------------------------------------------
 drkns 2024-12-14 12:19:57+00:00 - build 6402
 
 1. Make 'B' datetime modifier in panel modes actually Unix-like.
