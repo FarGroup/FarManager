@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-12-21 23:08:36+00:00 - build 6404
+
+1. Properly cancel operations when !?<title>?<init>! dialog is cancelled.
+
+--------------------------------------------------------------------------------
 MZK 2024-12-19 16:56:14-05:00 - build 6403
 
 1. gh-763: Fixed drawing of History menu border after refresh (`Ctrl+R`)

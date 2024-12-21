@@ -174,9 +174,8 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			else
 				strDescription = std::move(strCommandText);
 
-			MenuItemEx TypesMenuItem(strDescription);
 			MenuData.emplace_back(std::move(NewMenuData));
-			MenuItems.emplace_back(std::move(TypesMenuItem));
+			MenuItems.emplace_back(strDescription);
 		}
 
 		if (!CommandCount)
@@ -209,7 +208,10 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	AddMatches(ItemData);
 
 	bool PreserveLFN = false;
-	if (SubstFileName(ItemData.Command, Context, &PreserveLFN) && !ItemData.Command.empty())
+	if (!SubstFileName(ItemData.Command, Context, &PreserveLFN))
+		return false;
+
+	if (!ItemData.Command.empty())
 	{
 		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory & EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 		{
@@ -305,7 +307,7 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 /*
   Используется для запуска внешнего редактора и вьювера
 */
-void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish, string_view const CurrentDirectory)
+bool ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish, string_view const CurrentDirectory)
 {
 	std::optional<os::fs::current_directory_guard> Guard;
 	// We have to set it - users can have associations like !.! which will work funny without this
@@ -314,8 +316,11 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 
 	string strExecStr(Command);
 	bool PreserveLFN = false;
-	if (!SubstFileName(strExecStr, { Name, ShortName }, &PreserveLFN) || strExecStr.empty())
-		return;
+	if (!SubstFileName(strExecStr, { Name, ShortName }, &PreserveLFN))
+		return false;
+
+	if (strExecStr.empty())
+		return false;
 
 	// If you want your history to be usable - use full paths yourself. We cannot reliably substitute them.
 	Global->CtrlObject->ViewHistory->AddToHistory(strExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
@@ -329,6 +334,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
+	return true;
 }
 
 static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)

@@ -833,7 +833,10 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					*/
 
 					bool PreserveLFN = false;
-					if (SubstFileName(strCommand, Context, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
+					if (!SubstFileName(strCommand, Context, &PreserveLFN, false, CurrentLabel))
+						return EC_CLOSE_MENU;
+
+					if (!strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strName, PreserveLFN);
 

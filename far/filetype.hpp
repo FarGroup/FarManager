@@ -65,7 +65,7 @@ enum FILETYPE_MODE
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal);
 
 bool ProcessLocalFileTypes(string_view Name, string_view ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, string_view CurrentDirectory, bool AddToHistory = true, bool RunAs = false, function_ref<void(struct execute_info&)> Launcher = nullptr);
-void ProcessExternal(string_view Command, string_view Name, string_view ShortName, bool AlwaysWaitFinish, string_view CurrentDirectory);
+bool ProcessExternal(string_view Command, string_view Name, string_view ShortName, bool AlwaysWaitFinish, string_view CurrentDirectory);
 void EditFileTypes();
 
 #endif // FILETYPE_HPP_E08E6BC3_545B_4343_9D79_A72830AC30F0
