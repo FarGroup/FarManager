@@ -5184,7 +5184,7 @@ bool FileList::ApplyCommand()
 			if (!SubstFileName(strConvertedCommand, { i.FileName, i.AlternateFileName() }, &PreserveLFN))
 				break;
 
-			if (strConvertedCommand.empty())
+			if (!strConvertedCommand.empty())
 			{
 				SCOPED_ACTION(PreserveLongName)(i.FileName, PreserveLFN);
 
