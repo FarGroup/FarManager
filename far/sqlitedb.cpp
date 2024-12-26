@@ -610,9 +610,10 @@ struct collation_context
 {
 	static inline struct cache
 	{
-		string Buffer1, Buffer2;
+		std::string Utf8String;
+		string WideString;
 	}
-	CollationCache;
+	CollationCache[2];
 
 	comparer* Comparer;
 	int Encoding;
@@ -625,11 +626,13 @@ static void context_deleter(void* Param)
 
 static int combined_comparer(void* const Param, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
 {
-	const auto
-		RawView1 = view<char>(Data1, Size1),
-		RawView2 = view<char>(Data2, Size2);
+	std::string_view const RawView[]
+	{
+		view<char>(Data1, Size1),
+		view<char>(Data2, Size2),
+	};
 
-	if (RawView1 == RawView2)
+	if (RawView[0] == RawView[1])
 		return 0;
 
 	const auto Context = static_cast<collation_context*>(Param);
@@ -642,12 +645,24 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 		));
 	}
 
-	encoding::utf8::get_chars(RawView1, Context->CollationCache.Buffer1);
-	encoding::utf8::get_chars(RawView2, Context->CollationCache.Buffer2);
+	const auto convert = [&](size_t const Index)
+	{
+		const auto& In = RawView[Index];
+		auto& Out = Context->CollationCache[Index];
+
+		if (In == Out.Utf8String)
+			return;
+
+		encoding::utf8::get_chars(In, Out.WideString);
+		Out.Utf8String = In;
+	};
+
+	convert(0);
+	convert(1);
 
 	return string_sort::ordering_as_int(Context->Comparer(
-		Context->CollationCache.Buffer1,
-		Context->CollationCache.Buffer2
+		Context->CollationCache[0].WideString,
+		Context->CollationCache[1].WideString
 	));
 }
 
