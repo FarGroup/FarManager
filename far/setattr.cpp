@@ -896,6 +896,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			DlgY += 2;
 		};
 
+		wchar_t DriveLetter{};
+
 		if (SelCount == 1) // !SrcPanel goes here too
 		{
 			if (!DlgParam.Plugin)
@@ -938,7 +940,19 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!IsRoot)
 					return false;
 
-				return any_of(PathType, root_type::drive_letter, root_type::win32nt_drive_letter);
+				switch (PathType)
+				{
+				case root_type::drive_letter:
+					DriveLetter = SingleSelFileName.front();
+					return true;
+
+				case root_type::win32nt_drive_letter:
+					DriveLetter = SingleSelFileName[L"\\\\?\\"sv.size()];
+					return true;
+
+				default:
+					return false;
+				}
 			}();
 
 			const auto IsMountPoint = IsDriveLetterPath && os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
@@ -1111,8 +1125,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 			if (IsDriveLetterPath)
 			{
-				const auto DriveLetter = HasPathPrefix(SingleSelFileName)? SingleSelFileName[L"\\\\?\\"sv.size()] : SingleSelFileName.front();
-
 				AttrDlg[SA_TEXT_NAME].strData = os::fs::drive::get_root_directory(DriveLetter);
 
 				if (string Device; os::fs::QueryDosDevice(os::fs::drive::get_device_path(DriveLetter), Device))
@@ -1436,11 +1448,23 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				auto strFullName = SingleSelFileName;
-				if(SingleSelFindData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
+
+				string strFullName;
+
+				if (DriveLetter)
 				{
-					AddEndSlash(strFullName);
+					// \\?\X:\ doesn't work on old Windows versions
+					// X: works everywhere
+					strFullName = os::fs::drive::get_device_path(DriveLetter);
 				}
+				else
+				{
+					strFullName = SingleSelFileName;
+
+					if (SingleSelFindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+						AddEndSlash(strFullName);
+				}
+
 				seInfo.lpFile = strFullName.c_str();
 				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::get_current_directory();

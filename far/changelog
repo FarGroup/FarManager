@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2024-12-26 18:04:08+00:00 - build 6407
+
+1. "System properties" in Attributes dialog invoked on a device didn't work in old Windows versions.
+
+--------------------------------------------------------------------------------
 drkns 2024-12-26 11:25:55+00:00 - build 6406
 
 1. 0004063: Directory listing when enlarging.
