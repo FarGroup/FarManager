@@ -1,6 +1,6 @@
 NAME=luafar3
 VERSION_LUASDK=20241113
-USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua51.dll\"
+USERCPP=/Iluasdk/include /DBUILD_DLL /DLUADLL=\"lua51.dll\"
 !ifndef LUA
 LUA=luasdk\$(VERSION_LUASDK)\32\lua.exe
 !endif

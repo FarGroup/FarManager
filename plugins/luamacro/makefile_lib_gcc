@@ -40,7 +40,6 @@ USERLIBS = \
 USERC = \
 	-Iluasdk/include \
 	-DBUILD_DLL \
-	-DWINVER=0x500 \
 	-DLUADLL=\"lua51.dll\" \
 	-Wno-cast-function-type \
 	-Wno-cast-qual \
