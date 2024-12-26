@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 
 #include <windows.h>
+#include <winnls.h>
 #ifdef FAR_USE_INTERNALS
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
