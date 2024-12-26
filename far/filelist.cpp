@@ -8300,12 +8300,15 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const siz
 		auto SpacesBetween =
 			VisualNameLength + AlignedVisualExtensionLength <= MaxLength?
 				MaxLength - VisualNameLength - AlignedVisualExtensionLength:
-				1;
+				0;
 
-		if (!SpacesBetween && VisualNameLength + VisualExtensionLength < MaxLength)
+		if (!SpacesBetween && VisualNameLength + VisualExtensionLength <= MaxLength)
 			SpacesBetween = MaxLength - VisualNameLength - VisualExtensionLength;
 
-		const auto SpacesAfter = MaxLength - VisualNameLength - SpacesBetween - VisualExtensionLength;
+		const auto SpacesAfter =
+			VisualNameLength + SpacesBetween + VisualExtensionLength <= MaxLength?
+			MaxLength - VisualNameLength - SpacesBetween - VisualExtensionLength :
+			0;
 
 		strDest += Name;
 		strDest.append(SpacesBetween, L' ');
