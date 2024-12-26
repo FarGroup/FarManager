@@ -62,6 +62,10 @@ HOOK QueryDepthSList                        ,  4, :dword
 HOOK GetNumaHighestNodeNumber               ,  4, :dword
 HOOK GetLogicalProcessorInformation         ,  8, :dword, :dword
 HOOK SetThreadStackGuarantee                ,  4, :dword
+HOOK FlsAlloc                               ,  4, :dword
+HOOK FlsGetValue                            ,  4, :dword
+HOOK FlsSetValue                            ,  8, :dword, :dword
+HOOK FlsFree                                ,  4, :dword
 endif
 HOOK InitializeCriticalSectionEx            , 12, :dword, :dword, :dword
 HOOK CompareStringEx                        , 36, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword, :dword

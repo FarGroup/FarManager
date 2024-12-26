@@ -444,6 +444,20 @@ extern "C" BOOL WINAPI WRAPPER(InitializeCriticalSectionEx)(LPCRITICAL_SECTION C
 	CREATE_AND_RETURN(modules::kernel32, CriticalSection, SpinCount, Flags);
 }
 
+static LCID locale_name_to_lcid(const wchar_t* LocaleName)
+{
+	if (!LocaleName)
+		return LOCALE_USER_DEFAULT;
+
+	if (!*LocaleName)
+		return LOCALE_INVARIANT;
+
+	if (!lstrcmp(LocaleName, LOCALE_NAME_SYSTEM_DEFAULT))
+		return LOCALE_SYSTEM_DEFAULT;
+
+	return LOCALE_USER_DEFAULT;
+}
+
 // VC2019
 extern "C" int WINAPI WRAPPER(CompareStringEx)(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
 {
@@ -451,7 +465,7 @@ extern "C" int WINAPI WRAPPER(CompareStringEx)(LPCWSTR LocaleName, DWORD CmpFlag
 	{
 		static int WINAPI impl(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
 		{
-			return CompareStringW(LOCALE_USER_DEFAULT, CmpFlags, String1, Count1, String2, Count2);
+			return CompareStringW(locale_name_to_lcid(LocaleName), CmpFlags, String1, Count1, String2, Count2);
 		}
 	};
 
@@ -465,7 +479,7 @@ extern "C" int WINAPI WRAPPER(LCMapStringEx)(LPCWSTR LocaleName, DWORD MapFlags,
 	{
 		static int WINAPI impl(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
 		{
-			return LCMapStringW(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
+			return LCMapStringW(locale_name_to_lcid(LocaleName), MapFlags, SrcStr, SrcCount, DestStr, DestCount);
 		}
 	};
 
@@ -527,6 +541,58 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 	};
 
 	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+extern "C" DWORD WINAPI WRAPPER(FlsAlloc)(PFLS_CALLBACK_FUNCTION Callback)
+{
+	struct implementation
+	{
+		static DWORD WINAPI impl(PFLS_CALLBACK_FUNCTION Callback)
+		{
+			return TlsAlloc();
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, Callback);
+}
+
+extern "C" PVOID WINAPI WRAPPER(FlsGetValue)(DWORD FlsIndex)
+{
+	struct implementation
+	{
+		static PVOID WINAPI impl(DWORD FlsIndex)
+		{
+			return TlsGetValue(FlsIndex);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, FlsIndex);
+}
+
+extern "C" BOOL WINAPI WRAPPER(FlsSetValue)(DWORD FlsIndex, PVOID FlsData)
+{
+	struct implementation
+	{
+		static BOOL WINAPI impl(DWORD FlsIndex, PVOID FlsData)
+		{
+			return TlsSetValue(FlsIndex, FlsData);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, FlsIndex, FlsData);
+}
+
+extern "C" BOOL WINAPI WRAPPER(FlsFree)(DWORD FlsIndex)
+{
+	struct implementation
+	{
+		static BOOL WINAPI impl(DWORD FlsIndex)
+		{
+			return TlsFree(FlsIndex);
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, FlsIndex);
 }
 
 #undef CREATE_AND_RETURN
