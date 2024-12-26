@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2024-12-26 11:25:55+00:00 - build 6406
+
+1. 0004063: Directory listing when enlarging.
+
+2. Update vc_crt_fix.
+
+3. Minimize conversions in SQLite custom collations.
+
+--------------------------------------------------------------------------------
 drkns 2024-12-23 01:31:11+00:00 - build 6405
 
 1. Correction of 6404.
