@@ -195,6 +195,7 @@ jobs:
         run: |
           echo "DEBUG=1" >> "$GITHUB_ENV"
           echo "USE_LLD=1" >> "$GITHUB_ENV"
+          test "${{ matrix.sys }}" = "ucrt64" -o "${{ matrix.sys }}" = "clang64" && echo "USER_LIBS=-lucrtbased" >> "$GITHUB_ENV" || true
           pacboy --noconfirm -S --needed lld:p
 
       - name: Build Far
@@ -273,11 +274,7 @@ jobs:
         run: |
           echo "DEBUG=1" >> "$GITHUB_ENV"
           echo "USE_LLD=1" >> "$GITHUB_ENV"
-
-      - name: Set more environment for debug build
-        if: matrix.c_lib == 'ucrt' && matrix.build_type == 'Debug'
-        run: |
-          echo "USER_LIBS=-lucrtbased" >> "$GITHUB_ENV"
+          test "${{ matrix.c_lib }}" = "ucrt" && echo "USER_LIBS=-lucrtbased" >> "$GITHUB_ENV" || true
 
       - name: Build far
         working-directory: far
