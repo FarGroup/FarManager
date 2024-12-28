@@ -1,5 +1,5 @@
 !ifndef NODEFLIB
-!if "$(BUILD_PLATFORM)" =="X86"
+!if "$(BUILD_PLATFORM)" =="X86" || "$(BUILD_PLATFORM)" =="AMD64"
 !ifndef ULINK
 LINK_OBJS = $(LINK_OBJS) $(INTDIR)\vc_crt_fix.obj $(INTDIR)\vc_crt_fix_impl.obj
 !else
