@@ -184,6 +184,7 @@ extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedFlushSList)(PSLIST_HEADER List
 #ifdef _WIN64
 			// The oldest x64 OS (XP) already has SList, so this shall never be called.
 			DebugBreak();
+			return {};
 #else
 			if (!ListHead->Next.Next)
 				return {};
@@ -214,6 +215,7 @@ extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPushEntrySList)(PSLIST_HEADER 
 #ifdef _WIN64
 			// The oldest x64 OS (XP) already has SList, so this shall never be called.
 			DebugBreak();
+			return {};
 #else
 			SLIST_HEADER OldHeader, NewHeader;
 			NewHeader.Next.Next = ListEntry;
