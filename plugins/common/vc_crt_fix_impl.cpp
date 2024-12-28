@@ -31,11 +31,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
+#ifdef FAR_USE_INTERNALS
+#include "disable_warnings_in_std_begin.hpp"
+//----------------------------------------------------------------------------
+#endif // END FAR_USE_INTERNALS
 #include <memory>
 #include <utility>
 
 #include <windows.h>
 #include <winnls.h>
+#ifdef FAR_USE_INTERNALS
+//----------------------------------------------------------------------------
+#include "disable_warnings_in_std_end.hpp"
+#endif // END FAR_USE_INTERNALS
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -531,6 +542,21 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 	};
 
 	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2022
+extern "C" BOOLEAN WINAPI WRAPPER(TryAcquireSRWLockExclusive)(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static BOOLEAN WINAPI impl(PSRWLOCK SRWLock)
+    {
+      SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+      return FALSE;
+    }
+  };
+
+  CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
 extern "C" DWORD WINAPI WRAPPER(FlsAlloc)(PFLS_CALLBACK_FUNCTION Callback)

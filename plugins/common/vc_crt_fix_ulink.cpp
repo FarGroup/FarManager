@@ -103,9 +103,10 @@ static BOOL WINAPI sim_SleepConditionVariableSRW(PCONDITION_VARIABLE, PSRWLOCK, 
 }
 
 //----------------------------------------------------------------------------
-static void WINAPI sim__unimpl_1arg(PVOID)
+static BOOLEAN WINAPI sim__unimpl_1arg(PVOID)
 {
     SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+    return FALSE;
 }
 
 //----------------------------------------------------------------------------
@@ -145,23 +146,28 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
         return (FARPROC)sim__unimpl_1arg;
       if(!lstrcmpA(pdli->dlp.szProcName, "AcquireSRWLockExclusive"))
         return (FARPROC)sim__unimpl_1arg;
+      if(!lstrcmpA(pdli->dlp.szProcName, "TryAcquireSRWLockExclusive"))
+        return (FARPROC)sim__unimpl_1arg;
     }
     return nullptr;
 }
 
 //----------------------------------------------------------------------------
+#ifndef _WIN64
 #pragma comment(linker, "/delayload:kernel32.GetModuleHandleExW")
-#pragma comment(linker, "/delayload:kernel32.CompareStringEx")
-#pragma comment(linker, "/delayload:kernel32.LCMapStringEx")
-#pragma comment(linker, "/delayload:kernel32.InitializeCriticalSectionEx")
 #pragma comment(linker, "/delayload:kernel32.FlsAlloc")
 #pragma comment(linker, "/delayload:kernel32.FlsFree")
 #pragma comment(linker, "/delayload:kernel32.FlsGetValue")
 #pragma comment(linker, "/delayload:kernel32.FlsSetValue")
+#endif
+#pragma comment(linker, "/delayload:kernel32.CompareStringEx")
+#pragma comment(linker, "/delayload:kernel32.LCMapStringEx")
+#pragma comment(linker, "/delayload:kernel32.InitializeCriticalSectionEx")
 #pragma comment(linker, "/delayload:kernel32.SleepConditionVariableSRW")
 #pragma comment(linker, "/delayload:kernel32.WakeAllConditionVariable")
 #pragma comment(linker, "/delayload:kernel32.ReleaseSRWLockExclusive")
 #pragma comment(linker, "/delayload:kernel32.AcquireSRWLockExclusive")
+#pragma comment(linker, "/delayload:kernel32.TryAcquireSRWLockExclusive")
 
 //----------------------------------------------------------------------------
 #if _MSC_FULL_VER >= 190024215 // VS2015sp3

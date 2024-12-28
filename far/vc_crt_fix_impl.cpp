@@ -544,6 +544,21 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 	CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
+// VC2022
+extern "C" BOOLEAN WINAPI WRAPPER(TryAcquireSRWLockExclusive)(PSRWLOCK SRWLock)
+{
+  struct implementation
+  {
+    static BOOLEAN WINAPI impl(PSRWLOCK SRWLock)
+    {
+      SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+      return FALSE;
+    }
+  };
+
+  CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
 extern "C" DWORD WINAPI WRAPPER(FlsAlloc)(PFLS_CALLBACK_FUNCTION Callback)
 {
 	struct implementation

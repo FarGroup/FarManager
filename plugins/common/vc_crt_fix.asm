@@ -74,5 +74,6 @@ HOOK AcquireSRWLockExclusive                ,  4, :dword
 HOOK ReleaseSRWLockExclusive                ,  4, :dword
 HOOK SleepConditionVariableSRW              , 16, :dword, :dword, :dword, :dword
 HOOK WakeAllConditionVariable               ,  4, :dword
+HOOK TryAcquireSRWLockExclusive             ,  4, :dword
 
 end
