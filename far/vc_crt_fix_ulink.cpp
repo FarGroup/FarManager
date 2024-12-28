@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <delayimp.h>
 
 //----------------------------------------------------------------------------
+#ifndef _WIN64
 static BOOL WINAPI sim_GetModuleHandleExW(DWORD flg, LPCWSTR name, HMODULE* pm)
 {
     // GET_MODULE_HANDLE_EX_FLAG_PIN not implemented (and unneeded)
@@ -59,6 +60,7 @@ static BOOL WINAPI sim_GetModuleHandleExW(DWORD flg, LPCWSTR name, HMODULE* pm)
 done:
     return (*pm = hm) != NULL;
 }
+#endif
 
 //----------------------------------------------------------------------------
 static BOOL WINAPI sim_InitializeCriticalSectionEx(LPCRITICAL_SECTION psec,
@@ -86,10 +88,12 @@ static int WINAPI sim_CompareStringEx(LPCWSTR, DWORD flg, LPCWCH s1, int c1,
 }
 
 //----------------------------------------------------------------------------
+#ifndef _WIN64
 static DWORD WINAPI sim_FlsAlloc(PFLS_CALLBACK_FUNCTION)
 {
     return TlsAlloc();
 }
+#endif
 
 //----------------------------------------------------------------------------
 static BOOL WINAPI sim_SleepConditionVariableSRW(PCONDITION_VARIABLE, PSRWLOCK, DWORD, ULONG)
@@ -115,14 +119,9 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 #if _MSC_FULL_VER >= 191326128  // VS2017.6
 #pragma warning(disable: 4191)  // unsafe conversion from...to
 #endif
+#ifndef _WIN64
       if(!lstrcmpA(pdli->dlp.szProcName, "GetModuleHandleExW"))
         return (FARPROC)sim_GetModuleHandleExW;
-      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeCriticalSectionEx"))
-        return (FARPROC)sim_InitializeCriticalSectionEx;
-      if(!lstrcmpA(pdli->dlp.szProcName, "LCMapStringEx"))
-        return (FARPROC)sim_LCMapStringEx;
-      if(!lstrcmpA(pdli->dlp.szProcName, "CompareStringEx"))
-        return (FARPROC)sim_CompareStringEx;
       if(!lstrcmpA(pdli->dlp.szProcName, "FlsAlloc"))
         return (FARPROC)sim_FlsAlloc;
       if(!lstrcmpA(pdli->dlp.szProcName, "FlsFree"))
@@ -131,6 +130,13 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
         return (FARPROC)TlsGetValue;
       if(!lstrcmpA(pdli->dlp.szProcName, "FlsSetValue"))
         return (FARPROC)TlsSetValue;
+#endif
+      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeCriticalSectionEx"))
+        return (FARPROC)sim_InitializeCriticalSectionEx;
+      if(!lstrcmpA(pdli->dlp.szProcName, "LCMapStringEx"))
+        return (FARPROC)sim_LCMapStringEx;
+      if(!lstrcmpA(pdli->dlp.szProcName, "CompareStringEx"))
+        return (FARPROC)sim_CompareStringEx;
       if(!lstrcmpA(pdli->dlp.szProcName, "SleepConditionVariableSRW"))
         return (FARPROC)sim_SleepConditionVariableSRW;
       if(!lstrcmpA(pdli->dlp.szProcName, "WakeAllConditionVariable"))
