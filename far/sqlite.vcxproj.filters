@@ -42,6 +42,9 @@
     <ClCompile Include="sqlite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vc_crt_fix_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sqlite.config.h">
@@ -52,5 +55,10 @@
     <ResourceCompile Include="thirdparty\sqlite\sqlite3.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="vc_crt_fix.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

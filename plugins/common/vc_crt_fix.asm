@@ -54,11 +54,7 @@ HOOK DecodePointer                          ,  4, :dword
 HOOK GetModuleHandleExW                     , 12, :dword, :dword, :dword
 HOOK InitializeSListHead                    ,  4, :dword
 HOOK InterlockedFlushSList                  ,  4, :dword
-HOOK InterlockedPopEntrySList               ,  4, :dword
 HOOK InterlockedPushEntrySList              ,  8, :dword, :dword
-HOOK InterlockedPushListSListEx             , 16, :dword, :dword, :dword, :dword
-HOOK RtlFirstEntrySList                     ,  4, :dword
-HOOK QueryDepthSList                        ,  4, :dword
 HOOK GetNumaHighestNodeNumber               ,  4, :dword
 HOOK GetLogicalProcessorInformation         ,  8, :dword, :dword
 HOOK SetThreadStackGuarantee                ,  4, :dword

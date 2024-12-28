@@ -31,22 +31,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-#ifdef FAR_USE_INTERNALS
-#include "disable_warnings_in_std_begin.hpp"
-//----------------------------------------------------------------------------
-#endif // END FAR_USE_INTERNALS
 #include <memory>
 #include <utility>
 
 #include <windows.h>
 #include <winnls.h>
-#ifdef FAR_USE_INTERNALS
-//----------------------------------------------------------------------------
-#include "disable_warnings_in_std_end.hpp"
-#endif // END FAR_USE_INTERNALS
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -62,17 +51,13 @@ static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName,
 }
 
 #define WRAPPER(name) Wrapper_ ## name
-#define CREATE_AND_RETURN_IMPL(ModuleName, FunctionName, ImplementationName, ...) \
-	static const auto FunctionPointer = GetFunctionPointer(ModuleName, FunctionName, &implementation::ImplementationName); \
+#define CREATE_AND_RETURN(ModuleName, ...) \
+	static const auto FunctionPointer = GetFunctionPointer(ModuleName, __func__ + sizeof("Wrapper_") - 1, &implementation::impl); \
 	return FunctionPointer(__VA_ARGS__)
-
-#define CREATE_AND_RETURN_NAMED(ModuleName, FunctionName, ...) CREATE_AND_RETURN_IMPL(ModuleName, #FunctionName, FunctionName, __VA_ARGS__)
-#define CREATE_AND_RETURN(ModuleName, ...)                     CREATE_AND_RETURN_IMPL(ModuleName, __func__ + sizeof("Wrapper_") - 1, impl, __VA_ARGS__)
 
 namespace modules
 {
 	static const wchar_t kernel32[] = L"kernel32";
-	static const wchar_t ntdll[] = L"ntdll";
 }
 
 static void* XorPointer(void* Ptr)
@@ -165,223 +150,89 @@ extern "C" BOOL WINAPI WRAPPER(GetModuleHandleExW)(DWORD Flags, LPCWSTR ModuleNa
 	CREATE_AND_RETURN(modules::kernel32, Flags, ModuleName, Module);
 }
 
-namespace slist
-{
-	namespace implementation
-	{
-#ifdef _WIN64
-		// These stubs are here only to unify compilation, they shall never be needed on x64.
-		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead) {}
-		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead) { return nullptr; }
-		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead) { return nullptr; }
-		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry) { return nullptr; }
-		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count) { return nullptr; }
-		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead) { return nullptr; }
-		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead) { return 0; }
-#else
-		class critical_section
-		{
-		public:
-			critical_section() { InitializeCriticalSection(&m_Lock); }
-			~critical_section() { DeleteCriticalSection(&m_Lock); }
-
-			critical_section(const critical_section&) = delete;
-			critical_section(critical_section&&) = default;
-
-			critical_section& operator=(const critical_section&) = delete;
-			critical_section& operator=(critical_section&&) = default;
-
-			void lock() { EnterCriticalSection(&m_Lock); }
-			void unlock() { LeaveCriticalSection(&m_Lock); }
-
-		private:
-			CRITICAL_SECTION m_Lock;
-		};
-
-		struct service_entry: SLIST_ENTRY, critical_section
-		{
-			// InitializeSListHead might be called during runtime initialisation
-			// when operator new might not be ready yet (especially in presence of leak detectors)
-
-			void* operator new(size_t Size)
-			{
-				return malloc(Size);
-			}
-
-			void operator delete(void* Ptr)
-			{
-				free(Ptr);
-			}
-
-			service_entry* ServiceNext{};
-		};
-
-		class slist_lock
-		{
-		public:
-			explicit slist_lock(PSLIST_HEADER ListHead):
-				m_Entry(static_cast<service_entry&>(*ListHead->Next.Next))
-			{
-				m_Entry.lock();
-			}
-
-			~slist_lock()
-			{
-				m_Entry.unlock();
-			}
-
-			slist_lock(const slist_lock&) = delete;
-			slist_lock& operator=(const slist_lock&) = delete;
-
-		private:
-			service_entry& m_Entry;
-		};
-
-		class service_deleter
-		{
-		public:
-			~service_deleter()
-			{
-				while (m_Data.ServiceNext)
-				{
-					delete std::exchange(m_Data.ServiceNext, m_Data.ServiceNext->ServiceNext);
-				}
-			}
-
-			void add(service_entry* Entry)
-			{
-				m_Data.lock();
-				Entry->ServiceNext = m_Data.ServiceNext;
-				m_Data.ServiceNext = Entry;
-				m_Data.unlock();
-			}
-
-		private:
-			service_entry m_Data{};
-		};
-
-		static SLIST_ENTRY*& top(PSLIST_HEADER ListHead)
-		{
-			return ListHead->Next.Next->Next;
-		}
-
-		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead)
-		{
-			*ListHead = {};
-
-			const auto Entry = new service_entry();
-			ListHead->Next.Next = Entry;
-
-			static service_deleter Deleter;
-			Deleter.add(Entry);
-		}
-
-		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead)
-		{
-			slist_lock Lock(ListHead);
-
-			ListHead->Depth = 0;
-			return std::exchange(top(ListHead), nullptr);
-		}
-
-		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead)
-		{
-			slist_lock Lock(ListHead);
-
-			auto& Top = top(ListHead);
-			if (!Top)
-				return nullptr;
-
-			--ListHead->Depth;
-			return std::exchange(Top, Top->Next);
-		}
-
-		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
-		{
-			slist_lock Lock(ListHead);
-
-			auto& Top = top(ListHead);
-
-			++ListHead->Depth;
-			ListEntry->Next = Top;
-			return std::exchange(Top, ListEntry);
-		}
-
-		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
-		{
-			slist_lock Lock(ListHead);
-
-			auto& Top = top(ListHead);
-
-			ListHead->Depth += static_cast<WORD>(Count);
-			ListEnd->Next = Top;
-			return std::exchange(Top, List);
-		}
-
-		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead)
-		{
-			slist_lock Lock(ListHead);
-
-			return top(ListHead);
-		}
-
-		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead)
-		{
-			slist_lock Lock(ListHead);
-
-			return ListHead->Depth;
-		}
-#endif
-	}
-}
-
 // VC2015
 extern "C" void WINAPI WRAPPER(InitializeSListHead)(PSLIST_HEADER ListHead)
 {
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, InitializeSListHead, ListHead);
+	struct implementation
+	{
+		static void WINAPI impl(PSLIST_HEADER ListHead)
+		{
+			*ListHead = {};
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, ListHead);
 }
 
-// VC2015
+#ifndef _WIN64
+static bool atomic_assign(PSLIST_HEADER To, SLIST_HEADER const& New, SLIST_HEADER const& Old)
+{
+	return InterlockedCompareExchange64(
+		static_cast<LONG64*>(static_cast<void*>(&To->Alignment)),
+		New.Alignment,
+		Old.Alignment
+	) == static_cast<LONG64>(Old.Alignment);
+}
+#endif
+
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedFlushSList)(PSLIST_HEADER ListHead)
 {
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedFlushSList, ListHead);
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI impl(PSLIST_HEADER ListHead)
+		{
+#ifdef _WIN64
+			// The oldest x64 OS (XP) already has SList, so this shall never be called.
+			DebugBreak();
+#else
+			if (!ListHead->Next.Next)
+				return {};
+
+			SLIST_HEADER OldHeader, NewHeader{};
+
+			do
+			{
+				OldHeader = *ListHead;
+				NewHeader.CpuId = OldHeader.CpuId;
+			}
+			while (!atomic_assign(ListHead, NewHeader, OldHeader));
+
+			return OldHeader.Next.Next;
+#endif
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, ListHead);
 }
 
-// VC2015
-extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPopEntrySList)(PSLIST_HEADER ListHead)
-{
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPopEntrySList, ListHead);
-}
-
-// VC2015
 extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPushEntrySList)(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
 {
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPushEntrySList, ListHead, ListEntry);
-}
+	struct implementation
+	{
+		static PSLIST_ENTRY WINAPI impl(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
+		{
+#ifdef _WIN64
+			// The oldest x64 OS (XP) already has SList, so this shall never be called.
+			DebugBreak();
+#else
+			SLIST_HEADER OldHeader, NewHeader;
+			NewHeader.Next.Next = ListEntry;
 
-// VC2015
-extern "C" PSLIST_ENTRY WINAPI WRAPPER(InterlockedPushListSListEx)(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
-{
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, InterlockedPushListSListEx, ListHead, List, ListEnd, Count);
-}
+			do
+			{
+				OldHeader = *ListHead;
+				ListEntry->Next = OldHeader.Next.Next;
+				NewHeader.Depth = OldHeader.Depth + 1;
+				NewHeader.CpuId = OldHeader.CpuId;
+			}
+			while (!atomic_assign(ListHead, NewHeader, OldHeader));
 
-// VC2015
-extern "C" PSLIST_ENTRY WINAPI WRAPPER(RtlFirstEntrySList)(PSLIST_HEADER ListHead)
-{
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::ntdll, RtlFirstEntrySList, ListHead);
-}
+			return OldHeader.Next.Next;
+#endif
+		}
+	};
 
-// VC2015
-extern "C" USHORT WINAPI WRAPPER(QueryDepthSList)(PSLIST_HEADER ListHead)
-{
-	using namespace slist;
-	CREATE_AND_RETURN_NAMED(modules::kernel32, QueryDepthSList, ListHead);
+	CREATE_AND_RETURN(modules::kernel32, ListHead, ListEntry);
 }
 
 // VC2017

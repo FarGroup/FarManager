@@ -435,7 +435,6 @@ $(OUTDIR)\Far.exe.example.ini: $(@F)
 	$(MSG)
 	copy /Y $(@F) $@ > nul
 
-$(FARINCLUDE)\vc_crt_fix_impl.cpp \
 $(FARINCLUDE)\plugin.hpp \
 $(FARINCLUDE)\farcolor.hpp \
 $(FARINCLUDE)\PluginW.pas \
@@ -444,6 +443,7 @@ $(FARINCLUDE)\FarColorW.pas: $(@F) $(VERSION_DEPS)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
 $(FARINCLUDE)\vc_crt_fix.asm \
+$(FARINCLUDE)\vc_crt_fix_impl.cpp \
 $(FARINCLUDE)\vc_crt_fix_ulink.cpp: $(@F)
 	$(MSG)
 	copy /Y $(@F) $@ > nul

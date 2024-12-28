@@ -38,12 +38,23 @@
     <ClCompile Include="sqlite.c">
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="vc_crt_fix_impl.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sqlite.config.h" />
     <ClInclude Include="thirdparty\sqlite\sqlite3.c" />
     <ClInclude Include="thirdparty\sqlite\sqlite3rc.h" />
     <ClInclude Include="$(BootstrapDir)sqlite_version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="vc_crt_fix.asm">
+      <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="thirdparty\sqlite\sqlite3.rc">
