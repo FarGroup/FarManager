@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+yjh 2024-12-28 14:05:22+03:00 - build 6408
+
+1. Update vc_crt_fix...'es (add stub needed for NetBox)
+
+--------------------------------------------------------------------------------
 drkns 2024-12-26 18:04:08+00:00 - build 6407
 
 1. "System properties" in Attributes dialog invoked on a device didn't work in old Windows versions.
