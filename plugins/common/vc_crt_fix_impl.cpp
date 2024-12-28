@@ -31,22 +31,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-#ifdef FAR_USE_INTERNALS
-#include "disable_warnings_in_std_begin.hpp"
-//----------------------------------------------------------------------------
-#endif // END FAR_USE_INTERNALS
 #include <memory>
 #include <utility>
 
 #include <windows.h>
 #include <winnls.h>
-#ifdef FAR_USE_INTERNALS
-//----------------------------------------------------------------------------
-#include "disable_warnings_in_std_end.hpp"
-#endif // END FAR_USE_INTERNALS
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
