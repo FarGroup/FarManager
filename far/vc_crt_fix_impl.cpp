@@ -465,8 +465,6 @@ extern "C" BOOL WINAPI WRAPPER(FlsFree)(DWORD FlsIndex)
 }
 
 #undef CREATE_AND_RETURN
-#undef CREATE_AND_RETURN_NAMED
-#undef CREATE_AND_RETURN_IMPL
 #undef WRAPPER
 
 // disable VS2015 telemetry
