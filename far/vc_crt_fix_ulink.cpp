@@ -31,9 +31,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "disable_warnings_in_std_begin.hpp"
 #include <windows.h>
-#include "disable_warnings_in_std_end.hpp"
 #include <delayimp.h>
 
 //----------------------------------------------------------------------------
