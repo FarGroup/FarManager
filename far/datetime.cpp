@@ -789,20 +789,22 @@ std::pair<string, string> format_datetime(os::chrono::time const Time)
 	};
 }
 
-static std::chrono::milliseconds till_next_unit(std::chrono::seconds const Unit)
+template<typename T>
+static std::chrono::milliseconds till_next_unit(os::chrono::nt_clock::time_point const Point)
 {
-	const auto Now = os::chrono::nt_clock::now().time_since_epoch();
-	return std::chrono::ceil<std::chrono::milliseconds>((Now / Unit + 1) * Unit - Now);
+	const auto Now = Point.time_since_epoch();
+	using namespace std::chrono;
+	return ceil<T>(Now) - duration_cast<milliseconds>(Now);
 }
 
 std::chrono::milliseconds till_next_second()
 {
-	return till_next_unit(1s);
+	return till_next_unit<std::chrono::seconds>(os::chrono::nt_clock::now());
 }
 
 std::chrono::milliseconds till_next_minute()
 {
-	return till_next_unit(1min);
+	return till_next_unit<std::chrono::minutes>(os::chrono::nt_clock::now());
 }
 
 #ifdef ENABLE_TESTS
@@ -934,4 +936,34 @@ TEST_CASE("datetime.format_datetime")
 		REQUIRE(i.Time == Time);
 	}
 }
+
+TEST_CASE("datetime.till_next_unit")
+{
+	static const struct
+	{
+		os::chrono::duration Duration;
+		std::chrono::milliseconds TillSecond, TillMinute;
+	}
+	Tests[]
+	{
+		{ 0s, 0s, 0min },
+		{ 1_hns, 1s, 1min },
+		{ 1min + 58s + 998ms, 2ms, 1s + 2ms },
+		{ 1min + 58s + 999ms, 1ms, 1s + 1ms },
+		{ 1min + 59s + 998ms, 2ms, 2ms },
+		{ 1min + 59s + 999ms, 1ms, 1ms },
+		{ 1min + 59s + 9999999_hns, 1ms, 1ms },
+		{ 12h + 34min + 56s + 1234567_hns, 877ms, 3s + 877ms },
+		{ 65h + 43min + 21s + 7654321_hns, 235ms, 38s + 235ms },
+	};
+
+	for (const auto& i: Tests)
+	{
+		using namespace std::chrono;
+		using point = os::chrono::nt_clock::time_point;
+		REQUIRE(i.TillSecond == till_next_unit<seconds>(point{ i.Duration }));
+		REQUIRE(i.TillMinute == till_next_unit<minutes>(point{ i.Duration }));
+	}
+}
+
 #endif
