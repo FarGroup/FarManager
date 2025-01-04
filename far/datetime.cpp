@@ -792,7 +792,7 @@ std::pair<string, string> format_datetime(os::chrono::time const Time)
 static std::chrono::milliseconds till_next_unit(std::chrono::seconds const Unit)
 {
 	const auto Now = os::chrono::nt_clock::now().time_since_epoch();
-	return ((Now / Unit + 1) * Unit - Now) / 1ms * 1ms;
+	return std::chrono::ceil<std::chrono::milliseconds>((Now / Unit + 1) * Unit - Now);
 }
 
 std::chrono::milliseconds till_next_second()
