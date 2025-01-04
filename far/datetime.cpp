@@ -491,7 +491,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 {
 	const auto ParsedTime = parse_time(Date, Time, DateFormat);
 
-	if (is_time_none(ParsedTime.Year) || is_time_none(ParsedTime.Month) || is_time_none(ParsedTime.Day))
+	if (ParsedTime.Year == time_none || ParsedTime.Month == time_none || ParsedTime.Day == time_none)
 	{
 		// Year / Month / Day can't have reasonable defaults
 		return {};
@@ -500,7 +500,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 	const auto Default = [](unsigned const Value)
 	{
 		// Everything else can
-		return is_time_none(Value)? 0 : Value;
+		return Value == time_none? 0 : Value;
 	};
 
 	os::chrono::local_time LocalTime{ ParsedTime };

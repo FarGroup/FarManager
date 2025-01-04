@@ -599,7 +599,7 @@ static bool construct_time(
 
 	const auto inherit = [&](auto Getter)
 	{
-		if (auto& Value = std::invoke(Getter, LocalTime); is_time_none(Value))
+		if (auto& Value = std::invoke(Getter, LocalTime); Value == time_none)
 			 Value = std::invoke(Getter, OriginalLocalTime);
 	};
 
