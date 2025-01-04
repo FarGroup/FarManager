@@ -151,5 +151,6 @@ bool CheckForEscSilent();
 
 void wakeup_for_clock(bool Value);
 void wakeup_for_screensaver(bool Value);
+void wakeup_for_screensaver_time(std::chrono::minutes Value);
 
 #endif // KEYBOARD_HPP_63436F7A_609D_4E3B_8EF8_178B9829AB46

@@ -1790,6 +1790,11 @@ Options::Options():
 		wakeup_for_screensaver(Value);
 	}));
 
+	ScreenSaverTime.SetCallback(option::notifier([](long long const Value)
+	{
+		wakeup_for_screensaver_time(Value * 1min);
+	}));
+
 	ClipboardUnicodeWorkaround.SetCallback(option::notifier([](bool const Value)
 	{
 		os::clipboard::enable_ansi_to_unicode_conversion_workaround(Value);
