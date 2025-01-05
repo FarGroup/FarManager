@@ -419,7 +419,7 @@ extern "C" void WINAPI WRAPPER(InitializeSRWLock)(PSRWLOCK SRWLock)
 	{
 		static void WINAPI impl(PSRWLOCK SRWLock)
 		{
-			*(void**)SRWLock = 0;
+			*SRWLock = SRWLOCK_INIT;
 		}
 	};
 
