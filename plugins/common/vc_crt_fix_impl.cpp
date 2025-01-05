@@ -257,7 +257,7 @@ extern "C" BOOL WINAPI WRAPPER(GetLogicalProcessorInformation)(PSYSTEM_LOGICAL_P
 {
 	struct implementation
 	{
-    static BOOL WINAPI impl(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD)
+		static BOOL WINAPI impl(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
@@ -272,7 +272,7 @@ extern "C" BOOL WINAPI WRAPPER(SetThreadStackGuarantee)(PULONG StackSizeInBytes)
 {
 	struct implementation
 	{
-    static BOOL WINAPI impl(PULONG)
+		static BOOL WINAPI impl(PULONG)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
@@ -317,7 +317,7 @@ extern "C" int WINAPI WRAPPER(CompareStringEx)(LPCWSTR LocaleName, DWORD CmpFlag
 {
 	struct implementation
 	{
-    static int WINAPI impl(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO, LPVOID, LPARAM)
+		static int WINAPI impl(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO, LPVOID, LPARAM)
 		{
 			return CompareStringW(locale_name_to_lcid(LocaleName), CmpFlags, String1, Count1, String2, Count2);
 		}
@@ -331,7 +331,7 @@ extern "C" int WINAPI WRAPPER(LCMapStringEx)(LPCWSTR LocaleName, DWORD MapFlags,
 {
 	struct implementation
 	{
-    static int WINAPI impl(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO, LPVOID, LPARAM)
+		static int WINAPI impl(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO, LPVOID, LPARAM)
 		{
 			return LCMapStringW(locale_name_to_lcid(LocaleName), MapFlags, SrcStr, SrcCount, DestStr, DestCount);
 		}
@@ -345,7 +345,7 @@ extern "C" BOOL WINAPI WRAPPER(SleepConditionVariableSRW)(PCONDITION_VARIABLE Co
 {
 	struct implementation
 	{
-    static BOOL WINAPI impl(PCONDITION_VARIABLE, PSRWLOCK, DWORD, ULONG)
+		static BOOL WINAPI impl(PCONDITION_VARIABLE, PSRWLOCK, DWORD, ULONG)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return FALSE;
@@ -360,7 +360,7 @@ extern "C" void WINAPI WRAPPER(WakeAllConditionVariable)(PCONDITION_VARIABLE Con
 {
 	struct implementation
 	{
-    static void WINAPI impl(PCONDITION_VARIABLE)
+		static void WINAPI impl(PCONDITION_VARIABLE)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
@@ -374,7 +374,7 @@ extern "C" void WINAPI WRAPPER(AcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-    static void WINAPI impl(PSRWLOCK)
+		static void WINAPI impl(PSRWLOCK)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
@@ -388,7 +388,7 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 {
 	struct implementation
 	{
-    static void WINAPI impl(PSRWLOCK)
+		static void WINAPI impl(PSRWLOCK)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
@@ -400,23 +400,37 @@ extern "C" void WINAPI WRAPPER(ReleaseSRWLockExclusive)(PSRWLOCK SRWLock)
 // VC2022
 extern "C" BOOLEAN WINAPI WRAPPER(TryAcquireSRWLockExclusive)(PSRWLOCK SRWLock)
 {
-  struct implementation
-  {
-    static BOOLEAN WINAPI impl(PSRWLOCK)
-    {
-      SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-      return FALSE;
-    }
-  };
+	struct implementation
+	{
+		static BOOLEAN WINAPI impl(PSRWLOCK)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return FALSE;
+		}
+	};
 
-  CREATE_AND_RETURN(modules::kernel32, SRWLock);
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
+}
+
+// VC2019
+extern "C" void WINAPI WRAPPER(InitializeSRWLock)(PSRWLOCK SRWLock)
+{
+	struct implementation
+	{
+		static void WINAPI impl(PSRWLOCK SRWLock)
+		{
+			*(void**)SRWLock = 0;
+		}
+	};
+
+	CREATE_AND_RETURN(modules::kernel32, SRWLock);
 }
 
 extern "C" DWORD WINAPI WRAPPER(FlsAlloc)(PFLS_CALLBACK_FUNCTION Callback)
 {
 	struct implementation
 	{
-    static DWORD WINAPI impl(PFLS_CALLBACK_FUNCTION)
+		static DWORD WINAPI impl(PFLS_CALLBACK_FUNCTION)
 		{
 			return TlsAlloc();
 		}

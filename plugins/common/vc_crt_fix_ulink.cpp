@@ -146,6 +146,8 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
         return (FARPROC)sim__unimpl_1arg;
       if(!lstrcmpA(pdli->dlp.szProcName, "TryAcquireSRWLockExclusive"))
         return (FARPROC)sim__unimpl_1arg;
+      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeSRWLock"))
+        return (FARPROC)sim__unimpl_1arg;
     }
     return nullptr;
 }
@@ -166,6 +168,7 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 #pragma comment(linker, "/delayload:kernel32.ReleaseSRWLockExclusive")
 #pragma comment(linker, "/delayload:kernel32.AcquireSRWLockExclusive")
 #pragma comment(linker, "/delayload:kernel32.TryAcquireSRWLockExclusive")
+#pragma comment(linker, "/delayload:kernel32.InitializeSRWLock")
 
 //----------------------------------------------------------------------------
 #if _MSC_FULL_VER >= 190024215 // VS2015sp3
