@@ -84,6 +84,7 @@ namespace os::debug
 		{
 			string_view Name;
 			size_t Displacement{};
+			bool IsFake{};
 		};
 
 		struct location
