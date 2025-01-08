@@ -227,7 +227,7 @@ TEST_CASE("algorithm.repeat")
 {
 	auto Value = 0;
 	auto const Count = 7;
-	auto Increment = [&]{ ++Value; };
+	const auto Increment = [&]{ ++Value; };
 
 	repeat(Count, Increment);
 

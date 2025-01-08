@@ -4873,7 +4873,7 @@ void FileList::SelectSortMode()
 		}
 	}
 
-	const auto& SetCheckAndSelect = [&](size_t const Index)
+	const auto SetCheckAndSelect = [&](size_t const Index)
 	{
 		auto& MenuItem = SortMenu[Index];
 		MenuItem.SetCustomCheck(order_indicator(m_ReverseSortOrder? sort_order::descend : sort_order::ascend));

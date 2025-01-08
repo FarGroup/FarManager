@@ -422,8 +422,8 @@ namespace
 		static std::unordered_map<char_width::codepoint, codepoint_width> SlowCache;
 
 		// The static array above is 0-initialized by default, so we need to adjust accordingly
-		auto to_raw = [](codepoint_width const Width){ return static_cast<uint8_t>(std::to_underlying(Width) + 1); };
-		auto from_raw = [](uint8_t const Width){ return static_cast<codepoint_width>(Width - 1); };
+		const auto to_raw = [](codepoint_width const Width){ return static_cast<uint8_t>(std::to_underlying(Width) + 1); };
+		const auto from_raw = [](uint8_t const Width){ return static_cast<codepoint_width>(Width - 1); };
 
 		if (ClearCacheOnly)
 		{

@@ -168,7 +168,7 @@ auto cpp_try(callable_type const& Callable, source_location const& Location = so
 {
 	using return_type = typename function_traits<callable_type>::result_type;
 
-	const auto& handle_exception = [&] /*[[noreturn]]*/ (const auto& Handler, auto&&... Args)
+	const auto handle_exception = [&] /*[[noreturn]]*/ (const auto& Handler, auto&&... Args)
 	{
 		if (Handler(FWD(Args)..., nullptr, Location))
 			if (use_terminate_handler())

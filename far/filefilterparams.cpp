@@ -303,7 +303,7 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 	// Есть введённая пользователем начальная / конечная дата?
 	if (FDate.Used && FDate.Dates)
 	{
-		const auto& ft = [&]() -> const auto&
+		const auto ft = [&]() -> const auto&
 		{
 			switch (FDate.DateType)
 			{
