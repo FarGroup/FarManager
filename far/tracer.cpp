@@ -56,8 +56,10 @@ static constexpr auto BitsPerHexChar = 4;
 template<typename T>
 static constexpr auto width_in_hex_chars = std::numeric_limits<T>::digits / BitsPerHexChar;
 
-static auto format_address(uintptr_t const Value, bool const IsInlineFrame)
+static auto format_address(uintptr_t const Address, uintptr_t const BaseAddress, bool const IsInlineFrame)
 {
+	const auto Value = Address - BaseAddress;
+
 	// It is unlikely that RVAs will be above 4 GiB,
 	// so we can save some screen space here.
 	const auto Width =
@@ -70,16 +72,16 @@ static auto format_address(uintptr_t const Value, bool const IsInlineFrame)
 	// Address doesn't make much sense for inline frames, so we can skip it
 	// This also serves as a good visual indication of inline frames without taking up any extra space
 	if (IsInlineFrame)
-		return string(Width, L' ');
+		return string(1 + Width, L' ');
 
-	return far::format(L"{:0{}X}"sv, Value, Width);
+	return far::format(L"{}{:0{}X}"sv, BaseAddress? L'+' : L' ', Value, Width);
 }
 
 static auto format_symbol(uintptr_t const Address, string_view const ImageName, os::debug::symbols::symbol const Symbol)
 {
 	// If it's not a legit pointer, it's likely a member of a struct at nullptr or something like that, no point in suggesting PDBs.
 	if (ImageName.empty() && Symbol.Name.empty() && !os::memory::is_pointer(Address))
-		return L""s;
+		return L"Bad address"s;
 
 	return far::format(
 		L"{}!{}{}"sv,
@@ -113,18 +115,15 @@ void tracer_detail::tracer::get_symbols(string_view const Module, std::span<os::
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
-	os::debug::symbols::get(Module, Trace, *m_MapFiles, [&](uintptr_t const Address, string_view const ImageName, bool const InlineFrame, os::debug::symbols::symbol const Symbol, os::debug::symbols::location const Location)
+	os::debug::symbols::get(Trace, *m_MapFiles, [&](uintptr_t const Address, uintptr_t const BaseAddress, string_view const ImageName, bool const InlineFrame, os::debug::symbols::symbol const Symbol, os::debug::symbols::location const Location)
 	{
-		auto Result = format_address(Address, InlineFrame);
+		auto Result = format_address(Address, BaseAddress, InlineFrame);
 
-		if (Address)
-		{
-			if (const auto FormattedSymbol = format_symbol(Address, ImageName, Symbol); !FormattedSymbol.empty())
-				append(Result, L' ', FormattedSymbol);
+		if (const auto FormattedSymbol = format_symbol(Address, ImageName, Symbol); !FormattedSymbol.empty())
+			append(Result, L' ', FormattedSymbol);
 
-			if (const auto LocationStr = format_location(Location); !LocationStr.empty())
-				append(Result, L" ("sv, LocationStr, L')');
-		}
+		if (const auto LocationStr = format_location(Location); !LocationStr.empty())
+			append(Result, L" ("sv, LocationStr, L')');
 
 		Consumer(std::move(Result));
 	});
@@ -136,9 +135,9 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 
 	os::debug::stack_frame const Stack[]{ { std::bit_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_IGNORE } };
 
-	os::debug::symbols::get(Module, Stack, *m_MapFiles, [&](uintptr_t const Address, string_view const ImageName, bool const InlineFrame, os::debug::symbols::symbol const Symbol, os::debug::symbols::location const Location)
+	os::debug::symbols::get(Stack, *m_MapFiles, [&](uintptr_t const Address, uintptr_t const BaseAddress, string_view const ImageName, bool const InlineFrame, os::debug::symbols::symbol const Symbol, os::debug::symbols::location const Location)
 	{
-		AddressStr = format_address(Address, InlineFrame);
+		AddressStr = format_address(Address, BaseAddress, InlineFrame);
 
 		if (Address)
 		{

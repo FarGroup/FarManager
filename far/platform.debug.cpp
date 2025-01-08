@@ -733,12 +733,11 @@ namespace os::debug::symbols
 
 	static void handle_frame(
 		HANDLE const Process,
-		string_view const ModuleName,
 		stack_frame const& Frame,
 		bool const IsInlineFrame,
 		symbol_storage& Storage,
 		std::unordered_map<uintptr_t, map_file>& MapFiles,
-		function_ref<void(uintptr_t, string_view, bool, symbol, location)> const Consumer
+		function_ref<void(uintptr_t, uintptr_t, string_view, bool, symbol, location)> const Consumer
 	)
 	{
 		std::optional<IMAGEHLP_MODULEW64> Module(std::in_place);
@@ -767,26 +766,8 @@ namespace os::debug::symbols
 				Module.reset();
 		}
 
-		const auto BaseAddress = [&]() -> uintptr_t
-		{
-			if (Module)
-				return static_cast<uintptr_t>(Module->BaseOfImage);
-
-			const auto ModuleNamePtr = EmptyToNull(null_terminated(ModuleName).c_str());
-
-			if (const auto ModuleBaseAddress = std::bit_cast<uintptr_t>(GetModuleHandle(ModuleNamePtr)); ModuleBaseAddress < Frame.Address)
-				return ModuleBaseAddress;
-
-			if (!ModuleNamePtr)
-				return 0;
-
-			if (const auto ModuleBaseAddress = std::bit_cast<uintptr_t>(GetModuleHandle({})); ModuleBaseAddress < Frame.Address)
-				return ModuleBaseAddress;
-
-			return 0;
-		}();
-
-		const auto ImageName = Module && *Module->ImageName? Module->ImageName : ModuleName;
+		const auto BaseAddress = Module? Module->BaseOfImage : 0;
+		const auto ImageName = Module? Module->ImageName : L"";
 
 		symbol Symbol;
 		location Location;
@@ -804,7 +785,7 @@ namespace os::debug::symbols
 				Location = frame_get_location(Process, Frame.Address, Storage);
 			}
 
-			if ((Symbol.Name.empty() || Symbol.IsFake) && BaseAddress)
+			if ((Symbol.Name.empty() || Symbol.IsFake) && BaseAddress && *ImageName)
 			{
 				auto& MapFile = MapFiles.try_emplace(BaseAddress, ImageName).first->second;
 				const auto Info = MapFile.get(Frame.Address - BaseAddress);
@@ -825,7 +806,8 @@ namespace os::debug::symbols
 		}
 
 		Consumer(
-			Frame.Address? Frame.Address - BaseAddress : 0,
+			Frame.Address,
+			BaseAddress,
 			ImageName,
 			IsInlineFrame,
 			Symbol,
@@ -834,10 +816,9 @@ namespace os::debug::symbols
 	}
 
 	void get(
-		string_view const ModuleName,
 		std::span<stack_frame const> const BackTrace,
 		std::unordered_map<uintptr_t, map_file>& MapFiles,
-		function_ref<void(uintptr_t, string_view, bool, symbol, location)> const Consumer
+		function_ref<void(uintptr_t, uintptr_t, string_view, bool, symbol, location)> const Consumer
 	)
 	{
 		const auto Process = GetCurrentProcess();
@@ -848,7 +829,7 @@ namespace os::debug::symbols
 			if (i.InlineContext)
 			{
 				// If InlineContext is populated, the frames are from StackWalkEx and any inline frames are already included.
-				handle_frame(Process, ModuleName, i, is_inline_frame(i.InlineContext), Storage, MapFiles, Consumer);
+				handle_frame(Process, i, is_inline_frame(i.InlineContext), Storage, MapFiles, Consumer);
 				continue;
 			}
 
@@ -868,14 +849,14 @@ namespace os::debug::symbols
 							// Handle frames as StackWalkEx frames (same address, STACK_FRAME_TYPE_RA) for consistency
 							INLINE_FRAME_CONTEXT FrameContext{ InlineContext };
 							FrameContext.FrameType |= STACK_FRAME_TYPE_RA;
-							handle_frame(Process, ModuleName, { i.Address, FrameContext.ContextValue }, true, Storage, MapFiles, Consumer);
+							handle_frame(Process, { i.Address, FrameContext.ContextValue }, true, Storage, MapFiles, Consumer);
 							++InlineContext;
 						}
 					}
 				}
 			}
 
-			handle_frame(Process, ModuleName, i, false, Storage, MapFiles, Consumer);
+			handle_frame(Process, i, false, Storage, MapFiles, Consumer);
 		}
 	}
 }
