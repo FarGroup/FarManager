@@ -1428,7 +1428,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				string SymbolName;
 				tracer.get_symbols(Module, {{{ ExceptionRecord.ExceptionInformation[1], 0 }}}, [&](string&& Line)
 				{
-					SymbolName = std::move(Line);
+					SymbolName = trim_left(std::move(Line));
 				});
 
 				if (SymbolName.empty())
@@ -1437,7 +1437,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				return SymbolName;
 			}();
 
-			auto Result = far::format(L"Memory at {} could not be {}"sv, Symbol, Mode);
+			auto Result = far::format(L"Memory at [{}] could not be {}"sv, Symbol, Mode);
 			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters >= 3)
 				append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
 
@@ -1570,10 +1570,8 @@ static string collect_information(
 	string Address, Name, Source;
 	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
 
-	Address.insert(0, L"0x"sv);
-
 	if (!Name.empty())
-		append(Address, L" - "sv, Name);
+		append(Address, L' ', Name);
 
 	if (!Source.empty())
 		append(Address, L" ("sv, Source, L')');

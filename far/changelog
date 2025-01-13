@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-01-13 22:03:15+00:00 - build 6414
+
+1. Exception handling improvements.
+
+--------------------------------------------------------------------------------
 MZK 2025-01-12 18:20:23-05:00 - build 6413
 
 1. gh-802: Macro API to report VMenu alignment state. Part 1: Backend implementation.
