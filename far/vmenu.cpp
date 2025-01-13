@@ -181,9 +181,187 @@ private:
 	}
 };
 
+enum class item_hscroll_policy
+{
+	unbound,            // The item can move freely beyond window edges.
+	cling_to_edge,      // The item can move beyond window edges, but at least one character is always visible.
+	bound,              // The item can move only within the window boundaries.
+	bound_stick_to_left // Like bound, but if the item shorter than TextAreaWidth, it is always attached to the left window edge.
+};
+
+// Keeps track of the horizontal state of all items.
+// The tracking is best effort. See comments below.
+// Everything is relative to menu_layout::TextArea::first (Left edge).
+class vmenu_horizontal_tracker
+{
+	enum class alignment { Left, Right, Annotation };
+
+	struct bulk_update_scope_guard
+	{
+		NONCOPYABLE(bulk_update_scope_guard);
+		NONMOVABLE(bulk_update_scope_guard);
+		explicit bulk_update_scope_guard(vmenu_horizontal_tracker* Tracker) noexcept: m_Tracker{ Tracker } {}
+		~bulk_update_scope_guard() { m_Tracker->m_IsBulkUpdate = false; }
+		vmenu_horizontal_tracker* m_Tracker{};
+	};
+
+public:
+	void clear() { *this = {}; }
+
+	void add_item(int const ItemHPos, int const ItemLength, int const ItemAnnotationPos)
+	{
+		update_boundaries(ItemHPos, ItemLength);
+
+		if (!is_item_aligned(ItemHPos, ItemLength, ItemAnnotationPos))
+			m_StrayItems++;
+	}
+
+	void remove_item(int const ItemHPos, int const ItemLength, int const ItemAnnotationPos)
+	{
+		if (!is_item_aligned(ItemHPos, ItemLength, ItemAnnotationPos))
+			m_StrayItems--;
+	}
+
+	[[nodiscard]] bulk_update_scope_guard start_bulk_update_smart_left_right(
+		int const SmartAlignedAtColumn, int const TextAreaWidth, item_hscroll_policy const Policy)
+	{
+		if (SmartAlignedAtColumn >= 0)
+			return start_bulk_update(alignment::Left, SmartAlignedAtColumn, TextAreaWidth, Policy);
+		else
+			return start_bulk_update(alignment::Right, TextAreaWidth + SmartAlignedAtColumn + 1, TextAreaWidth, Policy);
+	}
+
+	[[nodiscard]] bulk_update_scope_guard start_bulk_update_annotation(int const AlignedAtColumn)
+	{
+		return start_bulk_update(alignment::Annotation, AlignedAtColumn);
+	}
+
+	[[nodiscard]] bulk_update_scope_guard start_bulk_update_shift(
+		int const AlignedAtColumnShift, int const TextAreaWidth, item_hscroll_policy const Policy)
+	{
+		return start_bulk_update(m_Alignment, m_AlignedAtColumn + AlignedAtColumnShift, TextAreaWidth, Policy);
+	}
+
+	// Use only to update item's HorizontalPosition.
+	// If either ItemLength or ItemAnnotationPos may have changed, use remove_item and add_item.
+	// If called during bulk update operation, it does not decrement m_StrayItems.
+	void update_item_hpos(int const OldItemHPos, int const NewItemHPos, int const ItemLength, int const ItemAnnotationPos)
+	{
+		if (!m_IsBulkUpdate)
+			remove_item(OldItemHPos, ItemLength, ItemAnnotationPos);
+
+		add_item(NewItemHPos, ItemLength, ItemAnnotationPos);
+	}
+
+	int left_boundary() const noexcept { return m_LBoundary; }
+	int right_boundary() const noexcept { return m_RBoundary; }
+
+	auto get_debug_string() const
+	{
+		const auto AlignmentMark{ [&]()
+			{
+				switch (m_Alignment)
+				{
+				case vmenu_horizontal_tracker::alignment::Left:       return L'<';
+				case vmenu_horizontal_tracker::alignment::Right:      return L'>';
+				case vmenu_horizontal_tracker::alignment::Annotation: return L'^';
+				default: std::unreachable();
+				}
+			} };
+
+		return std::format(L" [{}:{} {} {} {}] ", m_LBoundary, m_RBoundary, AlignmentMark(), m_AlignedAtColumn, m_StrayItems);
+	}
+
+private:
+	void update_boundaries(int const ItemHPos, int const ItemLength)
+	{
+		m_LBoundary = std::min(m_LBoundary, ItemHPos);
+		m_RBoundary = std::max(m_RBoundary, ItemHPos + ItemLength);
+	}
+
+	bool is_item_aligned(int const ItemHPos, int const ItemLength, int const ItemAnnotationPos) const
+	{
+		const auto AnchorOffset{ [&]()
+			{
+				switch (m_Alignment)
+				{
+				case alignment::Left:       return 0;
+				case alignment::Right:      return ItemLength;
+				case alignment::Annotation: return ItemAnnotationPos;
+				default: std::unreachable();
+				}
+			}() };
+
+		return ItemHPos + AnchorOffset == m_AlignedAtColumn;
+	}
+
+	[[nodiscard]] bulk_update_scope_guard start_bulk_update(alignment const Alignment, int const AlignedAtColumn)
+	{
+		clear();
+
+		m_Alignment = Alignment;
+		m_AlignedAtColumn = AlignedAtColumn;
+		m_IsBulkUpdate = true;
+
+		return bulk_update_scope_guard{ this };
+	}
+
+	[[nodiscard]] bulk_update_scope_guard start_bulk_update(
+		alignment const Alignment, int const AlignedAtColumn, int const TextAreaWidth, item_hscroll_policy const Policy)
+	{
+		if (Policy == item_hscroll_policy::unbound)
+			return start_bulk_update(Alignment, AlignedAtColumn);
+
+		if (Alignment == alignment::Left)
+			return start_bulk_update(Alignment, std::min(AlignedAtColumn, Policy == item_hscroll_policy::cling_to_edge ? TextAreaWidth - 1 : 0));
+		else
+			return start_bulk_update(Alignment, std::max(AlignedAtColumn, Policy == item_hscroll_policy::cling_to_edge ? 1 : TextAreaWidth));
+	}
+
+	// All items are within the boundaries, always.
+	// Boundaries track items as they are shifted horizontally.
+	// The tracking is best effort. Boundaries are:
+	// - Not tight, i.e., there may be no item actually touching a boundary.
+	// - Expanded but never contracted.
+	// - Fully recalculated during align operations (left, right, or at annotations).
+	int m_LBoundary{ std::numeric_limits<int>::max() };
+	int m_RBoundary{ std::numeric_limits<int>::min() };
+
+	// All items have their corresponding anchor position (left, right,
+	// or annotation) at the m_AlignedAtColumn. See also m_StrayItems.
+	alignment m_Alignment{ alignment::Left };
+
+	// The column at which all items' anchors are aligned.
+	// Depending on item_hscroll_policy, may be an arbitrary column, even outside of menu_layout::TextArea.
+	int m_AlignedAtColumn{};
+
+	// The number of items which were shifted horizontally out of general alignment.
+	// Incremented each time an item is shifted out of alignment.
+	// Decremented each time an item clicks back into place. May become zero,
+	// which is the whole point of the vmenu_horizontal_tracker contraption.
+	// It is reset to zero at the beginning of bulk operations.
+	// The tracking is best effort. For example, if m_Alignment is Right
+	// and each item was shifted individually so that all of them became aligned
+	// to the left edge of the text area, m_Alignment does not become Left.
+	int m_StrayItems{};
+
+	bool m_IsBulkUpdate{};
+};
+
 namespace
 {
-	MenuItemEx far_list_to_menu_item(const FarListItem& FItem)
+	FarListItem string_to_far_list_item(const wchar_t* NewStrItem)
+	{
+		if (!NewStrItem)
+			return { .Flags{ LIF_SEPARATOR } };
+
+		if (NewStrItem[0] == 0x1)
+			return { .Flags{ LIF_SEPARATOR }, .Text{ NewStrItem + 1 } };
+
+		return { .Text{ NewStrItem } };
+	}
+
+	MenuItemEx far_list_item_to_menu_item(const FarListItem& FItem)
 	{
 		MenuItemEx Result;
 		Result.Flags = FItem.Flags;
@@ -290,14 +468,6 @@ namespace
 	{
 		return static_cast<int>(ShowAmpersand ? visual_string_length(ItemName) : HiStrlen(ItemName));
 	}
-
-	enum class item_hscroll_policy
-	{
-		unbound,            // The item can move freely beyond window edges.
-		cling_to_edge,      // The item can move beyond window edges, but at least one character is always visible.
-		bound,              // The item can move only within the window boundaries.
-		bound_stick_to_left // Like bound, but if the item shorter than TextAreaWidth, it is always attached to the left window edge.
-	};
 
 	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
 	{
@@ -462,6 +632,7 @@ namespace
 VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 	strTitle(std::move(Title)),
 	MaxHeight(MaxHeight),
+	m_HorizontalTracker{ std::make_unique<vmenu_horizontal_tracker>() },
 	ParentDialog(ParentDialog),
 	MenuId(FarUuid)
 {
@@ -705,7 +876,7 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 {
 	if (NewItem)
 	{
-		if (AddItem(far_list_to_menu_item(NewItem->Item), NewItem->Index) >= 0)
+		if (AddItem(far_list_item_to_menu_item(NewItem->Item), NewItem->Index) >= 0)
 			return static_cast<int>(Items.size());
 	}
 
@@ -718,7 +889,7 @@ int VMenu::AddItem(const FarList* List)
 	{
 		for (const auto& Item: std::span(List->Items, List->ItemsNumber))
 		{
-			AddItem(far_list_to_menu_item(Item));
+			AddItem(far_list_item_to_menu_item(Item));
 		}
 	}
 
@@ -727,22 +898,7 @@ int VMenu::AddItem(const FarList* List)
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
 {
-	FarListItem FarListItem0{};
-
-	if (!NewStrItem || NewStrItem[0] == 0x1)
-	{
-		FarListItem0.Flags=LIF_SEPARATOR;
-		if (NewStrItem)
-			FarListItem0.Text = NewStrItem + 1;
-	}
-	else
-	{
-		FarListItem0.Text=NewStrItem;
-	}
-
-	const FarList List{ sizeof(List), 1, &FarListItem0 };
-
-	return AddItem(&List) - 1; //-1 потому что AddItem(FarList) возвращает количество элементов
+	return AddItem(far_list_item_to_menu_item(string_to_far_list_item(NewStrItem)));
 }
 
 int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
@@ -761,7 +917,7 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 
 	const auto ItemLength{ get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), NewMenuItem.Name) };
 	UpdateMaxLength(ItemLength);
-	UpdateAllItemsBoundaries(NewMenuItem.HorizontalPosition, ItemLength);
+	m_HorizontalTracker->add_item(NewMenuItem.HorizontalPosition, ItemLength, NewMenuItem.SafeGetFirstAnnotation());
 
 	const auto NewFlags = NewMenuItem.Flags;
 	NewMenuItem.Flags = 0;
@@ -778,12 +934,14 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 		return false;
 
 	auto& Item = Items[NewItem->Index];
+	m_HorizontalTracker->remove_item(Item.HorizontalPosition, get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), Item.Name), Item.SafeGetFirstAnnotation());
 
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
 		Item.ComplexUserData = {};
 	}
+	Item.Annotations.clear();
 
 	Item.Name = NullToEmpty(NewItem->Item.Text);
 	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
@@ -791,7 +949,7 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 	const auto ItemLength{ get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), Item.Name) };
 	UpdateMaxLength(ItemLength);
-	UpdateAllItemsBoundaries(Item.HorizontalPosition, ItemLength);
+	m_HorizontalTracker->add_item(Item.HorizontalPosition, ItemLength, Item.SafeGetFirstAnnotation());
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -816,19 +974,23 @@ int VMenu::DeleteItem(int ID, int Count)
 		return static_cast<int>(Items.size());
 	}
 
-	for (const auto I: std::views::iota(0, Count))
+	for (const auto& I : std::span{ Items.cbegin() + ID, static_cast<size_t>(Count) })
 	{
-		if (Items[ID+I].Flags & MIF_SUBMENU)
+		if (I.Flags & MIF_SUBMENU)
 			--ItemSubMenusCount;
 
-		if (!item_is_visible(Items[ID+I]))
+		if (!item_is_visible(I))
 			--ItemHiddenCount;
+
+		m_HorizontalTracker->remove_item(I.HorizontalPosition, get_item_visual_length(CheckFlags(VMENU_SHOWAMPERSAND), I.Name), I.SafeGetFirstAnnotation());
 	}
 
 	// а вот теперь перемещения
-	const auto FirstIter = Items.begin() + ID, LastIter = FirstIter + Count;
 	if (Items.size() > 1)
+	{
+		const auto FirstIter = Items.begin() + ID, LastIter = FirstIter + Count;
 		Items.erase(FirstIter, LastIter);
+	}
 
 	// коррекция текущей позиции
 	if (SelectPos >= ID && SelectPos < ID+Count)
@@ -862,7 +1024,7 @@ void VMenu::clear()
 	TopPos=0;
 	m_MaxItemLength = 0;
 	UpdateMaxLengthFromTitles();
-	ResetAllItemsBoundaries();
+	m_HorizontalTracker->clear();
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
@@ -2121,11 +2283,11 @@ bool VMenu::SetItemHPos(MenuItemEx& Item, const auto& GetNewHPos)
 			return GetNewHPos(Item.HorizontalPosition, ItemLength);
 	}();
 
-	UpdateAllItemsBoundaries(NewHPos, ItemLength);
+	m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition , NewHPos, ItemLength, Item.SafeGetFirstAnnotation());
 
 	if (Item.HorizontalPosition == NewHPos) return false;
-
 	Item.HorizontalPosition = NewHPos;
+
 	return true;
 }
 
@@ -2167,7 +2329,6 @@ bool VMenu::ShiftCurItemHPos(const int Shift)
 
 bool VMenu::SetAllItemsHPos(const auto& GetNewHPos)
 {
-	ResetAllItemsBoundaries();
 	bool NeedRedraw{};
 
 	for (auto& Item : Items)
@@ -2184,6 +2345,7 @@ bool VMenu::SetAllItemsSmartHPos(const int NewHPos)
 
 	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::unbound : item_hscroll_policy::bound_stick_to_left };
 
+	const auto Guard{ m_HorizontalTracker->start_bulk_update_smart_left_right(NewHPos, TextAreaWidth, Policy) };
 	return SetAllItemsHPos(
 		[&](const int ItemLength) { return get_item_smart_hpos(NewHPos, ItemLength, TextAreaWidth, Policy); });
 }
@@ -2193,11 +2355,12 @@ bool VMenu::ShiftAllItemsHPos(const int Shift)
 	const auto TextAreaWidth{ CalculateTextAreaWidth() };
 	if (TextAreaWidth <= 0) return false;
 
-	const auto AdjustedShift{ adjust_hpos_shift(Shift, m_AllItemsBoundaries.first, m_AllItemsBoundaries.second, TextAreaWidth) };
+	const auto AdjustedShift{ adjust_hpos_shift(Shift, m_HorizontalTracker->left_boundary(), m_HorizontalTracker->right_boundary(), TextAreaWidth)};
 	if (!AdjustedShift) return false;
 
 	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::unbound : item_hscroll_policy::bound_stick_to_left };
 
+	const auto Guard{ m_HorizontalTracker->start_bulk_update_shift(AdjustedShift, TextAreaWidth, Policy) };
 	return SetAllItemsHPos(
 		[&](const int ItemHPos, const int ItemLength) { return get_item_absolute_hpos(ItemHPos + AdjustedShift, ItemLength, TextAreaWidth, Policy); });
 }
@@ -2210,8 +2373,9 @@ bool VMenu::AlignAnnotations()
 	if (TextAreaWidth <= 0) return false;
 	const auto AlignPos{ (TextAreaWidth + 2) / 4 };
 
+	const auto Guard{ m_HorizontalTracker->start_bulk_update_annotation(AlignPos) };
 	return SetAllItemsHPos(
-		[&](const MenuItemEx& Item) { return Item.Annotations.empty() ? 0 : AlignPos - Item.Annotations.front().first; });
+		[&](const MenuItemEx& Item) { return AlignPos - Item.SafeGetFirstAnnotation(); });
 }
 
 void VMenu::Show()
@@ -2489,9 +2653,8 @@ void VMenu::DrawTitles() const
 	{
 		set_color(Colors, color_indices::Title);
 
-		const auto AllItemsBoundariesLabel{ std::format(L" [{}, {}] ", m_AllItemsBoundaries.first, m_AllItemsBoundaries.second) };
 		GotoXY(m_Where.left + 2, m_Where.bottom);
-		Text(AllItemsBoundariesLabel);
+		Text(m_HorizontalTracker->get_debug_string());
 
 		const auto TextAreaWidthLabel{ std::format(L" [{}] ", CalculateTextAreaWidth()) };
 		GotoXY(m_Where.right - 1 - static_cast<int>(TextAreaWidthLabel.size()), m_Where.bottom);
@@ -2823,20 +2986,6 @@ void VMenu::UpdateMaxLengthFromTitles()
 void VMenu::UpdateMaxLength(int const ItemLength)
 {
 	m_MaxItemLength = std::max(m_MaxItemLength, ItemLength);
-}
-
-void VMenu::ResetAllItemsBoundaries()
-{
-	m_AllItemsBoundaries = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
-}
-
-void VMenu::UpdateAllItemsBoundaries(int const ItemHPos, int const ItemLength)
-{
-	m_AllItemsBoundaries =
-	{
-		std::min(m_AllItemsBoundaries.first, ItemHPos),
-		std::max(m_AllItemsBoundaries.second, ItemHPos + ItemLength)
-	};
 }
 
 void VMenu::SetMaxHeight(int NewMaxHeight)

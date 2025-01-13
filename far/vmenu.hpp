@@ -129,7 +129,6 @@ struct menu_item
 	LISTITEMFLAGS SetSelect(bool Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
 	LISTITEMFLAGS SetDisable(bool Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
-
 };
 
 struct MenuItemEx: menu_item
@@ -147,9 +146,12 @@ struct MenuItemEx: menu_item
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
 	std::list<std::pair<int, int>> Annotations;
+
+	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().first; }
 };
 
 struct menu_layout;
+class vmenu_horizontal_tracker;
 
 struct SortItemParam
 {
@@ -302,8 +304,6 @@ private:
 
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(int ItemLength);
-	void ResetAllItemsBoundaries();
-	void UpdateAllItemsBoundaries(int ItemHPos, int ItemLength);
 	bool ShouldSendKeyToFilter(unsigned Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
@@ -320,7 +320,7 @@ private:
 	int MaxHeight;
 	bool WasAutoHeight{};
 	int m_MaxItemLength{};
-	std::pair<int, int> m_AllItemsBoundaries{};
+	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};
