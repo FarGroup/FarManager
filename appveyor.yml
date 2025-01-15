@@ -105,7 +105,7 @@ build_script:
   #build FarColorer
   - for /F "delims=" %%a in ('curl -fsLJ "https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt"') do set COLORER_VERSION=%%a
   - echo "Download FarColorer %COLORER_VERSION%"
-  - set COLORER_BASE_NAME=FarColorer.%platform_name%.v%COLORER_VERSION%
+  - set COLORER_BASE_NAME=FarColorer.%platform_name%.icu.v%COLORER_VERSION%
   - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.wobase.7z
   - set COLORER_PDB_NAME=%COLORER_BASE_NAME%.pdb.7z
   - set COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/
