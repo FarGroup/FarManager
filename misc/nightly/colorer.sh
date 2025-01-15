@@ -12,7 +12,7 @@ function bcolorer {
 
   echo "Download FarColorer ${COLORER_VERSION}"
   COLORER_PLATFORM=$2
-  COLORER_BASE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}
+  COLORER_BASE_NAME=FarColorer.${COLORER_PLATFORM}.icu.v${COLORER_VERSION}
   COLORER_FILE_NAME=${COLORER_BASE_NAME}.wobase.7z
   COLORER_PDB_NAME=${COLORER_BASE_NAME}.pdb.7z
 
@@ -62,7 +62,7 @@ function bcolorer {
 ( \
 	bcolorer 32 x86 && \
 	bcolorer 64 x64 && \
-	bcolorer ARM64 ARM64 \
+	bcolorer ARM64 arm64 \
 ) || exit 1
 
 cd ..
