@@ -1510,37 +1510,6 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 
 static const char* GetPluginMsg(const Plugin& PluginInstance, int MsgId);
 
-// BUGBUG duplicate
-template<typename callable_type>
-auto cpp_try(callable_type const& Callable, source_location const& Location = source_location::current())
-{
-	using return_type = typename function_traits<callable_type>::result_type;
-
-	const auto handle_exception = [&] /*[[noreturn]]*/ (const auto& Handler, auto&&... Args)
-	{
-		if (Handler(FWD(Args)..., nullptr, Location))
-			if (use_terminate_handler())
-				os::process::terminate_by_user(EXIT_FAILURE);
-
-		throw;
-	};
-
-	return cpp_try(
-		Callable,
-		[&](source_location const&) -> return_type
-		{
-			handle_exception(handle_unknown_exception);
-			std::unreachable();
-		},
-		[&](std::exception const& e, source_location const&) -> return_type
-		{
-			handle_exception(handle_std_exception, e);
-			std::unreachable();
-		},
-		Location
-	);
-}
-
 namespace oldpluginapi
 {
 static void WINAPI qsort(void *base, size_t nelem, size_t width, comparer cmp) noexcept

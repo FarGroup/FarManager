@@ -56,9 +56,13 @@ void force_stderr_exception_ui(bool Force);
 
 class Plugin;
 
-bool handle_std_exception(const std::exception& e, const Plugin* Module = nullptr, source_location const& Location = source_location::current());
-bool handle_unknown_exception(const Plugin* Module = nullptr, source_location const& Location = source_location::current());
-bool use_terminate_handler();
+// These handlers can terminate the process, rethrow the exception, or return control if the user chooses to unload the module
+void handle_std_exception(const std::exception& e, const Plugin* Module, source_location const& Location = source_location::current());
+void handle_unknown_exception(const Plugin* Module, source_location const& Location = source_location::current());
+
+// These handlers can terminate the process or rethrow the exception
+[[noreturn]] void handle_std_exception(const std::exception& e, source_location const& Location = source_location::current());
+[[noreturn]] void handle_unknown_exception(source_location const& Location = source_location::current());
 
 class unhandled_exception_filter
 {
@@ -198,6 +202,25 @@ WARNING_POP()
 
 		return Result;
 	}
+}
+
+template<typename callable_type>
+auto cpp_try(callable_type const& Callable, source_location const& Location = source_location::current())
+{
+	using return_type = typename function_traits<callable_type>::result_type;
+
+	return cpp_try(
+		Callable,
+		[](source_location const& Location) -> return_type
+		{
+			handle_unknown_exception(Location);
+		},
+		[](std::exception const& e, source_location const& Location) -> return_type
+		{
+			handle_std_exception(e, Location);
+		},
+		Location
+	);
 }
 
 std::exception_ptr wrap_current_exception(source_location const& Location);

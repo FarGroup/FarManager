@@ -114,12 +114,6 @@ ControlObject::~ControlObject() = default;
 
 void ControlObject::close()
 {
-	if (Global->CriticalInternalError)
-	{
-		Global->WindowManager->CloseAll();
-		return;
-	}
-
 	// dummy_panel indicates /v or /e mode
 	if (FPanels && FPanels->ActivePanel() && !std::dynamic_pointer_cast<dummy_panel>(FPanels->ActivePanel()))
 	{
