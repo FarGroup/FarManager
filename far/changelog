@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2025-01-17 14:41:31+00:00 - build 6417
+
+1. Exception handling improvements.
+
+2. Refactoring.
+
+3. Clang warnings.
+
+4. Static analysis warnings.
+
+--------------------------------------------------------------------------------
 drkns 2025-01-16 18:07:41+00:00 - build 6416
 
 1. Exception handling improvements.
