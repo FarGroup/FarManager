@@ -1985,6 +1985,7 @@ void handle_std_exception(const std::exception& e, const Plugin* const Module, s
 void handle_std_exception(const std::exception& e, source_location const& Location)
 {
 	handle_std_exception(e, {}, Location);
+	std::unreachable();
 }
 
 class seh_exception::seh_exception_impl
@@ -2074,6 +2075,7 @@ void handle_unknown_exception(const Plugin* const Module, source_location const&
 void handle_unknown_exception(source_location const& Location)
 {
 	handle_unknown_exception({}, Location);
+	std::unreachable();
 }
 
 static void abort_handler_impl()

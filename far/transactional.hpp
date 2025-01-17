@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/smart_ptr.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -52,7 +52,32 @@ public:
 	virtual void EndTransaction() = 0;
 
 	[[nodiscard]]
-	auto ScopedTransaction() { return make_raii_wrapper<&transactional::BeginTransaction, &transactional::EndTransaction>(this); }
+	auto ScopedTransaction()
+	{
+		class scoped_transaction
+		{
+		public:
+			NONCOPYABLE(scoped_transaction);
+
+			explicit scoped_transaction(transactional* const Object):
+				m_Object(Object)
+			{
+				m_Object->BeginTransaction();
+			}
+
+			// Not make_raii_wrapper - it's implemented in terms of unique_ptr which has noexcept dtor,
+			// and we must be able to throw here
+			~scoped_transaction() noexcept(false)
+			{
+				m_Object->EndTransaction();
+			}
+
+		private:
+			transactional* const m_Object;
+		};
+
+		return scoped_transaction(this);
+	}
 };
 
 
