@@ -51,11 +51,11 @@ using time_component = unsigned int;
 
 constexpr inline struct
 {
-	operator uint8_t() const { return static_cast<uint8_t>(time_none); }
-	operator uint16_t() const { return static_cast<uint16_t>(time_none); }
-	operator uint32_t() const { return time_none; }
+	constexpr operator uint8_t() const { return static_cast<uint8_t>(time_none); }
+	constexpr operator uint16_t() const { return static_cast<uint16_t>(time_none); }
+	constexpr operator uint32_t() const { return time_none; }
 
-	bool operator==(auto const Component) const { return Component == static_cast<decltype(Component)>(time_none); }
+	constexpr bool operator==(std::integral auto const Component) const { return Component == static_cast<decltype(Component)>(time_none); }
 
 private:
 	enum { time_none = std::numeric_limits<time_component>::max() };

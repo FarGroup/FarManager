@@ -811,6 +811,28 @@ std::chrono::milliseconds till_next_minute()
 
 #include "testing.hpp"
 
+TEST_CASE("datetime.time_none")
+{
+	constexpr os::chrono::time Time
+	{
+		.Year = time_none,
+		.Month = time_none,
+		.Day = time_none,
+		.Hours = time_none,
+		.Minutes = time_none,
+		.Seconds = time_none,
+		.Hectonanoseconds = time_none,
+	};
+
+	STATIC_REQUIRE(Time.Year == time_none);
+	STATIC_REQUIRE(Time.Month == time_none);
+	STATIC_REQUIRE(Time.Day == time_none);
+	STATIC_REQUIRE(Time.Hours == time_none);
+	STATIC_REQUIRE(Time.Minutes == time_none);
+	STATIC_REQUIRE(Time.Seconds == time_none);
+	STATIC_REQUIRE(Time.Hectonanoseconds == time_none);
+}
+
 TEST_CASE("datetime.parse.duration")
 {
 	static const struct
