@@ -353,12 +353,12 @@ namespace
 	FarListItem string_to_far_list_item(const wchar_t* NewStrItem)
 	{
 		if (!NewStrItem)
-			return { .Flags{ LIF_SEPARATOR } };
+			return { .Flags = LIF_SEPARATOR };
 
 		if (NewStrItem[0] == 0x1)
-			return { .Flags{ LIF_SEPARATOR }, .Text{ NewStrItem + 1 } };
+			return { .Flags = LIF_SEPARATOR, .Text = NewStrItem + 1 };
 
-		return { .Text{ NewStrItem } };
+		return { .Text = NewStrItem };
 	}
 
 	MenuItemEx far_list_item_to_menu_item(const FarListItem& FItem)

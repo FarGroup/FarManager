@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 // Common:
+#include "common/compiler.hpp"
 #include "common/noncopyable.hpp"
 
 // External:
@@ -55,7 +56,10 @@ constexpr inline struct
 	constexpr operator uint16_t() const { return static_cast<uint16_t>(time_none); }
 	constexpr operator uint32_t() const { return time_none; }
 
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wunused-template")
 	constexpr bool operator==(std::integral auto const Component) const { return Component == static_cast<decltype(Component)>(time_none); }
+WARNING_POP()
 
 private:
 	enum { time_none = std::numeric_limits<time_component>::max() };
