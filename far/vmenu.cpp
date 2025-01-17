@@ -258,13 +258,13 @@ public:
 
 	auto get_debug_string() const
 	{
-		const auto AlignmentMark{ [&]()
+		const auto AlignmentMark{ [&]
 			{
 				switch (m_Alignment)
 				{
-				case vmenu_horizontal_tracker::alignment::Left:       return L'<';
-				case vmenu_horizontal_tracker::alignment::Right:      return L'>';
-				case vmenu_horizontal_tracker::alignment::Annotation: return L'^';
+				case alignment::Left:       return L'<';
+				case alignment::Right:      return L'>';
+				case alignment::Annotation: return L'^';
 				default: std::unreachable();
 				}
 			} };
@@ -562,13 +562,11 @@ namespace
 	{
 		color_indices Normal, Highlighted, HScroller;
 
-		item_color_indicies(const MenuItemEx& CurItem)
+		explicit item_color_indicies(const MenuItemEx& CurItem)
 		{
-			const auto Selected{ !!(CurItem.Flags & LIF_SELECTED) };
 			const auto Grayed{ !!(CurItem.Flags & LIF_GRAYED) };
-			const auto Disabled{ !!(CurItem.Flags & LIF_DISABLE) };
 
-			if (Disabled)
+			if (CurItem.Flags & LIF_DISABLE)
 			{
 				Normal = color_indices::Disabled;
 				Highlighted = color_indices::Disabled;
@@ -576,7 +574,7 @@ namespace
 				return;
 			}
 
-			if (Selected)
+			if (CurItem.Flags & LIF_SELECTED)
 			{
 				Normal = Grayed ? color_indices::SelGrayed : color_indices::Selected;
 				Highlighted = Grayed ? color_indices::SelGrayed : color_indices::HSelect;
@@ -1029,7 +1027,7 @@ void VMenu::clear()
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
 
-int VMenu::GetCheck(int Position)
+int VMenu::GetCheck(int Position) const
 {
 	const auto ItemPos = GetItemPosition(Position);
 
@@ -3192,7 +3190,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 	}
 }
 
-void VMenu::GetColors(FarDialogItemColors *ColorsOut)
+void VMenu::GetColors(FarDialogItemColors const* ColorsOut)
 {
 	std::ranges::copy_n(Colors.begin(), std::min(Colors.size(), ColorsOut->ColorsCount), ColorsOut->Colors);
 }

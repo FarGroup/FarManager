@@ -196,7 +196,7 @@ public:
 	DWORD ChangeFlags(DWORD Flags, bool Status) { return VMFlags.Change(Flags, Status); }
 	void AssignHighlights(bool Reverse = false);
 	void SetColors(const FarDialogItemColors *ColorsIn = nullptr);
-	void GetColors(FarDialogItemColors *ColorsOut);
+	void GetColors(const FarDialogItemColors *ColorsOut);
 	void SetOneColor(int Index, PaletteColors Color);
 	bool ProcessFilterKey(int Key);
 	void clear();
@@ -235,7 +235,7 @@ public:
 	int GetSelectPos(FarListPos *ListPos) const;
 	int SetSelectPos(const FarListPos *ListPos, int Direct = 0);
 	int SetSelectPos(int Pos, int Direct, bool stop_on_edge = false);
-	int GetCheck(int Position = -1);
+	int GetCheck(int Position = -1) const;
 	void SetCheck(int Position = -1);
 	void SetCustomCheck(wchar_t Char, int Position = -1);
 	void ClearCheck(int Position = -1);
