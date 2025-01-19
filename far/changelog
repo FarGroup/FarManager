@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-01-19 22:00:05+00:00 - build 6419
+
+1. gh-901: Some farconfig files causes a crash.
+
+--------------------------------------------------------------------------------
 drkns 2025-01-19 20:58:24+00:00 - build 6418
 
 1. Compact map files in distibution to only include what we actually need.
