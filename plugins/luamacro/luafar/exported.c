@@ -1499,51 +1499,58 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 		TSynchroData sd = *(TSynchroData*)Info->Param; // copy
 		free(Info->Param);
 
-		if (sd.type & (SYNCHRO_TIMER_CALL | SYNCHRO_TIMER_UNREF))
+		switch (sd.type)
 		{
-			if (!sd.timerData->needClose && (sd.type & SYNCHRO_TIMER_CALL))
-			{
-				lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->tabRef); //+1: Table
-
-				if (lua_istable(L, -1))
+			case SYNCHRO_TIMER_CALL:
+				if (!sd.timerData->needClose)
 				{
-					int size, index;
-					lua_getfield(L, -1, "n"); //+2: table size
-					size = (int)lua_tointeger(L, -1);
-					for (index=1; index<=size; index++)
-						lua_rawgeti(L, -1-index, index);
+					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->tabRef); //+1: Table
 
-					if (pcall_msg(L, size-1, 1) == 0)     //+3
+					if (lua_istable(L, -1))
 					{
-						if (lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+						int size, index;
+						int tabPos = lua_gettop(L);
+						lua_getfield(L, tabPos, "n"); //+2: table size
+						size = (int)lua_tointeger(L, -1);
+						lua_rawgeti(L, tabPos, 1); // function
+						lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->hndRef); // weak table
+						lua_rawgeti(L, -1, 1); // Lua timer handle
+						lua_remove(L, -2);     // remove the weak table from the stack
 
-						lua_pop(L,3);
+						for (index=2; index<=size; index++) // parameters
+							lua_rawgeti(L, tabPos, index);
+
+						if (pcall_msg(L, size, 1) == 0)     //+3
+						{
+							if (lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+
+							lua_pop(L,3);
+						}
+						else lua_pop(L,2);
 					}
-					else lua_pop(L,2);
+					else lua_pop(L, 1);
 				}
-				else lua_pop(L, 1);
-			}
+				break;
 
-			if (sd.type & SYNCHRO_TIMER_UNREF)
-			{
-				luaL_unref(L, LUA_REGISTRYINDEX, sd.timerData->tabRef);
-			}
-		}
-		else if (sd.type == SYNCHRO_COMMON)
-		{
-			Common_ProcessSynchroEvent(L, Info->Event, sd.data);
-		}
-		else if (sd.type == SYNCHRO_FUNCTION)
-		{
-			lua_rawgeti(L, LUA_REGISTRYINDEX, sd.ref);
-			luaL_unref(L, LUA_REGISTRYINDEX, sd.ref);
-			if (lua_istable(L,-1) && lua_checkstack(L, sd.narg)) {
-				for (int i=1; i <= sd.narg; i++) {
-					lua_rawgeti(L, -i, i);
+			case SYNCHRO_TIMER_UNREF:
+				free(sd.timerData);
+				break;
+
+			case SYNCHRO_COMMON:
+				Common_ProcessSynchroEvent(L, Info->Event, sd.data);
+				break;
+
+			case SYNCHRO_FUNCTION:
+				lua_rawgeti(L, LUA_REGISTRYINDEX, sd.ref);
+				luaL_unref(L, LUA_REGISTRYINDEX, sd.ref);
+				if (lua_istable(L,-1) && lua_checkstack(L, sd.narg)) {
+					for (int i=1; i <= sd.narg; i++) {
+						lua_rawgeti(L, -i, i);
+					}
+					pcall_msg(L, sd.narg - 1, 0);
 				}
-				pcall_msg(L, sd.narg - 1, 0);
-			}
-			lua_pop(L, 1);
+				lua_pop(L, 1);
+				break;
 		}
 	}
 	else if (Info->Event == SE_FOLDERCHANGED)

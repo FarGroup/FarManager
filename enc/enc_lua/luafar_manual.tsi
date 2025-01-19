@@ -8962,7 +8962,7 @@ lv=4
 dt=Text
 nm=Close
 ctime=3482328964
-mtime=3482491377
+mtime=3946480903
 <article>
 #_timer:Close ()
 #_
@@ -8976,9 +8976,9 @@ mtime=3482491377
 #_  Closes the timer.
 #_
 #_**Note:**
-#_  A timer object is garbage-collected only when its lua_State closes,
-#_  thus it is the application's responsibility to call the *Close*
-#_  method when the timer is not needed anymore.
+#_  Timer objects are subject to garbage collection but it
+#_  is recommended to call the *Close* method when the timer
+#_  is not needed anymore.
 #_
 </article>
 </node>

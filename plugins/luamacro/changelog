@@ -1,3 +1,10 @@
+shmuel 2025-01-19 20:14:03+02:00 - build 861
+
+1. LuaFAR: Timer objects are garbage-collected as any other full userdata.
+     Was: "a timer object is garbage-collected only when its lua_State closes".
+     Reason: reloading macros didn't release timers and their associated code.
+     In some cases with frequent macros reloading it could lead to slowing down Far.
+
 shmuel 2024-11-16 12:39:17+02:00 - build 860
 
 1. Fix winapi.lua for arm64
