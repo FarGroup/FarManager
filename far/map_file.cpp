@@ -150,6 +150,7 @@ map_file::info map_file::get(uintptr_t const Address)
 enum class map_format
 {
 	unknown,
+	mini,
 	msvc,
 	clang,
 	gcc,
@@ -157,6 +158,9 @@ enum class map_format
 
 static auto determine_format(string_view const Str)
 {
+	if (Str == L"MINIMAP"sv)
+		return map_format::mini;
+
 	if (Str.starts_with(L' '))
 		return map_format::msvc;
 
@@ -181,6 +185,49 @@ static auto determine_format(std::istream& Stream)
 	return determine_format(Lines.begin()->Str);
 }
 
+static void read_mini(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+{
+	RegExp ReObject, ReSymbol;
+	ReObject.Compile(L"^(\\d+) (.+)$"sv, OP_OPTIMIZE);
+	ReSymbol.Compile(L"^([0-9A-Fa-f]+) (\\d+) (.+)$"sv, OP_OPTIMIZE);
+
+	regex_match Match;
+	auto& m = Match.Matches;
+	m.reserve(4);
+
+	std::unordered_map<size_t, string> ObjNames;
+	bool FilesSeen = false, SymbolsSeen = false;
+
+	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	{
+		if (i.Str.empty())
+			continue;
+
+		if (!FilesSeen)
+			FilesSeen = i.Str == L"FILES"sv;
+
+		if (!SymbolsSeen)
+			SymbolsSeen = i.Str == L"SYMBOLS"sv;
+
+		if (FilesSeen && !SymbolsSeen && ReObject.Search(i.Str, Match))
+		{
+			ObjNames.try_emplace(from_string<size_t>(get_match(i.Str, m[1])), get_match(i.Str, m[2]));
+			continue;
+		}
+
+		if (SymbolsSeen && ReSymbol.Search(i.Str, Match))
+		{
+			map_file::line Line;
+			Line.Name = get_match(i.Str, m[3]);
+			const auto FileIndex = from_string<size_t>(get_match(i.Str, m[2]));
+			Line.File = std::to_address(Files.emplace(ObjNames.find(FileIndex)->second).first);
+			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
+			Symbols.try_emplace(Address, std::move(Line));
+			continue;
+		}
+	}
+}
+
 static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	RegExp ReBase, ReSymbol;
@@ -189,7 +236,7 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 
 	regex_match Match;
 	auto& m = Match.Matches;
-	m.reserve(3);
+	m.reserve(4);
 
 	uintptr_t BaseAddress{};
 
@@ -232,7 +279,7 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 
 	regex_match Match;
 	auto& m = Match.Matches;
-	m.reserve(2);
+	m.reserve(3);
 
 	string ObjName;
 
@@ -268,7 +315,7 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 
 	regex_match Match;
 	auto& m = Match.Matches;
-	m.reserve(2);
+	m.reserve(3);
 
 	const auto BaseAddress = 0x1000;
 
@@ -304,6 +351,9 @@ void map_file::read(std::istream& Stream)
 {
 	switch (determine_format(Stream))
 	{
+	case map_format::mini:
+		return read_mini(Stream, m_Files, m_Symbols);
+
 	case map_format::msvc:
 		return read_vc(Stream, m_Files, m_Symbols);
 

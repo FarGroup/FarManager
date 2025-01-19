@@ -138,6 +138,8 @@ after_build:
   - copy /Y enc\build\lua\macroapi_manual.pl\macroapi_manual.pl.chm ci\%configuration%.%platform_name%\Encyclopedia
   #copy misc docs and addons
   - xcopy /e /q /y /k extra\* ci\%configuration%.%platform_name%\
+  #compact maps
+  - far\tools\stacktrace.py ci\%configuration%.%platform_name%
   #test & archive 
   - cd ci\%configuration%.%platform_name%
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero

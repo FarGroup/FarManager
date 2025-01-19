@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-01-19 20:58:24+00:00 - build 6418
+
+1. Compact map files in distibution to only include what we actually need.
+
+--------------------------------------------------------------------------------
 drkns 2025-01-17 14:41:31+00:00 - build 6417
 
 1. Exception handling improvements.
