@@ -1163,8 +1163,20 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (FindKey(Arguments, L'A') || FindKey(Arguments, L'P'))
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
 
+		// cmd unquoting logic is rather weird, but when in Rome, do as the Romans do.
+		const auto set_unquote = [](string_view Str)
+		{
+			if (!Str.starts_with(L'"'))
+				return Str;
+
+			Str.remove_prefix(1);
+			inplace::trim_left(Str);
+
+			return Str.substr(0, Str.rfind(L'"'));
+		};
+
 		size_t pos;
-		const auto SetParams = unquote(trim_right(Arguments));
+		const auto SetParams = set_unquote(trim_right(Arguments));
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
