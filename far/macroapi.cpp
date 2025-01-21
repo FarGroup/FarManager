@@ -1206,6 +1206,23 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			return api.PassValue(tmpVar);
 		}
+
+		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		{
+			long long Result = -1;
+
+			const auto CurArea = GetArea();
+
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			{
+				if (CurrentWindow)
+				{
+					Result = CurrentWindow->VMProcess(CheckCode);
+				}
+			}
+
+			return api.PassValue(Result);
+		}
 	}
 }
 

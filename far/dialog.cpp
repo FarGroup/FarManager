@@ -2287,6 +2287,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_V_MENU_VALUE:
 		case MCODE_F_MENU_FILTER:
 		case MCODE_F_MENU_FILTERSTR:
+		case MCODE_V_MENU_HORIZONTALALIGNMENT:
 		{
 			const auto str = static_cast<const wchar_t*>(vParam);
 

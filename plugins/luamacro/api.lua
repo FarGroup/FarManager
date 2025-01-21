@@ -297,8 +297,9 @@ Menu = {
 }
 
 SetProperties(Menu, {
-  Id         = function() return MacroCallFar(0x80844) end,
-  Value      = function() return MacroCallFar(0x80843) end,
+  HorizontalAlignment = function() return MacroCallFar(0x80845) end,
+  Id                  = function() return MacroCallFar(0x80844) end,
+  Value               = function() return MacroCallFar(0x80843) end,
 })
 --------------------------------------------------------------------------------
 

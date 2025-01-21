@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+MZK 2025-01-25 20:59:20-05:00 - build 6422
+
+1. gh-802: Macro API to report VMenu alignment state. Part 2: Plumbing and Lua API.
+
+--------------------------------------------------------------------------------
 drkns 2025-01-22 18:11:36+00:00 - build 6421
 
 1. Reduce the amount of work when opening folders in Explorer.
