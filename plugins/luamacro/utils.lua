@@ -753,6 +753,8 @@ local function LoadMacros (unload, paths)
   end
   Areas = newAreas
 
+  collectgarbage("collect") -- destroy running timers if any
+
   if not unload then
     LoadCounter = LoadCounter + 1
     local DummyFunc = function() end

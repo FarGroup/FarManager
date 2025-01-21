@@ -1,3 +1,8 @@
+shmuel 2025-01-21 21:18:49+02:00 - build 862
+
+1. Force garbage collection on reloading macrofiles
+   (required after build 861).
+
 shmuel 2025-01-19 20:14:03+02:00 - build 861
 
 1. LuaFAR: Timer objects are garbage-collected as any other full userdata.
