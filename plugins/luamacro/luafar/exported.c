@@ -1506,31 +1506,34 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 			case SYNCHRO_TIMER_CALL:
 				if (!sd.timerData->needClose)
 				{
-					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->tabRef); //+1: Table
+					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->hndRef); //+1: weak table
+					lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->tabRef); //+2: Table
 
-					if (lua_istable(L, -1))
+					if (lua_istable(L, -2) && lua_istable(L, -1))
 					{
 						int size, index;
 						int tabPos = lua_gettop(L);
-						lua_getfield(L, tabPos, "n"); //+2: table size
+						lua_getfield(L, tabPos, "n"); //+3: table size
 						size = (int)lua_tointeger(L, -1);
-						lua_rawgeti(L, tabPos, 1); // function
-						lua_rawgeti(L, LUA_REGISTRYINDEX, sd.timerData->hndRef); // weak table
-						lua_rawgeti(L, -1, 1); // Lua timer handle
-						lua_remove(L, -2);     // remove the weak table from the stack
+						lua_rawgeti(L, tabPos, 1);   //+4 function
+						lua_rawgeti(L, tabPos-1, 1); //+5 Lua timer handle
 
-						for (index=2; index<=size; index++) // parameters
-							lua_rawgeti(L, tabPos, index);
-
-						if (pcall_msg(L, size, 1) == 0)     //+3
+						if (!lua_isnil(L, -1))   // ### A DIRTY HACK (hopefully temporary)
 						{
-							if (lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+							for (index=2; index<=size; index++) // parameters
+								lua_rawgeti(L, tabPos, index);
 
-							lua_pop(L,3);
+							if (pcall_msg(L, size, 1) == 0)     //+4
+							{
+								if (lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+
+								lua_pop(L,4);
+							}
+							else lua_pop(L,3);
 						}
-						else lua_pop(L,2);
+						else lua_pop(L, 5); //+0
 					}
-					else lua_pop(L, 1);
+					else lua_pop(L, 2);
 				}
 				break;
 
