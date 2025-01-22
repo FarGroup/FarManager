@@ -224,6 +224,24 @@ namespace tests
 		}
 	}
 
+	static void cpp_dtor_throw()
+	{
+		struct test
+		{
+			void throw_exception()
+			{
+				if ([[maybe_unused]] volatile auto Throw = true)
+					throw far_exception(L"Dtor exception"s);
+			}
+
+			~test()
+			{
+				throw_exception();
+			}
+		}
+		Test;
+	}
+
 	static void cpp_reach_unreachable()
 	{
 		if ([[maybe_unused]] volatile auto Reach = true)
@@ -602,6 +620,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_terminate,                L"terminate"sv },
 		{ tests::cpp_terminate_unwind,         L"terminate unwind"sv },
 		{ tests::cpp_noexcept_throw,           L"noexcept throw"sv },
+		{ tests::cpp_dtor_throw,               L"dtor throw"sv },
 		{ tests::cpp_reach_unreachable,        L"reach unreachable"sv },
 		{ tests::cpp_pure_virtual_call,        L"pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"memory leak"sv },
