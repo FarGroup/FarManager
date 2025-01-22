@@ -1251,20 +1251,22 @@ intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
 	return ret;
 }
 
-void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
+void LF_DoFinalCleanup(lua_State* L)
 {
-	HANDLE hQueue;
-	(void)Info;
-
-	if (GetExportFunction(L, "ExitFAR"))    //+1: Func
-		pcall_msg(L, 0, 0);                  //+0
-
-	hQueue = GetLuaStateTimerQueue(L);     //+0
+	HANDLE hQueue = GetLuaStateTimerQueue(L);
 	if (hQueue)
 	{
 		DeleteLuaStateTimerQueue(L);
 		DeleteTimerQueueEx(hQueue, NULL);
 	}
+}
+
+void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
+{
+	(void)Info;
+
+	if (GetExportFunction(L, "ExitFAR"))    //+1: Func
+		pcall_msg(L, 0, 0);                  //+0
 }
 
 void getPluginMenuItems(lua_State* L, struct PluginMenuItem *pmi, const char* namestrings,

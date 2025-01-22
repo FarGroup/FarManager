@@ -1,3 +1,9 @@
+shmuel 2025-01-22 20:36:47+02:00 - build 863
+
+1. LuaFAR plugins: the timer queue is closed in DllMain/DLL_PROCESS_DETACH.
+   Was: in ExitFARW.
+
+
 shmuel 2025-01-21 21:18:49+02:00 - build 862
 
 1. Force garbage collection on reloading macrofiles
