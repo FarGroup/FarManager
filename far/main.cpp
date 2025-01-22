@@ -410,6 +410,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 			Global->Opt->ReadOnlyConfig = true;
 		}
 	}
+
+	set_report_location(Global->Opt->LocalProfilePath);
 }
 
 static bool is_arg(string_view const Str)

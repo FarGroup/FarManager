@@ -128,6 +128,18 @@ static bool HandleCppExceptions = true;
 static bool HandleSehExceptions = true;
 static bool ForceStderrExceptionUI = false;
 
+static wchar_t s_ReportLocation[MAX_PATH];
+
+// We can crash in the cleanup phase when profile paths are already destroyed.
+// Keeping the location in a static buffer increases the chance of using the proper path.
+void set_report_location(string_view Directory)
+{
+	if (Directory.size() < std::size(s_ReportLocation))
+	{
+		std::copy(ALL_CONST_RANGE(Directory), s_ReportLocation);
+	}
+}
+
 void disable_exception_handling()
 {
 	if (!HandleCppExceptions && !HandleSehExceptions)
@@ -220,7 +232,12 @@ static string get_report_location()
 {
 	const auto SubDir = unique_name();
 
-	if (const auto CrashLogs = path::join(Global? Global->Opt->LocalProfilePath : L"."sv, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
+	string_view ReportLocationBase =
+		Global? Global->Opt->LocalProfilePath :
+		*s_ReportLocation? s_ReportLocation :
+		L"."sv;
+
+	if (const auto CrashLogs = path::join(ReportLocationBase, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
 	{
 		if (const auto Path = path::join(CrashLogs, SubDir); os::fs::create_directory(Path))
 		{
