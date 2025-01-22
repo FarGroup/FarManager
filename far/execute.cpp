@@ -360,7 +360,7 @@ void OpenFolderInShell(string_view const Folder)
 	// To avoid collisions with bat/cmd/etc.
 	AddEndSlash(Info.Command);
 	Info.WaitMode = execute_info::wait_mode::no_wait;
-	Info.SourceMode = execute_info::source_mode::known_external;
+	Info.SourceMode = execute_info::source_mode::known_external_folder;
 
 	Execute(Info);
 }
@@ -823,7 +823,8 @@ static bool execute_impl(
 		}
 	}
 
-	ExtendedActivator();
+	if (Info.SourceMode != execute_info::source_mode::known_external_folder)
+		ExtendedActivator();
 
 	const auto execute_shell = [&]
 	{
