@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2025-01-22 18:11:36+00:00 - build 6421
+
+1. Reduce the amount of work when opening folders in Explorer.
+
+2. Exception handling improvements.
+
+3. Avoid calling luamacro.ExitFarW more than once.
+
+4. More tests.
+
+--------------------------------------------------------------------------------
 drkns 2025-01-21 20:58:50+00:00 - build 6420
 
 1. Make unquoting logic in "set" more cmd-like.
