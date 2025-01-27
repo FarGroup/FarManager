@@ -1130,6 +1130,7 @@ function MT.test_Menu()
   assert_str(Menu.Value)
   assert_eq(Menu.Id, far.Guids.PluginsMenuId)
   assert_eq(Menu.Id, "937F0B1C-7690-4F85-8469-AA935517F202")
+  assert_num(Menu.HorizontalAlignment)
   Keys("Esc")
 
   assert_func(Menu.Filter)

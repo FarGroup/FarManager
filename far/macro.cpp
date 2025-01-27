@@ -313,6 +313,7 @@ static_assert(MCODE_V_HELPTOPIC == 0x80841);            // Help.Topic
 static_assert(MCODE_V_HELPSELTOPIC == 0x80842);         // Help.SelTopic
 static_assert(MCODE_V_MENU_VALUE == 0x80843);           // Menu.Value
 static_assert(MCODE_V_MENUINFOID == 0x80844);           // Menu.Info.Id
+static_assert(MCODE_V_MENU_HORIZONTALALIGNMENT == 0x80845); // Menu.HorizontalAlignment
 
 // для диалога назначения клавиши
 struct DlgParam

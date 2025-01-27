@@ -307,6 +307,7 @@ enum MACRO_OP_CODE
 
 	MCODE_V_MENU_VALUE,               // Menu.Value
 	MCODE_V_MENUINFOID,               // Menu.Info.Id
+	MCODE_V_MENU_HORIZONTALALIGNMENT, // Menu.HorizontalAlignment
 };
 
 #endif // MACROOPCODE_HPP_57E7AB95_BB74_4575_9054_B2137FAD4CED

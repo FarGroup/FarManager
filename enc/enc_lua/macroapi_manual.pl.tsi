@@ -2238,8 +2238,9 @@ mtime=3607109038
 #_
 #_**Właściwości:**
 #_
-#_  Id:     łańcuch (GUID)
-#_  Value:  łańcuch
+#_  HorizontalAlignment:    liczba
+#_  Id:                     łańcuch (GUID)
+#_  Value:                  łańcuch
 #_
 #_**Funkcje:**
 #_
@@ -2254,6 +2255,7 @@ mtime=3607109038
 #_{filterstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
 #_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Filter
 #_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.GetValue
+#_{horizontalalignment}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
 #_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
 #_{itemstatus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
 #_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Select

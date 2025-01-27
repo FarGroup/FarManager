@@ -194,8 +194,6 @@ enum class item_hscroll_policy
 // Everything is relative to menu_layout::TextArea::first (Left edge).
 class vmenu_horizontal_tracker
 {
-	enum class alignment { Left, Right, Annotation };
-
 	struct bulk_update_scope_guard
 	{
 		NONCOPYABLE(bulk_update_scope_guard);
@@ -206,6 +204,8 @@ class vmenu_horizontal_tracker
 	};
 
 public:
+	enum class alignment { Left, Right, Annotation };
+
 	void clear() { *this = {}; }
 
 	void add_item(int const ItemHPos, int const ItemLength, int const ItemAnnotationPos)
@@ -253,8 +253,9 @@ public:
 		add_item(NewItemHPos, ItemLength, ItemAnnotationPos);
 	}
 
-	int left_boundary() const noexcept { return m_LBoundary; }
-	int right_boundary() const noexcept { return m_RBoundary; }
+	int get_left_boundary() const noexcept { return m_LBoundary; }
+	int get_right_boundary() const noexcept { return m_RBoundary; }
+	std::optional<alignment> get_alignment() const noexcept { return m_StrayItems ? std::nullopt : std::optional{ m_Alignment }; }
 
 	auto get_debug_string() const
 	{
@@ -1515,7 +1516,22 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			strId = uuid::str(MenuId);
 			return std::bit_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
-
+		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		{
+			if (const auto alignment{ m_HorizontalTracker->get_alignment() })
+			{
+				switch (*alignment)
+				{
+				case vmenu_horizontal_tracker::alignment::Left:
+					return 1;
+				case vmenu_horizontal_tracker::alignment::Right:
+					return 2;
+				case vmenu_horizontal_tracker::alignment::Annotation:
+					return 4;
+				}
+			}
+			return 0;
+		}
 	}
 
 	return 0;
@@ -2353,7 +2369,7 @@ bool VMenu::ShiftAllItemsHPos(const int Shift)
 	const auto TextAreaWidth{ CalculateTextAreaWidth() };
 	if (TextAreaWidth <= 0) return false;
 
-	const auto AdjustedShift{ adjust_hpos_shift(Shift, m_HorizontalTracker->left_boundary(), m_HorizontalTracker->right_boundary(), TextAreaWidth)};
+	const auto AdjustedShift{ adjust_hpos_shift(Shift, m_HorizontalTracker->get_left_boundary(), m_HorizontalTracker->get_right_boundary(), TextAreaWidth)};
 	if (!AdjustedShift) return false;
 
 	const auto Policy{ CheckFlags(VMENU_ENABLEALIGNANNOTATIONS) ? item_hscroll_policy::unbound : item_hscroll_policy::bound_stick_to_left };
