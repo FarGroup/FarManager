@@ -205,7 +205,7 @@ lv=2
 dt=Text
 nm=luafar_init.lua
 ctime=3639761849
-mtime=3639831155
+mtime=3947344487
 <article>
 #_<markdown>
 #_
@@ -215,7 +215,7 @@ mtime=3639831155
 #_It is **not** executed when the default script is reloaded due to `far.ReloadDefaultScript == true`.
 #_
 #_### Note
-#_This feature is disabled by default. To enable it, add `-DRUN_LUAFAR_INIT` to compilation flags.
+#_This feature is enabled by default. To disable it, add `-DNO_RUN_LUAFAR_INIT` to compilation flags.
 #_
 #_See also:<br>
 #_[`LF_LuafarInit`](510.html)<br>

@@ -1,3 +1,11 @@
+shmuel 2025-01-29 20:14:04+02:00 - build 866
+
+1. LuaFAR (generic plugin): "%FARPROFILE%\luafar_init.lua" is run by default.
+   That can be prevented by defining a compilation flag -DNO_RUN_LUAFAR_INIT.
+
+2. Plugin LuaMacro is built with this flag not defined.
+
+
 MZK 2025-01-25 20:59:20-05:00 - build 865
 
 1. gh-802: Macro API to report VMenu alignment state: Menu.HorizontalAlignment.
