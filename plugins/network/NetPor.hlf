@@ -1,0 +1,91 @@
+﻿.Language=Portuguese,Portuguese (Português)
+.PluginContents=Plug-in de navegação na rede
+
+
+@Contents
+$ #Plug-in de navegação na rede#
+ Usando o navegador da rede, você pode navegar através da
+rede, acessar discos mapeados/não mapeados, mapear/desmapea-los.
+Pressione #F5# para mapear os discos selecionados para a próxima
+letra disponível ou #F6# para escolher as letras manualmente. #Shift-F5# and #Shift-F6#
+work the same as #F5# and #F6#, but create temporary connections.
+It is possible to toggle the connection type in the drive letter
+selection menu shown when #F6# or #Shift-F6# is pressed.
+Use #F8# para ~ignorar mapeamentos existentes~@DisconnectDrive@ para os discos.
+
+ You can open the network browser from the disks menu,
+the plugins menu or by entering a command in the command line:
+ #net:#
+ #net:server_name#
+ #net:\\server_name#
+
+ If you specify the name of the server when opening the plugin
+from the command line, the list of shares of that server will be shown.
+This feature works only for Microsoft Windows networks.
+
+ Within the plugin, you can move between servers by entering a
+command in the command line:
+
+ #cd \\server_name#
+
+ This feature also works only for Microsoft Windows networks.
+
+ You can use different credentials to open remote shares. To open resource
+specifying login information explicitly use F4 key.
+
+ ~Network browser configuration~@Config@
+
+
+@Config
+$ #Configuração do navegador da rede#
+ Neste diálogo você pode modificar as seguintes opções:
+
+ #Incl. menu Discos#
+ Permite adicionar o item "rede" ao menu discos.
+
+ #Add to plugins menu#
+ Enables adding "Network browser" item to the plugins menu.
+
+ #Show ".." in the providers list#
+ Show ".." on the panel in the list of providers. Selecting ".." will switch to the current working directory.
+
+ #Show local network#
+ If this option is enabled, then, when the Network Browser is first opened, it will show
+the network neighborhood of the current computer (computers in the same domain or
+workgroup). The option works only for Microsoft Windows networks.
+
+ #Show printers#
+ Show shared printers.
+
+ #Scan network#
+ If this option is disabled, the plugin does not scan the network in search of devices.
+
+ #Show full share name#
+ When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
+
+ #Show hidden shares#
+ If this option is enabled, hidden (administrative) shares are shown in the plugin.
+
+ - #Never show#
+   Don't show hidden shares.
+ - #Show as hidden#
+   Hidden shares are displayed in the panel with the attribute 'Hidden'.
+ - #Always show#
+   Hidden shares appear in the panel as normal.
+
+ #Browse up to favorites if possible#
+ If the computer you are viewing has been added to favorites, then when you go up level "..", Favorites will open.
+
+
+@DisconnectDrive
+$ #Disconnect network drive#
+ You can disconnect a network drive by pressing #Del# or #F8# in the
+list of shares of a computer.
+
+ If the option #[x] Disconnect network drive# is enabled in the
+~Confirmations dialog~@:ConfirmDlg@ of the Far configuration, a dialog
+will appear allowing you to confirm the disconnection and to choose
+whether you want to disconnect permanently or temporarily.
+
+ The option #[x] Reconnect at logon# is enabled only for permanently
+connected network drives.

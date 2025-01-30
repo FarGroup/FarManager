@@ -1,0 +1,173 @@
+﻿.Language=Portuguese,Portuguese (Português)
+.PluginContents=Cliente FTP
+
+
+@Contents
+$ #Cliente FTP#
+   ~Conectando-se via FTP com host~@FTPConnect@
+
+   ~Gerenciando nomes de computadores~@FTPNames@
+
+   ~Comandos do cliente FTP~@FTPCmd@
+
+   ~Configuração do cliente FTP~@FTPCfg@
+
+   ~Modos de painel do cliente FTP~@FTPPanel
+
+
+@FTPConnect
+$ #Conectando-se ao host via FTP#
+    Você pode se conectar ao servidor através da linha de
+comando do FAR ou ~painel de hosts~@FTPNames@.
+
+    O FAR suporta o seguinte formato de endereço:
+
+    #ftp://usuário:senha@@hostname:porta/diretório#
+
+    onde "hostname" é requerido, o prefixo "ftp://" também é requerido
+para se conectar através da linha de comando e opcional, quando estiver
+conectando pelo painel hosts. Todas outras partes do nome são opcionais.
+Se o nome for ignorado será usado "anonymous". Se a senha for omitida,
+a senha padrão (definida em ~Configuração do cliente FTP~@FTPCfg@ é usada. 
+
+    Para se conctar pela linha de comando do FAR entre com o hostname,
+iniciando com o prefixo "ftp://". 
+
+    Para se conectar pelo painel, ative o plugin FTP, selecione o
+servidor designado e pressione Enter.
+
+    Para editar parâmetros do servidor diretamente antes de se conectar,
+pressione F4 no nome do servidor, faça as alterações e pressione o botão
+"Conectar".
+
+
+@FTPNames
+$ #Gerenciando nomes de hosts#
+    Os nomes de hosts são organizados na forma do painel de arquivos.
+Você pode adicionar novos hosts usando Shift-F4. Cada registro consiste
+no host name, campo de senha do usuário, descrição opcional e o parâmetro
+"Perguntar pela senha diretamente antes de se conectar".
+
+    O FAR suporte os seguinte formato de nomes de hosts:
+
+    #ftp://usuário:senha@@hostname:porta/diretório#
+
+    Todos os componentes, exceto o "hostname" são opcionais.
+
+    A senha do usuário pode ser digitada no nome do host ou em um
+campo separado para a senha. No segundo caso ele não será mostrado no
+painel. Também pode deixa-lo em branco para usar a senha padrão definida
+em ~Configuração do cliente FTP~@FTPCfg@.
+
+    Adicionalmente é possivel marcar "Perguntar pela senha diretamente
+antes de se conectar" para entrar com a senha (e nome do usuário, se
+necessário) manualmente antes de se conectar ao servidor. 
+
+    O "modo ASCII" permite usar o modo de transferência ASCII como padrão.
+
+    As opções "Modo passivo" e "Usar firewall" são requeridas para funcionar
+com alguns tipos de firewall. Eles substituem opções parecidas em
+~Configuração do cliente FTP~@FTPCfg@.
+
+    O botão "Usar tabela selecionada" para substituir a tabela de
+caracteres deste servidor.
+
+    Para editar parâmetros de hosts já existentes pressione F4 em seu nome.
+
+    Usando F7 é possivel criar diretórios para os nomes de hosts.
+
+    Você pode copiar e mover registros de hosts de e para os diretórios e
+para os discos locais com os comandos F5 e F6.
+
+    F8 deleta detales sobre os hosts selecionados.
+
+    Pressione ALT+F6 para salvar informações sobre o host conectado.
+
+
+@FTPCmd
+$ #Comandos do cliente FTP#
+    O cliente FTP lhe permite operar servidores FTP como arquivos
+no disco local. Ele tem suporta cópiar, mover, deletar, criar
+diretórios, visualizar e editar arquivos, etc. Também é possivel
+continuar transferências interrompidas usando o botão "Resumir" na
+caixa de diálogo substituir, mas esta função deve ser suportada
+pelo servidor FTP. Você pode usar o comando "Procurar Arquivo" para
+procurar por arquivos no servidor FTP. CTRL+A modifica o modo de
+acesso aos arquivos, se esta operação for suportada pelo servidor.
+
+    Pressione #Shift-F7# para modificar a tabela de caracteres, usada para
+mostrar os nomes de arquivos e descrições. Você também precisará especificar
+os parâmetros da tabela de caracteres independentes para cada servidor. 
+
+    Algumas operações do FTP podem ser interrompidas pressionando ESC. Se
+ESC não funcionar, CTRL+Break pode ser usado, mas ao contrário de ESC,
+ele interrompe a conexão atual. 
+
+
+@FTPCfg
+$ #Configuração do cliente FTP#
+    Nesta caixa de diálogo você pode modificar as seguintes opções:
+
+ #Incluir ao menu discos#   Permite adicionar o item "FTP" ao menu discos.
+
+ #Tecla de atalho ao menu discos#    Tecla de atalho para o item cliente FTP
+                      no menu discos. Você pode ajusta-lo de 1 a 9 ou deixar
+                      este campo em branco para auto-definir.
+
+ #Lista de descrição#   Nomes dos arquivos com descrições dos arquivos FTP.
+ #nome delimitados#
+ #com vírgulas#
+
+ #Descrições de leitura#    Descrições de leitura dos arquivos do FTP
+                      quando entrar em um diretório FTP. Isto lhe permite
+                      visualizar as descrições mas deixa lenta a leitura de
+                      diretórios. 
+
+ #Atualizar descrições#  Atualiza descrições dos arquivos do FTP após
+                      o upload ou deleção. 
+
+ #Upload em maiúsculas#    Se esta opção estiver ativada e o nome do
+                      arquivo consiste em letras minúsculas, ele será
+                      transferido para o servidor em maiúsculas. 
+ #arquivos em minúsculas#   consiste somente em letras maiúsculas,
+                      ele será transferido para o servidor em minúsculas. 
+
+ #Mostrar upload#       São não precisar de alterações manuais
+ #opções do diálogo#    caminho de destino e modo ASCII/binário quando
+                      estiver enviando os arquivos. Você pode limpar esta
+                      opção para pular para a segunda caixa de diálogo do
+                      upload.
+
+ #Senha padrão#       Senha, que será usada como padrão quando entrar
+                      com novos parâmetros do servidor. Ela também
+                      será usada para se conectar se nenhuma senha
+                      e o nome do usuário não forem digitados ou
+                      se o nome do usuário for "anonymous".
+
+ #Firewall#           Nome do servidor de firewall. Deixe em branco
+                      se você não usa um firewall. Somente um tipo
+                      de firewall é suportado:
+                      user_id_remoto@@comp_remoto é enviado para o
+                      firewall como nome de usuário quando se
+                      conectar ao computador remoto.
+
+ #Modo passivo#         Este modo pode ser requerido para trabalhar
+                      com alguns tipos de firewall. Porque cada
+                      host tem sua própria opção "Modo Passivo",
+                      o valor da opção de configuração é usado
+                      quando entra em um novo host ou quando se
+                      conectar através da linha de comando. 
+
+
+@FTPPanel
+$ #Painel de modos do cliente FTP#
+    O cliente FTP usa o modo de painel 8 e 9 para mostrar informações
+adicionais sobre os arquivos do FTP.
+
+    O modo 8 (donos) contém informações do dono/grupo.
+
+    O modo 9 (links) contém informações de modo de acesso do arquivo
+no formato UNIX.
+
+    Esta informação pode ser mostrada corretamente somente se for
+oferecida pelo servidor de FTP no formato padrão do Unix.

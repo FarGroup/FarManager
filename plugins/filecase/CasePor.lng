@@ -1,0 +1,28 @@
+﻿.Language=Portuguese,Portuguese (Português)
+
+"Conversão de Maiúsculas/minúsculas"
+"Ok"
+"Cancelar"
+"&Reset"
+
+"Name"
+"Extension"
+
+"&1. minúsculas"
+"&2. MAIÚSCULAS"
+"&3. First capital"
+"&4. Title Case"
+"&5. None"
+"&6. minúsculas"
+"&7. MAIÚSCULAS"
+"&8. First capital"
+"&9. Title Case"
+"&0. None"
+
+"Não processar arquivos com maiúsc./minúsc. &misturadas"
+"Process &subfolders"
+"Process &folder names"
+"&Word delimiters:"
+
+"Convertendo maiúsc./minúsc. em arquivos"
+"C&urrent run only"

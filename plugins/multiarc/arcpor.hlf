@@ -1,0 +1,283 @@
+﻿.Language=Portuguese,Portuguese (Português)
+.PluginContents=Archive support plugin
+
+
+@Contents
+$ #Plugin de suporte a arquivos#
+    Este módulo do far faz o processamento de #arquivos# transparentemente.
+Arquivos armazenados no arquivo são armazenados de forma semelhante a uma
+pasta: quando opera aquele arquivo, o FAR transforma seus comandos em
+chamadas de arquivos externas correspondentes.
+
+   ~Adicionando arquivos ao arquivo~@AddToArc@
+
+   ~Extraindo arquivo do arquivo~@ExtrFromArc@
+
+   ~Comandos do arquivo~@ArcCmd@
+
+   ~Configuração de suporte a arquivos~@ArcCfg@
+
+   ~Linhas de comando do arquivador~@ArcSettings@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+
+@AddToArc
+$ #Adicionando arquivos ao arquivo#
+    Neste diálogo você pode escolher o arquivador, adicionar
+ou modificar as opções da linha de comando (opções padrões
+podem ser definidas usando o diálogo ~Configurações do arquivador~@ArcSettings2@), entrar com a senha
+para encriptar os arquivos durante o arquivamento.
+
+    Opção #Apagar arquivos após o arquivamento# forces the archiver
+to move rather than copy files to the archive. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    A opção #Salvar configurações# salva o arquivo atual e as opções do
+arquivo para uso futuro.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+
+@ExtrFromArc
+$ #Extrair arquivos do arquivo#
+    Neste diálogo você pode entrar com o caminho para extrair arquivos e
+definir a senha para desencriptar os arquivos.
+
+    A opção #Somente teste# lhe permite fazer o teste com o arquivo sem
+criar arquivos. 
+
+    A opção #Descompactar sem o caminho# força a descompactação de todos
+os arquivos para o mesmo diretório.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    Para descompactar imediatamente os arquivos selecionados para o
+diretório atual, você pode também usar #Alt-F6#.
+
+
+@ArcCmd
+$ #Comandos do Arquivo#
+    Deste menu você pode testar o arquivo, adicionar um comentário ao
+arquivo, converter o arquivo para Self-extractor (SFX), tentar recuperar
+um arquivo corrompido, proteger seu arquivo de danos, desativar
+modificações no arquivo.
+
+    Notas:
+
+    1. Para executar um comando de gerenciamento de arquivo você
+precisa da ferramenta correspondente. As opções de programas podem
+ser modificadas no diálogo ~Configurações do arquivador~@ArcSettings2@.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. Toda os comandos de gerenciamento de arquivos são totalmente
+aplicáveis somente aos arquivos do RAR. Outros arquivadores não
+suportam alguns comandos. 
+
+
+@Config
+$ #Plugin configuration#
+    ~Configuração de suporte aos arquivos~@ArcSettings1@
+
+    ~Linhas de comando do arquivador~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+
+@ArcSettings1
+$ #Configuração de suporte aos arquivos#
+    Neste diálogo você pode modificar os seguintes parâmetros:
+
+ #Método dos arquivadores#  Não oculta a saida dos arquivadores,
+ #mostrar a saida#      ocultar para operação de visualização ou
+                        ocultar sempre
+
+ #Processar Shift-F1#     Adicionar arquivos ao arquivo com Shift-F1.
+ #comando#                Você pode querer desativar esta opção se
+                        tiver outro plugin de suporte a arquivos
+                        instalado, que processa o comando Shift-F1. 
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Lista de Descrição#     Nomes dos arquivos com descrições
+ #nomes delimitados#      arquivos.
+ #com vírgulas#
+
+ #Ler arquivo#          Ler descrições dos arquivos arquivados.
+ #descrições#           quando entrar em um arquivo. Isto permite
+                        visualizar as descrições mas deixa a leitura
+                        do arquivo mais lenta. 
+
+ #Atualizar arquivo#      Atualizar descrições dos arquivos
+ #descrições#           após adicionar ou apagar de um arquivo.
+
+
+@ArcSettings2
+$ #Linhas de comando do arquivador#
+    Neste diálogo você pode modificar linhas de ocmando para arquivadores
+externos para operações de processamento de arquivos diferentes e ~máscara@:FileMasks@,
+que será usado apra selecionar todos os arquivos (it must not begin
+with a dot).
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
+
+    As seguintes variáveis podem ser usadas:
+
+ #%%A# - Nome do arquivo.
+
+ #%%a# - Nome curto do arquivo.
+
+ #%%W# - Diretório temporário incluindo a barra de terminação.
+
+ #%%P# - Senha.
+
+ #%%R# - Current archive folder.
+
+ #%%L# - Nome da lista de arquivos. Lista de arquivos é o arquivo contendo
+       os noems dos arquivos a serem processados pelo arquivador externo. 
+
+ #%%l# - Lista de arquivos com nomes curtos.
+
+ #%%F# - Nomes de um ou mais arquivos que serão processados. Se todos os 
+       nomes não forem colocados em uma string simples, o arquivador
+       será executados diversas vezes até que todos os nomes de arquivos
+       sejam processados. Por padrão, o tamanho total de comandos é 127,
+       mas você pode especifica-lo diretamente após %%F, por exemplo
+       %%F512. A variável %%F deve ser usada somente se o arquivador de
+       destino não suportar lista de arquivos.
+
+ #%%f# - O nome de um arquivo simples para processar. O arquivador será
+       executado diversas vezes até que todos os nomes de arquivos
+       sejam processados.
+       Esta variávels pode ser usada somente se o arquivador de destino
+       não suportar lista de arquivos ou múltiplos nomes de arquivo
+       na linha de comando.
+
+ #%%E#<errorlevel> - maximum acceptable command errorlevel.
+       For example, %%E2 indicates that errorlevels 0, 1 and 2
+       are acceptable. This variable may be specified in any place
+       of command. If it is absent, only errorlevel 0 is considered
+       as successful.
+
+ #%%S# - Place in the command line to insert additional switches,
+       specified in the second string of "Add" dialog. If this
+       variable is absent, switches are added to end of command
+       line.
+
+    Os modificadores de variáveis Q, q, S, M, N, *, W podem ser usados
+para modificar os detalhes do formatod o nome do arquivo:
+
+    'Q' - separar nomes por espaços;
+    'q' - separar todos os nomes;
+    'S' - usar '/' ao invés de '\' nos caminhos;
+    'M' - transferir nomes de diretórios para o arquivo como 'diretório\*.*';
+    'N' - transferir nomes dos diretórios para o arquivo como 'diretório';
+    '*' - usar '*' para selecionar todos os arquivos. Este modificador
+          substitui o parâmetro "Todas as máscaras de arquivos" para um
+          comando simples do arquivador;
+    'W' - usar somente o nome, sem caminho.
+    'P' - use path only, without name;
+    'A' - use ANSI encoding.
+
+    Este modificadores podem ser especificados imediatamente após %%F,
+%%f, %%L ou variáveis %%l sem espaços. Diversos modificadores são
+permitidos, por exemplo %%LMN ou %%F*QSN128 são válidos. Se nem os
+modificadores 'M' e 'N'forem especificados, 'N' é assumido. Se ambos
+'M' e 'N' são especificados, ambos 'diretório' e 'diretório\*.*' serão
+transferidos para o arquivador. 
+
+    Se uma parte do string do comando do arquivador externo for
+colocado entre {  }, ele será adicionado a string resultante somente
+se esta parte contém ao menos uma, variável não-vazia, destas descrições
+acima.
+
+    Se um arquivador externo não suporte um comando em particular,
+deixe a string correspondente em branco.
+
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

@@ -1,0 +1,76 @@
+﻿.Language=Portuguese,Portuguese (Português)
+
+"Ok"
+"Cancelar"
+"Erro"
+"&Yes"
+
+"Navegador da Rede"
+
+"rede"
+
+"Mapear"
+"MapTo"
+"TMap"
+"TMapA"
+"DesMap"
+"Removr"
+"GesCon"
+
+"Please wait"
+"Scanning the network..."
+
+"Não foi possivel navegar na rede"
+"Não foi possivel conectar \"%.40s\" a %s"
+"Este nome de disco possui uma conexão relembrada"
+
+"Se não fechar os arquivos abertos, dados poderão ser perdidos."
+"Deseja desconectar o dispositivo assim mesmo?"
+"Não foi possivel se desconectar de %s"
+
+"Nenhuma letra de unidade disponível"
+
+"Nome do usuário"
+"Senha do usuário"
+
+"Permanent connection to"
+"Temporary connection to"
+"F6 - temporary"
+"F6 - permanent"
+
+"Rede"
+"Nome da rede"
+"*:"
+"Comentário"
+
+"Navegador da Rede"
+"&Adicionar ao menu discos"
+"Add to &Plugins menu"
+"Show &local network"
+"Shares"
+"Show &full share name"
+"Hidden Shares"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Scan network"
+"Show \"&..\" in the providers list"
+"&Browse up to favorites if possible"
+"Check resource &reachability"
+
+"Disconnect network drive"
+"Do you want to disconnect from the drive %s?"
+"The drive %s is mapped to"
+"&Reconnect at Logon"
+
+"Disconnect network drive\nThe drive %s is mapped to multiple drive letters\nWhich one do you want to disconnect?\n"
+
+"Favorites"
+"Favorites Folder"
+
+"&Remember password"
+
+"Remove from Favorites"
+"Remove \"%s\" from Favorites"
+"Remove %d items from Favorites"
