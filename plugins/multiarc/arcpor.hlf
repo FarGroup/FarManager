@@ -15,9 +15,9 @@ chamadas de arquivos externas correspondentes.
 
    ~Comandos do arquivo~@ArcCmd@
 
-   ~Configuração de suporte a arquivos~@ArcCfg@
+   ~Configuração de suporte a arquivos~@ArcSettings1@
 
-   ~Linhas de comando do arquivador~@ArcSettings@
+   ~Linhas de comando do arquivador~@ArcSettings2@
 
    ~Storage of plugin settings~@ArcSettings3@
 
@@ -95,7 +95,7 @@ $ #Extrair arquivos do arquivo#
 definir a senha para desencriptar os arquivos.
 
     A opção #Somente teste# lhe permite fazer o teste com o arquivo sem
-criar arquivos. 
+criar arquivos.
 
     A opção #Descompactar sem o caminho# força a descompactação de todos
 os arquivos para o mesmo diretório.
@@ -124,7 +124,7 @@ F4 in the "Archive commands" menu.
 
     2. Toda os comandos de gerenciamento de arquivos são totalmente
 aplicáveis somente aos arquivos do RAR. Outros arquivadores não
-suportam alguns comandos. 
+suportam alguns comandos.
 
 
 @Config
@@ -147,7 +147,7 @@ $ #Configuração de suporte aos arquivos#
  #Processar Shift-F1#     Adicionar arquivos ao arquivo com Shift-F1.
  #comando#                Você pode querer desativar esta opção se
                         tiver outro plugin de suporte a arquivos
-                        instalado, que processa o comando Shift-F1. 
+                        instalado, que processa o comando Shift-F1.
 
  #Change folder when#     If a new archive is created not in the
  #setting the cursor#     current folder, change the folder and
@@ -172,7 +172,7 @@ $ #Configuração de suporte aos arquivos#
  #Ler arquivo#          Ler descrições dos arquivos arquivados.
  #descrições#           quando entrar em um arquivo. Isto permite
                         visualizar as descrições mas deixa a leitura
-                        do arquivo mais lenta. 
+                        do arquivo mais lenta.
 
  #Atualizar arquivo#      Atualizar descrições dos arquivos
  #descrições#           após adicionar ou apagar de um arquivo.
@@ -201,11 +201,11 @@ press the Reset button.
  #%%R# - Current archive folder.
 
  #%%L# - Nome da lista de arquivos. Lista de arquivos é o arquivo contendo
-       os noems dos arquivos a serem processados pelo arquivador externo. 
+       os noems dos arquivos a serem processados pelo arquivador externo.
 
  #%%l# - Lista de arquivos com nomes curtos.
 
- #%%F# - Nomes de um ou mais arquivos que serão processados. Se todos os 
+ #%%F# - Nomes de um ou mais arquivos que serão processados. Se todos os
        nomes não forem colocados em uma string simples, o arquivador
        será executados diversas vezes até que todos os nomes de arquivos
        sejam processados. Por padrão, o tamanho total de comandos é 127,
@@ -251,7 +251,7 @@ para modificar os detalhes do formatod o nome do arquivo:
 permitidos, por exemplo %%LMN ou %%F*QSN128 são válidos. Se nem os
 modificadores 'M' e 'N'forem especificados, 'N' é assumido. Se ambos
 'M' e 'N' são especificados, ambos 'diretório' e 'diretório\*.*' serão
-transferidos para o arquivador. 
+transferidos para o arquivador.
 
     Se uma parte do string do comando do arquivador externo for
 colocado entre {  }, ele será adicionado a string resultante somente

@@ -10,7 +10,7 @@ processo e F3 para ver informações adicionais do processo.
 
    Tenha cuidado ao destruir um processo. Ele para o processo
 imediatamente e qualquer informação não salva será perdida. Assim deve
-ser usado somente quando realmente necessário. 
+ser usado somente quando realmente necessário.
 
    Special keys used by this plugin:
 

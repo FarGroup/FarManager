@@ -6,10 +6,10 @@
 $ #Painel temporário#
     Painel temporário, funciona de forma parecida com o painal
 de arquivos, facilita o agrupamento e arquivos de diferentes
-diretórios e os processa como um grupo simples. 
+diretórios e os processa como um grupo simples.
 
    ~Trabalhando com o painel temporário~@TempPanel@
-   ~Configuração do painel temporário~@TempCfg@
+   ~Configuração do painel temporário~@Config@
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
 
@@ -36,7 +36,7 @@ realizado com o arquivo real em sua localização atual. Por exemplo,
 apagando arquivos do painel temporário apaga realmente este arquivo do disco.
 
    Use o comando #F7# para remover nomes de arquivos
-selecionados do painel temporário sem realmente remove-los. 
+selecionados do painel temporário sem realmente remove-los.
 
    Pressione #Ctrl-PgUp# para fechar o painel temporário e ir para o arquivo
 abaixo do cursor.
@@ -72,7 +72,7 @@ $ #Configuração do painel temporário#
  #Usar painel comum#
    Quanto ativado, um painel temporário comum é suportado e seu conteúdo
 é mantido até mesmo quando o painel estiver fechado. Sem esta opção cada
-novo painel temporário será criado vazio. 
+novo painel temporário será criado vazio.
    If the option #"Use common panel"# is enabled, 10 instances of
 the temporary panel are created. You can switch between them by pressing
 #Alt-Shift-F12# (to show a menu) or hotkeys from #Alt-Shift-0# to

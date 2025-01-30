@@ -1,9 +1,10 @@
 ﻿.Language=Portuguese,Portuguese (Português)
 .PluginContents=Conversão de maiúsc./minúsc. em nomes de arquivo
 
+
 @Contents
 $ #Conversão de maiúsc./minúsc. em nome de arquivos#
- Este comando permite modificar as letras maiúsc./minúsc. de nomes de arquivos de acordo com os formatos disponíveis. 
+ Este comando permite modificar as letras maiúsc./minúsc. de nomes de arquivos de acordo com os formatos disponíveis.
 
  Choose the needed case conversion for the #Name# and the #Extension# correspondingly.
 If the #None# option is selected, the plugin will not process the corresponding file name part.
