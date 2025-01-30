@@ -196,6 +196,9 @@
           <ComponentRef Id="FarPol.hlf" />
           <ComponentRef Id="FarPol.lng" />
         </Feature>
+        <Feature Id="Portuguese" Level="1" Title="!(loc.Feature.Title.Portuguese)" AllowAdvertise="no">
+          <ComponentRef Id="FarPor.lng" />
+        </Feature>
         <Feature Id="Russian" Level="1" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
           <ComponentRef Id="FarRus.hlf" />
           <ComponentRef Id="FarRus.lng" />
@@ -282,6 +285,9 @@
             <Feature Id="Align.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignLit.lng" />
             </Feature>
+            <Feature Id="Align.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignPor.lng" />
+            </Feature>
             <Feature Id="Align.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Align.map" />
             </Feature>
@@ -324,6 +330,9 @@
             </Feature>
             <Feature Id="AutoWrap.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapLit.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapPor.lng" />
             </Feature>
             <Feature Id="AutoWrap.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AutoWrap.map" />
@@ -374,6 +383,9 @@
             <Feature Id="Brackets.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackLit.lng" />
             </Feature>
+            <Feature Id="Brackets.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackPor.lng" />
+            </Feature>
             <Feature Id="Brackets.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Brackets.map" />
             </Feature>
@@ -423,6 +435,9 @@
             </Feature>
             <Feature Id="DrawLine.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawLit.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawPor.lng" />
             </Feature>
             <Feature Id="DrawLine.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawLine.map" />
@@ -475,6 +490,10 @@
             </Feature>
             <Feature Id="EditCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseLit.lng" />
+            </Feature>
+            <Feature Id="EditCase.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECasePor.hlf" />
+              <ComponentRef Id="ECasePor.lng" />
             </Feature>
             <Feature Id="EditCase.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="EditCase.map" />
@@ -578,6 +597,10 @@
           <Feature Id="Compare.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CompLit.lng" />
           </Feature>
+          <Feature Id="Compare.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CmpPor.hlf" />
+            <ComponentRef Id="CompPor.lng" />
+          </Feature>
           <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
           <Feature Id="Compare.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Compare.map" />
@@ -646,7 +669,7 @@
             <ComponentRef Id="colorerr.hlf" />
             <ComponentRef Id="colorerr.lng" />
           </Feature>
-		  <Feature Id="FarColorer.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="FarColorer.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="colorerpol.hlf" />
             <ComponentRef Id="colorerpol.lng" />
           </Feature>
@@ -789,6 +812,10 @@
           </Feature>
           <Feature Id="FileCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseLit.lng" />
+          </Feature>
+          <Feature Id="FileCase.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CasePor.hlf" />
+            <ComponentRef Id="CasePor.lng" />
           </Feature>
           <Feature Id="FileCase.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FileCase.map" />
@@ -956,6 +983,10 @@
           <Feature Id="Network.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="NetLit.lng" />
           </Feature>
+          <Feature Id="Network.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetPor.hlf" />
+            <ComponentRef Id="NetPor.lng" />
+          </Feature>
           <Feature Id="Network.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
           </Feature>
@@ -1007,6 +1038,10 @@
           </Feature>
           <Feature Id="Proclist.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcSpa.lng" />
+          </Feature>
+          <Feature Id="Proclist.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcPor.hlf" />
+            <ComponentRef Id="ProcPor.lng" />
           </Feature>
           <Feature Id="Proclist.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcList.map" />
@@ -1072,6 +1107,10 @@
           </Feature>
           <Feature Id="TmpPanel.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpLit.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Portuguese" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpPor.hlf" />
+            <ComponentRef Id="TmpPor.lng" />
           </Feature>
           <Feature Id="TmpPanel.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpPanel.map" />
