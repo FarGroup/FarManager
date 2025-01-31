@@ -156,6 +156,9 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition({ ScrX / 2 - 8 + 5 * HelpLanguage, ScrY / 2 - 4 + 2 * HelpLanguage, 0, 0 });
 
+	// The key is ASCII English name, so the default sorting will do fine.
+	std::map<string, string> Languages;
+
 	for (const auto& FindData: os::fs::enum_files(path::join(Global->g_strFarPath, Mask)))
 	{
 		if (!os::fs::is_file(FindData))
@@ -172,14 +175,18 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 		))
 			continue;
 
-		MenuItemEx LangMenuItem(!LangFile.Description.empty()? LangFile.Description: LangFile.Name);
+		Languages.try_emplace(LangFile.Name, LangFile.Description);
+	}
 
-		// No duplicate languages
-		if (LangMenu->FindItem(0, LangMenuItem.Name, LIFIND_EXACTMATCH) != -1)
-			continue;
+	const auto MaxNameLength = std::ranges::max_element(Languages, {}, [](const auto& i){ return i.first.size(); })->first.size();
 
-		LangMenuItem.SetSelect(equal_icase(Dest, LangFile.Name));
-		LangMenuItem.ComplexUserData = LangFile.Name;
+	for (const auto& [Name, Description]: Languages)
+	{
+		string EntryName = far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description);
+		MenuItemEx LangMenuItem(EntryName);
+
+		LangMenuItem.SetSelect(Dest == Name);
+		LangMenuItem.ComplexUserData = Name;
 		LangMenu->AddItem(LangMenuItem);
 	}
 
