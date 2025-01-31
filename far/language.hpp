@@ -117,7 +117,7 @@ struct lang_file
 
 lang_file OpenLangFile(string_view Path, string_view Mask, string_view Language);
 bool GetLangParam(lang_file& LangFile, string_view ParamName, string& Param);
-bool SelectInterfaceLanguage(string& Dest);
-bool SelectHelpLanguage(string& Dest);
+string SelectInterfaceLanguage(string_view Current);
+string SelectHelpLanguage(string_view Current);
 
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

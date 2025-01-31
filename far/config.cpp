@@ -3362,8 +3362,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				break;
 			case MENU_OPTIONS_LANGUAGES:   // Languages
 				{
-					auto InterfaceLanguage = strLanguage.Get();
-					if (SelectInterfaceLanguage(InterfaceLanguage))
+					if (const auto InterfaceLanguage = SelectInterfaceLanguage(strLanguage); !InterfaceLanguage.empty())
 					{
 						try
 						{
@@ -3380,8 +3379,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 								{ lng::MOk });
 						}
 
-						auto HelpLanguage = strHelpLanguage.Get();
-						if (SelectHelpLanguage(HelpLanguage))
+						if (const auto HelpLanguage = SelectHelpLanguage(strHelpLanguage); !HelpLanguage.empty())
 						{
 							strHelpLanguage = HelpLanguage;
 						}
