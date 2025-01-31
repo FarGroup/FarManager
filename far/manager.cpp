@@ -441,7 +441,7 @@ window_ptr Manager::WindowMenu()
 			}
 		}
 
-		const auto TypesWidth = std::ranges::fold_left(Data, 0uz, [](size_t const Value, auto const& i){ return std::max(Value, std::get<0>(i).size()); });
+		const auto TypesWidth = std::get<0>(*std::ranges::max_element(Data, {}, [](auto const& i){ return std::get<0>(i).size(); })).size();
 
 		const auto ModalMenu = VMenu2::create(msg(lng::MScreensTitle), {}, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch"sv);

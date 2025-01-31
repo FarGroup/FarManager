@@ -217,7 +217,7 @@ void QuickView::DisplayObject()
 
 		if (m_DirectoryScanStatus == scan_status::real_ok || m_DirectoryScanStatus == scan_status::plugin_ok)
 		{
-			static const lng TableLabels[] =
+			static constexpr lng TableLabels[]
 			{
 				lng::MQuickViewFolders,
 				lng::MQuickViewFiles,
@@ -227,7 +227,7 @@ void QuickView::DisplayObject()
 				lng::MQuickViewSlack,
 			};
 
-			const auto ColumnSize = std::ranges::fold_left(TableLabels, 0uz, [](size_t const Value, lng const Id) { return std::max(Value, msg(Id).size()); }) + 1;
+			const auto ColumnSize = msg(*std::ranges::max_element(TableLabels, {}, [](lng const Id) { return msg(Id).size(); })).size() + 1;
 
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;

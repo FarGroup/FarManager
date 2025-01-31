@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
