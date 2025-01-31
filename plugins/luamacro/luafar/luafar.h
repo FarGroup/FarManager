@@ -153,7 +153,6 @@ DLLFUNC intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info
 DLLFUNC intptr_t LF_GetContentFields(lua_State* L, const struct GetContentFieldsInfo *Info);
 DLLFUNC intptr_t LF_GetContentData(lua_State* L, struct GetContentDataInfo *Info);
 DLLFUNC void     LF_FreeContentData(lua_State* L, const struct GetContentDataInfo *Info);
-DLLFUNC void     LF_DoFinalCleanup(lua_State* L);
 
 #ifdef __cplusplus
 }

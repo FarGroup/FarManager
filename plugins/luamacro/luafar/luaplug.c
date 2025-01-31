@@ -110,10 +110,8 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 
 	if (DLL_PROCESS_ATTACH == dwReason && hDll)
 		InitGlobal(&G, (HINSTANCE)hDll);
-	else if (DLL_PROCESS_DETACH == dwReason) {
-		LF_DoFinalCleanup(G.LS);
+	else if (DLL_PROCESS_DETACH == dwReason)
 		DestroyGlobal(&G);
-	}
 
 	return TRUE;
 }

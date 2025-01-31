@@ -39,7 +39,6 @@ typedef struct
 	struct PluginStartupInfo *Info;
 	int interval;   // timer period, in milliseconds
 	int tabRef;     // reference of a Lua table in the registry
-	int hndRef;     // reference of {timer_handle} in the registry
 	int needClose;  // timer needs to be closed; boolean value
 	int enabled;    // timer is enabled; the callback function is called only when (enabled != 0)
 	HANDLE hTimer;  // timer handle

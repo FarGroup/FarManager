@@ -1,3 +1,7 @@
+shmuel 2025-01-31 19:49:10+02:00 - build 867
+
+1. Revert builds 861-864 since the current far.Timer behavior is questionable.
+
 shmuel 2025-01-29 20:14:04+02:00 - build 866
 
 1. LuaFAR (generic plugin): "%FARPROFILE%\luafar_init.lua" is run by default.

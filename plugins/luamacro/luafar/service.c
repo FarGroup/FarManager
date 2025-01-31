@@ -5772,64 +5772,55 @@ void CALLBACK TimerCallback(void *lpParameter, BOOLEAN TimerOrWaitFired)
 
 static int far_Timer(lua_State *L)
 {
+	TPluginData *pd;
 	TTimerData *td;
-	int index, tabSize;
-	TPluginData *pd = GetPluginData(L);
-	HANDLE hQueue = GetLuaStateTimerQueue(L);
+	HANDLE hQueue;
+	int interval, index, tabSize;
 
-	// check the first 2 mandatory parameters
-	int interval = (int)luaL_checkinteger(L, 1);
+	interval = (int)luaL_checkinteger(L, 1);
 	luaL_checktype(L, 2, LUA_TFUNCTION);
 
-	// malloc timer data to remain valid after garbage collection
-	td = (TTimerData*) malloc(sizeof(TTimerData));
+	tabSize = lua_gettop(L);
+
+	lua_createtable(L, tabSize, 1);         // place the function at [1]
+	lua_pushinteger(L, tabSize);
+	lua_setfield(L, -2, "n");
+	lua_pushvalue(L, 2);
+	lua_rawseti(L, -2, 1);
+
+	td = (TTimerData*)lua_newuserdata(L, sizeof(TTimerData));
+	luaL_getmetatable(L, FarTimerType);
+	lua_setmetatable(L, -2);
+	lua_pushvalue(L, -1);
+	lua_rawseti(L, -3, 2);                  // place the userdata at [2]
+
+	for (index=3; index<=tabSize; index++)  // place the arguments, if any
+	{
+		lua_pushvalue(L, index);
+		lua_rawseti(L, -3, index);
+	}
+
+	pd = GetPluginData(L);
 	td->Info = pd->Info;
 	td->PluginGuid = pd->PluginId;
 	td->interval = interval < 1 ? 1 : interval;
+
+	lua_pushvalue(L, -2);
+	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX);
 	td->needClose = FALSE;
 	td->enabled = 1;
-
-	// create a table holding the Lua function and its parameters
-	tabSize = lua_gettop(L) - 1;    // exclude "interval"
-	lua_createtable(L, tabSize, 1);
-	lua_pushinteger(L, tabSize);    // place the table size at ["n"]
-	lua_setfield(L, -2, "n");       // +
-
-	// place the function and the arguments (if any)
-	for (index=1; index<=tabSize; index++) {
-		lua_pushvalue(L, index+1);
-		lua_rawseti(L, -2, index);
-	}
-	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX); // place tbl in the registry (and pop off the stack)
-
-	// create a Lua-side timer handle
-	TTimerData** LuaHandle = (TTimerData**) lua_newuserdata(L, sizeof(TTimerData*));
-	*LuaHandle = td;
-	luaL_getmetatable(L, FarTimerType);
-	lua_setmetatable(L, -2);
-
-	// create a weak table, holding the timer handle, put the table into registry
-	lua_createtable(L, 1, 1);                    // wtable = {}
-	lua_pushvalue(L, -2);                        // wtable[1] = LuaHandle
-	lua_rawseti(L, -2, 1);                       // +
-	lua_pushliteral(L, "v");                     // wtable.__mode = "v"
-	lua_setfield(L, -2, "__mode");               // +
-	lua_pushvalue(L, -1);                        // setmetatable(wtable,wtable)
-	lua_setmetatable(L, -2);                     // +
-	td->hndRef = luaL_ref(L, LUA_REGISTRYINDEX); // place wtable in the registry (and pop off the stack)
+	hQueue = GetLuaStateTimerQueue(L);
 
 	if (hQueue && CreateTimerQueueTimer(&td->hTimer,hQueue,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
 		return 1;
 
-	luaL_unref(L, LUA_REGISTRYINDEX, td->hndRef);
 	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
-	free(td);
 	return lua_pushnil(L), 1;
 }
 
 TTimerData* CheckTimer(lua_State* L, int pos)
 {
-	return *(TTimerData**)luaL_checkudata(L, pos, FarTimerType);
+	return (TTimerData*)luaL_checkudata(L, pos, FarTimerType);
 }
 
 TTimerData* CheckValidTimer(lua_State* L, int pos)
@@ -5841,26 +5832,32 @@ TTimerData* CheckValidTimer(lua_State* L, int pos)
 
 static int timer_Close(lua_State *L)
 {
+	HANDLE hQueue;
+	TSynchroData* sd;
 	TTimerData* td = CheckTimer(L, 1);
 	if (!td->needClose)
 	{
 		td->needClose = TRUE;
-		HANDLE hQueue = GetLuaStateTimerQueue(L);
+		hQueue = GetLuaStateTimerQueue(L);
 		if (hQueue)
 			DeleteTimerQueueTimer(hQueue, td->hTimer, NULL);
+		sd = CreateSynchroData(SYNCHRO_TIMER_UNREF, 0, td);
+		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 	}
 	return 0;
 }
 
 static int timer_gc(lua_State *L)
 {
-	timer_Close(L);
+	HANDLE hQueue;
 	TTimerData* td = CheckTimer(L, 1);
-	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
-	luaL_unref(L, LUA_REGISTRYINDEX, td->hndRef);
-	td->tabRef = td->hndRef = LUA_NOREF;
-	TSynchroData* sd = CreateSynchroData(SYNCHRO_TIMER_UNREF, 0, td);
-	td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
+	if (!td->needClose)
+	{
+		td->needClose = TRUE;
+		hQueue = GetLuaStateTimerQueue(L);
+		if (hQueue)
+			DeleteTimerQueueTimer(hQueue, td->hTimer, NULL);
+	}
 	return 0;
 }
 
