@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Hungarian,Hungarian (Magyar)
+.Language=Hungarian,Magyar
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 

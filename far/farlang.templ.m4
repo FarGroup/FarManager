@@ -10,19 +10,19 @@ lang.inc
 13
 
 #language file name, language name, language description
-FarRus.lng Russian "Russian (Русский)"
+FarRus.lng Russian "Русский"
 FarEng.lng English "English"
-FarCze.lng Czech "Czech (Čeština)"
-FarGer.lng German "German (Deutsch)"
-FarHun.lng Hungarian "Hungarian (Magyar)"
-FarPol.lng Polish "Polish (Polski)"
-FarSpa.lng Spanish "Spanish (Español)"
-FarSky.lng Slovak "Slovak (Slovenčina)"
-FarIta.lng Italian "Italian (Italiano)"
-FarUkr.lng Ukrainian "Ukrainian (Українська)"
-FarBel.lng Belarusian "Belarusian (Беларуская)"
-FarLit.lng Lithuanian "Lithuanian (Lietuvių)"
-FarPor.lng Portuguese "Portuguese (Português)"
+FarCze.lng Czech "Čeština"
+FarGer.lng German "Deutsch"
+FarHun.lng Hungarian "Magyar"
+FarPol.lng Polish "Polski"
+FarSpa.lng Spanish "Español"
+FarSky.lng Slovak "Slovenčina"
+FarIta.lng Italian "Italiano"
+FarUkr.lng Ukrainian "Українська"
+FarBel.lng Belarusian "Беларуская"
+FarLit.lng Lithuanian "Lietuvių"
+FarPor.lng Portuguese "Português"
 
 #enum name
 enum:class lng:int

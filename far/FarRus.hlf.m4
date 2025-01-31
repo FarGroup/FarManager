@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Russian,Russian (Русский)
+.Language=Russian,Русский
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 

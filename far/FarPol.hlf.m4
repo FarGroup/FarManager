@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Polish,Polish (Polski)
+.Language=Polish,Polski
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 

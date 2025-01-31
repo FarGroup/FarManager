@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Ukrainian,Ukrainian (Українська)
+.Language=Ukrainian,Українська
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 

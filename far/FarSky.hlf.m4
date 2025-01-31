@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Slovak,Slovak (Slovenčina)
+.Language=Slovak,Slovenčina
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 

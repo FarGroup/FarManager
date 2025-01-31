@@ -1,5 +1,5 @@
 ﻿m4_include(`farversion.m4')m4_dnl
-.Language=Czech,Czech (Čeština)
+.Language=Czech,Čeština
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 
