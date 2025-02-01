@@ -128,6 +128,14 @@ static bool HandleCppExceptions = true;
 static bool HandleSehExceptions = true;
 static bool ForceStderrExceptionUI = false;
 
+static bool s_ReportToStdErr = false;
+
+// On CI we can't access the filesystem, so just drop everything to stderr.
+void report_to_stderr()
+{
+	s_ReportToStdErr = true;
+}
+
 static wchar_t s_ReportLocation[MAX_PATH];
 
 // We can crash in the cleanup phase when profile paths are already destroyed.
@@ -1811,7 +1819,7 @@ static handler_result handle_generic_exception(
 
 	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
-	const auto ReportLocation = get_report_location();
+	const auto ReportLocation = s_ReportToStdErr? L"below"s : get_report_location();
 
 	LOGERROR(L"Unhandled exception, see {} for details"sv, ReportLocation);
 
@@ -1839,12 +1847,12 @@ static handler_result handle_generic_exception(
 		MiniDumpIgnoreInaccessibleMemory
 	);
 
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDUMP_NAME)), MinidumpFlags);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
+	const auto MinidumpNormal = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDUMP_NAME)), MinidumpFlags);
+	const auto MinidumpFull = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
 	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
-	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
-	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
+	const auto ReportOnDisk = !s_ReportToStdErr && write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
+	const auto ReportInClipboard = !s_ReportToStdErr && !ReportOnDisk && SetClipboardText(BugReport);
+	const auto ReadmeOnDisk = !s_ReportToStdErr && write_readme(path::join(ReportLocation, L"README.txt"sv));
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
 
 	if (AnythingOnDisk && os::is_interactive_user_session())

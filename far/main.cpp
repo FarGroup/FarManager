@@ -965,6 +965,8 @@ static void configure_exception_handling(std::span<wchar_t const* const> const A
 		if (equal_icase(i + 1, L"service"sv))
 		{
 			os::debug::crt_report_to_stderr();
+			report_to_stderr();
+			suppress_console_confirmations();
 			continue;
 		}
 	}

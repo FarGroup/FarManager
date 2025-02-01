@@ -1698,15 +1698,15 @@ point GetNonMaximisedBufferSize()
 	return NonMaximisedBufferSize();
 }
 
+static bool s_SuppressConsoleConfirmations;
+
+void suppress_console_confirmations()
+{
+	s_SuppressConsoleConfirmations = true;
+}
+
 size_t ConsoleChoice(string_view const Message, string_view const Choices, size_t const Default, function_ref<void()> const MessagePrinter)
 {
-	{
-		// The output can be redirected
-		DWORD Mode;
-		if (!console.GetMode(console.GetOutputHandle(), Mode))
-			return Default;
-	}
-
 	if (InitialConsoleMode)
 	{
 		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
@@ -1721,6 +1721,9 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 	for (;;)
 	{
 		std::wcout << far::format(L"\n{} ({})? "sv, Message, join(L"/"sv, Choices)) << std::flush;
+
+		if (s_SuppressConsoleConfirmations)
+			return Default;
 
 		wchar_t Input;
 		std::wcin.clear();

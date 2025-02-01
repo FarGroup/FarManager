@@ -296,6 +296,7 @@ private:
 	icon m_Small{false};
 };
 
+void suppress_console_confirmations();
 size_t ConsoleChoice(string_view Message, string_view Choices, size_t Default, function_ref<void()> MessagePrinter);
 bool ConsoleYesNo(string_view Message, bool Default, function_ref<void()> MessagePrinter);
 
