@@ -2265,23 +2265,32 @@ function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
 
-  io.stdout:write("test_areas\n");         MT.test_areas()
-  io.stdout:write("test_mf\n");            MT.test_mf()
-  io.stdout:write("test_CmdLine\n");       MT.test_CmdLine()
-  io.stdout:write("test_Help\n");          MT.test_Help()
-  io.stdout:write("test_Dlg\n");           MT.test_Dlg()
-  io.stdout:write("test_Drv\n");           MT.test_Drv()
-  io.stdout:write("test_Far\n");           MT.test_Far()
-  io.stdout:write("test_Menu\n");          MT.test_Menu()
-  io.stdout:write("test_Mouse\n");         MT.test_Mouse()
-  io.stdout:write("test_Object\n");        MT.test_Object()
-  io.stdout:write("test_Panel\n");         MT.test_Panel()
-  io.stdout:write("test_Plugin\n");        MT.test_Plugin()
-  io.stdout:write("test_APanel\n");        MT.test_APanel()
-  io.stdout:write("test_PPanel\n");        MT.test_PPanel()
-  io.stdout:write("test_mantis_1722\n");   MT.test_mantis_1722()
-  io.stdout:write("test_luafar\n");        MT.test_luafar()
-  io.stdout:write("test_coroutine\n");     MT.test_coroutine()
+  local testnames = {
+    "test_areas",
+    "test_mf",
+    "test_CmdLine",
+    "test_Help",
+    "test_Dlg",
+    "test_Drv",
+    "test_Far",
+    "test_Menu",
+    "test_Mouse",
+    "test_Object",
+    "test_Panel",
+    "test_Plugin",
+    "test_APanel",
+    "test_PPanel",
+    "test_mantis_1722",
+    "test_luafar",
+    "test_coroutine",
+  }
+  for _, name in ipairs(testnames) do
+    panel.GetUserScreen()
+    io.stdout:write(name, "\n")
+    panel.SetUserScreen()
+    MT[name]()
+  end
+
 end
 
 return MT
