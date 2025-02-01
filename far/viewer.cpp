@@ -2010,7 +2010,10 @@ bool Viewer::process_key(const Manager::Key& Key)
 			// Перейти на конец строк
 			if (ViewFile)
 			{
-				const size_t MaxLen = std::ranges::max_element(Strings, {}, [](const ViewerString& i){ return i.Data.size(); })->Data.size();
+				const size_t MaxLen = std::ranges::fold_left(Strings, 0uz, [](size_t Value, const ViewerString& i)
+				{
+					return std::max(Value, i.Data.size());
+				});
 				LeftPos = (MaxLen > static_cast<size_t>(ScrollbarAdjustedWidth))? MaxLen - ScrollbarAdjustedWidth : 0;
 				Show();
 			}

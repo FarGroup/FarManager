@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
@@ -178,7 +179,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 		Languages.try_emplace(LangFile.Name, LangFile.Description);
 	}
 
-	const auto MaxNameLength = std::ranges::max_element(Languages, {}, [](const auto& i){ return i.first.size(); })->first.size();
+	const auto MaxNameLength = std::ranges::fold_left(Languages, 0uz, [](size_t const Value, const auto& i){ return std::max(Value, i.first.size()); });
 
 	for (const auto& [Name, Description]: Languages)
 	{

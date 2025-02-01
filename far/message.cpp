@@ -218,7 +218,7 @@ static message_result MessageImpl(
 		}
 	}
 
-	auto MaxLength = !Strings.empty()? std::ranges::max_element(Strings, {}, [](string const& i) { return i.size(); })->size() : 0;
+	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
 
 	string strClipText;
 
