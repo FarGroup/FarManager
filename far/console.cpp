@@ -328,10 +328,10 @@ namespace console_detail
 		BufferSize = 8192
 	};
 
-	static bool is_redirected(int const HandleType)
+	static bool is_redirected(HANDLE const Handle)
 	{
 		DWORD Mode;
-		return !GetConsoleMode(GetStdHandle(HandleType), &Mode);
+		return !GetConsoleMode(Handle, &Mode);
 	}
 
 	class consolebuf final: public std::wstreambuf
@@ -339,9 +339,9 @@ namespace console_detail
 	public:
 		NONCOPYABLE(consolebuf);
 
-		explicit(false) consolebuf(int const Type):
-			m_Type(Type),
-			m_Redirected(is_redirected(Type)),
+		explicit(false) consolebuf(HANDLE const Handle):
+			m_Handle(Handle),
+			m_Redirected(is_redirected(m_Handle)),
 			m_InBuffer(BufferSize, {}),
 			m_OutBuffer(BufferSize, {})
 		{
@@ -395,7 +395,7 @@ protected:
 			if (m_Redirected)
 			{
 				DWORD BytesRead;
-				if (!ReadFile(GetStdHandle(m_Type), Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &BytesRead, {}))
+				if (!ReadFile(m_Handle, Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &BytesRead, {}))
 					throw far_fatal_exception(L"File read error"sv);
 
 				return BytesRead / sizeof(wchar_t);
@@ -418,7 +418,7 @@ protected:
 				const auto write = [&](void const* Data, size_t const Size)
 				{
 					DWORD BytesWritten;
-					if (!WriteFile(GetStdHandle(m_Type), Data, static_cast<DWORD>(Size), &BytesWritten, {}))
+					if (!WriteFile(m_Handle, Data, static_cast<DWORD>(Size), &BytesWritten, {}))
 						throw far_fatal_exception(L"File write error"sv);
 				};
 
@@ -454,14 +454,14 @@ protected:
 		{
 			if (m_Redirected)
 			{
-				FlushFileBuffers(GetStdHandle(m_Type));
+				FlushFileBuffers(m_Handle);
 				return;
 			}
 
 			::console.Commit();
 		}
 
-		int m_Type;
+		HANDLE m_Handle;
 		bool m_Redirected;
 		string m_InBuffer, m_OutBuffer;
 		std::optional<FarColor> m_Colour;
@@ -473,7 +473,7 @@ protected:
 		NONCOPYABLE(stream_buffer_overrider);
 
 		stream_buffer_overrider(std::wios& Stream, int const HandleType, std::optional<FarColor> const Color = {}):
-			m_Buf(HandleType),
+			m_Buf(GetStdHandle(HandleType)),
 			m_Override(Stream, m_Buf)
 		{
 			if (Color)
@@ -672,6 +672,7 @@ protected:
 
 	console::console():
 		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
+		m_StreamBuf(std::make_unique<consolebuf>(GetStdHandle(STD_OUTPUT_HANDLE))),
 		m_StreamBuffersOverrider(std::make_unique<stream_buffers_overrider>())
 	{
 		placement::construct(ExternalConsole);
@@ -2800,6 +2801,11 @@ protected:
 		}
 
 		return std::ranges::any_of(m_Buffer | std::views::take(EventsRead), Predicate);
+	}
+
+	std::wostream& console::OriginalOutputStream()
+	{
+		return m_OutputStream;
 	}
 
 	bool console::ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const

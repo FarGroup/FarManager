@@ -410,7 +410,7 @@ namespace
 		{
 			try
 			{
-				sink_console::process(console.GetOutputHandle(), Message);
+				console.OriginalOutputStream() << far::format(L"[{}][{}][{}] {} [{}]"sv, Message.m_Time, Message.m_ThreadId, Message.m_LevelString, Message.m_Data, Message.m_Location) << std::endl;
 			}
 			catch (far_exception const& e)
 			{

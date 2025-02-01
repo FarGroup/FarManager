@@ -229,6 +229,9 @@ namespace console_detail
 			std::vector<INPUT_RECORD> m_Buffer{ 256 };
 		};
 
+		[[nodiscard]]
+		std::wostream& OriginalOutputStream();
+
 	private:
 		class implementation;
 		friend class implementation;
@@ -246,6 +249,9 @@ namespace console_detail
 		HANDLE m_OriginalInputHandle;
 		HANDLE m_ActiveConsoleScreenBuffer{};
 		mutable string m_Title;
+
+		std::unique_ptr<std::wstreambuf> m_StreamBuf;
+		std::wostream m_OutputStream{ m_StreamBuf.get() };
 
 		class stream_buffers_overrider;
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
