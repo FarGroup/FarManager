@@ -2265,32 +2265,23 @@ function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
 
-  local testnames = {
-    "test_areas",
-    "test_mf",
-    "test_CmdLine",
-    "test_Help",
-    "test_Dlg",
-    "test_Drv",
-    "test_Far",
-    "test_Menu",
-    "test_Mouse",
-    "test_Object",
-    "test_Panel",
-    "test_Plugin",
-    "test_APanel",
-    "test_PPanel",
-    "test_mantis_1722",
-    "test_luafar",
-    "test_coroutine",
-  }
-  for _, name in ipairs(testnames) do
-    panel.GetUserScreen()
-    io.stdout:write(name, "\n")
-    panel.SetUserScreen()
-    MT[name]()
-  end
-
+  MT.test_areas()
+  MT.test_mf()
+  MT.test_CmdLine()
+  MT.test_Help()
+  MT.test_Dlg()
+  MT.test_Drv()
+  MT.test_Far()
+  MT.test_Menu()
+  MT.test_Mouse()
+  MT.test_Object()
+  MT.test_Panel()
+  MT.test_Plugin()
+  MT.test_APanel()
+  MT.test_PPanel()
+  MT.test_mantis_1722()
+  MT.test_luafar()
+  MT.test_coroutine()
 end
 
 return MT
