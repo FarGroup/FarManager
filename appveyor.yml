@@ -142,6 +142,9 @@ after_build:
   - far\tools\stacktrace.py ci\%configuration%.%platform_name%
   #test & archive 
   - cd ci\%configuration%.%platform_name%
+  - set far.log.level=all
+  - set far.log.sink=stdout
+  - set far.log.sink.stdout.mode=sync
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
   - if not "%platform_name%" == "ARM64" Far.exe -service "macro:test"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
