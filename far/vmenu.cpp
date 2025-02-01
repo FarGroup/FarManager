@@ -741,11 +741,6 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (Items.empty())
 		return -1;
 
-	for (auto& i: Items)
-	{
-		i.Flags &= ~LIF_SELECTED;
-	}
-
 	const auto DoWrap{ CheckFlags(VMENU_WRAPMODE) && Direct != 0 && !stop_on_edge };
 	const auto GoBackward{ Direct < 0 };
 	const auto ItemsSize{ static_cast<int>(Items.size()) };
@@ -764,11 +759,11 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
 		if (const auto Parent = GetDialog(); Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
-		{
-			UpdateItemFlags(SelectPos, Items[SelectPos].Flags | LIF_SELECTED);
 			return -1;
-		}
 	}
+
+	if (SelectPos >= 0)
+		Items[SelectPos].Flags &= ~LIF_SELECTED;
 
 	if (Pos >= 0)
 		UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED);
