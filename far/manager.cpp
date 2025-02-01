@@ -667,7 +667,7 @@ void Manager::ExitMainLoop(int Ask, int ExitCode)
 		if (ExitAll() || Global->CloseFAR)
 		{
 			const auto cp = Global->CtrlObject->Cp();
-			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)))
+			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)) || Global->CloseFAR)
 			{
 				EndLoop = true;
 				Global->FarExitCode = ExitCode;
