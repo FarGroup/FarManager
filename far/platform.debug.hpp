@@ -105,6 +105,9 @@ namespace os::debug
 		);
 	}
 
+	string demangle(const char* SymbolName);
+	void demangle(string& SymbolName);
+
 	void crt_report_to_ui();
 	void crt_report_to_stderr();
 }

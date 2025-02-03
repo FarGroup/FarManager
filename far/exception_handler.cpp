@@ -1315,27 +1315,12 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 	if (Iterator != CatchableTypesEnumerator.cend())
 		return encoding::utf8::get_chars(*Iterator);
 
-#if IS_MICROSOFT_SDK()
-	return {};
-#else
-	const auto TypeInfo = abi::__cxa_current_exception_type();
-	if (!TypeInfo)
-		return {};
-
-	const auto Name = TypeInfo->name();
-	auto Status = -1;
-
-	struct free_deleter
-	{
-		void operator()(void* Ptr) const
-		{
-			free(Ptr);
-		}
-	};
-
-	std::unique_ptr<char, free_deleter> const DemangledName(abi::__cxa_demangle(Name, {}, {}, &Status));
-	return encoding::utf8::get_chars(DemangledName.get());
+#if !IS_MICROSOFT_SDK()
+	if (const auto TypeInfo = abi::__cxa_current_exception_type(); TypeInfo)
+		return os::debug::demangle(TypeInfo->name());
 #endif
+
+	return {};
 }
 
 static string_view exception_name(NTSTATUS const Code)

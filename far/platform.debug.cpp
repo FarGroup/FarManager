@@ -58,6 +58,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <crtdbg.h>
 
+#if !IS_MICROSOFT_SDK()
+#include <cxxabi.h>
+#endif
+
+
 //----------------------------------------------------------------------------
 
 namespace os::debug
@@ -314,6 +319,92 @@ namespace os::debug
 			return false;
 
 		return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
+	}
+
+#if !IS_MICROSOFT_SDK()
+	static bool demangle_abi(const char* const SymbolName, string& Dest)
+	{
+		auto Status = -1;
+
+		struct free_deleter
+		{
+			void operator()(void* Ptr) const
+			{
+				free(Ptr);
+			}
+		};
+
+		std::unique_ptr<char, free_deleter> const DemangledName(abi::__cxa_demangle(SymbolName, {}, {}, &Status));
+
+		if (Status || !DemangledName.get())
+			return false;
+
+		Dest = encoding::utf8::get_chars(DemangledName.get());
+		return true;
+	}
+#endif
+
+	constexpr auto UndecorateFlags =
+		UNDNAME_NO_FUNCTION_RETURNS |
+		UNDNAME_NO_ALLOCATION_MODEL |
+		UNDNAME_NO_ALLOCATION_LANGUAGE |
+		UNDNAME_NO_ACCESS_SPECIFIERS |
+		UNDNAME_NO_MEMBER_TYPE |
+		UNDNAME_32_BIT_DECODE;
+
+	static bool demangle(const char* const SymbolName, string& Dest)
+	{
+		if (char Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolName && imports.UnDecorateSymbolName(SymbolName, Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
+		{
+			// Sanity check + the symobol name can be demangled already and thus longer than MAX_SYM_NAME, we don't want to truncate it.
+			if (*Buffer && !std::string_view(SymbolName).starts_with(Buffer))
+			{
+				Dest = encoding::ansi::get_chars(Buffer);
+				return true;
+			}
+		}
+
+		// Empty or the same or failed to demangle
+		// For non-MSVC builds try to demangle it using ABI
+#if !IS_MICROSOFT_SDK()
+		return debug::demangle_abi(SymbolName, Dest);
+#endif
+		return false;
+	}
+
+	string demangle(const char* const SymbolName)
+	{
+		string Result;
+
+		if (!demangle(SymbolName, Result))
+			Result = encoding::ansi::get_chars(SymbolName);
+
+		return Result;
+	}
+
+	void demangle(string& SymbolName)
+	{
+		if (!imports.UnDecorateSymbolNameW)
+		{
+			demangle(encoding::ansi::get_bytes(SymbolName).c_str(), SymbolName);
+			return;
+		}
+
+		if (wchar_t Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolNameW(SymbolName.c_str(), Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
+		{
+			// Sanity check + the symobol name can be demangled already and thus longer than MAX_SYM_NAME, we don't want to truncate it.
+			if (*Buffer && !SymbolName.starts_with(Buffer))
+			{
+				SymbolName = Buffer;
+				return;
+			}
+		}
+
+		// Empty or the same or failed to demangle
+		// For non-MSVC builds try to demangle it using ABI
+#if !IS_MICROSOFT_SDK()
+		debug::demangle_abi(encoding::ansi::get_bytes(SymbolName).c_str(), SymbolName);
+#endif
 	}
 
 	void crt_report_to_ui()

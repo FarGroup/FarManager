@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 // Platform:
+#include "platform.debug.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -97,29 +98,6 @@ map_file::map_file(string_view const ModuleName)
 
 map_file::~map_file() = default;
 
-static void undecorate(string& Symbol)
-{
-	const auto UndecorateFlags =
-		UNDNAME_NO_FUNCTION_RETURNS |
-		UNDNAME_NO_ALLOCATION_MODEL |
-		UNDNAME_NO_ALLOCATION_LANGUAGE |
-		UNDNAME_NO_ACCESS_SPECIFIERS |
-		UNDNAME_NO_MEMBER_TYPE |
-		UNDNAME_32_BIT_DECODE;
-
-	if (wchar_t Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolNameW && imports.UnDecorateSymbolNameW(Symbol.c_str(), Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
-	{
-		Symbol = Buffer;
-		return;
-	}
-
-	if (char Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolName && imports.UnDecorateSymbolName(encoding::ansi::get_bytes(Symbol).c_str(), Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
-	{
-		encoding::ansi::get_chars(Buffer, Symbol);
-		return;
-	}
-}
-
 static map_file::info get_impl(uintptr_t const Address, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	auto [Begin, End] = Symbols.equal_range(Address);
@@ -132,7 +110,7 @@ static map_file::info get_impl(uintptr_t const Address, std::map<uintptr_t, map_
 		--Begin;
 	}
 
-	undecorate(Begin->second.Name);
+	os::debug::demangle(Begin->second.Name);
 
 	return
 	{
