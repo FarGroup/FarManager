@@ -662,12 +662,14 @@ protected:
 
 			if (DA_ResponseSize && Response.size() >= DA_ResponseSize * 2)
 			{
-				if (const auto DA_Response = string_view(Response).substr(*FirstTokenPrefixPos, DA_ResponseSize); Response.ends_with(DA_Response))
-					break;
+				const auto FirstTokenEnd = *FirstTokenPrefixPos + DA_ResponseSize;
+				const auto DA_Response = string_view(Response).substr(*FirstTokenPrefixPos, FirstTokenEnd);
+				const auto SecondTokenPos = Response.find(DA_Response, FirstTokenEnd);
+
+				if (SecondTokenPos != Response.npos)
+					return Response.substr(FirstTokenEnd, SecondTokenPos - FirstTokenEnd);
 			}
 		}
-
-		return Response.substr(DA_ResponseSize, Response.size() - DA_ResponseSize * 2);
 	}
 
 	console::console():
