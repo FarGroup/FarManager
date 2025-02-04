@@ -559,31 +559,6 @@ protected:
 		std::optional<DWORD> m_ConsoleMode;
 	};
 
-	class scoped_vt_input
-	{
-	public:
-		NONCOPYABLE(scoped_vt_input);
-
-		scoped_vt_input():
-			m_ConsoleMode(::console.UpdateMode(::console.GetInputHandle(), ENABLE_VIRTUAL_TERMINAL_INPUT, ENABLE_LINE_INPUT))
-		{
-		}
-
-		~scoped_vt_input()
-		{
-			if (m_ConsoleMode)
-				::console.SetMode(::console.GetInputHandle(), *m_ConsoleMode);
-		}
-
-		explicit operator bool() const
-		{
-			return m_ConsoleMode.has_value();
-		}
-
-	private:
-		std::optional<DWORD> m_ConsoleMode;
-	};
-
 	static string query_vt(string_view const Command)
 	{
 		// A VT query works as follows:
@@ -615,12 +590,7 @@ protected:
 		// Fortunately, it seems that user input is queued before and/or after the responses,
 		// but does not interlace with them.
 
-		// We also need to enable VT input, otherwise it will only work in a real console.
 		// Are you not entertained?
-
-		scoped_vt_input const VtInput;
-		if (!VtInput)
-			throw far_exception(L"scoped_vt_input"sv);
 
 		const auto Dummy = CSI L"0c"sv;
 
