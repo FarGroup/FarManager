@@ -188,7 +188,7 @@ namespace
 			{
 				m_Data += L"\nLog stack:\n"sv;
 
-				const auto FramesToSkip = IsDebugMessage? 2 : 3; // [log] -> engine::log -> this ctor
+				const auto FramesToSkip = 3; // [log] -> engine::log -> this ctor
 				tracer.current_stacktrace({}, [&](string_view const TraceLine)
 				{
 					append(m_Data, TraceLine, L'\n');
@@ -295,6 +295,9 @@ namespace
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
 					if (!get_console_screen_buffer_info(Buffer, &csbi))
 						throw far_exception(L"get_console_screen_buffer_info"sv);
+
+					if (csbi.wAttributes == Color)
+						return;
 
 					if (!SetConsoleTextAttribute(Buffer, Color))
 						throw far_exception(L"SetConsoleTextAttributes"sv);
@@ -969,7 +972,7 @@ namespace logging
 			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
 
 			m_VectoredHandler = imports.AddVectoredExceptionHandler?
-				imports.AddVectoredExceptionHandler(false, debug_print) :
+				imports.AddVectoredExceptionHandler(false, debug_log) :
 				nullptr;
 
 			SCOPED_ACTION(os::last_error_guard);
@@ -984,13 +987,33 @@ namespace logging
 			configure_env();
 		}
 
-
 		void submit(message const& Message) const
 		{
 			m_Sink->handle(Message);
 		}
 
-		static void debug_print(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
+		static void debug_log(string&& Str, level const Level)
+		{
+			log_engine.log(
+				std::move(Str),
+				Level,
+				true,
+				source_location::current()
+			);
+		}
+
+		template<typename T>
+		[[nodiscard]]
+		static auto debug_message(void const* Ptr, size_t const Size)
+		{
+			std::basic_string_view<T> Str{ static_cast<T const*>(Ptr), Size };
+			while (!Str.empty() && (Str.back() == L'\r' || Str.back() == L'\n'))
+				Str.remove_suffix(1);
+
+			return Str;
+		}
+
+		static void debug_log(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
 		{
 			const auto Level = level::debug;
 			if (!logging::filter(Level))
@@ -998,36 +1021,26 @@ namespace logging
 
 			try
 			{
-				log_engine.log(
-					far::format(
-						L"{}"sv,
-						IsUnicode?
-							string_view{ static_cast<wchar_t const*>(Ptr), Size } :
-							encoding::ansi::get_chars(std::string_view{ static_cast<char const*>(Ptr), Size })
-					),
-					Level,
-					true,
-					source_location::current()
-				);
-			}
+				debug_log(IsUnicode? string(debug_message<wchar_t>(Ptr, Size)) : encoding::ansi::get_chars(debug_message<char>(Ptr, Size)), Level);
+;			}
 			catch (...)
 			{
 			}
 		}
 
-		static void debug_print_seh(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
+		static void debug_log_seh(void const* Ptr, size_t const Size, bool const IsUnicode) noexcept
 		{
 			return seh_try_no_ui(
 			[&]
 			{
-				return debug_print(Ptr, Size, IsUnicode);
+				return debug_log(Ptr, Size, IsUnicode);
 			},
 			[](DWORD)
 			{
 			});
 		}
 
-		static LONG NTAPI debug_print(EXCEPTION_POINTERS* const Pointers)
+		static LONG NTAPI debug_log(EXCEPTION_POINTERS* const Pointers)
 		{
 			const auto& Record = *Pointers->ExceptionRecord;
 
@@ -1052,7 +1065,7 @@ namespace logging
 					const auto Ptr = view_as<void const*>(Record.ExceptionInformation[1]);
 					const auto Size = static_cast<size_t>(Record.ExceptionInformation[0] - 1);
 
-					debug_print_seh(Ptr, Size, IsUnicode);
+					debug_log_seh(Ptr, Size, IsUnicode);
 				}
 				break;
 			}
