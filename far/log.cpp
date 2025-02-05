@@ -1022,7 +1022,7 @@ namespace logging
 			try
 			{
 				debug_log(IsUnicode? string(debug_message<wchar_t>(Ptr, Size)) : encoding::ansi::get_chars(debug_message<char>(Ptr, Size)), Level);
-;			}
+			}
 			catch (...)
 			{
 			}
