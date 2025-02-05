@@ -476,11 +476,19 @@ namespace colors
 		return DefaultPalette;
 	}
 
+	static auto palette_nt(palette_t const& Palette)
+	{
+		return std::span(Palette).subspan(index::nt_first, index::nt_size);
+	}
+
+	static auto palette_vt(palette_t const& Palette)
+	{
+		return std::span(Palette).subspan(index::cube_first);
+	}
+
 	static uint8_t get_closest_palette_index(COLORREF const Color, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
 	{
-		const auto Skip = Palette.size() == index::nt_size? 0 : index::nt_size;
-
-		if (const auto Iterator = std::ranges::find(Palette.begin() + Skip, Palette.end(), Color); Iterator != Palette.end())
+		if (const auto Iterator = std::ranges::find(Palette, Color); Iterator != Palette.end())
 			return Iterator - Palette.begin();
 
 		if (const auto Iterator = Map.find(Color); Iterator != Map.cend())
@@ -507,7 +515,7 @@ namespace colors
 			);
 		};
 
-		return Map.try_emplace(Color, std::ranges::min_element(Palette.begin() + Skip, Palette.end(), {}, distance) - Palette.begin()).first->second;
+		return Map.try_emplace(Color, std::ranges::min_element(Palette, {}, distance) - Palette.begin()).first->second;
 	}
 
 	struct index_color_16
@@ -516,8 +524,8 @@ namespace colors
 			ForegroundIndex(Foreground),
 			BackgroundIndex(Background)
 		{
-			assert(Foreground < colors::index::nt_size);
-			assert(Background < colors::index::nt_size);
+			assert(Foreground <= colors::index::nt_last);
+			assert(Background <= colors::index::nt_last);
 		}
 
 		explicit(false) constexpr index_color_16(uint8_t const Byte) noexcept
@@ -573,9 +581,11 @@ enum class palette_type
 	vt,
 };
 
-static index_color_256 color_to_palette_index(FarColor Color, std::optional<colors_mapping> const& Last, palette_type const PaletteType, function_ref<std::span<COLORREF const>()> const PaletteGetter, std::unordered_map<COLORREF, uint8_t>& Map)
+static index_color_256 color_to_palette_index(FarColor Color, std::optional<colors_mapping> const& Last, palette_type const PaletteType, std::unordered_map<COLORREF, uint8_t>& Map)
 {
 	Color = resolve_defaults(Color);
+
+	const auto Offset = PaletteType == palette_type::nt? index::nt_first : index::cube_first;
 
 	const auto convert = [&](single_color const From, color_mapping colors_mapping::* const Getter)
 	{
@@ -591,7 +601,7 @@ static index_color_256 color_to_palette_index(FarColor Color, std::optional<colo
 		{
 			const auto CurrentIndex = index_value(From.Value);
 
-			if ((PaletteType == palette_type::nt && CurrentIndex <= index::nt_last) || (PaletteType == palette_type::vt && CurrentIndex > index::nt_last))
+			if ((PaletteType == palette_type::nt && CurrentIndex <= index::nt_last) || (PaletteType == palette_type::vt && CurrentIndex >= index::cube_first))
 				return CurrentIndex;
 
 			CurrentColorValue = ConsoleIndexToTrueColor(CurrentIndex);
@@ -601,7 +611,11 @@ static index_color_256 color_to_palette_index(FarColor Color, std::optional<colo
 			CurrentColorValue = color_value(From.Value);
 		}
 
-		return get_closest_palette_index(CurrentColorValue, PaletteGetter(), Map);
+		const auto& Palette = PaletteType == palette_type::nt?
+			palette_nt(ColorsCache.palette()) :
+			palette_vt(ColorsCache.palette());
+
+		return static_cast<uint8_t>(Offset + get_closest_palette_index(CurrentColorValue, Palette, Map));
 	};
 
 	return
@@ -636,7 +650,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	}
 	else
 	{
-		Result = color_to_palette_index(Color, Last, palette_type::nt, []{ return std::span{ ColorsCache.palette().data(), index::nt_size }; }, ColorsCache.closest_index_16());
+		Result = color_to_palette_index(Color, Last, palette_type::nt, ColorsCache.closest_index_16());
 
 		if (
 			Result.ForegroundIndex == Result.BackgroundIndex &&
@@ -669,7 +683,7 @@ index_color_256 FarColorToConsole256Color(const FarColor& Color)
 	}
 	else
 	{
-		Result = color_to_palette_index(Color, Last, palette_type::vt, []{ return std::span{ ColorsCache.palette() }; }, ColorsCache.closest_index_256());
+		Result = color_to_palette_index(Color, Last, palette_type::vt, ColorsCache.closest_index_256());
 		Last.emplace(Color, Result);
 		// This conversion is only used to select the closest color in the picker, no need to care about readability
 	}
@@ -1127,15 +1141,15 @@ TEST_CASE("colors.index_color_16")
 TEST_CASE("colors.closest_palette_index")
 {
 	{
-		const auto self_test = [](std::span<COLORREF const> const Palette, size_t const Begin)
+		const auto self_test = [](std::span<COLORREF const> const Palette)
 		{
 			// By definition, all palette colors should map into the palette as is
 			std::unordered_map<COLORREF, uint8_t> Map;
-			REQUIRE(std::ranges::all_of(Palette | std::views::drop(Begin), [&](COLORREF const& Color){ return colors::get_closest_palette_index(Color, Palette, Map) == &Color - Palette.data(); }));
+			REQUIRE(std::ranges::all_of(Palette, [&](COLORREF const& Color){ return colors::get_closest_palette_index(Color, Palette, Map) == &Color - Palette.data(); }));
 		};
 
-		self_test({ colors::DefaultPalette.data(), colors::index::nt_size }, 0);
-		self_test(colors::DefaultPalette, colors::index::nt_size);
+		self_test(colors::palette_nt(colors::DefaultPalette));
+		self_test(colors::palette_vt(colors::DefaultPalette));
 	}
 
 	static const struct
@@ -1165,8 +1179,8 @@ TEST_CASE("colors.closest_palette_index")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(colors::get_closest_palette_index(i.Color, { colors::DefaultPalette.data(), colors::index::nt_size }, Map16) == i.Index16);
-		REQUIRE(colors::get_closest_palette_index(i.Color, colors::DefaultPalette, Map256) == i.Index256);
+		REQUIRE(colors::get_closest_palette_index(i.Color, std::span(colors::DefaultPalette).subspan(colors::index::nt_first, colors::index::nt_size), Map16) + colors::index::nt_first == i.Index16);
+		REQUIRE(colors::get_closest_palette_index(i.Color, std::span(colors::DefaultPalette).subspan(colors::index::cube_first), Map256) + colors::index::cube_first == i.Index256);
 	}
 }
 #endif
