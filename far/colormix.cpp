@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
+#include "common/function_ref.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -566,7 +567,13 @@ namespace colors
 		return Result;
 	}
 
-static index_color_256 color_to_palette_index(FarColor Color, std::optional<colors_mapping> const& Last, std::span<COLORREF const> const Palette, std::unordered_map<COLORREF, uint8_t>& Map)
+enum class palette_type
+{
+	nt,
+	vt,
+};
+
+static index_color_256 color_to_palette_index(FarColor Color, std::optional<colors_mapping> const& Last, palette_type const PaletteType, function_ref<std::span<COLORREF const>()> const PaletteGetter, std::unordered_map<COLORREF, uint8_t>& Map)
 {
 	Color = resolve_defaults(Color);
 
@@ -583,9 +590,8 @@ static index_color_256 color_to_palette_index(FarColor Color, std::optional<colo
 		if (From.IsIndex)
 		{
 			const auto CurrentIndex = index_value(From.Value);
-			const auto IsNtPalette = Palette.size() == index::nt_size;
 
-			if ((IsNtPalette && CurrentIndex <= index::nt_last) || (!IsNtPalette && CurrentIndex > index::nt_last))
+			if ((PaletteType == palette_type::nt && CurrentIndex <= index::nt_last) || (PaletteType == palette_type::vt && CurrentIndex > index::nt_last))
 				return CurrentIndex;
 
 			CurrentColorValue = ConsoleIndexToTrueColor(CurrentIndex);
@@ -595,7 +601,7 @@ static index_color_256 color_to_palette_index(FarColor Color, std::optional<colo
 			CurrentColorValue = color_value(From.Value);
 		}
 
-		return get_closest_palette_index(CurrentColorValue, Palette, Map);
+		return get_closest_palette_index(CurrentColorValue, PaletteGetter(), Map);
 	};
 
 	return
@@ -630,7 +636,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	}
 	else
 	{
-		Result = color_to_palette_index(Color, Last, { ColorsCache.palette().data(), index::nt_size }, ColorsCache.closest_index_16());
+		Result = color_to_palette_index(Color, Last, palette_type::nt, []{ return std::span{ ColorsCache.palette().data(), index::nt_size }; }, ColorsCache.closest_index_16());
 
 		if (
 			Result.ForegroundIndex == Result.BackgroundIndex &&
@@ -663,7 +669,7 @@ index_color_256 FarColorToConsole256Color(const FarColor& Color)
 	}
 	else
 	{
-		Result = color_to_palette_index(Color, Last, ColorsCache.palette(), ColorsCache.closest_index_256());
+		Result = color_to_palette_index(Color, Last, palette_type::vt, []{ return std::span{ ColorsCache.palette() }; }, ColorsCache.closest_index_256());
 		Last.emplace(Color, Result);
 		// This conversion is only used to select the closest color in the picker, no need to care about readability
 	}

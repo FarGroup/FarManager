@@ -206,6 +206,9 @@ static BOOL control_handler(DWORD CtrlType)
 		return TRUE;
 
 	case CTRL_CLOSE_EVENT:
+		if (!Global)
+			return FALSE;
+
 		Global->CloseFAR = true;
 		Global->AllowCancelExit = false;
 		main_loop_process_messages();
@@ -401,6 +404,8 @@ void CloseConsole()
 	Global->ScrBuf->Flush();
 	MoveRealCursor(0, ScrY);
 	console.SetCursorInfo(InitialCursorInfo);
+
+	SetRealColor(colors::default_color());
 
 	if (InitialConsoleMode)
 	{

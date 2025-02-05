@@ -805,8 +805,6 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 	if (FarColor InitAttributes; console.GetTextAttributes(InitAttributes))
 		colors::store_default_color(InitAttributes);
 
-	SCOPE_EXIT{ console.SetTextAttributes(colors::default_color()); };
-
 	SCOPED_ACTION(global);
 
 	std::optional<elevation::suppress> NoElevationDuringBoot(std::in_place);

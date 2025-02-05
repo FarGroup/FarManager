@@ -590,7 +590,12 @@ protected:
 		// Fortunately, it seems that user input is queued before and/or after the responses,
 		// but does not interlace with them.
 
+		// We also need to disable line input, otherwise we will hang.
+		// It's usually disabled anyway, but just in case if we get here too early or too late.
 		// Are you not entertained?
+
+		const auto CurrentConsoleMode = ::console.UpdateMode(::console.GetInputHandle(), 0, ENABLE_LINE_INPUT);
+		SCOPE_EXIT{ if (CurrentConsoleMode) ::console.SetMode(::console.GetInputHandle(), *CurrentConsoleMode);};
 
 		const auto Dummy = CSI L"0c"sv;
 
