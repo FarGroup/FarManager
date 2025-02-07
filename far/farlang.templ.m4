@@ -5037,6 +5037,20 @@ MCopyMultiActions
 upd:"Process &multiple destinations"
 upd:"Process &multiple destinations"
 
+MCopySystemCopyNoBuffering
+"Обход &системного кэша для больших файлов"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+"Bypass &system cache for large files:"
+upd:"Bypass &system cache for large files:"
+
 MCopyDlgCopy
 "&Копировать"
 "&Copy"
