@@ -210,7 +210,7 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 	});
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
+SQLiteDb::SQLiteStmt const& SQLiteDb::SQLiteStmt::Reset() const
 {
 	invoke(db(), [&]{ return sqlite::sqlite3_clear_bindings(m_Stmt.get()) == SQLITE_OK; }, sql());
 
@@ -232,7 +232,6 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 	},
 	sql());
 
-	m_Param = 0;
 	return *this;
 }
 
@@ -259,29 +258,25 @@ void SQLiteDb::SQLiteStmt::Execute() const
 	sql());
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
+void SQLiteDb::SQLiteStmt::BindImpl(int const Index, int const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK;
+		return sqlite::sqlite3_bind_int(m_Stmt.get(), Index, Value) == SQLITE_OK;
 	},
 	sql());
-
-	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
+void SQLiteDb::SQLiteStmt::BindImpl(int const Index, long long const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK;
+		return sqlite::sqlite3_bind_int64(m_Stmt.get(), Index, Value) == SQLITE_OK;
 	},
 	sql());
-
-	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value)
+void SQLiteDb::SQLiteStmt::BindImpl(int const Index, string_view const Value) const
 {
 	// https://www.sqlite.org/c3ref/bind_blob.html
 	// If the third parameter to sqlite3_bind_text() or sqlite3_bind_text16() or sqlite3_bind_blob() is a NULL pointer
@@ -292,22 +287,18 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value)
 	invoke(db(), [&]
 	{
 		const auto ValueUtf8 = encoding::utf8::get_bytes(Value);
-		return sqlite::sqlite3_bind_text(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_text(m_Stmt.get(), Index, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
 	},
 	sql());
-
-	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(bytes_view const Value)
+void SQLiteDb::SQLiteStmt::BindImpl(int const Index, bytes_view const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_blob(m_Stmt.get(), Index, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK;
 	},
 	sql());
-
-	return *this;
 }
 
 sqlite::sqlite3* SQLiteDb::SQLiteStmt::db() const
@@ -595,7 +586,11 @@ void SQLiteDb::SetWALJournalingMode() const
 
 void SQLiteDb::EnableForeignKeysConstraints() const
 {
-	Exec("PRAGMA foreign_keys = ON;"sv);
+	invoke(m_Db.get(), [&]
+	{
+		int NewValue;
+		return sqlite::sqlite3_db_config(m_Db.get(), SQLITE_DBCONFIG_ENABLE_FKEY, 1, &NewValue) == SQLITE_OK && NewValue;
+	});
 }
 
 template<typename char_type>
