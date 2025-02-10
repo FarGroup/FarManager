@@ -232,6 +232,7 @@ SQLiteDb::SQLiteStmt const& SQLiteDb::SQLiteStmt::Reset() const
 	},
 	sql());
 
+	m_Param = 0;
 	return *this;
 }
 
@@ -258,25 +259,25 @@ void SQLiteDb::SQLiteStmt::Execute() const
 	sql());
 }
 
-void SQLiteDb::SQLiteStmt::BindImpl(int const Index, int const Value) const
+void SQLiteDb::SQLiteStmt::BindImpl(int const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_int(m_Stmt.get(), Index, Value) == SQLITE_OK;
+		return sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK;
 	},
 	sql());
 }
 
-void SQLiteDb::SQLiteStmt::BindImpl(int const Index, long long const Value) const
+void SQLiteDb::SQLiteStmt::BindImpl(long long const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_int64(m_Stmt.get(), Index, Value) == SQLITE_OK;
+		return sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK;
 	},
 	sql());
 }
 
-void SQLiteDb::SQLiteStmt::BindImpl(int const Index, string_view const Value) const
+void SQLiteDb::SQLiteStmt::BindImpl(string_view const Value) const
 {
 	// https://www.sqlite.org/c3ref/bind_blob.html
 	// If the third parameter to sqlite3_bind_text() or sqlite3_bind_text16() or sqlite3_bind_blob() is a NULL pointer
@@ -287,16 +288,16 @@ void SQLiteDb::SQLiteStmt::BindImpl(int const Index, string_view const Value) co
 	invoke(db(), [&]
 	{
 		const auto ValueUtf8 = encoding::utf8::get_bytes(Value);
-		return sqlite::sqlite3_bind_text(m_Stmt.get(), Index, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_text(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
 	},
 	sql());
 }
 
-void SQLiteDb::SQLiteStmt::BindImpl(int const Index, bytes_view const Value) const
+void SQLiteDb::SQLiteStmt::BindImpl(bytes_view const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_blob(m_Stmt.get(), Index, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK;
 	},
 	sql());
 }

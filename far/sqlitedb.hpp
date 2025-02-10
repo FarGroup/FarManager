@@ -114,7 +114,8 @@ protected:
 
 		auto& Bind(auto&&... Args) const
 		{
-			return Bind(std::index_sequence_for<decltype(Args)...>{}, FWD(Args)...);
+			(..., BindImpl(FWD(Args)));
+			return *this;
 		}
 
 		string GetColText(int Col) const;
@@ -125,19 +126,12 @@ protected:
 		column_type GetColType(int Col) const;
 
 	private:
-		template<size_t... I>
-		auto& Bind(std::index_sequence<I...>, auto&&... Args) const
-		{
-			(BindImpl(I + 1, FWD(Args)), ...);
-			return *this;
-		}
-
-		void BindImpl(int Index, int Value) const;
-		void BindImpl(int Index, long long Value) const;
-		void BindImpl(int Index, string_view Value) const;
-		void BindImpl(int Index, bytes_view Value) const;
-		void BindImpl(int Index, unsigned int const Value)  const { return BindImpl(Index, static_cast<int>(Value)); }
-		void BindImpl(int Index, unsigned long long const Value) const { return BindImpl(Index, static_cast<long long>(Value)); }
+		void BindImpl(int Value) const;
+		void BindImpl(long long Value) const;
+		void BindImpl(string_view Value) const;
+		void BindImpl(bytes_view Value) const;
+		void BindImpl(unsigned int const Value)  const { return BindImpl(static_cast<int>(Value)); }
+		void BindImpl(unsigned long long const Value) const { return BindImpl(static_cast<long long>(Value)); }
 
 		sqlite::sqlite3* db() const;
 
@@ -146,6 +140,7 @@ protected:
 
 		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const noexcept; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
+		mutable int m_Param{};
 	};
 
 	struct statement_reset
