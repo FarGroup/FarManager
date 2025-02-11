@@ -552,7 +552,7 @@ namespace colors
 
 		// COMMON_LVB_REVERSE_VIDEO is a better way, but it only works on Windows 10.
 		// Manual swap works everywhere.
-		if (Flags & FCF_FG_INVERSE)
+		if (Flags & FCF_INVERSE)
 		{
 			const auto Tmp = Color.ForegroundIndex;
 			Color.ForegroundIndex = Color.BackgroundIndex;
@@ -843,7 +843,7 @@ const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_STRIKEOUT,       L"strikeout"sv    },
 	{ FCF_FG_FAINT,           L"faint"sv        },
 	{ FCF_FG_BLINK,           L"blink"sv        },
-	{ FCF_FG_INVERSE,         L"inverse"sv      },
+	{ FCF_INVERSE,            L"inverse"sv      },
 	{ FCF_FG_INVISIBLE,       L"invisible"sv    },
 };
 

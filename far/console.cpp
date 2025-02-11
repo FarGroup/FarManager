@@ -1433,7 +1433,7 @@ protected:
 		{ FCF_FG_STRIKEOUT,    L"9"sv,     L"29"sv },
 		{ FCF_FG_FAINT,        L"2"sv,     L"22"sv },
 		{ FCF_FG_BLINK,        L"5"sv,     L"25"sv },
-		{ FCF_FG_INVERSE,      L"7"sv,     L"27"sv },
+		{ FCF_INVERSE,         L"7"sv,     L"27"sv },
 		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
 	};
 
@@ -1510,7 +1510,7 @@ protected:
 					Style |= FCF_FG_OVERLINE;
 
 				if (Color.Flags & COMMON_LVB_REVERSE_VIDEO)
-					Style |= FCF_FG_INVERSE;
+					Style |= FCF_INVERSE;
 
 				if (Color.Flags & COMMON_LVB_UNDERSCORE && UnderlineStyle == UNDERLINE_STYLE::UNDERLINE_NONE)
 					UnderlineStyle = UNDERLINE_STYLE::UNDERLINE_SINGLE;

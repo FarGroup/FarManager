@@ -232,7 +232,7 @@ static const std::pair<cd::controls, FARCOLORFLAGS> StyleMapping[]
 	{ cd::style_checkbox_strikeout,   FCF_FG_STRIKEOUT   },
 	{ cd::style_checkbox_faint,       FCF_FG_FAINT       },
 	{ cd::style_checkbox_blink,       FCF_FG_BLINK       },
-	{ cd::style_checkbox_inverse,     FCF_FG_INVERSE     },
+	{ cd::style_checkbox_inverse,     FCF_INVERSE        },
 	{ cd::style_checkbox_invisible,   FCF_FG_INVISIBLE   },
 };
 
@@ -290,7 +290,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 		{
 			auto Color = colors::default_color();
 			if (Offset != cd::bg_first)
-				Color.Flags |= FCF_FG_INVERSE;
+				Color.Flags |= FCF_INVERSE;
 
 			return Color;
 		}
