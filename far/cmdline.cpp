@@ -857,15 +857,16 @@ void CommandLine::ShowViewEditHistory()
 	case HRT_ENTER:
 	case HRT_SHIFTENTER:
 		{
+			const auto DisableHistory = SelectType == HRT_SHIFTENTER;
 			auto Suppressor = Global->CtrlObject->ViewHistory->suppressor();
-			if (SelectType != HRT_SHIFTENTER)
+			if (DisableHistory)
 				Suppressor.reset();
 
 			switch (Type)
 			{
 				case HR_VIEWER:
 				{
-					FileViewer::create(strStr, true);
+					FileViewer::create(strStr, true, DisableHistory);
 					break;
 				}
 
@@ -876,7 +877,7 @@ void CommandLine::ShowViewEditHistory()
 					const auto FEdit = FileEditor::create(
 						strStr,
 						CP_DEFAULT,
-						FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6 | (Type == HR_EDITOR_RO? FFILEEDIT_LOCKED : 0)
+						FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6 | (Type == HR_EDITOR_RO? FFILEEDIT_LOCKED : 0) | (DisableHistory? FFILEEDIT_DISABLEHISTORY : 0)
 					);
 
 					break;
