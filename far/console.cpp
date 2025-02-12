@@ -1488,7 +1488,7 @@ protected:
 	static void make_vt_attributes(const FarColor& Color, string& Str, FarColor const& LastColor)
 	{
 		using colors::single_color;
-		const auto StyleMaskWithoutUnderline = FCF_STYLEMASK & ~FCF_FG_UNDERLINE_MASK;
+		const auto StyleMaskWithoutUnderline = FCF_STYLE_MASK & ~FCF_FG_UNDERLINE_MASK;
 
 		struct expanded_state
 		{

@@ -375,7 +375,7 @@ namespace colors
 
 		if (Top.Flags & FCF_INHERIT_STYLE)
 		{
-			constexpr auto StyleMaskWithoutUnderline = FCF_STYLEMASK & ~FCF_FG_UNDERLINE_MASK;
+			constexpr auto StyleMaskWithoutUnderline = FCF_STYLE_MASK & ~FCF_FG_UNDERLINE_MASK;
 			flags::set(Result.Flags, Top.Flags & StyleMaskWithoutUnderline);
 
 			if (const auto TopUnderline = Top.GetUnderline(); TopUnderline != UNDERLINE_NONE)
@@ -383,7 +383,7 @@ namespace colors
 		}
 		else
 		{
-			flags::copy(Result.Flags, FCF_STYLEMASK, Top.Flags);
+			flags::copy(Result.Flags, FCF_STYLE_MASK, Top.Flags);
 			flags::clear(Result.Flags, FCF_INHERIT_STYLE);
 		}
 
@@ -752,7 +752,7 @@ static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS&
 
 static bool ExtractStyle(string_view const Str, FARCOLORFLAGS& TargetFlags)
 {
-	const auto Flags = ColorStringToFlags(Str) & FCF_STYLEMASK;
+	const auto Flags = ColorStringToFlags(Str) & FCF_STYLE_MASK;
 	if (!Flags)
 		return false;
 
