@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-02-12 21:01:13+00:00 - build 6439
+
+1. Make puristic compilers happy.
+
+--------------------------------------------------------------------------------
 drkns 2025-02-12 19:48:48+00:00 - build 6438
 
 1. gh-909: Alpha-channel and FCF_INHERIT_STYLE should be applied to filepanel cursor.

@@ -136,7 +136,9 @@ struct color_item
 	PaletteColors Color;
 	// libc++ decided to follow the standard literally and prohibit incomplete types in spans :(
 	color_item_span SubColor;
-	PaletteColors const* BottomColor;
+	// Puristic compilers don't accept pointers to incomplete types in constexpr
+	// 1-based, 0 means none
+	size_t BottomColorIndex1Based;
 };
 
 constexpr color_item_span::operator std::span<color_item const>() const
@@ -167,7 +169,9 @@ static void SetItemColors(std::span<const color_item> const Items, point Positio
 		}
 		else
 		{
-			ChangeColor(Items[ItemsCode].Color, Items[ItemsCode].BottomColor);
+			const auto BottomColorIndex = Items[ItemsCode].BottomColorIndex1Based;
+			const auto BottomColor = BottomColorIndex? &Items[BottomColorIndex - 1].Color : nullptr;
+			ChangeColor(Items[ItemsCode].Color, BottomColor);
 		}
 
 		return 1;
@@ -193,8 +197,8 @@ void SetColors()
 		{ lng::MSetColorPanelHighlightedInfo,       COL_PANELINFOTEXT },
 		{ lng::MSetColorPanelDragging,              COL_PANELDRAGTEXT },
 		{ lng::MSetColorPanelBox,                   COL_PANELBOX },
-		{ lng::MSetColorPanelNormalCursor,          COL_PANELCURSOR, {}, &PanelItems[0].Color },
-		{ lng::MSetColorPanelSelectedCursor,        COL_PANELSELECTEDCURSOR, {}, &PanelItems[1].Color },
+		{ lng::MSetColorPanelNormalCursor,          COL_PANELCURSOR, {}, 1 + 0 },
+		{ lng::MSetColorPanelSelectedCursor,        COL_PANELSELECTEDCURSOR, {}, 1 + 1 },
 		{ lng::MSetColorPanelNormalTitle,           COL_PANELTITLE },
 		{ lng::MSetColorPanelSelectedTitle,         COL_PANELSELECTEDTITLE },
 		{ lng::MSetColorPanelColumnTitle,           COL_PANELCOLUMNTITLE },
@@ -379,7 +383,7 @@ void SetColors()
 	EditorItems[]
 	{
 		{ lng::MSetColorEditorNormal,                 COL_EDITORTEXT },
-		{ lng::MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT, {}, &EditorItems[0].Color },
+		{ lng::MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT, {}, 1 + 0 },
 		{ lng::MSetColorEditorStatus,                 COL_EDITORSTATUS },
 		{ lng::MSetColorEditorScrollbar,              COL_EDITORSCROLLBAR },
 	},
