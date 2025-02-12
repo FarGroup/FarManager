@@ -369,6 +369,10 @@ void highlight::configuration::ApplyFinalColor(element::colors_array::value_type
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
+	// Cursor lies on top of text and can inherit its color
+	if (ColorIndex >= color::normal_current)
+		PaletteColor = colors::merge(color::ToFarColor(static_cast<color::index>(ColorIndex - color::normal_current)), PaletteColor);
+
 	Colors.FileColor = colors::merge(PaletteColor, Colors.FileColor);
 	Colors.MarkColor = colors::merge(Colors.FileColor, Colors.MarkColor);
 

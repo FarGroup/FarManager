@@ -8101,6 +8101,10 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 	if (!HighlightingEnabled || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
 	{
 		ColorAttr = highlight::color::ToFarColor(ColorIndex);
+
+		// Cursor lies on top of text and can inherit its color
+		if (ColorIndex >= highlight::color::normal_current)
+			ColorAttr = colors::merge(highlight::color::ToFarColor(static_cast<highlight::color::index>(ColorIndex - highlight::color::normal_current)), ColorAttr);
 	}
 
 	return ColorAttr;
