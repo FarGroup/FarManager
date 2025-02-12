@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6437.0
+Plugin API for Far Manager 3.0.6438.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6437
+#define FARMANAGERVERSION_BUILD 6438
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -108,9 +108,9 @@ FAR_INLINE_CONSTANT FARCOLORFLAGS
 	FCF_FG_INVISIBLE       = 0x0020000000000000ULL,
 	FCF_FG_U_DATA2         = 0x0040000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
 
-	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL,  // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
+	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL, // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
 
-	FCF_STYLEMASK          = 0xFFF0000000000000ULL,
+	FCF_STYLE_MASK         = 0xFFF0000000000000ULL,
 
 	FCF_NONE               = 0;
 
