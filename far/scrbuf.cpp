@@ -342,6 +342,8 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 			invalidate_broken_pairs_in_cache(Buf, Shadow, Where, Point);
 	});
 
+	SBFlags.Clear(SBFLAGS_FLUSHED);
+
 	debug_flush();
 }
 
@@ -365,6 +367,8 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color)
 		if (CharWidthEnabled)
 			invalidate_broken_pairs_in_cache(Buf, Shadow, Where, Point);
 	});
+
+	SBFlags.Clear(SBFLAGS_FLUSHED);
 
 	debug_flush();
 }
