@@ -66,8 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const BottomPaletteIndex)
 {
-	auto NewColor = Global->Opt->Palette[PaletteIndex];
-	const auto BottomColor = BottomPaletteIndex? &Global->Opt->Palette[*BottomPaletteIndex] : nullptr;
+	auto NewColor = colors::PaletteColorToFarColor(PaletteIndex);
+	const auto BottomColor = BottomPaletteIndex? &colors::PaletteColorToFarColor(*BottomPaletteIndex) : nullptr;
 
 	auto Reset = false;
 

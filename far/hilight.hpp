@@ -58,7 +58,7 @@ namespace highlight
 {
 	struct color
 	{
-		enum
+		enum index
 		{
 			normal,
 			selected,
@@ -67,6 +67,8 @@ namespace highlight
 
 			count
 		};
+
+		static FarColor const& ToFarColor(index Index);
 	};
 
 	class element
@@ -110,7 +112,7 @@ namespace highlight
 		void UpdateHighlighting(bool RefreshMasks = false);
 		void Save(bool Always);
 
-		static void ApplyFinalColor(element::colors_array::value_type& Colors, size_t PaletteIndex);
+		static void ApplyFinalColor(element::colors_array::value_type& Colors, color::index ColorIndex);
 
 	private:
 		void Load(/*const*/ HierarchicalConfig& cfg);

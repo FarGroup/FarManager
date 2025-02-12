@@ -207,6 +207,19 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 	}
 }
 
+FarColor const& highlight::color::ToFarColor(index const Index)
+{
+	static constexpr PaletteColors PalColor[]
+	{
+		COL_PANELTEXT,
+		COL_PANELSELECTEDTEXT,
+		COL_PANELCURSOR,
+		COL_PANELSELECTEDCURSOR
+	};
+
+	return colors::PaletteColorToFarColor(PalColor[Index]);
+}
+
 highlight::element::colors::colors():
 	FileColor(DefaultColor),
 	MarkColor(DefaultColor)
@@ -301,7 +314,7 @@ void highlight::configuration::ClearData()
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 }
 
-static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, DWORD PaletteColor)
+static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, FarColor const& PaletteColor)
 {
 	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
@@ -317,22 +330,14 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 		Color = colors::merge(Base, Color);
 	};
 
-	InheritColor(Colors.FileColor, Global->Opt->Palette[PaletteColor]);
+	InheritColor(Colors.FileColor, PaletteColor);
 	InheritColor(Colors.MarkColor, Colors.FileColor);
 }
 
-static const DWORD PalColor[]
-{
-	COL_PANELTEXT,
-	COL_PANELSELECTEDTEXT,
-	COL_PANELCURSOR,
-	COL_PANELSELECTEDCURSOR
-};
-
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
 {
-	for (const auto& [Color, Index]: zip(Colors, PalColor))
-		ApplyBlackOnBlackColor(Color, Index);
+	for (auto& Color: Colors)
+		ApplyBlackOnBlackColor(Color, highlight::color::ToFarColor(static_cast<highlight::color::index>(&Color - Colors.data())));
 }
 
 static void ApplyColors(highlight::element& DestColors, const highlight::element& Src)
@@ -357,14 +362,14 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	}
 }
 
-void highlight::configuration::ApplyFinalColor(element::colors_array::value_type& Colors, size_t PaletteIndex)
+void highlight::configuration::ApplyFinalColor(element::colors_array::value_type& Colors, color::index const ColorIndex)
 {
-	const auto PaletteColor = PalColor[PaletteIndex];
+	auto PaletteColor = color::ToFarColor(ColorIndex);
 
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
-	Colors.FileColor = colors::merge(Global->Opt->Palette[PaletteColor], Colors.FileColor);
+	Colors.FileColor = colors::merge(PaletteColor, Colors.FileColor);
 	Colors.MarkColor = colors::merge(Colors.FileColor, Colors.MarkColor);
 
 	//Паранойя но случится может:
@@ -538,12 +543,10 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 
 void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorExample, const highlight::element &Colors)
 {
-	const size_t ColorIndices[]{ highlight::color::normal, highlight::color::selected, highlight::color::normal_current, highlight::color::selected_current };
-
-	for (const auto& [ColorRef, Index, Row]: zip(Colors.Color, ColorIndices, VBufColorExample))
+	for (const auto& [ColorRef, Index, Row]: zip(Colors.Color, std::views::iota(0, highlight::color::count), VBufColorExample))
 	{
 		auto BakedColor = ColorRef;
-		highlight::configuration::ApplyFinalColor(BakedColor, Index);
+		highlight::configuration::ApplyFinalColor(BakedColor, static_cast<highlight::color::index>(Index));
 
 		Row.front() = { BoxSymbols[BS_V2], {}, {}, colors::PaletteColorToFarColor(COL_PANELBOX) };
 

@@ -92,11 +92,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "color_picker.hpp"
 #include "log.hpp"
 #include "filestr.hpp"
+#include "colormix.hpp"
 
 // Platform:
 #include "platform.hpp"
 #include "platform.fs.hpp"
-#include "platform.process.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
@@ -492,9 +492,9 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			Return - TRUE если OK или FALSE если индекс неверен.
 		*/
 		case ACTL_GETCOLOR:
-			if (static_cast<size_t>(Param1) < Global->Opt->Palette.size())
+			if (static_cast<size_t>(Param1) < COL_LASTPALETTECOLOR)
 			{
-				*static_cast<FarColor*>(Param2) = Global->Opt->Palette[static_cast<size_t>(Param1)];
+				*static_cast<FarColor*>(Param2) = colors::PaletteColorToFarColor(static_cast<PaletteColors>(Param1));
 				return TRUE;
 			}
 			return FALSE;
