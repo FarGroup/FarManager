@@ -48,6 +48,11 @@ constexpr lng operator+(lng Id, std::integral auto Shift)
 	return static_cast<lng>(std::to_underlying(Id) + Shift);
 }
 
+constexpr int operator-(lng const Id1, lng const Id2)
+{
+	return std::to_underlying(Id1) - std::to_underlying(Id2);
+}
+
 inline lng operator++(lng& Id, int)
 {
 	const auto Value = Id;
