@@ -1335,7 +1335,7 @@ lv=3
 dt=Text
 nm=mainmenu
 ctime=3923469785
-mtime=3941473241
+mtime=3948699108
 <article>
 #_mf.mainmenu (Param)
 #_
@@ -1347,7 +1347,7 @@ mtime=3941473241
 #_
 #_**Wartości parametru:**
 #_  "fileassociations" : wywołuje menu "Powiązania plików (File associations)"
-#_  "filehighlighting" : wywołuje menu "Wyróżnianie plików i sortowanie grup (Files highlighting and sort groups)"
+#_  "filehighlight"    : wywołuje menu "Wyróżnianie plików i sortowanie grup (Files highlighting and sort groups)"
 #_  "filemaskgroups"   : wywołuje menu "Grupy masek plików (Groups of file masks)"
 #_  "filepanelmodes"   : wywołuje menu "Tryby panelu plików (File panel mode)"
 #_  "foldershortcuts"  : wywołuje menu "Skróty folderów (Folder shortcuts)"
