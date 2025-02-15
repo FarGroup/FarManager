@@ -758,12 +758,12 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 			const auto IsMarkColor = ((Param1 - ID_HER_NORMALFILE) & 1) != 0;
 			const auto ColorIndex = static_cast<highlight::color::index>((Param1 - ID_HER_NORMALFILE) / 2);
-			auto& ColorEntry = Context.Colors->Color[ColorIndex];
 
-			auto BaseColor = ColorEntry;
-			highlight::configuration::ApplyFinalColor(BaseColor, ColorIndex);
+			auto& Colors = Context.Colors->Color;
+			auto BaseColors = Colors;
+			highlight::configuration::ApplyFinalColor(BaseColors, ColorIndex);
 
-			if (GetColorDialog(IsMarkColor? ColorEntry.MarkColor : ColorEntry.FileColor, true, IsMarkColor? &BaseColor.MarkColor : &BaseColor.MarkColor))
+			if (GetColorDialog(IsMarkColor? Colors[ColorIndex].MarkColor : Colors[ColorIndex].FileColor, true, IsMarkColor? &BaseColors[ColorIndex].MarkColor : &BaseColors[ColorIndex].MarkColor))
 				Dlg->SendMessage(DM_REFRESHCOLORS, 0, nullptr);
 		}
 

@@ -8064,10 +8064,8 @@ void FileList::ShowFileList(bool Fast)
 
 FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
-	auto ColorAttr = colors::PaletteColorToFarColor(COL_PANELTEXT);
-
 	if (static_cast<size_t>(Position) >= data_size())
-		return ColorAttr;
+		return colors::PaletteColorToFarColor(COL_PANELTEXT);
 
 	const auto DataLock = lock_data();
 	const auto& m_ListData = *DataLock;
@@ -8083,9 +8081,7 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 		ColorIndex = highlight::color::selected;
 	}
 
-	const auto HighlightingEnabled = Global->Opt->Highlight && (m_PanelMode != panel_mode::PLUGIN_PANEL || !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEHIGHLIGHTING));
-
-	if (HighlightingEnabled)
+	if (Global->Opt->Highlight && (m_PanelMode != panel_mode::PLUGIN_PANEL || !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEHIGHLIGHTING)))
 	{
 		if (!m_ListData[Position].Colors)
 		{
@@ -8093,19 +8089,14 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 			m_ListData[Position].Colors = Global->CtrlObject->HiFiles->GetHiColor(m_ListData[Position], this, UseAttrHighlighting);
 		}
 
-		auto Colors = m_ListData[Position].Colors->Color[ColorIndex];
+		auto Colors = m_ListData[Position].Colors->Color;
 		highlight::configuration::ApplyFinalColor(Colors, ColorIndex);
-		ColorAttr = FileColor ? Colors.FileColor : Colors.MarkColor;
+		return FileColor? Colors[ColorIndex].FileColor : Colors[ColorIndex].MarkColor;
 	}
 
-	if (!HighlightingEnabled || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
-	{
-		ColorAttr = highlight::color::ToFarColor(ColorIndex);
-
-		highlight::configuration::ApplyFinalColor(ColorAttr, ColorIndex);
-	}
-
-	return ColorAttr;
+	FarColor Result{};
+	highlight::configuration::InheritPaletteColor(Result, ColorIndex);
+	return Result;
 }
 
 void FileList::SetShowColor(int Position, bool FileColor) const

@@ -112,8 +112,8 @@ namespace highlight
 		void UpdateHighlighting(bool RefreshMasks = false);
 		void Save(bool Always);
 
-		static void ApplyFinalColor(FarColor& Color, color::index ColorIndex);
-		static void ApplyFinalColor(element::colors_array::value_type& Colors, color::index ColorIndex);
+		static void InheritPaletteColor(FarColor& Color, color::index ColorIndex);
+		static void ApplyFinalColor(element::colors_array& Colors, color::index ColorIndex);
 
 	private:
 		void Load(/*const*/ HierarchicalConfig& cfg);
