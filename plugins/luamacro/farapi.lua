@@ -3,47 +3,149 @@ ffi.cdef [[
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3674
+  Plugin API for Far Manager 3.0 build 6440
 */
 
 enum {
   FARMANAGERVERSION_MAJOR =    3,
   FARMANAGERVERSION_MINOR =    0,
   FARMANAGERVERSION_REVISION = 0,
-  FARMANAGERVERSION_BUILD = 3674,
+  FARMANAGERVERSION_BUILD = 6440,
 };
 
 enum {
-  CP_UNICODE    = 1200,
-  CP_REVERSEBOM = 1201,
-  CP_DEFAULT    = -1,
-  CP_REDETECT   = -2,
+  CP_UTF16LE  = 1200,
+  CP_UTF16BE  = 1201,
+  CP_DEFAULT  = -1,
+  CP_REDETECT = -2,
 };
+
+/*
+enum UNDERLINE_STYLE
+{
+	UNDERLINE_NONE   = 0,
+	UNDERLINE_SINGLE = 1,
+	UNDERLINE_DOUBLE = 2,
+	UNDERLINE_CURLY  = 3,
+	UNDERLINE_DOT    = 4,
+	UNDERLINE_DASH   = 5,
+};
+*/
 
 typedef unsigned __int64 FARCOLORFLAGS;
 
 /*@
 static const FARCOLORFLAGS
-	FCF_FG_4BIT       = 0x0000000000000001ULL,
-	FCF_BG_4BIT       = 0x0000000000000002ULL,
-	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT|FCF_BG_4BIT
+	FCF_FG_INDEX           = 0x0000000000000001ULL,
+	FCF_BG_INDEX           = 0x0000000000000002ULL,
+	FCF_FG_UNDERLINE_INDEX = 0x0000000000000008ULL,
+	FCF_INDEXMASK          = 0x000000000000000BULL, // FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_UNDERLINE_INDEX
 
-	FCF_EXTENDEDFLAGS = 0xFFFFFFFFFFFFFFFCULL, // ~FCF_4BITMASK
+	// Legacy names, don't use
+	FCF_FG_4BIT            = 0x0000000000000001ULL, // FCF_FG_INDEX
+	FCF_BG_4BIT            = 0x0000000000000002ULL, // FCF_BG_INDEX
+	FCF_4BITMASK           = 0x000000000000000BULL, // FCF_INDEXMASK
 
-	FCF_FG_BOLD       = 0x1000000000000000ULL,
-	FCF_FG_ITALIC     = 0x2000000000000000ULL,
-	FCF_FG_UNDERLINE  = 0x4000000000000000ULL,
-	FCF_STYLEMASK     = 0x7000000000000000ULL, // FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE
+	FCF_INHERIT_STYLE      = 0x0000000000000004ULL,
 
-	FCF_NONE          = 0;
+	FCF_RAWATTR_MASK       = 0x000000000000FF00ULL, // stored console attributes
+
+	FCF_FG_BOLD            = 0x1000000000000000ULL,
+	FCF_FG_ITALIC          = 0x2000000000000000ULL,
+	FCF_FG_U_DATA0         = 0x4000000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
+	FCF_FG_U_DATA1         = 0x8000000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
+	FCF_FG_OVERLINE        = 0x0100000000000000ULL,
+	FCF_FG_STRIKEOUT       = 0x0200000000000000ULL,
+	FCF_FG_FAINT           = 0x0400000000000000ULL,
+	FCF_FG_BLINK           = 0x0800000000000000ULL,
+	FCF_INVERSE            = 0x0010000000000000ULL,
+	FCF_FG_INVISIBLE       = 0x0020000000000000ULL,
+	FCF_FG_U_DATA2         = 0x0040000000000000ULL, // This is not a style flag, but a storage for one of 5 underline styles
+
+	FCF_FG_UNDERLINE_MASK  = 0xC040000000000000ULL, // FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2,
+
+	FCF_STYLE_MASK         = 0xFFF0000000000000ULL,
+
+	FCF_NONE               = 0;
 */
+
+struct rgba
+{
+	unsigned char
+		r,
+		g,
+		b,
+		a;
+};
+
+struct color_index
+{
+	unsigned char
+		i,
+		reserved0,
+		reserved1,
+		a;
+};
 
 struct FarColor
 {
-	FARCOLORFLAGS Flags;
-	COLORREF ForegroundColor;
-	COLORREF BackgroundColor;
-	void* Reserved;
+	union
+	{
+		COLORREF ForegroundColor;
+		struct color_index ForegroundIndex;
+		struct rgba ForegroundRGBA;
+	} Foreground;
+	union
+	{
+		COLORREF BackgroundColor;
+		struct color_index BackgroundIndex;
+		struct rgba BackgroundRGBA;
+	} Background;
+	union
+	{
+		COLORREF UnderlineColor;
+		struct color_index UnderlineIndex;
+		struct rgba UnderlineRGBA;
+	} Underline;
+	DWORD Reserved;
+/*
+	FarColor& SetUnderline(UNDERLINE_STYLE UnderlineStyle)
+	{
+		Flags &= ~FCF_FG_UNDERLINE_MASK;
+
+		switch (UnderlineStyle)
+		{
+		default:
+		case UNDERLINE_NONE:
+			break;
+
+		case UNDERLINE_SINGLE:
+			Flags |= FCF_FG_U_DATA0;
+			break;
+
+		case UNDERLINE_DOUBLE:
+			Flags |= FCF_FG_U_DATA1;
+			break;
+
+		case UNDERLINE_CURLY:
+			Flags |= FCF_FG_U_DATA1 | FCF_FG_U_DATA0;
+			break;
+
+		case UNDERLINE_DOT:
+			Flags |= FCF_FG_U_DATA2;
+			break;
+
+		case UNDERLINE_DASH:
+			Flags |= FCF_FG_U_DATA2 | FCF_FG_U_DATA0;
+			break;
+
+		// We still have space for 2 styles (21 and 210)
+		}
+
+		return *this;
+	}
+
+*/
 };
 
 enum {
@@ -176,6 +278,7 @@ static const /*FARDIALOGITEMFLAGS*/ uint32_t
 //@	DIF_FOCUS                 = 0x0000000200000000,
 //@	DIF_RIGHTTEXT             = 0x0000000400000000,
 //@	DIF_WORDWRAP              = 0x0000000800000000,
+//@	DIF_HOMEITEM              = 0x0000002000000000,
 	DIF_NONE                  = 0;
 
 enum FARMESSAGE
@@ -426,7 +529,9 @@ struct FarDialogItemColors
 
 struct FAR_CHAR_INFO
 {
-	WCHAR Char;
+	wchar_t Char;
+	wchar_t Reserved0;
+	int Reserved1;
 	struct FarColor Attributes;
 };
 
@@ -1306,6 +1411,7 @@ enum DIALOG_EVENTS
 enum SYNCHRO_EVENTS
 {
 	SE_COMMONSYNCHRO  =0,
+	SE_FOLDERCHANGED  =1,
 };
 
 //@ #define EEREDRAW_ALL    (void*)0
@@ -1663,6 +1769,7 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 	RECTL_MATCHEX                   = 4,
 	RECTL_SEARCHEX                  = 5,
 	RECTL_BRACKETSCOUNT             = 6,
+	RECTL_NAMEDGROUPINDEX           = 7,
 };
 
 struct RegExpMatch
@@ -1998,10 +2105,19 @@ static const FARFORMATFILESIZEFLAGS
 	FFFS_ECONOMIC               = 0x0800000000000000LL,
 	FFFS_THOUSAND               = 0x1000000000000000LL,
 	FFFS_MINSIZEINDEX           = 0x2000000000000000LL,
-	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000003LL;
+	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000007LL;
+	FFFS_NONE                   = 0;
 */
 
 typedef size_t (__stdcall *FARFORMATFILESIZE)(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
+
+struct DetectCodePageInfo
+{
+	size_t StructSize;
+	const wchar_t* FileName;
+};
+
+typedef uintptr_t (__stdcall *FARSTDDETECTCODEPAGE)(struct DetectCodePageInfo* Info);
 
 typedef struct FarStandardFunctions
 {
@@ -2061,6 +2177,7 @@ typedef struct FarStandardFunctions
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
 	FARSTDCOMPARESTRINGS       CompareStrings;
+	FARSTDDETECTCODEPAGE       DetectCodePage;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
@@ -2194,7 +2311,7 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
 {
-	struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
+	const struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
 	return Info;
 }
 
@@ -2280,6 +2397,11 @@ static const /*OPENPANELINFO_FLAGS*/ uint32_t
 	OPIF_USECRC32                = 0x0000000000010000,
 	OPIF_USEFREESIZE             = 0x0000000000020000,
 	OPIF_SHORTCUT                = 0x0000000000040000,
+	//
+	OPIF_RECURSIVEPANEL          = 0x0000000000080000,
+	OPIF_DELETEFILEONCLOSE       = 0x0000000000100000,
+	OPIF_DELETEDIRONCLOSE        = 0x0000000000200000,
+	//
 	OPIF_NONE                    = 0;
 
 struct KeyBarLabel
@@ -2419,16 +2541,22 @@ enum MACROCALLTYPE
 
 enum MACROPLUGINRETURNTYPE
 {
-	MPRT_NORMALFINISH  = 0,
-	MPRT_ERRORFINISH   = 1,
-	MPRT_ERRORPARSE    = 2,
-	MPRT_KEYS          = 3,
-	MPRT_PRINT         = 4,
-	MPRT_PLUGINCALL    = 5,
-	MPRT_PLUGINMENU    = 6,
-	MPRT_PLUGINCONFIG  = 7,
-	MPRT_PLUGINCOMMAND = 8,
-	MPRT_USERMENU      = 9,
+	MPRT_NORMALFINISH     = 0,
+	MPRT_ERRORFINISH      = 1,
+	MPRT_ERRORPARSE       = 2,
+	MPRT_KEYS             = 3,
+	MPRT_PRINT            = 4,
+	MPRT_PLUGINCALL       = 5,
+	MPRT_PLUGINMENU       = 6,
+	MPRT_PLUGINCONFIG     = 7,
+	MPRT_PLUGINCOMMAND    = 8,
+	MPRT_USERMENU         = 9,
+	MPRT_HASNOMACRO       = 10,
+	MPRT_FILEASSOCIATIONS = 11,
+	MPRT_FILEHIGHLIGHT    = 12,
+	MPRT_FILEPANELMODES   = 13,
+	MPRT_FOLDERSHORTCUTS  = 14,
+	MPRT_FILEMASKGROUPS   = 15,
 };
 
 struct OpenMacroPluginInfo
