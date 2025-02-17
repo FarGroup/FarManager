@@ -579,10 +579,10 @@
          <tr><td>strpad("Foo",10,"*",2)</td><td><code>'***Foo****'</code></td></tr>
          <tr><td>strpad("",10,"-*-",2)</td><td><code>'-*--*--*--'</code></td></tr>
          <tr><td>strpad(,10,"-*-")</td><td><code>'-*--*--*--'</code></td></tr>
-         <tr><td>strpad("Foo",10)</td><td><code>'Foo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10)</td><td><code class="pre">'Foo       '</code></td></tr>
          <tr><td>strpad("Foo",10,"-")</td><td><code>'Foo-------'</code></td></tr>
-         <tr><td>strpad("Foo",10,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
-         <tr><td>strpad("Foo",10,,2)</td><td><code>'&nbsp;&nbsp;&nbsp;Foo&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10,,1)</td><td><code class="pre">'       Foo'</code></td></tr>
+         <tr><td>strpad("Foo",10,,2)</td><td><code class="pre">'   Foo    '</code></td></tr>
          <tr><td>strpad("Foo",10,"1234567890",2)</td><td><code>'123Foo1234'</code></td></tr>
       </table>
 
@@ -848,7 +848,7 @@
       </table>
       Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную строку <code><span class="nobr">"%a %b %d %H:%M:%S %Z %Y"</span></code> (см.).
       <!--Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную
-      строку "%a&nbsp;%b&nbsp;%d&nbsp;%H:%M:%S&nbsp;%Z&nbsp;%Y" (см.).-->
+      строку "%a %b %d %H:%M:%S %Z %Y" (см.).-->
       </td>
   </tr>
 </table>
@@ -1031,7 +1031,7 @@
            <tr><td>0x00000002</td><td>Используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
            <tr><td>0x00000004</td><td>После успешного ввода, в результирующем значении <var>S</var> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '%TEMP%', то результат будет содержать 'C:\TEMP'.</td></tr>
            <tr><td>0x00000008</td><td>Не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <var>History</var>.</td></tr>
-           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp>[&nbsp;Ok&nbsp;]</samp> и <samp>[&nbsp;Cancel&nbsp;]</samp>.
+           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp class="pre nobr">[ Ok ]</samp> и <samp class="pre nobr">[ Cancel ]</samp>.
                                       Диалог увеличится на 2 строки.</p></td></tr>
            <tr><td>0x00000020</td><td>Не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
        </table>
