@@ -37,30 +37,30 @@ intptr_t WINAPI PanelControl(
   <div class=dfn>Command</div>
     <div class=dfndescr>Тип команды. Может быть следующим <a name="FILE_CONTROL_COMMANDS">FILE_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Команда</th><th>Описание</th></tr>
       <!-- панельные -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Панель</b></th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CHECKPANELSEXIST">FCTL_CHECKPANELSEXIST</a></td>
-    <td class="cont" width="60%">Проверить доступность панелей.<br>
+    <tr><th colspan="2"><b>Панель</b></th></tr>
+    <tr><td><a name="FCTL_CHECKPANELSEXIST">FCTL_CHECKPANELSEXIST</a></td>
+    <td>Проверить доступность панелей.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
     <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!<br><br></p>
     <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
-    <td class="cont" width="60%">Проверяет, является ли панель активной.<br>
+    <tr><td><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
+    <td>Проверяет, является ли панель активной.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если панель неактивна.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLOSEPANEL">FCTL_CLOSEPANEL</a></td>
-    <td class="cont" width="60%">Закрыть текущую панель плагина.<br>
+    <tr><td><a name="FCTL_CLOSEPANEL">FCTL_CLOSEPANEL</a></td>
+    <td>Закрыть текущую панель плагина.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на имя каталога, который будет показан в панели после закрытия.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELINFO">FCTL_GETPANELINFO</a></td>
-    <td class="cont" width="60%">Получить общую информацию о панели.<br>
+    <tr><td><a name="FCTL_GETPANELINFO">FCTL_GETPANELINFO</a></td>
+    <td>Получить общую информацию о панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/panelinfo.html">PanelInfo</a>, которая получит информацию о панели.<br>
     <p>В процессе исполнения запроса <pre class=code>Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&amp;PInfo);</pre>
@@ -70,40 +70,40 @@ intptr_t WINAPI PanelControl(
     <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt</kbd>+<kbd>F7</kbd>) физически панель плагина не создаётся, поэтому необходимо
     обязательно проверять код возврата у <code>PanelControl</code>, чтобы не упасть в самый неподходящий момент, выполнив работу для панели, которой нет.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
-    <td class="cont" width="60%">Получить строку, описывающую <a href="../other/dict.html#panelcolumntype">типы колонок</a>.<br>
+    <tr><td><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
+    <td>Получить строку, описывающую <a href="../other/dict.html#panelcolumntype">типы колонок</a>.<br>
     <code>Param1</code> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание типов колонок (например, такая строка <code>&quot;N,SC,D,T&quot;</code>).<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNWIDTHS">FCTL_GETCOLUMNWIDTHS</a></td>
-    <td class="cont" width="60%">Получить строку, описывающую <a href="../other/dict.html#columnwidths">ширину колонок</a>.<br>
+    <tr><td><a name="FCTL_GETCOLUMNWIDTHS">FCTL_GETCOLUMNWIDTHS</a></td>
+    <td>Получить строку, описывающую <a href="../other/dict.html#columnwidths">ширину колонок</a>.<br>
     <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание ширины колонок (например, такая строка <code>&quot;0,8,0,5&quot;</code>).<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELDIRECTORY">FCTL_GETPANELDIRECTORY</a></td>
-    <td class="cont" width="60%">Получить текущий каталог панели.<br>
+    <tr><td><a name="FCTL_GETPANELDIRECTORY">FCTL_GETPANELDIRECTORY</a></td>
+    <td>Получить текущий каталог панели.<br>
     <code>Param1</code> размер буфера. Начало буфера - структура типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>, затем следуют компоненты структуры.<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
     Функция возвращает необходимый размер буфера, если <code>Param2 = NULL</code> или <code>Param1</code> меньше реального размера.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELFORMAT">FCTL_GETPANELFORMAT</a></td>
-    <td class="cont" width="60%">Получить формат панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::Format</a>).<br>
+    <tr><td><a name="FCTL_GETPANELFORMAT">FCTL_GETPANELFORMAT</a></td>
+    <td>Получить формат панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::Format</a>).<br>
     <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещен формат панели.<br>
     Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELHOSTFILE">FCTL_GETPANELHOSTFILE</a></td>
-    <td class="cont" width="60%">Получить имя файла, на основе которого эмулирована файловая система на панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::HostFile</a>).<br>
+    <tr><td><a name="FCTL_GETPANELHOSTFILE">FCTL_GETPANELHOSTFILE</a></td>
+    <td>Получить имя файла, на основе которого эмулирована файловая система на панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::HostFile</a>).<br>
     <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено имя хост-файла.<br>
     Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELITEM">FCTL_GETPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить файловый элемент панели.<br>
+    <tr><td><a name="FCTL_GETPANELITEM">FCTL_GETPANELITEM</a></td>
+    <td> Получить файловый элемент панели.<br>
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
     <p>Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>,
@@ -135,35 +135,35 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     перевыделять по мере необходимости, например, каждый раз не менее чем удваивая размер.)</p>
     </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELPREFIX">FCTL_GETPANELPREFIX</a></td>
-    <td class="cont" width="60%"> Получить префикс плагиновой панели.<br>
+    <tr><td><a name="FCTL_GETPANELPREFIX">FCTL_GETPANELPREFIX</a></td>
+    <td> Получить префикс плагиновой панели.<br>
     <code>Param1</code> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>. <br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено значение префикса плагиновой панели (см. <a href="../structures/plugininfo.html">PluginInfo::CommandPrefix</a>).<br>
     Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETSELECTEDPANELITEM">FCTL_GETSELECTEDPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить выделенный файловый элемент панели.<br>
+    <tr><td><a name="FCTL_GETSELECTEDPANELITEM">FCTL_GETSELECTEDPANELITEM</a></td>
+    <td> Получить выделенный файловый элемент панели.<br>
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
     Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
     <p> PanelInfo.SelectedItemsNumber равно 1, если не выделено никаких элементов. В этом случае <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> содержит данные для
     элемента под курсором. Если вы хотите узнать, действительно ли выделен этот файл, то проверьте у него состояние флага <code>PPIF_SELECTED</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCURRENTPANELITEM">FCTL_GETCURRENTPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить текущий файловый элемент панели.<br>
+    <tr><td><a name="FCTL_GETCURRENTPANELITEM">FCTL_GETCURRENTPANELITEM</a></td>
+    <td> Получить текущий файловый элемент панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
     Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_REDRAWPANEL">FCTL_REDRAWPANEL</a></td>
-    <td class="cont" width="60%">Перерисовать панель.<br>
+    <tr><td><a name="FCTL_REDRAWPANEL">FCTL_REDRAWPANEL</a></td>
+    <td>Перерисовать панель.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указатель на структуру <a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a>,  которой можно задать новые позиции курсора и верхнего элемента панели. Если <code>Param2 = NULL</code>, то позиции курсора и верхнего элемента панели при прорисовке не изменяются.<br>
     Панель прорисуется только в случае, если в данный момент панель видна.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETACTIVEPANEL">FCTL_SETACTIVEPANEL</a></td>
-    <td class="cont" width="60%">Сделать панель активной.<br>
+    <tr><td><a name="FCTL_SETACTIVEPANEL">FCTL_SETACTIVEPANEL</a></td>
+    <td>Сделать панель активной.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не принадлежит плагину, или панель в данный момент невидима.<br>
@@ -174,23 +174,23 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIRECTORY">FCTL_SETPANELDIRECTORY</a></td>
-    <td class="cont" width="60%">Установить текущий каталог в панели.<br>
+    <tr><td><a name="FCTL_SETPANELDIRECTORY">FCTL_SETPANELDIRECTORY</a></td>
+    <td>Установить текущий каталог в панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
     Если плагин поддерживает свою собственную панель, он будет закрыт после выполнения этой команды.
     <p>После выполнения этой функции пропадёт выделение с элементов каталога и его будет невозможно восстановить (комбинация <kbd>Ctrl</kbd>+<kbd>M</kbd>) по желанию
     пользователя, даже если новый каталог равен старому.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_BEGINSELECTION">FCTL_BEGINSELECTION</a>,<br><a name="FCTL_ENDSELECTION">FCTL_ENDSELECTION</a></td>
-    <td class="cont" width="60%">Начать/закончить операцию выделения в панели.<br>
+    <tr><td><a name="FCTL_BEGINSELECTION">FCTL_BEGINSELECTION</a>,<br><a name="FCTL_ENDSELECTION">FCTL_ENDSELECTION</a></td>
+    <td>Начать/закончить операцию выделения в панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!<br><br></p>
     <UL class=note><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
-    <td class="cont" width="60%">Установить выделение в панели.<br>
+    <tr><td><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
+    <td>Установить выделение в панели.<br>
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
     <code>Param2</code> указывает на переменную типа <code>BOOL</code> (<code>TRUE</code> - выделить элемент, <code>FALSE</code> - снять выделение).
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
@@ -209,86 +209,86 @@ Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,NULL);
 Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 </pre> </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLEARSELECTION">FCTL_CLEARSELECTION</a><br>
-    <td class="cont" width="60%">Снять выделение с выделенных элементов панели.<br>
+    <tr><td><a name="FCTL_CLEARSELECTION">FCTL_CLEARSELECTION</a><br>
+    <td>Снять выделение с выделенных элементов панели.<br>
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
     <code>Param2</code> не используется.<br>
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
     <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION" width="10" height="10"> Внимание!<br><br></p>
     <UL class=note><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
-    <td class="cont" width="60%">Установить режим сортировки для панели.<br>
+    <tr><td><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
+    <td>Установить режим сортировки для панели.<br>
     <code>Param1</code> целое число, содержащее режим сортировки (см. "<a href="../defs/sortmetods.html">Режимы сортировки</a>").<br>
     <code>Param2</code> не используется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTORDER">FCTL_SETSORTORDER</a></td>
-    <td class="cont" width="60%">Задаёт порядок сортировки для панели.<br>
+    <tr><td><a name="FCTL_SETSORTORDER">FCTL_SETSORTORDER</a></td>
+    <td>Задаёт порядок сортировки для панели.<br>
     <code>Param1</code> целое число, содержащее порядок сортировки: <code>0</code> или <code>1</code> (обратная сортировка).<br>
     <code>Param2</code> не используется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETVIEWMODE">FCTL_SETVIEWMODE</a></td>
-    <td class="cont" width="60%">Установить режим просмотра панели.<br>
+    <tr><td><a name="FCTL_SETVIEWMODE">FCTL_SETVIEWMODE</a></td>
+    <td>Установить режим просмотра панели.<br>
     <code>Param1</code> целое число, которое содержит номер нового режима, от <code>0</code> до <code>9</code>.<br>
     <code>Param2</code> не используется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_UPDATEPANEL">FCTL_UPDATEPANEL</a></td>
-    <td class="cont" width="60%">Обновить содержимое панели.<br>
+    <tr><td><a name="FCTL_UPDATEPANEL">FCTL_UPDATEPANEL</a></td>
+    <td>Обновить содержимое панели.<br>
     Если <code>Param1 = 0</code>, текущее выделение файлов будет снято, иначе выделение не изменится.<br>
     <code>Param2</code> не используется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a></td>
-    <td class="cont" width="60%">Задаёт режим отображения каталогов в начале списка файлов.<br>
+    <tr><td><a name="FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a></td>
+    <td>Задаёт режим отображения каталогов в начале списка файлов.<br>
     <code>Param1</code> целое число, <code>1</code> - каталоги отображаются в начале списка, <code>0</code> - нет.<br>
     <code>Param2</code> не используется.</td></tr>
 
       <!-- ком.строка -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Командная строка</b></th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINE">FCTL_GETCMDLINE</a></td>
-    <td class="cont" width="60%">Получить содержимое командной строки.<br>
+    <tr><th colspan="2"><b>Командная строка</b></th></tr>
+    <tr><td><a name="FCTL_GETCMDLINE">FCTL_GETCMDLINE</a></td>
+    <td>Получить содержимое командной строки.<br>
     <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая <code>'\0'</code>.<br>
     <code>Param2</code> указывает на буфер, выделяемый плагином, который получит данные.<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINEPOS">FCTL_GETCMDLINEPOS</a></td>
-    <td class="cont" width="60%">Получить позицию курсора в командной строке.<br>
+    <tr><td><a name="FCTL_GETCMDLINEPOS">FCTL_GETCMDLINEPOS</a></td>
+    <td>Получить позицию курсора в командной строке.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> содержит указатель на переменную типа <code>int</code>, в которую будет помещена позиция курсора.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINESELECTION">FCTL_GETCMDLINESELECTION</a></td>
-    <td class="cont" width="60%">Получить параметры выделенного текста командной строки.<br>
+    <tr><td><a name="FCTL_GETCMDLINESELECTION">FCTL_GETCMDLINESELECTION</a></td>
+    <td>Получить параметры выделенного текста командной строки.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_INSERTCMDLINE">FCTL_INSERTCMDLINE</a></td>
-    <td class="cont" width="60%">Вставить текст в командную строку, начиная с текущей позиции курсора.<br>
+    <tr><td><a name="FCTL_INSERTCMDLINE">FCTL_INSERTCMDLINE</a></td>
+    <td>Вставить текст в командную строку, начиная с текущей позиции курсора.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на строку, оканчивающуюся нулём, которая будет вставлена в командную строку.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINE">FCTL_SETCMDLINE</a></td>
-    <td class="cont" width="60%">Установить содержимое командной строки.<br>
+    <tr><td><a name="FCTL_SETCMDLINE">FCTL_SETCMDLINE</a></td>
+    <td>Установить содержимое командной строки.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на строку, оканчивающуюся нулём, которая будет помещена в командную строку.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINEPOS">FCTL_SETCMDLINEPOS</a></td>
-    <td class="cont" width="60%">Установить позицию курсора в командной строке.<br>
+    <tr><td><a name="FCTL_SETCMDLINEPOS">FCTL_SETCMDLINEPOS</a></td>
+    <td>Установить позицию курсора в командной строке.<br>
     <code>Param1</code> содержит переменную с новой позицией курсора.<br>
     <code>Param2</code> не используется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINESELECTION">FCTL_SETCMDLINESELECTION</a></td>
-    <td class="cont" width="60%">Выделить текст командной строки.<br>
+    <tr><td><a name="FCTL_SETCMDLINESELECTION">FCTL_SETCMDLINESELECTION</a></td>
+    <td>Выделить текст командной строки.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
     <!-- прочие -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Прочие</b></th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETUSERSCREEN">FCTL_SETUSERSCREEN</a></td>
-    <td class="cont" width="60%">Установить обработанную плагином копию Пользовательского экрана под панели Far Manager.<br>
+    <tr><th colspan="2"><b>Прочие</b></th></tr>
+    <tr><td><a name="FCTL_SETUSERSCREEN">FCTL_SETUSERSCREEN</a></td>
+    <td>Установить обработанную плагином копию Пользовательского экрана под панели Far Manager.<br>
     <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки (при повторном вызове), <code>1</code> - не добавлять.<br>
     <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a></td>
-    <td class="cont" width="60%">Предоставить для нужд плагина копию Пользовательского экрана Far Manager (он показывается, когда панели убpаны).<br>
+    <tr><td><a name="FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a></td>
+    <td>Предоставить для нужд плагина копию Пользовательского экрана Far Manager (он показывается, когда панели убpаны).<br>
     <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки, <code>1</code> - не добавлять.<br>
     <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
 

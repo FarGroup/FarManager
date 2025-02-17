@@ -37,24 +37,24 @@ BOOL WINAPI ShowHelp(
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть одним из следующий значений (перечисление <a name="FARHELPFLAGS">FARHELPFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_SELFHELP">FHELP_SELFHELP</a></td>
-    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как <code>Info.ModuleName</code> и показать тему из файла помощи вызвавшего плагина. Если <code>HelpTopic</code> начинается с символа <code>':'</code>, то будет показана тема из основного файла помощи Far Manager (в этом случае параметр <code>ModuleName</code> игнорируется).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_FARHELP">FHELP_FARHELP</a></td>
-    <td class="cont" width="60%">Параметр <code>ModuleName</code> игнорируется и будет показана тема из основного файла помощи Far Manager. При этом в параметре <code>HelpTopic</code> не надо указывать первым символом <code>':'</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMFILE">FHELP_CUSTOMFILE</a></td>
-    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMPATH">FHELP_CUSTOMPATH</a></td>
-    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_GUID">FHELP_GUID</a></td>
-    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на GUID плагина, "существующий в этой сессии Far Manager". Файл выберется автоматически, исходя из текущих настроек языка.
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="FHELP_SELFHELP">FHELP_SELFHELP</a></td>
+    <td>Трактовать параметр <code>ModuleName</code> как <code>Info.ModuleName</code> и показать тему из файла помощи вызвавшего плагина. Если <code>HelpTopic</code> начинается с символа <code>':'</code>, то будет показана тема из основного файла помощи Far Manager (в этом случае параметр <code>ModuleName</code> игнорируется).</td></tr>
+    <tr><td><a name="FHELP_FARHELP">FHELP_FARHELP</a></td>
+    <td>Параметр <code>ModuleName</code> игнорируется и будет показана тема из основного файла помощи Far Manager. При этом в параметре <code>HelpTopic</code> не надо указывать первым символом <code>':'</code>.</td></tr>
+    <tr><td><a name="FHELP_CUSTOMFILE">FHELP_CUSTOMFILE</a></td>
+    <td>Трактовать параметр <code>ModuleName</code> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
+    <tr><td><a name="FHELP_CUSTOMPATH">FHELP_CUSTOMPATH</a></td>
+    <td>Трактовать параметр <code>ModuleName</code> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
+    <tr><td><a name="FHELP_GUID">FHELP_GUID</a></td>
+    <td>Трактовать параметр <code>ModuleName</code> как указатель на GUID плагина, "существующий в этой сессии Far Manager". Файл выберется автоматически, исходя из текущих настроек языка.
     Если параметр <code>ModuleName</code> пустая строка ("") или равен GUID {00000000-0000-0000-0000-000000000000}, то будет показана тема из основного файла помощи Far Manager.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_USECONTENTS">FHELP_USECONTENTS</a></td>
-    <td class="cont" width="60%">Если требуемая тема <code>HelpTopic</code> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NOSHOWERROR">FHELP_NOSHOWERROR</a></td>
-    <td class="cont" width="60%">Не выводить сообщения об ошибках в случае, если требуемая тема или файл помощи не найдены. Флаг может комбинироваться с другими флагами.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NONE">FHELP_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><td><a name="FHELP_USECONTENTS">FHELP_USECONTENTS</a></td>
+    <td>Если требуемая тема <code>HelpTopic</code> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
+    <tr><td><a name="FHELP_NOSHOWERROR">FHELP_NOSHOWERROR</a></td>
+    <td>Не выводить сообщения об ошибках в случае, если требуемая тема или файл помощи не найдены. Флаг может комбинироваться с другими флагами.</td></tr>
+    <tr><td><a name="FHELP_NONE">FHELP_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     </div>
 </div>
