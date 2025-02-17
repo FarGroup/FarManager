@@ -43,18 +43,7 @@ P.plain
     MARGIN-TOP: 4pt;
     MARGIN-BOTTOM: 4pt
 }
-.gray
-{
-    FONT-SIZE: 80%;
-    BACKGROUND: #e0e0e0;
-    VERTICAL-ALIGN: top
-}
-.white
-{
-    FONT-SIZE: 80%;
-    BACKGROUND: #ffffff;
-    VERTICAL-ALIGN: top
-}
+
 TABLE
 {
 }
@@ -71,7 +60,9 @@ TH
     BACKGROUND: #b0b0b0;
     VERTICAL-ALIGN: bottom;
     COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
+    FONT-FAMILY: verdana, tahoma, arial, helvetica;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 TABLE.cont
 {
@@ -101,6 +92,25 @@ TABLE.cont
 .cont td:last-child
 {
     width: 60%;
+}
+
+table.striped
+{
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+.striped th
+{
+    text-align: left;
+}
+.striped td,th {
+    padding-bottom: 4px;
+    padding-top: 4px;
+    max-width: 40em;
+}
+.striped tr:nth-child(odd)
+{
+    background: #e0e0e0;
 }
 
 A.pre
