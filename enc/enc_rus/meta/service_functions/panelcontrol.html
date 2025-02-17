@@ -73,13 +73,13 @@ intptr_t WINAPI PanelControl(
     <tr><td><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
     <td>Получить строку, описывающую <a href="../other/dict.html#panelcolumntype">типы колонок</a>.<br>
     <code>Param1</code> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание типов колонок (например, такая строка <code>&quot;N,SC,D,T&quot;</code>).<br>
+    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание типов колонок (например, такая строка <code>"N,SC,D,T"</code>).<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
     <tr><td><a name="FCTL_GETCOLUMNWIDTHS">FCTL_GETCOLUMNWIDTHS</a></td>
     <td>Получить строку, описывающую <a href="../other/dict.html#columnwidths">ширину колонок</a>.<br>
     <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание ширины колонок (например, такая строка <code>&quot;0,8,0,5&quot;</code>).<br>
+    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание ширины колонок (например, такая строка <code>"0,8,0,5"</code>).<br>
     Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
 
     <tr><td><a name="FCTL_GETPANELDIRECTORY">FCTL_GETPANELDIRECTORY</a></td>

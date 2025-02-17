@@ -58,7 +58,7 @@ intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
     wchar_t *File=curPI-&gt;FileName;
     if(!RemoveFileFromFS(File))
     {
-      wchar_t *MsgItems[]={L&quot;Delete failed&quot;,L&quot;&quot;,L&quot;OK&quot;};
+      wchar_t *MsgItems[]={L"Delete failed",L"",L"OK"};
       MsgItems[1] = GetErrorStringFS();
       Message(&amp;MainGUID,&amp;MsgGUID,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return 0;
