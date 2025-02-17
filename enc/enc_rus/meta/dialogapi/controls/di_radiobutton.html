@@ -45,34 +45,34 @@ struct FarDialogItem
 <div class=descr>
 Для элемента <code>DI_RADIOBUTTON</code> имеют значения следующие флаги:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
-<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
-<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_group.html">DIF_GROUP</a></td>
-<td class="cont" width="60%">группировка последовательно объявленных селекторных кнопок (укажите этот флаг для первого элемента в группе)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_moveselect.html">DIF_MOVESELECT</a></td>
-<td class="cont" width="60%">изменить выбор внутри группы при изменении фокуса ввода; также элемент будет отображаться без ограничительных круглых скобок (пример - диалог выбора цвета в Far Manager - Options|Colors)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
-<td class="cont" width="60%">центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <code>X</code> игнорируется)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">элемент является недоступным</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
-<td class="cont" width="60%">показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши</td></tr>
+<tr><th>Флаг</th><th>Описание</th></tr>
+<tr><td><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td>флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
+<tr><td><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td>определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
+<tr><td><a href="../flags/dif_group.html">DIF_GROUP</a></td>
+<td>группировка последовательно объявленных селекторных кнопок (укажите этот флаг для первого элемента в группе)</td></tr>
+<tr><td><a href="../flags/dif_moveselect.html">DIF_MOVESELECT</a></td>
+<td>изменить выбор внутри группы при изменении фокуса ввода; также элемент будет отображаться без ограничительных круглых скобок (пример - диалог выбора цвета в Far Manager - Options|Colors)</td></tr>
+<tr><td><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+<td>центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <code>X</code> игнорируется)</td></tr>
+<tr><td><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+<td>элемент является недоступным</td></tr>
+<tr><td><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+<td>управляющий элемент не получает клавиатурный фокус ввода</td></tr>
+<tr><td><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td>показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши</td></tr>
 </table>
 </div>
 
 <h3>События</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
+<tr><th>Событие</th><th>Описание</th></tr>
+<tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td>начало отрисовки текстовой строки</td></tr>
+<tr><td><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td>запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
 <pre>
 <code>Colors[0]</code> - текст кнопки
                 (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
@@ -81,16 +81,16 @@ struct FarDialogItem
 <code>Colors[2]</code> - 0 (не используется)
 <code>Colors[3]</code> - 0 (не используется)</pre>
 </td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
-<td class="cont" width="60%">горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
-<td class="cont" width="60%">нажата кнопка</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
-<td class="cont" width="60%">нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
-<td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
-<td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr><td><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td>горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
+<tr><td><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+<td>нажата кнопка</td></tr>
+<tr><td><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td>нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
+<tr><td><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+<td>элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr><td><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+<td>элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
 </table>
 </div>
 
