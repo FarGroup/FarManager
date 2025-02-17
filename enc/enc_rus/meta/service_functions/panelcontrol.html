@@ -45,7 +45,7 @@ intptr_t WINAPI PanelControl(
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!<br><br></p>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST"> Внимание!<br><br></p>
     <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
 
     <tr><td><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
@@ -112,7 +112,7 @@ intptr_t WINAPI PanelControl(
     (но при этом не меньше размера <code>PluginPanelItem</code>), то будет записано столько полей, сколько поместится целиком,
     а остальным будет присвоено значение <code>NULL</code>. В частности, если установить <code>FarGetPluginPanelItem::Size</code> в
     <code>sizeof(PluginPanelItem)</code> то можно за один вызов и без динамического выделения памяти получить все поля, не являющиеся указателями.</p>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM" width="10" height="10"> Внимание! Tак делать нельзя:<br></p><br>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM"> Внимание! Tак делать нельзя:<br></p><br>
     <pre class=code>PluginPanelItem PPI;
 Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);</pre>
     <p>Пример корректного использования:
@@ -186,7 +186,7 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     <td>Начать/закончить операцию выделения в панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!<br><br></p>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION"> Внимание!<br><br></p>
     <UL class=note><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr><td><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
@@ -214,7 +214,7 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
     <code>Param2</code> не используется.<br>
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION" width="10" height="10"> Внимание!<br><br></p>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION"> Внимание!<br><br></p>
     <UL class=note><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr><td><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
