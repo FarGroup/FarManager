@@ -127,7 +127,7 @@ def make_chm_lang(lang):
       <param name="Name" value="%s">
       <param name="Local" value="html/%s">
       </OBJECT>
-""" % (rl[2], rl[1]))
+""" % (rl[2].replace('"', "&quot;"), rl[1]))
       link_dir = rl[1]
       link_dir = link_dir[:link_dir.find("/")]
       in_hhc2 = 0
@@ -158,7 +158,7 @@ def make_chm_lang(lang):
           <param name="Name" value="%s">
           </OBJECT>
           <UL>
-""" % (rh[0]))
+""" % (rh[0].replace('"', "&quot;")))
           log("    Open section: %s" % rh[0])
 
         match_link = (match_link_no_h3, match_link_after_h3)[in_h3 == 1]
@@ -172,7 +172,7 @@ def make_chm_lang(lang):
                 <param name="Name" value="%s">
                 <param name="Local" value="html/%s/%s">
                 </OBJECT>
-""" % (rl[2], link_dir, rl[1]))
+""" % (rl[2].replace('"', "&quot;"), link_dir, rl[1]))
           log("      New topic: %s" % rl[2])
 
       if (in_h3 == 1):
@@ -271,7 +271,7 @@ def make_chm_lang(lang):
     <param name="Name" value="%s">
     <param name="Local" value="%s">
     </OBJECT>
-""" % (title[1], title[0]))
+""" % (title[1].replace('"', "&quot;"), title[0]))
 
   idx.write(
 """</UL>
