@@ -97,7 +97,7 @@ struct OpenPanelInfo
     <tr><td><a name="OPIF_NONE">OPIF_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table>
-    <a name="dagger">&dagger;</a> Этот флаг используется только если плагин открыт при помощи меню плагинов <code>F11&nbsp;&rarr;&nbsp;плагин&nbsp;&rarr;&nbsp;&hellip;</code>, префикса плагина <code>prefix:command</code> или функции Lua <code>Plugin.Command(GUID,&nbsp;command)</code>.
+    <a name="dagger">&dagger;</a> Этот флаг используется только если плагин открыт при помощи меню плагинов <code class="nobr">F11 &rarr; плагин &rarr; &hellip;</code>, префикса плагина <code>prefix:command</code> или функции Lua <code class="nobr">Plugin.Command(GUID, command)</code>.
     </div>
   <div class=dfn><a name="Hostfile">HostFile</a></div>
     <div class=dfndescr>Имя файла-контейнера, на основе которого эмулируется файловая система на панели. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в <code>NULL</code>.</div>
@@ -108,7 +108,7 @@ struct OpenPanelInfo
   <div class=dfn>PanelTitle</div>
     <div class=dfndescr>Заголовок панели плагина.</div>
   <div class=dfn>InfoLines</div>
-    <div class=dfndescr>Адрес массива структур &nbsp;<a href="infopanelline.html">InfoPanelLine</a>. Каждая структура описывает одну строку в информационной панели. Если вы не нуждаетесь в показе текста, зависимого от плагина в информационной панели, установите <code>InfoLines</code> в <code>NULL</code>.</div>
+    <div class=dfndescr>Адрес массива структур <a href="infopanelline.html">InfoPanelLine</a>. Каждая структура описывает одну строку в информационной панели. Если вы не нуждаетесь в показе текста, зависимого от плагина в информационной панели, установите <code>InfoLines</code> в <code>NULL</code>.</div>
   <div class=dfn>InfoLinesNumber</div>
     <div class=dfndescr>Число структур <code>InfoLine</code>.</div>
   <div class=dfn>DescrFiles</div>

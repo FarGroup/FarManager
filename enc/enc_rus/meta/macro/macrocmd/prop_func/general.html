@@ -579,10 +579,10 @@
          <tr><td>strpad("Foo",10,"*",2)</td><td><code>'***Foo****'</code></td></tr>
          <tr><td>strpad("",10,"-*-",2)</td><td><code>'-*--*--*--'</code></td></tr>
          <tr><td>strpad(,10,"-*-")</td><td><code>'-*--*--*--'</code></td></tr>
-         <tr><td>strpad("Foo",10)</td><td><code>'Foo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10)</td><td><code class="pre">'Foo       '</code></td></tr>
          <tr><td>strpad("Foo",10,"-")</td><td><code>'Foo-------'</code></td></tr>
-         <tr><td>strpad("Foo",10,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
-         <tr><td>strpad("Foo",10,,2)</td><td><code>'&nbsp;&nbsp;&nbsp;Foo&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10,,1)</td><td><code class="pre">'       Foo'</code></td></tr>
+         <tr><td>strpad("Foo",10,,2)</td><td><code class="pre">'   Foo    '</code></td></tr>
          <tr><td>strpad("Foo",10,"1234567890",2)</td><td><code>'123Foo1234'</code></td></tr>
       </table>
 
@@ -848,7 +848,7 @@
       </table>
       Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную строку <code><span class="nobr">"%a %b %d %H:%M:%S %Z %Y"</span></code> (см.).
       <!--Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную
-      строку "%a&nbsp;%b&nbsp;%d&nbsp;%H:%M:%S&nbsp;%Z&nbsp;%Y" (см.).-->
+      строку "%a %b %d %H:%M:%S %Z %Y" (см.).-->
       </td>
   </tr>
 </table>
@@ -889,7 +889,7 @@
     <td>N=<dfn><a name="testfolder">testfolder</a></dfn>(S)</td>
     <td><p>Тестирует папку <var>S</var>.</p>
        <p>Возвращает:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Значение</th><th>Описание</th></tr>
@@ -943,7 +943,7 @@
        Маска исключения отделяется от основной маски символом |</p>
        <p> - регулярным выражением. Текст регулярного выражения должен быть окружён символами /</p>
        <p>Возвращает:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Значение</th><th>Описание</th></tr>
@@ -1031,7 +1031,7 @@
            <tr><td>0x00000002</td><td>Используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
            <tr><td>0x00000004</td><td>После успешного ввода, в результирующем значении <var>S</var> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '%TEMP%', то результат будет содержать 'C:\TEMP'.</td></tr>
            <tr><td>0x00000008</td><td>Не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <var>History</var>.</td></tr>
-           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp>[&nbsp;Ok&nbsp;]</samp> и <samp>[&nbsp;Cancel&nbsp;]</samp>.
+           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp class="pre nobr">[ Ok ]</samp> и <samp class="pre nobr">[ Cancel ]</samp>.
                                       Диалог увеличится на 2 строки.</p></td></tr>
            <tr><td>0x00000020</td><td>Не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
        </table>
@@ -1135,7 +1135,7 @@ Env("Foo",1,0)</code></pre>
           <p>По умолчанию в операциях запоминания/вставки данных Far Manager работает с буфером обмена Windows.</p>
           <p>Функция '<code>clip(5)</code>' позволяет в пределах одного макроса переключать внутренние механизмы Far Manager для работы с/без использования буфера обмена Windows.</p>
           <p><var>Value</var> может быть одним из:</p>
-          <table class="cont2 params lite tiny">
+          <table class="cont2 params lite tiny ralign">
           <col class="value">
           <col>
           <tr><th><var>Value</var></th><th>Описание</th></tr>
@@ -1163,7 +1163,7 @@ $End</code></pre>
     <td>V=<dfn><a name="flock">flock</a></dfn>(Lkey,Action)</td>
     <td><p>Позволяет переключить состояние Lock-клавиш (<kbd>NumLock</kbd>, <kbd>CapsLock</kbd> и <kbd>ScrollLock</kbd>).</p>
     <p>Клавиша <var>Lkey</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Lkey</var></th><th>Описание</th></tr>
@@ -1172,7 +1172,7 @@ $End</code></pre>
         <tr><td>2</td><td><kbd>ScrollLock</kbd></td></tr>
        </table>
     Действие <var>Action</var>:
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Action</var></th><th>Описание</th></tr>
@@ -1189,7 +1189,7 @@ $End</code></pre>
     <td>N=<dfn><a name="kbdlayout">kbdlayout</a></dfn>([V])</td>
     <td><p>Управление раскладкой клавиатуры.</p>
       <p>Параметр <var>V</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>V</var></th><th>Описание</th></tr>
@@ -1390,7 +1390,7 @@ $End</code></pre>
        </table>
 
      <p>Для всех режимов, кроме <var>Mode</var>=3, функция возвращает 0 в случае успешной компиляции последовательности <var>S</var> или код ошибки:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Ошибка</th><th>Описание</th></tr>
@@ -1543,7 +1543,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
         </td></tr>
        </table>
       <p>Параметр <var>Value</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Value</var></th><th>Описание</th></tr>
@@ -1560,7 +1560,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
     <td>N=<dfn><a name="history.disable">history.disable</a></dfn>([State])</td>
     <td><p>Позволяет выключать добавление пунктов в истории во время воспроизведения текущего макроса.</p>
       <p>Необязательный параметр <var>State</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Бит</th><th>Описание</th></tr>
@@ -1574,7 +1574,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
        <p>Функция возвращает предыдущее значение.</p>
        <p>При старте макроса разрешено добавление во все истории.</p>
        <p>Примеры</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
         <col>
         <col>
         <tr>
@@ -1592,7 +1592,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
     <td>N=<dfn><a name="keybar.show">keybar.show</a></dfn>([Mode])</td>
     <td><p>Позволяет управлять видимостью линейки функциональных клавиш.</p>
       <p>Необязательный параметр <var>Mode</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Mode</var></th><th>Описание</th></tr>
@@ -1602,7 +1602,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
         <tr><td>3</td><td>изменить состояние видимости на обратное</td></tr>
        </table>
        <p>Функция возвращает предыдущее состояние видимости линейки:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Value</th><th>Описание</th></tr>

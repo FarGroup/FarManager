@@ -61,7 +61,9 @@ TABLE
 TD
 {
     FONT-SIZE: 80%;
-    VERTICAL-ALIGN: top
+    VERTICAL-ALIGN: top;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 TH
 {
@@ -360,7 +362,8 @@ SPAN.faqa
     COLOR: #000080
 }
 
-.nobr { white-space:nowrap; }
+.nobr { white-space: nowrap; }
+.pre { white-space: pre; }
 
 table p { margin-top: 0em; margin-bottom: 0.364em}
 table ul { margin-top: 0.364em; margin-bottom: 0.364em}
@@ -468,6 +471,8 @@ table.tiny {width: auto}
 table.funcs   col.descr {width: 80%}
 table.params  col.value {width: 5%}
 table.params  col.widevalue {width: 25%}
+
+.ralign tr > td:first-child {text-align: right}
 
 /*
 http://riddle.pl/emcalc/
