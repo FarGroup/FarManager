@@ -53,49 +53,49 @@ struct OpenPanelInfo
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация следующих значений (тип <a name="OPENPANELINFO_FLAGS">OPENPANELINFO_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLEFILTER">OPIF_DISABLEFILTER</a></td>
-    <td class="cont" width="60%">Отключить фильтр файлов в панели плагина.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLESORTGROUPS">OPIF_DISABLESORTGROUPS</a></td>
-    <td class="cont" width="60%">Не использовать группы сортировки в панели плагина.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLEHIGHLIGHTING">OPIF_DISABLEHIGHLIGHTING</a></td>
-    <td class="cont" width="60%">Не использовать раскраску файлов в панели плагина.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_ADDDOTS">OPIF_ADDDOTS</a></td>
-    <td class="cont" width="60%">Автоматически добавить элемент, равный двум точкам (<code>..</code>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_RAWSELECTION">OPIF_RAWSELECTION</a></td>
-    <td class="cont" width="60%">Выбор папок независимо от настроек Far Manager'а.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_REALNAMES">OPIF_REALNAMES</a></td>
-    <td class="cont" width="60%">Включает использование стандартной обработки файла Far Manager'ом, если запрошенная операция не поддерживается плагином. Если этот флаг указан, элементы на панели плагина должны быть именами реальных файлов.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWNAMESONLY">OPIF_SHOWNAMESONLY</a></td>
-    <td class="cont" width="60%">Показывать по умолчанию имена без путей во всех режимах просмотра.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWRIGHTALIGNNAMES">OPIF_SHOWRIGHTALIGNNAMES</a></td>
-    <td class="cont" width="60%">Показывать по умолчанию имена, выровненные по правому краю во всех режимах просмотра.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWPRESERVECASE">OPIF_SHOWPRESERVECASE</a></td>
-    <td class="cont" width="60%">Показывать имена файлов в оригинальном регистре независимо от настроек Far Manager'a.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_COMPAREFATTIME">OPIF_COMPAREFATTIME</a></td>
-    <td class="cont" width="60%">Преобразовывать временные метки в формат FAT при выполнении команды <code>Compare folders</code>. Установите этот флаг, если файловая система плагина не обеспечивает требуемую для стандартного стравнения времени точность.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_EXTERNALGET">OPIF_EXTERNALGET</a><br>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="OPIF_DISABLEFILTER">OPIF_DISABLEFILTER</a></td>
+    <td>Отключить фильтр файлов в панели плагина.</td></tr>
+    <tr><td><a name="OPIF_DISABLESORTGROUPS">OPIF_DISABLESORTGROUPS</a></td>
+    <td>Не использовать группы сортировки в панели плагина.</td></tr>
+    <tr><td><a name="OPIF_DISABLEHIGHLIGHTING">OPIF_DISABLEHIGHLIGHTING</a></td>
+    <td>Не использовать раскраску файлов в панели плагина.</td></tr>
+    <tr><td><a name="OPIF_ADDDOTS">OPIF_ADDDOTS</a></td>
+    <td>Автоматически добавить элемент, равный двум точкам (<code>..</code>).</td></tr>
+    <tr><td><a name="OPIF_RAWSELECTION">OPIF_RAWSELECTION</a></td>
+    <td>Выбор папок независимо от настроек Far Manager'а.</td></tr>
+    <tr><td><a name="OPIF_REALNAMES">OPIF_REALNAMES</a></td>
+    <td>Включает использование стандартной обработки файла Far Manager'ом, если запрошенная операция не поддерживается плагином. Если этот флаг указан, элементы на панели плагина должны быть именами реальных файлов.</td></tr>
+    <tr><td><a name="OPIF_SHOWNAMESONLY">OPIF_SHOWNAMESONLY</a></td>
+    <td>Показывать по умолчанию имена без путей во всех режимах просмотра.</td></tr>
+    <tr><td><a name="OPIF_SHOWRIGHTALIGNNAMES">OPIF_SHOWRIGHTALIGNNAMES</a></td>
+    <td>Показывать по умолчанию имена, выровненные по правому краю во всех режимах просмотра.</td></tr>
+    <tr><td><a name="OPIF_SHOWPRESERVECASE">OPIF_SHOWPRESERVECASE</a></td>
+    <td>Показывать имена файлов в оригинальном регистре независимо от настроек Far Manager'a.</td></tr>
+    <tr><td><a name="OPIF_COMPAREFATTIME">OPIF_COMPAREFATTIME</a></td>
+    <td>Преобразовывать временные метки в формат FAT при выполнении команды <code>Compare folders</code>. Установите этот флаг, если файловая система плагина не обеспечивает требуемую для стандартного стравнения времени точность.</td></tr>
+    <tr><td><a name="OPIF_EXTERNALGET">OPIF_EXTERNALGET</a><br>
                                                   <a name="OPIF_EXTERNALPUT">OPIF_EXTERNALPUT</a><br>
                                                   <a name="OPIF_EXTERNALDELETE">OPIF_EXTERNALDELETE</a><br>
                                                   <a name="OPIF_EXTERNALMKDIR">OPIF_EXTERNALMKDIR</a></td>
-    <td class="cont" width="60%">Флаги могут быть использованы только с <code>OPIF_REALNAMES</code>. Вынуждает использование соответствующих функций Far Manager, даже если требуемая функция экспортируется плагином.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
-    <td class="cont" width="60%"> Использовать раскраску файлов в панели плагина только по атрибутам, а имена объектов в раскраске не учитывать. Выбор цвета происходит только среди тех
+    <td>Флаги могут быть использованы только с <code>OPIF_REALNAMES</code>. Вынуждает использование соответствующих функций Far Manager, даже если требуемая функция экспортируется плагином.</td></tr>
+    <tr><td><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
+    <td> Использовать раскраску файлов в панели плагина только по атрибутам, а имена объектов в раскраске не учитывать. Выбор цвета происходит только среди тех
     групп раскраски файлов, у которых маски исключены из анализа, т.е. опция "<code>[ ] Совпадение с маской (масками)</code>" в настройках раскраски файлов отключена.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USECRC32">OPIF_USECRC32</a></td>
-    <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле <code>CRC32</code> элементов панели <a href="pluginpanelitem.html">PluginPanelItem</a>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEFREESIZE">OPIF_USEFREESIZE</a></td>
-    <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле <code>FreeSize</code>. Не у всех эмулированных плагинами файловых системах возможно понятие "свободное место" (например, в плагине ImpEx).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHORTCUT">OPIF_SHORTCUT</a></td>
-    <td class="cont" width="60%">Флаг указывает, что плагин позволяет добавлять смену каталогов в историю Far Manager'a, а также поддерживает установку "быстрых каталогов" на своей панели.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_RECURSIVEPANEL">OPIF_RECURSIVEPANEL</a></td>
-    <td class="cont" width="60%">Если плагин запущен из панели (возможно другого) плагина, то этот флаг указывает, что после закрытия плагина Far Manager должен вернуться в панель предыдущего плагина, а не в файловую панель.<a href="#dagger">&dagger;</a></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DELETEFILEONCLOSE">OPIF_DELETEFILEONCLOSE</a></td>
-    <td class="cont" width="60%">Флаг указывает, что после закрытия плагина Far Manager должен удалить <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DELETEDIRONCLOSE">OPIF_DELETEDIRONCLOSE</a></td>
-    <td class="cont" width="60%">Флаг указывает, что после закрытия плагина Far Manager должен удалить директорию, где находится <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_NONE">OPIF_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><td><a name="OPIF_USECRC32">OPIF_USECRC32</a></td>
+    <td>Флаг указывает, что плагин заполняет поле <code>CRC32</code> элементов панели <a href="pluginpanelitem.html">PluginPanelItem</a>.</td></tr>
+    <tr><td><a name="OPIF_USEFREESIZE">OPIF_USEFREESIZE</a></td>
+    <td>Флаг указывает, что плагин заполняет поле <code>FreeSize</code>. Не у всех эмулированных плагинами файловых системах возможно понятие "свободное место" (например, в плагине ImpEx).</td></tr>
+    <tr><td><a name="OPIF_SHORTCUT">OPIF_SHORTCUT</a></td>
+    <td>Флаг указывает, что плагин позволяет добавлять смену каталогов в историю Far Manager'a, а также поддерживает установку "быстрых каталогов" на своей панели.</td></tr>
+    <tr><td><a name="OPIF_RECURSIVEPANEL">OPIF_RECURSIVEPANEL</a></td>
+    <td>Если плагин запущен из панели (возможно другого) плагина, то этот флаг указывает, что после закрытия плагина Far Manager должен вернуться в панель предыдущего плагина, а не в файловую панель.<a href="#dagger">&dagger;</a></td></tr>
+    <tr><td><a name="OPIF_DELETEFILEONCLOSE">OPIF_DELETEFILEONCLOSE</a></td>
+    <td>Флаг указывает, что после закрытия плагина Far Manager должен удалить <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
+    <tr><td><a name="OPIF_DELETEDIRONCLOSE">OPIF_DELETEDIRONCLOSE</a></td>
+    <td>Флаг указывает, что после закрытия плагина Far Manager должен удалить директорию, где находится <a href="#HostFile">файл-контейнер</a>, содержимое которого плагин показывает на панели.<a href="#dagger">&dagger;</a></td></tr>
+    <tr><td><a name="OPIF_NONE">OPIF_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     <a name="dagger">&dagger;</a> Этот флаг используется только если плагин открыт при помощи меню плагинов <code>F11&nbsp;&rarr;&nbsp;плагин&nbsp;&rarr;&nbsp;&hellip;</code>, префикса плагина <code>prefix:command</code> или функции Lua <code>Plugin.Command(GUID,&nbsp;command)</code>.
     </div>

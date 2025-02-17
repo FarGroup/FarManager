@@ -35,52 +35,52 @@ intptr_t WINAPI ViewerControl(
   <div class=dfn>Command</div>
     <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="VIEWER_CONTROL_COMMANDS">VIEWER_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Команда</th><th>Описание</th></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
-    <td class="cont" width="60%">Получить информацию о программе просмотра.<br>
+    <tr><td><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
+    <td>Получить информацию о программе просмотра.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/viewerinfo.html">ViewerInfo</a>.<br>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_QUIT">VCTL_QUIT</a></td>
-    <td class="cont" width="60%">Закрыть программу просмотра.<br>
+    <tr><td><a name="VCTL_QUIT">VCTL_QUIT</a></td>
+    <td>Закрыть программу просмотра.<br>
     <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_REDRAW">VCTL_REDRAW</a></td>
-    <td class="cont" width="60%">Перерисовать окно программы просмотра.<br>
+    <tr><td><a name="VCTL_REDRAW">VCTL_REDRAW</a></td>
+    <td>Перерисовать окно программы просмотра.<br>
     <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETKEYBAR">VCTL_SETKEYBAR</a></td>
-    <td class="cont" width="60%">Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра.<br>
+    <tr><td><a name="VCTL_SETKEYBAR">VCTL_SETKEYBAR</a></td>
+    <td>Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2 = NULL</code> - восстановить предыдущее значение<br>
     <code>Param2 = -1</code> - обновить полосу (перерисовать)<br>
     <code>Param2</code> равен указателю на структуру <a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a>, новое значение.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
-    <td class="cont" width="60%">Управление выделением.<br>
+    <tr><td><a name="VCTL_SELECT">VCTL_SELECT</a></td>
+    <td>Управление выделением.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/viewerselect.html">ViewerSelect</a>. Если <code>Param2 = NULL</code>, произойдёт сброс выделения.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
-    <td class="cont" width="60%">Изменить режим работы программы просмотра.<br>
+    <tr><td><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
+    <td>Изменить режим работы программы просмотра.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
-    <td class="cont" width="60%">Установить позицию в файле.<br>
+    <tr><td><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
+    <td>Установить позицию в файле.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETFILENAME">VCTL_GETFILENAME</a></td>
-    <td class="cont" width="60%">Получить имя открытого во вьюере файла.<br>
+    <tr><td><a name="VCTL_GETFILENAME">VCTL_GETFILENAME</a></td>
+    <td>Получить имя открытого во вьюере файла.<br>
     <code>Param1</code> - размер буфера в символах, который выделил плагин для данных.<br>
     <code>Param2</code> указывает на буфер, выделенный плагином, куда будет помещено имя файла.<br>
     Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.<br>
