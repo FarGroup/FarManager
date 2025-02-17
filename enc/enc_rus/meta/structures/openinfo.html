@@ -36,66 +36,66 @@ struct OpenInfo
   <div class=dfn>OpenFrom</div>
     <div class=dfndescr>Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
-    <td class="cont" width="60%">Открыт из левого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F1</kbd>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
-    <td class="cont" width="60%">Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
-    <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
+    <td>Открыт из левого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F1</kbd>).</td></tr>
+    <tr><td><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
+    <td>Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
+    <tr><td><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
+    <td>Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
     Последующий вызов функции <a href="../exported_functions/setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <code>OpenW</code> вернёт значение отличное от <code>NULL</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
-    <td class="cont" width="60%">Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
-    <td class="cont" width="60%">Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции
+    <tr><td><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
+    <td>Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
+    <tr><td><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
+    <td>Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции
     <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a> и этот префикс, с двоеточием после него, был указан в командной строке.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
-    <td class="cont" width="60%">Открыт из редактора.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
-    <td class="cont" width="60%">Открыт из встроенной программы просмотра.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
-    <td class="cont" width="60%">Открыт из панелей.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
-    <td class="cont" width="60%">Открыт из диалога.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
-    <td class="cont" width="60%">Открыт после анализа содержимого файла (например, архива)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
-    <td class="cont" width="60%">Открыт из правого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Открыт из макрокоманды макрофункцией <a href="../macro/macrocmd/prop_func/general.html#Plugin.Call">Plugin.Call</a>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
-    <td class="cont" width="60%">Открыт для проверки или исполнения Lua-макроскрипта.</td></tr>
+    <tr><td><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
+    <td>Открыт из редактора.</td></tr>
+    <tr><td><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
+    <td>Открыт из встроенной программы просмотра.</td></tr>
+    <tr><td><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
+    <td>Открыт из панелей.</td></tr>
+    <tr><td><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+    <td>Открыт из диалога.</td></tr>
+    <tr><td><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
+    <td>Открыт после анализа содержимого файла (например, архива)</td></tr>
+    <tr><td><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
+    <td>Открыт из правого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
+    <tr><td><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
+    <td>Открыт из макрокоманды макрофункцией <a href="../macro/macrocmd/prop_func/general.html#Plugin.Call">Plugin.Call</a>.</td></tr>
+    <tr><td><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
+    <td>Открыт для проверки или исполнения Lua-макроскрипта.</td></tr>
     </table></div>
   <div class=dfn>Guid</div>
     <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Интерпретация параметра зависит от <code>OpenFrom</code>:
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a>, данные в момент сохранения горячей клавиши.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a>, данные о командной строке.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>, данные о диалоге.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a>, данные о файле-контейнере. Вы должны освободить их так, как будто бы получили их в <a href="../exported_functions/closeanalysew.html">CloseAnalyseW</a></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
+    <td>Этот параметр равен адресу структуры <a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a>, данные в момент сохранения горячей клавиши.</td></tr>
+    <tr><td><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
+    <td>Этот параметр равен адресу структуры <a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a>, данные о командной строке.</td></tr>
+    <tr><td><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+    <td>Этот параметр равен адресу структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>, данные о диалоге.</td></tr>
+    <tr><td><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
+    <td>Этот параметр равен адресу структуры <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a>, данные о файле-контейнере. Вы должны освободить их так, как будто бы получили их в <a href="../exported_functions/closeanalysew.html">CloseAnalyseW</a></td></tr>
+    <tr><td><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
+    <td>Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr><td><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
+    <td>Этот параметр равен адресу структуры <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
     </table></div>
 </div>
 

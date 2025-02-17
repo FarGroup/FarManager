@@ -45,42 +45,42 @@ struct FarDialogItem
 <div class=descr>
 Для элемента <code>DI_EDIT</code> имеют значения следующие флаги:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
-<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
-<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editor.html">DIF_EDITOR</a></td>
-<td class="cont" width="60%">последовательно определённые поля ввода группируются в редактор с возможностью вставки и удаления строк</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_history.html">DIF_HISTORY</a></td>
-<td class="cont" width="60%">позволяет вести историю редактирования для поля ввода</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a></td>
-<td class="cont" width="60%">строка для истории редактирования не будет автоматически добавляться в историю по завершению работы диалога</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a></td>
-<td class="cont" width="60%">начальное значение берётся из истории</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editexpand.html">DIF_EDITEXPAND</a></td>
-<td class="cont" width="60%">"расширять" переменные среды</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editpath.html">DIF_EDITPATH</a></td>
-<td class="cont" width="60%">строка ввода будет содержать имена реальных файловых объектов</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">элемент является недоступным</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
-<td class="cont" width="60%">переводит строки редактирования в состояние "только для чтения"</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
-<td class="cont" width="60%">выделить  редактируемый текст при получении фокуса ввода</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода</td></tr>
+<tr><th>Флаг</th><th>Описание</th></tr>
+<tr><td><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td>флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
+<tr><td><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td>определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
+<tr><td><a href="../flags/dif_editor.html">DIF_EDITOR</a></td>
+<td>последовательно определённые поля ввода группируются в редактор с возможностью вставки и удаления строк</td></tr>
+<tr><td><a href="../flags/dif_history.html">DIF_HISTORY</a></td>
+<td>позволяет вести историю редактирования для поля ввода</td></tr>
+<tr><td><a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a></td>
+<td>строка для истории редактирования не будет автоматически добавляться в историю по завершению работы диалога</td></tr>
+<tr><td><a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a></td>
+<td>начальное значение берётся из истории</td></tr>
+<tr><td><a href="../flags/dif_editexpand.html">DIF_EDITEXPAND</a></td>
+<td>"расширять" переменные среды</td></tr>
+<tr><td><a href="../flags/dif_editpath.html">DIF_EDITPATH</a></td>
+<td>строка ввода будет содержать имена реальных файловых объектов</td></tr>
+<tr><td><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+<td>элемент является недоступным</td></tr>
+<tr><td><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
+<td>переводит строки редактирования в состояние "только для чтения"</td></tr>
+<tr><td><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
+<td>выделить  редактируемый текст при получении фокуса ввода</td></tr>
+<tr><td><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+<td>управляющий элемент не получает клавиатурный фокус ввода</td></tr>
 </table>
 </div>
 
 <h3>События</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
+<tr><th>Событие</th><th>Описание</th></tr>
+<tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td>начало отрисовки текстовой строки</td></tr>
+<tr><td><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td>запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
 <pre>
 <code>Colors[0]</code> - редактируемый текст
                 (<a href="../../defs/farcolors.html#COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a> или <a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>)
@@ -91,14 +91,14 @@ struct FarDialogItem
 <code>Colors[3]</code> - цвет символа для History
                 (<a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)</pre>
 </td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
-<td class="cont" width="60%">нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_editchange.html">DN_EDITCHANGE</a></td>
-<td class="cont" width="60%">текст изменён</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
-<td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
-<td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr><td><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td>нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
+<tr><td><a href="../dmsg/dn_editchange.html">DN_EDITCHANGE</a></td>
+<td>текст изменён</td></tr>
+<tr><td><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+<td>элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr><td><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+<td>элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
 </table>
 </div>
 

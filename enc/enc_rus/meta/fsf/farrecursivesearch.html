@@ -40,13 +40,13 @@ void WINAPI FarRecursiveSearch(
   <div class=dfn>Flags</div>
     <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (тип <a name="FRSMODE">FRSMODE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
-    <td class="cont" width="60%">Если FRS_RECUR установлен, вызывать UserFunc для каждого найденного каталога дважды: при входе в него и при возвращении в родительский каталог.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FRS_RECUR">FRS_RECUR</a></td>
-    <td class="cont" width="60%">Поиск заданного файла в дереве каталогов.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
-    <td class="cont" width="60%">Позволяет искать файлы в символических связях наравне с обычными подкаталогами.</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
+    <td>Если FRS_RECUR установлен, вызывать UserFunc для каждого найденного каталога дважды: при входе в него и при возвращении в родительский каталог.</td></tr>
+    <tr><td><a name="FRS_RECUR">FRS_RECUR</a></td>
+    <td>Поиск заданного файла в дереве каталогов.</td></tr>
+    <tr><td><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
+    <td>Позволяет искать файлы в символических связях наравне с обычными подкаталогами.</td></tr>
     </table></div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Указатель на данные пользователя, Far Manager его никак не обрабатывает, просто передаёт в <code>UserFunc</code>.</div>

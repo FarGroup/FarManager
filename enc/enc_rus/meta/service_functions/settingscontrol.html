@@ -38,60 +38,60 @@ intptr_t WINAPI SettingsControl(
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_SETTINGS_CONTROL_COMMANDS">FAR_SETTINGS_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Команда</th><th>Описание</th></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_CREATE">SCTL_CREATE</a></td>
-    <td class="cont" width="60%">Создаёт объект "настройки" для заданного плагина.<br>
+    <tr><td><a name="SCTL_CREATE">SCTL_CREATE</a></td>
+    <td>Создаёт объект "настройки" для заданного плагина.<br>
     <code>hHandle</code> должен быть установлен в значение <code>INVALID_HANDLE_VALUE</code>.<br>
     <code>Param1</code> указывает способ хранения настройки (перечисление <a name="FAR_PLUGIN_SETTINGS_LOCATION">FAR_PLUGIN_SETTINGS_LOCATION</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PSL_ROAMING">PSL_ROAMING</a></td>
-    <td class="cont" width="60%">в перемещаемом профиле</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PSL_LOCAL">PSL_LOCAL</a></td>
-    <td class="cont" width="60%">в локальном профиле</td></tr>
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="PSL_ROAMING">PSL_ROAMING</a></td>
+    <td>в перемещаемом профиле</td></tr>
+    <tr><td><a name="PSL_LOCAL">PSL_LOCAL</a></td>
+    <td>в локальном профиле</td></tr>
     </table>
     <code>Param2</code> указатель на структуру <a href="../structures/farsettingscreate.html">FarSettingsCreate</a> (поле <code>FarSettingsCreate.Guid</code> должно быть заполнено).<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_FREE">SCTL_FREE</a></td>
-    <td class="cont" width="60%">Удалить объект "настройки" для заданного плагина.<br>
+    <tr><td><a name="SCTL_FREE">SCTL_FREE</a></td>
+    <td>Удалить объект "настройки" для заданного плагина.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> и <code>Param2</code> игнорируются. <br>
     Функция возвращает <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_SET">SCTL_SET</a></td>
-    <td class="cont" width="60%">Сохранить настройки.<br>
+    <tr><td><a name="SCTL_SET">SCTL_SET</a></td>
+    <td>Сохранить настройки.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> указатель на структуру <a href="../structures/farsettingsitem.html">FarSettingsItem</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_GET">SCTL_GET</a></td>
-    <td class="cont" width="60%">Загрузить настройки.<br>
+    <tr><td><a name="SCTL_GET">SCTL_GET</a></td>
+    <td>Загрузить настройки.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> указатель на структуру <a href="../structures/farsettingsitem.html">FarSettingsItem</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_CREATESUBKEY">SCTL_CREATESUBKEY</a></td>
-    <td class="cont" width="60%">Открыть ключ настроек. Если такого ключа нет, то создать его.<br>
+    <tr><td><a name="SCTL_CREATESUBKEY">SCTL_CREATESUBKEY</a></td>
+    <td>Открыть ключ настроек. Если такого ключа нет, то создать его.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> указатель на структуру <a href="../structures/farsettingsvalue.html">FarSettingsValue</a>.<br>
     Функция возвращает уровень вложенности ключа (!! требуется уточнение !!).</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_OPENSUBKEY">SCTL_OPENSUBKEY</a></td>
-    <td class="cont" width="60%">Открыть существующий ключ настроек.<br>
+    <tr><td><a name="SCTL_OPENSUBKEY">SCTL_OPENSUBKEY</a></td>
+    <td>Открыть существующий ключ настроек.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> указатель на структуру <a href="../structures/farsettingsvalue.html">FarSettingsValue</a>.<br>
     Функция возвращает уровень вложенности ключа (!! требуется уточнение !!).</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_ENUM">SCTL_ENUM</a></td>
-    <td class="cont" width="60%">Получить список подключей и значений.<br>
+    <tr><td><a name="SCTL_ENUM">SCTL_ENUM</a></td>
+    <td>Получить список подключей и значений.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> указатель на структуру <a href="../structures/farsettingsenum.html">FarSettingsEnum</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_DELETE">SCTL_DELETE</a></td>
-    <td class="cont" width="60%">Удалить подключ или значение.<br>
+    <tr><td><a name="SCTL_DELETE">SCTL_DELETE</a></td>
+    <td>Удалить подключ или значение.<br>
     <code>hHandle</code> описатель настроек, созданный по команде <code>SCTL_CREATE</code> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <code>Param1</code> игнорируется. <code>Param2</code> - указатель на структуру <a href="../structures/farsettingsvalue.html">FarSettingsValue</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>

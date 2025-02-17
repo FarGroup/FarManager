@@ -82,18 +82,18 @@ struct PluginPanelItem
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="PLUGINPANELITEMFLAGS">PLUGINPANELITEMFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
-    <td class="cont" width="60%">Использовать внутреннюю обработку описаний Far Manager'а.<br>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
+    <td>Использовать внутреннюю обработку описаний Far Manager'а.<br>
     Этот флаг может быть установлен для обрабатываемых файлов в функциях  <a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> и
     <a href="../exported_functions/putfilesw.html">PutFilesW</a>. В этом случае Far Manager будет обновлять файлы описаний с именами, возвращёнными в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
-    <td class="cont" width="60%">Этот флаг отвечает за выделение элемента.<br>
+    <tr><td><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
+    <td>Этот флаг отвечает за выделение элемента.<br>
     В функциях <a href="../exported_functions/putfilesw.html">PutFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> и <a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>, если операция не удалась,
     но часть файлов была успешно обработана, плагин может убрать выделение только с обработанных файлов.<br>
     Для этого плагин должен очистить флаг <code>PPIF_SELECTED</code> у обрабатываемых элементов в переданном функции списке <code>PluginPanelItem</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_NONE">PPIF_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><td><a name="PPIF_NONE">PPIF_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table></div>
   <div class=dfn>UserData</div>
     <div class=dfndescr>Это поле может быть использовано плагином для хранения целого значения или указателя на структуру данных.<br>
@@ -101,35 +101,35 @@ struct PluginPanelItem
   <div class=dfn>FileAttributes</div>
     <div class=dfndescr>Указывает атрибуты найденного файла. Этот элемент может быть комбинацией следующих значений:
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Атрибут</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ARCHIVE">FILE_ATTRIBUTE_ARCHIVE</a></td>
-    <td class="cont" width="60%">Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_COMPRESSED">FILE_ATTRIBUTE_COMPRESSED</a></td>
-    <td class="cont" width="60%">Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_DIRECTORY">FILE_ATTRIBUTE_DIRECTORY</a></td>
-    <td class="cont" width="60%">Это каталог.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ENCRYPTED">FILE_ATTRIBUTE_ENCRYPTED</a></td>
-    <td class="cont" width="60%">Файл или каталог зашифрован. Для файла, это означает, что все данные в файле зашифрованы. Для директория, это означает, что шифрование является умолчанием для вновь созданных файлов и подкаталогов.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_HIDDEN">FILE_ATTRIBUTE_HIDDEN</a></td>
-    <td class="cont" width="60%">Файл скрыт. Такой файл не включается в обычный листинг каталога.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NORMAL">FILE_ATTRIBUTE_NORMAL</a></td>
-    <td class="cont" width="60%">У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_OFFLINE">FILE_ATTRIBUTE_OFFLINE</a></td>
-    <td class="cont" width="60%">Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_READONLY">FILE_ATTRIBUTE_READONLY</a></td>
-    <td class="cont" width="60%">Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_REPARSE_POINT">FILE_ATTRIBUTE_REPARSE_POINT</a></td>
-    <td class="cont" width="60%">Каталог является точкой повторной обработки.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
-    <td class="cont" width="60%">Файл является т.н. "Sparse file".</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
-    <td class="cont" width="60%">Этот файл - часть операционной системы.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_TEMPORARY">FILE_ATTRIBUTE_TEMPORARY</a></td>
-    <td class="cont" width="60%">Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NOT_CONTENT_INDEXED">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</a></td>
-    <td class="cont" width="60%">Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_VIRTUAL">FILE_ATTRIBUTE_VIRTUAL</a></td>
-    <td class="cont" width="60%">Этот файл - виртуальный файл.</td></tr>
+    <tr><th>Атрибут</th><th>Описание</th></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_ARCHIVE">FILE_ATTRIBUTE_ARCHIVE</a></td>
+    <td>Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_COMPRESSED">FILE_ATTRIBUTE_COMPRESSED</a></td>
+    <td>Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_DIRECTORY">FILE_ATTRIBUTE_DIRECTORY</a></td>
+    <td>Это каталог.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_ENCRYPTED">FILE_ATTRIBUTE_ENCRYPTED</a></td>
+    <td>Файл или каталог зашифрован. Для файла, это означает, что все данные в файле зашифрованы. Для директория, это означает, что шифрование является умолчанием для вновь созданных файлов и подкаталогов.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_HIDDEN">FILE_ATTRIBUTE_HIDDEN</a></td>
+    <td>Файл скрыт. Такой файл не включается в обычный листинг каталога.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_NORMAL">FILE_ATTRIBUTE_NORMAL</a></td>
+    <td>У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_OFFLINE">FILE_ATTRIBUTE_OFFLINE</a></td>
+    <td>Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_READONLY">FILE_ATTRIBUTE_READONLY</a></td>
+    <td>Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_REPARSE_POINT">FILE_ATTRIBUTE_REPARSE_POINT</a></td>
+    <td>Каталог является точкой повторной обработки.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
+    <td>Файл является т.н. "Sparse file".</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
+    <td>Этот файл - часть операционной системы.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_TEMPORARY">FILE_ATTRIBUTE_TEMPORARY</a></td>
+    <td>Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_NOT_CONTENT_INDEXED">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</a></td>
+    <td>Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
+    <tr><td><a name="FILE_ATTRIBUTE_VIRTUAL">FILE_ATTRIBUTE_VIRTUAL</a></td>
+    <td>Этот файл - виртуальный файл.</td></tr>
     </table></div>
   <div class=dfn>NumberOfLinks</div>
     <div class=dfndescr>Количество жёстких ссылок.</div>

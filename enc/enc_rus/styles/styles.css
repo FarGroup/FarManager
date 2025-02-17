@@ -78,31 +78,29 @@ TABLE.cont
     MARGIN-BOTTOM: 0.3em;
     WIDTH: 90%
 }
-TR.cont
+.cont th, .cont td
 {
-    VERTICAL-ALIGN: top
-}
-TH.cont
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
     FONT-SIZE: 70%;
-    BACKGROUND: #cccccc;
-    PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: bottom;
+    PADDING-LEFT: 8px;
+    PADDING-RIGHT: 8px;
     PADDING-TOP: 4px;
-    TEXT-ALIGN: left
-}
-TD.cont
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
-    FONT-SIZE: 70%;
-    BACKGROUND: #ffffff;
     PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: top;
-    PADDING-TOP: 4px
+    TEXT-ALIGN: left;
 }
+.cont th
+{
+    BACKGROUND: #cccccc;
+}
+.cont td
+{
+    BACKGROUND: #ffffff;
+    VERTICAL-ALIGN: top;
+}
+.cont td:last-child
+{
+    width: 60%;
+}
+
 A.pre
 {
     FONT-WEIGHT: bold;
@@ -305,7 +303,8 @@ PRE.syntax
     CURSOR: text;
     COLOR: #101030;
     PADDING-TOP: 2pt;
-    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
+    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace;
+    tab-size: 2;
 }
 KBD
 {

@@ -38,20 +38,20 @@ size_t WINAPI ProcessName(
   <div class=dfn>Flags</div>
     <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (тип <a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Действие</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Действие</th><th>Описание</th></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAME">PN_CMPNAME</a></td>
-    <td class="cont" width="60%">Сравнить имя файла с маской.<br>
+    <tr><td><a name="PN_CMPNAME">PN_CMPNAME</a></td>
+    <td>Сравнить имя файла с маской.<br>
     <code>Param1</code> соответствует <em>Pattern</em>, <code>Param2</code> соответствует <em>String</em>, <code>Size</code> игнорируется.
     Параметр <code>Param1</code> может включать обычные допустимые в именах файлов символы, а также специальные выражения:
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Метасимвол</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><code>*</code></td>
-    <td class="cont" width="60%">любое количество символов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><code>?</code></td>
-    <td class="cont" width="60%">любой символ</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><code>[c,x-z]</code></td>
-    <td class="cont" width="60%">любой символ из находящихся в квадратных скобках; допускаются и отдельные символы, и их диапазоны.</td></tr>
+    <tr><th>Метасимвол</th><th>Описание</th></tr>
+    <tr><td><code>*</code></td>
+    <td>любое количество символов</td></tr>
+    <tr><td><code>?</code></td>
+    <td>любой символ</td></tr>
+    <tr><td><code>[c,x-z]</code></td>
+    <td>любой символ из находящихся в квадратных скобках; допускаются и отдельные символы, и их диапазоны.</td></tr>
     </table>
 
     Например, файлы ftp.exe, fc.exe и f.ext совпадают с маской <code>f*.ex?</code>, маска <code>*co*</code> совпадает с color.ini и edit.com, маске
@@ -59,25 +59,25 @@ size_t WINAPI ProcessName(
     В случае успеха функция возвращает TRUE.
     </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
-    <td class="cont" width="60%">Сравнить имя файла со списком масок, перечисленных через запятую. Аналог предыдущего флага, только <code>Param1</code> соответствует списку масок.
+    <tr><td><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
+    <td>Сравнить имя файла со списком масок, перечисленных через запятую. Аналог предыдущего флага, только <code>Param1</code> соответствует списку масок.
     <code>Size</code> игнорируется.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
-    <td class="cont" width="60%">Может сочетаться с <code>PN_CMPNAME</code> или <code>PN_CMPNAMELIST</code> - указывает на то, что путь к имени файла при сравнении должен игнорироваться.</td></tr>
+    <tr><td><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
+    <td>Может сочетаться с <code>PN_CMPNAME</code> или <code>PN_CMPNAMELIST</code> - указывает на то, что путь к имени файла при сравнении должен игнорироваться.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
-    <td class="cont" width="60%">Генерировать имя файла на основе существующего (<code>Param1</code>) и маски (<code>Param2</code>).
+    <tr><td><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
+    <td>Генерировать имя файла на основе существующего (<code>Param1</code>) и маски (<code>Param2</code>).
      Результат записывается в <code>Param2</code>. <code>Size</code> должен содержать размер буфера с учётом завершающего <code>\0</code>.
      Возвращаемое значение - необходимый размер буфера.<br>
      Если нужно преобразовать только часть <code>Param1</code>, то можно указать размер этой части (может быть до 65535 символов) в <code>Flags</code> (добавить по принципу OR), например: <code>Param1=L"dir1\\file1"</code>, а нам нужно изменить только
      "dir1", тогда параметр <code>Flags</code> должен быть равен <code>PN_GENERATENAME|4</code> </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_CHECKMASK">PN_CHECKMASK</a></td>
-    <td class="cont" width="60%">Проверить валидность маски. <code>Param1</code> соответствует списку масок для проверки.</td></tr>
+    <tr><td><a name="PN_CHECKMASK">PN_CHECKMASK</a></td>
+    <td>Проверить валидность маски. <code>Param1</code> соответствует списку масок для проверки.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PN_SHOWERRORMESSAGE">PN_SHOWERRORMESSAGE</a></td>
-    <td class="cont" width="60%">При проверке валидности маски (<code>PN_CHECKMASK</code>) выводить сообщение об ошибке.</td></tr>
+    <tr><td><a name="PN_SHOWERRORMESSAGE">PN_SHOWERRORMESSAGE</a></td>
+    <td>При проверке валидности маски (<code>PN_CHECKMASK</code>) выводить сообщение об ошибке.</td></tr>
      </table>
      </div>
 </div>

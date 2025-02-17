@@ -43,44 +43,44 @@ struct FarDialogItem
 <div class=descr>
 Для элемента <code>DI_LISTBOX</code> имеют значения следующие флаги (про флаги списка см. <a href="../../structures/farlistitem.html">FarListItem</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
-<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
-<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
-<td class="cont" width="60%">горячие клавиши будут назначены автоматически</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
-<td class="cont" width="60%">показывать горячие клавиши в списке</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
-<td class="cont" width="60%">"заворачивает" список при навигации по списку</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
-<td class="cont" width="60%">не закрывать диалог при выборе элемента в списке</td></tr>
-<tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouse.html">DIF_LISTTRACKMOUSE</a></td>
-<td class="cont" width="60%">реагировать на движение мыши в списке</td></tr>
-<tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouseinfocus.html">DIF_LISTTRACKMOUSEINFOCUS</a></td>
-<td class="cont" width="60%">реагировать на движение мыши в списке только если элемент находится в фокусе</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">элемент является недоступным</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
-<td class="cont" width="60%">отключает прорисовку рамки вокруг списка. В этом случае <code>Data</code> игнорируется</td></tr>
+<tr><th>Флаг</th><th>Описание</th></tr>
+<tr><td><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td>флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
+<tr><td><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td>определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
+<tr><td><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
+<td>горячие клавиши будут назначены автоматически</td></tr>
+<tr><td><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
+<td>показывать горячие клавиши в списке</td></tr>
+<tr><td><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
+<td>"заворачивает" список при навигации по списку</td></tr>
+<tr><td><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
+<td>не закрывать диалог при выборе элемента в списке</td></tr>
+<tr><td><a href="../flags/dif_listtrackmouse.html">DIF_LISTTRACKMOUSE</a></td>
+<td>реагировать на движение мыши в списке</td></tr>
+<tr><td><a href="../flags/dif_listtrackmouseinfocus.html">DIF_LISTTRACKMOUSEINFOCUS</a></td>
+<td>реагировать на движение мыши в списке только если элемент находится в фокусе</td></tr>
+<tr><td><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+<td>элемент является недоступным</td></tr>
+<tr><td><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+<td>управляющий элемент не получает клавиатурный фокус ввода</td></tr>
+<tr><td><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
+<td>отключает прорисовку рамки вокруг списка. В этом случае <code>Data</code> игнорируется</td></tr>
 </table>
 </div>
 
 <h3>События</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">начало отрисовки элемента</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки списка</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
-<td class="cont" width="60%">изменилась позиция в списке</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
-<td class="cont" width="60%">пользователь для смены пункта в списке воспользовался горячими клавишами</td></tr>
+<tr><th>Событие</th><th>Описание</th></tr>
+<tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td>начало отрисовки элемента</td></tr>
+<tr><td><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
+<td>запрос цветовых атрибутов для отрисовки списка</td></tr>
+<tr><td><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
+<td>изменилась позиция в списке</td></tr>
+<tr><td><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
+<td>пользователь для смены пункта в списке воспользовался горячими клавишами</td></tr>
 </table>
 </div>
 

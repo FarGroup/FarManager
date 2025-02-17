@@ -11,7 +11,7 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 
 # contents tree for HHC is generated from /html/index.html following links one level down.
 # links in each file are followed only between <!-- HHC --> comments, for each "<h3>" a new "folder" is created,
-# for each "<a href=>" a new topic with some additional logic that prevents following unwanted links (only width=40% links are followed under h3 sections)
+# for each "<a href=>" a new topic (<a> must be in the very beginning of <td> content)
 # also,  for "<h3>",  text for the title is taken upto to the first comma
 
 
@@ -90,7 +90,7 @@ def make_chm_lang(lang):
   contents_filename = join(chm_lang_dir, "plugins%s.hhc" % lang[0])
   match_h3 = re.compile("<h3>(?P<title>.*?)(</h3>|,)", re.I)
   match_link_no_h3 = re.compile(r'<a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
-  match_link_after_h3 = re.compile(r'.?width\=\"40\%\".?<a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
+  match_link_after_h3 = re.compile(r'<td><a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
 
   cntnts = open(contents_filename, "w", encoding="windows-1251")
   cntnts.write(

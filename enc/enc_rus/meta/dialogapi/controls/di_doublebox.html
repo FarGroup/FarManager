@@ -39,24 +39,24 @@ struct FarDialogItem
 <div class=descr>
 Для элемента <code>DI_DOUBLEBOX</code> имеют значения следующие флаги:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_lefttext.html">DIF_LEFTTEXT</a></td>
-<td class="cont" width="60%">выравнивать заголовок рамки по левому краю</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_righttext.html">DIF_RIGHTTEXT</a></td>
-<td class="cont" width="60%">выравнивать заголовок рамки по правому краю относительно координат <code>X1</code> и <code>X2</code></td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
-<td class="cont" width="60%">показывать в текстовой строке амперсанд, не используя его для определения горячей клавиши</td></tr>
+<tr><th>Флаг</th><th>Описание</th></tr>
+<tr><td><a href="../flags/dif_lefttext.html">DIF_LEFTTEXT</a></td>
+<td>выравнивать заголовок рамки по левому краю</td></tr>
+<tr><td><a href="../flags/dif_righttext.html">DIF_RIGHTTEXT</a></td>
+<td>выравнивать заголовок рамки по правому краю относительно координат <code>X1</code> и <code>X2</code></td></tr>
+<tr><td><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td>показывать в текстовой строке амперсанд, не используя его для определения горячей клавиши</td></tr>
 </table>
 </div>
 
 <h3>События</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">начало отрисовки рамки</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
+<tr><th>Событие</th><th>Описание</th></tr>
+<tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td>начало отрисовки рамки</td></tr>
+<tr><td><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td>запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
 <pre>
 <code>Colors[0]</code> - текст заголовка рамки
                 (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a> или <a href="../../defs/farcolors.html#COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a>)
@@ -66,10 +66,10 @@ struct FarDialogItem
                 (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
 <code>Colors[3]</code> - 0 (не используется)</pre>
 </td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
-<td class="cont" width="60%">горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
-<td class="cont" width="60%">"кликнули" клавишей мыши</td></tr>
+<tr><td><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td>горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
+<tr><td><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td>"кликнули" клавишей мыши</td></tr>
 </table>
 </div>
 

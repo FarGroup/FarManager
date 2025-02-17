@@ -45,11 +45,11 @@ struct FarListItemData
 <div class=descr>
 Менеджер диалогов размещает данные, ассоциируемые с пунктом списка, по следующим правилам:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">DataSize</th><th class="cont" width="60%">Data</th></tr>
-<tr class="cont"><td class="cont" width="40%"><code>0</code></td>
-<td class="cont" width="60%">Указатель на Unicode-строку. Выделяется память размером <code>wcslen(Data)+1</code> символов. Передаваемые данные копируются в выделенную область памяти.</td></tr>
-<tr class="cont"><td class="cont" width="40%"><code>!=0</code></td>
-<td class="cont" width="60%">Произвольные данные. Выделяется память размером <code>DataSize</code>. Передаваемые данные копируются в выделенную область памяти.</td></tr>
+<tr><th>DataSize</th><th>Data</th></tr>
+<tr><td><code>0</code></td>
+<td>Указатель на Unicode-строку. Выделяется память размером <code>wcslen(Data)+1</code> символов. Передаваемые данные копируются в выделенную область памяти.</td></tr>
+<tr><td><code>!=0</code></td>
+<td>Произвольные данные. Выделяется память размером <code>DataSize</code>. Передаваемые данные копируются в выделенную область памяти.</td></tr>
 </table>
 </div>
 

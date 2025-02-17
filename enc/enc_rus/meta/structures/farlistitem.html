@@ -34,23 +34,23 @@ struct FarListItem
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация следующих значений (тип <a name="LISTITEMFLAGS">LISTITEMFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_SELECTED">LIF_SELECTED</a></td>
-    <td class="cont" width="60%">Флаг активности пункта списка. Только один пункт может быть активным.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_CHECKED">LIF_CHECKED</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то перед текстом пункта отображается символ пометки (например, символ с кодом 0xFB - <code>&#8730;</code>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_SEPARATOR">LIF_SEPARATOR</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то пункт отображается как разделитель. Разделитель может иметь непустой текст, который будет отображаться поверх разделительной линии.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_DISABLE">LIF_DISABLE</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то пункт недоступен.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_GRAYED">LIF_GRAYED</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то пункт доступен в навигации, но не доступен для выбора.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_HIDDEN">LIF_HIDDEN</a></td>
-    <td class="cont" width="60%">Если флаг установлен, то пункт не выводится на экран.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
-    <td class="cont" width="60%">Этот флаг устанавливается в параметре Item сообщения <a href="../dialogapi/dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="LIF_NONE">LIF_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="LIF_SELECTED">LIF_SELECTED</a></td>
+    <td>Флаг активности пункта списка. Только один пункт может быть активным.</td></tr>
+    <tr><td><a name="LIF_CHECKED">LIF_CHECKED</a></td>
+    <td>Если флаг установлен, то перед текстом пункта отображается символ пометки (например, символ с кодом 0xFB - <code>&#8730;</code>).</td></tr>
+    <tr><td><a name="LIF_SEPARATOR">LIF_SEPARATOR</a></td>
+    <td>Если флаг установлен, то пункт отображается как разделитель. Разделитель может иметь непустой текст, который будет отображаться поверх разделительной линии.</td></tr>
+    <tr><td><a name="LIF_DISABLE">LIF_DISABLE</a></td>
+    <td>Если флаг установлен, то пункт недоступен.</td></tr>
+    <tr><td><a name="LIF_GRAYED">LIF_GRAYED</a></td>
+    <td>Если флаг установлен, то пункт доступен в навигации, но не доступен для выбора.</td></tr>
+    <tr><td><a name="LIF_HIDDEN">LIF_HIDDEN</a></td>
+    <td>Если флаг установлен, то пункт не выводится на экран.</td></tr>
+    <tr><td><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
+    <td>Этот флаг устанавливается в параметре Item сообщения <a href="../dialogapi/dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
+    <tr><td><a name="LIF_NONE">LIF_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>Text</div>

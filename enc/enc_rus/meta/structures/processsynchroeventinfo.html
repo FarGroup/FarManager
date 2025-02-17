@@ -35,9 +35,9 @@ struct ProcessSynchroEventInfo
   <div class=dfn>Event</div>
     <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="SE_COMMONSYNCHRO" title="0">SE_COMMONSYNCHRO</a></td>
-    <td class="cont" width="60%">Событие приходит, если плагином вызывается функция <a href="../service_functions/advcontrol.html#ACTL_SYNCHRO">Info.AdvControl(...,ACTL_SYNCHRO,Param1,Param2)</a>.<br>
+    <tr><th>Событие</th><th>Описание</th></tr>
+    <tr><td><a name="SE_COMMONSYNCHRO" title="0">SE_COMMONSYNCHRO</a></td>
+    <td>Событие приходит, если плагином вызывается функция <a href="../service_functions/advcontrol.html#ACTL_SYNCHRO">Info.AdvControl(...,ACTL_SYNCHRO,Param1,Param2)</a>.<br>
     <code>Param</code> указывает на переданные данные в параметре <code>Info.AdvControl(...,Param2)</code>.<br>
     Функция <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> должна вернуть <code>0</code>.</td></tr>
     </table>

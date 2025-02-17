@@ -38,23 +38,23 @@ struct PluginInfo
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация следующих значений (тип <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_PRELOAD">PF_PRELOAD</a></td>
-    <td class="cont" width="60%">Отменить кеширование параметров плагина и заставить Far Manager всегда загружать плагин в память при старте. Должно быть указано,
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="PF_PRELOAD">PF_PRELOAD</a></td>
+    <td>Отменить кеширование параметров плагина и заставить Far Manager всегда загружать плагин в память при старте. Должно быть указано,
     если необходимо изменять строки в меню "Диск", "Команды внешних модулей" или "Конфигурация модулей" динамически. Этот флаг уменьшает эффективность использования памяти.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_DISABLEPANELS">PF_DISABLEPANELS</a></td>
-    <td class="cont" width="60%">Не показывать плагин в меню "Команды внешних модулей", вызываемом из панелей.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_EDITOR">PF_EDITOR</a></td>
-    <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из редактора Far Manager.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_VIEWER">PF_VIEWER</a></td>
-    <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из вьюера Far Manager.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_DIALOG">PF_DIALOG</a></td>
-    <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из диалога Far Manager.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
-    <td class="cont" width="60%">Заставляет Far Manager передавать плагину всю командную строку вместе с префиксом <code>CommandPrefix</code>.
+    <tr><td><a name="PF_DISABLEPANELS">PF_DISABLEPANELS</a></td>
+    <td>Не показывать плагин в меню "Команды внешних модулей", вызываемом из панелей.</td></tr>
+    <tr><td><a name="PF_EDITOR">PF_EDITOR</a></td>
+    <td>Показывать плагин в меню "Команды внешних модулей", вызываемом из редактора Far Manager.</td></tr>
+    <tr><td><a name="PF_VIEWER">PF_VIEWER</a></td>
+    <td>Показывать плагин в меню "Команды внешних модулей", вызываемом из вьюера Far Manager.</td></tr>
+    <tr><td><a name="PF_DIALOG">PF_DIALOG</a></td>
+    <td>Показывать плагин в меню "Команды внешних модулей", вызываемом из диалога Far Manager.</td></tr>
+    <tr><td><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
+    <td>Заставляет Far Manager передавать плагину всю командную строку вместе с префиксом <code>CommandPrefix</code>.
     Обязательно использовать этот флаг, если плагин умеет обрабатывать несколько префиксов <code>CommandPrefix</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PF_NONE">PF_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><td><a name="PF_NONE">PF_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table></div>
   <div class=dfn>DiskMenu</div>
     <div class=dfndescr>Если плагин добавляет строки в меню "Диск", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>

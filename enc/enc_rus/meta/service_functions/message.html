@@ -40,36 +40,36 @@ intptr_t WINAPI Message(
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_WARNING">FMSG_WARNING</a></td>
-    <td class="cont" width="60%">Используются цвета &quot;Предупреждения&quot; (обычно белые буквы на красном фоне).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
-    <td class="cont" width="60%">Если тип ошибки, возвращаемый функцией <code>GetLastError</code>, <a href="../defs/winerror.html">известен Far Manager'у</a> или Windows,
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="FMSG_WARNING">FMSG_WARNING</a></td>
+    <td>Используются цвета &quot;Предупреждения&quot; (обычно белые буквы на красном фоне).</td></tr>
+    <tr><td><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
+    <td>Если тип ошибки, возвращаемый функцией <code>GetLastError</code>, <a href="../defs/winerror.html">известен Far Manager'у</a> или Windows,
     то описание ошибки будет выведено после строк, переданных плагином.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
-    <td class="cont" width="60%">Не перерисовывать фон сообщения.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
-    <td class="cont" width="60%">Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
-    <td class="cont" width="60%">В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
+    <tr><td><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
+    <td>Не перерисовывать фон сообщения.</td></tr>
+    <tr><td><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
+    <td>Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
+    <tr><td><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
+    <td>В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
     строку</dfn>, в которой разделителем выводимых строк является символ <code>'\n'</code>.
     <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.
     <p>При указании флага <code>FMSG_ALLINONE</code> аргумент <code>ItemsNumber</code> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок <code>FMSG_MB_*</code>).
     <p>Для подавления вывода заголовка при использовании флага <code>FMSG_ALLINONE</code> начните строку с символа <code>'\n'</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
-    <td class="cont" width="60%">Дополнительно выводится кнопка &lt;Ok&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
-    <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_ABORTRETRYIGNORE">FMSG_MB_ABORTRETRYIGNORE</a></td>
-    <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNO">FMSG_MB_YESNO</a></td>
-    <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNOCANCEL">FMSG_MB_YESNOCANCEL</a></td>
-    <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_RETRYCANCEL">FMSG_MB_RETRYCANCEL</a></td>
-    <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_NONE">FMSG_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг</td></tr>
+    <tr><td><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
+    <td>Дополнительно выводится кнопка &lt;Ok&gt;</td></tr>
+    <tr><td><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
+    <td>Дополнительно выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
+    <tr><td><a name="FMSG_MB_ABORTRETRYIGNORE">FMSG_MB_ABORTRETRYIGNORE</a></td>
+    <td>Дополнительно выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
+    <tr><td><a name="FMSG_MB_YESNO">FMSG_MB_YESNO</a></td>
+    <td>Дополнительно выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
+    <tr><td><a name="FMSG_MB_YESNOCANCEL">FMSG_MB_YESNOCANCEL</a></td>
+    <td>Дополнительно выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
+    <tr><td><a name="FMSG_MB_RETRYCANCEL">FMSG_MB_RETRYCANCEL</a></td>
+    <td>Дополнительно выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
+    <tr><td><a name="FMSG_NONE">FMSG_NONE</a></td>
+    <td>Нулевой флаг</td></tr>
     </table>
     </div>
   <div class=dfn>HelpTopic</div>

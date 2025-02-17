@@ -41,13 +41,13 @@ size_t WINAPI ConvertPath(
   <div class=dfn>Mode</div>
     <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (перечисление <a name="CONVERTPATHMODES">CONVERTPATHMODES</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Действие</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CPM_FULL">CPM_FULL</a></td>
-    <td class="cont" width="60%"> преобразует относительное имя файлового объекта в полное</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CPM_REAL">CPM_REAL</a></td>
-    <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учётом символических ссылок.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CPM_NATIVE">CPM_NATIVE</a></td>
-    <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, предваряя путь префиксами <code>"\\?\"</code> (для локальных объектов) или <code>"\\?\UNC\"</code> (для сетевых объектов);<br>
+    <tr><th>Действие</th><th>Описание</th></tr>
+    <tr><td><a name="CPM_FULL">CPM_FULL</a></td>
+    <td> преобразует относительное имя файлового объекта в полное</td></tr>
+    <tr><td><a name="CPM_REAL">CPM_REAL</a></td>
+    <td>преобразует относительное имя файлового объекта в полное, с учётом символических ссылок.</td></tr>
+    <tr><td><a name="CPM_NATIVE">CPM_NATIVE</a></td>
+    <td>преобразует относительное имя файлового объекта в полное, предваряя путь префиксами <code>"\\?\"</code> (для локальных объектов) или <code>"\\?\UNC\"</code> (для сетевых объектов);<br>
     это преобразование имеет смысл применять для избежания проблем с длинными и нестандартными именами файлов (см. <a class="msdocs">Naming Files, Paths, and Namespaces</a>)</td></tr>
     </table>
     </div>

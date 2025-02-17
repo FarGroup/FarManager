@@ -36,52 +36,52 @@ intptr_t WINAPI RegExpControl(
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_REGEXP_CONTROL_COMMANDS">FAR_REGEXP_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Команда</th><th>Описание</th></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_CREATE">RECTL_CREATE</a></td>
-    <td class="cont" width="60%"> Создаёт структуры под Регулярные выражения.<br>
+    <tr><td><a name="RECTL_CREATE">RECTL_CREATE</a></td>
+    <td> Создаёт структуры под Регулярные выражения.<br>
     <code>hHandle</code> должен быть установлен в значение <code>NULL</code>. <br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> - указатель типа <code>HANDLE</code>, в который запишется созданный описатель Регулярных выражений.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_FREE">RECTL_FREE</a></td>
-    <td class="cont" width="60%"> Освобождает память занятую при создании Регулярных выражений. <br>
+    <tr><td><a name="RECTL_FREE">RECTL_FREE</a></td>
+    <td> Освобождает память занятую при создании Регулярных выражений. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>. </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_COMPILE">RECTL_COMPILE</a></td>
-    <td class="cont" width="60%"> Инициализирует Регулярные выражения. <br>
+    <tr><td><a name="RECTL_COMPILE">RECTL_COMPILE</a></td>
+    <td> Инициализирует Регулярные выражения. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> - указатель на строку с Регулярными выражениями. <br>
     Функция возвращает <code>TRUE</code> при удачной компиляции строки. </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_OPTIMIZE">RECTL_OPTIMIZE</a></td>
-    <td class="cont" width="60%"> Оптимизирует Регулярные выражения после инициализации, применяется после <code>RECTL_COMPILE</code>. <br>
+    <tr><td><a name="RECTL_OPTIMIZE">RECTL_OPTIMIZE</a></td>
+    <td> Оптимизирует Регулярные выражения после инициализации, применяется после <code>RECTL_COMPILE</code>. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code> при удачной оптимизации. </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_MATCHEX">RECTL_MATCHEX</a></td>
-    <td class="cont" width="60%"> Сопоставляет Регулярное выражение строке. <br>
+    <tr><td><a name="RECTL_MATCHEX">RECTL_MATCHEX</a></td>
+    <td> Сопоставляет Регулярное выражение строке. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указатель на заполненную структуру <a href="../structures/regexpsearch.html">RegExpSearch</a>. <br>
     Функция возвращает <code>TRUE</code> при удачной операции сопоставления. </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_SEARCHEX">RECTL_SEARCHEX</a></td>
-    <td class="cont" width="60%"> Ищет в строке подстроки заданные Регулярным выражением. <br>
+    <tr><td><a name="RECTL_SEARCHEX">RECTL_SEARCHEX</a></td>
+    <td> Ищет в строке подстроки заданные Регулярным выражением. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указатель на заполненную структуру <a href="../structures/regexpsearch.html">RegExpSearch</a>. <br>
     Функция возвращает <code>TRUE</code>, если удалось найти подстроки. </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_BRACKETSCOUNT">RECTL_BRACKETSCOUNT</a></td>
-    <td class="cont" width="60%"> Количество скобок () в Регулярном выражении. <br>
+    <tr><td><a name="RECTL_BRACKETSCOUNT">RECTL_BRACKETSCOUNT</a></td>
+    <td> Количество скобок () в Регулярном выражении. <br>
     <code>hHandle</code> - описатель Регулярных выражений, созданный по команде <code>RECTL_CREATE</code>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
