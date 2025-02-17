@@ -61,7 +61,9 @@ TABLE
 TD
 {
     FONT-SIZE: 80%;
-    VERTICAL-ALIGN: top
+    VERTICAL-ALIGN: top;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 TH
 {
@@ -78,31 +80,29 @@ TABLE.cont
     MARGIN-BOTTOM: 0.3em;
     WIDTH: 90%
 }
-TR.cont
+.cont th, .cont td
 {
-    VERTICAL-ALIGN: top
-}
-TH.cont
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
     FONT-SIZE: 70%;
-    BACKGROUND: #cccccc;
-    PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: bottom;
+    PADDING-LEFT: 8px;
+    PADDING-RIGHT: 8px;
     PADDING-TOP: 4px;
-    TEXT-ALIGN: left
-}
-TD.cont
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
-    FONT-SIZE: 70%;
-    BACKGROUND: #ffffff;
     PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: top;
-    PADDING-TOP: 4px
+    TEXT-ALIGN: left;
 }
+.cont th
+{
+    BACKGROUND: #cccccc;
+}
+.cont td
+{
+    BACKGROUND: #ffffff;
+    VERTICAL-ALIGN: top;
+}
+.cont td:last-child
+{
+    width: 60%;
+}
+
 A.pre
 {
     FONT-WEIGHT: bold;
@@ -305,7 +305,8 @@ PRE.syntax
     CURSOR: text;
     COLOR: #101030;
     PADDING-TOP: 2pt;
-    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
+    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace;
+    tab-size: 2;
 }
 KBD
 {
@@ -329,16 +330,17 @@ P.note
 {
     CLEAR: both;
     MARGIN-TOP: 1em;
+    MARGIN-LEFT: 0.1em;
     FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -1.0em;
     FONT-FAMILY: tahoma, arial, helvetica;
-    MARGIN-LEFT: 0.1em
+    height: 13px;
 }
 UL.note
 {
-    MARGIN-LEFT: 1.5em;
     FONT-FAMILY: tahoma, arial, helvetica;
-    LIST-STYLE-TYPE: none
+    LIST-STYLE-TYPE: none;
+    margin-top: 0;
+    padding-left: 1.5em;
 }
 SPAN.faqq
 {
@@ -360,7 +362,8 @@ SPAN.faqa
     COLOR: #000080
 }
 
-.nobr { white-space:nowrap; }
+.nobr { white-space: nowrap; }
+.pre { white-space: pre; }
 
 table p { margin-top: 0em; margin-bottom: 0.364em}
 table ul { margin-top: 0.364em; margin-bottom: 0.364em}
