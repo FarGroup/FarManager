@@ -36,51 +36,51 @@ intptr_t WINAPI FileFilterControl(
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_FILE_FILTER_CONTROL_COMMANDS">FAR_FILE_FILTER_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><th>Команда</th><th>Описание</th></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_CREATEFILEFILTER">FFCTL_CREATEFILEFILTER</a></td>
-    <td class="cont" width="60%"> Создаёт фильтр для заданной области.<br>
+    <tr><td><a name="FFCTL_CREATEFILEFILTER">FFCTL_CREATEFILEFILTER</a></td>
+    <td> Создаёт фильтр для заданной области.<br>
     <code>hHandle</code> должен быть установлен в значение <code>PANEL_ACTIVE</code> или  <code>PANEL_PASSIVE</code>,<br>
     для фильтра типа <code>FFT_CUSTOM</code>, описатель должен быть установлен в значение <code>PANEL_NONE</code>.<br>
     <code>Param1</code> в следующее значение (перечисление <a name="FAR_FILE_FILTER_TYPE">FAR_FILE_FILTER_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFT_PANEL">FFT_PANEL</a></td>
-    <td class="cont" width="60%">панель</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFT_FINDFILE">FFT_FINDFILE</a></td>
-    <td class="cont" width="60%">диалог поиска файлов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFT_COPY">FFT_COPY</a></td>
-    <td class="cont" width="60%">диалог копирования</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFT_SELECT">FFT_SELECT</a></td>
-    <td class="cont" width="60%">диалог пометки файлов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFT_CUSTOM">FFT_CUSTOM</a></td>
-    <td class="cont" width="60%">пользовательская область (для использования плагином)</td></tr>
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="FFT_PANEL">FFT_PANEL</a></td>
+    <td>панель</td></tr>
+    <tr><td><a name="FFT_FINDFILE">FFT_FINDFILE</a></td>
+    <td>диалог поиска файлов</td></tr>
+    <tr><td><a name="FFT_COPY">FFT_COPY</a></td>
+    <td>диалог копирования</td></tr>
+    <tr><td><a name="FFT_SELECT">FFT_SELECT</a></td>
+    <td>диалог пометки файлов</td></tr>
+    <tr><td><a name="FFT_CUSTOM">FFT_CUSTOM</a></td>
+    <td>пользовательская область (для использования плагином)</td></tr>
     </table>
     Созданный фильтр получит настройки заданного типа, настройки глобальны и всегда идентичны в любом фильтре этого типа (но левая и правая панели различаются).<br>
     <code>Param2</code> - указатель типа <code>HANDLE</code>, в который запишется созданный описатель фильтра. <br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_FREEFILEFILTER">FFCTL_FREEFILEFILTER</a></td>
-    <td class="cont" width="60%"> Освобождает память занятую при создании фильтра.<br>
+    <tr><td><a name="FFCTL_FREEFILEFILTER">FFCTL_FREEFILEFILTER</a></td>
+    <td> Освобождает память занятую при создании фильтра.<br>
     <code>hHandle</code> - описатель фильтра, созданный по команде <code>FFCTL_CREATEFILEFILTER</code>.<br>
     <code>Param1</code> и <code>Param2</code> игнорируются. <br>
     Функция возвращает <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_OPENFILTERSMENU">FFCTL_OPENFILTERSMENU</a></td>
-    <td class="cont" width="60%"> Открывает меню с параметрами фильтра для заданной области.<br>
+    <tr><td><a name="FFCTL_OPENFILTERSMENU">FFCTL_OPENFILTERSMENU</a></td>
+    <td> Открывает меню с параметрами фильтра для заданной области.<br>
     <code>hHandle</code> - описатель фильтра, созданный по команде <code>FFCTL_CREATEFILEFILTER</code>.<br>
     <code>Param1</code> и <code>Param2</code> игнорируются.<br>
     Функция возвращает <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_STARTINGTOFILTER">FFCTL_STARTINGTOFILTER</a></td>
-    <td class="cont" width="60%"> Обновить параметр "текущее время", который используется для сравнения относительных дат.<br>
+    <tr><td><a name="FFCTL_STARTINGTOFILTER">FFCTL_STARTINGTOFILTER</a></td>
+    <td> Обновить параметр "текущее время", который используется для сравнения относительных дат.<br>
     <code>hHandle</code> - описатель фильтра, созданный по команде <code>FFCTL_CREATEFILEFILTER</code>.<br>
     <code>Param1</code> и <code>Param2</code> игнорируются.<br>
     Вызов этой команды надо делать до начала операции фильтрования, для того чтобы правильно работали фильтры с относительной датой.<br>
     Функция возвращает <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FFCTL_ISFILEINFILTER">FFCTL_ISFILEINFILTER</a></td>
-    <td class="cont" width="60%"> Сравнивает файл с параметрами фильтра.<br>
+    <tr><td><a name="FFCTL_ISFILEINFILTER">FFCTL_ISFILEINFILTER</a></td>
+    <td> Сравнивает файл с параметрами фильтра.<br>
     <code>hHandle</code> - описатель фильтра, созданный по команде <code>FFCTL_CREATEFILEFILTER</code>.<br>
     <code>Param1</code> игнорируются. <code>Param2</code> указатель на файловый объект (структура <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>), который нужно проверить на включение в фильтр. <br>
     Функция возвращает <code>TRUE</code>, если файл попадает под условия фильтра. </td></tr>

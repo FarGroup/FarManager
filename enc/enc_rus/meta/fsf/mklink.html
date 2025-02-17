@@ -37,33 +37,33 @@ BOOL WINAPI MkLink(
   <div class=dfn>LinkType</div>
     <div class=dfndescr>Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
-    <td class="cont" width="60%">создать жёсткую ссылку (hardlink)</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_JUNCTION">LINK_JUNCTION</a></td>
-    <td class="cont" width="60%">создать связь каталогов (junction)</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_VOLMOUNT">LINK_VOLMOUNT</a></td>
-    <td class="cont" width="60%">монтировать локальный диск на файловую систему</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKFILE">LINK_SYMLINKFILE</a></td>
-    <td class="cont" width="60%">создать символическую ссылку-файл</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKDIR">LINK_SYMLINKDIR</a></td>
-    <td class="cont" width="60%">создать символическую ссылку-каталог</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINK">LINK_SYMLINK</a></td>
-    <td class="cont" width="60%">автоматически выбрать тип создаваемой символической ссылки</td></tr>
+    <tr><th>Операция</th><th>Описание</th></tr>
+    <tr><td><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
+    <td>создать жёсткую ссылку (hardlink)</td></tr>
+    <tr><td><a name="LINK_JUNCTION">LINK_JUNCTION</a></td>
+    <td>создать связь каталогов (junction)</td></tr>
+    <tr><td><a name="LINK_VOLMOUNT">LINK_VOLMOUNT</a></td>
+    <td>монтировать локальный диск на файловую систему</td></tr>
+    <tr><td><a name="LINK_SYMLINKFILE">LINK_SYMLINKFILE</a></td>
+    <td>создать символическую ссылку-файл</td></tr>
+    <tr><td><a name="LINK_SYMLINKDIR">LINK_SYMLINKDIR</a></td>
+    <td>создать символическую ссылку-каталог</td></tr>
+    <tr><td><a name="LINK_SYMLINK">LINK_SYMLINK</a></td>
+    <td>автоматически выбрать тип создаваемой символической ссылки</td></tr>
     </table>
     </div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
-    <td class="cont" width="60%">выводить сообщения об ошибках</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
-    <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
-    <td class="cont" width="60%">для символических ссылок не конвертировать Target в полный путь</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
-    <td class="cont" width="60%">нулевой флаг</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
+    <td>выводить сообщения об ошибках</td></tr>
+    <tr><td><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
+    <td>после создания ссылки не обновлять панели</td></tr>
+    <tr><td><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
+    <td>для символических ссылок не конвертировать Target в полный путь</td></tr>
+    <tr><td><a name="MLF_NONE">MLF_NONE</a></td>
+    <td>нулевой флаг</td></tr>
     </table>
     </div>
 </div>

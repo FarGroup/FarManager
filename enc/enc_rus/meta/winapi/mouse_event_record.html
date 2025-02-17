@@ -51,25 +51,25 @@ typedef struct _MOUSE_EVENT_RECORD {
     <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
 
       <table class="cont">
-     <tr class="cont"><th class="cont" width="40%">Клавиша</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%">CAPSLOCK_ON</td>
-        <td class="cont" width="60%">CAPS LOCK включён.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">ENHANCED_KEY</td>
-        <td class="cont" width="60%">Клавиша расширенная.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">LEFT_ALT_PRESSED </td>
-        <td class="cont" width="60%">Левый ALT нажат.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">LEFT_CTRL_PRESSED </td>
-        <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">NUMLOCK_ON </td>
-        <td class="cont" width="60%">NUM LOCK включён. </td></tr>
-        <tr class="cont"><td class="cont" width="40%">RIGHT_ALT_PRESSED </td>
-        <td class="cont" width="60%">Правый ALT нажат.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">RIGHT_CTRL_PRESSED </td>
-        <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
-        <tr class="cont"><td class="cont" width="40%">SCROLLLOCK_ON </td>
-        <td class="cont" width="60%">SCROLL LOCK включён. </td></tr>
-        <tr class="cont"><td class="cont" width="40%">SHIFT_PRESSED </td>
-        <td class="cont" width="60%">Клавиша SHIFT нажата. </td></tr>
+     <tr><th>Клавиша</th><th>Описание</th></tr>
+        <tr><td>CAPSLOCK_ON</td>
+        <td>CAPS LOCK включён.</td></tr>
+        <tr><td>ENHANCED_KEY</td>
+        <td>Клавиша расширенная.</td></tr>
+        <tr><td>LEFT_ALT_PRESSED </td>
+        <td>Левый ALT нажат.</td></tr>
+        <tr><td>LEFT_CTRL_PRESSED </td>
+        <td>Левый CTRL нажат.</td></tr>
+        <tr><td>NUMLOCK_ON </td>
+        <td>NUM LOCK включён. </td></tr>
+        <tr><td>RIGHT_ALT_PRESSED </td>
+        <td>Правый ALT нажат.</td></tr>
+        <tr><td>RIGHT_CTRL_PRESSED </td>
+        <td>Правый CTRL нажат.</td></tr>
+        <tr><td>SCROLLLOCK_ON </td>
+        <td>SCROLL LOCK включён. </td></tr>
+        <tr><td>SHIFT_PRESSED </td>
+        <td>Клавиша SHIFT нажата. </td></tr>
      </table>
 
     </div>
@@ -77,20 +77,20 @@ typedef struct _MOUSE_EVENT_RECORD {
     <div class=dfndescr>Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
       Иначе одно из следующих значений:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-       <tr class="cont"><td class="cont" width="40%">DOUBLE_CLICK</td>
-       <td class="cont" width="60%">Второе нажатие при двойном щелчке (первое нажатие приходит как обычное сообщение).</td>
+       <tr><th>Событие</th><th>Описание</th></tr>
+       <tr><td>DOUBLE_CLICK</td>
+       <td>Второе нажатие при двойном щелчке (первое нажатие приходит как обычное сообщение).</td>
        </tr>
-       <tr class="cont"><td class="cont" width="40%">MOUSE_MOVED</td>
-       <td class="cont" width="60%">Позиция мыши изменилась.</td></tr>
-       <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
-       <td class="cont" width="60%">Устанавливается при вертикальной прокрутке колёсика
+       <tr><td>MOUSE_MOVED</td>
+       <td>Позиция мыши изменилась.</td></tr>
+       <tr><td>MOUSE_WHEELED</td>
+       <td>Устанавливается при вертикальной прокрутке колёсика
            на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
            значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
            изменяться в зависимости от драйвера мыши.</td>
        </tr>
-       <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
-       <td class="cont" width="60%"><code>Windows Vista/2008/7:</code> Устанавливается при горизонтальной прокрутке колёсика
+       <tr><td>MOUSE_HWHEELED</td>
+       <td><code>Windows Vista/2008/7:</code> Устанавливается при горизонтальной прокрутке колёсика
            на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
            значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
            изменяться в зависимости от драйвера мыши.</td>

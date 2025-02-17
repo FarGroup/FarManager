@@ -58,25 +58,25 @@ intptr_t WINAPI InputBox(
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
-    <td class="cont" width="60%">даже если строка ввода пуста функция вернёт значение <code>TRUE</code></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
-    <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
-    <td class="cont" width="60%">после успешного ввода, в строке <code>DestText</code> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '<code>%TEMP%</code>', то <code>DestText</code> будет содержать '<code>C:\TEMP</code>'</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
-    <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <code>HistoryName</code> не равен <code>NULL</code></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
-    <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
-    <td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_EDITPATH">FIB_EDITPATH</a></td>
-    <td class="cont" width="60%">говорит, что строка ввода будет содержать имена реальных файловых объектов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_EDITPATHEXEC">FIB_EDITPATHEXEC</a></td>
-    <td class="cont" width="60%">ограничивать автодополнение в строке ввода только именами исполнимых файлов (%PATHEXT%), которые находятся в каталогах, перечисленных в %PATH%</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FIB_NONE">FIB_NONE</a></td>
-    <td class="cont" width="60%">нулевой флаг</td></tr>
+    <tr><th>Константа</th><th>Описание</th></tr>
+    <tr><td><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
+    <td>даже если строка ввода пуста функция вернёт значение <code>TRUE</code></td></tr>
+    <tr><td><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
+    <td>используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code></td></tr>
+    <tr><td><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
+    <td>после успешного ввода, в строке <code>DestText</code> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '<code>%TEMP%</code>', то <code>DestText</code> будет содержать '<code>C:\TEMP</code>'</td></tr>
+    <tr><td><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
+    <td>не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <code>HistoryName</code> не равен <code>NULL</code></td></tr>
+    <tr><td><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
+    <td>показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки</td></tr>
+    <tr><td><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
+    <td>не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши</td></tr>
+    <tr><td><a name="FIB_EDITPATH">FIB_EDITPATH</a></td>
+    <td>говорит, что строка ввода будет содержать имена реальных файловых объектов</td></tr>
+    <tr><td><a name="FIB_EDITPATHEXEC">FIB_EDITPATHEXEC</a></td>
+    <td>ограничивать автодополнение в строке ввода только именами исполнимых файлов (%PATHEXT%), которые находятся в каталогах, перечисленных в %PATH%</td></tr>
+    <tr><td><a name="FIB_NONE">FIB_NONE</a></td>
+    <td>нулевой флаг</td></tr>
     </table>
     </div>
 </div>

@@ -44,41 +44,41 @@ intptr_t WINAPI Viewer (
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="VIEWER_FLAGS">VIEWER_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
-    <td class="cont" width="60%">Far Manager удалит просматриваемый файл после закрытия вьюера. Если в директории, содержащей просматриваемый файл, нет других файлов, она также будет удалена.
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
+    <td>Far Manager удалит просматриваемый файл после закрытия вьюера. Если в директории, содержащей просматриваемый файл, нет других файлов, она также будет удалена.
     Если требуется удаление только файла, то используйте <code>VF_DELETEONLYFILEONCLOSE</code>. Файл не удаляется, если было произведено переключение по <kbd>F6</kbd> и  если  существуют
     другие открытые вьюеры/редакторы с этим же файлом.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
-    <td class="cont" width="60%">Аналог <code>VF_DELETEONCLOSE</code>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <code>VF_DELETEONCLOSE</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
-    <td class="cont" width="60%">Запретить добавление имени файла в историю просмотра (<kbd>Alt</kbd>+<kbd>F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
-    <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd> из вьюера в редактор.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
-    <td class="cont" width="60%">Позволяет плагину получать управление сразу же после открытия программы просмотра. Открываемая программа просмотра становится активной.
+    <tr><td><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
+    <td>Аналог <code>VF_DELETEONCLOSE</code>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <code>VF_DELETEONCLOSE</code>.</td></tr>
+    <tr><td><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
+    <td>Запретить добавление имени файла в историю просмотра (<kbd>Alt</kbd>+<kbd>F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
+    <tr><td><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
+    <td>Разрешает переключение по <kbd>F6</kbd> из вьюера в редактор.</td></tr>
+    <tr><td><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
+    <td>Позволяет плагину получать управление сразу же после открытия программы просмотра. Открываемая программа просмотра становится активной.
     Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <code>VF_NONMODAL</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
-    <td class="cont" width="60%">Создать немодальное окно вьюера. Если этот флаг присутствует, пользователь сможет переключаться между программой просмотра и другими окнами Far Manager.
+    <tr><td><a name="VF_NONMODAL">VF_NONMODAL</a></td>
+    <td>Создать немодальное окно вьюера. Если этот флаг присутствует, пользователь сможет переключаться между программой просмотра и другими окнами Far Manager.
     <p>Плагин получит управление только после закрытия или ухода из открытой программы просмотра (например, пользователь нажал <kbd>Ctrl</kbd>+<kbd>Tab</kbd>).
     Если вам нужно, чтобы плагин получал управление сразу же после открытия программы просмотра, то используйте флаг <code>VF_IMMEDIATERETURN</code>.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VF_NONE">VF_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><td><a name="VF_NONE">VF_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>CodePage</div>
     <div class=dfndescr>Номер кодовой страницы, в которой будет открыт вьюер. Можете установить значение в <code>CP_DEFAULT</code>.
     Помимо этого можно использовать следующие определения.
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Определение</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CP_UNICODE">CP_UNICODE</a></td>
-    <td class="cont" width="60%">кодовая страница 1200</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CP_REVERSEBOM">CP_REVERSEBOM</a></td>
-    <td class="cont" width="60%">кодовая страница 1201</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CP_DEFAULT">CP_DEFAULT</a></td>
-    <td class="cont" width="60%">автоматически определить номер кодовой страницы</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="CP_REDETECT">CP_REDETECT</a></td>
-    <td class="cont" width="60%">переопределить номер кодовой страницы</td></tr>
+    <tr><th>Определение</th><th>Описание</th></tr>
+    <tr><td><a name="CP_UNICODE">CP_UNICODE</a></td>
+    <td>кодовая страница 1200</td></tr>
+    <tr><td><a name="CP_REVERSEBOM">CP_REVERSEBOM</a></td>
+    <td>кодовая страница 1201</td></tr>
+    <tr><td><a name="CP_DEFAULT">CP_DEFAULT</a></td>
+    <td>автоматически определить номер кодовой страницы</td></tr>
+    <tr><td><a name="CP_REDETECT">CP_REDETECT</a></td>
+    <td>переопределить номер кодовой страницы</td></tr>
     </table>
     </div>.
 </div>
