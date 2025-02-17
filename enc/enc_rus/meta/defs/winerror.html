@@ -14,221 +14,219 @@
 <a href="index.html">типы и определения</a>
 </div>
 
-
 <div class="shortdescr">
 Перечислены типы ошибок, возвращаемые функцией <code>GetLastError</code>, известные Far Manager (см. <a href="../service_functions/message.html#FMSG_ERRORTYPE">FMSG_ERRORTYPE</a>):
 </div>
 
-<br>
-<table border="0" cellspacing="1" cellpadding="3" width="100%">
+<table class="striped">
   <tr>
-    <th align="left"><small>Константа из winerror.h</small></th>
-    <th align="left"><small>Строковые константы из Far*.lng</small></th>
+    <th>Константа из winerror.h</th>
+    <th>Строковые константы из Far*.lng</th>
   </tr>
   <tr>
     <td>ERROR_INVALID_FUNCTION</td>
     <td>"Некорректная функция"
-      <p>"Incorrect function"</td>
+      <br>"Incorrect function"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_BAD_COMMAND, ERROR_CALL_NOT_IMPLEMENTED</td>
-    <td class="gray">"Команда не распознана"
-      <p>"Command not recognized"</td>
+    <td>ERROR_BAD_COMMAND, ERROR_CALL_NOT_IMPLEMENTED</td>
+    <td>"Команда не распознана"
+      <br>"Command not recognized"</td>
   </tr>
   <tr>
     <td>ERROR_FILE_NOT_FOUND</td>
     <td>"Файл не найден"
-      <p>"File not found"</td>
+      <br>"File not found"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_PATH_NOT_FOUND</td>
-    <td class="gray">"Путь не найден"
-      <p>"Path not found"</td>
+    <td>ERROR_PATH_NOT_FOUND</td>
+    <td>"Путь не найден"
+      <br>"Path not found"</td>
   </tr>
   <tr>
     <td>ERROR_TOO_MANY_OPEN_FILES</td>
     <td>"Слишком много открытых файлов"
-      <p>"Too many open files"</td>
+      <br>"Too many open files"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_ACCESS_DENIED</td>
-    <td class="gray">"Доступ запрещён"
-      <p>"Access denied"</td>
+    <td>ERROR_ACCESS_DENIED</td>
+    <td>"Доступ запрещён"
+      <br>"Access denied"</td>
   </tr>
   <tr>
     <td>ERROR_NOT_ENOUGH_MEMORY, ERROR_OUTOFMEMORY</td>
     <td>"Недостаточно памяти"
-      <p>"Not enough memory"</td>
+      <br>"Not enough memory"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_WRITE_PROTECT</td>
-    <td class="gray">"Попытка записи на защищённый от записи диск"
-      <p>"Cannot write to write protected disk"</td>
+    <td>ERROR_WRITE_PROTECT</td>
+    <td>"Попытка записи на защищённый от записи диск"
+      <br>"Cannot write to write protected disk"</td>
   </tr>
   <tr>
     <td>ERROR_NOT_READY</td>
     <td>"Устройство не готово"
-      <p>"The device is not ready"</td>
+      <br>"The device is not ready"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_NOT_DOS_DISK</td>
-    <td class="gray">"Доступ к диску невозможен"
-      <p>"Disk cannot be accessed"</td>
+    <td>ERROR_NOT_DOS_DISK</td>
+    <td>"Доступ к диску невозможен"
+      <br>"Disk cannot be accessed"</td>
   </tr>
   <tr>
     <td>ERROR_SECTOR_NOT_FOUND</td>
     <td>"Сектор не найден"
-      <p>"Sector not found"</td>
+      <br>"Sector not found"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_OUT_OF_PAPER</td>
-    <td class="gray">"В принтере нет бумаги"
-      <p>"The printer is out of paper"</td>
+    <td>ERROR_OUT_OF_PAPER</td>
+    <td>"В принтере нет бумаги"
+      <br>"The printer is out of paper"</td>
   </tr>
   <tr>
     <td>ERROR_WRITE_FAULT</td>
     <td>"Ошибка записи"
-      <p>"Write fault error"</td>
+      <br>"Write fault error"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_READ_FAULT</td>
-    <td class="gray">"Ошибка чтения"
-      <p>"Read fault error"</td>
+    <td>ERROR_READ_FAULT</td>
+    <td>"Ошибка чтения"
+      <br>"Read fault error"</td>
   </tr>
   <tr>
     <td>ERROR_GEN_FAILURE</td>
     <td>"Общая ошибка устройства"
-      <p>"Device general failure"</td>
+      <br>"Device general failure"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_SHARING_VIOLATION, ERROR_LOCK_VIOLATION</td>
-    <td class="gray">"Нарушение совместного доступа к файлу"
-      <p>"File sharing violation"</td>
+    <td>ERROR_SHARING_VIOLATION, ERROR_LOCK_VIOLATION</td>
+    <td>"Нарушение совместного доступа к файлу"
+      <br>"File sharing violation"</td>
   </tr>
   <tr>
     <td>ERROR_BAD_NETPATH</td>
     <td>"Сетевой путь не найден"
-      <p>"The network path was not found"</td>
+      <br>"The network path was not found"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_NETWORK_BUSY</td>
-    <td class="gray">"Сеть занята"
-      <p>"The network is busy"</td>
+    <td>ERROR_NETWORK_BUSY</td>
+    <td>"Сеть занята"
+      <br>"The network is busy"</td>
   </tr>
   <tr>
     <td>ERROR_NETWORK_ACCESS_DENIED</td>
     <td>"Сетевой доступ запрещён"
-      <p>"Network access is denied"</td>
+      <br>"Network access is denied"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_NET_WRITE_FAULT</td>
-    <td class="gray">"Ошибка записи в сети"
-      <p>"A write fault occurred on the network"</td>
+    <td>ERROR_NET_WRITE_FAULT</td>
+    <td>"Ошибка записи в сети"
+      <br>"A write fault occurred on the network"</td>
   </tr>
   <tr>
     <td>ERROR_DRIVE_LOCKED</td>
     <td>"Диск используется или заблокирован другим процессом"
-      <p>"The disk is in use or locked by another process"</td>
+      <br>"The disk is in use or locked by another process"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_ALREADY_EXISTS</td>
-    <td class="gray">"Файл или папка уже существует"
-      <p>"File or folder already exists"</td>
+    <td>ERROR_ALREADY_EXISTS</td>
+    <td>"Файл или папка уже существует"
+      <br>"File or folder already exists"</td>
   </tr>
   <tr>
     <td>ERROR_BAD_PATHNAME, ERROR_INVALID_NAME</td>
     <td>"Указанное имя неверно"
-      <p>"The specified name is invalid"</td>
+      <br>"The specified name is invalid"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_DISK_FULL, ERROR_HANDLE_DISK_FULL</td>
-    <td class="gray">"Нет места на диске"
-      <p>"Insufficient disk space"</td>
+    <td>ERROR_DISK_FULL, ERROR_HANDLE_DISK_FULL</td>
+    <td>"Нет места на диске"
+      <br>"Insufficient disk space"</td>
   </tr>
   <tr>
     <td>ERROR_DIR_NOT_EMPTY</td>
     <td>"Папка не пустая"
-      <p>"The folder is not empty"</td>
+      <br>"The folder is not empty"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_INTERNET_INCORRECT_USER_NAME</td>
-    <td class="gray">"Неверное имя пользователя"
-      <p>"Incorrect user name"</td>
+    <td>ERROR_INTERNET_INCORRECT_USER_NAME</td>
+    <td>"Неверное имя пользователя"
+      <br>"Incorrect user name"</td>
   </tr>
   <tr>
     <td>ERROR_INTERNET_INCORRECT_PASSWORD</td>
     <td>"Неверный пароль"
-      <p>"Incorrect password"</td>
+      <br>"Incorrect password"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_INTERNET_LOGIN_FAILURE</td>
-    <td class="gray">"Ошибка регистрации"
-      <p>"Login failure"</td>
+    <td>ERROR_INTERNET_LOGIN_FAILURE</td>
+    <td>"Ошибка регистрации"
+      <br>"Login failure"</td>
   </tr>
   <tr>
     <td>ERROR_INTERNET_CONNECTION_ABORTED</td>
     <td>"Соединение разорвано"
-      <p>"Connection aborted"</td>
+      <br>"Connection aborted"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_CANCELLED</td>
-    <td class="gray">"Операция отменена"
-      <p>"Operation cancelled"</td>
+    <td>ERROR_CANCELLED</td>
+    <td>"Операция отменена"
+      <br>"Operation cancelled"</td>
   </tr>
   <tr>
     <td>ERROR_NO_NETWORK</td>
     <td>"Сеть отсутствует"
-      <p>"No network present"</td>
+      <br>"No network present"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_DEVICE_IN_USE</td>
-    <td class="gray">"Устройство используется и не может быть отсоединено"
-      <p>"Device is in use and cannot be disconnected"</td>
+    <td>ERROR_DEVICE_IN_USE</td>
+    <td>"Устройство используется и не может быть отсоединено"
+      <br>"Device is in use and cannot be disconnected"</td>
   </tr>
   <tr>
     <td>ERROR_OPEN_FILES</td>
     <td>"На сетевом диске есть открытые файлы"
-      <p>"This network connection has open files"</td>
+      <br>"This network connection has open files"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_ALREADY_ASSIGNED</td>
-    <td class="gray">"Имя локального устройства уже использовано"
-      <p>"The local device name is already in use"</td>
+    <td>ERROR_ALREADY_ASSIGNED</td>
+    <td>"Имя локального устройства уже использовано"
+      <br>"The local device name is already in use"</td>
   </tr>
   <tr>
     <td>ERROR_DEVICE_ALREADY_REMEMBERED</td>
     <td>"Имя локального устройства уже находится в профайле пользователя"
-      <p>"The local device is already in the user profile"</td>
+      <br>"The local device is already in the user profile"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_NOT_LOGGED_ON</td>
-    <td class="gray">"Пользователь не зарегистрирован в сети"
-      <p>"User has not logged on to the network"</td>
+    <td>ERROR_NOT_LOGGED_ON</td>
+    <td>"Пользователь не зарегистрирован в сети"
+      <br>"User has not logged on to the network"</td>
   </tr>
   <tr>
     <td>ERROR_INVALID_PASSWORD</td>
     <td>"Неверный пароль пользователя"
-      <p>"The user password is invalid"</td>
+      <br>"The user password is invalid"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_NO_RECOVERY_POLICY</td>
-    <td class="gray">"Для этой системы отсутствует политика надёжного восстановления шифрования"
-      <p>"There is no valid encryption recovery policy configured for this system"</td>
+    <td>ERROR_NO_RECOVERY_POLICY</td>
+    <td>"Для этой системы отсутствует политика надёжного восстановления шифрования"
+      <br>"There is no valid encryption recovery policy configured for this system"</td>
   </tr>
   <tr>
     <td>ERROR_ENCRYPTION_FAILED</td>
     <td>"Ошибка при попытке шифрования файла"
-      <p>"The specified file could not be encrypted"</td>
+      <br>"The specified file could not be encrypted"</td>
   </tr>
   <tr>
-    <td class="gray">ERROR_DECRYPTION_FAILED</td>
-    <td class="gray">"Ошибка при попытке расшифровки файла"
-      <p>"The specified file could not be decrypted"</td>
+    <td>ERROR_DECRYPTION_FAILED</td>
+    <td>"Ошибка при попытке расшифровки файла"
+      <br>"The specified file could not be decrypted"</td>
   </tr>
   <tr>
     <td>ERROR_FILE_NOT_ENCRYPTED</td>
     <td>"Указанный файл не зашифрован"
-      <p>"The specified file is not encrypted"</td>
+      <br>"The specified file is not encrypted"</td>
   </tr>
 </table>
 
