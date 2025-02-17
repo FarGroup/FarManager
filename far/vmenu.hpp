@@ -72,7 +72,7 @@ enum VMENU_FLAGS
 	VMENU_WRAPMODE               = 15_bit, // зацикленный список (при перемещении)
 	VMENU_SHOWAMPERSAND          = 16_bit, // символ '&' показывать AS IS
 	VMENU_WARNDIALOG             = 17_bit, //
-	VMENU_ENABLEALIGNANNOTATIONS = 18_bit, // Enable vertical alignment of item annotations and HscrollEnBlocMode
+	VMENU_ENABLEALIGNANNOTATIONS = 18_bit, // Enable vertical alignment of item annotations and item_hscroll_policy::unbound
 	VMENU_LISTHASFOCUS           = 21_bit, // меню является списком в диалоге и имеет фокус
 	VMENU_COMBOBOX               = 22_bit, // меню является комбобоксом и обрабатывается менеджером по-особому.
 	VMENU_MOUSEDOWN              = 23_bit, //
@@ -143,7 +143,7 @@ struct MenuItemEx: menu_item
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	int HorizontalPosition{}; // Positive: Indent; Negative: Hanging
+	int HorizontalPosition{}; // Relative to m_LeftColumnWidth. Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
 	std::list<segment> Annotations;
@@ -151,8 +151,16 @@ struct MenuItemEx: menu_item
 	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().start(); }
 };
 
+struct item_color_indicies;
 struct menu_layout;
 class vmenu_horizontal_tracker;
+
+struct vmenu_fixed_column_t
+{
+	small_segment TextSegment;
+	short CurrentWidth;
+	wchar_t Separator;
+};
 
 struct SortItemParam
 {
@@ -191,11 +199,11 @@ public:
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
 	void SetMenuFlags(DWORD Flags) { VMFlags.Set(Flags); }
+	void SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, small_segment ItemTextSegment);
 	void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
 	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
 	DWORD GetFlags() const { return VMFlags.Flags(); }
 	DWORD ChangeFlags(DWORD Flags, bool Status) { return VMFlags.Change(Flags, Status); }
-	void AssignHighlights(bool Reverse = false);
 	void SetColors(const FarDialogItemColors *ColorsIn = nullptr);
 	void GetColors(const FarDialogItemColors *ColorsOut);
 	void SetOneColor(int Index, PaletteColors Color);
@@ -271,7 +279,7 @@ public:
 	static std::vector<string> AddHotkeys(std::span<menu_item> MenuItems);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
-	[[nodiscard]] size_t GetNaturalMenuWidth() const;
+	[[nodiscard]] int GetNaturalMenuWidth() const;
 
 private:
 	friend struct menu_layout;
@@ -287,12 +295,30 @@ private:
 	void ConnectSeparator(size_t ItemIndex, string& separator, int BoxType) const;
 	void ApplySeparatorName(const MenuItemEx& Item, string& separator) const;
 	void DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
+	void DrawFixedColumns(
+		const MenuItemEx& Item,
+		small_segment FixedColumnsArea,
+		int Y,
+		const item_color_indicies& ColorIndices,
+		string_view BlankLine) const;
+	[[nodiscard]]
+	bool DrawItemText(
+		const MenuItemEx& Item,
+		small_segment TextArea,
+		int Y,
+		const item_color_indicies& ColorIndices,
+		std::vector<int>& HighlightMarkup,
+		string_view BlankLine) const;
 
 	[[nodiscard]] int CalculateTextAreaWidth() const;
+	[[nodiscard]] int GetItemVisualLength(const MenuItemEx& Item) const; // Intersected with m_ItemTextSegment
+	[[nodiscard]] string_view GetItemText(const MenuItemEx& Item) const; // Intersected with m_ItemTextSegment
+
 
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
+	void AssignHighlights(const menu_layout& Layout);
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
 
 	[[nodiscard]] bool SetItemHPos(MenuItemEx& Item, const auto& GetNewHPos);
@@ -302,8 +328,8 @@ private:
 	[[nodiscard]] bool SetAllItemsSmartHPos(int NewHPos);
 	[[nodiscard]] bool ShiftAllItemsHPos(int Shift);
 	[[nodiscard]] bool AlignAnnotations();
+	[[nodiscard]] bool ToggleFixedColumns();
 
-	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(int ItemLength);
 	bool ShouldSendKeyToFilter(unsigned Key) const;
 	//корректировка текущей позиции и флагов SELECTED
@@ -320,8 +346,10 @@ private:
 	int TopPos{};
 	int MaxHeight;
 	bool WasAutoHeight{};
-	int m_MaxItemLength{};
+	int m_MaxItemLength{}; // Each Item.Name is intersected with m_ItemTextSegment
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
+	std::vector<vmenu_fixed_column_t> m_FixedColumns;
+	small_segment m_ItemTextSegment{ small_segment::ray() };
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};

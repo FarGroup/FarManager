@@ -838,7 +838,7 @@ intptr_t WINAPI apiMenuFn(
 				FarMenu->SetSelectPos(0,1);
 
 			if (Flags & (FMENU_AUTOHIGHLIGHT | FMENU_REVERSEAUTOHIGHLIGHT))
-				FarMenu->AssignHighlights((Flags & FMENU_REVERSEAUTOHIGHLIGHT) != 0);
+				FarMenu->EnableAutoHighlight((Flags & FMENU_REVERSEAUTOHIGHLIGHT) != 0);
 
 			FarMenu->SetTitle(NullToEmpty(Title));
 

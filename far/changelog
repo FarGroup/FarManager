@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+MZK 2025-05-03 16:58:59-04:00 - build 6473
+
+1. The found positions (row, character) in the Find All menu of the Internal Editor
+   are now displayed in two fixed columns at the left. These columns are always
+   visible and do not scroll horizontally with the found lines. The Shift+F5 key
+   combination toggles visibility of these columns.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2025-05-03 16:58:08+01:00 - build 6472
 
 1. gh-944: Properly take character widths into account in a few more places.

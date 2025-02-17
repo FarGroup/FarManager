@@ -339,6 +339,10 @@ $ #Menu control commands#
  #Alt+Shift+End#
  Align the selected item to the right.
 
+ #Shift+F5#
+ Some menus, e.g., ~all matching entries~@FindAllMenu@ in ~internal editor~@Editor@, have one or more
+fixed columns at the left. The #Shift+F5# key combination toggles visibility of these columns.
+
  See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
 
 

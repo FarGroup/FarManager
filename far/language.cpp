@@ -191,7 +191,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 		LangMenu->AddItem(LangMenuItem);
 	}
 
-	LangMenu->AssignHighlights();
+	LangMenu->EnableAutoHighlight();
 	LangMenu->Run();
 
 	if (LangMenu->GetExitCode()<0)
