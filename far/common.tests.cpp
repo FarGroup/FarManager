@@ -1189,6 +1189,38 @@ TEST_CASE("preprocessor.literals")
 
 //----------------------------------------------------------------------------
 
+#include "common/segment.hpp"
+
+TEST_CASE("segment.iota")
+{
+	struct test_data
+	{
+		segment Segment;
+		std::ptrdiff_t Take;
+		std::initializer_list<int> Expected;
+	};
+
+	static const test_data TestDataPoints[] =
+	{
+		{ { 0, segment::length_tag(0) }, 100, {} },
+		{ { 42, segment::sentinel_tag(42) }, 100, {} },
+		{ { 0, segment::length_tag(3) }, 100, { 0, 1, 2 } },
+		{ { 42, segment::length_tag(3) }, 100, { 42, 43, 44 } },
+		{ { -1, segment::length_tag(3) }, 100, { -1, 0, 1 } },
+		{ segment::ray(), 3, { 0, 1, 2 } },
+		{ segment::ray(42), 3, { 42, 43, 44 }},
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(std::ranges::equal(
+			TestDataPoint.Segment.iota() | std::views::take(TestDataPoint.Take),
+			TestDataPoint.Expected));
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/source_location.hpp"
 
 TEST_CASE("source_location")

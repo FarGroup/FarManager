@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/segment.hpp"
 
 // External:
 
@@ -48,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct menu_item;
 struct MenuItemEx;
+struct vmenu_fixed_column_t;
 struct SortItemParam;
 
 class VMenu2 final: public Dialog
@@ -70,7 +72,8 @@ public:
 	void SetBottomTitle(const string& Title);
 	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags);
-	void AssignHighlights(bool Reverse = false);
+	void SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, small_segment ItemTextSegment);
+	void EnableAutoHighlight(bool Reverse = false);
 	void clear();
 	int DeleteItem(int ID,int Count=1);
 	int AddItem(const MenuItemEx& NewItem,int PosAdd = std::numeric_limits<int>::max());
