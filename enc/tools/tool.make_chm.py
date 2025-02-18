@@ -67,7 +67,9 @@ def make_chm_lang(lang):
   log("-- translating meta into html")
 
   header_match = '<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">'
-  header_replace = '<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">'
+  header_replace ="""
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">"""
 
   for root, dirs, files in walk(chm_meta_dir):
     for f in files:
