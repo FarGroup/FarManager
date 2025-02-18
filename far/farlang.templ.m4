@@ -19804,7 +19804,7 @@ MSetColorClockNormalEditor
 "Texto normal (Editor)"
 
 MSetColorClockNormalViewer
-"Обычный текст (вьювер)"
+"Обычный текст (просмотрщик)"
 "Normal text (Viewer)"
 "Normální text (Prohlížeč)"
 "Normaler Text (Betrachter)"
