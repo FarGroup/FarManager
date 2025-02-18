@@ -10,37 +10,37 @@
 <body>
 
 <h1>DeleteFilesW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>DeleteFilesW</code> вызывается для удаления файлов из эмулируемой файловой системы<br>
 (Far Manager плагину: <em>"этот (эти) файлы с твоей панели нужно удалить"</em>).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI DeleteFilesW(
   const struct DeleteFilesInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/deletefilesinfo.html">DeleteFilesInfo</a> - информация, переданная Far Manager'ом плагину, об удаляемых элементах.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/deletefilesinfo.html">DeleteFilesInfo</a> - информация, переданная Far Manager'ом плагину, об удаляемых элементах.<br>
     В начале функции проверьте, что поле <code>DeleteFilesInfo.StructSize >= sizeof(DeleteFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если функция выполнила свои действия успешно, то верните <code>1</code>. В противном случае <code>0</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Плагин должен сам обрабатывать "свои" папки.
 <li>Хорошим тоном считается вариант, когда плагин перед удалением "попросит" пользователя подтвердить о своих намерениях.
@@ -49,8 +49,8 @@ intptr_t WINAPI DeleteFilesW(
 
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
   struct PluginPanelItem * curPI=&amp;Info->PanelItem[0];
@@ -70,8 +70,8 @@ intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 </div>
 
 </body>

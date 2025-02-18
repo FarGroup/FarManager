@@ -10,17 +10,17 @@
 <body>
 
 <h1>ReadConsoleInput</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ReadConsoleInput</code> считывает данные из входного буфера консоли и удаляет их оттуда.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL ReadConsoleInput(
   HANDLE hConsoleInput,
   PINPUT_RECORD lpBuffer,
@@ -30,28 +30,28 @@ BOOL ReadConsoleInput(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
+<div class="descr">
 
-    <div class=dfn>hConsoleInput</div>
-    <div class=dfndescr>Дескриптор консольного буфера ввода. Дескриптор должен иметь права <code>GENERIC_READ</code>.</div>
-    <div class=dfn>lpBuffer</div>
-    <div class=dfndescr>Указатель на массив структур <a href="input_record.html">INPUT_RECORD</a>, который получит данные из входного буфера. Общий размер требуемого массива должен быть меньше чем 64КБ.</div>
-    <div class=dfn>nLength</div>
-    <div class=dfndescr>Число элементов в буфере <code>lpBuffer</code>, которое необходимо получить.</div>
-    <div class=dfn>lpNumberOfEventsRead</div>
-    <div class=dfndescr>Указатель на 32-х разрядную переменную, которая получит число реально прочитанных элементов.</div>
+    <div class="dfn">hConsoleInput</div>
+    <div class="dfndescr">Дескриптор консольного буфера ввода. Дескриптор должен иметь права <code>GENERIC_READ</code>.</div>
+    <div class="dfn">lpBuffer</div>
+    <div class="dfndescr">Указатель на массив структур <a href="input_record.html">INPUT_RECORD</a>, который получит данные из входного буфера. Общий размер требуемого массива должен быть меньше чем 64КБ.</div>
+    <div class="dfn">nLength</div>
+    <div class="dfndescr">Число элементов в буфере <code>lpBuffer</code>, которое необходимо получить.</div>
+    <div class="dfn">lpNumberOfEventsRead</div>
+    <div class="dfndescr">Указатель на 32-х разрядную переменную, которая получит число реально прочитанных элементов.</div>
 
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
   <p>В случае успеха возвращается ненулевое значение.<br>
   Если функция завершается неудачно, возвращается ноль.
   Для получения дополнительной информации вызывайте функцию <code>GetLastError</code>.</p>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
   <p>Если число записей, запрашиваемых параметром <code>nLength</code> превышает число записей,
   доступных в буфере, будут считаны только доступные. Функция не возвращает
   управление, пока хоть одна запись не будет прочитана.</p>
@@ -68,7 +68,7 @@ BOOL ReadConsoleInput(
   <a class="msdocs">FlushConsoleInputBuffer</a>.</p>
 
 
-  <UL class=note><LI>
+  <UL class="note"><LI>
   Эта функция использует либо Unicode, либо 8-битовые символы из текущей кодовой страницы консоли.
   Кодовая страница консоли по умолчанию равна системной OEM странице.<br>
   Для смены кодовой страницы используйте функции <a class="msdocs">SetConsoleCP</a> или
@@ -79,8 +79,8 @@ BOOL ReadConsoleInput(
 </div>
 
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="input_record.html">INPUT_RECORD</a>,
 <a class="msdocs">SetConsoleCP</a>,
 <a class="msdocs">SetConsoleOutputCP</a>,

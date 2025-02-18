@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarSetColors</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarSetColors</code> используется в функции <a href="../service_functions/advcontrol.html">AdvControl</a> для изменения цветовой схемы Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarSetColors
 {
   size_t StructSize;
@@ -32,11 +32,11 @@ struct FarSetColors
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSetColors</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (тип <a name="FARSETCOLORFLAGS">FARSETCOLORFLAGS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarSetColors</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация флагов (тип <a name="FARSETCOLORFLAGS">FARSETCOLORFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="FSETCLR_REDRAW">FSETCLR_REDRAW</a></td>
@@ -44,20 +44,20 @@ struct FarSetColors
     <tr><td><a name="FSETCLR_NONE">FSETCLR_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table></div>
-  <div class=dfn>StartIndex</div>
-    <div class=dfndescr>Начальная позиция индекса цветовой схемы для замены.</div>
-  <div class=dfn>ColorItem</div>
-    <div class=dfndescr>Количество позиций цветовой схемы для замены.</div>
-  <div class=dfn>Colors</div>
-    <div class=dfndescr>Указатель на массив цветовых схем - массив структур <a href="../structures/farcolor.html">FarColor</a> <a href="../defs/farcolors.html">цветовых атрибутов</a>.</div>
+  <div class="dfn">StartIndex</div>
+    <div class="dfndescr">Начальная позиция индекса цветовой схемы для замены.</div>
+  <div class="dfn">ColorItem</div>
+    <div class="dfndescr">Количество позиций цветовой схемы для замены.</div>
+  <div class="dfn">Colors</div>
+    <div class="dfndescr">Указатель на массив цветовых схем - массив структур <a href="../structures/farcolor.html">FarColor</a> <a href="../defs/farcolors.html">цветовых атрибутов</a>.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>,
 <a href="../service_functions/advcontrol.html#ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a>
 </div>

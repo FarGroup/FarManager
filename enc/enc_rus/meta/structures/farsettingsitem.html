@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarSettingsItem</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../settingapi/index.html">Settings API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarSettingsItem</code> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarSettingsItem
 {
   size_t StructSize;
@@ -45,15 +45,15 @@ struct FarSettingsItem
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSettingsItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Root</div>
-    <div class=dfndescr>Место хранения настроек. 0 - корень для плагина. Подключи получаются при помощи команды <code>SCTL_OPENSUBKEY</code>.</div>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Имя сохраняемого или запрашиваемого значения.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип сохраняемого или запрашиваемого значения (перечисление <a name="FARSETTINGSTYPES">FARSETTINGSTYPES</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarSettingsItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Root</div>
+    <div class="dfndescr">Место хранения настроек. 0 - корень для плагина. Подключи получаются при помощи команды <code>SCTL_OPENSUBKEY</code>.</div>
+  <div class="dfn">Name</div>
+    <div class="dfndescr">Имя сохраняемого или запрашиваемого значения.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип сохраняемого или запрашиваемого значения (перечисление <a name="FARSETTINGSTYPES">FARSETTINGSTYPES</a>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="FST_UNKNOWN">FST_UNKNOWN</a></td>
@@ -68,20 +68,20 @@ struct FarSettingsItem
     <td>данные</td></tr>
     </table>
     </div>
-  <div class=dfn>Number</div>
-    <div class=dfndescr>Число.</div>
-  <div class=dfn>String</div>
-    <div class=dfndescr>Строка.</div>
-  <div class=dfn>Data</div>
-    <div class=dfndescr>Данные. Data.Size - размер данных, Data.Data - сами данные.</div>
+  <div class="dfn">Number</div>
+    <div class="dfndescr">Число.</div>
+  <div class="dfn">String</div>
+    <div class="dfndescr">Строка.</div>
+  <div class="dfn">Data</div>
+    <div class="dfndescr">Данные. Data.Size - размер данных, Data.Data - сами данные.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>,
 <a href="../service_functions/settingscontrol.html">SettingsControl</a>
 </div>

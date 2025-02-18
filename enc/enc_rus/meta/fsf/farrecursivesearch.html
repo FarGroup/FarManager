@@ -10,16 +10,16 @@
 <body>
 
 <h1>FarRecursiveSearch</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.FarRecursiveSearch</code> осуществляет рекурсивный поиск файлов.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 void WINAPI FarRecursiveSearch(
   const wchar_t *InitDir,
   const wchar_t *Mask,
@@ -30,16 +30,16 @@ void WINAPI FarRecursiveSearch(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>InitDir</div>
-    <div class=dfndescr>Указывает на каталог, откуда начинается поиск, например <code>L"c:\far\plugins"</code></div>
-  <div class=dfn>Mask</div>
-    <div class=dfndescr>Указывает на маску файлов. Маска файла может быть стандартного <a href="../other/dict.html#filemasks">Far Manager вида</a>.</div>
-  <div class=dfn>UserFunc</div>
-    <div class=dfndescr>Указывает на функцию типа <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a>, которая будет вызываться для каждого найденного файла. Функция должна вернуть
+<div class="descr">
+  <div class="dfn">InitDir</div>
+    <div class="dfndescr">Указывает на каталог, откуда начинается поиск, например <code>L"c:\far\plugins"</code></div>
+  <div class="dfn">Mask</div>
+    <div class="dfndescr">Указывает на маску файлов. Маска файла может быть стандартного <a href="../other/dict.html#filemasks">Far Manager вида</a>.</div>
+  <div class="dfn">UserFunc</div>
+    <div class="dfndescr">Указывает на функцию типа <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a>, которая будет вызываться для каждого найденного файла. Функция должна вернуть
     <code>TRUE</code> для продолжения поиска файлов, или <code>FALSE</code> для окончания поиска.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (тип <a name="FRSMODE">FRSMODE</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Указывает на необходимое действие. Может быть следующим (тип <a name="FRSMODE">FRSMODE</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
@@ -49,17 +49,17 @@ void WINAPI FarRecursiveSearch(
     <tr><td><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
     <td>Позволяет искать файлы в символических связях наравне с обычными подкаталогами.</td></tr>
     </table></div>
-  <div class=dfn>Param</div>
-    <div class=dfndescr>Указатель на данные пользователя, Far Manager его никак не обрабатывает, просто передаёт в <code>UserFunc</code>.</div>
+  <div class="dfn">Param</div>
+    <div class="dfndescr">Указатель на данные пользователя, Far Manager его никак не обрабатывает, просто передаёт в <code>UserFunc</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 См. описание параметра <code>Flags</code>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Если хотите использовать данные, переданные функции <code>UserFunc</code> по окончании поиска, вы должны скопировать эти данные во внутренние переменные.
 <li>Если флаг <code>FRS_SCANSYMLINK</code> не указан, то независимо от настроек Far Manager, символические ссылки обрабатываться не будут.

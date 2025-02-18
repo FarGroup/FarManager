@@ -10,16 +10,16 @@
 <body>
 
 <h1>FormatFileSize</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.FormatFileSize</code> форматирует число (размер файла) по заданным условиям.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI FormatFileSize(
   unsigned __int64 Size,
   intptr_t Width,
@@ -30,13 +30,13 @@ size_t WINAPI FormatFileSize(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Size</div>
-    <div class=dfndescr>Число для форматирования.</div>
-  <div class=dfn>Width</div>
-    <div class=dfndescr>Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
+<div class="descr">
+  <div class="dfn">Size</div>
+    <div class="dfndescr">Число для форматирования.</div>
+  <div class="dfn">Width</div>
+    <div class="dfndescr">Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="FFFS_COMMAS">FFFS_COMMAS</a></td>
@@ -54,23 +54,23 @@ size_t WINAPI FormatFileSize(
     например, <code>FFFS_MINSIZEINDEX|1</code> - "размер как минимум в мегабайтах".</td></tr>
     </table>
     </div>
-  <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на строку, куда будет помещён результат преобразования. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
+  <div class="dfn">Dest</div>
+    <div class="dfndescr">Указатель на строку, куда будет помещён результат преобразования. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Необходимый размер буфера <code>Dest</code> в символах.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 </body>

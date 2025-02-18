@@ -10,17 +10,17 @@
 <body>
 
 <h1>ViewerInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ViewerInfo</code> используется для получения информации о текущем состоянии программы просмотра Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ViewerInfo
 {
   size_t StructSize;
@@ -37,23 +37,23 @@ struct ViewerInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>ViewerInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>ViewerID</div>
-    <div class=dfndescr>Идентификатор экземпляра программы просмотра. Каждый экземпляр программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
-  <div class=dfn>TabSize</div>
-    <div class=dfndescr>Размер табуляции.</div>
-  <div class=dfn>CurMode</div>
-    <div class=dfndescr>Переменная типа <a href="viewermode.html">ViewerMode</a> - дополнительная информация о режиме программы просмотра.</div>
-  <div class=dfn>FileSize</div>
-    <div class=dfndescr>Размер файла.</div>
-  <div class=dfn>FilePos</div>
-    <div class=dfndescr>Текущая позиция в файле (абсолютное смещение в байтах).</div>
-  <div class=dfn>LeftPos</div>
-    <div class=dfndescr>Позиция левой границы просматриваемого текста в окне программы просмотра.</div>
-  <div class=dfn>Options</div>
-    <div class=dfndescr>Состояние настроек программы просмотра. Может быть комбинацией из следующих флагов (перечисление <a name="VIEWER_OPTIONS">VIEWER_OPTIONS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>ViewerInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">ViewerID</div>
+    <div class="dfndescr">Идентификатор экземпляра программы просмотра. Каждый экземпляр программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+  <div class="dfn">TabSize</div>
+    <div class="dfndescr">Размер табуляции.</div>
+  <div class="dfn">CurMode</div>
+    <div class="dfndescr">Переменная типа <a href="viewermode.html">ViewerMode</a> - дополнительная информация о режиме программы просмотра.</div>
+  <div class="dfn">FileSize</div>
+    <div class="dfndescr">Размер файла.</div>
+  <div class="dfn">FilePos</div>
+    <div class="dfndescr">Текущая позиция в файле (абсолютное смещение в байтах).</div>
+  <div class="dfn">LeftPos</div>
+    <div class="dfndescr">Позиция левой границы просматриваемого текста в окне программы просмотра.</div>
+  <div class="dfn">Options</div>
+    <div class="dfndescr">Состояние настроек программы просмотра. Может быть комбинацией из следующих флагов (перечисление <a name="VIEWER_OPTIONS">VIEWER_OPTIONS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="VOPT_SAVEFILEPOSITION">VOPT_SAVEFILEPOSITION</a></td>
@@ -72,12 +72,12 @@ struct ViewerInfo
     <td>Просмотрщик работает в режиме быстрого просмотра (Quick View).<br>
     </table>
     </div>
-  <div class=dfn>WindowSizeX, WindowSizeY</div>
-    <div class=dfndescr>Ширина и высота окна программы просмотра.</div>
+  <div class="dfn">WindowSizeX, WindowSizeY</div>
+    <div class="dfndescr">Ширина и высота окна программы просмотра.</div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>,
 <a href="viewermode.html">ViewerMode</a>

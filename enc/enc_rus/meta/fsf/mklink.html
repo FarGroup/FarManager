@@ -10,16 +10,16 @@
 <body>
 
 <h1>MkLink</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.MkLink</code> создаёт жёсткие и символические ссылки, связи каталогов, а также монтирует локальные диски на файловую систему.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL WINAPI MkLink(
   const wchar_t *Target,
   const wchar_t *LinkName,
@@ -30,13 +30,13 @@ BOOL WINAPI MkLink(
 
 <h3>Параметры</h3>
 
-<div class=descr>
-  <div class=dfn>Target</div>
-    <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.</div>
-  <div class=dfn>LinkName</div>
-    <div class=dfndescr>Имя создаваемой ссылки.</div>
-  <div class=dfn>LinkType</div>
-    <div class=dfndescr>Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
+<div class="descr">
+  <div class="dfn">Target</div>
+    <div class="dfndescr">Имя файлового объекта, на который создаётся ссылка.</div>
+  <div class="dfn">LinkName</div>
+    <div class="dfndescr">Имя создаваемой ссылки.</div>
+  <div class="dfn">LinkType</div>
+    <div class="dfndescr">Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
     <table class="cont">
     <tr><th>Операция</th><th>Описание</th></tr>
     <tr><td><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
@@ -53,8 +53,8 @@ BOOL WINAPI MkLink(
     <td>автоматически выбрать тип создаваемой символической ссылки</td></tr>
     </table>
     </div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
@@ -70,7 +70,7 @@ BOOL WINAPI MkLink(
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <p><code>1</code> - ссылка создана.
 <p><code>0</code> - ошибка при создании ссылки:
 <ul>
@@ -100,7 +100,7 @@ BOOL WINAPI MkLink(
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Ссылки создаются по следующим правилам:
   <ul>
@@ -116,11 +116,11 @@ BOOL WINAPI MkLink(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="getnumberoflinks.html">GetNumberOfLinks</a>
 </div>
 

@@ -10,35 +10,35 @@
 <body>
 
 <h1>GetGlobalInfoW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Far Manager вызывает функцию <code>GetGlobalInfoW</code> в первую очередь, для получения основной информации о плагине. Функция вызывается один раз.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 void WINAPI GetGlobalInfoW(
   struct GlobalInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/globalinfo.html">GlobalInfo</a>. Плагин заполняет структуру в этой функции.</div>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a  href="../structures/globalinfo.html">GlobalInfo</a>. Плагин заполняет структуру в этой функции.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Нет.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Плагин обязан экспортировать функцию <code>GetGlobalInfoW</code> для загрузки Far Manager'ом.
 <li>Все поля структуры <a  href="../structures/globalinfo.html">GlobalInfo</a> должны быть заполнены.
@@ -48,8 +48,8 @@ void WINAPI GetGlobalInfoW(
 
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 // {B076F0B0-90AE-408c-AD09-491606F09435}
 DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
 
@@ -66,8 +66,8 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../defs/farmanagerversion.html">FARMANAGERVERSION</a>,
 <a href="../defs/makefarversion.html">MAKEFARVERSION</a>
 </div>

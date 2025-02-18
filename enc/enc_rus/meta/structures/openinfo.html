@@ -10,17 +10,17 @@
 <body>
 
 <h1>OpenInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>OpenInfo</code> используется для возвращения Far Manager'ом информации о плагине в функцию <a href="../exported_functions/openw.html">OpenW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct OpenInfo
 {
   size_t StructSize;
@@ -31,11 +31,11 @@ struct OpenInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>OpenInfo</code>.</div>
-  <div class=dfn>OpenFrom</div>
-    <div class=dfndescr>Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>OpenInfo</code>.</div>
+  <div class="dfn">OpenFrom</div>
+    <div class="dfndescr">Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
     <table class="cont">
     <tr><th>Константа</th><th>Описание</th></tr>
     <tr><td><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
@@ -67,10 +67,10 @@ struct OpenInfo
     <tr><td><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
     <td>Открыт для проверки или исполнения Lua-макроскрипта.</td></tr>
     </table></div>
-  <div class=dfn>Guid</div>
-    <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
-  <div class=dfn>Data</div>
-    <div class=dfndescr>Интерпретация параметра зависит от <code>OpenFrom</code>:
+  <div class="dfn">Guid</div>
+    <div class="dfndescr">GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
+  <div class="dfn">Data</div>
+    <div class="dfndescr">Интерпретация параметра зависит от <code>OpenFrom</code>:
     <table class="cont">
     <tr><th>Константа</th><th>Описание</th></tr>
     <tr><td><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
@@ -100,8 +100,8 @@ struct OpenInfo
     </table></div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

@@ -9,31 +9,31 @@
 <body>
 
 <h1>ProcessDialogEventW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ProcessDialogEventW</code> сообщает плагину о событиях, происходящих в диалоге Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI ProcessDialogEventW(
   const struct ProcessDialogEventInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/processdialogeventinfo.html">ProcessDialogEventInfo</a>, Far Manager передает информацию о событии.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/processdialogeventinfo.html">ProcessDialogEventInfo</a>, Far Manager передает информацию о событии.<br>
     В начале функции проверьте, что поле <code>ProcessDialogEventInfo.StructSize >= sizeof(ProcessDialogEventInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <ul>
 <li><code>1</code> - плагин самостоятельно обработал событие. Переменная <code>ProcessDialogEventInfo.FarDialogEvent.Result</code> будет использована в качестве возвращаемого значения обработчика диалога.
 <li><code>0</code> - продолжить обработку события.
@@ -41,11 +41,11 @@ intptr_t WINAPI ProcessDialogEventW(
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../structures/fardialogevent.html">FarDialogEvent</a>,
 <a href="../dialogapi/dmsg/index_dn.html">события</a>,
 <a href="../dialogapi/index.html">Dialog API</a>

@@ -14,7 +14,7 @@
 
 <a name="top"></a>
 <h1>"Обработка нажатия ESC или . . ."</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">статьи</a> |
 <a href="escape.html">статья</a>
@@ -26,12 +26,12 @@
 </code></div>
 <hr color="#003399">
 
-<p class=plain>Я бы предложил переписать функцию проверки на ESC
+<p class="plain">Я бы предложил переписать функцию проверки на ESC
 по-другому. В своё время у меня были замечания по поводу того, что
 плагин ProxyFtp чистит буфер и нельзя делать &laquo;упреждающие нажатия&raquo; :)) клавиш. Поэтому такая
 функция была мной переписана вот так:
 
-<pre class=code>function CheckForKey(vKey: word): boolean;
+<pre class="code">function CheckForKey(vKey: word): boolean;
 const
   DELTA = 16;
 Type
@@ -71,11 +71,11 @@ Begin
   end;
 end;</pre>
 
-<p class=plain>Эта функция не чистит буфер клавиатуры, если искомого кода там нет.<br><br><br></p>
+<p class="plain">Эта функция не чистит буфер клавиатуры, если искомого кода там нет.<br><br><br></p>
 
-<p class=plain>Вариант функции на C/C++: </div>
+<p class="plain">Вариант функции на C/C++: </div>
 
-<pre class=code>BOOL CheckForKey(WORD vKey)
+<pre class="code">BOOL CheckForKey(WORD vKey)
 {
   INPUT_RECORD *InputRec;
   DWORD NumberOfEvents, ReadCnt,i;
@@ -111,6 +111,6 @@ end;</pre>
 <br><br>
 15.04.2000
 </code></div>
-<div class=seecont><a href="#top">наверх</a></div>
+<div class="seecont"><a href="#top">наверх</a></div>
 </body>
 </html>

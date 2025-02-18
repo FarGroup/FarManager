@@ -10,17 +10,17 @@
 <body>
 
 <h1>PluginsControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../pluginapi/index.html">Plugin Manager API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>PluginsControl</code> позволяет управлять сторонними плагинами.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI PluginsControl(
   HANDLE hHandle,
   enum FAR_PLUGINS_CONTROL_COMMANDS Command,
@@ -30,11 +30,11 @@ intptr_t WINAPI PluginsControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_PLUGINS_CONTROL_COMMANDS">FAR_PLUGINS_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">hHandle</div>
+    <div class="dfndescr">Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Может быть одним из следующих значений (перечисление <a name="FAR_PLUGINS_CONTROL_COMMANDS">FAR_PLUGINS_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -87,14 +87,14 @@ intptr_t WINAPI PluginsControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Смотрите описание <code>Command</code>.
 </div>
 
@@ -102,7 +102,7 @@ intptr_t WINAPI PluginsControl(
 </div>
 
 <h3>Пример</h3>
-<pre class=code>
+<pre class="code">
 const wchar_t *PlugPath = L"C:\\FAR\\Plugins\\AutoWrap\\AutoWrap.dll";
 
 //загрузим либо выгрузим плагин
@@ -119,8 +119,8 @@ if (Load || Unload)
 }
 </pre>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="panelcontrol.html">PanelControl</a></div>
 </body>
 </html>

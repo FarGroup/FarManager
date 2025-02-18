@@ -10,35 +10,35 @@
 <body>
 
 <h1>DN_CONTROLINPUT</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Обработчик диалога получает событие <code>DN_CONTROLINPUT</code>, когда пользователь нажал клавишу клавиатуры или мыши.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента (обычно элемент, имеющий фокус ввода) диалога.
 <code>-1</code> для случая, если пользователь кликнул клавишей мыши вне диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру <a href="../../winapi/input_record.html">INPUT_RECORD</a> описывающую клавишу</a>.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>TRUE</code> - клавишу обработали сами.<br>
 <code>FALSE</code> - пусть обрабатывает клавишу стандартный внутренний обработчик диалога.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td>Все</td>
@@ -47,7 +47,7 @@ ID элемента (обычно элемент, имеющий фокус вв
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>По умолчанию для открытого <a href="../controls/di_combobox.html">DI_COMBOBOX</a> событие <code>DN_CONTROLINPUT</code> в диалоговую процедуру не приходит.
 Воспользуйтесь сообщением <a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a>, чтобы включить режим посылки нажатий клавиш в диалоговую процедуру.
@@ -66,9 +66,9 @@ ID элемента (обычно элемент, имеющий фокус вв
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример обработки сообщения:
-<pre class=code>
+<pre class="code">
 // вызвать контекстную справку
 case DN_CONTROLINPUT:
   const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
@@ -84,8 +84,8 @@ case DN_CONTROLINPUT:
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_key.html">DM_KEY</a>
 </div>

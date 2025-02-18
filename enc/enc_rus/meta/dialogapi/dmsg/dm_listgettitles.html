@@ -10,35 +10,35 @@
 <body>
 
 <h1>DM_LISTGETTITLES</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dm.html">сообщения</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DM_LISTGETTITLES</code> посылается Менеджеру диалогов для получения заголовков (верхнего и нижнего) у элемента
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру типа <a href="../../structures/farlisttitles.html">FarListTitles</a>, в которую будут помещены заголовки.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>TRUE</code> - заголовки получены<br>
 <code>FALSE</code> -элемент не является списком<br>
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
@@ -47,10 +47,10 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Для получения заголовков необходимо предварительно заполнить структуру
 <a href="../../structures/farlisttitles.html">FarListTitles</a>:
-<pre class=code>
+<pre class="code">
 wchar_t Title[100];
 wchar_t Bottom[100];
 FarListTitles ListTitle={sizeof(FarListTitles)};
@@ -62,8 +62,8 @@ Info.SendDlgMessage(hDlg,DM_LISTGETTITLES,ID,&amp;ListTitle);
 </code>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../../structures/farlisttitles.html">FarListTitles</a>,
 <a href="dm_listsettitles.html">DM_LISTSETTITLES</a>

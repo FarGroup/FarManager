@@ -10,17 +10,17 @@
 <body>
 
 <h1>Menu</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>Menu</code> показывает меню.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI Menu(
   const GUID *PluginId,
   const GUID *Id,
@@ -39,18 +39,18 @@ intptr_t WINAPI Menu(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Указатель на GUID текущего меню. GUID должен быть уникальным.</div>
-  <div class=dfn>X,Y</div>
-    <div class=dfndescr>Координаты верхнего левого угла меню.<br> Чтобы назначить их автоматически, приравняйте их <code>-1</code>.</div>
-  <div class=dfn>MaxHeight</div>
-    <div class=dfndescr>Максимальное количество видимых на экране пунктов меню. Если высота меню меньше, чем число пунктов, то появится полоса прокрутки.<br>
+<div class="descr">
+  <div class="dfn">PluginId</div>
+    <div class="dfndescr">Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Указатель на GUID текущего меню. GUID должен быть уникальным.</div>
+  <div class="dfn">X,Y</div>
+    <div class="dfndescr">Координаты верхнего левого угла меню.<br> Чтобы назначить их автоматически, приравняйте их <code>-1</code>.</div>
+  <div class="dfn">MaxHeight</div>
+    <div class="dfndescr">Максимальное количество видимых на экране пунктов меню. Если высота меню меньше, чем число пунктов, то появится полоса прокрутки.<br>
     Чтобы использовать максимально возможное значение, установите этот параметр равным <code>0</code>.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией из следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть комбинацией из следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
     <table class="cont">
     <tr><th>Константа</th><th>Описание</th></tr>
     <tr><td><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
@@ -76,18 +76,18 @@ intptr_t WINAPI Menu(
     <td>Меню будет выведено без тени.</td></tr>
     </table>
     </div>
-  <div class=dfn>Title</div>
-    <div class=dfndescr>Заголовок меню. Укажите <code>NULL</code>, если заголовок меню не нужен.</div>
-  <div class=dfn>Bottom</div>
-    <div class=dfndescr>Нижняя строка меню. Укажите <code>NULL</code>, если нижняя строка меню не нужна.</div>
-  <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема</a> в файле помощи, ассоциированная с меню. Может быть <code>NULL</code>, если подсказка не требуется.</div>
-  <div class=dfn>BreakKeys</div>
-    <div class=dfndescr>Адрес массива с кодами виртуальных клавиш типа <a href="../structures/farkey.html">FarKey</a>, которые будут закрывать меню.
+  <div class="dfn">Title</div>
+    <div class="dfndescr">Заголовок меню. Укажите <code>NULL</code>, если заголовок меню не нужен.</div>
+  <div class="dfn">Bottom</div>
+    <div class="dfndescr">Нижняя строка меню. Укажите <code>NULL</code>, если нижняя строка меню не нужна.</div>
+  <div class="dfn">HelpTopic</div>
+    <div class="dfndescr"><a href="../language/helptopic.html">Тема</a> в файле помощи, ассоциированная с меню. Может быть <code>NULL</code>, если подсказка не требуется.</div>
+  <div class="dfn">BreakKeys</div>
+    <div class="dfndescr">Адрес массива с кодами виртуальных клавиш типа <a href="../structures/farkey.html">FarKey</a>, которые будут закрывать меню.
     Конец массива определяется дополнительным элементом, у которого значение поля <code>VirtualKeyCode</code> должно быть равно 0.
     Если вам не нужно определять такие клавиши в дополнение к стандартным (<kbd>Enter</kbd>, <kbd>Esc</kbd> и <kbd>F10</kbd>),установите этот параметр в <code>NULL</code>.
     <p>Например, реакция на нажатие клавиши <kbd>F4</kbd> в меню обрабатывается так:
-    <pre class=code>
+    <pre class="code">
 int BreakCode;
 struct FarKey BreakKeys[] = {{VK_F4,0},{0,0}};
 ExitCode=Info.Menu(&MainGUID,&MenuGUID,-1,-1,0,FMENU_WRAPMODE,GetMsg(MArcCmdTitle),GetMsg(MSelectF4),L"ArcCmd",<b>BreakKeys</b>,&amp;BreakCode,MenuItems,Count);
@@ -103,25 +103,25 @@ if(ExitCode&gt;=0)
 else
   return FALSE;
     </pre></div>
-  <div class=dfn>BreakCode</div>
-    <div class=dfndescr>Адрес переменной, в которую будет записан номер элемента массива <code>BreakKeys</code>, использованного для закрытия меню, или <code>-1</code>, если меню было закрыто одной из стандартных клавиш. Этот параметр может быть равным <code>NULL</code>.</div>
-  <div class=dfn>Item</div>
-    <div class=dfndescr>Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a>. Каждая структура описывает элемент меню.</div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество структур <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
+  <div class="dfn">BreakCode</div>
+    <div class="dfndescr">Адрес переменной, в которую будет записан номер элемента массива <code>BreakKeys</code>, использованного для закрытия меню, или <code>-1</code>, если меню было закрыто одной из стандартных клавиш. Этот параметр может быть равным <code>NULL</code>.</div>
+  <div class="dfn">Item</div>
+    <div class="dfndescr">Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a>. Каждая структура описывает элемент меню.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Количество структур <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает или <code>-1</code>, если пользователь отменил меню, или номер выбранного элемента меню.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../structures/farmenuitem.html">FarMenuItem</a>
 </div>
 

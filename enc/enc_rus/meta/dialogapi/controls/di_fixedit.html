@@ -10,17 +10,17 @@
 <body>
 
 <h1>DI_FIXEDIT</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index.html">элементы диалога</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Элемент диалога <code>DI_FIXEDIT</code> описывает поле ввода фиксированного размера. То же, что и <a href="di_edit.html">DI_EDIT</a>, но без возможности прокрутки текста.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_FIXEDIT</b>
@@ -35,21 +35,21 @@ struct FarDialogItem
 };
 </pre>
 
-<p class=note><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class="note"><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
+<UL class="note"><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>History</h3>
-<div class=descr>
+<div class="descr">
 Адрес текстовой строки, которая будет использоваться как внутреннее название истории редактирования (см. также флаг <a href="../flags/dif_history.html">DIF_HISTORY</a>).
 Если значение равно <code>NULL</code>, то поле ввода не имеет истории.</div>
 
 <h3>Mask</h3>
-<div class=descr>
+<div class="descr">
 Адрес текстовой строки с маской ввода (см. также флаг <a href="../flags/dif_maskedit.html">DIF_MASKEDIT</a>).
 Если значение равно <code>NULL</code>, то поле ввода не имеет маски.</div>
 
 <h3>Флаги</h3>
-<div class=descr>
+<div class="descr">
 Для элемента <code>DI_FIXEDIT</code> имеют значения следующие флаги:
 <table class="cont">
 <tr><th>Флаг</th><th>Описание</th></tr>
@@ -77,7 +77,7 @@ struct FarDialogItem
 </div>
 
 <h3>События</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Событие</th><th>Описание</th></tr>
 <tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
@@ -106,12 +106,12 @@ struct FarDialogItem
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <p>Текстовый курсор после инициализации элемента - в режиме замены.</p>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="di_edit.html">DI_EDIT</a>,
 <a href="di_pswedit.html">DI_PSWEDIT</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>

@@ -10,17 +10,17 @@
 <body>
 
 <h1>DI_VTEXT</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index.html">элементы диалога</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Элемент диалога <code>DI_VTEXT</code> описывает статическую вертикальную текстовую строку.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_VTEXT</b>
@@ -34,15 +34,15 @@ struct FarDialogItem
 };
 </pre>
 
-<p class=note><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class="note"><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
+<UL class="note"><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Mask</h3>
-  <div class=descr>Поле используется только с флагом <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, может быть <code>NULL</code>, или
+  <div class="descr">Поле используется только с флагом <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, может быть <code>NULL</code>, или
 указывать на строку, содержащую набор из трех символов, описывающих формируемую разделительную линию.</div>
 
 <h3>Флаги</h3>
-<div class=descr>
+<div class="descr">
 Для элемента <code>DI_VTEXT</code> имеют значения следующие флаги:
 <table class="cont">
 <tr><th>Флаг</th><th>Описание</th></tr>
@@ -68,7 +68,7 @@ struct FarDialogItem
 </div>
 
 <h3>События</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Событие</th><th>Описание</th></tr>
 <tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
@@ -91,7 +91,7 @@ struct FarDialogItem
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <li>Хотя координата <code>X2</code> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
 значение этого поля. Укажите то же значение координаты, что и <code>X1</code>.
 <li>Если указан флаг <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, то координаты <code>Y1</code> и <code>Y2</code> должны быть обязательно указаны, в противном случае
@@ -106,8 +106,8 @@ struct FarDialogItem
 то при нажатии в диалоге <kbd>Alt</kbd>+<kbd>Символ</kbd> клавиатурный фокус ввода перейдёт на следующий элемент, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="di_text.html">DI_TEXT</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>

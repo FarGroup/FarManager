@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarSetKeyBarTitles</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarSetKeyBarTitles</code> позволяет переопределять заголовки функциональных клавиш. Передаётся в Far Manager, например, функцией <a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarSetKeyBarTitles
 {
   size_t StructSize;
@@ -30,15 +30,15 @@ struct FarSetKeyBarTitles
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSetKeyBarTitles</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Titles</div>
-    <div class=dfndescr>Содержит массив структур типа <a href="keybartitles.html">KeyBarTitles</a>, с новыми заголовками функциональных клавиш.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarSetKeyBarTitles</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Titles</div>
+    <div class="dfndescr">Содержит массив структур типа <a href="keybartitles.html">KeyBarTitles</a>, с новыми заголовками функциональных клавиш.</div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a>,
 <a href="index.html">структуры</a>,
 <a href="keybarlabel.html">KeyBarLabel</a>

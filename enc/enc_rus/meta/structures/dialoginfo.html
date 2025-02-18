@@ -10,17 +10,17 @@
 <body>
 
 <h1>DialogInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>DialogInfo</code> позволяет узнать информацию о диалоге, является параметром в <a href="../dialogapi/dmsg/dm_getdialoginfo.html">DM_GETDIALOGINFO</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct DialogInfo
 {
   size_t StructSize;
@@ -30,21 +30,21 @@ struct DialogInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>DialogInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Уникальный идентификатор диалога.</div>
-  <div class=dfn>Owner</div>
-    <div class=dfndescr>Поле содержит GUID плагина, создавшего диалог или GUID Far Manager, для созданного им диалога.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>DialogInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Уникальный идентификатор диалога.</div>
+  <div class="dfn">Owner</div>
+    <div class="dfndescr">Поле содержит GUID плагина, создавшего диалог или GUID Far Manager, для созданного им диалога.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../dialogapi/dmsg/dm_getdialoginfo.html">DM_GETDIALOGINFO</a>
 </div>
 

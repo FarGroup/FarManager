@@ -10,34 +10,34 @@
 <body>
 
 <h1>GetNumberOfLinks</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.GetNumberOfLinks</code> возвращает количество жёстких ссылок (<a href="../other/dict.html#hardlinks">hard links</a>) для заданного файла.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI GetNumberOfLinks(
   const wchar_t *Name
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Имя требуемого файла.</div>
+<div class="descr">
+  <div class="dfn">Name</div>
+    <div class="dfndescr">Имя требуемого файла.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 В случае успеха функция возвращает количество жёстких ссылок или <code>0</code>. Для файловых систем, отличных от NTFS это значение всегда равно <code>1</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="mklink.html">MkLink</a>
 </div>
 

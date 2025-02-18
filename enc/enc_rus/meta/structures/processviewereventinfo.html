@@ -10,17 +10,17 @@
 <body>
 
 <h1>ProcessViewerEventInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ProcessViewerEventInfo</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ProcessViewerEventInfo
 {
   size_t StructSize;
@@ -31,11 +31,11 @@ struct ProcessViewerEventInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessViewerEventInfo</code>.</div>
-  <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события.<br> Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>ProcessViewerEventInfo</code>.</div>
+  <div class="dfn">Event</div>
+    <div class="dfndescr">Тип события.<br> Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
     <table class="cont">
     <tr><th>Событие</th><th>Описание</th></tr>
     <tr><td><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
@@ -54,8 +54,8 @@ struct ProcessViewerEventInfo
     <td>Программа просмотра получила фокус ввода.<br>
     <code>Param</code> указывает на переменную, содержащую значение ViewerID вьюера, получающего фокус.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</td></tr>
     </table>
-    <p class=warning><img src="../../images/warning.gif" alt="Замечание для VE_GOTFOCUS"> Внимание!</p>
-    <UL class=warning>
+    <p class="warning"><img src="../../images/warning.gif" alt="Замечание для VE_GOTFOCUS"> Внимание!</p>
+    <UL class="warning">
        <LI><b>При обработке <code>VE_GOTFOCUS</code> <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
        <a href="../service_functions/message.html">Info.Message</a>,
        <a href="../service_functions/menu.html">Info.Menu</a>,
@@ -64,20 +64,20 @@ struct ProcessViewerEventInfo
        Вызов этих функций приводит к рекурсивному вызову <code>VE_GOTFOCUS</code>.</b>
        </LI></UL>
     </div>
-  <div class=dfn>Param</div>
-    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
-  <div class=dfn>ViewerID</div>
-    <div class=dfndescr>Идентификатор внутренней программы просмотра, вызвавшей функцию <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>.</div>
+  <div class="dfn">Param</div>
+    <div class="dfndescr">Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+  <div class="dfn">ViewerID</div>
+    <div class="dfndescr">Идентификатор внутренней программы просмотра, вызвавшей функцию <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>.</div>
 
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <li><code>VE_READ</code> вызывается только один раз для файла. </li>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>
 </div>

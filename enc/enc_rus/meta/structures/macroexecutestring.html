@@ -10,17 +10,17 @@
 <body>
 
 <h1>MacroExecuteString</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>MacroExecuteString</code> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для передачи исполняемого скрипта в Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct MacroExecuteString
 {
   size_t StructSize;
@@ -34,11 +34,11 @@ struct MacroExecuteString
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroExecuteString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>, используются только KMFLAGS_SILENTCHECK, KMFLAGS_LUA и KMFLAGS_MOONSCRIPT):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>MacroExecuteString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>, используются только KMFLAGS_SILENTCHECK, KMFLAGS_LUA и KMFLAGS_MOONSCRIPT):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="KMFLAGS_ENABLEOUTPUT">KMFLAGS_ENABLEOUTPUT</a></td>
@@ -56,22 +56,22 @@ struct MacroExecuteString
     <tr><td><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table></div>
-  <div class=dfn>SequenceText</div>
-    <div class=dfndescr>Скрипт в текстовом виде. Если начинается символом <code>@</code>, то последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
-  <div class=dfn>InCount</div>
-    <div class=dfndescr>Количество аргументов для передачи скрипту. Если аргументов нет, установите в ноль.</div>
-  <div class=dfn>InValues</div>
-    <div class=dfndescr>
+  <div class="dfn">SequenceText</div>
+    <div class="dfndescr">Скрипт в текстовом виде. Если начинается символом <code>@</code>, то последующая часть интерпретируется как имя файла-скрипта (допустимо использование переменных окружения).</div>
+  <div class="dfn">InCount</div>
+    <div class="dfndescr">Количество аргументов для передачи скрипту. Если аргументов нет, установите в ноль.</div>
+  <div class="dfn">InValues</div>
+    <div class="dfndescr">
       Указатель на массив аргументов скрипта.
     </div>
-  <div class=dfn>OutCount</div>
-    <div class=dfndescr>Количество элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
-  <div class=dfn>OutValues</div>
-    <div class=dfndescr>Указатель на массив элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
+  <div class="dfn">OutCount</div>
+    <div class="dfndescr">Количество элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
+  <div class="dfn">OutValues</div>
+    <div class="dfndescr">Указатель на массив элементов, возвращённых скриптом (значение устанавливает Far Manager).</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Скрипт не должен вызывать функции, перечисленные в статье "Ограничения в
 использовании некоторых функций" в macroapi_manual.ru.chm.
@@ -83,8 +83,8 @@ struct MacroExecuteString
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarGetValue</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarGetValue</code> описывает макропеременную для события <a href="../dialogapi/dmsg/dn_getvalue.html">DN_GETVALUE</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarGetValue
 {
   size_t StructSize;
@@ -30,11 +30,11 @@ struct FarGetValue
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetValue</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип события. Как должен поступить макродвижок с <code>Value</code> после передачи управления плагином в Far Manager.
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarGetValue</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип события. Как должен поступить макродвижок с <code>Value</code> после передачи управления плагином в Far Manager.
       Плагин должен выставить это поле в одно из следующих значений:
       <table class="cont">
       <tr><th>Тип</th><th>Описание</th></tr>
@@ -44,18 +44,18 @@ struct FarGetValue
       <td>Плагин изменил данные, макродвижок вернет эти данные в макропоследовательность.</td></tr>
       </table>
     </div>
-  <div class=dfn>Value</div>
-    <div class=dfndescr>Значение запрашиваемой макропеременной типа <a href="../structures/farmacrovalue.html">FarMacroValue</a>.
+  <div class="dfn">Value</div>
+    <div class="dfndescr">Значение запрашиваемой макропеременной типа <a href="../structures/farmacrovalue.html">FarMacroValue</a>.
     Значение приходит в плагин уже заполненным актуальной информацией.
     </div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

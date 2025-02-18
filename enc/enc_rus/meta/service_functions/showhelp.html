@@ -10,17 +10,17 @@
 <body>
 
 <h1>ShowHelp</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ShowHelp</code> показывает заданный топик из hlf-файла.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL WINAPI ShowHelp(
   const wchar_t *ModuleName,
   const wchar_t *HelpTopic,
@@ -29,13 +29,13 @@ BOOL WINAPI ShowHelp(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>ModuleName</div>
-    <div class=dfndescr>Полное имя плагина. Его вы получаете в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.</div>
-  <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема помощи</a>. Если параметр <code>HelpTopic = NULL</code>, то будет показана тема со стандартным именем "<a href="../language/help_files.html">Contents</a>".</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть одним из следующий значений (перечисление <a name="FARHELPFLAGS">FARHELPFLAGS</a>):
+<div class="descr">
+  <div class="dfn">ModuleName</div>
+    <div class="dfndescr">Полное имя плагина. Его вы получаете в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.</div>
+  <div class="dfn">HelpTopic</div>
+    <div class="dfndescr"><a href="../language/helptopic.html">Тема помощи</a>. Если параметр <code>HelpTopic = NULL</code>, то будет показана тема со стандартным именем "<a href="../language/help_files.html">Contents</a>".</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть одним из следующий значений (перечисление <a name="FARHELPFLAGS">FARHELPFLAGS</a>):
     <table class="cont">
     <tr><th>Константа</th><th>Описание</th></tr>
     <tr><td><a name="FHELP_SELFHELP">FHELP_SELFHELP</a></td>
@@ -60,7 +60,7 @@ BOOL WINAPI ShowHelp(
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <code>TRUE</code> - удалось передать параметры в Менеджер Помощи.<br>
 <code>FALSE</code> - ошибка:
 <ul>
@@ -72,9 +72,9 @@ BOOL WINAPI ShowHelp(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Для удобства при частом использовании можно использовать следующую функцию в вашей программе:
-<pre class=code>void ShowHelp(const wchar_t *HelpTopic)
+<pre class="code">void ShowHelp(const wchar_t *HelpTopic)
 {
   Info.ShowHelp(Info.ModuleName,HelpTopic,0);
 }
@@ -82,12 +82,12 @@ BOOL WINAPI ShowHelp(
 
 Причём, <code>Info</code> определяется как глобальная переменная...
 
-<pre class=code>struct PluginStartupInfo <code>Info</code>;</pre>
+<pre class="code">struct PluginStartupInfo <code>Info</code>;</pre>
 
   ...а инициализируется она в функции
   <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
 
-<pre class=code>void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+<pre class="code">void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
 . . .
   ::<code>Info</code>=*Info;
@@ -95,7 +95,7 @@ BOOL WINAPI ShowHelp(
 }</pre>
 
 <p>Пример вызова темы создания линков из плагина FarCmds:</p>
-<pre class=code>
+<pre class="code">
 bool StrToGuid(const wchar_t *Value,GUID *Guid)
 {
   return UuidFromString(reinterpret_cast&lt;unsigned short*&gt;((void*)Value), Guid) == RPC_S_OK;
@@ -109,8 +109,8 @@ if (StrToGuid(L"3A2AF458-43E2-4715-AFEA-93D33D56C0C2",&amp;FindGuid))
 </div>
 
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../language/help_files.html">Файлы помощи</a>
 </div>
 

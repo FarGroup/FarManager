@@ -10,17 +10,17 @@
 <body>
 
 <h1>PanelInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>PanelInfo</code> содержит информацию о панели плагина или Far Manager. Используйте функцию <a href="../service_functions/panelcontrol.html">PanelControl</a> для её заполнения.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct PanelInfo
 {
   size_t StructSize;
@@ -39,15 +39,15 @@ struct PanelInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>PanelInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>PluginHandle</div>
-    <div class=dfndescr>Текущий описатель панели плагина, тот, что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
-  <div class=dfn>OwnerGuid</div>
-    <div class=dfndescr>GUID плагина, создавшего панель. <code>OwnerGuid</code> = <code>FarGuid</code> - если панель принадлежит Far Manager.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>PanelInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">PluginHandle</div>
+    <div class="dfndescr">Текущий описатель панели плагина, тот, что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class="dfn">OwnerGuid</div>
+    <div class="dfndescr">GUID плагина, создавшего панель. <code>OwnerGuid</code> = <code>FarGuid</code> - если панель принадлежит Far Manager.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="PFLAGS_SHOWHIDDEN">PFLAGS_SHOWHIDDEN</a></td>
@@ -82,20 +82,20 @@ struct PanelInfo
     <td>Нулевой флаг.</td></tr>
     </table>
     </div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Число элементов на панели.</div>
-  <div class=dfn>SelectedItemsNumber</div>
-    <div class=dfndescr>Число выделенных элементов на панели. Равно <code>1</code>, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <code>SelectedItemsNumber = 0</code>.</div>
-  <div class=dfn>PanelRect</div>
-    <div class=dfndescr>Геометрия панели - структура типа <a href="../winapi/rect.html">RECT</a>.</div>
-  <div class=dfn>CurrentItem</div>
-    <div class=dfndescr>Индекс текущего элемента на панели. Перед использованием убедитесь, что <code>ItemsNumber</code> больше <code>0</code>.</div>
-  <div class=dfn>TopPanelItem</div>
-    <div class=dfndescr>Элемент, находящийся в первой видимой позиции панели.</div>
-  <div class=dfn>ViewMode</div>
-    <div class=dfndescr>Номер режима просмотра панели.</div>
-  <div class=dfn>PanelType</div>
-    <div class=dfndescr>Может быть (перечисление <a name="PANELINFOTYPE">PANELINFOTYPE</a>):
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Число элементов на панели.</div>
+  <div class="dfn">SelectedItemsNumber</div>
+    <div class="dfndescr">Число выделенных элементов на панели. Равно <code>1</code>, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <code>SelectedItemsNumber = 0</code>.</div>
+  <div class="dfn">PanelRect</div>
+    <div class="dfndescr">Геометрия панели - структура типа <a href="../winapi/rect.html">RECT</a>.</div>
+  <div class="dfn">CurrentItem</div>
+    <div class="dfndescr">Индекс текущего элемента на панели. Перед использованием убедитесь, что <code>ItemsNumber</code> больше <code>0</code>.</div>
+  <div class="dfn">TopPanelItem</div>
+    <div class="dfndescr">Элемент, находящийся в первой видимой позиции панели.</div>
+  <div class="dfn">ViewMode</div>
+    <div class="dfndescr">Номер режима просмотра панели.</div>
+  <div class="dfn">PanelType</div>
+    <div class="dfndescr">Может быть (перечисление <a name="PANELINFOTYPE">PANELINFOTYPE</a>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="PTYPE_FILEPANEL">PTYPE_FILEPANEL</a></td>
@@ -108,16 +108,16 @@ struct PanelInfo
     <td>панель информации (Information)</td></tr>
     </table>
     </div>
-  <div class=dfn>SortMode</div>
-    <div class=dfndescr><a href="../defs/sortmetods.html">Режим сортировки</a> панели.</div>
+  <div class="dfn">SortMode</div>
+    <div class="dfndescr"><a href="../defs/sortmetods.html">Режим сортировки</a> панели.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

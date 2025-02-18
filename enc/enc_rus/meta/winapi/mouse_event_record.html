@@ -10,20 +10,20 @@
 <body>
 
 <h1>MOUSE_EVENT_RECORD</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a> |
 <a href="input_record.html">input_record</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>MOUSE_EVENT_RECORD</code> используется
 консольной структурой <code>INPUT_RECORD</code>
 для получения сообщений мыши.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _MOUSE_EVENT_RECORD {
     COORD dwMousePosition;
     DWORD dwButtonState;
@@ -33,11 +33,11 @@ typedef struct _MOUSE_EVENT_RECORD {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>dwMousePosition</div>
-    <div class=dfndescr>Положение курсора в координатах экранного буфера (структура <a href="coord.html">COORD</a>).</div>
-    <div class=dfn>dwButtonState</div>
-    <div class=dfndescr>Состояние клавиш мыши.
+<div class="descr">
+    <div class="dfn">dwMousePosition</div>
+    <div class="dfndescr">Положение курсора в координатах экранного буфера (структура <a href="coord.html">COORD</a>).</div>
+    <div class="dfn">dwButtonState</div>
+    <div class="dfndescr">Состояние клавиш мыши.
     Младший бит соответствует самой левой кнопке, следующий - самой правой,
     Следующий бит - следующая за левой клавиша.
     Далее биты соответствуют клавишам слева направо. Если бит установлен - клавиша нажата.<br>
@@ -48,8 +48,8 @@ typedef struct _MOUSE_EVENT_RECORD {
       <a name="FROM_LEFT_2ND_BUTTON_PRESSED">FROM_LEFT_2ND_BUTTON_PRESSED</a><br>
       <a name="FROM_LEFT_3RD_BUTTON_PRESSED">FROM_LEFT_3RD_BUTTON_PRESSED</a><br>
       <a name="FROM_LEFT_4TH_BUTTON_PRESSED">FROM_LEFT_4TH_BUTTON_PRESSED</a></div>
-    <div class=dfn>dwControlKeyState</div>
-    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+    <div class="dfn">dwControlKeyState</div>
+    <div class="dfndescr">Состояние управляющих клавиш. Может быть комбинацией следующих значений:
 
       <table class="cont">
      <tr><th>Клавиша</th><th>Описание</th></tr>
@@ -74,8 +74,8 @@ typedef struct _MOUSE_EVENT_RECORD {
      </table>
 
     </div>
-    <div class=dfn>dwEventFlags</div>
-    <div class=dfndescr>Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
+    <div class="dfn">dwEventFlags</div>
+    <div class="dfndescr">Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
       Иначе одно из следующих значений:
        <table class="cont">
        <tr><th>Событие</th><th>Описание</th></tr>
@@ -102,15 +102,15 @@ typedef struct _MOUSE_EVENT_RECORD {
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
   Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
   флаг <code>ENABLE_MOUSE_INPUT</code>.<br>
   Сообщения мыши посылаются в буфер, только если консоль имеет активный
   клавиатурный фокус и курсор находится в границах консольного окна.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
   <a href="coord.html">COORD</a>,
   <a href="peekconsoleinput.html">PeekConsoleInput</a>,
   <a href="readconsoleinput.html">ReadConsoleInput</a>,

@@ -10,33 +10,33 @@
 <body>
 
 <h1>DN_HELP</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Событие <code>DN_HELP</code> передаётся в обработчик диалога перед выводом темы помощи.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога, имеющий фокус ввода (текущий элемент).
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Адрес строки, содержащей <a href="../../language/helptopic.html">название темы</a>, которая будет показана.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 Адрес строки темы подсказки, связанной с данным диалогом, который будет выведен. Если вернули <code>NULL</code>, то тема помощи выводиться не будет.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td>Все</td>
@@ -45,13 +45,13 @@ ID элемента диалога, имеющий фокус ввода (тек
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Это сообщение позволяет управлять показом темы помощи на уровне отдельного элемента диалога.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 // в зависимости от состояния игры показать тот или иной раздел помощи
 // в данном случае текущий элемент диалога нас не интересует
 case DN_HELP:
@@ -68,7 +68,7 @@ case DN_HELP:
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class="see">Смотрите также:</div><div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

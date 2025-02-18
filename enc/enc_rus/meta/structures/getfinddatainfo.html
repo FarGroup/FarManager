@@ -10,17 +10,17 @@
 <body>
 
 <h1>GetFindDataInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>GetFindDataInfo</code> передает информацию Far Manager'у о списке файлов из эмулируемой файловой системы в функции <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct GetFindDataInfo
 {
   size_t StructSize;
@@ -32,21 +32,21 @@ struct GetFindDataInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>GetFindDataInfo</code>.</div>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
-  <div class=dfn>PanelItem</div>
-    <div class=dfndescr>Переменная, которая получит адрес массива структур <a href="pluginpanelitem.html">PluginPanelItem</a>.</div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Переменная, которая получит число структур <a href="pluginpanelitem.html">PluginPanelItem</a>.</div>
-   <div class=dfn>OpMode</div>
-    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfinddataw.html">GetFindDataW</a> должна быть готова обработать флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>GetFindDataInfo</code>.</div>
+  <div class="dfn">hPanel</div>
+    <div class="dfndescr">Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
+  <div class="dfn">PanelItem</div>
+    <div class="dfndescr">Переменная, которая получит адрес массива структур <a href="pluginpanelitem.html">PluginPanelItem</a>.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Переменная, которая получит число структур <a href="pluginpanelitem.html">PluginPanelItem</a>.</div>
+   <div class="dfn">OpMode</div>
+    <div class="dfndescr">Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfinddataw.html">GetFindDataW</a> должна быть готова обработать флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>.</div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

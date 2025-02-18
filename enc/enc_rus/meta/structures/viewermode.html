@@ -10,17 +10,17 @@
 <body>
 
 <h1>ViewerMode</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ViewerMode</code> используется для получения дополнительной информации о текущем состоянии программы просмотра Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ViewerMode
 {
   uintptr_t CodePage;
@@ -30,11 +30,11 @@ struct ViewerMode
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>CodePage</div>
-    <div class=dfndescr>Кодовая страница символов.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (тип <a name="VIEWER_MODE_FLAGS">VIEWER_MODE_FLAGS</a>).
+<div class="descr">
+  <div class="dfn">CodePage</div>
+    <div class="dfndescr">Кодовая страница символов.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация следующих значений (тип <a name="VIEWER_MODE_FLAGS">VIEWER_MODE_FLAGS</a>).
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="VMF_WRAP">VMF_WRAP</a></td>
@@ -42,8 +42,8 @@ struct ViewerMode
     <tr><td><a name="VMF_WORDWRAP">VMF_WORDWRAP</a></td>
     <td>При свертке используется перенос строк по словам, а не буквам.</td></tr>
     </table></div>
-  <div class=dfn>ViewMode</div>
-    <div class=dfndescr>Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
+  <div class="dfn">ViewMode</div>
+    <div class="dfndescr">Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="VMT_TEXT">VMT_TEXT</a></td>
@@ -55,8 +55,8 @@ struct ViewerMode
     </table></div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>,
 <a href="viewerinfo.html">ViewerInfo</a>

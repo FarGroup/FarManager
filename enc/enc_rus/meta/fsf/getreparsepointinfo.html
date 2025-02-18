@@ -10,16 +10,16 @@
 <body>
 
 <h1>GetReparsePointInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.GetReparsePointInfo</code> позволяет для указанной символической ссылки или связи каталогов получить информацию об источнике -  путь к исходному файлу/каталогу.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI GetReparsePointInfo(
   const wchar_t *Src,
   wchar_t *Dest,
@@ -28,17 +28,17 @@ size_t WINAPI GetReparsePointInfo(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Src</div>
-    <div class=dfndescr>Источник данных. Строка должна содержать полное имя к символической ссылке и заканчиваться слешем (<code>'\'</code>).</div>
-  <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на буфер, куда будет помещен путь. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Размер строки назначения <code>Dest</code> в символах с завершающим нулем.</div>
+<div class="descr">
+  <div class="dfn">Src</div>
+    <div class="dfndescr">Источник данных. Строка должна содержать полное имя к символической ссылке и заканчиваться слешем (<code>'\'</code>).</div>
+  <div class="dfn">Dest</div>
+    <div class="dfndescr">Указатель на буфер, куда будет помещен путь. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Размер строки назначения <code>Dest</code> в символах с завершающим нулем.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <p>Функция возвращает необходимый размер буфера в символах.
 <p>0 - в случае ошибки:
 <ul>
@@ -47,7 +47,7 @@ size_t WINAPI GetReparsePointInfo(
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Адреса Src и Dest могут совпадать.
 <li>Возвращаемое функцией значение не несёт никакой практической пользы для сетевых дисков.
@@ -56,7 +56,7 @@ size_t WINAPI GetReparsePointInfo(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 </body>

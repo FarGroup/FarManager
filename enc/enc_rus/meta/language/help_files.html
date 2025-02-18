@@ -10,14 +10,14 @@
 <body>
 
 <h1>Файлы помощи</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">языковая поддержка</a>
 </div>
 
 <h3>Синтаксис Help-файла.</h3>
 
-<div class=shortdescr>
+<div class="shortdescr">
 В файлах подсказки могут содержаться следующие управляющие элементы.
 </div>
 
@@ -73,7 +73,7 @@
     Ссылка должна располагаться в одной строке.<br>
     Например, плагин Foo располагается в каталоге 'D:\FAR\Plugins\Foo' и
     нам надо показать тему помощи 'FooInfo' из хелпа по этому плагину.
-    <pre class=code>~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\&gt;FooInfo@</pre>
+    <pre class="code">~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\&gt;FooInfo@</pre>
   </td></tr>
 
   <tr><td>~Text~@&lt;FullModuleName&gt;Topic@</td>
@@ -82,7 +82,7 @@
     Ссылка должна располагаться в одной строке.<br>
     Например, для плагина Foo 'D:\FAR\Plugins\Foo\Foo.dll' необходимо показать
     тему помощи 'FooInfo' из хелпа по этому плагину.
-    <pre class=code>~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\Foo.dll&gt;FooInfo@</pre>
+    <pre class="code">~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\Foo.dll&gt;FooInfo@</pre>
   </td></tr>
 
 
@@ -90,7 +90,7 @@
   <td>URL-активатор - запуск приложений, поддерживающих
     URL-протоколы. Под URL-приложениями понимаются такие приложения,
     которые поддерживают протоколы, подобные этим:
-<pre class=code>~доступ к файлам~@<b>file</b>://C:\Program Files\Far\License.xUSSR.txt@
+<pre class="code">~доступ к файлам~@<b>file</b>://C:\Program Files\Far\License.xUSSR.txt@
 ~передача файлов по FTP~@<b>ftp</b>://ftp.kgb.ru/WinUtil/Rar/@
 ~HTTP~@<b>http</b>://plugring.farmanager.com/@
 ~MailTo~@<b>mailto</b>:vskirdin@@mail.ru@
@@ -152,7 +152,7 @@
 </table>
 
 <h3>Замечания:</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Длина каждой строки в hlf-файле не должна превышать 300 символов.<br>
 <li>Если Вам необходимо показать символы <b>~</b>, <b>#</b> или <b>@</b>,
@@ -168,10 +168,10 @@
 </div>
 
 <h3>Пример:</h3>
-<div class=descr>
+<div class="descr">
   Данный пример взят из файла <code>FarRus.hlf</code>.
 
-<pre class=code>@FolderShortcuts
+<pre class="code">@FolderShortcuts
 $ #Ссылки на папки#
     Ссылки на папки позволяют обеспечить быстрый доступ к часто
 используемым папкам. Для создания ссылки на текущую папку нужно
@@ -187,16 +187,16 @@ $ #Ссылки на папки#
 
 <p>Следующие примеры показывают оформление URL-активаторов.<br>
 Активизация E-mail клиента:
-<pre class=code>~vskirdin@@mail.ru~@mailto:vskirdin@@mail.ru@</pre>
+<pre class="code">~vskirdin@@mail.ru~@mailto:vskirdin@@mail.ru@</pre>
 
 <p>Активизация браузера:
-<pre class=code>~https://plugring.farmanager.com/~@plugring.farmanager.com/@</pre>
+<pre class="code">~https://plugring.farmanager.com/~@plugring.farmanager.com/@</pre>
 или
-<pre class=code>~http://www.uic.nnov.ru/~~ruiv/plugring/~@http://www.uic.nnov.ru/~ruiv/plugring/@</pre>
+<pre class="code">~http://www.uic.nnov.ru/~~ruiv/plugring/~@http://www.uic.nnov.ru/~ruiv/plugring/@</pre>
 
 
 <p>Следующие примеры показывают использование цветовых атрибутов:<br>
-<pre class=code>.Language=Russian,Russian (Русский)
+<pre class="code">.Language=Russian,Russian (Русский)
 .PluginContents=Игра Реверси
 <b>.Options CtrlColorChar=\</b>
 
@@ -215,8 +215,8 @@ $ #Ссылки на папки#
 
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="control_statements.html">Управляющие элементы</a>,
 <a href="language_files.html">Языковые файлы</a>
 </div>

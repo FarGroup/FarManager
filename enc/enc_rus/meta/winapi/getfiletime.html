@@ -10,16 +10,16 @@
 <body>
 
 <h1>GetFileTime</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>GetFileTime</code> возвращает дату и время создания, модификации и последнего доступа к файлу.</div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL GetFileTime(
   HANDLE hFile,
   CONST FILETIME *lpCreationTime,
@@ -29,40 +29,40 @@ BOOL GetFileTime(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
+<div class="descr">
 
-    <div class=dfn>hFile</div>
-    <div class=dfndescr>идентифицирует файл, для которого извлекаются дата и время. Файловый дескриптор должен быть создан с доступом <code>GENERIC_READ</code> к файлу.</div>
-    <div class=dfn>lpCreationTime</div>
-    <div class=dfndescr>указывает на структуру типа <a href="filetime.html">FILETIME</a>, которая получает дату и время создания файла. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
-    <div class=dfn>lpLastAccessTime</div>
-    <div class=dfndescr>указывает на структуру типа <a href="filetime.html">FILETIME</a>, которая получает дату и время последнего доступа к файлу. Время последнего доступа включает в себя время, когда в последний раз: в файл записывалась информация, читалась информация из файла, или, в случае исполняемых файлов, файл запускался на исполнение. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
-    <div class=dfn>lpLastWriteTime</div>
-    <div class=dfndescr>указывает на структуру типа <a href="filetime.html">FILETIME</a>, указывает на структуру типа <code>FILETIME</code>, которая получает дату и время последней записи в файл. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
+    <div class="dfn">hFile</div>
+    <div class="dfndescr">идентифицирует файл, для которого извлекаются дата и время. Файловый дескриптор должен быть создан с доступом <code>GENERIC_READ</code> к файлу.</div>
+    <div class="dfn">lpCreationTime</div>
+    <div class="dfndescr">указывает на структуру типа <a href="filetime.html">FILETIME</a>, которая получает дату и время создания файла. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
+    <div class="dfn">lpLastAccessTime</div>
+    <div class="dfndescr">указывает на структуру типа <a href="filetime.html">FILETIME</a>, которая получает дату и время последнего доступа к файлу. Время последнего доступа включает в себя время, когда в последний раз: в файл записывалась информация, читалась информация из файла, или, в случае исполняемых файлов, файл запускался на исполнение. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
+    <div class="dfn">lpLastWriteTime</div>
+    <div class="dfndescr">указывает на структуру типа <a href="filetime.html">FILETIME</a>, указывает на структуру типа <code>FILETIME</code>, которая получает дату и время последней записи в файл. Значение этого параметра может быть равно <code>NULL</code>, если приложению не требуется эта информация.</div>
 
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
   <p>В случае успеха возвращается ненулевое значение.<br>
   Если функция завершается неудачно, возвращается ноль.
   Для получения дополнительной информации следует вызвать функцию <code>GetLastError</code>.</p>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
   <p>Файловые системы FAT и NTFS поддерживают время создания файла,
   время последнего доступа к файлу и время последней записи в файл.</p>
 
-  <p class=note><img src="../../images/note.gif" alt="Точность хранения времени"> Точность хранения времени</p>
-  <UL class=note>
+  <p class="note"><img src="../../images/note.gif" alt="Точность хранения времени"> Точность хранения времени</p>
+  <UL class="note">
     <LI>
    Точность, с которой сохраняются значения времени для файлов, зависит от используемой операционной системы, файловой системы, сетевой конфигурации. Подробнее см.  замечания к структуре <a href="filetime.html#precise">FILETIME</a>.
   </LI>
   </UL>
 
-  <p class=note><img src="../../images/note.gif" alt="Замечание для NTFS"> NTFS</p>
-  <UL class=note>
+  <p class="note"><img src="../../images/note.gif" alt="Замечание для NTFS"> NTFS</p>
+  <UL class="note">
 <LI>
   Когда Windows NT создаёт список каталогов (Проводник, команда DIR, и т.д.) в разделе
   NTFS, она модифицирует дату/время последнего доступа на каждом
@@ -80,10 +80,10 @@ BOOL GetFileTime(
 
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Следующий пример показывает как получить дату/время модификации файла в виде строки (Windows NT).
 
-<pre class=code>BOOL GetLastWriteTime(HANDLE hFile, LPSTR lpszString)
+<pre class="code">BOOL GetLastWriteTime(HANDLE hFile, LPSTR lpszString)
 {
   FILETIME ftCreate, ftAccess, ftWrite;
   SYSTEMTIME stUTC, stLocal;
@@ -107,8 +107,8 @@ BOOL GetFileTime(
 </div>
 
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="filetime.html">FILETIME</a>,
 <a class="msdocs">GetFileSize</a>,
 <a href="setfiletime.html">SetFileTime</a>,

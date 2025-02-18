@@ -10,34 +10,34 @@
 <body>
 
 <h1>DM_SETEDITPOSITION</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dm.html">сообщения</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DM_SETEDITPOSITION</code> посылается обработчику диалога для установки позиции и состояния курсора в строках редактирования диалога.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру <a href="../../structures/editorsetposition.html">EditorSetPosition</a>.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>FALSE</code> - указанный ID элемента не является строковым редактором.<br>
 <code>TRUE</code> - позиция курсора установлена.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
@@ -52,11 +52,11 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример функции поддержки выделения мышью в строках ввода в плагине "Visual renaming files"
 <pre class="code">
 static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
@@ -112,8 +112,8 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>,
 <a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>,

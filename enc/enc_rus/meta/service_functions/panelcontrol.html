@@ -10,17 +10,17 @@
 <body>
 
 <h1>PanelControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>PanelControl</code> позволяет запрашивать различную информацию и выполнять управляющие действия над панелями и командной строкой.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI PanelControl(
   HANDLE hPanel,
   enum FILE_CONTROL_COMMANDS Command,
@@ -30,12 +30,12 @@ intptr_t WINAPI PanelControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Текущий описатель панели. При запросе информации относительно активной панели установите этот параметр равным <code>PANEL_ACTIVE</code>, для пассивной -  <code>PANEL_PASSIVE</code>. Это позволяет
+<div class="descr">
+  <div class="dfn">hPanel</div>
+    <div class="dfndescr">Текущий описатель панели. При запросе информации относительно активной панели установите этот параметр равным <code>PANEL_ACTIVE</code>, для пассивной -  <code>PANEL_PASSIVE</code>. Это позволяет
     использовать эту функцию в командах плагина без создания новой панели. Также <code>PANEL_ACTIVE(PANEL_PASSIVE)</code> можно использовать для неплагиновой панели.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть следующим <a name="FILE_CONTROL_COMMANDS">FILE_CONTROL_COMMANDS</a>):
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Тип команды. Может быть следующим <a name="FILE_CONTROL_COMMANDS">FILE_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
       <!-- панельные -->
@@ -45,8 +45,8 @@ intptr_t WINAPI PanelControl(
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST"> Внимание!<br><br></p>
-    <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST"> Внимание!<br><br></p>
+    <UL class="note"><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
 
     <tr><td><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
     <td>Проверяет, является ли панель активной.<br>
@@ -63,7 +63,7 @@ intptr_t WINAPI PanelControl(
     <td>Получить общую информацию о панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/panelinfo.html">PanelInfo</a>, которая получит информацию о панели.<br>
-    <p>В процессе исполнения запроса <pre class=code>Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&amp;PInfo);</pre>
+    <p>В процессе исполнения запроса <pre class="code">Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&amp;PInfo);</pre>
     Far Manager вызывает экспортируемую функцию <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a> того плагина, которому принадлежит панель.
     Far Manager содержит защиту от бесконечной рекурсии: в случае, когда плагин из обработчика <code>GetOpenPanelInfoW()</code> тоже вызывает
     <code>Info.PanelControl(...,FCTL_GETPANELINFO)</code>, повторного вложенного вызова <code>GetOpenPanelInfoW()</code> не произойдёт.
@@ -112,11 +112,11 @@ intptr_t WINAPI PanelControl(
     (но при этом не меньше размера <code>PluginPanelItem</code>), то будет записано столько полей, сколько поместится целиком,
     а остальным будет присвоено значение <code>NULL</code>. В частности, если установить <code>FarGetPluginPanelItem::Size</code> в
     <code>sizeof(PluginPanelItem)</code> то можно за один вызов и без динамического выделения памяти получить все поля, не являющиеся указателями.</p>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM"> Внимание! Tак делать нельзя:<br></p><br>
-    <pre class=code>PluginPanelItem PPI;
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM"> Внимание! Tак делать нельзя:<br></p><br>
+    <pre class="code">PluginPanelItem PPI;
 Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);</pre>
     <p>Пример корректного использования:
-    <pre class=code>
+    <pre class="code">
 for(int J=0; J < PInfo.ItemsNumber; J++)
 {
   size_t Size=Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,0);
@@ -169,7 +169,7 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не принадлежит плагину, или панель в данный момент невидима.<br>
     Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет <code>TRUE</code>.
     <p>Например, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
-    <pre class=code>FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
+    <pre class="code">FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     </td></tr>
@@ -186,8 +186,8 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     <td>Начать/закончить операцию выделения в панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION"> Внимание!<br><br></p>
-    <UL class=note><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION"> Внимание!<br><br></p>
+    <UL class="note"><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr><td><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
     <td>Установить выделение в панели.<br>
@@ -195,7 +195,7 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     <code>Param2</code> указывает на переменную типа <code>BOOL</code> (<code>TRUE</code> - выделить элемент, <code>FALSE</code> - снять выделение).
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
     <p>Пример:
-    <pre class=code>
+    <pre class="code">
 // начинаем операцию по выделению файлов
 Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
 
@@ -214,8 +214,8 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
     <code>Param2</code> не используется.<br>
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION"> Внимание!<br><br></p>
-    <UL class=note><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION"> Внимание!<br><br></p>
+    <UL class="note"><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr><td><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
     <td>Установить режим сортировки для панели.<br>
@@ -294,25 +294,25 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на Параметр 1 команды - смотрите описание параметра <code>Command</code> выше.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на Параметр 2 команды - смотрите описание параметра <code>Command</code> выше.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на Параметр 1 команды - смотрите описание параметра <code>Command</code> выше.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на Параметр 2 команды - смотрите описание параметра <code>Command</code> выше.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если иное не оговорено в описании Команды выше, в случае успеха возвращается <code>TRUE</code>, иначе <code>FALSE</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Обычно вы не должны обновлять или перерисовывать панель и директивно закрывать плагин. Far Manager делает это сам, при выполнении стандартных операций.
 Эти функции могут быть необходимыми для реализации некоторых нестандартных функциональных возможностей.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="advcontrol.html">AdvControl</a>,
 <a href="editorcontrol.html">EditorControl</a>
 </div>

@@ -10,17 +10,17 @@
 <body>
 
 <h1>Message</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>Message</code> показывает сообщение.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI Message(
   const GUID *PluginId,
   const GUID *Id,
@@ -33,13 +33,13 @@ intptr_t WINAPI Message(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
+<div class="descr">
+  <div class="dfn">PluginId</div>
+    <div class="dfndescr">Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть комбинацией следующих значений (тип <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="FMSG_WARNING">FMSG_WARNING</a></td>
@@ -52,7 +52,7 @@ intptr_t WINAPI Message(
     <tr><td><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
     <td>Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
     <tr><td><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
-    <td>В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
+    <td>В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class="alert3">это УКАЗАТЕЛЬ на одну
     строку</dfn>, в которой разделителем выводимых строк является символ <code>'\n'</code>.
     <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.
     <p>При указании флага <code>FMSG_ALLINONE</code> аргумент <code>ItemsNumber</code> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок <code>FMSG_MB_*</code>).
@@ -73,27 +73,27 @@ intptr_t WINAPI Message(
     <td>Нулевой флаг</td></tr>
     </table>
     </div>
-  <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> в файле помощи связанная с сообщением. Установите это значение в <code>NULL</code> если подсказка не требуется.</div>
-  <div class=dfn>Items</div>
-    <div class=dfndescr>Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <code>ButtonsNumber</code> строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
+  <div class="dfn">HelpTopic</div>
+    <div class="dfndescr"><a href="../language/helptopic.html">Тема подсказки</a> в файле помощи связанная с сообщением. Установите это значение в <code>NULL</code> если подсказка не требуется.</div>
+  <div class="dfn">Items</div>
+    <div class="dfndescr">Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <code>ButtonsNumber</code> строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
     Для отрисовки одинарной разделительной линии начните строку с символа с кодом 1 (L"\1").<br>
     Для отрисовки двойной разделительной линии начните строку с символа с кодом 2 (L"\2").<br>
     Смотрите также описание флага <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество указателей в массиве <code>Items</code>. Минимальное значение - 2 строки.</div>
-  <div class=dfn>ButtonsNumber</div>
-    <div class=dfndescr>Количество заключительных строк, которые будут использоваться в качестве кнопок. При указании флагов <code>FMSG_MB_*</code>  параметр <code>ButtonsNumber</code> игнорируется.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Количество указателей в массиве <code>Items</code>. Минимальное значение - 2 строки.</div>
+  <div class="dfn">ButtonsNumber</div>
+    <div class="dfndescr">Количество заключительных строк, которые будут использоваться в качестве кнопок. При указании флагов <code>FMSG_MB_*</code>  параметр <code>ButtonsNumber</code> игнорируется.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает <code>-1</code>, если пользователь отменил сообщение (или системе не удалось выделить достаточно памяти для внутренних буферов),
 или выбранный номер кнопки (для первой кнопки - <code>0</code>, для второй - <code>1</code> и так далее).
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Если <code>ButtonsNumber</code> равен <code>0</code> (флаги <code>FMSG_MB_*</code> не используются) и выведенное сообщение больше не нужно, то плагин <u>должен</u>
 восстановить экран, используя функцию <a href="restorescreen.html">RestoreScreen</a> или любым другим путём.
@@ -104,14 +104,14 @@ intptr_t WINAPI Message(
 <li>При использовании флага <code>FMSG_ALLINONE</code> для корректной компиляции кода необходимо произвести явное преобразование типов:
 <table border=0><tr>
 <td>
-<pre class=code>
+<pre class="code">
   Info.Message(&MainGUID,&MsgGUID,
   FMSG_ALLINONE|FMSG_MB_OKCANCEL,
   L"HelpTopic",
   <b>(const wchar_t * const *)</b>L"Title\nItem1\nItem2\nItem3",
   0,0);</pre>
 или
-<pre class=code>
+<pre class="code">
 const wchar_t *Msg=L"Title\nItem1\nItem2\nItem3\nOk\nCancel";
 Info.Message(&MainGUID,&MsgGUID,
   FMSG_ALLINONE,
@@ -125,10 +125,10 @@ Info.Message(&MainGUID,&MsgGUID,
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Следующая функция выводит на экран диалог-подтверждение на удаление файла:<br>
 <img src="../../images/message.gif" width="234" height="63" alt="диалог-подтверждение на удаление файла">
-<pre class=code>
+<pre class="code">
 BOOL IsDeleted(wchar_t *filename)
 {
   const wchar_t *Msg[5];
@@ -149,11 +149,11 @@ BOOL IsDeleted(wchar_t *filename)
 
 Причём, Info определяется как глобальная переменная:
 
-<pre class=code>struct <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> Info;</pre>
+<pre class="code">struct <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> Info;</pre>
 
 ...а инициализируется она в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
 
-<pre class=code>void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
+<pre class="code">void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
 {
   ...
   ::Info=*Info;
@@ -162,8 +162,8 @@ BOOL IsDeleted(wchar_t *filename)
 
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

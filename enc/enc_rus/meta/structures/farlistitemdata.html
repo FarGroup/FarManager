@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarListItemData</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarListItemData</code> описывает данные, которые будут ассоциированы с элементом списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarListItemData
 {
   size_t StructSize;
@@ -31,19 +31,19 @@ struct FarListItemData
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListItemData</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Index</div>
-    <div class=dfndescr>Индекс элемента списка.</div>
-  <div class=dfn>DataSize</div>
-    <div class=dfndescr>Размер данных <code>Data</code> или <code>0</code>, если предполагается ассоциировать с пунктом списка Unicode-строку.</div>
-  <div class=dfn>Data</div>
-    <div class=dfndescr>Указатель на данные.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarListItemData</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Index</div>
+    <div class="dfndescr">Индекс элемента списка.</div>
+  <div class="dfn">DataSize</div>
+    <div class="dfndescr">Размер данных <code>Data</code> или <code>0</code>, если предполагается ассоциировать с пунктом списка Unicode-строку.</div>
+  <div class="dfn">Data</div>
+    <div class="dfndescr">Указатель на данные.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Менеджер диалогов размещает данные, ассоциируемые с пунктом списка, по следующим правилам:
 <table class="cont">
 <tr><th>DataSize</th><th>Data</th></tr>
@@ -54,8 +54,8 @@ struct FarListItemData
 </table>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="farlist.html">FarList</a>,
 <a href="../dialogapi/dmsg/dm_listgetdata.html">DM_LISTGETDATA</a>,
 <a href="../dialogapi/dmsg/dm_listsetdata.html">DM_LISTSETDATA</a>

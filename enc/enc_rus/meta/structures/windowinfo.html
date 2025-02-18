@@ -10,17 +10,17 @@
 <body>
 
 <h1>WindowInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>WindowInfo</code> содержит информацию о конкретном окне Far Manager. Плагин может получить информацию, используя команду <a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct WindowInfo
 {
   size_t StructSize;
@@ -36,26 +36,26 @@ struct WindowInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>WindowInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Это поле содержит для диалога описатель, для программы просмотра и редактора - ID.</div>
-  <div class=dfn>TypeName</div>
-    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Имя окна. Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.<br>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>WindowInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Это поле содержит для диалога описатель, для программы просмотра и редактора - ID.</div>
+  <div class="dfn">TypeName</div>
+    <div class="dfndescr">Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
+  <div class="dfn">Name</div>
+    <div class="dfndescr">Имя окна. Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.<br>
     Для панелей - имя текущего файлового объекта.<br>
     Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
     Для диалогов и меню - заголовок.<br></div>
-  <div class=dfn>TypeNameSize</div>
-    <div class=dfndescr>Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
-  <div class=dfn>NameSize</div>
-    <div class=dfndescr>Размер буфера <code>Name</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
-  <div class=dfn>Pos</div>
-    <div class=dfndescr>Номер окна, о котором нужно узнать информацию. Нумерация идёт с 0. <code>Pos = -1</code> вернёт информацию о текущем окне.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
+  <div class="dfn">TypeNameSize</div>
+    <div class="dfndescr">Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class="dfn">NameSize</div>
+    <div class="dfndescr">Размер буфера <code>Name</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class="dfn">Pos</div>
+    <div class="dfndescr">Номер окна, о котором нужно узнать информацию. Нумерация идёт с 0. <code>Pos = -1</code> вернёт информацию о текущем окне.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
@@ -72,8 +72,8 @@ struct WindowInfo
     <td>окно подсказки</td></tr>
     </table>
     </div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Могут быть комбинацией следующих значений (тип <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Могут быть комбинацией следующих значений (тип <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="WIF_MODIFIED">WIF_MODIFIED</a></td>
@@ -87,8 +87,8 @@ struct WindowInfo
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 void GetFarWindowInfo()
 {
   WindowInfo WInfo={sizeof(WindowInfo)};
@@ -137,8 +137,8 @@ void GetFarWindowInfo()
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>,
 <a href="../service_functions/advcontrol.html">AdvControl</a>
 </div>

@@ -10,17 +10,17 @@
 <body>
 
 <h1>InputBox</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>InputBox</code> позволяет ввести одну строку текста.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI InputBox(
   const GUID *PluginId,
   const GUID *Id,
@@ -35,29 +35,29 @@ intptr_t WINAPI InputBox(
 );
 </pre>
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
-  <div class=dfn>Title</div>
-    <div class=dfndescr>Заголовок окна ввода. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
-  <div class=dfn>SubTitle</div>
-    <div class=dfndescr>Приглашение на ввод данных. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
-  <div class=dfn>HistoryName</div>
-    <div class=dfndescr>Адрес строки для "истории". Установите в <code>NULL</code>, если "история" ввода не используется.</div>
-  <div class=dfn>SrcText</div>
-    <div class=dfndescr>Исходные данные для ввода и редактирования. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
-  <div class=dfn>DestText</div>
-    <div class=dfndescr>"Приёмник" введённых данных. Может указать на ту же область памяти, что и <code>SrcText</code>.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Размер "приёмника" в символах, с завершающим символом <code>'\0'</code>.</div>
-  <div class=dfn>HelpTopic</div>
-    <div class=dfndescr>Адрес строки с <a href="../language/helptopic.html">названием темы</a> помощи в формате "&lt;FullPath&gt;Topic", например:
-    <pre class=code>L"&lt;D:\\FAR\\Plugins\\Foo\\&gt;FooInfo"</pre>
+<div class="descr">
+  <div class="dfn">PluginId</div>
+    <div class="dfndescr">Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
+  <div class="dfn">Title</div>
+    <div class="dfndescr">Заголовок окна ввода. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
+  <div class="dfn">SubTitle</div>
+    <div class="dfndescr">Приглашение на ввод данных. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
+  <div class="dfn">HistoryName</div>
+    <div class="dfndescr">Адрес строки для "истории". Установите в <code>NULL</code>, если "история" ввода не используется.</div>
+  <div class="dfn">SrcText</div>
+    <div class="dfndescr">Исходные данные для ввода и редактирования. Может быть равен <code>NULL</code> или <code>L""</code>.</div>
+  <div class="dfn">DestText</div>
+    <div class="dfndescr">"Приёмник" введённых данных. Может указать на ту же область памяти, что и <code>SrcText</code>.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Размер "приёмника" в символах, с завершающим символом <code>'\0'</code>.</div>
+  <div class="dfn">HelpTopic</div>
+    <div class="dfndescr">Адрес строки с <a href="../language/helptopic.html">названием темы</a> помощи в формате "&lt;FullPath&gt;Topic", например:
+    <pre class="code">L"&lt;D:\\FAR\\Plugins\\Foo\\&gt;FooInfo"</pre>
     <br>Установите в <code>NULL</code> если подсказка не используется.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть комбинацией следующих значений (тип <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
     <table class="cont">
     <tr><th>Константа</th><th>Описание</th></tr>
     <tr><td><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
@@ -83,22 +83,22 @@ intptr_t WINAPI InputBox(
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает <code>TRUE</code> в случае успешного ввода строки и <code>FALSE</code>, если пользователь прервал ввод.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Far Manager использует данную функцию, когда пользователь пытается создать папку:<br>
 <img src="../../images/inputbox.gif">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

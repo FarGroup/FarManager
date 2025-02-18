@@ -10,17 +10,17 @@
 <body>
 
 <h1>EditorControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>EditorControl</code> позволяет запрашивать различную информацию о встроенном редакторе Far Manager и управлять его состоянием.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI EditorControl(
   intptr_t EditorID,
   enum EDITOR_CONTROL_COMMANDS Command,
@@ -30,14 +30,14 @@ intptr_t WINAPI EditorControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>EditorID</div>
-    <div class=dfndescr>Идентификатор экземпляра редактора (текущий редактор: <code>-1</code>). Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+<div class="descr">
+  <div class="dfn">EditorID</div>
+    <div class="dfndescr">Идентификатор экземпляра редактора (текущий редактор: <code>-1</code>). Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
     <p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!"> ВНИМАНИЕ!</p>
     <ul class="note"><li>Обращение к текущему редактору безопасно только в контексте ProcessEditorInputW. Во всех остальных случаях текущим внезапно может оказаться совсем не тот редактор, который вы ожидали увидеть. Используйте EditorInfo.EditorID или ProcessEditorEventInfo.EditorID (в зависимости от контекста).</li>
     </ul>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a>):
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Тип команды. Может быть одним из следующих (перечисление <a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -126,7 +126,7 @@ intptr_t WINAPI EditorControl(
     <td>Получить информацию о строке.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на структуру <a href="../structures/editorgetstring.html">EditorGetString</a>.
-    <pre class=code>
+    <pre class="code">
 // получить первую строку редактируемого файла
 struct EditorGetString egs={sizeof(EditorGetString)};
 egs.StringNumber=0;
@@ -148,7 +148,7 @@ Info.EditorControl(-1,ECTL_GETSTRING,0,&amp;egs);
     Для его отключения установите <code>Param2</code> в <code>NULL</code> или установите целую переменную в <code>0</code>.
     Поведение при отступе из плагина точно такое же, как и при нажатии <kbd>Enter</kbd> пользователем в редакторе, например, в
     новую строку пробелы (или табуляция) не вставляются, если после нового положения курсора строка не содержит никаких символов.
-    <pre class=code>
+    <pre class="code">
 // вставить пустую строку без отступа
 Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
     </pre>
@@ -159,7 +159,7 @@ Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указывает на строку, оканчивающуюся нулём. Команда корректно обрабатывает символ(ы) перевода строки ('\n').
     Команда <code>ECTL_INSERTTEXT</code> работает так, как будто текст вводится с клавиатуры.
-    <pre class=code>
+    <pre class="code">
 // вставить строку "Text" в текущую позицию курсора
 Info.EditorControl(-1,ECTL_INSERTTEXT,0,(void*)L"Text");
     </pre>
@@ -184,7 +184,7 @@ Info.EditorControl(-1,ECTL_INSERTTEXT,0,(void*)L"Text");
     то данные из <code>Param2</code> сразу же будут переданы в <code>ProcessEditorInputW</code>.
     <code>Param1</code> не используется.<br>
     Схема проста:
-    <pre class=code>
+    <pre class="code">
 case ECTL_PROCESSINPUT:
 if (ProcessEditorInput(Param))
   return(TRUE);
@@ -261,7 +261,7 @@ if (ProcessEditorInput(Param))
     Для восстановления статусной строки укажите параметр <code>Param2 = NULL</code> или пустой строке.<br>
     Заголовок не будет выведен, если статусная строка погашена.<br>
     При показе заголовок будет усечён до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)<br>
-    <pre class=code>
+    <pre class="code">
 // DrawLine\DrawLine.cpp: функция SetTitle
 Info.EditorControl(-1,ECTL_SETTITLE,0,GetMsg(IDTitle));
     </pre>
@@ -293,24 +293,24 @@ Info.EditorControl(-1,ECTL_SETTITLE,0,GetMsg(IDTitle));
     </table>
     </div>
 
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
-<div class=descr>Смотрите описание конкретной команды.
+<div class="descr">
+<div class="descr">Смотрите описание конкретной команды.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Far Manager обновляет содержимое окна редактора при активных действиях пользователя. Вызовите <code>ECTL_REDRAW</code>, чтобы принудительно обновить окно после любых активных изменений содержимого редактора.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="advcontrol.html">AdvControl</a>,
 <a href="panelcontrol.html">PanelControl</a>
 </div>

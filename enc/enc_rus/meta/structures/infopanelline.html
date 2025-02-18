@@ -10,17 +10,17 @@
 <body>
 
 <h1>InfoPanelLine</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>InfoPanelLine</code> описывает одну строку информационной панели. Массив этих структур передаётся в Far Manager функцией <a href="../exported_functions/getopenpanelinfow.html">GetOpenPluginInfoW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct InfoPanelLine
 {
   const wchar_t *Text;
@@ -30,13 +30,13 @@ struct InfoPanelLine
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>Text</div>
-    <div class=dfndescr>Заголовок параметра - текст, выровненный по левому краю панели и отображаемый цветом обычного текста (<a href="../defs/farcolors.html#COL_PANELTEXT">COL_PANELTEXT</a>).</div>
-  <div class=dfn>Data</div>
-    <div class=dfndescr>Данные параметра - текст, выровненный по правому краю панели и отображаемый цветом выделенной информации (<a href="../defs/farcolors.html#COL_PANELINFOTEXT">COL_PANELINFOTEXT</a>)</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (тип <a name="INFOPANELLINE_FLAGS">INFOPANELLINE_FLAGS</a>):
+<div class="descr">
+  <div class="dfn">Text</div>
+    <div class="dfndescr">Заголовок параметра - текст, выровненный по левому краю панели и отображаемый цветом обычного текста (<a href="../defs/farcolors.html#COL_PANELTEXT">COL_PANELTEXT</a>).</div>
+  <div class="dfn">Data</div>
+    <div class="dfndescr">Данные параметра - текст, выровненный по правому краю панели и отображаемый цветом выделенной информации (<a href="../defs/farcolors.html#COL_PANELINFOTEXT">COL_PANELINFOTEXT</a>)</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация флагов (тип <a name="INFOPANELLINE_FLAGS">INFOPANELLINE_FLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="IPLFLAGS_SEPARATOR">IPLFLAGS_SEPARATOR</a></td>
@@ -44,8 +44,8 @@ struct InfoPanelLine
     </table></div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

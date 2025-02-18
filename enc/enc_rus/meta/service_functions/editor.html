@@ -10,17 +10,17 @@
 <body>
 
 <h1>Editor</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>Editor</code> позволяет открыть внутренний редактор Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI Editor(
   const wchar_t *FileName,
   const wchar_t *Title,
@@ -36,16 +36,16 @@ intptr_t WINAPI Editor(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>FileName</div>
-    <div class=dfndescr>Файл для редактирования. Если не указан флаг <code>EF_CREATENEW</code>, то <code>FileName</code> должен содержать имя существующего файла.</div>
-  <div class=dfn>Title</div>
-    <div class=dfndescr>Текстовая строка, которая будет показана вверху окна редактора. Если этот параметр равен <code>NULL</code>, то используется имя файла.</div>
-  <div class=dfn>X1, Y1, X2, Y2</div>
-    <div class=dfndescr>Координаты окна редактора. Если координата <code>X2</code> или <code>Y2</code> равна <code>-1</code>, то она будет замещена соответственно шириной или высотой экрана.
+<div class="descr">
+  <div class="dfn">FileName</div>
+    <div class="dfndescr">Файл для редактирования. Если не указан флаг <code>EF_CREATENEW</code>, то <code>FileName</code> должен содержать имя существующего файла.</div>
+  <div class="dfn">Title</div>
+    <div class="dfndescr">Текстовая строка, которая будет показана вверху окна редактора. Если этот параметр равен <code>NULL</code>, то используется имя файла.</div>
+  <div class="dfn">X1, Y1, X2, Y2</div>
+    <div class="dfndescr">Координаты окна редактора. Если координата <code>X2</code> или <code>Y2</code> равна <code>-1</code>, то она будет замещена соответственно шириной или высотой экрана.
     Если координата <code>X1</code> или <code>Y1</code> меньше нуля, то считается, что она равна нулю.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Флаги редактора. Может быть комбинацией следующих значений (тип <a name="EDITOR_FLAGS">EDITOR_FLAGS</a>):<br>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Флаги редактора. Может быть комбинацией следующих значений (тип <a name="EDITOR_FLAGS">EDITOR_FLAGS</a>):<br>
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="EF_NONMODAL">EF_NONMODAL</a></td>
@@ -93,12 +93,12 @@ intptr_t WINAPI Editor(
 
     </table>
     </div>
-  <div class=dfn>StartLine</div>
-    <div class=dfndescr>Начальная строка, в которую помещаем курсор. Нумерация строк начинается с <code>1</code>.</div>
-  <div class=dfn>StartChar</div>
-    <div class=dfndescr>Позиция курсора в строке. Нумерация позиции начинается с <code>1</code>.</div>
-  <div class=dfn>CodePage</div>
-    <div class=dfndescr>Номер кодовой страницы, в которой будет открыт редактор. Можете установить значение в <code>CP_DEFAULT</code>.
+  <div class="dfn">StartLine</div>
+    <div class="dfndescr">Начальная строка, в которую помещаем курсор. Нумерация строк начинается с <code>1</code>.</div>
+  <div class="dfn">StartChar</div>
+    <div class="dfndescr">Позиция курсора в строке. Нумерация позиции начинается с <code>1</code>.</div>
+  <div class="dfn">CodePage</div>
+    <div class="dfndescr">Номер кодовой страницы, в которой будет открыт редактор. Можете установить значение в <code>CP_DEFAULT</code>.
     Помимо этого можно использовать следующие определения.
     <table class="cont">
     <tr><th>Определение</th><th>Описание</th></tr>
@@ -115,7 +115,7 @@ intptr_t WINAPI Editor(
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Эта функция возвращает следующие значения (перечисление <a name="EDITOR_EXITCODE">EDITOR_EXITCODE</a>):
 <table class="cont">
 <tr><th>Возвращаемое значение</th><th>Описание</th></tr>
@@ -139,12 +139,12 @@ intptr_t WINAPI Editor(
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Если <code>StartLine</code> и <code>StartChar</code> равны <code>-1</code>, то при открытии редактора будет восстановлена предварительно сохранённая позиция в файле (если это включено в настройках).
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="viewer.html">Viewer</a>
 </div>
 

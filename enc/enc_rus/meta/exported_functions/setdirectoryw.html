@@ -10,36 +10,36 @@
 <body>
 
 <h1>SetDirectoryW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>SetDirectoryW</code> вызывается Far Manager'ом для смены каталога в эмулируемой файловой системе.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI SetDirectoryW(
   const struct SetDirectoryInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.<br>
     В начале функции проверьте, что поле <code>SetDirectoryInfo.StructSize >= sizeof(SetDirectoryInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если функция выполнила свои действия успешно, то верните <code>1</code>. В противном случае <code>0</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Если в <code>SetDirectoryInfo.OpMode</code> выставлен флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>, то:
 <ol>
 <li>это значит, что функция <code>SetDirectoryW</code> вызывается из диалога поиска файлов (<kbd>Alt</kbd>+<kbd>F7</kbd>) или другой команды, сканирующей каталоги.
@@ -49,9 +49,9 @@ intptr_t WINAPI SetDirectoryW(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "TmpPanel".
-<pre class=code>
+<pre class="code">
 intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
   TmpPanel *Panel=(TmpPanel *)Info->hPanel;
@@ -60,8 +60,8 @@ intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 </div>
 
 </body>

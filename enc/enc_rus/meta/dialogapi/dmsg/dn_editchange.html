@@ -10,28 +10,28 @@
 <body>
 
 <h1>DN_EDITCHANGE</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DN_EDITCHANGE</code> оповещает обработчик об изменении состояния редактируемого элемента диалога - например, ввели символ.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>, описывающую изменённый элемент.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 В текущем Dialog API результат игнорируется, но для обеспечения работоспособности плагина с будущими версиями Dialog API рекомендуется возвращать:
 <ul>
 <li><code>TRUE</code>  - "подтверждаю изменения"
@@ -40,7 +40,7 @@ ID элемента диалога.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
@@ -55,13 +55,13 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 В Dialog API нельзя принудительно изменить состояние элемента, изменяя элементы структуры <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 ...
 // отобразить копию введённых данных только для чисел
 if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
@@ -81,8 +81,8 @@ if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
 </div>
 
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

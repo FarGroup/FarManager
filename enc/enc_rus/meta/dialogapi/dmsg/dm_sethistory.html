@@ -10,34 +10,34 @@
 <body>
 
 <h1>DM_SETHISTORY</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dm.html">сообщения</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DM_SETHISTORY</code> позволяет управлять наличием истории в строках ввода.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на строку, содержащую название истории ввода или <code>NULL</code>, если необходимо отключить историю в строке ввода.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>FALSE</code> - указанный элемент диалога <code>Param1</code> не поддерживает работу с историей.<br>
 <code>TRUE</code> - история успешно назначена элементу диалога <code>Param1</code>.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_edit.html">DI_EDIT</a></td>
@@ -48,17 +48,17 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a> выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
 то Far Manager сам подставит первое значение из истории в строку ввода.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Применение данного сообщения можно увидеть в исходных текстах плагина MultiArc.
 
 <p>Следующий пример выставляет историю и очищает строку ввода:
-<pre class=code>
+<pre class="code">
 ...
   else if(Msg == MAM_ARCSWITCHES)
   {
@@ -71,7 +71,7 @@ ID элемента диалога.
 </pre>
 
 <p>Для того, чтобы Far Manager сам подставил первую строку из истории ключей, необходимо приведённый выше код переписать так:
-<pre class=code>
+<pre class="code">
 ...
   else if(Msg == MAM_ARCSWITCHES)
   {
@@ -85,8 +85,8 @@ ID элемента диалога.
 <p>Т.е. сначала строка ввода очищается, потом происходит назначение истории для элемента.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_addhistory.html">DM_ADDHISTORY</a>,
 <a href="../flags/dif_history.html">DIF_HISTORY</a>

@@ -10,19 +10,19 @@
 <body>
 
 <h1>SettingsControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../settingapi/index.html">Settings API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>SettingsControl</code> позволяет управлять загрузкой настроек из базы данных плагина или Far Manager, а также сохранением настроек в базу данных плагина.
-<p class=note><img src="../../images/note.gif" alt="Замечание для SettingsControl"> Внимание!</p>
-<UL class=note><LI>В обязательном порядке используйте эту функцию для портабельности плагина, вместо работы с реестром!</LI></UL>
+<p class="note"><img src="../../images/note.gif" alt="Замечание для SettingsControl"> Внимание!</p>
+<UL class="note"><LI>В обязательном порядке используйте эту функцию для портабельности плагина, вместо работы с реестром!</LI></UL>
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI SettingsControl(
   HANDLE hHandle,
   enum FAR_SETTINGS_CONTROL_COMMANDS Command,
@@ -32,11 +32,11 @@ intptr_t WINAPI SettingsControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_SETTINGS_CONTROL_COMMANDS">FAR_SETTINGS_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">hHandle</div>
+    <div class="dfndescr">Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Может быть одним из следующих значений (перечисление <a name="FAR_SETTINGS_CONTROL_COMMANDS">FAR_SETTINGS_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -98,24 +98,24 @@ intptr_t WINAPI SettingsControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Смотрите описание <code>Command</code>.
 </div>
 
 <h3>Пример</h3>
-<pre class=code>
+<pre class="code">
 </pre>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="panelcontrol.html">PanelControl</a></div>
 
 </body>

@@ -10,19 +10,19 @@
 <body>
 
 <h1>SYSTEMTIME</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>SYSTEMTIME</code> хранит дату и время, используя отдельные
 поля для месяца, дня, года, дня недели, часа, минут, секунд и миллисекунд.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _SYSTEMTIME {
   WORD wYear;
   WORD wMonth;
@@ -36,37 +36,37 @@ typedef struct _SYSTEMTIME {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 
-    <div class=dfn>wYear</div>
-    <div class=dfndescr>Указывает текущий год (1601 - 30827).
+    <div class="dfn">wYear</div>
+    <div class="dfndescr">Указывает текущий год (1601 - 30827).
     </div>
-    <div class=dfn>wMonth</div>
-    <div class=dfndescr>Текущий месяц; Январь = 1, Февраль = 2, и так далее.</div>
-    <div class=dfn>wDayOfWeek</div>
-    <div class=dfndescr>Текущий день недели; Воскресенье = 0, Понедельник = 1, и так далее.</div>
-    <div class=dfn>wDay</div>
-    <div class=dfndescr>Текущий день месяца. </div>
-    <div class=dfn>wHour</div>
-    <div class=dfndescr>Час (0-23).</div>
-    <div class=dfn>wMinute</div>
-    <div class=dfndescr>Минуты (0-59).</div>
-    <div class=dfn>wSecond</div>
-    <div class=dfndescr>Секунды (0-59).</div>
-    <div class=dfn>wMilliseconds</div>
-    <div class=dfndescr>Миллисекунды (0-999).</div>
+    <div class="dfn">wMonth</div>
+    <div class="dfndescr">Текущий месяц; Январь = 1, Февраль = 2, и так далее.</div>
+    <div class="dfn">wDayOfWeek</div>
+    <div class="dfndescr">Текущий день недели; Воскресенье = 0, Понедельник = 1, и так далее.</div>
+    <div class="dfn">wDay</div>
+    <div class="dfndescr">Текущий день месяца. </div>
+    <div class="dfn">wHour</div>
+    <div class="dfndescr">Час (0-23).</div>
+    <div class="dfn">wMinute</div>
+    <div class="dfndescr">Минуты (0-59).</div>
+    <div class="dfn">wSecond</div>
+    <div class="dfndescr">Секунды (0-59).</div>
+    <div class="dfn">wMilliseconds</div>
+    <div class="dfndescr">Миллисекунды (0-999).</div>
 
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
   <p>Не рекомендуется добавлять или вычитать значения из структуры <code>SYSTEMTIME</code>
   для получения относительного времени. Вместо этого вы должны<ul>
     <li>Конвертировать структуру в <a href="filetime.html">FILETIME</a>, используя функцию <a class="msdocs">SystemTimeToFileTime</a>.</li>
     <li>Скопировать результирующую структуру <a href="filetime.html">FILETIME</a> в структуру <a class="msdocs">ULARGE_INTEGER</a>.</li>
     <li>Использовать обычную 64-х битную арифметику со значениями <a class="msdocs">ULARGE_INTEGER</a> или
     привести переменную типа <code>FILETIME</code> к типу <code>__int64</code>:
-<pre class=code>
+<pre class="code">
 FILETIME WriteTime1, WriteTime2;
 
 if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
@@ -77,8 +77,8 @@ if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
 
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="filetime.html">FILETIME</a>,
 <a class="msdocs">LARGE_INTEGER</a>,
 <a class="msdocs">GetSystemTime</a>,

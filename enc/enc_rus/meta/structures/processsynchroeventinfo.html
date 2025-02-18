@@ -10,17 +10,17 @@
 <body>
 
 <h1>ProcessSynchroEventInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ProcessSynchroEventInfo</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ProcessSynchroEventInfo
 {
   size_t StructSize;
@@ -30,11 +30,11 @@ struct ProcessSynchroEventInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessSynchroEventInfo</code>.</div>
-  <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>ProcessSynchroEventInfo</code>.</div>
+  <div class="dfn">Event</div>
+    <div class="dfndescr">Тип события. Одно из следующих значений (перечисление <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
     <table class="cont">
     <tr><th>Событие</th><th>Описание</th></tr>
     <tr><td><a name="SE_COMMONSYNCHRO" title="0">SE_COMMONSYNCHRO</a></td>
@@ -43,16 +43,16 @@ struct ProcessSynchroEventInfo
     Функция <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> должна вернуть <code>0</code>.</td></tr>
     </table>
     </div>
-  <div class=dfn>Param</div>
-    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+  <div class="dfn">Param</div>
+    <div class="dfndescr">Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>
 </div>

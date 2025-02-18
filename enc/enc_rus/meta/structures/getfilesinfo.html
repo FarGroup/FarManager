@@ -10,17 +10,17 @@
 <body>
 
 <h1>GetFilesInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>GetFilesInfo</code> передает информацию плагину о запрашиваемых файлах из эмулируемой файловой системы в функции <a href="../exported_functions/getfilesw.html">GetFilesW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct GetFilesInfo
 {
   size_t StructSize;
@@ -34,28 +34,28 @@ struct GetFilesInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>GetFilesInfo</code>.</div>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.  Поле заполнено Far Manager'ом.</div>
-  <div class=dfn>PanelItem</div>
-    <div class=dfndescr>Указывает на массив структур <a href="pluginpanelitem.html">PluginPanelItem</a>. Каждая структура описывает файл, получаемый из эмулируемой файловой системы.</div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество структур <a href="pluginpanelitem.html">PluginPanelItem</a> в массиве <code>PanelItem</code>.</div>
-  <div class=dfn>Move</div>
-    <div class=dfndescr>Если <code>0</code>, файл должен быть скопирован, иначе - перемещён.</div>
-  <div class=dfn>DestPath</div>
-    <div class=dfndescr>Указатель на путь назначения (куда получим файлы).
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>GetFilesInfo</code>.</div>
+  <div class="dfn">hPanel</div>
+    <div class="dfndescr">Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.  Поле заполнено Far Manager'ом.</div>
+  <div class="dfn">PanelItem</div>
+    <div class="dfndescr">Указывает на массив структур <a href="pluginpanelitem.html">PluginPanelItem</a>. Каждая структура описывает файл, получаемый из эмулируемой файловой системы.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Количество структур <a href="pluginpanelitem.html">PluginPanelItem</a> в массиве <code>PanelItem</code>.</div>
+  <div class="dfn">Move</div>
+    <div class="dfndescr">Если <code>0</code>, файл должен быть скопирован, иначе - перемещён.</div>
+  <div class="dfn">DestPath</div>
+    <div class="dfndescr">Указатель на путь назначения (куда получим файлы).
     Если флаг <code>OPM_SILENT</code> параметра <a href="../defs/operation_mode.html"><code>OpMode</code></a> не установлен, вы можете позволить пользователю изменить его, 
     но в этом случае <code>DestPath</code> должен указывать на буфер плагина, содержащий новый путь. Буфер должны быть валиден после возвращения из функции <a href="../exported_functions/getfilesw.html">GetFilesW</a>.</div>
-  <div class=dfn>OpMode</div>
-    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfilesw.html">GetFilesW</a> должна быть готова обработать флаги <code>OPM_SILENT</code>, <code>OPM_FIND</code>, <code>OPM_VIEW</code>, <code>OPM_QUICKVIEW</code> и <code>OPM_EDIT</code>.
+  <div class="dfn">OpMode</div>
+    <div class="dfndescr">Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfilesw.html">GetFilesW</a> должна быть готова обработать флаги <code>OPM_SILENT</code>, <code>OPM_FIND</code>, <code>OPM_VIEW</code>, <code>OPM_QUICKVIEW</code> и <code>OPM_EDIT</code>.
     Также она может обрабатывать <code>OPM_DESCR</code> и <code>OPM_TOPLEVEL</code> для увеличения скорости, если это необходимо.</div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

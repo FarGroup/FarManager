@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarListInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarListInfo</code> описывает состояние элементов <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarListInfo
 {
   size_t StructSize;
@@ -34,11 +34,11 @@ struct FarListInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Набор флагов (тип <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarListInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Набор флагов (тип <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="LINFO_SHOWNOBOX">LINFO_SHOWNOBOX</a></td>
@@ -55,24 +55,24 @@ struct FarListInfo
     <td>Нулевой флаг.</td></tr>
     </table>
     </div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество пунктов в списке.</div>
-  <div class=dfn>SelectPos</div>
-    <div class=dfndescr>Индекс текущего пункта.</div>
-  <div class=dfn>TopPos</div>
-    <div class=dfndescr>Индекс верхнего видимого пункта списка.</div>
-  <div class=dfn>MaxHeight</div>
-    <div class=dfndescr>Максимальная видимая высота списка.</div>
-  <div class=dfn>MaxLength</div>
-    <div class=dfndescr>Максимальный видимый размер строки.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Количество пунктов в списке.</div>
+  <div class="dfn">SelectPos</div>
+    <div class="dfndescr">Индекс текущего пункта.</div>
+  <div class="dfn">TopPos</div>
+    <div class="dfndescr">Индекс верхнего видимого пункта списка.</div>
+  <div class="dfn">MaxHeight</div>
+    <div class="dfndescr">Максимальная видимая высота списка.</div>
+  <div class="dfn">MaxLength</div>
+    <div class="dfndescr">Максимальный видимый размер строки.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../dialogapi/dmsg/dm_listinfo.html">DM_LISTINFO</a>
 </div>
 

@@ -10,34 +10,34 @@
 <body>
 
 <h1>atoi</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.atoi</code> преобразует символьную строку в целое число типа <code>int</code>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 int WINAPI atoi(
   const wchar_t *Str
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Str</div>
-    <div class=dfndescr>Указатель на строку, содержащую строковое представление числа.</div>
+<div class="descr">
+  <div class="dfn">Str</div>
+    <div class="dfndescr">Указатель на строку, содержащую строковое представление числа.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <code>atoi</code> возвращает преобразованное значение входной строки <code>Str</code>. Если строка не может быть преобразована, то функция возвращает <code>0</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Символы в строке <code>Str</code> должны совпадать со следующим форматом:<br>
 <code>[ws][sn][ddd]</code>
 где
@@ -52,9 +52,9 @@ int WINAPI atoi(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Вы можете в программе описать указатель на функцию, инициализировать и использовать её:
-<pre class=code>
+<pre class="code">
 FARSTDATOI FarAtoi;
 ...
 FarAtoi=Info.FSF-&gt;atoi;
@@ -62,13 +62,13 @@ FarAtoi=Info.FSF-&gt;atoi;
 I=FarAtoi(Str);
 </pre>
 ...или вызывать непосредственно:
-<pre class=code>
+<pre class="code">
 I=Info.FSF-&gt;atoi(Str);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="atoi64.html">FSF.atoi64</a>,
 <a href="itoa.html">FSF.itoa</a>,
 <a href="itoa64.html">FSF.itoa64</a>

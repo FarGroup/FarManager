@@ -10,17 +10,17 @@
 <body>
 
 <h1>PanelMode</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>PanelMode</code> описывает один режим панели (view mode). Массив таких структур может быть передан Far Manager`у в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct PanelMode
 {
   const wchar_t *ColumnTypes;
@@ -33,20 +33,20 @@ struct PanelMode
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>ColumnTypes</div>
-    <div class=dfndescr>Текстовая строка, описывающая <a href="../other/dict.html#panelcolumntype">типы колонок</a>. Кодируются с помощью одной или нескольких букв, разделённых запятыми, например,
+<div class="descr">
+  <div class="dfn">ColumnTypes</div>
+    <div class="dfndescr">Текстовая строка, описывающая <a href="../other/dict.html#panelcolumntype">типы колонок</a>. Кодируются с помощью одной или нескольких букв, разделённых запятыми, например,
     так <code>L"N,SC,D,T"</code>. Если вы используете стандартные режимы, настроенные в Far Manager`е, то установите значение в <code>NULL</code>.</div>
-  <div class=dfn>ColumnWidths</div>
-    <div class=dfndescr>Текстовая строка, описывающая <a href="../other/dict.html#columnwidths">ширину колонок</a>.</div>
-  <div class=dfn>ColumnTitles</div>
-    <div class=dfndescr>Указатель на массив строк, описывающих заголовки (название) колонок. Если вы будете использовать стандартные названия для колонок, то установите это значение в <code>NULL</code>.</div>
-  <div class=dfn>StatusColumnTypes</div>
-    <div class=dfndescr>Подобно <code>ColumnTypes</code>, но применительно для строки статуса. Если вы хотите использовать стандартную строку статуса, установите значение в <code>NULL</code>.</div>
-  <div class=dfn>StatusColumnWidths</div>
-    <div class=dfndescr>Подобно <code>ColumnWidths</code>, но применительно для строки статуса.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (тип <a name="PANELMODE_FLAGS">PANELMODE_FLAGS</a>):
+  <div class="dfn">ColumnWidths</div>
+    <div class="dfndescr">Текстовая строка, описывающая <a href="../other/dict.html#columnwidths">ширину колонок</a>.</div>
+  <div class="dfn">ColumnTitles</div>
+    <div class="dfndescr">Указатель на массив строк, описывающих заголовки (название) колонок. Если вы будете использовать стандартные названия для колонок, то установите это значение в <code>NULL</code>.</div>
+  <div class="dfn">StatusColumnTypes</div>
+    <div class="dfndescr">Подобно <code>ColumnTypes</code>, но применительно для строки статуса. Если вы хотите использовать стандартную строку статуса, установите значение в <code>NULL</code>.</div>
+  <div class="dfn">StatusColumnWidths</div>
+    <div class="dfndescr">Подобно <code>ColumnWidths</code>, но применительно для строки статуса.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация следующих значений (тип <a name="PANELMODE_FLAGS">PANELMODE_FLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="PMFLAGS_FULLSCREEN">PMFLAGS_FULLSCREEN</a></td>
@@ -62,8 +62,8 @@ struct PanelMode
     </div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

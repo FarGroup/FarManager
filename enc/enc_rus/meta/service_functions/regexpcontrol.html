@@ -10,17 +10,17 @@
 <body>
 
 <h1>RegExpControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>RegExpControl</code> позволяет управлять Регулярными выражениями.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI RegExpControl(
   HANDLE hHandle,
   enum FAR_REGEXP_CONTROL_COMMANDS Command,
@@ -30,11 +30,11 @@ intptr_t WINAPI RegExpControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_REGEXP_CONTROL_COMMANDS">FAR_REGEXP_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">hHandle</div>
+    <div class="dfndescr">Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Может быть одним из следующих значений (перечисление <a name="FAR_REGEXP_CONTROL_COMMANDS">FAR_REGEXP_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -89,20 +89,20 @@ intptr_t WINAPI RegExpControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Смотрите описание <code>Command</code>
 </div>
 
 <h3>Пример</h3>
-<pre class=code>
+<pre class="code">
 HANDLE re;
 if (Info.RegExpControl(0,RECTL_CREATE,0,&re))
 {
@@ -149,8 +149,8 @@ if (Info.RegExpControl(0,RECTL_CREATE,0,&re))
 }
 </pre>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="panelcontrol.html">PanelControl</a></div>
 </body>
 </html>

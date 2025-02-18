@@ -10,18 +10,18 @@
 <body>
 
 <h1>DlgProc</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">типы и определения</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 В плагине обработку событий и посылку сообщений для диалога должна выполнять Функция-Обработчик диалога. Эта функция имеет четыре параметра: дескриптор
 диалога, описывающий сам диалог, собственно сообщение или событие и пара параметров.
 <p>Здесь представлен синтаксис функции обработки диалога, каким он должен быть в плагине.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI DlgProc(
   HANDLE hDlg,
   intptr_t Msg,
@@ -31,28 +31,28 @@ intptr_t WINAPI DlgProc(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hDlg</div>
-    <div class=dfndescr>Дескриптор диалога</div>
-  <div class=dfn>Msg</div>
-    <div class=dfndescr>Одно из <a href="../dialogapi/dmsg/index_dm.html">сообщений</a> или <a href="../dialogapi/dmsg/index_dn.html">событий</a>.</div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Параметр 1</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Параметр 2</div>
+<div class="descr">
+  <div class="dfn">hDlg</div>
+    <div class="dfndescr">Дескриптор диалога</div>
+  <div class="dfn">Msg</div>
+    <div class="dfndescr">Одно из <a href="../dialogapi/dmsg/index_dm.html">сообщений</a> или <a href="../dialogapi/dmsg/index_dn.html">событий</a>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Параметр 1</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Параметр 2</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Значение, возвращаемое функцией <code>DlgProc</code> зависит от параметра <code>Msg</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../service_functions/defdlgproc.html">DefDlgProc</a>,
 <a href="../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../service_functions/senddlgmessage.html">SendDlgMessage</a>,

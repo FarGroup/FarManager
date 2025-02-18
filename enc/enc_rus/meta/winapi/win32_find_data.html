@@ -10,20 +10,20 @@
 <body>
 
 <h1>WIN32_FIND_DATA</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>WIN32_FIND_DATA</code> описывает
 файл, найденный функциями <code><a class="msdocs">FindFirstFile</a></code>, <code><a class="msdocs">FindFirstFileEx</a></code>
 или <code><a class="msdocs">FindNextFile</a></code>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _WIN32_FIND_DATA {
   DWORD dwFileAttributes;
   FILETIME ftCreationTime;
@@ -39,9 +39,9 @@ typedef struct _WIN32_FIND_DATA {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>dwFileAttributes</div>
-    <div class=dfndescr>Указывает атрибуты найденного файла. Этот элемент может быть комбинацией
+<div class="descr">
+    <div class="dfn">dwFileAttributes</div>
+    <div class="dfndescr">Указывает атрибуты найденного файла. Этот элемент может быть комбинацией
     следующих значений:
 
        <table class="cont">
@@ -101,8 +101,8 @@ typedef struct _WIN32_FIND_DATA {
        </table>
     </div>
 
-    <div class=dfn>ftCreationTime</div>
-    <div class=dfndescr>Время создания - структура <a href="filetime.html">FILETIME</a>,
+    <div class="dfn">ftCreationTime</div>
+    <div class="dfndescr">Время создания - структура <a href="filetime.html">FILETIME</a>,
     содержащая время создания файла. <a class="msdocs">FindFirstFile</a> и
     <a class="msdocs">FindNextFile</a>
     возвращают время файла в UTC-формате.
@@ -115,16 +115,16 @@ typedef struct _WIN32_FIND_DATA {
     локального времени в структуру <a href="systemtime.html">SYSTEMTIME</a>
     содержащую отдельные элементы для месяца, дня, года и так далее...</div>
 
-    <div class=dfn>ftLastAccessTime</div>
-    <div class=dfndescr>Структура <a href="filetime.html">FILETIME</a> с временем последнего
+    <div class="dfn">ftLastAccessTime</div>
+    <div class="dfndescr">Структура <a href="filetime.html">FILETIME</a> с временем последнего
     доступа к файлу (чтение, запись, исполнение).<br>
     Для каталогов в этой компоненте содержится информация о времени создания каталога.<br>
     На FAT дата для файлов и каталогов будет правильна, но время дня будет всегда установлено на полночь.<br>
     Время хранится в UTC формате; элементы структуры установлены в ноль, если файловая система не поддерживает этого свойства.
     </div>
 
-    <div class=dfn>ftLastWriteTime</div>
-    <div class=dfndescr>Структура <a href="filetime.html">FILETIME</a> с временем последней
+    <div class="dfn">ftLastWriteTime</div>
+    <div class="dfndescr">Структура <a href="filetime.html">FILETIME</a> с временем последней
     записи в файл (с помощью функций <a class="msdocs">WriteFile</a> или
     <a class="msdocs">SetEndOfFile</a>). Время последней записи не обновляется для таких операций, как
     установка атрибутов файла или изменение дескриптора безопасности (security descriptors).<br>
@@ -132,33 +132,33 @@ typedef struct _WIN32_FIND_DATA {
     <br>Время хранится в UTC формате; элементы структуры
     установлены в ноль, если файловая система не поддерживает этого свойства.</div>
 
-    <div class=dfn>nFileSizeHigh</div>
-    <div class=dfndescr>Старшее двойное слово 64-х разрядного размера файла в байтах.
+    <div class="dfn">nFileSizeHigh</div>
+    <div class="dfndescr">Старшее двойное слово 64-х разрядного размера файла в байтах.
     Размер файла равен <code>(<var>nFileSizeHigh</var> * (1+MAXDWORD)) + <var>nFileSizeLow</var></code>.</div>
 
-    <div class=dfn>nFileSizeLow</div>
-    <div class=dfndescr>Младшее двойное слово размера файла в байтах.</div>
+    <div class="dfn">nFileSizeLow</div>
+    <div class="dfndescr">Младшее двойное слово размера файла в байтах.</div>
 
-    <div class=dfn>dwReserved0</div>
-    <div class=dfndescr>Если поле <code>dwFileAttributes</code> содержит атрибут
+    <div class="dfn">dwReserved0</div>
+    <div class="dfndescr">Если поле <code>dwFileAttributes</code> содержит атрибут
        <code>FILE_ATTRIBUTE_REPARSE_POINT</code>, это поле содержит тип
        <a href="../other/dict.html#symboliclinks">точки повторной обработки</a>.
        В противном случае значение этого поля не определено и не должно
        использоваться.</div>
 
-    <div class=dfn>dwReserved1</div>
-    <div class=dfndescr>Резерв.</div>
+    <div class="dfn">dwReserved1</div>
+    <div class="dfndescr">Резерв.</div>
 
-    <div class=dfn>cFileName</div>
-    <div class=dfndescr>Строка с именем файла, заканчивающаяся символом конца строки (0x00).</div>
+    <div class="dfn">cFileName</div>
+    <div class="dfndescr">Строка с именем файла, заканчивающаяся символом конца строки (0x00).</div>
 
-    <div class=dfn>cAlternateFileName</div>
-    <div class=dfndescr>Альтернативное имя файла (классическая 8.3 (filename.ext) форма). </div>
+    <div class="dfn">cAlternateFileName</div>
+    <div class="dfndescr">Альтернативное имя файла (классическая 8.3 (filename.ext) форма). </div>
 
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ul>
 <li>Если файл имеет длинное имя, полное имя возвращается в элементе <code>cFileName</code>
   а усечённая версия формата 8.3 сохраняется в <code>cAlternateFileName</code>.
@@ -176,8 +176,8 @@ typedef struct _WIN32_FIND_DATA {
 </ul>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="filetime.html">FILETIME</a>
 </div>
 

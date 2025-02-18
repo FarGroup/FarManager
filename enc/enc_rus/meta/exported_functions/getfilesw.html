@@ -10,32 +10,32 @@
 <body>
 
 <h1>GetFilesW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>GetFilesW</code> вызывается для получения файлов из эмулируемой файловой системы<br>
 (<em>Far Manager плагину: "хочу этот/эти файл(ы) с твоей панели, место назначения указано"</em>).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI GetFilesW(
   struct GetFilesInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Far Manager передает информацию об элементах, которые он запросил для обработки. Плагин может изменять некоторые значения полей структуры в этой функции.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Far Manager передает информацию об элементах, которые он запросил для обработки. Плагин может изменять некоторые значения полей структуры в этой функции.<br>
     В начале функции проверьте, что поле <code>GetFilesInfo.StructSize >= sizeof(GetFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <ul>
 <li>В случае успеха возвращаемое значение должно быть равно <code>1</code>.
 <li>В случае провала должен возвращаться <code>0</code>.
@@ -44,7 +44,7 @@ intptr_t WINAPI GetFilesW(
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Плагин должен сам обрабатывать "свои" папки.
 <li>Если операция не удалась, но часть файлов была успешно обработана, плагин может снять выделение только с обработанных файлов. Чтобы сделать это,
@@ -56,9 +56,9 @@ intptr_t WINAPI GetFilesW(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "ProcList".
-<pre class=code>
+<pre class="code">
 intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 {
   return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
@@ -66,8 +66,8 @@ intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="putfilesw.html">PutFilesW</a>,
 <a href="../service_functions/getdirlist.html">GetDirList</a>,
 <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>
