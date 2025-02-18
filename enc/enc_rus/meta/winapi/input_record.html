@@ -10,13 +10,13 @@
 <body>
 
 <h1>INPUT_RECORD</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>INPUT_RECORD</code> используется
 для возвращения информации о входных сообщениях в консольном входном буфере.
 Эти записи могут быть считаны из входного буфера используя
@@ -26,7 +26,7 @@
 </div>
 
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _INPUT_RECORD {
  WORD EventType;
  union {
@@ -40,10 +40,10 @@ typedef struct _INPUT_RECORD {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 
-    <div class=dfn>EventType</div>
-    <div class=dfndescr>Означает тип входного сообщения и запись события, сохранённую в
+    <div class="dfn">EventType</div>
+    <div class="dfndescr">Означает тип входного сообщения и запись события, сохранённую в
     элементе Event.<br>
     Этот элемент может иметь одно из следующих значений:
 
@@ -73,15 +73,15 @@ typedef struct _INPUT_RECORD {
 </table>
     </div>
 
-    <div class=dfn>Event</div>
-    <div class=dfndescr>Содержит структуры <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
+    <div class="dfn">Event</div>
+    <div class="dfndescr">Содержит структуры <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
       <code>MENU_EVENT_RECORD</code> или <code>FOCUS_EVENT_RECORD</code>, в зависимости от значения,
       указанного в <code>EventType</code>.
     </div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="key_event_record.html">KEY_EVENT_RECORD</a>,
 <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>,
 <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>,

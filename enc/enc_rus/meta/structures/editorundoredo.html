@@ -10,17 +10,17 @@
 <body>
 
 <h1>EditorUndoRedo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>EditorUndoRedo</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для управления поведением операции Отмена-Возврат действия, т.н. Undo-Redo в редакторе Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct EditorUndoRedo
 {
   size_t StructSize;
@@ -29,11 +29,11 @@ struct EditorUndoRedo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorUndoRedo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>EditorUndoRedo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Одно из следующих значений (перечисление <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
     <tr><td><a name="EUR_BEGIN">EUR_BEGIN</a></td>
@@ -49,15 +49,15 @@ struct EditorUndoRedo
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

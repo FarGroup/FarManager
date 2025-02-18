@@ -10,17 +10,17 @@
 <body>
 
 <h1>AdvControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>AdvControl</code> позволяет запрашивать различную информацию и выполнять управляющие действия. Она работает везде: в панелях/редакторе/вьюере.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI AdvControl(
   const GUID *PluginId,
   enum ADVANCED_CONTROL_COMMANDS Command,
@@ -30,11 +30,11 @@ intptr_t WINAPI AdvControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть следующим (перечисление <a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">PluginId</div>
+    <div class="dfndescr">Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Тип команды. Может быть следующим (перечисление <a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -125,8 +125,8 @@ intptr_t WINAPI AdvControl(
     <code>Param1</code> число, задающее номер активного окна (нумерация начинается с <code>0</code>).<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW"> Внимание!</p>
-    <UL class=note><LI>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW"> Внимание!</p>
+    <UL class="note"><LI>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</LI></UL></td></tr>
 
     <tr><td><a name="ACTL_SETCURSORPOS">ACTL_SETCURSORPOS</a></td>
     <td>Устанавливает положение курсора относительно окна Far Manager.<br>
@@ -152,16 +152,16 @@ intptr_t WINAPI AdvControl(
     </table>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE"> Внимание!</p>
-    <UL class=note><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressStat</dfn></a></LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE"> Внимание!</p>
+    <UL class="note"><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressStat</dfn></a></LI></UL></td></tr>
 
     <tr><td><a name="ACTL_SETPROGRESSVALUE">ACTL_SETPROGRESSVALUE</a></td>
     <td>Отображает и корректирует прогресс операции на кнопке Far Manager в панели задач.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указатель на структуру <a href="../structures/progressvalue.html">ProgressValue</a>.<br>
     Функция возвращает <code>TRUE</code>.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE"> Внимание!</p>
-    <UL class=note><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressValue</dfn></a></LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE"> Внимание!</p>
+    <UL class="note"><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressValue</dfn></a></LI></UL></td></tr>
 
     <tr><td><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
     <td>Far Manager выполняет стандартное оповещение о завершении операции
@@ -175,8 +175,8 @@ intptr_t WINAPI AdvControl(
     <code>Param1</code> не используется.<br>
     <code>Param2</code> указатель на данные, передающиеся в функцию <code>ProcessSynchroEventW</code>, может быть <code>NULL</code>.<br>
     Функция всегда возвращает <code>0</code>.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO"> Внимание!</p>
-    <UL class=note><LI>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</LI></UL></td></tr>
+    <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO"> Внимание!</p>
+    <UL class="note"><LI>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</LI></UL></td></tr>
 
     <tr><td><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
     <td>Ожидать клавишу.<br>
@@ -187,19 +187,19 @@ intptr_t WINAPI AdvControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Смотрите описание <code>Command</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="panelcontrol.html">PanelControl</a>,
 <a href="editorcontrol.html">EditorControl</a>,
 <a href="viewercontrol.html">ViewerControl</a>

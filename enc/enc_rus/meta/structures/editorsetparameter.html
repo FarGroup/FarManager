@@ -10,17 +10,17 @@
 <body>
 
 <h1>EditorSetParameter</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>EditorSetParameter</code> используется в функции <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> для изменения настроек текущего редактора Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct EditorSetParameter
 {
   size_t StructSize;
@@ -41,11 +41,11 @@ struct EditorSetParameter
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorSetParameter</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип настройки. Может быть одним из следующих (перечисление <a name="EDITOR_SETPARAMETER_TYPES">EDITOR_SETPARAMETER_TYPES</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>EditorSetParameter</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип настройки. Может быть одним из следующих (перечисление <a name="EDITOR_SETPARAMETER_TYPES">EDITOR_SETPARAMETER_TYPES</a>):
     <table class="cont">
     <tr><th>Настройка</th><th>Описание</th></tr>
     <tr><td><a name="ESPT_AUTOINDENT">ESPT_AUTOINDENT</a></td>
@@ -78,8 +78,8 @@ struct EditorSetParameter
     <tr><td><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
     <td></td></tr>
     </table>
-    <p class=note><img src="../../images/warning.gif" alt="ВНИМАНИЕ!"> ВНИМАНИЕ!</p>
-    <UL class=note>
+    <p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!"> ВНИМАНИЕ!</p>
+    <UL class="note">
     <LI>Данная операция необратима, т.е. если в файле были использованы пробелы вместо табуляции, то при переходе к обычным символам табуляции присутствующие в файле
     идущие подряд пробелы в символы табуляции преобразованы не будут.</LI></UL>
     </td></tr>
@@ -113,25 +113,25 @@ struct EditorSetParameter
     <code>iParam</code> содержит новое значение - от 1 до 512. Значение размера табуляции, выходящее за указанные границы, выставляется равным 8.</td></tr>
     </table>
     </div>
-  <div class=dfn>iParam</div>
-    <div class=dfndescr>Содержит число, см. описание по конкретному типу настройки.</div>
-  <div class=dfn>wszParam</div>
-    <div class=dfndescr>Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу настройки.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Размер этого параметра всегда равен размеру объединения <code>Param</code>, что позволяет использовать этот параметр для платформенно-независимой инициализации..</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Содержит дополнительные условия/данные, см. описание по конкретному типу настройки.</div>
-  <div class=dfn>Size</div>
-    <div class=dfndescr>Содержит число, см. описание по конкретному типу настройки.</div>
+  <div class="dfn">iParam</div>
+    <div class="dfndescr">Содержит число, см. описание по конкретному типу настройки.</div>
+  <div class="dfn">wszParam</div>
+    <div class="dfndescr">Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу настройки.</div>
+  <div class="dfn">Reserved</div>
+    <div class="dfndescr">Размер этого параметра всегда равен размеру объединения <code>Param</code>, что позволяет использовать этот параметр для платформенно-независимой инициализации..</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Содержит дополнительные условия/данные, см. описание по конкретному типу настройки.</div>
+  <div class="dfn">Size</div>
+    <div class="dfndescr">Содержит число, см. описание по конкретному типу настройки.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Если плагин меняет одновременно размер табуляции и состояние режима "Пробелы вместо табуляции", то имеет смысл применять команды в такой последовательности: сначала <code>ESPT_TABSIZE</code>, потом <code>ESPT_EXPANDTABS</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

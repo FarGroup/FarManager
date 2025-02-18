@@ -10,36 +10,36 @@
 <body>
 
 <h1>CONSOLE_CURSOR_INFO</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>CONSOLE_CURSOR_INFO</code> содержит информацию о консольном курсоре.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _CONSOLE_CURSOR_INFO {
   DWORD  dwSize;
   BOOL   bVisible;
 } CONSOLE_CURSOR_INFO, *PCONSOLE_CURSOR_INFO;</pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>dwSize</div>
-    <div class=dfndescr>
+<div class="descr">
+    <div class="dfn">dwSize</div>
+    <div class="dfndescr">
       Процент ячейки символа который заполняет курсор. Значение между 0 и 100.
       Вид курсора меняется, простираясь от полного заполнения ячейки до горизонтальной
       линии внизу ячейки.
     </div>
-    <div class=dfn>bVisible</div>
-    <div class=dfndescr>Видимость курсора. Если курсор виден, этот элемент равен <code>TRUE</code>.</div>
+    <div class="dfn">bVisible</div>
+    <div class="dfndescr">Видимость курсора. Если курсор виден, этот элемент равен <code>TRUE</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a class="msdocs">GetConsoleCursorInfo</a>,
 <a class="msdocs">SetConsoleCursorInfo</a>
 

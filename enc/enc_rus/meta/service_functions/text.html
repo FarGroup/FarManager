@@ -10,18 +10,18 @@
 <body>
 
 <h1>Text</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>Text</code> выводит текстовую строку на экран. Far Manager использует внутреннюю буферизацию экрана для увеличения производительности, поэтому
 для совместимости плагин не должен выводить текст на экран напрямую, а только используя функцию <code>Text</code>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 void WINAPI Text(
   intptr_t X,
   intptr_t Y,
@@ -31,19 +31,19 @@ void WINAPI Text(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>X,Y</div>
-    <div class=dfndescr>Координаты вывода текста. Начало системы координат (0,0) - в верхней левой ячейке экрана.</div>
-  <div class=dfn>Color</div>
-    <div class=dfndescr>Цветовые атрибуты текста, указатель на структуру <a href="../structures/farcolor.html">FarColor</a>.</div>
-  <div class=dfn>Str</div>
-    <div class=dfndescr>Текстовая строка, завершающаяся нулём. После вывода строки, вы можете также вызвать <code>Text</code> с параметром <code>Str</code>
+<div class="descr">
+  <div class="dfn">X,Y</div>
+    <div class="dfndescr">Координаты вывода текста. Начало системы координат (0,0) - в верхней левой ячейке экрана.</div>
+  <div class="dfn">Color</div>
+    <div class="dfndescr">Цветовые атрибуты текста, указатель на структуру <a href="../structures/farcolor.html">FarColor</a>.</div>
+  <div class="dfn">Str</div>
+    <div class="dfndescr">Текстовая строка, завершающаяся нулём. После вывода строки, вы можете также вызвать <code>Text</code> с параметром <code>Str</code>
     равным <code>NULL</code> - эта операция сбросит экранный буфер Far Manager и ваши изменения вступят в силу немедленно. Но не используйте это слишком часто,
     чтобы не снизить общую производительность.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Нет.
 </div>
 

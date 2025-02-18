@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarListFind</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarListFind</code> задаёт параметры для поиска элемента в <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarListFind
 {
   size_t StructSize;
@@ -31,15 +31,15 @@ struct FarListFind
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListFind</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>StartIndex</div>
-    <div class=dfndescr>Индекс элемента, с которого начинается поиск.</div>
-  <div class=dfn>Pattern</div>
-  <div class=dfndescr>Шаблон для поиска по правилам функции <a href="../fsf/processname.html">FSF.ProcessName</a>.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги. Одно из следующих значений (тип <a name="FARLISTFINDFLAGS">FARLISTFINDFLAGS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarListFind</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">StartIndex</div>
+    <div class="dfndescr">Индекс элемента, с которого начинается поиск.</div>
+  <div class="dfn">Pattern</div>
+  <div class="dfndescr">Шаблон для поиска по правилам функции <a href="../fsf/processname.html">FSF.ProcessName</a>.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Дополнительные флаги. Одно из следующих значений (тип <a name="FARLISTFINDFLAGS">FARLISTFINDFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="LIFIND_EXACTMATCH">LIFIND_EXACTMATCH</a></td>
@@ -50,11 +50,11 @@ struct FarListFind
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../dialogapi/dmsg/dm_listfindstring.html">DM_LISTFINDSTRING</a>
 </div>
 

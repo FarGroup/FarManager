@@ -10,17 +10,17 @@
 <body>
 
 <h1>DI_SINGLEBOX</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index.html">элементы диалога</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Элемент диалога <code>DI_SINGLEBOX</code> описывает одинарную рамку.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_SINGLEBOX</b>
@@ -33,11 +33,11 @@ struct FarDialogItem
 };
 </pre>
 
-<p class=note><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class="note"><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
+<UL class="note"><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Флаги</h3>
-<div class=descr>
+<div class="descr">
 Для элемента <code>DI_SINGLEBOX</code> имеют значения следующие флаги:
 <table class="cont">
 <tr><th>Флаг</th><th>Описание</th></tr>
@@ -52,7 +52,7 @@ struct FarDialogItem
 
 
 <h3>События</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Событие</th><th>Описание</th></tr>
 <tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
@@ -76,15 +76,15 @@ struct FarDialogItem
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Если элемент в массиве управляющих элементов стоит первым, то консольное окно Far Manager будет содержать заголовок "<em>заголовок рамки</em>".</li>
 <li>Если координаты <code>X1==X2</code> или <code>Y1==Y2</code>, то рисуется соответствующая линия (вертикальная или горизонтальная)</li>
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="di_vtext.html">DI_DOUBLEBOX</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>

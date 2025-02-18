@@ -10,17 +10,17 @@
 <body>
 
 <h1>DialogInit</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>DialogInit</code> инициализирует диалог, для последующего показа на экране функцией <a href="dialogrun.html">DialogRun</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 HANDLE WINAPI DialogInit(
   const GUID* PluginId,
   const GUID* Id,
@@ -39,24 +39,24 @@ HANDLE WINAPI DialogInit(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Указатель на GUID диалога. GUID должен быть уникальным.</div>
-  <div class=dfn>X1, Y1, X2, Y2</div>
-    <div class=dfndescr>Геометрия диалога. Задайте эти координаты непосредственно или воспользуйтесь формулой <code>"Width x Height"</code> - для этого установите <code>X1</code> и <code>Y1</code> в <code>-1</code>, при этом
+<div class="descr">
+  <div class="dfn">PluginId</div>
+    <div class="dfndescr">Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Указатель на GUID диалога. GUID должен быть уникальным.</div>
+  <div class="dfn">X1, Y1, X2, Y2</div>
+    <div class="dfndescr">Геометрия диалога. Задайте эти координаты непосредственно или воспользуйтесь формулой <code>"Width x Height"</code> - для этого установите <code>X1</code> и <code>Y1</code> в <code>-1</code>, при этом
     <code>X2</code> - ширина и <code>Y2</code> - высота диалога. В последнем случае при выводе на экран диалог будет автоматически центрироваться. Параметры <code>X2</code> и <code>Y2</code> не могут быть меньше нуля.</div>
-  <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> связанная с данным диалогом. Если подсказка не используется, то установите этот параметр в <code>NULL</code>.</div>
-  <div class=dfn>Item</div>
-    <div class=dfndescr>Указатель на массив структур <a href="../structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество элементов массива <code>FarDialogItem</code>.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано. Должно быть рано <code>0</code>.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Набор флагов, уточняющих некоторые параметры диалога. Может быть комбинацией следующих значений (тип <a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a>):
+  <div class="dfn">HelpTopic</div>
+    <div class="dfndescr"><a href="../language/helptopic.html">Тема подсказки</a> связанная с данным диалогом. Если подсказка не используется, то установите этот параметр в <code>NULL</code>.</div>
+  <div class="dfn">Item</div>
+    <div class="dfndescr">Указатель на массив структур <a href="../structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Количество элементов массива <code>FarDialogItem</code>.</div>
+  <div class="dfn">Reserved</div>
+    <div class="dfndescr">Зарезервировано. Должно быть рано <code>0</code>.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Набор флагов, уточняющих некоторые параметры диалога. Может быть комбинацией следующих значений (тип <a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="FDLG_WARNING">FDLG_WARNING</a></td>
@@ -76,27 +76,27 @@ HANDLE WINAPI DialogInit(
     <td>Нулевой флаг.</td></tr>
     </table>
     </div>
-  <div class=dfn>DlgProc</div>
-    <div class=dfndescr>Указатель на функцию-обработчик диалогового окна типа <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
-  <div class=dfn>Param</div>
-    <div class=dfndescr>Данные, которые обработчик диалога получит в сообщении <a href="../dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
+  <div class="dfn">DlgProc</div>
+    <div class="dfndescr">Указатель на функцию-обработчик диалогового окна типа <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
+  <div class="dfn">Param</div>
+    <div class="dfndescr">Данные, которые обработчик диалога получит в сообщении <a href="../dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает созданный описатель диалога, либо <code>INVALID_HANDLE_VALUE</code> в случае ошибки. <br>
 После закрытия диалога и получения нужных данных, созданный описатель диалога необходимо освободить в функции <a href="dialogfree.html">DialogFree</a>.</div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Массив элементов <code>Item</code> не корректируется в процессе работы пользователя с этим диалогом, он необходим только для построения самого диалога. Far Manager перед созданием  диалога преобразует элементы <code>Item</code> во внутреннее представление. </ol>
 </div>
 
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 // {B66C436D-E657-419C-86D3-6834B9ACF3D2}
 DEFINE_GUID(MainGuid, 0xb66c436d, 0xe657, 0x419c, 0x86, 0xd3, 0x68, 0x34, 0xb9, 0xac, 0xf3, 0xd2);
 
@@ -119,8 +119,8 @@ return(FALSE);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="dialogrun.html">DialogRun</a>,
 <a href="defdlgproc.html">DefDlgProc</a>,
 <a href="senddlgmessage.html">SendDlgMessage</a>,

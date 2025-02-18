@@ -10,16 +10,16 @@
 <body>
 
 <h1>FarNameToInputRecord</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.FarNameToInputRecord</code> конвертирует строку из кода клавиш с внутренним форматом клавиш Far Manager'а в <a href="../winapi/input_record.html">INPUT_RECORD</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL WINAPI FarNameToInputRecord(
   const wchar_t *Name,
   INPUT_RECORD *Key
@@ -27,9 +27,9 @@ BOOL WINAPI FarNameToInputRecord(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Символьное представление клавиши. Функция ожидает строку по спецификации:<ol>
+<div class="descr">
+  <div class="dfn">Name</div>
+    <div class="dfndescr">Символьное представление клавиши. Функция ожидает строку по спецификации:<ol>
     <li>Предопределённые сочетания (см. <a href="https://github.com/FarGroup/FarManager/blob/master/far/keyboard.cpp">keyboard.cpp</a>::FKeys1[])
     <li>Опциональные модификаторы ("Alt", "RAlt", "Ctrl", "RCtrl", "Shift") и 1 символ, например, "AltD" или "CtrlC"
     <li>"Alt" (или "RAlt") и 5 десятичных цифр (с ведущими нулями)
@@ -37,17 +37,17 @@ BOOL WINAPI FarNameToInputRecord(
     <li>"Oem" и 5 десятичных цифр (с ведущими нулями)
     <li>только модификаторы ("Alt", "RAlt", "Ctrl", "RCtrl", "Shift")
   </ol>
-  <div class=dfn>Key</div>
-    <div class=dfndescr>Указатель на структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> куда будет помещен результат преобразования.</div>
+  <div class="dfn">Key</div>
+    <div class="dfndescr">Указатель на структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> куда будет помещен результат преобразования.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 В случае успеха функция возвращает <code>TRUE</code>.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Если в комбинации клавиш присутствует <kbd>Ctrl</kbd> или <kbd>Alt</kbd> и клавиша - "буква", то "буква"
     принудительно приводится к верхнему регистру. Например, <code>FarNameToInputRecord("CtrlAltz")</code> вернёт <code>KEY_CTRLALTZ</code>.
@@ -58,7 +58,7 @@ BOOL WINAPI FarNameToInputRecord(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 </body>
