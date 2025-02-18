@@ -18,20 +18,6 @@ BLOCKQUOTE
     MARGIN-TOP: 4pt;
     MARGIN-BOTTOM: 4pt
 }
-P.just
-{
-    MARGIN-TOP: 8pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
-P.justi
-{
-    MARGIN-TOP: 6pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
 PRE
 {
     COLOR: #101030;
