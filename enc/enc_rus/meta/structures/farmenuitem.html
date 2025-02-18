@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarMenuItem</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarMenuItem</code> описывает один пункт меню. Массив этих структур передаётся в функцию <a href="../service_functions/menu.html">Menu</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarMenuItem
 {
   MENUITEMFLAGS Flags;
@@ -32,9 +32,9 @@ struct FarMenuItem
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (тип <a name="MENUITEMFLAGS">MENUITEMFLAGS</a>):
+<div class="descr">
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация следующих значений (тип <a name="MENUITEMFLAGS">MENUITEMFLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="MIF_SELECTED">MIF_SELECTED</a></td>
@@ -53,31 +53,31 @@ struct FarMenuItem
     <td>Нулевой флаг.</td></tr>
     </table>
     </div>
-  <div class=dfn>Text</div>
-    <div class=dfndescr>Указатель на текст пункта меню.</div>
-  <div class=dfn>AccelKey</div>
-    <div class=dfndescr>Код клавиши, структура типа <a href="farkey.html">FarKey</a>, для активизации пункта меню (HotKey). Пример работы - в меню Far Manager "Commands" нажатие клавиши <kbd>Ctrl</kbd>+<kbd>O</kbd> аналогично выбору пункта "Panels On/Off".</div>
-  <div class=dfn>UserData</div>
-    <div class=dfndescr>Пользовательские данные, ассоциированные с пунктом меню. Far Manager не использует это поле.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервированные поля, должны быть равны <code>0</code>.</div>
+  <div class="dfn">Text</div>
+    <div class="dfndescr">Указатель на текст пункта меню.</div>
+  <div class="dfn">AccelKey</div>
+    <div class="dfndescr">Код клавиши, структура типа <a href="farkey.html">FarKey</a>, для активизации пункта меню (HotKey). Пример работы - в меню Far Manager "Commands" нажатие клавиши <kbd>Ctrl</kbd>+<kbd>O</kbd> аналогично выбору пункта "Panels On/Off".</div>
+  <div class="dfn">UserData</div>
+    <div class="dfndescr">Пользовательские данные, ассоциированные с пунктом меню. Far Manager не использует это поле.</div>
+  <div class="dfn">Reserved</div>
+    <div class="dfndescr">Зарезервированные поля, должны быть равны <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>В младшем слове <code>Flags</code> можно указывать код символа, который будет использоваться для отображения метки выбора. В этом случае система самостоятельно выставит флаг <code>MIF_CHECKED</code> для данного пункта меню.</li>
 <li>Если младшее слово <code>Flags</code> равно <code>0</code> и выставлен флаг <code>MIF_CHECKED</code>, или если младшее слово <code>Flags</code> равно <code>1</code>, то будет отображаться стандартная метка выбора - символ с кодом 0FBh (<code>&#8730;</code>)</li>
 <li>При использовании флага <code>MIF_SEPARATOR</code> без текста, компонента <code>Text</code> должна быть проинициализирована в <code>0</code>, например так:
-<pre class=code>
+<pre class="code">
 struct FarMenuItem Item;
 Item.Flags=MIF_SEPARATOR;
 Item.Text=NULL;</pre></li>
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

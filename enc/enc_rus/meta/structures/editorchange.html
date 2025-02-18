@@ -10,17 +10,17 @@
 <body>
 
 <h1>EditorChange</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>EditorChange</code> информирует о том, как изменился текст в редакторе, используется в функции <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct EditorChange
 {
   size_t StructSize;
@@ -30,11 +30,11 @@ struct EditorChange
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>EditorChange</code>.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип изменения (перечисление <code><a name="EDITOR_CHANGETYPE">EDITOR_CHANGETYPE</a></code>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>EditorChange</code>.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип изменения (перечисление <code><a name="EDITOR_CHANGETYPE">EDITOR_CHANGETYPE</a></code>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="ECTYPE_CHANGED">ECTYPE_CHANGED</a></td>
@@ -44,16 +44,16 @@ struct EditorChange
     <tr><td><a name="ECTYPE_DELETED">ECTYPE_DELETED</a></td>
     <td>Строка удалена.</td></tr>
     </table></div>
-  <div class=dfn>StringNumber</div>
-    <div class=dfndescr>Номер строки, в которой произошли изменения. </div>
+  <div class="dfn">StringNumber</div>
+    <div class="dfndescr">Номер строки, в которой произошли изменения. </div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

@@ -10,36 +10,36 @@
 <body>
 
 <h1>GetFindDataW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>GetFindDataW</code> вызывается для получения списка файлов из текущего каталога эмулируемой файловой системы<br>
 (<em>Far Manager плагину: "дай-ка я взгляну на списочек твоих файлов, память сам выдели :-)"</em>).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI GetFindDataW(
   struct GetFindDataInfo *Info
 );</pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин передает Far Manager'у информацию об элементах (список файлов) для панели.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин передает Far Manager'у информацию об элементах (список файлов) для панели.<br>
     В начале функции проверьте, что поле <code>GetFindDataInfo.StructSize >= sizeof(GetFindDataInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если функция выполнила свои действия успешно, то верните <code>1</code>. В противном случае <code>0</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>В этой функции плагин динамически формирует список элементов, если это происходит, то необходимо позаботиться об освобождении памяти, когда список уже не нужен, т.е.
     не забыть бы про экспортирование функции <a href="freefinddataw.html">FreeFindDataW</a>.
@@ -52,9 +52,9 @@ intptr_t WINAPI GetFindDataW(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "ProcList".
-<pre class=code>
+<pre class="code">
 intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 {
   return ((Plist *)Info->hPanel)->GetFindData(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
@@ -62,8 +62,8 @@ intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="freefinddataw.html">FreeFindDataW</a>
 </div>
 

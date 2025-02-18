@@ -10,34 +10,34 @@
 <body>
 
 <h1>QuoteSpaceOnly</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.QuoteSpaceOnly</code> заключает строку в кавычки, если она содержит хотя бы один пробел.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 wchar_t* WINAPI QuoteSpaceOnly(
   wchar_t *Str
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Str</div>
-    <div class=dfndescr>Указатель на обрабатываемую строку.</div>
+<div class="descr">
+  <div class="dfn">Str</div>
+    <div class="dfndescr">Указатель на обрабатываемую строку.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Возвращается указатель на результирующую строку.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Помните, что <code>Str</code> должна иметь достаточный размер, чтобы вместить кавычки.
 <li>Если строка уже заключена в кавычки - преобразования не происходит.

@@ -10,17 +10,17 @@
 <body>
 
 <h1>MacroSendMacroText</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>MacroSendMacroText</code> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для передачи макропоследовательности в Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct MacroSendMacroText
 {
   size_t StructSize;
@@ -31,11 +31,11 @@ struct MacroSendMacroText
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroSendMacroText</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>MacroSendMacroText</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="KMFLAGS_ENABLEOUTPUT">KMFLAGS_ENABLEOUTPUT</a></td>
@@ -53,10 +53,10 @@ struct MacroSendMacroText
     <tr><td><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table></div>
-  <div class=dfn>AKey</div>
-    <div class=dfndescr>Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
-  <div class=dfn>SequenceText</div>
-    <div class=dfndescr>
+  <div class="dfn">AKey</div>
+    <div class="dfndescr">Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
+  <div class="dfn">SequenceText</div>
+    <div class="dfndescr">
       Строка, содержащая макрос в текстовом виде.<br>
       Если строка начинается с символа <code>@</code>, то используется следующий формат:
           <code>@&lt;имя файла-скрипта&gt; [&lt;параметры скрипта&gt;]</code>
@@ -69,11 +69,11 @@ struct MacroSendMacroText
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

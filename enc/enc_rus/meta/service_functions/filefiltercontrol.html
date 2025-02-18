@@ -10,17 +10,17 @@
 <body>
 
 <h1>FileFilterControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FileFilterControl</code> позволяет управлять созданием и применением файловых фильтров.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI FileFilterControl(
   HANDLE hHandle,
   enum FAR_FILE_FILTER_CONTROL_COMMANDS Command,
@@ -30,11 +30,11 @@ intptr_t WINAPI FileFilterControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_FILE_FILTER_CONTROL_COMMANDS">FAR_FILE_FILTER_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">hHandle</div>
+    <div class="dfndescr">Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Может быть одним из следующих значений (перечисление <a name="FAR_FILE_FILTER_CONTROL_COMMANDS">FAR_FILE_FILTER_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -87,20 +87,20 @@ intptr_t WINAPI FileFilterControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Смотрите описание <code>Command</code>
 </div>
 
 <h3>Пример</h3>
-<pre class=code>
+<pre class="code">
 HANDLE AFilter = INVALID_HANDLE_VALUE;
 
 // создаём фильтр для области "активная панель"
@@ -127,8 +127,8 @@ if (AFilter != INVALID_HANDLE_VALUE)
 Info.FileFilterControl(AFilter, FFCTL_FREEFILEFILTER,0,0);
 </pre>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="panelcontrol.html">PanelControl</a></div>
 
 </body>

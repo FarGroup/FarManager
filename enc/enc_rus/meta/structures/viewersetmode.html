@@ -10,17 +10,17 @@
 <body>
 
 <h1>ViewerSetMode</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ViewerSetMode</code> используется для изменения режимов работы программы просмотра Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ViewerSetMode
 {
   size_t StructSize;
@@ -39,11 +39,11 @@ struct ViewerSetMode
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>ViewerSetMode</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип режима. Может быть одним из следующих (перечисление <a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>ViewerSetMode</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип режима. Может быть одним из следующих (перечисление <a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a>):
     <table class="cont">
     <tr><th>Тип</th><th>Описание</th></tr>
     <tr><td><a name="VSMT_VIEWMODE">VSMT_VIEWMODE</a></td>
@@ -64,28 +64,28 @@ struct ViewerSetMode
     <td>Тип свёртки: <code>iParam = 1</code> - использовать перенос строк по словам, <code>iParam = 0</code> - по буквам.</td></tr>
     </table>
     </div>
-  <div class=dfn>iParam</div>
-    <div class=dfndescr>Содержит число, см. описание по конкретному типу режима.</div>
-  <div class=dfn>wszParam</div>
-    <div class=dfndescr>Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу режима.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги (тип <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
+  <div class="dfn">iParam</div>
+    <div class="dfndescr">Содержит число, см. описание по конкретному типу режима.</div>
+  <div class="dfn">wszParam</div>
+    <div class="dfndescr">Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу режима.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Дополнительные флаги (тип <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
     <table class="cont">
     <tr><th>Режим</th><th>Описание</th></tr>
     <tr><td><a name="VSMFL_REDRAW">VSMFL_REDRAW</a></td>
     <td>После применения "режима" перерисовать экран. В противном случае после установки режимов воспользоваться командой <a href="../service_functions/viewercontrol.html#VCTL_REDRAW">VCTL_REDRAW</a>.</td></tr>
     </table>
     </div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется, зарезервировано для будущего использования. Должно быть установлено в <code>0</code>.</div>
+  <div class="dfn">Reserved</div>
+    <div class="dfndescr">Не используется, зарезервировано для будущего использования. Должно быть установлено в <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

@@ -10,20 +10,20 @@
 <body>
 
 <h1>KEY_EVENT_RECORD</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a> |
 <a href="input_record.html">INPUT_RECORD</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>KEY_EVENT_RECORD</code>
 используется для получения входных событий в консольной структуре
 <code>INPUT_RECORD</code>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _KEY_EVENT_RECORD {
     BOOL bKeyDown;
     WORD wRepeatCount;
@@ -38,25 +38,25 @@ typedef struct _KEY_EVENT_RECORD {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>bKeyDown</div>
-    <div class=dfndescr>Равно <code>TRUE</code> если клавиша нажата, иначе <code>FALSE</code>. </div>
-    <div class=dfn>wRepeatCount</div>
-    <div class=dfndescr>Число повторов нажатия клавиши.
+<div class="descr">
+    <div class="dfn">bKeyDown</div>
+    <div class="dfndescr">Равно <code>TRUE</code> если клавиша нажата, иначе <code>FALSE</code>. </div>
+    <div class="dfn">wRepeatCount</div>
+    <div class="dfndescr">Число повторов нажатия клавиши.
     Например, когда клавиша нажата, вы можете получить пять сообщений с
     этим членом равным 1, одно сообщение с равным 5, или несколько сообщений
     с элементом большим, либо равным 1.</div>
-    <div class=dfn>wVirtualKeyCode</div>
-    <div class=dfndescr><a href="virtualkeycodes.html">Виртуальный код</a> клавиши, определяющий данную клавишу в независимой
+    <div class="dfn">wVirtualKeyCode</div>
+    <div class="dfndescr"><a href="virtualkeycodes.html">Виртуальный код</a> клавиши, определяющий данную клавишу в независимой
     от устройства форме.</div>
-    <div class=dfn>wVirtualScanCode</div>
-    <div class=dfndescr>Виртуальный скан-код клавиши. Определяет устройство-зависимое значение,
+    <div class="dfn">wVirtualScanCode</div>
+    <div class="dfndescr">Виртуальный скан-код клавиши. Определяет устройство-зависимое значение,
     генерируемое аппаратурой клавиатуры.</div>
-    <div class=dfn>uChar</div>
-    <div class=dfndescr>Переведённый Unicode или ASCII символ, в зависимости от того,
+    <div class="dfn">uChar</div>
+    <div class="dfndescr">Переведённый Unicode или ASCII символ, в зависимости от того,
     использовалась Wide- или ANSI-версия функции <a href="readconsoleinput.html">ReadConsoleInput</a>.</div>
-    <div class=dfn>dwControlKeyState</div>
-    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+    <div class="dfn">dwControlKeyState</div>
+    <div class="dfndescr">Состояние управляющих клавиш. Может быть комбинацией следующих значений:
 
       <table class="cont">
      <tr><th width="20%">Клавиша</th><th>Значение</th><th>Описание</th></tr>
@@ -83,7 +83,7 @@ typedef struct _KEY_EVENT_RECORD {
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
   Расширенные клавиши для IBM<sup>&#174;</sup> 101- и 102-х клавишных
   клавиатур - это <kbd>INS</kbd>, <kbd>DEL</kbd>, <kbd>HOME</kbd>, <kbd>END</kbd>, <kbd>PAGE UP</kbd>, <kbd>PAGE DOWN</kbd>, клавиши курсора,
   клавиша divide (<kbd>/</kbd>) и <kbd>ENTER</kbd> на цифровой части.
@@ -95,8 +95,8 @@ typedef struct _KEY_EVENT_RECORD {
   не передаётся, если хендл входной консоли имеет флаг <code>ENABLE_PROCESSED_INPUT</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="peekconsoleinput.html">PeekConsoleInput</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>,
 <a href="writeconsoleinput.html">WriteConsoleInput</a>,

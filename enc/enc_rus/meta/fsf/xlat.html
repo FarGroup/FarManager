@@ -10,16 +10,16 @@
 <body>
 
 <h1>XLat</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.XLat</code> используется для конвертирования части строки из одного набора символов (например, Русский) в другой (например, Латиница).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 wchar_t* WINAPI XLat(
   wchar_t *Line,
   intptr_t StartPos,
@@ -29,15 +29,15 @@ wchar_t* WINAPI XLat(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Line</div>
-    <div class=dfndescr>Указатель на строку, часть которой будет перекодирована.</div>
-  <div class=dfn>StartPos</div>
-    <div class=dfndescr>Начальная позиция в строке <code>Line</code>.</div>
-  <div class=dfn>EndPos</div>
-    <div class=dfndescr>Конечная позиция в строке <code>Line</code>.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
+<div class="descr">
+  <div class="dfn">Line</div>
+    <div class="dfndescr">Указатель на строку, часть которой будет перекодирована.</div>
+  <div class="dfn">StartPos</div>
+    <div class="dfndescr">Начальная позиция в строке <code>Line</code>.</div>
+  <div class="dfn">EndPos</div>
+    <div class="dfndescr">Конечная позиция в строке <code>Line</code>.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть комбинацией следующих значений (тип <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="XLAT_SWITCHKEYBLAYOUT">XLAT_SWITCHKEYBLAYOUT</a></td>
@@ -60,7 +60,7 @@ wchar_t* WINAPI XLat(
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Эта функция возвращает указатель на преобразованную строку.
 </div>
 
