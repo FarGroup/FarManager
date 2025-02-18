@@ -10,37 +10,37 @@
 <body>
 
 <h1>ExitFARW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ExitFARW</code> вызывается перед выходом из Far Manager. В этой функции плагин может удалить все используемые ресурсы, например, ранее запрошенную память.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 void WINAPI ExitFARW(
   const struct ExitInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/exitinfo.html">ExitInfo</a> (в настоящее время не используется).</div>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/exitinfo.html">ExitInfo</a> (в настоящее время не используется).</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Нет.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "TmpPanel".
-<pre class=code>
+<pre class="code">
 void WINAPI ExitFARW(const struct ExitInfo *Info)
 {
   for (int i=0; i < COMMONPANELSNUMBER; ++i)
@@ -49,8 +49,8 @@ void WINAPI ExitFARW(const struct ExitInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="closepanelw.html">ClosePanelW</A>
 </div>
 

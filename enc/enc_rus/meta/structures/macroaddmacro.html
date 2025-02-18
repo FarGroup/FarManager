@@ -10,17 +10,17 @@
 <body>
 
 <h1>MacroAddMacro</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>MacroAddMacro</code> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для загрузки макропоследовательности в Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct MacroAddMacro
 {
   size_t StructSize;
@@ -36,13 +36,13 @@ struct MacroAddMacro
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroAddMacro</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Уникальный, в рамках плагина, идентификатор макропоследовательности.</div>
-  <div class=dfn>SequenceText</div>
-    <div class=dfndescr>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>MacroAddMacro</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Уникальный, в рамках плагина, идентификатор макропоследовательности.</div>
+  <div class="dfn">SequenceText</div>
+    <div class="dfndescr">
       Строка, содержащая макрос в текстовом виде.<br>
       Если строка начинается с символа <code>@</code>, то используется следующий формат:
           <code>@&lt;имя файла-скрипта&gt; [&lt;параметры скрипта&gt;]</code>
@@ -52,10 +52,10 @@ struct MacroAddMacro
       <li>Пример: <code>@%MyFarScripts%\calc.lua 'factorial', 3+5</code>
       </ul>
     </div>
-  <div class=dfn>Description</div>
-    <div class=dfndescr>Строка, содержащая описание макроса.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
+  <div class="dfn">Description</div>
+    <div class="dfndescr">Строка, содержащая описание макроса.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="KMFLAGS_ENABLEOUTPUT">KMFLAGS_ENABLEOUTPUT</a></td>
@@ -73,26 +73,26 @@ struct MacroAddMacro
     <tr><td><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table></div>
-  <div class=dfn>AKey</div>
-    <div class=dfndescr>Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
-  <div class=dfn>Area</div>
-    <div class=dfndescr>Макрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
-  <div class=dfn>Callback</div>
-    <div class=dfndescr>Функция, выполняемая Far Manager перед непосредственным выполнением макропоследовательности <code>SequenceText</code>.
-    Синтаксис функции: <pre class=syntax> intptr_t (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
+  <div class="dfn">AKey</div>
+    <div class="dfndescr">Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
+  <div class="dfn">Area</div>
+    <div class="dfndescr">Макрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
+  <div class="dfn">Callback</div>
+    <div class="dfndescr">Функция, выполняемая Far Manager перед непосредственным выполнением макропоследовательности <code>SequenceText</code>.
+    Синтаксис функции: <pre class="syntax"> intptr_t (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
     Где: <code>Id</code> - идентификатор (<code>MacroAddMacro.Id</code>). <code>Flags</code> - сейчас не используются.<br>
     Функция может что-то проверить и вернуть <code>TRUE</code> - запустить макрос, или <code>FALSE</code> - не запускать.
     </div>
-  <div class=dfn>Priority</div>
-    <div class=dfndescr>Приоритет макроса.</div>
+  <div class="dfn">Priority</div>
+    <div class="dfndescr">Приоритет макроса.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

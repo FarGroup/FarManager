@@ -10,17 +10,17 @@
 <body>
 
 <h1>MacroParseResult</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>MacroParseResult</code> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для возврата плагину результатов проверки макропоследовательности.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct MacroParseResult
 {
   size_t StructSize;
@@ -31,11 +31,11 @@ struct MacroParseResult
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroParseResult</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>ErrCode</div>
-    <div class=dfndescr>Результат проверки (перечисление <code><a name="FARMACROPARSEERRORCODE">FARMACROPARSEERRORCODE</a></code>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>MacroParseResult</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">ErrCode</div>
+    <div class="dfndescr">Результат проверки (перечисление <code><a name="FARMACROPARSEERRORCODE">FARMACROPARSEERRORCODE</a></code>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="MPEC_SUCCESS">MPEC_SUCCESS</a></td>
@@ -43,18 +43,18 @@ struct MacroParseResult
     <tr><td><a name="MPEC_ERROR">MPEC_ERROR</a></td>
     <td>Имеются ошибки.</td></tr>
     </table></div>
-  <div class=dfn>ErrPos</div>
-    <div class=dfndescr>Позиция ошибки в исходном тексте.</div>
-  <div class=dfn>ErrSrc</div>
-    <div class=dfndescr>Текстовое описание ошибки.</div>
+  <div class="dfn">ErrPos</div>
+    <div class="dfndescr">Позиция ошибки в исходном тексте.</div>
+  <div class="dfn">ErrSrc</div>
+    <div class="dfndescr">Текстовое описание ошибки.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

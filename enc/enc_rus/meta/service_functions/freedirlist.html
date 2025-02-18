@@ -10,17 +10,17 @@
 <body>
 
 <h1>FreeDirList</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FreeDirList</code> освобождает память, выделенную для списка файлов функциями <a href="getdirlist.html">GetDirList</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 void WINAPI FreeDirList(
   struct PluginPanelItem *PanelItem,
   size_t nItemsNumber
@@ -28,15 +28,15 @@ void WINAPI FreeDirList(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>PanelItem</div>
-    <div class=dfndescr>Адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
-  <div class=dfn>nItemsNumber</div>
-    <div class=dfndescr>Количество элементов в массиве.</div>
+<div class="descr">
+  <div class="dfn">PanelItem</div>
+    <div class="dfndescr">Адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
+  <div class="dfn">nItemsNumber</div>
+    <div class="dfndescr">Количество элементов в массиве.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Нет.
 </div>
 

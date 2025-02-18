@@ -10,43 +10,43 @@
 <body>
 
 <h1>GetContentDataW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../contentapi/index.html">TODO: Content API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>GetContentDataW</code> вызывается для получения от плагина данных контент-колонок
 для заданного файла.<br>
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI GetContentDataW(
   struct GetContentDataInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/getcontentdatainfo.html">GetContentDataInfo</a>.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/getcontentdatainfo.html">GetContentDataInfo</a>.<br>
   </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если плагин устанавливал данные в Info-&gt;Values, то верните <code>1</code>. В противном случае <code>0</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class="see">Смотрите также:</div>
 <a href="getcontentfieldsw.html">GetContentFieldsW</a>,
 <a href="freecontentdataw.html">FreeContentDataW</a>
-<div class=seecont>
+<div class="seecont">
 </div>
 
 <h3>ПРИМЕЧАНИЕ</h3>
-<div class=descr>
+<div class="descr">
 Данное API не является окончательным и может быть изменено или удалено в любой момент.
 </div>
 

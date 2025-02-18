@@ -10,13 +10,13 @@
 <body>
 
 <h1>CHAR_INFO</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="../structures/index.html">структуры</a> |
 <a href="index.html">win32 структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 <P>Структура <code>CHAR_INFO</code> определяет Unicode- или ANSI-код символа и
 цветовые атрибуты (передний план и фон) экранной символьной ячейки.
 Эта структура используется консольными функциями для чтения и записи в
@@ -24,7 +24,7 @@
 </P>
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 typedef struct _CHAR_INFO {
   // Unicode or ANSI character
   union {
@@ -38,15 +38,15 @@ typedef struct _CHAR_INFO {
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>Char</div>
-    <div class=dfndescr>Определяет Unicode- или ANSI-код символа
+<div class="descr">
+    <div class="dfn">Char</div>
+    <div class="dfndescr">Определяет Unicode- или ANSI-код символа
       экранной ячейки в зависимости от используемых функций
       (Unicode или ANSI).
     </div>
 
-    <div class=dfn>Attributes</div>
-    <div class=dfndescr>
+    <div class="dfn">Attributes</div>
+    <div class="dfndescr">
      Атрибуты можно разделить на два класса: цвет и DBCS. Все константы определены в
      заголовочном файле <code>Wincon.h</code>:
 
@@ -91,11 +91,11 @@ typedef struct _CHAR_INFO {
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a class="msdocs">ReadConsoleOutput</a>,
 <a class="msdocs">ScrollConsoleScreenBuffer</a>,
 <a class="msdocs">WriteConsoleOutput</a>

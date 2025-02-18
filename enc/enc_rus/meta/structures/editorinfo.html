@@ -10,17 +10,17 @@
 <body>
 
 <h1>EditorInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../editorapi/index.html">Editor API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>EditorInfo</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о текущем состоянии редактора Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct EditorInfo
 {
   size_t StructSize;
@@ -46,29 +46,29 @@ struct EditorInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>EditorID</div>
-    <div class=dfndescr>Идентификатор экземпляра редактора. Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
-  <div class=dfn>WindowSizeX, WindowSizeY</div>
-    <div class=dfndescr>Ширина и высота окна редактора.</div>
-  <div class=dfn>TotalLines</div>
-    <div class=dfndescr>Количество строк в редактируемом тексте.</div>
-  <div class=dfn>CurLine</div>
-    <div class=dfndescr>Номер текущей строки. Нумерация начинается с 0.</div>
-  <div class=dfn>CurPos</div>
-    <div class=dfndescr>Позиция курсора в текущей строке. Нумерация начинается с 0.</div>
-  <div class=dfn>CurTabPos</div>
-    <div class=dfndescr>Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <code>CurTabPos</code> эквивалентна <code>CurPos</code>.</div>
-  <div class=dfn>TopScreenLine</div>
-    <div class=dfndescr>Номер строки вверху экрана. Нумерация начинается с 0.</div>
-  <div class=dfn>LeftPos</div>
-    <div class=dfndescr>Позиция левой границы окна редактора в редактируемом тексте. Нумерация начинается с 0.</div>
-  <div class=dfn>Overtype</div>
-    <div class=dfndescr><code>0</code> - режим вставки, <code>1</code> - замены.</div>
-  <div class=dfn>BlockType</div>
-    <div class=dfndescr>Тип выбранного блока. Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>EditorInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">EditorID</div>
+    <div class="dfndescr">Идентификатор экземпляра редактора. Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+  <div class="dfn">WindowSizeX, WindowSizeY</div>
+    <div class="dfndescr">Ширина и высота окна редактора.</div>
+  <div class="dfn">TotalLines</div>
+    <div class="dfndescr">Количество строк в редактируемом тексте.</div>
+  <div class="dfn">CurLine</div>
+    <div class="dfndescr">Номер текущей строки. Нумерация начинается с 0.</div>
+  <div class="dfn">CurPos</div>
+    <div class="dfndescr">Позиция курсора в текущей строке. Нумерация начинается с 0.</div>
+  <div class="dfn">CurTabPos</div>
+    <div class="dfndescr">Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <code>CurTabPos</code> эквивалентна <code>CurPos</code>.</div>
+  <div class="dfn">TopScreenLine</div>
+    <div class="dfndescr">Номер строки вверху экрана. Нумерация начинается с 0.</div>
+  <div class="dfn">LeftPos</div>
+    <div class="dfndescr">Позиция левой границы окна редактора в редактируемом тексте. Нумерация начинается с 0.</div>
+  <div class="dfn">Overtype</div>
+    <div class="dfndescr"><code>0</code> - режим вставки, <code>1</code> - замены.</div>
+  <div class="dfn">BlockType</div>
+    <div class="dfndescr">Тип выбранного блока. Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
     <table class="cont">
     <tr><th>Тип блока</th><th>Описание</th></tr>
     <tr><td><a name="BTYPE_NONE">BTYPE_NONE</a></td>
@@ -79,10 +79,10 @@ struct EditorInfo
     <td>выделить вертикальный блок</td></tr>
     </table>
     </div>
-  <div class=dfn>BlockStartLine</div>
-    <div class=dfndescr>Номер первой строки блока. Нумерация начинается с 0.</div>
-  <div class=dfn>Options</div>
-    <div class=dfndescr>Описывает состояние настроек редактора. Может быть комбинацией следующих флагов (перечисление <a name="EDITOR_OPTIONS">EDITOR_OPTIONS</a>):
+  <div class="dfn">BlockStartLine</div>
+    <div class="dfndescr">Номер первой строки блока. Нумерация начинается с 0.</div>
+  <div class="dfn">Options</div>
+    <div class="dfndescr">Описывает состояние настроек редактора. Может быть комбинацией следующих флагов (перечисление <a name="EDITOR_OPTIONS">EDITOR_OPTIONS</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="EOPT_EXPANDALLTABS">EOPT_EXPANDALLTABS</a></td>
@@ -125,14 +125,14 @@ struct EditorInfo
     <td>Показана полоса прокрутки.<br>
     </table>
     </div>
-  <div class=dfn>TabSize</div>
-    <div class=dfndescr>Размер табуляции. Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.</div>
-  <div class=dfn>BookmarkCount</div>
-    <div class=dfndescr>Количество закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</div>
-  <div class=dfn>SessionBookmarkCount</div>
-    <div class=dfndescr>Количество временных (в рамках текущей сессии редактора) закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>.</div>
-  <div class=dfn>CurState</div>
-    <div class=dfndescr>Текущее состояние редактируемого текста. 
+  <div class="dfn">TabSize</div>
+    <div class="dfndescr">Размер табуляции. Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.</div>
+  <div class="dfn">BookmarkCount</div>
+    <div class="dfndescr">Количество закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</div>
+  <div class="dfn">SessionBookmarkCount</div>
+    <div class="dfndescr">Количество временных (в рамках текущей сессии редактора) закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>.</div>
+  <div class="dfn">CurState</div>
+    <div class="dfndescr">Текущее состояние редактируемого текста. 
     Может быть набором из следующих значений (перечисление <a name="EDITOR_CURRENTSTATE">EDITOR_CURRENTSTATE</a>):
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
@@ -144,14 +144,14 @@ struct EditorInfo
     <td>заблокирован (<kbd>Ctrl</kbd>+<kbd>L</kbd>)</td></tr>
     </table>
     </div>
-  <div class=dfn>CodePage</div>
-    <div class=dfndescr>Номер текущей используемой кодовой страницы символов в редакторе. </div>
+  <div class="dfn">CodePage</div>
+    <div class="dfndescr">Номер текущей используемой кодовой страницы символов в редакторе. </div>
 </div>
 
 <h3>Замечания</h3>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

@@ -10,17 +10,17 @@
 <body>
 
 <h1>PluginInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>PluginInfo</code> используется для возвращения Far Manager'у информации о плагине в функции <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct PluginInfo
 {
   size_t StructSize;
@@ -33,11 +33,11 @@ struct PluginInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>PluginInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (тип <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>PluginInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация следующих значений (тип <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
     <table class="cont">
     <tr><th>Флаг</th><th>Описание</th></tr>
     <tr><td><a name="PF_PRELOAD">PF_PRELOAD</a></td>
@@ -57,23 +57,23 @@ struct PluginInfo
     <tr><td><a name="PF_NONE">PF_NONE</a></td>
     <td>Нулевой флаг.</td></tr>
     </table></div>
-  <div class=dfn>DiskMenu</div>
-    <div class=dfndescr>Если плагин добавляет строки в меню "Диск", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
-  <div class=dfn>PluginMenu</div>
-    <div class=dfndescr>Если плагин добавляет строки в меню "Команды внешних модулей", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
-  <div class=dfn>PluginConfig</div>
-    <div class=dfndescr>Если плагин добавляет строки в меню "Конфигурация модулей", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
-  <div class=dfn>CommandPrefix</div>
-    <div class=dfndescr>Плагин может указать в этом поле строку префиксов командной строки, которые будут использоваться для перехвата команд Far Manager.
+  <div class="dfn">DiskMenu</div>
+    <div class="dfndescr">Если плагин добавляет строки в меню "Диск", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class="dfn">PluginMenu</div>
+    <div class="dfndescr">Если плагин добавляет строки в меню "Команды внешних модулей", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class="dfn">PluginConfig</div>
+    <div class="dfndescr">Если плагин добавляет строки в меню "Конфигурация модулей", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class="dfn">CommandPrefix</div>
+    <div class="dfndescr">Плагин может указать в этом поле строку префиксов командной строки, которые будут использоваться для перехвата команд Far Manager.
     Например, если плагин передал здесь адрес строки <code>ftp</code> и пользователь ввёл в командной строке что-то, начинающееся с <code>ftp:</code>,
     то функция <a href="../exported_functions/openw.html">OpenW</a> будет вызвана с параметром <a href="../exported_functions/openw.html#OPEN_COMMANDLINE">OPEN_COMMANDLINE</a>.<br>
     Если предполагается, что плагин будет обрабатывать несколько командных префиксов, то необходимо указать префиксы, разделённые двоеточием. Например,
-    плагин если обрабатывает префиксы <code>edit:</code>, <code>goto:</code> и <code>view:</code>, то строка должна быть такой:<pre class=code>CommandPrefix=L"edit:view:goto";</pre>
+    плагин если обрабатывает префиксы <code>edit:</code>, <code>goto:</code> и <code>view:</code>, то строка должна быть такой:<pre class="code">CommandPrefix=L"edit:view:goto";</pre>
     Если вы не хотите добавлять команды к Far Manager'у, установите этот параметр в <code>NULL</code>.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Все передаваемые в этой структуре данные должны быть правильными после возвращения из <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>,
 таким образом вы не должны использовать автоматически создаваемые переменные. Используйте статические или глобальные переменные.</li>
@@ -81,8 +81,8 @@ struct PluginInfo
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>,
 <a href="pluginmenuitem.html">PluginMenuItem</a>
 </div>

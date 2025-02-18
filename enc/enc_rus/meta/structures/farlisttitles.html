@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarListTitles</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarListTitles</code> описывает заголовки (верхний и нижний) для элемента диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarListTitles
 {
   size_t StructSize;
@@ -32,24 +32,24 @@ struct FarListTitles
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListTitles</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>TitleSize</div>
-    <div class=dfndescr>Длина строки верхнего заголовка с завершающим нулем.</div>
-  <div class=dfn>Title</div>
-    <div class=dfndescr>Строка, содержащая текст для верхнего заголовка списка. Может быть равна <code>NULL</code> (в этом случае верхний заголовок не выводится).</div>
-  <div class=dfn>BottomSize</div>
-    <div class=dfndescr>Длина строки нижнего заголовка с завершающим нулем.</div>
-  <div class=dfn>Bottom</div>
-    <div class=dfndescr>Строка, содержащая текст для нижнего заголовка списка. Может быть равна <code>NULL</code> (в этом случае нижний заголовок не выводится).</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarListTitles</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">TitleSize</div>
+    <div class="dfndescr">Длина строки верхнего заголовка с завершающим нулем.</div>
+  <div class="dfn">Title</div>
+    <div class="dfndescr">Строка, содержащая текст для верхнего заголовка списка. Может быть равна <code>NULL</code> (в этом случае верхний заголовок не выводится).</div>
+  <div class="dfn">BottomSize</div>
+    <div class="dfndescr">Длина строки нижнего заголовка с завершающим нулем.</div>
+  <div class="dfn">Bottom</div>
+    <div class="dfndescr">Строка, содержащая текст для нижнего заголовка списка. Может быть равна <code>NULL</code> (в этом случае нижний заголовок не выводится).</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Члены структуры <code>TitleSize</code> и <code>BottomSize</code> обязательны только при получении заголовков списка (см. <a href="../dialogapi/dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>).</div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class="see">Смотрите также:</div><div class="seecont">
 <a href="../dialogapi/dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>,
 <a href="../dialogapi/dmsg/dm_listsettitles.html">DM_LISTSETTITLES</a>
 </div>

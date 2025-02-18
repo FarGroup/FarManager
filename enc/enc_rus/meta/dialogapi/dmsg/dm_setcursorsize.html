@@ -10,37 +10,37 @@
 <body>
 
 <h1>DM_SETCURSORSIZE</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dm.html">сообщения</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DM_SETCURSORSIZE</code> посылается обработчику диалога для установки размера курсора и признака его видимости в строках редактирования
 диалога и в элементе <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Старшее слово - размер курсора (от 0 до 100, в терминах структуры <a href="../../winapi/console_cursor_info.html">CONSOLE_CURSOR_INFO</a>),
 младшее слово - признак видимости курсора (1 - курсор видим, 0 - курсор невидим).
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 Предыдущие значения:<br>
 Старшее слово - размер курсора (от 0 до 100, в терминах структуры <a href="../../winapi/console_cursor_info.html">CONSOLE_CURSOR_INFO</a>),
 младшее слово - признак видимости курсора (1 - курсор видим, 0 - курсор невидим).
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
@@ -57,10 +57,10 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Для того, чтобы в элементе <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>
 курсор стал видим, необходимо также переместить курсор в нужную позицию:
-<pre class=code>
+<pre class="code">
 Coord.X=X;
 Coord.Y=Y;
 Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,&amp;Coord);
@@ -70,15 +70,15 @@ Info.SendDlgMessage(hDlg,DM_SETCURSORPOS,3,&amp;Coord);
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 // Установить курсор для элемента 3 полностью заполненной ячейкой.
 Info.SendDlgMessage(hDlg,DM_SETCURSORSIZE,3,(void*)MAKELONG(1,99));
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getcursorsize.html">DM_GETCURSORSIZE</a>,
 <a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>,

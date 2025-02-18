@@ -10,17 +10,17 @@
 <body>
 
 <h1>FarListPos</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarListPos</code> задаёт параметры для позиционирования курсора в <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarListPos
 {
   size_t StructSize;
@@ -30,22 +30,22 @@ struct FarListPos
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListPos</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>SelectPos</div>
-    <div class=dfndescr>Позиция текущего элемента.</div>
-  <div class=dfn>TopPos</div>
-    <div class=dfndescr>Позиция первого видимого элемента, <code>-1</code> для автоматической подстройки под значение <code>SelectPos</code>.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>FarListPos</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">SelectPos</div>
+    <div class="dfndescr">Позиция текущего элемента.</div>
+  <div class="dfn">TopPos</div>
+    <div class="dfndescr">Позиция первого видимого элемента, <code>-1</code> для автоматической подстройки под значение <code>SelectPos</code>.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Нумерация элементов начинается с 0.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../dialogapi/dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>,
 <a href="../dialogapi/dmsg/dm_listsetcurpos.html">DM_LISTSETCURPOS</a>
 </div>

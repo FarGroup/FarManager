@@ -10,16 +10,16 @@
 <body>
 
 <h1>OpenCommandLineInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>OpenCommandLineInfo</code> используется в функции <a href="../exported_functions/openw.html">OpenW</a> для передачи командной строки, которой был открыт плагин.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct OpenCommandLineInfo
 {
   size_t StructSize;
@@ -28,11 +28,11 @@ struct OpenCommandLineInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>OpenCommandLineInfo</code>.</div>
-  <div class=dfn>CommandLine</div>
-    <div class=dfndescr>Содержит адрес, введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>OpenCommandLineInfo</code>.</div>
+  <div class="dfn">CommandLine</div>
+    <div class="dfndescr">Содержит адрес, введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
     то командный префикс плагина в командную строку не включается. При установленном флаге <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
     плагину передаётся полная строка (с командным префиксом).<br>
     К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь вводит <em>ftp://ftp.abc.com</em>, <code>CommandLine</code> будет указывать на
@@ -40,11 +40,11 @@ struct OpenCommandLineInfo
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 

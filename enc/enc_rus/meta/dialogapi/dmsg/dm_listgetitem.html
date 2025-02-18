@@ -10,35 +10,35 @@
 <body>
 
 <h1>DM_LISTGETITEM</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dm.html">сообщения</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DM_LISTGETITEM</code> посылается Менеджеру диалогов для получения одного элемента из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру типа <a href="../../structures/farlistgetitem.html">FarListGetItem</a>, в которую будет помещён результат.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>TRUE</code> - данные получены.<br>
 <code>FALSE</code> - ошибка при получении данных.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
 <tr><th>Элемент</th><th>Описание</th></tr>
 <tr><td><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
@@ -49,18 +49,18 @@ ID элемента диалога.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Перед получением элемента списка необходимо предварительно заполнить структуру
 <a href="../../structures/farlistgetitem.html">FarListGetItem</a>, указав в качестве <code>FarListGetItem.ItemIndex</code> индекс нужного элемента.
-<pre class=code>
+<pre class="code">
 struct FarListGetItem List={sizeof(FarListGetItem)};
 List.ItemIndex=Index;
 Info.SendDlgMessage(hDlg,DM_LISTGETITEM,ID,&amp;List);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../../structures/farlistgetitem.html">FarListGetItem</a>
 </div>

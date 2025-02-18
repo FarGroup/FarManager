@@ -10,17 +10,17 @@
 <body>
 
 <h1>ViewerControl</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">сервисные функции</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ViewerControl</code> позволяет запрашивать различную информацию о встроенной программе просмотра Far Manager и управлять её состоянием.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI ViewerControl(
   intptr_t ViewerID,
   enum VIEWER_CONTROL_COMMANDS Command,
@@ -30,11 +30,11 @@ intptr_t WINAPI ViewerControl(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>ViewerID</div>
-    <div class=dfndescr>Идентификатор экземпляра вьюера (текущий вьюер: <code>-1</code>). Каждый экземпляр встроенной программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
-  <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="VIEWER_CONTROL_COMMANDS">VIEWER_CONTROL_COMMANDS</a>):
+<div class="descr">
+  <div class="dfn">ViewerID</div>
+    <div class="dfndescr">Идентификатор экземпляра вьюера (текущий вьюер: <code>-1</code>). Каждый экземпляр встроенной программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+  <div class="dfn">Command</div>
+    <div class="dfndescr">Тип команды. Может быть одним из следующих (перечисление <a name="VIEWER_CONTROL_COMMANDS">VIEWER_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr><th>Команда</th><th>Описание</th></tr>
 
@@ -89,22 +89,22 @@ intptr_t WINAPI ViewerControl(
 
     </table>
     </div>
-  <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
-  <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param1</div>
+    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+  <div class="dfn">Param2</div>
+    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>Смотрите описание конкретной команды.
+<div class="descr">Смотрите описание конкретной команды.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr><code>VCTL_QUIT</code> в информационной панели и панели быстрого просмотра не приводит к закрытию программы просмотра.
+<div class="descr"><code>VCTL_QUIT</code> в информационной панели и панели быстрого просмотра не приводит к закрытию программы просмотра.
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Сервисные функции</a>,
 <a href="../structures/viewerinfo.html">ViewerInfo</a>,
 <a href="../structures/viewersetposition.html">ViewerSetPosition</a>,
