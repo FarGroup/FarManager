@@ -49,14 +49,12 @@ TABLE
 }
 TD
 {
-    FONT-SIZE: 80%;
     VERTICAL-ALIGN: top;
     padding-left: 4px;
     padding-right: 4px;
 }
 TH
 {
-    FONT-SIZE: 80%;
     BACKGROUND: #b0b0b0;
     VERTICAL-ALIGN: bottom;
     COLOR: #000000;
@@ -73,7 +71,6 @@ TABLE.cont
 }
 .cont th, .cont td
 {
-    FONT-SIZE: 70%;
     PADDING-LEFT: 8px;
     PADDING-RIGHT: 8px;
     PADDING-TOP: 4px;
@@ -426,7 +423,6 @@ table.cont2 th, table.cont2 td
 {
     border: 2px solid #999999;
     padding: 0.364em 0.727em;
-    font-size: 70%; /* обходим старые правила TD и TH */
 }
 
 table.cont2 th
