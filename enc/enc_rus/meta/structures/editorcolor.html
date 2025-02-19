@@ -53,7 +53,7 @@ struct EditorColor
       и выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</div>
   <div class="dfn">Priority</div>
     <div class="dfndescr">Приоритет наложения цветовых областей.<br>
-      Параметр указывает Far Manager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <code>0</code>, 
+      Параметр указывает Far Manager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <code>0</code>,
       т.к. он обеспечивает "базовую" раскраску. Для ANSI-плагинов значение установлено в <code>EDITOR_COLOR_NORMAL_PRIORITY</code>.</div>
   <div class="dfn">Flags</div>
     <div class="dfndescr">Флаги (тип <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
@@ -71,7 +71,7 @@ struct EditorColor
     <div class="dfndescr">Установленный или устанавливаемый цвет, структура типа <a href="farcolor.html">FarColor</a>.<br>
       Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
       выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.
-      <p>Far Manager раскрашивает символ табуляции на всю длину, на которую расширяется табуляция. Если необходимо, чтобы символ табуляции для 
+      <p>Far Manager раскрашивает символ табуляции на всю длину, на которую расширяется табуляция. Если необходимо, чтобы символ табуляции для
       цветовой области занимал одно знакоместо, то в дополнении к цвету, необходимо выставить флаг <code>ECF_TABMARKFIRST</code> или <code>ECF_TABMARKCURRENT</code>.
     </div>
   <div class="dfn">Owner</div>
