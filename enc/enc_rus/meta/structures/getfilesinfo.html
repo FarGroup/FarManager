@@ -47,7 +47,7 @@ struct GetFilesInfo
     <div class="dfndescr">Если <code>0</code>, файл должен быть скопирован, иначе - перемещён.</div>
   <div class="dfn">DestPath</div>
     <div class="dfndescr">Указатель на путь назначения (куда получим файлы).
-    Если флаг <code>OPM_SILENT</code> параметра <a href="../defs/operation_mode.html"><code>OpMode</code></a> не установлен, вы можете позволить пользователю изменить его, 
+    Если флаг <code>OPM_SILENT</code> параметра <a href="../defs/operation_mode.html"><code>OpMode</code></a> не установлен, вы можете позволить пользователю изменить его,
     но в этом случае <code>DestPath</code> должен указывать на буфер плагина, содержащий новый путь. Буфер должны быть валиден после возвращения из функции <a href="../exported_functions/getfilesw.html">GetFilesW</a>.</div>
   <div class="dfn">OpMode</div>
     <div class="dfndescr">Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfilesw.html">GetFilesW</a> должна быть готова обработать флаги <code>OPM_SILENT</code>, <code>OPM_FIND</code>, <code>OPM_VIEW</code>, <code>OPM_QUICKVIEW</code> и <code>OPM_EDIT</code>.
