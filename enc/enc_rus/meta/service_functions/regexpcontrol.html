@@ -114,7 +114,7 @@ if (Info.RegExpControl(0,RECTL_CREATE,0,&amp;re))
     fprintf(log,"br: %d\n",brackets);
     fclose(log);
 
-    if (!brackets) 
+    if (!brackets)
     {
       Info.RegExpControl(re,RECTL_FREE,0,0);
       return;
