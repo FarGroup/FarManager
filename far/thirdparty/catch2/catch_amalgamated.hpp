@@ -6,8 +6,8 @@
 
 // SPDX-License-Identifier: BSL-1.0
 
-//  Catch v3.7.1
-//  Generated: 2024-09-17 10:36:40.974985
+//  Catch v3.8.0
+//  Generated: 2025-01-06 00:39:54.340018
 //  ----------------------------------------------------------
 //  This file is an amalgamation of multiple different files.
 //  You probably shouldn't edit it directly.
@@ -150,7 +150,7 @@
 #    define CATCH_INTERNAL_SUPPRESS_SHADOW_WARNINGS \
          _Pragma( "GCC diagnostic ignored \"-Wshadow\"" )
 
-#    define CATCH_INTERNAL_IGNORE_BUT_WARN(...) (void)__builtin_constant_p(__VA_ARGS__)
+#    define CATCH_INTERNAL_CONFIG_USE_BUILTIN_CONSTANT_P
 
 #endif
 
@@ -174,34 +174,12 @@
 // clang-cl defines _MSC_VER as well as __clang__, which could cause the
 // start/stop internal suppression macros to be double defined.
 #if defined(__clang__) && !defined(_MSC_VER)
-
+#    define CATCH_INTERNAL_CONFIG_USE_BUILTIN_CONSTANT_P
 #    define CATCH_INTERNAL_START_WARNINGS_SUPPRESSION _Pragma( "clang diagnostic push" )
 #    define CATCH_INTERNAL_STOP_WARNINGS_SUPPRESSION  _Pragma( "clang diagnostic pop" )
-
 #endif // __clang__ && !_MSC_VER
 
 #if defined(__clang__)
-
-// As of this writing, IBM XL's implementation of __builtin_constant_p has a bug
-// which results in calls to destructors being emitted for each temporary,
-// without a matching initialization. In practice, this can result in something
-// like `std::string::~string` being called on an uninitialized value.
-//
-// For example, this code will likely segfault under IBM XL:
-// ```
-// REQUIRE(std::string("12") + "34" == "1234")
-// ```
-//
-// Similarly, NVHPC's implementation of `__builtin_constant_p` has a bug which
-// results in calls to the immediately evaluated lambda expressions to be
-// reported as unevaluated lambdas.
-// https://developer.nvidia.com/nvidia_bug/3321845.
-//
-// Therefore, `CATCH_INTERNAL_IGNORE_BUT_WARN` is not implemented.
-#  if !defined(__ibmxl__) && !defined(__CUDACC__) && !defined( __NVCOMPILER )
-#    define CATCH_INTERNAL_IGNORE_BUT_WARN(...) (void)__builtin_constant_p(__VA_ARGS__) /* NOLINT(cppcoreguidelines-pro-type-vararg, hicpp-vararg) */
-#  endif
-
 
 #    define CATCH_INTERNAL_SUPPRESS_GLOBALS_WARNINGS \
          _Pragma( "clang diagnostic ignored \"-Wexit-time-destructors\"" ) \
@@ -226,6 +204,27 @@
         _Pragma( "clang diagnostic ignored \"-Wshadow\"" )
 
 #endif // __clang__
+
+// As of this writing, IBM XL's implementation of __builtin_constant_p has a bug
+// which results in calls to destructors being emitted for each temporary,
+// without a matching initialization. In practice, this can result in something
+// like `std::string::~string` being called on an uninitialized value.
+//
+// For example, this code will likely segfault under IBM XL:
+// ```
+// REQUIRE(std::string("12") + "34" == "1234")
+// ```
+//
+// Similarly, NVHPC's implementation of `__builtin_constant_p` has a bug which
+// results in calls to the immediately evaluated lambda expressions to be
+// reported as unevaluated lambdas.
+// https://developer.nvidia.com/nvidia_bug/3321845.
+//
+// Therefore, `CATCH_INTERNAL_IGNORE_BUT_WARN` is not implemented.
+#if defined( __ibmxl__ ) || defined( __CUDACC__ ) || defined( __NVCOMPILER )
+#    define CATCH_INTERNAL_CONFIG_NO_USE_BUILTIN_CONSTANT_P
+#endif
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -450,6 +449,22 @@
 #endif
 
 
+// The goal of this macro is to avoid evaluation of the arguments, but
+// still have the compiler warn on problems inside...
+#if defined( CATCH_INTERNAL_CONFIG_USE_BUILTIN_CONSTANT_P ) && \
+    !defined( CATCH_INTERNAL_CONFIG_NO_USE_BUILTIN_CONSTANT_P ) && !defined(CATCH_CONFIG_USE_BUILTIN_CONSTANT_P)
+#define CATCH_CONFIG_USE_BUILTIN_CONSTANT_P
+#endif
+
+#if defined( CATCH_CONFIG_USE_BUILTIN_CONSTANT_P ) && \
+    !defined( CATCH_CONFIG_NO_USE_BUILTIN_CONSTANT_P )
+#    define CATCH_INTERNAL_IGNORE_BUT_WARN( ... )                                              \
+        (void)__builtin_constant_p( __VA_ARGS__ ) /* NOLINT(cppcoreguidelines-pro-type-vararg, \
+                                                     hicpp-vararg) */
+#else
+#    define CATCH_INTERNAL_IGNORE_BUT_WARN( ... )
+#endif
+
 // Even if we do not think the compiler has that warning, we still have
 // to provide a macro that can be used by the code.
 #if !defined(CATCH_INTERNAL_START_WARNINGS_SUPPRESSION)
@@ -484,13 +499,6 @@
 #endif
 #if !defined( CATCH_INTERNAL_SUPPRESS_SHADOW_WARNINGS )
 #    define CATCH_INTERNAL_SUPPRESS_SHADOW_WARNINGS
-#endif
-
-
-// The goal of this macro is to avoid evaluation of the arguments, but
-// still have the compiler warn on problems inside...
-#if !defined(CATCH_INTERNAL_IGNORE_BUT_WARN)
-#   define CATCH_INTERNAL_IGNORE_BUT_WARN(...)
 #endif
 
 #if defined(__APPLE__) && defined(__apple_build_version__) && (__clang_major__ < 10)
@@ -3050,7 +3058,11 @@ struct ratio_string<std::milli> {
 
 #ifdef _MSC_VER
             std::tm timeInfo = {};
-            gmtime_s(&timeInfo, &converted);
+            const auto err = gmtime_s(&timeInfo, &converted);
+            if ( err ) {
+                return "gmtime from provided timepoint has failed. This "
+                       "happens e.g. with pre-1970 dates using Microsoft libc";
+            }
 #else
             std::tm* timeInfo = std::gmtime(&converted);
 #endif
@@ -7329,8 +7341,8 @@ namespace Catch {
 #define CATCH_VERSION_MACROS_HPP_INCLUDED
 
 #define CATCH_VERSION_MAJOR 3
-#define CATCH_VERSION_MINOR 7
-#define CATCH_VERSION_PATCH 1
+#define CATCH_VERSION_MINOR 8
+#define CATCH_VERSION_PATCH 0
 
 #endif // CATCH_VERSION_MACROS_HPP_INCLUDED
 
@@ -8713,7 +8725,7 @@ public:
 
 template <typename InputIterator,
           typename InputSentinel,
-          typename ResultType = typename std::iterator_traits<InputIterator>::value_type>
+          typename ResultType = std::remove_const_t<typename std::iterator_traits<InputIterator>::value_type>>
 GeneratorWrapper<ResultType> from_range(InputIterator from, InputSentinel to) {
     return GeneratorWrapper<ResultType>(Catch::Detail::make_unique<IteratorGenerator<ResultType>>(from, to));
 }
@@ -12691,55 +12703,64 @@ namespace Catch {
          * Creates a matcher that checks if all elements in a range are equal
          * to all elements in another range.
          *
-         * Uses `std::equal_to` to do the comparison
+         * Uses the provided predicate `predicate` to do the comparisons
+         * (defaulting to `std::equal_to`)
          */
-        template <typename RangeLike>
-        constexpr
-        std::enable_if_t<!Detail::is_matcher<RangeLike>::value,
-                         RangeEqualsMatcher<RangeLike, std::equal_to<>>>
-        RangeEquals( RangeLike&& range ) {
-            return { CATCH_FORWARD( range ), std::equal_to<>{} };
-        }
-
-        /**
-         * Creates a matcher that checks if all elements in a range are equal
-         * to all elements in another range.
-         *
-         * Uses to provided predicate `predicate` to do the comparisons
-         */
-        template <typename RangeLike, typename Equality>
+        template <typename RangeLike,
+                  typename Equality = decltype( std::equal_to<>{} )>
         constexpr
         RangeEqualsMatcher<RangeLike, Equality>
-        RangeEquals( RangeLike&& range, Equality&& predicate ) {
+        RangeEquals( RangeLike&& range,
+                     Equality&& predicate = std::equal_to<>{} ) {
             return { CATCH_FORWARD( range ), CATCH_FORWARD( predicate ) };
         }
 
         /**
          * Creates a matcher that checks if all elements in a range are equal
-         * to all elements in another range, in some permutation
+         * to all elements in an initializer list.
          *
-         * Uses `std::equal_to` to do the comparison
+         * Uses the provided predicate `predicate` to do the comparisons
+         * (defaulting to `std::equal_to`)
          */
-        template <typename RangeLike>
+        template <typename T,
+                  typename Equality = decltype( std::equal_to<>{} )>
         constexpr
-        std::enable_if_t<
-            !Detail::is_matcher<RangeLike>::value,
-            UnorderedRangeEqualsMatcher<RangeLike, std::equal_to<>>>
-        UnorderedRangeEquals( RangeLike&& range ) {
-            return { CATCH_FORWARD( range ), std::equal_to<>{} };
+        RangeEqualsMatcher<std::initializer_list<T>, Equality>
+        RangeEquals( std::initializer_list<T> range,
+                     Equality&& predicate = std::equal_to<>{} ) {
+            return { range, CATCH_FORWARD( predicate ) };
         }
 
         /**
          * Creates a matcher that checks if all elements in a range are equal
          * to all elements in another range, in some permutation.
          *
-         * Uses to provided predicate `predicate` to do the comparisons
+         * Uses the provided predicate `predicate` to do the comparisons
+         * (defaulting to `std::equal_to`)
          */
-        template <typename RangeLike, typename Equality>
+        template <typename RangeLike,
+                  typename Equality = decltype( std::equal_to<>{} )>
         constexpr
         UnorderedRangeEqualsMatcher<RangeLike, Equality>
-        UnorderedRangeEquals( RangeLike&& range, Equality&& predicate ) {
+        UnorderedRangeEquals( RangeLike&& range,
+                              Equality&& predicate = std::equal_to<>{} ) {
             return { CATCH_FORWARD( range ), CATCH_FORWARD( predicate ) };
+        }
+
+        /**
+         * Creates a matcher that checks if all elements in a range are equal
+         * to all elements in an initializer list, in some permutation.
+         *
+         * Uses the provided predicate `predicate` to do the comparisons
+         * (defaulting to `std::equal_to`)
+         */
+        template <typename T,
+                  typename Equality = decltype( std::equal_to<>{} )>
+        constexpr
+        UnorderedRangeEqualsMatcher<std::initializer_list<T>, Equality>
+        UnorderedRangeEquals( std::initializer_list<T> range,
+                              Equality&& predicate = std::equal_to<>{} ) {
+            return { range, CATCH_FORWARD( predicate ) };
         }
     } // namespace Matchers
 } // namespace Catch
