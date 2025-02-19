@@ -261,7 +261,7 @@ namespace detail {
 using utc_clock = std::chrono::utc_clock;
 #else
 struct utc_clock {
-  void to_sys();
+  template <typename T> void to_sys(T);
 };
 #endif
 
@@ -364,7 +364,7 @@ void write_codecvt(codecvt_result<CodeUnit>& out, string_view in,
 template <typename OutputIt>
 auto write_encoded_tm_str(OutputIt out, string_view in, const std::locale& loc)
     -> OutputIt {
-  if (detail::use_utf8 && loc != get_classic_locale()) {
+  if (const_check(detail::use_utf8) && loc != get_classic_locale()) {
     // char16_t and char32_t codecvts are broken in MSVC (linkage errors) and
     // gcc-4.
 #if FMT_MSC_VERSION != 0 ||  \
@@ -444,7 +444,7 @@ struct is_same_arithmetic_type
                                          std::is_floating_point<Rep2>::value)> {
 };
 
-inline void throw_duration_error() {
+FMT_NORETURN inline void throw_duration_error() {
   FMT_THROW(format_error("cannot format duration"));
 }
 
@@ -1071,7 +1071,7 @@ void write_fractional_seconds(OutputIt& out, Duration d, int precision = -1) {
     }
   } else if (precision > 0) {
     *out++ = '.';
-    leading_zeroes = (std::min)(leading_zeroes, precision);
+    leading_zeroes = min_of(leading_zeroes, precision);
     int remaining = precision - leading_zeroes;
     out = detail::fill_n(out, leading_zeroes, '0');
     if (remaining < num_digits) {
