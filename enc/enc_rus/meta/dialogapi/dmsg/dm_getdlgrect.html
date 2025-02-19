@@ -41,15 +41,15 @@
 case DN_INPUT:
 {
   const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
-  if (record->EventType==MOUSE_EVENT)
+  if (record-&gt;EventType==MOUSE_EVENT)
     // отработаем щелчок мыши в LISTе диалога
-    if (Param1==ID && record->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED && record->Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK)
+    if (Param1==ID &amp;&amp; record-&gt;Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED &amp;&amp; record-&gt;Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK)
     {
       SMALL_RECT dlgRect;
-      Info.SendDlgMessage(hDlg, DM_GETDLGRECT, ID, &dlgRect);
+      Info.SendDlgMessage(hDlg, DM_GETDLGRECT, ID, &amp;dlgRect);
       // щелкнули в LISTе
-      if (record->Event.MouseEvent.dwMousePosition.X > dlgRect.Left && record->Event.MouseEvent.dwMousePosition.X < dlgRect.Right
-          && record->Event.MouseEvent.dwMousePosition.Y > dlgRect.Top && record->Event.MouseEvent.dwMousePosition.Y < dlgRect.Bottom)
+      if (record-&gt;Event.MouseEvent.dwMousePosition.X &gt; dlgRect.Left &amp;&amp; record-&gt;Event.MouseEvent.dwMousePosition.X &lt; dlgRect.Right
+          &amp;&amp; record-&gt;Event.MouseEvent.dwMousePosition.Y &gt; dlgRect.Top &amp;&amp; record-&gt;Event.MouseEvent.dwMousePosition.Y &lt; dlgRect.Bottom)
       {
        // что-то делаем
       }

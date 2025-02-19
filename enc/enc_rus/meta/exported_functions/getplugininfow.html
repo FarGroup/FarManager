@@ -64,10 +64,10 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
   Info-&gt;StructSize=sizeof(struct PluginInfo);
   Info-&gt;Flags=PF_EDITOR|PF_DISABLEPANELS;
-  Info-&gt;PluginMenu.Guids=&MenuGuid;
+  Info-&gt;PluginMenu.Guids=&amp;MenuGuid;
   Info-&gt;PluginMenu.Strings=PluginMenuStrings;
   Info-&gt;PluginMenu.Count=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
-  Info-&gt;PluginConfig.Guids=&MenuGuid;
+  Info-&gt;PluginConfig.Guids=&amp;MenuGuid;
   Info-&gt;PluginConfig.Strings=PluginMenuStrings;
   Info-&gt;PluginConfig.Count=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
 }

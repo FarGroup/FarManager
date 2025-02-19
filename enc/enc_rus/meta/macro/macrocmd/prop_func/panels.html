@@ -433,7 +433,7 @@
       <pre class="codesample"><code>%d=Panel.Item(0,0,16);
 %i=1;
 $while (%i&lt;=<a href="#APanel.ItemCount">APanel.ItemCount</a>)
-  $If (panel.item(0,%i,16) > %d)
+  $If (panel.item(0,%i,16) &gt; %d)
     <a href="#panel.select">panel.select</a>(0,1,1,%i)
   $End
   %i=%i+1;
