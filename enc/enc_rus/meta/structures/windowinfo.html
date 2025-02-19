@@ -119,12 +119,12 @@ void GetFarWindowInfo()
 
     // запросили информацию
     Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
-    
+
     // распечатали её
     fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
                I,WInfo.Type,WInfo.TypeName,WInfo.Name,
                WInfo.Current,WInfo.Modified);
-    
+
     free(WInfo.TypeName);
     free(WInfo.Name);
 
