@@ -30,7 +30,7 @@ intptr_t WINAPI CompareW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/compareinfo.html">CompareInfo</a> -  информация, переданная Far Manager'ом плагину, для сортировки элементов.<br>
-    В начале функции проверьте, что поле <code>CompareInfo.StructSize >= sizeof(CompareInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>CompareInfo.StructSize &gt;= sizeof(CompareInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -50,7 +50,7 @@ intptr_t WINAPI CompareW(
 <pre class="code">
 intptr_t WINAPI CompareW(const struct CompareInfo *Info)
 {
-  return ((Plist *)Info->hPanel)->Compare(Info->Item1, Info->Item2, Info->Mode);
+  return ((Plist *)Info-&gt;hPanel)-&gt;Compare(Info-&gt;Item1, Info-&gt;Item2, Info-&gt;Mode);
 }
 </pre>
 </div>

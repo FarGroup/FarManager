@@ -112,7 +112,7 @@ if (Load || Unload)
     Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,PlugPath);
   else
   {
-    HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,PlugPath));
+    HANDLE hPlugin = reinterpret_cast&lt;HANDLE&gt;(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,PlugPath));
     if(hPlugin)
       Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
   }

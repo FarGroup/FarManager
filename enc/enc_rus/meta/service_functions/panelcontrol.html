@@ -114,18 +114,18 @@ intptr_t WINAPI PanelControl(
     <code>sizeof(PluginPanelItem)</code> то можно за один вызов и без динамического выделения памяти получить все поля, не являющиеся указателями.</p>
     <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM"> Внимание! Tак делать нельзя:<br></p><br>
     <pre class="code">PluginPanelItem PPI;
-Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);</pre>
+Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&amp;PPI);</pre>
     <p>Пример корректного использования:
     <pre class="code">
-for(int J=0; J < PInfo.ItemsNumber; J++)
+for(int J=0; J &lt; PInfo.ItemsNumber; J++)
 {
   size_t Size=Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,0);
   PluginPanelItem *PPI=(PluginPanelItem*)malloc(Size);
   if (PPI)
   {
     FarGetPluginPanelItem FGPPI={sizeof(FarGetPluginPanelItem),Size,PPI};
-    Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&FGPPI);
-    lstrcpy(CurFile[J],PPI->FileName);
+    Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&amp;FGPPI);
+    lstrcpy(CurFile[J],PPI-&gt;FileName);
     free(PPI);
   }
 }</pre>
@@ -170,7 +170,7 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет <code>TRUE</code>.
     <p>Например, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
     <pre class="code">FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
-Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
+Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&amp;dirInfo);
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     </td></tr>
 
@@ -200,7 +200,7 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
 Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
 
 // выделяем
-for(int i=0; i < PInfo.ItemsNumber; i++)
+for(int i=0; i &lt; PInfo.ItemsNumber; i++)
 {
   Info.PanelControl(PANEL_ACTIVE,FCTL_SETSELECTION,i,(void*)TRUE);
 }

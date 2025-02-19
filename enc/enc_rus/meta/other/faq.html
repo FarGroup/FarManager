@@ -20,7 +20,7 @@
 <ol>
   <li><a href="#cursor1">Как мне спрятать курсор?</a>
   <li><a href="#cursor2">А как перевести в нужную позицию?</a>
-  <li><a href="#editor1">Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</a>
+  <li><a href="#editor1">Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info-&gt;Flags=?????;</a>
   <li><a href="#start">Возможно динамическое отключение/подключение плагина не перезапуская FAR?</a>
   <li><a href="#editor2">Plug-in`ы в редакторе срабатывают только при активизации? А можно ли сварганить такой, чтобы в фоновом режиме работал?</a>
   <li><a href="#many1">А можно в одном DLL-модуле держать несколько плагинов...</a>
@@ -75,7 +75,7 @@
   <br><span class="faqa">A:</span> Там же: <a class="msdocs">SetConsoleCursorPosition</a>
   <br><br></li>
 
-  <li><span class="faqq">Q:</span> <a name="editor1"><span class="faqqb">Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</span></a>
+  <li><span class="faqq">Q:</span> <a name="editor1"><span class="faqqb">Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info-&gt;Flags=?????;</span></a>
   <br><span class="faqa">A:</span> <a href="../structures/plugininfo.html#PF_EDITOR">PF_EDITOR</a>
   <br><br></li>
 
@@ -392,7 +392,7 @@ Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
   <li><span class="faqq">Q:</span> <a name="dialog8"><span class="faqqb">А если я мышкой - оно придёт или ещё ловить DN_MOUSECLICK?</span></a>
   <br><span class="faqa">A:</span> На твоё усмотрение :-) Сначала мышиное сообщение придёт (проигнорируй его), а за ним и DN_BTNCLICK не задержится...<br><br>
   <li><span class="faqq">Q:</span> <a name="dialog9"><span class="faqqb">И DefaultButton самому обрабатывать?</span></a>
-  <br><span class="faqa">A:</span> Нет. Для DefaultButton получится следующая цепочка событий: [<a href="../dialogapi/dmsg/dn_controlinput.html">DN_CONTROLINPUT</a> -> ] <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> -> <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
+  <br><span class="faqa">A:</span> Нет. Для DefaultButton получится следующая цепочка событий: [<a href="../dialogapi/dmsg/dn_controlinput.html">DN_CONTROLINPUT</a> -&gt; ] <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> -&gt; <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
   <li><span class="faqq">Q:</span> <a name="dialog10"><span class="faqqb">Каким-то образом у меня получилось, что SEPARATOR, что бы я не делал не желал доходить до правого конца рамки, когда сделал с нуля - исправилось.</span></a>
   <br><span class="faqa">A:</span> См. замечания для флага <a href="../dialogapi/flags/dif_separator.html">DIF_SEPARATOR</a><br><br>
 

@@ -68,8 +68,8 @@ if (!newbm)
   return FALSE;
 
 // только теперь запрашиваем закладки
-newbm->StructSize = sizeof(EditorBookmarks);
-newbm->Size = size;
+newbm-&gt;StructSize = sizeof(EditorBookmarks);
+newbm-&gt;Size = size;
 if (!Info.EditorControl(-1,ECTL_GETBOOKMARKS,0,newbm))
 {
   free(newbm);

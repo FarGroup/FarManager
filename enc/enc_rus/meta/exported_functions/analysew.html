@@ -32,7 +32,7 @@ HANDLE WINAPI AnalyseW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/analyseinfo.html">AnalyseInfo</a> -  информация, переданная Far Manager'ом, для анализа плагином содержимого файла.<br>
-    В начале функции проверьте, что поле <code>AnalyseInfo.StructSize >= sizeof(AnalyseInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>AnalyseInfo.StructSize &gt;= sizeof(AnalyseInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -58,10 +58,10 @@ HANDLE WINAPI AnalyseW(
 <pre class="code">
 HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 {
-  if (Info->FileName == nullptr || !Info->BufferSize)
+  if (Info-&gt;FileName == nullptr || !Info-&gt;BufferSize)
     return nullptr;
 
-  if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
+  if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info-&gt;FileName, lstrlen(Info-&gt;FileName),PN_CMPNAMELIST))
     return nullptr;
 
   return HANDLE(1); // будем эмулировать панель на базе переданного Far Manager'ом файла

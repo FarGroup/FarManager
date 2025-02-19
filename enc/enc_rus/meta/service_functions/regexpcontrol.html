@@ -104,7 +104,7 @@ intptr_t WINAPI RegExpControl(
 <h3>Пример</h3>
 <pre class="code">
 HANDLE re;
-if (Info.RegExpControl(0,RECTL_CREATE,0,&re))
+if (Info.RegExpControl(0,RECTL_CREATE,0,&amp;re))
 {
   if (Info.RegExpControl(re,RECTL_COMPILE,0,(void*)L"/[0-9]+/"))
   {
@@ -131,7 +131,7 @@ if (Info.RegExpControl(0,RECTL_CREATE,0,&re))
       0
     };
 
-    if (Info.RegExpControl(re,RECTL_SEARCHEX,0,&search))
+    if (Info.RegExpControl(re,RECTL_SEARCHEX,0,&amp;search))
     {
       FILE *log=fopen("c:\\plugins.log","at");
       fprintf(log,"found: %d %d\n",match[0].start,match[0].end);

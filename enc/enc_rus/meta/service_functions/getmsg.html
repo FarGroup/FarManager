@@ -61,7 +61,7 @@ DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0x
 
 const wchar_t *GetMsg(intptr_t MsgId)
 {
-  return(Info.GetMsg(&MainGuid,MsgId));
+  return(Info.GetMsg(&amp;MainGuid,MsgId));
 }
 </pre>
 
