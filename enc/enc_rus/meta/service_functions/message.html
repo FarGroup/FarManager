@@ -105,7 +105,7 @@ intptr_t WINAPI Message(
 <table border=0><tr>
 <td>
 <pre class="code">
-  Info.Message(&MainGUID,&MsgGUID,
+  Info.Message(&amp;MainGUID,&amp;MsgGUID,
   FMSG_ALLINONE|FMSG_MB_OKCANCEL,
   L"HelpTopic",
   <b>(const wchar_t * const *)</b>L"Title\nItem1\nItem2\nItem3",
@@ -113,7 +113,7 @@ intptr_t WINAPI Message(
 или
 <pre class="code">
 const wchar_t *Msg=L"Title\nItem1\nItem2\nItem3\nOk\nCancel";
-Info.Message(&MainGUID,&MsgGUID,
+Info.Message(&amp;MainGUID,&amp;MsgGUID,
   FMSG_ALLINONE,
   L"HelpTopic",
   <b>(const wchar_t * const *)</b>Msg,
@@ -139,7 +139,7 @@ BOOL IsDeleted(wchar_t *filename)
   Msg[3]=GetMsg(MDelete);      // последние ButtonsNumber (2) строк - кнопки
   Msg[4]=GetMsg(MCancel);
 
-  return Info.Message(&MainGUID,&MsgGUID,
+  return Info.Message(&amp;MainGUID,&amp;MsgGUID,
                0,
                L"DeleteFile",
                Msg,

@@ -30,7 +30,7 @@ void WINAPI SetStartupInfoW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a>.
-    В начале функции проверьте, что поле <code>PluginStartupInfo.StructSize >= sizeof(PluginStartupInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>PluginStartupInfo.StructSize &gt;= sizeof(PluginStartupInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -47,7 +47,7 @@ void WINAPI SetStartupInfoW(
 ...
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
-  if (Info->StructSize >= sizeof(PluginStartupInfo))
+  if (Info-&gt;StructSize &gt;= sizeof(PluginStartupInfo))
     ::Info=*Info;
   ...
 }
@@ -59,7 +59,7 @@ static struct FarStandardFunctions FSF;
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
-  if (Info->StructSize >= sizeof(PluginStartupInfo))
+  if (Info-&gt;StructSize &gt;= sizeof(PluginStartupInfo))
   {
     ::Info=*Info;
      FSF=*Info-&gt;FSF;

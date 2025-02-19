@@ -30,13 +30,13 @@ intptr_t WINAPI ProcessEditorInputW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/processeditorinputinfo.html">ProcessEditorInputInfo</a>. Эта структура содержит информацию о последнем событии от клавиатуры или мыши.<br>
-    В начале функции проверьте, что поле <code>ProcessEditorInputInfo.StructSize >= sizeof(ProcessEditorInputInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ProcessEditorInputInfo.StructSize &gt;= sizeof(ProcessEditorInputInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class="descr">
 <ul>
-<li>Если плагин должен передать управление в редактор Far Manager`а, то верните <code>0</code>.
+<li>Если плагин должен передать управление в редактор Far Manager'а, то верните <code>0</code>.
 <li>Если плагин в полной мере отработал событие или вы хотите, чтобы Far Manager игнорировал это событие, то верните <code>1</code>.
 </ul>
 </div>
@@ -44,9 +44,9 @@ intptr_t WINAPI ProcessEditorInputW(
 <h3>Замечания</h3>
 <div class="descr">
 <ol>
-<li>Плагин должен корректно обрабатывать входные события путём анализа поля <code>Info->INPUT_RECORD.EventType</code>
+<li>Плагин должен корректно обрабатывать входные события путём анализа поля <code>Info-&gt;INPUT_RECORD.EventType</code>
     и, в случае если плагин данное событие не обрабатывает, вернуть управление в Far Manager.
-<li>Во время "проигрывания" макроса клавиатурные события (<code>KEY_EVENT</code>) имеют "новый" тип - поле <code>Info->INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.
+<li>Во время "проигрывания" макроса клавиатурные события (<code>KEY_EVENT</code>) имеют "новый" тип - поле <code>Info-&gt;INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.
 <li>Плагин может вызвать команду <a href="../service_functions/editorcontrol.html">EditorControl</a>
     из этой функции, но будьте осторожны, когда вызываете здесь <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>,
     потому что эта команда вызывает функцию <code>ProcessEditorInputW</code> снова. Таким образом, плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.

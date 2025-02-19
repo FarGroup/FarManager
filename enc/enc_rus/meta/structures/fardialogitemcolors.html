@@ -56,12 +56,12 @@ case DN_CTLCOLORDLGITEM:
   {
     FarColor Color;
     struct FarDialogItemColors *Colors=(FarDialogItemColors*)Param2;
-    if(DlgParams->ShowingIn==VIEWER)
+    if(DlgParams-&gt;ShowingIn==VIEWER)
     {
-      Info.AdvControl(&MainGuid,ACTL_GETCOLOR,COL_VIEWERSTATUS,&Color);
-      Colors->Colors[0] = Colors->Colors[2] = Colors->Colors[3] = Color;
-      Info.AdvControl(&MainGuid,ACTL_GETCOLOR,COL_VIEWERTEXT,&Color);
-      Colors->Colors[1] = Color;
+      Info.AdvControl(&amp;MainGuid,ACTL_GETCOLOR,COL_VIEWERSTATUS,&amp;Color);
+      Colors-&gt;Colors[0] = Colors-&gt;Colors[2] = Colors-&gt;Colors[3] = Color;
+      Info.AdvControl(&amp;MainGuid,ACTL_GETCOLOR,COL_VIEWERTEXT,&amp;Color);
+      Colors-&gt;Colors[1] = Color;
     }
   }
   break;

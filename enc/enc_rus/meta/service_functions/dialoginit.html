@@ -103,7 +103,7 @@ DEFINE_GUID(MainGuid, 0xb66c436d, 0xe657, 0x419c, 0x86, 0xd3, 0x68, 0x34, 0xb9, 
 // {F6BFA9FC-B2B9-4354-AE47-8FECF59FE65F}
 DEFINE_GUID(DialogGuid, 0xf6bfa9fc, 0xb2b9, 0x4354, 0xae, 0x47, 0x8f, 0xec, 0xf5, 0x9f, 0xe6, 0x5f);
 
-HANDLE hDlg = Info.DialogInit(&MainGuid,&DialogGuid, -1,-1,76,10, L"TempCfg",DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]), 0,0,DlgProc,0);
+HANDLE hDlg = Info.DialogInit(&amp;MainGuid,&amp;DialogGuid, -1,-1,76,10, L"TempCfg",DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]), 0,0,DlgProc,0);
 if (hDlg != INVALID_HANDLE_VALUE)
 {
   int ExitCode=Info.DialogRun(hDlg);

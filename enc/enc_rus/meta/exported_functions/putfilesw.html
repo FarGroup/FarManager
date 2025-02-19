@@ -31,7 +31,7 @@ intptr_t WINAPI PutFilesW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на заполненную структуру <a href="../structures/putfilesinfo.html">PutFilesInfo</a>, содержит перемещаемые элементы.<br>
-    В начале функции проверьте, что поле <code>PutFilesInfo.StructSize >= sizeof(PutFilesInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>PutFilesInfo.StructSize &gt;= sizeof(PutFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -58,8 +58,8 @@ intptr_t WINAPI PutFilesW(
 <pre class="code">
 intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 {
-  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-  return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
+  TmpPanel *Panel=(TmpPanel *)Info-&gt;hPanel;
+  return Panel-&gt;PutFiles(Info-&gt;PanelItem,Info-&gt;ItemsNumber,Info-&gt;Move,Info-&gt;SrcPath,Info-&gt;OpMode);
 }
 </pre>
 </div>

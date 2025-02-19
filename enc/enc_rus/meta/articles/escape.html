@@ -39,7 +39,7 @@
 дела) или сознательно, но резко передумал. Как ему быть в данной ситуации?
 FAR убивать? А плагин думает, работает, а пользователь волосы на себе рвёт
 и проклинает Вас. Выход прост - плагин должен реагировать (<em>интерактивность!</em>)
-на нажатие клавиши <a name="ESC">&laquo;ESC&raquo;</a> (<em>Escape - бегство</em>,
+на нажатие клавиши <a name="ESC">«ESC»</a> (<em>Escape - бегство</em>,
 бурж.). Для этого можно использовать, например, следующую функцию (за основу взята функция из файла <em>Examples\MultiArc\ARCMIX.CPP</em>):</p>
 
 <pre class="code">bool CheckForEsc(void)
@@ -50,11 +50,11 @@ FAR убивать? А плагин думает, работает, а поль�
  DWORD ReadCount;
  while (1)
  {
-  PeekConsoleInput(hConInp,&rec,1,&ReadCount);
+  PeekConsoleInput(hConInp,&amp;rec,1,&amp;ReadCount);
   if (ReadCount==0) break;
-  ReadConsoleInput(hConInp,&rec,1,&ReadCount);
+  ReadConsoleInput(hConInp,&amp;rec,1,&amp;ReadCount);
   if (rec.EventType==KEY_EVENT)
-     if (rec.Event.KeyEvent.wVirtualKeyCode==VK_ESCAPE &&
+     if (rec.Event.KeyEvent.wVirtualKeyCode==VK_ESCAPE &amp;&amp;
          rec.Event.KeyEvent.bKeyDown) EC=true;
  }
  return(EC);

@@ -104,7 +104,7 @@ intptr_t WINAPI FileFilterControl(
 HANDLE AFilter = INVALID_HANDLE_VALUE;
 
 // создаём фильтр для области "активная панель"
-Info.FileFilterControl(PANEL_ACTIVE,FFCTL_CREATEFILEFILTER,FFT_PANEL,&AFilter);
+Info.FileFilterControl(PANEL_ACTIVE,FFCTL_CREATEFILEFILTER,FFT_PANEL,&amp;AFilter);
 
 // обновляем параметр "текущее время"
 Info.FileFilterControl(AFilter,FFCTL_STARTINGTOFILTER,0,0);
@@ -112,10 +112,10 @@ Info.FileFilterControl(AFilter,FFCTL_STARTINGTOFILTER,0,0);
 if (AFilter != INVALID_HANDLE_VALUE)
 {
   // производим манипуляции с элементами панели
-  for (int i=0; i < pInfo->ItemsNumber; i++)
+  for (int i=0; i &lt; pInfo-&gt;ItemsNumber; i++)
   {
     //...применяем фильтр, например, так
-    if (Info.FileFilterControl(AFilter,FFCTL_ISFILEINFILTER,0,(void*)&pInfo->PanelItems[i]))
+    if (Info.FileFilterControl(AFilter,FFCTL_ISFILEINFILTER,0,(void*)&amp;pInfo-&gt;PanelItems[i]))
     {
       // элемент попал под условия фильтра
       // обработаем элемент...

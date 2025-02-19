@@ -30,7 +30,7 @@ intptr_t WINAPI SetDirectoryW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.<br>
-    В начале функции проверьте, что поле <code>SetDirectoryInfo.StructSize >= sizeof(SetDirectoryInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>SetDirectoryInfo.StructSize &gt;= sizeof(SetDirectoryInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -54,8 +54,8 @@ intptr_t WINAPI SetDirectoryW(
 <pre class="code">
 intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
-  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-  return Panel->SetDirectory(Info->Dir,Info->OpMode);
+  TmpPanel *Panel=(TmpPanel *)Info-&gt;hPanel;
+  return Panel-&gt;SetDirectory(Info-&gt;Dir,Info-&gt;OpMode);
 }
 </pre>
 </div>

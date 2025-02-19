@@ -30,7 +30,7 @@ intptr_t WINAPI SetFindListW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/setfindlistinfo.html">SetFindListInfo</a>, Far Manager передает плагину найденные объекты.<br>
-    В начале функции проверьте, что поле <code>SetFindListInfo.StructSize >= sizeof(SetFindListInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>SetFindListInfo.StructSize &gt;= sizeof(SetFindListInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -52,8 +52,8 @@ intptr_t WINAPI SetFindListW(
 <pre class="code">
 intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info)
 {
-  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-  return Panel->SetFindList(Info->PanelItem,Info->ItemsNumber);
+  TmpPanel *Panel=(TmpPanel *)Info-&gt;hPanel;
+  return Panel-&gt;SetFindList(Info-&gt;PanelItem,Info-&gt;ItemsNumber);
 }
 </pre>
 </div>

@@ -59,7 +59,7 @@ DialogItem.Item = (FarDialogItem *)malloc(DialogItem.Size=Info.SendDlgMessage(hD
 if (DialogItem.Item)
 {
   // получаем элемент
-  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,&DialogItem);
+  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,&amp;DialogItem);
 
   // что-то делаем
 

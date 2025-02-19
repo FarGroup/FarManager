@@ -29,7 +29,7 @@ intptr_t WINAPI ProcessPanelEventW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/processpaneleventinfo.html">ProcessPanelEventInfo</a>, Far Manager передает информацию о событии.<br>
-    В начале функции проверьте, что поле <code>ProcessPanelEventInfo.StructSize >= sizeof(ProcessPanelEventInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ProcessPanelEventInfo.StructSize &gt;= sizeof(ProcessPanelEventInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -44,7 +44,7 @@ intptr_t WINAPI ProcessPanelEventW(
 <pre class="code">
 intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
-  return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
+  return ((Plist *)Info-&gt;hPanel)-&gt;ProcessEvent(Info-&gt;Event,Info-&gt;Param);
 }
 </pre>
 </div>

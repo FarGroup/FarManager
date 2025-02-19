@@ -72,9 +72,9 @@ ID элемента (обычно элемент, имеющий фокус вв
 // вызвать контекстную справку
 case DN_CONTROLINPUT:
   const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
-  if (record->EventType==KEY_EVENT && record->Event.KeyEvent.bKeyDown)
+  if (record-&gt;EventType==KEY_EVENT &amp;&amp; record-&gt;Event.KeyEvent.bKeyDown)
   {
-    WORD Key=record->Event.KeyEvent.wVirtualKeyCode;
+    WORD Key=record-&gt;Event.KeyEvent.wVirtualKeyCode;
     if (Key==VK_F1)
     {
       Info.ShowHelp(Info.ModuleName, 0, 0);
