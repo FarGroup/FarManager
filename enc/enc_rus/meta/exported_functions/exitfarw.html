@@ -43,7 +43,7 @@ void WINAPI ExitFARW(
 <pre class="code">
 void WINAPI ExitFARW(const struct ExitInfo *Info)
 {
-  for (int i=0; i < COMMONPANELSNUMBER; ++i)
+  for (int i=0; i &lt; COMMONPANELSNUMBER; ++i)
     FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
 }
 </pre>

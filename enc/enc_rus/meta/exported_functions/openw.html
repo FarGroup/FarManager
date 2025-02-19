@@ -29,7 +29,7 @@ HANDLE WINAPI OpenW(
 <div class="descr">
   <div class="dfn">Info</div>
     <div class="dfndescr">Указатель на структуру <a href="../structures/openinfo.html">OpenInfo</a>, Far Manager передает служебную информацию об открытом плагине.<br>
-    В начале функции проверьте, что поле <code>OpenInfo.StructSize >= sizeof(OpenInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>OpenInfo.StructSize &gt;= sizeof(OpenInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -70,9 +70,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
   Plist* hPlugin = new Plist();
 
-  if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(reinterpret_cast< LPCWSTR >(OInfo->Data))))
+  if (OInfo-&gt;OpenFrom == OPEN_COMMANDLINE &amp;&amp; (NORM_M_PREFIX(reinterpret_cast&lt; LPCWSTR &gt;(OInfo-&gt;Data))))
   {
-    if (!hPlugin->Connect((wchar_t*)OInfo->Data))
+    if (!hPlugin-&gt;Connect((wchar_t*)OInfo-&gt;Data))
     {
       delete hPlugin;
       hPlugin = nullptr;

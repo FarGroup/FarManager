@@ -50,8 +50,8 @@ void WINAPI GetOpenPanelInfoW(
 <pre class="code">
 void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 {
-  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-  Panel->GetOpenPanelInfo(Info);
+  TmpPanel *Panel=(TmpPanel *)Info-&gt;hPanel;
+  Panel-&gt;GetOpenPanelInfo(Info);
 }
 </pre>
 </div>
