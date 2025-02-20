@@ -46,7 +46,7 @@ intptr_t WINAPI PanelControl(
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST"> Внимание!<br><br></p>
-    <UL class="note"><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
+    <ul class="note"><li>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</li></ul></td></tr>
 
     <tr><td><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
     <td>Проверяет, является ли панель активной.<br>
@@ -187,7 +187,7 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION"> Внимание!<br><br></p>
-    <UL class="note"><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <ul class="note"><li> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></li></ul></td></tr>
 
     <tr><td><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
     <td>Установить выделение в панели.<br>
@@ -215,7 +215,7 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
     <code>Param2</code> не используется.<br>
     <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION"> Внимание!<br><br></p>
-    <UL class="note"><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <ul class="note"><li> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></li></ul></td></tr>
 
     <tr><td><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
     <td>Установить режим сортировки для панели.<br>
