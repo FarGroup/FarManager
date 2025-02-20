@@ -30,8 +30,9 @@ intptr_t WINAPI GetFilesW(
 <h3>Параметры</h3>
 <div class="descr">
   <div class="dfn">Info</div>
-    <div class="dfndescr">Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Far Manager передает информацию об элементах, которые он запросил для обработки. Плагин может изменять некоторые значения полей структуры в этой функции.<br>
-    В начале функции проверьте, что поле <code>GetFilesInfo.StructSize &gt;= sizeof(GetFilesInfo)</code>.</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Far Manager передает информацию об элементах, которые он запросил для обработки. Плагин может изменять некоторые значения полей структуры в этой функции.</p>
+    <p>В начале функции проверьте, что поле <code>GetFilesInfo.StructSize &gt;= sizeof(GetFilesInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>

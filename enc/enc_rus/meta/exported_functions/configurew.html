@@ -29,14 +29,15 @@ intptr_t WINAPI ConfigureW(
 <h3>Параметры</h3>
 <div class="descr">
   <div class="dfn">Info</div>
-    <div class="dfndescr">Указатель на структуру <a href="../structures/configureinfo.html">ConfigureInfo</a> -  информация, переданная Far Manager'ом плагину, о выбранном пункте меню.<br>
-    В начале функции проверьте, что поле <code>ConfigureInfo.StructSize &gt;= sizeof(ConfigureInfo)</code>.</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/configureinfo.html">ConfigureInfo</a> -  информация, переданная Far Manager'ом плагину, о выбранном пункте меню.</p>
+    <p>В начале функции проверьте, что поле <code>ConfigureInfo.StructSize &gt;= sizeof(ConfigureInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class="descr">
-Если функция завершается успешно, то возвращается <code>1</code> - в этом случае Far Manager выполняет обновление панелей.<br>
-Если пользователь прервал выполнение диалога конфигурации, то верните <code>0</code>.
+<p>Если функция завершается успешно, то возвращается <code>1</code> - в этом случае Far Manager выполняет обновление панелей.</p>
+<p>Если пользователь прервал выполнение диалога конфигурации, то верните <code>0</code>.</p>
 </div>
 
 <h3>Замечания</h3>
@@ -52,8 +53,8 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
   return Config();
 }
-</div>
 </pre>
+</div>
 
 <div class="see">Смотрите также:</div>
 <div class="seecont">

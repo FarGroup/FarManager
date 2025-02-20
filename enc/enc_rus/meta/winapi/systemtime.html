@@ -60,7 +60,7 @@ typedef struct _SYSTEMTIME {
 
 <h3>Замечания</h3>
 <div class="descr">
-  <p>Не рекомендуется добавлять или вычитать значения из структуры <code>SYSTEMTIME</code>
+  Не рекомендуется добавлять или вычитать значения из структуры <code>SYSTEMTIME</code>
   для получения относительного времени. Вместо этого вы должны<ul>
     <li>Конвертировать структуру в <a href="filetime.html">FILETIME</a>, используя функцию <a class="msdocs">SystemTimeToFileTime</a>.</li>
     <li>Скопировать результирующую структуру <a href="filetime.html">FILETIME</a> в структуру <a class="msdocs">ULARGE_INTEGER</a>.</li>

@@ -21,8 +21,7 @@
 Это возможно в том случае, когда пользователь решил открыть файл другим плагином или вовсе передумал его открывать.
 
 <p class="note"><img src="../../images/note.gif" alt="внимание"> Внимание!</p>
-<ul class="note"><li>Если пользователь выбрал ваш плагин, CloseAnalyseW не будет вызвана. Вы должны удалить данные во время обработки <a href="openw.html">OpenW</a> (OpenInfo.Data, если OpenInfo.OpenFrom == OPEN_ANALYSE).
-
+<ul class="note"><li>Если пользователь выбрал ваш плагин, CloseAnalyseW не будет вызвана. Вы должны удалить данные во время обработки <a href="openw.html">OpenW</a> (OpenInfo.Data, если OpenInfo.OpenFrom == OPEN_ANALYSE).</li></ul>
 </div>
 
 <pre class="syntax">
@@ -34,8 +33,9 @@ void WINAPI CloseAnalyseW(
 <h3>Параметры</h3>
 <div class="descr">
   <div class="dfn">Info</div>
-    <div class="dfndescr">Указатель на структуру <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo</a>, переданная Far Manager'ом плагину информация.<br>
-    В начале функции проверьте, что поле <code>CloseAnalyseInfo.StructSize &gt;= sizeof(CloseAnalyseInfo)</code>.</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo</a>, переданная Far Manager'ом плагину информация.</p>
+    <p>В начале функции проверьте, что поле <code>CloseAnalyseInfo.StructSize &gt;= sizeof(CloseAnalyseInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>

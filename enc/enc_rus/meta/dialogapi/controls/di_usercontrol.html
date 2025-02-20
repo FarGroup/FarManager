@@ -42,14 +42,14 @@ struct FarDialogItem
 <a name="virtbuf"></a>
 <h3>Виртуальный буфер отрисовки</h3>
 <div class="descr">
-<p>Параметр <code>VBuf</code> задаёт адрес виртуального буфера типа <a href="../../structures/far_char_info.html">FAR_CHAR_INFO</a>.
+<p>Параметр <code>VBuf</code> задаёт адрес виртуального буфера типа <a href="../../structures/far_char_info.html">FAR_CHAR_INFO</a>.</p>
 
 <p>Если значение <code>VBuf = NULL</code>, то это значит, что плагин сам должен отрисовывать элемент <code>DI_USERCONTROL</code> после прихода события
-<a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, используя сервисную функцию <a href="../../service_functions/text.html">Text</a>.
+<a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, используя сервисную функцию <a href="../../service_functions/text.html">Text</a>.</p>
 
 <p>Если <code>VBuf != NULL</code>, то Менеджер Диалогов считает, что это адрес буфера типа <a href="../../structures/far_char_info.html">FAR_CHAR_INFO</a>.
 Здесь обработчик диалога, в ответ на событие <a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, должен отрисовать этот элемент в виртуальный буфер, после чего Менеджер
-Диалогов выдаст содержимое <code>VBuf</code> на экран.
+Диалогов выдаст содержимое <code>VBuf</code> на экран.</p>
 </div>
 
 <h3>Флаги</h3>
@@ -81,9 +81,7 @@ struct FarDialogItem
 
 <h3>Замечания</h3>
 <div class="descr">
-<ol>
-<li>Замечания по работе с курсором см. в описании сообщений <a href="../dmsg/dm_getcursorpos.html">DM_GETCURSORPOS</a> или <a href="../dmsg/dm_setcursorpos.html">DM_SETCURSORPOS</a>.
-</ol>
+Замечания по работе с курсором см. в описании сообщений <a href="../dmsg/dm_getcursorpos.html">DM_GETCURSORPOS</a> или <a href="../dmsg/dm_setcursorpos.html">DM_SETCURSORPOS</a>.
 </div>
 
 <div class="see">Смотрите также:</div>

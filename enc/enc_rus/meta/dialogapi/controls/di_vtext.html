@@ -92,6 +92,7 @@ struct FarDialogItem
 
 <h3>Замечания</h3>
 <div class="descr">
+<ul>
 <li>Хотя координата <code>X2</code> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
 значение этого поля. Укажите то же значение координаты, что и <code>X1</code>.
 <li>Если указан флаг <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, то координаты <code>Y1</code> и <code>Y2</code> должны быть обязательно указаны, в противном случае
@@ -104,6 +105,7 @@ struct FarDialogItem
 из размера строки и размера диалога.
 <li>Если в тексте элемента <code>DI_TEXT</code> имеется "горячая клавиша" (HotKey) и не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
 то при нажатии в диалоге <kbd>Alt</kbd>+<kbd>Символ</kbd> клавиатурный фокус ввода перейдёт на следующий элемент, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a>
+</ul>
 </div>
 
 <div class="see">Смотрите также:</div>

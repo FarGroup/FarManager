@@ -29,18 +29,19 @@ intptr_t WINAPI CompareW(
 <h3>Параметры</h3>
 <div class="descr">
   <div class="dfn">Info</div>
-    <div class="dfndescr">Указатель на структуру <a href="../structures/compareinfo.html">CompareInfo</a> -  информация, переданная Far Manager'ом плагину, для сортировки элементов.<br>
-    В начале функции проверьте, что поле <code>CompareInfo.StructSize &gt;= sizeof(CompareInfo)</code>.</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/compareinfo.html">CompareInfo</a> -  информация, переданная Far Manager'ом плагину, для сортировки элементов.</p>
+    <p>В начале функции проверьте, что поле <code>CompareInfo.StructSize &gt;= sizeof(CompareInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class="descr">
 Эта функция возвращает одно из следующих значений:
 <table class="ralign cont2 tiny">
-<tr><td><code>-1</code><td>если <code>CompareInfo.Item1 &lt; CompareInfo.Item2</code>
-<tr><td><code> 0</code><td>если <code>CompareInfo.Item1 == CompareInfo.Item2</code>
-<tr><td><code> 1</code><td>если <code>CompareInfo.Item1 &gt; CompareInfo.Item2</code>
-<tr><td><code>-2</code><td>если используется внутренняя функция <code>Compare</code> для данного метода сортировки.
+<tr><td><code>-1</code></td><td>если <code>CompareInfo.Item1 &lt; CompareInfo.Item2</code></td></tr>
+<tr><td><code> 0</code></td><td>если <code>CompareInfo.Item1 == CompareInfo.Item2</code></td></tr>
+<tr><td><code> 1</code></td><td>если <code>CompareInfo.Item1 &gt; CompareInfo.Item2</code></td></tr>
+<tr><td><code>-2</code></td><td>если используется внутренняя функция <code>Compare</code> для данного метода сортировки.</td></tr>
 </table>
 </div>
 

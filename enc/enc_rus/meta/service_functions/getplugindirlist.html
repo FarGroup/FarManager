@@ -36,14 +36,16 @@ intptr_t WINAPI GetPluginDirList(
   <div class="dfn">hPanel</div>
     <div class="dfndescr">Текущий описатель панели.</div>
   <div class="dfn">Dir</div>
-    <div class="dfndescr">Имя обрабатываемой директории. Должно быть в форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
-    Плагинам обычно не требуется обработка полного пути функцией <code>SetDirectoryW</code>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.
+    <div class="dfndescr">
+    <p>Имя обрабатываемой директории. Должно быть в форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.</p>
+    <p>Плагинам обычно не требуется обработка полного пути функцией <code>SetDirectoryW</code>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.</p>
     <p>Для сохранения текущей директории плагина неизменной после вызова <code>GetPluginDirList</code>, либо <code>Dir</code> должен быть подкаталогом текущего каталога плагина, либо функция <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>
     плагина должна уметь обрабатывать имя каталога, возвращаемое <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
-    Иначе текущая директория будет изменена, и вы должны быть готовы восстановить её.</div>
+    Иначе текущая директория будет изменена, и вы должны быть готовы восстановить её.</p></div>
   <div class="dfn">pPanelItem</div>
-    <div class="dfndescr">Указывает на переменную, которая получит адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.<br>
-    Когда этот массив больше не нужен, он должен быть передан функции <a href="freeplugindirlist.html">FreePluginDirList</a>.</div>
+    <div class="dfndescr">
+    <p>Указывает на переменную, которая получит адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</p>
+    <p>Когда этот массив больше не нужен, он должен быть передан функции <a href="freeplugindirlist.html">FreePluginDirList</a>.</p></div>
   <div class="dfn">pItemsNumber</div>
     <div class="dfndescr">Указывает на переменную, которая получит число структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
 </div>
