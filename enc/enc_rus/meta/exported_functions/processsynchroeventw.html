@@ -28,14 +28,15 @@ intptr_t WINAPI ProcessSynchroEventW(
 <h3>Параметры</h3>
 <div class="descr">
   <div class="dfn">Info</div>
-    <div class="dfndescr">Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии, посланном из созданного плагином потока.<br>
-    В начале функции проверьте, что поле <code>ProcessSynchroEventInfo.StructSize &gt;= sizeof(ProcessSynchroEventInfo)</code>.</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии, посланном из созданного плагином потока.</p>
+    <p>В начале функции проверьте, что поле <code>ProcessSynchroEventInfo.StructSize &gt;= sizeof(ProcessSynchroEventInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class="descr">
-Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
-Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.
+<p>Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.</p>
+<p>Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.</p>
 </div>
 
 <div class="see">Смотрите также:</div>

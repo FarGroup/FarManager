@@ -38,11 +38,13 @@ void WINAPI qsort(
   <div class="dfn">Width</div>
     <div class="dfndescr">Размер одного элемента сортируемых данных.</div>
   <div class="dfn">fcmp</div>
-    <div class="dfndescr">Функция сравнения двух элементов. В процессе сортировки вызывается каждый раз, когда необходимо сравнить пару элементов данных.
-    Функция сравнения <code>fcmp</code> должна иметь декларацию <code>WINAPI</code>.<br>
-    <code>fcmp</code> получает три аргумента - <code>elem1</code>, <code>elem2</code> (которые являются указателями на данные) и <code>userparam</code> (то, что было передано в функцию в качестве параметра <code>UserParam</code>),
-    и возвращает результат:
-    <table border=0>
+    <div class="dfndescr">
+    <p>Функция сравнения двух элементов. В процессе сортировки вызывается каждый раз, когда необходимо сравнить пару элементов данных.</p>
+    <p>Функция сравнения <code>fcmp</code> должна иметь декларацию <code>WINAPI</code>.</p>
+    <p><code>fcmp</code> получает три аргумента - <code>elem1</code>, <code>elem2</code> (которые являются указателями на данные) и
+    <code>userparam</code> (то, что было передано в функцию в качестве параметра <code>UserParam</code>),
+    и возвращает результат:</p>
+    <table>
     <tr><td>*elem1 &lt; *elem2</td><td>- fcmp возвращает целое меньше 0</td></tr>
     <tr><td>*elem1 == *elem2</td><td>- fcmp возвращает 0</td></tr>
     <tr><td>*elem1  &gt; *elem2</td><td>- fcmp возвращает целое больше 0</td></tr>
