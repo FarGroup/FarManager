@@ -367,9 +367,10 @@ namespace os::debug
 		// Empty or the same or failed to demangle
 		// For non-MSVC builds try to demangle it using ABI
 #if !IS_MICROSOFT_SDK()
-		return debug::demangle_abi(SymbolName, Dest);
-#endif
+		return demangle_abi(SymbolName, Dest);
+#else
 		return false;
+#endif
 	}
 
 	string demangle(const char* const SymbolName)
@@ -403,7 +404,7 @@ namespace os::debug
 		// Empty or the same or failed to demangle
 		// For non-MSVC builds try to demangle it using ABI
 #if !IS_MICROSOFT_SDK()
-		debug::demangle_abi(encoding::ansi::get_bytes(SymbolName).c_str(), SymbolName);
+		demangle_abi(encoding::ansi::get_bytes(SymbolName).c_str(), SymbolName);
 #endif
 	}
 
