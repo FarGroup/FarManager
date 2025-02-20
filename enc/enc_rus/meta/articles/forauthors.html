@@ -20,9 +20,9 @@
 </div>
 
 <ol>
-<li>Ссылка "внутрь" Энциклопедии (например, для структуры PluginStartupInfo):<br><br>
-<code>&lt;a href="mk:@MSITStore:FarEncyclopedia.ru.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt;/a&gt;</code><br><br>
-Здесь следует учесть структуры каталогов FarEncyclopedia.ru.chm и принципы наименования статей:<br><br>
+<li>Ссылка "внутрь" Энциклопедии (например, для структуры PluginStartupInfo):
+<pre class="code">&lt;a href="mk:@MSITStore:FarEncyclopedia.ru.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt;/a&gt;</pre>
+Здесь следует учесть структуры каталогов FarEncyclopedia.ru.chm и принципы наименования статей:
 <ul>
 <li>имена html-файлов в основном соответствуют названиям функций и структур;
 <li>все html-файлы внутри FarEncyclopedia.ru.chm в нижнем регистре;
@@ -30,12 +30,10 @@
 располагаются в <code>FarEncyclopedia.ru.chm::/html/structures/</code>, структуры Dialog API в <code>FarEncyclopedia.ru.chm::/html/dialogapi/structures/</code>
 и т.п.
 </ul>
-<br>
-<br>
 
 <li>Ссылка на WinAPI функцию (не описанную в Энциклопедии), для Вашей статьи,
-например для функции <code>GetLastError</code>:<br><br>
-<code>&lt;a class="msdocs"&gt;GetLastError&lt;/a&gt;</code><br><br>
+например для функции <code>GetLastError</code>:
+<pre class="code">&lt;a class="msdocs"&gt;GetLastError&lt;/a&gt;</pre>
 при помощи javascript такая ссылка автоматически преобразуется в полную ссылку для поиска на сайте Microsoft: <a class="msdocs">GetLastError</a>.
 </ol>
 

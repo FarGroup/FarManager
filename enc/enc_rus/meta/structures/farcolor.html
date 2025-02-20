@@ -144,13 +144,13 @@ struct FarColor
         <td><a name="FCF_FG_U_DATA0">FCF_FG_U_DATA0</a>, <a name="FCF_FG_U_DATA1">FCF_FG_U_DATA1</a>,
             <a name="FCF_FG_U_DATA2">FCF_FG_U_DATA2</a></td>
         <td>
-          <p>"подчёркнутый"; стиль подчёркивания определяется комбинацией значений этих трёх битов.
+          <p>"подчёркнутый"; стиль подчёркивания определяется комбинацией значений этих трёх битов.</p>
           <p>Для работы со стилями подчёркивания предусмотрены хелперы <a name="GetUnderline">GetUnderline()</a> и
-             <a name="SetUnderline">SetUnderline()</a>.
+             <a name="SetUnderline">SetUnderline()</a>.</p>
           <p>Возможные стили подчёркивания (перечисление <a name="UNDERLINE_STYLE">UNDERLINE_STYLE</a>):
             <a name="UNDERLINE_NONE">UNDERLINE_NONE</a>, <a name="UNDERLINE_SINGLE">UNDERLINE_SINGLE</a>,
             <a name="UNDERLINE_DOUBLE">UNDERLINE_DOUBLE</a>, <a name="UNDERLINE_CURLY">UNDERLINE_CURLY</a>,
-            <a name="UNDERLINE_DOT">UNDERLINE_DOT</a>, <a name="UNDERLINE_DASH">UNDERLINE_DASH</a>.
+            <a name="UNDERLINE_DOT">UNDERLINE_DOT</a>, <a name="UNDERLINE_DASH">UNDERLINE_DASH</a>.</p>
         </td>
       </tr>
     </table>
@@ -229,13 +229,13 @@ struct FarColor
 <h3>Замечания</h3>
 <div class="descr">
 <p>При использовании цветов из палитры обязательно указывайте флаги <code>FCF_FG_INDEX</code>, <code>FCF_BG_INDEX</code>
-  (и <code>FCF_FG_UNDERLINE_INDEX</code>, если используется подчёркивание).
+  (и <code>FCF_FG_UNDERLINE_INDEX</code>, если используется подчёркивание).</p>
 
-<p>Стандартные цвета консоли Windows представляют собой палитру из 16 цветов, с индексами 0 - 15.
+<p>Стандартные цвета консоли Windows представляют собой палитру из 16 цветов, с индексами 0 - 15.</p>
 
 <p>Также можно использовать цвета из палитры VT100 (16 - 255).
   В этом случае значения (16 - 231) кодируются как 36R+6G+B, где уровень каждого из основных цветов 0-5,
-  а последние 24 значения (232 - 255) используются для оттенков серого.
+  а последние 24 значения (232 - 255) используются для оттенков серого.</p>
 
 <p class="note"><img src="../../images/note.gif" alt="Внимание!"> Внимание!</p>
 <ul class="note">
