@@ -46,17 +46,17 @@ intptr_t WINAPI Message(
     <td>Используются цвета "Предупреждения" (обычно белые буквы на красном фоне).</td></tr>
     <tr><td><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
     <td>Если тип ошибки, возвращаемый функцией <code>GetLastError</code>, <a href="../defs/winerror.html">известен Far Manager'у</a> или Windows,
-    то описание ошибки будет выведено после строк, переданных плагином.</td></tr>
+      то описание ошибки будет выведено после строк, переданных плагином.</td></tr>
     <tr><td><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
     <td>Не перерисовывать фон сообщения.</td></tr>
     <tr><td><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
     <td>Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
     <tr><td><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
-    <td>В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class="alert3">это УКАЗАТЕЛЬ на одну
-    строку</dfn>, в которой разделителем выводимых строк является символ <code>'\n'</code>.
-    <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.
-    <p>При указании флага <code>FMSG_ALLINONE</code> аргумент <code>ItemsNumber</code> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок <code>FMSG_MB_*</code>).
-    <p>Для подавления вывода заголовка при использовании флага <code>FMSG_ALLINONE</code> начните строку с символа <code>'\n'</code>.</td></tr>
+    <td><p>В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class="alert3">это УКАЗАТЕЛЬ на одну
+      строку</dfn>, в которой разделителем выводимых строк является символ <code>'\n'</code>.</p>
+      <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.</p>
+      <p>При указании флага <code>FMSG_ALLINONE</code> аргумент <code>ItemsNumber</code> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок <code>FMSG_MB_*</code>).</p>
+      <p>Для подавления вывода заголовка при использовании флага <code>FMSG_ALLINONE</code> начните строку с символа <code>'\n'</code>.</p></td></tr>
     <tr><td><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
     <td>Дополнительно выводится кнопка &lt;Ok&gt;</td></tr>
     <tr><td><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
@@ -76,10 +76,11 @@ intptr_t WINAPI Message(
   <div class="dfn">HelpTopic</div>
     <div class="dfndescr"><a href="../language/helptopic.html">Тема подсказки</a> в файле помощи связанная с сообщением. Установите это значение в <code>NULL</code> если подсказка не требуется.</div>
   <div class="dfn">Items</div>
-    <div class="dfndescr">Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <code>ButtonsNumber</code> строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
-    Для отрисовки одинарной разделительной линии начните строку с символа с кодом 1 (L"\1").<br>
-    Для отрисовки двойной разделительной линии начните строку с символа с кодом 2 (L"\2").<br>
-    Смотрите также описание флага <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</div>
+    <div class="dfndescr">
+    <p>Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <code>ButtonsNumber</code> строк - кнопки, все остальные строки принадлежат телу сообщения.</p>
+    <p>Для отрисовки одинарной разделительной линии начните строку с символа с кодом 1 (L"\1").</p>
+    <p>Для отрисовки двойной разделительной линии начните строку с символа с кодом 2 (L"\2").</p>
+    <p>Смотрите также описание флага <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</p></div>
   <div class="dfn">ItemsNumber</div>
     <div class="dfndescr">Количество указателей в массиве <code>Items</code>. Минимальное значение - 2 строки.</div>
   <div class="dfn">ButtonsNumber</div>
@@ -102,7 +103,7 @@ intptr_t WINAPI Message(
 <li>При указании флагов-кнопок <code>FMSG_MB_*</code> параметр <code>ButtonsNumber</code> игнорируется.
 <li>Кнопки могут иметь горячие клавиши.
 <li>При использовании флага <code>FMSG_ALLINONE</code> для корректной компиляции кода необходимо произвести явное преобразование типов:
-<table border=0><tr>
+<table><tr>
 <td>
 <pre class="code">
   Info.Message(&amp;MainGUID,&amp;MsgGUID,
@@ -119,15 +120,15 @@ Info.Message(&amp;MainGUID,&amp;MsgGUID,
   <b>(const wchar_t * const *)</b>Msg,
   0,2);</pre>
 </td>
-<td><img src="../../images/msg1.gif" width="110" height="96"></td>
+<td><img src="../../images/msg1.gif"></td>
 </tr></table>
 </ol>
 </div>
 
 <h3>Пример</h3>
 <div class="descr">
-Следующая функция выводит на экран диалог-подтверждение на удаление файла:<br>
-<img src="../../images/message.gif" width="234" height="63" alt="диалог-подтверждение на удаление файла">
+<p>Следующая функция выводит на экран диалог-подтверждение на удаление файла:</p>
+<img src="../../images/message.gif" alt="диалог-подтверждение на удаление файла">
 <pre class="code">
 BOOL IsDeleted(wchar_t *filename)
 {
@@ -147,11 +148,11 @@ BOOL IsDeleted(wchar_t *filename)
                2) == 0;
 }</pre>
 
-Причём, Info определяется как глобальная переменная:
+<p>Причём, Info определяется как глобальная переменная:</p>
 
 <pre class="code">struct <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> Info;</pre>
 
-...а инициализируется она в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
+<p>...а инициализируется она в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:</p>
 
 <pre class="code">void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
 {

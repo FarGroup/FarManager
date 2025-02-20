@@ -43,18 +43,21 @@ struct EditorColor
   <div class="dfn">StringNumber</div>
     <div class="dfndescr">Номер строки для обработки или <code>-1</code> для текущей строки.</div>
   <div class="dfn">ColorItem</div>
-    <div class="dfndescr">Номер цветовой области, о которой вы хотите получить информацию. Строка может содержать несколько цветовых областей. Установите
-      <code>ColorItem = 0</code> для получения информации о первой цветовой области, <code>1</code> - о второй и т.д.<br>
-      Это поле не используется в <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>.
-      Новый цвет всегда применяется ко всей области от <code>StartPos</code> до <code>EndPos</code>, независимо от существовавших там ранее различных цветовых областей.</div>
+    <div class="dfndescr">
+      <p>Номер цветовой области, о которой вы хотите получить информацию. Строка может содержать несколько цветовых областей. Установите
+      <code>ColorItem = 0</code> для получения информации о первой цветовой области, <code>1</code> - о второй и т.д.</p>
+      <p>Это поле не используется в <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>.</p>
+      <p>Новый цвет всегда применяется ко всей области от <code>StartPos</code> до <code>EndPos</code>, независимо от существовавших там ранее различных цветовых областей.</p></div>
   <div class="dfn">StartPos, EndPos</div>
-    <div class="dfndescr">Область строки для установки цвета.<br>
-      Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
-      и выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</div>
+    <div class="dfndescr">
+      <p>Область строки для установки цвета.</p>
+      <p>Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
+      и выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</p></div>
   <div class="dfn">Priority</div>
-    <div class="dfndescr">Приоритет наложения цветовых областей.<br>
-      Параметр указывает Far Manager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <code>0</code>,
-      т.к. он обеспечивает "базовую" раскраску. Для ANSI-плагинов значение установлено в <code>EDITOR_COLOR_NORMAL_PRIORITY</code>.</div>
+    <div class="dfndescr">
+      <p>Приоритет наложения цветовых областей.</p>
+      <p>Параметр указывает Far Manager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <code>0</code>,
+      т.к. он обеспечивает "базовую" раскраску. Для ANSI-плагинов значение установлено в <code>EDITOR_COLOR_NORMAL_PRIORITY</code>.</p></div>
   <div class="dfn">Flags</div>
     <div class="dfndescr">Флаги (тип <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
       <table class="cont">
@@ -68,11 +71,12 @@ struct EditorColor
       </table>
     </div>
   <div class="dfn">Color</div>
-    <div class="dfndescr">Установленный или устанавливаемый цвет, структура типа <a href="farcolor.html">FarColor</a>.<br>
-      Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
-      выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.
+    <div class="dfndescr">
+      <p>Установленный или устанавливаемый цвет, структура типа <a href="farcolor.html">FarColor</a>.</p>
+      <p>Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
+      выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</p>
       <p>Far Manager раскрашивает символ табуляции на всю длину, на которую расширяется табуляция. Если необходимо, чтобы символ табуляции для
-      цветовой области занимал одно знакоместо, то в дополнении к цвету, необходимо выставить флаг <code>ECF_TABMARKFIRST</code> или <code>ECF_TABMARKCURRENT</code>.
+      цветовой области занимал одно знакоместо, то в дополнении к цвету, необходимо выставить флаг <code>ECF_TABMARKFIRST</code> или <code>ECF_TABMARKCURRENT</code>.</p>
     </div>
   <div class="dfn">Owner</div>
     <div class="dfndescr">GUID плагина-владельца цветовой области.</div>
@@ -80,7 +84,7 @@ struct EditorColor
 
 <h3>Замечания</h3>
 <div class="descr">
-<p>Через параметр <code>Color</code> вы можете задать и цвет фона. Более того, вне зависимости от длины строки вы можете установить область начиная с
+Через параметр <code>Color</code> вы можете задать и цвет фона. Более того, вне зависимости от длины строки вы можете установить область начиная с
 первой видимой позиции и кончая самой правой - при этом вы как бы замените цвет фона в редакторе. Хотя этот метод не сработает на файлах, у которых
 число строк меньше размера экрана :(
 </div>
