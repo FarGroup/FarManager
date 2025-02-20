@@ -42,10 +42,10 @@
     <object name="Dialog.List.Disabled" background="FF000003" foreground="FF000008" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.GrayText" background="FF000007" foreground="FF000008" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
-    <object name="Dialog.List.Highlight" background="FF000000" foreground="FF00000E" flags="fgindex bgindex inherit"/>
+    <object name="Dialog.List.Highlight" background="FF000007" foreground="FF00000E" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Highlight.Selected" background="FF000002" foreground="FF00000E" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Scrollbar" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
-    <object name="Dialog.List.Text" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+    <object name="Dialog.List.Text" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Text.Selected" background="FF000002" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Title" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
