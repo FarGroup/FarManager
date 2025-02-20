@@ -55,13 +55,13 @@ BOOL WriteConsoleInput(
   <p>Функция <code>WriteConsoleInput</code> помещает записи <a href="input_record.html">INPUT_RECORD</a>
   в конец входного буфера. Входной буфер при необходимости растёт динамически для хранения необходимого количества записей.
 
-  <UL class="note"><LI>
+  <ul class="note"><li>
   Эта функция использует либо Unicode, либо 8-битовые символы из текущей кодовой страницы консоли.
   Кодовая страница консоли по умолчанию равна системной OEM странице.<br>
   Для смены кодовой страницы используйте функции <a class="msdocs">SetConsoleCP</a> или
   <a class="msdocs">SetConsoleOutputCP</a>,
   или используйте команды <code>chcp</code> или <code>mode con cp select=</code>.
-  </LI></UL>
+  </li></ul>
 
 </div>
 

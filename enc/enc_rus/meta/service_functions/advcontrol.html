@@ -126,7 +126,7 @@ intptr_t WINAPI AdvControl(
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW"> Внимание!</p>
-    <UL class="note"><LI>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</LI></UL></td></tr>
+    <ul class="note"><li>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</li></ul></td></tr>
 
     <tr><td><a name="ACTL_SETCURSORPOS">ACTL_SETCURSORPOS</a></td>
     <td>Устанавливает положение курсора относительно окна Far Manager.<br>
@@ -153,7 +153,7 @@ intptr_t WINAPI AdvControl(
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE"> Внимание!</p>
-    <UL class="note"><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressStat</dfn></a></LI></UL></td></tr>
+    <ul class="note"><li>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressStat</dfn></a></li></ul></td></tr>
 
     <tr><td><a name="ACTL_SETPROGRESSVALUE">ACTL_SETPROGRESSVALUE</a></td>
     <td>Отображает и корректирует прогресс операции на кнопке Far Manager в панели задач.<br>
@@ -161,7 +161,7 @@ intptr_t WINAPI AdvControl(
     <code>Param2</code> указатель на структуру <a href="../structures/progressvalue.html">ProgressValue</a>.<br>
     Функция возвращает <code>TRUE</code>.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE"> Внимание!</p>
-    <UL class="note"><LI>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressValue</dfn></a></LI></UL></td></tr>
+    <ul class="note"><li>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressValue</dfn></a></li></ul></td></tr>
 
     <tr><td><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
     <td>Far Manager выполняет стандартное оповещение о завершении операции
@@ -176,7 +176,7 @@ intptr_t WINAPI AdvControl(
     <code>Param2</code> указатель на данные, передающиеся в функцию <code>ProcessSynchroEventW</code>, может быть <code>NULL</code>.<br>
     Функция всегда возвращает <code>0</code>.<br>
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO"> Внимание!</p>
-    <UL class="note"><LI>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</LI></UL></td></tr>
+    <ul class="note"><li>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</li></ul></td></tr>
 
     <tr><td><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
     <td>Ожидать клавишу.<br>
