@@ -5,6 +5,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<style>
+table {
+  border: solid;
+  border-width: 1px 1px 2px 2px;
+  border-spacing: 0;
+}
+th, td {
+  border: 1px;
+  border-style: solid solid none none;
+  font-size: 13px;
+}
+</style>
 <script src="../links.js"></script>
 </head>
 <body>
@@ -16,158 +28,852 @@
 <a href="index.html">типы и определения</a>
 </div>
 
-
 <div class="shortdescr">
 <p>В этой таблице приведены индексы цветов в цветовой схеме Far Manager, расположенной в базе <code>%FARHOME%\Profile\colors.db</code>
 (файл <code>farcolor.hpp</code>, перечисление <a name="PaletteColors">PaletteColors</a>).
 <p>В колонке "Цвет" указаны шестнадцатеричные значения цвета, принятые в цветовой схеме по умолчанию.
 </div>
 
-<TABLE BORDER="1" CELLSPACING="0">
-<tr><th>Константа</th><th colspan=2>Цвет</th><th>Описание</th></tr>
-<tr><td><a class="pre" name="COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Рамка.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGHIGHLIGHTBOXTITLE">COL_DIALOGHIGHLIGHTBOXTITLE</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Диалог.Рамка.Выделенный заголовок</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGBOX">COL_DIALOGBOX</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Рамка.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGTEXT">COL_DIALOGTEXT</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Диалог.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGDISABLED">COL_DIALOGDISABLED</a></td><td bgcolor=#c0c0c0><font color=#808080>Text</font></td><td>0x78</td><td>Диалог.Блокированный элемент диалога</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Диалог.Кнопка.Выбранный текст </td></tr>
-<tr><td><a class="pre" name="COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Диалог.Кнопка.Выбранный выделенный текст </td></tr>
-<tr><td><a class="pre" name="COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Диалог.Кнопка.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGBUTTON">COL_DIALOGBUTTON</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Кнопка.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGEDITUNCHANGED">COL_DIALOGEDITUNCHANGED</a></td><td bgcolor=#008080><font color=#c0c0c0>Text</font></td><td>0x37</td><td>Диалог.Поле ввода.Неизмененный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGEDITSELECTED">COL_DIALOGEDITSELECTED</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Диалог.Поле ввода.Выделенного текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGEDITDISABLED">COL_DIALOGEDITDISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Диалог.Поле ввода.Блокированное поле ввода</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGEDIT">COL_DIALOGEDIT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Диалог.Поле ввода.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTTITLE">COL_DIALOGLISTTITLE</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Список.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTSELECTEDTEXT">COL_DIALOGLISTSELECTEDTEXT</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Диалог.Список.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTSELECTEDHIGHLIGHT">COL_DIALOGLISTSELECTEDHIGHLIGHT</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Диалог.Список.Выбранный выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTHIGHLIGHT">COL_DIALOGLISTHIGHLIGHT</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Диалог.Список.Выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTBOX">COL_DIALOGLISTBOX</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Список.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTDISABLED">COL_DIALOGLISTDISABLED</a></td><td bgcolor=#c0c0c0><font color=#808080>Text</font></td><td>0x78</td><td>Диалог.Список.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTSCROLLBAR">COL_DIALOGLISTSCROLLBAR</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Список.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTTEXT">COL_DIALOGLISTTEXT</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Диалог.Список.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOTITLE">COL_DIALOGCOMBOTITLE</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Диалог.Комбинированный список.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOSELECTEDTEXT">COL_DIALOGCOMBOSELECTEDTEXT</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Диалог.Комбинированный список.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOSELECTEDHIGHLIGHT">COL_DIALOGCOMBOSELECTEDHIGHLIGHT</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Диалог.Комбинированный список.Выбранный выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOHIGHLIGHT">COL_DIALOGCOMBOHIGHLIGHT</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Диалог.Комбинированный список.Выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOBOX">COL_DIALOGCOMBOBOX</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Диалог.Комбинированный список.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBODISABLED">COL_DIALOGCOMBODISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Диалог.Комбинированный список.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOSCROLLBAR">COL_DIALOGCOMBOSCROLLBAR</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Диалог.Комбинированный список.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOTEXT">COL_DIALOGCOMBOTEXT</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Диалог.Комбинированный список.Обычный текст элемента</td></tr>
-<tr><td><a class="pre" name="COL_MENUDISABLEDTEXT">COL_MENUDISABLEDTEXT</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Меню.Недоступный пункт</td></tr>
-<tr><td><a class="pre" name="COL_MENUTITLE">COL_MENUTITLE</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Меню.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_MENUSELECTEDHIGHLIGHT">COL_MENUSELECTEDHIGHLIGHT</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Меню.Выбранный выделенный текст пункта</td></tr>
-<tr><td><a class="pre" name="COL_MENUSELECTEDTEXT">COL_MENUSELECTEDTEXT</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Меню.Выбранный пункт</td></tr>
-<tr><td><a class="pre" name="COL_MENUHIGHLIGHT">COL_MENUHIGHLIGHT</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Меню.Выделенный пункт</td></tr>
-<tr><td><a class="pre" name="COL_MENUBOX">COL_MENUBOX</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Меню.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_MENUSCROLLBAR">COL_MENUSCROLLBAR</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Меню.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_MENUTEXT">COL_MENUTEXT</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Меню.Обычный текст пункта</td></tr>
-<tr><td><a class="pre" name="COL_HMENUSELECTEDTEXT">COL_HMENUSELECTEDTEXT</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Горизонтальное меню.Выбранный текст</td></tr>
-<tr><td><a class="pre" name="COL_HMENUSELECTEDHIGHLIGHT">COL_HMENUSELECTEDHIGHLIGHT</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Горизонтальное меню.Выбранный выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_HMENUHIGHLIGHT">COL_HMENUHIGHLIGHT</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Горизонтальное меню.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_HMENUTEXT">COL_HMENUTEXT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Горизонтальное меню.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_KEYBARTEXT">COL_KEYBARTEXT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Линейка клавиш.Названия клавиш</td></tr>
-<tr><td><a class="pre" name="COL_KEYBARNUM">COL_KEYBARNUM</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Линейка клавиш.Номера клавиш</td></tr>
-<tr><td><a class="pre" name="COL_KEYBARBACKGROUND">COL_KEYBARBACKGROUND</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Линейка клавиш.Фон</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Заголовок рамки</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a></td><td bgcolor=#800000><font color=#ffff00>Text</font></td><td>0x4E</td><td>Предупреждение.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTTITLE">COL_WARNDIALOGLISTTITLE</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Список.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDTEXT">COL_WARNDIALOGLISTSELECTEDTEXT</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Предупреждение.Список.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDHIGHLIGHT">COL_WARNDIALOGLISTSELECTEDHIGHLIGHT</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Предупреждение.Список.Выбранный выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTHIGHLIGHT">COL_WARNDIALOGLISTHIGHLIGHT</a></td><td bgcolor=#800000><font color=#ffff00>Text</font></td><td>0x4E</td><td>Предупреждение.Список.Выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTBOX">COL_WARNDIALOGLISTBOX</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Список.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTDISABLED">COL_WARNDIALOGLISTDISABLED</a></td><td bgcolor=#800000><font color=#808080>Text</font></td><td>0x48</td><td>Предупреждение.Список.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTSCROLLBAR">COL_WARNDIALOGLISTSCROLLBAR</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Список.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTTEXT">COL_WARNDIALOGLISTTEXT</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Список.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a></td><td bgcolor=#800000><font color=#ffff00>Text</font></td><td>0x4E</td><td>Предупреждение.Рамка.Выделенный заголовок</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Рамка.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGDISABLED">COL_WARNDIALOGDISABLED</a></td><td bgcolor=#800000><font color=#808080>Text</font></td><td>0x48</td><td>Предупреждение.Блокированный элемент диалога</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Предупреждение.Кнопка.Выбранный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Предупреждение.Кнопка.Выбранный выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a></td><td bgcolor=#800000><font color=#ffff00>Text</font></td><td>0x4E</td><td>Предупреждение.Кнопка.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Кнопка.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGEDITUNCHANGED">COL_WARNDIALOGEDITUNCHANGED</a></td><td bgcolor=#008080><font color=#c0c0c0>Text</font></td><td>0x37</td><td>Предупреждение.Поле ввода.Неизмененный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGEDITSELECTED">COL_WARNDIALOGEDITSELECTED</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Предупреждение.Поле ввода.Выделенного текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGEDITDISABLED">COL_WARNDIALOGEDITDISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Предупреждение.Поле ввода.Блокированное поле ввода</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Предупреждение.Поле ввода.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOTITLE">COL_WARNDIALOGCOMBOTITLE</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Предупреждение.Комбинированный список.Заголовок</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDTEXT">COL_WARNDIALOGCOMBOSELECTEDTEXT</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Предупреждение.Комбинированный список.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT">COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Предупреждение.Комбинированный список.Выбранный выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOHIGHLIGHT">COL_WARNDIALOGCOMBOHIGHLIGHT</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Предупреждение.Комбинированный список.Выделенный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOBOX">COL_WARNDIALOGCOMBOBOX</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Предупреждение.Комбинированный список.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBODISABLED">COL_WARNDIALOGCOMBODISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Предупреждение.Комбинированный список.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOSCROLLBAR">COL_WARNDIALOGCOMBOSCROLLBAR</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Предупреждение.Комбинированный список.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOTEXT">COL_WARNDIALOGCOMBOTEXT</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Предупреждение.Комбинированный список.Обычный текст элемента</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a></td><td bgcolor=#800000><font color=#ffffff>Text</font></td><td>0x4F</td><td>Предупреждение.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERSELECTEDTEXT">COL_VIEWERSELECTEDTEXT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Просмотрщик.Выбранный текст</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERARROWS">COL_VIEWERARROWS</a></td><td bgcolor=#000080><font color=#ffff00>Text</font></td><td>0x1E</td><td>Просмотрщик.Стрелки сдвига экрана</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERSTATUS">COL_VIEWERSTATUS</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Просмотрщик.Статус</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERSCROLLBAR">COL_VIEWERSCROLLBAR</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Просмотрщик.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERTEXT">COL_VIEWERTEXT</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Просмотрщик.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_PANELHIGHLIGHTTEXT">COL_PANELHIGHLIGHTTEXT</a></td><td bgcolor=#000080><font color=#c0c0c0>Text</font></td><td>0x17</td><td>Панель.(не используется)</td></tr>
-<tr><td><a class="pre" name="COL_PANELCOLUMNTITLE">COL_PANELCOLUMNTITLE</a></td><td bgcolor=#000080><font color=#ffff00>Text</font></td><td>0x1E</td><td>Панель.Заголовок колонки</td></tr>
-<tr><td><a class="pre" name="COL_PANELSELECTEDTEXT">COL_PANELSELECTEDTEXT</a></td><td bgcolor=#000080><font color=#ffff00>Text</font></td><td>0x1E</td><td>Панель.Выбранный текст</td></tr>
-<tr><td><a class="pre" name="COL_PANELSELECTEDTITLE">COL_PANELSELECTEDTITLE</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Панель.Выделенный заголовок</td></tr>
-<tr><td><a class="pre" name="COL_PANELSELECTEDCURSOR">COL_PANELSELECTEDCURSOR</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Панель.Выделенный курсор</td></tr>
-<tr><td><a class="pre" name="COL_PANELINFOTEXT">COL_PANELINFOTEXT</a></td><td bgcolor=#000080><font color=#ffff00>Text</font></td><td>0x1E</td><td>Панель.Выделенная информация</td></tr>
-<tr><td><a class="pre" name="COL_PANELBOX">COL_PANELBOX</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Панель.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_PANELDRAGTEXT">COL_PANELDRAGTEXT</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Панель.Перетаскиваемый текст</td></tr>
-<tr><td><a class="pre" name="COL_PANELTOTALINFO">COL_PANELTOTALINFO</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Панель.Количество файлов</td></tr>
-<tr><td><a class="pre" name="COL_PANELSCREENSNUMBER">COL_PANELSCREENSNUMBER</a></td><td bgcolor=#000000><font color=#00ffff>Text</font></td><td>0x0B</td><td>Панель.Количество фоновых экранов</td></tr>
-<tr><td><a class="pre" name="COL_PANELSELECTEDINFO">COL_PANELSELECTEDINFO</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Панель.Количество выбранных файлов</td></tr>
-<tr><td><a class="pre" name="COL_PANELSCROLLBAR">COL_PANELSCROLLBAR</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Панель.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_PANELTEXT">COL_PANELTEXT</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Панель.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_PANELTITLE">COL_PANELTITLE</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Панель.Обычный заголовок</td></tr>
-<tr><td><a class="pre" name="COL_PANELCURSOR">COL_PANELCURSOR</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Панель.Обычный курсор</td></tr>
-<tr><td><a class="pre" name="COL_EDITORSELECTEDTEXT">COL_EDITORSELECTEDTEXT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Редактор.Выбранный текст</td></tr>
-<tr><td><a class="pre" name="COL_EDITORSTATUS">COL_EDITORSTATUS</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Редактор.Статус</td></tr>
-<tr><td><a class="pre" name="COL_EDITORTEXT">COL_EDITORTEXT</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Редактор.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_COMMANDLINESELECTED">COL_COMMANDLINESELECTED</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Командная строка.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_COMMANDLINEPREFIX">COL_COMMANDLINEPREFIX</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Командная строка.Текст префикса</td></tr>
-<tr><td><a class="pre" name="COL_COMMANDLINE">COL_COMMANDLINE</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Командная строка.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_HELPBOXTITLE">COL_HELPBOXTITLE</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Помощь.Заголовок рамки</td></tr>
-<tr><td><a class="pre" name="COL_HELPSELECTEDTOPIC">COL_HELPSELECTEDTOPIC</a></td><td bgcolor=#000000><font color=#ffffff>Text</font></td><td>0x0F</td><td>Помощь.Выбранная ссылка</td></tr>
-<tr><td><a class="pre" name="COL_HELPHIGHLIGHTTEXT">COL_HELPHIGHLIGHTTEXT</a></td><td bgcolor=#008080><font color=#ffffff>Text</font></td><td>0x3F</td><td>Помощь.Выделенный текст</td></tr>
-<tr><td><a class="pre" name="COL_HELPTOPIC">COL_HELPTOPIC</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Помощь.Ссылка</td></tr>
-<tr><td><a class="pre" name="COL_HELPBOX">COL_HELPBOX</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Помощь.Рамка</td></tr>
-<tr><td><a class="pre" name="COL_HELPSCROLLBAR">COL_HELPSCROLLBAR</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Помощь.Полоса прокрутки</td></tr>
-<tr><td><a class="pre" name="COL_HELPTEXT">COL_HELPTEXT</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Помощь.Обычный текст</td></tr>
-<tr><td><a class="pre" name="COL_VIEWERCLOCK">COL_VIEWERCLOCK</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Часы.Просмотрщик</td></tr>
-<tr><td><a class="pre" name="COL_EDITORCLOCK">COL_EDITORCLOCK</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Часы.Редактор</td></tr>
-<tr><td><a class="pre" name="COL_CLOCK">COL_CLOCK</a></td><td bgcolor=#008080><font color=#000000>Text</font></td><td>0x30</td><td>Часы.Панель</td></tr>
-
-<tr><td><a class="pre" name="COL_DIALOGLISTARROWS">COL_DIALOGLISTARROWS</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x30</td><td>Диалог.Список.Указатели длинных строк</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTARROWSDISABLED">COL_DIALOGLISTARROWSDISABLED</a></td><td bgcolor=#c0c0c0><font color=#808080>Text</font></td><td>0x30</td><td>Диалог.Список.Указатели длинных строк.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTARROWSSELECTED">COL_DIALOGLISTARROWSSELECTED</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Диалог.Список.Указатели длинных строк.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOARROWS">COL_DIALOGCOMBOARROWS</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Диалог.Комбинированный список.Указатели длинных строк</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOARROWSDISABLED">COL_DIALOGCOMBOARROWSDISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Диалог.Комбинированный список.Указатели длинных строк.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOARROWSSELECTED">COL_DIALOGCOMBOARROWSSELECTED</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Диалог.Комбинированный список.Указатели длинных строк.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTARROWS">COL_WARNDIALOGLISTARROWS</a></td><td bgcolor=#800000><font color=#ffff00>Text</font></td><td>0x4E</td><td>Предупреждение.Список.Указатели длинных строк</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTARROWSDISABLED">COL_WARNDIALOGLISTARROWSDISABLED</a></td><td bgcolor=#800000><font color=#808080>Text</font></td><td>0x48</td><td>Предупреждение.Список.Указатели длинных строк.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTARROWSSELECTED">COL_WARNDIALOGLISTARROWSSELECTED</a></td><td bgcolor=#c0c0c0><font color=#ffff00>Text</font></td><td>0x7E</td><td>Предупреждение.Список.Указатели длинных строк.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOARROWS">COL_WARNDIALOGCOMBOARROWS</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Предупреждение.Комбинированный список.Указатели длинных строк</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOARROWSDISABLED">COL_WARNDIALOGCOMBOARROWSDISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Предупреждение.Комбинированный список.Указатели длинных строк.Блокированный элемент</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOARROWSSELECTED">COL_WARNDIALOGCOMBOARROWSSELECTED</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Предупреждение.Комбинированный список.Указатели длинных строк.Выбранный элемент</td></tr>
-<tr><td><a class="pre" name="COL_MENUARROWS">COL_MENUARROWS</a></td><td bgcolor=#008080><font color=#ffff00>Text</font></td><td>0x3E</td><td>Меню.Указатели длинных строк</td></tr>
-<tr><td><a class="pre" name="COL_MENUARROWSDISABLED">COL_MENUARROWSDISABLED</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Меню.Указатели длинных строк.Недоступный пункт</td></tr>
-<tr><td><a class="pre" name="COL_MENUARROWSSELECTED">COL_MENUARROWSSELECTED</a></td><td bgcolor=#000000><font color=#ffff00>Text</font></td><td>0x0E</td><td>Меню.Указатели длинных строк.Выбранный текст пункта</td></tr>
-<tr><td><a class="pre" name="COL_COMMANDLINEUSERSCREEN">COL_COMMANDLINEUSERSCREEN</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Командная строка.Пользовательский экран</td></tr>
-<tr><td><a class="pre" name="COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a></td><td bgcolor=#000080><font color=#00ffff>Text</font></td><td>0x1B</td><td>Редактор.Полоса прокрутки</td></tr>
-
-<tr><td><a class="pre" name="COL_MENUGRAYTEXT">COL_MENUGRAYTEXT</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Меню.Серый текст</td></tr>
-<tr><td><a class="pre" name="COL_MENUSELECTEDGRAYTEXT">COL_MENUSELECTEDGRAYTEXT</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Меню.Выбранный серый текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOGRAY">COL_DIALOGCOMBOGRAY</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Диалог.Комбинированный список.Серый текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGCOMBOSELECTEDGRAYTEXT">COL_DIALOGCOMBOSELECTEDGRAYTEXT</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Диалог.Комбинированный список.Выбранный серый текст</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTGRAY">COL_DIALOGLISTGRAY</a></td><td bgcolor=#c0c0c0><font color=#808080>Text</font></td><td>0x78</td><td>Диалог.Список.Серый цвет</td></tr>
-<tr><td><a class="pre" name="COL_DIALOGLISTSELECTEDGRAYTEXT">COL_DIALOGLISTSELECTEDGRAYTEXT</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Диалог.Список.Выбранный серый текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOGRAY">COL_WARNDIALOGCOMBOGRAY</a></td><td bgcolor=#008080><font color=#808080>Text</font></td><td>0x38</td><td>Предупреждение.Комбинированный список.Серый текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT">COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT</a></td><td bgcolor=#000000><font color=#c0c0c0>Text</font></td><td>0x07</td><td>Предупреждение.Комбинированный список.Выбранный серый текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTGRAY">COL_WARNDIALOGLISTGRAY</a></td><td bgcolor=#800000><font color=#808080>Text</font></td><td>0x48</td><td>Предупреждение.Список.Серый текст</td></tr>
-<tr><td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDGRAYTEXT">COL_WARNDIALOGLISTSELECTEDGRAYTEXT</a></td><td bgcolor=#c0c0c0><font color=#000000>Text</font></td><td>0x70</td><td>Предупреждение.Список.Выбранный серый текст</td></tr>
-
-<tr><td><a class="pre" name="COL_RESERVED0">COL_RESERVED0</a></td><td bgcolor=#000000><font color=#000000>Text</font></td><td>0x00</td><td>(зарезервировано для внутренних нужд)</td></tr>
+<table>
+  <tr>
+    <th>Константа</th>
+    <th colspan=2>Цвет</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Рамка.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGHIGHLIGHTBOXTITLE">COL_DIALOGHIGHLIGHTBOXTITLE</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Диалог.Рамка.Выделенный заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGBOX">COL_DIALOGBOX</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Рамка.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGTEXT">COL_DIALOGTEXT</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Диалог.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGDISABLED">COL_DIALOGDISABLED</a></td>
+    <td style="background-color: #c0c0c0; color: #808080">Text</td>
+    <td>0x78</td>
+    <td>Диалог.Блокированный элемент диалога</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Диалог.Кнопка.Выбранный текст </td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Диалог.Кнопка.Выбранный выделенный текст </td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Диалог.Кнопка.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGBUTTON">COL_DIALOGBUTTON</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Кнопка.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGEDITUNCHANGED">COL_DIALOGEDITUNCHANGED</a></td>
+    <td style="background-color: #008080; color: #c0c0c0">Text</td>
+    <td>0x37</td>
+    <td>Диалог.Поле ввода.Неизмененный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGEDITSELECTED">COL_DIALOGEDITSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Диалог.Поле ввода.Выделенного текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGEDITDISABLED">COL_DIALOGEDITDISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Диалог.Поле ввода.Блокированное поле ввода</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGEDIT">COL_DIALOGEDIT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Диалог.Поле ввода.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTTITLE">COL_DIALOGLISTTITLE</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Список.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTSELECTEDTEXT">COL_DIALOGLISTSELECTEDTEXT</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Диалог.Список.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTSELECTEDHIGHLIGHT">COL_DIALOGLISTSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Диалог.Список.Выбранный выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTHIGHLIGHT">COL_DIALOGLISTHIGHLIGHT</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Диалог.Список.Выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTBOX">COL_DIALOGLISTBOX</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Список.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTDISABLED">COL_DIALOGLISTDISABLED</a></td>
+    <td style="background-color: #c0c0c0; color: #808080">Text</td>
+    <td>0x78</td>
+    <td>Диалог.Список.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTSCROLLBAR">COL_DIALOGLISTSCROLLBAR</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Список.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTTEXT">COL_DIALOGLISTTEXT</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Диалог.Список.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOTITLE">COL_DIALOGCOMBOTITLE</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Диалог.Комбинированный список.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOSELECTEDTEXT">COL_DIALOGCOMBOSELECTEDTEXT</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Диалог.Комбинированный список.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOSELECTEDHIGHLIGHT">COL_DIALOGCOMBOSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Диалог.Комбинированный список.Выбранный выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOHIGHLIGHT">COL_DIALOGCOMBOHIGHLIGHT</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Диалог.Комбинированный список.Выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOBOX">COL_DIALOGCOMBOBOX</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Диалог.Комбинированный список.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBODISABLED">COL_DIALOGCOMBODISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Диалог.Комбинированный список.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOSCROLLBAR">COL_DIALOGCOMBOSCROLLBAR</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Диалог.Комбинированный список.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOTEXT">COL_DIALOGCOMBOTEXT</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Диалог.Комбинированный список.Обычный текст элемента</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUDISABLEDTEXT">COL_MENUDISABLEDTEXT</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Меню.Недоступный пункт</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUTITLE">COL_MENUTITLE</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Меню.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUSELECTEDHIGHLIGHT">COL_MENUSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Меню.Выбранный выделенный текст пункта</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUSELECTEDTEXT">COL_MENUSELECTEDTEXT</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Меню.Выбранный пункт</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUHIGHLIGHT">COL_MENUHIGHLIGHT</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Меню.Выделенный пункт</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUBOX">COL_MENUBOX</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Меню.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUSCROLLBAR">COL_MENUSCROLLBAR</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Меню.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUTEXT">COL_MENUTEXT</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Меню.Обычный текст пункта</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HMENUSELECTEDTEXT">COL_HMENUSELECTEDTEXT</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Горизонтальное меню.Выбранный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HMENUSELECTEDHIGHLIGHT">COL_HMENUSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Горизонтальное меню.Выбранный выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HMENUHIGHLIGHT">COL_HMENUHIGHLIGHT</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Горизонтальное меню.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HMENUTEXT">COL_HMENUTEXT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Горизонтальное меню.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_KEYBARTEXT">COL_KEYBARTEXT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Линейка клавиш.Названия клавиш</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_KEYBARNUM">COL_KEYBARNUM</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Линейка клавиш.Номера клавиш</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_KEYBARBACKGROUND">COL_KEYBARBACKGROUND</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Линейка клавиш.Фон</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Заголовок рамки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a></td>
+    <td style="background-color: #800000; color: #ffff00">Text</td>
+    <td>0x4E</td>
+    <td>Предупреждение.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTTITLE">COL_WARNDIALOGLISTTITLE</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Список.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDTEXT">COL_WARNDIALOGLISTSELECTEDTEXT</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Предупреждение.Список.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDHIGHLIGHT">COL_WARNDIALOGLISTSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Предупреждение.Список.Выбранный выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTHIGHLIGHT">COL_WARNDIALOGLISTHIGHLIGHT</a></td>
+    <td style="background-color: #800000; color: #ffff00">Text</td>
+    <td>0x4E</td>
+    <td>Предупреждение.Список.Выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTBOX">COL_WARNDIALOGLISTBOX</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Список.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTDISABLED">COL_WARNDIALOGLISTDISABLED</a></td>
+    <td style="background-color: #800000; color: #808080">Text</td>
+    <td>0x48</td>
+    <td>Предупреждение.Список.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTSCROLLBAR">COL_WARNDIALOGLISTSCROLLBAR</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Список.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTTEXT">COL_WARNDIALOGLISTTEXT</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Список.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a></td>
+    <td style="background-color: #800000; color: #ffff00">Text</td>
+    <td>0x4E</td>
+    <td>Предупреждение.Рамка.Выделенный заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Рамка.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGDISABLED">COL_WARNDIALOGDISABLED</a></td>
+    <td style="background-color: #800000; color: #808080">Text</td>
+    <td>0x48</td>
+    <td>Предупреждение.Блокированный элемент диалога</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Предупреждение.Кнопка.Выбранный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Предупреждение.Кнопка.Выбранный выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a></td>
+    <td style="background-color: #800000; color: #ffff00">Text</td>
+    <td>0x4E</td>
+    <td>Предупреждение.Кнопка.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Кнопка.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGEDITUNCHANGED">COL_WARNDIALOGEDITUNCHANGED</a></td>
+    <td style="background-color: #008080; color: #c0c0c0">Text</td>
+    <td>0x37</td>
+    <td>Предупреждение.Поле ввода.Неизмененный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGEDITSELECTED">COL_WARNDIALOGEDITSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Предупреждение.Поле ввода.Выделенного текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGEDITDISABLED">COL_WARNDIALOGEDITDISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Предупреждение.Поле ввода.Блокированное поле ввода</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Предупреждение.Поле ввода.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOTITLE">COL_WARNDIALOGCOMBOTITLE</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Предупреждение.Комбинированный список.Заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDTEXT">COL_WARNDIALOGCOMBOSELECTEDTEXT</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Предупреждение.Комбинированный список.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT">COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Предупреждение.Комбинированный список.Выбранный выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOHIGHLIGHT">COL_WARNDIALOGCOMBOHIGHLIGHT</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Предупреждение.Комбинированный список.Выделенный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOBOX">COL_WARNDIALOGCOMBOBOX</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Предупреждение.Комбинированный список.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBODISABLED">COL_WARNDIALOGCOMBODISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Предупреждение.Комбинированный список.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOSCROLLBAR">COL_WARNDIALOGCOMBOSCROLLBAR</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Предупреждение.Комбинированный список.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOTEXT">COL_WARNDIALOGCOMBOTEXT</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Предупреждение.Комбинированный список.Обычный текст элемента</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a></td>
+    <td style="background-color: #800000; color: #ffffff">Text</td>
+    <td>0x4F</td>
+    <td>Предупреждение.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERSELECTEDTEXT">COL_VIEWERSELECTEDTEXT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Просмотрщик.Выбранный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERARROWS">COL_VIEWERARROWS</a></td>
+    <td style="background-color: #000080; color: #ffff00">Text</td>
+    <td>0x1E</td>
+    <td>Просмотрщик.Стрелки сдвига экрана</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERSTATUS">COL_VIEWERSTATUS</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Просмотрщик.Статус</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERSCROLLBAR">COL_VIEWERSCROLLBAR</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Просмотрщик.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERTEXT">COL_VIEWERTEXT</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Просмотрщик.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELHIGHLIGHTTEXT">COL_PANELHIGHLIGHTTEXT</a></td>
+    <td style="background-color: #000080; color: #c0c0c0">Text</td>
+    <td>0x17</td>
+    <td>Панель.(не используется)</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELCOLUMNTITLE">COL_PANELCOLUMNTITLE</a></td>
+    <td style="background-color: #000080; color: #ffff00">Text</td>
+    <td>0x1E</td>
+    <td>Панель.Заголовок колонки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSELECTEDTEXT">COL_PANELSELECTEDTEXT</a></td>
+    <td style="background-color: #000080; color: #ffff00">Text</td>
+    <td>0x1E</td>
+    <td>Панель.Выбранный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSELECTEDTITLE">COL_PANELSELECTEDTITLE</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Панель.Выделенный заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSELECTEDCURSOR">COL_PANELSELECTEDCURSOR</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Панель.Выделенный курсор</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELINFOTEXT">COL_PANELINFOTEXT</a></td>
+    <td style="background-color: #000080; color: #ffff00">Text</td>
+    <td>0x1E</td>
+    <td>Панель.Выделенная информация</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELBOX">COL_PANELBOX</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Панель.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELDRAGTEXT">COL_PANELDRAGTEXT</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Панель.Перетаскиваемый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELTOTALINFO">COL_PANELTOTALINFO</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Панель.Количество файлов</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSCREENSNUMBER">COL_PANELSCREENSNUMBER</a></td>
+    <td style="background-color: #000000; color: #00ffff">Text</td>
+    <td>0x0B</td>
+    <td>Панель.Количество фоновых экранов</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSELECTEDINFO">COL_PANELSELECTEDINFO</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Панель.Количество выбранных файлов</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELSCROLLBAR">COL_PANELSCROLLBAR</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Панель.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELTEXT">COL_PANELTEXT</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Панель.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELTITLE">COL_PANELTITLE</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Панель.Обычный заголовок</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_PANELCURSOR">COL_PANELCURSOR</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Панель.Обычный курсор</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_EDITORSELECTEDTEXT">COL_EDITORSELECTEDTEXT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Редактор.Выбранный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_EDITORSTATUS">COL_EDITORSTATUS</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Редактор.Статус</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_EDITORTEXT">COL_EDITORTEXT</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Редактор.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_COMMANDLINESELECTED">COL_COMMANDLINESELECTED</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Командная строка.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_COMMANDLINEPREFIX">COL_COMMANDLINEPREFIX</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Командная строка.Текст префикса</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_COMMANDLINE">COL_COMMANDLINE</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Командная строка.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPBOXTITLE">COL_HELPBOXTITLE</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Помощь.Заголовок рамки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPSELECTEDTOPIC">COL_HELPSELECTEDTOPIC</a></td>
+    <td style="background-color: #000000; color: #ffffff">Text</td>
+    <td>0x0F</td>
+    <td>Помощь.Выбранная ссылка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPHIGHLIGHTTEXT">COL_HELPHIGHLIGHTTEXT</a></td>
+    <td style="background-color: #008080; color: #ffffff">Text</td>
+    <td>0x3F</td>
+    <td>Помощь.Выделенный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPTOPIC">COL_HELPTOPIC</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Помощь.Ссылка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPBOX">COL_HELPBOX</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Помощь.Рамка</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPSCROLLBAR">COL_HELPSCROLLBAR</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Помощь.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_HELPTEXT">COL_HELPTEXT</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Помощь.Обычный текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_VIEWERCLOCK">COL_VIEWERCLOCK</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Часы.Просмотрщик</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_EDITORCLOCK">COL_EDITORCLOCK</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Часы.Редактор</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_CLOCK">COL_CLOCK</a></td>
+    <td style="background-color: #008080; color: #000000">Text</td>
+    <td>0x30</td>
+    <td>Часы.Панель</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTARROWS">COL_DIALOGLISTARROWS</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x30</td>
+    <td>Диалог.Список.Указатели длинных строк</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTARROWSDISABLED">COL_DIALOGLISTARROWSDISABLED</a></td>
+    <td style="background-color: #c0c0c0; color: #808080">Text</td>
+    <td>0x30</td>
+    <td>Диалог.Список.Указатели длинных строк.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTARROWSSELECTED">COL_DIALOGLISTARROWSSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Диалог.Список.Указатели длинных строк.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOARROWS">COL_DIALOGCOMBOARROWS</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Диалог.Комбинированный список.Указатели длинных строк</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOARROWSDISABLED">COL_DIALOGCOMBOARROWSDISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Диалог.Комбинированный список.Указатели длинных строк.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOARROWSSELECTED">COL_DIALOGCOMBOARROWSSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Диалог.Комбинированный список.Указатели длинных строк.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTARROWS">COL_WARNDIALOGLISTARROWS</a></td>
+    <td style="background-color: #800000; color: #ffff00">Text</td>
+    <td>0x4E</td>
+    <td>Предупреждение.Список.Указатели длинных строк</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTARROWSDISABLED">COL_WARNDIALOGLISTARROWSDISABLED</a></td>
+    <td style="background-color: #800000; color: #808080">Text</td>
+    <td>0x48</td>
+    <td>Предупреждение.Список.Указатели длинных строк.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTARROWSSELECTED">COL_WARNDIALOGLISTARROWSSELECTED</a></td>
+    <td style="background-color: #c0c0c0; color: #ffff00">Text</td>
+    <td>0x7E</td>
+    <td>Предупреждение.Список.Указатели длинных строк.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOARROWS">COL_WARNDIALOGCOMBOARROWS</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Предупреждение.Комбинированный список.Указатели длинных строк</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOARROWSDISABLED">COL_WARNDIALOGCOMBOARROWSDISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Предупреждение.Комбинированный список.Указатели длинных строк.Блокированный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOARROWSSELECTED">COL_WARNDIALOGCOMBOARROWSSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Предупреждение.Комбинированный список.Указатели длинных строк.Выбранный элемент</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUARROWS">COL_MENUARROWS</a></td>
+    <td style="background-color: #008080; color: #ffff00">Text</td>
+    <td>0x3E</td>
+    <td>Меню.Указатели длинных строк</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUARROWSDISABLED">COL_MENUARROWSDISABLED</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Меню.Указатели длинных строк.Недоступный пункт</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUARROWSSELECTED">COL_MENUARROWSSELECTED</a></td>
+    <td style="background-color: #000000; color: #ffff00">Text</td>
+    <td>0x0E</td>
+    <td>Меню.Указатели длинных строк.Выбранный текст пункта</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_COMMANDLINEUSERSCREEN">COL_COMMANDLINEUSERSCREEN</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Командная строка.Пользовательский экран</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a></td>
+    <td style="background-color: #000080; color: #00ffff">Text</td>
+    <td>0x1B</td>
+    <td>Редактор.Полоса прокрутки</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUGRAYTEXT">COL_MENUGRAYTEXT</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Меню.Серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_MENUSELECTEDGRAYTEXT">COL_MENUSELECTEDGRAYTEXT</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Меню.Выбранный серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOGRAY">COL_DIALOGCOMBOGRAY</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Диалог.Комбинированный список.Серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGCOMBOSELECTEDGRAYTEXT">COL_DIALOGCOMBOSELECTEDGRAYTEXT</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Диалог.Комбинированный список.Выбранный серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTGRAY">COL_DIALOGLISTGRAY</a></td>
+    <td style="background-color: #c0c0c0; color: #808080">Text</td>
+    <td>0x78</td>
+    <td>Диалог.Список.Серый цвет</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_DIALOGLISTSELECTEDGRAYTEXT">COL_DIALOGLISTSELECTEDGRAYTEXT</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Диалог.Список.Выбранный серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOGRAY">COL_WARNDIALOGCOMBOGRAY</a></td>
+    <td style="background-color: #008080; color: #808080">Text</td>
+    <td>0x38</td>
+    <td>Предупреждение.Комбинированный список.Серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT">COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT</a></td>
+    <td style="background-color: #000000; color: #c0c0c0">Text</td>
+    <td>0x07</td>
+    <td>Предупреждение.Комбинированный список.Выбранный серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTGRAY">COL_WARNDIALOGLISTGRAY</a></td>
+    <td style="background-color: #800000; color: #808080">Text</td>
+    <td>0x48</td>
+    <td>Предупреждение.Список.Серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_WARNDIALOGLISTSELECTEDGRAYTEXT">COL_WARNDIALOGLISTSELECTEDGRAYTEXT</a></td>
+    <td style="background-color: #c0c0c0; color: #000000">Text</td>
+    <td>0x70</td>
+    <td>Предупреждение.Список.Выбранный серый текст</td>
+  </tr>
+  <tr>
+    <td><a class="pre" name="COL_RESERVED0">COL_RESERVED0</a></td>
+    <td style="background-color: #000000; color: #000000">Text</td>
+    <td>0x00</td>
+    <td>(зарезервировано для внутренних нужд)</td>
+  </tr>
 </table>
-
 </body>
 </html>
