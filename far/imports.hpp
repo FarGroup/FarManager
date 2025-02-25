@@ -146,6 +146,7 @@ public: \
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, zero,    WINAPI,  DWORD,   GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    CancelIoEx, HANDLE File, LPOVERLAPPED lpOverlapped); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    CancelSynchronousIo, HANDLE Thread); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    SetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
