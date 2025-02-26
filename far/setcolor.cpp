@@ -67,6 +67,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 #include "format.hpp"
 
+#include <share.h>
+
 //----------------------------------------------------------------------------
 
 static void ChangeColor(PaletteColors PaletteIndex, FarColor const* const BottomColor)
