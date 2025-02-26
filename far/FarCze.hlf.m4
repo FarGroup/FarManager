@@ -4406,12 +4406,15 @@ se soubory Far vždy používá skutečné názvy.
 
 @ColorGroups
 $ #Color groups#
- Toto menu umožňuje nastavit barvy různých položek rozhraní nebo nastavit barvy na implicitní.
+ Toto menu umožňuje nastavit barvy různých položek rozhraní nebo to choose one of ~predefined themes~@ColorThemes@.
 
- #Set default colors#
+
+@ColorThemes
+$ #Color themes#
+ #Výchozí#
  Set the colors to default values, expressed as indices in the console palette.
 
- #Set default colors (RGB)#
+ #Výchozí (RGB)#
  Set the colors to default values, expressed as colors in RGB space, normally used for the corresponding console palette indices.
  Unlike the indices in the console palette, the RGB values are device-independent and will look the same in any terminal.
  For example, the default #index# value of panels background is #1#, which is usually, but not necessarily, mapped to some unspecified shade of blue.
@@ -4429,6 +4432,9 @@ If it is not enabled or if your terminal does not support RGB colors, they will 
 
  \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
  \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
+
+ #Custom themes#
+ You can also choose one of custom color themes from %FARHOME%\\Addons\\Colors\\Interface, provided by community contributors.
 
 
 @ColorPicker

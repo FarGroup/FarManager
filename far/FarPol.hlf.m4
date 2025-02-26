@@ -4376,12 +4376,15 @@ podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
 
 @ColorGroups
 $ #Grupy kolorów#
- To menu pozwala na wybór kolorów dla różnych elementów ekranu lub ustawić domyślne kolory.
+ To menu pozwala na wybór kolorów dla różnych elementów ekranu lub to choose one of ~predefined themes~@ColorThemes@.
 
- #Ustaw kolory domyślne#
+
+@ColorThemes
+$ #Color themes#
+ #Domyślny#
  Przywraca kolory do wartości domyślnych, wyrażonych jako indeksy w palecie kolorów.
 
- #Ustaw kolory domyślne (RGB)#
+ #Domyślny (RGB)#
  Przyraca kolory do wartości domyślnych, wyrażonych jako kolory w przestrzeni barw RGB,
 normalnie używanych do odpowiednich indeksów palety konsoli.
  W przeciwieństwie do indeksów palety konsoli, wartości RGB są niezleżne od urządzenia
@@ -4404,6 +4407,9 @@ na zbliżone do najbliższych indeksów palety konsoli.
 
  \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
  \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
+
+ #Custom themes#
+ You can also choose one of custom color themes from %FARHOME%\\Addons\\Colors\\Interface, provided by community contributors.
 
 
 @ColorPicker

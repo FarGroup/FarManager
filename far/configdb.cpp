@@ -186,38 +186,7 @@ private:
 
 namespace
 {
-
-class [[nodiscard]] xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*, true>
-{
-	IMPLEMENTS_ENUMERATOR(xml_enum);
-
-public:
-	xml_enum(const tinyxml::XMLNode& base, const char* name):
-		m_name(name),
-		m_base(&base)
-	{
-	}
-
-	xml_enum(tinyxml::XMLHandle base, const char* name):
-		xml_enum(*base.ToNode(), name)
-	{
-	}
-
-private:
-	[[nodiscard, maybe_unused]]
-	bool get(bool Reset, value_type& value) const
-	{
-		value =
-			!Reset? value->NextSiblingElement(m_name) :
-			m_base? m_base->FirstChildElement(m_name) :
-			nullptr;
-
-		return value != nullptr;
-	}
-
-	const char* m_name;
-	const tinyxml::XMLNode* m_base;
-};
+using xml_enum = xml::enum_nodes;
 
 void serialise_integer(tinyxml::XMLElement& e, long long const Value)
 {
@@ -875,27 +844,41 @@ void color_to_xml(bytes_view const Blob, tinyxml::XMLElement& e)
 	}
 }
 
-FarColor color_from_xml(tinyxml::XMLElement const& e)
+}
+
+FarColor deserialize_color(function_ref<char const* (char const* Name)> const Getter, FarColor const& Default)
 {
-	const auto process_color = [&](const char* const Name, COLORREF& Color)
+	const auto process_color = [&](char const* const Name, COLORREF& Color)
 	{
-		if (const auto Value = e.Attribute(Name))
-			Color = std::strtoul(Value, nullptr, 16);
+		if (const auto Value = Getter(Name))
+		{
+			char* EndPtr;
+			if (const auto Result = std::strtoul(Value, &EndPtr, 16); EndPtr != Value)
+				Color = Result;
+		}
 	};
 
-	FarColor Color{};
+	auto Color = Default;
 
 	process_color("background", Color.BackgroundColor);
 	process_color("foreground", Color.ForegroundColor);
 	process_color("underline", Color.UnderlineColor);
 
-	if (const auto flags = e.Attribute("flags"))
+	if (const auto flags = Getter("flags"))
 	{
 		const auto FlagsStr = encoding::utf8::get_chars(flags);
 		Color.Flags = colors::ColorStringToFlags(FlagsStr) | StringToFlags(FlagsStr, LegacyColorFlagNames);
 	}
 
 	return Color;
+}
+
+namespace
+{
+
+FarColor color_from_xml(tinyxml::XMLElement const& e)
+{
+	return deserialize_color([&](char const* const AttributeName){ return e.Attribute(AttributeName); }, {});
 }
 
 class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb

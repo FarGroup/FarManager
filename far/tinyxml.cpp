@@ -73,3 +73,22 @@ SCOPED_ACTION(components::component)([]
 {
 	return components::info{ L"TinyXML-2"sv, far::format(L"{}.{}.{}"sv, tinyxml_impl::TIXML2_MAJOR_VERSION, tinyxml_impl::TIXML2_MINOR_VERSION, tinyxml_impl::TIXML2_PATCH_VERSION) };
 });
+
+xml::enum_nodes::enum_nodes(const tinyxml::XMLNode& Base, char const* const Name):
+	m_name(Name),
+	m_base(&Base)
+{}
+
+xml::enum_nodes::enum_nodes(tinyxml::XMLHandle Base, const char* Name):
+	enum_nodes(*Base.ToNode(), Name)
+{}
+
+bool xml::enum_nodes::get(bool Reset, value_type& value) const
+{
+	value =
+		!Reset? value->NextSiblingElement(m_name) :
+		m_base? m_base->FirstChildElement(m_name) :
+		nullptr;
+
+	return value != nullptr;
+}

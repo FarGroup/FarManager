@@ -50,9 +50,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "lang.hpp"
 #include "manager.hpp"
+#include "message.hpp"
 #include "global.hpp"
 #include "lockscrn.hpp"
 #include "FarDlgBuilder.hpp"
+#include "pathmix.hpp"
+#include "exception.hpp"
+#include "log.hpp"
+#include "tinyxml.hpp"
 
 // Platform:
 
@@ -192,6 +197,106 @@ static void ConfigurePalette()
 	Builder.AddCheckbox(lng::MColorsClassicPalette, Global->Opt->SetPalette);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
+}
+
+static void list_themes(function_ref<void(string_view, string_view)> const Processor)
+{
+	const auto ThemesPath = path::join(Global->g_strFarPath, L"Addons\\Colors\\Interface"sv);
+	for (const auto& i: os::fs::enum_files(path::join(ThemesPath, L"*.farconfig"sv)))
+	{
+		Processor(name_ext(i.FileName).first, path::join(ThemesPath, i.FileName));
+	}
+}
+
+static void load_theme(string_view const File, tinyxml::XMLDocument& Document)
+{
+	const file_ptr XmlFile(_wfsopen(nt_path(File).c_str(), L"rb", _SH_DENYWR));
+	if (!XmlFile)
+		throw far_exception(far::format(L"Error opening file \"{}\": {}"sv, File, os::format_errno(errno)));
+
+	if (const auto LoadResult = Document.LoadFile(XmlFile.get()); LoadResult != tinyxml::XML_SUCCESS)
+		throw far_exception(encoding::utf8::get_chars(Document.ErrorIDToName(LoadResult)), false);
+}
+
+static void apply_external_theme(string_view const File)
+{
+	tinyxml::XMLDocument Document;
+	load_theme(File, Document);
+	tinyxml::XMLHandle Root(Document.RootElement());
+
+	unordered_string_map<tinyxml::XMLElement const*> ColorEntries;
+
+	for (const auto& e: xml::enum_nodes(Root.FirstChildElement("colors"), "object"))
+	{
+		if (const auto Name = e.Attribute("name"))
+			ColorEntries.emplace(encoding::utf8::get_chars(Name), &e);
+	}
+
+	Global->Opt->Palette.LoadTheme([&](string_view const Key, FarColor const& Default)
+	{
+		const auto Iterator = ColorEntries.find(Key);
+		if (Iterator == ColorEntries.cend())
+			return Default;
+
+		return deserialize_color([&](char const* const AttributeName){ return Iterator->second->Attribute(AttributeName); }, Default);
+	});
+}
+
+static void try_apply_external_theme(string const& File)
+{
+	try
+	{
+		apply_external_theme(File);
+	}
+	catch (far_exception const& e)
+	{
+		LOGERROR(L"{}"sv, e);
+
+		Message(MSG_WARNING, e,
+			msg(lng::MError),
+			{
+				File,
+			},
+			{ lng::MOk });
+	}
+}
+
+static void choose_theme()
+{
+	const auto ThemesMenu = VMenu2::create(msg(lng::MColorThemes), {});
+
+	const auto DefaultIndexId = static_cast<int>(ThemesMenu->size());
+	ThemesMenu->AddItem(msg(lng::MDefaultTheme));
+	const auto DefaultRGBId = static_cast<int>(ThemesMenu->size());
+	ThemesMenu->AddItem(msg(lng::MDefaultThemeRGB));
+
+	list_themes([&, SeparatorAdded = false](string_view const Name, string_view const FullPath) mutable
+	{
+		if (!SeparatorAdded)
+		{
+			ThemesMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
+			SeparatorAdded = true;
+		}
+
+		MenuItemEx Item(Name);
+		Item.ComplexUserData = string(FullPath);
+		ThemesMenu->AddItem(Item);
+	});
+
+	ThemesMenu->SetPosition({ 2, 1, 0, 0 });
+	ThemesMenu->SetMenuFlags(VMENU_WRAPMODE);
+	ThemesMenu->SetHelp(L"ColorThemes"sv);
+
+	const auto ThemeCode = ThemesMenu->Run();
+	if (ThemeCode < 0)
+		return;
+
+	if (ThemeCode == DefaultIndexId)
+		Global->Opt->Palette.ResetToDefaultIndex();
+	else if (ThemeCode == DefaultRGBId)
+		Global->Opt->Palette.ResetToDefaultRGB();
+	else
+		try_apply_external_theme(std::any_cast<string>(ThemesMenu->at(ThemeCode).ComplexUserData));
 }
 
 void SetColors()
@@ -442,10 +547,8 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const auto DefaultIndexId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
-		const auto DefaultRGBId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(msg(lng::MSetDefaultColorsRGB));
+		const auto ThemesId = static_cast<int>(GroupsMenu->size());
+		GroupsMenu->AddItem(msg(lng::MColorThemes));
 		GroupsMenu->SetHelp(L"ColorGroups"sv);
 
 		{
@@ -468,13 +571,9 @@ void SetColors()
 			return 1;
 		});
 
-		if (GroupsCode == DefaultIndexId)
+		if (GroupsCode == ThemesId)
 		{
-			Global->Opt->Palette.ResetToDefaultIndex();
-		}
-		else if (GroupsCode == DefaultRGBId)
-		{
-			Global->Opt->Palette.ResetToDefaultRGB();
+			choose_theme();
 		}
 		else if (GroupsCode == PaletteId)
 		{

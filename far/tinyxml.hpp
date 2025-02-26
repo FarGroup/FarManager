@@ -35,6 +35,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/enumerator.hpp"
+#include "common/preprocessor.hpp"
+
+// External:
+
 namespace tinyxml_impl
 {
 WARNING_PUSH()
@@ -51,5 +61,26 @@ WARNING_POP()
 }
 
 namespace tinyxml = tinyxml_impl::tinyxml2;
+
+namespace xml
+{
+	class [[nodiscard]] enum_nodes: public enumerator<enum_nodes, const tinyxml::XMLElement*, true>
+	{
+		IMPLEMENTS_ENUMERATOR(enum_nodes);
+
+	public:
+		NONCOPYABLE(enum_nodes);
+
+		enum_nodes(const tinyxml::XMLNode& Base, const char* Name);
+		enum_nodes(tinyxml::XMLHandle Base, const char* Name);
+
+	private:
+		[[nodiscard, maybe_unused]]
+		bool get(bool Reset, value_type& value) const;
+
+		const char* m_name;
+		const tinyxml::XMLNode* m_base;
+	};
+}
 
 #endif // TINYXML_HPP_268E08DA_CDE4_4ADA_B082_64745EE1D62E

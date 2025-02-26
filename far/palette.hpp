@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
 #include "common/noncopyable.hpp"
 #include "common/utility.hpp"
 
@@ -148,6 +149,7 @@ class palette: noncopyable
 public:
 	palette();
 	void Load();
+	void LoadTheme(function_ref<FarColor(string_view Key, FarColor const& Default)> Accessor);
 	void Save(bool always);
 	void ResetToDefaultIndex();
 	void ResetToDefaultRGB();

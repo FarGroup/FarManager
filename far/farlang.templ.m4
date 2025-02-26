@@ -1,5 +1,5 @@
 #
-# Note: https://www.microsoft.com/language is a good source of system- and UI-specific translations.
+# Note: https://learn.microsoft.com/en-us/globalization/reference/microsoft-language-resources is a good source of system- and UI-specific translations.
 #
 
 m4_include(`farversion.m4')m4_dnl
@@ -18655,35 +18655,50 @@ MSetColorHelp
 "P&agalba"
 "&Ajuda"
 
-MSetDefaultColors
-"&Установить стандартные цвета"
-"Set de&fault colors"
-"N&astavit výchozí barvy"
-"Setze Standard&farben"
-"Alapért. s&zínek"
-"&Ustaw kolory domyślne"
-"Poner colores prede&terminados"
-"N&astaviť východiskové farby"
-"&Colori Originari"
-"&Установити стандартні кольори"
-"&Ужыць прадвызначаныя колеры"
-"Grįžti prie pra&dinių spalvų"
-"Ajustar cores &padrões"
+MColorThemes
+"Темы"
+"Themes"
+"Motivy"
+"Designs"
+"Témák"
+"Motywy"
+"Temas"
+"Motívy"
+"Temi"
+"Теми"
+"Тэмы"
+"Temos"
+"Temas"
 
-MSetDefaultColorsRGB
-"Установить стандартные цвета (RGB)"
-"Set default colors (RGB)"
-"Nastavit výchozí barvy (RGB)"
-"Setze Standardfarben (RGB)"
-"Alapért. színek (RGB)"
-"Ustaw kolory domyślne (RGB)"
-"Poner colores predeterminados (RGB)"
-"Nastaviť východiskové farby (RGB)"
-"Colori Originari (RGB)"
-"Установити стандартні кольори (RGB)"
-"Ужыць прадвызначаныя колеры (RGB)"
-"Grįžti prie pradinių spalvų (RGB)"
-"Ajustar cores &padrões (RGB)"
+MDefaultTheme
+"По умолчанию"
+"Default"
+"Výchozí"
+"Standard"
+"Alapértelmezett"
+"Domyślny"
+"Predeterminado"
+"Predvolená"
+"Predefinito"
+"За замовчуванням"
+"Па змаўчанні"
+"Numatytoji"
+"Padrão"
+
+MDefaultThemeRGB
+"По умолчанию (RGB)"
+"Default (RGB)"
+"Výchozí (RGB)"
+"Standard (RGB)"
+"Alapértelmezett (RGB)"
+"Domyślny (RGB)"
+"Predeterminado (RGB)"
+"Predvolená (RGB)"
+"Predefinito (RGB)"
+"За замовчуванням (RGB)"
+"Па змаўчанні (RGB)"
+"Numatytoji (RGB)"
+"Padrão (RGB)"
 
 MSetColorPanelNormal
 l:

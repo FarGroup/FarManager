@@ -227,7 +227,7 @@ static auto index_color(ColorsInit const& i)
 		colors::NtColorToFarColor(i.Index);
 }
 
-void palette::Reset(bool const RGB)
+static void reset(std::span<ColorsInit const> const From, std::span<FarColor> const To, bool const RGB)
 {
 	const auto rgb_color = [&Palette = colors::default_palette()](ColorsInit const& i)
 	{
@@ -247,8 +247,12 @@ void palette::Reset(bool const RGB)
 		function_ref(rgb_color) :
 		function_ref(index_color);
 
-	std::ranges::transform(Init, CurrentPalette.begin(), set_color);
+	std::ranges::transform(From, To.begin(), set_color);
+}
 
+void palette::Reset(bool const RGB)
+{
+	reset(Init, CurrentPalette, RGB);
 	PaletteChanged = true;
 }
 
@@ -322,6 +326,18 @@ void palette::Load()
 
 	PaletteChanged = false;
 	CustomColorsChanged = false;
+}
+
+void palette::LoadTheme(function_ref<FarColor(string_view Key, FarColor const& Default)> Accessor)
+{
+	for (const auto& [i, index]: enumerate(CurrentPalette))
+	{
+		FarColor Color{};
+		reset({ &Init[index], 1 }, { &Color, 1 }, false);
+		i = Accessor(Init[index].Name, Color);
+	}
+
+	PaletteChanged = true;
 }
 
 void palette::Save(bool always)

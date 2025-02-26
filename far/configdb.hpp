@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/enumerator.hpp"
+#include "common/function_ref.hpp"
 #include "common/lazy.hpp"
 #include "common/noncopyable.hpp"
 #include "common/string_utils.hpp"
@@ -587,5 +588,7 @@ private:
 
 [[nodiscard]]
 config_provider& ConfigProvider();
+
+FarColor deserialize_color(function_ref<char const*(char const* Name)> Getter, FarColor const& Default);
 
 #endif // CONFIGDB_HPP_552309E5_DEA6_42FD_BD7B_0F59C839FE62
