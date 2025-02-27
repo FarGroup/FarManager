@@ -304,7 +304,7 @@ WARNING_POP()
 
 			return far::format(L" ({}, version {}, OS build {}.{})"sv, *ProductName, DisplayVersion? *DisplayVersion : *ReleaseId, *CurrentBuild, *UBR);
 		}
-		catch (far_exception const&)
+		catch (std::exception const&)
 		{
 			return {};
 		}

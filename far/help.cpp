@@ -2200,7 +2200,7 @@ namespace help
 		{
 			return !Help::create(Topic, Mask, Flags)->GetError();
 		}
-		catch (far_exception const& e)
+		catch (std::exception const& e)
 		{
 			if (!(Flags & FHELP_NOSHOWERROR))
 			{

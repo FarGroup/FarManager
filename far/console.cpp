@@ -2141,7 +2141,7 @@ protected:
 				LOGDEBUG(L"VT palette read successfuly"sv);
 				return true;
 			}
-			catch (far_exception const& e)
+			catch (std::exception const& e)
 			{
 				LOGERROR(L"{}"sv, e);
 				return false;
@@ -3117,7 +3117,7 @@ protected:
 				std::unreachable();
 			}
 		}
-		catch (far_exception const& e)
+		catch (std::exception const& e)
 		{
 			LOGERROR(L"{}"sv, e);
 			return {};

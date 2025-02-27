@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 
@@ -63,12 +64,12 @@ void apply_permutation(std::ranges::random_access_range auto& Range, std::random
 			if (next < 0 || next >= length)
 			{
 				indices[i] = next;
-				throw std::range_error("Invalid index in permutation");
+				throw_exception("Invalid index in permutation");
 			}
 			if (next == current)
 			{
 				indices[i] = next;
-				throw std::range_error("Not a permutation");
+				throw_exception("Not a permutation");
 			}
 
 			std::ranges::swap(first[current], first[next]);

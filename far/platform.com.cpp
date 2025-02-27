@@ -171,7 +171,7 @@ namespace os::com
 					return *ProgId;
 			}
 		}
-		catch (far_exception const& e)
+		catch (std::exception const& e)
 		{
 			// This is informational, debug will do fine
 			LOGDEBUG(L"{}"sv, e);

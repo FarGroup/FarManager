@@ -380,7 +380,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 			Stream << StrStream.rdbuf();
 		});
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		Message(MSG_WARNING, e,
 			msg(lng::MError),

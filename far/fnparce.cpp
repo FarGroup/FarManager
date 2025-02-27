@@ -958,7 +958,7 @@ bool SubstFileName(
 	{
 		Str = ProcessMetasymbols(Str, SubstData);
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		Message(MSG_WARNING, e,
 			msg(lng::MError),

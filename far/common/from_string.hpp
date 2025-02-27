@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
 #include "string_utils.hpp"
 
 #include <stdexcept>
@@ -162,10 +163,10 @@ T from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Bas
 		return Value;
 
 	case detail::result::invalid_argument:
-		throw std::invalid_argument("invalid from_string argument");
+		throw_exception("invalid from_string argument");
 
 	case detail::result::out_of_range:
-		throw std::out_of_range("from_string argument out of range");
+		throw_exception("from_string argument is out of range");
 
 	default:
 		std::unreachable();

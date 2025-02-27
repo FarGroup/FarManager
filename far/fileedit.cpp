@@ -1881,7 +1881,7 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 		Show();
 		return SAVEFILE_SUCCESS;
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		ErrorState = e;
 		Show();

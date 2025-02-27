@@ -1008,7 +1008,7 @@ static DWORD get_console_host_pid_from_nt()
 {
 	ULONG_PTR ConsoleHostProcess;
 	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
-		throw far_exception(error_state_ex{{ 0, Status }});
+		throw far_exception(error_state_ex{os::error_state{ ERROR_SUCCESS, Status }});
 
 	return static_cast<DWORD>(ConsoleHostProcess & ~0b11);
 }

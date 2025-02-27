@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
+
 #include <optional>
 #include <stdexcept>
 #include <string_view>
@@ -48,12 +50,6 @@ namespace uuid
 
 		constexpr auto uuid_length = "00000000-0000-0000-0000-000000000000"sv.size();
 
-		[[noreturn]]
-		inline void fail(const char* Message)
-		{
-			throw std::runtime_error(Message);
-		}
-
 		[[nodiscard]]
 		constexpr auto hex_to_int(wchar_t const c)
 		{
@@ -66,7 +62,7 @@ namespace uuid
 			if (L'A' <= c && c <= L'F')
 				return c - L'A' + 10;
 
-			fail("Invalid character");
+			throw_exception("Invalid character");
 		}
 
 		template<size_t... I>
@@ -98,7 +94,7 @@ namespace uuid
 		constexpr auto& operator+=(std::random_access_iterator auto& Iterator, separator_t)
 		{
 			if (*Iterator != L'-')
-				fail("Invalid character");
+				throw_exception("Invalid character");
 
 			return ++Iterator;
 		}
@@ -153,7 +149,7 @@ namespace uuid
 		constexpr auto parse(std::basic_string_view<char_type> const Str)
 		{
 			if (!(Str.size() == uuid_length || (Str.size() == uuid_length + 2 && Str.front() == L'{' && Str.back() == L'}')))
-				fail("Incorrect format");
+				throw_exception("Incorrect format");
 
 			return detail::parse(Str.data() + (Str.size() != uuid_length));
 		}

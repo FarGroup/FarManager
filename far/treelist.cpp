@@ -747,7 +747,11 @@ static void WriteTree(auto& Name, std::ranges::range auto const& Container, cons
 		}
 		catch (far_exception const& e)
 		{
-			ErrorState = e;
+			ErrorState = static_cast<error_state_ex const&>(e);
+		}
+		catch (std::exception const& e)
+		{
+			ErrorState.emplace(os::last_error(), encoding::utf8::get_chars(e.what()));
 		}
 
 		TreeFile.SetEnd();

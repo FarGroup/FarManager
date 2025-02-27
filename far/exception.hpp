@@ -55,6 +55,8 @@ struct error_state_ex: public os::error_state
 	{
 	}
 
+	explicit(false) error_state_ex(std::exception const& e);
+
 	[[nodiscard]]
 	bool any() const
 	{
@@ -78,7 +80,6 @@ namespace detail
 	{
 	public:
 		[[nodiscard]] const auto& message() const noexcept { return What; }
-		[[nodiscard]] const auto& full_message() const noexcept { return m_FullMessage; }
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 		[[nodiscard]] string to_string() const;
 
@@ -87,7 +88,6 @@ namespace detail
 
 	private:
 		source_location m_Location;
-		string m_FullMessage;
 	};
 
 	class far_std_exception : public far_base_exception, public std::runtime_error
@@ -95,7 +95,7 @@ namespace detail
 	public:
 		explicit far_std_exception(error_state_ex ErrorState, source_location const& Location = source_location::current()):
 			far_base_exception(std::move(ErrorState), Location),
-			std::runtime_error(convert_message(full_message()))
+			std::runtime_error(convert_message(message()))
 		{
 		}
 
@@ -160,5 +160,9 @@ constexpr inline struct unknown_exception_t
 	static string to_string();
 }
 unknown_exception;
+
+// For common
+[[noreturn]]
+void throw_far_exception(std::string_view Message, source_location const& Location);
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

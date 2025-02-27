@@ -218,7 +218,7 @@ namespace tests
 				do_throw();
 			}();
 		}
-		catch (far_exception const&)
+		catch (std::exception const&)
 		{
 			std::unreachable();
 		}

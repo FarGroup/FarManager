@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.headers.hpp"
 
 // Internal:
+#include "exception.hpp"
 #include "testing.hpp"
 
 // Platform:
@@ -646,21 +647,33 @@ TEST_CASE("from_string")
 	REQUIRE(from_string<uint64_t>(L"18446744073709551615"sv) == std::numeric_limits<uint64_t>::max());
 	REQUIRE(from_string<double>(L"0.03125"sv) == 0.03125);
 
-	REQUIRE_THROWS_AS(from_string<uint64_t>(L"18446744073709551616"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int64_t>(L"-9223372036854775809"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int64_t>(L"9223372036854775808"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<uint32_t>(L"4294967296"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int32_t>(L"-2147483649"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int32_t>(L"2147483648"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<uint16_t>(L"65536"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int16_t>(L"-32769"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int16_t>(L"32768"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<unsigned int>(L"-42"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
-	REQUIRE_THROWS_AS(from_string<int>({}), std::invalid_argument);
-	REQUIRE_THROWS_AS(from_string<int>(L" 42"sv), std::invalid_argument);
-	REQUIRE_THROWS_AS(from_string<int>(L" +42"sv), std::invalid_argument);
-	REQUIRE_THROWS_AS(from_string<double>(L"1"sv, {}, 3), std::invalid_argument);
+	const auto make_matcher = [](string_view const Message)
+	{
+		return generic_exception_matcher{[Message](std::any const& e)
+		{
+			return contains(std::any_cast<far_exception const&>(e).message(), Message);
+		}};
+	};
+
+	const auto
+		InvalidArgumentMatcher = make_matcher(L"invalid from_string argument"sv),
+		OutOfRangeMatcher = make_matcher(L"from_string argument is out of range"sv);
+
+	REQUIRE_THROWS_MATCHES(from_string<uint64_t>(L"18446744073709551616"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int64_t>(L"-9223372036854775809"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int64_t>(L"9223372036854775808"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<uint32_t>(L"4294967296"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int32_t>(L"-2147483649"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int32_t>(L"2147483648"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<uint16_t>(L"65536"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int16_t>(L"-32769"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int16_t>(L"32768"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<unsigned int>(L"-42"sv), far_exception, OutOfRangeMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L"fubar"sv), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>({}), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L" 42"sv), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L" +42"sv), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<double>(L"1"sv, {}, 3), far_exception, InvalidArgumentMatcher);
 
 	{
 		int Value;

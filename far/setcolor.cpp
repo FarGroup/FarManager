@@ -250,7 +250,7 @@ static void try_apply_external_theme(string const& File)
 	{
 		apply_external_theme(File);
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		LOGERROR(L"{}"sv, e);
 

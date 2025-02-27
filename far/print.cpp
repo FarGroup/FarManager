@@ -277,7 +277,7 @@ void PrintFiles(FileList* SrcPanel)
 
 				SrcPanel->ClearLastGetSelection();
 			}
-			catch (far_exception const& e)
+			catch (std::exception const& e)
 			{
 				if (Message(MSG_WARNING, e,
 					msg(lng::MPrintTitle),
@@ -290,7 +290,7 @@ void PrintFiles(FileList* SrcPanel)
 			}
 		}
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		Message(MSG_WARNING, e,
 			msg(lng::MPrintTitle),

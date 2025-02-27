@@ -229,7 +229,7 @@ elevation::~elevation()
 		{
 			Write(C_SERVICE_EXIT);
 		}
-		catch (far_exception const& e)
+		catch (std::exception const& e)
 		{
 			LOGERROR(L"{}"sv, e);
 		}
@@ -303,7 +303,7 @@ auto elevation::execute(lng Why, string_view const Object, auto Fallback, const 
 	{
 		return ElevatedHandler();
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		// Something went really bad, it's better to stop any further attempts
 		TerminateChildProcess();

@@ -654,7 +654,7 @@ static auto get_keyboard_layout_list_registry_ctf()
 			const auto LanguageId = from_string<uint32_t>(LanguageIdStr, {}, 16);
 			Languages.emplace_back(Index, LanguageId, LanguageIdStr);
 		}
-		catch (far_exception const& e)
+		catch (std::exception const& e)
 		{
 			LOGWARNING(L"{}"sv, e);
 		}
@@ -692,7 +692,7 @@ static auto get_keyboard_layout_list_registry_ctf()
 				else
 					Layouts.emplace_back(Index, *Layout);
 			}
-			catch (far_exception const& e)
+			catch (std::exception const& e)
 			{
 				LOGWARNING(L"{}"sv, e);
 			}
@@ -849,7 +849,7 @@ static std::vector<HKL> try_get_keyboard_list(function_ref<std::vector<HKL>()> C
 	{
 		return Callable();
 	}
-	catch (far_exception const& e)
+	catch (std::exception const& e)
 	{
 		LOGWARNING(L"{}", e);
 		return {};
