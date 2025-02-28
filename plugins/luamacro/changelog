@@ -1,3 +1,7 @@
+shmuel 2025-02-28 16:21:34+02:00 - build 868
+
+1. Revert build 845.
+
 shmuel 2025-01-31 19:49:10+02:00 - build 867
 
 1. Revert builds 861-864 since the current far.Timer behavior is questionable.

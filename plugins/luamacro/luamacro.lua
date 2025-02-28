@@ -514,7 +514,7 @@ end
 -- TODO: when called from a module's panel, call that module's Configure()
 function export.Configure (guid)
   local items = utils.GetMenuItems()
-  if items[guid] then items[guid].action(guid) end
+  if items[guid] then items[guid].action() end
 end
 
 local function Init()
