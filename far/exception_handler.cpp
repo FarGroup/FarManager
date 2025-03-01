@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_substrings.hpp"
+#include "common/expected.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -1004,16 +1005,16 @@ static string get_locale()
 	);
 }
 
-static DWORD get_console_host_pid_from_nt()
+static expected<DWORD, os::error_state> get_console_host_pid_from_nt()
 {
 	ULONG_PTR ConsoleHostProcess;
 	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
-		throw far_exception(error_state_ex{os::error_state{ ERROR_SUCCESS, Status }});
+		return os::error_state{ ERROR_SUCCESS, Status };
 
 	return static_cast<DWORD>(ConsoleHostProcess & ~0b11);
 }
 
-static DWORD get_console_host_pid_from_window()
+static expected<DWORD, os::error_state> get_console_host_pid_from_window()
 {
 	// When you call GetWindowThreadProcessId(GetConsoleWindow()),
 	// Windows lies and returns the ids of the hosted console process,
@@ -1025,41 +1026,35 @@ static DWORD get_console_host_pid_from_window()
 	// Yes, it's horrible, but it's better than nothing.
 	const auto ImeWnd = ImmGetDefaultIMEWnd(GetConsoleWindow());
 	if (!ImeWnd)
-		throw far_exception(error_state_ex{{ GetLastError(), 0 }});
+		return os::error_state{ GetLastError(), 0 };
 
 	DWORD ProcessId;
 	if (!GetWindowThreadProcessId(ImeWnd, &ProcessId))
-		throw far_exception(error_state_ex{{ GetLastError(), 0 }});
+		return os::error_state{ GetLastError(), 0 };
 
 	return ProcessId;
 }
 
-static std::variant<DWORD, string> get_console_host_pid()
+static expected<DWORD, string> get_console_host_pid()
 {
-	try
-	{
-		return get_console_host_pid_from_nt();
-	}
-	catch (far_exception const& e1)
-	{
-		try
-		{
-			return get_console_host_pid_from_window();
-		}
-		catch (far_exception const& e2)
-		{
-			return concat(e1.to_string(), L", "sv, e2.to_string());
-		}
-	}
+	const auto NtResult = get_console_host_pid_from_nt();
+	if (NtResult)
+		return *NtResult;
+
+	const auto WindowResult = get_console_host_pid_from_window();
+	if (WindowResult)
+		return *WindowResult;
+
+	return concat(NtResult.error().to_string(), L", "sv, WindowResult.error().to_string());
 }
 
 static string get_console_host()
 {
 	const auto ConsoleHostProcessId = get_console_host_pid();
-	if (ConsoleHostProcessId.index() == 1)
-		return std::get<1>(ConsoleHostProcessId);
+	if (!ConsoleHostProcessId)
+		return ConsoleHostProcessId.error();
 
-	const auto ConhostName = os::process::get_process_name(std::get<0>(ConsoleHostProcessId));
+	const auto ConhostName = os::process::get_process_name(*ConsoleHostProcessId);
 	if (ConhostName.empty())
 		return {};
 

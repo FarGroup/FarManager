@@ -67,7 +67,8 @@ enum keybar_group: size_t
 
 enum fkeys: size_t
 {
-	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12
+	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+	KEY_COUNT
 };
 
 enum KEYBARAREA
@@ -100,14 +101,14 @@ public:
 	class keybar_area
 	{
 	public:
-		explicit keybar_area(std::vector<keybar_item>* Items): m_Items(Items) {}
-		string& operator[](fkeys Key) const { return (*m_Items)[Key].first; }
+		explicit keybar_area(std::span<keybar_item> const Items): m_Items(Items) {}
+		string& operator[](fkeys Key) const { return m_Items[Key].first; }
 
 	private:
-		std::vector<keybar_item>* m_Items;
+		std::span<keybar_item> m_Items;
 	};
 
-	auto operator[](keybar_group Group) { return keybar_area(&Items[Group]); }
+	auto operator[](keybar_group Group) { return keybar_area(Items[Group]); }
 	size_t Change(const KeyBarTitles* Kbt);
 
 	void RedrawIfChanged();
@@ -118,11 +119,11 @@ private:
 	void ClearKeyTitles(bool Custom);
 
 	// title, custom title
-	std::vector<std::vector<keybar_item>> Items;
+	keybar_item Items[KBL_GROUP_COUNT][fkeys::KEY_COUNT];
 	string strLanguage;
-	KEYBARAREA CustomArea;
-	bool AltState, CtrlState, ShiftState;
-	bool CustomLabelsReaded;
+	KEYBARAREA CustomArea{ KBA_SHELL };
+	bool AltState{}, CtrlState{}, ShiftState{};
+	bool CustomLabelsReaded{};
 };
 
 #endif // KEYBAR_HPP_8575C258_EBCC_4620_8657_6C56564AD9DE

@@ -61,21 +61,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static const size_t KEY_COUNT = 12;
-
 KeyBar::KeyBar(window_ptr Owner):
-	SimpleScreenObject(std::move(Owner)),
-	Items(KBL_GROUP_COUNT),
-	CustomArea(),
-	AltState(),
-	CtrlState(),
-	ShiftState(),
-	CustomLabelsReaded(false)
+	SimpleScreenObject(std::move(Owner))
 {
-	for (auto& i: Items)
-	{
-		i.resize(KEY_COUNT);
-	}
 }
 
 void KeyBar::DisplayObject()
@@ -189,26 +177,18 @@ void KeyBar::SetLabels(lng StartIndex)
 
 static int FnGroup(unsigned ControlState)
 {
-	static const struct area
+	switch (ControlState)
 	{
-		unsigned Group;
-		unsigned ControlState;
+	case NO_KEY:            return KBL_MAIN;
+	case KEY_ALT:           return KBL_ALT;
+	case KEY_CTRL:          return KBL_CTRL;
+	case KEY_SHIFT:         return KBL_SHIFT;
+	case KEY_CTRLALT:       return KBL_CTRLALT;
+	case KEY_ALTSHIFT:      return KBL_ALTSHIFT;
+	case KEY_CTRLSHIFT:     return KBL_CTRLSHIFT;
+	case KEY_CTRLALTSHIFT:  return KBL_CTRLALTSHIFT;
+	default:                return -1;
 	}
-	Area[]
-	{
-		{ KBL_MAIN,           0                       },
-		{ KBL_SHIFT,          KEY_SHIFT               },
-		{ KBL_ALT,            KEY_ALT                 },
-		{ KBL_CTRL,           KEY_CTRL                },
-		{ KBL_ALTSHIFT,       KEY_ALTSHIFT            },
-		{ KBL_CTRLSHIFT,      KEY_CTRLSHIFT           },
-		{ KBL_CTRLALT,        KEY_CTRLALT             },
-		{ KBL_CTRLALTSHIFT,   KEY_CTRLALT | KEY_SHIFT },
-	};
-	static_assert(std::size(Area) == KBL_GROUP_COUNT);
-
-	const auto ItemIterator = std::ranges::find(Area, ControlState, &area::ControlState);
-	return ItemIterator == std::cend(Area)? -1 : ItemIterator->Group;
 }
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)
