@@ -248,7 +248,8 @@ struct single_color_state
 
 struct color_state
 {
-	FarColor CurColor, BaseColor;
+	FarColor CurColor;
+	FarColor const* BaseColor;
 	bool TransparencyEnabled;
 	single_color_state Fg, Bg;
 
@@ -558,7 +559,7 @@ static void disable_if_needed(COLORREF const Color, std::span<DialogItemEx> Colo
 	}
 }
 
-static bool pick_color_single(colors::single_color& Color, colors::single_color const BaseColor, std::array<COLORREF, 16>& CustomColors)
+static bool pick_color_single(colors::single_color& Color, std::array<COLORREF, 16>& CustomColors)
 {
 	const auto
 		Cl4X = 5,
@@ -653,7 +654,7 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 		if (in_closed_range(cd::sample_text_first, Param1, cd::sample_text_last))
 		{
 			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
-			Colors.Colors[0] = colors::merge(BaseColor, CurColor);
+			Colors.Colors[0] = BaseColor? colors::merge(*BaseColor, CurColor) : CurColor;
 			return TRUE;
 		}
 		break;
@@ -671,7 +672,7 @@ intptr_t color_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1
 		if (Param1 == cd::style_underline_color_button)
 		{
 			auto Color = colors::single_color::underline(CurColor);
-			if (auto CustomColors = Global->Opt->Palette.GetCustomColors(); pick_color_single(Color, colors::single_color::underline(BaseColor), CustomColors))
+			if (auto CustomColors = Global->Opt->Palette.GetCustomColors(); pick_color_single(Color, CustomColors))
 			{
 				CurColor.SetUnderlineIndex(Color.IsIndex);
 				CurColor.UnderlineColor = Color.Value;
@@ -848,8 +849,8 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	color_state ColorState
 	{
 		.CurColor = Color,
-		.BaseColor = BaseColor? *BaseColor : colors::NtColorToFarColor(F_BLACK | B_BLACK),
-		.TransparencyEnabled = BaseColor != nullptr,
+		.BaseColor = BaseColor,
+		.TransparencyEnabled = !!BaseColor,
 		.Fg
 		{
 			.CurColor = colors::single_color::foreground(Color),
