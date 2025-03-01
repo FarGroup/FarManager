@@ -402,12 +402,19 @@ void highlight::configuration::InheritPaletteColor(FarColor& Color, color::index
 
 static void inherit_color(highlight::element::colors_array& Colors, highlight::color::index const ColorIndex)
 {
+	const auto get_and_inherit = [&](highlight::color::index const Index) -> decltype(auto)
+	{
+		auto& Color = Colors[Index];
+		highlight::configuration::InheritPaletteColor(Color.FileColor, Index);
+		return Color;
+	};
+
 	switch (ColorIndex)
 	{
 	case highlight::color::normal:
 		// Mark lies on top of text and can inherit its color
 		{
-			auto& Top = Colors[highlight::color::normal];
+			auto& Top = get_and_inherit(highlight::color::normal);
 
 			Top.MarkColor = colors::merge(Top.FileColor, Top.MarkColor);
 		}
@@ -416,8 +423,10 @@ static void inherit_color(highlight::element::colors_array& Colors, highlight::c
 	case highlight::color::selected:
 		// Selection lies on top of text and can inherit its color
 		{
-			auto& Top = Colors[highlight::color::selected];
-			const auto& Bottom = Colors[highlight::color::normal];
+			auto& Top = get_and_inherit(highlight::color::selected);
+			const auto& Bottom = get_and_inherit(highlight::color::normal);
+
+			//highlight::configuration::InheritPaletteColor(Bottom.FileColor, highlight::color::normal);
 
 			Top.FileColor = colors::merge(Bottom.FileColor, Top.FileColor);
 			Top.MarkColor = colors::merge(Bottom.MarkColor, Top.FileColor, Top.MarkColor);
@@ -427,8 +436,8 @@ static void inherit_color(highlight::element::colors_array& Colors, highlight::c
 	case highlight::color::normal_current:
 		// Cursor lies on top of text and can inherit its color
 		{
-			auto& Top = Colors[highlight::color::normal_current];
-			const auto& Bottom = Colors[highlight::color::normal];
+			auto& Top = get_and_inherit(highlight::color::normal_current);
+			const auto& Bottom = get_and_inherit(highlight::color::normal);
 
 			Top.FileColor = colors::merge(Bottom.FileColor, Top.FileColor);
 			Top.MarkColor = colors::merge(Bottom.MarkColor, Top.FileColor, Top.MarkColor);
@@ -439,9 +448,9 @@ static void inherit_color(highlight::element::colors_array& Colors, highlight::c
 		// Selected cursor lies on top of selection and can inherit its color
 		// Selection lies on top of text and can inherit its color
 		{
-			auto& Top = Colors[highlight::color::selected_current];
-			const auto& Bottom2 = Colors[highlight::color::selected];
-			const auto& Bottom1 = Colors[highlight::color::normal];
+			auto& Top = get_and_inherit(highlight::color::selected_current);
+			const auto& Bottom2 = get_and_inherit(highlight::color::selected);
+			const auto& Bottom1 = get_and_inherit(highlight::color::normal);
 
 			Top.FileColor = colors::merge(Bottom1.FileColor, Bottom2.FileColor, Top.FileColor);
 			Top.MarkColor = colors::merge(Bottom1.MarkColor, Bottom2.MarkColor, Top.FileColor, Top.MarkColor);
@@ -457,8 +466,6 @@ void highlight::configuration::ApplyFinalColor(element::colors_array& Colors, co
 {
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColor(Colors[ColorIndex], color::ToFarColor(ColorIndex));
-
-	InheritPaletteColor(Colors[ColorIndex].FileColor, ColorIndex);
 
 	inherit_color(Colors, ColorIndex);
 }
