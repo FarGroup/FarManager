@@ -14058,6 +14058,21 @@ MInfoMetricAvailable
 "turima"
 "livre"
 
+MInfoMetricUsed
+"использовано"
+"used"
+upd:"used"
+upd:"used"
+upd:"used"
+upd:"used"
+upd:"used"
+upd:"used"
+upd:"used"
+"використано"
+upd:"used"
+upd:"used"
+upd:"used"
+
 MInfoDisk
 "диск"
 "disk"
