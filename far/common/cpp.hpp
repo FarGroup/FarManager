@@ -130,7 +130,7 @@ namespace std
 
 #ifndef __cpp_lib_ranges_fold
 #include <algorithm>
-#ifndef _LIBCPP___ALGORITHM_FOLD_H // as of March 2024 libc++ doesn't define __cpp_lib_ranges_fold
+#if !defined _LIBCPP___ALGORITHM_FOLD_H && !defined _LIBCPP___ALGORITHM_RANGES_FOLD_H // as of March 2025 libc++ doesn't define __cpp_lib_ranges_fold
 #include <functional>
 #include <iterator>
 #include <ranges>
