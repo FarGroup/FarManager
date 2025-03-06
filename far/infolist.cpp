@@ -431,16 +431,18 @@ void InfoList::DisplayObject()
 		PrintInfo(size2str(Total));
 
 		const auto PercentAvailable = ToPercent(Available, Total);
+		const auto MoreSymbol = FromPercent(PercentAvailable, Total) < Total? L'>' : L' ';
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintMetricText(Kind, lng::MInfoMetricAvailable);
-		PrintInfo(far::format(L"{}%, {}"sv, PercentAvailable, size2str(Available)));
+		PrintInfo(far::format(L"{} {}%, {}"sv, MoreSymbol, PercentAvailable, size2str(Available)));
 
 		const auto Used = Total - Available;
+		const auto LessSymbol = MoreSymbol == L' '? MoreSymbol : L'<';
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintMetricText(Kind, lng::MInfoMetricUsed);
-		PrintInfo(far::format(L"{}%, {}"sv, 100 - PercentAvailable, size2str(Used)));
+		PrintInfo(far::format(L"{} {}%, {}"sv, LessSymbol, 100 - PercentAvailable, size2str(Used)));
 	};
 
 	if (SectionState[ILSS_DISKINFO].Show)

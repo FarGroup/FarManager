@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-03-06 19:58:42+00:00 - build 6449
+
+1. Continue gh-924: make percentage rounding more explicit.
+
+--------------------------------------------------------------------------------
 Yegor 2025-03-04 19:00:00-08:00 - build 6448
 
 1. Added 'Used' space and memory values to the Panel Info
