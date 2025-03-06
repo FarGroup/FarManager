@@ -111,7 +111,10 @@ namespace detail
 		template<size_t... I>
 		void postprocess_impl(std::wstring_view& Value, std::index_sequence<I...>)
 		{
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wunused-result") // Lies! Deception!
 			(..., get_opt<sizeof...(args) - 1 - I, try_postprocess>().postprocess(Value));
+WARNING_POP()
 		}
 	};
 
