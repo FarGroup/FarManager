@@ -429,9 +429,18 @@ void InfoList::DisplayObject()
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintMetricText(Kind, lng::MInfoMetricTotal);
 		PrintInfo(size2str(Total));
+
+		const auto PercentAvailable = ToPercent(Available, Total);
+
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintMetricText(Kind, lng::MInfoMetricAvailable);
-		PrintInfo(far::format(L"{}%, {}"sv, ToPercent(Available, Total), size2str(Available)));
+		PrintInfo(far::format(L"{}%, {}"sv, PercentAvailable, size2str(Available)));
+
+		const auto Used = Total - Available;
+
+		GotoXY(m_Where.left + 2, CurY++);
+		PrintMetricText(Kind, lng::MInfoMetricUsed);
+		PrintInfo(far::format(L"{}%, {}"sv, 100 - PercentAvailable, size2str(Used)));
 	};
 
 	if (SectionState[ILSS_DISKINFO].Show)
