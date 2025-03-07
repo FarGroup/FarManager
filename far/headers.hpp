@@ -58,6 +58,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FAR_ENABLE_CORRECT_ISO_CPP_WCHAR_H_OVERLOADS
 #endif
 
+#if COMPILER(CLANG)
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wbuiltin-macro-redefined")
+// Seems to be broken in v20 or incompatible with libstdc++ headers
+#undef __cpp_explicit_this_parameter
+WARNING_POP()
+#endif
+
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
 
