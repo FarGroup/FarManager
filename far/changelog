@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+MZK 2025-03-16 17:21:12-04:00 - build 6451
+
+1. gh-918: Introduced type segment
+   Using segment instead of std::pair<int, int> (or similar) because there
+   is no way to remember what the second item represents: length, end, or last.
+
+--------------------------------------------------------------------------------
 drkns 2025-03-07 17:43:00+00:00 - build 6450
 
 1. Revert 6449.

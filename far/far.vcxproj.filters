@@ -652,6 +652,9 @@
     <ClInclude Include="common\scope_exit.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\segment.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\singleton.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

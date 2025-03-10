@@ -316,6 +316,46 @@ TEST_CASE("algorithm.any_none_of")
 	STATIC_REQUIRE(none_of(1, 2, 3));
 }
 
+TEST_CASE("algorithm.intersect.segments")
+{
+	struct test_data
+	{
+		struct test_segment: public segment
+		{
+			test_segment(int const Begin, int const End)
+				: segment{ Begin, segment::sentinel_tag{ End } }
+			{}
+		};
+		test_segment A, B, Intersection;
+	};
+
+	static const test_data TestDataPoints[] =
+	{
+		{ { 10, 20 }, { -1, 5 }, { 0, 0 } },
+		{ { 10, 20 }, { -1, 10 }, { 0, 0 } },
+		{ { 10, 20 }, { -1, 15 }, { 10, 15 } },
+		{ { 10, 20 }, { -1, 20 }, { 10, 20 } },
+		{ { 10, 20 }, { -1, 25 }, { 10, 20 } },
+		{ { 10, 20 }, { 10, 15 }, { 10, 15 } },
+		{ { 10, 20 }, { 10, 20 }, { 10, 20 } },
+		{ { 10, 20 }, { 10, 25 }, { 10, 20 } },
+		{ { 10, 20 }, { 15, 20 }, { 15, 20 } },
+		{ { 10, 20 }, { 15, 25 }, { 15, 20 } },
+		{ { 10, 20 }, { 20, 25 }, { 0, 0 } },
+		{ { 10, 20 }, { 25, 30 }, { 0, 0 } },
+		{ { 10, 20 }, { 0, 0 }, { 0, 0 } },
+		{ { 10, 20 }, { 15, 15 }, { 0, 0 } },
+		{ { 10, 20 }, { 20, 20 }, { 42, 42 } },
+		{ { 10, 20 }, { 30, 30 }, { 0, 0 } },
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(TestDataPoint.Intersection == intersect(TestDataPoint.A, TestDataPoint.B));
+		REQUIRE(TestDataPoint.Intersection == intersect(TestDataPoint.B, TestDataPoint.A));
+	}
+}
+
 //----------------------------------------------------------------------------
 
 #include "common/base64.hpp"

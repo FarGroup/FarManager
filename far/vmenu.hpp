@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/segment.hpp"
 
 // External:
 
@@ -145,9 +146,9 @@ struct MenuItemEx: menu_item
 	int HorizontalPosition{}; // Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
-	std::list<std::pair<int, int>> Annotations;
+	std::list<segment> Annotations;
 
-	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().first; }
+	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().start(); }
 };
 
 struct menu_layout;
