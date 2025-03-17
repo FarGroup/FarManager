@@ -3504,7 +3504,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					constexpr int service_len{ 12 };
 					const auto Location{ far::format(L"{}:{}"sv, m_FoundLine.Number() + 1, m_FoundPos + 1) };
 					MenuItemEx Item{ far::format(L"{:{}}{}{}"sv, Location, service_len, BoxSymbols[BS_V1], m_FoundLine->GetString()) };
-					Item.Annotations.emplace_back(m_FoundPos + service_len + 1, m_FoundSize);
+					Item.Annotations.emplace_back(m_FoundPos + service_len + 1, segment::length_tag{ m_FoundSize });
 					Item.ComplexUserData = FindCoord{ m_FoundLine.Number(), m_FoundPos, m_FoundSize };
 					FindAllList->AddItem(Item);
 
