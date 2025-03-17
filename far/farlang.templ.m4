@@ -14064,7 +14064,7 @@ MInfoMetricUsed
 upd:"used"
 upd:"used"
 upd:"used"
-upd:"used"
+"używana"
 upd:"used"
 upd:"used"
 upd:"used"
