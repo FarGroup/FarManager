@@ -1168,7 +1168,11 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 
 	Info->StructSize = sizeof(*Info);
 	Info->hPanel = hPlugin->panel();
-	hPlugin->plugin()->GetOpenPanelInfo(Info);
+
+	// See m_CachedOpenPanelInfo
+	auto InfoCopy = *Info;
+	hPlugin->plugin()->GetOpenPanelInfo(&InfoCopy);
+	*Info = InfoCopy;
 
 	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=root_type::unknown)
 		os::fs::set_current_directory(Info->CurDir, false);
