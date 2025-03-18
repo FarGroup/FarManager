@@ -1,3 +1,7 @@
+shmuel 2025-03-18 23:57:24+02:00 - build 869
+
+1. LuaFAR: fix crash in recursively called GetOpenPanelInfoW due to hPanel==nullptr.
+
 shmuel 2025-02-28 16:21:34+02:00 - build 868
 
 1. Revert build 846.
