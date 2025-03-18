@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-03-18 23:22:05+00:00 - build 6453
+
+1. Respect panel visibility in FCTL_SETSORTORDER & FCTL_SETDIRECTORIESFIRST API calls.
+
+--------------------------------------------------------------------------------
 drkns 2025-03-18 22:06:19+00:00 - build 6452
 
 1. Ensure that plugins cannot break recursive GetOpenPanelInfoW calls.

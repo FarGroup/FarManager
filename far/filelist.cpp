@@ -3569,7 +3569,8 @@ void FileList::ChangeDirectoriesFirst(bool Mode)
 	Panel::ChangeDirectoriesFirst(Mode);
 	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	Show();
+	if (IsVisible())
+		Show();
 }
 
 void FileList::OnSortingChange()
@@ -5522,7 +5523,8 @@ void FileList::ChangeSortOrder(bool Reverse)
 	Panel::ChangeSortOrder(Reverse);
 	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	Show();
+	if (IsVisible())
+		Show();
 }
 
 void FileList::UpdateKeyBar()
