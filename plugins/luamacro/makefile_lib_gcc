@@ -8,24 +8,24 @@ LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/$(VERSION_LUASDK)/32/lua.exe))
 endif
 
 SRCS = \
-	luafar/bit64.c \
-	luafar/exported.c \
-	luafar/farhost.c \
+	luafar/lf_bit64.c \
+	luafar/lf_exported.c \
+	luafar/lf_farhost.c \
 	luafar/flags.c \
 	luafar/keysandcolors.c \
-	luafar/lflua.c \
-	luafar/lregex.c \
-	luafar/luamacro.c \
-	luafar/lusercontrol.c \
-	luafar/reg.c \
-	luafar/service.c \
-	luafar/slnunico.c \
-	luafar/lutf8lib.c \
-	luafar/uliolib51.c \
-	luafar/uloadlib51.c \
-	luafar/ustring.c \
-	luafar/util.c \
-	luafar/win.c \
+	luafar/lf_lua.c \
+	luafar/lf_regex.c \
+	luafar/lf_luamacro.c \
+	luafar/lf_usercontrol.c \
+	luafar/lf_reg.c \
+	luafar/lf_service.c \
+	luafar/lf_slnunico.c \
+	luafar/lf_utf8lib.c \
+	luafar/lf_liolib51.c \
+	luafar/lf_loadlib51.c \
+	luafar/lf_string.c \
+	luafar/lf_util.c \
+	luafar/lf_win.c \
 	luafar/LPeg/lpcap.c \
 	luafar/LPeg/lpcode.c \
 	luafar/LPeg/lpcset.c \

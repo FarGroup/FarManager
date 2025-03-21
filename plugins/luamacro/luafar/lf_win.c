@@ -9,10 +9,10 @@ WARNING_DISABLE_MSC(4255)
 #include <versionhelpers.h>
 WARNING_POP()
 
-#include "reg.h"
-#include "util.h"
-#include "ustring.h"
-#include "luafar.h"
+#include "lf_reg.h"
+#include "lf_util.h"
+#include "lf_string.h"
+#include "lf_luafar.h"
 
 extern const char* VirtualKeyStrings[256];
 extern void pushFileTime(lua_State *L, const FILETIME *ft);

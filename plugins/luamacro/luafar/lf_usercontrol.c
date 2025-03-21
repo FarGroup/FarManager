@@ -1,7 +1,7 @@
 ﻿/* lusercontrol.c */
 
-#include "ustring.h"
-#include "util.h"
+#include "lf_string.h"
+#include "lf_util.h"
 
 #define TYPE_USERCONTROL "far_usercontrol"
 

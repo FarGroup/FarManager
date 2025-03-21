@@ -1,3 +1,7 @@
+shmuel 2025-03-21 12:38:18+02:00 - build 870
+
+1. Add lf_ prefix to LuaFAR source files' names.
+
 shmuel 2025-03-18 23:57:24+02:00 - build 869
 
 1. LuaFAR: fix crash in recursively called GetOpenPanelInfoW due to hPanel==nullptr.

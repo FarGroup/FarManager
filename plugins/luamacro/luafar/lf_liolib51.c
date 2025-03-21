@@ -27,7 +27,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#include "ustring.h"
+#include "lf_string.h"
 
 #undef lua_popen
 #define lua_popen(L,c,m)	((void)L, _wpopen(c,m))

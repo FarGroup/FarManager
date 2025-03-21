@@ -2,9 +2,9 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <signal.h>
-#include "luafar.h"
-#include "util.h"
-#include "ustring.h"
+#include "lf_luafar.h"
+#include "lf_util.h"
+#include "lf_string.h"
 
 extern int bit64_push(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);

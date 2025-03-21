@@ -1,6 +1,6 @@
 ﻿#include <errno.h>
-#include "ustring.h"
-#include "luafar.h"
+#include "lf_string.h"
+#include "lf_luafar.h"
 
 extern int IsLuaJIT(void);
 

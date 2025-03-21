@@ -4,9 +4,9 @@
 
 #include <plugin.hpp>
 
-#include "luafar.h"
-#include "ustring.h"
-#include "util.h"
+#include "lf_luafar.h"
+#include "lf_string.h"
+#include "lf_util.h"
 
 typedef struct PluginStartupInfo PSInfo;
 

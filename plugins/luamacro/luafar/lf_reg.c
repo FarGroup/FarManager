@@ -1,4 +1,4 @@
-﻿#include "reg.h"
+﻿#include "lf_reg.h"
 
 HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
 {

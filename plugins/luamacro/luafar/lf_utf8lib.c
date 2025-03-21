@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "unidata.h"
+#include "lf_unidata.h"
 
 /* UTF-8 string operations */
 

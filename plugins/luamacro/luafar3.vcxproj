@@ -36,30 +36,30 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="luafar\bit64.c" />
-    <ClCompile Include="luafar\exported.c" />
-    <ClCompile Include="luafar\farhost.c" />
+    <ClCompile Include="luafar\lf_bit64.c" />
+    <ClCompile Include="luafar\lf_exported.c" />
+    <ClCompile Include="luafar\lf_farhost.c" />
     <ClCompile Include="luafar\flags.c" />
     <ClCompile Include="luafar\keysandcolors.c" />
-    <ClCompile Include="luafar\lflua.c" />
-    <ClCompile Include="luafar\lregex.c" />
-    <ClCompile Include="luafar\luamacro.c" />
-    <ClCompile Include="luafar\lusercontrol.c" />
-    <ClCompile Include="luafar\reg.c" />
-    <ClCompile Include="luafar\service.c" />
-    <ClCompile Include="luafar\slnunico.c">
+    <ClCompile Include="luafar\lf_lua.c" />
+    <ClCompile Include="luafar\lf_regex.c" />
+    <ClCompile Include="luafar\lf_luamacro.c" />
+    <ClCompile Include="luafar\lf_usercontrol.c" />
+    <ClCompile Include="luafar\lf_reg.c" />
+    <ClCompile Include="luafar\lf_service.c" />
+    <ClCompile Include="luafar\lf_slnunico.c">
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>
     </ClCompile>
-    <ClCompile Include="luafar\lutf8lib.c">
+    <ClCompile Include="luafar\lf_utf8lib.c">
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>
     </ClCompile>
-    <ClCompile Include="luafar\uliolib51.c" />
-    <ClCompile Include="luafar\uloadlib51.c" />
-    <ClCompile Include="luafar\ustring.c" />
-    <ClCompile Include="luafar\util.c" />
-    <ClCompile Include="luafar\win.c" />
+    <ClCompile Include="luafar\lf_liolib51.c" />
+    <ClCompile Include="luafar\lf_loadlib51.c" />
+    <ClCompile Include="luafar\lf_string.c" />
+    <ClCompile Include="luafar\lf_util.c" />
+    <ClCompile Include="luafar\lf_win.c" />
     <ClCompile Include="luafar\LPeg\lpcap.c" />
     <ClCompile Include="luafar\LPeg\lpcode.c" />
     <ClCompile Include="luafar\LPeg\lpcset.c" />
@@ -68,12 +68,12 @@
     <ClCompile Include="luafar\LPeg\lpvm.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="luafar\luafar.h" />
-    <ClInclude Include="luafar\reg.h" />
-    <ClInclude Include="luafar\unidata.h" />
-    <ClInclude Include="luafar\ustring.h" />
-    <ClInclude Include="luafar\util.h" />
-    <ClInclude Include="luafar\version.h" />
+    <ClInclude Include="luafar\lf_luafar.h" />
+    <ClInclude Include="luafar\lf_reg.h" />
+    <ClInclude Include="luafar\lf_unidata.h" />
+    <ClInclude Include="luafar\lf_string.h" />
+    <ClInclude Include="luafar\lf_util.h" />
+    <ClInclude Include="luafar\lf_version.h" />
     <ClInclude Include="luafar\LPeg\lpcap.h" />
     <ClInclude Include="luafar\LPeg\lpcode.h" />
     <ClInclude Include="luafar\LPeg\lpcset.h" />

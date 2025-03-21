@@ -30,7 +30,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#include "ustring.h"
+#include "lf_string.h"
 int LF_LoadFile(lua_State *L, const wchar_t *filename);
 const wchar_t* LF_Gsub(lua_State *L, const wchar_t *s, const wchar_t *p,
                        const wchar_t *r);

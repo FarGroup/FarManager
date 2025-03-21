@@ -1,6 +1,6 @@
 #pragma code_page(65001)
 
-#include "luafar/version.h"
+#include "luafar/lf_version.h"
 
 #define PLUGIN_DESC "Lua Macros for Far Manager"
 #define PLUGIN_NAME "LuaMacro"

@@ -1,6 +1,6 @@
 #pragma code_page(65001)
 
-#include "version.h"
+#include "lf_version.h"
 
 #define PLUGIN_DESC "LuaFar library"
 #define PLUGIN_NAME "LuaFar"

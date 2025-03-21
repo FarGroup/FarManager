@@ -1,5 +1,5 @@
 ﻿#include <shlobj.h>
-#include "ustring.h"
+#include "lf_string.h"
 
 // This function was initially taken from Lua 5.0.2 (loadlib.c)
 void pusherrorcode(lua_State *L, int error)

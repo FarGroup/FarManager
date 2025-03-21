@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
-#include "version.h"
-#include "luafar.h"
-#include "util.h"
-#include "ustring.h"
+#include "lf_version.h"
+#include "lf_luafar.h"
+#include "lf_util.h"
+#include "lf_string.h"
 
 #ifndef LUADLL
 # if LUA_VERSION_NUM == 501

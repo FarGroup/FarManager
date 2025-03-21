@@ -1,9 +1,9 @@
 ﻿//---------------------------------------------------------------------------
 #include <stdlib.h>
 
-#include "luafar.h"
-#include "ustring.h"
-#include "util.h"
+#include "lf_luafar.h"
+#include "lf_string.h"
+#include "lf_util.h"
 
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 extern int pcall_msg(lua_State* L, int narg, int nret);
