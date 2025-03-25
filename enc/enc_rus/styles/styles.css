@@ -335,25 +335,6 @@ UL.note
     margin-top: 0;
     padding-left: 1.5em;
 }
-SPAN.faqq
-{
-    FONT-WEIGHT: bolder;
-    FONT-SIZE: larger;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    COLOR: #CC0000
-}
-SPAN.faqqb
-{
-    FONT-WEIGHT: bolder;
-    COLOR: black
-}
-SPAN.faqa
-{
-    FONT-WEIGHT: bolder;
-    FONT-SIZE: larger;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    COLOR: #000080
-}
 
 .nobr { white-space: nowrap; }
 .pre { white-space: pre; }
