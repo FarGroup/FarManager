@@ -39,163 +39,207 @@ intptr_t WINAPI AdvControl(
     <tr><th>Команда</th><th>Описание</th></tr>
 
     <tr><td><a name="ACTL_COMMIT">ACTL_COMMIT</a></td>
-    <td>"Фиксирует" действие последней операции с окнами (например, после <code>ACTL_SETCURRENTWINDOW</code>).<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
+    <td>"Фиксирует" действие последней операции с окнами (например, после <code>ACTL_SETCURRENTWINDOW</code>).
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция возвращает <code>TRUE</code> в случае успеха и <code>FALSE</code> при неудаче.</td></tr>
 
     <tr><td><a name="ACTL_GETARRAYCOLOR">ACTL_GETARRAYCOLOR</a></td>
-    <td>Получить все цвета Far Manager.<br>
-    <code>Param1</code> размер буфера, в элементах <a href="../structures/farcolor.html">FarColor</a>.<br>
-    <code>Param2</code> указатель на буфер плагина, в который будут скопированы текущие цветовые атрибуты.<br>
-    <code>Param2 = NULL</code> позволяет узнать количество элементов в массиве цветов для копирования.<br>
+    <td>Получить все цвета Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> размер буфера, в элементах <a href="../structures/farcolor.html">FarColor</a>.</li>
+      <li><var>Param2</var> указатель на буфер плагина, в который будут скопированы текущие цветовые атрибуты.</li>
+      <li><var>Param2 = NULL</var> позволяет узнать количество элементов в массиве цветов для копирования.</li>
+    </ul>
     Функция всегда возвращает количество элементов в массиве цветов.</td></tr>
 
     <tr><td><a name="ACTL_GETCOLOR">ACTL_GETCOLOR</a></td>
-    <td>Получить цвет Far Manager по индексу.<br>
-    <code>Param1</code> одна из констант <a href="../defs/farcolors.html">COL_*</a>, описанных в <code>farcolor.hpp</code><br>
-    <code>Param2</code> указывает на переменную типа <a href="../structures/farcolor.html">FarColor</a>, в которую будет помещен соответствующий индексу код цвета.<br>
+    <td>Получить цвет Far Manager по индексу.
+    <ul class="nomarker">
+      <li><var>Param1</var> одна из констант <a href="../defs/farcolors.html">COL_*</a>, описанных в <code>farcolor.hpp</code></li>
+      <li><var>Param2</var> указывает на переменную типа <a href="../structures/farcolor.html">FarColor</a>, в которую будет помещен соответствующий индексу код цвета.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>, если удалось получить указанные цветовые атрибуты.</td></tr>
 
     <tr><td><a name="ACTL_GETCURSORPOS">ACTL_GETCURSORPOS</a></td>
-    <td>Получить информацию о положении курсора относительно окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../winapi/coord.html">COORD</a>.<br>
+    <td>Получить информацию о положении курсора относительно окна Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../winapi/coord.html">COORD</a>.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>, если положение курсора удалось получить, иначе - <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="ACTL_GETFARHWND">ACTL_GETFARHWND</a></td>
-    <td>Возвращает <code>HWND</code> текущего окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td>Возвращает <code>HWND</code> текущего окна Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
+    </td></tr>
 
     <tr><td><a name="ACTL_GETFARRECT">ACTL_GETFARRECT</a></td>
-    <td>Получить информацию о координатах окна Far Manager в консольном буфере.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../winapi/small_rect.html">SMALL_RECT</a>.<br>
+    <td>Получить информацию о координатах окна Far Manager в консольном буфере.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../winapi/small_rect.html">SMALL_RECT</a>.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>, если координаты окна Far Manager удалось получить, иначе - <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="ACTL_GETFARMANAGERVERSION">ACTL_GETFARMANAGERVERSION</a></td>
-    <td>Узнать версию Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на переменную типа <a href="../structures/versioninfo.html">VersionInfo</a>, в которую будет помещена информация о версии Far Manager.<br>
+    <td>Узнать версию Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на переменную типа <a href="../structures/versioninfo.html">VersionInfo</a>, в которую будет помещена информация о версии Far Manager.</li>
+    </ul>
     Функция всегда возвращает <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="ACTL_GETWINDOWCOUNT">ACTL_GETWINDOWCOUNT</a></td>
-    <td>Возвращает число открытых окон в Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Минимальное число окон равно <code>1</code> (при запуске Far Manager: в обычном режиме - файловые панели; с ключами <code>-e</code> или <code>-v</code> - редактор или программа просмотра, соответственно).<br></td></tr>
+    <td>Возвращает число открытых окон в Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
+    Минимальное число окон равно <code>1</code> (при запуске Far Manager: в обычном режиме - файловые панели; с ключами <code>-e</code> или <code>-v</code> - редактор или программа просмотра, соответственно).</td></tr>
 
     <tr><td><a name="ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a></td>
-    <td>Получить информацию о конкретном окне Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
-    Функция возвращает <code>TRUE</code>, если окно с номером <code>WindowInfo.Pos</code> существует и
-    <code>FALSE</code> - такого окна нет (поля структуры <a href="../structures/windowinfo.html">WindowInfo</a> не заполняются).<br>
-    <code>WindowInfo.Pos</code> надо инициализировать перед вызовом функции.<br>
-    Память под <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code> плагин должен выделить самостоятельно,
-    требуемые размеры можно получить передав <code>NULL</code> в качестве <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code>.</td></tr>
+    <td>Получить информацию о конкретном окне Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../structures/windowinfo.html">WindowInfo</a>.</li>
+    </ul>
+    <p>Функция возвращает <code>TRUE</code>, если окно с номером <code>WindowInfo.Pos</code> существует и
+    <code>FALSE</code> - такого окна нет (поля структуры <a href="../structures/windowinfo.html">WindowInfo</a> не заполняются).</p>
+    <p><code>WindowInfo.Pos</code> надо инициализировать перед вызовом функции.</p>
+    <p>Память под <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code> плагин должен выделить самостоятельно,
+    требуемые размеры можно получить передав <code>NULL</code> в качестве <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code>.</p></td></tr>
 
     <tr><td><a name="ACTL_GETWINDOWTYPE">ACTL_GETWINDOWTYPE</a></td>
-    <td>Получить информацию о типе окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/windowtype.html">WindowType</a>.<br>
-    Функция возвращает <code>TRUE</code>, если удалось определить тип окна.<br>
-    В отличие от <code>ACTL_GETWINDOWINFO</code> эту команду можно вызывать из любых тредов.</td></tr>
+    <td>Получить информацию о типе окна Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../structures/windowtype.html">WindowType</a>.</li>
+    </ul>
+    <p>Функция возвращает <code>TRUE</code>, если удалось определить тип окна.</p>
+    <p>В отличие от <code>ACTL_GETWINDOWINFO</code> эту команду можно вызывать из любых тредов.</p></td></tr>
 
     <tr><td><a name="ACTL_QUIT">ACTL_QUIT</a></td>
-    <td>Завершение работы Far Manager.<br>
-    <code>Param1</code> код возврата Far Manager.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td>Завершение работы Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> код возврата Far Manager.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
+    </td></tr>
 
     <tr><td><a name="ACTL_REDRAWALL">ACTL_REDRAWALL</a></td>
-    <td>Перерисовка всех окон Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td>Перерисовка всех окон Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
+    </td></tr>
 
     <tr><td><a name="ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a></td>
-    <td>Изменить заданный диапазон цветовой схемы Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/farsetcolors.html">FarSetColors</a>.<br>
+    <td>Изменить заданный диапазон цветовой схемы Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../structures/farsetcolors.html">FarSetColors</a>.</li>
+    </ul>
     Функция возвращает <code>TRUE</code> при успешной замене заданного диапазона цветовой схемы и
     <code>FALSE</code> для неверно заданных параметров в структуре <a href="../structures/farsetcolors.html">FarSetColors</a>.</td></tr>
 
     <tr><td><a name="ACTL_SETCURRENTWINDOW">ACTL_SETCURRENTWINDOW</a></td>
-    <td>Позволяет переключиться в конкретное окно Far Manager.<br>
-    <code>Param1</code> число, задающее номер активного окна (нумерация начинается с <code>0</code>).<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
+    <td>Позволяет переключиться в конкретное окно Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> число, задающее номер активного окна (нумерация начинается с <code>0</code>).</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
+    Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW"> Внимание!</p>
     <ul class="note"><li>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</li></ul></td></tr>
 
     <tr><td><a name="ACTL_SETCURSORPOS">ACTL_SETCURSORPOS</a></td>
-    <td>Устанавливает положение курсора относительно окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на заполненную структуру <a href="../winapi/coord.html">COORD</a>.<br>
+    <td>Устанавливает положение курсора относительно окна Far Manager.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на заполненную структуру <a href="../winapi/coord.html">COORD</a>.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>, если положение курсора удалось изменить, иначе - <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="ACTL_SETPROGRESSSTATE">ACTL_SETPROGRESSSTATE</a></td>
-    <td>Устанавливает тип и состояние индикатора прогресса на кнопке Far Manager в панели задач.<br>
-    <code>Param1</code> может принимать одно из следующих значений (перечисление <code>TASKBARPROGRESSTATE</code>):
-    <table class="cont">
-    <tr><th>Константа</th><th>Описание</th></tr>
-    <tr><td><a name="TBPS_NOPROGRESS">TBPS_NOPROGRESS</a></td>
-    <td></td></tr>
-    <tr><td><a name="TBPS_INDETERMINATE">TBPS_INDETERMINATE</a></td>
-    <td></td></tr>
-    <tr><td><a name="TBPS_NORMAL">TBPS_NORMAL</a></td>
-    <td></td></tr>
-    <tr><td><a name="TBPS_ERROR">TBPS_ERROR</a></td>
-    <td></td></tr>
-    <tr><td><a name="TBPS_PAUSED">TBPS_PAUSED</a></td>
-    <td></td></tr>
-    </table>
-    <code>Param2</code> не используется.<br>
+    <td>Устанавливает тип и состояние индикатора прогресса на кнопке Far Manager в панели задач.
+    <ul class="nomarker">
+      <li><var>Param1</var> может принимать одно из следующих значений (перечисление <code>TASKBARPROGRESSTATE</code>):
+        <table class="cont">
+        <tr><th>Константа</th><th>Описание</th></tr>
+        <tr><td><a name="TBPS_NOPROGRESS">TBPS_NOPROGRESS</a></td>
+        <td></td></tr>
+        <tr><td><a name="TBPS_INDETERMINATE">TBPS_INDETERMINATE</a></td>
+        <td></td></tr>
+        <tr><td><a name="TBPS_NORMAL">TBPS_NORMAL</a></td>
+        <td></td></tr>
+        <tr><td><a name="TBPS_ERROR">TBPS_ERROR</a></td>
+        <td></td></tr>
+        <tr><td><a name="TBPS_PAUSED">TBPS_PAUSED</a></td>
+        <td></td></tr>
+        </table>
+      </li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE"> Внимание!</p>
     <ul class="note"><li>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressStat</dfn></a></li></ul></td></tr>
 
     <tr><td><a name="ACTL_SETPROGRESSVALUE">ACTL_SETPROGRESSVALUE</a></td>
-    <td>Отображает и корректирует прогресс операции на кнопке Far Manager в панели задач.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/progressvalue.html">ProgressValue</a>.<br>
+    <td>Отображает и корректирует прогресс операции на кнопке Far Manager в панели задач.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на структуру <a href="../structures/progressvalue.html">ProgressValue</a>.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE"> Внимание!</p>
     <ul class="note"><li>Работает в Windows 7 и выше. Для подробностей см. метод <a class="msdocs"><dfn>ITaskbarList3::SetProgressValue</dfn></a></li></ul></td></tr>
 
     <tr><td><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
     <td>Far Manager выполняет стандартное оповещение о завершении операции
-    (при неактивном окне приложения кратковременное мерцание кнопкой Far Manager в панели задач и последующая подсветка её до получения окном фокуса).<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
+    (при неактивном окне приложения кратковременное мерцание кнопкой Far Manager в панели задач и последующая подсветка её до получения окном фокуса).
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция возвращает <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="ACTL_SYNCHRO">ACTL_SYNCHRO</a></td>
-    <td>Позволяет потоку, запущенному плагином, выполнить код в контексте главного потока Far Manager посредством вызова функции <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на данные, передающиеся в функцию <code>ProcessSynchroEventW</code>, может быть <code>NULL</code>.<br>
-    Функция всегда возвращает <code>0</code>.<br>
+    <td>Позволяет потоку, запущенному плагином, выполнить код в контексте главного потока Far Manager посредством вызова функции <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указатель на данные, передающиеся в функцию <code>ProcessSynchroEventW</code>, может быть <code>NULL</code>.</li>
+    </ul>
+    Функция всегда возвращает <code>0</code>.
     <p class="note"><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO"> Внимание!</p>
     <ul class="note"><li>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</li></ul></td></tr>
 
     <tr><td><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
-    <td>Ожидать клавишу.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2 = NULL</code> - ждём любую клавишу.<br>
-    <code>Param2</code> указатель на заполненную структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> (код клавиши) - ждём конкретную клавишу.<br>
+    <td>Ожидать клавишу.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2 = NULL</var> - ждём любую клавишу.</li>
+      <li><var>Param2</var> указатель на заполненную структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> (код клавиши) - ждём конкретную клавишу.</li>
+    </ul>
     Функция всегда возвращает <code>0</code>.</td></tr>
 
     </table>
     </div>
   <div class="dfn">Param1</div>
-    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+    <div class="dfndescr">Указывает на параметры1 команды. Смотрите описание <var>Command</var>.</div>
   <div class="dfn">Param2</div>
-    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+    <div class="dfndescr">Указывает на параметры2 команды. Смотрите описание <var>Command</var>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class="descr">
-Смотрите описание <code>Command</code>.
+Смотрите описание <var>Command</var>.
 </div>
 
 <div class="see">Смотрите также:</div>
