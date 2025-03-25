@@ -20,6 +20,7 @@ extern "C" {
 
 LUALIB_API int luaopen_ustring(lua_State *L);
 
+const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len);
 void pusherrorcode(lua_State *L, int error);
 void pusherror(lua_State *L);
 int  SysErrorReturn(lua_State *L);
