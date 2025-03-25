@@ -204,6 +204,21 @@ local function postmacro (f, ...)
   return false
 end
 
+local function safe_tostring (obj)
+  local success, str = pcall(tostring, obj)
+  if success then
+    if type(str)=="string" then
+      return str
+    end
+    str = string.format("(tostring returned a %s value)", type(str))
+  else
+    if type(str)~="string" then
+      str = string.format("(error object is a %s value)", type(str))
+    end
+  end
+  return "error calling tostring: "..str, true
+end
+
 local function FixReturn (handle, ok, ...)
   local ret1, ret_type = ...
   if ok then
@@ -215,7 +230,8 @@ local function FixReturn (handle, ok, ...)
       return F.MPRT_NORMALFINISH, pack(true, ...)
     end
   else
-    local msg = type(ret1)=="string" and ret1 or "(error object is not a string)"
+    local msg,err = safe_tostring(ret1)
+    if err then msg = "error in error handling\n"..msg end
     msg = string.gsub(debug.traceback(handle.coro, msg), "\n\t", "\n   ")
     ErrMsg(msg)
     return F.MPRT_ERRORFINISH

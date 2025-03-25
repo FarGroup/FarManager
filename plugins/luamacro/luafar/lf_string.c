@@ -1,6 +1,57 @@
 ﻿#include <shlobj.h>
 #include "lf_string.h"
 
+const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len)
+{
+	if (luaL_getmetafield(L, idx, "__tostring")) {
+		BOOL succeeded = 0;
+		if (!lua_isfunction(L, -1)) {
+			const char* tname = luaL_typename(L, -1);
+			lua_pop(L, 1);
+			lua_pushfstring(L, "attempt to call a %s value", tname);
+		} else {
+			lua_pushvalue(L, idx);
+			if (lua_pcall(L, 1, 1, 0) != 0) {
+				if (!lua_isstring(L, -1)) {
+					const char* tname = luaL_typename(L, -1);
+					lua_pop(L, 1);
+					lua_pushfstring(L, "(error object is a %s value)", tname);
+				}
+			} else if (!lua_isstring(L, -1)) {
+				const char* tname = luaL_typename(L, -1);
+				lua_pop(L, 1);
+				lua_pushfstring(L, "(tostring returned a %s value)", tname);
+			} else {
+				succeeded = 1;
+			}
+		}
+		if (succeeded == 0) {
+			lua_pushstring(L, "error calling tostring: ");
+			lua_insert(L, -2);
+			lua_concat(L, 2);
+			return NULL;
+		}
+		return lua_tolstring(L, -1, len);
+	}
+	
+	switch (lua_type(L, idx)) {
+		case LUA_TNUMBER:
+		case LUA_TSTRING:
+			lua_pushvalue(L, idx);
+			break;
+		case LUA_TBOOLEAN:
+			lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
+			break;
+		case LUA_TNIL:
+			lua_pushliteral(L, "nil");
+			break;
+		default:
+			lua_pushfstring(L, "%s: %p", luaL_typename(L, idx), lua_topointer(L, idx));
+			break;
+	}
+	return lua_tolstring(L, -1, len);
+}
+
 // This function was initially taken from Lua 5.0.2 (loadlib.c)
 void pusherrorcode(lua_State *L, int error)
 {
