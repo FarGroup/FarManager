@@ -39,56 +39,72 @@ intptr_t WINAPI MacroControl(
     <tr><th>Команда</th><th>Описание</th></tr>
 
     <tr><td><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
-    <td>Загрузить все макросы из файлов в память Far Manager.<br>
-      Предыдущие значения макросов при этом выгружаются, за исключением макросов,
-      добавленных с помощью команды <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру
+    <td><p>Загрузить все макросы из файлов в память Far Manager.</p>
+      <p>Предыдущие значения макросов при этом выгружаются, за исключением макросов,
+      добавленных с помощью команды <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.</p>
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру
       <a href="../structures/farmacroload.html">FarMacroLoad</a>.
-      Для загрузки с параметрами по умолчанию установите в <code>NULL</code>.<br>
+      Для загрузки с параметрами по умолчанию установите в <code>NULL</code>.</li>
+    </ul>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
-    <td>Сохранить клавиатурные макросы из памяти Far Manager в файлы.<br>
-      Если пользователь записал с клавиатуры новые макросы, изменил либо удалил
-      существующие, то данные изменения станут постоянными.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
+    <td><p>Сохранить клавиатурные макросы из памяти Far Manager в файлы.</p>
+      <p>Если пользователь записал с клавиатуры новые макросы, изменил либо удалил
+      существующие, то данные изменения станут постоянными.</p>
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="MCTL_SENDSTRING">MCTL_SENDSTRING</a></td>
-    <td>Выполнить или проверить макрос.<br>
-    <code>Param1</code> значение типа <a name="FARMACROSENDSTRINGCOMMAND">FARMACROSENDSTRINGCOMMAND</a>:
-    <table class="cont">
-    <tr><th>Команда</th><th>Описание</th></tr>
-    <tr><td><a name="MSSC_POST">MSSC_POST</a></td>
-    <td>Выполнить макрос.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
-    Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</td></tr>
-    <tr><td><a name="MSSC_CHECK">MSSC_CHECK</a></td>
-    <td>Проверить макрос.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.
-    </td></tr>
-    </table>
+    <td>Выполнить или проверить макрос.
+    <ul class="nomarker">
+      <li><var>Param1</var> значение типа <a name="FARMACROSENDSTRINGCOMMAND">FARMACROSENDSTRINGCOMMAND</a>:
+        <table class="cont">
+        <tr><th>Команда</th><th>Описание</th></tr>
+        <tr><td><a name="MSSC_POST">MSSC_POST</a></td>
+        <td><p>Выполнить макрос.</p>
+          <p><var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.</p>
+          <p>Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки).</p>
+          <p>Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</p>
+        </td></tr>
+        <tr><td><a name="MSSC_CHECK">MSSC_CHECK</a></td>
+        <td><p>Проверить макрос.</p>
+          <p><var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.</p>
+          <p>Функция при неудаче вернёт <code>FALSE</code>.</p>
+        </td></tr>
+        </table>
+      </li>
+    </ul>
     </td></tr>
 
     <tr><td><a name="MCTL_EXECSTRING">MCTL_EXECSTRING</a></td>
-    <td>Исполнить скрипт (строку или файл).<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру  <a href="../structures/macroexecutestring.html">MacroExecuteString</a>.<br>
+    <td>Исполнить скрипт (строку или файл).
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру  <a href="../structures/macroexecutestring.html">MacroExecuteString</a>.</li>
+    </ul>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
     <td>Получить расширенную диагностику об ошибке проверки макроса или скрипта
-    (после исполнения команды <a href="#MCTL_SENDSTRING"><code>MCTL_SENDSTRING</code></a> или <a href="#MCTL_EXECSTRING"><code>MCTL_EXECSTRING</code></a>).<br>
-    <code>Param1</code> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <code>Param2</code>.<br>
-    <code>Param2</code> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделяет самостоятельно.<br>
-    Функция возвращает размер требуемого буфера, при <code>Param2 = NULL</code>.</td></tr>
+    (после исполнения команды <a href="#MCTL_SENDSTRING"><code>MCTL_SENDSTRING</code></a> или <a href="#MCTL_EXECSTRING"><code>MCTL_EXECSTRING</code></a>).
+    <ul class="nomarker">
+      <li><var>Param1</var> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <var>Param2</var>.</li>
+      <li><var>Param2</var> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделяет самостоятельно.</li>
+    </ul>
+    Функция возвращает размер требуемого буфера, при <var>Param2 = NULL</var>.</td></tr>
 
     <tr><td><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
-    <td>Получить статус работы макродвижка.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
+    <td>Получить статус работы макродвижка.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
     <table class="cont">
     <tr><th>Значение</th><th>Описание</th></tr>
@@ -106,9 +122,11 @@ intptr_t WINAPI MacroControl(
     </td></tr>
 
     <tr><td><a name="MCTL_GETAREA">MCTL_GETAREA</a></td>
-    <td>Получить текущую макрообласть.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
+    <td>Получить текущую макрообласть.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> не используется.</li>
+    </ul>
     Функция возвращает значение типа <code><a name="FARMACROAREA">FARMACROAREA</a></code>:
     <table class="cont">
     <tr><th>Значение</th><th>Описание</th></tr>
@@ -153,15 +171,19 @@ intptr_t WINAPI MacroControl(
     </td></tr>
 
     <tr><td><a name="MCTL_ADDMACRO">MCTL_ADDMACRO</a></td>
-    <td>Добавить в память Far Manager макрос.<br>
-    <code>Param1</code> игнорируется. <br>
-    <code>Param2</code> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
+    <td>Добавить в память Far Manager макрос.
+    <ul class="nomarker">
+      <li><var>Param1</var> игнорируется. </li>
+      <li><var>Param2</var> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.</li>
+    </ul>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr><td><a name="MCTL_DELMACRO">MCTL_DELMACRO</a></td>
-    <td>Удалить из памяти Far Manager макрос, добавленный ранее командой <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
-    <code>Param1</code> игнорируется. <br>
-    <code>Param2</code> указывает на идентификатор удаляемого макроса, поле <code>Id</code> структуры <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
+    <td>Удалить из памяти Far Manager макрос, добавленный ранее командой <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.
+    <ul class="nomarker">
+      <li><var>Param1</var> игнорируется. </li>
+      <li><var>Param2</var> указывает на идентификатор удаляемого макроса, поле <code>Id</code> структуры <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.</li>
+    </ul>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
    </table>

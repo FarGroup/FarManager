@@ -44,10 +44,14 @@ struct WindowInfo
   <div class="dfn">TypeName</div>
     <div class="dfndescr">Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
   <div class="dfn">Name</div>
-    <div class="dfndescr">Имя окна. Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.<br>
-    Для панелей - имя текущего файлового объекта.<br>
-    Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
-    Для диалогов и меню - заголовок.<br></div>
+    <div class="dfndescr">Имя окна.
+   <ul class="nomarker">
+     <li>Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.</li>
+     <li>Для панелей - имя текущего файлового объекта.</li>
+     <li>Для окна помощи - полный путь к просматриваемому HLF-файлу.</li>
+     <li>Для диалогов и меню - заголовок.</li>
+   </ul>
+    </div>
   <div class="dfn">TypeNameSize</div>
     <div class="dfndescr">Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
   <div class="dfn">NameSize</div>
