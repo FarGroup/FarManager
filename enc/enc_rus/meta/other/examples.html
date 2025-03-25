@@ -23,17 +23,17 @@
 <div class="descr">
 
   <div class="dfn">Align</div>
-  <div class="dfndescr">Выравнивание блока в редакторе.<br>
-  Простой плагин из разряда "Вызвали, отработал, завершился" - пример работы с
-  сервисной функцией <a href="../service_functions/editorcontrol.html">EditorControl</a>.
+  <div class="dfndescr"><p>Выравнивание блока в редакторе.</p>
+  <p>Простой плагин из разряда "Вызвали, отработал, завершился" - пример работы с
+  сервисной функцией <a href="../service_functions/editorcontrol.html">EditorControl</a>.</p>
   </div>
 
   <div class="dfn">Auto wrap</div>
-  <div class="dfndescr">Auto wrap в редакторе - пример установки "хука" для
-  внутреннего редактора Far Manager.<br>
-  Во включённом состоянии плагин
+  <div class="dfndescr"><p>Auto wrap в редакторе - пример установки "хука" для
+  внутреннего редактора Far Manager.</p>
+  <p>Во включённом состоянии плагин
   пропускает через себя все события от клавиатуры и мыши.
-  Используется функция <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>:
+  Используется функция <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>:</p>
 <pre class="code">int WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec)
 {
   // обработка очередного KEY_EVENT
@@ -42,19 +42,19 @@
   </div>
 
   <div class="dfn">Brackets</div>
-  <div class="dfndescr">Поиск и выделение парных скобок в редакторе.<br>
-  Плагин из разряда "Вызвали, отработал, завершился".<br>
-  Поиск ведётся с помощью <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  <div class="dfndescr"><p>Поиск и выделение парных скобок в редакторе.</p>
+  <p>Плагин из разряда "Вызвали, отработал, завершился".</p>
+  <p>Поиск ведётся с помощью <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   установка курсора на найденную парную скобку - <a href="../service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a>,
-  выделение блока - <a href="../service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>.
+  выделение блока - <a href="../service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>.</p>
   </div>
 
   <div class="dfn">DrawLine</div>
-  <div class="dfndescr">Рисование линий.<br>
-  Вариант "хука" из разряда "Вызвали, работает, пользователь сам останавливает работу плагина".<br>
+  <div class="dfndescr"><p>Рисование линий.</p>
+  <p>Вариант "хука" из разряда "Вызвали, работает, пользователь сам останавливает работу плагина".<br>
   Используется "бесконечный цикл" с вызовом команд
   <a href="../service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> и
-  <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:
+  <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:</p>
 <pre class="code">HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
 {
   ...
@@ -70,62 +70,62 @@
   </div>
 
   <div class="dfn">EditCase</div>
-  <div class="dfndescr">Изменение начертания символов (верхний/нижний регистр).<br>
-  Плагин из разряда "Вызвали, отработал, завершился".<br>
-  Строка берётся с помощью команды <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  <div class="dfndescr"><p>Изменение начертания символов (верхний/нижний регистр).</p>
+  <p>Плагин из разряда "Вызвали, отработал, завершился".</p>
+  <p>Строка берётся с помощью команды <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   преобразуется и заменяется в редакторе с помощью
-  команды <a href="../service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a>.
+  команды <a href="../service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a>.</p>
   </div>
 
   <div class="dfn">HlfViewer</div>
-  <div class="dfndescr">Плагин HlfViewer создан для помощи тем людям, которые
+  <div class="dfndescr"><p>Плагин HlfViewer создан для помощи тем людям, которые
    создают или изменяют hlf-файлы, а также просто хотят просмотреть тот или
    иной hlf-файл помощи (обработка клавиши F1 с последующим вызовом
-   редактируемого HLF-файла, обработка перфикса "hlf:").
+   редактируемого HLF-файла, обработка перфикса "hlf:").</p>
   </div>
 </div>
 
 <h3>Прочее:</h3>
 <div class="descr">
   <div class="dfn">HelloWorld</div>
-  <div class="dfndescr">"Здравствуй, Мир!" Этот модуль Far Manager предназначен
-    исключительно для учебных целей.<br>
-    Как повелось - изучение любого языка программирования начинается
-    с программы "Hello, World!". Именно это и делает данный плагин.
+  <div class="dfndescr"><p>"Здравствуй, Мир!" Этот модуль Far Manager предназначен
+    исключительно для учебных целей.</p>
+    <p>Как повелось - изучение любого языка программирования начинается
+    с программы "Hello, World!". Именно это и делает данный плагин.</p>
   </div>
 
   <div class="dfn">FAR Commands</div>
-  <div class="dfndescr">Плагин FAR Commands (или FARCmd) предоставляет
+  <div class="dfndescr"><p>Плагин FAR Commands (или FARCmd) предоставляет
     дополнительные возможности, которые можно использовать в меню пользователя,
     ассоциаций файлов или командной строке. Показана работа с несколькими
-    префиксами.
+    префиксами.</p>
   </div>
 
   <div class="dfn">FileCase</div>
-  <div class="dfndescr">Эта команда позволяет изменить регистр
+  <div class="dfndescr"><p>Эта команда позволяет изменить регистр
     отмеченных имён файлов в соответствии с любым из
     нескольких доступных форматов. Это - простой плагин, воспользуйтесь им как
-    шаблоном для создания новых команд для Far Manager.
+    шаблоном для создания новых команд для Far Manager.</p>
   </div>
 
 
   <div class="dfn">Network</div>
-  <div class="dfndescr">С помощью модуля просмотра сети вы можете
+  <div class="dfndescr"><p>С помощью модуля просмотра сети вы можете
     перемещаться по сети, переходить на сетевые
     диски, отображать их на локальные диски и
-    отменять такое отображение.
-    Нажмите <code>F5</code>, чтобы отобразить выбранные диски на
+    отменять такое отображение.</p>
+    <p>Нажмите <code>F5</code>, чтобы отобразить выбранные диски на
     следующие доступные буквы или <code>F6</code>, если вы хотите
     выбрать буквы сами. <code>F8</code> отменяет уже существующее
-    отображение.
+    отображение.</p>
   </div>
 
   <div class="dfn">TmpPanel</div>
-  <div class="dfndescr">Временная панель поддерживает аналогичный
+  <div class="dfndescr"><p>Временная панель поддерживает аналогичный
     панели файлов интерфейс и предназначена для облегчения одновременной
-    обработки групп файлов из различных папок.
-    Плагин позволяет использовать до 10 временных панелей, каждая из
-    которых содержит отдельный список файлов.
+    обработки групп файлов из различных папок.</p>
+    <p>Плагин позволяет использовать до 10 временных панелей, каждая из
+    которых содержит отдельный список файлов.</p>
 
   </div>
 

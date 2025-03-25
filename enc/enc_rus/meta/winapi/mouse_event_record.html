@@ -37,17 +37,19 @@ typedef struct _MOUSE_EVENT_RECORD {
     <div class="dfn">dwMousePosition</div>
     <div class="dfndescr">Положение курсора в координатах экранного буфера (структура <a href="coord.html">COORD</a>).</div>
     <div class="dfn">dwButtonState</div>
-    <div class="dfndescr">Состояние клавиш мыши.
-    Младший бит соответствует самой левой кнопке, следующий - самой правой,
-    Следующий бит - следующая за левой клавиша.
-    Далее биты соответствуют клавишам слева направо. Если бит установлен - клавиша нажата.<br>
-    Определены следующие константы для первых пяти клавиш мыши:<br>
-    <br>
-      <a name="FROM_LEFT_1ST_BUTTON_PRESSED">FROM_LEFT_1ST_BUTTON_PRESSED</a><br>
-      <a name="RIGHTMOST_BUTTON_PRESSED">RIGHTMOST_BUTTON_PRESSED</a><br>
-      <a name="FROM_LEFT_2ND_BUTTON_PRESSED">FROM_LEFT_2ND_BUTTON_PRESSED</a><br>
-      <a name="FROM_LEFT_3RD_BUTTON_PRESSED">FROM_LEFT_3RD_BUTTON_PRESSED</a><br>
-      <a name="FROM_LEFT_4TH_BUTTON_PRESSED">FROM_LEFT_4TH_BUTTON_PRESSED</a></div>
+    <div class="dfndescr"><p>Состояние клавиш мыши.</p>
+      <p>Младший бит соответствует самой левой кнопке, следующий - самой правой,
+      следующий бит - следующая за левой клавиша.
+      Далее биты соответствуют клавишам слева направо. Если бит установлен - клавиша нажата.</p>
+      <p>Определены следующие константы для первых пяти клавиш мыши:</p>
+      <ul class="nomarker">
+        <li><a name="FROM_LEFT_1ST_BUTTON_PRESSED">FROM_LEFT_1ST_BUTTON_PRESSED</a></li>
+        <li><a name="RIGHTMOST_BUTTON_PRESSED">RIGHTMOST_BUTTON_PRESSED</a></li>
+        <li><a name="FROM_LEFT_2ND_BUTTON_PRESSED">FROM_LEFT_2ND_BUTTON_PRESSED</a></li>
+        <li><a name="FROM_LEFT_3RD_BUTTON_PRESSED">FROM_LEFT_3RD_BUTTON_PRESSED</a></li>
+        <li><a name="FROM_LEFT_4TH_BUTTON_PRESSED">FROM_LEFT_4TH_BUTTON_PRESSED</a></li>
+      </ul>
+    </div>
     <div class="dfn">dwControlKeyState</div>
     <div class="dfndescr">Состояние управляющих клавиш. Может быть комбинацией следующих значений:
 
@@ -75,8 +77,9 @@ typedef struct _MOUSE_EVENT_RECORD {
 
     </div>
     <div class="dfn">dwEventFlags</div>
-    <div class="dfndescr">Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
-      Иначе одно из следующих значений:
+    <div class="dfndescr"><p>Тип сообщения мыши.</p>
+      <p>Если ноль, то кнопка мыши была нажата или отпущена.
+      Иначе одно из следующих значений:</p>
        <table class="cont">
        <tr><th>Событие</th><th>Описание</th></tr>
        <tr><td>DOUBLE_CLICK</td>
@@ -85,16 +88,16 @@ typedef struct _MOUSE_EVENT_RECORD {
        <tr><td>MOUSE_MOVED</td>
        <td>Позиция мыши изменилась.</td></tr>
        <tr><td>MOUSE_WHEELED</td>
-       <td>Устанавливается при вертикальной прокрутке колёсика
-           на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
+       <td><p>Устанавливается при вертикальной прокрутке колёсика на мышке.</p>
+           <p>Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержится
            значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
-           изменяться в зависимости от драйвера мыши.</td>
+           изменяться в зависимости от драйвера мыши.</p></td>
        </tr>
        <tr><td>MOUSE_HWHEELED</td>
-       <td><code>Windows Vista/2008/7:</code> Устанавливается при горизонтальной прокрутке колёсика
-           на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
+       <td><p>Устанавливается при горизонтальной прокрутке колёсика на мышке (начиная с <i>Windows Vista/2008/7</i>).</p>
+           <p>Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержится
            значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
-           изменяться в зависимости от драйвера мыши.</td>
+           изменяться в зависимости от драйвера мыши.</p></td>
        </tr>
        </table>
     </div>
@@ -103,10 +106,10 @@ typedef struct _MOUSE_EVENT_RECORD {
 
 <h3>Замечания</h3>
 <div class="descr">
-  Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
-  флаг <code>ENABLE_MOUSE_INPUT</code>.<br>
-  Сообщения мыши посылаются в буфер, только если консоль имеет активный
-  клавиатурный фокус и курсор находится в границах консольного окна.
+  <p>Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
+  флаг <code>ENABLE_MOUSE_INPUT</code>.</p>
+  <p>Сообщения мыши посылаются в буфер, только если консоль имеет активный
+  клавиатурный фокус и курсор находится в границах консольного окна.</p>
 </div>
 
 <div class="see">Смотрите также:</div>

@@ -32,11 +32,13 @@ struct OpenCommandLineInfo
   <div class="dfn">StructSize</div>
     <div class="dfndescr">Это поле содержит размер структуры <code>OpenCommandLineInfo</code>.</div>
   <div class="dfn">CommandLine</div>
-    <div class="dfndescr">Содержит адрес, введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
-    то командный префикс плагина в командную строку не включается. При установленном флаге <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
-    плагину передаётся полная строка (с командным префиксом).<br>
-    К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь вводит <em>ftp://ftp.abc.com</em>, <code>CommandLine</code> будет указывать на
-    строку: <code>L"//ftp.abc.com"</code> при НЕустановленном флаге <code>PF_FULLCMDLINE</code> и <code>L"ftp://ftp.abc.com"</code>, если флаг <code>PF_FULLCMDLINE</code> установили.</div>
+    <div class="dfndescr"><p>Содержит адрес, введённого пользователем в командной строке выражения.</p>
+      <p>Если плагин не установил флаг <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
+      то командный префикс плагина в командную строку не включается.</p>
+      <p>При установленном флаге <a href="plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
+      плагину передаётся полная строка (с командным префиксом).</p>
+      <p>К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь вводит <em>ftp://ftp.abc.com</em>, <code>CommandLine</code> будет указывать на
+      строку: <code>L"//ftp.abc.com"</code> при НЕустановленном флаге <code>PF_FULLCMDLINE</code> и <code>L"ftp://ftp.abc.com"</code>, если флаг <code>PF_FULLCMDLINE</code> установили.</p></div>
 </div>
 
 <h3>Замечания</h3>
