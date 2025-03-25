@@ -31,25 +31,29 @@ ID элемента диалога.
 
 <h3>Param2</h3>
 <div class="descr">
-Состояние после нажатия:<br>
-<code><a href="../controls/di_button.html">DI_BUTTON</a> = 0</code><br>
-<code><a href="../controls/di_checkbox.html">DI_CHECKBOX</a> = 0</code> (снята пометка),
-<code>1</code> (установлена пометка) и <code>2</code> (третье состояние, если установлен флаг
-<a href="../flags/dif_3state.html">DIF_3STATE</a>)<br>
-<code><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0</code> - для предыдущего элемента в группе, <code> 1</code> - для активного элемента в группе.
+Состояние после нажатия:
+<ul class="nomarker">
+  <li><code><a href="../controls/di_button.html">DI_BUTTON</a> = 0</code></li>
+  <li><code><a href="../controls/di_checkbox.html">DI_CHECKBOX</a> = 0</code> (снята пометка),
+    <code>1</code> (установлена пометка) и
+    <code>2</code> (третье состояние, если установлен флаг <a href="../flags/dif_3state.html">DIF_3STATE</a>)</li>
+  <li><code><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0</code> - для предыдущего элемента в группе, <code> 1</code> - для активного элемента в группе.</li>
+</ul>
 </div>
 
 
 <h3>Return</h3>
 <div class="descr">
-<p>Для <a href="../controls/di_button.html">DI_BUTTON</a>:
-<code>TRUE</code> - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.<br>
-<code>FALSE</code> - продолжить обработку ядром.
-</p>
-<p>Для остальных элементов:
-<code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
-<code>FALSE</code> - запретить изменение.
-</p>
+Для <a href="../controls/di_button.html">DI_BUTTON</a>:
+<ul class="nomarker">
+  <li><code>TRUE</code> - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.</li>
+  <li><code>FALSE</code> - продолжить обработку ядром.</li>
+</ul>
+Для остальных элементов:
+<ul class="nomarker">
+  <li><code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)</li>
+  <li><code>FALSE</code> - запретить изменение.</li>
+</ul>
 </div>
 
 <h3>Элементы</h3>

@@ -39,53 +39,69 @@ intptr_t WINAPI ViewerControl(
     <tr><th>Команда</th><th>Описание</th></tr>
 
     <tr><td><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
-    <td>Получить информацию о программе просмотра.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/viewerinfo.html">ViewerInfo</a>.<br>
+    <td>Получить информацию о программе просмотра.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру <a href="../structures/viewerinfo.html">ViewerInfo</a>.</li>
+    </ul>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_QUIT">VCTL_QUIT</a></td>
-    <td>Закрыть программу просмотра.<br>
-    <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
+    <td>Закрыть программу просмотра.
+    <ul class="nomarker">
+      <li><var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.</li>
+    </ul>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_REDRAW">VCTL_REDRAW</a></td>
-    <td>Перерисовать окно программы просмотра.<br>
-    <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
+    <td>Перерисовать окно программы просмотра.
+    <ul class="nomarker">
+      <li><var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.</li>
+    </ul>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_SETKEYBAR">VCTL_SETKEYBAR</a></td>
-    <td>Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2 = NULL</code> - восстановить предыдущее значение<br>
-    <code>Param2 = -1</code> - обновить полосу (перерисовать)<br>
-    <code>Param2</code> равен указателю на структуру <a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a>, новое значение.<br>
+    <td>Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2 = NULL</var> - восстановить предыдущее значение</li>
+      <li><var>Param2 = -1</var> - обновить полосу (перерисовать)</li>
+      <li><var>Param2</var> равен указателю на структуру <a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a>, новое значение.</li>
+    </ul>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_SELECT">VCTL_SELECT</a></td>
-    <td>Управление выделением.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/viewerselect.html">ViewerSelect</a>. Если <code>Param2 = NULL</code>, произойдёт сброс выделения.<br>
+    <td>Управление выделением.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру <a href="../structures/viewerselect.html">ViewerSelect</a>. Если <var>Param2 = NULL</var>, произойдёт сброс выделения.</li>
+    </ul>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
-    <td>Изменить режим работы программы просмотра.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.<br>
+    <td>Изменить режим работы программы просмотра.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.</li>
+    </ul>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
-    <td>Установить позицию в файле.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.<br>
+    <td>Установить позицию в файле.
+    <ul class="nomarker">
+      <li><var>Param1</var> не используется.</li>
+      <li><var>Param2</var> указывает на структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.</li>
+    </ul>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr><td><a name="VCTL_GETFILENAME">VCTL_GETFILENAME</a></td>
-    <td>Получить имя открытого во вьюере файла.<br>
-    <code>Param1</code> - размер буфера в символах, который выделил плагин для данных.<br>
-    <code>Param2</code> указывает на буфер, выделенный плагином, куда будет помещено имя файла.<br>
-    Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.<br>
-    Если <code>Param2 = NULL</code> или <code>Param1</code> меньше требуемого размера, функция просто вернет необходимый размер буфера.</td></tr>
+    <td>Получить имя открытого во вьюере файла.
+    <ul class="nomarker">
+      <li><var>Param1</var> - размер буфера в символах, который выделил плагин для данных.</li>
+      <li><var>Param2</var> указывает на буфер, выделенный плагином, куда будет помещено имя файла.</li>
+    </ul>
+    <p>Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.</p>
+    <p>Если <var>Param2 = NULL</var> или <var>Param1</var> меньше требуемого размера, функция просто вернет необходимый размер буфера.</p></td></tr>
 
     </table>
     </div>
