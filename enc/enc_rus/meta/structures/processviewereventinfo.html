@@ -35,34 +35,41 @@ struct ProcessViewerEventInfo
   <div class="dfn">StructSize</div>
     <div class="dfndescr">Это поле содержит размер структуры <code>ProcessViewerEventInfo</code>.</div>
   <div class="dfn">Event</div>
-    <div class="dfndescr">Тип события.<br> Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
-    <table class="cont">
-    <tr><th>Событие</th><th>Описание</th></tr>
-    <tr><td><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
-    <td>Одно из окон программы просмотра закрывается. Плагин может использовать это сообщение для освобождения внутренних структур данных. Заметьте, что несколько окон программы просмотра
-    могут работать одновременно. Параметр <code>Param</code> указывает на переменную, содержащую значение ViewerID закрываемой программы просмотра. ViewerID может быть получен ранее с использованием
-    <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> команды <a href="../service_functions/viewercontrol.html">ViewerControl</a>.
-    Но плагин не должен вызывать <code>ViewerControl</code> при обработке этого сообщения, потому что программа просмотра уже закрыта.<br>
-    Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</td></tr>
-    <tr><td><a name="VE_READ" title="0">VE_READ</a></td>
-    <td>Новый файл загружен в программу просмотра.<br>
-    <code>Param = NULL</code>.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</td></tr>
-    <tr><td><a name="VE_KILLFOCUS">VE_KILLFOCUS</a></td>
-    <td>Программа просмотра потеряла фокус ввода.<br>
-    <code>Param</code> указывает на переменную, содержащую значение ViewerID вьюера, теряющего фокус.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</td></tr>
-    <tr><td><a name="VE_GOTFOCUS">VE_GOTFOCUS</a></td>
-    <td>Программа просмотра получила фокус ввода.<br>
-    <code>Param</code> указывает на переменную, содержащую значение ViewerID вьюера, получающего фокус.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</td></tr>
-    </table>
-    <p class="warning"><img src="../../images/warning.gif" alt="Замечание для VE_GOTFOCUS"> Внимание!</p>
-    <ul class="warning">
-       <li><b>При обработке <code>VE_GOTFOCUS</code> <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
-       <a href="../service_functions/message.html">Info.Message</a>,
-       <a href="../service_functions/menu.html">Info.Menu</a>,
-       <a href="../service_functions/dialogrun.html">Info.DialogRun</a>,
-       <a href="../service_functions/showhelp.html">Info.ShowHelp</a>.
-       Вызов этих функций приводит к рекурсивному вызову <code>VE_GOTFOCUS</code>.</b>
-       </li></ul>
+    <div class="dfndescr"><p>Тип события.</p>
+      <p>Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):</p>
+      <table class="cont">
+      <tr><th>Событие</th><th>Описание</th></tr>
+      <tr><td><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
+      <td><p>Одно из окон программы просмотра закрывается.</p>
+        <p>Плагин может использовать это сообщение для освобождения внутренних структур данных.</p>
+        <p>Заметьте, что несколько окон программы просмотра могут работать одновременно.</p>
+        <p>Параметр <code>Param</code> указывает на переменную, содержащую значение ViewerID закрываемой программы просмотра.</p>
+        <p>ViewerID может быть получен ранее с использованием <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a>
+        команды <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</p>
+        <p>Но плагин не должен вызывать <code>ViewerControl</code> при обработке этого сообщения, потому что программа просмотра уже закрыта.</p>
+        <p>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</p></td></tr>
+      <tr><td><a name="VE_READ" title="0">VE_READ</a></td>
+      <td><p>Новый файл загружен в программу просмотра.</p>
+        <p><code>Param = NULL</code>.</p>
+        <p>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</p></td></tr>
+      <tr><td><a name="VE_KILLFOCUS">VE_KILLFOCUS</a></td>
+      <td><p>Программа просмотра потеряла фокус ввода.</p>
+        <p><code>Param</code> указывает на переменную, содержащую значение ViewerID вьюера, теряющего фокус.</p>
+        <p>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</p></td></tr>
+      <tr><td><a name="VE_GOTFOCUS">VE_GOTFOCUS</a></td>
+      <td><p>Программа просмотра получила фокус ввода.</p>
+        <p><code>Param</code> указывает на переменную, содержащую значение ViewerID вьюера, получающего фокус.</p>
+        <p>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть <code>0</code>.</p></td></tr>
+      </table>
+      <p class="warning"><img src="../../images/warning.gif" alt="Замечание для VE_GOTFOCUS"> Внимание!</p>
+      <ul class="warning">
+         <li><b>При обработке <code>VE_GOTFOCUS</code> <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
+         <a href="../service_functions/message.html">Info.Message</a>,
+         <a href="../service_functions/menu.html">Info.Menu</a>,
+         <a href="../service_functions/dialogrun.html">Info.DialogRun</a>,
+         <a href="../service_functions/showhelp.html">Info.ShowHelp</a>.
+         Вызов этих функций приводит к рекурсивному вызову <code>VE_GOTFOCUS</code>.</b>
+         </li></ul>
     </div>
   <div class="dfn">Param</div>
     <div class="dfndescr">Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>

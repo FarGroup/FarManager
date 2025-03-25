@@ -43,9 +43,9 @@ struct MacroAddMacro
     <div class="dfndescr">Уникальный, в рамках плагина, идентификатор макропоследовательности.</div>
   <div class="dfn">SequenceText</div>
     <div class="dfndescr">
-      Строка, содержащая макрос в текстовом виде.<br>
-      Если строка начинается с символа <code>@</code>, то используется следующий формат:
-          <code>@&lt;имя файла-скрипта&gt; [&lt;параметры скрипта&gt;]</code>
+      <p>Строка, содержащая макрос в текстовом виде.</p>
+      <p>Если строка начинается с символа <code>@</code>, то используется следующий формат:
+          <code>@&lt;имя файла-скрипта&gt; [&lt;параметры скрипта&gt;]</code></p>
       <ul>
       <li>В имени файла допустимо использование переменных окружения.
       <li>Опциональные параметры скрипта представляют список выражений, разделённых запятыми. Выражения должны использовать тот же язык программирования, что и скрипт.
@@ -78,10 +78,10 @@ struct MacroAddMacro
   <div class="dfn">Area</div>
     <div class="dfndescr">Макрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
   <div class="dfn">Callback</div>
-    <div class="dfndescr">Функция, выполняемая Far Manager перед непосредственным выполнением макропоследовательности <code>SequenceText</code>.
-    Синтаксис функции: <pre class="syntax"> intptr_t (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
-    Где: <code>Id</code> - идентификатор (<code>MacroAddMacro.Id</code>). <code>Flags</code> - сейчас не используются.<br>
-    Функция может что-то проверить и вернуть <code>TRUE</code> - запустить макрос, или <code>FALSE</code> - не запускать.
+    <div class="dfndescr"><p>Функция, выполняемая Far Manager перед непосредственным выполнением макропоследовательности <code>SequenceText</code>.</p>
+      <p>Синтаксис функции:</p><pre class="syntax"> intptr_t (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
+      <p>Где: <code>Id</code> - идентификатор (<code>MacroAddMacro.Id</code>). <code>Flags</code> - сейчас не используются.</p>
+      <p>Функция может что-то проверить и вернуть <code>TRUE</code> - запустить макрос, или <code>FALSE</code> - не запускать.</p>
     </div>
   <div class="dfn">Priority</div>
     <div class="dfndescr">Приоритет макроса.</div>

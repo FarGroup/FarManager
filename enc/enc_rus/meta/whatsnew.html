@@ -100,7 +100,7 @@ h4 {
 <h4>Минимально необходимая версия Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.2927, релиз</a>.</h4>
 <ul>
 <li>изменению подверглось подавляющее большинство функций и структур API,<br>
-    плагины, <u>написанные для предыдущих версий уникодного Far Manager</u>, требуется адаптировать!<br>
+    плагины, <u>написанные для предыдущих версий уникодного Far Manager</u>, требуется адаптировать!
 </ul>
 
 <h3>03 Февраля 2011 г.</h3>
@@ -112,14 +112,18 @@ h4 {
 <ul>
 <li>глобально char/char* заменены на wchar_t/wchar_t*
 <li>глобально фиксированные массивы char[n] заменены на указатели wchar_t* на буферы выделяемые плагином
-<li>ФАР не использует SetCurrentDirectoryW() при навигации по папкам, как следствие, бонусы:<br>
-- хождение по папкам глубже MAX_PATH;<br>
-- вход в папки, оканчивающиеся точками, пробелами и прочим;<br>
-- папка, открытая на панели, не блокируется от удаления извне;
-<li>изменилась синхронизация CurrentDirectory ФАРа:<br>
-- команда Info.Control - FCTL_GETCURRENTDIRECTORY переименована в FCTL_GETPANELDIR<br>
-- вместо Info.Control - FCTL_GETCURRENTDIRECTORY используйте FSF.GetCurrentDirectory()<br>
-- вместо ConvertNameToFullW() используйте FSF.ConvertPath()
+<li>ФАР не использует SetCurrentDirectoryW() при навигации по папкам, как следствие, бонусы:
+<ul>
+  <li>хождение по папкам глубже MAX_PATH;</li>
+  <li>вход в папки, оканчивающиеся точками, пробелами и прочим;</li>
+  <li>папка, открытая на панели, не блокируется от удаления извне;</li>
+</ul>
+<li>изменилась синхронизация CurrentDirectory ФАРа:
+<ul>
+  <li>команда Info.Control - FCTL_GETCURRENTDIRECTORY переименована в FCTL_GETPANELDIR</li>
+  <li>вместо Info.Control - FCTL_GETCURRENTDIRECTORY используйте FSF.GetCurrentDirectory()</li>
+  <li>вместо ConvertNameToFullW() используйте FSF.ConvertPath()</li>
+</ul>
 <li>описатели CURRENT_PANEL/ANOTHER_PANEL переименованы в PANEL_ACTIVE/PANEL_PASSIVE
 <li>функция Info.GetPluginDirList() изменена, вместо INVALID_HANDLE_VALUE используются PANEL_ACTIVE/PANEL_PASSIVE
 <li>макроса NM больше нет
@@ -136,10 +140,12 @@ h4 {
 <li>команда Info.EditorControl - ECTL_EDITORTOOEM удалена
 <li>команда Info.EditorControl - ECTL_OEMTOEDITOR удалена
 <li>команда Info.EditorControl - ECTL_SETTITLE, теперь плагин самостоятельно должен восстанавливать "заголовок"
-<li>команда FCTL_SETSELECTION изменена на систему команд:<br>
-- FCTL_BEGINSELECTION<br>
-- FCTL_SETSELECTION<br>
-- FCTL_ENDSELECTION
+<li>команда FCTL_SETSELECTION изменена на систему команд:
+<ul>
+  <li>FCTL_BEGINSELECTION</li>
+  <li>FCTL_SETSELECTION</li>
+  <li>FCTL_ENDSELECTION</li>
+</ul>
 <li>в Info.AdvControl - ACTL_WAITKEY теперь приходят и макрокнопки
 <li>в функции Info.Message удалён флаг FMSG_DOWN
 <li>память под WindowInfo::TypeName выделяет плагин
@@ -161,40 +167,44 @@ h4 {
 <li>команда EditorSetParameter - ESPT_GETWORDDIV изменена
 <li>таблиц кодировки больше нет, все Table теперь CodePage
 <li>плагины в Viewer/Editor могут теперь передавать конкретные кодовые страницы
-<li>изменения в Dialog API:<br>
-- главное отличие от старого Dialog API, это то, что массив структур FarDialogItem
-  является только входным, в него не пишутся изменения при закрытии диалога<br>
-- структура FarDialogItem изменена<br>
-- функций Dialog() и DialogEx() больше нет<br>
-- вместо них DialogInit(), DialogRun(), DialogFree()<br>
-- сообщение DM_GETDLGITEM изменено, Param2 указатель на память куда будет скопирован элемент<br>
-- событие DN_EDITCHANGE приходит при любых изменениях в строке редактирования<br>
-- событие DN_LISTHOTKEY приходит в комбинированный список<br>
-- добавилось сообщение DM_GETCONSTTEXTPTR<br>
-- добавилось сообщение DM_GETDLGITEMSHORT<br>
-- добавилось сообщение DM_SETDLGITEMSHORT<br>
-- добавилось сообщение DM_GETDIALOGTITLE<br>
-- добавилось сообщение DN_DRAWDLGITEMDONE<br>
-- добавилось сообщение DN_DROPDOWNOPENED<br>
-- добавился флаг DIF_EDITPATH<br>
-- добавился флаг FIB_EDITPATH<br>
-- добавился флаг FDLG_KEEPCONSOLETITLE в функции Info.DialogInit()
-- флага DIF_NOTCVTUSERCONTROL больше нет<br>
-- флага LIF_USETEXTPTR больше нет<br>
-- флага MIF_USETEXTPTR больше нет<br>
+<li>изменения в Dialog API:
+<ul>
+  <li>главное отличие от старого Dialog API, это то, что массив структур FarDialogItem
+    является только входным, в него не пишутся изменения при закрытии диалога</li>
+  <li>структура FarDialogItem изменена</li>
+  <li>функций Dialog() и DialogEx() больше нет</li>
+  <li>вместо них DialogInit(), DialogRun(), DialogFree()</li>
+  <li>сообщение DM_GETDLGITEM изменено, Param2 указатель на память куда будет скопирован элемент</li>
+  <li>событие DN_EDITCHANGE приходит при любых изменениях в строке редактирования</li>
+  <li>событие DN_LISTHOTKEY приходит в комбинированный список</li>
+  <li>добавилось сообщение DM_GETCONSTTEXTPTR</li>
+  <li>добавилось сообщение DM_GETDLGITEMSHORT</li>
+  <li>добавилось сообщение DM_SETDLGITEMSHORT</li>
+  <li>добавилось сообщение DM_GETDIALOGTITLE</li>
+  <li>добавилось сообщение DN_DRAWDLGITEMDONE</li>
+  <li>добавилось сообщение DN_DROPDOWNOPENED</li>
+  <li>добавился флаг DIF_EDITPATH</li>
+  <li>добавился флаг FIB_EDITPATH</li>
+  <li>добавился флаг FDLG_KEEPCONSOLETITLE в функции Info.DialogInit()</li>
+  <li>флага DIF_NOTCVTUSERCONTROL больше нет</li>
+  <li>флага LIF_USETEXTPTR больше нет</li>
+  <li>флага MIF_USETEXTPTR больше нет</li>
+</ul>
 
-<li>Плановые изменения в макросах:<br>
-- удалена команда $Date - заменить на print(Date("формат"))<br>
-- удалена команда $MMode - заменить на mmode(1,2)<br>
-- удалено состояние IClip - заменить на clip(5,-1) (при этом учесть, что clip() вернет 1 или 2)<br>
-- удалена команда $IClip - заменить на clip(5,0) или просто clip(5)<br>
-- удалено состояние DisableOutput (не флаг макроса!) - заменить на вызов функции mmode(1,-1)<br>
-- добавлена функция N=mload(S)<br>
-- добавлена функция beep()<br>
-- добавлена функция kbdLayout()<br>
-- удалена команда $KbdSwitch, замените $KbdSwitch на kbdLayout(1)<br>
-- функция Menu.ItemStatus() теперь в старшем слове возвращает код символа пометки U+XXXX<br>
-- добавлен условный оператор "^^" - XOR, исключающее ИЛИ
+<li>Плановые изменения в макросах:
+<ul>
+  <li>удалена команда $Date - заменить на print(Date("формат"))</li>
+  <li>удалена команда $MMode - заменить на mmode(1,2)</li>
+  <li>удалено состояние IClip - заменить на clip(5,-1) (при этом учесть, что clip() вернет 1 или 2)</li>
+  <li>удалена команда $IClip - заменить на clip(5,0) или просто clip(5)</li>
+  <li>удалено состояние DisableOutput (не флаг макроса!) - заменить на вызов функции mmode(1,-1)</li>
+  <li>добавлена функция N=mload(S)</li>
+  <li>добавлена функция beep()</li>
+  <li>добавлена функция kbdLayout()</li>
+  <li>удалена команда $KbdSwitch, замените $KbdSwitch на kbdLayout(1)</li>
+  <li>функция Menu.ItemStatus() теперь в старшем слове возвращает код символа пометки U+XXXX</li>
+  <li>добавлен условный оператор "^^" - XOR, исключающее ИЛИ</li>
+</ul>
 </ul>
 
 <h4>Что добавилось в Plugins API v2.0 в сравнении c Plugins API v1.0</h4>
@@ -233,22 +243,27 @@ h4 {
 <li>флаг в EditorSetParameter.Type - ESPT_SHOWWHITESPACE
 <li>флаг в DI_BUTTON - DIF_SETSHIELD, аналог BCM_SETSHIELD
 <li>флаги PFLAGS_USECRC32/OPIF_USECRC32 определяющие, что поле CRC32 элементов панели заполнено
-<li>система идентификации диалогов:<br>
-- сообщения DN_GETDIALOGINFO/DM_GETDIALOGINFO<br>
-- идентификатор для диалога перезаписи файла - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}<br>
-- идентификатор для диалога поиска (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
-<li>Far теперь умеет работать в пределах окна (а не буфера), соответственно введены:<br>
-- команда Info.AdvControl - ACTL_GETFARRECT<br>
-- команда Info.AdvControl - ACTL_GETCURSORPOS<br>
-- команда Info.AdvControl - ACTL_SETCURSORPOS
+<li>система идентификации диалогов:
+<ul>
+  <li>сообщения DN_GETDIALOGINFO/DM_GETDIALOGINFO</li>
+  <li>идентификатор для диалога перезаписи файла - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}</li>
+  <li>идентификатор для диалога поиска (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}</li>
+</ul>
+<li>Far теперь умеет работать в пределах окна (а не буфера), соответственно введены:
+<ul>
+  <li>команда Info.AdvControl - ACTL_GETFARRECT</li>
+  <li>команда Info.AdvControl - ACTL_GETCURSORPOS</li>
+  <li>команда Info.AdvControl - ACTL_SETCURSORPOS</li>
+</ul>
 <li>RegExp API
 <li>FileFilter API
 <li>PluginsControl API
 </ul>
 
 <h3>5 Января 2010 г.</h3>
-<ul><li>Пишем новое писание.<br>
-Все изменения в АПИ (соответственно и в энциклопедии) просим добавлять сюда.
+<ul><li>
+  <p>Пишем новое писание.</p>
+  <p>Все изменения в АПИ (соответственно и в энциклопедии) просим добавлять сюда.</p>
 </ul>
 
 </body>
