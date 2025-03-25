@@ -49,11 +49,12 @@ struct EditorSetParameter
     <table class="cont">
     <tr><th>Настройка</th><th>Описание</th></tr>
     <tr><td><a name="ESPT_AUTOINDENT">ESPT_AUTOINDENT</a></td>
-    <td>Включение/выключение режима "Автоотступ".<br>
-    <code>iParam</code> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</td></tr>
+    <td><p>Включение/выключение режима "Автоотступ".</p>
+      <p><var>iParam</var> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</p>
+    </td></tr>
     <tr><td><a name="ESPT_CHARCODEBASE">ESPT_CHARCODEBASE</a></td>
-    <td>Указать формат показа кода текущего символа в статусной строке редактора.<br>
-    <code>iParam</code> может принимать следующие значения:
+    <td><p>Указать формат показа кода текущего символа в статусной строке редактора.</p>
+      <p><var>iParam</var> может принимать следующие значения:</p>
       <ul>
       <li><code>0</code> - восьмеричное значение (3 символа с ведущим нулями)
       <li><code>1</code> - десятеричное значение (3 символа с ведущими пробелами)
@@ -61,37 +62,41 @@ struct EditorSetParameter
       </ul>
     </td></tr>
     <tr><td><a name="ESPT_CODEPAGE">ESPT_CODEPAGE</a></td>
-    <td>Изменить текущую кодировку в редакторе.<br>
-    <code>iParam</code> - номер устанавливаемой кодовой страницы. В случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает <code>FALSE</code>, кодировка не изменяется. Можно использовать значения CP_REDETECT и CP_DEFAULT, для автоматического определения кодировки и установки последней сохранённой кодировки из истории.</td></tr>
+    <td><p>Изменить текущую кодировку в редакторе.</p>
+      <p><var>iParam</var> - номер устанавливаемой кодовой страницы. В случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает <code>FALSE</code>, кодировка не изменяется. Можно использовать значения CP_REDETECT и CP_DEFAULT, для автоматического определения кодировки и установки последней сохранённой кодировки из истории.</p>
+    </td></tr>
     <tr><td><a name="ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a></td>
-    <td>Включение/выключение режима "Курсор за пределами строки".<br>
-    <code>iParam</code> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</td></tr>
+    <td><p>Включение/выключение режима "Курсор за пределами строки".</p>
+      <p><var>iParam</var> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</p>
+    </td></tr>
     <tr><td><a name="ESPT_EXPANDTABS">ESPT_EXPANDTABS</a></td>
-    <td>Управление поведением замены пробелов вместо табуляции.<br>
-    <code>iParam</code> может быть одним из следующих режимов (перечисление <a name="EXPAND_TABS">EXPAND_TABS</a>):
-    <table class="cont">
-    <tr><th>Флаг</th><th>Описание</th></tr>
-    <tr><td><a name="EXPAND_NOTABS">EXPAND_NOTABS</a></td>
-    <td></td></tr>
-    <tr><td><a name="EXPAND_ALLTABS">EXPAND_ALLTABS</a></td>
-    <td></td></tr>
-    <tr><td><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
-    <td></td></tr>
-    </table>
-    <p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!"> ВНИМАНИЕ!</p>
-    <ul class="note">
-    <li>Данная операция необратима, т.е. если в файле были использованы пробелы вместо табуляции, то при переходе к обычным символам табуляции присутствующие в файле
-    идущие подряд пробелы в символы табуляции преобразованы не будут.</li></ul>
+    <td><p>Управление поведением замены пробелов вместо табуляции.</p>
+      <p><var>iParam</var> может быть одним из следующих режимов (перечисление <a name="EXPAND_TABS">EXPAND_TABS</a>):</p>
+      <table class="cont">
+      <tr><th>Флаг</th><th>Описание</th></tr>
+      <tr><td><a name="EXPAND_NOTABS">EXPAND_NOTABS</a></td>
+      <td></td></tr>
+      <tr><td><a name="EXPAND_ALLTABS">EXPAND_ALLTABS</a></td>
+      <td></td></tr>
+      <tr><td><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
+      <td></td></tr>
+      </table>
+      <p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!"> ВНИМАНИЕ!</p>
+      <ul class="note">
+      <li>Данная операция необратима, т.е. если в файле были использованы пробелы вместо табуляции, то при переходе к обычным символам табуляции присутствующие в файле
+      идущие подряд пробелы в символы табуляции преобразованы не будут.</li></ul>
     </td></tr>
     <tr><td><a name="ESPT_LOCKMODE">ESPT_LOCKMODE</a></td>
-    <td>Включение/выключение запрета модификации текста (аналог <kbd>Ctrl</kbd>+<kbd>L</kbd>).<br>
-    Если <code>iParam</code> равен <code>TRUE</code>, то включается запрет модификации текста, если <code>FALSE</code> - запрет отменяется.</td></tr>
+    <td><p>Включение/выключение запрета модификации текста (аналог <kbd>Ctrl</kbd>+<kbd>L</kbd>).</p>
+      <p>Если <var>iParam</var> равен <code>TRUE</code>, то включается запрет модификации текста, если <code>FALSE</code> - запрет отменяется.</p>
+    </td></tr>
     <tr><td><a name="ESPT_SAVEFILEPOSITION">ESPT_SAVEFILEPOSITION</a></td>
-    <td>Включение/выключение опции "Сохранять позицию файла".<br>
-    <code>iParam</code> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</td></tr>
+    <td><p>Включение/выключение опции "Сохранять позицию файла".</p>
+      <p><var>iParam</var> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</p>
+    </td></tr>
     <tr><td><a name="ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a></td>
-    <td>Включение/выключение опции "Пробельные символы".<br>
-    <code>iParam</code> может принимать следующие значения:
+    <td><p>Включение/выключение опции "Пробельные символы".</p>
+      <p><var>iParam</var> может принимать следующие значения:</p>
       <ul>
       <li><code>0</code> - не показывать пробельные символы, знаки табуляции и окончания строк
       <li><code>1</code> - показывать пробельные символы и знаки табуляции
@@ -99,18 +104,22 @@ struct EditorSetParameter
       </ul>
     </td></tr>
     <tr><td><a name="ESPT_SETBOM">ESPT_SETBOM</a></td>
-    <td>Включение/выключение опции "Добавить сигнатуру (BOM)" при сохранении файла в кодировке Unicode/UTF8.<br>
-    <code>iParam</code> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</td></tr>
+    <td><p>Включение/выключение опции "Добавить сигнатуру (BOM)" при сохранении файла в кодировке Unicode/UTF8.</p>
+      <p><var>iParam</var> соответственно должен быть равен <code>TRUE</code> или <code>FALSE</code>.</p>
+    </td></tr>
     <tr><td><a name="ESPT_SETWORDDIV">ESPT_SETWORDDIV</a></td>
-    <td>Позволяет изменить строку символов-разделителей слов (параметр <code>wszParam</code>) для текущей копии редактора.<br>
-    Если <code>wszParam</code> равен NULL или пустой строке, то в качестве строки разделителей принимается установленное по умолчанию значение - "<code>~!%^&amp;*()+&#124;{}:"&lt;&gt;?`-=\[];',./</code>"
-    Эта строка может содержать не более 255 символов.</td></tr>
+    <td><p>Позволяет изменить строку символов-разделителей слов (параметр <code>wszParam</code>) для текущей копии редактора.</p>
+      <p>Если <code>wszParam</code> равен NULL или пустой строке, то в качестве строки разделителей принимается установленное по умолчанию значение - "<code>~!%^&amp;*()+&#124;{}:"&lt;&gt;?`-=\[];',./</code>"</p>
+      <p>Эта строка может содержать не более 255 символов.</p>
+    </td></tr>
     <tr><td><a name="ESPT_GETWORDDIV">ESPT_GETWORDDIV</a></td>
-    <td>Позволяет получить (в поле <code>wszParam</code>) строку символов-разделителей слов длиною <code>Size</code> для текущей копии редактора.<br>
-    <code>wszParam</code> должен указывать на буфер выделенный плагином. Если <code>wszParam = NULL</code>, то <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает необходимый размер буфера в символах.</td></tr>
+    <td><p>Позволяет получить (в поле <code>wszParam</code>) строку символов-разделителей слов длиною <code>Size</code> для текущей копии редактора.</p>
+      <p><code>wszParam</code> должен указывать на буфер выделенный плагином. Если <code>wszParam = NULL</code>, то <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает необходимый размер буфера в символах.</p>
+    </td></tr>
     <tr><td><a name="ESPT_TABSIZE">ESPT_TABSIZE</a></td>
-    <td>Изменение размера табуляции.<br>
-    <code>iParam</code> содержит новое значение - от 1 до 512. Значение размера табуляции, выходящее за указанные границы, выставляется равным 8.</td></tr>
+    <td><p>Изменение размера табуляции.</p>
+      <p><var>iParam</var> содержит новое значение - от 1 до 512. Значение размера табуляции, выходящее за указанные границы, выставляется равным 8.</p>
+    </td></tr>
     </table>
     </div>
   <div class="dfn">iParam</div>

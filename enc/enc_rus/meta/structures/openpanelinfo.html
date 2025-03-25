@@ -76,9 +76,9 @@ struct OpenPanelInfo
     <tr><td><a name="OPIF_COMPAREFATTIME">OPIF_COMPAREFATTIME</a></td>
     <td>Преобразовывать временные метки в формат FAT при выполнении команды <code>Compare folders</code>. Установите этот флаг, если файловая система плагина не обеспечивает требуемую для стандартного стравнения времени точность.</td></tr>
     <tr><td><a name="OPIF_EXTERNALGET">OPIF_EXTERNALGET</a><br>
-                                                  <a name="OPIF_EXTERNALPUT">OPIF_EXTERNALPUT</a><br>
-                                                  <a name="OPIF_EXTERNALDELETE">OPIF_EXTERNALDELETE</a><br>
-                                                  <a name="OPIF_EXTERNALMKDIR">OPIF_EXTERNALMKDIR</a></td>
+            <a name="OPIF_EXTERNALPUT">OPIF_EXTERNALPUT</a><br>
+            <a name="OPIF_EXTERNALDELETE">OPIF_EXTERNALDELETE</a><br>
+            <a name="OPIF_EXTERNALMKDIR">OPIF_EXTERNALMKDIR</a></td>
     <td>Флаги могут быть использованы только с <code>OPIF_REALNAMES</code>. Вынуждает использование соответствующих функций Far Manager, даже если требуемая функция экспортируется плагином.</td></tr>
     <tr><td><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
     <td> Использовать раскраску файлов в панели плагина только по атрибутам, а имена объектов в раскраске не учитывать. Выбор цвета происходит только среди тех
@@ -101,41 +101,53 @@ struct OpenPanelInfo
     <a name="dagger">&dagger;</a> Этот флаг используется только если плагин открыт при помощи меню плагинов <code class="nobr">F11 &rarr; плагин &rarr; &hellip;</code>, префикса плагина <code>prefix:command</code> или функции Lua <code class="nobr">Plugin.Command(GUID, command)</code>.
     </div>
   <div class="dfn"><a name="Hostfile">HostFile</a></div>
-    <div class="dfndescr">Имя файла-контейнера, на основе которого эмулируется файловая система на панели. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в <code>NULL</code>.</div>
+    <div class="dfndescr"><p>Имя файла-контейнера, на основе которого эмулируется файловая система на панели.</p>
+      <p>Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в <code>NULL</code>.</p></div>
   <div class="dfn">CurDir</div>
-    <div class="dfndescr">Текущая директория панели. Если панельный плагин вернёт здесь пустую строку, то при нажатии <kbd>ENTER</kbd> на ".." Far Manager закроет панель плагина автоматически.</div>
+    <div class="dfndescr"><p>Текущая директория панели.</p>
+      <p>Если панельный плагин вернёт здесь пустую строку, то при нажатии <kbd>ENTER</kbd> на ".." Far Manager закроет панель плагина автоматически.</p></div>
   <div class="dfn">Format</div>
     <div class="dfndescr">Имя формата панели плагина. Оно показывается в диалоге копирования файла.</div>
   <div class="dfn">PanelTitle</div>
     <div class="dfndescr">Заголовок панели плагина.</div>
   <div class="dfn">InfoLines</div>
-    <div class="dfndescr">Адрес массива структур <a href="infopanelline.html">InfoPanelLine</a>. Каждая структура описывает одну строку в информационной панели. Если вы не нуждаетесь в показе текста, зависимого от плагина в информационной панели, установите <code>InfoLines</code> в <code>NULL</code>.</div>
+    <div class="dfndescr"><p>Адрес массива структур <a href="infopanelline.html">InfoPanelLine</a>.</p>
+      <p>Каждая структура описывает одну строку в информационной панели.</p>
+      <p>Если вы не нуждаетесь в показе текста, зависимого от плагина в информационной панели, установите <code>InfoLines</code> в <code>NULL</code>.</p></div>
   <div class="dfn">InfoLinesNumber</div>
     <div class="dfndescr">Число структур <code>InfoLine</code>.</div>
   <div class="dfn">DescrFiles</div>
-    <div class="dfndescr">Адрес массива указателей на имена файлов описаний. Far Manager попытается прочитать эти файлы (функцией <a href="../exported_functions/getfilesw.html">GetFilesW</a>)
-    при показе описаний и обновить их после обработки файлов, если флаг <code>PPIF_PROCESSDESCR</code> в структуре <a href="pluginpanelitem.html">PluginPanelItem</a> был
-    установлен. В зависимости от типа плагина, обработка описаний может занять значительное время. Если Вам это не нужно, установите <code>DescrFiles</code> в <code>NULL</code>.</div>
+    <div class="dfndescr"><p>Адрес массива указателей на имена файлов описаний.</p>
+      <p>Far Manager попытается прочитать эти файлы (функцией <a href="../exported_functions/getfilesw.html">GetFilesW</a>)
+      при показе описаний и обновить их после обработки файлов, если флаг <code>PPIF_PROCESSDESCR</code> в структуре <a href="pluginpanelitem.html">PluginPanelItem</a> был
+      установлен.</p>
+      <p>В зависимости от типа плагина, обработка описаний может занять значительное время. Если Вам это не нужно, установите <code>DescrFiles</code> в <code>NULL</code>.</p></div>
   <div class="dfn">DescrFilesNumber</div>
     <div class="dfndescr">Число имён файлов описаний.</div>
   <div class="dfn">PanelModesArray</div>
-    <div class="dfndescr">Адрес массива структур <a href="panelmode.html">PanelMode</a>. Используя его, вы можете переопределить настройки режимов просмотра. Первая структура описывает режим просмотра номер 0, вторая - 1 и т.д. Если Вам не нужно определение новых режимов просмотра, установите <code>PanelModesArray</code> в <code>NULL</code>.</div>
+    <div class="dfndescr"><p>Адрес массива структур <a href="panelmode.html">PanelMode</a>. Используя его, вы можете переопределить настройки режимов просмотра.</p>
+      <p>Первая структура описывает режим просмотра номер 0, вторая - 1 и т.д.</p>
+      <p>Если Вам не нужно определение новых режимов просмотра, установите <code>PanelModesArray</code> в <code>NULL</code>.</p></div>
   <div class="dfn">PanelModesNumber</div>
     <div class="dfndescr">Число структур <a href="panelmode.html">PanelMode</a>.</div>
   <div class="dfn">StartPanelMode</div>
-    <div class="dfndescr">Режим просмотра, который будет установлен после создания панели плагина. Он должен быть в формате <code>'0'+&lt;номер режима просмотра&gt;</code>. Например, '1' или 0x31 будут устанавливать
-    Краткий режим просмотра. Если вы не хотите менять режим просмотра панели после запуска плагина, установите <code>StartPanelMode</code> в <code>0</code>.</div>
+    <div class="dfndescr"><p>Режим просмотра, который будет установлен после создания панели плагина.</p>
+      <p>Он должен быть в формате <code>'0'+&lt;номер режима просмотра&gt;</code>. Например, '1' или 0x31 будут устанавливать Краткий режим просмотра.</p>
+      <p>Если вы не хотите менять режим просмотра панели после запуска плагина, установите <code>StartPanelMode</code> в <code>0</code>.</p></div>
   <div class="dfn">StartSortMode</div>
-    <div class="dfndescr"><a href="../defs/sortmetods.html">Режим сортировки</a>, который будет установлен после создания панели плагина. Если вы не хотите менять режим сортировки после запуска плагина,
-    установите <code>StartSortMode</code> в <code>SM_DEFAULT</code> или <code>0</code>.</div>
+    <div class="dfndescr"><p><a href="../defs/sortmetods.html">Режим сортировки</a>, который будет установлен после создания панели плагина.</p>
+      <p>Если вы не хотите менять режим сортировки после запуска плагина,
+      установите <code>StartSortMode</code> в <code>SM_DEFAULT</code> или <code>0</code>.</p></div>
   <div class="dfn">StartSortOrder</div>
     <div class="dfndescr">Если вы указали <code>StartSortMode</code>, в поле <code>StartSortOrder</code> вы должны задать направление сортировки, <code>0</code> или <code>1</code> (обратная сортировка).</div>
   <div class="dfn">KeyBar</div>
     <div class="dfndescr">Адрес структуры <a href="keybartitles.html">KeyBarTitles</a>. Используя его, вы можете переопределить метки функциональных клавиш в строке функциональных клавиш. Если Вам это не нужно, установите <code>KeyBar</code> в <code>NULL</code>.</div>
   <div class="dfn">ShortcutData</div>
-    <div class="dfndescr">Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина. Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
-    командой ссылки на папку. Например, FTP клиент может поместить сюда текущий хост, логин и пароль. Нет необходимости сохранять здесь текущий каталог,
-    потому что он будет восстановлен самим Far Manager'ом.<br> Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в <code>NULL</code>.</div>
+    <div class="dfndescr"><p>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина.</p>
+    <p>Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
+    командой ссылки на папку. Например, FTP клиент может поместить сюда текущий хост, логин и пароль.</p>
+    <p>Нет необходимости сохранять здесь текущий каталог, потому что он будет восстановлен самим Far Manager'ом.</p>
+    <p>Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в <code>NULL</code>.</p></div>
   <div class="dfn">FreeSize</div>
     <div class="dfndescr">Количество свободного места в эмулированной плагином файловой системе.</div>
 </div>

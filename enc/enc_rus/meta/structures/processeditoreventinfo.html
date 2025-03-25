@@ -35,44 +35,51 @@ struct ProcessEditorEventInfo
   <div class="dfn">StructSize</div>
     <div class="dfndescr">Это поле содержит размер структуры <code>ProcessEditorEventInfo</code>.</div>
   <div class="dfn">Event</div>
-    <div class="dfndescr">Тип события.<br>
-    Может быть одной из следующих величин (перечисление <a name="EDITOR_EVENTS">EDITOR_EVENTS</a>):
+    <div class="dfndescr"><p>Тип события.</p>
+    <p>Может быть одной из следующих величин (перечисление <a name="EDITOR_EVENTS">EDITOR_EVENTS</a>):</p>
     <table class="cont">
     <tr><th>Событие</th><th>Описание</th></tr>
     <tr><td><a name="EE_CLOSE">EE_CLOSE</a></td>
-    <td>Одно из окон редактора закрывается.<br>
-    Плагин может использовать это сообщение для освобождения внутренних структур данных. Заметьте, что несколько окон редактора могут работать одновременно.<br>
-    EditorID может быть получен ранее с использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.
-    Но плагин не должен вызывать <code>EditorControl</code> при обработке этого сообщения потому что редактор уже закрыт.<br>
-    <code>Param = NULL</code>.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.
-    <p class="note"><img src="../../images/note.gif" alt="Замечание для EE_CLOSE"> Замечание.</p>
-    <ul class="note"><li>В <code>EE_CLOSE</code> допускается использовать только <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> и <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</li></ul>
+    <td><p>Одно из окон редактора закрывается.</p>
+      <p>Плагин может использовать это сообщение для освобождения внутренних структур данных.</p>
+      <p>Заметьте, что несколько окон редактора могут работать одновременно.</p>
+      <p>EditorID может быть получен ранее с использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a>
+      команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.</p>
+      <p>Но плагин не должен вызывать <code>EditorControl</code> при обработке этого сообщения потому что редактор уже закрыт.</p>
+      <p><code>Param = NULL</code>.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p>
+      <p class="note"><img src="../../images/note.gif" alt="Замечание для EE_CLOSE"> Замечание.</p>
+      <ul class="note"><li>В <code>EE_CLOSE</code> допускается использовать только <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> и <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</li></ul>
     </td></tr>
     <tr><td><a name="EE_READ">EE_READ</a></td>
-    <td>Новый файл загружен в редактор. Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации считанных данных.<br>
-    <code>Param = NULL</code>.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
+    <td><p>Новый файл загружен в редактор.</p>
+      <p>Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации считанных данных.</p>
+      <p><code>Param = NULL</code>.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p></td></tr>
     <tr><td><a name="EE_SAVE">EE_SAVE</a></td>
-    <td>Отредактированный файл собираются сохранять. Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации данных перед сохранением.<br>
-    <code>Param</code> указывает на структуру <a href="editorsavefile.html">EditorSaveFile</a>.
-    <br>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
+    <td><p>Отредактированный файл собираются сохранять.</p>
+      <p>Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации данных перед сохранением.</p>
+      <p><code>Param</code> указывает на структуру <a href="editorsavefile.html">EditorSaveFile</a>.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p></td></tr>
     <tr><td><a name="EE_REDRAW">EE_REDRAW</a></td>
-    <td>Редактор собирается перерисовать экран.<br>
-    <code>Param</code> указывает на константу <code>EEREDRAW_ALL</code>.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.<br><br></td></tr>
+    <td><p>Редактор собирается перерисовать экран.</p>
+      <p><code>Param</code> указывает на константу <code>EEREDRAW_ALL</code>.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p></td></tr>
     <tr><td><a name="EE_KILLFOCUS">EE_KILLFOCUS</a></td>
-    <td>Редактор потерял фокус ввода.<br><code>Param</code> указывает на переменную, содержащую значение EditorID редактора, теряющего фокус.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
+    <td><p>Редактор потерял фокус ввода.</p>
+      <p><code>Param</code> указывает на переменную, содержащую значение EditorID редактора, теряющего фокус.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p></td></tr>
     <tr><td><a name="EE_GOTFOCUS">EE_GOTFOCUS</a></td>
-    <td>Редактор получил фокус ввода.<br><code>Param</code> указывает на переменную, содержащую значение EditorID редактора, получающего фокус.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</td></tr>
+    <td><p>Редактор получил фокус ввода.</p>
+      <p><code>Param</code> указывает на переменную, содержащую значение EditorID редактора, получающего фокус.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p></td></tr>
     <tr><td><a name="EE_CHANGE">EE_CHANGE</a></td>
-    <td>В редакторе изменился текст.<br><code>Param</code> указывает на переменную, типа <a href="editorchange.html">EditorChange</a>.<br>
-    Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.<br>
-    Плагин должен <a href="../service_functions/editorcontrol.html#ECTL_SUBSCRIBECHANGEEVENT">подписаться</a> на это событие, чтоб получать его.
-    <p class="note"><img src="../../images/note.gif" alt="Замечание для EE_CHANGE"> Замечание.</p>
-    <ul class="note"><li><a href="../service_functions/editorcontrol.html">EditorControl</a> вызванная из <code>EE_CHANGE</code> вернет <code>FALSE</code>.</li></ul></td></tr>
+    <td><p>В редакторе изменился текст.</p>
+      <p><code>Param</code> указывает на переменную, типа <a href="editorchange.html">EditorChange</a>.</p>
+      <p>Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть <code>0</code>.</p>
+      <p>Плагин должен <a href="../service_functions/editorcontrol.html#ECTL_SUBSCRIBECHANGEEVENT">подписаться</a> на это событие, чтоб получать его.</p>
+      <p class="note"><img src="../../images/note.gif" alt="Замечание для EE_CHANGE"> Замечание.</p>
+      <ul class="note"><li><a href="../service_functions/editorcontrol.html">EditorControl</a> вызванная из <code>EE_CHANGE</code> вернет <code>FALSE</code>.</li></ul></td></tr>
     </table>
     <p class="warning"><img src="../../images/warning.gif" alt="Замечание для EE_REDRAW и EE_GOTFOCUS"> Внимание!</p>
     <ul class="warning">
