@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6438.0
+Plugin API for Far Manager 3.0.6454.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6438
+#define FARMANAGERVERSION_BUILD 6454
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -810,6 +810,7 @@ FAR_INLINE_CONSTANT FARDIALOGFLAGS
 	FDLG_NODRAWPANEL         = 0x0000000000000008ULL,
 	FDLG_KEEPCONSOLETITLE    = 0x0000000000000010ULL,
 	FDLG_NONMODAL            = 0x0000000000000020ULL,
+	FDLG_STAY_ON_TOP         = 0x0000000000000040ULL,
 	FDLG_NONE                = 0;
 
 typedef intptr_t(WINAPI *FARWINDOWPROC)(
