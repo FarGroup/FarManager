@@ -951,6 +951,39 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 		if (!checkCoord(X1, X2) || !checkCoord(Y1, Y2))
 			return hDlg;
 
+		if (Flags & FDLG_STAY_ON_TOP)
+		{
+			Flags &= ~FDLG_NONMODAL;
+			switch (Manager::GetCurrentWindowType())
+			{
+				case windowtype_panels:
+				case windowtype_viewer:
+				case windowtype_editor:
+					{
+						const std::span Items(Item, ItemsNumber);
+						const auto WrongItem = std::ranges::find_if(Items, [](const auto& item)
+						{
+							switch (item.Type)
+							{
+								case DI_TEXT       :
+								case DI_VTEXT      :
+								case DI_SINGLEBOX  :
+								case DI_DOUBLEBOX  :
+								case DI_USERCONTROL:
+									return false;
+								default:
+									return true;
+							}
+						});
+						if (WrongItem != Items.cend())
+							return hDlg;
+					}
+					break;
+				default:
+					return hDlg;
+			}
+		}
+
 		if (const auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId))
 		{
 			class plugin_dialog: public Dialog
@@ -1012,6 +1045,11 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				if (Flags & FDLG_KEEPCONSOLETITLE)
 					FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
 
+				if (Flags & FDLG_STAY_ON_TOP)
+				{
+					FarDialog->SetFlags(WINDOW_BYPASS_INPUT);
+				}
+
 				FarDialog->SetHelp(NullToEmpty(HelpTopic));
 
 				FarDialog->SetId(*Id);
@@ -1020,8 +1058,22 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				*/
 				FarDialog->SetPluginOwner(UuidToPlugin(PluginId));
 
+				if (FarDialog->IsBypassInput())
+				{
+					Global->WindowManager->GetCurrentWindow()->AddChild(FarDialog);
+					FarDialog->ClearDone();
+					FarDialog->InitDialog();
+					if (FarDialog->GetExitCode() == -1)
+					{
+						FarDialog->SetDialogMode(DMODE_BEGINLOOP);
+						Global->WindowManager->RefreshAll();
+						Global->WindowManager->PluginCommit();
+					}
+				}
+
 				if (FarDialog->GetCanLoseFocus())
 				{
+
 					FarDialog->Process();
 					Global->WindowManager->PluginCommit();
 				}
@@ -1049,6 +1101,9 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 		const auto FarDialog = static_cast<Dialog*>(hDlg);
 
 		if (FarDialog->GetCanLoseFocus())
+			return -1;
+
+		if (FarDialog->IsBypassInput())
 			return -1;
 
 		FarDialog->Process();

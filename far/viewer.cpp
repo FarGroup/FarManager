@@ -799,6 +799,7 @@ void Viewer::ShowPage(int nMode)
 
 	DrawScrollbar();
 	ShowStatus();
+	GetOwner()->ShowChildren();
 }
 
 void Viewer::DisplayObject()

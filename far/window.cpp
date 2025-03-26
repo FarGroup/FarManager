@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "global.hpp"
+#include "dialog.hpp"
 
 // Platform:
 
@@ -125,4 +126,13 @@ bool window::IsPinned() const
 void window::SetMacroMode(FARMACROAREA Area)
 {
 	m_MacroArea=Area;
+}
+
+void window::ShowChildren()
+{
+	for (const auto& i: m_children)
+	{
+		if (const auto j = i.lock())
+			j->Show();
+	}
 }

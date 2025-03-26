@@ -261,6 +261,7 @@ void QuickView::DisplayObject()
 	{
 		QView->Show();
 	}
+	Parent()->ShowChildren();
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }

@@ -589,6 +589,7 @@ void InfoList::DisplayObject()
 			}
 		}
 	}
+	Parent()->ShowChildren();
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }

@@ -831,7 +831,7 @@ void FileEditor::Show()
 		m_windowKeyBar->Redraw();
 	}
 	m_editor->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
-	ScreenObjectWithShadow::Show();
+	window::Show();
 }
 
 

@@ -1598,6 +1598,7 @@ void Dialog::ShowDialog(size_t ID)
 	   другим контролом (по координатам), то для "позднего"
 	   контрола тоже нужна прорисовка.
 	*/
+	if (!IsBypassInput())
 	{
 		bool CursorVisible=false;
 		DWORD CursorSize=0;
@@ -2458,6 +2459,11 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			return true;
 	}
 
+	if(IsBypassInput())
+	{
+		return false;
+	}
+
 	if (LocalKey() == KEY_NONE)
 	{
 		return false;
@@ -3133,6 +3139,11 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		if (!DlgProc(DN_INPUT,0,&mouse))
 			return true;
+	}
+
+	if(IsBypassInput())
+	{
+		return false;
 	}
 
 	if (!DialogMode.Check(DMODE_SHOW))
@@ -4321,7 +4332,7 @@ void Dialog::ResizeConsole()
 intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (DialogMode.Check(DMODE_ENDLOOP))
-		return 0;
+		return Msg==DN_INPUT?TRUE:FALSE;
 
 	FarDialogEvent de{ sizeof(de), this, Msg, Param1, Param2 };
 
@@ -6126,7 +6137,8 @@ void Dialog::SetDeleting()
 
 void Dialog::ShowConsoleTitle()
 {
-	ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
+	if(!IsBypassInput())
+		ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
 }
 
 Dialog::suppress_redraw::suppress_redraw(Dialog* Dlg):

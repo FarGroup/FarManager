@@ -798,7 +798,9 @@ bool Manager::ProcessKey(Key key)
 		}
 
 		GetCurrentWindow()->UpdateKeyBar();
-		GetCurrentWindow()->ProcessKey(key);
+		const auto Iter = std::ranges::find_if(GetCurrentWindow()->m_children | std::views::reverse, [key](const auto& item) { const auto real = item.lock(); return real && real->ProcessKey(key); });
+		if (Iter == GetCurrentWindow()->m_children.crend())
+			GetCurrentWindow()->ProcessKey(key);
 	}
 
 	return false;
@@ -818,7 +820,11 @@ bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent) const
 	}
 
 	if (GetCurrentWindow())
-		ret=GetCurrentWindow()->ProcessMouse(MouseEvent);
+	{
+		const auto Iter = std::ranges::find_if(GetCurrentWindow()->m_children | std::views::reverse, [MouseEvent,&ret](const auto& item) { const auto real = item.lock(); return (ret = real && real->ProcessMouse(MouseEvent)); });
+		if (Iter == GetCurrentWindow()->m_children.crend())
+			ret=GetCurrentWindow()->ProcessMouse(MouseEvent);
+	}
 
 	return ret;
 }

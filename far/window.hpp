@@ -66,6 +66,11 @@ enum window_type
 	windowtype_search,
 };
 
+enum WINDOW_FLAGS
+{
+	WINDOW_BYPASS_INPUT = 8_bit,  // весь ввод отдяётся нижележащему окну
+};
+
 class window: public ScreenObjectWithShadow, public std::enable_shared_from_this<window>
 {
 public:
@@ -101,6 +106,9 @@ public:
 	bool IsPinned() const;
 	void SetMacroMode(FARMACROAREA Area);
 	int ID() const {return m_ID;}
+	bool IsBypassInput() const {return m_Flags.Check(WINDOW_BYPASS_INPUT);}
+	void AddChild(dialog_ptr Child) {m_children.push_back(Child);}
+	void ShowChildren();
 
 	[[nodiscard]]
 	auto GetPinner() { return make_raii_wrapper<&window::Pin, &window::UnPin>(this); }
@@ -121,6 +129,9 @@ private:
 	bool m_Deleting{};
 	long m_BlockCounter{};
 	FARMACROAREA m_MacroArea{ MACROAREA_OTHER };
+
+	using children = std::vector<std::weak_ptr<Dialog>>;
+	children m_children;
 };
 
 #endif // WINDOW_HPP_1A177508_4749_4C46_AE24_0D274332C03A

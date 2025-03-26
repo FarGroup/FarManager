@@ -8061,6 +8061,7 @@ void FileList::ShowFileList(bool Fast)
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		Parent()->RedrawKeyBar();
+	Parent()->ShowChildren();
 }
 
 
