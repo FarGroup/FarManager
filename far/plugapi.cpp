@@ -975,7 +975,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 									return true;
 							}
 						});
-						if (WrongItem != Items.cend())
+						if (WrongItem != Items.end())
 							return hDlg;
 					}
 					break;

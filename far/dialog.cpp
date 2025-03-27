@@ -1736,13 +1736,14 @@ void Dialog::ShowDialog(size_t ID)
 					else if (CX1 != -1 && CX2 > CX1)
 					{
 						MaxWidth = CX2 - CX1 + 1;
+						size_t MaxWidthFixed = MaxWidth + (Item.Flags & DIF_SHOWAMPERSAND ? 0 : strStr.size() - HiStrlen(strStr));
 
 						if (Item.Flags & DIF_RIGHTTEXT)
-							inplace::fit_to_right(strStr, MaxWidth);
+							inplace::fit_to_right(strStr, MaxWidthFixed);
 						if (Item.Flags & DIF_CENTERTEXT)
-							inplace::fit_to_center(strStr, MaxWidth);
+							inplace::fit_to_center(strStr, MaxWidthFixed);
 						else
-							inplace::fit_to_left(strStr, MaxWidth);
+							inplace::fit_to_left(strStr, MaxWidthFixed);
 					}
 
 					auto LenText = LenStrItem(I, strStr);
