@@ -5343,23 +5343,16 @@ static int far_MakeMenuItems(lua_State *L)
 			const char *start;
 			char* str;
 
-			lua_getglobal(L, "tostring");          //+2
-
-			if (i == 1 && lua_type(L,-1) != LUA_TFUNCTION)
-				luaL_error(L, "global `tostring' is not function");
-
 			lua_pushvalue(L, i);                   //+3
-
-			if (0 != lua_pcall(L, 1, 1, 0))         //+2 (items,str)
-				luaL_error(L, lua_tostring(L, -1));
-
-			if (lua_type(L, -1) != LUA_TSTRING)
-				luaL_error(L, "tostring() returned a non-string value");
+			start = safe_luaL_tolstring(L, -1, &len_arg);
+			if (start == NULL) {
+				lua_error(L);
+			}
 
 			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
-			start = lua_tolstring(L, -1, &len_arg);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);
+			lua_pop(L, 2);                         //+1 (items)
 
 			for (j=0; j<len_arg; j++)
 				if (str[j] == '\0') str[j] = ' ';
@@ -5381,13 +5374,12 @@ static int far_MakeMenuItems(lua_State *L)
 				lua_setfield(L, -2, "text");         //+3
 				lua_pushvalue(L, i);
 				lua_setfield(L, -2, "arg");          //+3
-				lua_rawseti(L, -3, item++);          //+2 (items,str)
+				lua_rawseti(L, -2, item++);          //+2 (items,str)
 				strcpy(buf_prefix, buf_space);
 				start = nl;
 			}
 
 			free(str);
-			lua_pop(L, 1);                         //+1 (items)
 		}
 	}
 
