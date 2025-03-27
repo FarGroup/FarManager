@@ -625,7 +625,11 @@ function mf.printconsole(...)
   local narg = select("#", ...)
   panel.GetUserScreen()
   for i=1,narg do
-    win.WriteConsole(select(i, ...), i<narg and "\t" or "")
+    local success, err = win.WriteConsole(select(i, ...), i<narg and "\t" or "")
+    if not success then
+      panel.SetUserScreen()
+      error(err or "error in win.WriteConsole")
+    end
   end
   panel.SetUserScreen()
 end
