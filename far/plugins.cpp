@@ -2113,7 +2113,7 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 
 	const auto pPlugin = FindPlugin(SysID);
 
-	if (exception_handling_in_progress() || !pPlugin || !pPlugin->has(iOpen))
+	if (exception_handling_in_progress() || !pPlugin || !pPlugin->has(iOpen) || !pPlugin->m_Instance)
 		return false;
 
 	auto PluginPanel = Open(pPlugin, OpenFrom, FarUuid, std::bit_cast<intptr_t>(Data));
