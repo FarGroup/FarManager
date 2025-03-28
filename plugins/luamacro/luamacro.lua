@@ -206,17 +206,16 @@ end
 
 local function safe_tostring (obj)
   local success, str = pcall(tostring, obj)
-  if success then
-    if type(str)=="string" then
-      return str
-    end
-    str = string.format("(tostring returned a %s value)", type(str))
-  else
+  if not success then
     if type(str)~="string" then
       str = string.format("(error object is a %s value)", type(str))
     end
+    return nil, str
+  elseif type(str)~="string" then
+    return nil, "'__tostring' must return a string"
+  else
+    return str
   end
-  return "error calling tostring: "..str, true
 end
 
 local function FixReturn (handle, ok, ...)
@@ -230,8 +229,7 @@ local function FixReturn (handle, ok, ...)
       return F.MPRT_NORMALFINISH, pack(true, ...)
     end
   else
-    local msg,err = safe_tostring(ret1)
-    if err then msg = "error in error handling\n"..msg end
+    local msg = safe_tostring(ret1) or "error in error handling"
     msg = string.gsub(debug.traceback(handle.coro, msg), "\n\t", "\n   ")
     ErrMsg(msg)
     return F.MPRT_ERRORFINISH
