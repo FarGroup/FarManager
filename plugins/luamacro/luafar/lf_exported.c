@@ -112,9 +112,8 @@ int pcall_msg(lua_State* L, int narg, int nret)
 
 		if (status2 != 0) {
 			if (NULL == safe_luaL_tolstring(L, -1, NULL)) {
-				lua_pushstring(L, "error in error handling\n");
-				lua_insert(L, -2);
-				lua_concat(L, 2);
+				lua_pop(L, 1);
+				lua_pushstring(L, "error in error handling");
 			}
 			LF_Error (L, check_utf8_string(L, -1, NULL));
 			lua_pop (L, 2);
