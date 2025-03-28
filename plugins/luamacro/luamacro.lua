@@ -218,6 +218,21 @@ local function safe_tostring (obj)
   end
 end
 
+local function formatErr (obj)
+  local tname = type(obj)
+  if tname=="number" then
+    obj = tostring(obj)
+  elseif tname~="string" then
+    local mt = debug.getmetatable(obj)
+    if mt and mt.__tostring~=nil then
+      obj = safe_tostring(obj) or "error in error handling"
+    else
+      obj = string.format("(error object is a %s value)", tname)
+    end
+  end
+  return obj
+end
+
 local function FixReturn (handle, ok, ...)
   local ret1, ret_type = ...
   if ok then
@@ -229,8 +244,7 @@ local function FixReturn (handle, ok, ...)
       return F.MPRT_NORMALFINISH, pack(true, ...)
     end
   else
-    local msg = safe_tostring(ret1) or "error in error handling"
-    msg = string.gsub(debug.traceback(handle.coro, msg), "\n\t", "\n   ")
+    local msg = string.gsub(debug.traceback(handle.coro, formatErr(ret1)), "\n\t", "\n   ")
     ErrMsg(msg)
     return F.MPRT_ERRORFINISH
   end
