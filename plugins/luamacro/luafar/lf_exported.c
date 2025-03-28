@@ -111,9 +111,20 @@ int pcall_msg(lua_State* L, int narg, int nret)
 		}
 
 		if (status2 != 0) {
-			if (NULL == safe_luaL_tolstring(L, -1, NULL)) {
-				lua_pop(L, 1);
-				lua_pushstring(L, "error in error handling");
+			switch (safe__tostring_meta(L, -1))
+			{
+				case TOSTRING_NOMETA:
+					if (lua_isstring(L, -1))
+						lua_pushvalue(L, -1);
+					else
+						lua_pushfstring(L, "(error object is a %s value)", luaL_typename(L, -1));
+					break;
+				case TOSTRING_SUCCESS:
+					break;
+				case TOSTRING_ERROR:
+					lua_pop(L, 1);
+					lua_pushstring(L, "error in error handling");
+					break;
 			}
 			LF_Error (L, check_utf8_string(L, -1, NULL));
 			lua_pop (L, 2);
