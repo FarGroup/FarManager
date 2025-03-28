@@ -861,19 +861,9 @@ const wchar_t* opt_utf16_string(lua_State *L, int pos, const wchar_t *dflt)
 
 static int ustring_OutputDebugString(lua_State *L)
 {
-	if (lua_isstring(L, 1))
-		OutputDebugStringW(check_utf8_string(L, 1, NULL));
-	else
-	{
-		lua_settop(L, 1);
-		lua_getglobal(L, "tostring");
-		if (lua_isfunction(L, -1))
-		{
-			lua_pushvalue(L,  1);
-			if (0==lua_pcall(L, 1, 1, 0) && lua_isstring(L, -1))
-				OutputDebugStringW(check_utf8_string(L, -1, NULL));
-		}
-	}
+	lua_settop(L, 1);
+	luaL_tolstring(L, 1, NULL);
+	OutputDebugStringW(check_utf8_string(L, -1, NULL));
 	return 0;
 }
 

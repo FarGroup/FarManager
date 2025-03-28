@@ -2151,23 +2151,9 @@ static int far_Message(lua_State *L)
 	lua_settop(L,6);
 	Msg = NULL;
 
-	if (lua_isstring(L, 1))
-		Msg = check_utf8_string(L, 1, NULL);
-	else
-	{
-		lua_getglobal(L, "tostring");
-
-		if (lua_isfunction(L,-1))
-		{
-			lua_pushvalue(L,1);
-			lua_call(L,1,1);
-			Msg = check_utf8_string(L,-1,NULL);
-		}
-
-		if (Msg == NULL) luaL_argerror(L, 1, "cannot convert to string");
-
-		lua_replace(L,1);
-	}
+	luaL_tolstring(L, 1, NULL);
+	Msg = check_utf8_string(L, -1, NULL);
+	lua_replace(L,1);
 
 	Title   = opt_utf8_string(L, 2, L"Message");
 	Buttons = opt_utf8_string(L, 3, L";OK");
