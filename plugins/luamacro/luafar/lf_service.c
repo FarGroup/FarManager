@@ -5344,11 +5344,7 @@ static int far_MakeMenuItems(lua_State *L)
 			char* str;
 
 			lua_pushvalue(L, i);                   //+3
-			start = safe_luaL_tolstring(L, -1, &len_arg);
-			if (start == NULL) {
-				lua_error(L);
-			}
-
+			start = luaL_tolstring(L, -1, &len_arg);
 			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);

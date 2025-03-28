@@ -20,6 +20,14 @@ extern "C" {
 
 LUALIB_API int luaopen_ustring(lua_State *L);
 
+typedef enum {
+    TOSTRING_ERROR   = -1,
+    TOSTRING_NOMETA  = 0,
+    TOSTRING_SUCCESS = 1
+} ToStringResult;
+
+const char *luaL_tolstring(lua_State *L, int idx, size_t *len);
+ToStringResult safe__tostring_meta(lua_State *L, int idx);
 const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len);
 void pusherrorcode(lua_State *L, int error);
 void pusherror(lua_State *L);
