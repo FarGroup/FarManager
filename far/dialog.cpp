@@ -4247,8 +4247,11 @@ intptr_t Dialog::CloseDialog()
 	if (DialogMode.Check(DMODE_BEGINLOOP))
 	{
 		DialogMode.Clear(DMODE_BEGINLOOP);
-		Global->WindowManager->DeleteWindow(shared_from_this());
-		Global->WindowManager->PluginCommit();
+		if (!IsBypassInput())
+		{
+			Global->WindowManager->DeleteWindow(shared_from_this());
+			Global->WindowManager->PluginCommit();
+		}
 	}
 	return result;
 }
