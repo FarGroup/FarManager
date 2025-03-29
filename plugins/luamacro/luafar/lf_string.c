@@ -1,6 +1,81 @@
 ﻿#include <shlobj.h>
 #include "lf_string.h"
 
+// initially from: https://www.lua.org/source/5.2/lauxlib.c.html#luaL_tolstring
+const char *luaL_tolstring(lua_State *L, int idx, size_t *len)
+{
+	// partly from: https://www.lua.org/source/5.3/lauxlib.c.html#luaL_tolstring
+	if (luaL_callmeta(L, idx, "__tostring"))  /* metafield? */
+	{
+		if (!lua_isstring(L, -1))
+			luaL_error(L, "'__tostring' must return a string");
+	}
+	else
+	{
+		switch (lua_type(L, idx))
+		{
+			case LUA_TNUMBER:
+			case LUA_TSTRING:
+				lua_pushvalue(L, idx);
+				break;
+			case LUA_TBOOLEAN:
+				lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
+				break;
+			case LUA_TNIL:
+				lua_pushliteral(L, "nil");
+				break;
+			default:
+				lua_pushfstring(L, "%s: %p", luaL_typename(L, idx), lua_topointer(L, idx));
+				break;
+		}
+	}
+	return lua_tolstring(L, -1, len);
+}
+
+// noop if the value has no __tostring metamethod
+// otherwise it is called and the result string (or error msg) is pushed onto the stack
+int safe__tostring_meta(lua_State *L, int idx)
+{
+	if (luaL_getmetafield(L, idx, "__tostring"))
+	{
+		lua_pushvalue(L, idx);
+		if (lua_pcall(L, 1, 1, 0) != 0)
+		{
+			if (!lua_isstring(L, -1))
+			{
+				const char* tname = luaL_typename(L, -1);
+				lua_pop(L, 1);
+				lua_pushfstring(L, "(error object is a %s value)", tname);
+			}
+		}
+		else if (!lua_isstring(L, -1)) 
+		{
+			lua_pop(L, 1);
+			lua_pushfstring(L, "'__tostring' must return a string");
+			
+		}
+		else
+		{
+			return 1; // succeed
+		}
+		return -1; // errored
+	}
+	return 0; // no metafield
+}
+
+const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len)
+{
+	switch (safe__tostring_meta(L, idx))
+	{
+		case 0: // no metafield
+			return luaL_tolstring(L, idx, len);
+		case 1: // succeed
+			return lua_tolstring(L, -1, len);
+		case -1: // errored
+			return NULL;
+	}
+}
+
 // This function was initially taken from Lua 5.0.2 (loadlib.c)
 void pusherrorcode(lua_State *L, int error)
 {
@@ -782,19 +857,9 @@ const wchar_t* opt_utf16_string(lua_State *L, int pos, const wchar_t *dflt)
 
 static int ustring_OutputDebugString(lua_State *L)
 {
-	if (lua_isstring(L, 1))
-		OutputDebugStringW(check_utf8_string(L, 1, NULL));
-	else
-	{
-		lua_settop(L, 1);
-		lua_getglobal(L, "tostring");
-		if (lua_isfunction(L, -1))
-		{
-			lua_pushvalue(L,  1);
-			if (0==lua_pcall(L, 1, 1, 0) && lua_isstring(L, -1))
-				OutputDebugStringW(check_utf8_string(L, -1, NULL));
-		}
-	}
+	lua_settop(L, 1);
+	luaL_tolstring(L, 1, NULL);
+	OutputDebugStringW(check_utf8_string(L, -1, NULL));
 	return 0;
 }
 
