@@ -1,4 +1,5 @@
 ﻿#include <shlobj.h>
+#include <assert.h>
 #include "lf_string.h"
 
 // initially from: https://www.lua.org/source/5.2/lauxlib.c.html#luaL_tolstring,
@@ -76,6 +77,9 @@ const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len)
 			return lua_tolstring(L, -1, len);
 		case TOSTRING_ERROR:
 			return NULL;
+		default:
+			assert(!"unexpected value!");
+			abort();
 	}
 }
 

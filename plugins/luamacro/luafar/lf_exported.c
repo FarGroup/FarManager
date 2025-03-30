@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <assert.h>
 #include "lf_luafar.h"
 #include "lf_util.h"
 #include "lf_string.h"
@@ -125,6 +126,9 @@ int pcall_msg(lua_State* L, int narg, int nret)
 					lua_pop(L, 1);
 					lua_pushstring(L, "error in error handling");
 					break;
+				default:
+					assert(!"unexpected value!");
+					abort();
 			}
 			LF_Error (L, check_utf8_string(L, -1, NULL));
 			lua_pop (L, 2);
