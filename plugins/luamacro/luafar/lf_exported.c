@@ -113,15 +113,15 @@ int pcall_msg(lua_State* L, int narg, int nret)
 		if (status2 != 0) {
 			switch (safe__tostring_meta(L, -1))
 			{
-				case 0: // no metafield
+				case TOSTRING_NOMETA:
 					if (lua_isstring(L, -1))
 						lua_pushvalue(L, -1);
 					else
 						lua_pushfstring(L, "(error object is a %s value)", luaL_typename(L, -1));
 					break;
-				case 1: // succeed
+				case TOSTRING_SUCCESS:
 					break;
-				case -1: // errored
+				case TOSTRING_ERROR:
 					lua_pop(L, 1);
 					lua_pushstring(L, "error in error handling");
 					break;

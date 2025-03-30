@@ -35,7 +35,7 @@ const char *luaL_tolstring(lua_State *L, int idx, size_t *len)
 
 // noop if the value has no __tostring metamethod
 // otherwise it is called and the result string (or error msg) is pushed onto the stack
-int safe__tostring_meta(lua_State *L, int idx)
+ToStringResult safe__tostring_meta(lua_State *L, int idx)
 {
 	if (luaL_getmetafield(L, idx, "__tostring"))
 	{
@@ -57,11 +57,11 @@ int safe__tostring_meta(lua_State *L, int idx)
 		}
 		else
 		{
-			return 1; // succeed
+			return TOSTRING_SUCCESS;
 		}
-		return -1; // errored
+		return TOSTRING_ERROR;
 	}
-	return 0; // no metafield
+	return TOSTRING_NOMETA;
 }
 
 // the same as the luaL_tolstring, but protected
@@ -70,11 +70,11 @@ const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len)
 {
 	switch (safe__tostring_meta(L, idx))
 	{
-		case 0: // no metafield
+		case TOSTRING_NOMETA:
 			return luaL_tolstring(L, idx, len);
-		case 1: // succeed
+		case TOSTRING_SUCCESS:
 			return lua_tolstring(L, -1, len);
-		case -1: // errored
+		case TOSTRING_ERROR:
 			return NULL;
 	}
 }
