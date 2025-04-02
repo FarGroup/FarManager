@@ -224,7 +224,7 @@ local function formatErr (obj)
     obj = tostring(obj)
   elseif tname~="string" then
     local mt = debug.getmetatable(obj)
-    if mt and mt.__tostring then
+    if mt and mt.__tostring~=nil then
       obj = safe_tostring(obj) or "error in error handling"
     else
       obj = string.format("(error object is a %s value)", tname)
