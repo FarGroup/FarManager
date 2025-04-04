@@ -108,13 +108,14 @@ public:
 	int ID() const {return m_ID;}
 	bool IsBypassInput() const {return m_Flags.Check(WINDOW_BYPASS_INPUT);}
 	void AddChild(dialog_ptr Child) {m_children.push_back(Child);}
-	void ShowChildren();
+	void ShowChildren() const;
+	void HideChildren() const;
 
 	[[nodiscard]]
 	auto GetPinner() { return make_raii_wrapper<&window::Pin, &window::UnPin>(this); }
 
 protected:
-	window();
+	explicit window(window_ptr Owner = nullptr);
 
 	int m_ID;
 	bool m_CanLoseFocus{};

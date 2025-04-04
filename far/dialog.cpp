@@ -4475,7 +4475,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	{
 		if (DialogMode.Check(DMODE_OBJECTS_INITED) && !DialogMode.Check(DMODE_DRAWING) && IsRedrawEnabled())
 		{
-			Global->WindowManager->RefreshWindow(shared_from_this());
+			Global->WindowManager->RefreshWindow(IsBypassInput() ? GetOwner() : shared_from_this());
 			Global->WindowManager->PluginCommit();
 			if (Flush)
 				Global->ScrBuf->Flush();

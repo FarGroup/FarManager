@@ -991,9 +991,9 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				struct private_tag { explicit private_tag() = default; };
 
 			public:
-				static dialog_ptr create(std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam)
+				static dialog_ptr create(std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam, window_ptr Owner = nullptr)
 				{
-					return std::make_shared<plugin_dialog>(private_tag(), Src, DlgProc, InitParam);
+					return std::make_shared<plugin_dialog>(private_tag(), Src, DlgProc, InitParam, Owner);
 				}
 
 				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2) const
@@ -1001,8 +1001,8 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 					return m_Proc(hDlg, Msg, Param1, Param2);
 				}
 
-				plugin_dialog(private_tag, std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam):
-					Dialog(Dialog::private_tag(), Src, DlgProc? [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return Proc(Dlg, Msg, Param1, Param2); } : dialog_handler(), InitParam),
+				plugin_dialog(private_tag, std::span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam, window_ptr Owner):
+					Dialog(Dialog::private_tag(), Src, DlgProc? [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return Proc(Dlg, Msg, Param1, Param2); } : dialog_handler(), InitParam, Owner),
 					m_Proc(DlgProc)
 				{}
 
@@ -1010,7 +1010,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 				FARWINDOWPROC m_Proc;
 			};
 
-			const auto FarDialog = plugin_dialog::create({ Item, ItemsNumber }, DlgProc, Param);
+			const auto FarDialog = plugin_dialog::create({ Item, ItemsNumber }, DlgProc, Param, Flags & FDLG_STAY_ON_TOP ? Global->WindowManager->GetCurrentWindow() : nullptr);
 
 			if (FarDialog->InitOK())
 			{
@@ -1060,14 +1060,17 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 
 				if (FarDialog->IsBypassInput())
 				{
-					Global->WindowManager->GetCurrentWindow()->AddChild(FarDialog);
-					FarDialog->ClearDone();
-					FarDialog->InitDialog();
-					if (FarDialog->GetExitCode() == -1)
+					if(auto Owner=FarDialog->GetOwner())
 					{
-						FarDialog->SetDialogMode(DMODE_BEGINLOOP);
-						Global->WindowManager->RefreshAll();
-						Global->WindowManager->PluginCommit();
+						Owner->AddChild(FarDialog);
+						FarDialog->ClearDone();
+						FarDialog->InitDialog();
+						if (FarDialog->GetExitCode() == -1)
+						{
+							FarDialog->SetDialogMode(DMODE_BEGINLOOP);
+							Global->WindowManager->RefreshWindow(Owner);
+							Global->WindowManager->PluginCommit();
+						}
 					}
 				}
 

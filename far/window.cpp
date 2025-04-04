@@ -54,8 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int windowID=0;
 
-window::window():
-	ScreenObjectWithShadow(nullptr),
+window::window(window_ptr Owner):
+	ScreenObjectWithShadow(Owner),
 	m_ID(windowID++)
 {
 }
@@ -128,11 +128,20 @@ void window::SetMacroMode(FARMACROAREA Area)
 	m_MacroArea=Area;
 }
 
-void window::ShowChildren()
+void window::ShowChildren() const
 {
 	for (const auto& i: m_children)
 	{
 		if (const auto j = i.lock())
 			j->Show();
+	}
+}
+
+void window::HideChildren() const
+{
+	for (const auto& i: m_children | std::views::reverse)
+	{
+		if (const auto j = i.lock())
+			j->Hide();
 	}
 }

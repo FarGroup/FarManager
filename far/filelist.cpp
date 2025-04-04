@@ -7772,6 +7772,8 @@ void FileList::ShowFileList(bool Fast)
 			UpdateIfChanged(m_UpdatePending);
 	}
 
+	Parent()->HideChildren();
+
 	bool CurFullScreen=IsFullScreen();
 	PrepareViewSettings(m_ViewMode);
 	CorrectPosition();

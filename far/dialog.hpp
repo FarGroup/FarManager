@@ -164,7 +164,8 @@ public:
 	}
 
 	template<class T>
-	Dialog(private_tag, std::span<T> const Src, const dialog_handler& Handler, void* InitParam):
+	Dialog(private_tag, std::span<T> const Src, const dialog_handler& Handler, void* InitParam, window_ptr Owner = nullptr):
+		window(Owner),
 		DataDialog(InitParam),
 		m_handler(Handler)
 	{
