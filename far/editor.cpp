@@ -3441,9 +3441,9 @@ namespace
 
 			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum) };
 			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos) };
-			const short LineNumColumnStart{ m_LineNumColumnMaxWidth - LineNumColumnWidth };
-			const short FoundPosColumnStart{ m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth };
-			const short ItemTextStart{ m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth };
+			const short LineNumColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth - LineNumColumnWidth) };
+			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
+			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth) };
 			m_Menu->SetFixedColumns(
 				{
 					{

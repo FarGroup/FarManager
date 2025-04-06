@@ -80,12 +80,12 @@ public:
 
 	constexpr bool operator==(segment_t const& Other) const noexcept
 	{
-		return empty() && Other.empty()
-			|| m_Start == Other.m_Start && m_End == Other.m_End;
+		return (empty() && Other.empty())
+			|| (m_Start == Other.m_Start && m_End == Other.m_End);
 	}
 
 	[[nodiscard]]
-	static constexpr segment_t ray(T InitialPoint = T{}) noexcept { return { InitialPoint, sentinel_tag{ domain_max() } }; };
+	static constexpr segment_t ray(T InitialPoint = T{}) noexcept { return { InitialPoint, sentinel_tag{ domain_max() } }; }
 
 private:
 	constexpr segment_t(T const Start, T const End) noexcept

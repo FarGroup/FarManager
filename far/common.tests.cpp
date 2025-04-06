@@ -1202,11 +1202,12 @@ TEST_CASE("segment.iota")
 
 	static const test_data TestDataPoints[] =
 	{
-		{ { 0, segment::length_tag(0) }, 100, {} },
-		{ { 42, segment::sentinel_tag(42) }, 100, {} },
-		{ { 0, segment::length_tag(3) }, 100, { 0, 1, 2 } },
-		{ { 42, segment::length_tag(3) }, 100, { 42, 43, 44 } },
-		{ { -1, segment::length_tag(3) }, 100, { -1, 0, 1 } },
+		{ {}, 100, {} },
+		{ { 0, segment::length_tag{ 0 } }, 100, {} },
+		{ { 42, segment::sentinel_tag{ 42 } }, 100, {} },
+		{ { 0, segment::length_tag{ 3 } }, 100, { 0, 1, 2 } },
+		{ { 42, segment::length_tag{ 3 } }, 100, { 42, 43, 44 } },
+		{ { -1, segment::length_tag{ 3 } }, 100, { -1, 0, 1 } },
 		{ segment::ray(), 3, { 0, 1, 2 } },
 		{ segment::ray(42), 3, { 42, 43, 44 }},
 	};
