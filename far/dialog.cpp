@@ -766,9 +766,6 @@ void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 				ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (Item.Flags & DIF_LISTAUTOHIGHLIGHT) != 0);
 				ListPtr->ChangeFlags(VMENU_NOMERGEBORDER, (Item.Flags & DIF_LISTNOMERGEBORDER) != 0);
 
-				if (Item.Flags & DIF_LISTAUTOHIGHLIGHT)
-					ListPtr->AssignHighlights();
-
 				ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
 				ListPtr->SetPosition(
 					{
@@ -827,9 +824,6 @@ void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 					ListPtr->ChangeFlags(VMENU_DISABLED, (Item.Flags& DIF_DISABLE) != 0);
 					ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, (Item.Flags& DIF_LISTNOAMPERSAND) == 0);
 					ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (Item.Flags& DIF_LISTAUTOHIGHLIGHT) != 0);
-
-					if (Item.Flags & DIF_LISTAUTOHIGHLIGHT)
-						ListPtr->AssignHighlights();
 
 					if (Item.ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 						ListPtr->AddItem(Item.ListItems);
@@ -2561,6 +2555,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			case KEY_NUMENTER:
 			case KEY_ENTER:
 			case KEY_NUMPAD5:
+			case KEY_F5:
 				auto& List = Items[m_FocusPos].ListPtr;
 				int CurListPos=List->GetSelectPos();
 				List->ProcessKey(Key);

@@ -579,7 +579,7 @@ void ShowHotplugDevices()
 	FillMenu();
 	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_AUTOHIGHLIGHT);
 	HotPlugList->SetPosition({ -1, -1, 0, 0 });
-	HotPlugList->AssignHighlights();
+	HotPlugList->EnableAutoHighlight();
 	HotPlugList->SetBottomTitle(KeysToLocalizedText(KEY_DEL, KEY_CTRLR));
 
 	SCOPED_ACTION(listener)(update_devices, [&]

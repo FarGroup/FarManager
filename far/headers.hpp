@@ -82,6 +82,7 @@ WARNING_POP()
 #include <forward_list>
 #include <fstream>
 #include <functional>
+#include <generator>
 #include <iomanip>
 #include <iostream>
 #include <limits>

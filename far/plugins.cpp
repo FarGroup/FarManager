@@ -1328,7 +1328,7 @@ void PluginManager::Configure(int StartPos) const
 				}
 			}
 
-			PluginList->AssignHighlights();
+			PluginList->EnableAutoHighlight();
 			PluginList->SetBottomTitle(KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_F3));
 			PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 			PluginList->SetSelectPos(StartPos,1);
@@ -1496,7 +1496,7 @@ bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histo
 					}
 				}
 
-				PluginList->AssignHighlights();
+				PluginList->EnableAutoHighlight();
 				PluginList->SetBottomTitle(KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_F3));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);

@@ -212,7 +212,7 @@ void ShowProcessList()
 	if (!FillProcList())
 		return;
 
-	ProcList->AssignHighlights();
+	ProcList->EnableAutoHighlight();
 	ProcList->SetBottomTitle(KeysToLocalizedText(KEY_DEL, KEY_F2, KEY_CTRLR));
 
 	ProcList->Run([&](const Manager::Key& RawKey)
