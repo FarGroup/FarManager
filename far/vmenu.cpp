@@ -2926,16 +2926,16 @@ bool VMenu::DrawItemText(
 	Text(BlankLine.substr(0, std::clamp(Item.HorizontalPosition, 0, static_cast<int>(TextArea.length()))));
 
 	const auto [ItemText, HighlightPos]{ [&]{
-		const auto RawItemText{ GetItemText(Item) };
-		auto HotkeyPos{ string::npos };
-		auto ItemText{ CheckFlags(VMENU_SHOWAMPERSAND) ? string{ RawItemText } : HiText2Str(RawItemText, &HotkeyPos) };
-		std::ranges::replace(ItemText, L'\t', L' ');
+		const auto RawItemText_{ GetItemText(Item) };
+		auto HotkeyPos_{ string::npos };
+		auto ItemText_{ CheckFlags(VMENU_SHOWAMPERSAND) ? string{ RawItemText_ } : HiText2Str(RawItemText_, &HotkeyPos_) };
+		std::ranges::replace(ItemText_, L'\t', L' ');
 
-		std::optional<int> HighlightPos;
-		if (HotkeyPos != string::npos) HighlightPos = static_cast<int>(HotkeyPos);
-		if (!HighlightPos && Item.AutoHotkey) HighlightPos = static_cast<int>(Item.AutoHotkeyPos);
+		std::optional<int> HighlightPos_;
+		if (HotkeyPos_ != string::npos) HighlightPos_ = static_cast<int>(HotkeyPos_);
+		if (!HighlightPos_ && Item.AutoHotkey) HighlightPos_ = static_cast<int>(Item.AutoHotkeyPos);
 
-		return std::tuple{ ItemText, HighlightPos };
+		return std::tuple{ ItemText_, HighlightPos_ };
 	}() };
 
 	const auto VisibleTextSegment{ intersect(
