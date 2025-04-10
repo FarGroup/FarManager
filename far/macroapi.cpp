@@ -2375,180 +2375,180 @@ void FarMacroApi::dlggetvalueFunc() const
 		// TODO: fix indentation
 		if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
-		const auto IndexType = Params[0].type();
-		auto Index=static_cast<size_t>(Params[0].asInteger())-1;
-		if (IndexType == TVar::Type::Unknown || ((IndexType == TVar::Type::Integer || IndexType == TVar::Type::Double) && static_cast<int>(Index) < -1))
-			Index=Dlg->GetDlgFocusPos();
+			const auto IndexType = Params[0].type();
+			auto Index=static_cast<size_t>(Params[0].asInteger())-1;
+			if (IndexType == TVar::Type::Unknown || ((IndexType == TVar::Type::Integer || IndexType == TVar::Type::Double) && static_cast<int>(Index) < -1))
+				Index=Dlg->GetDlgFocusPos();
 
-		const auto InfoIDType = Params[1].type();
-		auto InfoID=static_cast<int>(Params[1].asInteger());
-		if (InfoIDType == TVar::Type::Unknown || (InfoIDType == TVar::Type::Integer && InfoID < 0))
-			InfoID=0;
+			const auto InfoIDType = Params[1].type();
+			auto InfoID=static_cast<int>(Params[1].asInteger());
+			if (InfoIDType == TVar::Type::Unknown || (InfoIDType == TVar::Type::Integer && InfoID < 0))
+				InfoID=0;
 
-		FarGetValue fgv{ sizeof(fgv), InfoID, FMVT_UNKNOWN };
-		auto& DlgItem = Dlg->GetAllItem();
-		bool CallDialog=true;
+			FarGetValue fgv{ sizeof(fgv), InfoID, FMVT_UNKNOWN };
+			auto& DlgItem = Dlg->GetAllItem();
+			bool CallDialog=true;
 
-		if (Index == static_cast<size_t>(-1))
-		{
-			SMALL_RECT Rect;
-
-			if (Dlg->SendMessage(DM_GETDLGRECT,0,&Rect))
+			if (Index == static_cast<size_t>(-1))
 			{
-				switch (InfoID)
+				SMALL_RECT Rect;
+
+				if (Dlg->SendMessage(DM_GETDLGRECT,0,&Rect))
 				{
-					case 0: Ret = static_cast<long long>(DlgItem.size()); break;
-					case 2: Ret=Rect.Left; break;
-					case 3: Ret=Rect.Top; break;
-					case 4: Ret=Rect.Right; break;
-					case 5: Ret=Rect.Bottom; break;
-					case 6: Ret = static_cast<long long>(Dlg->GetDlgFocusPos()) + 1; break;
-					default: break;
+					switch (InfoID)
+					{
+						case 0: Ret = static_cast<long long>(DlgItem.size()); break;
+						case 2: Ret=Rect.Left; break;
+						case 3: Ret=Rect.Top; break;
+						case 4: Ret=Rect.Right; break;
+						case 5: Ret=Rect.Bottom; break;
+						case 6: Ret = static_cast<long long>(Dlg->GetDlgFocusPos()) + 1; break;
+						default: break;
+					}
 				}
 			}
-		}
-		else if (Index < DlgItem.size() && !DlgItem.empty())
-		{
-			const DialogItemEx& Item=DlgItem[Index];
-			FARDIALOGITEMTYPES ItemType=Item.Type;
-			FARDIALOGITEMFLAGS ItemFlags=Item.Flags;
-
-			if (!InfoID)
+			else if (Index < DlgItem.size() && !DlgItem.empty())
 			{
-				if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
-				{
-					InfoID=7;
-				}
-				else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
-				{
-					FarListGetItem ListItem{ sizeof(ListItem) };
-					ListItem.ItemIndex=Item.ListPtr->GetSelectPos();
+				const DialogItemEx& Item=DlgItem[Index];
+				FARDIALOGITEMTYPES ItemType=Item.Type;
+				FARDIALOGITEMFLAGS ItemFlags=Item.Flags;
 
-					if (Dlg->SendMessage(DM_LISTGETITEM,Index,&ListItem))
-					{
-						Ret=ListItem.Item.Text;
-					}
-					else
-					{
-						Ret = L""sv;
-					}
-
-					InfoID=-1;
-				}
-				else
-				{
-					InfoID=10;
-				}
-			}
-
-			switch (InfoID)
-			{
-				case 1: Ret=ItemType;   break;
-				case 2: Ret=Item.X1;    break;
-				case 3: Ret=Item.Y1;    break;
-				case 4: Ret=Item.X2;    break;
-				case 5: Ret=Item.Y2;    break;
-				case 6: Ret=(Item.Flags&DIF_FOCUS)!=0; break;
-				case 7:
+				if (!InfoID)
 				{
 					if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
 					{
-						Ret=Item.Selected;
+						InfoID=7;
 					}
 					else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
-						Ret=Item.ListPtr->GetSelectPos()+1;
+						FarListGetItem ListItem{ sizeof(ListItem) };
+						ListItem.ItemIndex=Item.ListPtr->GetSelectPos();
+
+						if (Dlg->SendMessage(DM_LISTGETITEM,Index,&ListItem))
+						{
+							Ret=ListItem.Item.Text;
+						}
+						else
+						{
+							Ret = L""sv;
+						}
+
+						InfoID=-1;
 					}
 					else
 					{
-						Ret=0ll;
-						/*
-						int Item->Selected;
-						const char *Item->History;
-						const char *Item->Mask;
-						FarList *Item->ListItems;
-						int  Item->ListPos;
-						FAR_CHAR_INFO *Item->VBuf;
-						*/
+						InfoID=10;
 					}
-
-					break;
 				}
-				case 8: Ret = static_cast<long long>(ItemFlags); break;
-				case 9: Ret=(Item.Flags&DIF_DEFAULTBUTTON)!=0; break;
-				case 10:
-				{
-					Ret=Item.strData;
 
-					if (IsEdit(ItemType))
+				switch (InfoID)
+				{
+					case 1: Ret=ItemType;   break;
+					case 2: Ret=Item.X1;    break;
+					case 3: Ret=Item.Y1;    break;
+					case 4: Ret=Item.X2;    break;
+					case 5: Ret=Item.Y2;    break;
+					case 6: Ret=(Item.Flags&DIF_FOCUS)!=0; break;
+					case 7:
 					{
-						if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
-							Ret = EditPtr->GetString();
-					}
+						if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
+						{
+							Ret=Item.Selected;
+						}
+						else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+						{
+							Ret=Item.ListPtr->GetSelectPos()+1;
+						}
+						else
+						{
+							Ret=0ll;
+							/*
+							int Item->Selected;
+							const char *Item->History;
+							const char *Item->Mask;
+							FarList *Item->ListItems;
+							int  Item->ListPos;
+							FAR_CHAR_INFO *Item->VBuf;
+							*/
+						}
 
-					break;
-				}
-				case 11:
-				{
-					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+						break;
+					}
+					case 8: Ret = static_cast<long long>(ItemFlags); break;
+					case 9: Ret=(Item.Flags&DIF_DEFAULTBUTTON)!=0; break;
+					case 10:
 					{
-						Ret = static_cast<long long>(Item.ListPtr->size());
+						Ret=Item.strData;
+
+						if (IsEdit(ItemType))
+						{
+							if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
+								Ret = EditPtr->GetString();
+						}
+
+						break;
 					}
-					break;
+					case 11:
+					{
+						if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+						{
+							Ret = static_cast<long long>(Item.ListPtr->size());
+						}
+						break;
+					}
 				}
 			}
-		}
-		else if (DlgItem.empty())
-		{
-			CallDialog=false;
-		}
-
-		if (CallDialog)
-		{
-			switch (Ret.type())
+			else if (DlgItem.empty())
 			{
-				case TVar::Type::Unknown:
-					fgv.Value.Type = FMVT_UNKNOWN;
-					fgv.Value.Integer = Ret.asInteger();
-					break;
-
-				case TVar::Type::Integer:
-					fgv.Value.Type = FMVT_INTEGER;
-					fgv.Value.Integer=Ret.asInteger();
-					break;
-
-				case TVar::Type::String:
-					fgv.Value.Type = FMVT_STRING;
-					fgv.Value.String=Ret.asString().c_str();
-					break;
-
-				case TVar::Type::Double:
-					fgv.Value.Type = FMVT_DOUBLE;
-					fgv.Value.Double=Ret.asDouble();
-					break;
+				CallDialog=false;
 			}
 
-			if (Dlg->SendMessage(DN_GETVALUE,Index,&fgv))
+			if (CallDialog)
 			{
-				switch (fgv.Value.Type)
+				switch (Ret.type())
 				{
-					case FMVT_UNKNOWN:
-						Ret=0;
+					case TVar::Type::Unknown:
+						fgv.Value.Type = FMVT_UNKNOWN;
+						fgv.Value.Integer = Ret.asInteger();
 						break;
-					case FMVT_INTEGER:
-						Ret=fgv.Value.Integer;
+
+					case TVar::Type::Integer:
+						fgv.Value.Type = FMVT_INTEGER;
+						fgv.Value.Integer=Ret.asInteger();
 						break;
-					case FMVT_DOUBLE:
-						Ret=fgv.Value.Double;
+
+					case TVar::Type::String:
+						fgv.Value.Type = FMVT_STRING;
+						fgv.Value.String=Ret.asString().c_str();
 						break;
-					case FMVT_STRING:
-						Ret=fgv.Value.String;
-						break;
-					default:
+
+					case TVar::Type::Double:
+						fgv.Value.Type = FMVT_DOUBLE;
+						fgv.Value.Double=Ret.asDouble();
 						break;
 				}
+
+				if (Dlg->SendMessage(DN_GETVALUE,Index,&fgv))
+				{
+					switch (fgv.Value.Type)
+					{
+						case FMVT_UNKNOWN:
+							Ret=0;
+							break;
+						case FMVT_INTEGER:
+							Ret=fgv.Value.Integer;
+							break;
+						case FMVT_DOUBLE:
+							Ret=fgv.Value.Double;
+							break;
+						case FMVT_STRING:
+							Ret=fgv.Value.String;
+							break;
+						default:
+							break;
+					}
+				}
 			}
-		}
 		}
 	}
 
