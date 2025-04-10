@@ -2498,7 +2498,7 @@ void FarMacroApi::dlggetvalueFunc() const
 					}
 				}
 			}
-			else if (DlgItem.empty())
+			else
 			{
 				CallDialog=false;
 			}
