@@ -2403,7 +2403,7 @@ void FarMacroApi::dlggetvalueFunc() const
 					case 4: Ret=Rect.Right; break;
 					case 5: Ret=Rect.Bottom; break;
 					case 6: Ret = static_cast<long long>(Dlg->GetDlgFocusPos()) + 1; break;
-					default: Ret=0; Ret.SetType(TVar::Type::Unknown); break;
+					default: break;
 				}
 			}
 		}
@@ -2498,12 +2498,10 @@ void FarMacroApi::dlggetvalueFunc() const
 				}
 			}
 		}
-		else if (Index >= DlgItem.size())
+		else if (DlgItem.empty())
 		{
-			Ret = static_cast<long long>(InfoID);
-		}
-		else
 			CallDialog=false;
+		}
 
 		if (CallDialog)
 		{
@@ -2547,7 +2545,6 @@ void FarMacroApi::dlggetvalueFunc() const
 						Ret=fgv.Value.String;
 						break;
 					default:
-						Ret=-1;
 						break;
 				}
 			}
