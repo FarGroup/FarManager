@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2025-04-10 21:43:20+03:00 - build 6459
+
+1. MacroAPI: Correct Dlg.GetValue to return -1 where it should, according to the Encyclopedia.
+
+--------------------------------------------------------------------------------
 zg 2025-04-04 05:18:56+03:00 - build 6458
 
 1. continue 6454: various redraw fixes.
