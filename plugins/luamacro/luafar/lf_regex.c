@@ -162,7 +162,7 @@ int func_gmatchW(lua_State *L)   { return _Gmatch(L, 1, 1); }
 int method_gmatch(lua_State *L)  { return _Gmatch(L, 0, 0); }
 int method_gmatchW(lua_State *L) { return _Gmatch(L, 0, 1); }
 
-int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
+int rx_find_match(lua_State *L, int Op, int is_function, int is_wide)
 {
 	size_t len;
 	FARAPIREGEXPCONTROL RegExpControl = GetRegExpControl(L);
@@ -205,14 +205,14 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 	if (RegExpControl(fr->hnd, RECTL_SEARCHEX, 0, &data))
 	{
 		int i;
-		int skip = (operation != OP_MATCH || data.Count>1) ? 1 : 0;
+		int skip = (Op != OP_MATCH || data.Count>1) ? 1 : 0;
 
-		if (operation != OP_MATCH)
+		if (Op != OP_MATCH)
 		{
 			lua_pushinteger(L, data.Match[0].start+1);
 			lua_pushinteger(L, data.Match[0].end);
 		}
-		if (operation == OP_EXEC)
+		if (Op == OP_EXEC)
 		{
 			lua_createtable(L, 2*(int)data.Count, 0);
 			for(i=skip; i<data.Count; i++)
@@ -237,7 +237,7 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 		else
 		{
 			i = (int)data.Count - skip + 1;
-			if (operation == OP_TFIND)
+			if (Op == OP_TFIND)
 				lua_newtable(L);
 			else if (!lua_checkstack(L, i))
 				luaL_error(L, "cannot add %d stack slots", i);
@@ -253,11 +253,11 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 				else
 					lua_pushboolean(L, 0);
 
-				if (operation == OP_TFIND)
+				if (Op == OP_TFIND)
 					lua_rawseti(L, -2, i);
 			}
 		}
-		switch (operation)
+		switch (Op)
 		{
 			case OP_FIND:  return 2 + (int)data.Count - skip;
 			case OP_MATCH: return 0 + (int)data.Count - skip;
