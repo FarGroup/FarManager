@@ -8256,6 +8256,43 @@ mtime=3532684676
 </article>
 </node>
 <node>
+id=595
+lv=2
+dt=Text
+nm=regex.tfind, tfindW
+ctime=3953542338
+mtime=3953542389
+<article>
+#_from, to, tbl = regex.tfind (subj, pattern, [init], [cflags])
+#_
+#_**Parameters:**
+#_  subj    :  string
+#_  pattern :  string
+#_  init    :  integer (default=1; can be negative)
+#_  cflags  :  string (any combination of 'i','m','o','s' and 'x')
+#_
+#_**Returns on success:**
+#_  from    : integer
+#_  to      : integer
+#_  tbl     : table (array of captures);
+#_            (there can be *false* in place of captures not participated in the match)
+#_
+#_**Returns on failure:**
+#_  nil
+#_
+#_**Note:**
+#_*regex.tfindW* receives its 1-st argument and returns captures in
+#_UTF-16LE encoding.
+#_
+#_**Far API used:**
+#_  `RegExpControl`
+#_
+#_@@@
+#_[RegExpControl]: https://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_
+</article>
+</node>
+<node>
 id=266
 lv=2
 dt=Text
@@ -8323,7 +8360,7 @@ mtime=3489990041
 id=529
 lv=3
 dt=Text
-nm=method exec, execW
+nm=methods exec, execW
 ctime=3748475041
 mtime=3748475255
 <article>
@@ -8358,7 +8395,7 @@ mtime=3748475255
 id=267
 lv=3
 dt=Text
-nm=method find, findW
+nm=methods find, findW
 mtime=3524034062
 <article>
 #_from, to [,c1 [,c2]...] = regex_object:find (subj [, init])
@@ -8420,7 +8457,7 @@ mtime=3911503828
 id=386
 lv=3
 dt=Text
-nm=method gsub, gsubW
+nm=methods gsub, gsubW
 ctime=3497976622
 mtime=3524034123
 <article>
@@ -8452,7 +8489,7 @@ mtime=3524034123
 id=268
 lv=3
 dt=Text
-nm=method match, matchW
+nm=methods match, matchW
 mtime=3524034111
 <article>
 #_c1 [,c2 ...] = regex_object:match (subj [, init])
@@ -8474,6 +8511,41 @@ mtime=3524034111
 #_
 #_@@@
 #_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_
+</article>
+</node>
+<node>
+id=596
+lv=3
+dt=Text
+nm=methods tfind, tfindW
+ctime=3953542486
+mtime=3953542517
+<article>
+#_from, to, tbl = regex_object:tfind (subj, [init])
+#_
+#_**Parameters:**
+#_  subj    :  string
+#_  init    :  integer (default=1; can be negative)
+#_
+#_**Returns on success:**
+#_  from    : integer
+#_  to      : integer
+#_  tbl     : table (array of captures);
+#_            (there can be *false* in place of captures not participated in the match)
+#_
+#_**Returns on failure:**
+#_  nil
+#_
+#_**Note:**
+#_*regex_object:tfindW* receives its 1-st argument and returns captures
+#_in UTF-16LE encoding.
+#_
+#_**Far API used:**
+#_  `RegExpControl`
+#_
+#_@@@
+#_[RegExpControl]: https://api.farmanager.com/ru/service_functions/regexpcontrol.html
 #_
 </article>
 </node>

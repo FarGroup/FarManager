@@ -1,3 +1,7 @@
+shmuel 2025-04-11 14:09:36+03:00 - build 872
+
+1. LuaFAR: add functions and methods regex.tfind, regex.tfindW.
+
 shmuel 2025-04-11 12:17:20+03:00 - build 871
 
 1. LuaFAR: eliminate some compiler warnings.

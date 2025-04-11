@@ -5,7 +5,7 @@
 
 #define TYPE_REGEX "far_regex"
 
-enum { OP_FIND, OP_MATCH, OP_EXEC };
+enum { OP_FIND, OP_MATCH, OP_EXEC, OP_TFIND };
 
 typedef struct
 {
@@ -205,9 +205,9 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 	if (RegExpControl(fr->hnd, RECTL_SEARCHEX, 0, &data))
 	{
 		int i;
-		int skip = (operation == OP_FIND || operation == OP_EXEC || data.Count>1) ? 1 : 0;
+		int skip = (operation != OP_MATCH || data.Count>1) ? 1 : 0;
 
-		if (operation == OP_FIND || operation == OP_EXEC)
+		if (operation != OP_MATCH)
 		{
 			lua_pushinteger(L, data.Match[0].start+1);
 			lua_pushinteger(L, data.Match[0].end);
@@ -237,7 +237,9 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 		else
 		{
 			i = (int)data.Count - skip + 1;
-			if (!lua_checkstack(L, i))
+			if (operation == OP_TFIND)
+				lua_newtable(L);
+			else if (!lua_checkstack(L, i))
 				luaL_error(L, "cannot add %d stack slots", i);
 			for(i=skip; i<data.Count; i++)
 			{
@@ -250,13 +252,17 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 				}
 				else
 					lua_pushboolean(L, 0);
+
+				if (operation == OP_TFIND)
+					lua_rawseti(L, -2, i);
 			}
 		}
 		switch (operation)
 		{
 			case OP_FIND:  return 2 + (int)data.Count - skip;
 			case OP_MATCH: return 0 + (int)data.Count - skip;
-			case OP_EXEC:  return 3;
+			case OP_EXEC:
+			case OP_TFIND: return 3;
 			default:       return 0;
 		}
 	}
@@ -557,6 +563,11 @@ int func_exec(lua_State *L)  { return rx_find_match(L, OP_EXEC, 1, 0); }
 int method_execW(lua_State *L)  { return rx_find_match(L, OP_EXEC, 0, 1); }
 int func_execW(lua_State *L)  { return rx_find_match(L, OP_EXEC, 1, 1); }
 
+int method_tfind(lua_State *L)  { return rx_find_match(L, OP_TFIND, 0, 0); }
+int func_tfind(lua_State *L)    { return rx_find_match(L, OP_TFIND, 1, 0); }
+int method_tfindW(lua_State *L) { return rx_find_match(L, OP_TFIND, 0, 1); }
+int func_tfindW(lua_State *L)   { return rx_find_match(L, OP_TFIND, 1, 1); }
+
 int method_gsub(lua_State *L)  { return rx_gsub(L, 0, 0); }
 int func_gsub(lua_State *L)  { return rx_gsub(L, 1, 0); }
 int method_gsubW(lua_State *L)  { return rx_gsub(L, 0, 1); }
@@ -569,12 +580,14 @@ const luaL_Reg regex_methods[] =
 	{"gsub",          method_gsub},
 	{"match",         method_match},
 	{"exec",          method_exec},
+	{"tfind",         method_tfind},
 
 	{"findW",         method_findW},
 	{"gmatchW",       method_gmatchW},
 	{"gsubW",         method_gsubW},
 	{"matchW",        method_matchW},
 	{"execW",         method_execW},
+	{"tfindW",        method_tfindW},
 
 	{"bracketscount", method_bracketscount},
 	{"__gc",          method_gc},
@@ -591,12 +604,14 @@ const luaL_Reg regex_functions[] =
 	{"gsub",          func_gsub},
 	{"match",         func_match},
 	{"exec",          func_exec},
+	{"tfind",         func_tfind},
 
 	{"findW",         func_findW},
 	{"gmatchW",       func_gmatchW},
 	{"gsubW",         func_gsubW},
 	{"matchW",        func_matchW},
 	{"execW",         func_execW},
+	{"tfindW",        func_tfindW},
 	{NULL, NULL}
 };
 
