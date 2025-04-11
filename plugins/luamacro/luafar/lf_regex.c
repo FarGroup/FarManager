@@ -319,15 +319,15 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 		{
 			if (*p == L'%')
 			{
-				int n, ch;
+				int r, ch;
 
 				if ((ch = *++p) == 0) break;
 
-				n = (ch >= L'0' && ch <= L'9') ? ch - L'0' :
+				r = (ch >= L'0' && ch <= L'9') ? ch - L'0' :
 				    (ch >= L'A' && ch <= L'Z') ? ch - L'A' + 10 :
 				    (ch >= L'a' && ch <= L'z') ? ch - L'a' + 10 : -1;
 
-				if (max_rep_capture < n) max_rep_capture = n;
+				if (max_rep_capture < r) max_rep_capture = r;
 			}
 		}
 	}
@@ -394,20 +394,20 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 					if (++i < flen)
 					{
 						int ch = f[i];
-						int n = (ch >= L'0' && ch <= L'9') ? ch - L'0' :
+						int r = (ch >= L'0' && ch <= L'9') ? ch - L'0' :
 						        (ch >= L'A' && ch <= L'Z') ? ch - L'A' + 10 :
 						        (ch >= L'a' && ch <= L'z') ? ch - L'a' + 10 : -1;
 
-						if (n >= 0)
+						if (r >= 0)
 						{
-							if (n==1 && data.Count==1) n = 0;
+							if (r==1 && data.Count==1) r = 0;
 
 							luaL_addlstring(&out, (const char*)(f+start), (i-1-start)*sizeof(wchar_t));
 
-							if (data.Match[n].start >= 0)
+							if (data.Match[r].start >= 0)
 							{
-								luaL_addlstring(&out, (const char*)(s + data.Match[n].start),
-								                (data.Match[n].end - data.Match[n].start) * sizeof(wchar_t));
+								luaL_addlstring(&out, (const char*)(s + data.Match[r].start),
+								                (data.Match[r].end - data.Match[r].start) * sizeof(wchar_t));
 							}
 						}
 						else   // delete the percent sign
@@ -432,14 +432,14 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 		}
 		else if (ftype == LUA_TTABLE)
 		{
-			int n = data.Count==1 ? 0:1;
+			int r = data.Count==1 ? 0:1;
 
-			if (data.Match[n].start >= 0)
+			if (data.Match[r].start >= 0)
 			{
 				if (is_wide)
-					push_utf16_string(L, s + data.Match[n].start, (data.Match[n].end - data.Match[n].start));
+					push_utf16_string(L, s + data.Match[r].start, (data.Match[r].end - data.Match[r].start));
 				else
-					push_utf8_string(L, s + data.Match[n].start, (data.Match[n].end - data.Match[n].start));
+					push_utf8_string(L, s + data.Match[r].start, (data.Match[r].end - data.Match[r].start));
 
 				lua_gettable(L, 3);
 
@@ -447,9 +447,9 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 				{
 					if (!is_wide)
 					{
-						size_t len;
-						const wchar_t* ws = check_utf8_string(L, -1, &len);
-						lua_pushlstring(L, (const char*)ws, len*sizeof(wchar_t));
+						size_t length;
+						const wchar_t* ws = check_utf8_string(L, -1, &length);
+						lua_pushlstring(L, (const char*)ws, length*sizeof(wchar_t));
 						lua_remove(L, -2);
 					}
 
@@ -487,9 +487,9 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 				{
 					if (!is_wide)
 					{
-						size_t len;
-						const wchar_t* ws = check_utf8_string(L, -1, &len);
-						lua_pushlstring(L, (const char*)ws, len*sizeof(wchar_t));
+						size_t length;
+						const wchar_t* ws = check_utf8_string(L, -1, &length);
+						lua_pushlstring(L, (const char*)ws, length*sizeof(wchar_t));
 						lua_remove(L, -2);
 					}
 
