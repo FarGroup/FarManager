@@ -1007,7 +1007,7 @@ namespace logging
 		static auto debug_message(void const* Ptr, size_t const Size)
 		{
 			std::basic_string_view<T> Str{ static_cast<T const*>(Ptr), Size };
-			while (!Str.empty() && (Str.back() == L'\r' || Str.back() == L'\n'))
+			while (!Str.empty() && IsEol(Str.back()))
 				Str.remove_suffix(1);
 
 			return Str;

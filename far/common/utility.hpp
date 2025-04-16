@@ -416,13 +416,13 @@ constexpr large_type make_integer(small_type const LowPart, small_type const Hig
 {
 	static_assert(sizeof(large_type) == sizeof(small_type) * 2);
 
-	return static_cast<large_type>(HighPart) << (sizeof(large_type) / 2 * CHAR_BIT) | static_cast<large_type>(LowPart);
+	return static_cast<large_type>(HighPart) << (sizeof(large_type) / 2 * std::numeric_limits<unsigned char>::digits) | static_cast<large_type>(LowPart);
 }
 
 template<typename large_type, size_t LowPart, size_t HighPart>
 constexpr large_type make_integer()
 {
-	constexpr auto Shift = (sizeof(large_type) / 2 * CHAR_BIT);
+	constexpr auto Shift = (sizeof(large_type) / 2 * std::numeric_limits<unsigned char>::digits);
 	constexpr auto Max = std::numeric_limits<large_type>::max() >> Shift;
 	static_assert(LowPart <= Max);
 	static_assert(HighPart <= Max);
@@ -436,7 +436,7 @@ constexpr small_type extract_integer(large_type const Value)
 	static_assert(sizeof(small_type) < sizeof(large_type));
 	static_assert(sizeof(small_type) * Index < sizeof(large_type));
 
-	return static_cast<small_type>(Value >> sizeof(small_type) * Index * CHAR_BIT);
+	return static_cast<small_type>(Value >> sizeof(small_type) * Index * std::numeric_limits<unsigned char>::digits);
 }
 
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

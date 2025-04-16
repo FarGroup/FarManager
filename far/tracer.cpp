@@ -91,7 +91,7 @@ static auto format_symbol(uintptr_t const Address, string_view const ImageName, 
 		!Symbol.Name.empty()?
 			Symbol.Name :
 			L"<unknown> (get the pdb)"sv,
-		!Symbol.Name.empty()?
+		!Symbol.Name.empty() && Symbol.Displacement?
 			far::format(L"+0x{:X}"sv, Symbol.Displacement) :
 			L""s
 	);

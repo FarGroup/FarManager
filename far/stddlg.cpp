@@ -86,21 +86,21 @@ namespace
 
 	void SaveToShared(SearchReplaceDlgParams& SharedParams, const SearchReplaceDlgParams& ClientParams)
 	{
-		const auto SaveParam{ [](auto& SharedParam, const auto& ClientParam)
+		const auto SaveParam{ [&](auto const Param)
 		{
-			if (ClientParam.has_value())
-				SharedParam = ClientParam.value();
+			if ((ClientParams.*Param).has_value())
+				SharedParams.*Param = *(ClientParams.*Param);
 		} };
 
 		SharedParams.SearchStr = ClientParams.SearchStr;
-		SaveParam(SharedParams.SearchBytes, ClientParams.SearchBytes);
-		SaveParam(SharedParams.ReplaceStr, ClientParams.ReplaceStr);
-		SaveParam(SharedParams.Hex, ClientParams.Hex);
-		SaveParam(SharedParams.CaseSensitive, ClientParams.CaseSensitive);
-		SaveParam(SharedParams.WholeWords, ClientParams.WholeWords);
-		SaveParam(SharedParams.Regex, ClientParams.Regex);
-		SaveParam(SharedParams.Fuzzy, ClientParams.Fuzzy);
-		SaveParam(SharedParams.PreserveStyle, ClientParams.PreserveStyle);
+		SaveParam(&SearchReplaceDlgParams::SearchBytes);
+		SaveParam(&SearchReplaceDlgParams::ReplaceStr);
+		SaveParam(&SearchReplaceDlgParams::Hex);
+		SaveParam(&SearchReplaceDlgParams::CaseSensitive);
+		SaveParam(&SearchReplaceDlgParams::WholeWords);
+		SaveParam(&SearchReplaceDlgParams::Regex);
+		SaveParam(&SearchReplaceDlgParams::Fuzzy);
+		SaveParam(&SearchReplaceDlgParams::PreserveStyle);
 	}
 }
 

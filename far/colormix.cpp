@@ -805,30 +805,36 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 
 static auto UnderlineToString(FARCOLORFLAGS const Flags)
 {
-	switch (Flags & FCF_FG_UNDERLINE_MASK)
+	switch (FarColor{ .Flags = Flags }.GetUnderline())
 	{
 	default:
-	case FCF_NONE:                        return L""sv;
-	case FCF_FG_U_DATA0:                  return L"underline"sv;
-	case FCF_FG_U_DATA1:                  return L"underline_double"sv;
-	case FCF_FG_U_DATA1 | FCF_FG_U_DATA0: return L"underline_curly"sv;
-	case FCF_FG_U_DATA2:                  return L"underline_dot"sv;
-	case FCF_FG_U_DATA2 | FCF_FG_U_DATA0: return L"underline_dash"sv;
+	case UNDERLINE_NONE:      return L""sv;
+	case UNDERLINE_SINGLE:    return L"underline"sv;
+	case UNDERLINE_DOUBLE:    return L"underline_double"sv;
+	case UNDERLINE_CURLY:     return L"underline_curly"sv;
+	case UNDERLINE_DOT:       return L"underline_dot"sv;
+	case UNDERLINE_DASH:      return L"underline_dash"sv;
 	}
 }
 
 static auto StringToUnderline(string_view const UnderlineStyle)
 {
-	constexpr std::pair<FARCOLORFLAGS, string_view> UnderlineNames[]
+	constexpr std::pair<UNDERLINE_STYLE, string_view> UnderlineNames[]
 	{
-		{ FCF_FG_U_DATA0,                  L"underline"sv        },
-		{ FCF_FG_U_DATA1,                  L"underline_double"sv },
-		{ FCF_FG_U_DATA1 | FCF_FG_U_DATA0, L"underline_curly"sv  },
-		{ FCF_FG_U_DATA2,                  L"underline_dot"sv    },
-		{ FCF_FG_U_DATA2 | FCF_FG_U_DATA0, L"underline_dash"sv   },
+		{ UNDERLINE_SINGLE,   L"underline"sv        },
+		{ UNDERLINE_DOUBLE,   L"underline_double"sv },
+		{ UNDERLINE_CURLY,    L"underline_curly"sv  },
+		{ UNDERLINE_DOT,      L"underline_dot"sv    },
+		{ UNDERLINE_DASH,     L"underline_dash"sv   },
 	};
 
-	return StringToFlags(UnderlineStyle, UnderlineNames);
+	const auto Iterator = std::ranges::find(UnderlineNames, UnderlineStyle, [](const auto& i){ return i.second; });
+	if (Iterator == std::cend(UnderlineNames))
+		return FCF_NONE;
+
+	FarColor Color{};
+	Color.SetUnderline(Iterator->first);
+	return Color.Flags;
 }
 
 const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]

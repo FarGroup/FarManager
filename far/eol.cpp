@@ -79,7 +79,6 @@ static eol::eol_type parse_type(string_view const Value)
 
 eol eol::parse(string_view const Value)
 {
-
 	return eol(parse_type(Value));
 }
 

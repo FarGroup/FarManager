@@ -69,11 +69,11 @@ namespace
 
 		static const inline int Colours[]
 		{
-			C_BLUE,
-			C_CYAN,
-			C_RED,
-			C_MAGENTA,
-			C_BROWN
+			C_LIGHTBLUE,
+			C_LIGHTCYAN,
+			C_LIGHTRED,
+			C_LIGHTMAGENTA,
+			C_YELLOW
 		};
 
 		static const int DefaultColour = C_LIGHTGRAY;

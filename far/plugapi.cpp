@@ -2587,27 +2587,17 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			return static_cast<regex_handle*>(hHandle)->Regex.Optimize();
 
 		case RECTL_MATCHEX:
-		{
-			auto& Handle = *static_cast<regex_handle*>(hHandle);
-			const auto data = static_cast<RegExpSearch*>(Param2);
-			regex_match Match;
-
-			if (!Handle.Regex.MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
-				return false;
-
-			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
-			std::copy_n(Match.Matches.cbegin(), MaxSize, data->Match);
-			data->Count = MaxSize;
-			return true;
-		}
-
 		case RECTL_SEARCHEX:
 		{
 			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			const auto data = static_cast<RegExpSearch*>(Param2);
 			regex_match Match;
 
-			if (!Handle.Regex.SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
+			const auto Handler = Command == RECTL_SEARCHEX?
+				&RegExp::SearchEx :
+				&RegExp::MatchEx;
+
+			if (!(Handle.Regex.*Handler)({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
 				return false;
 
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());

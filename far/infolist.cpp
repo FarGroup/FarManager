@@ -464,8 +464,7 @@ void InfoList::DisplayObject()
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
 	{
-		MEMORYSTATUSEX ms{ sizeof(ms) };
-		if (GlobalMemoryStatusEx(&ms))
+		if (MEMORYSTATUSEX ms{ sizeof(ms) }; GlobalMemoryStatusEx(&ms))
 		{
 			PrintMetric(lng::MInfoMemoryCommittable, ms.ullTotalPageFile, ms.ullAvailPageFile);
 			PrintMetric(lng::MInfoMemoryAddressable, ms.ullTotalVirtual, ms.ullAvailVirtual);
@@ -475,7 +474,7 @@ void InfoList::DisplayObject()
 			{
 				GotoXY(m_Where.left + 2, CurY++);
 				PrintMetricText(lng::MInfoMemoryPhysical, lng::MInfoMetricMemoryInstalled);
-				PrintInfo(size2str(TotalMemoryInKilobytes << 10));
+				PrintInfo(size2str(TotalMemoryInKilobytes * 1024));
 			}
 		}
 	}
@@ -488,8 +487,15 @@ void InfoList::DisplayObject()
 		if (SectionState[ILSS_POWERSTATUS].Show)
 		{
 			lng MsgID;
-			SYSTEM_POWER_STATUS PowerStatus;
-			GetSystemPowerStatus(&PowerStatus);
+			SYSTEM_POWER_STATUS PowerStatus{};
+			if (!GetSystemPowerStatus(&PowerStatus))
+			{
+				PowerStatus.ACLineStatus = AC_LINE_UNKNOWN;
+				PowerStatus.BatteryFlag = BATTERY_FLAG_UNKNOWN;
+				PowerStatus.BatteryLifePercent = BATTERY_PERCENTAGE_UNKNOWN;
+				PowerStatus.BatteryLifeTime = BATTERY_LIFE_UNKNOWN;
+				PowerStatus.BatteryFullLifeTime = BATTERY_LIFE_UNKNOWN;
+			}
 
 			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusAC);
@@ -701,7 +707,7 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 	if (!IsVisible())
 		return false;
 
-	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
+	if (in_closed_range(KEY_RCTRL0, LocalKey, KEY_RCTRL9))
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return true;
