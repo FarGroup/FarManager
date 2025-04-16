@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-16 21:31:45+01:00 - build 6462
+
+1. From Shmuel:
+   Plugin API: RECTL_GETNAMEDGROUPS.
+   Allows the caller to query named groups and their indices in the latest search/match.
+   Param2 - an out pointer to RegExpNamedGroup*.
+   Return value: the number of groups.
+   Results are valid until the next search/match.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-16 20:01:22+01:00 - build 6461
 
 1. Refactoring.

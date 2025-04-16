@@ -2559,6 +2559,7 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		{
 			RegExp Regex;
 			named_regex_match NamedMatch;
+			std::vector<RegExpNamedGroup> NamedGroupsFlat;
 		};
 
 		switch (Command)
@@ -2593,6 +2594,8 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			const auto data = static_cast<RegExpSearch*>(Param2);
 			regex_match Match;
 
+			Handle.NamedGroupsFlat.clear();
+
 			const auto Handler = Command == RECTL_SEARCHEX?
 				&RegExp::SearchEx :
 				&RegExp::MatchEx;
@@ -2616,6 +2619,25 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			const auto Iterator = Handle.NamedMatch.Matches.find(Str);
 			return Iterator == Handle.NamedMatch.Matches.cend()? 0 : Iterator->second;
 		}
+
+		case RECTL_GETNAMEDGROUPS:
+			{
+				auto& Handle = *static_cast<regex_handle*>(hHandle);
+
+				if (Handle.NamedGroupsFlat.empty())
+				{
+					Handle.NamedGroupsFlat.reserve(Handle.NamedMatch.Matches.size());
+					std::ranges::transform(Handle.NamedMatch.Matches, std::back_inserter(Handle.NamedGroupsFlat), [](const auto& i)
+					{
+						return RegExpNamedGroup{ i.second, i.first.c_str() };
+					});
+
+					std::ranges::sort(Handle.NamedGroupsFlat, {}, &RegExpNamedGroup::Index);
+				}
+
+				*static_cast<RegExpNamedGroup const**>(Param2) = Handle.NamedGroupsFlat.data();
+				return Handle.NamedGroupsFlat.size();
+			}
 
 		default:
 			return false;
