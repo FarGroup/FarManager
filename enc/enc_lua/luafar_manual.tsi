@@ -8073,7 +8073,7 @@ lv=2
 dt=Text
 nm=regex.exec, regex.execW
 ctime=3748474620
-mtime=3748474986
+mtime=3954048728
 <article>
 #_from, to, offsets = regex.exec (s, pattern, [init], [cflags])
 #_
@@ -8087,7 +8087,10 @@ mtime=3748474986
 #_  from    : integer
 #_  to      : integer
 #_  offsets : table - array of captures' offsets (there can be *false*
-#_                    in place of captures not participated in the match)
+#_                    in place of captures not participated in the match).
+#_                    If named subpatterns are used then the table also
+#_                    contains substring matches keyed by their
+#_                    correspondent subpattern names (strings).
 #_
 #_**Example:**
 #_  If the whole match is at offsets 10,20 and substring matches are
@@ -8261,7 +8264,7 @@ lv=2
 dt=Text
 nm=regex.tfind, tfindW
 ctime=3953542338
-mtime=3953542389
+mtime=3954048770
 <article>
 #_from, to, tbl = regex.tfind (subj, pattern, [init], [cflags])
 #_
@@ -8275,7 +8278,9 @@ mtime=3953542389
 #_  from    : integer
 #_  to      : integer
 #_  tbl     : table (array of captures);
-#_            (there can be *false* in place of captures not participated in the match)
+#_            (there can be *false* in place of captures not participated in the match).
+#_            If named subpatterns are used then the table also contains substring
+#_            matches keyed by their correspondent subpattern names (strings).
 #_
 #_**Returns on failure:**
 #_  nil
@@ -8362,7 +8367,7 @@ lv=3
 dt=Text
 nm=methods exec, execW
 ctime=3748475041
-mtime=3748475255
+mtime=3954048826
 <article>
 #_from, to, offsets = regex_object:exec (subj [, init])
 #_
@@ -8374,7 +8379,10 @@ mtime=3748475255
 #_  from    : integer
 #_  to      : integer
 #_  offsets : table - array of captures' offsets (there can be *false*
-#_                    in place of captures not participated in the match)
+#_                    in place of captures not participated in the match).
+#_                    If named subpatterns are used then the table also
+#_                    contains substring matches keyed by their
+#_                    correspondent subpattern names (strings).
 #_
 #_**Example:**
 #_  If the whole match is at offsets 10,20 and substring matches are
@@ -8520,7 +8528,7 @@ lv=3
 dt=Text
 nm=methods tfind, tfindW
 ctime=3953542486
-mtime=3953542517
+mtime=3954048850
 <article>
 #_from, to, tbl = regex_object:tfind (subj, [init])
 #_
@@ -8532,7 +8540,9 @@ mtime=3953542517
 #_  from    : integer
 #_  to      : integer
 #_  tbl     : table (array of captures);
-#_            (there can be *false* in place of captures not participated in the match)
+#_            (there can be *false* in place of captures not participated in the match).
+#_            If named subpatterns are used then the table also contains substring
+#_            matches keyed by their correspondent subpattern names (strings).
 #_
 #_**Returns on failure:**
 #_  nil

@@ -1,3 +1,7 @@
+shmuel 2025-04-17 10:44:36+03:00 - build 873
+
+1. LuaFAR: support named groups in regex functions.
+
 shmuel 2025-04-11 14:09:36+03:00 - build 872
 
 1. LuaFAR: add functions and methods regex.tfind, regex.tfindW.
