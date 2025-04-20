@@ -1308,8 +1308,7 @@ void regex_playground()
 
 			for (const auto& [k, v] : NamedMatch.Matches)
 			{
-				const auto& m = Match.Matches[v];
-				ListStrings[v] = far::format(L"${{{}}}: {}"sv, k, match_str(m));
+				ListStrings[v].insert(ListStrings[v].find(L':'), far::format(L"/${{{}}}"sv, k));
 				ListItems[v].Text = ListStrings[v].c_str();
 			}
 

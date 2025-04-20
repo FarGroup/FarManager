@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-20 21:28:54+01:00 - build 6464
+
+1. Fix inconsistency in regex replace.
+   Replace not found named groups with empty strings, same as not found numbered groups.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-20 02:08:46+01:00 - build 6463
 
 1. Remove extra complexity from conversions between visual and real positions in edit controls.

@@ -773,10 +773,8 @@ string ReplaceBrackets(
 				if (const auto MatchLast = Part.find(L'}', MatchFirst + 1); MatchLast != Part.npos)
 				{
 					TokenSize = MatchLast - MatchFirst + 1;
-					const auto Iterator = NamedMatch->Matches.find(Part.substr(MatchFirst + 1, TokenSize - 2));
-					Replacement = Iterator == NamedMatch->Matches.cend()?
-						ReplaceStr.substr(i, TokenSize + 1) :
-						get_match(SearchStr, Match[Iterator->second]);
+					if (const auto Iterator = NamedMatch->Matches.find(Part.substr(MatchFirst + 1, TokenSize - 2)); Iterator != NamedMatch->Matches.cend())
+						Replacement = get_match(SearchStr, Match[Iterator->second]);
 				}
 			}
 		}
@@ -1234,9 +1232,10 @@ TEST_CASE("ReplaceBrackets")
 	{
 		{},
 		{ L"dorime"sv },
-		{ L"meow"sv, L"${a }$cat$"sv, L"${a }$cat$"sv },
+		{ L"meow"sv, L"${a }$cat$"sv, L"$cat$"sv },
 		{ L"Ni!"sv, L"$0$0$0"sv, L"Ni!Ni!Ni!"sv, { { 0, 3 } } },
-		{ L"Fus Ro Dah"sv, L"$321-${first}-$2-$123-${nope}${oops$"sv, L"Dah21-Fus-Ro-Fus23-${nope}${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
+		{ L"Fus Ro Dah"sv, L"$321-${first}-$2-$123-${nope}${oops$"sv, L"Dah21-Fus-Ro-Fus23-${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
+		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 } }, { { L"name1"sv, 1 } } },
 	};
 
 	named_regex_match NamedRegexMatch;
