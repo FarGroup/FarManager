@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-20 02:08:46+01:00 - build 6463
+
+1. Remove extra complexity from conversions between visual and real positions in edit controls.
+
+2. Optimize adding colors to editor.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-16 21:31:45+01:00 - build 6462
 
 1. From Shmuel:
