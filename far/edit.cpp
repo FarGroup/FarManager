@@ -1873,14 +1873,14 @@ int Edit::RealPosToVisual(int const Pos, position_parser_state* const  State) co
 {
 	const auto TabSize = GetTabExpandMode() == EXPAND_ALLTABS? 1 : GetTabSize();
 
-	return static_cast<int>(string_pos_to_visual_pos(m_Str, Pos, TabSize));
+	return static_cast<int>(string_pos_to_visual_pos(m_Str, Pos, TabSize, State));
 }
 
 int Edit::VisualPosToReal(int const Pos, position_parser_state*const  State) const
 {
 	const auto TabSize = GetTabExpandMode() == EXPAND_ALLTABS? 1 : GetTabSize();
 
-	return static_cast<int>(visual_pos_to_string_pos(m_Str, Pos, TabSize));
+	return static_cast<int>(visual_pos_to_string_pos(m_Str, Pos, TabSize, State));
 }
 
 void Edit::Select(int Start,int End)
