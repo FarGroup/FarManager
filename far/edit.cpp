@@ -2036,6 +2036,9 @@ void Edit::ApplyColor(std::multiset<ColorItem> const& Colors, int XPos, int Focu
 			continue;
 
 		auto First = RealToVisual.get(CurItem.StartPos);
+		if (First - FocusedLeftPos >= Width)
+			continue;
+
 		const auto LastFirst = RealToVisual.get(CurItem.EndPos);
 		int LastLast = LastFirst;
 
@@ -2048,9 +2051,6 @@ void Edit::ApplyColor(std::multiset<ColorItem> const& Colors, int XPos, int Focu
 				break;
 			}
 		}
-
-		if (First - FocusedLeftPos >= Width)
-			continue;
 
 		if (LastLast < FocusedLeftPos)
 			continue;
