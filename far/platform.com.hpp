@@ -87,9 +87,8 @@ namespace os::com
 	{
 	public:
 		explicit exception(HRESULT const ErrorCode, string_view const Message, source_location const& Location = source_location::current()):
-			far_exception({{ static_cast<DWORD>(ErrorCode), STATUS_SUCCESS }, Message }, Location)
+			far_exception({{ static_cast<DWORD>(ErrorCode), STATUS_SUCCESS, Location }, Message })
 		{
-			Win32Error = ErrorCode;
 		}
 	};
 

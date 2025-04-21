@@ -112,11 +112,22 @@
 		</Expand>
 	</Type>
 
+	<Type Name="source_location">
+		<DisplayString Condition="!m_Function &amp;&amp; !m_File &amp;&amp; !m_Line"></DisplayString>
+		<DisplayString>{m_Function,nas8b}, {m_File,nas8b}({m_Line})</DisplayString>
+		<Expand>
+			<Item Name="Function">m_Function,nas8b</Item>
+			<Item Name="File">m_File,nas8b</Item>
+			<Item Name="Line">m_Line</Item>
+		</Expand>
+	</Type>
+
 	<Type Name="os::error_state">
 		<DisplayString>{{Win32Error={Win32Error,h} NtError={NtError,h}}}</DisplayString>
 		<Expand>
 			<Item Name="Win32Error">Win32Error,hr</Item>
 			<Item Name="NtError">NtError,hr</Item>
+			<Item Name="Location">Location</Item>
 		</Expand>
 	</Type>
 

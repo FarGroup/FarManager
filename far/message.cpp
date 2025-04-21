@@ -197,7 +197,7 @@ static message_result MessageImpl(
 
 	Context.IsWarningStyle = (Flags&MSG_WARNING) != 0;
 
-	string ErrorMessage, SystemErrorMessage;
+	string ErrorMessage, SystemErrorMessage, Location;
 
 	if (ErrorState)
 	{
@@ -216,6 +216,8 @@ static message_result MessageImpl(
 				++index;
 			}
 		}
+
+		Location = source_location_to_string(Context.ErrorState->Location);
 	}
 
 	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
@@ -255,7 +257,12 @@ static message_result MessageImpl(
 			append(strClipText, ErrorMessage, Eol);
 
 		if (!SystemErrorMessage.empty())
-			append(strClipText, SystemErrorMessage, Eol, Eol);
+			append(strClipText, SystemErrorMessage, Eol);
+
+		if (!Location.empty())
+			append(strClipText, Location, Eol);
+
+		append(strClipText, Eol);
 
 		if (!Strings.empty())
 			Strings.emplace_back(L"\x1"sv);
@@ -271,6 +278,7 @@ static message_result MessageImpl(
 
 		add_wrapped(ErrorMessage);
 		add_wrapped(SystemErrorMessage);
+		add_wrapped(Location);
 	}
 
 	join(strClipText, L" "sv, Buttons);

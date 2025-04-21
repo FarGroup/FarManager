@@ -366,12 +366,13 @@ string error_state::to_string() const
 	return join(L", "sv, Errors | std::views::filter([](string_view const Str){ return !Str.empty(); }));
 }
 
-error_state last_error()
+error_state last_error(source_location const& Location)
 {
 	return
 	{
 		GetLastError(),
 		get_last_nt_status(),
+		Location
 	};
 }
 

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/function_ref.hpp"
 #include "common/smart_ptr.hpp"
+#include "common/source_location.hpp"
 #include "common/span.hpp"
 #include "common/utility.hpp"
 
@@ -253,6 +254,7 @@ namespace os
 	{
 		DWORD Win32Error = ERROR_SUCCESS;
 		NTSTATUS NtError = STATUS_SUCCESS;
+		source_location Location;
 
 		[[nodiscard]]
 		bool any() const
@@ -266,7 +268,7 @@ namespace os
 		[[nodiscard]] string to_string() const;
 	};
 
-	error_state last_error();
+	error_state last_error(source_location const& Location = source_location::current());
 
 	class last_error_guard
 	{

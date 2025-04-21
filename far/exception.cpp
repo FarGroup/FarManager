@@ -80,18 +80,20 @@ namespace detail
 		return with_exception_stacktrace(far::format(L"far_base_exception: {{{}}}"sv, error_state_ex::to_string()));
 	}
 
-	far_base_exception::far_base_exception(error_state_ex ErrorState, source_location const& Location):
-		error_state_ex(std::move(ErrorState)),
-		m_Location(Location)
+	far_base_exception::far_base_exception(error_state_ex ErrorState):
+		error_state_ex(std::move(ErrorState))
 	{
-		if (m_Location.function_name())
-			What = far::format(L"{} ({})"sv, What, source_location_to_string(m_Location));
-
 		LOGTRACE(L"{}"sv, *this);
 	}
 
+	far_std_exception::far_std_exception(error_state_ex ErrorState):
+		far_base_exception(std::move(ErrorState)),
+		std::runtime_error(convert_message(message()))
+	{
+	}
+
 	far_std_exception::far_std_exception(string_view const Message, bool const CaptureErrors, source_location const& Location):
-		far_std_exception({ CaptureErrors? os::last_error() : error_state{}, Message, CaptureErrors? errno : 0 }, Location)
+		far_std_exception({ CaptureErrors? os::last_error(Location) : error_state{ .Location = Location }, Message, CaptureErrors? errno : 0 })
 	{
 	}
 
@@ -137,10 +139,10 @@ string error_state_ex::to_string() const
 		if (Errno)
 			Str = concat(ErrnoStr(), L", "sv, Str);
 
-		return far::format(L"Message: {}, Error: {{{}}}"sv, What, Str);
+		return far::format(L"Message: {}, Error: {{{}}} ({})"sv, What, Str, source_location_to_string(Location));
 	}
 
-	return far::format(L"Message: {}"sv, What);
+	return far::format(L"Message: {} ({})"sv, What, source_location_to_string(Location));
 }
 
 string formattable<std::exception>::to_string(std::exception const& e)

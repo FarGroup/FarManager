@@ -48,7 +48,7 @@ struct error_state_ex: public os::error_state
 {
 	error_state_ex() = default;
 
-	explicit(false) error_state_ex(const error_state& State, string_view const Message = {}, int Errno = 0):
+	explicit(false) error_state_ex(const error_state& State, string_view const Message = {}, int const Errno = 0):
 		error_state(State),
 		What(Message),
 		Errno(Errno)
@@ -80,25 +80,17 @@ namespace detail
 	{
 	public:
 		[[nodiscard]] const auto& message() const noexcept { return What; }
-		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
+		[[nodiscard]] const auto& location() const noexcept { return Location; }
 		[[nodiscard]] string to_string() const;
 
 	protected:
-		explicit far_base_exception(error_state_ex ErrorState, source_location const& Location);
-
-	private:
-		source_location m_Location;
+		explicit far_base_exception(error_state_ex ErrorState);
 	};
 
 	class far_std_exception : public far_base_exception, public std::runtime_error
 	{
 	public:
-		explicit far_std_exception(error_state_ex ErrorState, source_location const& Location = source_location::current()):
-			far_base_exception(std::move(ErrorState), Location),
-			std::runtime_error(convert_message(message()))
-		{
-		}
-
+		explicit far_std_exception(error_state_ex ErrorState);
 		explicit far_std_exception(string_view Message, bool CaptureErrors = true, source_location const& Location = source_location::current());
 
 	private:
