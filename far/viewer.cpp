@@ -2750,7 +2750,6 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		*sd->searcher,
 		sd->Rex,
 		sd->RexMatch,
-		{},
 		CurPos,
 		{
 			.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),
@@ -2845,7 +2844,6 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		*sd->searcher,
 		sd->Rex,
 		sd->RexMatch,
-		{},
 		CurPos,
 		{
 			.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),

@@ -113,7 +113,6 @@ private:
 	{
 		RegExp Regex;
 		mutable std::vector<RegExpMatch> Match;
-		mutable unordered_string_map<size_t> NamedMatch;
 	};
 
 	std::variant<std::vector<string>, regex_data> m_Masks;
@@ -273,10 +272,10 @@ bool filemasks::check(const string_view Name, regex_matches const* const Matches
 
 	if (Matches)
 	{
-		if (const auto [MatchPtr, NamedMatchPtr] = MaskIterator->last_matches(); MatchPtr)
+		if (const auto [MatchPtr, NamedGroupsPtr] = MaskIterator->last_matches(); MatchPtr)
 		{
-			Matches->first = std::move(*MatchPtr);
-			Matches->second = std::move(*NamedMatchPtr);
+			Matches->first = *MatchPtr;
+			Matches->second = *NamedGroupsPtr;
 		}
 	}
 
@@ -415,13 +414,10 @@ bool filemasks::masks::operator==(const string_view FileName) const
 		[&](const regex_data& Data)
 		{
 			regex_match Match;
-			named_regex_match NamedMatch;
-			if (!Data.Regex.Search(FileName, Match, &NamedMatch))
+			if (!Data.Regex.Search(FileName, Match))
 				return false;
 
 			Data.Match.assign(ALL_CONST_RANGE(Match.Matches));
-			for (const auto& [k, v]: NamedMatch.Matches)
-				Data.NamedMatch.try_emplace(k, v);
 			return true;
 		}
 	}, m_Masks);
@@ -453,7 +449,7 @@ filemasks::masks::last_regex_matches filemasks::masks::last_matches() const
 		},
 		[&](const regex_data& Data) -> last_regex_matches
 		{
-			return { &Data.Match, &Data.NamedMatch };
+			return { &Data.Match, &Data.Regex.GetNamedGroups() };
 		}
 	}, m_Masks);
 }
@@ -516,8 +512,8 @@ TEST_CASE("masks_with_matches")
 	Masks.assign(L"/(.+)\\.(?:.+)\\.(?{scratch}.+)/"sv);
 
 	std::vector<RegExpMatch> Matches;
-	unordered_string_map<size_t> NamedMatches;
-	filemasks::regex_matches const RegexMatches{ Matches, NamedMatches };
+	unordered_string_map<size_t> NamedGroups;
+	filemasks::regex_matches const RegexMatches{ Matches, NamedGroups };
 	const auto Test = L"none.shall.pass"sv;
 
 	REQUIRE(Masks.check(Test, &RegexMatches));
@@ -533,7 +529,7 @@ TEST_CASE("masks_with_matches")
 	REQUIRE(Matches[2].start == 11);
 	REQUIRE(Matches[2].end == 15);
 
-	REQUIRE(NamedMatches.size() == 1u);
-	REQUIRE(NamedMatches.at(L"scratch"s) == 2u);
+	REQUIRE(NamedGroups.size() == 1u);
+	REQUIRE(NamedGroups.at(L"scratch"s) == 2u);
 }
 #endif

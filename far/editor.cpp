@@ -3420,7 +3420,6 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 		auto CurPtr = FindAll ? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
 		regex_match Match;
-		named_regex_match NamedMatch;
 		RegExp re;
 
 		if (m_SearchDlgParams.Regex.value())
@@ -3476,13 +3475,15 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 			auto strReplaceStrCurrent = IsReplaceMode ? m_SearchDlgParams.ReplaceStr.value() : string{};
 
 			int SearchLength;
-			if (SearchAndReplaceString(
+
+			try
+			{
+			MatchFound = SearchAndReplaceString(
 				CurPtr->GetString(),
 				m_SearchDlgParams.SearchStr,
 				Searcher,
 				re,
 				Match,
-				&NamedMatch,
 				strReplaceStrCurrent,
 				CurPos,
 				{
@@ -3494,10 +3495,22 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				},
 				SearchLength,
 				GetWordDiv()
-			))
+			);
+			}
+			catch (far_exception const& e)
 			{
-				MatchFound = true;
+				Message(MSG_WARNING,
+					msg(lng::MSearchReplaceSearchTitle),
+					{
+						e.message(),
+					},
+					{ lng::MOk });
 
+				return;
+			}
+
+			if (MatchFound)
+			{
 				m_FoundLine = CurPtr;
 				m_FoundPos = CurPos;
 				m_FoundSize = SearchLength;

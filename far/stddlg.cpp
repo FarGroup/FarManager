@@ -1199,7 +1199,6 @@ void regex_playground()
 
 	RegExp Regex;
 	regex_match Match;
-	named_regex_match NamedMatch;
 
 	std::vector<string> ListStrings;
 	std::vector<FarListItem> ListItems;
@@ -1226,13 +1225,31 @@ void regex_playground()
 
 	const auto RegexDlg = Dialog::create(RegexDlgItems, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
 	{
+		const auto update_status = [&](status const NewStatus, string const& Message)
+		{
+			Status = NewStatus;
+			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_status, UNSAFE_CSTR(Message));
+		};
+
 		const auto update_substitution = [&]
 		{
-			const auto TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
-			const auto ReplaceStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
+			string Str;
 
-			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match.Matches, &NamedMatch);
-			Status = status::normal;
+			if (const auto ReplaceStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {})); *ReplaceStr)
+			{
+				try
+				{
+					const auto TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+					Str = ReplaceBrackets(TestStr, ReplaceStr, Match.Matches, Regex.GetNamedGroups());
+					update_status(status::normal, L"Replaced"s);
+				}
+				catch (far_exception const& e)
+				{
+					update_status(status::error, e.message());
+					return;
+				}
+			}
+
 			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Str));
 		};
 
@@ -1245,7 +1262,6 @@ void regex_playground()
 		const auto clear_matches = [&]
 		{
 			Match.Matches.clear();
-			NamedMatch.Matches.clear();
 			ListItems.clear();
 
 			update_matches();
@@ -1256,12 +1272,6 @@ void regex_playground()
 			Dlg->SendMessage(DM_SETTEXTPTR, rp_text_cursor, Position? UNSAFE_CSTR(string(*Position, L' ') + L'↑') : nullptr);
 		};
 
-		const auto update_status = [&](status const NewStatus, string const& Message)
-		{
-			Status = NewStatus;
-			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_status, UNSAFE_CSTR(Message));
-		};
-
 		const auto update_test = [&]
 		{
 			string_view const TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
@@ -1270,7 +1280,7 @@ void regex_playground()
 
 			try
 			{
-				IsMatch = Regex.Search(TestStr, Match, &NamedMatch);
+				IsMatch = Regex.Search(TestStr, Match);
 			}
 			catch (regex_exception const& e)
 			{
@@ -1306,8 +1316,11 @@ void regex_playground()
 				ListItems.emplace_back(i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0);
 			}
 
-			for (const auto& [k, v] : NamedMatch.Matches)
+			for (const auto& [k, v] : Regex.GetNamedGroups())
 			{
+				if (v >= ListItems.size())
+					continue;
+
 				ListStrings[v].insert(ListStrings[v].find(L':'), far::format(L"/${{{}}}"sv, k));
 				ListItems[v].Text = ListStrings[v].c_str();
 			}

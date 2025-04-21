@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class RegExp;
 struct RegExpMatch;
 class regex_match;
-class named_regex_match;
 
 namespace legacy
 {
@@ -144,7 +143,7 @@ bool CheckFileSizeStringFormat(string_view FileSizeStr);
 unsigned long long ConvertFileSizeString(string_view FileSizeStr);
 
 [[nodiscard]]
-string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, std::span<RegExpMatch const> Match, const named_regex_match* NamedMatch);
+string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, std::span<RegExpMatch const> Match, unordered_string_map<size_t> const& NamedGroups);
 
 [[nodiscard]]
 string GroupDigits(unsigned long long Value);
@@ -208,7 +207,6 @@ bool SearchString(
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	regex_match& Match,
-	named_regex_match* NamedMatch,
 	int& CurPos,
 	search_replace_string_options options,
 	int& SearchLength,
@@ -222,7 +220,6 @@ bool SearchAndReplaceString(
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	regex_match& Match,
-	named_regex_match* NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
 	search_replace_string_options options,

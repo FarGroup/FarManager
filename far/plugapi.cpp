@@ -2558,7 +2558,6 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		struct regex_handle
 		{
 			RegExp Regex;
-			named_regex_match NamedMatch;
 			std::vector<RegExpNamedGroup> NamedGroupsFlat;
 		};
 
@@ -2575,7 +2574,9 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		case RECTL_COMPILE:
 			try
 			{
-				static_cast<regex_handle*>(hHandle)->Regex.Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
+				auto& Handle = *static_cast<regex_handle*>(hHandle);
+				Handle.NamedGroupsFlat.clear();
+				Handle.Regex.Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
 				return true;
 			}
 			catch (regex_exception const& e)
@@ -2594,13 +2595,11 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			const auto data = static_cast<RegExpSearch*>(Param2);
 			regex_match Match;
 
-			Handle.NamedGroupsFlat.clear();
-
 			const auto Handler = Command == RECTL_SEARCHEX?
 				&RegExp::SearchEx :
 				&RegExp::MatchEx;
 
-			if (!(Handle.Regex.*Handler)({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
+			if (!(Handle.Regex.*Handler)({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
 				return false;
 
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
@@ -2616,8 +2615,9 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		{
 			const auto& Handle = *static_cast<regex_handle const*>(hHandle);
 			const auto Str = static_cast<wchar_t const*>(Param2);
-			const auto Iterator = Handle.NamedMatch.Matches.find(Str);
-			return Iterator == Handle.NamedMatch.Matches.cend()? 0 : Iterator->second;
+			const auto& NamedGroups = Handle.Regex.GetNamedGroups();
+			const auto Iterator = NamedGroups.find(Str);
+			return Iterator == NamedGroups.cend()? 0 : Iterator->second;
 		}
 
 		case RECTL_GETNAMEDGROUPS:
@@ -2626,8 +2626,9 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 
 				if (Handle.NamedGroupsFlat.empty())
 				{
-					Handle.NamedGroupsFlat.reserve(Handle.NamedMatch.Matches.size());
-					std::ranges::transform(Handle.NamedMatch.Matches, std::back_inserter(Handle.NamedGroupsFlat), [](const auto& i)
+					const auto& NamedGroups = Handle.Regex.GetNamedGroups();
+					Handle.NamedGroupsFlat.reserve(NamedGroups.size());
+					std::ranges::transform(NamedGroups, std::back_inserter(Handle.NamedGroupsFlat), [](const auto& i)
 					{
 						return RegExpNamedGroup{ i.second, i.first.c_str() };
 					});

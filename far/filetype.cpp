@@ -98,7 +98,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	{
 		string Command;
 		std::vector<RegExpMatch> Matches;
-		unordered_string_map<size_t> NamedMatches;
+		unordered_string_map<size_t> NamedGroups;
 	};
 
 	const auto AddMatches = [&](menu_data const& Data)
@@ -111,8 +111,11 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			);
 		}
 
-		for (const auto& [GroupName, GroupNumber]: Data.NamedMatches)
+		for (const auto& [GroupName, GroupNumber]: Data.NamedGroups)
 		{
+			if (GroupNumber >= Data.Matches.size())
+				continue;
+
 			const auto& Match = Data.Matches[GroupNumber];
 			Context.Variables.try_emplace(
 				far::format(L"RegexGroup{{{}}}"sv, GroupName),
@@ -138,7 +141,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			Context.Variables.clear();
 
 			menu_data NewMenuData;
-			filemasks::regex_matches const RegexMatches{ NewMenuData.Matches, NewMenuData.NamedMatches };
+			filemasks::regex_matches const RegexMatches{ NewMenuData.Matches, NewMenuData.NamedGroups };
 
 			if (FMask.assign(Mask, FMF_SILENT))
 			{

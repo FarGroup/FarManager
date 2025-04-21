@@ -726,7 +726,7 @@ string ReplaceBrackets(
 		const string_view SearchStr,
 		const string_view ReplaceStr,
 		std::span<RegExpMatch const> Match,
-		const named_regex_match* NamedMatch
+		unordered_string_map<size_t> const& NamedGroups
 )
 {
 	string result;
@@ -741,47 +741,41 @@ string ReplaceBrackets(
 			continue;
 		}
 
-		const auto TokenStart = i + 1;
-		auto TokenEnd = TokenStart;
-		size_t TokenSize = 0;
-
-		size_t GroupNumber = 0;
+		auto NextPos = i;
 		string_view Replacement;
 
-		while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
+		if (const auto NextChar = ReplaceStr[i + 1]; std::iswdigit(NextChar))
 		{
-			const auto NewGroupNumber = GroupNumber * 10 + ReplaceStr[TokenEnd] - L'0';
-			if (NewGroupNumber >= Match.size())
-				break;
+			// 0, 1, 2, ...
+			size_t NumberEnd;
+			const auto GroupNumber = from_string<size_t>(ReplaceStr.substr(i + 1), &NumberEnd);
+			if (GroupNumber >= Match.size())
+				throw far_known_exception(far::format(L"Invalid group number: {}"sv, GroupNumber));
 
-			GroupNumber = NewGroupNumber;
-			++TokenEnd;
-		}
-
-		if (TokenEnd != TokenStart)
-		{
 			Replacement = get_match(SearchStr, Match[GroupNumber]);
-			TokenSize = TokenEnd - TokenStart;
+			NextPos += NumberEnd;
 		}
-		else if (NamedMatch)
+		else if (NextChar == L'{')
 		{
 			// {some text}
-			const auto Part = ReplaceStr.substr(TokenStart);
-
-			if (const auto MatchFirst = Part.find(L'{'); MatchFirst != Part.npos)
+			if (const auto NameEnd = ReplaceStr.find(L'}', i + 2); NameEnd != ReplaceStr.npos)
 			{
-				if (const auto MatchLast = Part.find(L'}', MatchFirst + 1); MatchLast != Part.npos)
-				{
-					TokenSize = MatchLast - MatchFirst + 1;
-					if (const auto Iterator = NamedMatch->Matches.find(Part.substr(MatchFirst + 1, TokenSize - 2)); Iterator != NamedMatch->Matches.cend())
-						Replacement = get_match(SearchStr, Match[Iterator->second]);
-				}
+				const auto Name = ReplaceStr.substr(i + 2, NameEnd - i - 2);
+
+				const auto GroupIterator = NamedGroups.find(Name);
+				if (GroupIterator == NamedGroups.cend())
+					throw far_known_exception(far::format(L"Invalid group name: {}"sv, Name));
+
+				if (const auto GroupNumber = GroupIterator->second; GroupNumber < Match.size())
+					Replacement = get_match(SearchStr, Match[GroupNumber]);
+
+				NextPos = NameEnd;
 			}
 		}
 
-		if (TokenSize)
+		if (NextPos != i)
 		{
-			i += TokenSize;
+			i = NextPos;
 			result += Replacement;
 		}
 		else
@@ -820,7 +814,6 @@ namespace
 		string_view const Source,
 		const RegExp& re,
 		regex_match& Match,
-		named_regex_match* const NamedMatch,
 		intptr_t Position,
 		search_replace_string_options const options,
 		string& ReplaceStr,
@@ -834,7 +827,7 @@ namespace
 
 			do
 			{
-				if (!re.SearchEx(Source, CurrentPosition, Match, NamedMatch))
+				if (!re.SearchEx(Source, CurrentPosition, Match))
 					return false;
 
 				if (options.WholeWords && !CanContainWholeWord(Source, Match.Matches[0].start, Match.Matches[0].end - Match.Matches[0].start, WordDiv))
@@ -843,7 +836,7 @@ namespace
 					continue;
 				}
 
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match.Matches, NamedMatch);
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match.Matches, re.GetNamedGroups());
 				CurPos = Match.Matches[0].start;
 				SearchLength = Match.Matches[0].end - Match.Matches[0].start;
 				return true;
@@ -855,9 +848,8 @@ namespace
 		intptr_t pos = 0;
 
 		regex_match FoundMatch;
-		named_regex_match FoundNamedMatch;
 
-		while (re.SearchEx(Source, pos, Match, NamedMatch))
+		while (re.SearchEx(Source, pos, Match))
 		{
 			pos = Match.Matches[0].start;
 			if (pos > Position)
@@ -871,14 +863,12 @@ namespace
 
 			found = true;
 			FoundMatch.Matches = std::move(Match.Matches);
-			if (NamedMatch)
-				FoundNamedMatch.Matches = std::move(NamedMatch->Matches);
 			++pos;
 		}
 
 		if (found)
 		{
-			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch.Matches, NamedMatch? &FoundNamedMatch : nullptr);
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch.Matches, re.GetNamedGroups());
 			CurPos = FoundMatch.Matches[0].start;
 			SearchLength = FoundMatch.Matches[0].end - FoundMatch.Matches[0].start;
 
@@ -894,7 +884,6 @@ bool SearchString(
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	regex_match& Match,
-	named_regex_match* const NamedMatch,
 	int& CurPos,
 	search_replace_string_options const options,
 	int& SearchLength,
@@ -907,7 +896,6 @@ bool SearchString(
 		NeedleSearcher,
 		re,
 		Match,
-		NamedMatch,
 		Dummy,
 		CurPos,
 		options,
@@ -922,7 +910,6 @@ bool SearchAndReplaceString(
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	regex_match& Match,
-	named_regex_match* const NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
 	search_replace_string_options const options,
@@ -958,7 +945,7 @@ bool SearchAndReplaceString(
 		if ((Position || HaystackSize) && Position >= HaystackSize)
 			return false;
 
-		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
+		return SearchStringRegex(Haystack, re, Match, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
 	}
 
 	if (Position >= HaystackSize)
@@ -1226,29 +1213,41 @@ TEST_CASE("ReplaceBrackets")
 	{
 		string_view Str, Replace, Result;
 		std::initializer_list<RegExpMatch> Match;
-		std::initializer_list<std::pair<string_view, size_t>> NamedMatch;
+		std::initializer_list<std::pair<string_view, size_t>> NamedGroups;
+		string_view Exception;
 	}
 	Tests[]
 	{
 		{},
 		{ L"dorime"sv },
-		{ L"meow"sv, L"${a }$cat$"sv, L"$cat$"sv },
+		{ L"meow"sv, L"${a }$cat$"sv, {}, {}, {}, L"Invalid group name"sv },
 		{ L"Ni!"sv, L"$0$0$0"sv, L"Ni!Ni!Ni!"sv, { { 0, 3 } } },
-		{ L"Fus Ro Dah"sv, L"$321-${first}-$2-$123-${nope}${oops$"sv, L"Dah21-Fus-Ro-Fus23-${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
-		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 } }, { { L"name1"sv, 1 } } },
+		{ L"Fus Ro Dah"sv, L"$3-${first}-$2-$1-${oops$"sv, L"Dah-Fus-Ro-Fus-${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
+		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 } }, { { L"name1"sv, 1 }, { L"name2"sv, 2 } } },
 	};
 
-	named_regex_match NamedRegexMatch;
+	const auto Matcher = [](string_view const Message)
+	{
+		return generic_exception_matcher([=](std::any const& e)
+		{
+			return std::any_cast<far_exception const&>(e).message().contains(Message);
+		});
+	};
+
+	unordered_string_map<size_t> NamedGroups;
 
 	for (const auto& i: Tests)
 	{
-		NamedRegexMatch.Matches.clear();
-		for (const auto& [k, v]: i.NamedMatch)
+		NamedGroups.clear();
+		for (const auto& [k, v]: i.NamedGroups)
 		{
-			NamedRegexMatch.Matches.emplace(k, v);
+			NamedGroups.emplace(k, v);
 		}
 
-		REQUIRE(i.Result == ReplaceBrackets(i.Str, i.Replace, i.Match, &NamedRegexMatch));
+		if (i.Exception.empty())
+			REQUIRE(i.Result == ReplaceBrackets(i.Str, i.Replace, i.Match, NamedGroups));
+		else
+			REQUIRE_THROWS_MATCHES(ReplaceBrackets(i.Str, i.Replace, i.Match, NamedGroups), far_exception, Matcher(i.Exception));
 	}
 }
 

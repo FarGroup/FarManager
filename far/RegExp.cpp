@@ -665,11 +665,16 @@ int RegExp::CalcLength(string_view src)
 
 void RegExp::Compile(string_view const src, int options)
 {
-	SCOPE_FAIL{ code.clear(); };
+	SCOPE_FAIL
+	{
+		code.clear();
+		NamedGroups.clear();
+	};
 
 	havefirst=0;
 
 	code.clear();
+	NamedGroups.clear();
 
 	string_view Regex;
 
@@ -860,7 +865,6 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 	UniSet *tmpclass;
 	code[0].op=opOpenBracket;
 	code[0].bracket.index = 0;
-	named_regex_match NamedMatch;
 	int pos=1;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
@@ -952,7 +956,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						const auto Name = new wchar_t[len + 1];
 						std::memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
-						if (!NamedMatch.Matches.contains(Name))
+						if (!NamedGroups.contains(Name))
 						{
 							delete[] Name;
 							throw regex_exception(errReferenceToUndefinedNamedBracket, i + (src - start));
@@ -1217,7 +1221,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 
 						op->nbracket.name = brackets[brdepth]->nbracket.name;
 
-						if (!NamedMatch.Matches.emplace(op->nbracket.name, op->bracket.index).second)
+						if (!NamedGroups.emplace(op->nbracket.name, op->bracket.index).second)
 							throw regex_exception(errSubpatternGroupNameMustBeUnique, i + (src - start));
 
 						break;
@@ -1766,7 +1770,7 @@ int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end
 
 static constexpr RegExpMatch DefaultMatch{ -1, -1 };
 
-bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, named_regex_match& NamedMatch, state_stack& StateStack) const
+bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, state_stack& StateStack) const
 {
 	int i,j;
 	int minimizing;
@@ -1780,7 +1784,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 	stack.clear();
 	match.clear();
-	NamedMatch.Matches.clear();
 	match.resize(bracketscount, DefaultMatch);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
@@ -2084,7 +2087,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						stack.emplace_back(st);
 					}
 
-					NamedMatch.Matches.emplace(op->nbracket.name, op->bracket.index);
 					continue;
 				}
 				case opClosingBracket:
@@ -2314,8 +2316,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						const auto Iterator = NamedMatch.Matches.find(op->refname);
-						if (Iterator == NamedMatch.Matches.cend())
+						const auto Iterator = NamedGroups.find(op->refname);
+						if (Iterator == NamedGroups.cend())
 							break;
 
 						m = &match[Iterator->second];
@@ -2676,8 +2678,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						const auto Iterator = NamedMatch.Matches.find(op->range.refname);
-						if (Iterator == NamedMatch.Matches.cend())
+						const auto Iterator = NamedGroups.find(op->range.refname);
+						if (Iterator == NamedGroups.cend())
 							break;
 
 						m = &match[Iterator->second];
@@ -2884,8 +2886,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						const auto Iterator = NamedMatch.Matches.find(ps.pos->range.refname);
-						if (Iterator == NamedMatch.Matches.cend())
+						const auto Iterator = NamedGroups.find(ps.pos->range.refname);
+						if (Iterator == NamedGroups.cend())
 							break;
 
 						m = &match[Iterator->second];
@@ -3080,8 +3082,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						const auto Iterator = NamedMatch.Matches.find(op->range.refname);
-						if (Iterator == NamedMatch.Matches.cend())
+						const auto Iterator = NamedGroups.find(op->range.refname);
+						if (Iterator == NamedGroups.cend())
 							break;
 
 						m = &match[Iterator->second];
@@ -3232,20 +3234,16 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 	return true;
 }
 
-bool RegExp::Match(string_view const text, regex_match& match, named_regex_match* NamedMatch) const
+bool RegExp::Match(string_view const text, regex_match& match) const
 {
-	return MatchEx(text, 0, match, NamedMatch);
+	return MatchEx(text, 0, match);
 }
 
-bool RegExp::MatchEx(string_view const text, size_t const From, regex_match& match, named_regex_match* NamedMatch) const
+bool RegExp::MatchEx(string_view const text, size_t const From, regex_match& match) const
 {
 	// Logic errors, no need to catch them
 	if (code.empty())
 		throw regex_exception(errNotCompiled, 0);
-
-	named_regex_match LocalNamedMatch;
-	if (!NamedMatch)
-		NamedMatch = &LocalNamedMatch;
 
 	const auto start = text.data();
 	const auto textstart = text.data() + From;
@@ -3271,7 +3269,7 @@ bool RegExp::MatchEx(string_view const text, size_t const From, regex_match& mat
 
 	state_stack stack;
 
-	if (!InnerMatch(start, textstart, tempend, match, *NamedMatch, stack))
+	if (!InnerMatch(start, textstart, tempend, match, stack))
 		return false;
 
 	for (auto& i: match.Matches)
@@ -3544,20 +3542,16 @@ bool RegExp::Optimize()
 	return true;
 }
 
-bool RegExp::Search(string_view const text, regex_match& match, named_regex_match* NamedMatch) const
+bool RegExp::Search(string_view const text, regex_match& match) const
 {
-	return SearchEx(text, 0, match, NamedMatch);
+	return SearchEx(text, 0, match);
 }
 
-bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& match, named_regex_match* NamedMatch) const
+bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& match) const
 {
 	// Logic errors, no need to catch them
 	if (code.empty())
 		throw regex_exception(errNotCompiled, 0);
-
-	named_regex_match LocalNamedMatch;
-	if (!NamedMatch)
-		NamedMatch = &LocalNamedMatch;
 
 	const auto start = text.data();
 	const auto textstart = text.data() + From;
@@ -3578,7 +3572,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& ma
 
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		if (!InnerMatch(start, str, tempend, match, *NamedMatch, stack))
+		if (!InnerMatch(start, str, tempend, match, stack))
 			return false;
 	}
 	else
@@ -3598,7 +3592,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& ma
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (InnerMatch(start, str, tempend, match, *NamedMatch, stack))
+				if (InnerMatch(start, str, tempend, match, stack))
 				{
 					res = true;
 					break;
@@ -3608,7 +3602,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& ma
 			}
 			while (str<tempend);
 
-			if (!res && !InnerMatch(start, str, tempend, match, *NamedMatch, stack))
+			if (!res && !InnerMatch(start, str, tempend, match, stack))
 				return false;
 		}
 		else
@@ -3616,7 +3610,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, regex_match& ma
 			bool res = false;
 			do
 			{
-				if (InnerMatch(start, str, tempend, match, *NamedMatch, stack))
+				if (InnerMatch(start, str, tempend, match, stack))
 				{
 					res = true;
 					break;
@@ -3980,7 +3974,7 @@ TEST_CASE("regex.named_groups")
 	{
 		string_view Regex, Input;
 		std::initializer_list<RegExpMatch> Match;
-		std::initializer_list<std::pair<string_view, size_t>> NamedMatch;
+		std::initializer_list<std::pair<string_view, size_t>> NamedGroups;
 	}
 	Tests[]
 	{
@@ -3992,7 +3986,6 @@ TEST_CASE("regex.named_groups")
 
 	RegExp re;
 	regex_match Match;
-	named_regex_match NamedMatch;
 
 	for (const auto& i: Tests)
 	{
@@ -4001,19 +3994,20 @@ TEST_CASE("regex.named_groups")
 		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 		{
 			re.Compile(i.Regex, Flag);
-			REQUIRE(re.Search(i.Input, Match, &NamedMatch) == MatchExpected);
+			REQUIRE(re.Search(i.Input, Match) == MatchExpected);
 
 			if (!MatchExpected)
 				continue;
 
 			REQUIRE(Match.Matches == i.Match);
 
-			REQUIRE(i.NamedMatch.size() == NamedMatch.Matches.size());
+			const auto& NamedGroups = re.GetNamedGroups();
+			REQUIRE(NamedGroups.size() == i.NamedGroups.size());
 
-			for (const auto& [k, v]: i.NamedMatch)
+			for (const auto& [k, v]: i.NamedGroups)
 			{
-				const auto It = NamedMatch.Matches.find(k);
-				REQUIRE(It != NamedMatch.Matches.cend());
+				const auto It = NamedGroups.find(k);
+				REQUIRE(It != NamedGroups.cend());
 				REQUIRE(It->second == v);
 			}
 		}
