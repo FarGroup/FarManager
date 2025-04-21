@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-21 12:47:09+01:00 - build 6465
+
+1. Exception handling improvements.
+
+2. Regex improvements:
+   - Replace stops on unknown numbered or named groups.
+   - Minor far:regex UI improvements.
+   - Minor RECTL_GETNAMEDGROUPS changes:
+     - Returns all compiled groups, not only found ones.
+     - Results are valid till the next compile, not search/match.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-20 21:28:54+01:00 - build 6464
 
 1. Fix inconsistency in regex replace.
