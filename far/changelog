@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-22 02:04:56+01:00 - build 6466
+
+1. far:regex: selecting matches in the list selects the corresponding part of the test string.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-21 12:47:09+01:00 - build 6465
 
 1. Exception handling improvements.

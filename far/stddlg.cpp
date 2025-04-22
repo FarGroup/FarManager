@@ -1186,7 +1186,7 @@ void regex_playground()
 		{ DI_EDIT,      {{5,  8}, {45, 8}}, DIF_HISTORY, },
 		{ DI_TEXT,      {{5,  9}, {0,  9}}, DIF_NONE, L"Result:" },
 		{ DI_EDIT,      {{5, 10}, {45,10}}, DIF_READONLY, },
-		{ DI_LISTBOX,   {{47, 2}, {70,11}}, DIF_NONE, L"Matches" },
+		{ DI_LISTBOX,   {{47, 2}, {70,11}}, DIF_LISTNOCLOSE, L"Matches" },
 		{ DI_TEXT,      {{5, 11}, {0, 11}}, DIF_NONE, L"Status:" },
 		{ DI_EDIT,      {{5, 12}, {70,12}}, DIF_READONLY, },
 		{ DI_TEXT,      {{-1,13}, {0, 13}}, DIF_SEPARATOR, },
@@ -1350,6 +1350,26 @@ void regex_playground()
 			return update_test();
 		};
 
+		const auto update_selection = [&](size_t const Index)
+		{
+			if (Dlg->SendMessage(DM_GETFOCUS, 0, {}) != rp_list_matches)
+				return;
+
+			const auto& m = Match.Matches[Index];
+
+			EditorSelect Select
+			{
+				sizeof(Select),
+				BTYPE_STREAM,
+				0,
+				m.start,
+				m.end - m.start,
+				1
+			};
+
+			Dlg->SendMessage(DM_SETSELECTION, rp_edit_test, &Select);
+		};
+
 		switch (Msg)
 		{
 		case DN_CTLCOLORDLGITEM:
@@ -1379,6 +1399,12 @@ void regex_playground()
 					break;
 				}
 			}
+			break;
+
+		case DN_LISTCHANGE:
+			if (Param1 == rp_list_matches)
+				update_selection(std::bit_cast<size_t>(Param2));
+
 			break;
 		}
 
