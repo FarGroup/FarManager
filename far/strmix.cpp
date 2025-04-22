@@ -723,17 +723,17 @@ unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 }
 
 string ReplaceBrackets(
-		const string_view SearchStr,
-		const string_view ReplaceStr,
-		std::span<RegExpMatch const> Match,
-		unordered_string_map<size_t> const& NamedGroups
+	string_view const Str,
+	string_view const MatchData,
+	std::span<RegExpMatch const> Match,
+	unordered_string_map<size_t> const& NamedGroups
 )
 {
 	string result;
 
-	for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
+	for (size_t i = 0, length = Str.size(); i < length; ++i)
 	{
-		const auto CurrentChar = ReplaceStr[i];
+		const auto CurrentChar = Str[i];
 
 		if (CurrentChar != L'$' || i + 1 == length)
 		{
@@ -744,30 +744,30 @@ string ReplaceBrackets(
 		auto NextPos = i;
 		string_view Replacement;
 
-		if (const auto NextChar = ReplaceStr[i + 1]; std::iswdigit(NextChar))
+		if (const auto NextChar = Str[i + 1]; std::iswdigit(NextChar))
 		{
 			// 0, 1, 2, ...
 			size_t NumberEnd;
-			const auto GroupNumber = from_string<size_t>(ReplaceStr.substr(i + 1), &NumberEnd);
+			const auto GroupNumber = from_string<size_t>(Str.substr(i + 1), &NumberEnd);
 			if (GroupNumber >= Match.size())
 				throw far_known_exception(far::format(L"Invalid group number: {}"sv, GroupNumber));
 
-			Replacement = get_match(SearchStr, Match[GroupNumber]);
+			Replacement = get_match(MatchData, Match[GroupNumber]);
 			NextPos += NumberEnd;
 		}
 		else if (NextChar == L'{')
 		{
 			// {some text}
-			if (const auto NameEnd = ReplaceStr.find(L'}', i + 2); NameEnd != ReplaceStr.npos)
+			if (const auto NameEnd = Str.find(L'}', i + 2); NameEnd != Str.npos)
 			{
-				const auto Name = ReplaceStr.substr(i + 2, NameEnd - i - 2);
+				const auto Name = Str.substr(i + 2, NameEnd - i - 2);
 
 				const auto GroupIterator = NamedGroups.find(Name);
 				if (GroupIterator == NamedGroups.cend())
 					throw far_known_exception(far::format(L"Invalid group name: {}"sv, Name));
 
 				if (const auto GroupNumber = GroupIterator->second; GroupNumber < Match.size())
-					Replacement = get_match(SearchStr, Match[GroupNumber]);
+					Replacement = get_match(MatchData, Match[GroupNumber]);
 
 				NextPos = NameEnd;
 			}
@@ -836,7 +836,7 @@ namespace
 					continue;
 				}
 
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match.Matches, re.GetNamedGroups());
+				ReplaceStr = ReplaceBrackets(ReplaceStr, Source, Match.Matches, re.GetNamedGroups());
 				CurPos = Match.Matches[0].start;
 				SearchLength = Match.Matches[0].end - Match.Matches[0].start;
 				return true;
@@ -868,7 +868,7 @@ namespace
 
 		if (found)
 		{
-			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch.Matches, re.GetNamedGroups());
+			ReplaceStr = ReplaceBrackets(ReplaceStr, Source, FoundMatch.Matches, re.GetNamedGroups());
 			CurPos = FoundMatch.Matches[0].start;
 			SearchLength = FoundMatch.Matches[0].end - FoundMatch.Matches[0].start;
 
@@ -1245,9 +1245,9 @@ TEST_CASE("ReplaceBrackets")
 		}
 
 		if (i.Exception.empty())
-			REQUIRE(i.Result == ReplaceBrackets(i.Str, i.Replace, i.Match, NamedGroups));
+			REQUIRE(i.Result == ReplaceBrackets(i.Replace, i.Str, i.Match, NamedGroups));
 		else
-			REQUIRE_THROWS_MATCHES(ReplaceBrackets(i.Str, i.Replace, i.Match, NamedGroups), far_exception, Matcher(i.Exception));
+			REQUIRE_THROWS_MATCHES(ReplaceBrackets(i.Replace, i.Str, i.Match, NamedGroups), far_exception, Matcher(i.Exception));
 	}
 }
 

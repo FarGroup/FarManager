@@ -1233,14 +1233,18 @@ void regex_playground()
 
 		const auto update_substitution = [&]
 		{
-			string Str;
+			if (Match.Matches.empty())
+				return;
+
+			string Result;
 
 			if (const auto ReplaceStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {})); *ReplaceStr)
 			{
 				try
 				{
-					const auto TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
-					Str = ReplaceBrackets(TestStr, ReplaceStr, Match.Matches, Regex.GetNamedGroups());
+					Result = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+					const auto BakedReplaceStr = ReplaceBrackets(ReplaceStr, Result, Match.Matches, Regex.GetNamedGroups());
+					Result.replace(Match.Matches[0].start, Match.Matches[0].end, BakedReplaceStr);
 					update_status(status::normal, L"Replaced"s);
 				}
 				catch (far_exception const& e)
@@ -1250,7 +1254,7 @@ void regex_playground()
 				}
 			}
 
-			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Str));
+			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Result));
 		};
 
 		const auto update_matches = [&]

@@ -143,7 +143,7 @@ bool CheckFileSizeStringFormat(string_view FileSizeStr);
 unsigned long long ConvertFileSizeString(string_view FileSizeStr);
 
 [[nodiscard]]
-string ReplaceBrackets(string_view SearchStr, string_view ReplaceStr, std::span<RegExpMatch const> Match, unordered_string_map<size_t> const& NamedGroups);
+string ReplaceBrackets(string_view Str, string_view MatchData, std::span<RegExpMatch const> Match, unordered_string_map<size_t> const& NamedGroups);
 
 [[nodiscard]]
 string GroupDigits(unsigned long long Value);
