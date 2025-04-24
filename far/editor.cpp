@@ -3475,10 +3475,11 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 			auto strReplaceStrCurrent = IsReplaceMode ? m_SearchDlgParams.ReplaceStr.value() : string{};
 
 			int SearchLength;
+			bool FoundInCurrentLine{};
 
 			try
 			{
-			MatchFound = SearchAndReplaceString(
+			FoundInCurrentLine = SearchAndReplaceString(
 				CurPtr->GetString(),
 				m_SearchDlgParams.SearchStr,
 				Searcher,
@@ -3509,8 +3510,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				return;
 			}
 
-			if (MatchFound)
+			if (FoundInCurrentLine)
 			{
+				MatchFound = true;
 				m_FoundLine = CurPtr;
 				m_FoundPos = CurPos;
 				m_FoundSize = SearchLength;
