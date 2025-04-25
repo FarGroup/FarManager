@@ -475,7 +475,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			CmdStr.RemoveSelection();
 			Refresh();
-			const auto& strStr = CmdStr.GetString();
+			const auto& strStr = trim_right(CmdStr.GetString());
 
 			bool TryExecute = true;
 
