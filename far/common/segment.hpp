@@ -72,8 +72,8 @@ public:
 
 	bool operator==(segment_t const& Other) const noexcept
 	{
-		return empty() && Other.empty()
-			|| m_Start == Other.m_Start && m_End == Other.m_End;
+		return (empty() && Other.empty())
+			|| (m_Start == Other.m_Start && m_End == Other.m_End);
 	}
 
 private:

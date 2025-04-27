@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rectangle.hpp"
 #include "../function_traits.hpp"
 
+#include <limits>
+
 //----------------------------------------------------------------------------
 
 template<class P>

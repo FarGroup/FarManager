@@ -115,7 +115,7 @@ namespace detail
 {
 	template<typename T>
 	constexpr bool is_const = std::is_const_v<std::remove_reference_t<T>>;
-};
+}
 
 TEST_CASE("2d.matrix")
 {

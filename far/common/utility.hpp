@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <bit>
 #include <functional>
+#include <limits>
 #include <optional>
 #include <utility>
 
