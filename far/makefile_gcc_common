@@ -252,7 +252,7 @@ endif
 PDB_FLAGS = \
 	-g \
 	$(START_NO_UNUSED_ARGS) \
-	-gcodeview \
+#	-gcodeview \
 	$(END_NO_UNUSED_ARGS) \
 
 LLD_FLAGS = \
