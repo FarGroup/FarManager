@@ -940,10 +940,12 @@ void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 				const auto ItemIterator = std::ranges::find_if(ListItems, [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
 				if (ItemIterator != ListItems.end())
 				{
+					const auto Text = NullToEmpty(ItemIterator->Text);
+
 					if (Item.Flags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
-						Item.strData = HiText2Str(ItemIterator->Text);
+						Item.strData = HiText2Str(Text);
 					else
-						Item.strData = ItemIterator->Text;
+						Item.strData = Text;
 				}
 			}
 

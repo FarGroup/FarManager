@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-04-29 19:42:21+01:00 - build 6471
+
+1. From Shmuel: crash on incorrect data from plugin.
+
+--------------------------------------------------------------------------------
 johnd0e 2025-04-29 18:27:59+02:00 - build 6470
 
 1. Fix incorrect item selection when opening combobox.
