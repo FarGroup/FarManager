@@ -113,6 +113,7 @@
 <?define Guid.F3.lua = "8446410F-A125-45BD-B791-0AFCB4F69CAB" ?>
 <?define Guid.F9DeactivateMenu.lua = "683BCAC2-01C4-49F5-9E43-F3503EA36823" ?>
 <?define Guid.F9Table.lua = "600732B1-B384-45C8-BDA8-3EC08DB00A83" ?>
+<?define Guid.Menu.CtrlClear.lua = "BFB8F991-8E66-410E-B4CF-0F2FBEDEE8A1" ?>
 <?define Guid.OpeningLastFile.lua = "D7164261-1129-455E-AB60-7D1A7304A41F" ?>
 <?define Guid.Panel.AltBS.lua = "DE1C5951-0D5F-40D8-A78E-AB57828CE3B9" ?>
 <?define Guid.Panel.Apps.lua = "7C4ADC42-5DC1-4E3B-9A45-968BC3522F1D" ?>

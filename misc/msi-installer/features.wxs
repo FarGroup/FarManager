@@ -81,6 +81,7 @@
           <ComponentRef Id="F3.lua" />
           <ComponentRef Id="F9DeactivateMenu.lua" />
           <ComponentRef Id="F9Table.lua" />
+          <ComponentRef Id="Menu.CtrlClear.lua" />
           <ComponentRef Id="OpeningLastFile.lua" />
           <ComponentRef Id="Panel.AltBS.lua" />
           <ComponentRef Id="Panel.Apps.lua" />

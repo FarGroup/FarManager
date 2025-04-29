@@ -310,6 +310,9 @@
           <Component Id="F9Table.lua" Guid="$(var.Guid.F9Table.lua)" Win64="$(var.Win64)">
             <File Id="F9Table.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.lua" />
           </Component>
+          <Component Id="Menu.CtrlClear.lua" Guid="$(var.Guid.Menu.CtrlClear.lua)" Win64="$(var.Win64)">
+            <File Id="Menu.CtrlClear.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Menu.CtrlClear.lua" />
+          </Component>
           <Component Id="OpeningLastFile.lua" Guid="$(var.Guid.OpeningLastFile.lua)" Win64="$(var.Win64)">
             <File Id="OpeningLastFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.lua" />
           </Component>
