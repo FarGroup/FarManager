@@ -3296,7 +3296,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (starts_with_icase(strTmpBuf, Pattern))
+				if (strTmpBuf == Pattern)
 					return static_cast<int>(I);
 			}
 			else
