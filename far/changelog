@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+johnd0e 2025-04-29 18:27:59+02:00 - build 6470
+
+1. Fix incorrect item selection when opening combobox.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-25 22:04:11+01:00 - build 6469
 
 1. Correction of 1434: restore trailing spaces trimming in command line history.
