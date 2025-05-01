@@ -1406,7 +1406,7 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 		Color->Flags = CheckFlagsFromTable(L, -1, "Flags");
 		Color->Foreground.ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
 		Color->Background.BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
-		Color->Underline.UnderlineColor = 0;
+		Color->Underline.UnderlineColor = CAST(COLORREF, GetOptNumFromTable(L, "UnderlineColor", 0));
 		Color->Reserved = 0;
 		lua_pop(L, 1);
 		return 1;
@@ -1414,7 +1414,7 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 	else if (lua_isnumber(L, pos))
 	{
 		DWORD num = (DWORD)lua_tonumber(L, pos);
-		Color->Flags = FCF_4BITMASK;
+		Color->Flags = FCF_INDEXMASK;
 		Color->Foreground.ForegroundColor = (num & 0x0F) | ALPHAMASK;
 		Color->Background.BackgroundColor = ((num>>4) & 0x0F) | ALPHAMASK;
 		Color->Underline.UnderlineColor = 0;
@@ -1430,6 +1430,7 @@ void PushFarColor(lua_State *L, const struct FarColor* Color)
 	PutFlagsToTable(L, "Flags", Color->Flags);
 	PutNumToTable(L, "ForegroundColor", Color->Foreground.ForegroundColor);
 	PutNumToTable(L, "BackgroundColor", Color->Background.BackgroundColor);
+	PutNumToTable(L, "UnderlineColor", Color->Underline.UnderlineColor);
 }
 
 static void GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source)
