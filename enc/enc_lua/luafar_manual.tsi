@@ -9225,7 +9225,7 @@ lv=2
 dt=Text
 nm=tFarColor
 ctime=3508689565
-mtime=3602277839
+mtime=3955288580
 <article>
 #_<markdown>
 #_**`tFarColor`** is a table with the following predefined fields:
@@ -9233,6 +9233,7 @@ mtime=3602277839
 #_      Flags:           flags
 #_      ForegroundColor: integer
 #_      BackgroundColor: integer
+#_      UnderlineColor:  integer
 #_
 #_
 </article>
