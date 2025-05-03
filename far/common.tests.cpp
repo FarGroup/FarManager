@@ -1189,6 +1189,53 @@ TEST_CASE("preprocessor.literals")
 
 //----------------------------------------------------------------------------
 
+#include "common/segment.hpp"
+
+TEST_CASE("segment.constexpr")
+{
+	STATIC_REQUIRE(segment{}.empty());
+	STATIC_REQUIRE(segment{}.length() == 0);
+	STATIC_REQUIRE(segment{} == segment{ 5, segment::sentinel_tag{ 5 } });
+	STATIC_REQUIRE(segment{} == segment{ 5, segment::length_tag{ 0 } });
+	STATIC_REQUIRE(segment{ 5, segment::sentinel_tag{ 7 } }.start() == 5);
+	STATIC_REQUIRE(segment{ 5, segment::sentinel_tag{ 7 } }.length() == 2);
+	STATIC_REQUIRE(segment{ 5, segment::length_tag{ 2 } }.end() == 7);
+	STATIC_REQUIRE(segment{}.ray() == segment{ 0, segment::sentinel_tag{ std::numeric_limits<int>::max() } });
+	STATIC_REQUIRE(segment{}.ray(42) == segment{ 42, segment::sentinel_tag{ std::numeric_limits<int>::max() } });
+	STATIC_REQUIRE((segment{}.ray(42).iota() | std::views::drop(3) | std::views::take(3)).front() == 45);
+}
+
+TEST_CASE("segment.iota")
+{
+	struct test_data
+	{
+		segment Segment;
+		std::ptrdiff_t Take;
+		std::initializer_list<int> Expected;
+	};
+
+	static const test_data TestDataPoints[] =
+	{
+		{ {}, 100, {} },
+		{ { 0, segment::length_tag{ 0 } }, 100, {} },
+		{ { 42, segment::sentinel_tag{ 42 } }, 100, {} },
+		{ { 0, segment::length_tag{ 3 } }, 100, { 0, 1, 2 } },
+		{ { 42, segment::length_tag{ 3 } }, 100, { 42, 43, 44 } },
+		{ { -1, segment::length_tag{ 3 } }, 100, { -1, 0, 1 } },
+		{ segment::ray(), 3, { 0, 1, 2 } },
+		{ segment::ray(42), 3, { 42, 43, 44 }},
+	};
+
+	for (const auto& TestDataPoint : TestDataPoints)
+	{
+		REQUIRE(std::ranges::equal(
+			TestDataPoint.Segment.iota() | std::views::take(TestDataPoint.Take),
+			TestDataPoint.Expected));
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/source_location.hpp"
 
 TEST_CASE("source_location")

@@ -344,6 +344,10 @@ $ #Polecenia kontroli menu#
  #Alt+Shift+End#
  Wyrównuje zaznaczone elementy do prawej.
 
+ #Shift+F5#
+ Some menus, e.g., ~all matching entries~@FindAllMenu@ in ~internal editor~@Editor@, have one or more
+fixed columns at the left. The #Shift+F5# key combination toggles visibility of these columns.
+
  Zobacz także listę ~klawiszy makropoleceń~@KeyMacroMenuList@, dostępnych w menu.
 
 

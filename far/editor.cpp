@@ -3395,6 +3395,100 @@ int Editor::CalculateSearchNextPositionInTheLine(const bool Backward, const bool
 	}
 }
 
+namespace
+{
+	[[nodiscard]] short radix10_formatted_width(const size_t num)
+	{
+		return static_cast<short>(std::log10(num)) + 1;
+	}
+
+	class find_all_list
+	{
+	public:
+		explicit find_all_list(int MaxLinesCount)
+			: m_LineNumColumnMaxWidth{ radix10_formatted_width(MaxLinesCount) }
+		{}
+
+		void add_item(FindCoord FoundCoords, string_view ItemText)
+		{
+			MenuItemEx Item{ far::format(L"{:{}}{:{}}{}"sv,
+				FoundCoords.Line + 1, m_LineNumColumnMaxWidth,
+				FoundCoords.Pos + 1, m_FoundPosColumnMaxWidth,
+				ItemText) };
+			Item.Annotations.emplace_back(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
+			Item.ComplexUserData = FoundCoords;
+			m_Menu->AddItem(Item);
+
+			if (FoundCoords.Line != m_LastSeenLine)
+			{
+				m_LastSeenLine = FoundCoords.Line;
+				m_UniqueLineCount++;
+			}
+			m_MaxLineNum = std::max(m_MaxLineNum, FoundCoords.Line + 1);
+			m_MaxFoundPos = std::max(m_MaxFoundPos, FoundCoords.Pos + 1);
+		}
+
+		void make_ready()
+		{
+			m_MenuY2 = std::min(ScrY, m_MenuY1 + std::min(static_cast<int>(m_Menu->size()), 10) + 2);
+
+			m_Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_ENABLEALIGNANNOTATIONS);
+			m_Menu->SetPosition({ -1, m_MenuY1, 0, m_MenuY2 });
+			m_Menu->SetTitle(far::vformat(msg(lng::MEditSearchStatistics), m_Menu->size(), m_UniqueLineCount));
+			m_Menu->SetBottomTitle(KeysToLocalizedText(KEY_CTRLENTER, KEY_F5, KEY_SHIFTF5, KEY_ADD, KEY_CTRLUP, KEY_CTRLDOWN));
+			m_Menu->SetHelp(L"FindAllMenu"sv);
+			m_Menu->SetId(EditorFindAllListId);
+
+			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum) };
+			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos) };
+			const short LineNumColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth - LineNumColumnWidth) };
+			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
+			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth) };
+			m_Menu->SetFixedColumns(
+				{
+					{
+						.TextSegment{ LineNumColumnStart, small_segment::length_tag{ LineNumColumnWidth } },
+						.CurrentWidth = LineNumColumnWidth,
+						.Separator = BoxSymbols[BS_V1]
+					},
+					{
+						.TextSegment{ FoundPosColumnStart, small_segment::length_tag{ FoundPosColumnWidth } },
+						.CurrentWidth = FoundPosColumnWidth,
+						.Separator = BoxSymbols[BS_V1]
+					},
+				},
+				small_segment::ray(ItemTextStart)
+			);
+		}
+
+		void toggle_zoom()
+		{
+			m_MenuZoomed = !m_MenuZoomed;
+			if (m_MenuZoomed)
+			{
+				m_Menu->SetPosition({ -1, -1, 0, 0 });
+			}
+			else
+			{
+				m_Menu->SetPosition({ -1, m_MenuY1, 0, m_MenuY2 });
+			}
+		}
+
+		const vmenu2_ptr m_Menu{ VMenu2::create({}, {}) };
+
+	private:
+		const short m_LineNumColumnMaxWidth{};
+		static constexpr short m_FoundPosColumnMaxWidth{ 6 }; // Enough?
+		int m_MaxLineNum{};
+		int m_MaxFoundPos{};
+		int m_LastSeenLine{ -1 };
+		int m_UniqueLineCount{};
+		const int m_MenuY1{ std::max(0, ScrY - 20) };
+		int m_MenuY2{};
+		bool m_MenuZoomed{};
+	};
+}
+
 void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 {
 	if (Disposition == SearchReplaceDisposition::Cancel || m_SearchDlgParams.SearchStr.empty())
@@ -3409,8 +3503,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	bool MatchFound{}, UserBreak{};
 	std::optional<undo_block> UndoBlock;
 	string QuotedStr;
-	const auto FindAllList = VMenu2::create({}, {});
-	size_t AllRefLines{};
+	auto FindAllList{ FindAll ? std::optional<find_all_list>{ Lines.size() } : std::nullopt };
 
 	{
 		HideCursor();
@@ -3448,7 +3541,6 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 		const auto StartLine = CurPtr.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
-		int LastCheckedLine = -1;
 
 		while (CurPtr != Lines.end())
 		{
@@ -3517,20 +3609,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				m_FoundPos = CurPos;
 				m_FoundSize = SearchLength;
 
-				if(FindAll)
+				if(FindAllList)
 				{
-					constexpr int service_len{ 12 };
-					const auto Location{ far::format(L"{}:{}"sv, m_FoundLine.Number() + 1, m_FoundPos + 1) };
-					MenuItemEx Item{ far::format(L"{:{}}{}{}"sv, Location, service_len, BoxSymbols[BS_V1], m_FoundLine->GetString()) };
-					Item.Annotations.emplace_back(m_FoundPos + service_len + 1, segment::length_tag{ m_FoundSize });
-					Item.ComplexUserData = FindCoord{ m_FoundLine.Number(), m_FoundPos, m_FoundSize };
-					FindAllList->AddItem(Item);
-
-					if (m_FoundLine.Number() != LastCheckedLine)
-					{
-						LastCheckedLine = m_FoundLine.Number();
-						++AllRefLines;
-					}
+					FindAllList->add_item({ .Line = m_FoundLine.Number(), .Pos = m_FoundPos, .SearchLen = m_FoundSize }, m_FoundLine->GetString());
 					CurPos = CalculateSearchNextPositionInTheLine(/* Backward */ false, m_SearchDlgParams.Regex.value());
 				}
 				else
@@ -3774,23 +3855,14 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	}
 	Show();
 
-	if(FindAll && MatchFound)
+	if(FindAllList && MatchFound)
 	{
-		const auto MenuY1 = std::max(0, ScrY - 20);
-		const auto MenuY2 = std::min(ScrY, MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2);
-		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_ENABLEALIGNANNOTATIONS);
-		FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
-		FindAllList->SetTitle(far::vformat(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
-		FindAllList->SetBottomTitle(KeysToLocalizedText(KEY_CTRLENTER, KEY_F5, KEY_ADD, KEY_CTRLUP, KEY_CTRLDOWN));
-		FindAllList->SetHelp(L"FindAllMenu"sv);
-		FindAllList->SetId(EditorFindAllListId);
+		FindAllList->make_ready();
 
-		bool MenuZoomed = false;
-
-		const auto ExitCode = FindAllList->Run([&](const Manager::Key& RawKey)
+		const auto ExitCode = FindAllList->m_Menu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
-			const auto SelectedPos = FindAllList->GetSelectPos();
+			const auto SelectedPos = FindAllList->m_Menu->GetSelectPos();
 			int KeyProcessed = 1;
 
 			switch (Key)
@@ -3811,7 +3883,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 						if (SelectedPos == -1)
 							break;
 
-						const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(SelectedPos);
+						const auto& coord = *FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(SelectedPos);
 						GoToLine(coord.Line);
 						m_it_CurLine->SetCurPos(coord.Pos);
 						if (EdOpt.SearchSelFound)
@@ -3844,15 +3916,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					break;
 
 				case KEY_F5:
-					MenuZoomed=!MenuZoomed;
-					if(MenuZoomed)
-					{
-						FindAllList->SetPosition({ -1, -1, 0, 0 });
-					}
-					else
-					{
-						FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
-					}
+					FindAllList->toggle_zoom();
 					break;
 
 				default:
@@ -3877,7 +3941,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 		if(ExitCode >= 0)
 		{
-			const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(ExitCode);
+			const auto& coord = *FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(ExitCode);
 			GoToLine(coord.Line);
 			m_it_CurLine->SetCurPos(coord.Pos);
 			if (EdOpt.SearchSelFound)
@@ -6940,3 +7004,19 @@ void Editor::AutoDeleteColors()
 
 	m_AutoDeletedColors.clear();
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("radix10_formatted_width")
+{
+	REQUIRE(std::ranges::all_of(
+		std::ranges::iota_view(0uLL, 1001uLL),
+		[](const auto Value) -> bool
+		{
+			return radix10_formatted_width(Value) == static_cast<short>(std::format("{}", Value).size());
+		}));
+}
+
+#endif
