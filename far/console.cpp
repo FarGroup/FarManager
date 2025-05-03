@@ -622,8 +622,8 @@ protected:
 
 		const auto Dummy = CSI L"0c"sv;
 
-		if (!::console.Write(concat(Dummy, Command, Dummy)))
-			throw far_exception(L"WriteConsole"sv);
+		if (!send_vt_command(concat(Dummy, Command, Dummy)))
+			throw far_exception(L"send_vt_command"sv);
 
 		string Response;
 
@@ -3100,6 +3100,10 @@ protected:
 
 	std::optional<bool> console::is_grapheme_clusters_on() const
 	{
+		// No need to make noise on legacy systems
+		if (!IsVtSupported())
+			return {};
+
 		try
 		{
 #define DECRQM_REQUEST "?2027"
@@ -3127,8 +3131,16 @@ protected:
 
 			switch (ResponseData[Prefix.size()])
 			{
+			case L'0':
+				LOGWARNING(L"DECRQM 2027 query is not supported"sv);
+				return {};
+
+			case L'1':
 			case L'3': return true;
+
+			case L'2':
 			case L'4': return false;
+
 			default:
 				give_up();
 				std::unreachable();
