@@ -237,12 +237,9 @@ namespace console_detail
 		friend class implementation;
 
 		[[nodiscard]]
-		bool IsVtEnabled() const;
 		bool ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
 		bool GetCursorRealPosition(point& Position) const;
 		bool SetCursorRealPosition(point Position) const;
-
-		bool send_vt_command(string_view Command) const;
 
 		std::optional<KEY_EVENT_RECORD> queued() const;
 

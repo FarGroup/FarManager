@@ -559,6 +559,29 @@ protected:
 		std::optional<DWORD> m_ConsoleMode;
 	};
 
+	static bool IsVtEnabled()
+	{
+		DWORD Mode;
+		return ::console.GetMode(::console.GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
+	static bool send_vt_command(string_view const Command)
+	{
+		// Happy path
+		if (IsVtEnabled())
+			return ::console.Write(Command);
+
+		// Legacy console
+		if (!::console.IsVtSupported())
+			return false;
+
+		// If VT is not enabled, we enable it temporarily
+		if ([[maybe_unused]] scoped_vt_output const VtOutput{})
+			return ::console.Write(Command);
+
+		return false;
+	}
+
 	static string query_vt(string_view const Command)
 	{
 		// A VT query works as follows:
@@ -2738,12 +2761,6 @@ protected:
 		return true;
 	}
 
-	bool console::IsVtEnabled() const
-	{
-		DWORD Mode;
-		return GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	}
-
 	short console::GetDelta() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -3143,23 +3160,6 @@ protected:
 		}
 
 		return true;
-	}
-
-	bool console::send_vt_command(string_view Command) const
-	{
-		// Happy path
-		if (::console.IsVtEnabled())
-			return Write(Command);
-
-		// Legacy console
-		if (!IsVtSupported())
-			return false;
-
-		// If VT is not enabled, we enable it temporarily
-		if ([[maybe_unused]] scoped_vt_output const VtOutput{})
-			return Write(Command);
-
-		return false;
 	}
 }
 
