@@ -3424,8 +3424,8 @@ namespace
 				m_LastSeenLine = FoundCoords.Line;
 				m_UniqueLineCount++;
 			}
-			m_MaxLineNum = std::max(m_MaxLineNum, FoundCoords.Line + 1);
-			m_MaxFoundPos = std::max(m_MaxFoundPos, FoundCoords.Pos + 1);
+			m_MaxLineNum = std::max(m_MaxLineNum, FoundCoords.Line);
+			m_MaxFoundPos = std::max(m_MaxFoundPos, FoundCoords.Pos);
 		}
 
 		void make_ready()
@@ -3439,8 +3439,8 @@ namespace
 			m_Menu->SetHelp(L"FindAllMenu"sv);
 			m_Menu->SetId(EditorFindAllListId);
 
-			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum) };
-			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos) };
+			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum + 1) };
+			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos + 1) };
 			const short LineNumColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth - LineNumColumnWidth) };
 			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
 			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth) };
