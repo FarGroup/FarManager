@@ -3374,7 +3374,7 @@ std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
 			continue;
 
 		const auto Key = KeyToLocalizedText(Item.AccelKey);
-		const auto Hl = HiStrlen(Item.Name) != Item.Name.size();
+		const auto Hl = HiStrlen(Item.Name) != visual_string_length(Item.Name);
 		Str = fit_to_left(Item.Name, MaxLength + (Hl? 2 : 1)) + Key;
 		Item.Name = Str;
 	}

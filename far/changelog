@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-05-03 16:58:08+01:00 - build 6472
+
+1. gh-944: Properly take character widths into account in a few more places.
+
+--------------------------------------------------------------------------------
 drkns 2025-04-29 19:42:21+01:00 - build 6471
 
 1. From Shmuel: crash on incorrect data from plugin.

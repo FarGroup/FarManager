@@ -479,8 +479,8 @@ WARNING_POP()
 		const auto MaxMarkSize = 4;
 
 		const auto
-			MarkAmpFix = Mark.size() - HiStrlen(Mark),
-			NameAmpFix = Name.size() - HiStrlen(Name);
+			MarkAmpFix = visual_string_length(Mark) - HiStrlen(Mark),
+			NameAmpFix = visual_string_length(Name) - HiStrlen(Name);
 
 		return far::format(L"{1:{2}.{2}} {0} {3:{4}.{4}} {0} {5} {6} {0} {7}"sv,
 			BoxSymbols[BS_V1],
@@ -495,7 +495,7 @@ WARNING_POP()
 	}
 
 	const auto HotkeyStr = Hotkey? far::format(L"&{}. "sv, Hotkey) : bPanelType? L"   "s : L""s;
-	const auto AmpFix = Hotkey? 1 : Name.size() - HiStrlen(Name);
+	const auto AmpFix = Hotkey? 1 : visual_string_length(Name) - HiStrlen(Name);
 
 	return far::format(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"sv,
 			BoxSymbols[BS_V1],

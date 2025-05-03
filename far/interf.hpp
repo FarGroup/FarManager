@@ -245,6 +245,9 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 
 void fix_coordinates(rectangle& Where);
 
+// This function takes characters with into account.
+// It means that the result is not necessarily smaller than Str.size().
+// If you want to find the '&'-fixup size, compare it to visual_string_length(Str), not Str.size().
 size_t HiStrlen(string_view Str);
 size_t HiFindRealPos(string_view Str, size_t Pos);
 string HiText2Str(string_view Str, size_t* HotkeyVisualPos = {});

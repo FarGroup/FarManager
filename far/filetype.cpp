@@ -364,7 +364,7 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 
 	for (const auto& i: Data)
 	{
-		const auto AddLen = i.Description.size() - HiStrlen(i.Description);
+		const auto AddLen = visual_string_length(i.Description) - HiStrlen(i.Description);
 		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElementSize + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
 		TypesMenuItem.ComplexUserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
