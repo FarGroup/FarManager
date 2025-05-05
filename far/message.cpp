@@ -117,24 +117,27 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 				case KEY_F3:
 					if(ErrorState)
 					{
-						const string Errors[]
+						const std::pair<wchar_t const*, string> Strings[]
 						{
-							ErrorState->ErrnoStr(),
-							ErrorState->Win32ErrorStr(),
-							ErrorState->NtErrorStr(),
+							{ L"errno:",     ErrorState->ErrnoStr() },
+							{ L"LastError:", ErrorState->Win32ErrorStr() },
+							{ L"NTSTATUS:",  ErrorState->NtErrorStr() },
+							{ L"Location:",  source_location_to_string(ErrorState->Location) },
 						};
 
-						const auto MaxStr = std::max(Errors[0].size(), Errors[1].size());
+						const auto SizeProjection = [](const auto& i){ return i.second.size(); };
+						const auto MaxStr = SizeProjection(*std::ranges::max_element(Strings, {}, SizeProjection));
 						const auto SysArea = 5 * 2;
 						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));
 
 						DialogBuilder Builder(lng::MError);
-						Builder.AddText(L"errno:");
-						Builder.AddConstEditField(Errors[0], FieldsWidth);
-						Builder.AddText(L"LastError:");
-						Builder.AddConstEditField(Errors[1], FieldsWidth);
-						Builder.AddText(L"NTSTATUS:");
-						Builder.AddConstEditField(Errors[2], FieldsWidth);
+
+						for (const auto& [k, v]: Strings)
+						{
+							Builder.AddText(k);
+							Builder.AddConstEditField(v, FieldsWidth);
+						}
+
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -197,7 +200,7 @@ static message_result MessageImpl(
 
 	Context.IsWarningStyle = (Flags&MSG_WARNING) != 0;
 
-	string ErrorMessage, SystemErrorMessage, Location;
+	string ErrorMessage, SystemErrorMessage;
 
 	if (ErrorState)
 	{
@@ -216,8 +219,6 @@ static message_result MessageImpl(
 				++index;
 			}
 		}
-
-		Location = source_location_to_string(Context.ErrorState->Location);
 	}
 
 	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
@@ -259,9 +260,6 @@ static message_result MessageImpl(
 		if (!SystemErrorMessage.empty())
 			append(strClipText, SystemErrorMessage, Eol);
 
-		if (!Location.empty())
-			append(strClipText, Location, Eol);
-
 		append(strClipText, Eol);
 
 		if (!Strings.empty())
@@ -278,7 +276,6 @@ static message_result MessageImpl(
 
 		add_wrapped(ErrorMessage);
 		add_wrapped(SystemErrorMessage);
-		add_wrapped(Location);
 	}
 
 	join(strClipText, L" "sv, Buttons);
