@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-05-05 17:05:48+01:00 - build 6477
+
+1. Error handling improvements.
+
+2. gh-920: Initialization issue with inaccessible paths.
+
+--------------------------------------------------------------------------------
 drkns 2025-05-05 13:31:13+01:00 - build 6476
 
 1. A few fixes in setting file attributes:
