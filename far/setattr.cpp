@@ -1174,7 +1174,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			bool CheckOwner=true;
 
 			std::optional<os::chrono::time_point> Times[std::size(TimeMap)];
-			bool CheckTimes[std::size(TimeMap)];
+			bool SkipCheckTimes[std::size(TimeMap)]{};
 
 			for (const auto& PanelItem: SrcPanel->enum_selected())
 			{
@@ -1207,9 +1207,9 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					}
 				}
 
-				for (const auto& [t, State, DestTime, Check]: zip(TimeMap, DlgParam.Times, Times, CheckTimes))
+				for (const auto& [t, State, DestTime, SkipCheckTime]: zip(TimeMap, DlgParam.Times, Times, SkipCheckTimes))
 				{
-					if (!Check)
+					if (SkipCheckTime)
 						continue;
 
 					const auto SrcTime = std::invoke(t.Accessor, PanelItem);
@@ -1220,7 +1220,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					else if (*DestTime != SrcTime)
 					{
 						DestTime.reset();
-						Check = false;
+						SkipCheckTime = true;
 					}
 				}
 			}
