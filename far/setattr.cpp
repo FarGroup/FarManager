@@ -621,6 +621,7 @@ struct state
 };
 
 static bool process_single_file(
+	const string& Computer,
 	string const& Name,
 	state const& Current,
 	state const& New,
@@ -629,7 +630,7 @@ static bool process_single_file(
 {
 	if (!New.Owner.empty() && !equal_icase(Current.Owner, New.Owner))
 	{
-		ESetFileOwner(Name, New.Owner, SkipErrors);
+		ESetFileOwner(Computer, Name, New.Owner, SkipErrors);
 	}
 
 	if (New.FindData.Attributes != Current.FindData.Attributes)
@@ -897,6 +898,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		};
 
 		wchar_t DriveLetter{};
+		string ComputerName;
 
 		if (SelCount == 1) // !SrcPanel goes here too
 		{
@@ -1146,7 +1148,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			else
 				AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
 
-			const auto ComputerName = ExtractComputerName(SrcPanel?
+			ComputerName = ExtractComputerName(SrcPanel?
 				SrcPanel->GetCurDir() :
 				ConvertNameToFull(SingleSelFileName));
 
@@ -1167,7 +1169,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			// так же проверка на атрибуты
 			auto FolderPresent = false;
 
-			const auto strComputerName = ExtractComputerName(SrcPanel->GetCurDir());
+			ComputerName = ExtractComputerName(SrcPanel->GetCurDir());
 
 			bool CheckOwner=true;
 
@@ -1193,7 +1195,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if(CheckOwner)
 				{
 					string strCurOwner;
-					GetFileOwner(strComputerName, PanelItem.FileName, strCurOwner);
+					GetFileOwner(ComputerName, PanelItem.FileName, strCurOwner);
 					if(DlgParam.Owner.InitialValue.empty())
 					{
 						DlgParam.Owner.InitialValue = strCurOwner;
@@ -1353,7 +1355,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						Current{ DlgParam.Owner.InitialValue, SingleSelFindData },
 						New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-					if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
+					if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
 					{
 						return false;
 					}
@@ -1393,7 +1395,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 								Current{ AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? Empty : DlgParam.Owner.InitialValue, SingleSelFindData},
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
+							if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
 							{
 								return false;
 							}
@@ -1427,7 +1429,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 									Current{ Empty, SingleSelFindData }, // BUGBUG, should we read the owner?
 									New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-								if (!process_single_file(strFullName, Current, New, AttrDlgAccessor, SkipErrors))
+								if (!process_single_file(ComputerName, strFullName, Current, New, AttrDlgAccessor, SkipErrors))
 								{
 									return false;
 								}

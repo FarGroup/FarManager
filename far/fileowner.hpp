@@ -46,11 +46,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 bool GetFileOwner(const string& Computer, string_view Object, string &Owner);
-bool SetFileOwner(string_view Object, const string& Owner);
+bool SetFileOwner(const string& Computer, string_view Object, const string& Owner);
 
 
 // internal, for elevation only.
-bool SetOwnerInternal(const string& Object, const string& Owner);
+bool SetOwnerInternal(const string& Computer, const string& Object, const string& Owner);
 
 
 #endif // FILEOWNER_HPP_F93A5379_C876_4A08_9F87_7189C2121ABE

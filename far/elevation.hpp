@@ -79,7 +79,7 @@ public:
 
 	bool fCreateSymbolicLink(string_view Object, string_view Target, DWORD Flags);
 	bool fMoveToRecycleBin(string_view Object);
-	bool fSetOwner(const string& Object, const string& Owner);
+	bool fSetOwner(const string& Computer, const string& Object, const string& Owner);
 
 	HANDLE create_file(const string& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
 	bool set_file_encryption(const string& Object, bool Encrypt);

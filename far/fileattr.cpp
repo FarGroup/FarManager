@@ -182,9 +182,9 @@ void ESetFileSparse(string_view const Name, bool const State, os::fs::attributes
 		Name, lng::MSetAttrSparseCannotFor, SkipErrors);
 }
 
-void ESetFileOwner(string_view const Name, const string& Owner, bool& SkipErrors)
+void ESetFileOwner(const string& Computer, string_view const Name, const string& Owner, bool& SkipErrors)
 {
-	retryable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
+	retryable_ui_operation([&]{ return SetFileOwner(Computer, Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
 void EDeleteReparsePoint(string_view const Name, os::fs::attributes const CurrentAttributes, bool& SkipErrors)

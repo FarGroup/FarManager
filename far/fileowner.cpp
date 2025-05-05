@@ -229,7 +229,7 @@ bool GetFileOwner(const string& Computer, string_view const Object, string& Owne
 	});
 }
 
-static auto get_sid(const string& Name)
+static auto get_sid(const string& Computer, const string& Name)
 {
 	os::memory::local::ptr<void> SidFromString;
 	if (ConvertStringSidToSid(Name.c_str(), &ptr_setter(SidFromString)))
@@ -242,7 +242,7 @@ static auto get_sid(const string& Name)
 	auto SidSize = static_cast<DWORD>(Sid.size());
 	auto ReferencedDomainNameSize = static_cast<DWORD>(ReferencedDomainName.size());
 	SID_NAME_USE Use;
-	while (!LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
+	while (!LookupAccountName(EmptyToNull(Computer), Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
 	{
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
@@ -258,9 +258,9 @@ static auto get_sid(const string& Name)
 	return Sid;
 }
 
-bool SetOwnerInternal(const string& Object, const string& Owner)
+bool SetOwnerInternal(const string& Computer, const string& Object, const string& Owner)
 {
-	const auto Sid = get_sid(Owner);
+	const auto Sid = get_sid(Computer, Owner);
 	if (!Sid)
 		return false;
 
@@ -286,15 +286,15 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	return true;
 }
 
-bool SetFileOwner(string_view const Object, const string& Owner)
+bool SetFileOwner(const string& Computer, string_view const Object, const string& Owner)
 {
 	const auto NtObject = nt_path(Object);
 
-	if (SetOwnerInternal(NtObject, Owner))
+	if (SetOwnerInternal(Computer, NtObject, Owner))
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return elevation::instance().fSetOwner(NtObject, Owner);
+		return elevation::instance().fSetOwner(Computer, NtObject, Owner);
 
 	return false;
 }
