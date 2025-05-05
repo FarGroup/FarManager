@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 2025-05-05 13:31:13+01:00 - build 6476
+
+1. A few fixes in setting file attributes:
+   - redundant attempts to set file owner when processing multiple file
+   - make setting file owner work on network paths (hopefully)
+   - UB during time comparison.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2025-05-03 23:42:50+01:00 - build 6475
 
 1. From MZK: continue 6473.
