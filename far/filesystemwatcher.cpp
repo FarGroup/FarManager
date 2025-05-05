@@ -221,7 +221,8 @@ FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_vie
 
 FileSystemWatcher::~FileSystemWatcher()
 {
-	background_watcher::instance().remove(this);
+	if (m_Overlapped.hEvent)
+		background_watcher::instance().remove(this);
 
 	{
 		SCOPED_ACTION(std::scoped_lock)(m_CS);
