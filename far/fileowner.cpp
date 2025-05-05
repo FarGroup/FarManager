@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static bool SidToName(PSID Sid, string& Name, const string& Computer)
+static bool SidToName(PSID Sid, const string& Computer, string& Name)
 {
 	auto AccountName = os::buffer<wchar_t>();
 	auto DomainName = os::buffer<wchar_t>();
@@ -163,7 +163,7 @@ namespace
 	};
 }
 
-static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
+static bool SidToNameCached(PSID Sid, const string& Computer, string& Name)
 {
 	struct sid_hash_eq
 	{
@@ -185,7 +185,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 		return true;
 	}
 
-	if (SidToName(Sid, Name, Computer))
+	if (SidToName(Sid, Computer, Name))
 	{
 		SIDCache.emplace(Sid, Name);
 		return true;
@@ -225,7 +225,7 @@ bool GetFileOwner(const string& Computer, string_view const Object, string& Owne
 {
 	return ProcessFileOwner(Object, [&](PSID const Sid)
 	{
-		return SidToNameCached(Sid, Owner, Computer);
+		return SidToNameCached(Sid, Computer, Owner);
 	});
 }
 
