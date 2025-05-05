@@ -1390,7 +1390,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 							string Empty;
 
 							const state
-								Current{ SelCount == 1 && !AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? DlgParam.Owner.InitialValue : Empty, SingleSelFindData},
+								Current{ AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? Empty : DlgParam.Owner.InitialValue, SingleSelFindData},
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
 							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
