@@ -96,17 +96,10 @@ THE SOFTWARE.
 ** integer type corresponding to the previous length
 */
 
-#if defined(LUA_USELONGLONG)
-
+#undef LUA_INTFRMLEN
+#undef LUA_INTFRM_T
 #define LUA_INTFRMLEN           "ll"
 #define LUA_INTFRM_T            long long
-
-#else
-
-#define LUA_INTFRMLEN           "l"
-#define LUA_INTFRM_T            long
-
-#endif
 
 /* macro to `unsign' a character */
 #define uchar(c)				((unsigned char)(c))
