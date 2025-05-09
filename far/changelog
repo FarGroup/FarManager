@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2025-05-08 21:50:59-04:00 - build 6480
+
+1. gh-948: Fixed format of Find All menu item.
+   The format was modified in 6473 and this change broke some macros.
+   Starting from this version, the item can be parsed with Lua regex
+   "^%s*(%d+)%s*%D%s*(%d+)%D", which also works for the versions before 6473.
+
+--------------------------------------------------------------------------------
 skipik 2025-05-07 19:52:21+03:00 - build 6479
 
 1. SQLite v3.49.2.

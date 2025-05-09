@@ -3411,9 +3411,10 @@ namespace
 
 		void add_item(FindCoord FoundCoords, string_view ItemText)
 		{
-			MenuItemEx Item{ far::format(L"{:{}}{:{}}{}"sv,
+			MenuItemEx Item{ far::format(L"{:{}}:{:{}}{}{}"sv,
 				FoundCoords.Line + 1, m_LineNumColumnMaxWidth,
 				FoundCoords.Pos + 1, m_FoundPosColumnMaxWidth,
+				BoxSymbols[BS_V1],
 				ItemText) };
 			Item.Annotations.emplace_back(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
 			Item.ComplexUserData = FoundCoords;
@@ -3439,11 +3440,12 @@ namespace
 			m_Menu->SetHelp(L"FindAllMenu"sv);
 			m_Menu->SetId(EditorFindAllListId);
 
+			// "  10:    20│Text Text Text Text Text Text"
 			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum + 1) };
 			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos + 1) };
 			const short LineNumColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth - LineNumColumnWidth) };
-			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
-			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth) };
+			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + 1 + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
+			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + 1 + m_FoundPosColumnMaxWidth + 1) };
 			m_Menu->SetFixedColumns(
 				{
 					{
