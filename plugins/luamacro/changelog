@@ -1,3 +1,7 @@
+shmuel 2025-05-10 21:28:45+03:00 - build 876
+
+1. LuaFAR: add FMENU_WRAPMODE to far.Show.
+
 shmuel 2025-05-07 21:44:43+03:00 - build 875
 
 1. LuaFAR: make utf8.format() handle integers beyond 32 bit size.
