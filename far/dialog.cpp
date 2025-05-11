@@ -936,7 +936,7 @@ void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 				{
 					const auto Text = NullToEmpty(ItemIterator->Text);
 
-					if (Item.Flags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
+					if (Item.Flags & DIF_LISTNOAMPERSAND)
 						Item.strData = HiText2Str(Text);
 					else
 						Item.strData = Text;
@@ -3860,7 +3860,7 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 		// if(EditLine.GetDropDownBox()) //???
 		auto strStr = EditLine.GetString();
 
-		if (CurItem.Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+		if (CurItem.Flags & DIF_LISTNOAMPERSAND)
 			strStr = HiText2Str(strStr);
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
@@ -3890,7 +3890,7 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 
 		const auto& ItemPtr = ComboBox->at(Dest);
 
-		if (CurItem.Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+		if (CurItem.Flags & DIF_LISTNOAMPERSAND)
 		{
 			strStr = HiText2Str(ItemPtr.Name);
 			EditLine.SetString(strStr);
@@ -5022,11 +5022,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					// уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
 					if (!CurItem.IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem.ObjPtr)
 					{
-						if (ListBox->HasVisible())
+						if (ListBox->HasVisible() && (CurItem.Flags & DIF_DROPDOWNLIST || Msg==DM_LISTSETCURPOS))
 						{
 							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
 							const auto Edit = static_cast<DlgEdit*>(CurItem.ObjPtr);
-							if (CurItem.Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
+							if (CurItem.Flags & DIF_LISTNOAMPERSAND)
 								Edit->SetHiString(ListMenuItem.Name);
 							else
 								Edit->SetString(ListMenuItem.Name);
