@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "datetime.hpp"
 #include "strmix.hpp"
+#include "pathmix.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "vmenu.hpp"
@@ -228,6 +229,11 @@ void Editor::DisplayObject()
 	ShowEditor();
 }
 
+const fileeditor_ptr Editor::GetHostFileEditor() const
+{
+	return std::dynamic_pointer_cast<FileEditor>(m_Owner.lock());
+}
+
 void Editor::ShowEditor()
 {
 	if (Lines.empty())
@@ -368,7 +374,7 @@ void Editor::ShowEditor()
 	}
 
 	// BUGBUG
-	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+	if (const auto HostFileEditor = GetHostFileEditor())
 	{
 		HostFileEditor->ShowStatus();
 		HostFileEditor->ShowChildren();
@@ -2334,7 +2340,7 @@ bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::
 				m_Flags.Set(FEDITOR_PROCESSCTRLQ);
 
 				// BUGBUG
-				if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+				if (const auto HostFileEditor = GetHostFileEditor())
 					HostFileEditor->ShowStatus();
 
 				Pasting++;
@@ -2769,7 +2775,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (m_it_CurLine->ProcessMouse(MouseEvent))
 	{
 		// BUGBUG
-		if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+		if (const auto HostFileEditor = GetHostFileEditor())
 			HostFileEditor->ShowStatus();
 
 		Show();
@@ -3435,7 +3441,7 @@ namespace
 			m_Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_ENABLEALIGNANNOTATIONS);
 			m_Menu->SetPosition({ -1, m_MenuY1, 0, m_MenuY2 });
 			m_Menu->SetTitle(far::vformat(msg(lng::MEditSearchStatistics), m_Menu->size(), m_UniqueLineCount));
-			m_Menu->SetBottomTitle(KeysToLocalizedText(KEY_CTRLENTER, KEY_F5, KEY_SHIFTF5, KEY_ADD, KEY_CTRLUP, KEY_CTRLDOWN));
+			m_Menu->SetBottomTitle(KeysToLocalizedText(KEY_CTRLENTER, KEY_F2, KEY_SHIFTF2, KEY_F5, KEY_SHIFTF5, KEY_ADD, KEY_CTRLUP, KEY_CTRLDOWN));
 			m_Menu->SetHelp(L"FindAllMenu"sv);
 			m_Menu->SetId(EditorFindAllListId);
 
@@ -3858,6 +3864,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	if(FindAllList && MatchFound)
 	{
 		FindAllList->make_ready();
+		enum class save_to_new_editor { none, all, matching_filter } SaveToNewEditor{ save_to_new_editor::none };
 
 		const auto ExitCode = FindAllList->m_Menu->Run([&](const Manager::Key& RawKey)
 		{
@@ -3915,6 +3922,22 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					}
 					break;
 
+				case KEY_F2:
+					if (!FindAllList->m_Menu->ListBox().empty())
+					{
+						SaveToNewEditor = save_to_new_editor::all;
+						FindAllList->m_Menu->Close();
+					}
+					break;
+
+				case KEY_SHIFTF2:
+					if (FindAllList->m_Menu->ListBox().HasVisible())
+					{
+						SaveToNewEditor = save_to_new_editor::matching_filter;
+						FindAllList->m_Menu->Close();
+					}
+					break;
+
 				case KEY_F5:
 					FindAllList->toggle_zoom();
 					break;
@@ -3938,6 +3961,12 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 			}
 			return KeyProcessed;
 		});
+
+		if (SaveToNewEditor != save_to_new_editor::none)
+		{
+			SaveFoundItemsToNewEditor(FindAllList->m_Menu->ListBox(), SaveToNewEditor == save_to_new_editor::matching_filter);
+			return;
+		}
 
 		if(ExitCode >= 0)
 		{
@@ -3968,6 +3997,41 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				QuotedStr
 			},
 			{ lng::MOk });
+}
+
+void Editor::SaveFoundItemsToNewEditor(const VMenu& ListBox, const bool MatchingFilter)
+{
+	const auto ShellEditor{ FileEditor::create(GetSearchAllFileName(), GetCodePage(), FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6) };
+	const auto NewEditor{ ShellEditor->GetEditor() };
+	const auto FilterFlags{ LIF_HIDDEN | (MatchingFilter ? LIF_FILTERED : 0) };
+
+	using namespace std::views;
+
+	for (const auto I : ListBox.GetItems()
+		| filter([FilterFlags](const auto& Item) { return !(Item.Flags & FilterFlags); })
+		| transform([](const auto& Item) { return std::any_cast<FindCoord>(Item.ComplexUserData).Line; })
+		| chunk_by(std::ranges::equal_to{})
+		| transform([](auto&& chunk) { return chunk.front(); }))
+	{
+		NewEditor->InsertString(GetStringByNumber(I)->GetString(), NewEditor->LastLine());
+		NewEditor->TextChanged(true);
+	}
+
+	NewEditor->SetCurPos(0, 0);
+}
+
+string Editor::GetSearchAllFileName() const
+{
+	auto SearchAllFileName{ msg(lng::MEditSearchAllFileNameAppend) };
+
+	const auto HostFileEditor = GetHostFileEditor();
+	if (!HostFileEditor) return SearchAllFileName;
+
+	string HostType, HostName;
+	HostFileEditor->GetTypeAndName(HostType, HostName);
+
+	const auto NameAndExt{ name_ext(HostName) };
+	return NameAndExt.first + SearchAllFileName + NameAndExt.second;
 }
 
 void Editor::PasteFromClipboard()
@@ -5792,7 +5856,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				const uintptr_t cp = espar->iParam;
 				// BUGBUG
-				if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+				if (const auto HostFileEditor = GetHostFileEditor())
 				{
 					if (!HostFileEditor->SetCodePageEx(cp))
 						return false;
@@ -6840,7 +6904,7 @@ bool Editor::SetCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 
 uintptr_t Editor::GetCodePage() const
 {
-	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+	if (const auto HostFileEditor = GetHostFileEditor())
 		return HostFileEditor->GetCodePage();
 
 	throw far_exception(L"HostFileEditor is nullptr"sv);

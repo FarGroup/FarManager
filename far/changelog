@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2025-05-18 18:35:05-04:00 - build 6482
+
+1. New feature: Save Find All menu content into a new Editor.
+   - #F2# copies all found lines into a new editor and closes the menu.
+   - #Shift+F2# copies all lines matching the current filter into a new editor
+     and closes the menu.
+
+--------------------------------------------------------------------------------
 drkns 2025-05-17 01:55:47+01:00 - build 6481
 
 1. Refactoring.
