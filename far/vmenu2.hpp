@@ -128,13 +128,13 @@ public:
 	MenuItemEx& at(size_t n);
 	MenuItemEx& current();
 	int GetShowItemCount() const;
+	VMenu& ListBox() const { return *GetAllItem()[0].ListPtr; }
 
 private:
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	int Call(int Msg, void *param);
 	LISTITEMFLAGS GetItemFlags(int Position = -1);
 	string GetMenuTitle(bool bottom = false);
-	VMenu& ListBox() const { return *GetAllItem()[0].ListPtr; }
 
 	enum class box_type
 	{
