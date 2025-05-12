@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+MZK 2025-06-08 17:02:51-04:00 - build 6489
+
+1. New feature: Edit the content of Find All menu in a new Editor.
+   - #F4# copies all found lines into a new editor and closes the menu.
+   - #Alt+F4# copies all lines matching the current filter into a new editor
+     and closes the menu.
+
+   WARNING: The new Editor's behavior related to #Save# and #SaveAs#
+            may be unexpected in corner cases.
+
+--------------------------------------------------------------------------------
 drkns 2025-06-07 23:53:11+01:00 - build 6488
 
 1. gh-968: EditorReloadModal dialog: the [ Cancel ] button does the same as the { New instance } button
