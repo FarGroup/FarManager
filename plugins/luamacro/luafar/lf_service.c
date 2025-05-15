@@ -154,22 +154,17 @@ static lua_CFunction luaopen_ffi = NULL;
 static lua_CFunction luaopen_jit = NULL;
 int IsLuaJIT(void) { return luaopen_jit != NULL; }
 
-BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
+static void GetLuajitFunctions()
 {
-	(void) lpReserved;
-	if (DLL_PROCESS_ATTACH == dwReason && hDll)
+	// Try to load LuaJIT 2.0 libraries. This is done dynamically to ensure that
+	// LuaFAR works with either Lua 5.1 or LuaJIT 2.0
+	HMODULE hLib = GetModuleHandleA(LUADLL);
+	if (hLib)
 	{
-		// Try to load LuaJIT 2.0 libraries. This is done dynamically to ensure that
-		// LuaFAR works with either Lua 5.1 or LuaJIT 2.0
-		HMODULE hLib = GetModuleHandleA(LUADLL);
-		if (hLib)
-		{
-			luaopen_bit = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_bit");
-			luaopen_ffi = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_ffi");
-			luaopen_jit = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_jit");
-		}
+		luaopen_bit = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_bit");
+		luaopen_ffi = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_ffi");
+		luaopen_jit = (lua_CFunction)(intptr_t)GetProcAddress(hLib, "luaopen_jit");
 	}
-	return TRUE;
 }
 
 HANDLE GetLuaStateTimerQueue(lua_State *L)
@@ -6827,6 +6822,7 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_pop(L, 1);
 
 #if LUA_VERSION_NUM == 501
+	GetLuajitFunctions();
 	if (IsLuaJIT())
 	{
 		if (luaopen_bit)

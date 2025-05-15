@@ -1,3 +1,7 @@
+shmuel 2025-05-15 17:09:35+03:00 - build 877
+
+1. LuaFAR: refactoring.
+
 shmuel 2025-05-10 21:28:45+03:00 - build 876
 
 1. LuaFAR: add FMENU_WRAPMODE to far.Show.
