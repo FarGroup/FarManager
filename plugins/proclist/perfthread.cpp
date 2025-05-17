@@ -6,6 +6,7 @@
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "perfthread.hpp"
+#include "ipc.hpp"
 #include "guid.hpp"
 
 #include <utility.hpp>
@@ -73,8 +74,7 @@ static bool Is64BitWindows()
 #else
 	// 32-bit programs run on both 32-bit and 64-bit Windows
 	// so must sniff
-	static const auto IsWow64 = is_wow64_process(GetCurrentProcess());
-	return IsWow64;
+	return is_wow64_itself();
 #endif
 }
 
@@ -431,7 +431,7 @@ bool PerfThread::RefreshImpl()
 			if (const auto hProcess = !m_HostName.empty() || Task.dwProcessId <= 8? nullptr :
 				handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | READ_CONTROL, Task.dwProcessId)))
 			{
-				GetOpenProcessData(hProcess.get(), &Task.ProcessName, &Task.FullPath, &Task.CommandLine);
+				get_open_process_data(hProcess.get(), &Task.ProcessName, &Task.FullPath, &Task.CommandLine, {}, {});
 				FILETIME ftExit, ftKernel, ftUser;
 				GetProcessTimes(hProcess.get(), &Task.ftCreation, &ftExit, &ftKernel, &ftUser);
 				SetLastError(ERROR_SUCCESS);

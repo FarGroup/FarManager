@@ -1030,21 +1030,16 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			WriteToFile(InfoFile.get(), far::format(L"\n{}:\n{:<{}} {:<8} {}\n"sv,
 				GetMsg(MTitleModules),
 				GetMsg(MColBase),
-#ifdef _WIN64
-				16,
-#else
 				pdata->Bitness == 64? 16 : 8,
-#endif
-
 				GetMsg(MColSize),
 				GetMsg(LocalOpt.ExportModuleVersion? MColPathVerDesc : MColPathVerDescNotShown)
 			));
 
-			PrintModules(InfoFile.get(), pdata->dwPID, LocalOpt);
+			PrintModules(InfoFile.get(), pdata->dwPID, pdata->Bitness, LocalOpt);
 		}
 
-		if (HostName.empty() && (LocalOpt.ExportHandles | LocalOpt.ExportHandlesUnnamed) && pdata->dwPID /*&& pdata->dwPID!=8*/)
-			PrintHandleInfo(pdata->dwPID, InfoFile.get(), LocalOpt.ExportHandlesUnnamed? true : false, pPerfThread.get());
+		if (HostName.empty() && LocalOpt.ExportHandles && pdata->dwPID /*&& pdata->dwPID!=8*/)
+			PrintHandleInfo(pdata->dwPID, InfoFile.get(), LocalOpt.ExportHandlesUnnamed != 0, pPerfThread.get());
 	}
 
 	return true;
@@ -1416,7 +1411,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		Builder.AddCheckbox(MInclModuleVersion, &LocalOpt.ExportModuleVersion);
 		Builder.AddCheckbox(MInclPerformance, &LocalOpt.ExportPerformance);
 		Builder.AddCheckbox(MInclHandles, &LocalOpt.ExportHandles);
-		//Builder.AddCheckbox(MInclHandlesUnnamed, &LocalOpt.ExportHandlesUnnamed); // ???
+		Builder.AddCheckbox(MInclHandlesUnnamed, &LocalOpt.ExportHandlesUnnamed)->X1 += 4;
 		Builder.AddOKCancel(MOk, MCancel);
 
 		if (!Builder.ShowDialog())

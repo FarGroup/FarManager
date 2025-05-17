@@ -1,3 +1,13 @@
+drkns 2025-05-17 01:50:55+01:00 - build 211
+
+1. Various WOW64-related fixes.
+
+2. Fix hanging on reading handle data.
+
+3. Restore "Include unnamed handles" option.
+
+4. Refactoring.
+
 drkns 2024-01-27 16:45:12+00:00 - build 210
 
 1. gh-782: Stack corruption in Process list plugin.

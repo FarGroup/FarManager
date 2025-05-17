@@ -94,35 +94,40 @@ static std::unique_ptr<char[]> query_object(HANDLE Handle, OBJECT_INFORMATION_CL
 
 static std::wstring GetFileName(HANDLE Handle)
 {
-	if (const auto FileType = GetFileType(Handle); FileType != FILE_TYPE_DISK)
+	using pair = std::pair<HANDLE, DWORD>;
+	pair HandleAndFileType{ Handle, FILE_TYPE_UNKNOWN };
+
+	// Check if it's possible to get the file name info
+	struct test
 	{
-		// Check if it's possible to get the file name info
-		struct test
+		static DWORD WINAPI GetFileNameThread(PVOID Param)
 		{
-			static DWORD WINAPI GetFileNameThread(PVOID Param)
+			auto& [Handle, FileType] = *static_cast<pair*>(Param);
+			FileType = GetFileType(Handle);
+			if (FileType != FILE_TYPE_DISK)
 			{
 				IO_STATUS_BLOCK iob;
 				FILE_BASIC_INFO info;
 				const auto FileBasicInformation = 4;
-				pNtQueryInformationFile(Param, &iob, &info, sizeof(info), FileBasicInformation);
-				return 0;
+				pNtQueryInformationFile(Handle, &iob, &info, sizeof(info), FileBasicInformation);
 			}
-		};
+			return 0;
+		}
+	};
 
-		const handle Thread(CreateThread({}, 0, test::GetFileNameThread, Handle, 0, {}));
+	const handle Thread(CreateThread({}, 0, test::GetFileNameThread, &HandleAndFileType, 0, {}));
 
-		// Wait for finishing the thread
-		if (WaitForSingleObject(Thread.get(), 100) == WAIT_TIMEOUT)
+	// Wait for finishing the thread
+	if (WaitForSingleObject(Thread.get(), 100) == WAIT_TIMEOUT)
+	{
+		TerminateThread(Thread.get(), 0);
+		switch (HandleAndFileType.second)
 		{
-			TerminateThread(Thread.get(), 0);
-			switch (FileType)
-			{
-			case FILE_TYPE_PIPE:     return L"<pipe>"s;
-			case FILE_TYPE_CHAR:     return L"<char>"s;
-			case FILE_TYPE_REMOTE:   return L"<remote>"s;
-			case FILE_TYPE_UNKNOWN:  return L"<unknown>"s;
-			default:                 return far::format(L"<unknown> ({})"sv, FileType);
-			}
+		case FILE_TYPE_PIPE:     return L"<pipe>"s;
+		case FILE_TYPE_CHAR:     return L"<char>"s;
+		case FILE_TYPE_REMOTE:   return L"<remote>"s;
+		case FILE_TYPE_UNKNOWN:  return L"<unknown>"s;
+		default:                 return far::format(L"<unknown> ({})"sv, HandleAndFileType.second);
 		}
 	}
 

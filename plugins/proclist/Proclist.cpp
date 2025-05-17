@@ -173,6 +173,16 @@ bool is_wow64_process(HANDLE Process)
 	return IsProcessWow64 != FALSE;
 }
 
+bool is_wow64_itself()
+{
+#ifdef _WIN64
+	return false;
+#else
+	static const auto IsWow64 = is_wow64_process(GetCurrentProcess());
+	return IsWow64;
+#endif
+}
+
 int Message(unsigned Flags, const wchar_t* HelpTopic, const wchar_t** Items, size_t nItems, size_t nButtons)
 {
 	return static_cast<int>(PsInfo.Message(&MainGuid, {}, Flags, HelpTopic, Items, nItems, nButtons));

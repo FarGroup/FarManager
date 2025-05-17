@@ -3,403 +3,178 @@
 
 #pragma once
 
-constexpr auto Code64 =
-#ifdef _WIN64
-	true
-#else
-	false
-#endif
-;
+using print_module_t = std::function<void(HANDLE InfoFile, ULONG64 Module, DWORD SizeOfImage, int ProcessBitness, std::wstring const& FullDllName, options& LocalOpt)>;
 
-enum ipc
+enum class bitness
 {
 	same,
-#ifndef _WIN64
-	x64
-#endif
+	x86,
+	x64,
 };
 
-namespace detail
+template<bitness Bitness>
+class ipc_t
 {
-	struct UNICODE_STRING_64
+	friend struct validate;
+
+	using pointer =
+		std::conditional_t<Bitness == bitness::same, ULONG_PTR,
+		std::conditional_t<Bitness == bitness::x86, ULONG32,
+		std::conditional_t<Bitness == bitness::x64, ULONG64,
+		void>>>;
+
+	struct UNICODE_STRING
 	{
 		USHORT  Length;
 		USHORT  MaximumLength;
-		ULONG64 Buffer;
+		pointer Buffer;
 	};
 
-	static_assert(sizeof(UNICODE_STRING_64) == 16);
-
-	struct UNICODE_STRING_SAME
+	struct DRIVE_LETTER_CURDIR
 	{
-		USHORT Length;
-		USHORT MaximumLength;
-		PWSTR  Buffer;
+		USHORT         Flags;
+		USHORT         Length;
+		ULONG          TimeStamp;
+		UNICODE_STRING DosPath;
 	};
 
-	static_assert(sizeof(UNICODE_STRING_SAME) == (Code64? sizeof(UNICODE_STRING_64) : 8));
-
-
-	struct DRIVE_LETTER_CURDIR_64
+	struct PROCESS_PARAMETERS
 	{
-		USHORT            Flags;
-		USHORT            Length;
-		ULONG             TimeStamp;
-		UNICODE_STRING_64 DosPath;
-	};
-
-	static_assert(sizeof(DRIVE_LETTER_CURDIR_64) == 24);
-
-	struct DRIVE_LETTER_CURDIR_SAME
-	{
-		USHORT              Flags;
-		USHORT              Length;
-		ULONG               TimeStamp;
-		UNICODE_STRING_SAME DosPath;
-	};
-
-	static_assert(sizeof(DRIVE_LETTER_CURDIR_SAME) == (Code64? sizeof(DRIVE_LETTER_CURDIR_64) : 16));
-
-
-	struct PROCESS_PARAMETERS_64
-	{
-		ULONG                  MaximumLength;
-		ULONG                  Length;
-		ULONG                  Flags;
-		ULONG                  DebugFlags;
-		ULONG64                ConsoleHandle;
-		ULONG                  ConsoleFlags;
-		ULONG64                StdInputHandle;
-		ULONG64                StdOutputHandle;
-		ULONG64                StdErrorHandle;
-		UNICODE_STRING_64      CurrentDirectoryPath;
-		ULONG64                CurrentDirectoryHandle;
-		UNICODE_STRING_64      DllPath;
-		UNICODE_STRING_64      ImagePathName;
-		UNICODE_STRING_64      CommandLine;
-		ULONG64                EnvironmentBlock;
-		ULONG                  StartingPositionLeft;
-		ULONG                  StartingPositionTop;
-		ULONG                  Width;
-		ULONG                  Height;
-		ULONG                  CharWidth;
-		ULONG                  CharHeight;
-		ULONG                  ConsoleTextAttributes;
-		ULONG                  WindowFlags;
-		ULONG                  ShowWindowFlags;
-		UNICODE_STRING_64      WindowTitle;
-		UNICODE_STRING_64      DesktopName;
-		UNICODE_STRING_64      ShellInfo;
-		UNICODE_STRING_64      RuntimeData;
-		DRIVE_LETTER_CURDIR_64 DLCurrentDirectory[0x20];
-	};
-
-	static_assert(sizeof(PROCESS_PARAMETERS_64) == 1008);
-
-	struct PROCESS_PARAMETERS_SAME
-	{
-		ULONG                    MaximumLength;
-		ULONG                    Length;
-		ULONG                    Flags;
-		ULONG                    DebugFlags;
-		PVOID                    ConsoleHandle;
-		ULONG                    ConsoleFlags;
-		HANDLE                   StdInputHandle;
-		HANDLE                   StdOutputHandle;
-		HANDLE                   StdErrorHandle;
-		UNICODE_STRING_SAME      CurrentDirectoryPath;
-		HANDLE                   CurrentDirectoryHandle;
-		UNICODE_STRING_SAME      DllPath;
-		UNICODE_STRING_SAME      ImagePathName;
-		UNICODE_STRING_SAME      CommandLine;
-		PVOID                    EnvironmentBlock;
-		ULONG                    StartingPositionLeft;
-		ULONG                    StartingPositionTop;
-		ULONG                    Width;
-		ULONG                    Height;
-		ULONG                    CharWidth;
-		ULONG                    CharHeight;
-		ULONG                    ConsoleTextAttributes;
-		ULONG                    WindowFlags;
-		ULONG                    ShowWindowFlags;
-		UNICODE_STRING_SAME      WindowTitle;
-		UNICODE_STRING_SAME      DesktopName;
-		UNICODE_STRING_SAME      ShellInfo;
-		UNICODE_STRING_SAME      RuntimeData;
-		DRIVE_LETTER_CURDIR_SAME DLCurrentDirectory[0x20];
-	};
-
-	static_assert(sizeof(PROCESS_PARAMETERS_SAME) == (Code64? sizeof(PROCESS_PARAMETERS_64) : 656));
-
-
-	struct LIST_ENTRY_64
-	{
-		ULONG64 Flink;
-		ULONG64 Blink;
-	};
-
-	static_assert(sizeof(LIST_ENTRY_64) == 16);
-
-	struct LIST_ENTRY_SAME
-	{
-		LIST_ENTRY_SAME* Flink;
-		LIST_ENTRY_SAME* Blink;
-	};
-
-	static_assert(sizeof(LIST_ENTRY_SAME) == (Code64? sizeof(LIST_ENTRY_64) : 8));
-
-
-	struct LDR_MODULE_64
-	{
-		LIST_ENTRY_64     InLoadOrderModuleList;
-		LIST_ENTRY_64     InMemoryOrderModuleList;
-		LIST_ENTRY_64     InInitializationOrderModuleList;
-		ULONG64           BaseAddress;
-		ULONG64           EntryPoint;
-		ULONG             SizeOfImage;
-		UNICODE_STRING_64 FullDllName;
-		UNICODE_STRING_64 BaseDllName;
-		ULONG             Flags;
-		SHORT             LoadCount;
-		SHORT             TlsIndex;
-		LIST_ENTRY_64     HashTableEntry;
-		ULONG             TimeDateStamp;
-	};
-
-	static_assert(sizeof(LDR_MODULE_64) == 136);
-
-	struct LDR_MODULE_SAME
-	{
-		LIST_ENTRY_SAME     InLoadOrderModuleList;
-		LIST_ENTRY_SAME     InMemoryOrderModuleList;
-		LIST_ENTRY_SAME     InInitializationOrderModuleList;
-		PVOID               BaseAddress;
-		PVOID               EntryPoint;
-		ULONG               SizeOfImage;
-		UNICODE_STRING_SAME FullDllName;
-		UNICODE_STRING_SAME BaseDllName;
+		ULONG               MaximumLength;
+		ULONG               Length;
 		ULONG               Flags;
-		SHORT               LoadCount;
-		SHORT               TlsIndex;
-		LIST_ENTRY_SAME     HashTableEntry;
-		ULONG               TimeDateStamp;
+		ULONG               DebugFlags;
+		pointer             ConsoleHandle;
+		ULONG               ConsoleFlags;
+		pointer             StdInputHandle;
+		pointer             StdOutputHandle;
+		pointer             StdErrorHandle;
+		UNICODE_STRING      CurrentDirectoryPath;
+		pointer             CurrentDirectoryHandle;
+		UNICODE_STRING      DllPath;
+		UNICODE_STRING      ImagePathName;
+		UNICODE_STRING      CommandLine;
+		pointer             EnvironmentBlock;
+		ULONG               StartingPositionLeft;
+		ULONG               StartingPositionTop;
+		ULONG               Width;
+		ULONG               Height;
+		ULONG               CharWidth;
+		ULONG               CharHeight;
+		ULONG               ConsoleTextAttributes;
+		ULONG               WindowFlags;
+		ULONG               ShowWindowFlags;
+		UNICODE_STRING      WindowTitle;
+		UNICODE_STRING      DesktopName;
+		UNICODE_STRING      ShellInfo;
+		UNICODE_STRING      RuntimeData;
+		DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
 	};
 
-	static_assert(sizeof(LDR_MODULE_SAME) == (Code64? sizeof(LDR_MODULE_64) : 72));
-
-
-	struct PEB_LDR_DATA_64
+	struct LIST_ENTRY
 	{
-		ULONG         Length;
-		BOOLEAN       Initialized;
-		ULONG64       SsHandle;
-		LIST_ENTRY_64 InLoadOrderModuleList;
-		LIST_ENTRY_64 InMemoryOrderModuleList;
-		LIST_ENTRY_64 InInitializationOrderModuleList;
+		pointer Flink;
+		pointer Blink;
 	};
 
-	static_assert(sizeof(PEB_LDR_DATA_64) == 64);
-
-	struct PEB_LDR_DATA_SAME
+	struct LDR_MODULE
 	{
-		ULONG           Length;
-		BOOLEAN         Initialized;
-		PVOID           SsHandle;
-		LIST_ENTRY_SAME InLoadOrderModuleList;
-		LIST_ENTRY_SAME InMemoryOrderModuleList;
-		LIST_ENTRY_SAME InInitializationOrderModuleList;
+		LIST_ENTRY     InLoadOrderModuleList;
+		LIST_ENTRY     InMemoryOrderModuleList;
+		LIST_ENTRY     InInitializationOrderModuleList;
+		pointer        BaseAddress;
+		pointer        EntryPoint;
+		ULONG          SizeOfImage;
+		UNICODE_STRING FullDllName;
+		UNICODE_STRING BaseDllName;
+		ULONG          Flags;
+		SHORT          LoadCount;
+		SHORT          TlsIndex;
+		LIST_ENTRY     HashTableEntry;
+		ULONG          TimeDateStamp;
 	};
 
-	static_assert(sizeof(PEB_LDR_DATA_SAME) == (Code64? sizeof(PEB_LDR_DATA_64) : 36));
-
-
-	struct PEB_64
+	struct PEB_LDR_DATA
 	{
-		BOOLEAN                InheritedAddressSpace;
-		BOOLEAN                ReadImageFileExecOptions;
-		BOOLEAN                BeingDebugged;
-		BOOLEAN                Spare;
-		ULONG64                Mutant;
-		ULONG64                ImageBaseAddress;
-		ULONG64                LoaderData;
-		ULONG64                ProcessParameters;
-		ULONG64                SubSystemData;
-		ULONG64                ProcessHeap;
-		ULONG64                FastPebLock;
-		ULONG64                FastPebLockRoutine;
-		ULONG64                FastPebUnlockRoutine;
-		ULONG                  EnvironmentUpdateCount;
-		ULONG64                KernelCallbackTable;
-		ULONG64                EventLogSection;
-		ULONG64                EventLog;
-		ULONG64                FreeList;
-		ULONG                  TlsExpansionCounter;
-		ULONG64                TlsBitmap;
-		ULONG                  TlsBitmapBits[0x2];
-		ULONG64                ReadOnlySharedMemoryBase;
-		ULONG64                ReadOnlySharedMemoryHeap;
-		ULONG64                ReadOnlyStaticServerData;
-		ULONG64                AnsiCodePageData;
-		ULONG64                OemCodePageData;
-		ULONG64                UnicodeCaseTableData;
-		ULONG                  NumberOfProcessors;
-		ULONG                  NtGlobalFlag;
-		BYTE                   Spare2[0x4];
-		LARGE_INTEGER          CriticalSectionTimeout;
-		ULONG                  HeapSegmentReserve;
-		ULONG                  HeapSegmentCommit;
-		ULONG                  HeapDeCommitTotalFreeThreshold;
-		ULONG                  HeapDeCommitFreeBlockThreshold;
-		ULONG                  NumberOfHeaps;
-		ULONG                  MaximumNumberOfHeaps;
-		ULONG64                ProcessHeaps;
-		ULONG64                GdiSharedHandleTable;
-		ULONG64                ProcessStarterHelper;
-		ULONG64                GdiDCAttributeList;
-		ULONG64                LoaderLock;
-		ULONG                  OSMajorVersion;
-		ULONG                  OSMinorVersion;
-		ULONG                  OSBuildNumber;
-		ULONG                  OSPlatformId;
-		ULONG                  ImageSubSystem;
-		ULONG                  ImageSubSystemMajorVersion;
-		ULONG                  ImageSubSystemMinorVersion;
-		ULONG                  GdiHandleBuffer[0x22];
-		ULONG                  PostProcessInitRoutine;
-		ULONG                  TlsExpansionBitmap;
-		BYTE                   TlsExpansionBitmapBits[0x80];
-		ULONG                  SessionId;
+		ULONG      Length;
+		BOOLEAN    Initialized;
+		pointer    SsHandle;
+		LIST_ENTRY InLoadOrderModuleList;
+		LIST_ENTRY InMemoryOrderModuleList;
+		LIST_ENTRY InInitializationOrderModuleList;
 	};
 
-	static_assert(sizeof(PEB_64) == 584);
-
-	struct PEB_SAME
+	struct PEB
 	{
-		BOOLEAN                    InheritedAddressSpace;
-		BOOLEAN                    ReadImageFileExecOptions;
-		BOOLEAN                    BeingDebugged;
-		BOOLEAN                    Spare;
-		HANDLE                     Mutant;
-		PVOID                      ImageBaseAddress;
-		PEB_LDR_DATA_SAME*       LoaderData;
-		PROCESS_PARAMETERS_SAME* ProcessParameters;
-		PVOID                      SubSystemData;
-		PVOID                      ProcessHeap;
-		PVOID                      FastPebLock;
-		PVOID                      FastPebLockRoutine;
-		PVOID                      FastPebUnlockRoutine;
-		ULONG                      EnvironmentUpdateCount;
-		PVOID*                     KernelCallbackTable;
-		PVOID                      EventLogSection;
-		PVOID                      EventLog;
-		PVOID                      FreeList;
-		ULONG                      TlsExpansionCounter;
-		PVOID                      TlsBitmap;
-		ULONG                      TlsBitmapBits[0x2];
-		PVOID                      ReadOnlySharedMemoryBase;
-		PVOID                      ReadOnlySharedMemoryHeap;
-		PVOID*                     ReadOnlyStaticServerData;
-		PVOID                      AnsiCodePageData;
-		PVOID                      OemCodePageData;
-		PVOID                      UnicodeCaseTableData;
-		ULONG                      NumberOfProcessors;
-		ULONG                      NtGlobalFlag;
-		BYTE                       Spare2[0x4];
-		LARGE_INTEGER              CriticalSectionTimeout;
-		ULONG                      HeapSegmentReserve;
-		ULONG                      HeapSegmentCommit;
-		ULONG                      HeapDeCommitTotalFreeThreshold;
-		ULONG                      HeapDeCommitFreeBlockThreshold;
-		ULONG                      NumberOfHeaps;
-		ULONG                      MaximumNumberOfHeaps;
-		PVOID**                    ProcessHeaps;
-		PVOID                      GdiSharedHandleTable;
-		PVOID                      ProcessStarterHelper;
-		PVOID                      GdiDCAttributeList;
-		PVOID                      LoaderLock;
-		ULONG                      OSMajorVersion;
-		ULONG                      OSMinorVersion;
-		ULONG                      OSBuildNumber;
-		ULONG                      OSPlatformId;
-		ULONG                      ImageSubSystem;
-		ULONG                      ImageSubSystemMajorVersion;
-		ULONG                      ImageSubSystemMinorVersion;
-		ULONG                      GdiHandleBuffer[0x22];
-		ULONG                      PostProcessInitRoutine;
-		ULONG                      TlsExpansionBitmap;
-		BYTE                       TlsExpansionBitmapBits[0x80];
-		ULONG                      SessionId;
+		BOOLEAN       InheritedAddressSpace;
+		BOOLEAN       ReadImageFileExecOptions;
+		BOOLEAN       BeingDebugged;
+		BOOLEAN       Spare;
+		pointer       Mutant;
+		pointer       ImageBaseAddress;
+		pointer       LoaderData;
+		pointer       ProcessParameters;
+		pointer       SubSystemData;
+		pointer       ProcessHeap;
+		pointer       FastPebLock;
+		pointer       FastPebLockRoutine;
+		pointer       FastPebUnlockRoutine;
+		ULONG         EnvironmentUpdateCount;
+		pointer       KernelCallbackTable;
+		pointer       EventLogSection;
+		pointer       EventLog;
+		pointer       FreeList;
+		ULONG         TlsExpansionCounter;
+		pointer       TlsBitmap;
+		ULONG         TlsBitmapBits[0x2];
+		pointer       ReadOnlySharedMemoryBase;
+		pointer       ReadOnlySharedMemoryHeap;
+		pointer       ReadOnlyStaticServerData;
+		pointer       AnsiCodePageData;
+		pointer       OemCodePageData;
+		pointer       UnicodeCaseTableData;
+		ULONG         NumberOfProcessors;
+		ULONG         NtGlobalFlag;
+		BYTE          Spare2[0x4];
+		LARGE_INTEGER CriticalSectionTimeout;
+		ULONG         HeapSegmentReserve;
+		ULONG         HeapSegmentCommit;
+		ULONG         HeapDeCommitTotalFreeThreshold;
+		ULONG         HeapDeCommitFreeBlockThreshold;
+		ULONG         NumberOfHeaps;
+		ULONG         MaximumNumberOfHeaps;
+		pointer       ProcessHeaps;
+		pointer       GdiSharedHandleTable;
+		pointer       ProcessStarterHelper;
+		pointer       GdiDCAttributeList;
+		pointer       LoaderLock;
+		ULONG         OSMajorVersion;
+		ULONG         OSMinorVersion;
+		ULONG         OSBuildNumber;
+		ULONG         OSPlatformId;
+		ULONG         ImageSubSystem;
+		ULONG         ImageSubSystemMajorVersion;
+		ULONG         ImageSubSystemMinorVersion;
+		ULONG         GdiHandleBuffer[0x22];
+		ULONG         PostProcessInitRoutine;
+		ULONG         TlsExpansionBitmap;
+		BYTE          TlsExpansionBitmapBits[0x80];
+		ULONG         SessionId;
 	};
 
-	static_assert(sizeof(PEB_SAME) == (Code64? sizeof(PEB_64) : 472));
-
-
-	struct PROCESS_BASIC_INFORMATION_64
+	struct PROCESS_BASIC_INFORMATION
 	{
-		ULONG64 Reserved1;
-		ULONG64 PebBaseAddress;
-		ULONG64 Reserved2[2];
-		ULONG64 UniqueProcessId;
-		ULONG64 Reserved3;
+		pointer Reserved1;
+		pointer PebBaseAddress;
+		pointer Reserved2[2];
+		pointer UniqueProcessId;
+		pointer Reserved3;
 	};
 
-	static_assert(sizeof(PROCESS_BASIC_INFORMATION_64) == 48);
-
-	struct PROCESS_BASIC_INFORMATION_SAME
-	{
-		PVOID Reserved1;
-		PEB_SAME* PebBaseAddress;
-		PVOID Reserved2[2];
-		ULONG_PTR UniqueProcessId;
-		PVOID Reserved3;
-	};
-
-	static_assert(sizeof(PROCESS_BASIC_INFORMATION_SAME) == (Code64? sizeof(PROCESS_BASIC_INFORMATION_64) : 24));
-
-	template<ipc Ipc>
-	struct ipc_types;
-
-	template<>
-	struct ipc_types<same>
-	{
-		using UNICODE_STRING            = UNICODE_STRING_SAME;
-		using PROCESS_PARAMETERS        = PROCESS_PARAMETERS_SAME;
-		using LIST_ENTRY                = LIST_ENTRY_SAME;
-		using LDR_MODULE                = LDR_MODULE_SAME;
-		using PEB_LDR_DATA              = PEB_LDR_DATA_SAME;
-		using PEB                       = PEB_SAME;
-		using PROCESS_BASIC_INFORMATION = PROCESS_BASIC_INFORMATION_SAME;
-		using PTR                       = const char*;
-		using ANY_PTR                   = const void*;
-	};
-
-#ifndef _WIN64
-	template<>
-	struct ipc_types<x64>
-	{
-		using UNICODE_STRING            = UNICODE_STRING_64;
-		using PROCESS_PARAMETERS        = PROCESS_PARAMETERS_64;
-		using LIST_ENTRY                = LIST_ENTRY_64;
-		using LDR_MODULE                = LDR_MODULE_64;
-		using PEB_LDR_DATA              = PEB_LDR_DATA_64;
-		using PEB                       = PEB_64;
-		using PROCESS_BASIC_INFORMATION = PROCESS_BASIC_INFORMATION_64;
-		using PTR                       = ULONG64;
-		using ANY_PTR                   = ULONG64;
-	};
-#endif
-}
-
-template<ipc Ipc>
-class ipc_functions
-{
-public:
-	using types = detail::ipc_types<Ipc>;
-
-	static bool read_process_memory(HANDLE Process, typename types::ANY_PTR const BaseAddress, void* const Buffer, size_t const Size, size_t* const NumberOfBytesRead = {})
+	static bool read_process_memory(HANDLE Process, pointer const BaseAddress, void* const Buffer, size_t const Size, size_t* const NumberOfBytesRead = {})
 	{
 #ifndef _WIN64
-		if constexpr (Ipc == x64)
+		if constexpr (Bitness == bitness::x64)
 		{
 			ULONG64 Read = 0;
 			const auto Result = pNtWow64ReadVirtualMemory64(Process, BaseAddress, Buffer, Size, NumberOfBytesRead? &Read : nullptr);
@@ -414,7 +189,7 @@ public:
 		{
 			SIZE_T Read = 0;
 
-			const auto Result = ReadProcessMemory(Process, BaseAddress, Buffer, Size, NumberOfBytesRead? &Read : nullptr);
+			const auto Result = ReadProcessMemory(Process, reinterpret_cast<void*>(static_cast<uintptr_t>(BaseAddress)), Buffer, Size, NumberOfBytesRead? &Read : nullptr);
 
 			if (NumberOfBytesRead)
 				*NumberOfBytesRead = static_cast<size_t>(Read);
@@ -423,7 +198,7 @@ public:
 		}
 	}
 
-	static std::wstring read_string(HANDLE Process, const typename types::UNICODE_STRING& Str)
+	static std::wstring read_string(HANDLE Process, UNICODE_STRING const Str)
 	{
 		std::wstring Result(Str.Length / sizeof(wchar_t), 0);
 		if (!read_process_memory(Process, Str.Buffer, Result.data(), Result.size() * sizeof(wchar_t)))
@@ -432,9 +207,9 @@ public:
 		return Result;
 	}
 
-	static std::wstring read_string(HANDLE Process, typename types::ANY_PTR const Address)
+	static std::wstring read_string(HANDLE Process, pointer const Address)
 	{
-		typename types::UNICODE_STRING Str;
+		UNICODE_STRING Str;
 
 		if (!read_process_memory(Process, Address, &Str, sizeof(Str)))
 			return {};
@@ -442,45 +217,77 @@ public:
 		return read_string(Process, Str);
 	}
 
-	static bool GetInternalProcessData(
+	static NTSTATUS query_information_process(HANDLE const ProcessHandle, PROCESSINFOCLASS const ProcessInformationClass, PVOID const ProcessInformation, ULONG const ProcessInformationLength, PULONG const ReturnLength)
+	{
+		return (
+#ifndef _WIN64
+			Bitness == bitness::x64? pNtWow64QueryInformationProcess64 :
+#endif
+			pNtQueryInformationProcess)
+			(
+				ProcessHandle,
+				ProcessInformationClass,
+				ProcessInformation,
+				ProcessInformationLength,
+				ReturnLength
+			);
+	}
+
+	static bool get_internal_process_data(
 		HANDLE hProcess,
-		typename types::LDR_MODULE* Data,
-		typename types::PTR& pProcessParams,
-		typename types::PTR& pEnd,
+		LDR_MODULE* Data,
+		pointer& pProcessParams,
+		pointer& pEnd,
 		bool bFirstModule = false
 	)
 	{
-		typename types::PROCESS_BASIC_INFORMATION processInfo;
-		if (const auto Status =
-			(
-#ifndef _WIN64
-				Ipc == x64? pNtWow64QueryInformationProcess64 :
-#endif
-				pNtQueryInformationProcess)
-			(
+		pointer PebBaseAddress{};
+
+		if constexpr (Bitness == bitness::x86)
+		{
+			ULONG_PTR Wow64Info;
+			if (const auto Status = query_information_process(
+				hProcess,
+				ProcessWow64Information,
+				&Wow64Info,
+				sizeof(Wow64Info),
+				{}
+				); !NT_SUCCESS(Status))
+				return false;
+
+			PebBaseAddress = Wow64Info;
+		}
+		else
+		{
+			PROCESS_BASIC_INFORMATION processInfo;
+			if (const auto Status = query_information_process(
 				hProcess,
 				ProcessBasicInformation,
 				&processInfo,
-				sizeof(processInfo), {}
+				sizeof(processInfo),
+				{}
 			); !NT_SUCCESS(Status))
-			return false;
+				return false;
+
+			PebBaseAddress = processInfo.PebBaseAddress;
+		}
 
 		//FindModule, obtained from PSAPI.DLL
-		typename types::PEB peb;
-		typename types::PEB_LDR_DATA pld;
+		PEB peb;
+		PEB_LDR_DATA pld;
 
-		if (read_process_memory(hProcess, processInfo.PebBaseAddress, &peb, sizeof(peb)) &&
+		if (read_process_memory(hProcess, PebBaseAddress, &peb, sizeof(peb)) &&
 			read_process_memory(hProcess, peb.LoaderData, &pld, sizeof(pld)))
 		{
 			//pEnd = (void *)((void *)peb.LoaderData+((void *)&pld.InMemoryOrderModuleList-(void *)&pld));
 			const auto hModule = peb.ImageBaseAddress;
-			pProcessParams = static_cast<typename types::PTR>(static_cast<typename types::ANY_PTR>(peb.ProcessParameters));
-			pEnd = static_cast<typename types::PTR>(static_cast<typename types::ANY_PTR>(peb.LoaderData)) + sizeof(pld) - sizeof(typename types::LIST_ENTRY) * 2;
-			auto p4 = static_cast<typename types::PTR>(static_cast<typename types::ANY_PTR>(pld.InMemoryOrderModuleList.Flink));
+			pProcessParams = peb.ProcessParameters;
+			pEnd = peb.LoaderData + sizeof(pld) - sizeof(LIST_ENTRY) * 2;
+			auto p4 = pld.InMemoryOrderModuleList.Flink;
 
 			while (p4)
 			{
-				if (p4 == pEnd || !read_process_memory(hProcess, p4 - sizeof(typename types::PTR) * 2, Data, sizeof(*Data)))
+				if (p4 == pEnd || !read_process_memory(hProcess, p4 - sizeof(pointer) * 2, Data, sizeof(*Data)))
 					return false;
 
 				if (bFirstModule)
@@ -488,7 +295,7 @@ public:
 
 				if (Data->BaseAddress == hModule) break;
 
-				p4 = static_cast<typename types::PTR>(static_cast<typename types::ANY_PTR>(Data->InMemoryOrderModuleList.Flink));
+				p4 = Data->InMemoryOrderModuleList.Flink;
 			}
 		}
 
@@ -504,7 +311,8 @@ public:
 		return false;
 	}
 
-	static void GetOpenProcessData(
+public:
+	static void get_open_process_data(
 		HANDLE hProcess,
 		std::wstring* ProcessName,
 		std::wstring* FullPath,
@@ -513,11 +321,11 @@ public:
 		std::wstring* EnvStrings
 	)
 	{
-		typename types::LDR_MODULE Data;
-		typename types::PTR pEnd{};
-		typename types::PTR pProcessParams{};
+		LDR_MODULE Data;
+		pointer pEnd{};
+		pointer pProcessParams{};
 
-		if (!GetInternalProcessData(hProcess, &Data, pProcessParams, pEnd))
+		if (!get_internal_process_data(hProcess, &Data, pProcessParams, pEnd))
 			return;
 
 		if (ProcessName)
@@ -532,19 +340,17 @@ public:
 
 		if (CommandLine)
 		{
-			*CommandLine = read_string(hProcess, pProcessParams + offsetof(typename types::PROCESS_PARAMETERS, CommandLine));
+			*CommandLine = read_string(hProcess, pProcessParams + offsetof(PROCESS_PARAMETERS, CommandLine));
 		}
 
 		if (CurDir)
 		{
-			*CurDir = read_string(hProcess, pProcessParams + offsetof(typename types::PROCESS_PARAMETERS, CurrentDirectoryPath));
+			*CurDir = read_string(hProcess, pProcessParams + offsetof(PROCESS_PARAMETERS, CurrentDirectoryPath));
 		}
 
 		if (EnvStrings)
 		{
-			typename types::PTR pEnv;
-
-			if (read_process_memory(hProcess, pProcessParams + offsetof(typename types::PROCESS_PARAMETERS, EnvironmentBlock), &pEnv, sizeof(pEnv)))
+			if (pointer pEnv; read_process_memory(hProcess, pProcessParams + offsetof(PROCESS_PARAMETERS, EnvironmentBlock), &pEnv, sizeof(pEnv)))
 			{
 				EnvStrings->resize(2048);
 
@@ -565,28 +371,101 @@ public:
 		}
 	}
 
-	static void PrintModules(HANDLE Process, HANDLE InfoFile, options& LocalOpt)
+	static void print_modules(HANDLE Process, HANDLE InfoFile, options& LocalOpt, int const ProcessBitness, print_module_t const& PrintModule)
 	{
-		typename types::LDR_MODULE Data;
-		typename types::PTR pProcessParams{};
-		typename types::PTR pEnd{};
+		LDR_MODULE Data;
+		pointer pProcessParams{};
+		pointer pEnd{};
 
-		if (GetInternalProcessData(Process, &Data, pProcessParams, pEnd, true))
+		if (get_internal_process_data(Process, &Data, pProcessParams, pEnd, true))
 		{
-			typename types::PTR p4;
+			pointer p4;
 
 			do
 			{
-				print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, LocalOpt, [&](wchar_t* const Buffer, size_t const BufferSize)
-				{
-					return read_process_memory(Process, Data.FullDllName.Buffer, Buffer, BufferSize * sizeof(*Buffer));
-				});
-
-				p4 = static_cast<typename types::PTR>(static_cast<typename types::ANY_PTR>(Data.InMemoryOrderModuleList.Flink));
+				const auto FullDllName = read_string(Process, Data.FullDllName);
+				PrintModule(InfoFile, Data.BaseAddress, Data.SizeOfImage, ProcessBitness, FullDllName, LocalOpt);
+				p4 = Data.InMemoryOrderModuleList.Flink;
 			}
-			while (p4 && p4 != pEnd && read_process_memory(Process, p4 - sizeof(typename types::PTR) * 2, &Data, sizeof(Data)));
+			while (p4 && p4 != pEnd && read_process_memory(Process, p4 - sizeof(pointer) * 2, &Data, sizeof(Data)));
 		}
 	}
 };
+
+struct validate
+{
+	static constexpr auto Code64 =
+#ifdef _WIN64
+		true
+#else
+		false
+#endif
+	;
+
+	using ipc64 = ipc_t<bitness::x64>;
+	using ipc_same = ipc_t<bitness::same>;
+
+	static_assert(sizeof(ipc64::UNICODE_STRING) == 16);
+	static_assert(sizeof(ipc_same::UNICODE_STRING) == (Code64? sizeof(ipc64::UNICODE_STRING) : 8));
+
+	static_assert(sizeof(ipc64::DRIVE_LETTER_CURDIR) == 24);
+	static_assert(sizeof(ipc_same::DRIVE_LETTER_CURDIR) == (Code64? sizeof(ipc64::DRIVE_LETTER_CURDIR) : 16));
+
+	static_assert(sizeof(ipc64::PROCESS_PARAMETERS) == 1008);
+	static_assert(sizeof(ipc_same::PROCESS_PARAMETERS) == (Code64? sizeof(ipc64::PROCESS_PARAMETERS) : 656));
+
+	static_assert(sizeof(ipc64::LIST_ENTRY) == 16);
+	static_assert(sizeof(ipc_same::LIST_ENTRY) == (Code64? sizeof(ipc64::LIST_ENTRY) : 8));
+
+	static_assert(sizeof(ipc64::LDR_MODULE) == 136);
+	static_assert(sizeof(ipc_same::LDR_MODULE) == (Code64? sizeof(ipc64::LDR_MODULE) : 72));
+
+	static_assert(sizeof(ipc64::PEB_LDR_DATA) == 64);
+	static_assert(sizeof(ipc_same::PEB_LDR_DATA) == (Code64? sizeof(ipc64::PEB_LDR_DATA) : 36));
+
+	static_assert(sizeof(ipc64::PEB) == 584);
+	static_assert(sizeof(ipc_same::PEB) == (Code64? sizeof(ipc64::PEB) : 472));
+
+	static_assert(sizeof(ipc64::PROCESS_BASIC_INFORMATION) == 48);
+	static_assert(sizeof(ipc_same::PROCESS_BASIC_INFORMATION) == (Code64? sizeof(ipc64::PROCESS_BASIC_INFORMATION) : 24));
+};
+
+inline bitness get_bitness(HANDLE const Process)
+{
+	if (is_wow64_process(Process))
+		return bitness::x86;
+
+	if (is_wow64_itself())
+		return bitness::x64;
+
+	return bitness::same;
+}
+
+inline void get_open_process_data(
+	HANDLE const Process,
+	std::wstring* const ProcessName,
+	std::wstring* const FullPath,
+	std::wstring* const CommandLine,
+	std::wstring* const CurDir,
+	std::wstring* const EnvStrings
+)
+{
+	switch (get_bitness(Process))
+	{
+	case bitness::same: return ipc_t<bitness::same>::get_open_process_data(Process, ProcessName, FullPath, CommandLine, CurDir, EnvStrings);
+	case bitness::x86:  return ipc_t<bitness::x86>::get_open_process_data(Process, ProcessName, FullPath, CommandLine, CurDir, EnvStrings);
+	case bitness::x64:  return ipc_t<bitness::x64>::get_open_process_data(Process, ProcessName, FullPath, CommandLine, CurDir, EnvStrings);
+	}
+}
+
+inline void print_modules(HANDLE const Process, HANDLE const InfoFile, options& LocalOpt, int const ProcessBitness, print_module_t const& PrintModule)
+{
+	switch (get_bitness(Process))
+	{
+	case bitness::same: return ipc_t<bitness::same>::print_modules(Process, InfoFile, LocalOpt, ProcessBitness, PrintModule);
+	case bitness::x86:  return ipc_t<bitness::x86>::print_modules(Process, InfoFile, LocalOpt, ProcessBitness, PrintModule);
+	case bitness::x64:  return ipc_t<bitness::x64>::print_modules(Process, InfoFile, LocalOpt, ProcessBitness, PrintModule);
+	}
+}
 
 #endif // IPC_HPP_B3F2F877_F2DB_4484_8523_255E608E1C0B

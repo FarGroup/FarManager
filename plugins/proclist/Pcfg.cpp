@@ -24,7 +24,7 @@ int Config()
 	Builder.AddCheckbox(MInclModuleVersion, &Opt.ExportModuleVersion);
 	Builder.AddCheckbox(MInclPerformance, &Opt.ExportPerformance);
 	Builder.AddCheckbox(MInclHandles, &Opt.ExportHandles);
-	//Builder.AddCheckbox(MInclHandlesUnnamed, &Opt.ExportHandlesUnnamed); // ???
+	Builder.AddCheckbox(MInclHandlesUnnamed, &Opt.ExportHandlesUnnamed)->X1 += 4;
 
 	Builder.AddOKCancel(MOk, MCancel);
 

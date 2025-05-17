@@ -249,15 +249,6 @@ public:
 	bool enabled{};
 };
 
-void GetOpenProcessData(
-	HANDLE hProcess,
-	std::wstring* ProcessName = {},
-	std::wstring* FullPath = {},
-	std::wstring* CommandLine = {},
-	std::wstring* CurDir = {},
-	std::wstring* EnvStrings = {}
-);
-
 HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
 enum
@@ -273,7 +264,7 @@ enum
 extern wchar_t CustomColumns[10][10];
 
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
-void PrintModules(HANDLE InfoFile, DWORD dwPID, options& LocalOpt);
+void PrintModules(HANDLE InfoFile, DWORD dwPID, int ProcessBitness, options& LocalOpt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread);
 struct ProcessPerfData;
 bool GetPData(ProcessData& pdata, const ProcessPerfData& pd);
@@ -304,6 +295,7 @@ DECLARE_IMPORT(EnumProcessModulesEx, BOOL (WINAPI*)(HANDLE, HMODULE*, DWORD, DWO
 //------
 
 bool is_wow64_process(HANDLE Process);
+bool is_wow64_itself();
 
 std::wstring DurationToText(uint64_t Duration);
 std::wstring FileTimeDifferenceToText(const FILETIME& CurFileTime, const FILETIME& SrcTime);
