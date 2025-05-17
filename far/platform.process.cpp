@@ -57,77 +57,96 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::process
 {
-	template<typename pointer>
-	struct peb_t
+	enum class bitness
 	{
-		BOOLEAN  Reserved1[4];
-		pointer  Reserved2;
-		pointer  ImageBaseAddress;
-		pointer  Reserved3[7];
-		ULONG    Reserved4;
-		pointer  Reserved5;
-		ULONG    Reserved6[2];
-		pointer  Reserved7;
-		ULONG    Reserved8;
-		pointer  Reserved9;
-		ULONG    Reserved10[2];
-		pointer  Reserved11[6];
-		ULONG    Reserved12[2];
-		LONGLONG Reserved13;
-		pointer  Reserved14[4];
-		ULONG    Reserved15[2];
-		pointer  Reserved16[3];
-		ULONG    Reserved17;
-		pointer  Reserved18;
-		ULONG    Reserved19[2];
-		USHORT   Reserved20[2];
-		ULONG    Reserved21;
-		ULONG    ImageSubsystem;
-		ULONG    ImageSubsystemMajorVersion;
-		ULONG    ImageSubsystemMinorVersion;
+		native,
+		x64,
 	};
 
-	template<typename pointer>
-	struct process_basic_information
+	template<bitness Bitness>
+	struct ipc_t
 	{
-		pointer Reserved1;
-		pointer PebBaseAddress;
-		pointer Reserved2[4];
+		using pointer =
+			std::conditional_t<Bitness == bitness::native, ULONG_PTR,
+			std::conditional_t<Bitness == bitness::x64, ULONG64,
+			void>>;
+
+		struct peb
+		{
+			BOOLEAN  Reserved1[4];
+			pointer  Reserved2;
+			pointer  ImageBaseAddress;
+			pointer  Reserved3[7];
+			ULONG    Reserved4;
+			pointer  Reserved5;
+			ULONG    Reserved6[2];
+			pointer  Reserved7;
+			ULONG    Reserved8;
+			pointer  Reserved9;
+			ULONG    Reserved10[2];
+			pointer  Reserved11[6];
+			ULONG    Reserved12[2];
+			LONGLONG Reserved13;
+			pointer  Reserved14[4];
+			ULONG    Reserved15[2];
+			pointer  Reserved16[3];
+			ULONG    Reserved17;
+			pointer  Reserved18;
+			ULONG    Reserved19[2];
+			USHORT   Reserved20[2];
+			ULONG    Reserved21;
+			ULONG    ImageSubsystem;
+			ULONG    ImageSubsystemMajorVersion;
+			ULONG    ImageSubsystemMinorVersion;
+		};
+
+		struct process_basic_information
+		{
+			pointer Reserved1;
+			pointer PebBaseAddress;
+			pointer Reserved2[4];
+		};
+
+		static auto query_information_process(HANDLE Process, PROCESSINFOCLASS ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* ReturnLength)
+		{
+#ifndef _WIN64
+			if constexpr (Bitness == bitness::x64)
+				return imports.NtWow64QueryInformationProcess64 && NT_SUCCESS(imports.NtWow64QueryInformationProcess64(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
+			else
+#endif
+				return imports.NtQueryInformationProcess && NT_SUCCESS(imports.NtQueryInformationProcess(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
+		}
+
+		static auto read_process_memory(HANDLE Process, pointer BaseAddress, void* Buffer, pointer Size, pointer* NumberOfBytesRead = {})
+		{
+			const auto Result = [&]
+			{
+#ifndef _WIN64
+				if constexpr (Bitness == bitness::x64)
+					return imports.NtWow64ReadVirtualMemory64 && NT_SUCCESS(imports.NtWow64ReadVirtualMemory64(Process, BaseAddress, Buffer, Size, NumberOfBytesRead));
+				else
+#endif
+					return ReadProcessMemory(Process, std::bit_cast<void*>(BaseAddress), Buffer, Size, NumberOfBytesRead) != FALSE;
+			}();
+
+			if (!Result)
+				return false;
+
+			if (!NumberOfBytesRead)
+				return true;
+
+			return *NumberOfBytesRead >= Size;
+		}
 	};
 
-	template<bool wow>
-	using ipc_ptr = std::conditional_t<wow, ULONG64, ULONG_PTR>;
-
-	static_assert(sizeof(peb_t<ipc_ptr<true>>) == 312);
-	static_assert(sizeof(peb_t<ipc_ptr<false>>) ==
+	static_assert(sizeof(ipc_t<bitness::x64>::peb) == 312);
+	static_assert(sizeof(ipc_t<bitness::native>::peb) ==
 #ifdef _WIN64
-		312
+		sizeof(ipc_t<bitness::x64>::peb)
 #else
 		192
 #endif
 	);
-
-	template<bool wow>
-	static auto query_information_process(HANDLE Process, PROCESSINFOCLASS ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* ReturnLength)
-	{
-#ifndef _WIN64
-		if constexpr (wow)
-			return imports.NtWow64QueryInformationProcess64 && NT_SUCCESS(imports.NtWow64QueryInformationProcess64(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
-		else
-#endif
-			return imports.NtQueryInformationProcess && NT_SUCCESS(imports.NtQueryInformationProcess(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
-	}
-
-	template<bool wow>
-	static auto read_process_memory(HANDLE Process, ipc_ptr<wow> BaseAddress, void* Buffer, ipc_ptr<wow> Size, ipc_ptr<wow>* NumberOfBytesRead)
-	{
-#ifndef _WIN64
-		if constexpr (wow)
-			return imports.NtWow64ReadVirtualMemory64 && NT_SUCCESS(imports.NtWow64ReadVirtualMemory64(Process, BaseAddress, Buffer, Size, NumberOfBytesRead));
-		else
-#endif
-			return ReadProcessMemory(Process, std::bit_cast<void*>(BaseAddress), Buffer, Size, NumberOfBytesRead) != FALSE;
-	}
 
 	static auto subsystem_to_type(int const Subsystem)
 	{
@@ -146,28 +165,29 @@ namespace os::process
 		}
 	}
 
-	template<bool wow>
+	template<bitness Bitness>
 	static auto get_process_subsystem_from_memory(HANDLE const Process)
 	{
-		process_basic_information<ipc_ptr<wow>> ProcessInfo;
-		if (!query_information_process<wow>(Process, ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}))
+		using ipc = ipc_t<Bitness>;
+
+		typename ipc::process_basic_information ProcessInfo;
+		if (!ipc::query_information_process(Process, ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}))
 			return image_type::unknown;
 
-		using peb = peb_t<ipc_ptr<wow>>;
-		peb Peb;
-		ipc_ptr<wow> ReadSize;
-		if (!read_process_memory<wow>(Process, ProcessInfo.PebBaseAddress, &Peb, sizeof(Peb), &ReadSize))
+		typename ipc::peb Peb;
+		typename ipc::pointer ReadSize;
+		if (!ipc::read_process_memory(Process, ProcessInfo.PebBaseAddress, &Peb, sizeof(Peb), &ReadSize))
 			return image_type::unknown;
 
-		if (ReadSize >= offsetof(peb, ImageSubsystem) + sizeof(Peb.ImageSubsystem))
+		if (ReadSize >= offsetof(typename ipc::peb, ImageSubsystem) + sizeof(Peb.ImageSubsystem))
 			return subsystem_to_type(Peb.ImageSubsystem);
 
 		LONG e_lfanew;
-		if (!read_process_memory<wow>(Process, Peb.ImageBaseAddress + offsetof(IMAGE_DOS_HEADER, e_lfanew), &e_lfanew, sizeof(e_lfanew), {}))
+		if (!ipc::read_process_memory(Process, Peb.ImageBaseAddress + offsetof(IMAGE_DOS_HEADER, e_lfanew), &e_lfanew, sizeof(e_lfanew)))
 			return image_type::unknown;
 
 		WORD Subsystem;
-		if (!read_process_memory<wow>(Process, Peb.ImageBaseAddress + e_lfanew + offsetof(IMAGE_NT_HEADERS64, OptionalHeader) + offsetof(IMAGE_OPTIONAL_HEADER64, Subsystem), &Subsystem, sizeof(Subsystem), {}))
+		if (!ipc::read_process_memory(Process, Peb.ImageBaseAddress + e_lfanew + offsetof(IMAGE_NT_HEADERS64, OptionalHeader) + offsetof(IMAGE_OPTIONAL_HEADER64, Subsystem), &Subsystem, sizeof(Subsystem)))
 			return image_type::unknown;
 
 		return subsystem_to_type(Subsystem);
@@ -178,9 +198,9 @@ namespace os::process
 		return
 #ifndef _WIN64
 			IsWow64Process()?
-			get_process_subsystem_from_memory<true>(Process) :
+			get_process_subsystem_from_memory<bitness::x64>(Process) :
 #endif
-			get_process_subsystem_from_memory<false>(Process);
+			get_process_subsystem_from_memory<bitness::native>(Process);
 	}
 
 	static auto get_process_subsystem_from_module_impl(std::istream& Stream)
