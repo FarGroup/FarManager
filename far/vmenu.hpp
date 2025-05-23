@@ -226,6 +226,7 @@ public:
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	bool HasVisible() const { return SelectPos > -1 && !Items.empty(); }
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
+	const std::vector<MenuItemEx>& GetItems() const { return Items; };
 	int GetVisualPos(int Pos) const;
 	int VisualPosToReal(int VPos) const;
 
