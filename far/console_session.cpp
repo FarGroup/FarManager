@@ -132,7 +132,7 @@ public:
 		m_Finalised = false;
 	}
 
-	void DoEpilogue(bool Scroll, bool IsLastInstance) override
+	void DoEpilogue(scroll_type const Scroll, bool IsLastInstance) override
 	{
 		if (!m_Activated)
 			return;
@@ -153,9 +153,9 @@ public:
 				m_Consolised = false;
 		}
 
-		if (Scroll)
+		if (Scroll != scroll_type::none)
 		{
-			const auto SpaceNeeded = Global->Opt->ShowKeyBar? 3uz : 2uz;
+			const auto SpaceNeeded = (Global->Opt->ShowKeyBar? 2uz : 1uz) + (Scroll == scroll_type::exec? 1 : 0);
 
 			if (const auto SpaceAvailable = NumberOfEmptyLines(SpaceNeeded); SpaceAvailable < SpaceNeeded)
 				std::wcout << string_view(L"\n\n\n", SpaceNeeded - SpaceAvailable) << std::flush;
@@ -193,7 +193,7 @@ void console_session::EnterPluginContext(bool Scroll)
 	}
 	else
 	{
-		m_PluginContext->DoEpilogue(Scroll, false);
+		m_PluginContext->DoEpilogue(Scroll? i_context::scroll_type::plugin : i_context::scroll_type::none, false);
 	}
 
 	m_PluginContext->DoPrologue();
@@ -207,7 +207,7 @@ void console_session::LeavePluginContext(bool Scroll)
 
 	if (m_PluginContext)
 	{
-		m_PluginContext->DoEpilogue(Scroll, !m_PluginContextInvocations);
+		m_PluginContext->DoEpilogue(Scroll? i_context::scroll_type::plugin : i_context::scroll_type::none, !m_PluginContextInvocations);
 	}
 	else
 	{

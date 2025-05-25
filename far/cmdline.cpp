@@ -1021,7 +1021,7 @@ void CommandLine::ExecString(execute_info& Info)
 	SCOPE_EXIT
 	{
 		if (ExecutionContext)
-			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty(), true);
+			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty()? i_context::scroll_type::exec : i_context::scroll_type::none, true);
 
 		if (!IsUpdateNeeded)
 			return;
