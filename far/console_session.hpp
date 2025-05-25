@@ -46,37 +46,45 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 
-class i_context
-{
-public:
-	enum class scroll_type
-	{
-		none,
-		plugin,
-		exec,
-	};
-
-	virtual ~i_context() = default;
-
-	virtual void Activate() = 0;
-	virtual void Deactivate() = 0;
-	virtual void DrawCommand(string_view Command) = 0;
-	virtual void DoPrologue() = 0;
-	virtual void DoEpilogue(scroll_type Scroll, bool IsLastInstance) = 0;
-	virtual void Consolise(bool SetTextColour = true) = 0;
-};
-
 class console_session
 {
 public:
+	class context
+	{
+	public:
+		NONCOPYABLE(context);
+
+		enum class scroll_type
+		{
+			none,
+			plugin,
+			exec,
+		};
+
+		context() = default;
+		~context();
+
+		void Activate();
+		void Deactivate();
+		void DrawCommand(string_view Command);
+		void DoPrologue();
+		void DoEpilogue(scroll_type Scroll, bool IsLastInstance);
+		void Consolise();
+	private:
+		string m_Command;
+		bool m_Activated{};
+		bool m_Finalised{};
+		bool m_Consolised{};
+	};
+
 	void EnterPluginContext(bool Scroll);
 	void LeavePluginContext(bool Scroll);
-	std::shared_ptr<i_context> GetContext();
+	std::shared_ptr<context> GetContext();
 
 private:
 	std::unique_ptr<SaveScreen> m_Background;
-	std::weak_ptr<i_context> m_Context;
-	std::shared_ptr<i_context> m_PluginContext;
+	std::weak_ptr<context> m_Context;
+	std::shared_ptr<context> m_PluginContext;
 	unsigned m_PluginContextInvocations{};
 };
 

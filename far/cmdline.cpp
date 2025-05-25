@@ -1016,12 +1016,12 @@ void CommandLine::ExecString(execute_info& Info)
 {
 	bool IsUpdateNeeded = false;
 
-	std::shared_ptr<i_context> ExecutionContext;
+	std::shared_ptr<console_session::context> ExecutionContext;
 
 	SCOPE_EXIT
 	{
 		if (ExecutionContext)
-			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty()? i_context::scroll_type::exec : i_context::scroll_type::none, true);
+			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty()? console_session::context::scroll_type::exec : console_session::context::scroll_type::none, true);
 
 		if (!IsUpdateNeeded)
 			return;
@@ -1052,7 +1052,6 @@ void CommandLine::ExecString(execute_info& Info)
 			ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
 
 		ExecutionContext->DoPrologue();
-		ExecutionContext->Consolise();
 
 		if (Info.Echo)
 			std::wcout << std::endl;
