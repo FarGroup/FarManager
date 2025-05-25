@@ -57,117 +57,117 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-	void console_session::context::Activate()
+void console_session::context::Activate()
+{
+	if (m_Activated)
+		return;
+
+	m_Activated = true;
+	++Global->SuppressIndicators;
+	++Global->SuppressClock;
+
+	Global->WindowManager->ModalDesktopWindow();
+	Global->WindowManager->PluginCommit();
+}
+
+void console_session::context::Deactivate()
+{
+	if (!m_Activated)
+		return;
+
+	m_Activated = false;
+	Global->WindowManager->UnModalDesktopWindow();
+	Global->WindowManager->PluginCommit();
+	--Global->SuppressClock;
+	--Global->SuppressIndicators;
+}
+
+void console_session::context::DrawCommand(string_view const Command)
+{
+	Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
+
+	m_Command = Command;
+}
+
+void console_session::context::Consolise()
+{
+	assert(m_Activated);
+
+	if (m_Consolised)
+		return;
+	m_Consolised = true;
+
+	Global->ScrBuf->MoveCursor({ 0, WhereY() });
+	SetInitialCursorType();
+
+	if (!m_Command.empty())
+		ConsoleTitle::SetFarTitle(m_Command);
+
+	// BUGBUG, implement better & safer way to do this
+	const auto LockCount = Global->ScrBuf->GetLockCount();
+	Global->ScrBuf->SetLockCount(0);
+
+	Global->ScrBuf->Flush();
+
+	// BUGBUG, implement better & safer way to do this
+	Global->ScrBuf->SetLockCount(LockCount);
+
+	console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+
+	console.start_output();
+}
+
+void console_session::context::DoPrologue()
+{
+	Global->WindowManager->Desktop()->TakeSnapshot();
+
+	const auto XPos = 0;
+	const auto YPos = ScrY - (Global->Opt->ShowKeyBar? 1 : 0);
+
+	GotoXY(XPos, YPos);
+	m_Finalised = false;
+
+	Consolise();
+}
+
+void console_session::context::DoEpilogue(scroll_type const Scroll, bool IsLastInstance)
+{
+	if (!m_Activated)
+		return;
+
+	if (m_Finalised)
+		return;
+
+	if (Global->Opt->ShowKeyBar)
+		std::wcout << std::endl;
+
+	Global->ScrBuf->FillBuf();
+
+	if (IsLastInstance)
+		m_Consolised = false;
+
+	if (Scroll != scroll_type::none)
 	{
-		if (m_Activated)
-			return;
+		const auto SpaceNeeded = (Global->Opt->ShowKeyBar? 2uz : 1uz) + (Scroll == scroll_type::exec? 1 : 0);
 
-		m_Activated = true;
-		++Global->SuppressIndicators;
-		++Global->SuppressClock;
+		if (const auto SpaceAvailable = NumberOfEmptyLines(SpaceNeeded); SpaceAvailable < SpaceNeeded)
+			std::wcout << L"\n\n\n"sv.substr(0, SpaceNeeded - SpaceAvailable) << std::flush;
 
-		Global->WindowManager->ModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
+		Global->ScrBuf->FillBuf();
 	}
 
-	void console_session::context::Deactivate()
-	{
-		if (!m_Activated)
-			return;
+	console.ResetViewportPosition();
 
-		m_Activated = false;
-		Global->WindowManager->UnModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
-		--Global->SuppressClock;
-		--Global->SuppressIndicators;
-	}
+	Global->WindowManager->Desktop()->TakeSnapshot();
 
-	void console_session::context::DrawCommand(string_view const Command)
-	{
-		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
+	if (IsLastInstance)
+		m_Finalised = true;
+}
 
-		m_Command = Command;
-	}
-
-	void console_session::context::Consolise()
-	{
-		assert(m_Activated);
-
-		if (m_Consolised)
-			return;
-		m_Consolised = true;
-
-		Global->ScrBuf->MoveCursor({ 0, WhereY() });
-		SetInitialCursorType();
-
-		if (!m_Command.empty())
-			ConsoleTitle::SetFarTitle(m_Command);
-
-		// BUGBUG, implement better & safer way to do this
-		const auto LockCount = Global->ScrBuf->GetLockCount();
-		Global->ScrBuf->SetLockCount(0);
-
-		Global->ScrBuf->Flush();
-
-		// BUGBUG, implement better & safer way to do this
-		Global->ScrBuf->SetLockCount(LockCount);
-
-		console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-
-		console.start_output();
-	}
-
-	void console_session::context::DoPrologue()
-	{
-		Global->WindowManager->Desktop()->TakeSnapshot();
-
-		const auto XPos = 0;
-		const auto YPos = ScrY - (Global->Opt->ShowKeyBar? 1 : 0);
-
-		GotoXY(XPos, YPos);
-		m_Finalised = false;
-
-		Consolise();
-	}
-
-	void console_session::context::DoEpilogue(scroll_type const Scroll, bool IsLastInstance)
-	{
-		if (!m_Activated)
-			return;
-
-		if (m_Finalised)
-			return;
-
-			if (Global->Opt->ShowKeyBar)
-				std::wcout << std::endl;
-
-			Global->ScrBuf->FillBuf();
-
-			if (IsLastInstance)
-				m_Consolised = false;
-
-		if (Scroll != scroll_type::none)
-		{
-			const auto SpaceNeeded = (Global->Opt->ShowKeyBar? 2uz : 1uz) + (Scroll == scroll_type::exec? 1 : 0);
-
-			if (const auto SpaceAvailable = NumberOfEmptyLines(SpaceNeeded); SpaceAvailable < SpaceNeeded)
-				std::wcout << L"\n\n\n"sv.substr(0, SpaceNeeded - SpaceAvailable) << std::flush;
-
-			Global->ScrBuf->FillBuf();
-		}
-
-		console.ResetViewportPosition();
-
-		Global->WindowManager->Desktop()->TakeSnapshot();
-
-		if (IsLastInstance)
-			m_Finalised = true;
-	}
-
-	console_session::context::~context()
-	{
-		Deactivate();
-	}
+console_session::context::~context()
+{
+	Deactivate();
+}
 
 void console_session::EnterPluginContext(bool Scroll)
 {
