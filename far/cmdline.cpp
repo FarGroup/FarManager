@@ -215,6 +215,12 @@ void CommandLine::DrawFakeCommand(string_view const FakeCommand)
 	SetColor(COL_COMMANDLINE);
 	// TODO: wrap & scroll if too long
 	Text(FakeCommand);
+	Global->ScrBuf->Flush();
+
+	std::wcout << std::endl;
+
+	Global->ScrBuf->FillBuf();
+	Global->WindowManager->Desktop()->TakeSnapshot();
 }
 
 void CommandLine::SetCurPos(int Pos, int LeftPos, bool Redraw)
@@ -1015,13 +1021,11 @@ static void ProcessEcho(execute_info& Info)
 void CommandLine::ExecString(execute_info& Info)
 {
 	bool IsUpdateNeeded = false;
-
-	std::shared_ptr<console_session::context> ExecutionContext;
+	bool AddNewLine = true;
 
 	SCOPE_EXIT
 	{
-		if (ExecutionContext)
-			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty()? console_session::context::scroll_type::exec : console_session::context::scroll_type::none, true);
+		Global->WindowManager->Desktop()->ConsoleSession().deactivate(AddNewLine);
 
 		if (!IsUpdateNeeded)
 			return;
@@ -1043,25 +1047,18 @@ void CommandLine::ExecString(execute_info& Info)
 
 	const auto Activator = [&]
 	{
-		if (!ExecutionContext)
-			ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+		Global->WindowManager->Desktop()->ConsoleSession().activate(
+			Info.Echo? std::optional<string_view>{ Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand } : std::nullopt,
+			AddNewLine);
 
-		ExecutionContext->Activate();
-
-		if (Info.Echo)
-			ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
-
-		ExecutionContext->DoPrologue();
-
-		if (Info.Echo)
-			std::wcout << std::endl;
+		console.start_output();
 	};
 
 	if (Info.Command.empty())
 	{
 		// Just scroll the screen
+		AddNewLine = false;
 		Activator();
-		console.start_output();
 		console.command_finished();
 		return;
 	}
@@ -1099,7 +1096,10 @@ void CommandLine::ExecString(execute_info& Info)
 		if (Info.WaitMode != execute_info::wait_mode::no_wait && !Info.RunAs)
 		{
 			if (ProcessFarCommands(Info.Command, Activator))
+			{
+				console.command_finished(EXIT_SUCCESS);
 				return;
+			}
 
 			if (Global->CtrlObject->Plugins->ProcessCommandLine(Info.Command))
 				return;

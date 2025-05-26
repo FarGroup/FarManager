@@ -1275,15 +1275,35 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		if (!Global->CtrlObject || Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
+		static size_t UserScreenInvocations{};
+
 		if (Command == FCTL_GETUSERSCREEN)
 		{
-			Global->WindowManager->Desktop()->ConsoleSession().EnterPluginContext(!Param1);
+			if (!UserScreenInvocations++)
+				Global->WindowManager->Desktop()->ConsoleSession().activate({}, !Param1);
+
+			console.start_prompt();
+			console.start_command();
+			console.start_output();
 			return TRUE;
 		}
 
 		if (Command == FCTL_SETUSERSCREEN)
 		{
-			Global->WindowManager->Desktop()->ConsoleSession().LeavePluginContext(!Param1);
+			// FCTL_SETUSERSCREEN without FCTL_GETUSERSCREEN, 1.x-like
+			if (!UserScreenInvocations)
+			{
+				Global->WindowManager->Desktop()->ConsoleSession().snap(!Param1);
+				return TRUE;
+			}
+
+			console.command_finished();
+
+			if (!--UserScreenInvocations)
+			{
+				Global->WindowManager->Desktop()->ConsoleSession().deactivate(!Param1);
+			}
+
 			return TRUE;
 		}
 

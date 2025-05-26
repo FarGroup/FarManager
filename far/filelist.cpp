@@ -5174,7 +5174,9 @@ bool FileList::ApplyCommand()
 	++UpdateDisabled;
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
 	{
-		const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+		Global->WindowManager->Desktop()->ConsoleSession().activate();
+		SCOPE_EXIT{ Global->WindowManager->Desktop()->ConsoleSession().deactivate(); };
+
 		for (const auto& i: enum_selected())
 		{
 			if (CheckForEscAndConfirmAbort())
