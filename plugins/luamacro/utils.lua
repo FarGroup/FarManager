@@ -642,9 +642,11 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode, stacklevelinfo)
 
   if mode=="run" then
     local fname, line
-    fname = msg:match("^error loading module .- from file '([^\n]+)':")
+    fname = msg:match("^error loading module .- from file '([^\n]+)':") or
+      msg:match("^[^\n]+\\moonscript.lua:%d+: ([^\n]+): Failed to parse:")
     if fname then
-      line = tonumber(msg:match("^.-\n.-:(%d+):"))
+      line = msg:match("^.-\n.-:(%d+):") or msg:match("^.-\n %[(%d+)%] >>")
+      line = line and tonumber(line)
     else
       fname,line = stacklevelinfo.source:match("^@(.+)"), stacklevelinfo.currentline
     end
