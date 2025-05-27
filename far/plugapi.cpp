@@ -1280,11 +1280,15 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		if (Command == FCTL_GETUSERSCREEN)
 		{
 			if (!UserScreenInvocations++)
+			{
 				Global->WindowManager->Desktop()->ConsoleSession().activate({}, !Param1);
+				console.start_prompt();
+				console.start_command();
+				console.start_output();
+			}
+			else
+				Global->WindowManager->Desktop()->ConsoleSession().snap(!Param1);
 
-			console.start_prompt();
-			console.start_command();
-			console.start_output();
 			return TRUE;
 		}
 
@@ -1297,12 +1301,13 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				return TRUE;
 			}
 
-			console.command_finished();
-
 			if (!--UserScreenInvocations)
 			{
 				Global->WindowManager->Desktop()->ConsoleSession().deactivate(!Param1);
+				console.command_finished();
 			}
+			else
+				Global->WindowManager->Desktop()->ConsoleSession().snap(!Param1);
 
 			return TRUE;
 		}

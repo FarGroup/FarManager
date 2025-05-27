@@ -558,7 +558,7 @@ namespace
 		const auto Intersection{ intersect(segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemName.size()) } }, CellSegment) };
 		if (Intersection.empty()) return {};
 		return ItemName.substr(Intersection.start(), Intersection.length());
-	};
+	}
 
 	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
 	{
