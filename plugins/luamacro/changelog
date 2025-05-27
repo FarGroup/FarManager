@@ -1,3 +1,7 @@
+shmuel 2025-05-27 23:16:21+03:00 - build 880
+
+1. LuaFAR (far.Menu): refactoring.
+
 shmuel 2025-05-27 13:23:29+03:00 - build 879
 
 1. LuaFAR (far.Menu): allow each menu item to be specified
