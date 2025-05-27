@@ -2071,7 +2071,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3744734289
+mtime=3957513676
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2089,8 +2089,8 @@ mtime=3744734289
 #_      Id:           string  (GUID)
 #_
 #_  Items: table (array of menu items)
-#_      a menu item is a table;
-#_      fields of a menu item (every field is optional):
+#_      A menu item is either a string or a table.
+#_      The fields of a table menu item (every field is optional):
 #_        text:         string
 #_        checked:      boolean, or string
 #_        separator:    boolean

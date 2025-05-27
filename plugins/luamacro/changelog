@@ -1,3 +1,8 @@
+shmuel 2025-05-27 13:23:29+03:00 - build 879
+
+1. LuaFAR (far.Menu): allow each menu item to be specified
+   as either a string or a table (was: table only).
+
 shmuel 2025-05-16 21:19:24+03:00 - build 878
 
 1. Revert the last commit.
