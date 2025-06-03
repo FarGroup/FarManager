@@ -101,7 +101,7 @@ enum MODIF_PRESSED_LAST
 	MODIF_CTRL  = 3_bit,
 	MODIF_RCTRL = 4_bit,
 };
-static bool LastWasDown;
+static bool LastWasDown, LastWasAltGr;
 
 static std::chrono::steady_clock::time_point KeyPressedLastTime;
 
@@ -1128,10 +1128,12 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			true :
 			(CtrlState & SHIFT_PRESSED) != 0;
 
-		if (!KeyDown && CalcKey != KEY_NONE && !LastWasDown)
+		if (!KeyDown && CalcKey != KEY_NONE
+			&& (!LastWasDown || LastWasAltGr && KeyCode == VK_CONTROL && !(CtrlState & ENHANCED_KEY)))
 			CalcKey = KEY_NONE;
 		else
 			LastWasDown = CalcKey == KEY_NONE && KeyDown;
+		LastWasAltGr = KeyDown && KeyCode == VK_MENU && ENHANCED_KEY == (CtrlState & (ENHANCED_KEY | LEFT_CTRL_PRESSED));
 
 		Panel::EndDrag();
 	}
