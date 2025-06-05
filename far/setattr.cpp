@@ -957,7 +957,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}();
 
-			const auto IsMountPoint = IsDriveLetterPath && os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+			const auto IsMountPoint = os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
 			{
@@ -1125,11 +1125,13 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			if (IsDriveLetterPath)
-			{
-				AttrDlg[SA_TEXT_NAME].strData = os::fs::drive::get_root_directory(DriveLetter);
+			AttrDlg[SA_TEXT_NAME].strData = IsDriveLetterPath?
+				os::fs::drive::get_root_directory(DriveLetter) :
+				QuoteOuterSpace(SingleSelFileName);
 
-				if (string Device; os::fs::QueryDosDevice(os::fs::drive::get_device_path(DriveLetter), Device))
+			if (!SrcPanel) // Called from Disk Menu
+			{
+				if (string Device; os::fs::resolve_kernel_link(DeleteEndSlash(static_cast<string_view>(SingleSelFileName)), Device))
 				{
 					++DlgY;
 					++AttrDlg[SA_DOUBLEBOX].Y2;
@@ -1145,8 +1147,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					AttrDlg[SA_EDIT_DEVICE].strData = Device;
 				}
 			}
-			else
-				AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
 
 			ComputerName = ExtractComputerName(SrcPanel?
 				SrcPanel->GetCurDir() :
