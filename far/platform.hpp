@@ -57,11 +57,6 @@ namespace os
 		default_buffer_size = MAX_PATH
 	};
 
-	enum
-	{
-		NT_MAX_PATH = 32768
-	};
-
 	template<typename buffer_type>
 	auto buffer()
 	{
@@ -217,6 +212,11 @@ namespace os
 			void operator()(HANDLE Handle) const noexcept;
 		};
 
+		struct nt_handle_closer
+		{
+			void operator()(HANDLE Handle) const noexcept;
+		};
+
 		struct printer_handle_closer
 		{
 			void operator()(HANDLE Handle) const noexcept;
@@ -224,6 +224,7 @@ namespace os
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
+	using nt_handle = detail::handle_t<detail::nt_handle_closer>;
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
 
 	void set_error_mode(unsigned Mask);

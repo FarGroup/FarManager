@@ -149,12 +149,6 @@ namespace os::fs
 			if (!FindVolumeClose(Handle))
 				LOGWARNING(L"FindVolumeClose(): {}"sv, last_error());
 		}
-
-		void find_nt_handle_closer::operator()(HANDLE const Handle) const noexcept
-		{
-			if (const auto Status = imports.NtClose(Handle); !NT_SUCCESS(Status))
-				LOGWARNING(L"NtClose(): {}"sv, Status);
-		}
 	}
 
 	namespace state
@@ -1061,34 +1055,15 @@ namespace os::fs
 	static int MatchNtPathRoot(string_view const NtPath, const string_view DeviceName)
 	{
 		string TargetPath;
-		if (!os::fs::QueryDosDevice(DeviceName, TargetPath))
+		if (!resolve_kernel_link(DeviceName, TargetPath))
 			return 0;
 
 		if (PathStartsWith(NtPath, TargetPath))
 			return static_cast<int>(TargetPath.size());
 
 		// path could be an Object Manager symlink, try to resolve
-		UNICODE_STRING ObjName;
-		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.size() * sizeof(wchar_t));
-		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
-		OBJECT_ATTRIBUTES ObjAttrs;
-
-		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
-
-		HANDLE hSymLink;
-		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs)))
+		if (!resolve_kernel_link(TargetPath, TargetPath))
 			return 0;
-
-		SCOPE_EXIT{ imports.NtClose(hSymLink); };
-
-		const auto BufSize = 32767;
-		const wchar_t_ptr Buffer(BufSize);
-		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.data() };
-
-		if (!NT_SUCCESS(imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr)))
-			return 0;
-
-		TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 
 		if (PathStartsWith(NtPath, TargetPath))
 			return static_cast<int>(TargetPath.size());
@@ -1133,18 +1108,17 @@ namespace os::fs
 		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
 		for (const auto& i: enum_drives(get_logical_drives()))
 		{
-			const auto Device = drive::get_device_path(i);
-			if (const auto Len = MatchNtPathRoot(NtPath, Device))
+			if (const auto Len = MatchNtPathRoot(NtPath, drive::get_win32nt_device_path(i)))
 			{
-				FinalFilePath = NtPath.replace(0, Len, Device);
+				FinalFilePath = NtPath.replace(0, Len, drive::get_device_path(i));
 				return true;
 			}
 		}
 
 		// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-		for (auto& VolumeName : enum_volumes())
+		for (const auto& VolumeName: enum_volumes())
 		{
-			if (const auto Len = MatchNtPathRoot(NtPath, VolumeName.substr(4, VolumeName.size() - 5))) // w/o prefix and trailing slash
+			if (const auto Len = MatchNtPathRoot(NtPath, DeleteEndSlash(VolumeName)))
 			{
 				FinalFilePath = NtPath.replace(0, Len, VolumeName);
 				return true;
@@ -1585,6 +1559,48 @@ namespace os::fs
 		}
 
 		LOGWARNING(L"Name [{}] is too long, trying [{}]"sv, Name, ShortName);
+		return true;
+	}
+
+	bool resolve_kernel_link(string_view const DevicePath, string& TargetDevicePath)
+	{
+		assert(DevicePath.starts_with(L"\\"));
+		assert(!DevicePath.ends_with(L"\\"));
+
+		const auto KernelDevicePath = kernel_path(DevicePath);
+
+		UNICODE_STRING ObjName;
+		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(KernelDevicePath.size() * sizeof(wchar_t));
+		ObjName.Buffer = const_cast<wchar_t*>(KernelDevicePath.data());
+
+		OBJECT_ATTRIBUTES ObjAttrs;
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
+
+		nt_handle SymLink;
+		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(&ptr_setter(SymLink), GENERIC_READ, &ObjAttrs)))
+			return false;
+
+		wchar_t_ptr Buffer(1024);
+		UNICODE_STRING LinkTarget;
+		ULONG ReturnLength;
+
+		const auto QuerySymbolicLinkObject = [&]
+		{
+			LinkTarget = { 0, static_cast<USHORT>(Buffer.size() * sizeof(wchar_t)), Buffer.data() };
+			return imports.NtQuerySymbolicLinkObject(SymLink.native_handle(), &LinkTarget, &ReturnLength);
+		};
+
+		auto Result = QuerySymbolicLinkObject();
+		if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
+		{
+			Buffer.reset(ReturnLength / sizeof(wchar_t));
+			Result = QuerySymbolicLinkObject();
+		}
+
+		if (!NT_SUCCESS(Result))
+			return false;
+
+		TargetDevicePath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 		return true;
 	}
 

@@ -198,10 +198,16 @@ namespace os
 				LOGERROR(L"CloseHandle(): {}"sv, last_error());
 		}
 
+		void nt_handle_closer::operator()(HANDLE Handle) const noexcept
+		{
+			if (const auto Status = imports.NtClose(Handle); !NT_SUCCESS(Status))
+				LOGERROR(L"NtClose(): {}"sv, Status);
+		}
+
 		void printer_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			if (!ClosePrinter(Handle))
-				LOGWARNING(L"ClosePrinter(): {}"sv, last_error());
+				LOGERROR(L"ClosePrinter(): {}"sv, last_error());
 		}
 	}
 

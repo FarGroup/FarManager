@@ -66,11 +66,6 @@ namespace os::fs
 		{
 			void operator()(HANDLE Handle) const noexcept;
 		};
-
-		struct find_nt_handle_closer
-		{
-			void operator()(HANDLE Handle) const noexcept;
-		};
 	}
 
 	namespace state
@@ -81,7 +76,6 @@ namespace os::fs
 	using find_handle = os::detail::handle_t<detail::find_handle_closer>;
 	using find_file_handle = os::detail::handle_t<detail::find_file_handle_closer>;
 	using find_volume_handle = os::detail::handle_t<detail::find_volume_handle_closer>;
-	using find_nt_handle = os::detail::handle_t<detail::find_nt_handle_closer>;
 
 	using drives_set = std::bitset<26>;
 
@@ -230,7 +224,7 @@ namespace os::fs
 		bool get(bool Reset, string_view& Value) const;
 
 		UNICODE_STRING m_Object;
-		mutable find_nt_handle m_Handle;
+		mutable nt_handle m_Handle;
 		mutable char_ptr m_Buffer;
 		mutable std::optional<size_t> m_Index{};
 		mutable ULONG m_Context{};
@@ -428,6 +422,9 @@ namespace os::fs
 	bool is_directory_name_too_long(string_view LongName);
 
 	bool shorten(string_view Name, string& ShortName, function_ref<bool(string_view)> IsTooLong);
+
+	[[nodiscard]]
+	bool resolve_kernel_link(string_view DevicePath, string& TargetDevicePath);
 
 	class current_directory_guard
 	{
