@@ -503,50 +503,53 @@ void FileEditor::Init(
 				int Result = XC_EXISTS;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
-					message_result MsgCode;
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 					{
-						MsgCode = Message(0,
+						switch (Message(0,
 							msg(lng::MEditTitle),
 							{
 								strFullFileName,
 								msg(lng::MAskReload)
 							},
 							{ lng::MCurrent, lng::MNewOpen, lng::MReload, lng::MCancel },
-							L"EditorReload"sv, &EditorReloadId);
+							L"EditorReload"sv, &EditorReloadId))
+						{
+						case message_result::first_button:
+							Result = XC_EXISTS;
+							break;
+
+						case message_result::second_button:
+							Result = XC_OPEN_NEWINSTANCE;
+							break;
+
+						case message_result::third_button:
+							Result = XC_RELOAD;
+							break;
+
+						default:
+							SetExitCode(XC_LOADING_INTERRUPTED);
+							return;
+						}
 					}
 					else
 					{
-						MsgCode = Message(0,
+						switch (Message(0,
 							msg(lng::MEditTitle),
 							{
 								strFullFileName,
 								msg(lng::MAskReload)
 							},
 							{ lng::MNewOpen, lng::MCancel },
-							L"EditorReload"sv, &EditorReloadModalId);
+							L"EditorReload"sv, &EditorReloadModalId))
+						{
+						case message_result::first_button:
+							Result = XC_OPEN_NEWINSTANCE;
+							break;
 
-						if (MsgCode == message_result::first_button)
-							MsgCode = message_result::second_button;
-					}
-
-					switch (MsgCode)
-					{
-					case message_result::first_button:
-						Result = XC_EXISTS;
-						break;
-
-					case message_result::second_button:
-						Result = XC_OPEN_NEWINSTANCE;
-						break;
-
-					case message_result::third_button:
-						Result = XC_RELOAD;
-						break;
-
-					default:
-						SetExitCode(XC_LOADING_INTERRUPTED);
-						return;
+						default:
+							SetExitCode(XC_LOADING_INTERRUPTED);
+							break;
+						}
 					}
 				}
 				else
