@@ -662,7 +662,6 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode, stacklevelinfo)
     if 2 == far.Message(msg, title, "OK;Edit", "wl") then
       local pattern = isMoonScript and "%[(%d+)%] >>" or "^[^\n]-:(%d+):"
       local line = tonumber(msg:match(pattern))
-      if line and isMoonScript then line = GetMoonscriptLineNumber(filename,line) end
       editor.Editor(filename,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
     end
   end
