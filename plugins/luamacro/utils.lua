@@ -633,7 +633,7 @@ end
 -- attempt to perform arithmetic on a nil value
 
 local function ErrMsgLoad (msg, filename, isMoonScript, mode, stacklevelinfo)
-  local title = isMoonScript and mode=="compile" and "MoonScript" or "LuaMacro"
+  local title = "LuaMacro"
 
   if type(msg)~="string" and type(msg)~="number" then
     ErrMsg(filename..":\n<non-string error message>", title, nil, "w")
@@ -757,6 +757,7 @@ local function LoadMacros (unload, paths)
       local f, msg = (isMoonScript and moonscript.loadfile or loadfile)(FullPath)
       if not f then
         numerrors=numerrors+1
+        msg = ('Error in MoonScript file: %s\n%s'):format(FullPath, string.gsub(msg, "\n\t", "\n   "))
         ErrMsgLoad(msg,FullPath,isMoonScript,"compile")
         return
       end
