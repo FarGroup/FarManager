@@ -291,6 +291,16 @@ bool FileSystemWatcher::get_result() const
 
 	switch (const auto LastError = os::last_error(); LastError.Win32Error)
 	{
+	case ERROR_NOTIFY_ENUM_DIR:
+		// ReadDirectoryChangesW fails with ERROR_NOTIFY_ENUM_DIR
+		// when the system was unable to record all the changes to the directory.
+		// In this case, you should compute the changes
+		// by enumerating the directory or subtree.
+
+		// We don't care about individual events, so it's basically a success.
+		return true;
+
+	case ERROR_NOTIFY_CLEANUP:
 	case ERROR_OPERATION_ABORTED:
 		return false; // BAU, no need to make noise
 

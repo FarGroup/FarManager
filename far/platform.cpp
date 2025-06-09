@@ -276,6 +276,36 @@ void set_last_error_from_ntstatus(NTSTATUS const Status)
 		SetLastError(imports.RtlNtStatusToDosError(Status));
 }
 
+static string postprocess_error_string(unsigned const ErrorCode, string&& Str)
+{
+	std::ranges::replace_if(Str, IsEol, L' ');
+	inplace::trim_right(Str);
+	return far::format(L"0x{:0>8X} - {}"sv, ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
+}
+
+struct format_message_error_context
+{
+	bool Nt;
+	unsigned ErrorCode;
+};
+
+static string errors_to_string_impl(DWORD const Win32Error, NTSTATUS const NtError, format_message_error_context const* Context = {})
+{
+	const auto ErrWin32Str = Context && !Context->Nt && static_cast<DWORD>(Context->ErrorCode)    == Win32Error;
+	const auto ErrNtStr    = Context &&  Context->Nt && static_cast<NTSTATUS>(Context->ErrorCode) == NtError;
+
+	const auto StrWin32Error = Win32Error? far::format(L"LastError: {}"sv, ErrWin32Str? postprocess_error_string(Win32Error, L"Unknown error"s) : format_error(Win32Error)) : L""s;
+	const auto StrNtError    = NtError?    far::format(L"NTSTATUS: {}"sv,  ErrNtStr?    postprocess_error_string(NtError,    L"Unknown error"s) : format_ntstatus(NtError)) : L""s;
+
+	string_view const Errors[]
+	{
+		StrWin32Error,
+		StrNtError,
+	};
+
+	return join(L", "sv, Errors | std::views::filter([](string_view const Str) { return !Str.empty(); }));
+}
+
 static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 {
 	SCOPED_ACTION(os::last_error_guard);
@@ -295,7 +325,12 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 
 	if (!Size)
 	{
-		LOGERROR(L"FormatMessage(0x{:08X}): {}"sv, ErrorCode, last_error());
+		// Do not use error_state::to_string here, it will call this function again and might cause a recursion
+		const auto LastError = last_error();
+		format_message_error_context const Context{ Nt, ErrorCode };
+		const auto ErrorStr = errors_to_string_impl(LastError.Win32Error, LastError.NtError, &Context);
+
+		LOGERROR(L"FormatMessage<{}>(0x{:08X}): {}"sv, Nt? L"NT"sv : L"Win32"sv, ErrorCode, ErrorStr);
 		return {};
 	}
 
@@ -304,13 +339,6 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 	inplace::trim_right(Result);
 
 	return Result;
-}
-
-static string postprocess_error_string(unsigned const ErrorCode, string&& Str)
-{
-	std::ranges::replace_if(Str, IsEol, L' ');
-	inplace::trim_right(Str);
-	return far::format(L"0x{:0>8X} - {}"sv, ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
 }
 
 [[nodiscard]]
@@ -360,16 +388,7 @@ string error_state::NtErrorStr() const
 
 string error_state::to_string() const
 {
-	const auto StrWin32Error = Win32Error? far::format(L"LastError: {}"sv, Win32ErrorStr()) : L""s;
-	const auto StrNtError    = NtError?    far::format(L"NTSTATUS: {}"sv,  NtErrorStr())    : L""s;
-
-	string_view const Errors[]
-	{
-		StrWin32Error,
-		StrNtError,
-	};
-
-	return join(L", "sv, Errors | std::views::filter([](string_view const Str){ return !Str.empty(); }));
+	return errors_to_string_impl(Win32Error, NtError);
 }
 
 error_state last_error(source_location const& Location)

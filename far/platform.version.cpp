@@ -297,12 +297,21 @@ WARNING_POP()
 			const auto Key = reg::key::local_machine.open(L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
 
 			const auto ProductName = Key->get_string(L"ProductName"sv);
+			const auto CurrentVersion = Key->get_string(L"CurrentVersion"sv);
 			const auto DisplayVersion = Key->get_string(L"DisplayVersion"sv);
 			const auto ReleaseId = Key->get_string(L"ReleaseId"sv);
 			const auto CurrentBuild = Key->get_string(L"CurrentBuild"sv);
+			const auto CSDVersion = Key->get_string(L"CSDVersion"sv);
 			const auto UBR = Key->get_dword(L"UBR"sv);
 
-			return far::format(L" ({}, version {}, OS build {}.{})"sv, *ProductName, DisplayVersion? *DisplayVersion : *ReleaseId, *CurrentBuild, *UBR);
+			return far::format(L" ({}, version {}, OS build {}{}{})"sv,
+				ProductName? *ProductName : L"Unknown"sv,
+				DisplayVersion? *DisplayVersion : ReleaseId? *ReleaseId : CurrentVersion? *CurrentVersion : L"Unknown"sv,
+				CurrentBuild? *CurrentBuild : L"Unknown"sv,
+				UBR? L"."sv : L": "sv,
+				UBR? str(*UBR) : CSDVersion? *CSDVersion : L"Unknown"sv
+			);
+
 		}
 		catch (std::exception const&)
 		{

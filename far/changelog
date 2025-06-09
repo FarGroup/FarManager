@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-06-09 19:44:33+01:00 - build 6499
+
+1. Minor fixes for exotic environments.
+
+--------------------------------------------------------------------------------
 drkns 2025-06-07 23:53:11+01:00 - build 6488
 
 1. gh-968: EditorReloadModal dialog: the [ Cancel ] button does the same as the { New instance } button
