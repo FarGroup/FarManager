@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -91,12 +92,10 @@ void console_session::activate(std::optional<string_view> const Command, bool co
 	const auto LockCount = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
 
-	Global->ScrBuf->Flush();
-
 	// BUGBUG, implement better & safer way to do this
-	Global->ScrBuf->SetLockCount(LockCount);
+	SCOPE_EXIT{ Global->ScrBuf->SetLockCount(LockCount); };
 
-
+	Global->ScrBuf->Flush();
 
 	console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
