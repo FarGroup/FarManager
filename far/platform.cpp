@@ -349,12 +349,22 @@ string format_errno(int const ErrorCode)
 
 string format_error(DWORD const ErrorCode)
 {
-	return postprocess_error_string(ErrorCode, format_error_impl(ErrorCode, false));
+	return postprocess_error_string(
+		ErrorCode,
+		ErrorCode & FACILITY_NT_BIT? // HRESULT_FROM_NT
+			format_ntstatus(ErrorCode & ~FACILITY_NT_BIT) :
+			format_error_impl(ErrorCode, false)
+	);
 }
 
 string format_ntstatus(NTSTATUS const Status)
 {
-	return postprocess_error_string(Status, format_error_impl(Status, true));
+	return postprocess_error_string(
+		Status,
+		(Status & 0x0FFF0000) >> 16 == FACILITY_WIN32? // NTSTATUS_FROM_WIN32
+		format_error(Status & 0xFFFF) :
+		format_error_impl(Status, true)
+	);
 }
 
 last_error_guard::last_error_guard():
