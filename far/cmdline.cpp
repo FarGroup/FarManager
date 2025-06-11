@@ -929,7 +929,6 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 
 	if (equal_icase(Command, L"config"sv))
 	{
-		ConsoleActivatior();
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
