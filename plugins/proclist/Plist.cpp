@@ -42,9 +42,6 @@ static void WINAPI FreeUserData(void* const UserData, const FarPanelItemFreeInfo
 bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thread)
 {
 	//    Lock l(&Thread); // it's already locked in Plist::GetFindData
-	FILETIME ftSystemTime;
-	//Prepare system time to subtract dwElapsedTime
-	GetSystemTimeAsFileTime(&ftSystemTime);
 	auto pData = Thread.ProcessData();
 
 	if (pData.empty() || !Thread.IsOK())
@@ -72,17 +69,6 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 
 		CurItem.UserData.Data = new ProcessData();
 		CurItem.UserData.FreeData = FreeUserData;
-
-		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
-		{
-			ULARGE_INTEGER St;
-			St.LowPart = ftSystemTime.dwLowDateTime;
-			St.HighPart = ftSystemTime.dwHighDateTime;
-			ULARGE_INTEGER Cr;
-			Cr.QuadPart = St.QuadPart - pd.dwElapsedTime * 10000000;
-			pd.ftCreation.dwLowDateTime = Cr.LowPart;
-			pd.ftCreation.dwHighDateTime = Cr.HighPart;
-		}
 
 		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = CurItem.ChangeTime = pd.ftCreation;
 		const auto ullSize = pd.qwCounters[IDX_WORKINGSET] + pd.qwCounters[IDX_PAGEFILE];

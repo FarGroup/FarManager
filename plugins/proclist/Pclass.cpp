@@ -1743,8 +1743,8 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			{MSortByDescriptions,   SM_DESCR,                VK_F10, false, },
 			{MSortByOwner,          SM_OWNER,                VK_F11, false, },
 			//{MPageFileBytes,        SM_COMPRESSEDSIZE,       0,      true,  },
-			{MTitlePID,             SM_PROCLIST_PID,         0,      true,  },
-			{MTitleParentPID,       SM_PROCLIST_PARENTPID,   0,      true,  },
+			{MTitlePID,             SM_PROCLIST_PID,         0,      false, },
+			{MTitleParentPID,       SM_PROCLIST_PARENTPID,   0,      false, },
 			{MTitleThreads,         SM_NUMLINKS,             0,      true,  },
 			{MTitlePriority,        SM_PROCLIST_PRIOR,       0,      true   },
 			//{0,-1},
@@ -2015,33 +2015,28 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	if (Mode != FarSortModeSlot || SortMode < SM_PROCLIST_CUSTOM)
 		return -2;
 
-	int diff;
-
 	const auto& pd1 = *static_cast<const ProcessData*>(Item1->UserData.Data);
 	const auto& pd2 = *static_cast<const ProcessData*>(Item2->UserData.Data);
 
 	switch (SortMode)
 	{
 	case SM_PROCLIST_PID:
-		diff = compare_numbers(
+		return compare_numbers(
 			pd1.dwPID,
 			pd2.dwPID
 		);
-		break;
 
 	case SM_PROCLIST_PARENTPID:
-		diff = compare_numbers(
+		return compare_numbers(
 			pd1.dwParentPID,
 			pd2.dwParentPID
 		);
-		break;
 
 	case SM_PROCLIST_PRIOR:
-		diff = compare_numbers(
+		return compare_numbers(
 			pd1.dwPrBase,
 			pd2.dwPrBase
 		);
-		break;
 
 	default:
 		{
@@ -2069,7 +2064,7 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 			//  i=0; //????
 			//}
 
-			diff = bPerSec?
+			return bPerSec?
 				compare_numbers(
 					data1->qwResults[i],
 					data2->qwResults[i]
@@ -2079,16 +2074,7 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 					data2->qwCounters[i]
 			);
 		}
-		break;
 	}
-
-	if (diff == 0)
-		diff = compare_numbers(
-			reinterpret_cast<uintptr_t>(Item1->UserData.Data),
-			reinterpret_cast<uintptr_t>(Item2->UserData.Data)
-		); // unsorted
-
-	return diff;
 }
 
 /*

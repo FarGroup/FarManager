@@ -1,5 +1,6 @@
 ﻿#include <algorithm>
 #include <mutex>
+#include <cassert>
 #include <cstddef>
 #include <cassert>
 
@@ -218,10 +219,14 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads)
 
 bool PerfThread::RefreshImpl()
 {
+	// TODO: call NtQuerySystemInformation for fallbacks?
+
 	DebugToken token;
 	const auto dwTicksBeforeRefresh = GetTickCount();
 	std::vector<BYTE> buf(512 * 1024);
 	DWORD dwDeltaTickCount{};
+
+	FILETIME SystemTime;
 
 	for (bool Read = false; !Read;)
 	{
@@ -232,6 +237,10 @@ bool PerfThread::RefreshImpl()
 		{
 		case ERROR_SUCCESS:
 			Read = true;
+
+			// To subtract dwElapsedTime. As close to the read as possible for best accuracy.
+			GetSystemTimeAsFileTime(&SystemTime);
+
 			break;
 
 		case ERROR_LOCK_FAILED:
@@ -363,7 +372,11 @@ bool PerfThread::RefreshImpl()
 		if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwElapsedCounter))
 		{
 			if (*Ptr && pObj->PerfFreq.QuadPart)
-				Task.dwElapsedTime = ((pObj->PerfTime.QuadPart - *Ptr) / pObj->PerfFreq.QuadPart);
+			{
+				assert(pObj->PerfFreq.QuadPart == 10'000'000); // 100 ns
+
+				Task.dwElapsedTime = pObj->PerfTime.QuadPart - *Ptr;
+			}
 		}
 		else
 			return false;
@@ -426,21 +439,44 @@ bool PerfThread::RefreshImpl()
 			}
 		}
 
-		if (!pOldTask)
+		if (!pOldTask && m_HostName.empty() && Task.dwProcessId > 8)
 		{
-			if (const auto hProcess = !m_HostName.empty() || Task.dwProcessId <= 8? nullptr :
-				handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | READ_CONTROL, Task.dwProcessId)))
+			auto hProcess = handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, Task.dwProcessId));
+
+			// Try limited to at least get the times etc.
+			if (!hProcess)
+				hProcess = handle(OpenProcessForced(&token, PROCESS_QUERY_LIMITED_INFORMATION, Task.dwProcessId));
+
+			if (hProcess)
 			{
 				get_open_process_data(hProcess.get(), &Task.ProcessName, &Task.FullPath, &Task.CommandLine, {}, {});
+
 				FILETIME ftExit, ftKernel, ftUser;
 				GetProcessTimes(hProcess.get(), &Task.ftCreation, &ftExit, &ftKernel, &ftUser);
-				SetLastError(ERROR_SUCCESS);
-				Task.dwGDIObjects = pGetGuiResources(hProcess.get(), 0/*GR_GDIOBJECTS*/);
-				Task.dwUSERObjects = pGetGuiResources(hProcess.get(), 1/*GR_USEROBJECTS*/);
+
+				Task.dwGDIObjects = pGetGuiResources(hProcess.get(), GR_GDIOBJECTS);
+				Task.dwUSERObjects = pGetGuiResources(hProcess.get(), GR_USEROBJECTS);
 
 				if (is_wow64_process(hProcess.get()))
 					Task.Bitness = 32;
 			}
+		}
+
+		if (!Task.ftCreation.dwLowDateTime && !Task.ftCreation.dwHighDateTime && Task.dwElapsedTime)
+		{
+			ULARGE_INTEGER const St
+			{
+				.LowPart = SystemTime.dwLowDateTime,
+				.HighPart = SystemTime.dwHighDateTime,
+			};
+
+			ULARGE_INTEGER const Cr
+			{
+				.QuadPart = St.QuadPart - Task.dwElapsedTime
+			};
+
+			Task.ftCreation.dwLowDateTime = Cr.LowPart;
+			Task.ftCreation.dwHighDateTime = Cr.HighPart;
 		}
 
 		if (Task.ProcessName.empty() && !ProcessName.empty())  // if after all this it's still unfilled...
