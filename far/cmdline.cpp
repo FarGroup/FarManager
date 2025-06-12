@@ -918,7 +918,7 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
-static bool ProcessFarCommands(string_view Command, function_ref<void()> const ConsoleActivatior)
+static bool ProcessFarCommands(string_view Command, function_ref<void()> const ConsoleActivator)
 {
 	inplace::trim(Command);
 
@@ -935,7 +935,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 
 	if (equal_icase(Command, L"about"sv))
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		std::wcout << L'\n' << build::version_string() << L'\n' << build::copyright() << L'\n';
 
@@ -991,7 +991,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 	{
 		if (const auto LogParameters = Command.substr(LogCommand.size()); LogParameters.starts_with(L' ') || LogParameters.empty())
 		{
-			ConsoleActivatior();
+			ConsoleActivator();
 			logging::configure(trim(LogParameters));
 			return true;
 		}
@@ -1117,7 +1117,7 @@ void CommandLine::ExecString(execute_info& Info)
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void()> const ConsoleActivatior)
+bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void()> const ConsoleActivator)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
@@ -1142,7 +1142,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 	if (Command.size() == 2 && Command[1] == L':' && Arguments.empty())
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		const auto DriveLetter = upper(CmdLine[0]);
 		if (!FarChDir(os::fs::drive::get_device_path(DriveLetter)))
@@ -1184,7 +1184,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			if (SetParams.find_first_of(L"|>"sv) != SetParams.npos)
 				return false;
 
-			ConsoleActivatior();
+			ConsoleActivator();
 
 			const os::env::provider::strings EnvStrings;
 			for (const auto& i: enum_substrings(EnvStrings.data()))
@@ -1199,7 +1199,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			return true;
 		}
 
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		const auto VariableValue = SetParams.substr(pos + 1);
 		const auto VariableName = SetParams.substr(0, pos);
@@ -1227,7 +1227,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			return false;
 		}
 
-		ConsoleActivatior();
+		ConsoleActivator();
 		console.Clear(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		return true;
 	}
@@ -1235,7 +1235,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// PUSHD путь | ..
 	if (equal_icase(Command, L"PUSHD"sv))
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		const auto PushDir = m_CurDir;
 
@@ -1252,7 +1252,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
 	if (equal_icase(Command, L"POPD"sv))
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		if (!ppstack.empty())
 		{
@@ -1275,7 +1275,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// CLRD
 	if (equal_icase(Command, L"CLRD"sv))
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		clear_and_shrink(ppstack);
 		os::env::del(L"FARDIRSTACK"sv);
@@ -1305,7 +1305,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			char_width::invalidate();
 		}
 
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		Text(ChcpParams);
 
@@ -1328,7 +1328,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (CdParams.empty())
 			return false;
 
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		IntChDir(CdParams, !IsCommandCd);
 		return true;
@@ -1336,7 +1336,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 	if (equal_icase(Command, L"TITLE"))
 	{
-		ConsoleActivatior();
+		ConsoleActivator();
 
 		ConsoleTitle::SetUserTitle(Arguments);
 
@@ -1353,7 +1353,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (!from_string(Arguments, ExitCode))
 			LOGWARNING(L"Error parsing exit arguments: {}"sv, Arguments);
 
-		ConsoleActivatior();
+		ConsoleActivator();
 		Global->WindowManager->ExitMainLoop(FALSE, ExitCode);
 		return true;
 	}
