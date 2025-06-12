@@ -2014,7 +2014,7 @@ struct PluginData
 	unsigned long long PluginFlags;
 };
 
-bool PluginManager::ProcessCommandLine(const string_view Command)
+bool PluginManager::ProcessCommandLine(const string_view Command, function_ref<void(bool NoWait)> const ConsoleActivator)
 {
 	const auto Prefix = GetPluginPrefixPath(Command);
 	if (!Prefix)
@@ -2062,6 +2062,9 @@ bool PluginManager::ProcessCommandLine(const string_view Command)
 
 	if (items.empty())
 		return false;
+
+	ConsoleActivator(true);
+	console.command_finished();
 
 	auto PluginIterator = items.cbegin();
 

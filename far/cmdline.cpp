@@ -918,8 +918,13 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
-static bool ProcessFarCommands(string_view Command, function_ref<void()> const ConsoleActivator)
+static bool ProcessFarCommands(string_view Command, function_ref<void(bool NoWait)> const Activator)
 {
+	const auto ConsoleActivator = [&Activator](bool const NoWait = false)
+	{
+		Activator(NoWait);
+	};
+
 	inplace::trim(Command);
 
 	if (constexpr auto Prefix = L"far:"sv; Command.starts_with(Prefix))
@@ -929,6 +934,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 
 	if (equal_icase(Command, L"config"sv))
 	{
+		ConsoleActivator(true);
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
@@ -991,7 +997,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 	{
 		if (const auto LogParameters = Command.substr(LogCommand.size()); LogParameters.starts_with(L' ') || LogParameters.empty())
 		{
-			ConsoleActivator();
+			ConsoleActivator(true);
 			logging::configure(trim(LogParameters));
 			return true;
 		}
@@ -999,6 +1005,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void()> const C
 
 	if (equal_icase(Command, L"regex"sv))
 	{
+		ConsoleActivator(true);
 		regex_playground();
 		return true;
 	}
@@ -1044,13 +1051,16 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	};
 
-	const auto Activator = [&]
+	const auto Activator = [&](bool const NoWait = false)
 	{
 		Global->WindowManager->Desktop()->ConsoleSession().activate(
 			Info.Echo? std::optional<string_view>{ Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand } : std::nullopt,
 			AddNewLine);
 
 		console.start_output();
+
+		if (NoWait)
+			Global->WindowManager->Desktop()->ConsoleSession().deactivate(AddNewLine);
 	};
 
 	if (Info.Command.empty())
@@ -1100,7 +1110,7 @@ void CommandLine::ExecString(execute_info& Info)
 				return;
 			}
 
-			if (Global->CtrlObject->Plugins->ProcessCommandLine(Info.Command))
+			if (Global->CtrlObject->Plugins->ProcessCommandLine(Info.Command, Activator))
 				return;
 
 			if (ProcessOSCommands(Info.Command, Activator))
