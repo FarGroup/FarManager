@@ -967,16 +967,27 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			wchar_t DateText[MAX_DATETIME], TimeText[MAX_DATETIME];
 			ConvertDate(CurItem.CreationTime, DateText, TimeText);
 
+			const auto Hns = ULARGE_INTEGER
+			{
+				.LowPart = CurItem.CreationTime.dwLowDateTime,
+				.HighPart = CurItem.CreationTime.dwHighDateTime,
+			}
+			.QuadPart % 10'000'000;
+
+			size_t StartedTimestampLength{};
+
 			if (Current.wYear != Compare.wYear || Current.wMonth != Compare.wMonth || Current.wDay != Compare.wDay)
 			{
-				WriteToFile(InfoFile.get(), far::format(L"\n{}{} {}\n"sv, PrintTitle(MTitleStarted), DateText, TimeText));
+				WriteToFile(InfoFile.get(), far::format(L"\n{}{} {}.{:07}\n"sv, PrintTitle(MTitleStarted), DateText, TimeText, Hns));
+				StartedTimestampLength = std::wcslen(DateText) + 1 + std::wcslen(TimeText) + 1 + 7; // Date + space + Time + space + Hns
 			}
 			else
 			{
-				WriteToFile(InfoFile.get(), far::format(L"\n{}{}\n"sv, PrintTitle(MTitleStarted), TimeText));
+				WriteToFile(InfoFile.get(), far::format(L"\n{}{}.{:07}\n"sv, PrintTitle(MTitleStarted), TimeText, Hns));
+				StartedTimestampLength = std::wcslen(TimeText) + 1 + 7; // Time + space + Hns
 			}
 
-			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleUptime), FileTimeDifferenceToText(CurFileTime, CurItem.CreationTime)));
+			WriteToFile(InfoFile.get(), far::format(L"{}{:>{}}\n"sv, PrintTitle(MTitleUptime), FileTimeDifferenceToText(CurFileTime, CurItem.CreationTime), StartedTimestampLength));
 		}
 
 		if (HostName.empty()) // local only

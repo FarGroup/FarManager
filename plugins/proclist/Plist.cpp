@@ -70,7 +70,14 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		CurItem.UserData.Data = new ProcessData();
 		CurItem.UserData.FreeData = FreeUserData;
 
-		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = CurItem.ChangeTime = pd.ftCreation;
+		ULARGE_INTEGER const CreationTime{ .QuadPart = pd.CreationTime };
+		FILETIME const CreationFileTime
+		{
+			.dwLowDateTime = CreationTime.LowPart,
+			.dwHighDateTime = CreationTime.HighPart,
+		};
+
+		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = CurItem.ChangeTime = CreationFileTime;
 		const auto ullSize = pd.qwCounters[IDX_WORKINGSET] + pd.qwCounters[IDX_PAGEFILE];
 		CurItem.FileSize = ullSize;
 		CurItem.AllocationSize = pd.qwResults[IDX_PAGEFILE];

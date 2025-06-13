@@ -12,6 +12,7 @@
 #include <lmcons.h>
 #include <sddl.h>
 
+#include <algorithm.hpp>
 #include <smart_ptr.hpp>
 
 using namespace std::literals;
@@ -364,44 +365,26 @@ static handle duplicate_handle(HANDLE h, DWORD dwPID)
 	return DuplicatedHandle;
 }
 
-struct virtual_deleter
-{
-	void operator()(void* const Ptr) const
-	{
-		VirtualFree(Ptr, 0, MEM_RELEASE);
-	}
-};
-
-template<typename T>
-using virtual_ptr = std::unique_ptr<T, virtual_deleter>;
-
-template<typename T>
-auto make_virtual(size_t const Size)
-{
-	return virtual_ptr<T>(static_cast<T*>(VirtualAlloc({}, Size, MEM_COMMIT, PAGE_READWRITE)));
-}
-
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread)
 {
-	DWORD size = 0x2000;
-	auto pSysHandleInformation = make_virtual<PROCLIST_SYSTEM_HANDLE_INFORMATION>(size);
-	if (!pSysHandleInformation)
-		return false;
+	block_ptr<PROCLIST_SYSTEM_HANDLE_INFORMATION> Info(sizeof(*Info));
 
 	for (;;)
 	{
-		DWORD needed;
-		if (NT_SUCCESS(pNtQuerySystemInformation(16, pSysHandleInformation.get(), size, &needed)))
+		const auto SystemHandleInformation = 16;
+
+		ULONG ReturnSize{};
+		const auto Result = pNtQuerySystemInformation(SystemHandleInformation, Info.data(), static_cast<ULONG>(Info.size()), &ReturnSize);
+		if (NT_SUCCESS(Result))
 			break;
 
-		if (needed == 0)
-			return false;
+		if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
+		{
+			Info.reset(ReturnSize? ReturnSize : grow_exp(Info.size(), {}));
+			continue;
+		}
 
-		// The size was not enough
-		size = needed + 256;
-		pSysHandleInformation = make_virtual<PROCLIST_SYSTEM_HANDLE_INFORMATION>(size);
-		if (!pSysHandleInformation)
-			return false;
+		return false;
 	}
 
 	WriteToFile(file, far::format(L"\n{}:\n{:6} {:8} {:15} {}\n"sv,
@@ -413,13 +396,13 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 	);
 
 	// Iterating through the objects
-	for (DWORD i = 0; i < pSysHandleInformation->NumberOfHandles; i++)
+	for (DWORD i = 0; i < Info->NumberOfHandles; i++)
 	{
 		// ProcessId filtering check
-		if (pSysHandleInformation->Handles[i].UniqueProcessId != dwPID && dwPID != static_cast<DWORD>(-1))
+		if (Info->Handles[i].UniqueProcessId != dwPID && dwPID != static_cast<DWORD>(-1))
 			continue;
 
-		auto Handle = reinterpret_cast<HANDLE>(static_cast<uintptr_t>(pSysHandleInformation->Handles[i].HandleValue));
+		auto Handle = reinterpret_cast<HANDLE>(static_cast<uintptr_t>(Info->Handles[i].HandleValue));
 		handle DuplicatedHandle;
 		if (dwPID != GetCurrentProcessId())
 		{
@@ -435,8 +418,8 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 			continue;
 
 		WriteToFile(file, far::format(L"{:6X} {:08X} {:15} {}\n"sv,
-			pSysHandleInformation->Handles[i].HandleValue,
-			pSysHandleInformation->Handles[i].GrantedAccess,
+			Info->Handles[i].HandleValue,
+			Info->Handles[i].GrantedAccess,
 			TypeToken,
 			Name));
 	}

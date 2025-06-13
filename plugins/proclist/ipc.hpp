@@ -328,7 +328,7 @@ public:
 		if (!get_internal_process_data(hProcess, &Data, pProcessParams, pEnd))
 			return;
 
-		if (ProcessName)
+		if (ProcessName && ProcessName->empty())
 		{
 			*ProcessName = read_string(hProcess, Data.BaseDllName);
 		}

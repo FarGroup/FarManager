@@ -34,7 +34,7 @@ struct ProcessPerfData
 	bool FullPathRead{};
 	bool OwnerRead{};
 	bool CommandLineRead{};
-	FILETIME    ftCreation{};
+	uint64_t    CreationTime{};
 	DWORD       dwGDIObjects{}, dwUSERObjects{};
 	int         Bitness{};
 };

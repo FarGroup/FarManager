@@ -1,3 +1,11 @@
+drkns 2025-06-13 21:26:49+01:00 - build 213
+
+1. Use more reliable data source for basic process information if possible.
+
+2. Minor fixes.
+
+3. Refactoring.
+
 drkns 2025-06-12 23:34:06+01:00 - build 212
 
 1. Fix spurious and unpredictable sorting.
