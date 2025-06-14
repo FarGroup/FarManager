@@ -1053,6 +1053,9 @@ void CommandLine::ExecString(execute_info& Info)
 
 	const auto Activator = [&](bool const NoWait = false)
 	{
+		if (NoWait && !Info.Echo)
+			return;
+
 		Global->WindowManager->Desktop()->ConsoleSession().activate(
 			Info.Echo? std::optional<string_view>{ Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand } : std::nullopt,
 			AddNewLine);
