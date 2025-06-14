@@ -273,7 +273,7 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 		if (DWORD dwId = 0; GetProcessId(handle, dwId))
 		{
 			const std::scoped_lock l(*pThread);
-			const auto pd = pThread->GetProcessData(dwId, 0);
+			const auto pd = pThread->GetProcessData(dwId, {});
 			const auto pName = pd? pd->ProcessName : L"<unknown>"sv;
 			return far::format(L"{} ({})"sv, pName, dwId);
 		}

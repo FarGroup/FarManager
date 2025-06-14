@@ -188,35 +188,14 @@ void PerfThread::unlock()
 	ReleaseMutex(hMutex.get());
 }
 
-ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads)
+ProcessPerfData* PerfThread::GetProcessData(DWORD const Pid, std::wstring_view const ProcessName)
 {
-	std::pair<ProcessPerfData*, size_t> ZeroPid[10];
-	auto ZeroPidIterator = std::begin(ZeroPid);
+	const auto Key = !Pid && ProcessName == L"_Total"sv? static_cast<DWORD>(-1) : Pid;
 
-	if (dwPid)
-	{
-		if (const auto Iterator = m_ProcessesData.find(dwPid); Iterator != m_ProcessesData.end())
-		{
-			return &Iterator->second;
-		}
+	if (const auto Iterator = m_ProcessesData.find(Key); Iterator != m_ProcessesData.end())
+		return &Iterator->second;
 
-		return {};
-	}
-
-	if (ZeroPidIterator == ZeroPid + 1)
-		return ZeroPidIterator->first;
-
-	const auto threads_delta = [dwThreads](ProcessPerfData* Data)
-	{
-		return dwThreads > Data->dwThreads?
-			dwThreads - Data->dwThreads :
-			Data->dwThreads - dwThreads;
-	};
-
-	return std::min_element(std::begin(ZeroPid), ZeroPidIterator, [&](const auto& a, const auto& b)
-	{
-		return threads_delta(a.first) < threads_delta(b.first);
-	})->first;
+	return {};
 }
 
 struct PROCLIST_SYSTEM_PROCESS_INFORMATION
@@ -406,24 +385,28 @@ bool PerfThread::RefreshImpl()
 		if (!pProcessId)
 			return false;
 
-		auto& Task = NewPData.emplace(*pProcessId, ProcessPerfData{})->second;
+		const auto IsTotal = *pProcessId == 0 && ProcessName == L"_Total"sv;
+
+		// Real process ids can't be odd, so it's fine
+		auto& Task = NewPData.emplace(IsTotal? static_cast<DWORD>(-1) : *pProcessId, ProcessPerfData{}).first->second;
 
 		Task.dwProcessId = *pProcessId;
 		Task.Bitness = DefaultBitness;
 
-		if (const auto Ptr = view_as_opt<DWORD>(pCounter, DataEnd, dwProcessIdCounter))
-			Task.dwProcessId = *Ptr;
-		else
-			return false;
+		const auto ProcessInfo = [&] -> PROCLIST_SYSTEM_PROCESS_INFORMATION const*
+		{
+			if (IsTotal)
+				return nullptr;
 
-		const auto ProcesInfoIterator = ProcessMap.find(Task.dwProcessId);
-		const auto ProcessInfo = ProcesInfoIterator != ProcessMap.cend()? ProcesInfoIterator->second : nullptr;
+			const auto ProcesInfoIterator = ProcessMap.find(Task.dwProcessId);
+			return ProcesInfoIterator != ProcessMap.cend()? ProcesInfoIterator->second : nullptr;
+		}();
 
 		ProcessPerfData* pOldTask = {};
-		if (!m_ProcessesData.empty())  // Use prev data if any
+		if (!IsTotal && !m_ProcessesData.empty())  // Use prev data if any
 		{
 			//Get the pointer to the previous instance of this process
-			pOldTask = GetProcessData(Task.dwProcessId, Task.dwThreads);
+			pOldTask = GetProcessData(Task.dwProcessId, Task.ProcessName);
 			if (pOldTask)  // copy process' data from pOldTask to Task
 			{
 				Task = *pOldTask;
@@ -579,7 +562,7 @@ bool PerfThread::RefreshImpl()
 			// pointer to the process name
 			Task.ProcessName.assign(ProcessName);
 
-			if (Task.dwProcessId > 8)
+			if (!IsTotal && Task.dwProcessId > 8)
 				Task.ProcessName += L".exe";
 		}
 
@@ -710,7 +693,7 @@ void PerfThread::RefreshWMIData()
 		{
 			const std::scoped_lock l(*this);
 
-			if (auto* Data = GetProcessData(i.dwProcessId, i.dwThreads))
+			if (auto* Data = GetProcessData(i.dwProcessId, i.ProcessName))
 				*Data = i;
 		}
 	}

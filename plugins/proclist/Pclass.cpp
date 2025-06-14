@@ -583,6 +583,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 	{
 		PluginPanelItem& CurItem = pPanelItem[i];
 		auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
+		const auto IsTotal = pdata.dwPID == 0 && CurItem.FileName == L"_Total"sv;
 		// Make descriptions
 		wchar_t Title[MAX_PATH]{};
 		std::unique_ptr<char[]> Buffer;
@@ -620,7 +621,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 			std::wcscpy(const_cast<wchar_t*>(CurItem.Description), pDesc);
 		}
 
-		const auto pd = pPerfThread->GetProcessData(pdata.dwPID, (DWORD)CurItem.NumberOfLinks);
+		const auto pd = pPerfThread->GetProcessData(pdata.dwPID, CurItem.FileName);
 
 		int Widths[MAX_CUSTOM_COLS]{};
 		int nCols = 0;
@@ -698,7 +699,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 				std::wstring Str;
 
-				if (c >= L'A') // Not a performance counter
+				if ((IsTotal && c == 'T') || (!IsTotal && c >= L'A')) // Not a performance counter
 					Str = str(dwData);
 				else if (pd && iCounter >= 0)     // Format performance counters
 				{
@@ -829,11 +830,11 @@ static auto window_ex_style(HWND Hwnd)
 
 #undef CODE_STR
 
-static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
+static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, const wchar_t* const Name)
 {
 	WriteToFile(InfoFile, L'\n');
 	const std::scoped_lock l(Thread);
-	const auto pdata = Thread.GetProcessData(dwPid, dwThreads);
+	const auto pdata = Thread.GetProcessData(dwPid, Name);
 	if (!pdata)
 		return;
 
@@ -891,7 +892,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		if (!pdata)
 		{
 			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-			const auto ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
+			const auto ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.FileName);
 
 			if (ppd && GetPData(PData, *ppd))
 				pdata = &PData;
@@ -899,6 +900,8 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			if (!pdata)
 				return 0;
 		}
+
+		const auto IsTotal = pdata->dwPID == 0 && CurItem.FileName == L"_Total"sv;
 
 		// may be 0 if called from FindFile
 		std::wstring FileName = *DestPath;
@@ -927,32 +930,38 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		WriteToFile(InfoFile.get(), L'\xfeff');
 
-		WriteToFile(InfoFile.get(), far::format(L"{}{}, {}{}\n"sv, PrintTitle(MTitleModule), CurItem.FileName, pdata->Bitness, GetMsg(MBits)));
+		if (IsTotal)
+			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleModule), CurItem.FileName));
+		else
+			WriteToFile(InfoFile.get(), far::format(L"{}{}, {}{}\n"sv, PrintTitle(MTitleModule), CurItem.FileName, pdata->Bitness, GetMsg(MBits)));
 
-		if (!pdata->FullPath.empty())
+		if (!IsTotal && !pdata->FullPath.empty())
 		{
 			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleFullPath), pdata->FullPath));
 			PrintVersionInfo(InfoFile.get(), pdata->FullPath.c_str());
 		}
 
-		WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitlePID), pdata->dwPID));
-		WriteToFile(InfoFile.get(), PrintTitle(MTitleParentPID));
-
+		if (!IsTotal)
 		{
+			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitlePID), pdata->dwPID));
+			WriteToFile(InfoFile.get(), PrintTitle(MTitleParentPID));
+
 			const std::scoped_lock l(*pPerfThread);
-			const auto pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, 0);
+			const auto pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, PanelItem->FileName);
 			const auto pName = pdata->dwParentPID && pParentData? pParentData->ProcessName.c_str() : nullptr;
 
 			if (pName)
 				WriteToFile(InfoFile.get(), far::format(L"{}  ({})\n"sv, pdata->dwParentPID, pName));
 			else
 				WriteToFile(InfoFile.get(), far::format(L"{}\n"sv, pdata->dwParentPID));
+
+			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitlePriority), pdata->dwPrBase));
 		}
 
-		WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitlePriority), pdata->dwPrBase));
 		WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleThreads), CurItem.NumberOfLinks));
 
-		PrintOwnerInfo(InfoFile.get(), pdata->dwPID);
+		if (!IsTotal)
+			PrintOwnerInfo(InfoFile.get(), pdata->dwPID);
 
 		// Time information
 
@@ -1005,7 +1014,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 				const std::scoped_lock l(*pPerfThread);
 
-				if (const auto pd = pPerfThread->GetProcessData(pdata->dwPID, (DWORD)CurItem.NumberOfLinks))
+				if (const auto pd = pPerfThread->GetProcessData(pdata->dwPID, CurItem.FileName))
 				{
 					if (pd->dwGDIObjects)
 					{
@@ -1021,7 +1030,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		}
 
 		if (LocalOpt.ExportPerformance)
-			DumpNTCounters(InfoFile.get(), *pPerfThread, pdata->dwPID, (DWORD)CurItem.NumberOfLinks);
+			DumpNTCounters(InfoFile.get(), *pPerfThread, pdata->dwPID, CurItem.FileName);
 
 		if (HostName.empty() && pdata->hwnd)
 		{
@@ -1036,7 +1045,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			WriteToFile(InfoFile.get(), far::format(L"{}{:08X} {}\n"sv, PrintTitle(MTitleExtStyle), ExStyle, ExStyleStr));
 		}
 
-		if (HostName.empty() && LocalOpt.ExportModuleInfo && pdata->dwPID != 8)
+		if (HostName.empty() && LocalOpt.ExportModuleInfo && pdata->dwPID)
 		{
 			WriteToFile(InfoFile.get(), far::format(L"\n{}:\n{:<{}} {:<8} {}\n"sv,
 				GetMsg(MTitleModules),
@@ -1049,7 +1058,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			PrintModules(InfoFile.get(), pdata->dwPID, pdata->Bitness, LocalOpt);
 		}
 
-		if (HostName.empty() && LocalOpt.ExportHandles && pdata->dwPID /*&& pdata->dwPID!=8*/)
+		if (HostName.empty() && LocalOpt.ExportHandles && pdata->dwPID)
 			PrintHandleInfo(pdata->dwPID, InfoFile.get(), LocalOpt.ExportHandlesUnnamed != 0, pPerfThread.get());
 	}
 
@@ -2052,8 +2061,8 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	default:
 		{
 			const std::scoped_lock l(*pPerfThread);
-			const auto data1 = pPerfThread->GetProcessData(pd1.dwPID, static_cast<DWORD>(Item1->NumberOfLinks));
-			const auto data2 = pPerfThread->GetProcessData(pd2.dwPID, static_cast<DWORD>(Item2->NumberOfLinks));
+			const auto data1 = pPerfThread->GetProcessData(pd1.dwPID, Item1->FileName);
+			const auto data2 = pPerfThread->GetProcessData(pd2.dwPID, Item1->FileName);
 
 			if (!data1)
 				return data2? -1 : 0;

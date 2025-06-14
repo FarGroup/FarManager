@@ -94,7 +94,7 @@ public:
 	void unlock();
 
 	auto& ProcessData() { return m_ProcessesData; }
-	ProcessPerfData* GetProcessData(DWORD dwPid, DWORD dwThreads);
+	ProcessPerfData* GetProcessData(DWORD Pid, std::wstring_view ProcessName);
 	const PerfLib* GetPerfLib() const { return &pf; }
 	void AsyncReread() const { SetEvent(hEvtRefresh.get()); }
 	void SyncReread();
@@ -119,7 +119,7 @@ private:
 	handle hThread, hWmiThread;
 	handle hEvtBreak, hEvtRefresh, hEvtRefreshDone;
 
-	std::unordered_multimap<DWORD, ProcessPerfData> m_ProcessesData;
+	std::unordered_map<DWORD, ProcessPerfData> m_ProcessesData;
 
 	DWORD dwLastTickCount{};
 	bool bOK{};

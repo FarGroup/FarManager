@@ -1,3 +1,7 @@
+drkns 2025-06-14 01:25:36+01:00 - build 214
+
+1. Fix display of _Total.
+
 drkns 2025-06-13 21:26:49+01:00 - build 213
 
 1. Use more reliable data source for basic process information if possible.
