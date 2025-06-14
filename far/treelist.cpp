@@ -538,7 +538,9 @@ void TreeList::DisplayTree(bool Fast)
 
 	UpdateViewPanel();
 	RefreshTitle(); // не забудем прорисовать заголовок
-	Parent()->ShowChildren();
+
+	if (const auto ParentWindow = Parent())
+		ParentWindow->ShowChildren();
 }
 
 void TreeList::DisplayTreeName(const string_view Name, const size_t Pos) const
