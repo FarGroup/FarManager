@@ -393,7 +393,7 @@ bool PerfThread::RefreshImpl()
 		Task.dwProcessId = *pProcessId;
 		Task.Bitness = DefaultBitness;
 
-		const auto ProcessInfo = [&] -> PROCLIST_SYSTEM_PROCESS_INFORMATION const*
+		const auto ProcessInfo = [&]() -> PROCLIST_SYSTEM_PROCESS_INFORMATION const*
 		{
 			if (IsTotal)
 				return nullptr;
