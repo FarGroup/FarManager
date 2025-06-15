@@ -1130,8 +1130,13 @@ void CommandLine::ExecString(execute_info& Info)
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void()> const ConsoleActivator)
+bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void(bool NoWait)> const Activator)
 {
+	const auto ConsoleActivator = [&Activator](bool const NoWait = false)
+	{
+		Activator(NoWait);
+	};
+
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
@@ -1155,7 +1160,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 	if (Command.size() == 2 && Command[1] == L':' && Arguments.empty())
 	{
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		const auto DriveLetter = upper(CmdLine[0]);
 		if (!FarChDir(os::fs::drive::get_device_path(DriveLetter)))
@@ -1212,7 +1217,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			return true;
 		}
 
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		const auto VariableValue = SetParams.substr(pos + 1);
 		const auto VariableName = SetParams.substr(0, pos);
@@ -1248,7 +1253,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// PUSHD путь | ..
 	if (equal_icase(Command, L"PUSHD"sv))
 	{
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		const auto PushDir = m_CurDir;
 
@@ -1265,7 +1270,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
 	if (equal_icase(Command, L"POPD"sv))
 	{
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		if (!ppstack.empty())
 		{
@@ -1288,7 +1293,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	// CLRD
 	if (equal_icase(Command, L"CLRD"sv))
 	{
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		clear_and_shrink(ppstack);
 		os::env::del(L"FARDIRSTACK"sv);
@@ -1320,7 +1325,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 		ConsoleActivator();
 
-		Text(ChcpParams);
+		std::wcout << ChcpParams << std::endl;
 
 		return true;
 	}
@@ -1341,7 +1346,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (CdParams.empty())
 			return false;
 
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		IntChDir(CdParams, !IsCommandCd);
 		return true;
@@ -1349,7 +1354,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 	if (equal_icase(Command, L"TITLE"))
 	{
-		ConsoleActivator();
+		ConsoleActivator(true);
 
 		ConsoleTitle::SetUserTitle(Arguments);
 
@@ -1366,7 +1371,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (!from_string(Arguments, ExitCode))
 			LOGWARNING(L"Error parsing exit arguments: {}"sv, Arguments);
 
-		ConsoleActivator();
+		ConsoleActivator(true);
 		Global->WindowManager->ExitMainLoop(FALSE, ExitCode);
 		return true;
 	}
