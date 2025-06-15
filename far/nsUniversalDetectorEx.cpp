@@ -40,8 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "components.hpp"
 #include "encoding.hpp"
-#include "plugin.hpp"
-#include "locale.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -130,15 +128,6 @@ static const auto& CpMap()
 		{ "ISO-8859-5"sv,     28595 },
 		{ "ISO-8859-7"sv,     28597 },
 		{ "ISO-8859-8"sv,     28598 },
-	};
-
-	return Map;
-}
-
-static const auto& CJKCpMap()
-{
-	static const std::unordered_map<std::string_view, uintptr_t> Map
-	{
 		{ "Shift_JIS"sv,      932 },
 		{ "Big5"sv,           950 },
 		{ "x-euc-tw"sv,       20000 },
@@ -157,7 +146,7 @@ class nsUniversalDetectorEx final: public ucd::nsUniversalDetector
 {
 public:
 	nsUniversalDetectorEx():
-		nsUniversalDetector(locale.is_cjk()? NS_FILTER_ALL : NS_FILTER_NON_CJK)
+		nsUniversalDetector(NS_FILTER_ALL)
 	{
 	}
 
@@ -177,15 +166,6 @@ private:
 		{
 			m_codepage = i->second;
 			return;
-		}
-
-		if (mLanguageFilter & NS_FILTER_CJK)
-		{
-			if (const auto i = CJKCpMap().find(aCharset); i != CJKCpMap().end())
-			{
-				m_codepage = i->second;
-				return;
-			}
 		}
 
 		LOGWARNING(L"UCD: unexpected charset {}"sv, encoding::utf8::get_chars(aCharset));

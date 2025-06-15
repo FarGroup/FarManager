@@ -6788,14 +6788,9 @@ bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 			// Position is in bytes, we might need to convert it back to chars
 			const auto Info = GetCodePageInfo(CurrentCodepage);
 			if (Info && Info->MaxCharSize == 1)
-			{
 				ErrorPos = *Diagnostics.ErrorPosition;
-			}
 			else
-			{
-				const auto BytesCount = encoding::get_bytes(CurrentCodepage, i->m_Str, decoded, &Diagnostics);
-				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, BytesCount) });
-			}
+				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, Bytes.size()) });
 
 			ErrorChar = i->m_Str[ErrorPos];
 

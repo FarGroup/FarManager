@@ -308,26 +308,62 @@ static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
 static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& Codepage)
 {
 	// MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
-	if (Size < 2)
+	// We can also check the size ourselves (IS_TEXT_UNICODE_ODD_LENGTH) to avoid pointless calls
+	if (Size < 2 || Size & 1)
 		return false;
 
-	int Test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+	int Test = IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK;
 
 	// return value is ignored - only some tests might pass
 	IsTextUnicode(Data, static_cast<int>(Size), &Test);
 
-	if ((Test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || !(Test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
+	if (Test & IS_TEXT_UNICODE_NOT_UNICODE_MASK)
 		return false;
 
-	if (Test & IS_TEXT_UNICODE_UNICODE_MASK)
+	// High confidence, non-ambiguous
+	if (Test & IS_TEXT_UNICODE_ASCII16)
 	{
 		Codepage = CP_UTF16LE;
 		return true;
 	}
 
-	if (Test & IS_TEXT_UNICODE_REVERSE_MASK)
+	// High confidence, non-ambiguous
+	if (Test & IS_TEXT_UNICODE_REVERSE_ASCII16)
 	{
 		Codepage = CP_UTF16BE;
+		return true;
+	}
+
+	// IS_TEXT_UNICODE_CONTROLS can be a big false positive due to CJK_SPACE being checked:
+	// U+3000 '　' in LE is the same as U+0030 ('0') in BE.
+	// In other words, any BE text with '0' in it will trigger IS_TEXT_UNICODE_CONTROLS.
+	// Looks like IS_TEXT_UNICODE_REVERSE_CONTROLS doesn't check it at all, so it's better to try it first:
+
+	// High confidence, non-ambiguous
+	if (Test & IS_TEXT_UNICODE_REVERSE_CONTROLS)
+	{
+		Codepage = CP_UTF16BE;
+		return true;
+	}
+
+	// Medium confidence, statistical analysis
+	if (Test & IS_TEXT_UNICODE_STATISTICS)
+	{
+		Codepage = CP_UTF16LE;
+		return true;
+	}
+
+	// Medium confidence, statistical analysis
+	if (Test & IS_TEXT_UNICODE_REVERSE_STATISTICS)
+	{
+		Codepage = CP_UTF16BE;
+		return true;
+	}
+
+	// Low confidence, false positives (see above)
+	if (Test & IS_TEXT_UNICODE_CONTROLS)
+	{
+		Codepage = CP_UTF16LE;
 		return true;
 	}
 
@@ -435,19 +471,15 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	unsigned long long FileSize = 0;
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
 
-	if (const auto IsUtf8 = encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead); IsUtf8 != encoding::is_utf8::no)
+	if (encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead) == encoding::is_utf8::yes)
 	{
-		if (IsUtf8 == encoding::is_utf8::yes)
-			Codepage = CP_UTF8;
-		else if (DefaultCodepage == CP_UTF8 || DefaultCodepage == encoding::codepage::ansi() || DefaultCodepage == encoding::codepage::oem())
-			Codepage = DefaultCodepage;
-		else
-			Codepage = encoding::codepage::ansi();
-
+		Codepage = CP_UTF8;
 		return true;
 	}
 
-	NotUTF8 = true;
+	// Even though UTF-8 is a superset of ASCII, we can't take a shortcut yet and detect pure ASCII as UTF-8:
+	// there are multibyte 7-bit encodings, e.g. ISO-2022-JP, so it must go to the detector.
+	NotUTF8 = false;
 
 	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage);
 }
@@ -459,8 +491,12 @@ uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, b
 	bool NotUTF8 = false;
 	bool NotUTF16 = false;
 
-	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics))
+	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics) || Codepage == 20127)
 	{
+		// Even though there's a dedicated code page for ASCII - 20127, detecting it as such is not particularly useful.
+		// E.g. if it's an editor and the user adds some localized text and saves the file, there will be useless warnings about unsupported characters.
+		// Better fall back to ANSI or the default.
+
 		Codepage =
 			(NotUTF8 && DefaultCodepage == CP_UTF8) || (NotUTF16 && IsUtf16CodePage(DefaultCodepage))?
 				encoding::codepage::ansi() :
