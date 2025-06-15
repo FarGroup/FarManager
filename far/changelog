@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 2025-06-15 16:28:05+01:00 - build 6496
+
+1. Continue 6492.
+
+2. Continue 6495.
+
+3. Replace ucd with uchardet.
+   It should cover more cases and at least it seems to be still supported/developed.
+
+--------------------------------------------------------------------------------
 drkns 2025-06-15 03:05:35+01:00 - build 6495
 
 1. Improve codepage detection.
