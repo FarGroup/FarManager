@@ -386,8 +386,8 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	// It the string size is 32768 (which we use by default), it can sometimes add up to 65536, which does not fit in unsigned short and becomes 0.
 	// That 0 later goes to a denominator somewhere with rather predictable results.
 	// MS didn't SEH-guard the function, so the exception leaks back into the process and crashes it.
-	// All the factors of 65536 are powers of two, so by reducing such sizes we ensure that even if it overflows, it won't add up to 65536, won't become 0 and won't crash.
-	if (std::has_single_bit(Str.size()))
+	// By reducing such a size we ensure that even if it overflows, it won't add up to 65536, won't become 0 and won't crash.
+	if (Str.size() == 32768)
 		Str.remove_suffix(1);
 
 	int Size = static_cast<int>(Str.size());
@@ -408,15 +408,21 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	return true;
 }
 
-static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintptr_t& Codepage)
+static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintptr_t& Codepage, bool const IgnoreUTF8)
 {
-	const auto IsCodepageNotBlacklisted = [](uintptr_t const Cp)
+	const auto IsCodepageNotBlacklisted = [IgnoreUTF8](uintptr_t const Cp)
 	{
+		if (IgnoreUTF8 && Cp == CP_UTF8)
+			return false;
+
 		return !contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Cp));
 	};
 
-	const auto IsCodepageWhitelisted = [](uintptr_t const Cp)
+	const auto IsCodepageWhitelisted = [IgnoreUTF8](uintptr_t const Cp)
 	{
+		if (IgnoreUTF8 && Cp == CP_UTF8)
+			return false;
+
 		if (!Global->Opt->CPMenuMode)
 			return true;
 
@@ -432,7 +438,7 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 			function_ref(IsCodepageWhitelisted) :
 			function_ref(IsCodepageNotBlacklisted);
 
-	if (GetCpUsingUniversalDetector(Str, Codepage) && IsCodepageAcceptable(Codepage))
+	if (GetCpUsingUniversalDetector(Str, Codepage, IsCodepageAcceptable))
 		return true;
 
 	return GetCpUsingML(Str, Codepage, IsCodepageAcceptable);
@@ -471,17 +477,23 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	unsigned long long FileSize = 0;
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
 
-	if (encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead) == encoding::is_utf8::yes)
+	switch (encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead))
 	{
+	case encoding::is_utf8::yes:
 		Codepage = CP_UTF8;
 		return true;
+
+	case encoding::is_utf8::no:
+		NotUTF8 = true;
+		break;
+
+	case encoding::is_utf8::yes_ascii:
+		// Even though UTF-8 is a superset of ASCII, we can't take a shortcut yet and detect pure ASCII as UTF-8:
+		// there are multibyte 7-bit encodings, e.g. ISO-2022-JP, so it must go to the detector.
+		break;
 	}
 
-	// Even though UTF-8 is a superset of ASCII, we can't take a shortcut yet and detect pure ASCII as UTF-8:
-	// there are multibyte 7-bit encodings, e.g. ISO-2022-JP, so it must go to the detector.
-	NotUTF8 = false;
-
-	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage);
+	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage, NotUTF8);
 }
 
 uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)
@@ -637,15 +649,19 @@ TEST_CASE("GetCpUsingML_M4000")
 {
 	// https://bugs.farmanager.com/view.php?id=4000
 
-	char c[32768];
-	for (size_t i = 0; i != std::size(c); i += 2)
+	for (size_t i = 2; i != 65536; i *= 2)
 	{
-		c[i + 0] = 0x00;
-		c[i + 1] = 0xE0;
-	}
+		char_ptr c(i);
 
-	uintptr_t Cp;
-	GetCpUsingML({ c, std::size(c) }, Cp, [](uintptr_t){ return true; });
+		for (size_t j = 0; j != c.size(); j += 2)
+		{
+			c[j + 0] = 0x00;
+			c[j + 1] = 0xE0;
+		}
+
+		uintptr_t Cp;
+		GetCpUsingML({ c.data(), c.size() }, Cp, [](uintptr_t) { return true; });
+	}
 
 	SUCCEED();
 }

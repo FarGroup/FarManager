@@ -39,11 +39,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-bool GetCpUsingUniversalDetector(std::string_view Str, uintptr_t& Codepage);
+bool GetCpUsingUniversalDetector(std::string_view Str, uintptr_t& Codepage, function_ref<bool(uintptr_t)> IsCodepageAcceptable);
 
 #endif // NSUNIVERSALDETECTOREX_HPP_7F1F1121_B057_4058_8645_ACE66F719838

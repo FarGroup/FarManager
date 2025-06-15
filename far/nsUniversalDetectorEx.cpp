@@ -145,41 +145,45 @@ static const auto& CpMap()
 class nsUniversalDetectorEx final: public ucd::nsUniversalDetector
 {
 public:
-	nsUniversalDetectorEx():
-		nsUniversalDetector(NS_FILTER_ALL)
+	explicit nsUniversalDetectorEx(function_ref<bool(uintptr_t)> const IsCodepageAcceptable):
+		nsUniversalDetector(NS_FILTER_ALL),
+		m_IsCodepageAcceptable(IsCodepageAcceptable)
 	{
 	}
 
 	bool GetCodePage(uintptr_t& Codepage) const
 	{
-		if (m_codepage == -1)
+		if (m_Codepage == -1)
 			return false;
 
-		Codepage = m_codepage;
+		Codepage = m_Codepage;
 		return true;
 	}
 
 private:
-	void Report(const char* aCharset) override
+	void Report(const char* const Encoding) override
 	{
-		if (const auto i = CpMap().find(aCharset); i != CpMap().end())
+		const auto Iterator = CpMap().find(Encoding);
+		if (Iterator == CpMap().end())
 		{
-			m_codepage = i->second;
+			LOGWARNING(L"UCD: unexpected result [{}]"sv, encoding::utf8::get_chars(Encoding));
 			return;
 		}
 
-		LOGWARNING(L"UCD: unexpected charset {}"sv, encoding::utf8::get_chars(aCharset));
+		if (!m_IsCodepageAcceptable(Iterator->second))
+			return;
 
-		m_codepage = -1;
+		m_Codepage = Iterator->second;
 	}
 
-	int m_codepage{-1};
+	function_ref<bool(uintptr_t)> m_IsCodepageAcceptable;
+	int m_Codepage{-1};
 };
 
-bool GetCpUsingUniversalDetector(std::string_view const Str, uintptr_t& Codepage)
+bool GetCpUsingUniversalDetector(std::string_view const Str, uintptr_t& Codepage, function_ref<bool(uintptr_t)> const IsCodepageAcceptable)
 {
-	nsUniversalDetectorEx ns;
-	ns.HandleData(Str.data(), static_cast<uint32_t>(Str.size()));
-	ns.DataEnd();
-	return ns.GetCodePage(Codepage);
+	nsUniversalDetectorEx Detector(IsCodepageAcceptable);
+	Detector.HandleData(Str.data(), static_cast<uint32_t>(Str.size()));
+	Detector.DataEnd();
+	return Detector.GetCodePage(Codepage);
 }
