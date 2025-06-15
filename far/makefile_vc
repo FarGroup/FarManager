@@ -168,7 +168,6 @@ LINK_OBJS = \
 	"$(INTDIR)\network.obj" \
 	"$(INTDIR)\new_handler.obj" \
 	"$(INTDIR)\notification.obj" \
-	"$(INTDIR)\nsUniversalDetectorEx.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
 	"$(INTDIR)\panelmix.obj" \
@@ -220,6 +219,7 @@ LINK_OBJS = \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
+	"$(INTDIR)\uchardet.obj" \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \

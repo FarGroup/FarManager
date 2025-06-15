@@ -166,7 +166,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="network.cpp" />
     <ClCompile Include="new_handler.cpp" />
     <ClCompile Include="notification.cpp" />
-    <ClCompile Include="nsUniversalDetectorEx.cpp" />
     <ClCompile Include="palette.cpp" />
     <ClCompile Include="panel.cpp" />
     <ClCompile Include="panelmix.cpp" />
@@ -222,6 +221,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
     <ClCompile Include="tvar.cpp" />
+    <ClCompile Include="uchardet.cpp" />
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc_crt_fix_impl.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -384,7 +384,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="network.hpp" />
     <ClInclude Include="new_handler.hpp" />
     <ClInclude Include="notification.hpp" />
-    <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="palette.hpp" />
     <ClInclude Include="panel.hpp" />
     <ClInclude Include="panelctype.hpp" />
@@ -450,6 +449,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="transactional.hpp" />
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
+    <ClInclude Include="uchardet.hpp" />
     <ClInclude Include="usermenu.hpp" />
     <ClInclude Include="uuids.far.hpp" />
     <ClInclude Include="uuids.far.dialogs.hpp" />

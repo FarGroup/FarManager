@@ -122,7 +122,6 @@ SRCS = \
 	network.cpp \
 	new_handler.cpp \
 	notification.cpp \
-	nsUniversalDetectorEx.cpp \
 	palette.cpp \
 	panel.cpp \
 	panelmix.cpp \
@@ -174,6 +173,7 @@ SRCS = \
 	tracer.cpp \
 	treelist.cpp \
 	tvar.cpp \
+	uchardet.cpp \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \

@@ -1,5 +1,5 @@
 ﻿/*
-nsUniversalDetectorEx.cpp
+uchardet.cpp
 
 UCD wrapper
 
@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.headers.hpp"
 
 // Self:
-#include "nsUniversalDetectorEx.hpp"
+#include "uchardet.hpp"
 
 // Internal:
 #include "components.hpp"
@@ -252,10 +252,10 @@ static const auto& CpMap()
 	return Map;
 }
 
-class nsUniversalDetectorEx final: public uchardet::nsUniversalDetector
+class UniversalDetector final: public uchardet::nsUniversalDetector
 {
 public:
-	explicit nsUniversalDetectorEx(function_ref<bool(uintptr_t)> const IsCodepageAcceptable):
+	explicit UniversalDetector(function_ref<bool(uintptr_t)> const IsCodepageAcceptable):
 		nsUniversalDetector(NS_FILTER_ALL),
 		m_IsCodepageAcceptable(IsCodepageAcceptable)
 	{
@@ -317,7 +317,7 @@ private:
 
 bool GetCpUsingUniversalDetector(std::string_view const Str, uintptr_t& Codepage, function_ref<bool(uintptr_t)> const IsCodepageAcceptable)
 {
-	nsUniversalDetectorEx Detector(IsCodepageAcceptable);
+	UniversalDetector Detector(IsCodepageAcceptable);
 	Detector.HandleData(Str.data(), static_cast<uint32_t>(Str.size()));
 	Detector.DataEnd();
 	return Detector.GetCodePage(Codepage);

@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 
 // Internal:
-#include "nsUniversalDetectorEx.hpp"
+#include "uchardet.hpp"
 #include "config.hpp"
 #include "codepage.hpp"
 #include "codepage_selection.hpp"
