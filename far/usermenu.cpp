@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"
+#include "desktop.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
@@ -798,6 +799,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
+
+		Global->WindowManager->Desktop()->ConsoleSession().pin();
+		SCOPE_EXIT{ Global->WindowManager->Desktop()->ConsoleSession().unpin(); };
 
 		// Цикл исполнения команд меню (CommandX)
 		for (const auto& str: (*CurrentMenuItem)->Commands)

@@ -54,11 +54,18 @@ public:
 
 	void snap(bool NewLine);
 
+	void pin();
+	void unpin();
+
 private:
+	void finalize();
+
 	bool scroll(size_t SpaceNeeded);
 
 	size_t m_Activations{};
 	std::unique_ptr<SaveScreen> m_Background;
+	bool m_Pinned{};
+	bool m_Activated{};
 };
 
 #endif // CONSOLE_SESSION_HPP_807900C8_23FD_4505_AEB4_B63E7AF2FF7F

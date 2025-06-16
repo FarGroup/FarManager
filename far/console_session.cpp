@@ -81,6 +81,12 @@ void console_session::activate(std::optional<string_view> const Command, bool co
 		return;
 	}
 
+	if (m_Activated)
+	{
+		command(Command);
+		return;
+	}
+
 	++Global->SuppressIndicators;
 	++Global->SuppressClock;
 
@@ -105,6 +111,8 @@ void console_session::activate(std::optional<string_view> const Command, bool co
 	SetInitialCursorType();
 
 	command(Command);
+
+	m_Activated = true;
 }
 
 void console_session::deactivate(bool const NewLine)
@@ -119,13 +127,31 @@ void console_session::deactivate(bool const NewLine)
 	if (m_Activations)
 		return;
 
+	if (!m_Pinned)
+		finalize();
+}
+
+void console_session::finalize()
+{
+	if (!m_Activated)
+		return;
+
 	--Global->SuppressClock;
 	--Global->SuppressIndicators;
 
 	Global->WindowManager->UnModalDesktopWindow();
 	Global->WindowManager->PluginCommit();
 
+	// BUGBUG, implement better & safer way to do this
+	const auto LockCount = Global->ScrBuf->GetLockCount();
+	Global->ScrBuf->SetLockCount(0);
+
+	// BUGBUG, implement better & safer way to do this
+	SCOPE_EXIT{ Global->ScrBuf->SetLockCount(LockCount); };
+
 	Global->ScrBuf->Flush();
+
+	m_Activated = false;
 }
 
 void console_session::snap(bool const NewLine)
@@ -139,6 +165,19 @@ void console_session::snap(bool const NewLine)
 		Global->ScrBuf->FillBuf();
 
 	Global->WindowManager->Desktop()->TakeSnapshot();
+}
+
+void console_session::pin()
+{
+	m_Pinned = true;
+}
+
+void console_session::unpin()
+{
+	assert(m_Pinned);
+
+	m_Pinned = false;
+	finalize();
 }
 
 bool console_session::scroll(size_t const SpaceNeeded)

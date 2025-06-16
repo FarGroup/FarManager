@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void OpenFolderInShell(string_view Folder);
 
-void Execute(struct execute_info& Info, function_ref<void()> ConsoleActivator = []{});
+void Execute(struct execute_info& Info, function_ref<void(bool NoWait)> ConsoleActivator = [](bool){});
 
 bool ExpandOSAliases(string& FullCommand);
 

@@ -5174,8 +5174,8 @@ bool FileList::ApplyCommand()
 	++UpdateDisabled;
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
 	{
-		Global->WindowManager->Desktop()->ConsoleSession().activate();
-		SCOPE_EXIT{ Global->WindowManager->Desktop()->ConsoleSession().deactivate(); };
+		Global->WindowManager->Desktop()->ConsoleSession().pin();
+		SCOPE_EXIT{ Global->WindowManager->Desktop()->ConsoleSession().unpin(); };
 
 		for (const auto& i: enum_selected())
 		{
