@@ -6290,6 +6290,12 @@ static int far_DetectCodePage(lua_State *L)
 	return 1;
 }
 
+static int far_GetPluginId(lua_State *L)
+{
+	lua_pushlstring(L, (char*)GetPluginData(L)->PluginId, sizeof(UUID));
+	return 1;
+}
+
 #define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
 
 const luaL_Reg timer_methods[] =
@@ -6561,6 +6567,7 @@ const luaL_Reg far_funcs[] =
 	PAIR( far, GetNumberOfLinks),
 	PAIR( far, GetPathRoot),
 	PAIR( far, GetPluginDirList),
+	PAIR( far, GetPluginId),
 	PAIR( far, GetPluginInformation),
 	PAIR( far, GetPlugins),
 	PAIR( far, GetReparsePointInfo),

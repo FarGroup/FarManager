@@ -1,3 +1,7 @@
+shmuel 2025-06-18 13:19:43+03:00 - build 882
+
+1. LuaFAR: add function far.GetPluginId().
+
 johnd0e 2025-06-08 21:28:12+02:00 - build 881
 
 1. Enhance message on moonscript macrofile loading to include error source filename.

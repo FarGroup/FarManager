@@ -8783,6 +8783,29 @@ mtime=3940520281
 </article>
 </node>
 <node>
+id=597
+lv=2
+dt=Text
+nm=far.GetPluginId
+ctime=3959413921
+mtime=3959414180
+<article>
+#_PluginId = far.GetPluginId()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  PluginId: string (a binary GUID)
+#_
+#_**Description:**
+#_  Returns the calling plugin's identifier.
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=280
 lv=2
 dt=Text
