@@ -198,6 +198,46 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD const Pid, std::wstring_view c
 	return {};
 }
 
+static size_t get_logical_processor_count()
+{
+	block_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX> Buffer(1024);
+
+	for (;;)
+	{
+		auto Size = static_cast<DWORD>(Buffer.size());
+		if (pGetLogicalProcessorInformationEx(RelationProcessorCore, Buffer.data(), &Size))
+			break;
+
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+		{
+			SYSTEM_INFO sysInfo;
+			GetSystemInfo(&sysInfo);
+			return sysInfo.dwNumberOfProcessors;
+		}
+
+		Buffer.reset(Size);
+	}
+
+	size_t LogicalProcessorCount{};
+
+	for (size_t Offset{}; Offset < Buffer.size();)
+	{
+		const auto& Info = *static_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX const*>(static_cast<void const*>(Buffer.bytes().data() + Offset));
+
+		Offset += Info.Size;
+
+		if (Info.Relationship != RelationProcessorCore)
+			continue;
+
+		for (const auto& i: std::span{ Info.Processor.GroupMask, Info.Processor.GroupCount })
+		{
+			LogicalProcessorCount += std::popcount(i.Mask);
+		}
+	}
+
+	return LogicalProcessorCount;
+}
+
 struct PROCLIST_SYSTEM_PROCESS_INFORMATION
 {
 	ULONG NextEntryOffset;
@@ -494,8 +534,10 @@ bool PerfThread::RefreshImpl()
 				// 64-bit Timer in 100 nsec units. Display suffix: "%"
 				if (pOldTask)
 				{
+					static const auto LogicalProcessorCount = get_logical_processor_count();
+
 					if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwCounterOffsets[ii]))
-						Task.qwResults[ii] = (*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100);
+						Task.qwResults[ii] = (*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100) / LogicalProcessorCount;
 					else
 						return false;
 				}

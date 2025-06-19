@@ -1,3 +1,7 @@
+drkns 2025-06-19 21:34:03+01:00 - build 215
+
+1. Normalize CPU usage for multiprocessor systems.
+
 drkns 2025-06-14 01:25:36+01:00 - build 214
 
 1. Fix display of _Total.

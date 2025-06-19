@@ -55,6 +55,11 @@ static BOOL WINAPI fIsWow64Process(HANDLE, PBOOL)
 	return FALSE;
 }
 
+static BOOL WINAPI fGetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONSHIP, PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX, PDWORD)
+{
+	return FALSE;
+}
+
 static DWORD WINAPI fGetGuiResources(HANDLE, DWORD)
 {
 	return 0;
@@ -101,6 +106,7 @@ STATIC_INIT_IMPORT(NtQueryInformationFile);
 STATIC_INIT_IMPORT(NtWow64QueryInformationProcess64);
 STATIC_INIT_IMPORT(NtWow64ReadVirtualMemory64);
 STATIC_INIT_IMPORT(IsWow64Process);
+STATIC_INIT_IMPORT(GetLogicalProcessorInformationEx);
 STATIC_INIT_IMPORT(GetGuiResources);
 STATIC_INIT_IMPORT(IsValidSid);
 STATIC_INIT_IMPORT(GetSidIdentifierAuthority);
@@ -137,6 +143,7 @@ static void dynamic_bind()
 	if (const auto Module = GetModuleHandle(L"kernel32"))
 	{
 		INIT_IMPORT(IsWow64Process);
+		INIT_IMPORT(GetLogicalProcessorInformationEx);
 	}
 
 	if (const auto Module = GetModuleHandle(L"advapi32"))
