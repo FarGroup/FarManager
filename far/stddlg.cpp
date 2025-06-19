@@ -1058,7 +1058,7 @@ static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coo
 			return;
 
 		if (!Radix)
-			Radix = Hex? 16 : 10;
+			Radix = Hex && !Dest.percent? 16 : 10;
 
 		Dest.value = from_string<unsigned long long>(Part, nullptr, Radix);
 		Dest.exist = true;
