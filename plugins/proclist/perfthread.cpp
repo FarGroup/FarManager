@@ -443,10 +443,10 @@ bool PerfThread::RefreshImpl()
 		}();
 
 		ProcessPerfData* pOldTask = {};
-		if (!IsTotal && !m_ProcessesData.empty())  // Use prev data if any
+		if (!m_ProcessesData.empty())  // Use prev data if any
 		{
 			//Get the pointer to the previous instance of this process
-			pOldTask = GetProcessData(Task.dwProcessId, Task.ProcessName);
+			pOldTask = GetProcessData(Task.dwProcessId, ProcessName);
 			if (pOldTask)  // copy process' data from pOldTask to Task
 			{
 				Task = *pOldTask;
