@@ -535,9 +535,10 @@ bool PerfThread::RefreshImpl()
 				if (pOldTask)
 				{
 					static const auto LogicalProcessorCount = get_logical_processor_count();
+					const auto Factor = m_HostName.empty()? LogicalProcessorCount : 1;
 
-					if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwCounterOffsets[ii]))
-						Task.qwResults[ii] = (*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100) / LogicalProcessorCount;
+ 					if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwCounterOffsets[ii]))
+						Task.qwResults[ii] = (*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100) / Factor;
 					else
 						return false;
 				}
