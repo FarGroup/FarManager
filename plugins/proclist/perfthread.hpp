@@ -6,7 +6,7 @@
 #include <functional>
 #include <string>
 
-constexpr inline auto NCOUNTERS = 22;
+constexpr inline auto NCOUNTERS = 23;
 constexpr inline auto MAX_USERNAME_LENGTH = 128;
 
 extern const struct counters

@@ -114,7 +114,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 
 static std::wstring PrintTitle(std::wstring_view const Msg)
 {
-	return far::format(L"{0:<21} "sv, far::format(L"{0}:"sv, Msg));
+	return far::format(L"{0:<31} "sv, far::format(L"{0}:"sv, Msg));
 }
 
 static std::wstring PrintTitle(int MsgId)

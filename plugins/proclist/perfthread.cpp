@@ -26,6 +26,7 @@ const counters Counters[]
 	{L"Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak },
 	{L"Working Set",             MWorkingSet        , MColWorkingSet        },
 	{L"Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    },
+	{L"Working Set - Private",   MWorkingSetPrivate , MColWorkingSetPrivate },
 	{L"Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes },
 	{L"Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    },
 	{L"Private Bytes",           MPrivateBytes      , MColPrivateBytes      },
