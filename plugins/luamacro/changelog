@@ -1,3 +1,11 @@
+johnd0e 2025-06-21 15:58:44+02:00 - build 883
+
+1. LuaFAR: implement luaL_tolstring (from Lua 5.2..5.3) and make consistent use of it.
+
+2. Improve non-string errors handling; apply __tostring to error object in a safe way.
+
+3. Better errors reporting in win.WriteConsole / mf.printconsole.
+
 shmuel 2025-06-18 13:19:43+03:00 - build 882
 
 1. LuaFAR: add function far.GetPluginId().
