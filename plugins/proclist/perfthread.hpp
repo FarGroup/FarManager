@@ -36,7 +36,7 @@ struct ProcessPerfData
 	bool CommandLineRead{};
 	uint64_t    CreationTime{};
 	DWORD       dwGDIObjects{}, dwUSERObjects{};
-	int         Bitness{};
+	int         Bitness{-1};
 };
 
 struct PerfLib

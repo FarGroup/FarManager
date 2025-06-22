@@ -93,7 +93,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
 
 		if (pd.Bitness != Thread.GetDefaultBitness())
-			CurItem.FileAttributes |= FILE_ATTRIBUTE_READONLY;
+			CurItem.FileAttributes |= FILE_ATTRIBUTE_VIRTUAL;
 
 	}
 
@@ -269,7 +269,7 @@ static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module,
 
 static void print_module(HANDLE const InfoFile, ULONG64 const Module, DWORD const SizeOfImage, int const ProcessBitness, std::wstring const& ModuleName, options& LocalOpt)
 {
-	const auto ModuleStr = far::format(L"{:0{}X}"sv, Module, ProcessBitness / std::numeric_limits<unsigned char>::digits * 2);
+	const auto ModuleStr = far::format(L"{:0{}X}"sv, Module, (ProcessBitness == -1? 64 : ProcessBitness) / std::numeric_limits<unsigned char>::digits * 2);
 	print_module_impl(InfoFile, ModuleStr, SizeOfImage, ModuleName, LocalOpt);
 }
 

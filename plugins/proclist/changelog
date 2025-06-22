@@ -1,3 +1,9 @@
+drkns 2025-06-22 14:12:54+01:00 - build 219
+
+1. Do not try to show bitness and other local data in remote sessions.
+
+2. Use FILE_ATTRIBUTE_VIRTUAL instead of FILE_ATTRIBUTE_READONLY for WoW64 processes.
+
 drkns 2025-06-21 22:21:00+01:00 - build 218
 
 1. Expose "Working Set - Private" performance counter.

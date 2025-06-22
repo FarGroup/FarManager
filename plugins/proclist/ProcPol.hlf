@@ -271,14 +271,14 @@ types can be used in this plugin:
    #XT# - Liczba wątków
    #XG# - Obiekty GDI (tylko lokalnie)
    #XU# - Obiekty USER (tylko lokalnie)
-   #XB# - Typ systemu (32/64)
+   #XB# - Typ systemu (32/64, tylko lokalnie)
    #X0...X21[S][T]# - liczniki wydajności (zobacz niżej).
 
    #Kolumny opisowe:#
 
-   #ZP# - Pełna ścieżka
-   #ZW# - Tytuł okna
-   #ZD# - Opis pliku
+   #ZP# - Pełna ścieżka (tylko lokalnie)
+   #ZW# - Tytuł okna (tylko lokalnie)
+   #ZD# - Opis pliku (tylko lokalnie)
    #ZC# - Linia poleceń (tylko lokalna)
 
    #WARNING:# In each panel mode there may be only one description

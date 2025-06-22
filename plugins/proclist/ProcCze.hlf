@@ -274,14 +274,14 @@ tyto #speciální# typy sloupců:
    #XT# - Počet vláken
    #XG# - GDI objekty (jen lokální)
    #XU# - USER objekty (jen lokální)
-   #XB# - Bitness (32/64)
+   #XB# - Bitness (32/64, jen lokální)
    #X0...X21[S][T]# - výkonová počítadla (viz níže).
 
    #Popisové sloupce:#
 
-   #ZP# - Celá cesta
-   #ZW# - Nadpis okna
-   #ZD# - Popis souboru
+   #ZP# - Celá cesta (jen lokální)
+   #ZW# - Nadpis okna (jen lokální)
+   #ZD# - Popis souboru (jen lokální)
    #ZC# - Příkazový řádek (jen lokální)
 
    #VAROVÁNÍ:# V každém módu panelu může být jen jeden popisový sloupec ('Zx').

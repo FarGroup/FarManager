@@ -84,7 +84,7 @@ static bool Is64BitWindows()
 
 PerfThread::PerfThread(Plist* const Owner, const wchar_t* hostname, const wchar_t* pUser, const wchar_t* pPasw) :
 	m_Owner(Owner),
-	DefaultBitness(Is64BitWindows()? 64 : 32)
+	DefaultBitness(hostname? -1 : Is64BitWindows()? 64 : 32)
 {
 	if (pUser && *pUser)
 	{
@@ -432,7 +432,9 @@ bool PerfThread::RefreshImpl()
 		auto& Task = NewPData.emplace(IsTotal? static_cast<DWORD>(-1) : *pProcessId, ProcessPerfData{}).first->second;
 
 		Task.dwProcessId = *pProcessId;
-		Task.Bitness = DefaultBitness;
+
+		if (!IsTotal)
+			Task.Bitness = DefaultBitness;
 
 		const auto ProcessInfo = [&]() -> PROCLIST_SYSTEM_PROCESS_INFORMATION const*
 		{

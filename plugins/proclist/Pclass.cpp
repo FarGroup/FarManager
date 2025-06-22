@@ -1,6 +1,7 @@
 ﻿#include <algorithm>
 #include <array>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -560,24 +561,24 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 	PanelInfo pi = { sizeof(PanelInfo) };
 	PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
 	auto& ProcPanelModes = HostName.empty()? m_PanelModesDataLocal : m_PanelModesDataRemote;
+
+	std::unordered_map<DWORD, HWND> Windows;
 	wchar_t cDescMode = 0;
 
 	if (HostName.empty())
 	{
 		if (const auto p = wcschr(ProcPanelModes[pi.ViewMode].panel_columns.internal_types.c_str(), L'Z'))
 			cDescMode = p[1];
+
+		for (size_t i = 0; i != ItemsNumber; ++i)
+		{
+			PluginPanelItem& CurItem = pPanelItem[i];
+			auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
+			Windows[pdata.dwPID] = {};
+		}
+
+		EnumWindows(EnumWndProc, (LPARAM)&Windows);
 	}
-
-	std::unordered_map<DWORD, HWND> Windows;
-
-	for (size_t i = 0; i != ItemsNumber; ++i)
-	{
-		PluginPanelItem& CurItem = pPanelItem[i];
-		auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
-		Windows[pdata.dwPID] = {};
-	}
-
-	EnumWindows(EnumWndProc, (LPARAM)&Windows);
 
 	for (size_t i = 0; i != ItemsNumber; ++i)
 	{
@@ -587,7 +588,10 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 		// Make descriptions
 		wchar_t Title[MAX_PATH]{};
 		std::unique_ptr<char[]> Buffer;
-		pdata.hwnd = Windows[pdata.dwPID];
+
+		if (HostName.empty())
+			pdata.hwnd = Windows[pdata.dwPID];
+
 		const wchar_t* pDesc = {};
 
 		switch (upper(cDescMode))
@@ -604,7 +608,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 		case L'D':
 			const wchar_t* pVersion;
-			GetVersionInfo(pdata.FullPath.c_str(), Buffer, pVersion, pDesc);
+			if (!pdata.FullPath.empty())
+				GetVersionInfo(pdata.FullPath.c_str(), Buffer, pVersion, pDesc);
 			break;
 
 		case L'C':
@@ -650,7 +655,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 				// Custom column
 				bool bCol = true;
-				DWORD dwData = 0;
+				std::optional<size_t> dwData;
 				int iCounter = -1;
 				int nColWidth = Widths[nCols];
 
@@ -669,8 +674,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 				case L'C': dwData = pdata.dwParentPID;
 					break;
 
-				case L'T': dwData = (DWORD)CurItem.NumberOfLinks; break;
-				case L'B': dwData = pdata.Bitness; break;
+				case L'T': dwData = CurItem.NumberOfLinks; break;
+				case L'B': if (pdata.Bitness != -1) dwData = pdata.Bitness; break;
 
 				case L'G': if (pd) dwData = pd->dwGDIObjects; break;
 
@@ -699,8 +704,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 				std::wstring Str;
 
-				if ((IsTotal && c == 'T') || (!IsTotal && c >= L'A')) // Not a performance counter
-					Str = str(dwData);
+				if (dwData && ((IsTotal && c == 'T') || (!IsTotal && c >= L'A'))) // Not a performance counter
+					Str = str(*dwData);
 				else if (pd && iCounter >= 0)     // Format performance counters
 				{
 					if (iCounter < 3 && !bPerSec) // first 3 are date/time
@@ -930,7 +935,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		WriteToFile(InfoFile.get(), L'\xfeff');
 
-		if (IsTotal)
+		if (pdata->Bitness == -1)
 			WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleModule), CurItem.FileName));
 		else
 			WriteToFile(InfoFile.get(), far::format(L"{}{}, {}{}\n"sv, PrintTitle(MTitleModule), CurItem.FileName, pdata->Bitness, GetMsg(MBits)));

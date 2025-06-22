@@ -274,14 +274,14 @@ types can be used in this plugin:
    #XT# - Number of threads
    #XG# - GDI Objects (local only)
    #XU# - USER Objects (local only)
-   #XB# - Bitness (32/64)
+   #XB# - Bitness (32/64, local only)
    #X0...X21[S][T]# - performance counters (see below).
 
    #Description columns:#
 
-   #ZP# - Full pathname
-   #ZW# - Window title
-   #ZD# - File Description
+   #ZP# - Full pathname (local only)
+   #ZW# - Window title (local only)
+   #ZD# - File Description (local only)
    #ZC# - Command line (local only)
 
    #WARNING:# In each panel mode there may be only one description
