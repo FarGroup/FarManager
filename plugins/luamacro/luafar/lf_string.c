@@ -49,11 +49,10 @@ ToStringResult safe__tostring_meta(lua_State *L, int idx)
 				lua_pushfstring(L, "(error object is a %s value)", tname);
 			}
 		}
-		else if (!lua_isstring(L, -1)) 
+		else if (!lua_isstring(L, -1))
 		{
 			lua_pop(L, 1);
-			lua_pushfstring(L, "'__tostring' must return a string");
-			
+			lua_pushliteral(L, "'__tostring' must return a string");
 		}
 		else
 		{

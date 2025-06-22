@@ -798,13 +798,12 @@ int win_WriteConsole(lua_State *L)
 	{
 		size_t nCharsToWrite;
 		DWORD nCharsWritten;
-		lua_pushvalue(L, i+1); //narg+2
-		if (NULL == safe_luaL_tolstring(L, -1, NULL)) {
+		if (NULL == safe_luaL_tolstring(L, i+1, NULL)) { //narg+1
 			lua_pushnil(L);
 			lua_insert(L, -2);
 			return 2;
 		}
-		check_utf8_string(L, -1, &nCharsToWrite); //narg+1
+		check_utf8_string(L, -1, &nCharsToWrite);
 		if (!WriteConsoleW(h_out, (const void*)lua_touserdata(L,-1), (DWORD)nCharsToWrite, &nCharsWritten, NULL))
 			return SysErrorReturn(L);
 		lua_pop(L, 1); //narg

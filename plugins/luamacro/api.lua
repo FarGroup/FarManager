@@ -627,8 +627,8 @@ function mf.printconsole(...)
   for i=1,narg do
     local success, err = win.WriteConsole(select(i, ...), i<narg and "\t" or "")
     if not success then
-      panel.SetUserScreen()
-      error(err or "error in win.WriteConsole")
+      Shared.ErrMsg(err or "error in win.WriteConsole")
+      break
     end
   end
   panel.SetUserScreen()

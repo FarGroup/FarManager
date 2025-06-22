@@ -5329,12 +5329,11 @@ static int far_MakeMenuItems(lua_State *L)
 			const char *start;
 			char* str;
 
-			lua_pushvalue(L, i);                   //+3
-			start = luaL_tolstring(L, -1, &len_arg);
+			start = luaL_tolstring(L, i, &len_arg); //+2
 			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);
-			lua_pop(L, 2);                         //+1 (items)
+			lua_pop(L, 1);                         //+1 (items)
 
 			for (j=0; j<len_arg; j++)
 				if (str[j] == '\0') str[j] = ' ';
@@ -5345,7 +5344,7 @@ static int far_MakeMenuItems(lua_State *L)
 				char *line;
 				const char* nl = strchr(start, '\n');
 
-				lua_newtable(L);                     //+3 (items,str,curr_item)
+				lua_newtable(L);                     //+2 (items,curr_item)
 				len_text = nl ? (nl++) - start : (str+len_arg) - start;
 				line = (char*) malloc(len_prefix + len_text);
 				memcpy(line, buf_prefix, len_prefix);
@@ -5353,10 +5352,10 @@ static int far_MakeMenuItems(lua_State *L)
 
 				lua_pushlstring(L, line, len_prefix + len_text);
 				free(line);
-				lua_setfield(L, -2, "text");         //+3
+				lua_setfield(L, -2, "text");         //+2
 				lua_pushvalue(L, i);
-				lua_setfield(L, -2, "arg");          //+3
-				lua_rawseti(L, -2, item++);          //+2 (items,str)
+				lua_setfield(L, -2, "arg");          //+2
+				lua_rawseti(L, -2, item++);          //+1 (items)
 				strcpy(buf_prefix, buf_space);
 				start = nl;
 			}
