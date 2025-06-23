@@ -164,6 +164,8 @@ void console_session::snap(bool const NewLine)
 	if (!m_Activations && scroll(margin(NewLine, true)))
 		Global->ScrBuf->FillBuf();
 
+	console.ResetViewportPosition();
+
 	Global->WindowManager->Desktop()->TakeSnapshot();
 }
 
