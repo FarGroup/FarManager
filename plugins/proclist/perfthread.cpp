@@ -202,10 +202,11 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD const Pid, std::wstring_view c
 static size_t get_logical_processor_count()
 {
 	block_ptr<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX> Buffer(1024);
+	DWORD Size{};
 
 	for (;;)
 	{
-		auto Size = static_cast<DWORD>(Buffer.size());
+		Size = static_cast<DWORD>(Buffer.size());
 		if (pGetLogicalProcessorInformationEx(RelationProcessorCore, Buffer.data(), &Size))
 			break;
 
@@ -221,7 +222,7 @@ static size_t get_logical_processor_count()
 
 	size_t LogicalProcessorCount{};
 
-	for (size_t Offset{}; Offset < Buffer.size();)
+	for (size_t Offset{}; Offset != Size;)
 	{
 		const auto& Info = *static_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX const*>(static_cast<void const*>(Buffer.bytes().data() + Offset));
 

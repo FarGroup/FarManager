@@ -1,3 +1,7 @@
+drkns 2025-06-24 00:17:52+01:00 - build 220
+
+1. More fixes.
+
 drkns 2025-06-22 14:12:54+01:00 - build 219
 
 1. Do not try to show bitness and other local data in remote sessions.

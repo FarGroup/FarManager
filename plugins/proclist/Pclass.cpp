@@ -892,19 +892,8 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 	{
 		PluginPanelItem& CurItem = PanelItem[I];
 		auto pdata = static_cast<ProcessData*>(CurItem.UserData.Data);
-		ProcessData PData;
-
 		if (!pdata)
-		{
-			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-			const auto ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.FileName);
-
-			if (ppd && GetPData(PData, *ppd))
-				pdata = &PData;
-
-			if (!pdata)
-				return 0;
-		}
+			return 0;
 
 		const auto IsTotal = pdata->dwPID == 0 && CurItem.FileName == L"_Total"sv;
 
@@ -1075,7 +1064,7 @@ int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION
 {
 	const std::scoped_lock b(m_RefreshLock);
 
-	if (ItemsNumber == 0)
+	if (ItemsNumber == 1 && !PanelItem[0].UserData.Data) // Root
 		return false;
 
 	if (!HostName.empty() && !Opt.EnableWMI)
