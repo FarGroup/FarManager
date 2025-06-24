@@ -147,21 +147,19 @@ public:
 	static bool PanelModesInitialized() { return !m_PanelModesDataLocal.empty(); }
 
 private:
+	static bool is_total(DWORD Pid);
 	static void PrintVersionInfo(HANDLE InfoFile, const wchar_t* FullPath);
 	void Reread();
 	void PutToCmdLine(const wchar_t* tmp);
 	static int Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom, const wchar_t* HelpTopic, const FarKey* BreakKeys, const FarMenuItem* Items, size_t ItemsNumber);
-	void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
-	bool ConnectWMI();
-	void DisconnectWMI();
-	void WmiError() const;
+	void PrintOwnerInfo(HANDLE InfoFile, DWORD Pid);
+	void WmiError(HRESULT Result) const;
 
 	DWORD LastUpdateTime{};
 	std::wstring HostName;
 	std::unique_ptr<PerfThread> pPerfThread;
 	unsigned StartPanelMode{};
 	unsigned SortMode{};
-	std::unique_ptr<WMIConnection> pWMI;
 	DWORD dwPluginThread;
 
 	static inline std::vector<mode> m_PanelModesDataLocal, m_PanelModesDataRemote;
@@ -206,6 +204,7 @@ struct ProcessData
 	DWORD dwPrBase{};
 	int Bitness{};
 	std::wstring FullPath;
+	std::wstring Sid;
 	uint64_t dwElapsedTime{};
 	std::wstring CommandLine;
 };
@@ -282,14 +281,10 @@ DECLARE_IMPORT(NtQueryInformationFile, NTSTATUS (NTAPI*)(HANDLE, PVOID, PVOID, D
 DECLARE_IMPORT(NtWow64QueryInformationProcess64, NTSTATUS(NTAPI*)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG));
 DECLARE_IMPORT(NtWow64ReadVirtualMemory64, NTSTATUS (NTAPI*)(HANDLE, ULONG64, PVOID, ULONG64, PULONG64));
 
-DECLARE_IMPORT(IsValidSid, BOOL (WINAPI*)(PSID));
-DECLARE_IMPORT(GetSidIdentifierAuthority, PSID_IDENTIFIER_AUTHORITY (WINAPI*)(PSID));
-DECLARE_IMPORT(GetSidSubAuthorityCount, PUCHAR (WINAPI*)(PSID));
-DECLARE_IMPORT(GetSidSubAuthority, PDWORD (WINAPI*)(PSID, DWORD));
 DECLARE_IMPORT(IsWow64Process, BOOL (WINAPI*)(HANDLE hProcess, PBOOL Wow64Process));
 DECLARE_IMPORT(GetLogicalProcessorInformationEx, BOOL(WINAPI*)(LOGICAL_PROCESSOR_RELATIONSHIP, PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX, PDWORD));
-DECLARE_IMPORT(GetGuiResources, DWORD (WINAPI*)(HANDLE hProcess, DWORD uiFlags));
-DECLARE_IMPORT(CoSetProxyBlanket, HRESULT (WINAPI*)(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD));
+DECLARE_IMPORT(GetThreadDescription, HRESULT (WINAPI*)(HANDLE, PWSTR*));
+
 DECLARE_IMPORT(EnumProcessModulesEx, BOOL (WINAPI*)(HANDLE, HMODULE*, DWORD, DWORD*, DWORD));
 
 #undef DECLARE_IMPORT

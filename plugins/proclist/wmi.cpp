@@ -61,231 +61,259 @@ WMIConnection::~WMIConnection()
 	Disconnect();
 }
 
-std::wstring WMIConnection::GetProcessExecutablePath(DWORD const Pid)
+wmi_result<std::wstring> WMIConnection::GetProcessExecutablePath(DWORD const Pid) const
 {
 	return GetProcessString(Pid, L"ExecutablePath");
 }
 
-std::wstring WMIConnection::GetProcessCommandLine(DWORD const Pid)
+wmi_result<std::wstring> WMIConnection::GetProcessCommandLine(DWORD const Pid) const
 {
 	return GetProcessString(Pid, L"CommandLine");
 }
 
-DWORD WMIConnection::GetProcessPriority(DWORD const Pid)
+HRESULT WMIConnection::AttachDebuggerToProcess(DWORD const Pid) const
+{
+	return ExecMethod(Pid, L"AttachDebugger");
+}
+
+wmi_result<DWORD> WMIConnection::GetProcessPriority(DWORD const Pid) const
 {
 	return GetProcessInt(Pid, L"Priority");
 }
 
-std::wstring WMIConnection::GetProcessOwner(DWORD dwPID, std::wstring* Domain)
+static HRESULT wbem_error_to_win32_error(unsigned const WbemError)
 {
-	com_ptr<IWbemClassObject> OutParams;
-
-	if (Domain)
-		Domain->clear();
-
-	hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwner"), 0, {}, {}, &ptr_setter(OutParams), {});
-	if (hrLast != WBEM_S_NO_ERROR || !OutParams)
-		return {};
-
-	VARIANT pVal;
-
-	std::wstring User;
-	if ((hrLast = OutParams->Get(L"User", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
+	switch (WbemError)
 	{
-		User = pVal.bstrVal;
-		VariantClear(&pVal);
+	case 0:  return HRESULT_FROM_WIN32(ERROR_SUCCESS);            // Successful completion
+	case 2:  return HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);      // Access denied
+	case 3:  return HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED);      // Insufficient privilege
+	case 8:  return HRESULT_FROM_WIN32(ERROR_GEN_FAILURE);        // Unknown failure
+	case 9:  return HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND);     // Path not found
+	case 21: return HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);  // Invalid parameter
+	case 22: return HRESULT_FROM_WIN32(ERROR_GEN_FAILURE);        // Other
+	default: return WbemError;
 	}
-
-	if (Domain && (hrLast = OutParams->Get(L"Domain", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
-	{
-		*Domain = pVal.bstrVal;
-		VariantClear(&pVal);
-	}
-
-	return User;
 }
 
-std::wstring WMIConnection::GetProcessUserSid(DWORD dwPID)
+static HRESULT get_return_value(com_ptr<IWbemClassObject> const& OutParams)
+{
+	VARIANT Variant;
+	if (const auto Result = OutParams->Get(L"ReturnValue", 0, &Variant, {}, {}); FAILED(Result))
+		return Result;
+
+	assert(Variant.vt == VT_I4);
+
+	const auto Result = wbem_error_to_win32_error(Variant.lVal);
+	VariantClear(&Variant);
+
+	return Result;
+}
+
+std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> WMIConnection::GetProcessOwner(DWORD const Pid) const
 {
 	com_ptr<IWbemClassObject> OutParams;
-	hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwnerSid"), 0, {}, {}, &ptr_setter(OutParams), {});
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwner"), 0, {}, {}, &ptr_setter(OutParams), {}); FAILED(Result))
+		return { Result, Result };
 
-	if (hrLast != WBEM_S_NO_ERROR || !OutParams)
-		return {};
+	std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> Pair;
 
-	VARIANT pVal;
-	std::wstring UserSid;
+	auto& [User, Domain] = Pair;
 
-	if ((hrLast = OutParams->Get(L"Sid", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
+	VARIANT Variant;
+
+	if (const auto Result = OutParams->Get(L"User", 0, &Variant, {}, {}); FAILED(Result))
+		User = Result;
+	else
 	{
-		UserSid = pVal.bstrVal;
-		VariantClear(&pVal);
+		if (Variant.vt == VT_NULL)
+			User = get_return_value(OutParams);
+		else
+		{
+			assert(Variant.vt == VT_BSTR);
+			User = Variant.bstrVal;
+		}
+		VariantClear(&Variant);
+	}
+
+	if (const auto Result = OutParams->Get(L"Domain", 0, &Variant, {}, {}); FAILED(Result))
+		Domain = Result;
+	else
+	{
+		if (Variant.vt == VT_NULL)
+			Domain = get_return_value(OutParams);
+		else
+		{
+			assert(Variant.vt == VT_BSTR);
+			Domain = Variant.bstrVal;
+		}
+		VariantClear(&Variant);
+	}
+
+	return Pair;
+}
+
+wmi_result<std::wstring> WMIConnection::GetProcessUserSid(DWORD Pid) const
+{
+	com_ptr<IWbemClassObject> OutParams;
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwnerSid"), 0, {}, {}, &ptr_setter(OutParams), {}); FAILED(Result))
+		return Result;
+
+	VARIANT Variant;
+
+	wmi_result<std::wstring> UserSid;
+	if (const auto Result = OutParams->Get(L"Sid", 0, &Variant, {}, {}); FAILED(Result))
+		UserSid = Result;
+	else
+	{
+		if (Variant.vt == VT_NULL)
+			UserSid = get_return_value(OutParams);
+		else
+		{
+			assert(Variant.vt == VT_BSTR);
+			UserSid = Variant.bstrVal;
+		}
+		VariantClear(&Variant);
 	}
 
 	return UserSid;
 }
 
-DWORD WMIConnection::GetProcessSessionId(DWORD const Pid)
+wmi_result<DWORD> WMIConnection::GetProcessSessionId(DWORD const Pid) const
 {
 	return GetProcessInt(Pid, L"SessionId");
 }
 
-int WMIConnection::ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_t* wsParamName, DWORD dwParam)
+HRESULT WMIConnection::ExecMethod(DWORD const Pid, const wchar_t* wsMethod, const wchar_t* wsParamName, DWORD dwParam) const
 {
 	com_ptr<IWbemClassObject> Object;
-	hrLast = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, &ptr_setter(Object), {});
-
-	if (!Object)
-		return -1;
+	if (const auto Result = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, &ptr_setter(Object), {}); FAILED(Result))
+		return Result;
 
 	com_ptr<IWbemClassObject> InSignature;
-
 	if (wsParamName)
-		hrLast = Object->GetMethod(wsMethod, 0, &ptr_setter(InSignature), {});
-
-	int rc = -1;
-
-	if (InSignature || !wsParamName)
 	{
-		com_ptr<IWbemClassObject> InParams;
-
-		if (InSignature)
-			hrLast = InSignature->SpawnInstance(0, &ptr_setter(InParams));
-
-		if (InParams || !wsParamName)
-		{
-			if (InParams)
-			{
-				VARIANT var; VariantClear(&var);
-				var.vt = VT_I4;
-				var.lVal = dwParam;
-				hrLast = InParams->Put(wsParamName, 0, &var, 0);
-			}
-
-			com_ptr<IWbemClassObject> OutParams;
-
-			if ((hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(wsMethod), 0, {}, InParams.get(), &ptr_setter(OutParams), {})) == WBEM_S_NO_ERROR)
-			{
-				rc = 0;
-
-				if (OutParams)
-				{
-					VARIANT pVal;
-
-					if (OutParams->Get(L"ReturnValue", 0, &pVal, {}, {}) == WBEM_S_NO_ERROR)
-					{
-						if (pVal.vt==VT_I4)
-							rc = pVal.lVal;
-
-						VariantClear(&pVal);
-					}
-				}
-			}
-		}
+		if (const auto Result = Object->GetMethod(wsMethod, 0, &ptr_setter(InSignature), {}); FAILED(Result))
+			return Result;
 	}
 
-	return rc;
+	com_ptr<IWbemClassObject> InParams;
+	if (InSignature)
+	{
+		if (const auto Result = InSignature->SpawnInstance(0, &ptr_setter(InParams)); FAILED(Result))
+			return Result;
+	}
+
+	if (InParams)
+	{
+		VARIANT Variant;
+		VariantInit(&Variant);
+
+		Variant.vt = VT_I4;
+		Variant.lVal = dwParam;
+		if (const auto Result = InParams->Put(wsParamName, 0, &Variant, 0); FAILED(Result))
+			return Result;
+	}
+
+	com_ptr<IWbemClassObject> OutParams;
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(wsMethod), 0, {}, InParams.get(), &ptr_setter(OutParams), {}); FAILED(Result))
+		return Result;
+
+	return get_return_value(OutParams);
 }
 
-bool WMIConnection::GetProcessProperty(DWORD const Pid, const wchar_t* const Name, const std::function<void(const VARIANT&)>& Getter)
+HRESULT WMIConnection::GetProcessProperty(DWORD const Pid, const wchar_t* const Name, const std::function<void(const VARIANT&)>& Getter) const
 {
 	com_ptr<IWbemClassObject> Object;
-	hrLast = pIWbemServices->GetObject(ProcessPath(Pid), 0, {}, &ptr_setter(Object), {});
+	if (const auto Result = pIWbemServices->GetObject(ProcessPath(Pid), 0, {}, &ptr_setter(Object), {}); FAILED(Result))
+		return Result;
 
-	if (hrLast != WBEM_S_NO_ERROR || !Object)
-		return false;
+	VARIANT Variant;
+	if (const auto Result = Object->Get(Name, 0, &Variant, {}, {}); FAILED(Result))
+		return Result;
 
-	VARIANT pVal;
+	Getter(Variant);
 
-	hrLast = Object->Get(Name, 0, &pVal, {}, {});
-	if (hrLast != WBEM_S_NO_ERROR)
-		return false;
-
-	Getter(pVal);
-
-	VariantClear(&pVal);
-
-	return true;
+	return VariantClear(&Variant);
 }
 
-DWORD WMIConnection::GetProcessInt(DWORD const Pid, const wchar_t* const Name)
+wmi_result<DWORD> WMIConnection::GetProcessInt(DWORD const Pid, const wchar_t* const Name) const
 {
-	DWORD Value = 0;
-	GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
+	DWORD Value;
+
+	if (const auto Result = GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
 	{
 		if (Variant.vt == VT_I4)
 			Value = Variant.lVal;
-	});
+	}); FAILED(Result))
+		return Result;
+
 	return Value;
 }
 
-std::wstring WMIConnection::GetProcessString(DWORD const Pid, const wchar_t* const Name)
+wmi_result<std::wstring> WMIConnection::GetProcessString(DWORD const Pid, const wchar_t* const Name) const
 {
 	std::wstring Value;
-	GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
+	if (const auto Result = GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
 	{
 		if (Variant.vt == VT_BSTR)
 			Value = Variant.bstrVal;
-	});
+	}); FAILED(Result))
+		return Result;
+
 	return Value;
-
 }
 
-int WMIConnection::SetProcessPriority(DWORD dwPID, DWORD dwPri)
+HRESULT WMIConnection::SetProcessPriority(DWORD const Pid, DWORD const Priority) const
 {
-	return ExecMethod(dwPID, L"SetPriority", L"Priority", dwPri);
+	return ExecMethod(Pid, L"SetPriority", L"Priority", Priority);
 }
 
-int WMIConnection::TerminateProcess(DWORD dwPID)
+HRESULT WMIConnection::TerminateProcess(DWORD const Pid) const
 {
-	return ExecMethod(dwPID, L"Terminate", L"Reason", ERROR_PROCESS_ABORTED);
+	return ExecMethod(Pid, L"Terminate", L"Reason", ERROR_PROCESS_ABORTED);
 }
 
-bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, const wchar_t* pPassword)
+HRESULT WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, const wchar_t* pPassword)
 {
 	if (pIWbemServices)
-		return true;
+		return S_OK;
 
 	if (pUser && !*pUser)
 		pUser = pPassword = {}; // Empty username means default security
 
-	hrLast = WBEM_S_NO_ERROR;
 	com_ptr<IWbemLocator> IWbemLocator;
+	if (const auto Result = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&ptr_setter(IWbemLocator))); FAILED(Result))
+		return Result;
 
-	if ((hrLast = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&ptr_setter(IWbemLocator)))) == S_OK)
-	{
-		if (!pMachineName || !*pMachineName)
-			pMachineName = L".";
+	if (!pMachineName || !*pMachineName)
+		pMachineName = L".";
 
-		if (norm_m_prefix(pMachineName))
-			pMachineName += 2;
+	if (norm_m_prefix(pMachineName))
+		pMachineName += 2;
 
-		const auto Namespace = far::format(L"\\\\{0}\\root\\cimv2"sv, pMachineName);
+	const auto Namespace = far::format(L"\\\\{0}\\root\\cimv2"sv, pMachineName);
 
-		if ((hrLast = IWbemLocator->ConnectServer(bstr(Namespace.c_str()), bstr(pUser), bstr(pPassword), {}, 0, {}, {}, &pIWbemServices)) == S_OK)
-		{
-			// We impersonate a token to enable SeDebugPrivilege privilege.
-			// Enable static cloaking here to make sure the server sees it.
-			//
-			// Some privileged information (like the full EXE path) will not be
-			// returned if this call fails. However it is not fatal so the error
-			// can be ignored.
-			pCoSetProxyBlanket(pIWbemServices,
-			                   RPC_C_AUTHN_DEFAULT,
-			                   RPC_C_AUTHN_DEFAULT,
-			                   {},
-			                   RPC_C_AUTHN_LEVEL_DEFAULT,
-			                   RPC_C_IMP_LEVEL_IMPERSONATE,
-			                   {},
-			                   EOAC_STATIC_CLOAKING);
-		}
-		else
-		{
-			pIWbemServices = {};
-		}
-	}
+	if (const auto Result = IWbemLocator->ConnectServer(bstr(Namespace.c_str()), bstr(pUser), bstr(pPassword), {}, 0, {}, {}, &pIWbemServices); FAILED(Result))
+		return Result;
 
-	return pIWbemServices != nullptr;
+	// We impersonate a token to enable SeDebugPrivilege privilege.
+	// Enable static cloaking here to make sure the server sees it.
+	//
+	// Some privileged information (like the full EXE path) will not be returned if this call fails.
+	// However, it is not fatal, so the error can be ignored.
+	CoSetProxyBlanket(
+		pIWbemServices,
+		RPC_C_AUTHN_DEFAULT,
+		RPC_C_AUTHN_DEFAULT,
+		{},
+		RPC_C_AUTHN_LEVEL_DEFAULT,
+		RPC_C_IMP_LEVEL_IMPERSONATE,
+		{},
+		EOAC_STATIC_CLOAKING
+	);
+
+	return S_OK;
 }
 
 void WMIConnection::Disconnect()

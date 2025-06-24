@@ -163,14 +163,30 @@ PerfThread::PerfThread(Plist* const Owner, const wchar_t* hostname, const wchar_
 	hEvtRefreshDone.reset(CreateEvent({}, 0, 0, {}));
 	Refresh();
 	hThread.reset(CreateThread({}, 0, ThreadProc, this, 0, {}));
-	hWmiThread.reset(CreateThread({}, 0, WmiThreadProc, this, 0, {}));
+
+	if (Opt.EnableWMI)
+	{
+		EventWMIReady.reset(CreateEvent({}, TRUE, FALSE, {}));
+		EventMTARefresh.reset(CreateEvent({}, 0, 0, {}));
+		EventMTARefreshDone.reset(CreateEvent({}, 0, 0, {}));
+
+		hWmiThread.reset(CreateThread({}, 0, WmiThreadProc, this, 0, {}));
+		MTAThread.reset(CreateThread({}, 0, MTAThreadProc, this, 0, {}));
+	}
+
 	bOK = true;
 }
 PerfThread::~PerfThread()
 {
 	SetEvent(hEvtBreak.get());
+
+	if (Opt.EnableWMI)
+	{
+		WaitForSingleObject(MTAThread.get(), INFINITE);
+		WaitForSingleObject(hWmiThread.get(), INFINITE);
+	}
+
 	WaitForSingleObject(hThread.get(), INFINITE);
-	WaitForSingleObject(hWmiThread.get(), INFINITE);
 
 	if (hHKLM)
 		RegCloseKey(hHKLM);
@@ -189,11 +205,9 @@ void PerfThread::unlock()
 	ReleaseMutex(hMutex.get());
 }
 
-ProcessPerfData* PerfThread::GetProcessData(DWORD const Pid, std::wstring_view const ProcessName)
+ProcessPerfData* PerfThread::GetProcessData(DWORD const Pid)
 {
-	const auto Key = !Pid && ProcessName == L"_Total"sv? static_cast<DWORD>(-1) : Pid;
-
-	if (const auto Iterator = m_ProcessesData.find(Key); Iterator != m_ProcessesData.end())
+	if (const auto Iterator = m_ProcessesData.find(Pid); Iterator != m_ProcessesData.end())
 		return &Iterator->second;
 
 	return {};
@@ -432,10 +446,15 @@ bool PerfThread::RefreshImpl()
 		// Real process ids can't be odd, so it's fine
 		auto& Task = NewPData.emplace(IsTotal? static_cast<DWORD>(-1) : *pProcessId, ProcessPerfData{}).first->second;
 
-		Task.dwProcessId = *pProcessId;
-
-		if (!IsTotal)
+		if (IsTotal)
+		{
+			Task.dwProcessId = static_cast<DWORD>(-1);
+		}
+		else
+		{
+			Task.dwProcessId = *pProcessId;
 			Task.Bitness = DefaultBitness;
+		}
 
 		const auto ProcessInfo = [&]() -> PROCLIST_SYSTEM_PROCESS_INFORMATION const*
 		{
@@ -450,7 +469,7 @@ bool PerfThread::RefreshImpl()
 		if (!m_ProcessesData.empty())  // Use prev data if any
 		{
 			//Get the pointer to the previous instance of this process
-			pOldTask = GetProcessData(Task.dwProcessId, ProcessName);
+			pOldTask = GetProcessData(Task.dwProcessId);
 			if (pOldTask)  // copy process' data from pOldTask to Task
 			{
 				Task = *pOldTask;
@@ -560,6 +579,7 @@ bool PerfThread::RefreshImpl()
 		{
 			Task.CreationTime = ProcessInfo->CreateTime.QuadPart;
 			Task.ProcessName = { ProcessInfo->ImageName.Buffer, ProcessInfo->ImageName.Length / sizeof(wchar_t) };
+			Task.SessionId = ProcessInfo->SessionId;
 		}
 
 		if (!pOldTask && m_HostName.empty() && Task.dwProcessId > 8)
@@ -572,7 +592,16 @@ bool PerfThread::RefreshImpl()
 
 			if (hProcess)
 			{
-				get_open_process_data(hProcess.get(), &Task.ProcessName, &Task.FullPath, &Task.CommandLine, {}, {});
+				Task.FullPath.emplace();
+				Task.CommandLine.emplace();
+
+				get_open_process_data(hProcess.get(), &Task.ProcessName, &*Task.FullPath, &*Task.CommandLine, {}, {});
+
+				if (Task.FullPath->empty())
+					Task.FullPath.reset();
+
+				if (Task.CommandLine->empty())
+					Task.CommandLine.reset();
 
 				if (!Task.CreationTime)
 				{
@@ -586,8 +615,8 @@ bool PerfThread::RefreshImpl()
 					.QuadPart;
 				}
 
-				Task.dwGDIObjects = pGetGuiResources(hProcess.get(), GR_GDIOBJECTS);
-				Task.dwUSERObjects = pGetGuiResources(hProcess.get(), GR_USEROBJECTS);
+				Task.dwGDIObjects = GetGuiResources(hProcess.get(), GR_GDIOBJECTS);
+				Task.dwUSERObjects = GetGuiResources(hProcess.get(), GR_USEROBJECTS);
 
 				if (is_wow64_process(hProcess.get()))
 					Task.Bitness = 32;
@@ -691,14 +720,25 @@ void PerfThread::Refresh()
 	SetEvent(hEvtRefreshDone.get());
 }
 
-void PerfThread::RefreshWMIData()
+void PerfThread::RefreshWMIData(std::optional<DWORD> const Pid)
 {
 	std::vector<ProcessPerfData> DataCopy;
-	DataCopy.reserve(m_ProcessesData.size());
+	DataCopy.reserve(Pid? 1 : m_ProcessesData.size());
 
 	{
 		const std::scoped_lock l(*this);
-		std::transform(m_ProcessesData.cbegin(), m_ProcessesData.cend(), std::back_inserter(DataCopy), [](const auto& i) { return i.second; });
+		if (Pid)
+		{
+			const auto* Data = GetProcessData(*Pid);
+			if (!Data)
+				return;
+
+			DataCopy = { *Data };
+		}
+		else
+		{
+			std::ranges::transform(m_ProcessesData, std::back_inserter(DataCopy), [](const auto& i) { return i.second; });
+		}
 	}
 
 	for (auto& i: DataCopy)
@@ -708,39 +748,64 @@ void PerfThread::RefreshWMIData()
 
 		auto AnythingRead = false;
 
-		if (!m_HostName.empty() && !i.FullPathRead)
+		if (!i.FullPath)
 		{
-			i.FullPath = WMI.GetProcessExecutablePath(i.dwProcessId);
-			i.FullPathRead = true;
-			AnythingRead = true;
+			if (const auto Result = WMI.GetProcessExecutablePath(i.dwProcessId))
+			{
+				i.FullPath = *Result;
+				AnythingRead = true;
+			}
 		}
 
-		if (!i.OwnerRead)
+		if (!i.Owner)
 		{
-			i.Owner = WMI.GetProcessOwner(i.dwProcessId);
+			const auto [Owner, Domain] = WMI.GetProcessOwner(i.dwProcessId);
 
-			if (const auto SessionId = WMI.GetProcessSessionId(i.dwProcessId); SessionId)
+			if (Owner)
 			{
-				i.Owner += L':';
-				i.Owner += str(SessionId);
+				i.Owner = *Owner;
+				AnythingRead = true;
 			}
 
-			i.OwnerRead = true;
-			AnythingRead = true;
+			if (Domain)
+			{
+				i.Domain = *Domain;
+				AnythingRead = true;
+			}
 		}
 
-		if (!i.CommandLineRead)
+		if (!i.SessionId)
 		{
-			i.CommandLine = WMI.GetProcessCommandLine(i.dwProcessId);
-			i.CommandLineRead = true;
-			AnythingRead = true;
+			if (const auto Result = WMI.GetProcessSessionId(i.dwProcessId))
+			{
+				i.SessionId = *Result;
+				AnythingRead = true;
+			}
+		}
+
+		if (!i.Sid)
+		{
+			if (const auto Result = WMI.GetProcessUserSid(i.dwProcessId))
+			{
+				i.Sid = *Result;
+				AnythingRead = true;
+			}
+		}
+
+		if (!i.CommandLine)
+		{
+			if (const auto Result = WMI.GetProcessCommandLine(i.dwProcessId))
+			{
+				i.CommandLine = *Result;
+				AnythingRead = true;
+			}
 		}
 
 		if (AnythingRead)
 		{
 			const std::scoped_lock l(*this);
 
-			if (auto* Data = GetProcessData(i.dwProcessId, i.ProcessName))
+			if (auto* Data = GetProcessData(i.dwProcessId))
 				*Data = i;
 		}
 	}
@@ -771,33 +836,66 @@ void PerfThread::WmiThreadProc()
 		hEvtBreak.get(), hEvtRefresh.get()
 	};
 
-	const auto CoInited = SUCCEEDED(CoInitialize({}));
+	const auto CoInited = SUCCEEDED(CoInitializeEx({}, COINIT_DISABLE_OLE1DDE | COINIT_MULTITHREADED));
+
+	WMIConnectionStatus = WMI.Connect(
+		m_HostName.c_str(),
+		m_UserName.empty()? nullptr : m_UserName.c_str(),
+		m_UserName.empty()? nullptr : m_Password.c_str()
+	);
+
+	SetEvent(EventWMIReady.get());
 
 	for (;;)
 	{
-		if (!bConnectAttempted && Opt.EnableWMI)
-		{
-			WMI.Connect(
-				m_HostName.c_str(),
-				m_UserName.empty()? nullptr : m_UserName.c_str(),
-				m_UserName.empty()? nullptr : m_Password.c_str()
-			);
-			bConnectAttempted = true;
-		}
-
 		if (WMI)
 			RefreshWMIData();
 
 		if (WaitForMultipleObjects(static_cast<DWORD>(std::size(handles)), handles, 0, dwRefreshMsec) == WAIT_OBJECT_0)
 			break;
-
-		PsInfo.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, m_Owner);
 	}
 
 	WMI.Disconnect();
 
 	if (CoInited)
 		CoUninitialize();
+}
+
+void PerfThread::MTAThreadProc() const
+{
+	const HANDLE RefreshHandles[]
+	{
+		hEvtBreak.get(), EventMTARefresh.get()
+	};
+
+	const HANDLE ReadyHandles[]
+	{
+		hEvtBreak.get(), EventWMIReady.get()
+	};
+
+	const auto CoInited = SUCCEEDED(CoInitializeEx({}, COINIT_DISABLE_OLE1DDE | COINIT_MULTITHREADED));
+
+	for (;;)
+	{
+		if (WaitForMultipleObjects(static_cast<DWORD>(std::size(RefreshHandles)), RefreshHandles, 0, INFINITE) == WAIT_OBJECT_0)
+			break;
+
+		if (WaitForMultipleObjects(static_cast<DWORD>(std::size(ReadyHandles)), ReadyHandles, 0, INFINITE) == WAIT_OBJECT_0)
+			break;
+
+		MTACallable(WMI);
+		SetEvent(EventMTARefreshDone.get());
+	}
+
+	if (CoInited)
+		CoUninitialize();
+}
+
+void PerfThread::RunMTA(std::function<void(WMIConnection const& WMI)> Callable)
+{
+	MTACallable = Callable;
+	SetEvent(EventMTARefresh.get());
+	WaitForSingleObject(EventMTARefreshDone.get(), INFINITE);
 }
 
 DWORD WINAPI PerfThread::ThreadProc(void* Param)
@@ -812,9 +910,24 @@ DWORD WINAPI PerfThread::WmiThreadProc(void* Param)
 	return 0;
 }
 
-void PerfThread::SyncReread()
+DWORD WINAPI PerfThread::MTAThreadProc(void* Param)
+{
+	static_cast<PerfThread*>(Param)->MTAThreadProc();
+	return 0;
+}
+
+void PerfThread::SyncReread() const
 {
 	ResetEvent(hEvtRefreshDone.get());
 	AsyncReread();
 	WaitForSingleObject(hEvtRefreshDone.get(), INFINITE);
+}
+
+HRESULT PerfThread::GetWMIStatus() const
+{
+	const auto Result = WaitForSingleObject(EventWMIReady.get(), INFINITE);
+	if (Result != WAIT_OBJECT_0)
+		return HRESULT_FROM_WIN32(Result);
+
+	return WMIConnectionStatus;
 }

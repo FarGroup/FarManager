@@ -4,7 +4,10 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <string>
+
+#include <expected.hpp>
 
 constexpr inline auto NCOUNTERS = 23;
 constexpr inline auto MAX_USERNAME_LENGTH = 128;
@@ -28,12 +31,14 @@ struct ProcessPerfData
 	LONGLONG    qwResults[NCOUNTERS]{};
 
 	std::wstring ProcessName;
-	std::wstring FullPath;
-	std::wstring Owner;
-	std::wstring CommandLine;
-	bool FullPathRead{};
-	bool OwnerRead{};
-	bool CommandLineRead{};
+
+	std::optional<std::wstring> FullPath;
+	std::optional<std::wstring> Owner;
+	std::optional<std::wstring> Domain;
+	std::optional<std::wstring> Sid;
+	std::optional<std::wstring> CommandLine;
+	std::optional<int> SessionId;
+
 	uint64_t    CreationTime{};
 	DWORD       dwGDIObjects{}, dwUSERObjects{};
 	int         Bitness{-1};
@@ -53,35 +58,36 @@ struct PerfLib
 
 struct IWbemServices;
 
+template<typename T>
+using wmi_result = expected<T, HRESULT>;
+
 class WMIConnection
 {
 public:
 	WMIConnection();
 	~WMIConnection();
 	explicit operator bool() const { return pIWbemServices != nullptr; }
-	bool Connect(const wchar_t* pMachineName, const wchar_t* pUser = {}, const wchar_t* pPassword = {});
+	HRESULT Connect(const wchar_t* pMachineName, const wchar_t* pUser = {}, const wchar_t* pPassword = {});
 	void Disconnect();
-	DWORD GetProcessPriority(DWORD Pid);
-	int SetProcessPriority(DWORD dwPID, DWORD dwPri);
-	int TerminateProcess(DWORD dwPID);
-	std::wstring GetProcessOwner(DWORD dwPID, std::wstring* pDomain = {});
-	std::wstring GetProcessUserSid(DWORD dwPID);
-	DWORD GetProcessSessionId(DWORD Pid);
-	std::wstring GetProcessExecutablePath(DWORD Pid);
-	std::wstring GetProcessCommandLine(DWORD Pid);
-	int AttachDebuggerToProcess(DWORD dwPID) { return ExecMethod(dwPID, L"AttachDebugger"); }
-	HRESULT GetLastHResult() const { return hrLast; }
+	wmi_result<DWORD> GetProcessPriority(DWORD Pid) const;
+	HRESULT SetProcessPriority(DWORD Pid, DWORD Priority) const;
+	HRESULT TerminateProcess(DWORD Pid) const;
+	std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> GetProcessOwner(DWORD Pid) const;
+	wmi_result<std::wstring> GetProcessUserSid(DWORD Pid) const;
+	wmi_result<DWORD> GetProcessSessionId(DWORD Pid) const;
+	wmi_result<std::wstring> GetProcessExecutablePath(DWORD Pid) const;
+	wmi_result<std::wstring> GetProcessCommandLine(DWORD Pid) const;
+	HRESULT AttachDebuggerToProcess(DWORD Pid) const;
 
 private:
-	int ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_t* wsParamName = {}, DWORD dwParam = 0);
+	HRESULT ExecMethod(DWORD Pid, const wchar_t* wsMethod, const wchar_t* wsParamName = {}, DWORD dwParam = 0) const;
 
-	bool GetProcessProperty(DWORD Pid, const wchar_t* Name, const std::function<void(const VARIANT&)>& Getter);
-	DWORD GetProcessInt(DWORD Pid, const wchar_t* Name);
-	std::wstring GetProcessString(DWORD Pid, const wchar_t* Name);
+	HRESULT GetProcessProperty(DWORD Pid, const wchar_t* Name, const std::function<void(const VARIANT&)>& Getter) const;
+	wmi_result<DWORD> GetProcessInt(DWORD Pid, const wchar_t* Name) const;
+	wmi_result<std::wstring> GetProcessString(DWORD Pid, const wchar_t* Name) const;
 
 	DebugToken token;
 	IWbemServices* pIWbemServices{};
-	HRESULT hrLast{};
 };
 
 class PerfThread
@@ -94,30 +100,38 @@ public:
 	void unlock();
 
 	auto& ProcessData() { return m_ProcessesData; }
-	ProcessPerfData* GetProcessData(DWORD Pid, std::wstring_view ProcessName);
+	ProcessPerfData* GetProcessData(DWORD Pid);
 	const PerfLib* GetPerfLib() const { return &pf; }
 	void AsyncReread() const { SetEvent(hEvtRefresh.get()); }
-	void SyncReread();
+	void SyncReread() const;
 	void SmartReread() { if (dwLastRefreshTicks > 1000) AsyncReread(); else SyncReread(); }
 	bool IsOK() const { return bOK; }
 	const auto& HostName() const { return m_HostName; }
-	bool IsWMIConnected() const { return WMI.operator bool(); }
+	HRESULT GetWMIStatus() const;
 	int GetDefaultBitness() const { return DefaultBitness; }
 	const auto& UserName() const { return m_UserName; }
 	const auto& Password() const { return m_Password; }
+	void RefreshWMI(DWORD Pid) { return RefreshWMIData(Pid); }
+	void RunMTA(std::function<void(WMIConnection const& WMI)> Callable);
 private:
 	static DWORD WINAPI ThreadProc(void* Param);
 	static DWORD WINAPI WmiThreadProc(void* Param);
+	static DWORD WINAPI MTAThreadProc(void* Param);
 	void ThreadProc();
 	void WmiThreadProc();
+	void MTAThreadProc() const;
 	bool RefreshImpl();
 	void Refresh();
-	void RefreshWMIData();
+	void RefreshWMIData(std::optional<DWORD> Pid = {});
 
 	Plist* m_Owner;
 	int DefaultBitness;
-	handle hThread, hWmiThread;
-	handle hEvtBreak, hEvtRefresh, hEvtRefreshDone;
+	handle hThread, hWmiThread, MTAThread;
+	handle
+		hEvtBreak,
+		EventWMIReady,
+		hEvtRefresh, hEvtRefreshDone,
+		EventMTARefresh, EventMTARefreshDone;
 
 	std::unordered_map<DWORD, ProcessPerfData> m_ProcessesData;
 
@@ -128,10 +142,11 @@ private:
 	std::wstring m_HostName;
 	handle hMutex;
 	WMIConnection WMI;
+	HRESULT WMIConnectionStatus{};
 	PerfLib pf;
-	bool bConnectAttempted{};
 	std::wstring m_UserName;
 	std::wstring m_Password;
+	std::function<void(WMIConnection const& WMI)> MTACallable;
 };
 
 enum

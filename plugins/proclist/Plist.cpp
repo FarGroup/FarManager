@@ -28,8 +28,9 @@ bool GetPData(ProcessData& Data, const ProcessPerfData& pd)
 	Data.dwPrBase = pd.dwProcessPriority;
 	Data.dwParentPID = pd.dwCreatingPID;
 	Data.dwElapsedTime = pd.dwElapsedTime;
-	Data.FullPath.assign(pd.FullPath, !std::wmemcmp(pd.FullPath.data(), L"\\??\\", 4)? 4 : 0);
-	Data.CommandLine = pd.CommandLine;
+	Data.FullPath = pd.FullPath.value_or({});
+	Data.Sid = pd.Sid.value_or({});
+	Data.CommandLine = pd.CommandLine.value_or({});
 	Data.Bitness = pd.Bitness;
 	return true;
 }
@@ -57,14 +58,22 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		++PanelItemIterator;
 
 		auto& pd = i.second;
-		//delete CurItem.FileName;  // ???
-		CurItem.FileName = new wchar_t[pd.ProcessName.size() + 1];
-		*std::copy(pd.ProcessName.cbegin(), pd.ProcessName.cend(), const_cast<wchar_t*>(CurItem.FileName)) = L'\0';
 
-		if (!pd.Owner.empty())
+		CurItem.FileName = new wchar_t[pd.ProcessName.size() + 1];
+		*std::ranges::copy(pd.ProcessName, const_cast<wchar_t*>(CurItem.FileName)).out = L'\0';
+
+		if (pd.Owner)
 		{
-			CurItem.Owner = new wchar_t[pd.Owner.size() + 1];
-			*std::copy(pd.Owner.cbegin(), pd.Owner.cend(), const_cast<wchar_t*>(CurItem.Owner)) = L'\0';
+			const auto FullOwner = far::format(L"{}{}{}{}{}"sv,
+				pd.Domain? *pd.Domain : L""sv,
+				pd.Domain? L"\\" : L""sv,
+				*pd.Owner,
+				pd.SessionId? L":"sv : L""sv,
+				pd.SessionId? str(*pd.SessionId) : L""sv
+			);
+
+			CurItem.Owner = new wchar_t[FullOwner.size() + 1];
+			*std::ranges::copy(FullOwner, const_cast<wchar_t*>(CurItem.Owner)).out = L'\0';
 		}
 
 		CurItem.UserData.Data = new ProcessData();

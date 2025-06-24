@@ -179,10 +179,6 @@ enum
 	MTitleUsername,
 	MTitleSessionId,
 
-	MTAccessDenied,
-	MTInsufficientPrivilege,
-	MTUnknownFailure,
-
 	MViewDDD,
 	MViewWithOptions,
 };

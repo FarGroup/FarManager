@@ -281,10 +281,10 @@ types can be used in this plugin:
 
    #Description columns:#
 
-   #ZP# - Full pathname (local only)
+   #ZP# - Full pathname
    #ZW# - Window title (local only)
    #ZD# - File Description (local only)
-   #ZC# - Command line (local only)
+   #ZC# - Command line
 
    #WARNING:# In each panel mode there may be only one description
             column ('Zx'). To view different kinds of descriptions,

@@ -60,34 +60,9 @@ static BOOL WINAPI fGetLogicalProcessorInformationEx(LOGICAL_PROCESSOR_RELATIONS
 	return FALSE;
 }
 
-static DWORD WINAPI fGetGuiResources(HANDLE, DWORD)
-{
-	return 0;
-}
-
-static BOOL WINAPI fIsValidSid(PSID)
+static HRESULT WINAPI fGetThreadDescription(HANDLE, PWSTR*)
 {
 	return FALSE;
-}
-
-static PSID_IDENTIFIER_AUTHORITY WINAPI fGetSidIdentifierAuthority(PSID)
-{
-	return {};
-}
-
-static PUCHAR WINAPI fGetSidSubAuthorityCount(PSID)
-{
-	return {};
-}
-
-static PDWORD WINAPI fGetSidSubAuthority(PSID, DWORD)
-{
-	return {};
-}
-
-static HRESULT WINAPI fCoSetProxyBlanket(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD)
-{
-	return E_FAIL;
 }
 
 static BOOL WINAPI fEnumProcessModulesEx(HANDLE, HMODULE*, DWORD, DWORD*, DWORD)
@@ -105,14 +80,11 @@ STATIC_INIT_IMPORT(NtQuerySystemInformation);
 STATIC_INIT_IMPORT(NtQueryInformationFile);
 STATIC_INIT_IMPORT(NtWow64QueryInformationProcess64);
 STATIC_INIT_IMPORT(NtWow64ReadVirtualMemory64);
+
 STATIC_INIT_IMPORT(IsWow64Process);
 STATIC_INIT_IMPORT(GetLogicalProcessorInformationEx);
-STATIC_INIT_IMPORT(GetGuiResources);
-STATIC_INIT_IMPORT(IsValidSid);
-STATIC_INIT_IMPORT(GetSidIdentifierAuthority);
-STATIC_INIT_IMPORT(GetSidSubAuthorityCount);
-STATIC_INIT_IMPORT(GetSidSubAuthority);
-STATIC_INIT_IMPORT(CoSetProxyBlanket);
+STATIC_INIT_IMPORT(GetThreadDescription);
+
 STATIC_INIT_IMPORT(EnumProcessModulesEx);
 
 #undef STATIC_INIT_IMPORT
@@ -144,24 +116,7 @@ static void dynamic_bind()
 	{
 		INIT_IMPORT(IsWow64Process);
 		INIT_IMPORT(GetLogicalProcessorInformationEx);
-	}
-
-	if (const auto Module = GetModuleHandle(L"advapi32"))
-	{
-		INIT_IMPORT(IsValidSid);
-		INIT_IMPORT(GetSidIdentifierAuthority);
-		INIT_IMPORT(GetSidSubAuthorityCount);
-		INIT_IMPORT(GetSidSubAuthority);
-	}
-
-	if (const auto Module = GetModuleHandle(L"user32"))
-	{
-		INIT_IMPORT(GetGuiResources);
-	}
-
-	if (const auto Module = GetModuleHandle(L"ole32"))
-	{
-		INIT_IMPORT(CoSetProxyBlanket);
+		INIT_IMPORT(GetThreadDescription);
 	}
 
 	if (const auto Module = GetModuleHandle(L"psapi"))

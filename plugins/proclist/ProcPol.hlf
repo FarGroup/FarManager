@@ -276,10 +276,10 @@ types can be used in this plugin:
 
    #Kolumny opisowe:#
 
-   #ZP# - Pełna ścieżka (tylko lokalnie)
+   #ZP# - Pełna ścieżka
    #ZW# - Tytuł okna (tylko lokalnie)
    #ZD# - Opis pliku (tylko lokalnie)
-   #ZC# - Linia poleceń (tylko lokalna)
+   #ZC# - Linia poleceń
 
    #WARNING:# In each panel mode there may be only one description
             column ('Zx'). To view different kinds of descriptions,

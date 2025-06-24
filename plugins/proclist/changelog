@@ -1,3 +1,17 @@
+drkns 2025-06-24 23:38:56+01:00 - build 221
+
+1. Use only one WMI connection for background and interactive tasks.
+
+2. Imrpove WMI error handling.
+
+3. Show Domain in Owner column, same as in Far.
+
+4. Show thread names in reports.
+
+5. Show image names and command lines in remote columns.
+
+6. Refactoring and minor fixes.
+
 drkns 2025-06-24 00:17:52+01:00 - build 220
 
 1. More fixes.

@@ -279,10 +279,10 @@ tyto #speciální# typy sloupců:
 
    #Popisové sloupce:#
 
-   #ZP# - Celá cesta (jen lokální)
+   #ZP# - Celá cesta
    #ZW# - Nadpis okna (jen lokální)
    #ZD# - Popis souboru (jen lokální)
-   #ZC# - Příkazový řádek (jen lokální)
+   #ZC# - Příkazový řádek
 
    #VAROVÁNÍ:# V každém módu panelu může být jen jeden popisový sloupec ('Zx').
 Pro zobrazení rozdílných druhů popisů musíte přepínat mezi módy.

@@ -14,6 +14,7 @@
 
 #include <algorithm.hpp>
 #include <smart_ptr.hpp>
+#include <string_utils.hpp>
 
 using namespace std::literals;
 
@@ -273,16 +274,27 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 		if (DWORD dwId = 0; GetProcessId(handle, dwId))
 		{
 			const std::scoped_lock l(*pThread);
-			const auto pd = pThread->GetProcessData(dwId, {});
+			const auto pd = pThread->GetProcessData(dwId);
 			const auto pName = pd? pd->ProcessName : L"<unknown>"sv;
 			return far::format(L"{} ({})"sv, pName, dwId);
 		}
 		return {};
 
 	case OB_TYPE_THREAD:
-		if (DWORD dwId = 0; GetThreadId(handle, dwId))
-			return far::format(L"TID: {}"sv, dwId);
-		return {};
+		{
+			std::wstring ThreadName;
+
+			if (DWORD dwId = 0; GetThreadId(handle, dwId))
+				ThreadName = far::format(L"TID: {}"sv, dwId);
+
+			if (local_ptr<wchar_t> Buffer; SUCCEEDED(pGetThreadDescription(handle, &ptr_setter(Buffer))))
+			{
+				if (*Buffer)
+					append(ThreadName, L", "sv, Buffer.get());
+			}
+
+			return ThreadName;
+		}
 
 	case OB_TYPE_FILE:
 		return GetFileName(handle);

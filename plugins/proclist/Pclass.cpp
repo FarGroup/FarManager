@@ -319,7 +319,6 @@ void Plist::InitializePanelModes()
 Plist::~Plist()
 {
 	pPerfThread.reset();
-	DisconnectWMI();
 }
 
 void Plist::SavePanelModes()
@@ -562,14 +561,13 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 	PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
 	auto& ProcPanelModes = HostName.empty()? m_PanelModesDataLocal : m_PanelModesDataRemote;
 
-	std::unordered_map<DWORD, HWND> Windows;
 	wchar_t cDescMode = 0;
+	if (const auto p = wcschr(ProcPanelModes[pi.ViewMode].panel_columns.internal_types.c_str(), L'Z'))
+		cDescMode = p[1];
 
+	std::unordered_map<DWORD, HWND> Windows;
 	if (HostName.empty())
 	{
-		if (const auto p = wcschr(ProcPanelModes[pi.ViewMode].panel_columns.internal_types.c_str(), L'Z'))
-			cDescMode = p[1];
-
 		for (size_t i = 0; i != ItemsNumber; ++i)
 		{
 			PluginPanelItem& CurItem = pPanelItem[i];
@@ -584,7 +582,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 	{
 		PluginPanelItem& CurItem = pPanelItem[i];
 		auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
-		const auto IsTotal = pdata.dwPID == 0 && CurItem.FileName == L"_Total"sv;
+		const auto IsTotal = is_total(pdata.dwPID);
 		// Make descriptions
 		wchar_t Title[MAX_PATH]{};
 		std::unique_ptr<char[]> Buffer;
@@ -608,7 +606,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 		case L'D':
 			const wchar_t* pVersion;
-			if (!pdata.FullPath.empty())
+			if (HostName.empty() && !pdata.FullPath.empty())
 				GetVersionInfo(pdata.FullPath.c_str(), Buffer, pVersion, pDesc);
 			break;
 
@@ -626,7 +624,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 			std::wcscpy(const_cast<wchar_t*>(CurItem.Description), pDesc);
 		}
 
-		const auto pd = pPerfThread->GetProcessData(pdata.dwPID, CurItem.FileName);
+		const auto pd = pPerfThread->GetProcessData(pdata.dwPID);
 
 		int Widths[MAX_CUSTOM_COLS]{};
 		int nCols = 0;
@@ -835,11 +833,11 @@ static auto window_ex_style(HWND Hwnd)
 
 #undef CODE_STR
 
-static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, const wchar_t* const Name)
+static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid)
 {
 	WriteToFile(InfoFile, L'\n');
 	const std::scoped_lock l(Thread);
-	const auto pdata = Thread.GetProcessData(dwPid, Name);
+	const auto pdata = Thread.GetProcessData(dwPid);
 	if (!pdata)
 		return;
 
@@ -895,7 +893,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		if (!pdata)
 			return 0;
 
-		const auto IsTotal = pdata->dwPID == 0 && CurItem.FileName == L"_Total"sv;
+		const auto IsTotal = is_total(pdata->dwPID);
 
 		// may be 0 if called from FindFile
 		std::wstring FileName = *DestPath;
@@ -941,7 +939,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			WriteToFile(InfoFile.get(), PrintTitle(MTitleParentPID));
 
 			const std::scoped_lock l(*pPerfThread);
-			const auto pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, PanelItem->FileName);
+			const auto pParentData = pPerfThread->GetProcessData(pdata->dwParentPID);
 			const auto pName = pdata->dwParentPID && pParentData? pParentData->ProcessName.c_str() : nullptr;
 
 			if (pName)
@@ -954,7 +952,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		WriteToFile(InfoFile.get(), far::format(L"{}{}\n"sv, PrintTitle(MTitleThreads), CurItem.NumberOfLinks));
 
-		if (!IsTotal)
+		if (!IsTotal && pdata->dwPID)
 			PrintOwnerInfo(InfoFile.get(), pdata->dwPID);
 
 		// Time information
@@ -993,13 +991,11 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			WriteToFile(InfoFile.get(), far::format(L"{}{:>{}}\n"sv, PrintTitle(MTitleUptime), FileTimeDifferenceToText(CurFileTime, CurItem.CreationTime), StartedTimestampLength));
 		}
 
-		if (HostName.empty()) // local only
-		{
-			if (!pdata->CommandLine.empty())
-			{
-				WriteToFile(InfoFile.get(), far::format(L"\n{}:\n{}\n"sv, GetMsg(MCommandLine), pdata->CommandLine));
-			}
+		if (!pdata->CommandLine.empty())
+			WriteToFile(InfoFile.get(), far::format(L"\n{}:\n{}\n"sv, GetMsg(MCommandLine), pdata->CommandLine));
 
+		if (!IsTotal && HostName.empty() && pdata->dwPID) // local only
+		{
 			DebugToken token;
 
 			if (const auto Process = handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | READ_CONTROL, pdata->dwPID)))
@@ -1008,7 +1004,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 				const std::scoped_lock l(*pPerfThread);
 
-				if (const auto pd = pPerfThread->GetProcessData(pdata->dwPID, CurItem.FileName))
+				if (const auto pd = pPerfThread->GetProcessData(pdata->dwPID))
 				{
 					if (pd->dwGDIObjects)
 					{
@@ -1024,7 +1020,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		}
 
 		if (LocalOpt.ExportPerformance)
-			DumpNTCounters(InfoFile.get(), *pPerfThread, pdata->dwPID, CurItem.FileName);
+			DumpNTCounters(InfoFile.get(), *pPerfThread, pdata->dwPID);
 
 		if (HostName.empty() && pdata->hwnd)
 		{
@@ -1039,7 +1035,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			WriteToFile(InfoFile.get(), far::format(L"{}{:08X} {}\n"sv, PrintTitle(MTitleExtStyle), ExStyle, ExStyleStr));
 		}
 
-		if (HostName.empty() && LocalOpt.ExportModuleInfo && pdata->dwPID)
+		if (!IsTotal && HostName.empty() && LocalOpt.ExportModuleInfo && pdata->dwPID)
 		{
 			WriteToFile(InfoFile.get(), far::format(L"\n{}:\n{:<{}} {:<8} {}\n"sv,
 				GetMsg(MTitleModules),
@@ -1052,7 +1048,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			PrintModules(InfoFile.get(), pdata->dwPID, pdata->Bitness, LocalOpt);
 		}
 
-		if (HostName.empty() && LocalOpt.ExportHandles && pdata->dwPID)
+		if (!IsTotal && HostName.empty() && LocalOpt.ExportHandles && pdata->dwPID)
 			PrintHandleInfo(pdata->dwPID, InfoFile.get(), LocalOpt.ExportHandlesUnnamed != 0, pPerfThread.get());
 	}
 
@@ -1105,6 +1101,18 @@ int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION
 		}
 	}
 
+	if (!HostName.empty())
+	{
+		if (!Opt.EnableWMI)
+			return false;
+
+		if (const auto Result = pPerfThread->GetWMIStatus(); FAILED(Result))
+		{
+			WmiError(Result);
+			return false;
+		}
+	}
+
 	for (size_t I = 0; I != ItemsNumber; ++I)
 	{
 		PluginPanelItem& CurItem = PanelItem[I];
@@ -1112,33 +1120,27 @@ int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION
 		bool Success = false;
 		int MsgId = 0;
 
-		if (!HostName.empty())  // try WMI
-		{
-			if (!ConnectWMI())
-			{
-				WmiError();
-				Success = false;
-				break;
-			}
-
-			Success = false;
-
-			switch (pWMI->TerminateProcess(pdata->dwPID))
-			{
-			case -1:
-				WmiError();
-				continue;
-			case 0: Success = true; break;
-			case 2: MsgId = MTAccessDenied; break;
-			case 3: MsgId = MTInsufficientPrivilege; break;
-			default: MsgId = MTUnknownFailure; break;
-			}
-		}
-		else
+		if (HostName.empty())
 		{
 			Success = KillProcess(pdata->dwPID, pdata->hwnd);
 		}
+		else
+		{
+			HRESULT Result;
 
+			pPerfThread->RunMTA([&](WMIConnection const& WMI)
+			{
+				Result = WMI.TerminateProcess(pdata->dwPID);
+			});
+
+			if (FAILED(Result))
+			{
+				WmiError(Result);
+				continue;
+			}
+
+			Success = true;
+		}
 
 		if (!Success)
 		{
@@ -1275,7 +1277,6 @@ bool Plist::Connect(const wchar_t* pMachine, const wchar_t* pUser, const wchar_t
 	{
 		PsInfo.RestoreScreen(hScreen);
 		pPerfThread = std::move(pNewPerfThread);
-		DisconnectWMI();
 		HostName = std::move(Machine);
 		return true;
 	}
@@ -1462,12 +1463,12 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			wchar_t Password[1024] = {};
 			PluginDialogBuilder Builder(PsInfo, MainGuid, ConfigDialogGuid, MSelectComputer, L"Contents"); // ConfigDialogGuid ???
 			Builder.AddText(MComputer);
-			Builder.AddEditField(Host, static_cast<int>(std::size(Host)), 65, L"ProcessList.Computer");
+			Builder.AddEditField(Host, static_cast<int>(std::size(Host)), 65, L"ProcessList.Computer", true);
 			Builder.AddText(MEmptyForLocal);
 			Builder.AddSeparator();
 			Builder.StartColumns();
 			Builder.AddText(MUsername);
-			Builder.AddEditField(Username, static_cast<int>(std::size(Username)), 18, L"ProcessList.Username");
+			Builder.AddEditField(Username, static_cast<int>(std::size(Username)), 18, L"ProcessList.Username", true);
 			Builder.ColumnBreak();
 			Builder.AddText(MPaswd);
 			Builder.AddPasswordField(Password, static_cast<int>(std::size(Password)), 18);
@@ -1487,7 +1488,6 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 					{
 						//go to local computer
 						pPerfThread = {};
-						DisconnectWMI();
 						pPerfThread = std::make_unique<PerfThread>(this);
 						HostName.clear();
 						stop = true;
@@ -1511,7 +1511,6 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	{
 		// go to local host
 		pPerfThread = {};
-		DisconnectWMI();
 		pPerfThread = std::make_unique<PerfThread>(this);
 		HostName.clear();
 		Reread();
@@ -1578,10 +1577,16 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			}
 		}
 
-		if (!HostName.empty() && Opt.EnableWMI && !ConnectWMI())
+		if (!HostName.empty())
 		{
-			WmiError();
-			return TRUE;
+			if (!Opt.EnableWMI)
+				return TRUE;
+
+			if (const auto Result = pPerfThread->GetWMIStatus(); FAILED(Result))
+			{
+				WmiError(Result);
+				return TRUE;
+			}
 		}
 
 		static const USHORT PrClasses[] =
@@ -1648,13 +1653,18 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 					else
 						WinError();
 				}
-				else if (pWMI)  //*HostName
+				else
 				{
-					DWORD dwPriorityClass = pWMI->GetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID);
+					wmi_result<DWORD> PriorityClass;
 
-					if (!dwPriorityClass)
+					pPerfThread->RunMTA([&](WMIConnection const& WMI)
 					{
-						WmiError();
+						PriorityClass = WMI.GetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID);
+					});
+
+					if (!PriorityClass)
+					{
+						WmiError(PriorityClass.error());
 						continue;
 					}
 
@@ -1662,7 +1672,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 					for (int j = 0; j != N; ++j)
 					{
-						if (dwPriorityClass != Pr[j])
+						if (*PriorityClass != Pr[j])
 							continue;
 
 						bool bChange = false;
@@ -1678,8 +1688,18 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 							bChange = true;
 						}
 
-						if (bChange && pWMI->SetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID, PrClasses[j]) != 0)
-							WmiError();
+						if (bChange)
+						{
+							HRESULT Result;
+
+							pPerfThread->RunMTA([&](WMIConnection const& WMI)
+							{
+								Result = WMI.SetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID, PrClasses[j]);
+							});
+
+							if (FAILED(Result))
+								WmiError(Result);
+						}
 
 						break;
 					}
@@ -1943,6 +1963,11 @@ bool Plist::GetVersionInfo(const wchar_t* pFullPath, std::unique_ptr<char[]>& Bu
 	return true;
 }
 
+bool Plist::is_total(DWORD const Pid)
+{
+	return Pid == static_cast<DWORD>(-1);
+}
+
 void Plist::PrintVersionInfo(HANDLE InfoFile, const wchar_t* pFullPath)
 {
 	const wchar_t* pVersion, * pDesc;
@@ -1962,58 +1987,51 @@ void Plist::PrintVersionInfo(HANDLE InfoFile, const wchar_t* pFullPath)
 	}
 }
 
-bool Plist::ConnectWMI()
+void Plist::PrintOwnerInfo(HANDLE const InfoFile, DWORD const Pid)
 {
-	if (!Opt.EnableWMI || dwPluginThread != GetCurrentThreadId())
-		return false;
-
-	if (!pWMI)
-		pWMI = std::make_unique<WMIConnection>();
-
-	if (*pWMI)
-		return true;
-
-	return pWMI->Connect(
-		HostName.c_str(),
-		pPerfThread->UserName().c_str(),
-		pPerfThread->Password().c_str()
-	);
-}
-
-void Plist::DisconnectWMI()
-{
-	pWMI = {};
-}
-
-void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
-{
-	if (!Opt.EnableWMI || !pPerfThread->IsWMIConnected() || !ConnectWMI())
+	if (!Opt.EnableWMI)
 		return;
 
-	if (!*pWMI) // exists, but could not connect
+	if (const auto Result = pPerfThread->GetWMIStatus(); FAILED(Result))
 		return;
 
-	std::wstring Domain;
-	const auto User = pWMI->GetProcessOwner(dwPid, &Domain);
-	const auto Sid = pWMI->GetProcessUserSid(dwPid);
+	std::optional<std::wstring> User, Domain, Sid;
+	std::optional<int> SessionId;
 
-	if (!User.empty() || !Domain.empty() || !Sid.empty())
+	pPerfThread->RunMTA([&](WMIConnection const&)
+	{
+		pPerfThread->RefreshWMI(Pid);
+
+		{
+			const std::scoped_lock l(*pPerfThread);
+			if (auto* Data = pPerfThread->GetProcessData(Pid))
+			{
+				User = Data->Owner;
+				Domain = Data->Domain;
+				Sid = Data->Sid;
+				SessionId = Data->SessionId;
+			}
+		}
+	});
+
+	if (User || Domain || Sid)
 	{
 		WriteToFile(InfoFile, PrintTitle(MTitleUsername));
 
-		if (!Domain.empty())
-			WriteToFile(InfoFile, far::format(L"{}\\"sv, Domain));
+		if (Domain)
+			WriteToFile(InfoFile, far::format(L"{}\\"sv, *Domain));
 
-		if (!User.empty())
-			WriteToFile(InfoFile, User);
+		if (User)
+			WriteToFile(InfoFile, *User);
 
-		if (!Sid.empty())
-			WriteToFile(InfoFile, far::format(L" ({})"sv, Sid));
+		if (Sid)
+			WriteToFile(InfoFile, far::format(L" ({})"sv, *Sid));
 
 		WriteToFile(InfoFile, L'\n');
 	}
 
-	WriteToFile(InfoFile, far::format(L"{}{}\n"sv, PrintTitle(MTitleSessionId), pWMI->GetProcessSessionId(dwPid)));
+	if (SessionId)
+		WriteToFile(InfoFile, far::format(L"{}{}\n"sv, PrintTitle(MTitleSessionId), *SessionId));
 }
 
 template<typename T>
@@ -2031,6 +2049,12 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 
 	const auto& pd1 = *static_cast<const ProcessData*>(Item1->UserData.Data);
 	const auto& pd2 = *static_cast<const ProcessData*>(Item2->UserData.Data);
+
+	if (is_total(pd1.dwPID))
+		return -1;
+
+	if (is_total(pd2.dwPID))
+		return 1;
 
 	switch (SortMode)
 	{
@@ -2055,8 +2079,8 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	default:
 		{
 			const std::scoped_lock l(*pPerfThread);
-			const auto data1 = pPerfThread->GetProcessData(pd1.dwPID, Item1->FileName);
-			const auto data2 = pPerfThread->GetProcessData(pd2.dwPID, Item1->FileName);
+			const auto data1 = pPerfThread->GetProcessData(pd1.dwPID);
+			const auto data2 = pPerfThread->GetProcessData(pd2.dwPID);
 
 			if (!data1)
 				return data2? -1 : 0;
@@ -2105,12 +2129,8 @@ Control(FCTL_REDRAWPANEL, nullptr);
 return true;
 }
 */
-void Plist::WmiError() const
+void Plist::WmiError(HRESULT const Result) const
 {
-	if (pWMI)
-	{
-		const auto hr = pWMI->GetLastHResult();
-		SetLastError(hr);
-		WinError(hr < (HRESULT)0x80040000? nullptr : L"wbemcomn");
-	}
+	SetLastError(Result);
+	WinError(L"wbemcomn");
 }
