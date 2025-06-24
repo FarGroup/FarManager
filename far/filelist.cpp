@@ -8969,7 +8969,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							const auto& Owner = m_ListData[ListPos].Owner(this);
 							size_t Offset = 0;
 
-							if (!(Columns[K].type_flags & COLFLAGS_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
+							if (!(Columns[K].type_flags & COLFLAGS_FULLOWNER))
 							{
 								const auto SlashPos = FindSlash(Owner);
 								if (SlashPos != string::npos)
