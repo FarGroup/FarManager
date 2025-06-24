@@ -28,9 +28,9 @@ bool GetPData(ProcessData& Data, const ProcessPerfData& pd)
 	Data.dwPrBase = pd.dwProcessPriority;
 	Data.dwParentPID = pd.dwCreatingPID;
 	Data.dwElapsedTime = pd.dwElapsedTime;
-	Data.FullPath = pd.FullPath.value_or({});
-	Data.Sid = pd.Sid.value_or({});
-	Data.CommandLine = pd.CommandLine.value_or({});
+	Data.FullPath = pd.FullPath.value_or(L""s);
+	Data.Sid = pd.Sid.value_or(L""s);
+	Data.CommandLine = pd.CommandLine.value_or(L""s);
 	Data.Bitness = pd.Bitness;
 	return true;
 }
