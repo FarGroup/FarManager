@@ -274,29 +274,32 @@ class ipc_t
 
 		//FindModule, obtained from PSAPI.DLL
 		PEB peb;
+		if (!read_process_memory(hProcess, PebBaseAddress, &peb, sizeof(peb)))
+			return false;
+
+		if (!peb.LoaderData)
+			return false;
+
 		PEB_LDR_DATA pld;
+		if (!read_process_memory(hProcess, peb.LoaderData, &pld, sizeof(pld)))
+			return false;
 
-		if (read_process_memory(hProcess, PebBaseAddress, &peb, sizeof(peb)) &&
-			read_process_memory(hProcess, peb.LoaderData, &pld, sizeof(pld)))
+		const auto hModule = peb.ImageBaseAddress;
+		pProcessParams = peb.ProcessParameters;
+		pEnd = peb.LoaderData + sizeof(pld) - sizeof(LIST_ENTRY) * 2;
+		auto p4 = pld.InMemoryOrderModuleList.Flink;
+
+		while (p4)
 		{
-			//pEnd = (void *)((void *)peb.LoaderData+((void *)&pld.InMemoryOrderModuleList-(void *)&pld));
-			const auto hModule = peb.ImageBaseAddress;
-			pProcessParams = peb.ProcessParameters;
-			pEnd = peb.LoaderData + sizeof(pld) - sizeof(LIST_ENTRY) * 2;
-			auto p4 = pld.InMemoryOrderModuleList.Flink;
+			if (p4 == pEnd || !read_process_memory(hProcess, p4 - sizeof(pointer) * 2, Data, sizeof(*Data)))
+				return false;
 
-			while (p4)
-			{
-				if (p4 == pEnd || !read_process_memory(hProcess, p4 - sizeof(pointer) * 2, Data, sizeof(*Data)))
-					return false;
+			if (bFirstModule)
+				return true;
 
-				if (bFirstModule)
-					return true;
+			if (Data->BaseAddress == hModule) break;
 
-				if (Data->BaseAddress == hModule) break;
-
-				p4 = Data->InMemoryOrderModuleList.Flink;
-			}
+			p4 = Data->InMemoryOrderModuleList.Flink;
 		}
 
 		return true;

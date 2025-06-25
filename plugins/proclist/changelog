@@ -1,3 +1,7 @@
+drkns 2025-06-25 21:16:55+01:00 - build 222
+
+1. More fixes.
+
 drkns 2025-06-24 23:38:56+01:00 - build 221
 
 1. Use only one WMI connection for background and interactive tasks.

@@ -98,12 +98,10 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		CurItem.NumberOfLinks = pd.dwThreads;
 		GetPData(*static_cast<ProcessData*>(CurItem.UserData.Data), pd);
 
-		if (pd.dwProcessId == 0 && pd.ProcessName == L"_Total"sv)
+		if (Plist::is_total(pd.dwProcessId))
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
-
-		if (pd.Bitness != Thread.GetDefaultBitness())
+		else if (pd.Bitness != Thread.GetDefaultBitness())
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_VIRTUAL;
-
 	}
 
 	return true;

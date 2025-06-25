@@ -776,6 +776,7 @@ static auto window_style(HWND Hwnd)
 	};
 
 	std::wstring StyleStr;
+	int SeenFlags = 0;
 
 	for (const auto& [Code, Str]: Styles)
 	{
@@ -784,6 +785,13 @@ static auto window_style(HWND Hwnd)
 
 		StyleStr += L' ';
 		StyleStr += Str;
+		SeenFlags |= Code;
+	}
+
+	if (const auto UnseenFlags = Style & ~SeenFlags)
+	{
+		StyleStr += L' ';
+		StyleStr += far::format(L"0x{:08X}"sv, UnseenFlags);
 	}
 
 	return std::pair{ Style, StyleStr };
@@ -813,11 +821,14 @@ static auto window_ex_style(HWND Hwnd)
 		CODE_STR(WS_EX_APPWINDOW),
 		CODE_STR(WS_EX_LAYERED),
 		CODE_STR(WS_EX_NOINHERITLAYOUT),
+		CODE_STR(WS_EX_NOREDIRECTIONBITMAP),
 		CODE_STR(WS_EX_LAYOUTRTL),
+		CODE_STR(WS_EX_COMPOSITED),
 		CODE_STR(WS_EX_NOACTIVATE),
 	};
 
 	std::wstring ExStyleStr;
+	int SeenFlags = 0;
 
 	for (const auto& [Code, Str]: ExtStyles)
 	{
@@ -826,6 +837,13 @@ static auto window_ex_style(HWND Hwnd)
 
 		ExStyleStr += L' ';
 		ExStyleStr += Str;
+		SeenFlags |= Code;
+	}
+
+	if (const auto UnseenFlags = ExStyle & ~SeenFlags)
+	{
+		ExStyleStr += L' ';
+		ExStyleStr += far::format(L"0x{:08X}"sv, UnseenFlags);
 	}
 
 	return std::pair{ ExStyle, ExStyleStr };

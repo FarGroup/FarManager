@@ -145,9 +145,9 @@ public:
 	static void SavePanelModes();
 	static void InitializePanelModes();
 	static bool PanelModesInitialized() { return !m_PanelModesDataLocal.empty(); }
+	static bool is_total(DWORD Pid);
 
 private:
-	static bool is_total(DWORD Pid);
 	static void PrintVersionInfo(HANDLE InfoFile, const wchar_t* FullPath);
 	void Reread();
 	void PutToCmdLine(const wchar_t* tmp);
