@@ -7,6 +7,15 @@
 #include <string>
 #include <vector>
 
+#ifndef _MSC_VER
+
+#include <winsdkver.h>
+
+#undef WINVER
+#define WINVER WINVER_MAXVER
+
+#endif
+
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 #include <windows.h>
 #undef WIN32_NO_STATUS
