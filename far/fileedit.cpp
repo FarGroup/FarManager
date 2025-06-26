@@ -1499,9 +1499,35 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		std::istream Stream(&StreamBuffer);
 		Stream.exceptions(Stream.badbit | Stream.failbit);
 
+		bool TryAnotherCodepage = false;
 		enum_lines EnumFileLines(Stream, m_codepage);
 		for (auto Str: EnumFileLines)
 		{
+			if (!BadConversion && EnumFileLines.conversion_error())
+			{
+				BadConversion = true;
+				uintptr_t cp = m_codepage;
+				if (!dlgBadEditorCodepage(cp)) // cancel
+				{
+					EditFile.Close();
+					SetLastError(ERROR_OPEN_FAILED); //????
+					ErrorState = os::last_error();
+					UserBreak = 1;
+					m_Flags.Set(FFILEEDIT_OPENFAILED);
+					return false;
+				}
+
+				if (cp != m_codepage)
+				{
+					m_codepage = cp;
+					EditFile.SetPointer(0, nullptr, FILE_BEGIN);
+					TryAnotherCodepage = true;
+					BadConversion = false;
+					break;
+				}
+				// else -- codepage accepted
+			}
+
 			if (testBOM && IsUtfCodePage(m_codepage))
 			{
 				if (Str.Str.starts_with(encoding::bom_char))
@@ -1552,27 +1578,9 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 			m_editor->LastLine()->SetEOL(Str.Eol);
 		}
 
-		BadConversion = EnumFileLines.conversion_error();
-		if (BadConversion)
-		{
-			uintptr_t cp = m_codepage;
-			if (!dlgBadEditorCodepage(cp)) // cancel
-			{
-				EditFile.Close();
-				SetLastError(ERROR_OPEN_FAILED); //????
-				ErrorState = os::last_error();
-				UserBreak=1;
-				m_Flags.Set(FFILEEDIT_OPENFAILED);
-				return false;
-			}
-			else if (cp != m_codepage)
-			{
-				m_codepage = cp;
-				EditFile.SetPointer(0, nullptr, FILE_BEGIN);
-				continue;
-			}
-			// else -- codepage accepted
-		}
+		if (TryAnotherCodepage)
+			continue;
+
 		break;
 	}
 
