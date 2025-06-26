@@ -18,29 +18,29 @@
 
 const counters Counters[]
 {
-	{L"% Processor Time",        MProcessorTime     , MColProcessorTime     },
-	{L"% Privileged Time",       MPrivilegedTime    , MColPrivilegedTime    },
-	{L"% User Time",             MUserTime          , MColUserTime          },
-	{L"Handle Count",            MHandleCount       , MColHandleCount       },
-	{L"Page File Bytes",         MPageFileBytes     , MColPageFileBytes     },
-	{L"Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak },
-	{L"Working Set",             MWorkingSet        , MColWorkingSet        },
-	{L"Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    },
-	{L"Working Set - Private",   MWorkingSetPrivate , MColWorkingSetPrivate },
-	{L"Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes },
-	{L"Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    },
-	{L"Private Bytes",           MPrivateBytes      , MColPrivateBytes      },
-	{L"Page Faults/sec",         MPageFaults        , MColPageFaults        },
-	{L"Virtual Bytes",           MVirtualBytes      , MColVirtualBytes      },
-	{L"Virtual Bytes Peak",      MVirtualBytesPeak  , MColVirtualBytesPeak  },
-	{L"IO Data Bytes/sec",       MIODataBytes       , MColIODataBytes       },
-	{L"IO Read Bytes/sec",       MIOReadBytes       , MColIOReadBytes       },
-	{L"IO Write Bytes/sec",      MIOWriteBytes      , MColIOWriteBytes      },
-	{L"IO Other Bytes/sec",      MIOOtherBytes      , MColIOOtherBytes      },
-	{L"IO Data Operations/sec",  MIODataOperations  , MColIODataOperations  },
-	{L"IO Read Operations/sec",  MIOReadOperations  , MColIOReadOperations  },
-	{L"IO Write Operations/sec", MIOWriteOperations , MColIOWriteOperations },
-	{L"IO Other Operations/sec", MIOOtherOperations , MColIOOtherOperations },
+	{ L"% Processor Time",        MProcessorTime,     MColProcessorTime,     counter_type::duration, },
+	{ L"% Privileged Time",       MPrivilegedTime,    MColPrivilegedTime,    counter_type::duration, },
+	{ L"% User Time",             MUserTime,          MColUserTime,          counter_type::duration, },
+	{ L"Handle Count",            MHandleCount,       MColHandleCount,       counter_type::number,   },
+	{ L"Page File Bytes",         MPageFileBytes,     MColPageFileBytes,     counter_type::bytes,    },
+	{ L"Page File Bytes Peak",    MPageFileBytesPeak, MColPageFileBytesPeak, counter_type::bytes,    },
+	{ L"Working Set",             MWorkingSet,        MColWorkingSet,        counter_type::bytes,    },
+	{ L"Working Set Peak",        MWorkingSetPeak,    MColWorkingSetPeak,    counter_type::bytes,    },
+	{ L"Pool Nonpaged Bytes",     MPoolNonpagedBytes, MColPoolNonpagedBytes, counter_type::bytes,    },
+	{ L"Pool Paged Bytes",        MPoolPagedBytes,    MColPoolPagedBytes,    counter_type::bytes,    },
+	{ L"Private Bytes",           MPrivateBytes,      MColPrivateBytes,      counter_type::bytes,    },
+	{ L"Page Faults/sec",         MPageFaults,        MColPageFaults,        counter_type::number,   },
+	{ L"Virtual Bytes",           MVirtualBytes,      MColVirtualBytes,      counter_type::bytes,    },
+	{ L"Virtual Bytes Peak",      MVirtualBytesPeak,  MColVirtualBytesPeak,  counter_type::bytes,    },
+	{ L"IO Data Bytes/sec",       MIODataBytes,       MColIODataBytes,       counter_type::bytes,    },
+	{ L"IO Read Bytes/sec",       MIOReadBytes,       MColIOReadBytes,       counter_type::bytes,    },
+	{ L"IO Write Bytes/sec",      MIOWriteBytes,      MColIOWriteBytes,      counter_type::bytes,    },
+	{ L"IO Other Bytes/sec",      MIOOtherBytes,      MColIOOtherBytes,      counter_type::bytes,    },
+	{ L"IO Data Operations/sec",  MIODataOperations,  MColIODataOperations,  counter_type::number,   },
+	{ L"IO Read Operations/sec",  MIOReadOperations,  MColIOReadOperations,  counter_type::number,   },
+	{ L"IO Write Operations/sec", MIOWriteOperations, MColIOWriteOperations, counter_type::number,   },
+	{ L"IO Other Operations/sec", MIOOtherOperations, MColIOOtherOperations, counter_type::number,   },
+	{ L"Working Set - Private",   MWorkingSetPrivate, MColWorkingSetPrivate, counter_type::bytes,    },
 };
 
 // A wrapper class to provide auto-closing of registry key
@@ -560,8 +560,11 @@ bool PerfThread::RefreshImpl()
 					static const auto LogicalProcessorCount = get_logical_processor_count();
 					const auto Factor = m_HostName.empty()? LogicalProcessorCount : 1;
 
- 					if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwCounterOffsets[ii]))
-						Task.qwResults[ii] = (*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100) / Factor;
+					// For _Total this can get negative, e.g. if the process that was in the previsous snapshot is gone.
+					if (const auto Ptr = view_as_opt<LONGLONG>(pCounter, DataEnd, dwCounterOffsets[ii]))
+						Task.qwResults[ii] = *Ptr > pOldTask->qwCounters[ii]?
+							(*Ptr - pOldTask->qwCounters[ii]) / (dwDeltaTickCount * 100) / Factor :
+							0;
 					else
 						return false;
 				}
@@ -570,7 +573,10 @@ bool PerfThread::RefreshImpl()
 			case PERF_COUNTER_COUNTER:
 			case PERF_COUNTER_BULK_COUNT:
 				if (pOldTask)
-					Task.qwResults[ii] = (Task.qwCounters[ii] - pOldTask->qwCounters[ii]) * 1000 / dwDeltaTickCount;
+					// For _Total this can get negative, e.g. if the process that was in the previsous snapshot is gone.
+					Task.qwResults[ii] = Task.qwCounters[ii] > pOldTask->qwCounters[ii]?
+						(Task.qwCounters[ii] - pOldTask->qwCounters[ii]) * 1000 / dwDeltaTickCount :
+						0;
 				break;
 			}
 		}

@@ -275,7 +275,7 @@ tyto #speciální# typy sloupců:
    #XG# - GDI objekty (jen lokální)
    #XU# - USER objekty (jen lokální)
    #XB# - Bitness (32/64, jen lokální)
-   #X0...X21[S][T]# - výkonová počítadla (viz níže).
+   #X0...X22[S][T]# - výkonová počítadla (viz níže).
 
    #Popisové sloupce:#
 
@@ -319,6 +319,7 @@ sloupce můžete přidat #T# pro pužití 1000 místo 1024 jako dělitele.
    #X19# IO čtené operace
    #X20# IO zapsané operace
    #X21# IO ostatní operace
+   #X22# Working set - Private
 
 
 @Config

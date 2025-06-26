@@ -1,3 +1,13 @@
+drkns 2025-06-26 22:56:48+01:00 - build 223
+
+1. Correction of 218.
+
+2. Use Far API to format sizes.
+
+3. Update a few default column widths.
+
+4. Refactoring.
+
 drkns 2025-06-25 21:16:55+01:00 - build 222
 
 1. More fixes.

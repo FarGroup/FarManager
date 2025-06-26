@@ -66,56 +66,18 @@ private:
 #endif
 };
 
-// Far: FileSizeToStr
-// TODO: API?
 static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousands)
 {
-	auto ValueStr = str(value);
-	if (ValueStr.size() <= width)
-		return ValueStr;
+	wchar_t Buffer[64];
+	if (const auto Size = FSF.FormatFileSize(value, width, (width == 0? FFFS_FLOATSIZE : 0) | (bThousands? FFFS_THOUSAND : 0), Buffer, std::size(Buffer)))
+		return { Buffer, Size - 1 };
 
-	constexpr std::pair
-		BinaryDivider(1024, 10), // 10 == log2(1024)
-		DecimalDivider(1000, 3); // 3 == log10(1000)
-
-	const auto& Divider = bThousands? DecimalDivider : BinaryDivider;
-
-	const auto Numerator = value? bThousands? std::log10(value) : std::log2(value) : 0;
-	const auto UnitIndex = static_cast<size_t>(Numerator / Divider.second);
-
-	if (!UnitIndex)
-		return ValueStr;
-
-	const auto SizeInUnits = static_cast<double>(value) / std::pow(Divider.first, UnitIndex);
-
-	double Parts[2];
-	Parts[1] = std::modf(SizeInUnits, &Parts[0]);
-	auto Integral = static_cast<int>(Parts[0]);
-
-	if (const auto NumDigits = Integral < 10? 2 : Integral < 100? 1 : 0)
-	{
-		const auto AdjustedParts = [&]
-		{
-			const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
-			const auto Value = Parts[1] * static_cast<double>(Multiplier);
-			const auto UseRound = true;
-			const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
-			return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
-		}();
-
-		ValueStr = far::format(L"{0}.{1:0{2}}"sv, AdjustedParts.first, AdjustedParts.second, NumDigits);
-	}
-	else
-	{
-		ValueStr = str(static_cast<int>(std::round(SizeInUnits)));
-	}
-
-	return ValueStr.append(1, L' ').append(1, L"BKMGTPE"[UnitIndex]);
+	return str(value);
 }
 
 static std::wstring PrintTitle(std::wstring_view const Msg)
 {
-	return far::format(L"{0:<31} "sv, far::format(L"{0}:"sv, Msg));
+	return far::format(L"{}:{:<{}} "sv, Msg, L""sv, 30 - Msg.size());
 }
 
 static std::wstring PrintTitle(int MsgId)
@@ -251,9 +213,9 @@ void Plist::InitializePanelModes()
 		/*4*/ { { L"N,XI,X4F,X6F",                      L"0,6,9,9",            }, {}, PMFLAGS_NONE,       }, // Memory (basic)
 		/*5*/ { { L"N,XI,X4F,X6F,X10F,X12F,X0,X1,X2",   L"0,6,9,9,9,9,8,8,8",  }, {}, PMFLAGS_FULLSCREEN, }, // Extended Memory/Time
 		/*6*/ { { L"N,ZD",                              L"12,0",               }, {}, PMFLAGS_NONE,       }, // Descriptions
-		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,3,4,3",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
+		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,6,6,4",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
 		/*8*/ { { L"N,XI,O",                            L"0,6,15",             }, {}, PMFLAGS_NONE,       }, // Owners (not implemented)
-		/*9*/ { { L"N,XI,XT,X3,XG,XU",                  L"0,6,3,4,4,4",        }, {}, PMFLAGS_NONE,       }, // Resources
+		/*9*/ { { L"N,XI,XT,X3,XG,XU",                  L"0,6,4,5,4,4",        }, {}, PMFLAGS_NONE,       }, // Resources
 	};
 
 	m_PanelModesDataRemote =
@@ -265,9 +227,9 @@ void Plist::InitializePanelModes()
 		/*4*/ { { L"N,XI,X4F,X6F",                      L"0,6,9,9",            }, {}, PMFLAGS_NONE,       }, // Memory (basic)
 		/*5*/ { { L"N,XI,X4F,X6F,X10F,X12F,X0,X1,X2",   L"0,6,9,9,9,9,8,8,8",  }, {}, PMFLAGS_FULLSCREEN, }, // Extended Memory/Time
 		/*6*/ { { L"N,ZD",                              L"12,0",               }, {}, PMFLAGS_NONE,       }, // Descriptions
-		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,3,4,3",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
+		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,6,6,4",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
 		/*8*/ { { L"N,XI,O",                            L"0,6,15",             }, {}, PMFLAGS_NONE,       }, // Owners (not implemented)
-		/*9*/ { { L"N,XI,XT,X3",                        L"0,6,3,4",            }, {}, PMFLAGS_NONE,       }, // Resources
+		/*9*/ { { L"N,XI,XT,X3",                        L"0,6,4,5",            }, {}, PMFLAGS_NONE,       }, // Resources
 	};
 
 	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
@@ -345,7 +307,8 @@ void Plist::SavePanelModes()
 
 static bool can_be_per_sec(size_t const Counter)
 {
-	return Counter < 3 || Counter == 11 || Counter >= 14;
+	const auto CounterType = Counters[Counter].Type;
+	return CounterType == counter_type::duration || CounterType == counter_type::number;
 }
 
 using panel_modes_array = std::array<PanelMode, NPANELMODES>;
@@ -706,10 +669,20 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 					Str = str(*dwData);
 				else if (pd && iCounter >= 0)     // Format performance counters
 				{
-					if (iCounter < 3 && !bPerSec) // first 3 are date/time
-						Str = DurationToText(pd->qwCounters[iCounter]);
-					else
-						Str = ui64toa_width(bPerSec? pd->qwResults[iCounter] : pd->qwCounters[iCounter], bFloat? 0 : nColWidth, bThousands);
+					switch (Counters[iCounter].Type)
+					{
+					case counter_type::duration:
+						Str = bPerSec? str(pd->qwResults[iCounter]) : DurationToText(pd->qwCounters[iCounter]);
+						break;
+
+					case counter_type::bytes:
+						Str = ui64toa_width(pd->qwCounters[iCounter], bFloat? 0 : nColWidth, bThousands);
+						break;
+
+					case counter_type::number:
+						Str = ui64toa_width(bPerSec? pd->qwResults[iCounter] : pd->qwCounters[iCounter], bFloat? 0 : nColWidth, true);
+						break;
+					}
 				}
 
 				int nVisibleDigits = static_cast<int>(Str.size());
@@ -861,6 +834,8 @@ static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid)
 
 	const PerfLib* pf = Thread.GetPerfLib();
 
+	std::wstring_view const PerSec = GetMsg(MPerSec);
+
 	for (size_t i = 0; i != std::size(Counters); i++)
 	{
 		if (!pf->dwCounterTitles[i]) // counter is absent
@@ -868,24 +843,26 @@ static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid)
 
 		WriteToFile(InfoFile, PrintTitle(GetMsg(Counters[i].idName)));
 
+		const auto CounterType = Counters[i].Type;
+
 		switch (pf->CounterTypes[i])
 		{
 		case PERF_COUNTER_RAWCOUNT:
 		case PERF_COUNTER_LARGE_RAWCOUNT:
 			// Display as is.  No Display Suffix.
-			WriteToFile(InfoFile, far::format(L"{:20}\n"sv, pdata->qwResults[i]));
+			WriteToFile(InfoFile, far::format(L"{:>27}\n"sv, ui64toa_width(pdata->qwResults[i], 0, CounterType == counter_type::number)));
 			break;
 
 		case PERF_100NSEC_TIMER:
 			// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
-			WriteToFile(InfoFile, far::format(L"{:>20} {:7}%\n"sv, DurationToText(pdata->qwCounters[i]), pdata->qwResults[i]));
+			WriteToFile(InfoFile, far::format(L"{:>27} {:7}%\n"sv, DurationToText(pdata->qwCounters[i]), pdata->qwResults[i]));
 			break;
 
 		case PERF_COUNTER_COUNTER:
-			// 32-bit Counter.  Divide delta by delta time.  Display suffix: " / sec"
+			// 32-bit Counter.  Divide delta by delta time.  Display suffix: "/s"
 		case PERF_COUNTER_BULK_COUNT:
-			// 64-bit Counter.  Divide delta by delta time. Display Suffix: " / sec"
-			WriteToFile(InfoFile, far::format(L"{:20}  {:7}{}\n"sv, pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MPerSec)));
+			// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/s"
+			WriteToFile(InfoFile, far::format(L"{:>27} {:>{}}{}\n"sv, ui64toa_width(pdata->qwCounters[i], 0, CounterType == counter_type::number), ui64toa_width(pdata->qwResults[i], 0, CounterType == counter_type::number), 8 - PerSec.size(), PerSec));
 			break;
 
 		default:
@@ -961,7 +938,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 			const auto pName = pdata->dwParentPID && pParentData? pParentData->ProcessName.c_str() : nullptr;
 
 			if (pName)
-				WriteToFile(InfoFile.get(), far::format(L"{}  ({})\n"sv, pdata->dwParentPID, pName));
+				WriteToFile(InfoFile.get(), far::format(L"{} ({})\n"sv, pdata->dwParentPID, pName));
 			else
 				WriteToFile(InfoFile.get(), far::format(L"{}\n"sv, pdata->dwParentPID));
 
@@ -1607,12 +1584,21 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			}
 		}
 
-		static const USHORT PrClasses[] =
-		{ IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
-		  NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS,
-		  HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS
+		static const struct priority_mapping
+		{
+			uint8_t Value;
+			DWORD Class;
+		}
+		Priorities[]
+		{
+			{ 4,  IDLE_PRIORITY_CLASS },
+			{ 6,  BELOW_NORMAL_PRIORITY_CLASS },
+			{ 8,  NORMAL_PRIORITY_CLASS },
+			{ 10, ABOVE_NORMAL_PRIORITY_CLASS },
+			{ 13, HIGH_PRIORITY_CLASS },
+			{ 24, REALTIME_PRIORITY_CLASS },
 		};
-		const int N = static_cast<int>(std::size(PrClasses));
+
 		DebugToken token;
 
 		for (size_t i = 0; i < PInfo.SelectedItemsNumber; i++)
@@ -1629,99 +1615,77 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gpi);
 			SetLastError(ERROR_SUCCESS);
 
-			if (static_cast<ProcessData*>(PPI->UserData.Data)->dwPID)
+			const auto Pid = static_cast<ProcessData*>(PPI->UserData.Data)->dwPID;
+			if (!Pid || is_total(Pid))
+				continue;
+
+			const auto move_iterator = [&](priority_mapping const* Iterator)
 			{
-				if (HostName.empty())
+				if (Key == VK_F1 && Iterator != std::cbegin(Priorities))
+					return --Iterator;
+				if (Key == VK_F2 && Iterator != std::cend(Priorities) - 1)
+					return ++Iterator;
+
+				return std::cend(Priorities);
+			};
+
+			if (HostName.empty())
+			{
+				const auto Process = handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_SET_INFORMATION, Pid));
+				if (!Process)
 				{
-					if (const auto hProcess = handle(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_SET_INFORMATION, ((ProcessData*)PPI->UserData.Data)->dwPID)))
-					{
-						DWORD dwPriorityClass = GetPriorityClass(hProcess.get());
-
-						if (dwPriorityClass == 0)
-							WinError();
-						else
-						{
-							for (int j = 0; j != N; ++j)
-							{
-								if (dwPriorityClass != PrClasses[j])
-									continue;
-
-								bool bChange = false;
-
-								if (Key == VK_F1 && j > 0)
-								{
-									j--; bChange = true;
-								}
-								else if (Key == VK_F2 && j < N - 1)
-								{
-									j++;
-									bChange = true;
-								}
-
-								if (bChange && !SetPriorityClass(hProcess.get(), PrClasses[j]))
-									WinError();
-
-								//else
-									//Item.Flags &= ~PPIF_SELECTED;
-								break;
-							}
-
-						}
-					}
-					else
-						WinError();
+					WinError();
+					continue;
 				}
-				else
+
+				const auto PriorityClass = GetPriorityClass(Process.get());
+				if (!PriorityClass)
 				{
-					wmi_result<DWORD> PriorityClass;
-
-					pPerfThread->RunMTA([&](WMIConnection const& WMI)
-					{
-						PriorityClass = WMI.GetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID);
-					});
-
-					if (!PriorityClass)
-					{
-						WmiError(PriorityClass.error());
-						continue;
-					}
-
-					static const BYTE Pr[std::size(PrClasses)] = { 4,6,8,10,13,24 };
-
-					for (int j = 0; j != N; ++j)
-					{
-						if (*PriorityClass != Pr[j])
-							continue;
-
-						bool bChange = false;
-
-						if (Key == VK_F1 && j > 0)
-						{
-							j--;
-							bChange = true;
-						}
-						else if (Key == VK_F2 && j < N - 1)
-						{
-							j++;
-							bChange = true;
-						}
-
-						if (bChange)
-						{
-							HRESULT Result;
-
-							pPerfThread->RunMTA([&](WMIConnection const& WMI)
-							{
-								Result = WMI.SetProcessPriority(static_cast<ProcessData*>(PPI->UserData.Data)->dwPID, PrClasses[j]);
-							});
-
-							if (FAILED(Result))
-								WmiError(Result);
-						}
-
-						break;
-					}
+					WinError();
+					continue;
 				}
+
+				auto Iterator = std::ranges::find(Priorities, PriorityClass, &priority_mapping::Class);
+				if (Iterator == std::cend(Priorities))
+					continue;
+
+				Iterator = move_iterator(Iterator);
+				if (Iterator == std::cend(Priorities))
+					continue;
+
+				if (!SetPriorityClass(Process.get(), Iterator->Class))
+					WinError();
+			}
+			else
+			{
+				wmi_result<DWORD> PriorityClass;
+				pPerfThread->RunMTA([&](WMIConnection const& WMI)
+				{
+					PriorityClass = WMI.GetProcessPriority(Pid);
+				});
+
+				if (!PriorityClass)
+				{
+					WmiError(PriorityClass.error());
+					continue;
+				}
+
+				auto Iterator = std::ranges::find(Priorities, *PriorityClass, &priority_mapping::Value);
+				if (Iterator == std::cend(Priorities))
+					continue;
+
+				Iterator = move_iterator(Iterator);
+				if (Iterator == std::cend(Priorities))
+					continue;
+
+				HRESULT Result;
+				pPerfThread->RunMTA([&](WMIConnection const& WMI)
+				{
+					Result = WMI.SetProcessPriority(Pid, Iterator->Class);
+				});
+
+				if (FAILED(Result))
+					WmiError(Result);
 			}
 		}
 

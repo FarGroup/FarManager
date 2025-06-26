@@ -110,7 +110,6 @@
 "Privátní Byty"
 "Pracovní Sada"
 "Pracovní Sada vrchol"
-"Working Set - Private"
 "IO data Bytů"
 "IO data operací"
 "IO ostatní Byty"
@@ -121,6 +120,7 @@
 "IO zapdané operace"
 "Virtuální Byty"
 "Virtuální Byty vrchol"
+"Working Set - Private"
 
 "Čas CPU"
 "%CPU"
@@ -138,7 +138,6 @@
 "Privátní Byty"
 "Využití Mem"
 "Vrchol využití Mem"
-"Priv Mem Usage"
 "IO Byty"
 "Byt/s"
 "IO Oper"
@@ -157,8 +156,9 @@
 "Za/s"
 "VP velikost"
 "VP vrchol"
+"Priv Mem Usage"
 
-"/sec"
+"/s"
 
 "Třídit podle"
 "&Název                  Ctrl+F3"

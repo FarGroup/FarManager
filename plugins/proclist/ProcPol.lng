@@ -110,7 +110,6 @@
 "Pamięć prywatna (bajty)"
 "Zestaw roboczy"
 "Szczyt zestawu roboczego"
-"Working Set - Private"
 "Dane IO (bajty)"
 "Dane IO (operacje)"
 "Inne IO (bajty)"
@@ -121,6 +120,7 @@
 "Zapis IO (operacje)"
 "Pam. wirtualna (bajty)"
 "Szczyt pam. wirtualnej (bajty)"
+"Working Set - Private"
 
 "Czas CPU"
 "%CPU"
@@ -138,7 +138,6 @@
 "Private Bytes"
 "Użycie pam."
 "Maks użycie pam."
-"Priv Mem Usage"
 "Bajtów IO"
 "Bajt/s"
 "Oper. IO"
@@ -157,8 +156,9 @@
 "Zap/s"
 "VM Wielk"
 "VM Szcz"
+"Priv Mem Usage"
 
-"/sek"
+"/s"
 
 "Sortuj wg"
 "&Nazwy                Ctrl+F3"

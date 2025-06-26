@@ -272,7 +272,7 @@ types can be used in this plugin:
    #XG# - Obiekty GDI (tylko lokalnie)
    #XU# - Obiekty USER (tylko lokalnie)
    #XB# - Typ systemu (32/64, tylko lokalnie)
-   #X0...X21[S][T]# - liczniki wydajności (zobacz niżej).
+   #X0...X22[S][T]# - liczniki wydajności (zobacz niżej).
 
    #Kolumny opisowe:#
 
@@ -317,6 +317,7 @@ You can append #T# to the column type to use 1000 instead of 1024 as a divider.
    #X19# IO Read Operations
    #X20# IO Write Operations
    #X21# IO Other Operations
+   #X22# Working set - Private
 
 
 @Config

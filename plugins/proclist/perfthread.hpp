@@ -12,11 +12,19 @@
 constexpr inline auto NCOUNTERS = 23;
 constexpr inline auto MAX_USERNAME_LENGTH = 128;
 
+enum class counter_type
+{
+	duration,
+	bytes,
+	number,
+};
+
 extern const struct counters
 {
 	const wchar_t* Name;
 	DWORD idName;
 	DWORD idCol;
+	counter_type Type;
 }
 Counters[NCOUNTERS];
 

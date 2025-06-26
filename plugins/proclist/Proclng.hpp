@@ -115,7 +115,6 @@ enum
 	MPrivateBytes,
 	MWorkingSet,
 	MWorkingSetPeak,
-	MWorkingSetPrivate,
 	MIODataBytes,
 	MIODataOperations,
 	MIOOtherBytes,
@@ -126,6 +125,7 @@ enum
 	MIOWriteOperations,
 	MVirtualBytes,
 	MVirtualBytesPeak,
+	MWorkingSetPrivate,
 
 	MColProcessorTime,
 	MColProcessorTimeS,
@@ -143,7 +143,6 @@ enum
 	MColPrivateBytes,
 	MColWorkingSet,
 	MColWorkingSetPeak,
-	MColWorkingSetPrivate,
 	MColIODataBytes,
 	MColIODataBytesS,
 	MColIODataOperations,
@@ -162,6 +161,7 @@ enum
 	MColIOWriteOperationsS,
 	MColVirtualBytes,
 	MColVirtualBytesPeak,
+	MColWorkingSetPrivate,
 
 	MPerSec,
 

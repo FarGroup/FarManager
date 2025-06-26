@@ -110,7 +110,6 @@
 "Bytes Privados"
 "Working Set"
 "Working Set Peak"
-"Working Set - Private"
 "IO Data Bytes"
 "IO Data Operations"
 "IO Other Bytes"
@@ -121,6 +120,7 @@
 "IO Write Operations"
 "Virtual Bytes"
 "Virtual Bytes Peak"
+"Working Set - Private"
 
 "Tiempo CPU"
 "%CPU"
@@ -138,7 +138,6 @@
 "Bytes Privados"
 "Uso Mem"
 "Pico Uso Mem"
-"Priv Mem Usage"
 "IO Bytes"
 "Byt/s"
 "IO Oper"
@@ -157,8 +156,9 @@
 "Wr/s"
 "VM Tamaño"
 "VM Pico"
+"Priv Mem Usage"
 
-"/seg"
+"/s"
 
 "Ordenar por"
 "&Nombre               Ctrl-F3"
