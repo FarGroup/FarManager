@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-06-27 02:03:14+01:00 - build 6502
+
+1. Improve FSF.FormatFileSize behavior in corner cases.
+
+--------------------------------------------------------------------------------
 zg 2025-06-27 02:53:35+03:00 - build 6501
 
 1. bad codepage warning was only displayed if the problem was on the last line.

@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservestyle.hpp"
 #include "locale.hpp"
 #include "encoding.hpp"
-#include "regex_helpers.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "codepage.hpp"
@@ -453,25 +452,52 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 			const auto RawIntegral = FileSize / Denominator;
 			const auto RawFractional = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
 
-			const auto FixedPrecision = 0; // 0 for floating, else fixed. TODO: option?
+			size_t NumDigits = NumDigits = RawIntegral < 10? 2 : RawIntegral < 100? 1 : 0;
 
-			if (const auto NumDigits = FixedPrecision? std::min(FixedPrecision, static_cast<int>(std::size(PrecisionMultiplier) - 1)) : RawIntegral < 10? 2 : RawIntegral < 100? 1 : 0)
+			int IntegralPart, FractionalPart;
+
+			for (;;)
 			{
-				const auto [IntegralPart, FractionalPart] = [&]
+				const auto Multiplier = PrecisionMultiplier[NumDigits];
+				const auto FractionalDigits = RawFractional * static_cast<double>(Multiplier);
+				const auto RoundedFractionalDigits = static_cast<unsigned>(std::round(FractionalDigits));
+
+				if (RoundedFractionalDigits == Multiplier)
 				{
-					const auto Multiplier = PrecisionMultiplier[NumDigits];
-					const auto FractionalDigits = RawFractional * static_cast<double>(Multiplier);
-					const auto UseRound = true;
-					const auto RoundedFractionalDigits = static_cast<unsigned>(UseRound? std::round(FractionalDigits) : FractionalDigits);
-					return RoundedFractionalDigits == Multiplier? std::pair(RawIntegral + 1, 0u) : std::pair(RawIntegral, RoundedFractionalDigits);
-				}();
+					IntegralPart = RawIntegral + 1;
+					FractionalPart = 0;
+				}
+				else
+				{
+					IntegralPart = RawIntegral;
+					FractionalPart = RoundedFractionalDigits;
+				}
 
-				Str = concat(str(IntegralPart), Locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0'));
+				const auto IntegralPartLength = IntegralPart < 10? 1uz : IntegralPart < 100? 2 : 3;
+
+				NumDigits = std::min(NumDigits, 3 - IntegralPartLength);
+
+				const auto SpaceRequired = IntegralPartLength + (NumDigits != 0) + NumDigits + !UseCompact + 1;
+
+				if (Width && Width < SpaceRequired && NumDigits)
+				{
+					auto NumDigitsWithSeparator = NumDigits + 1;
+					if (const auto Overflow = SpaceRequired - Width; Overflow <= NumDigitsWithSeparator)
+					{
+						NumDigitsWithSeparator -= Overflow;
+						NumDigits = NumDigitsWithSeparator? NumDigitsWithSeparator - 1 : 0;
+
+						if (NumDigits)
+							continue;
+					}
+				}
+
+				break;
 			}
-			else
-			{
-				Str = str(static_cast<unsigned long long>(std::round(static_cast<double>(RawIntegral) + RawFractional)));
-			}
+
+			Str = NumDigits?
+				concat(str(IntegralPart), Locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0')) :
+				str(static_cast<unsigned long long>(std::round(static_cast<double>(RawIntegral) + RawFractional)));
 		}
 
 		return FormatSize(std::move(Str), UnitIndex);
@@ -489,7 +515,7 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 
 	const auto MaxNumberWidth = Width > SuffixSize? Width - SuffixSize : 0;
 
-	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
+	while (UnitIndex != std::size(BytesInUnit) - 1 && ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth)))
 	{
 		const auto Denominator = BytesInUnit[UnitIndex + 1][BaseIndex].Value;
 		const auto IntegralPart = FileSize / Denominator;
@@ -1346,6 +1372,8 @@ TEST_CASE("FileSizeToStrInvariant")
 	Tests[]
 	{
 		{    0,       L"0"sv,        L"0"sv,          0, 0 },
+		{    0,       L"0 B"sv,      L"0 b"sv,        0, COLFLAGS_SHOW_MULTIPLIER },
+		{    0,       L"0 B"sv,      L"0 b"sv,        0, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER },
 		{    1,       L"1"sv,        L"1"sv,          0, 0 },
 		{ 1023,       L"1023"sv,     L"1023"sv,       0, 0 },
 		{ 1024,       L"1024"sv,     L"1024"sv,       0, 0 },
@@ -1398,6 +1426,77 @@ TEST_CASE("FileSizeToStrInvariant")
 		{ 1_E,        L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1.0_E,      L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
 		{ max,        L"16.0 E"sv,   L"18.4 e"sv,     0, COLFLAGS_FLOATSIZE },
+
+		{ max,        L"16.0 E"sv,   L"18.4 e"sv,     6, COLFLAGS_FLOATSIZE },
+		{ max,         L" 16 E"sv,    L" 18 e"sv,     5, COLFLAGS_FLOATSIZE },
+		{ max,          L"16 E"sv,     L"18 e"sv,     4, COLFLAGS_FLOATSIZE },
+		{ max,           L"… E"sv,      L"… e"sv,     3, COLFLAGS_FLOATSIZE },
+		{ max,            L"…E"sv,       L"…e"sv,     2, COLFLAGS_FLOATSIZE },
+		{ max,             L"…"sv,        L"…"sv,     1, COLFLAGS_FLOATSIZE },
+
+		{ 1000000,    L" 977 K"sv,   L"1.00 m"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 999999,     L" 977 K"sv,   L"1000 k"sv,     6, COLFLAGS_FLOATSIZE },
+
+		{ 99999,      L"97.7 K"sv,   L" 100 k"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 99999,       L" 98 K"sv,    L"100 k"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 99999,        L"98 K"sv,     L"…0 k"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 99999,         L"… K"sv,      L"… k"sv,     3, COLFLAGS_FLOATSIZE },
+
+		{ 99999,       L"97.7K"sv,    L" 100k"sv,     5, COLFLAGS_FLOATSIZE | COLFLAGS_ECONOMIC },
+		{ 99999,        L" 98K"sv,     L"100k"sv,     4, COLFLAGS_FLOATSIZE | COLFLAGS_ECONOMIC },
+		{ 99999,         L"98K"sv,      L"…0k"sv,     3, COLFLAGS_FLOATSIZE | COLFLAGS_ECONOMIC },
+		{ 99999,          L"…K"sv,       L"…k"sv,     2, COLFLAGS_FLOATSIZE | COLFLAGS_ECONOMIC },
+
+		{ 9999,       L"9.76 K"sv,   L"10.0 k"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 9999,        L"9.8 K"sv,    L" 10 k"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 9999,         L"10 K"sv,     L"10 k"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 9999,          L"… K"sv,      L"… k"sv,     3, COLFLAGS_FLOATSIZE },
+
+		{ 1024,       L"1.00 K"sv,   L"1.02 k"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 1024,        L"1.0 K"sv,    L"1.0 k"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 1024,         L" 1 K"sv,     L" 1 k"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 1024,          L"1 K"sv,      L"1 k"sv,     3, COLFLAGS_FLOATSIZE },
+		{ 1024,           L"…K"sv,       L"…k"sv,     2, COLFLAGS_FLOATSIZE },
+
+		{ 1023,       L"  1023"sv,   L"1.02 k"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 1023,        L" 1023"sv,    L"1.0 k"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 1023,         L"1023"sv,     L" 1 k"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 1023,          L"…23"sv,      L"1 k"sv,     3, COLFLAGS_FLOATSIZE },
+		{ 1023,           L"…3"sv,       L"…k"sv,     2, COLFLAGS_FLOATSIZE },
+
+		{ 1000,       L"  1000"sv,   L"1.00 k"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 1000,        L" 1000"sv,    L"1.0 k"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 1000,         L"1000"sv,     L" 1 k"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 1000,          L"…00"sv,      L"1 k"sv,     3, COLFLAGS_FLOATSIZE },
+		{ 1000,           L"…0"sv,       L"…k"sv,     2, COLFLAGS_FLOATSIZE },
+
+		{ 999,        L"   999"sv,   L"   999"sv,     6, COLFLAGS_FLOATSIZE },
+		{ 999,         L"  999"sv,    L"  999"sv,     5, COLFLAGS_FLOATSIZE },
+		{ 999,          L" 999"sv,     L" 999"sv,     4, COLFLAGS_FLOATSIZE },
+		{ 999,           L"999"sv,      L"999"sv,     3, COLFLAGS_FLOATSIZE },
+		{ 999,            L"…9"sv,       L"…9"sv,     2, COLFLAGS_FLOATSIZE },
+
+		{ max,  L"18446744073709551615"sv,  L"18446744073709551615"sv,     0, 0 },
+		{ max,  L"18446744073709551615"sv,  L"18446744073709551615"sv,    20, 0 },
+		{ max,   L"18014398509481984 K"sv,   L"18446744073709552 k"sv,    19, 0 },
+		{ max,    L"  17592186044416 M"sv,    L"  18446744073710 m"sv,    18, 0 },
+		{ max,     L" 17592186044416 M"sv,     L" 18446744073710 m"sv,    17, 0 },
+		{ max,      L"17592186044416 M"sv,      L"18446744073710 m"sv,    16, 0 },
+		{ max,       L"  17179869184 G"sv,       L"  18446744074 g"sv,    15, 0 },
+		{ max,        L" 17179869184 G"sv,        L" 18446744074 g"sv,    14, 0 },
+		{ max,         L"17179869184 G"sv,         L"18446744074 g"sv,    13, 0 },
+		{ max,          L"  16777216 T"sv,          L"  18446744 t"sv,    12, 0 },
+		{ max,           L" 16777216 T"sv,           L" 18446744 t"sv,    11, 0 },
+		{ max,            L"16777216 T"sv,            L"18446744 t"sv,    10, 0 },
+		{ max,             L"  16384 P"sv,             L"  18447 p"sv,     9, 0 },
+		{ max,              L" 16384 P"sv,              L" 18447 p"sv,     8, 0 },
+		{ max,               L"16384 P"sv,               L"18447 p"sv,     7, 0 },
+		{ max,                L"  16 E"sv,                L"  18 e"sv,     6, 0 },
+		{ max,                 L" 16 E"sv,                 L" 18 e"sv,     5, 0 },
+		{ max,                  L"16 E"sv,                  L"18 e"sv,     4, 0 },
+		{ max,                   L"… E"sv,                   L"… e"sv,     3, 0 },
+		{ max,                    L"…E"sv,                    L"…e"sv,     2, 0 },
+		{ max,                     L"…"sv,                     L"…"sv,     1, 0 },
 	};
 
 	for (const auto& i: Tests)
