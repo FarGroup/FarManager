@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+MZK 2025-06-29 21:48:53-04:00 - build 6504
+
+1. New feature: Edit the content of Find All menu in a new Editor.
+   - #F4# copies all found lines into a new editor and closes the menu.
+   - #Alt+F4# copies all lines matching the current filter into a new editor
+     and closes the menu.
+
+   WARNING: The new Editor's behavior related to #Save# and #SaveAs#
+            may be unexpected in corner cases.
+
+--------------------------------------------------------------------------------
 yjh 2025-06-30 01:22:59+03:00 - build 6503
 
 1. SQLite: v3.50.2.

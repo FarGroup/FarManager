@@ -226,14 +226,24 @@ public:
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	bool HasVisible() const { return SelectPos > -1 && !Items.empty(); }
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
+	std::span<MenuItemEx const> GetItems() const noexcept { return Items; }
 	int GetVisualPos(int Pos) const;
 	int VisualPosToReal(int VPos) const;
 
 	intptr_t GetSimpleUserData(int Position = -1) const;
 
 	std::any* GetComplexUserData(int Position = -1);
+	const std::any* GetComplexUserData(int Position = -1) const
+	{
+		return const_cast<VMenu*>(this)->GetComplexUserData();
+	}
 	template<class T>
 	T* GetComplexUserDataPtr(int Position = -1)
+	{
+		return std::any_cast<T>(GetComplexUserData(Position));
+	}
+	template<class T>
+	const T* GetComplexUserDataPtr(int Position = -1) const
 	{
 		return std::any_cast<T>(GetComplexUserData(Position));
 	}

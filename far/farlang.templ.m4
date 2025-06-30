@@ -7681,6 +7681,21 @@ upd:"Occurrences: {0}, lines: {1}"
 upd:"Occurrences: {0}, lines: {1}"
 upd:"Occurrences: {0}, lines: {1}"
 
+MEditSearchAllFileNameAppend
+".Filtered"
+".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+upd:".Filtered"
+
 MEditNotFound
 "Строка не найдена"
 "Could not find the string"

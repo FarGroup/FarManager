@@ -493,6 +493,7 @@ void FileEditor::Init(
 
 	SetFileName(Name);
 
+	if (!m_Flags.Check(FFILEEDIT_EPHEMERAL))
 	{
 		if (auto EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName))
 		{
@@ -686,13 +687,12 @@ void FileEditor::Init(
 	m_editor->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
-	int UserBreak = 0;
 
 	/* $ 06.07.2001 IS
 	   При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
 	   не нарушать однообразие.
 	*/
-	if (!os::fs::exists(FileStatus))
+	if (m_Flags.Check(FFILEEDIT_EPHEMERAL) || !os::fs::exists(FileStatus))
 		m_Flags.Set(FFILEEDIT_NEW);
 
 	if (BlankFileName && m_Flags.Check(FFILEEDIT_CANNEWFILE))
@@ -704,45 +704,49 @@ void FileEditor::Init(
 	if (m_Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 
-	error_state_ex ErrorState;
-	while (BlankFileName || !LoadFile(strFullFileName, UserBreak, ErrorState))
+	if (!m_Flags.Check(FFILEEDIT_EPHEMERAL))
 	{
-		if (!m_Flags.Check(FFILEEDIT_NEW) || UserBreak)
+		int UserBreak = 0;
+		error_state_ex ErrorState;
+		while (BlankFileName || !LoadFile(strFullFileName, UserBreak, ErrorState))
 		{
-			if (UserBreak!=1)
+			if (!m_Flags.Check(FFILEEDIT_NEW) || UserBreak)
 			{
-				if(OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
-					continue;
+				if (UserBreak != 1)
+				{
+					if (OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
+						continue;
+					else
+						SetExitCode(XC_OPEN_ERROR);
+				}
 				else
-					SetExitCode(XC_OPEN_ERROR);
+				{
+					SetExitCode(XC_LOADING_INTERRUPTED);
+				}
+
+				// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
+				//WindowManager->DeleteWindow(this); // BugZ#546 - Editor валит фар!
+				//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с прорисовкой если в редакторе из истории попытаться выбрать несуществующий файл
+
+				// если прервали загрузку, то фреймы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
+				if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
+					Global->WindowManager->RefreshWindow();
+
+				return;
 			}
-			else
-			{
-				SetExitCode(XC_LOADING_INTERRUPTED);
-			}
 
-			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
-			//WindowManager->DeleteWindow(this); // BugZ#546 - Editor валит фар!
-			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с прорисовкой если в редакторе из истории попытаться выбрать несуществующий файл
+			if (m_codepage == CP_DEFAULT || m_codepage == CP_REDETECT)
+				m_codepage = GetDefaultCodePage();
 
-			// если прервали загрузку, то фреймы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
-			if (!Global->Opt->Confirm.Esc && UserBreak && GetExitCode() == XC_LOADING_INTERRUPTED)
-				Global->WindowManager->RefreshWindow();
-
-			return;
+			break;
 		}
 
-		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
-			m_codepage = GetDefaultCodePage();
+		if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
+			return;
 
-		break;
+		if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !strFileName.empty())
+			Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 	}
-
-	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
-		return;
-
-	if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !strFileName.empty())
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 	InitKeyBar();
 	// Note: bottom - bottom
@@ -803,7 +807,7 @@ void FileEditor::InitKeyBar()
 		Keybar[KBL_SHIFT][F4].clear();
 	}
 
-	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS))
+	if (m_Flags.Check(FFILEEDIT_SAVETOSAVEAS | FFILEEDIT_EPHEMERAL))
 		Keybar[KBL_MAIN][F2] = msg(lng::MEditShiftF2);
 
 	if (!m_Flags.Check(FFILEEDIT_ENABLEF6))
@@ -949,10 +953,10 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 				break; // отдадим F6 плагинам, если есть запрет на переключение
 
 			// If the file is "new", there is nothing to view yet, so we have to save it first.
-			const auto NeedSave = m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || m_Flags.Check(FFILEEDIT_NEW);
-			bool ConfirmSave = !m_Flags.Check(FFILEEDIT_NEW);
+			const auto NeedSave = m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || m_Flags.Check(FFILEEDIT_NEW | FFILEEDIT_EPHEMERAL);
+			bool ConfirmSave = !m_Flags.Check(FFILEEDIT_NEW) || m_Flags.Check(FFILEEDIT_EPHEMERAL);
 
-			if (!m_Flags.Check(FFILEEDIT_NEW) && !os::fs::is_file(strFullFileName))
+			if (!m_Flags.Check(FFILEEDIT_NEW | FFILEEDIT_EPHEMERAL) && !os::fs::is_file(strFullFileName))
 			{
 				ConfirmSave = false;
 
@@ -1102,7 +1106,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			case KEY_CTRLF10:
 			case KEY_RCTRLF10:
 			{
-				if (Global->WindowManager->InModal())
+				if (m_Flags.Check(FFILEEDIT_EPHEMERAL) || Global->WindowManager->InModal())
 				{
 					return true;
 				}
@@ -1150,7 +1154,8 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			case KEY_ESC:
 			case KEY_F10:
 			{
-				bool ConfirmSave = true, NeedSave = m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED);
+				bool NeedSave = m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED);
+				bool ConfirmSave = true;
 
 				if (!m_Flags.Check(FFILEEDIT_NEW) && !os::fs::is_file(strFullFileName))
 				{
@@ -1218,7 +1223,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					if (m_editor->ProcessKey(Key))
 					{
 						ShowStatus();
-						if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY))
+						if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY | FFILEEDIT_EPHEMERAL))
 							Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 					}
 				}
@@ -1666,7 +1671,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	}
 }
 
-//TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
+// Eol and Codepage are used ONLY if bSaveAs = true!
 int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t Codepage, bool AddSignature)
 {
 	if (!bSaveAs)
@@ -1774,10 +1779,10 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 		m_Flags.Set(FFILEEDIT_NEW);
 
 	//SaveScreen SaveScr;
-	/* $ 11.10.2001 IS
-		Если было произведено сохранение с любым результатом, то не удалять файл
-	*/
-	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
+
+	// $ 11.10.2001 IS Если было произведено сохранение с любым результатом, то не удалять файл
+	// 2025-05-31 MZK  And the file is not ephemeral anymore
+	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE | FFILEEDIT_DELETEONLYFILEONCLOSE | FFILEEDIT_EPHEMERAL);
 
 	if (!IsUtfCodePage(Codepage))
 	{
@@ -1913,7 +1918,7 @@ bool FileEditor::SaveAction(bool const SaveAsIntention)
 
 	const auto SaveAs =
 		SaveAsIntention ||
-		m_Flags.Check(FFILEEDIT_SAVETOSAVEAS) ||
+		m_Flags.Check(FFILEEDIT_SAVETOSAVEAS | FFILEEDIT_EPHEMERAL) ||
 		!os::fs::is_directory(ParentDirectory);
 
 	for (;;)
@@ -1938,10 +1943,8 @@ bool FileEditor::SaveAction(bool const SaveAsIntention)
 			strSaveAsName = unquote(os::env::expand(strSaveAsName));
 			strFullSaveAsName = ConvertNameToFull(strSaveAsName);
 
-			if (!equal_icase(strFullSaveAsName, strFullFileName) && os::fs::exists(strFullSaveAsName) && !AskOverwrite(strSaveAsName))
-			{
+			if (DoNotOverwrite(strFullSaveAsName, strSaveAsName))
 				return false;
-			}
 		}
 
 		error_state_ex ErrorState;
@@ -2017,7 +2020,7 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
-	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !strFileName.empty())
+	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY | FFILEEDIT_EPHEMERAL) && !strFileName.empty())
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 	//AY: флаг оповещающий закрытие редактора.
@@ -2489,7 +2492,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					Codepage = esf->CodePage;
 			}
 
-			if (!equal_icase(strName, strFullFileName) && os::fs::exists(strName) && !AskOverwrite(PointToName(strName)))
+			if (DoNotOverwrite(strName, PointToName(strName)))
 				return FALSE;
 
 			//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
@@ -2677,17 +2680,23 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	return true;
 }
 
-bool FileEditor::AskOverwrite(const string_view FileName)
+bool FileEditor::DoNotOverwrite(const string_view FullSaveAsName, const string_view SaveAsName)
 {
+	if (!m_Flags.Check(FFILEEDIT_EPHEMERAL) && equal_icase(FullSaveAsName, strFullFileName))
+		return false;
+
+	if (!os::fs::exists(FullSaveAsName))
+		return false;
+
 	return Message(MSG_WARNING,
 		msg(lng::MEditTitle),
 		{
-			string(FileName),
+			string(SaveAsName),
 			msg(lng::MEditExists),
 			msg(lng::MEditOvr)
 		},
 		{ lng::MYes, lng::MNo },
-		{}, &EditorAskOverwriteId) == message_result::first_button;
+		{}, &EditorAskOverwriteId) != message_result::first_button;
 }
 
 uintptr_t FileEditor::GetDefaultCodePage()

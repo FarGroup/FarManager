@@ -63,22 +63,24 @@ enum
 
 enum FFILEEDIT_FLAGS
 {
-	FFILEEDIT_NEW                   = 16_bit,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
-	FFILEEDIT_REDRAWTITLE           = 17_bit,  // Нужно редравить заголовок?
-	FFILEEDIT_FULLSCREEN            = 18_bit,  // Полноэкранный режим?
-	FFILEEDIT_DISABLEHISTORY        = 19_bit,  // Запретить запись в историю?
-	FFILEEDIT_ENABLEF6              = 20_bit,  // Переключаться во вьювер можно?
-	FFILEEDIT_SAVETOSAVEAS          = 21_bit,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
-	FFILEEDIT_WAS_SAVED             = 22_bit,  // The file was saved by the user at least once. Sometimes we need to know, e.g. if it's from a plugin panel.
-	//   При редактировании найденного файла из архива для
-	//   клавиши F2 сделать вызов ShiftF2.
-	FFILEEDIT_LOCKED                = 23_bit,  // заблокировать?
-	FFILEEDIT_OPENFAILED            = 24_bit,  // файл открыть не удалось
-	FFILEEDIT_DELETEONCLOSE         = 25_bit,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
-	FFILEEDIT_DELETEONLYFILEONCLOSE = 26_bit,  // удалить в деструкторе только файл
-	FFILEEDIT_DISABLESAVEPOS        = 27_bit,  // не сохранять позицию для файла
-	FFILEEDIT_CANNEWFILE            = 28_bit,  // допускается новый файл?
-	FFILEEDIT_SERVICEREGION         = 29_bit,  // используется сервисная область
+	FFILEEDIT_NEW                   = 16_bit,   // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
+	FFILEEDIT_REDRAWTITLE           = 17_bit,   // Нужно редравить заголовок?
+	FFILEEDIT_FULLSCREEN            = 18_bit,   // Полноэкранный режим?
+	FFILEEDIT_DISABLEHISTORY        = 19_bit,   // Запретить запись в историю?
+	FFILEEDIT_ENABLEF6              = 20_bit,   // Переключаться во вьювер можно?
+	FFILEEDIT_SAVETOSAVEAS          = 21_bit,   // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
+												//   При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
+	FFILEEDIT_WAS_SAVED             = 22_bit,   // The file was saved by the user at least once. Sometimes we need to know, e.g. if it's from a plugin panel.
+	FFILEEDIT_LOCKED                = 23_bit,   // заблокировать?
+	FFILEEDIT_OPENFAILED            = 24_bit,   // файл открыть не удалось
+	FFILEEDIT_DELETEONCLOSE         = 25_bit,   // удалить в деструкторе файл вместе с каталогом (если тот пуст)
+	FFILEEDIT_DELETEONLYFILEONCLOSE = 26_bit,   // удалить в деструкторе только файл
+	FFILEEDIT_DISABLESAVEPOS        = 27_bit,   // не сохранять позицию для файла
+	FFILEEDIT_CANNEWFILE            = 28_bit,   // допускается новый файл?
+	FFILEEDIT_SERVICEREGION         = 29_bit,   // используется сервисная область
+	FFILEEDIT_EPHEMERAL             = 30_bit,   // Even if the file exists, do not read it.
+												// Until the file saved for the first time: (i) Save works as SaveAs and (ii) History is disabled.
+												// After the file is saved, the mode is dropped and FileEditor behaves as usual.
 };
 
 class FileEditor final: public window,public EditorContainer
@@ -92,6 +94,7 @@ public:
 	explicit FileEditor(private_tag);
 	~FileEditor() override;
 
+	bool GetCanLoseFocus(bool DynamicMode = false) const override;
 	bool IsFileModified() const override { return m_editor->IsModified(); }
 	int GetTypeAndName(string &strType, string &strName) override;
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
@@ -128,7 +131,6 @@ private:
 	void SetScreenPosition() override;
 	int GetType() const override { return windowtype_editor; }
 	void OnDestroy() override;
-	bool GetCanLoseFocus(bool DynamicMode = false) const override;
 	bool CanFastHide() const override; // для нужд CtrlAltShift
 	string GetTitle() const override;
 	bool IsKeyBarVisible() const override;
@@ -141,7 +143,7 @@ private:
 	*/
 	void SetDeleteOnClose(int NewMode);
 	bool ReProcessKey(const Manager::Key& Key, bool CalledFromControl = true);
-	bool AskOverwrite(string_view FileName);
+	bool DoNotOverwrite(string_view FullSaveAsName, string_view SaveAsName);
 	void Init(string_view Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
 	bool LoadFile(string_view Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
