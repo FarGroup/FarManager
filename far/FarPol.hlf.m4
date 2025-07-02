@@ -3437,10 +3437,10 @@ $ #Edytor: menu wszystkich znalezionych wystąpień#
  Następujące kombinacje klawiszy są dostępne w tym menu:
 
  #F4#
- Copy all found lines into a new editor and close this menu.
+ Kopiuje wszystkie znalezione linie do nowego edytora i zamyka to menu.
 
  #Alt+F4#
- Copy all lines matching the current filter into a new editor and close this menu.
+ Kopiuje wszystkie linie bieżącego filtra do nowego edytora i zamyka to menu.
 
  #F5#
  Przełącza wielkość menu.
