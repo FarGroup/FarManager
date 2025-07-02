@@ -1,6 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-%s">
+<!--meta http-equiv="Content-Type" content="text/html; charset=windows-1251"-->
+
+<style type = text/css>
+  body {
+    font-family: arial, sans-serif;
+  }
+</style>
+
 <title>
 <!--Title-->
 </title>
