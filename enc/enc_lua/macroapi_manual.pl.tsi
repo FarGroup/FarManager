@@ -675,10 +675,12 @@ lv=2
 dt=Text
 nm=Plik luamacro.ini
 ctime=3617998172
-mtime=3618041778
+mtime=3960807050
 <article>
 #_<markdown>
 #_Plik `luamacro.ini` zawiera niektóre ustawienia wtyczek. Jeżeli plik nie istnieje, lub brakuje niektórych ustawień to wtyczka użyje domyślnych wartości dla danego ustawienia.
+#_
+#_### `[General]`
 #_
 #_* `MacroPath`<br>
 #_  Określa ścieżkę, skąd wczytywane są makropliki.<br>

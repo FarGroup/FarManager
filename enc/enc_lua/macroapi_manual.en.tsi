@@ -675,10 +675,12 @@ lv=2
 dt=Text
 nm=File luamacro.ini
 ctime=3617998172
-mtime=3618041778
+mtime=3960806994
 <article>
 #_<markdown>
 #_The file `luamacro.ini` contains some plugin's settings. If the file is missing, or some setting is missing then the plugin will use the default value for the given setting.
+#_
+#_### `[General]`
 #_
 #_* `MacroPath`<br>
 #_  Defines paths from which macrofiles are loaded.<br>
