@@ -63,7 +63,7 @@ class [[nodiscard]] enum_lines: public enumerator<enum_lines, file_line>
 public:
 	enum_lines(std::istream& Stream, uintptr_t CodePage, bool* TryUtf8 = {});
 
-	bool conversion_error() const { return m_Diagnostics.ErrorPosition.has_value(); }
+	bytes_view error_bytes() const { return m_FirstErrorBytes; }
 
 private:
 	[[nodiscard]]
@@ -73,8 +73,8 @@ private:
 
 	bool fill() const;
 
-	template<typename T>
-	bool GetTString(std::basic_string<T>& To, eol& Eol) const;
+	template<typename T, typename... args>
+	bool GetTString(std::basic_string<T, args...>& To, eol& Eol) const;
 
 	std::istream& m_Stream;
 	size_t m_BeginPos;
@@ -93,7 +93,7 @@ private:
 
 	struct conversion_data
 	{
-		mutable std::string m_Bytes;
+		mutable bytes m_Bytes;
 		mutable wchar_t_ptr_n<default_capacity> m_wBuffer;
 	};
 
@@ -102,6 +102,7 @@ private:
 	mutable size_t m_CrSeen{};
 	mutable bool m_EmitExtraCr{};
 	mutable encoding::diagnostics m_Diagnostics;
+	mutable bytes m_FirstErrorBytes;
 };
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)

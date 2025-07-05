@@ -807,10 +807,18 @@ string codepages::FormatName(uintptr_t const CodePage)
 	return far::format(L"{}: {}"sv, CodePage, get_name());
 }
 
-string codepages::UnsupportedCharacterMessage(wchar_t const Char)
+string codepages::UnsupportedDataMessage(std::variant<wchar_t, bytes> const& Data)
 {
-	const auto UnicodeNotation = far::format(L"U+{0:04X}"sv, Char);
-	return far::vformat(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, UnicodeNotation);
+	return std::visit(overload{
+		[&](wchar_t const Char)
+		{
+			return far::vformat(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, far::format(L"U+{0:04X}"sv, Char));
+		},
+		[&](bytes const& Bytes)
+		{
+			return far::vformat(msg(lng::MByteSequenceIsNotSupportedByTheCodepage), BlobToHexString(Bytes, L' '));
+		}
+	}, Data);
 }
 
 long long codepages::GetFavorite(uintptr_t cp)

@@ -77,7 +77,7 @@ public:
 
 	static std::optional<cp_info> GetInfo(uintptr_t CodePage);
 	static string FormatName(uintptr_t CodePage);
-	static string UnsupportedCharacterMessage(wchar_t Char);
+	static string UnsupportedDataMessage(std::variant<wchar_t, bytes> const& Data);
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);

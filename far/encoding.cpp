@@ -404,6 +404,14 @@ encoding::is_utf8 encoding::diagnostics::get_is_utf8() const
 	return m_IsUtf8;
 }
 
+bytes encoding::diagnostics::error_data(bytes_view Data) const
+{
+	return bytes(ErrorPositionRollback?
+		Data.substr(*ErrorPositionRollback, *ErrorPosition - *ErrorPositionRollback + 1) :
+		Data.substr(*ErrorPosition, 1)
+	);
+}
+
 size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, std::span<char> const Buffer, diagnostics* const Diagnostics)
 {
 	const auto Result = get_bytes_impl(Codepage, Str, Buffer, Diagnostics);
@@ -603,7 +611,7 @@ void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, 
 {
 	throw far_known_exception(
 		concat(
-			codepages::UnsupportedCharacterMessage(Str[Position]),
+			codepages::UnsupportedDataMessage(Str[Position]),
 			L"\n"sv,
 			codepages::FormatName(Codepage)
 		)
@@ -933,7 +941,10 @@ static size_t BytesToUnicode(
 		if (Diagnostics)
 		{
 			if (LocalDiagnostics.ErrorPosition && !Diagnostics->ErrorPosition)
-				Diagnostics->ErrorPosition = StrIterator - Str.begin() + *LocalDiagnostics.ErrorPosition;
+			{
+				Diagnostics->ErrorPositionRollback = StrIterator - Str.begin();
+				Diagnostics->ErrorPosition = *Diagnostics->ErrorPositionRollback + *LocalDiagnostics.ErrorPosition;
+			}
 
 			Diagnostics->set_is_utf8(LocalDiagnostics.get_is_utf8());
 		}

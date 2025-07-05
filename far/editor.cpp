@@ -6817,14 +6817,14 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, encoding::diagnostics* const Diagnostics)
+static bytes_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, encoding::diagnostics* const Diagnostics)
 {
 	for (;;)
 	{
 		auto const Length = encoding::get_bytes(Codepage, Str, Buffer, Diagnostics);
 
 		if (Length <= Buffer.size())
-			return { Buffer.data(), Length };
+			return view_bytes(Buffer.data(), Length);
 
 		resize_exp(Buffer, Length);
 	}
@@ -6845,7 +6845,7 @@ bool Editor::SetLineCodePage(Edit& Line, uintptr_t CurrentCodepage, uintptr_t co
 	return Result;
 }
 
-bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, wchar_t& ErrorChar)
+bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, std::variant<wchar_t, bytes>& Data)
 {
 	if (CurrentCodepage == NewCodepage)
 		return true;
@@ -6865,7 +6865,7 @@ bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 			ErrorCodepage = CurrentCodepage;
 			ErrorLine = LineNumber;
 			ErrorPos = *Diagnostics.ErrorPosition;
-			ErrorChar = i->m_Str[ErrorPos];
+			Data = i->m_Str[ErrorPos];
 			return false;
 		}
 
@@ -6873,15 +6873,12 @@ bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 		{
 			ErrorCodepage = NewCodepage;
 			ErrorLine = LineNumber;
+			ErrorPos = Diagnostics.ErrorPositionRollback.value_or(*Diagnostics.ErrorPosition);
+			Data = Diagnostics.error_data(Bytes);
 
 			// Position is in bytes, we might need to convert it back to chars
-			const auto Info = GetCodePageInfo(CurrentCodepage);
-			if (Info && Info->MaxCharSize == 1)
-				ErrorPos = *Diagnostics.ErrorPosition;
-			else
-				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, Bytes.size()) });
-
-			ErrorChar = i->m_Str[ErrorPos];
+			if (const auto Info = GetCodePageInfo(CurrentCodepage); Info && Info->MaxCharSize > 1)
+				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(ErrorPos, Bytes.size()) });
 
 			return false;
 		}

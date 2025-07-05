@@ -182,14 +182,17 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	return false;
 }
 
-static bool dlgBadEditorCodepage(uintptr_t& codepage)
+static bool dlgBadEditorCodepage(uintptr_t& codepage, bytes_view const ErrorBytes)
 {
 	DialogBuilder Builder(lng::MWarning);
 
-	Builder.AddText(lng::MEditorLoadCPWarn1).Flags = DIF_CENTERTEXT;
-	Builder.AddText(lng::MEditorLoadCPWarn2).Flags = DIF_CENTERTEXT;
-	Builder.AddText(lng::MEditorSaveNotRecommended).Flags = DIF_CENTERTEXT;
-	Builder.AddSeparator();
+	string const Messages[]
+	{
+		codepages::UnsupportedDataMessage(bytes{ ErrorBytes }),
+		msg(lng::MEditorSaveNotRecommended),
+	};
+
+	Builder.AddText(Messages[0]).Flags |= DIF_CENTERTEXT;
 
 	IntOption cp_val;
 	cp_val = codepage;
@@ -197,7 +200,12 @@ static bool dlgBadEditorCodepage(uintptr_t& codepage)
 	std::vector<DialogBuilderListItem> Items;
 	codepages::instance().FillCodePagesList(Items, true, false, true, false, false);
 
-	Builder.AddComboBox(cp_val, 46, Items);
+	const auto MaxLength = std::ranges::max(Messages, {}, &string::size).size();
+
+	Builder.AddComboBox(cp_val, static_cast<int>(std::max(MaxLength, 46uz)), Items);
+
+	Builder.AddText(Messages[1]).Flags |= DIF_CENTERTEXT;
+
 	Builder.AddOKCancel();
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 	Builder.SetId(BadEditorCodePageId);
@@ -1452,6 +1460,12 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 	for (BitFlags f0 = m_editor->m_Flags; ; m_editor->m_Flags = f0)
 	{
 		m_editor->FreeAllocatedData();
+
+		// The rest of the code assumes that the editor always has at least 1 line.
+		// Without this we can crash in redraw code if there is an error during loading, e.g. an incorrect codepage.
+		m_editor->PushString({});
+		auto FakeFirstLine = true;
+
 		const auto Cached = LoadFromCache(pc);
 
 		const os::fs::file_status FileStatus(Name);
@@ -1508,11 +1522,11 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		enum_lines EnumFileLines(Stream, m_codepage);
 		for (auto Str: EnumFileLines)
 		{
-			if (!BadConversion && EnumFileLines.conversion_error())
+			if (const auto ErrorBytes = EnumFileLines.error_bytes(); !ErrorBytes.empty() && !BadConversion)
 			{
 				BadConversion = true;
 				uintptr_t cp = m_codepage;
-				if (!dlgBadEditorCodepage(cp)) // cancel
+				if (!dlgBadEditorCodepage(cp, ErrorBytes)) // cancel
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1577,6 +1591,12 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 			if (m_editor->GlobalEOL == eol::none && Str.Eol != eol::none)
 			{
 				m_editor->GlobalEOL = Str.Eol;
+			}
+
+			if (FakeFirstLine)
+			{
+				m_editor->FreeAllocatedData();
+				FakeFirstLine = false;
 			}
 
 			m_editor->PushString(Str.Str);
@@ -1806,7 +1826,7 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 				const auto Result = Message(MSG_WARNING,
 					msg(lng::MWarning),
 					{
-						codepages::UnsupportedCharacterMessage(SaveStr[*Diagnostics.ErrorPosition]),
+						codepages::UnsupportedDataMessage(SaveStr[*Diagnostics.ErrorPosition]),
 						codepages::FormatName(Codepage),
 						msg(lng::MEditorSaveNotRecommended)
 					},
@@ -2646,13 +2666,13 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 
 	uintptr_t ErrorCodepage;
 	size_t ErrorLine, ErrorPos;
-	wchar_t ErrorChar;
-	if (!m_editor->TryCodePage(m_codepage, codepage, ErrorCodepage, ErrorLine, ErrorPos, ErrorChar))
+	std::variant<wchar_t, bytes> ErrorData;
+	if (!m_editor->TryCodePage(m_codepage, codepage, ErrorCodepage, ErrorLine, ErrorPos, ErrorData))
 	{
 		switch (Message(MSG_WARNING,
 			msg(lng::MWarning),
 			{
-				codepages::UnsupportedCharacterMessage(ErrorChar),
+				codepages::UnsupportedDataMessage(ErrorData),
 				codepages::FormatName(ErrorCodepage),
 				msg(lng::MEditorSwitchCPConfirm)
 			},

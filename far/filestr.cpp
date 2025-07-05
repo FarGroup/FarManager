@@ -119,7 +119,7 @@ bool enum_lines::fill() const
 			const auto MissingBytes = CharSize - ExtraBytes;
 			std::fill_n(m_Buffer.begin() + Read, MissingBytes, '\0');
 			m_BufferView = { m_Buffer.data(), Read + MissingBytes };
-			m_Diagnostics.ErrorPosition = 0;
+			m_Diagnostics.ErrorPosition = {};
 		}
 
 		if (m_CodePage == CP_UTF16BE)
@@ -132,8 +132,8 @@ bool enum_lines::fill() const
 	return true;
 }
 
-template<typename T>
-bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol) const
+template<typename T, typename... args>
+bool enum_lines::GetTString(std::basic_string<T, args...>& To, eol& Eol) const
 {
 	To.clear();
 
@@ -144,9 +144,9 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol) const
 		return true;
 	}
 
-	const T
-		EolCr = m_Eol.cr(),
-		EolLf = m_Eol.lf();
+	const auto
+		EolCr = T{ m_Eol.cr() },
+		EolLf = T{ m_Eol.lf() };
 
 	for (;;)
 	{
@@ -261,10 +261,17 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 				if (m_IsUtf8 == encoding::is_utf8::yes_ascii)
 					m_IsUtf8 = m_Diagnostics.get_is_utf8();
 
-				if (TryUtf8 && m_Diagnostics.ErrorPosition && m_IsUtf8 != encoding::is_utf8::yes)
+				if (m_Diagnostics.ErrorPosition)
 				{
-					*m_TryUtf8 = false;
-					continue;
+					if (TryUtf8 && m_IsUtf8 != encoding::is_utf8::yes)
+					{
+						*m_TryUtf8 = false;
+						m_Diagnostics.ErrorPosition = {};
+						continue;
+					}
+
+					if (m_FirstErrorBytes.empty())
+						m_FirstErrorBytes = m_Diagnostics.error_data(Data.m_Bytes);
 				}
 
 				if (Size <= Data.m_wBuffer.size())
