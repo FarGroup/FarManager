@@ -73,8 +73,8 @@ private:
 
 	bool fill() const;
 
-	template<typename T, typename... args>
-	bool GetTString(std::basic_string<T, args...>& To, eol& Eol) const;
+	template<typename T, typename Traits>
+	bool GetTString(std::basic_string<T, Traits>& To, eol& Eol) const;
 
 	std::istream& m_Stream;
 	size_t m_BeginPos;

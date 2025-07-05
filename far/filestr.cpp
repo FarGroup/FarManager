@@ -132,8 +132,8 @@ bool enum_lines::fill() const
 	return true;
 }
 
-template<typename T, typename... args>
-bool enum_lines::GetTString(std::basic_string<T, args...>& To, eol& Eol) const
+template<typename T, typename Traits>
+bool enum_lines::GetTString(std::basic_string<T, Traits>& To, eol& Eol) const
 {
 	To.clear();
 
@@ -151,7 +151,7 @@ bool enum_lines::GetTString(std::basic_string<T, args...>& To, eol& Eol) const
 	for (;;)
 	{
 		const auto Char = !m_BufferView.empty() || fill()?
-			std::optional<T>{ std::basic_string_view<T>{ std::bit_cast<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) }.front() } :
+			std::optional<T>{ std::basic_string_view<T, Traits>{ std::bit_cast<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) }.front() } :
 			std::optional<T>{};
 
 		if (Char == EolLf)
