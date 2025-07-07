@@ -155,7 +155,7 @@ private:
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	os::fs::attributes EditorGetFileAttributes(string_view Name);
 	void SetPluginData(const string* PluginData);
-	const string& GetPluginData() const { return strPluginData; }
+	string GetCacheName() const;
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
 	void ReadEvent();

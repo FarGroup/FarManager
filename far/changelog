@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+MZK 2025-07-06 20:31:22-04:00 - build 6506
+
+1. gh-976: Ephemeral editor does not touch edit position cache.
+   No matter how many times a new Editor was created with Find All menu content,
+   the position cached for this file will not be used or changed.
+
+--------------------------------------------------------------------------------
 drkns 2025-07-05 15:37:03+01:00 - build 6505
 
 1. gh-977: Improve error messages on encoding errors.

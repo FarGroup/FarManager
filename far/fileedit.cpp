@@ -2628,34 +2628,36 @@ uintptr_t FileEditor::GetCodePage() const
 	return m_codepage;
 }
 
+string FileEditor::GetCacheName() const
+{
+	if (strPluginData.empty())
+		return path::normalize_separators(strFullFileName);
+	else
+		return concat(strPluginData, PointToName(strFullFileName));
+}
+
 bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 {
-	string strCacheName;
-
-	const auto PluginData = GetPluginData();
-	if (!PluginData.empty())
-	{
-		strCacheName = concat(PluginData, PointToName(strFullFileName));
-	}
-	else
-	{
-		strCacheName = path::normalize_separators(strFullFileName);
-	}
-
 	pc.Clear();
 
-	return FilePositionCache::GetPosition(strCacheName, pc);
+	if (m_Flags.Check(FFILEEDIT_EPHEMERAL))
+		return false;
+
+	return FilePositionCache::GetPosition(GetCacheName(), pc);
 }
 
 void FileEditor::SaveToCache() const
 {
+	if (m_Flags.Check(FFILEEDIT_EPHEMERAL))
+		return;
+
 	EditorPosCache pc;
 	m_editor->GetCacheParams(pc);
 
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
 		pc.CodePage = BadConversion ? 0 : m_codepage;
-		FilePositionCache::AddPosition(strPluginData.empty()? strFullFileName : strPluginData + PointToName(strFullFileName), pc);
+		FilePositionCache::AddPosition(GetCacheName(), pc);
 	}
 }
 
