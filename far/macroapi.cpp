@@ -920,21 +920,19 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			const auto Values = Data->Count > 2? Data->Values + 2 : nullptr;
 			OpenMacroInfo Info{ sizeof(OpenMacroInfo), Data->Count - 2, Values };
-			void *ResultCallPlugin = nullptr;
 
 			if (SyncCall)
 				++m_InternalInput;
 
-			if (!Global->CtrlObject->Plugins->CallPlugin(*Uuid, OPEN_FROMMACRO, &Info, &ResultCallPlugin))
-				ResultCallPlugin = nullptr;
+			void *Result = Global->CtrlObject->Plugins->CallPluginFromMacro(*Uuid, &Info);
 
 			if (SyncCall)
 				--m_InternalInput;
 
-			if (os::memory::is_pointer(ResultCallPlugin) && ResultCallPlugin != INVALID_HANDLE_VALUE)
-				return api.PassPointer(ResultCallPlugin);
+			if (os::memory::is_pointer(Result) && Result != INVALID_HANDLE_VALUE)
+				return api.PassPointer(Result);
 
-			return api.PassBoolean(ResultCallPlugin != nullptr);
+			return api.PassBoolean(Result != nullptr);
 		}
 
 	case MCODE_F_WINDOW_SCROLL:   return api.windowscrollFunc();

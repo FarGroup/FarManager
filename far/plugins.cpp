@@ -2100,11 +2100,52 @@ bool PluginManager::ProcessCommandLine(const string_view Command, function_ref<v
 }
 
 
+void* PluginManager::CallPluginFromMacro(const UUID& SysID, OpenMacroInfo *Info) const
+{
+	if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
+	{
+		if (Dlg->CheckDialogMode(DMODE_NOPLUGINS))
+		{
+			return nullptr;
+		}
+	}
+
+	const auto pPlugin = FindPlugin(SysID);
+
+	if (exception_handling_in_progress() || !pPlugin || !pPlugin->has(iOpen) || (!pPlugin->m_Instance && pPlugin->WorkFlags.Check(PIWF_LOADED)))
+		return nullptr;
+
+	auto PluginPanel = Open(pPlugin, OPEN_FROMMACRO, FarUuid, std::bit_cast<intptr_t>(Info));
+
+	if (PluginPanel)
+	{
+		if (os::memory::is_pointer(PluginPanel->panel()) && PluginPanel->panel() != INVALID_HANDLE_VALUE)
+		{
+			const auto fmc = static_cast<FarMacroCall*>(PluginPanel->panel());
+			if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
+			{
+				PluginPanel->set_panel(fmc->Values[0].Pointer);
+				if (fmc->Callback)
+					fmc->Callback(fmc->CallbackData, fmc->Values, fmc->Count);
+
+				const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
+				NewPanel->SetPluginMode(std::move(PluginPanel), {}, true);
+				NewPanel->Update(0);
+				NewPanel->Show();
+				return ToPtr(1);
+			}
+			return PluginPanel->panel();
+		}
+	}
+
+	return nullptr;
+}
+
 /* $ 27.09.2000 SVS
   Функция CallPlugin - найти плагин по ID и запустить
   в зачаточном состоянии!
 */
-bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void **Ret) const
+bool PluginManager::CallPlugin(const UUID& SysID, int OpenFrom, void *Data) const
 {
 	if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 	{
@@ -2120,60 +2161,20 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 		return false;
 
 	auto PluginPanel = Open(pPlugin, OpenFrom, FarUuid, std::bit_cast<intptr_t>(Data));
-	bool process=false;
 
-	if (OpenFrom == OPEN_FROMMACRO)
-	{
-		if (PluginPanel)
-		{
-			if (os::memory::is_pointer(PluginPanel->panel()) && PluginPanel->panel() != INVALID_HANDLE_VALUE)
-			{
-				const auto fmc = static_cast<FarMacroCall*>(PluginPanel->panel());
-				if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
-				{
-					process = true;
-					PluginPanel->set_panel(fmc->Values[0].Pointer);
-					if (fmc->Callback)
-						fmc->Callback(fmc->CallbackData, fmc->Values, fmc->Count);
-				}
-			}
-		}
-	}
-	else
-	{
-		process=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL;
-	}
+	if (OpenFrom == OPEN_LUAMACRO)
+		return PluginPanel != nullptr;
 
-	if (PluginPanel && process)
+	if (PluginPanel && (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
 	{
 		const auto PluginPanelCopy = PluginPanel.get();
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
 
 		NewPanel->SetPluginMode(std::move(PluginPanel), {}, true);
-		if (OpenFrom != OPEN_FROMMACRO)
+		if (Data && *static_cast<const wchar_t *>(Data))
 		{
-			if (Data && *static_cast<const wchar_t *>(Data))
-			{
-				const UserDataItem UserData{};  // !!! NEED CHECK !!!
-				SetDirectory(PluginPanelCopy, static_cast<const wchar_t *>(Data), 0, &UserData);
-			}
-		}
-		else
-		{
-			NewPanel->Update(0);
-			NewPanel->Show();
-		}
-	}
-
-	if (Ret)
-	{
-		if (OpenFrom == OPEN_FROMMACRO && process)
-		{
-			*Ret = ToPtr(1);
-		}
-		else
-		{
-			*Ret = PluginPanel? PluginPanel->panel(): nullptr;
+			const UserDataItem UserData{};  // !!! NEED CHECK !!!
+			SetDirectory(PluginPanelCopy, static_cast<const wchar_t *>(Data), 0, &UserData);
 		}
 	}
 

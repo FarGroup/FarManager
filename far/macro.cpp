@@ -335,9 +335,7 @@ static const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
 
 static bool CallMacroPlugin(OpenMacroPluginInfo* Info)
 {
-	void* ptr;
-	const auto result = Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info, &ptr) != 0;
-	return result && ptr;
+	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, Info);
 }
 
 static bool MacroPluginOp(int OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)

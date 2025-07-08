@@ -216,7 +216,8 @@ public:
 	bool ProcessCommandLine(string_view Command, function_ref<void(bool NoWait)> ConsoleActivator);
 	size_t GetPluginInformation(Plugin* pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-	bool CallPlugin(const UUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr) const;
+	bool CallPlugin(const UUID& SysID, int OpenFrom, void *Data) const;
+	void* CallPluginFromMacro(const UUID& SysID, OpenMacroInfo *Data) const;
 	bool CallPluginItem(const UUID& Uuid, CallPluginInfo* Data) const;
 	void RefreshPluginsList();
 	const auto& Factories() const { return PluginFactories; }
