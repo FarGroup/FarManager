@@ -2134,8 +2134,8 @@ void* PluginManager::CallPluginFromMacro(const UUID& SysID, OpenMacroInfo *Info)
 				NewPanel->Show();
 				return ToPtr(1);
 			}
-			return PluginPanel->panel();
 		}
+		return PluginPanel->panel();
 	}
 
 	return nullptr;
