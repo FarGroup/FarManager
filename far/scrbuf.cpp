@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 
 // Internal:
-#include "farcolor.hpp"
 #include "ctrlobj.hpp"
 #include "interf.hpp"
 #include "config.hpp"
@@ -48,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "char_width.hpp"
 #include "encoding.hpp"
+#include "window.hpp"
 
 // Platform:
 #include "platform.debug.hpp"
@@ -493,7 +493,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 	{
 		ShowTime();
 
-		if (!Global->SuppressIndicators)
+		if (!Global->SuppressIndicators || Global->WindowManager->GetCurrentWindowType() != windowtype_desktop)
 		{
 			const auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
 			{

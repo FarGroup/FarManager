@@ -672,7 +672,7 @@ void UpdateScreenSize()
 
 void ShowTime()
 {
-	if (!Global->Opt->Clock || Global->SuppressClock)
+	if (!Global->Opt->Clock || Global->ScreenSaverActive || (Global->SuppressClock && Global->WindowManager->GetCurrentWindowType() == windowtype_desktop))
 		return;
 
 	Global->CurrentTime.update();

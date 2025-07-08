@@ -287,19 +287,11 @@ namespace
 
 void ScreenSaver()
 {
-	static bool ScreenSaverActive = false;
-
-	if (ScreenSaverActive)
+	if (Global->ScreenSaverActive)
 		return;
 
-	ScreenSaverActive = true;
-	++Global->SuppressClock;
-
-	SCOPE_EXIT
-	{
-		--Global->SuppressClock;
-		ScreenSaverActive = false;
-	};
+	Global->ScreenSaverActive = true;
+	SCOPE_EXIT{ Global->ScreenSaverActive = false; };
 
 	// The whole point of a screen saver is to be visible
 	if (console.IsViewportShifted())

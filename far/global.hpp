@@ -76,6 +76,7 @@ public:
 	int IsProcessAssignMacroKey{};
 	size_t PluginPanelsCount{};
 	int FarExitCode{EXIT_SUCCESS};
+	bool ScreenSaverActive{};
 
 	class far_clock
 	{
