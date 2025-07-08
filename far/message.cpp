@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 #include "lang.hpp"
+#include "stddlg.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
 #include "eol.hpp"
@@ -116,31 +117,7 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 				{
 				case KEY_F3:
 					if(ErrorState)
-					{
-						const std::pair<wchar_t const*, string> Strings[]
-						{
-							{ L"errno:",     ErrorState->ErrnoStr() },
-							{ L"LastError:", ErrorState->Win32ErrorStr() },
-							{ L"NTSTATUS:",  ErrorState->NtErrorStr() },
-							{ L"Location:",  source_location_to_string(ErrorState->Location) },
-						};
-
-						const auto SizeProjection = [](const auto& i){ return i.second.size(); };
-						const auto MaxStr = SizeProjection(*std::ranges::max_element(Strings, {}, SizeProjection));
-						const auto SysArea = 5 * 2;
-						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));
-
-						DialogBuilder Builder(lng::MError);
-
-						for (const auto& [k, v]: Strings)
-						{
-							Builder.AddText(k);
-							Builder.AddConstEditField(v, FieldsWidth);
-						}
-
-						Builder.AddOK();
-						Builder.ShowDialog();
-					}
+						error_lookup(*ErrorState);
 					break;
 
 				case KEY_TAB:

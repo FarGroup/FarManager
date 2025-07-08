@@ -1563,3 +1563,29 @@ void dirinfo_progress::set_size(unsigned long long const Size) const
 	const auto Str = copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5);
 	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_bytes, UNSAFE_CSTR(Str));
 }
+
+void error_lookup(error_state_ex const& ErrorState)
+{
+	const std::pair<wchar_t const*, string> Strings[]
+	{
+		{ L"errno:", ErrorState.ErrnoStr() },
+		{ L"LastError:", ErrorState.Win32ErrorStr() },
+		{ L"NTSTATUS:", ErrorState.NtErrorStr() },
+		{ L"Location:", ErrorState.Location.function_name()? source_location_to_string(ErrorState.Location) : L""s },
+	};
+
+	const auto MaxStr = std::ranges::fold_left(Strings, 0uz, [](size_t const Value, auto const& i) { return std::max(Value, i.second.size()); });
+	const auto SysArea = 5 * 2;
+	const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));
+
+	DialogBuilder Builder(lng::MError);
+
+	for (const auto& [k, v]: Strings | std::views::take(std::size(Strings) - (ErrorState.Location.function_name()? 0 : 1)))
+	{
+		Builder.AddText(k);
+		Builder.AddConstEditField(v, FieldsWidth);
+	}
+
+	Builder.AddOK();
+	Builder.ShowDialog();
+}

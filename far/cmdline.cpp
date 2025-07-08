@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 
 // Internal:
+#include "exception.hpp"
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -1008,6 +1009,19 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool NoWai
 		ConsoleActivator(true);
 		regex_playground();
 		return true;
+	}
+
+	if (const auto ErrorCommand = L"error"sv; starts_with_icase(Command, ErrorCommand))
+	{
+		if (auto ErrorParameter = trim(Command.substr(ErrorCommand.size())); !ErrorParameter.empty())
+		{
+			if (unsigned Value; from_string(ErrorParameter, Value, {}, 0))
+			{
+				ConsoleActivator(true);
+				error_lookup({ { Value, static_cast<NTSTATUS>(Value) }, {}, static_cast<int>(Value) });
+				return true;
+			}
+		}
 	}
 
 	return false;
