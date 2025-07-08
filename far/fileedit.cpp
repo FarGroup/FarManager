@@ -200,7 +200,7 @@ static bool dlgBadEditorCodepage(uintptr_t& codepage, bytes_view const ErrorByte
 	std::vector<DialogBuilderListItem> Items;
 	codepages::instance().FillCodePagesList(Items, true, false, true, false, false);
 
-	const auto MaxLength = std::ranges::max(Messages, {}, &string::size).size();
+	const auto MaxLength = std::ranges::fold_left(Messages, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); });
 
 	Builder.AddComboBox(cp_val, static_cast<int>(std::max(MaxLength, 46uz)), Items);
 
