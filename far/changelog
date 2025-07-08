@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-08 23:38:52+01:00 - build 6509
+
+1. Expose the error lookup dialog (F3 in warning messages) via command line - far:error.
+
+2. Fix clock redraw within command line session.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 shmuel 2025-07-08 22:35:08+03:00 - build 6508
 
 1. Correction to 6507.
