@@ -1024,7 +1024,7 @@ static expected<DWORD, os::error_state> get_console_host_pid_from_window()
 	// Apparently this is also the only way to do it on WOW64,
 	// since ProcessConsoleHostProcess doesn't work there.
 	// Yes, it's horrible, but it's better than nothing.
-	const auto ImeWnd = ImmGetDefaultIMEWnd(GetConsoleWindow());
+	const auto ImeWnd = ImmGetDefaultIMEWnd(console.GetWindow());
 	if (!ImeWnd)
 		return os::error_state{ GetLastError(), 0 };
 
