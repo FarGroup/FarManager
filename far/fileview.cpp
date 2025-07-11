@@ -121,7 +121,7 @@ public:
 
 		if (*m_UpdatePeriod != 0s)
 		{
-			m_ReloadTimer = os::concurrency::timer(*m_UpdatePeriod, *m_UpdatePeriod, [this]
+			m_ReloadTimer = std::make_unique<os::concurrency::timer>(*m_UpdatePeriod, *m_UpdatePeriod, [this]
 			{
 				message_manager::instance().notify(m_Listener.GetEventName());
 			});
@@ -140,7 +140,7 @@ private:
 	listener m_Listener{ listener::scope{L"FileView"sv}, [] {}};
 
 	std::optional<std::chrono::milliseconds> m_UpdatePeriod;
-	os::concurrency::timer m_ReloadTimer;
+	std::unique_ptr<os::concurrency::timer> m_ReloadTimer;
 };
 
 FileViewer::FileViewer(private_tag, bool const DisableEdit, string_view const Title):

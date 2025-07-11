@@ -296,7 +296,7 @@ namespace os::concurrency
 
 	void timer::initialise_impl(std::chrono::milliseconds const DueTime, std::chrono::milliseconds Period)
 	{
-		if (!CreateTimerQueueTimer(&ptr_setter(m_Timer), {}, &wrapper, m_Callable.get(), DueTime / 1ms, Period / 1ms, WT_EXECUTEDEFAULT))
+		if (!CreateTimerQueueTimer(&ptr_setter(m_Timer), {}, &wrapper, &m_Callable, DueTime / 1ms, Period / 1ms, WT_EXECUTEDEFAULT))
 			throw far_fatal_exception(L"CreateTimerQueueTimer failed"sv);
 	}
 

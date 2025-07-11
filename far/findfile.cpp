@@ -265,7 +265,7 @@ private:
 	bool m_EmptyArc{};
 
 	time_check m_TimeCheck{ time_check::mode::immediate };
-	os::concurrency::timer m_UpdateTimer;
+	std::unique_ptr<os::concurrency::timer> m_UpdateTimer;
 	std::list<FindListItem> m_FindList;
 	bool m_IsHexActive{};
 	// This flag is set to true if the hotkey of either of Text/Hex radio is pressed.
@@ -2793,7 +2793,7 @@ bool FindFiles::FindFilesProcess()
 					Dlg->SendMessage(DM_REFRESH, 0, {});
 			});
 
-			m_UpdateTimer = os::concurrency::timer(till_next_second(), GetRedrawTimeout(), [&]
+			m_UpdateTimer = std::make_unique<os::concurrency::timer>(till_next_second(), GetRedrawTimeout(), [&]
 			{
 				message_manager::instance().notify(Listener.GetEventName());
 			});

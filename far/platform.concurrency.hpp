@@ -202,15 +202,15 @@ namespace os::concurrency
 	{
 	public:
 		NONCOPYABLE(timer);
-		MOVABLE(timer);
+		NONMOVABLE(timer);
 
 		timer() = default;
 
 		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, auto&& Callable, auto&&... Args):
-			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
+			m_Callable([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
-			}))
+			})
 		{
 			initialise_impl(DueTime, Period);
 		}
@@ -218,8 +218,7 @@ namespace os::concurrency
 	private:
 		void initialise_impl(std::chrono::milliseconds DueTime, std::chrono::milliseconds Period);
 
-		// Indirection to have a permanent address for move
-		std::unique_ptr<std::function<void()>> m_Callable;
+		std::function<void()> m_Callable;
 
 		struct timer_closer
 		{
