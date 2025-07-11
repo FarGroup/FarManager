@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-11 01:57:59+01:00 - build 6510
+
+1. Continue 6505.1.
+   Rework messages on encoding errors.
+   Show Unicode character names where needed.
+
+2. Inprove UTF-8 decoding.
+   Unpaired surrogates are now decoded as separate bytes.
+   Editing arbitrary data should be round-trip safe.
+
+--------------------------------------------------------------------------------
 drkns 2025-07-08 23:38:52+01:00 - build 6509
 
 1. Expose the error lookup dialog (F3 in warning messages) via command line - far:error.
