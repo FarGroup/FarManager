@@ -995,7 +995,10 @@ namespace utf16
 		surrogate_last       = surrogate_low_last,
 
 		invalid_first        = 0b11011100'10000000u, // DC80 56448
-		invalid_last         = 0b11011100'11111111u; // DCFF 56575
+		invalid_last         = 0b11011100'11111111u, // DCFF 56575
+
+		storage_first        = invalid_first,
+		storage_last         = invalid_last;
 }
 
 namespace utf8
@@ -1005,7 +1008,12 @@ namespace utf8
 	// In WTF-8 (Wobbly Transformation Format, 8-bit) unpaired surrogate halves (U+D800 through U+DFFF) are allowed.
 	// This is necessary to store possibly-invalid UTF-16, such as Windows filenames.
 	// Many systems that deal with UTF-8 work this way without considering it a different encoding, as it is simpler.
-	static constexpr auto support_unpaired_surrogates = true;
+
+	// Unfortunately it's not really compatible with the raw bytes embedding (see below):
+	// in case of unpaired high surrogate following by a raw byte we might accidentally produce a valid surrogate pair
+	// by escaping that byte with \xDC00.
+	// A safer solution is to treat unpaired surrogates as raw bytes.
+	static constexpr auto support_unpaired_surrogates = false;
 
 	// Version 3 of the Python programming language treats each byte of an invalid UTF-8 bytestream as an error;
 	// this gives 128 different possible errors. Extensions have been created to allow any byte sequence that is assumed
@@ -1015,7 +1023,10 @@ namespace utf8
 	// and thus "invalid" UTF-16, as used by Python's PEP 383 (or "surrogateescape") approach.
 	static constexpr auto support_embedded_raw_bytes = true;
 
-	static_assert(support_unpaired_surrogates && support_embedded_raw_bytes);
+	static constexpr auto lossless_round_trip = support_embedded_raw_bytes && !support_unpaired_surrogates;
+	static_assert(lossless_round_trip);
+
+	static_assert(support_embedded_raw_bytes != support_unpaired_surrogates);
 
 	static constexpr bool is_ascii_byte(unsigned int c)
 	{
@@ -1110,13 +1121,28 @@ size_t Utf8::get_char(
 	encoding::diagnostics& Diagnostics
 )
 {
+	const auto FallbackIterator = std::next(StrIterator);
+
 	const auto InvalidChar = [&](unsigned char const Char, size_t const Position)
 	{
-		First = utf8::support_embedded_raw_bytes?
-			utf16::surrogate_low_first | Char :
-			encoding::replace_char;
+		StrIterator = FallbackIterator;
 
-		Diagnostics.ErrorPosition = Position;
+		if constexpr (utf8::support_embedded_raw_bytes)
+		{
+			First = utf16::storage_first | Char;
+
+			if constexpr (utf8::support_unpaired_surrogates)
+			{
+				// Potential data loss, see above
+				Diagnostics.ErrorPosition = Position;
+			}
+		}
+		else
+		{
+			First = encoding::replace_char;
+			Diagnostics.ErrorPosition = Position;
+		}
+
 		Diagnostics.set_is_utf8(encoding::is_utf8::no);
 		return 1;
 	};
@@ -1179,12 +1205,10 @@ size_t Utf8::get_char(
 		// legal 3-byte
 		First = utf8::extract(c1, c2, c3);
 
-		// invalid: surrogate area code
-		if (in_closed_range(utf16::surrogate_first, First, utf16::surrogate_last))
+		if constexpr (!utf8::support_unpaired_surrogates)
 		{
-			Diagnostics.set_is_utf8(encoding::is_utf8::no);
-
-			if constexpr (!utf8::support_unpaired_surrogates)
+			// invalid: surrogate area code
+			if (in_closed_range(utf16::surrogate_first, First, utf16::surrogate_last))
 				return InvalidChar(c1, 2);
 		}
 
@@ -1286,7 +1310,7 @@ static size_t utf8_get_bytes(string_view const Str, std::span<char> const Buffer
 			// not surrogates
 			BytesNumber = 3;
 		}
-		else if (utf8::support_embedded_raw_bytes && in_closed_range(utf16::invalid_first, Char, utf16::invalid_last))
+		else if (utf8::support_embedded_raw_bytes && in_closed_range(utf16::storage_first, Char, utf16::storage_last))
 		{
 			// embedded raw byte
 			BytesNumber = 1;
@@ -1301,11 +1325,6 @@ static size_t utf8_get_bytes(string_view const Str, std::span<char> const Buffer
 		else
 		{
 			BytesNumber = 3;
-
-			if constexpr (!utf8::support_unpaired_surrogates)
-			{
-				Char = encoding::replace_char;
-			}
 		}
 
 		RequiredCapacity += BytesNumber;
@@ -1670,34 +1689,51 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 	{
 		char Bytes[4];
 		const auto Size = encoding::utf8::get_bytes({ &Char, 1 }, Bytes);
-		assert(Size);
-		assert(Size <= std::size(Bytes));
+		if (!Size || Size > std::size(Bytes))
+			return false;
 
-		wchar_t Result;
-		[[maybe_unused]] const auto ResultSize = encoding::utf8::get_chars({ Bytes, Size }, { &Result, 1 });
-		assert(ResultSize == 1u);
+		wchar_t Result[4];
+		const auto ResultSize = encoding::utf8::get_chars({ Bytes, Size }, Result);
+		if (!ResultSize || ResultSize > std::size(Result))
+			return false;
 
-		return Result;
+		const auto IsRawByteStorage = in_closed_range(utf16::storage_first, Char, utf16::storage_last);
+		const auto IsSurrogate = in_closed_range(utf16::surrogate_first, Char, utf16::surrogate_last);
+
+		const auto MustBeEqual = (!IsRawByteStorage && !IsSurrogate) || (IsSurrogate && utf8::support_unpaired_surrogates);
+		if (MustBeEqual)
+		{
+			if (ResultSize != 1 || Result[0] != Char)
+				return false;
+
+			return true;
+		}
+
+		const auto MustBeSequence = IsSurrogate && !utf8::support_unpaired_surrogates && utf8::support_embedded_raw_bytes;
+		if (MustBeSequence)
+		{
+			if (!std::ranges::equal(std::span{ Bytes, Size }, std::span{ Result, ResultSize }, {}, [](char const Char) { return static_cast<wchar_t>(utf16::storage_first | Char); }))
+				return false;
+
+			return true;
+		}
+
+		const auto MustBeReplaceSequence = IsSurrogate && !utf8::support_unpaired_surrogates && !utf8::support_embedded_raw_bytes;
+		if (MustBeReplaceSequence)
+		{
+			if (string_view{ Result, ResultSize } != L"\xFFFD\xFFFD\xFFFD"sv)
+				return false;
+
+			return true;
+		}
+
+		if (ResultSize != 1 || Result[0] != encoding::replace_char)
+			return false;
+
+		return true;
 	};
 
-	const auto AllValid = std::ranges::all_of(std::views::iota(0, std::numeric_limits<wchar_t>::max() + 1), [&](wchar_t const Char)
-	{
-		const auto Result = round_trip(Char);
-
-		if constexpr (utf8::support_unpaired_surrogates)
-		{
-			return Result == Char;
-		}
-		else
-		{
-			const auto
-				IsSurrogate = in_closed_range(utf16::surrogate_first, Char, utf16::surrogate_last),
-				IsInvalid = in_closed_range(utf16::invalid_first, Char, utf16::invalid_last);
-
-			return Result == (!IsSurrogate || (utf8::support_embedded_raw_bytes && IsInvalid)? Char : encoding::replace_char);
-		}
-	});
-
+	const auto AllValid = std::ranges::all_of(std::views::iota(0, std::numeric_limits<wchar_t>::max() + 1), round_trip);
 	REQUIRE(AllValid);
 }
 
@@ -1775,7 +1811,12 @@ TEST_CASE("encoding.errors")
 		const auto Expected = ExpectedTemplate.substr(0, Prefix.size() + ReplaceChars);
 
 		REQUIRE(Str == Expected);
-		REQUIRE(Diagnostics.ErrorPosition == Prefix.size() + i.ErrorPosition);
+
+		if (i.Codepage == CP_UTF8 && utf8::lossless_round_trip)
+			REQUIRE(!Diagnostics.ErrorPosition.has_value());
+		else
+			REQUIRE(Diagnostics.ErrorPosition == Prefix.size() + i.ErrorPosition);
+
 		REQUIRE(Diagnostics.PartialInput == i.PartialInput);
 		REQUIRE(Diagnostics.PartialOutput == i.PartialOutput);
 	}
@@ -1868,6 +1909,37 @@ TEST_CASE("encoding.utf16.surrogate")
 		const auto Pair = encoding::utf16::to_surrogate(i.Codepoint);
 		REQUIRE(i.Pair[0] == Pair.first);
 		REQUIRE(i.Pair[1] == Pair.second);
+	}
+}
+
+TEST_CASE("encoding.utf8.AccidentalSurrogate")
+{
+	const auto Bytes = "\xED\xAD\xB7\xD3"sv;
+	const auto Chars = encoding::utf8::get_chars(Bytes);
+	const auto NewBytes = encoding::utf8::get_bytes(Chars);
+
+	if constexpr (utf8::support_unpaired_surrogates && utf8::support_embedded_raw_bytes)
+	{
+		REQUIRE(Chars == L"\xDB77\xDCD3"sv);
+		REQUIRE(NewBytes == "\xF3\xAD\xB3\x93"sv);
+	}
+
+	if constexpr (!utf8::support_unpaired_surrogates && utf8::support_embedded_raw_bytes)
+	{
+		REQUIRE(Chars == L"\xDCED\xDCAD\xDCB7\xDCD3"sv);
+		REQUIRE(NewBytes == Bytes);
+	}
+
+	if constexpr (utf8::support_unpaired_surrogates && !utf8::support_embedded_raw_bytes)
+	{
+		REQUIRE(Chars == L"\xDB77\xFFFD"sv);
+		REQUIRE(NewBytes == "\xED\xAD\xB7\xEF\xBF\xBD"sv);
+	}
+
+	if constexpr (!utf8::support_unpaired_surrogates && !utf8::support_embedded_raw_bytes)
+	{
+		REQUIRE(Chars == L"\xFFFD\xFFFD\xFFFD\xFFFD"sv);
+		REQUIRE(NewBytes == "\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD\xEF\xBF\xBD"sv);
 	}
 }
 
