@@ -4027,7 +4027,7 @@ void Editor::SaveFoundItemsToNewEditor(const VMenu& ListBox, const bool Matching
 			NewEditorLine->SetEOL(CurString->GetEOL());
 		}
 
-		if (Index == ExitCode)
+		if (static_cast<intptr_t>(Index) == ExitCode)
 		{
 			const auto CurrentFoundCoord{ *ListBox.GetComplexUserDataPtr<const FindCoord>(ExitCode) };
 			NewEditorFoundCoord =
