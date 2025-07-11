@@ -41,7 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
+#include "log.hpp"
 #include "dialog.hpp"
+#include "imports.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
@@ -807,18 +809,77 @@ string codepages::FormatName(uintptr_t const CodePage)
 	return far::format(L"{}: {}"sv, CodePage, get_name());
 }
 
-string codepages::UnsupportedDataMessage(std::variant<wchar_t, bytes> const& Data)
+static string character_name(wchar_t const Character)
+{
+	string NtName, IcuName;
+
+	if (imports.GetUName)
+	{
+		// GetUName should write up to 256 characters, we allocate 512 to be safe.
+		wchar_t Buffer[512];
+		if (const auto Size = imports.GetUName(Character, Buffer))
+			NtName.assign(Buffer, Size);
+		else
+			LOGWARNING(L"GetUName({}): {}"sv, Character, os::last_error());
+	}
+
+	if (imports.u_charName)
+	{
+		char_ptr_n<512> Buffer(512);
+
+		const auto U_UNICODE_CHAR_NAME = 0;
+
+		for (;;)
+		{
+			int ErrorCode{};
+			const size_t Size = imports.u_charName(INT_MAX, U_UNICODE_CHAR_NAME, Buffer.data(), static_cast<int32_t>(Buffer.size()), &ErrorCode);
+
+			if (Size > Buffer.size())
+			{
+				Buffer.reset(Size);
+				continue;
+			}
+
+			if (ErrorCode > 0)
+			{
+				const auto ErrorStr = imports.u_errorName(ErrorCode);
+				LOGWARNING(L"u_charName({}): 0x{:08X} - {}"sv, Character, ErrorCode, ErrorStr? encoding::ascii::get_chars(ErrorStr) : L"Unknown error"sv);
+				break;
+			}
+
+			IcuName = encoding::ascii::get_chars({ Buffer.data(), Size});
+			break;
+		}
+	}
+
+	return IcuName.size() > NtName.size()? IcuName : NtName;
+}
+
+std::pair<string, lng> codepages::UnsupportedDataMessage(std::variant<wchar_t, bytes> const& Data)
 {
 	return std::visit(overload{
 		[&](wchar_t const Char)
 		{
-			return far::vformat(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, far::format(L"U+{0:04X}"sv, Char));
+			const auto Name = character_name(Char);
+			return std::pair{ far::format(L"'{0}': U+{0:04X}{1}{2}"sv, Char, Name.empty()? L""sv : L", "sv, Name), lng::MUnsupportedCodePageCharacter };
 		},
 		[&](bytes const& Bytes)
 		{
-			return far::vformat(msg(lng::MByteSequenceIsNotSupportedByTheCodepage), BlobToHexString(Bytes, L' '));
+			return std::pair{ far::format(L"[{}]"sv, BlobToHexString(Bytes, L' ')), lng::MUnsupportedCodePageByteSequence };
 		}
 	}, Data);
+}
+
+string codepages::UnsupportedDataMessageFull(uintptr_t const Codepage, std::variant<wchar_t, bytes> const& Data)
+{
+	const auto [UsupportedData, UsupportedDataMessage] = UnsupportedDataMessage(Data);
+
+	return far::format(L"{}\n{}\n{}\n{}"sv,
+		msg(lng::MUnsupportedCodePageSelectedCodepage),
+		FormatName(Codepage),
+		far::vformat(msg(lng::MUnsupportedCodePageDoesNotSupport), msg(UsupportedDataMessage)),
+		UsupportedData
+	);
 }
 
 long long codepages::GetFavorite(uintptr_t cp)

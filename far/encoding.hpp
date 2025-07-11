@@ -106,9 +106,6 @@ namespace encoding
 
 	//-------------------------------------------------------------------------
 
-	[[noreturn]]
-	void raise_exception(uintptr_t Codepage, string_view Str, size_t Position);
-
 	namespace detail
 	{
 		template<typename T>

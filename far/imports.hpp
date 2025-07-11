@@ -65,7 +65,9 @@ private:
 		MODULE(netapi32),
 		MODULE(dbgeng),
 		MODULE(dbghelp),
-		MODULE(dwmapi);
+		MODULE(dwmapi),
+		MODULE(getuname),
+		MODULE(icuuc);
 
 #undef MODULE
 
@@ -213,6 +215,12 @@ public: \
 	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymQueryInlineTrace, HANDLE Process, DWORD64 StartAddress, DWORD StartContext, DWORD64 StartRetAddress, DWORD64 CurAddress, LPDWORD CurContext, LPDWORD CurFrameIndex); // 8
 
 	DEFINE_IMPORT_FUNCTION(dwmapi, nop, hr, WINAPI, HRESULT, DwmGetWindowAttribute, HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute); // Vista
+
+	DEFINE_IMPORT_FUNCTION(getuname, le, zero, WINAPI, int, GetUName, WCHAR Code, LPWSTR Buffer); // 2k
+
+	DEFINE_IMPORT_FUNCTION(icuuc, nop, zero, CDECL, int32_t, u_charName, char32_t Code, int NameChoice, char* Buffer, int32_t BufferLength, int* ErrorCode); // 10
+	DEFINE_IMPORT_FUNCTION(icuuc, nop, nullptr, CDECL, const char*, u_errorName, int ErrorCode); // 10
+
 
 #undef DEFINE_IMPORT_FUNCTION
 

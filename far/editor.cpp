@@ -6845,7 +6845,7 @@ bool Editor::SetLineCodePage(Edit& Line, uintptr_t CurrentCodepage, uintptr_t co
 	return Result;
 }
 
-bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, std::variant<wchar_t, bytes>& Data)
+bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCodepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos, std::variant<wchar_t, bytes>& Data, string& EditorData)
 {
 	if (CurrentCodepage == NewCodepage)
 		return true;
@@ -6876,10 +6876,16 @@ bool Editor::TryCodePage(uintptr_t const CurrentCodepage, uintptr_t const NewCod
 			ErrorPos = Diagnostics.ErrorPositionRollback.value_or(*Diagnostics.ErrorPosition);
 			Data = Diagnostics.error_data(Bytes);
 
+			auto ErrorEnd = *Diagnostics.ErrorPosition + 1;
+
 			// Position is in bytes, we might need to convert it back to chars
 			if (const auto Info = GetCodePageInfo(CurrentCodepage); Info && Info->MaxCharSize > 1)
+			{
 				ErrorPos = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(ErrorPos, Bytes.size()) });
+				ErrorEnd = encoding::get_chars_count(CurrentCodepage, { decoded.data(), std::min(ErrorEnd, Bytes.size()) });
+			}
 
+			EditorData = i->m_Str.substr(ErrorPos, ErrorEnd - ErrorPos);
 			return false;
 		}
 	}

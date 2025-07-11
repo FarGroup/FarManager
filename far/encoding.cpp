@@ -607,17 +607,6 @@ size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str,
 	return get_chars(Codepage, Str, {}, Diagnostics);
 }
 
-void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, size_t const Position)
-{
-	throw far_known_exception(
-		concat(
-			codepages::UnsupportedDataMessage(Str[Position]),
-			L"\n"sv,
-			codepages::FormatName(Codepage)
-		)
-	);
-}
-
 string encoding::utf8_or_ansi::get_chars(std::string_view const Str, diagnostics* const Diagnostics)
 {
 	const auto Utf8 = codepage::utf8();
@@ -676,7 +665,7 @@ void encoding::writer::write_impl(const string_view Str)
 	get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &Diagnostics);
 
 	if (Diagnostics.ErrorPosition)
-		raise_exception(m_Codepage, Str, *Diagnostics.ErrorPosition);
+		throw far_known_exception(codepages::UnsupportedDataMessageFull(m_Codepage, Str[*Diagnostics.ErrorPosition]));
 
 	io::write(*m_Stream, m_Buffer);
 }
