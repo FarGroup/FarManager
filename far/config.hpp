@@ -569,6 +569,7 @@ public:
 		BoolOption ShowTitleBar;
 		BoolOption ShowScrollBar;
 		BoolOption EditOpenedForWrite;
+		StringOption SearchAllUseAltFileNameFormat;
 		BoolOption SearchSelFound;
 		BoolOption SearchCursorAtEnd;
 		Bool3Option ShowWhiteSpace;
