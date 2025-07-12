@@ -452,7 +452,7 @@ static string FileSizeToStrImpl(unsigned long long const FileSize, int const Wid
 			const auto RawIntegral = FileSize / Denominator;
 			const auto RawFractional = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
 
-			size_t NumDigits = NumDigits = RawIntegral < 10? 2 : RawIntegral < 100? 1 : 0;
+			size_t NumDigits = RawIntegral < 10? 2 : RawIntegral < 100? 1 : 0;
 
 			int IntegralPart, FractionalPart;
 

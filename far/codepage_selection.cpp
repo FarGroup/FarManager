@@ -817,8 +817,12 @@ static string character_name(wchar_t const Character)
 	{
 		// GetUName should write up to 256 characters, we allocate 512 to be safe.
 		wchar_t Buffer[512];
-		if (const auto Size = imports.GetUName(Character, Buffer))
-			NtName.assign(Buffer, Size);
+		Buffer[0] = {};
+		const auto Size = imports.GetUName(Character, Buffer);
+		// 2k returns some magic numbers from 0 to 5, the character type or something.
+		// XP and newer return the string length.
+		if (const auto ActualSize = Size <= 5? std::wcslen(Buffer) : Size)
+			NtName.assign(Buffer, ActualSize);
 		else
 			LOGWARNING(L"GetUName({}): {}"sv, Character, os::last_error());
 	}
