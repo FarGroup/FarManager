@@ -1,12 +1,27 @@
-﻿// MyWindows.h
+// MyWindows.h
 
 #ifdef Z7_DEFINE_GUID
 #undef Z7_DEFINE_GUID
 #endif
 
+#if 1
+
 // get rid of dancing with a tambourine (aka INITGUID)
 #define Z7_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
     constexpr inline GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+
+#else
+
+#ifdef INITGUID
+  #define Z7_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    EXTERN_C const GUID name; \
+    EXTERN_C const GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+#else
+  #define Z7_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    EXTERN_C const GUID name
+#endif
+
+#endif
 
 #ifndef ZIP7_INC_MY_WINDOWS_H
 #define ZIP7_INC_MY_WINDOWS_H

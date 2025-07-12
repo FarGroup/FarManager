@@ -34,7 +34,7 @@ mkdir -p outfinalnewARM64/Plugins
 
 cd plugins
 
-VERSION_7Z=24.09
+VERSION_7Z=25.00
 curl -o arclite/7z/7z-${VERSION_7Z}.zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-${VERSION_7Z}.zip
 unzip arclite/7z/7z-${VERSION_7Z}.zip -d arclite/7z/${VERSION_7Z}
 
