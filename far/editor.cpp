@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "uuids.far.hpp"
 #include "uuids.far.dialogs.hpp"
 #include "RegExp.hpp"
+#include "filemasks.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "string_utils.hpp"
@@ -4047,16 +4048,23 @@ void Editor::SaveFoundItemsToNewEditor(const VMenu& ListBox, const bool Matching
 
 string Editor::GetSearchAllFileName() const
 {
-	auto SearchAllFileName{ msg(lng::MEditSearchAllFileNameAppend) };
+	const auto OriginalFilename = [&]() -> string
+	{
+		const auto HostFileEditor{ GetHostFileEditor() };
+		if (!HostFileEditor) return {};
 
-	const auto HostFileEditor = GetHostFileEditor();
-	if (!HostFileEditor) return SearchAllFileName;
+		string Type, Name;
+		HostFileEditor->GetTypeAndName(Type, Name);
+		return Name;
+	}();
 
-	string HostType, HostName;
-	HostFileEditor->GetTypeAndName(HostType, HostName);
+	filemasks Mask;
+	const auto MsgId = Mask.assign(EdOpt.SearchAllUseAltFileNameFormat) && Mask.check(OriginalFilename)?
+		lng::MEditSearchAllFileNameFormatAlt :
+		lng::MEditSearchAllFileNameFormat;
 
-	const auto NameAndExt{ name_ext(HostName) };
-	return NameAndExt.first + SearchAllFileName + NameAndExt.second;
+	const auto [Stem, Ext] { name_ext(OriginalFilename) };
+	return far::vformat(msg(MsgId), Stem, Ext);
 }
 
 void Editor::PasteFromClipboard()
