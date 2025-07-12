@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 constexpr
 #endif
 const auto WhiteSpace = TEXT(" \r\n\t\v"sv);
-constexpr const string_view cltrim_view(string_view const& __str, size_t& __fns)
+constexpr string_view cltrim_view(string_view const& __str, size_t& __fns)
 {
 	const auto ____fns = __str.find_first_not_of(WhiteSpace);
 	return string_view(__str.begin() + (__fns = (____fns == string::npos ? 0 : ____fns)),
