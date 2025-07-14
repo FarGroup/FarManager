@@ -1555,7 +1555,7 @@ TEST_CASE("encoding.basic")
 
 	std::array const Codepages
 	{
-		static_cast<uintptr_t>(CP_UTF8),
+		encoding::codepage::utf8(),
 		encoding::codepage::ansi(),
 		encoding::codepage::oem()
 	};

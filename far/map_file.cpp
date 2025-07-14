@@ -156,7 +156,7 @@ static auto determine_format(std::istream& Stream)
 	const auto Position = Stream.tellg();
 	SCOPE_EXIT{ Stream.seekg(Position); };
 
-	const auto Lines = enum_lines(Stream, CP_UTF8);
+	enum_lines const Lines(Stream, CP_UTF8);
 	if (Lines.empty())
 		return map_format::unknown;
 

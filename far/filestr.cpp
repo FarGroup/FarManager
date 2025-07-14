@@ -269,7 +269,6 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 
 				if (m_Diagnostics.ErrorPosition)
 				{
-
 					if (m_FirstErrorBytes.empty())
 						m_FirstErrorBytes = m_Diagnostics.error_data(Data.m_Bytes);
 				}
@@ -624,13 +623,13 @@ TEST_CASE("enum_lines")
 
 	for (const auto& i: Tests)
 	{
-		for (const auto Codepage: { CP_UTF16LE, CP_UTF16BE, static_cast<uintptr_t>(CP_UTF8) })
+		for (const auto Codepage: { CP_UTF16LE, CP_UTF16BE, encoding::codepage::utf8() })
 		{
 			auto Str = encoding::get_bytes(Codepage, i.Str);
 			std::istringstream Stream(Str);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 
-			const auto Enumerator = enum_lines(Stream, Codepage);
+			enum_lines const Enumerator(Stream, Codepage);
 
 			// Twice to make sure that reset works as expected
 			repeat(2, [&]
