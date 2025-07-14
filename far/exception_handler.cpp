@@ -661,13 +661,18 @@ public:
 	// IUnknown
 	STDMETHOD(QueryInterface)(REFIID InterfaceId, PVOID* Interface) override
 	{
-		if (none_of(InterfaceId, IID_IUnknown, IID_IDebugOutputCallbacks, IID_IDebugOutputCallbacksWide))
+		if (InterfaceId == IID_IUnknown)
+			*Interface = static_cast<IUnknown*>(static_cast<IDebugOutputCallbacks*>(this));
+		else if (InterfaceId == IID_IDebugOutputCallbacks)
+			*Interface = static_cast<IDebugOutputCallbacks*>(this);
+		else if (InterfaceId == IID_IDebugOutputCallbacksWide)
+			*Interface = static_cast<IDebugOutputCallbacksWide*>(this);
+		else
 		{
 			*Interface = {};
 			return E_NOINTERFACE;
 		}
 
-		*Interface = this;
 		AddRef();
 		return S_OK;
 	}
@@ -681,7 +686,7 @@ public:
 	// IUnknown
 	STDMETHOD_(ULONG, Release)() override
 	{
-		return 0;
+		return 1;
 	}
 
 	// IDebugOutputCallbacks
