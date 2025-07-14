@@ -261,14 +261,14 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 				if (m_IsUtf8 == encoding::is_utf8::yes_ascii)
 					m_IsUtf8 = m_Diagnostics.get_is_utf8();
 
+				if (TryUtf8 && m_IsUtf8 != encoding::is_utf8::yes)
+				{
+					*m_TryUtf8 = false;
+					continue;
+				}
+
 				if (m_Diagnostics.ErrorPosition)
 				{
-					if (TryUtf8 && m_IsUtf8 != encoding::is_utf8::yes)
-					{
-						*m_TryUtf8 = false;
-						m_Diagnostics.ErrorPosition = {};
-						continue;
-					}
 
 					if (m_FirstErrorBytes.empty())
 						m_FirstErrorBytes = m_Diagnostics.error_data(Data.m_Bytes);

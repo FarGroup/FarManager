@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-14 08:42:32+01:00 - build 6513
+
+1. Correction of 6510.2.
+
+--------------------------------------------------------------------------------
 drkns 2025-07-12 16:21:37+01:00 - build 6512
 
 1. Correction of 6510.1 for 2k.
@@ -15,7 +20,7 @@ drkns 2025-07-11 01:57:59+01:00 - build 6510
    Rework messages on encoding errors.
    Show Unicode character names where needed.
 
-2. Inprove UTF-8 decoding.
+2. Improve UTF-8 decoding.
    Unpaired surrogates are now decoded as separate bytes.
    Editing arbitrary data should be round-trip safe.
 
