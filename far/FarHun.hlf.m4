@@ -6700,6 +6700,25 @@ by the Editor.
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
+@Editor.SearchAllUseAltFileNameFormat
+$ #far:config Editor.SearchAllUseAltFileNameFormat#
+ This string parameter controls composing of the file name used by the
+new Editor containing ~all matching entries~@FindAllMenu@. The value
+is the list of semicolon-separated (#;#) filename extensions.
+
+ The new filename is created from the stem filename and the extension
+of the file currently opened in the Editor. Depending on the original
+file extension, the new filename is formatted using one of the two
+alternative UI format strings defined in ~.lng files~@CustomizingUI@.
+The string with the ID #MEditSearchAllFileNameFormat# is used if the
+original file extension is not found in the value of this parameter;
+otherwise, #MEditSearchAllFileNameFormatAlt# is used.
+
+ Default value: #.txt;.log;.md;.csv;.ini;.cmd;.map#
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
+
+
 @Panel.ShortcutAlwaysChdir
 $ #far:config Panel.ShortcutAlwaysChdir#
  This Boolean parameter controls the behavior of
