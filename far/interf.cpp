@@ -1237,9 +1237,6 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 	if (SavedState && StringPos > SavedState->StringIndex)
 		State = *SavedState;
 
-	const auto nop_signal = [](size_t, size_t){};
-	const auto signal = State.signal? State.signal : nop_signal;
-
 	const auto End = std::min(Str.size(), StringPos);
 	while (State.StringIndex < End)
 	{
@@ -1263,8 +1260,6 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 			CharStringIncrement = 1;
 			CharVisualIncrement = 1;
 		}
-
-		signal(State.StringIndex + CharStringIncrement, State.VisualIndex + CharVisualIncrement);
 
 		const auto NextStringIndex = State.StringIndex + static_cast<unsigned>(CharStringIncrement);
 
@@ -1298,9 +1293,6 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 	if (SavedState && VisualPos > SavedState->VisualIndex)
 		State = *SavedState;
 
-	const auto nop_signal = [](size_t, size_t){};
-	const auto signal = State.signal? State.signal : nop_signal;
-
 	const auto End = Str.size();
 	bool Overflow{};
 
@@ -1326,8 +1318,6 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 			CharVisualIncrement = 1;
 			CharStringIncrement = 1;
 		}
-
-		signal(State.StringIndex + CharStringIncrement, State.VisualIndex + CharVisualIncrement);
 
 		const auto NextVisualIndex = State.VisualIndex + static_cast<unsigned>(CharVisualIncrement);
 		if (NextVisualIndex > VisualPos)
