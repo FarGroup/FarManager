@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-16 22:55:03+01:00 - build 6515
+
+1. Fix editor strings positioning with tabs beyond left border.
+
+2. Optimize real <-> visual pos calculation in corner cases.
+
+--------------------------------------------------------------------------------
 drkns 2025-07-14 17:47:41+01:00 - build 6514
 
 1. Correction of 6510.2 & tests.
