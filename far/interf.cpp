@@ -1226,6 +1226,11 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 		return StringPos;
 
 	const auto CharWidthEnabled = char_width::is_enabled();
+	if (!CharWidthEnabled)
+	{
+		if (TabSize == 1 || !contains(Str, L'\t'))
+			return StringPos;
+	}
 
 	position_parser_state State;
 
@@ -1281,6 +1286,11 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 		return VisualPos;
 
 	const auto CharWidthEnabled = char_width::is_enabled();
+	if (!CharWidthEnabled)
+	{
+		if (TabSize == 1 || !contains(Str, L'\t'))
+			return VisualPos;
+	}
 
 	position_parser_state State;
 
