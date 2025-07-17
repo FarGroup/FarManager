@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-17 22:38:51+01:00 - build 6516
+
+1. Optimize real <-> visual pos calculation some more.
+
+--------------------------------------------------------------------------------
 drkns 2025-07-16 22:55:03+01:00 - build 6515
 
 1. Fix editor strings positioning with tabs beyond left border.

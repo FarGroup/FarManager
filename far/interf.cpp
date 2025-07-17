@@ -1234,7 +1234,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 
 	position_parser_state State;
 
-	if (SavedState && StringPos > SavedState->StringIndex)
+	if (SavedState && StringPos >= SavedState->StringIndex)
 		State = *SavedState;
 
 	const auto End = std::min(Str.size(), StringPos);
@@ -1290,7 +1290,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 
 	position_parser_state State;
 
-	if (SavedState && VisualPos > SavedState->VisualIndex)
+	if (SavedState && VisualPos >= SavedState->VisualIndex)
 		State = *SavedState;
 
 	const auto End = Str.size();
@@ -1961,6 +1961,25 @@ TEST_CASE("tabs")
 			REQUIRE(i.VisualPos == string_pos_to_visual_pos(Strs[i.Str], i.RealPos, i.TabSize));
 	}
 }
+
+TEST_CASE("tabs.cache")
+{
+	const auto Str = L"\t0"sv;
+
+	{
+		position_parser_state State;
+		REQUIRE(visual_pos_to_string_pos(Str, 1, 8, &State) == 0uz);
+		REQUIRE(string_pos_to_visual_pos(Str, 1, 8, &State) == 8uz);
+	}
+
+	{
+		position_parser_state State;
+		REQUIRE(visual_pos_to_string_pos(Str, 1, 8, &State) == 0uz);
+		REQUIRE(string_pos_to_visual_pos(Str, 1, 8, &State) == 8uz);
+	}
+
+}
+
 TEST_CASE("Scrollbar")
 {
 	static const struct

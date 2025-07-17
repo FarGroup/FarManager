@@ -39,12 +39,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "bitflags.hpp"
 #include "eol.hpp"
+#include "interf.hpp"
 #include "plugin.hpp"
 
 // Platform:
 
 // Common:
-#include "common/function_ref.hpp"
 #include "common/smart_ptr.hpp"
 
 // External:
@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FarColor;
 class RegExp;
 struct RegExpMatch;
-struct position_parser_state;
 class positions_cache;
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
@@ -134,7 +133,7 @@ public:
 	bool ProcessKey(const Manager::Key& Key) override;
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
-	virtual void Changed(bool DelBlock = false) {}
+	virtual void Changed(bool DelBlock = false);
 	// Получение максимального значения строки для потребностей Dialod API
 	virtual int GetMaxLength() const {return -1;}
 
@@ -173,8 +172,8 @@ public:
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
-	int RealPosToVisual(int Pos, position_parser_state* State = {}) const;
-	int VisualPosToReal(int Pos, position_parser_state* State = {}) const;
+	int RealPosToVisual(int Pos) const;
+	int VisualPosToReal(int Pos) const;
 	void Select(int Start,int End);
 	void RemoveSelection();
 	void AddSelect(int Start,int End);
@@ -268,6 +267,7 @@ private:
 	int m_SelStart{-1};
 	int m_SelEnd{};
 	int LeftPos{};
+	mutable position_parser_state m_PositionParserState;
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

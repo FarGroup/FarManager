@@ -68,7 +68,7 @@ class positions_cache
 public:
 	NONCOPYABLE(positions_cache);
 
-	using accessor_type = function_ref<int(int, position_parser_state*)>;
+	using accessor_type = function_ref<int(int)>;
 
 	explicit positions_cache(accessor_type const Accessor):
 		m_Accessor(Accessor)
@@ -81,14 +81,14 @@ public:
 		{
 			auto& Value = m_SmallPositions[Position].second;
 			if (!Value)
-				Value = m_Accessor(Position, &m_State);
+				Value = m_Accessor(Position);
 
 			return *Value;
 		}
 
 		const auto [Iterator, IsNew] = m_BigPositions.try_emplace(Position, 0);
 		if (IsNew)
-			Iterator->second = m_Accessor(Position, &m_State);
+			Iterator->second = m_Accessor(Position);
 
 		return Iterator->second;
 	}
@@ -96,7 +96,6 @@ public:
 private:
 	std::pair<int, std::optional<int>> m_SmallPositions[512];
 	std::unordered_map<int, int> m_BigPositions;
-	position_parser_state m_State;
 	accessor_type m_Accessor;
 };
 
@@ -224,8 +223,8 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 
 void Edit::FastShow(const ShowInfo* Info)
 {
-	const auto RealToVisualAccessor = [this](int const Pos, position_parser_state* const State){ return RealPosToVisual(Pos, State); };
-	const auto VisualToRealAccessor = [this](int const Pos, position_parser_state* const State){ return VisualPosToReal(Pos, State); };
+	const auto RealToVisualAccessor = [this](int const Pos){ return RealPosToVisual(Pos); };
+	const auto VisualToRealAccessor = [this](int const Pos){ return VisualPosToReal(Pos); };
 
 	positions_cache
 		RealToVisual(RealToVisualAccessor),
@@ -574,6 +573,11 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 	}
 
 	return 0;
+}
+
+void Edit::Changed(bool DelBlock)
+{
+	m_PositionParserState = {};
 }
 
 static void flatten_string(string& Str)
@@ -1869,18 +1873,18 @@ void Edit::SetTabCurPos(int NewPos)
 		m_CurPos = VisualPosToReal(NewPos);
 }
 
-int Edit::RealPosToVisual(int const Pos, position_parser_state* const  State) const
+int Edit::RealPosToVisual(int const Pos) const
 {
 	const auto TabSize = GetTabExpandMode() == EXPAND_ALLTABS? 1 : GetTabSize();
 
-	return static_cast<int>(string_pos_to_visual_pos(m_Str, Pos, TabSize, State));
+	return static_cast<int>(string_pos_to_visual_pos(m_Str, Pos, TabSize, &m_PositionParserState));
 }
 
-int Edit::VisualPosToReal(int const Pos, position_parser_state*const  State) const
+int Edit::VisualPosToReal(int const Pos) const
 {
 	const auto TabSize = GetTabExpandMode() == EXPAND_ALLTABS? 1 : GetTabSize();
 
-	return static_cast<int>(visual_pos_to_string_pos(m_Str, Pos, TabSize, State));
+	return static_cast<int>(visual_pos_to_string_pos(m_Str, Pos, TabSize, &m_PositionParserState));
 }
 
 void Edit::Select(int Start,int End)
