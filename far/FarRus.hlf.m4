@@ -6697,6 +6697,25 @@ $ #far:config Editor.NewFileUnixEOL#
  Изменить этот параметр можно только через ~far:config~@FarConfig@.
 
 
+@Editor.SearchAllUseAltFileNameFormat
+$ #far:config Editor.SearchAllUseAltFileNameFormat#
+ Этот строковый параметр управляет формированием имени файла для нового
+редактора, содержащего ~результаты поиска всех вхождений~@FindAllMenu@.
+Значение этого параметра -- это одна или несколько ~масок файлов~@FileMasks@.
+
+ Новое имя файла создаётся из основной части имени и расширения файла,
+открытого в данный момент в редакторе. В зависимости от имени исходного
+файла, новое имя форматируется при помощи одной из двух альтернативных
+строк пользовательского интерфейса, определённых в ~.lng файлах~@CustomizingUI@.
+Строка с ID’ом #MEditSearchAllFileNameFormatAlt# используется, если имя
+исходного файла соответствует одной из масок. В противном случае
+используется #MEditSearchAllFileNameFormat#.
+
+ Значение по умолчанию: #*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map#
+
+ Изменить этот параметр можно только через ~far:config~@FarConfig@.
+
+
 @Panel.ShortcutAlwaysChdir
 $ #far:config Panel.ShortcutAlwaysChdir#
  Этот логический (Boolean) параметр управляет поведением
