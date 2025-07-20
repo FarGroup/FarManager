@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-07-20 10:48:47+01:00 - build 6519
+
+1. Forum: Progress numbers are displayed wrong while copying files with filter.
+
+--------------------------------------------------------------------------------
 MZK 2025-07-19 14:29:31-04:00 - build 6518
 
 1. gh-973: Smarter filename for the Find All Editor.
