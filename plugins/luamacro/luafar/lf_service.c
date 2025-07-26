@@ -6835,7 +6835,10 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	}
 #endif
 
-	if (aOpenLibs) aOpenLibs(L);
+	if (aOpenLibs) {
+		lua_pushcfunction(L, aOpenLibs);
+		lua_call(L, 0, 0);
+	}
 
 	lua_pushcfunction(L, luaB_dofileW);
 	lua_setglobal(L, "dofile");
