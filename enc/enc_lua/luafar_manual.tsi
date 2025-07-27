@@ -46,10 +46,10 @@ mtime=3652173155
 #_    [`far.ReloadDefaultScript`](173.html) `=` `true`.
 #_
 #_@@@
-#_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
-#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
-#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_{ectl_getinfo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETINFO
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
+#_{getglobalinfow}: $(ENC_URL)/exported_functions/getglobalinfow.html
+#_{openw}: $(ENC_URL)/exported_functions/openw.html
 #_
 </article>
 </node>
@@ -82,8 +82,8 @@ mtime=3898572321
 #_        (3)  { EF_NONMODAL=1, EF_IMMEDIATERETURN=1, .... }
 #_
 #_@@@
-#_{ef_immediatereturn}: http://api.farmanager.com/ru/service_functions/editor.html#EF_IMMEDIATERETURN
-#_{ef_nonmodal}: http://api.farmanager.com/ru/service_functions/editor.html#EF_NONMODAL
+#_{ef_immediatereturn}: $(ENC_URL)/service_functions/editor.html#EF_IMMEDIATERETURN
+#_{ef_nonmodal}: $(ENC_URL)/service_functions/editor.html#EF_NONMODAL
 #_
 </article>
 </node>
@@ -190,11 +190,11 @@ mtime=3675075603
 #_- **`MYLDFLAGS`** - list of additional linking-stage flags
 #_
 #_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
-#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
-#_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
-#_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{exitfarw}: $(ENC_URL)/exported_functions/exitfarw.html
+#_{getglobalinfow}: $(ENC_URL)/exported_functions/getglobalinfow.html
+#_{getplugininfow}: $(ENC_URL)/exported_functions/getplugininfow.html
+#_{processsynchroeventw}: $(ENC_URL)/exported_functions/processsynchroeventw.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 #_
 </article>
@@ -225,7 +225,7 @@ mtime=3947344487
 #_[1]: 495.html
 #_
 #_@@@
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>
@@ -382,8 +382,8 @@ mtime=3602280848
 #_  ConfigureW, ConfigureInfo
 #_
 #_@@@
-#_{configureinfo}: http://api.farmanager.com/ru/structures/configureinfo.html
-#_{configurew}: http://api.farmanager.com/ru/exported_functions/configurew.html
+#_{configureinfo}: $(ENC_URL)/structures/configureinfo.html
+#_{configurew}: $(ENC_URL)/exported_functions/configurew.html
 #_
 </article>
 </node>
@@ -406,8 +406,8 @@ mtime=3602280344
 #_  ExitFARW, ExitInfo
 #_
 #_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
-#_{exitinfo}: http://api.farmanager.com/ru/structures/exitinfo.html
+#_{exitfarw}: $(ENC_URL)/exported_functions/exitfarw.html
+#_{exitinfo}: $(ENC_URL)/structures/exitinfo.html
 #_
 </article>
 </node>
@@ -438,8 +438,8 @@ mtime=3602446008
 #_  GetGlobalInfoW, GlobalInfo
 #_
 #_@@@
-#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
-#_{globalinfo}: http://api.farmanager.com/ru/structures/globalinfo.html
+#_{getglobalinfow}: $(ENC_URL)/exported_functions/getglobalinfow.html
+#_{globalinfo}: $(ENC_URL)/structures/globalinfo.html
 #_
 </article>
 </node>
@@ -475,8 +475,8 @@ mtime=3602279498
 #_  GetPluginInfoW, PluginInfo
 #_
 #_@@@
-#_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
-#_{plugininfo}: http://api.farmanager.com/ru/structures/plugininfo.html
+#_{getplugininfow}: $(ENC_URL)/exported_functions/getplugininfow.html
+#_{plugininfo}: $(ENC_URL)/structures/plugininfo.html
 #_
 </article>
 </node>
@@ -550,13 +550,13 @@ mtime=3910412951
 #_[bit64]: 405.html
 #_[tAnalyseInfo]: 461.html
 #_
-#_{open_analyse}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_ANALYSE
-#_{open_commandline}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_COMMANDLINE
-#_{open_dialog}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_DIALOG
-#_{open_frommacro}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_FROMMACRO
-#_{open_shortcut}: http://api.farmanager.com/ru/structures/openinfo.html#OPEN_SHORTCUT
-#_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
-#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_{open_analyse}: $(ENC_URL)/structures/openinfo.html#OPEN_ANALYSE
+#_{open_commandline}: $(ENC_URL)/structures/openinfo.html#OPEN_COMMANDLINE
+#_{open_dialog}: $(ENC_URL)/structures/openinfo.html#OPEN_DIALOG
+#_{open_frommacro}: $(ENC_URL)/structures/openinfo.html#OPEN_FROMMACRO
+#_{open_shortcut}: $(ENC_URL)/structures/openinfo.html#OPEN_SHORTCUT
+#_{openinfo}: $(ENC_URL)/structures/openinfo.html
+#_{openw}: $(ENC_URL)/exported_functions/openw.html
 #_
 </article>
 </node>
@@ -587,8 +587,8 @@ mtime=3652906894
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{processconsoleinputinfo}: http://api.farmanager.com/ru/structures/processconsoleinputinfo.html
-#_{processconsoleinputw}: http://api.farmanager.com/ru/exported_functions/processconsoleinputw.html
+#_{processconsoleinputinfo}: $(ENC_URL)/structures/processconsoleinputinfo.html
+#_{processconsoleinputw}: $(ENC_URL)/exported_functions/processconsoleinputw.html
 #_
 </article>
 </node>
@@ -613,8 +613,8 @@ mtime=3602280249
 #_  ProcessSynchroEventW, ProcessSynchroEventInfo
 #_
 #_@@@
-#_{processsynchroeventinfo}: http://api.farmanager.com/ru/structures/processsynchroeventinfo.html
-#_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
+#_{processsynchroeventinfo}: $(ENC_URL)/structures/processsynchroeventinfo.html
+#_{processsynchroeventw}: $(ENC_URL)/exported_functions/processsynchroeventw.html
 #_
 </article>
 </node>
@@ -635,7 +635,7 @@ mtime=3602446223
 #_1. [`LF_RunDefaultScript`](130.html)
 #_
 #_@@@
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>
@@ -677,8 +677,8 @@ mtime=3602340395
 #_[tAnalyseInfo]: 461.html
 #_[LF_CloseAnalyse]: 474.html
 #_
-#_{analyseinfo}: http://api.farmanager.com/ru/structures/analyseinfo.html
-#_{analysew}: http://api.farmanager.com/ru/exported_functions/analysew.html
+#_{analyseinfo}: $(ENC_URL)/structures/analyseinfo.html
+#_{analysew}: $(ENC_URL)/exported_functions/analysew.html
 #_
 </article>
 </node>
@@ -695,7 +695,7 @@ mtime=3602340467
 #_See Far API: CloseAnalyseW
 #_
 #_@@@
-#_{closeanalysew}: http://api.farmanager.com/ru/exported_functions/closeanalysew.html
+#_{closeanalysew}: $(ENC_URL)/exported_functions/closeanalysew.html
 #_
 </article>
 </node>
@@ -719,8 +719,8 @@ mtime=3602280385
 #_  ClosePanelW, ClosePanelInfo
 #_
 #_@@@
-#_{closepanelinfo}: http://api.farmanager.com/ru/structures/closepanelinfo.html
-#_{closepanelw}: http://api.farmanager.com/ru/exported_functions/closepanelw.html
+#_{closepanelinfo}: $(ENC_URL)/structures/closepanelinfo.html
+#_{closepanelw}: $(ENC_URL)/exported_functions/closepanelw.html
 #_
 </article>
 </node>
@@ -749,8 +749,8 @@ mtime=3602340534
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{compareinfo}: http://api.farmanager.com/ru/structures/compareinfo.html
-#_{comparew}: http://api.farmanager.com/ru/exported_functions/comparew.html
+#_{compareinfo}: $(ENC_URL)/structures/compareinfo.html
+#_{comparew}: $(ENC_URL)/exported_functions/comparew.html
 #_
 </article>
 </node>
@@ -778,8 +778,8 @@ mtime=3602340590
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{deletefilesinfo}: http://api.farmanager.com/ru/structures/deletefilesinfo.html
-#_{deletefilesw}: http://api.farmanager.com/ru/exported_functions/deletefilesw.html
+#_{deletefilesinfo}: $(ENC_URL)/structures/deletefilesinfo.html
+#_{deletefilesw}: $(ENC_URL)/exported_functions/deletefilesw.html
 #_
 </article>
 </node>
@@ -795,7 +795,7 @@ mtime=3602340713
 #_See Far API: FreeFindDataW
 #_
 #_@@@
-#_{freefinddataw}: http://api.farmanager.com/ru/exported_functions/freefinddataw.html
+#_{freefinddataw}: $(ENC_URL)/exported_functions/freefinddataw.html
 #_
 </article>
 </node>
@@ -827,8 +827,8 @@ mtime=3602340891
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{getfilesinfo}: http://api.farmanager.com/ru/structures/getfilesinfo.html
-#_{getfilesw}: http://api.farmanager.com/ru/exported_functions/getfilesw.html
+#_{getfilesinfo}: $(ENC_URL)/structures/getfilesinfo.html
+#_{getfilesw}: $(ENC_URL)/exported_functions/getfilesw.html
 #_
 </article>
 </node>
@@ -855,8 +855,8 @@ mtime=3602340944
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{getfinddatainfo}: http://api.farmanager.com/ru/structures/getfinddatainfo.html
-#_{getfinddataw}: http://api.farmanager.com/ru/exported_functions/getfinddataw.html
+#_{getfinddatainfo}: $(ENC_URL)/structures/getfinddatainfo.html
+#_{getfinddataw}: $(ENC_URL)/exported_functions/getfinddataw.html
 #_
 </article>
 </node>
@@ -901,8 +901,8 @@ mtime=3754053574
 #_[tInfoLine]: 120.html
 #_[tPanelMode]: 121.html
 #_
-#_{getopenpanelinfow}: http://api.farmanager.com/ru/exported_functions/getopenpanelinfow.html
-#_{openpanelinfo}: http://api.farmanager.com/ru/structures/openpanelinfo.html
+#_{getopenpanelinfow}: $(ENC_URL)/exported_functions/getopenpanelinfow.html
+#_{openpanelinfo}: $(ENC_URL)/structures/openpanelinfo.html
 #_
 </article>
 </node>
@@ -933,8 +933,8 @@ mtime=3786803761
 #_  MakeDirectoryW, MakeDirectoryInfo
 #_
 #_@@@
-#_{makedirectoryinfo}: http://api.farmanager.com/ru/structures/makedirectoryinfo.html
-#_{makedirectoryw}: http://api.farmanager.com/ru/exported_functions/makedirectoryw.html
+#_{makedirectoryinfo}: $(ENC_URL)/structures/makedirectoryinfo.html
+#_{makedirectoryw}: $(ENC_URL)/exported_functions/makedirectoryw.html
 #_
 </article>
 </node>
@@ -962,8 +962,8 @@ mtime=3602341071
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{processhostfileinfo}: http://api.farmanager.com/ru/structures/processhostfileinfo.html
-#_{processhostfilew}: http://api.farmanager.com/ru/exported_functions/processhostfilew.html
+#_{processhostfileinfo}: $(ENC_URL)/structures/processhostfileinfo.html
+#_{processhostfilew}: $(ENC_URL)/exported_functions/processhostfilew.html
 #_
 </article>
 </node>
@@ -989,10 +989,10 @@ mtime=3602341119
 #_  ProcessPanelEventW, ProcessPanelEventInfo
 #_
 #_@@@
-#_{fe_changeviewmode}: http://api.farmanager.com/ru/structures/processpaneleventinfo.html#FE_CHANGEVIEWMODE
-#_{fe_command}: http://api.farmanager.com/ru/structures/processpaneleventinfo.html#FE_COMMAND
-#_{processpaneleventinfo}: http://api.farmanager.com/ru/structures/processpaneleventinfo.html
-#_{processpaneleventw}: http://api.farmanager.com/ru/exported_functions/processpaneleventw.html
+#_{fe_changeviewmode}: $(ENC_URL)/structures/processpaneleventinfo.html#FE_CHANGEVIEWMODE
+#_{fe_command}: $(ENC_URL)/structures/processpaneleventinfo.html#FE_COMMAND
+#_{processpaneleventinfo}: $(ENC_URL)/structures/processpaneleventinfo.html
+#_{processpaneleventw}: $(ENC_URL)/exported_functions/processpaneleventw.html
 #_
 </article>
 </node>
@@ -1020,8 +1020,8 @@ mtime=3602341156
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{processpanelinputinfo}: http://api.farmanager.com/ru/structures/processpanelinputinfo.html
-#_{processpanelinputw}: http://api.farmanager.com/ru/exported_functions/processpanelinputw.html
+#_{processpanelinputinfo}: $(ENC_URL)/structures/processpanelinputinfo.html
+#_{processpanelinputw}: $(ENC_URL)/exported_functions/processpanelinputw.html
 #_
 </article>
 </node>
@@ -1051,8 +1051,8 @@ mtime=3602341245
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{putfilesinfo}: http://api.farmanager.com/ru/structures/putfilesinfo.html
-#_{putfilesw}: http://api.farmanager.com/ru/exported_functions/putfilesw.html
+#_{putfilesinfo}: $(ENC_URL)/structures/putfilesinfo.html
+#_{putfilesw}: $(ENC_URL)/exported_functions/putfilesw.html
 #_
 </article>
 </node>
@@ -1079,8 +1079,8 @@ mtime=3743410389
 #_  SetDirectoryW, SetDirectoryInfo
 #_
 #_@@@
-#_{setdirectoryinfo}: http://api.farmanager.com/ru/structures/setdirectoryinfo.html
-#_{setdirectoryw}: http://api.farmanager.com/ru/exported_functions/setdirectoryw.html
+#_{setdirectoryinfo}: $(ENC_URL)/structures/setdirectoryinfo.html
+#_{setdirectoryw}: $(ENC_URL)/exported_functions/setdirectoryw.html
 #_
 </article>
 </node>
@@ -1107,8 +1107,8 @@ mtime=3602341303
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{setfindlistinfo}: http://api.farmanager.com/ru/structures/setfindlistinfo.html
-#_{setfindlistw}: http://api.farmanager.com/ru/exported_functions/setfindlistw.html
+#_{setfindlistinfo}: $(ENC_URL)/structures/setfindlistinfo.html
+#_{setfindlistw}: $(ENC_URL)/exported_functions/setfindlistw.html
 #_
 </article>
 </node>
@@ -1148,10 +1148,10 @@ mtime=3615182470
 #_  ProcessEditorEventW, ProcessEditorEventInfo
 #_
 #_@@@
-#_{ee_change}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html#EE_CHANGE
-#_{ee_save}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html#EE_SAVE
-#_{processeditoreventinfo}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html
-#_{processeditoreventw}: http://api.farmanager.com/ru/exported_functions/processeditoreventw.html
+#_{ee_change}: $(ENC_URL)/structures/processeditoreventinfo.html#EE_CHANGE
+#_{ee_save}: $(ENC_URL)/structures/processeditoreventinfo.html#EE_SAVE
+#_{processeditoreventinfo}: $(ENC_URL)/structures/processeditoreventinfo.html
+#_{processeditoreventw}: $(ENC_URL)/exported_functions/processeditoreventw.html
 #_
 </article>
 </node>
@@ -1176,8 +1176,8 @@ mtime=3602341405
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{processeditorinputinfo}: http://api.farmanager.com/ru/structures/processeditorinputinfo.html
-#_{processeditorinputw}: http://api.farmanager.com/ru/exported_functions/processeditorinputw.html
+#_{processeditorinputinfo}: $(ENC_URL)/structures/processeditorinputinfo.html
+#_{processeditorinputw}: $(ENC_URL)/exported_functions/processeditorinputw.html
 #_
 </article>
 </node>
@@ -1210,8 +1210,8 @@ mtime=3602341445
 #_  ProcessViewerEventW, ProcessViewerEventInfo
 #_
 #_@@@
-#_{processviewereventinfo}: http://api.farmanager.com/ru/structures/processviewereventinfo.html
-#_{processviewereventw}: http://api.farmanager.com/ru/exported_functions/processviewereventw.html
+#_{processviewereventinfo}: $(ENC_URL)/structures/processviewereventinfo.html
+#_{processviewereventw}: $(ENC_URL)/exported_functions/processviewereventw.html
 #_
 </article>
 </node>
@@ -1258,9 +1258,9 @@ mtime=3615807656
 #_@@@
 #_[far.SubscribeDialogDrawEvents]: 498.html
 #_
-#_{fardialogevent}: http://api.farmanager.com/ru/structures/fardialogevent.html
-#_{processdialogeventinfo}: http://api.farmanager.com/ru/structures/processdialogeventinfo.html
-#_{processdialogeventw}: http://api.farmanager.com/ru/exported_functions/processdialogeventw.html
+#_{fardialogevent}: $(ENC_URL)/structures/fardialogevent.html
+#_{processdialogeventinfo}: $(ENC_URL)/structures/processdialogeventinfo.html
+#_{processdialogeventw}: $(ENC_URL)/exported_functions/processdialogeventw.html
 #_
 </article>
 </node>
@@ -1297,8 +1297,8 @@ mtime=3627829849
 #_  GetContentFieldsW, GetContentFieldsInfo
 #_
 #_@@@
-#_{getcontentfieldsw}: http://api.farmanager.com/ru/exported_functions/getcontentfieldsw.html
-#_{getcontentfieldsinfo}: http://api.farmanager.com/ru/structures/getcontentfieldsinfo.html
+#_{getcontentfieldsw}: $(ENC_URL)/exported_functions/getcontentfieldsw.html
+#_{getcontentfieldsinfo}: $(ENC_URL)/structures/getcontentfieldsinfo.html
 #_
 </article>
 </node>
@@ -1327,8 +1327,8 @@ mtime=3666088780
 #_  GetContentDataW, GetContentDataInfo
 #_
 #_@@@
-#_{getcontentdataw}: http://api.farmanager.com/ru/exported_functions/getcontentdataw.html
-#_{getcontentdatainfo}: http://api.farmanager.com/ru/structures/getcontentdatainfo.html
+#_{getcontentdataw}: $(ENC_URL)/exported_functions/getcontentdataw.html
+#_{getcontentdatainfo}: $(ENC_URL)/structures/getcontentdatainfo.html
 #_
 </article>
 </node>
@@ -1412,7 +1412,7 @@ mtime=3936010544
 #_  AdvControl
 #_
 #_@@@
-#_{advcontrol}: http://api.farmanager.com/ru/service_functions/advcontrol.html
+#_{advcontrol}: $(ENC_URL)/service_functions/advcontrol.html
 #_
 </article>
 </node>
@@ -1434,7 +1434,7 @@ mtime=3936009086
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_commit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_COMMIT
+#_{actl_commit}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_COMMIT
 #_
 </article>
 </node>
@@ -1458,7 +1458,7 @@ mtime=3936010034
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{actl_getarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
+#_{actl_getarraycolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
 #_
 </article>
 </node>
@@ -1482,7 +1482,7 @@ mtime=3936009976
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{actl_getcolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCOLOR
+#_{actl_getcolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETCOLOR
 #_
 </article>
 </node>
@@ -1505,7 +1505,7 @@ mtime=3936010317
 #_             X, Y: integers
 #_
 #_@@@
-#_{actl_getcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCURSORPOS
+#_{actl_getcursorpos}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETCURSORPOS
 #_
 </article>
 </node>
@@ -1527,7 +1527,7 @@ mtime=3936009831
 #_  Result:   light userdata
 #_
 #_@@@
-#_{actl_getfarhwnd}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARHWND
+#_{actl_getfarhwnd}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARHWND
 #_
 </article>
 </node>
@@ -1550,7 +1550,7 @@ mtime=3936010062
 #_           5 numbers (e.g. 3,0,0,2040,0), if Param1==true;
 #_
 #_@@@
-#_{actl_getfarmanagerversion}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
+#_{actl_getfarmanagerversion}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
 #_
 </article>
 </node>
@@ -1573,7 +1573,7 @@ mtime=3936010262
 #_             Left, Top, Right, Bottom: integers
 #_
 #_@@@
-#_{actl_getfarrect}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARRECT
+#_{actl_getfarrect}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARRECT
 #_
 </article>
 </node>
@@ -1595,7 +1595,7 @@ mtime=3936009129
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_getwindowcount}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
+#_{actl_getwindowcount}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
 #_
 </article>
 </node>
@@ -1623,9 +1623,9 @@ mtime=3936010559
 #_      Name:      string
 #_
 #_@@@
-#_{actl_getwindowinfo}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
-#_{wtype_dialog}: http://api.farmanager.com/ru/structures/windowtype.html#WTYPE_DIALOG
-#_{wtype_vmenu}: http://api.farmanager.com/ru/structures/windowtype.html#WTYPE_VMENU
+#_{actl_getwindowinfo}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
+#_{wtype_dialog}: $(ENC_URL)/structures/windowtype.html#WTYPE_DIALOG
+#_{wtype_vmenu}: $(ENC_URL)/structures/windowtype.html#WTYPE_VMENU
 #_
 </article>
 </node>
@@ -1648,7 +1648,7 @@ mtime=3936010377
 #_              Type: integer
 #_
 #_@@@
-#_{actl_getwindowtype}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
+#_{actl_getwindowtype}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
 #_
 </article>
 </node>
@@ -1670,7 +1670,7 @@ mtime=3936009712
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_progressnotify}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
+#_{actl_progressnotify}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
 #_
 </article>
 </node>
@@ -1692,7 +1692,7 @@ mtime=3936009800
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_quit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_QUIT
+#_{actl_quit}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_QUIT
 #_
 </article>
 </node>
@@ -1714,7 +1714,7 @@ mtime=3936009761
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_redrawall}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_REDRAWALL
+#_{actl_redrawall}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_REDRAWALL
 #_
 </article>
 </node>
@@ -1742,7 +1742,7 @@ mtime=3936010169
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{actl_setarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
+#_{actl_setarraycolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
 #_
 </article>
 </node>
@@ -1764,7 +1764,7 @@ mtime=3936009881
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_setcurrentwindow}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
+#_{actl_setcurrentwindow}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
 #_
 </article>
 </node>
@@ -1787,7 +1787,7 @@ mtime=3936010346
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_setcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURSORPOS
+#_{actl_setcursorpos}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETCURSORPOS
 #_
 </article>
 </node>
@@ -1809,7 +1809,7 @@ mtime=3936010200
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_setprogressstate}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
+#_{actl_setprogressstate}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
 #_
 </article>
 </node>
@@ -1832,7 +1832,7 @@ mtime=3936010225
 #_  Result:   integer
 #_
 #_@@@
-#_{actl_setprogressvalue}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
+#_{actl_setprogressvalue}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
 #_
 </article>
 </node>
@@ -1872,7 +1872,7 @@ mtime=3940507744
 #_     passing it the extra arguments (if any)
 #_
 #_@@@
-#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
+#_{actl_synchro}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SYNCHRO
 #_
 </article>
 </node>
@@ -1896,7 +1896,7 @@ mtime=3936018950
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
+#_{actl_waitkey}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_WAITKEY
 #_
 </article>
 </node>
@@ -1940,27 +1940,27 @@ mtime=3939576259
 #_  Waitkey                 ACTL_WAITKEY
 #_
 #_@@@
-#_{actl_commit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_COMMIT
-#_{actl_getarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
-#_{actl_getcolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCOLOR
-#_{actl_getcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETCURSORPOS
-#_{actl_getfarhwnd}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARHWND
-#_{actl_getfarmanagerversion}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
-#_{actl_getfarrect}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETFARRECT
-#_{actl_getwindowcount}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
-#_{actl_getwindowinfo}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
-#_{actl_getwindowtype}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
-#_{actl_progressnotify}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
-#_{actl_quit}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_QUIT
-#_{actl_redrawall}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_REDRAWALL
-#_{actl_setarraycolor}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
-#_{actl_setcurrentwindow}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
-#_{actl_setcursorpos}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETCURSORPOS
-#_{actl_setprogressstate}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
-#_{actl_setprogressvalue}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
-#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
-#_{actl_waitkey}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_WAITKEY
-#_{advcontrol}: http://api.farmanager.com/ru/service_functions/advcontrol.html
+#_{actl_commit}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_COMMIT
+#_{actl_getarraycolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETARRAYCOLOR
+#_{actl_getcolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETCOLOR
+#_{actl_getcursorpos}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETCURSORPOS
+#_{actl_getfarhwnd}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARHWND
+#_{actl_getfarmanagerversion}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARMANAGERVERSION
+#_{actl_getfarrect}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETFARRECT
+#_{actl_getwindowcount}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWCOUNT
+#_{actl_getwindowinfo}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWINFO
+#_{actl_getwindowtype}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_GETWINDOWTYPE
+#_{actl_progressnotify}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_PROGRESSNOTIFY
+#_{actl_quit}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_QUIT
+#_{actl_redrawall}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_REDRAWALL
+#_{actl_setarraycolor}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETARRAYCOLOR
+#_{actl_setcurrentwindow}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETCURRENTWINDOW
+#_{actl_setcursorpos}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETCURSORPOS
+#_{actl_setprogressstate}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETPROGRESSSTATE
+#_{actl_setprogressvalue}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE
+#_{actl_synchro}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SYNCHRO
+#_{actl_waitkey}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_WAITKEY
+#_{advcontrol}: $(ENC_URL)/service_functions/advcontrol.html
 #_
 </article>
 </node>
@@ -1984,7 +1984,7 @@ mtime=3790274065
 #_  FreeScreen
 #_
 #_@@@
-#_{freescreen}: http://api.farmanager.com/ru/service_functions/freescreen.html
+#_{freescreen}: $(ENC_URL)/service_functions/freescreen.html
 #_
 </article>
 </node>
@@ -2010,8 +2010,8 @@ mtime=3602278880
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{freedirlist}: http://api.farmanager.com/ru/service_functions/freedirlist.html
-#_{getdirlist}: http://api.farmanager.com/ru/service_functions/getdirlist.html
+#_{freedirlist}: $(ENC_URL)/service_functions/freedirlist.html
+#_{getdirlist}: $(ENC_URL)/service_functions/getdirlist.html
 #_
 </article>
 </node>
@@ -2035,7 +2035,7 @@ mtime=3784644026
 #_  GetMsg
 #_
 #_@@@
-#_{getmsg}: http://api.farmanager.com/ru/service_functions/getmsg.html
+#_{getmsg}: $(ENC_URL)/service_functions/getmsg.html
 #_
 </article>
 </node>
@@ -2061,8 +2061,8 @@ mtime=3907594909
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{freeplugindirlist}: http://api.farmanager.com/ru/service_functions/freeplugindirlist.html
-#_{getplugindirlist}: http://api.farmanager.com/ru/service_functions/getplugindirlist.html
+#_{freeplugindirlist}: $(ENC_URL)/service_functions/freeplugindirlist.html
+#_{getplugindirlist}: $(ENC_URL)/service_functions/getplugindirlist.html
 #_
 </article>
 </node>
@@ -2140,11 +2140,11 @@ mtime=3957513676
 #_  `Menu`
 #_
 #_@@@
-#_[virtual key]: http://api.farmanager.com/ru/winapi/virtualkeycodes.html
-#_[Menu]: http://api.farmanager.com/ru/service_functions/menu.html
+#_[virtual key]: $(ENC_URL)/winapi/virtualkeycodes.html
+#_[Menu]: $(ENC_URL)/service_functions/menu.html
 #_[tFarKey]: 445.html
 #_
-#_{fmenu_wrapmode}: http://api.farmanager.com/ru/service_functions/menu.html#FMENU_WRAPMODE
+#_{fmenu_wrapmode}: $(ENC_URL)/service_functions/menu.html#FMENU_WRAPMODE
 #_
 </article>
 </node>
@@ -2167,7 +2167,7 @@ mtime=3625564744
 #_  RestoreScreen
 #_
 #_@@@
-#_{restorescreen}: http://api.farmanager.com/ru/service_functions/restorescreen.html
+#_{restorescreen}: $(ENC_URL)/service_functions/restorescreen.html
 #_
 </article>
 </node>
@@ -2193,7 +2193,7 @@ mtime=3625554428
 #_  SaveScreen
 #_
 #_@@@
-#_{savescreen}: http://api.farmanager.com/ru/service_functions/savescreen.html
+#_{savescreen}: $(ENC_URL)/service_functions/savescreen.html
 #_
 </article>
 </node>
@@ -2218,7 +2218,7 @@ mtime=3507818182
 #_  ShowHelp
 #_
 #_@@@
-#_{showhelp}: http://api.farmanager.com/ru/service_functions/showhelp.html
+#_{showhelp}: $(ENC_URL)/service_functions/showhelp.html
 #_
 </article>
 </node>
@@ -2249,7 +2249,7 @@ mtime=3602743588
 #_
 #_@@@
 #_[tFarColor]: 427.html
-#_[Text]: http://api.farmanager.com/ru/service_functions/text.html
+#_[Text]: $(ENC_URL)/service_functions/text.html
 #_
 </article>
 </node>
@@ -2284,7 +2284,7 @@ mtime=3909242213
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{colordialog}: http://api.farmanager.com/ru/service_functions/colordialog.html
+#_{colordialog}: $(ENC_URL)/service_functions/colordialog.html
 #_
 </article>
 </node>
@@ -2312,7 +2312,7 @@ mtime=3605129666
 #_```
 #_
 #_@@@
-#_{di_usercontrol}: http://api.farmanager.com/ru/dialogapi/controls/di_usercontrol.html
+#_{di_usercontrol}: $(ENC_URL)/dialogapi/controls/di_usercontrol.html
 #_
 </article>
 </node>
@@ -2341,10 +2341,10 @@ mtime=3907614581
 #_@@@
 #_[far.DialogInit]: 378.html
 #_
-#_{dialogfree}: http://api.farmanager.com/ru/service_functions/dialogfree.html
-#_{dialoginit}: http://api.farmanager.com/ru/service_functions/dialoginit.html
-#_{dialogrun}: http://api.farmanager.com/ru/service_functions/dialogrun.html
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
+#_{dialogfree}: $(ENC_URL)/service_functions/dialogfree.html
+#_{dialoginit}: $(ENC_URL)/service_functions/dialoginit.html
+#_{dialogrun}: $(ENC_URL)/service_functions/dialogrun.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
 #_
 </article>
 </node>
@@ -2374,7 +2374,7 @@ mtime=3490521200
 #_@@@
 #_[far.DialogInit]: 378.html
 #_
-#_{dialogfree}: http://api.farmanager.com/ru/service_functions/dialogfree.html
+#_{dialogfree}: $(ENC_URL)/service_functions/dialogfree.html
 #_
 </article>
 </node>
@@ -2421,8 +2421,8 @@ mtime=3911132065
 #_[tFarDialogItem]: 295.html
 #_[dialog event handler]: 285.html
 #_[far.SendDlgMessage]: 71.html
-#_{dialoginit}: http://api.farmanager.com/ru/service_functions/dialoginit.html
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
+#_{dialoginit}: $(ENC_URL)/service_functions/dialoginit.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
 #_
 </article>
 </node>
@@ -2448,7 +2448,7 @@ mtime=3573932440
 #_@@@
 #_[far.DialogInit]: 378.html
 #_
-#_{dialogrun}: http://api.farmanager.com/ru/service_functions/dialogrun.html
+#_{dialogrun}: $(ENC_URL)/service_functions/dialogrun.html
 #_
 </article>
 </node>
@@ -2479,8 +2479,8 @@ mtime=3602350154
 #_@@@
 #_[far.SendDlgMessage]: 71.html
 #_
-#_{dm_getdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgitem.html
-#_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
+#_{dm_getdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgitem.html
+#_{senddlgmessage}: $(ENC_URL)/service_functions/senddlgmessage.html
 #_
 </article>
 </node>
@@ -2512,10 +2512,10 @@ mtime=3534766496
 #_  InputBox
 #_
 #_@@@
-#_{fib_buttons}: http://api.farmanager.com/ru/service_functions/inputbox.html#FIB_BUTTONS
-#_{fib_enableempty}: http://api.farmanager.com/ru/service_functions/inputbox.html#FIB_ENABLEEMPTY
-#_{fib_noampersand}: http://api.farmanager.com/ru/service_functions/inputbox.html#FIB_NOAMPERSAND
-#_{inputbox}: http://api.farmanager.com/ru/service_functions/inputbox.html
+#_{fib_buttons}: $(ENC_URL)/service_functions/inputbox.html#FIB_BUTTONS
+#_{fib_enableempty}: $(ENC_URL)/service_functions/inputbox.html#FIB_ENABLEEMPTY
+#_{fib_noampersand}: $(ENC_URL)/service_functions/inputbox.html#FIB_NOAMPERSAND
+#_{inputbox}: $(ENC_URL)/service_functions/inputbox.html
 #_
 </article>
 </node>
@@ -2571,12 +2571,12 @@ mtime=3734089847
 #_  `Message`
 #_
 #_@@@
-#_[Message]: http://api.farmanager.com/ru/service_functions/message.html
+#_[Message]: $(ENC_URL)/service_functions/message.html
 #_
-#_{fmsg_errortype}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_ERRORTYPE
-#_{fmsg_keepbackground}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_KEEPBACKGROUND
-#_{fmsg_leftalign}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_LEFTALIGN
-#_{fmsg_warning}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_WARNING
+#_{fmsg_errortype}: $(ENC_URL)/service_functions/message.html#FMSG_ERRORTYPE
+#_{fmsg_keepbackground}: $(ENC_URL)/service_functions/message.html#FMSG_KEEPBACKGROUND
+#_{fmsg_leftalign}: $(ENC_URL)/service_functions/message.html#FMSG_LEFTALIGN
+#_{fmsg_warning}: $(ENC_URL)/service_functions/message.html#FMSG_WARNING
 #_
 </article>
 </node>
@@ -2819,77 +2819,77 @@ mtime=3921264341
 #_[editor.Select]: 42.html
 #_[tInputRecord]: 187.html
 #_
-#_{dm_addhistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_addhistory.html
-#_{dm_close}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_close.html
-#_{dm_editunchangedflag}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_editunchangedflag.html
-#_{dm_enableredraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enableredraw.html
-#_{dm_enable}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enable.html
-#_{dm_getcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcheck.html
-#_{dm_getconsttextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getconsttextptr.html
-#_{dm_getcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorpos.html
-#_{dm_getcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorsize.html
-#_{dm_getdialoginfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialoginfo.html
-#_{dm_getdialogtitle}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialogtitle.html
-#_{dm_getdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgdata.html
-#_{dm_getdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgitem.html
-#_{dm_getdlgrect}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgrect.html
-#_{dm_getdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdropdownopened.html
-#_{dm_geteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_geteditposition.html
-#_{dm_getfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getfocus.html
-#_{dm_getitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemdata.html
-#_{dm_getitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemposition.html
-#_{dm_getselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getselection.html
-#_{dm_gettext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_gettext.html
-#_{dm_key}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_key.html
-#_{dm_listaddstr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listaddstr.html
-#_{dm_listadd}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listadd.html
-#_{dm_listdelete}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listdelete.html
-#_{dm_listfindstring}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listfindstring.html
-#_{dm_listgetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetcurpos.html
-#_{dm_listgetdatasize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdatasize.html
-#_{dm_listgetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdata.html
-#_{dm_listgetitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetitem.html
-#_{dm_listgettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgettitles.html
-#_{dm_listinfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinfo.html
-#_{dm_listinsert}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinsert.html
-#_{dm_listsetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetcurpos.html
-#_{dm_listsetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetdata.html
-#_{dm_listsettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsettitles.html
-#_{dm_listset}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listset.html
-#_{dm_listsort}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsort.html
-#_{dm_listupdate}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listupdate.html
-#_{dm_movedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_movedialog.html
-#_{dm_redraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_redraw.html
-#_{dm_resizedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_resizedialog.html
-#_{dm_set3state}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_set3state.html
-#_{dm_setcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcheck.html
-#_{dm_setcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcomboboxevent.html
-#_{dm_setcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorpos.html
-#_{dm_setcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorsize.html
-#_{dm_setdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgdata.html
-#_{dm_setdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgitem.html
-#_{dm_setdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdropdownopened.html
-#_{dm_seteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_seteditposition.html
-#_{dm_setfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setfocus.html
-#_{dm_sethistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_sethistory.html
-#_{dm_setitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemdata.html
-#_{dm_setitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemposition.html
-#_{dm_setmaxtextlength}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmaxtextlength.html
-#_{dm_setinputnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
-#_{dm_setmouseeventnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
-#_{dm_setselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setselection.html
-#_{dm_settextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settextptr.html
-#_{dm_settext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settext.html
-#_{dm_showdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showdialog.html
-#_{dm_showitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showitem.html
-#_{dm_user}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_user.html
-#_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
-#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
-#_{dn_dragged}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dragged.html
-#_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
-#_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
-#_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
-#_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
+#_{dm_addhistory}: $(ENC_URL)/dialogapi/dmsg/dm_addhistory.html
+#_{dm_close}: $(ENC_URL)/dialogapi/dmsg/dm_close.html
+#_{dm_editunchangedflag}: $(ENC_URL)/dialogapi/dmsg/dm_editunchangedflag.html
+#_{dm_enableredraw}: $(ENC_URL)/dialogapi/dmsg/dm_enableredraw.html
+#_{dm_enable}: $(ENC_URL)/dialogapi/dmsg/dm_enable.html
+#_{dm_getcheck}: $(ENC_URL)/dialogapi/dmsg/dm_getcheck.html
+#_{dm_getconsttextptr}: $(ENC_URL)/dialogapi/dmsg/dm_getconsttextptr.html
+#_{dm_getcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorpos.html
+#_{dm_getcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorsize.html
+#_{dm_getdialoginfo}: $(ENC_URL)/dialogapi/dmsg/dm_getdialoginfo.html
+#_{dm_getdialogtitle}: $(ENC_URL)/dialogapi/dmsg/dm_getdialogtitle.html
+#_{dm_getdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgdata.html
+#_{dm_getdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgitem.html
+#_{dm_getdlgrect}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgrect.html
+#_{dm_getdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_getdropdownopened.html
+#_{dm_geteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_geteditposition.html
+#_{dm_getfocus}: $(ENC_URL)/dialogapi/dmsg/dm_getfocus.html
+#_{dm_getitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_getitemdata.html
+#_{dm_getitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_getitemposition.html
+#_{dm_getselection}: $(ENC_URL)/dialogapi/dmsg/dm_getselection.html
+#_{dm_gettext}: $(ENC_URL)/dialogapi/dmsg/dm_gettext.html
+#_{dm_key}: $(ENC_URL)/dialogapi/dmsg/dm_key.html
+#_{dm_listaddstr}: $(ENC_URL)/dialogapi/dmsg/dm_listaddstr.html
+#_{dm_listadd}: $(ENC_URL)/dialogapi/dmsg/dm_listadd.html
+#_{dm_listdelete}: $(ENC_URL)/dialogapi/dmsg/dm_listdelete.html
+#_{dm_listfindstring}: $(ENC_URL)/dialogapi/dmsg/dm_listfindstring.html
+#_{dm_listgetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listgetcurpos.html
+#_{dm_listgetdatasize}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdatasize.html
+#_{dm_listgetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdata.html
+#_{dm_listgetitem}: $(ENC_URL)/dialogapi/dmsg/dm_listgetitem.html
+#_{dm_listgettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listgettitles.html
+#_{dm_listinfo}: $(ENC_URL)/dialogapi/dmsg/dm_listinfo.html
+#_{dm_listinsert}: $(ENC_URL)/dialogapi/dmsg/dm_listinsert.html
+#_{dm_listsetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listsetcurpos.html
+#_{dm_listsetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listsetdata.html
+#_{dm_listsettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listsettitles.html
+#_{dm_listset}: $(ENC_URL)/dialogapi/dmsg/dm_listset.html
+#_{dm_listsort}: $(ENC_URL)/dialogapi/dmsg/dm_listsort.html
+#_{dm_listupdate}: $(ENC_URL)/dialogapi/dmsg/dm_listupdate.html
+#_{dm_movedialog}: $(ENC_URL)/dialogapi/dmsg/dm_movedialog.html
+#_{dm_redraw}: $(ENC_URL)/dialogapi/dmsg/dm_redraw.html
+#_{dm_resizedialog}: $(ENC_URL)/dialogapi/dmsg/dm_resizedialog.html
+#_{dm_set3state}: $(ENC_URL)/dialogapi/dmsg/dm_set3state.html
+#_{dm_setcheck}: $(ENC_URL)/dialogapi/dmsg/dm_setcheck.html
+#_{dm_setcomboboxevent}: $(ENC_URL)/dialogapi/dmsg/dm_setcomboboxevent.html
+#_{dm_setcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorpos.html
+#_{dm_setcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorsize.html
+#_{dm_setdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgdata.html
+#_{dm_setdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgitem.html
+#_{dm_setdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_setdropdownopened.html
+#_{dm_seteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_seteditposition.html
+#_{dm_setfocus}: $(ENC_URL)/dialogapi/dmsg/dm_setfocus.html
+#_{dm_sethistory}: $(ENC_URL)/dialogapi/dmsg/dm_sethistory.html
+#_{dm_setitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_setitemdata.html
+#_{dm_setitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_setitemposition.html
+#_{dm_setmaxtextlength}: $(ENC_URL)/dialogapi/dmsg/dm_setmaxtextlength.html
+#_{dm_setinputnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setmouseeventnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setselection}: $(ENC_URL)/dialogapi/dmsg/dm_setselection.html
+#_{dm_settextptr}: $(ENC_URL)/dialogapi/dmsg/dm_settextptr.html
+#_{dm_settext}: $(ENC_URL)/dialogapi/dmsg/dm_settext.html
+#_{dm_showdialog}: $(ENC_URL)/dialogapi/dmsg/dm_showdialog.html
+#_{dm_showitem}: $(ENC_URL)/dialogapi/dmsg/dm_showitem.html
+#_{dm_user}: $(ENC_URL)/dialogapi/dmsg/dm_user.html
+#_{senddlgmessage}: $(ENC_URL)/service_functions/senddlgmessage.html
+#_{dn_btnclick}: $(ENC_URL)/dialogapi/dmsg/dn_btnclick.html
+#_{dn_dragged}: $(ENC_URL)/dialogapi/dmsg/dn_dragged.html
+#_{dn_drawdialog}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialog.html
+#_{dn_drawdialogdone}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialogdone.html
+#_{dn_dropdownopened}: $(ENC_URL)/dialogapi/dmsg/dn_dropdownopened.html
+#_{dn_controlinput}: $(ENC_URL)/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
 </node>
@@ -2979,78 +2979,78 @@ mtime=3917898379
 #_@@@
 #_[far.SendDlgMessage]: 71.html
 #_
-#_{dm_addhistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_addhistory.html
-#_{dm_close}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_close.html
-#_{dm_editunchangedflag}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_editunchangedflag.html
-#_{dm_enableredraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enableredraw.html
-#_{dm_enable}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_enable.html
-#_{dm_getcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcheck.html
-#_{dm_getcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcomboboxevent.html
-#_{dm_getconsttextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getconsttextptr.html
-#_{dm_getcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorpos.html
-#_{dm_getcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getcursorsize.html
-#_{dm_getdialoginfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialoginfo.html
-#_{dm_getdialogtitle}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdialogtitle.html
-#_{dm_getdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgdata.html
-#_{dm_getdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgitem.html
-#_{dm_getdlgrect}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdlgrect.html
-#_{dm_getdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getdropdownopened.html
-#_{dm_geteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_geteditposition.html
-#_{dm_getfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getfocus.html
-#_{dm_getitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemdata.html
-#_{dm_getitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getitemposition.html
-#_{dm_getselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_getselection.html
-#_{dm_gettext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_gettext.html
-#_{dm_key}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_key.html
-#_{dm_listaddstr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listaddstr.html
-#_{dm_listadd}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listadd.html
-#_{dm_listdelete}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listdelete.html
-#_{dm_listfindstring}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listfindstring.html
-#_{dm_listgetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetcurpos.html
-#_{dm_listgetdatasize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdatasize.html
-#_{dm_listgetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetdata.html
-#_{dm_listgetitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgetitem.html
-#_{dm_listgettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listgettitles.html
-#_{dm_listinfo}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinfo.html
-#_{dm_listinsert}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listinsert.html
-#_{dm_listsetcurpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetcurpos.html
-#_{dm_listsetdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsetdata.html
-#_{dm_listsettitles}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsettitles.html
-#_{dm_listset}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listset.html
-#_{dm_listsort}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listsort.html
-#_{dm_listupdate}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_listupdate.html
-#_{dm_movedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_movedialog.html
-#_{dm_redraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_redraw.html
-#_{dm_resizedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_resizedialog.html
-#_{dm_set3state}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_set3state.html
-#_{dm_setcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcheck.html
-#_{dm_setcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcomboboxevent.html
-#_{dm_setcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorpos.html
-#_{dm_setcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorsize.html
-#_{dm_setdlgdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgdata.html
-#_{dm_setdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgitem.html
-#_{dm_setdropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdropdownopened.html
-#_{dm_seteditposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_seteditposition.html
-#_{dm_setfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setfocus.html
-#_{dm_sethistory}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_sethistory.html
-#_{dm_setitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemdata.html
-#_{dm_setitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemposition.html
-#_{dm_setmaxtextlength}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmaxtextlength.html
-#_{dm_setinputnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
-#_{dm_setmouseeventnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
-#_{dm_setselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setselection.html
-#_{dm_settextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settextptr.html
-#_{dm_settext}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settext.html
-#_{dm_showdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showdialog.html
-#_{dm_showitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showitem.html
-#_{dm_user}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_user.html
-#_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
-#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
-#_{dn_dragged}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dragged.html
-#_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
-#_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
-#_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
-#_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
+#_{dm_addhistory}: $(ENC_URL)/dialogapi/dmsg/dm_addhistory.html
+#_{dm_close}: $(ENC_URL)/dialogapi/dmsg/dm_close.html
+#_{dm_editunchangedflag}: $(ENC_URL)/dialogapi/dmsg/dm_editunchangedflag.html
+#_{dm_enableredraw}: $(ENC_URL)/dialogapi/dmsg/dm_enableredraw.html
+#_{dm_enable}: $(ENC_URL)/dialogapi/dmsg/dm_enable.html
+#_{dm_getcheck}: $(ENC_URL)/dialogapi/dmsg/dm_getcheck.html
+#_{dm_getcomboboxevent}: $(ENC_URL)/dialogapi/dmsg/dm_getcomboboxevent.html
+#_{dm_getconsttextptr}: $(ENC_URL)/dialogapi/dmsg/dm_getconsttextptr.html
+#_{dm_getcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorpos.html
+#_{dm_getcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorsize.html
+#_{dm_getdialoginfo}: $(ENC_URL)/dialogapi/dmsg/dm_getdialoginfo.html
+#_{dm_getdialogtitle}: $(ENC_URL)/dialogapi/dmsg/dm_getdialogtitle.html
+#_{dm_getdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgdata.html
+#_{dm_getdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgitem.html
+#_{dm_getdlgrect}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgrect.html
+#_{dm_getdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_getdropdownopened.html
+#_{dm_geteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_geteditposition.html
+#_{dm_getfocus}: $(ENC_URL)/dialogapi/dmsg/dm_getfocus.html
+#_{dm_getitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_getitemdata.html
+#_{dm_getitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_getitemposition.html
+#_{dm_getselection}: $(ENC_URL)/dialogapi/dmsg/dm_getselection.html
+#_{dm_gettext}: $(ENC_URL)/dialogapi/dmsg/dm_gettext.html
+#_{dm_key}: $(ENC_URL)/dialogapi/dmsg/dm_key.html
+#_{dm_listaddstr}: $(ENC_URL)/dialogapi/dmsg/dm_listaddstr.html
+#_{dm_listadd}: $(ENC_URL)/dialogapi/dmsg/dm_listadd.html
+#_{dm_listdelete}: $(ENC_URL)/dialogapi/dmsg/dm_listdelete.html
+#_{dm_listfindstring}: $(ENC_URL)/dialogapi/dmsg/dm_listfindstring.html
+#_{dm_listgetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listgetcurpos.html
+#_{dm_listgetdatasize}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdatasize.html
+#_{dm_listgetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdata.html
+#_{dm_listgetitem}: $(ENC_URL)/dialogapi/dmsg/dm_listgetitem.html
+#_{dm_listgettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listgettitles.html
+#_{dm_listinfo}: $(ENC_URL)/dialogapi/dmsg/dm_listinfo.html
+#_{dm_listinsert}: $(ENC_URL)/dialogapi/dmsg/dm_listinsert.html
+#_{dm_listsetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listsetcurpos.html
+#_{dm_listsetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listsetdata.html
+#_{dm_listsettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listsettitles.html
+#_{dm_listset}: $(ENC_URL)/dialogapi/dmsg/dm_listset.html
+#_{dm_listsort}: $(ENC_URL)/dialogapi/dmsg/dm_listsort.html
+#_{dm_listupdate}: $(ENC_URL)/dialogapi/dmsg/dm_listupdate.html
+#_{dm_movedialog}: $(ENC_URL)/dialogapi/dmsg/dm_movedialog.html
+#_{dm_redraw}: $(ENC_URL)/dialogapi/dmsg/dm_redraw.html
+#_{dm_resizedialog}: $(ENC_URL)/dialogapi/dmsg/dm_resizedialog.html
+#_{dm_set3state}: $(ENC_URL)/dialogapi/dmsg/dm_set3state.html
+#_{dm_setcheck}: $(ENC_URL)/dialogapi/dmsg/dm_setcheck.html
+#_{dm_setcomboboxevent}: $(ENC_URL)/dialogapi/dmsg/dm_setcomboboxevent.html
+#_{dm_setcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorpos.html
+#_{dm_setcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorsize.html
+#_{dm_setdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgdata.html
+#_{dm_setdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgitem.html
+#_{dm_setdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_setdropdownopened.html
+#_{dm_seteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_seteditposition.html
+#_{dm_setfocus}: $(ENC_URL)/dialogapi/dmsg/dm_setfocus.html
+#_{dm_sethistory}: $(ENC_URL)/dialogapi/dmsg/dm_sethistory.html
+#_{dm_setitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_setitemdata.html
+#_{dm_setitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_setitemposition.html
+#_{dm_setmaxtextlength}: $(ENC_URL)/dialogapi/dmsg/dm_setmaxtextlength.html
+#_{dm_setinputnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setmouseeventnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_{dm_setselection}: $(ENC_URL)/dialogapi/dmsg/dm_setselection.html
+#_{dm_settextptr}: $(ENC_URL)/dialogapi/dmsg/dm_settextptr.html
+#_{dm_settext}: $(ENC_URL)/dialogapi/dmsg/dm_settext.html
+#_{dm_showdialog}: $(ENC_URL)/dialogapi/dmsg/dm_showdialog.html
+#_{dm_showitem}: $(ENC_URL)/dialogapi/dmsg/dm_showitem.html
+#_{dm_user}: $(ENC_URL)/dialogapi/dmsg/dm_user.html
+#_{senddlgmessage}: $(ENC_URL)/service_functions/senddlgmessage.html
+#_{dn_btnclick}: $(ENC_URL)/dialogapi/dmsg/dn_btnclick.html
+#_{dn_dragged}: $(ENC_URL)/dialogapi/dmsg/dn_dragged.html
+#_{dn_drawdialog}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialog.html
+#_{dn_drawdialogdone}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialogdone.html
+#_{dn_dropdownopened}: $(ENC_URL)/dialogapi/dmsg/dn_dropdownopened.html
+#_{dn_controlinput}: $(ENC_URL)/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
 </node>
@@ -3081,8 +3081,8 @@ mtime=3573888533
 #_@@@
 #_[far.SendDlgMessage]: 71.html
 #_
-#_{dm_setdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setdlgitem.html
-#_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
+#_{dm_setdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgitem.html
+#_{senddlgmessage}: $(ENC_URL)/service_functions/senddlgmessage.html
 #_
 </article>
 </node>
@@ -3128,14 +3128,14 @@ mtime=3637851409
 #_@@@
 #_[export.ProcessDialogEvent]: 221.html
 #_[editor.SubscribeChangeEvent]: 486.html
-#_[DN_CTLCOLORDIALOG]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordialog.html
-#_[DN_CTLCOLORDLGITEM]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlgitem.html
-#_[DN_CTLCOLORDLGLIST]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlglist.html
-#_[DN_DRAWDIALOG]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
-#_[DN_DRAWDIALOGDONE]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
-#_[DN_DRAWDLGITEM]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitem.html
-#_[DN_DRAWDLGITEMDONE]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitemdone.html
-#_[DN_INITDIALOG]: http://api.farmanager.com/ru/dialogapi/dmsg/dn_initdialog.html
+#_[DN_CTLCOLORDIALOG]: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordialog.html
+#_[DN_CTLCOLORDLGITEM]: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordlgitem.html
+#_[DN_CTLCOLORDLGLIST]: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordlglist.html
+#_[DN_DRAWDIALOG]: $(ENC_URL)/dialogapi/dmsg/dn_drawdialog.html
+#_[DN_DRAWDIALOGDONE]: $(ENC_URL)/dialogapi/dmsg/dn_drawdialogdone.html
+#_[DN_DRAWDLGITEM]: $(ENC_URL)/dialogapi/dmsg/dn_drawdlgitem.html
+#_[DN_DRAWDLGITEMDONE]: $(ENC_URL)/dialogapi/dmsg/dn_drawdlgitemdone.html
+#_[DN_INITDIALOG]: $(ENC_URL)/dialogapi/dmsg/dn_initdialog.html
 #_
 </article>
 </node>
@@ -3190,9 +3190,9 @@ mtime=3608642242
 #_[2]: 20.html
 #_
 #_@@@
-#_{defdlgproc}: http://api.farmanager.com/ru/service_functions/defdlgproc.html
-#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
-#_{dn_close}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_close.html
+#_{defdlgproc}: $(ENC_URL)/service_functions/defdlgproc.html
+#_{dn_btnclick}: $(ENC_URL)/dialogapi/dmsg/dn_btnclick.html
+#_{dn_close}: $(ENC_URL)/dialogapi/dmsg/dn_close.html
 #_
 </article>
 </node>
@@ -3219,8 +3219,8 @@ mtime=3602352332
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_btnclick}: $(ENC_URL)/dialogapi/dmsg/dn_btnclick.html
 #_
 </article>
 </node>
@@ -3247,8 +3247,8 @@ mtime=3602352355
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_close}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_close.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_close}: $(ENC_URL)/dialogapi/dmsg/dn_close.html
 #_
 </article>
 </node>
@@ -3276,8 +3276,8 @@ mtime=3704631390
 #_[description]: 285.html
 #_[tInputRecord]: 187.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_controlinput}: $(ENC_URL)/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
 </node>
@@ -3307,8 +3307,8 @@ mtime=3602352390
 #_[description]: 285.html
 #_[tFarColor]: 427.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_ctlcolordialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordialog.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_ctlcolordialog}: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordialog.html
 #_
 </article>
 </node>
@@ -3336,8 +3336,8 @@ mtime=3602352410
 #_@@@
 #_[tFarDialogItemColors]: 293.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_ctlcolordlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlgitem.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_ctlcolordlgitem}: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordlgitem.html
 #_
 </article>
 </node>
@@ -3365,8 +3365,8 @@ mtime=3602352428
 #_@@@
 #_[tFarDialogItemColors]: 293.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_ctlcolordlglist}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_ctlcolordlglist.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_ctlcolordlglist}: $(ENC_URL)/dialogapi/dmsg/dn_ctlcolordlglist.html
 #_
 </article>
 </node>
@@ -3393,8 +3393,8 @@ mtime=3602352444
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_dragged}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dragged.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_dragged}: $(ENC_URL)/dialogapi/dmsg/dn_dragged.html
 #_
 </article>
 </node>
@@ -3421,8 +3421,8 @@ mtime=3602352459
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_drawdialog}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialog.html
 #_
 </article>
 </node>
@@ -3449,8 +3449,8 @@ mtime=3602352477
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_drawdialogdone}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialogdone.html
 #_
 </article>
 </node>
@@ -3478,8 +3478,8 @@ mtime=3602352490
 #_[description]: 285.html
 #_[tFarDialogItem]: 295.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_drawdlgitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitem.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_drawdlgitem}: $(ENC_URL)/dialogapi/dmsg/dn_drawdlgitem.html
 #_
 </article>
 </node>
@@ -3506,8 +3506,8 @@ mtime=3604691338
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_drawdlgitemdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdlgitemdone.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_drawdlgitemdone}: $(ENC_URL)/dialogapi/dmsg/dn_drawdlgitemdone.html
 #_
 </article>
 </node>
@@ -3534,8 +3534,8 @@ mtime=3604691304
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_dropdownopened}: $(ENC_URL)/dialogapi/dmsg/dn_dropdownopened.html
 #_
 </article>
 </node>
@@ -3563,8 +3563,8 @@ mtime=3602352502
 #_[description]: 285.html
 #_[tFarDialogItem]: 295.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_editchange}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_editchange.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_editchange}: $(ENC_URL)/dialogapi/dmsg/dn_editchange.html
 #_
 </article>
 </node>
@@ -3598,9 +3598,9 @@ mtime=3602353306
 #_  DlgProc, DN_GETVALUE
 #_
 #_@@@
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_getvalue}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_getvalue.html
-#_{farmacrovartype}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FARMACROVARTYPE
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_getvalue}: $(ENC_URL)/dialogapi/dmsg/dn_getvalue.html
+#_{farmacrovartype}: $(ENC_URL)/structures/farmacrovalue.html#FARMACROVARTYPE
 #_
 </article>
 </node>
@@ -3627,8 +3627,8 @@ mtime=3602352577
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_gotfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_gotfocus.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_gotfocus}: $(ENC_URL)/dialogapi/dmsg/dn_gotfocus.html
 #_
 </article>
 </node>
@@ -3654,8 +3654,8 @@ mtime=3602352587
 #_  DlgProc, DN_HELP
 #_
 #_@@@
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_help}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_help.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_help}: $(ENC_URL)/dialogapi/dmsg/dn_help.html
 #_
 </article>
 </node>
@@ -3683,8 +3683,8 @@ mtime=3633093110
 #_[description]: 285.html
 #_[tInputRecord]: 187.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_hotkey}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_hotkey.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_hotkey}: $(ENC_URL)/dialogapi/dmsg/dn_hotkey.html
 #_
 </article>
 </node>
@@ -3711,8 +3711,8 @@ mtime=3606114863
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_initdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_initdialog.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_initdialog}: $(ENC_URL)/dialogapi/dmsg/dn_initdialog.html
 #_
 </article>
 </node>
@@ -3740,8 +3740,8 @@ mtime=3602352620
 #_[description]: 285.html
 #_[tInputRecord]: 187.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_input}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_input.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_input}: $(ENC_URL)/dialogapi/dmsg/dn_input.html
 #_
 </article>
 </node>
@@ -3768,8 +3768,8 @@ mtime=3602352635
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_killfocus}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_killfocus.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_killfocus}: $(ENC_URL)/dialogapi/dmsg/dn_killfocus.html
 #_
 </article>
 </node>
@@ -3796,8 +3796,8 @@ mtime=3602352644
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_listchange}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_listchange.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_listchange}: $(ENC_URL)/dialogapi/dmsg/dn_listchange.html
 #_
 </article>
 </node>
@@ -3824,8 +3824,8 @@ mtime=3602352656
 #_@@@
 #_[description]: 285.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_listhotkey}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_listhotkey.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_listhotkey}: $(ENC_URL)/dialogapi/dmsg/dn_listhotkey.html
 #_
 </article>
 </node>
@@ -3853,8 +3853,8 @@ mtime=3602353245
 #_[description]: 285.html
 #_[tCoord]: 314.html
 #_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_resizeconsole}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_resizeconsole.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
+#_{dn_resizeconsole}: $(ENC_URL)/dialogapi/dmsg/dn_resizeconsole.html
 #_
 </article>
 </node>
@@ -3895,8 +3895,8 @@ mtime=3602277824
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{ectl_addcolor}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_ADDCOLOR
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_addcolor}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_ADDCOLOR
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -3919,8 +3919,8 @@ mtime=3507542580
 #_  EditorControl, ECTL_ADDSESSIONBOOKMARK
 #_
 #_@@@
-#_{ectl_addsessionbookmark}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_ADDSESSIONBOOKMARK
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_addsessionbookmark}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_ADDSESSIONBOOKMARK
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -3943,8 +3943,8 @@ mtime=3614953967
 #_  EditorControl, ECTL_CLEARSESSIONBOOKMARKS
 #_
 #_@@@
-#_{ectl_clearsessionbookmarks}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_CLEARSESSIONBOOKMARKS
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_clearsessionbookmarks}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_CLEARSESSIONBOOKMARKS
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -3971,8 +3971,8 @@ mtime=3572708824
 #_  EditorControl, ECTL_DELCOLOR
 #_
 #_@@@
-#_{ectl_delcolor}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_DELCOLOR
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_delcolor}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_DELCOLOR
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -3995,8 +3995,8 @@ mtime=3507542607
 #_  EditorControl, ECTL_DELETEBLOCK
 #_
 #_@@@
-#_{ectl_deleteblock}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_DELETEBLOCK
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_deleteblock}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_DELETEBLOCK
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4019,8 +4019,8 @@ mtime=3507542619
 #_  EditorControl, ECTL_DELETECHAR
 #_
 #_@@@
-#_{ectl_deletechar}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_DELETECHAR
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_deletechar}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_DELETECHAR
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4044,8 +4044,8 @@ mtime=3688049909
 #_  EditorControl, ECTL_DELETESESSIONBOOKMARK
 #_
 #_@@@
-#_{ectl_deletesessionbookmark}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_DELETESESSIONBOOKMARK
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_deletesessionbookmark}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_DELETESESSIONBOOKMARK
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4068,8 +4068,8 @@ mtime=3507542669
 #_  EditorControl, ECTL_DELETESTRING
 #_
 #_@@@
-#_{ectl_deletestring}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_DELETESTRING
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_deletestring}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_DELETESTRING
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4102,7 +4102,7 @@ mtime=3625957315
 #_  `Editor`
 #_
 #_@@@
-#_[Editor]: http://api.farmanager.com/ru/service_functions/editor.html
+#_[Editor]: $(ENC_URL)/service_functions/editor.html
 #_
 #_
 </article>
@@ -4127,8 +4127,8 @@ mtime=3572618138
 #_  EditorControl, ECTL_EXPANDTABS
 #_
 #_@@@
-#_{ectl_expandtabs}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_EXPANDTABS
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_expandtabs}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_EXPANDTABS
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4161,9 +4161,9 @@ mtime=3507542713
 #_  EditorControl, ECTL_GETBOOKMARKS, ECTL_GETINFO
 #_
 #_@@@
-#_{ectl_getbookmarks}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETBOOKMARKS
-#_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getbookmarks}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETBOOKMARKS
+#_{ectl_getinfo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETINFO
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4196,8 +4196,8 @@ mtime=3609591333
 #_@@@
 #_[tFarColor]: 427.html
 #_
-#_{ectl_getcolor}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETCOLOR
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getcolor}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETCOLOR
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4220,8 +4220,8 @@ mtime=3507542738
 #_  EditorControl, ECTL_GETFILENAME
 #_
 #_@@@
-#_{ectl_getfilename}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETFILENAME
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getfilename}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETFILENAME
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4264,8 +4264,8 @@ mtime=3602447116
 #_  EditorControl, ECTL_GETINFO
 #_
 #_@@@
-#_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getinfo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETINFO
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4297,10 +4297,10 @@ mtime=3616180189
 #_  EditorControl, ECTL_GETINFO, ECTL_GETSTRING, ECTL_SETPOSITION
 #_
 #_@@@
-#_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
-#_{ectl_getstring}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETSTRING
-#_{ectl_setposition}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETPOSITION
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getinfo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETINFO
+#_{ectl_getstring}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETSTRING
+#_{ectl_setposition}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETPOSITION
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4333,8 +4333,8 @@ mtime=3507542793
 #_  EditorControl, ECTL_GETSESSIONBOOKMARKS
 #_
 #_@@@
-#_{ectl_getsessionbookmarks}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getsessionbookmarks}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4382,10 +4382,10 @@ mtime=3921827714
 #_  EditorControl, ECTL_GETINFO, ECTL_SETPOSITION, ECTL_GETSTRING
 #_
 #_@@@
-#_{ectl_getinfo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETINFO
-#_{ectl_getstring}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETSTRING
-#_{ectl_setposition}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETPOSITION
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_getinfo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETINFO
+#_{ectl_getstring}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETSTRING
+#_{ectl_setposition}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETPOSITION
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4424,8 +4424,8 @@ mtime=3615110403
 #_  EditorControl, ECTL_GETTITLE
 #_
 #_@@@
-#_{ectl_gettitle}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_GETTITLE
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_gettitle}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_GETTITLE
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4449,8 +4449,8 @@ mtime=3507542843
 #_  EditorControl, ECTL_INSERTSTRING
 #_
 #_@@@
-#_{ectl_insertstring}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_INSERTSTRING
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_insertstring}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_INSERTSTRING
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4474,8 +4474,8 @@ mtime=3507542869
 #_  EditorControl, ECTL_INSERTTEXT
 #_
 #_@@@
-#_{ectl_inserttext}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_INSERTTEXT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_inserttext}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_INSERTTEXT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4516,8 +4516,8 @@ mtime=3507542898
 #_  EditorControl, ECTL_NEXTSESSIONBOOKMARK
 #_
 #_@@@
-#_{ectl_nextsessionbookmark}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_NEXTSESSIONBOOKMARK
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_nextsessionbookmark}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_NEXTSESSIONBOOKMARK
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4540,8 +4540,8 @@ mtime=3507542972
 #_  EditorControl, ECTL_PREVSESSIONBOOKMARK
 #_
 #_@@@
-#_{ectl_prevsessionbookmark}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_PREVSESSIONBOOKMARK
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_prevsessionbookmark}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_PREVSESSIONBOOKMARK
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4571,8 +4571,8 @@ mtime=3602278569
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{ectl_processinput}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_PROCESSINPUT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_processinput}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_PROCESSINPUT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4595,8 +4595,8 @@ mtime=3507543136
 #_  EditorControl, ECTL_QUIT
 #_
 #_@@@
-#_{ectl_quit}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_QUIT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_quit}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_QUIT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4621,8 +4621,8 @@ mtime=3602278578
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{ectl_readinput}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_READINPUT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_readinput}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_READINPUT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4647,8 +4647,8 @@ mtime=3572709078
 #_  EditorControl, ECTL_REALTOTAB
 #_
 #_@@@
-#_{ectl_realtotab}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_REALTOTAB
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_realtotab}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_REALTOTAB
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4671,8 +4671,8 @@ mtime=3507543169
 #_  EditorControl, ECTL_REDRAW
 #_
 #_@@@
-#_{ectl_redraw}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_REDRAW
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_redraw}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_REDRAW
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4698,8 +4698,8 @@ mtime=3577044333
 #_  EditorControl, ECTL_SAVEFILE
 #_
 #_@@@
-#_{ectl_savefile}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SAVEFILE
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_savefile}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SAVEFILE
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4735,8 +4735,8 @@ mtime=3602447196
 #_  EditorControl, ECTL_SELECT
 #_
 #_@@@
-#_{ectl_select}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SELECT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_select}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SELECT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4765,8 +4765,8 @@ mtime=3602278704
 #_@@@
 #_[tKeyBarLabel]: 406.html
 #_
-#_{ectl_setkeybar}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETKEYBAR
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_setkeybar}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETKEYBAR
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4793,9 +4793,9 @@ mtime=3507818234
 #_  EditorControl, ECTL_SETPARAM
 #_
 #_@@@
-#_{ectl_setparam}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETPARAM
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
-#_{espt_getworddiv}: http://api.farmanager.com/ru/structures/editorsetparameter.html#ESPT_GETWORDDIV
+#_{ectl_setparam}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETPARAM
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
+#_{espt_getworddiv}: $(ENC_URL)/structures/editorsetparameter.html#ESPT_GETWORDDIV
 #_
 </article>
 </node>
@@ -4832,8 +4832,8 @@ mtime=3572709106
 #_  EditorControl, ECTL_SETPOSITION
 #_
 #_@@@
-#_{ectl_setposition}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETPOSITION
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_setposition}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETPOSITION
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4859,8 +4859,8 @@ mtime=3572379327
 #_  EditorControl, ECTL_SETSTRING
 #_
 #_@@@
-#_{ectl_setstring}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETSTRING
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_setstring}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETSTRING
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4900,8 +4900,8 @@ mtime=3507543302
 #_  EditorControl, ECTL_SETTITLE
 #_
 #_@@@
-#_{ectl_settitle}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SETTITLE
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_settitle}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SETTITLE
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4926,9 +4926,9 @@ mtime=3576326560
 #_  EditorControl, ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT.
 #_
 #_@@@
-#_{ectl_subscribechangeevent}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_SUBSCRIBECHANGEEVENT
-#_{ectl_unsubscribechangeevent}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_UNSUBSCRIBECHANGEEVENT
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_subscribechangeevent}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_SUBSCRIBECHANGEEVENT
+#_{ectl_unsubscribechangeevent}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_UNSUBSCRIBECHANGEEVENT
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4953,8 +4953,8 @@ mtime=3572709125
 #_  EditorControl, ECTL_TABTOREAL
 #_
 #_@@@
-#_{ectl_tabtoreal}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_TABTOREAL
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_tabtoreal}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_TABTOREAL
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -4979,8 +4979,8 @@ mtime=3507818238
 #_  EditorControl, ECTL_UNDOREDO
 #_
 #_@@@
-#_{ectl_undoredo}: http://api.farmanager.com/ru/service_functions/editorcontrol.html#ECTL_UNDOREDO
-#_{editorcontrol}: http://api.farmanager.com/ru/service_functions/editorcontrol.html
+#_{ectl_undoredo}: $(ENC_URL)/service_functions/editorcontrol.html#ECTL_UNDOREDO
+#_{editorcontrol}: $(ENC_URL)/service_functions/editorcontrol.html
 #_
 </article>
 </node>
@@ -5024,8 +5024,8 @@ mtime=3774941407
 #_  PanelControl, FCTL_BEGINSELECTION
 #_
 #_@@@
-#_{fctl_beginselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_BEGINSELECTION
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_beginselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_BEGINSELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5048,8 +5048,8 @@ mtime=3571802922
 #_  PanelControl, FCTL_CHECKPANELSEXIST
 #_
 #_@@@
-#_{fctl_checkpanelsexist}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CHECKPANELSEXIST
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_checkpanelsexist}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_CHECKPANELSEXIST
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5076,9 +5076,9 @@ mtime=3787492154
 #_  PanelControl, FCTL_GETPANELINFO, FCTL_CLEARSELECTION
 #_
 #_@@@
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
-#_{fctl_clearselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CLEARSELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
+#_{fctl_getpanelinfo}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELINFO
+#_{fctl_clearselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_CLEARSELECTION
 #_
 </article>
 </node>
@@ -5103,8 +5103,8 @@ mtime=3571802942
 #_  PanelControl, FCTL_CLOSEPANEL
 #_
 #_@@@
-#_{fctl_closepanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CLOSEPANEL
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_closepanel}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_CLOSEPANEL
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5129,8 +5129,8 @@ mtime=3774941499
 #_  PanelControl, FCTL_ENDSELECTION
 #_
 #_@@@
-#_{fctl_endselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_ENDSELECTION
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_endselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_ENDSELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5153,8 +5153,8 @@ mtime=3571802946
 #_  PanelControl, FCTL_GETCMDLINE
 #_
 #_@@@
-#_{fctl_getcmdline}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCMDLINE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcmdline}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCMDLINE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5177,8 +5177,8 @@ mtime=3571802951
 #_  PanelControl, FCTL_GETCMDLINEPOS
 #_
 #_@@@
-#_{fctl_getcmdlinepos}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCMDLINEPOS
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcmdlinepos}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCMDLINEPOS
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5203,8 +5203,8 @@ mtime=3571802956
 #_  PanelControl, FCTL_GETCMDLINESELECTION
 #_
 #_@@@
-#_{fctl_getcmdlineselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCMDLINESELECTION
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcmdlineselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCMDLINESELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5228,8 +5228,8 @@ mtime=3615035274
 #_  PanelControl, FCTL_GETCOLUMNTYPES
 #_
 #_@@@
-#_{fctl_getcolumntypes}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCOLUMNTYPES
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcolumntypes}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCOLUMNTYPES
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5253,8 +5253,8 @@ mtime=3615035289
 #_  PanelControl, FCTL_GETCOLUMNWIDTHS
 #_
 #_@@@
-#_{fctl_getcolumnwidths}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCOLUMNWIDTHS
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcolumnwidths}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCOLUMNWIDTHS
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5280,8 +5280,8 @@ mtime=3602278895
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{fctl_getcurrentpanelitem}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETCURRENTPANELITEM
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getcurrentpanelitem}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETCURRENTPANELITEM
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5307,8 +5307,8 @@ mtime=3615035305
 #_@@@
 #_[tFarPanelDirectory]: 459.html
 #_
-#_{fctl_getpaneldirectory}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELDIRECTORY
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpaneldirectory}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELDIRECTORY
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5333,8 +5333,8 @@ mtime=3615035321
 #_  PanelControl, FCTL_GETPANELFORMAT
 #_
 #_@@@
-#_{fctl_getpanelformat}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELFORMAT
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpanelformat}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELFORMAT
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5359,8 +5359,8 @@ mtime=3615035340
 #_  PanelControl, FCTL_GETPANELHOSTFILE
 #_
 #_@@@
-#_{fctl_getpanelhostfile}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELHOSTFILE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpanelhostfile}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELHOSTFILE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5403,9 +5403,9 @@ mtime=3827227504
 #_  PanelControl, FCTL_GETPANELINFO, PanelInfo
 #_
 #_@@@
-#_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_{panelinfo}: http://api.farmanager.com/ru/structures/panelinfo.html
+#_{fctl_getpanelinfo}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELINFO
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
+#_{panelinfo}: $(ENC_URL)/structures/panelinfo.html
 #_
 </article>
 </node>
@@ -5432,8 +5432,8 @@ mtime=3615035361
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{fctl_getpanelitem}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELITEM
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpanelitem}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELITEM
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5458,8 +5458,8 @@ mtime=3615035370
 #_  PanelControl, FCTL_GETPANELPREFIX
 #_
 #_@@@
-#_{fctl_getpanelprefix}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELPREFIX
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpanelprefix}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELPREFIX
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5486,8 +5486,8 @@ mtime=3615035379
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{fctl_getselectedpanelitem}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETSELECTEDPANELITEM
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getselectedpanelitem}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETSELECTEDPANELITEM
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5519,8 +5519,8 @@ mtime=3726225741
 #_  end
 #_
 #_@@@
-#_{fctl_getuserscreen}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETUSERSCREEN
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getuserscreen}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETUSERSCREEN
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5544,8 +5544,8 @@ mtime=3571803014
 #_  PanelControl, FCTL_INSERTCMDLINE
 #_
 #_@@@
-#_{fctl_insertcmdline}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_INSERTCMDLINE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_insertcmdline}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_INSERTCMDLINE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5569,8 +5569,8 @@ mtime=3571803018
 #_  PanelControl, FCTL_ISACTIVEPANEL
 #_
 #_@@@
-#_{fctl_isactivepanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_ISACTIVEPANEL
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_isactivepanel}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_ISACTIVEPANEL
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5597,8 +5597,8 @@ mtime=3571803022
 #_  PanelControl, FCTL_REDRAWPANEL
 #_
 #_@@@
-#_{fctl_redrawpanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_REDRAWPANEL
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_redrawpanel}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_REDRAWPANEL
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5623,8 +5623,8 @@ mtime=3573119438
 #_  PanelControl, FCTL_SETACTIVEPANEL
 #_
 #_@@@
-#_{fctl_setactivepanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETACTIVEPANEL
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setactivepanel}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETACTIVEPANEL
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5648,8 +5648,8 @@ mtime=3571803030
 #_  PanelControl, FCTL_SETCMDLINE
 #_
 #_@@@
-#_{fctl_setcmdline}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETCMDLINE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setcmdline}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETCMDLINE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5673,8 +5673,8 @@ mtime=3571803034
 #_  PanelControl, FCTL_SETCMDLINEPOS
 #_
 #_@@@
-#_{fctl_setcmdlinepos}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETCMDLINEPOS
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setcmdlinepos}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETCMDLINEPOS
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5700,8 +5700,8 @@ mtime=3571803039
 #_  PanelControl, FCTL_SETCMDLINESELECTION
 #_
 #_@@@
-#_{fctl_setcmdlineselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETCMDLINESELECTION
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setcmdlineselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETCMDLINESELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5728,8 +5728,8 @@ mtime=3584893925
 #_  PanelControl, FCTL_SETDIRECTORIESFIRST
 #_
 #_@@@
-#_{fctl_setdirectoriesfirst}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETDIRECTORIESFIRST
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setdirectoriesfirst}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETDIRECTORIESFIRST
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5757,8 +5757,8 @@ mtime=3602278440
 #_@@@
 #_[tFarPanelDirectory]: 459.html
 #_
-#_{fctl_setpaneldirectory}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETPANELDIRECTORY
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setpaneldirectory}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETPANELDIRECTORY
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5785,9 +5785,9 @@ mtime=3787492126
 #_  PanelControl, FCTL_GETPANELINFO, FCTL_SETSELECTION
 #_
 #_@@@
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
-#_{fctl_setselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETSELECTION
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
+#_{fctl_getpanelinfo}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_GETPANELINFO
+#_{fctl_setselection}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETSELECTION
 #_
 </article>
 </node>
@@ -5812,8 +5812,8 @@ mtime=3571803056
 #_  PanelControl, FCTL_SETSORTMODE
 #_
 #_@@@
-#_{fctl_setsortmode}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETSORTMODE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setsortmode}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETSORTMODE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5839,8 +5839,8 @@ mtime=3571803060
 #_  PanelControl, FCTL_SETSORTORDER
 #_
 #_@@@
-#_{fctl_setsortorder}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETSORTORDER
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setsortorder}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETSORTORDER
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5872,8 +5872,8 @@ mtime=3726225783
 #_  end
 #_
 #_@@@
-#_{fctl_setuserscreen}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETUSERSCREEN
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setuserscreen}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETUSERSCREEN
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5898,8 +5898,8 @@ mtime=3571803067
 #_  PanelControl, FCTL_SETVIEWMODE
 #_
 #_@@@
-#_{fctl_setviewmode}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETVIEWMODE
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_setviewmode}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_SETVIEWMODE
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5924,8 +5924,8 @@ mtime=3571803071
 #_  PanelControl, FCTL_UPDATEPANEL
 #_
 #_@@@
-#_{fctl_updatepanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_UPDATEPANEL
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_updatepanel}: $(ENC_URL)/service_functions/panelcontrol.html#FCTL_UPDATEPANEL
+#_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 </article>
 </node>
@@ -5957,8 +5957,8 @@ mtime=3557414017
 #_  ViewerControl, VCTL_GETFILENAME
 #_
 #_@@@
-#_{vctl_getfilename}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_GETFILENAME
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_getfilename}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_GETFILENAME
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -5994,8 +5994,8 @@ mtime=3602447477
 #_@@@
 #_[CurMode]: 133.html
 #_
-#_{vctl_getinfo}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_GETINFO
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_getinfo}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_GETINFO
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6018,8 +6018,8 @@ mtime=3939312062
 #_  ViewerControl, VCTL_QUIT
 #_
 #_@@@
-#_{vctl_quit}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_QUIT
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_quit}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_QUIT
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6042,8 +6042,8 @@ mtime=3507624410
 #_  ViewerControl, VCTL_REDRAW
 #_
 #_@@@
-#_{vctl_redraw}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_REDRAW
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_redraw}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_REDRAW
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6068,8 +6068,8 @@ mtime=3507624477
 #_  ViewerControl, VCTL_SELECT
 #_
 #_@@@
-#_{vctl_select}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_SELECT
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_select}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_SELECT
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6098,8 +6098,8 @@ mtime=3602278710
 #_@@@
 #_[tKeyBarLabel]: 406.html
 #_
-#_{vctl_setkeybar}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_SETKEYBAR
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_setkeybar}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_SETKEYBAR
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6127,8 +6127,8 @@ mtime=3507818253
 #_  ViewerControl, VCTL_SETMODE
 #_
 #_@@@
-#_{vctl_setmode}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_SETMODE
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_setmode}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_SETMODE
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6161,8 +6161,8 @@ mtime=3573762591
 #_  ViewerControl, VCTL_SETPOSITION
 #_
 #_@@@
-#_{vctl_setposition}: http://api.farmanager.com/ru/service_functions/viewercontrol.html#VCTL_SETPOSITION
-#_{viewercontrol}: http://api.farmanager.com/ru/service_functions/viewercontrol.html
+#_{vctl_setposition}: $(ENC_URL)/service_functions/viewercontrol.html#VCTL_SETPOSITION
+#_{viewercontrol}: $(ENC_URL)/service_functions/viewercontrol.html
 #_
 </article>
 </node>
@@ -6192,7 +6192,7 @@ mtime=3643655890
 #_  `Viewer`
 #_
 #_@@@
-#_[Viewer]: http://api.farmanager.com/ru/service_functions/viewer.html
+#_[Viewer]: $(ENC_URL)/service_functions/viewer.html
 #_
 </article>
 </node>
@@ -6243,7 +6243,7 @@ mtime=3552796472
 #_```
 #_
 #_@@@
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6277,8 +6277,8 @@ mtime=3507818385
 #_[OpenFiltersMenu]: 325.html
 #_[StartingToFilter]: 326.html
 #_
-#_{ffctl_createfilefilter}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html#FFCTL_CREATEFILEFILTER
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{ffctl_createfilefilter}: $(ENC_URL)/service_functions/filefiltercontrol.html#FFCTL_CREATEFILEFILTER
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6306,8 +6306,8 @@ mtime=3481258596
 #_  FileFilterControl, FFCTL_FREEFILEFILTER
 #_
 #_@@@
-#_{ffctl_freefilefilter}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html#FFCTL_FREEFILEFILTER
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{ffctl_freefilefilter}: $(ENC_URL)/service_functions/filefiltercontrol.html#FFCTL_FREEFILEFILTER
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6331,8 +6331,8 @@ mtime=3480252058
 #_  FileFilterControl, FFCTL_OPENFILTERSMENU
 #_
 #_@@@
-#_{ffctl_openfiltersmenu}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html#FFCTL_OPENFILTERSMENU
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{ffctl_openfiltersmenu}: $(ENC_URL)/service_functions/filefiltercontrol.html#FFCTL_OPENFILTERSMENU
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6356,8 +6356,8 @@ mtime=3480252113
 #_  FileFilterControl, FFCTL_STARTINGTOFILTER
 #_
 #_@@@
-#_{ffctl_startingtofilter}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html#FFCTL_STARTINGTOFILTER
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{ffctl_startingtofilter}: $(ENC_URL)/service_functions/filefiltercontrol.html#FFCTL_STARTINGTOFILTER
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6384,8 +6384,8 @@ mtime=3602278939
 #_@@@
 #_[tPluginPanelItem]: 85.html
 #_
-#_{ffctl_isfileinfilter}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html#FFCTL_ISFILEINFILTER
-#_{filefiltercontrol}: http://api.farmanager.com/ru/service_functions/filefiltercontrol.html
+#_{ffctl_isfileinfilter}: $(ENC_URL)/service_functions/filefiltercontrol.html#FFCTL_ISFILEINFILTER
+#_{filefiltercontrol}: $(ENC_URL)/service_functions/filefiltercontrol.html
 #_
 </article>
 </node>
@@ -6444,10 +6444,10 @@ mtime=3717057110
 #_[far.MacroDelete]: 447.html
 #_[tInputRecord]: 187.html
 #_
-#_{macroarea_common}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MACROAREA_COMMON
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{macroarea_common}: $(ENC_URL)/service_functions/macrocontrol.html#MACROAREA_COMMON
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
 #_
 </article>
 </node>
@@ -6472,9 +6472,9 @@ mtime=3602278612
 #_  MacroControl(MCTL_SENDSTRING, MSSC_CHECK)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_sendstring}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SENDSTRING
-#_{mssc_check}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MSSC_CHECK
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_sendstring}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SENDSTRING
+#_{mssc_check}: $(ENC_URL)/service_functions/macrocontrol.html#MSSC_CHECK
 #_
 </article>
 </node>
@@ -6500,8 +6500,8 @@ mtime=3612862428
 #_@@@
 #_[far.MacroAdd]: 446.html
 #_
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_delmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_DELMACRO
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_delmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_DELMACRO
 #_
 </article>
 </node>
@@ -6549,8 +6549,8 @@ mtime=3606887981
 #_@@@
 #_[bit64]: 405.html
 #_
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_execstring}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_EXECSTRING
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_execstring}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_EXECSTRING
 #_
 </article>
 </node>
@@ -6574,8 +6574,8 @@ mtime=3523362800
 #_  MacroControl(MCTL_GETAREA)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_getarea}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_GETAREA
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_getarea}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_GETAREA
 #_
 </article>
 </node>
@@ -6603,8 +6603,8 @@ mtime=3535655604
 #_  MacroControl(MCTL_GETLASTERROR)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_getlasterror}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_GETLASTERROR
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_getlasterror}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_GETLASTERROR
 #_
 </article>
 </node>
@@ -6628,8 +6628,8 @@ mtime=3523362887
 #_  MacroControl(MCTL_GETSTATE)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_getstate}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_GETSTATE
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_getstate}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_GETSTATE
 #_
 </article>
 </node>
@@ -6654,8 +6654,8 @@ mtime=3618328565
 #_  MacroControl(MCTL_LOADALL)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>
@@ -6683,9 +6683,9 @@ mtime=3602447685
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_sendstring}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SENDSTRING
-#_{mssc_post}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MSSC_POST
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_sendstring}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SENDSTRING
+#_{mssc_post}: $(ENC_URL)/service_functions/macrocontrol.html#MSSC_POST
 #_
 </article>
 </node>
@@ -6709,8 +6709,8 @@ mtime=3523362847
 #_  MacroControl(MCTL_SAVEALL)
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_saveall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SAVEALL
 #_
 </article>
 </node>
@@ -6745,7 +6745,7 @@ mtime=3536864018
 #_  PluginsControl
 #_
 #_@@@
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6770,7 +6770,7 @@ mtime=3536863890
 #_  PluginsControl
 #_
 #_@@@
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6811,7 +6811,7 @@ mtime=3602278794
 #_@@@
 #_[tPluginMenuItem]: 471.html
 #_
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6835,7 +6835,7 @@ mtime=3560954741
 #_  PluginsControl
 #_
 #_@@@
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6862,9 +6862,9 @@ mtime=3588834989
 #_  PluginsControl: PCTL_FINDPLUGIN, PCTL_GETPLUGININFORMATION
 #_
 #_@@@
-#_{pctl_findplugin}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html#PCTL_FINDPLUGIN
-#_{pctl_getplugininformation}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html#PCTL_GETPLUGININFORMATION
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pctl_findplugin}: $(ENC_URL)/service_functions/pluginscontrol.html#PCTL_FINDPLUGIN
+#_{pctl_getplugininformation}: $(ENC_URL)/service_functions/pluginscontrol.html#PCTL_GETPLUGININFORMATION
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6889,7 +6889,7 @@ mtime=3536863897
 #_  PluginsControl
 #_
 #_@@@
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6913,7 +6913,7 @@ mtime=3536863902
 #_  PluginsControl
 #_
 #_@@@
-#_{pluginscontrol}: http://api.farmanager.com/ru/service_functions/pluginscontrol.html
+#_{pluginscontrol}: $(ENC_URL)/service_functions/pluginscontrol.html
 #_
 </article>
 </node>
@@ -6962,8 +6962,8 @@ mtime=3536037740
 #_  SettingsControl
 #_
 #_@@@
-#_{psl_roaming}: http://api.farmanager.com/ru/service_functions/settingscontrol.html#PSL_ROAMING
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{psl_roaming}: $(ENC_URL)/service_functions/settingscontrol.html#PSL_ROAMING
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -6998,7 +6998,7 @@ mtime=3750618583
 #_[far.CreateSettings]: 416.html
 #_[Free]: 419.html
 #_
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7029,7 +7029,7 @@ mtime=3754138477
 #_  SettingsControl
 #_
 #_@@@
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7057,7 +7057,7 @@ mtime=3754138488
 #_  SettingsControl
 #_
 #_@@@
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7096,7 +7096,7 @@ mtime=3754138496
 #_  SettingsControl
 #_
 #_@@@
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7125,7 +7125,7 @@ mtime=3513280678
 #_  SettingsControl
 #_
 #_@@@
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7154,10 +7154,10 @@ mtime=3754138504
 #_  SettingsControl
 #_
 #_@@@
-#_{fst_data}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_DATA
-#_{fst_qword}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_QWORD
-#_{fst_string}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_STRING
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{fst_data}: $(ENC_URL)/structures/farsettingsname.html#FST_DATA
+#_{fst_qword}: $(ENC_URL)/structures/farsettingsname.html#FST_QWORD
+#_{fst_string}: $(ENC_URL)/structures/farsettingsname.html#FST_STRING
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7185,7 +7185,7 @@ mtime=3754138512
 #_  SettingsControl
 #_
 #_@@@
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7217,10 +7217,10 @@ mtime=3754138519
 #_  SettingsControl
 #_
 #_@@@
-#_{fst_data}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_DATA
-#_{fst_qword}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_QWORD
-#_{fst_string}: http://api.farmanager.com/ru/structures/farsettingsname.html#FST_STRING
-#_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
+#_{fst_data}: $(ENC_URL)/structures/farsettingsname.html#FST_DATA
+#_{fst_qword}: $(ENC_URL)/structures/farsettingsname.html#FST_QWORD
+#_{fst_string}: $(ENC_URL)/structures/farsettingsname.html#FST_STRING
+#_{settingscontrol}: $(ENC_URL)/service_functions/settingscontrol.html
 #_
 </article>
 </node>
@@ -7329,7 +7329,7 @@ mtime=3602447883
 #_  ConvertPath
 #_
 #_@@@
-#_{convertpath}: http://api.farmanager.com/ru/fsf/convertpath.html
+#_{convertpath}: $(ENC_URL)/fsf/convertpath.html
 #_
 </article>
 </node>
@@ -7356,8 +7356,8 @@ mtime=3602447964
 #_  CopyToClipboard
 #_
 #_@@@
-#_{copytoclipboard}: http://api.farmanager.com/ru/fsf/copytoclipboard.html
-#_{fct_stream}: http://api.farmanager.com/ru/fsf/pastefromclipboard.html#FCT_STREAM
+#_{copytoclipboard}: $(ENC_URL)/fsf/copytoclipboard.html
+#_{fct_stream}: $(ENC_URL)/fsf/pastefromclipboard.html#FCT_STREAM
 #_
 </article>
 </node>
@@ -7381,7 +7381,7 @@ mtime=3919797819
 #_  DetectCodePage
 #_
 #_@@@
-#_{detectcodepage}: http://api.farmanager.com/ru/fsf/detectcodepage.html
+#_{detectcodepage}: $(ENC_URL)/fsf/detectcodepage.html
 #_
 </article>
 </node>
@@ -7405,7 +7405,7 @@ mtime=3735474225
 #_  FarClock
 #_
 #_@@@
-#_{farclock}: http://api.farmanager.com/ru/fsf/farclock.html
+#_{farclock}: $(ENC_URL)/fsf/farclock.html
 #_
 </article>
 </node>
@@ -7432,8 +7432,8 @@ mtime=3602447969
 #_  FormatFileSize
 #_
 #_@@@
-#_{fffs_minsizeindex}: http://api.farmanager.com/ru/fsf/formatfilesize.html#FFFS_MINSIZEINDEX
-#_{formatfilesize}: http://api.farmanager.com/ru/fsf/formatfilesize.html
+#_{fffs_minsizeindex}: $(ENC_URL)/fsf/formatfilesize.html#FFFS_MINSIZEINDEX
+#_{formatfilesize}: $(ENC_URL)/fsf/formatfilesize.html
 #_
 </article>
 </node>
@@ -7481,7 +7481,7 @@ mtime=3602447974
 #_  GetCurrentDirectory
 #_
 #_@@@
-#_{getcurrentdirectory}: http://api.farmanager.com/ru/fsf/getcurrentdirectory.html
+#_{getcurrentdirectory}: $(ENC_URL)/fsf/getcurrentdirectory.html
 #_
 </article>
 </node>
@@ -7505,7 +7505,7 @@ mtime=3602447980
 #_  GetFileOwner
 #_
 #_@@@
-#_{getfileowner}: http://api.farmanager.com/ru/fsf/getfileowner.html
+#_{getfileowner}: $(ENC_URL)/fsf/getfileowner.html
 #_
 </article>
 </node>
@@ -7528,7 +7528,7 @@ mtime=3602447986
 #_  GetNumberOfLinks
 #_
 #_@@@
-#_{getnumberoflinks}: http://api.farmanager.com/ru/fsf/getnumberoflinks.html
+#_{getnumberoflinks}: $(ENC_URL)/fsf/getnumberoflinks.html
 #_
 </article>
 </node>
@@ -7551,7 +7551,7 @@ mtime=3602447990
 #_  GetPathRoot
 #_
 #_@@@
-#_{getpathroot}: http://api.farmanager.com/ru/fsf/getpathroot.html
+#_{getpathroot}: $(ENC_URL)/fsf/getpathroot.html
 #_
 </article>
 </node>
@@ -7574,7 +7574,7 @@ mtime=3602447995
 #_  GetReparsePointInfo
 #_
 #_@@@
-#_{getreparsepointinfo}: http://api.farmanager.com/ru/fsf/getreparsepointinfo.html
+#_{getreparsepointinfo}: $(ENC_URL)/fsf/getreparsepointinfo.html
 #_
 </article>
 </node>
@@ -7611,7 +7611,7 @@ mtime=3633525408
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{farinputrecordtoname}: http://api.farmanager.com/ru/fsf/farinputrecordtoname.html
+#_{farinputrecordtoname}: $(ENC_URL)/fsf/farinputrecordtoname.html
 #_
 </article>
 </node>
@@ -7634,7 +7634,7 @@ mtime=3602448007
 #_  LIsAlpha
 #_
 #_@@@
-#_{lisalpha}: http://api.farmanager.com/ru/fsf/lisalpha.html
+#_{lisalpha}: $(ENC_URL)/fsf/lisalpha.html
 #_
 </article>
 </node>
@@ -7657,7 +7657,7 @@ mtime=3602448012
 #_  LIsAlphanum
 #_
 #_@@@
-#_{lisalphanum}: http://api.farmanager.com/ru/fsf/lisalphanum.html
+#_{lisalphanum}: $(ENC_URL)/fsf/lisalphanum.html
 #_
 </article>
 </node>
@@ -7680,7 +7680,7 @@ mtime=3602448015
 #_  LIsLower
 #_
 #_@@@
-#_{lislower}: http://api.farmanager.com/ru/fsf/lislower.html
+#_{lislower}: $(ENC_URL)/fsf/lislower.html
 #_
 </article>
 </node>
@@ -7703,7 +7703,7 @@ mtime=3602448019
 #_  LIsUpper
 #_
 #_@@@
-#_{lisupper}: http://api.farmanager.com/ru/fsf/lisupper.html
+#_{lisupper}: $(ENC_URL)/fsf/lisupper.html
 #_
 </article>
 </node>
@@ -7726,7 +7726,7 @@ mtime=3602448024
 #_  LLowerBuf
 #_
 #_@@@
-#_{llowerbuf}: http://api.farmanager.com/ru/fsf/llowerbuf.html
+#_{llowerbuf}: $(ENC_URL)/fsf/llowerbuf.html
 #_
 </article>
 </node>
@@ -7750,7 +7750,7 @@ mtime=3602448028
 #_  LStricmp
 #_
 #_@@@
-#_{lstricmp}: http://api.farmanager.com/ru/fsf/lstricmp.html
+#_{lstricmp}: $(ENC_URL)/fsf/lstricmp.html
 #_
 </article>
 </node>
@@ -7775,7 +7775,7 @@ mtime=3602448032
 #_  LStrnicmp
 #_
 #_@@@
-#_{lstrnicmp}: http://api.farmanager.com/ru/fsf/lstrnicmp.html
+#_{lstrnicmp}: $(ENC_URL)/fsf/lstrnicmp.html
 #_
 </article>
 </node>
@@ -7798,7 +7798,7 @@ mtime=3602448036
 #_  LUpperBuf
 #_
 #_@@@
-#_{lupperbuf}: http://api.farmanager.com/ru/fsf/lupperbuf.html
+#_{lupperbuf}: $(ENC_URL)/fsf/lupperbuf.html
 #_
 </article>
 </node>
@@ -7824,7 +7824,7 @@ mtime=3602448040
 #_  MkLink
 #_
 #_@@@
-#_{mklink}: http://api.farmanager.com/ru/fsf/mklink.html
+#_{mklink}: $(ENC_URL)/fsf/mklink.html
 #_
 </article>
 </node>
@@ -7847,7 +7847,7 @@ mtime=3602448044
 #_  MkTemp
 #_
 #_@@@
-#_{mktemp}: http://api.farmanager.com/ru/fsf/mktemp.html
+#_{mktemp}: $(ENC_URL)/fsf/mktemp.html
 #_
 </article>
 </node>
@@ -7874,7 +7874,7 @@ mtime=3602448047
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{farnametoinputrecord}: http://api.farmanager.com/ru/fsf/farnametoinputrecord.html
+#_{farnametoinputrecord}: $(ENC_URL)/fsf/farnametoinputrecord.html
 #_
 </article>
 </node>
@@ -7897,8 +7897,8 @@ mtime=3602448051
 #_  PasteFromClipboard
 #_
 #_@@@
-#_{fct_any}: http://api.farmanager.com/ru/fsf/pastefromclipboard.html#FCT_ANY
-#_{pastefromclipboard}: http://api.farmanager.com/ru/fsf/pastefromclipboard.html
+#_{fct_any}: $(ENC_URL)/fsf/pastefromclipboard.html#FCT_ANY
+#_{pastefromclipboard}: $(ENC_URL)/fsf/pastefromclipboard.html
 #_
 </article>
 </node>
@@ -7926,13 +7926,13 @@ mtime=3602448056
 #_  ProcessName
 #_
 #_@@@
-#_{pn_checkmask}: http://api.farmanager.com/ru/fsf/processname.html#PN_CHECKMASK
-#_{pn_cmpnamelist}: http://api.farmanager.com/ru/fsf/processname.html#PN_CMPNAMELIST
-#_{pn_cmpname}: http://api.farmanager.com/ru/fsf/processname.html#PN_CMPNAME
-#_{pn_generatename}: http://api.farmanager.com/ru/fsf/processname.html#PN_GENERATENAME
-#_{pn_showerrormessage}: http://api.farmanager.com/ru/fsf/processname.html#PN_SHOWERRORMESSAGE
-#_{pn_skippath}: http://api.farmanager.com/ru/fsf/processname.html#PN_SKIPPATH
-#_{processname}: http://api.farmanager.com/ru/fsf/processname.html
+#_{pn_checkmask}: $(ENC_URL)/fsf/processname.html#PN_CHECKMASK
+#_{pn_cmpnamelist}: $(ENC_URL)/fsf/processname.html#PN_CMPNAMELIST
+#_{pn_cmpname}: $(ENC_URL)/fsf/processname.html#PN_CMPNAME
+#_{pn_generatename}: $(ENC_URL)/fsf/processname.html#PN_GENERATENAME
+#_{pn_showerrormessage}: $(ENC_URL)/fsf/processname.html#PN_SHOWERRORMESSAGE
+#_{pn_skippath}: $(ENC_URL)/fsf/processname.html#PN_SKIPPATH
+#_{processname}: $(ENC_URL)/fsf/processname.html
 #_
 </article>
 </node>
@@ -7980,7 +7980,7 @@ mtime=3783699265
 #_[tPluginPanelItem]: 85.html
 #_[this]: 85.html
 #_
-#_{farrecursivesearch}: http://api.farmanager.com/ru/fsf/farrecursivesearch.html
+#_{farrecursivesearch}: $(ENC_URL)/fsf/farrecursivesearch.html
 #_
 </article>
 </node>
@@ -8004,7 +8004,7 @@ mtime=3602448065
 #_  TruncPathStr
 #_
 #_@@@
-#_{truncpathstr}: http://api.farmanager.com/ru/fsf/truncpathstr.html
+#_{truncpathstr}: $(ENC_URL)/fsf/truncpathstr.html
 #_
 </article>
 </node>
@@ -8028,7 +8028,7 @@ mtime=3602448069
 #_  TruncStr
 #_
 #_@@@
-#_{truncstr}: http://api.farmanager.com/ru/fsf/truncstr.html
+#_{truncstr}: $(ENC_URL)/fsf/truncstr.html
 #_
 </article>
 </node>
@@ -8055,7 +8055,7 @@ mtime=3608020836
 #_  XLat
 #_
 #_@@@
-#_{xlat}: http://api.farmanager.com/ru/fsf/xlat.html
+#_{xlat}: $(ENC_URL)/fsf/xlat.html
 #_
 </article>
 </node>
@@ -8104,7 +8104,7 @@ mtime=3954048728
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 </article>
 </node>
 <node>
@@ -8141,7 +8141,7 @@ mtime=3532684645
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8178,7 +8178,7 @@ mtime=3532684657
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8218,7 +8218,7 @@ mtime=3549007487
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8254,7 +8254,7 @@ mtime=3532684676
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8293,7 +8293,7 @@ mtime=3954048770
 #_  `RegExpControl`
 #_
 #_@@@
-#_[RegExpControl]: https://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_[RegExpControl]: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8333,7 +8333,7 @@ mtime=3532684281
 #_[find]: 267.html
 #_[match]: 268.html
 #_
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8357,7 +8357,7 @@ mtime=3489990041
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8396,7 +8396,7 @@ mtime=3954048826
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 </article>
 </node>
 <node>
@@ -8426,7 +8426,7 @@ mtime=3524034062
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8457,7 +8457,7 @@ mtime=3911503828
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8489,7 +8489,7 @@ mtime=3524034123
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8518,7 +8518,7 @@ mtime=3524034111
 #_  RegExpControl
 #_
 #_@@@
-#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_{regexpcontrol}: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8555,7 +8555,7 @@ mtime=3954048850
 #_  `RegExpControl`
 #_
 #_@@@
-#_[RegExpControl]: https://api.farmanager.com/ru/service_functions/regexpcontrol.html
+#_[RegExpControl]: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 </article>
 </node>
@@ -8717,7 +8717,7 @@ mtime=3526661259
 #_  than the plugin DLL.
 #_
 #_@@@
-#_{pluginstartupinfo}: http://api.farmanager.com/ru/structures/pluginstartupinfo.html
+#_{pluginstartupinfo}: $(ENC_URL)/structures/pluginstartupinfo.html
 #_
 </article>
 </node>
@@ -8860,8 +8860,8 @@ mtime=3602448401
 #_  its function *SetStartupInfoW*.
 #_
 #_@@@
-#_{pluginstartupinfo}: http://api.farmanager.com/ru/structures/pluginstartupinfo.html
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{pluginstartupinfo}: $(ENC_URL)/structures/pluginstartupinfo.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>
@@ -8980,9 +8980,9 @@ mtime=3756386205
 #_@@@
 #_[export.ProcessSynchroEvent]: 319.html
 #_
-#_{actl_synchro}: http://api.farmanager.com/ru/service_functions/advcontrol.html#ACTL_SYNCHRO
-#_{advcontrol}: http://api.farmanager.com/ru/service_functions/advcontrol.html
-#_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html
+#_{actl_synchro}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_SYNCHRO
+#_{advcontrol}: $(ENC_URL)/service_functions/advcontrol.html
+#_{processsynchroeventw}: $(ENC_URL)/exported_functions/processsynchroeventw.html
 #_
 </article>
 </node>
@@ -10966,8 +10966,8 @@ nm=win.ExtractKey
 #_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
 #_
 #_@@@
-#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
-#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
+#_{peekconsoleinput}: $(ENC_URL)/winapi/peekconsoleinput.html
+#_{readconsoleinput}: $(ENC_URL)/winapi/readconsoleinput.html
 #_
 </article>
 </node>
@@ -10997,8 +10997,8 @@ mtime=3735031137
 #_@@@
 #_[tInputRecord]: 187.html
 #_
-#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
-#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
+#_{peekconsoleinput}: $(ENC_URL)/winapi/peekconsoleinput.html
+#_{readconsoleinput}: $(ENC_URL)/winapi/readconsoleinput.html
 #_
 </article>
 </node>
@@ -11827,8 +11827,8 @@ mtime=3509019336
 #_      export.Open (aFrom, aGuid, aItem)
 #_
 #_@@@
-#_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
-#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_{openinfo}: $(ENC_URL)/structures/openinfo.html
+#_{openw}: $(ENC_URL)/exported_functions/openw.html
 #_
 </article>
 </node>
@@ -11855,7 +11855,7 @@ mtime=3601970445
 #_If Lua function [`export.Analyse`](425.html) exists, it is called.
 #_
 #_@@@
-#_{analyseinfo}: http://api.farmanager.com/ru/structures/analyseinfo.html
+#_{analyseinfo}: $(ENC_URL)/structures/analyseinfo.html
 #_
 </article>
 </node>
@@ -11881,7 +11881,7 @@ mtime=3601970134
 #_This function removes the value returned by [`export.Analyse`](425.html) from the Lua registry.
 #_
 #_@@@
-#_{closeanalyseinfo}: http://api.farmanager.com/ru/structures/closeanalyseinfo.html
+#_{closeanalyseinfo}: $(ENC_URL)/structures/closeanalyseinfo.html
 #_
 </article>
 </node>
@@ -11908,7 +11908,7 @@ mtime=3602449494
 #_Then, the resources associated with the plugin are freed.
 #_
 #_@@@
-#_{closepanelinfo}: http://api.farmanager.com/ru/structures/closepanelinfo.html
+#_{closepanelinfo}: $(ENC_URL)/structures/closepanelinfo.html
 #_
 </article>
 </node>
@@ -11936,7 +11936,7 @@ mtime=3601970171
 #_function).
 #_
 #_@@@
-#_{compareinfo}: http://api.farmanager.com/ru/structures/compareinfo.html
+#_{compareinfo}: $(ENC_URL)/structures/compareinfo.html
 #_
 </article>
 </node>
@@ -11963,7 +11963,7 @@ mtime=3602449552
 #_else `FALSE` is returned.
 #_
 #_@@@
-#_{configureinfo}: http://api.farmanager.com/ru/structures/configureinfo.html
+#_{configureinfo}: $(ENC_URL)/structures/configureinfo.html
 #_
 </article>
 </node>
@@ -11990,7 +11990,7 @@ mtime=3601970180
 #_else `FALSE` is returned.
 #_
 #_@@@
-#_{deletefilesinfo}: http://api.farmanager.com/ru/structures/deletefilesinfo.html
+#_{deletefilesinfo}: $(ENC_URL)/structures/deletefilesinfo.html
 #_
 </article>
 </node>
@@ -12017,7 +12017,7 @@ mtime=3601970185
 #_passed to [`far.DialogInit`](378.html) was a function.
 #_
 #_@@@
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
+#_{dlgproc}: $(ENC_URL)/defs/dlgproc.html
 #_
 </article>
 </node>
@@ -12043,7 +12043,7 @@ mtime=3602449616
 #_First, the acquired resources are freed. Then, if Lua function [`export.ExitFAR`](98.html) exists, it is called.
 #_
 #_@@@
-#_{exitinfo}: http://api.farmanager.com/ru/structures/exitinfo.html
+#_{exitinfo}: $(ENC_URL)/structures/exitinfo.html
 #_
 </article>
 </node>
@@ -12094,7 +12094,7 @@ mtime=3601970198
 #_No Lua function is called. LuaFAR frees the "find data" internally.
 #_
 #_@@@
-#_{freefinddatainfo}: http://api.farmanager.com/ru/structures/freefinddatainfo.html
+#_{freefinddatainfo}: $(ENC_URL)/structures/freefinddatainfo.html
 #_
 </article>
 </node>
@@ -12146,7 +12146,7 @@ mtime=3601970206
 #_else `0` is returned.
 #_
 #_@@@
-#_{getfilesinfo}: http://api.farmanager.com/ru/structures/getfilesinfo.html
+#_{getfilesinfo}: $(ENC_URL)/structures/getfilesinfo.html
 #_
 </article>
 </node>
@@ -12172,7 +12172,7 @@ mtime=3601970212
 #_it is called, else `FALSE` is returned.
 #_
 #_@@@
-#_{getfinddatainfo}: http://api.farmanager.com/ru/structures/getfinddatainfo.html
+#_{getfinddatainfo}: $(ENC_URL)/structures/getfinddatainfo.html
 #_
 </article>
 </node>
@@ -12204,7 +12204,7 @@ mtime=3601970216
 #_Then, if Lua function [`export.GetGlobalInfo`](402.html) exists, it is called.
 #_
 #_@@@
-#_{globalinfo}: http://api.farmanager.com/ru/structures/globalinfo.html
+#_{globalinfo}: $(ENC_URL)/structures/globalinfo.html
 #_
 </article>
 </node>
@@ -12229,7 +12229,7 @@ mtime=3601970220
 #_If Lua function [`export.GetOpenPanelInfo`](104.html) exists, it is called.
 #_
 #_@@@
-#_{openpanelinfo}: http://api.farmanager.com/ru/structures/openpanelinfo.html
+#_{openpanelinfo}: $(ENC_URL)/structures/openpanelinfo.html
 #_
 </article>
 </node>
@@ -12255,7 +12255,7 @@ mtime=3601970224
 #_If Lua function [`export.GetPluginInfo`](105.html) exists, it is called.
 #_
 #_@@@
-#_{plugininfo}: http://api.farmanager.com/ru/structures/plugininfo.html
+#_{plugininfo}: $(ENC_URL)/structures/plugininfo.html
 #_
 </article>
 </node>
@@ -12281,7 +12281,7 @@ mtime=3601970227
 #_If Lua function [`export.MakeDirectory`](107.html) exists, it is called.
 #_
 #_@@@
-#_{makedirectoryinfo}: http://api.farmanager.com/ru/structures/makedirectoryinfo.html
+#_{makedirectoryinfo}: $(ENC_URL)/structures/makedirectoryinfo.html
 #_
 </article>
 </node>
@@ -12306,7 +12306,7 @@ mtime=3737613834
 #_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `NULL` is returned to FAR.
 #_
 #_@@@
-#_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
+#_{openinfo}: $(ENC_URL)/structures/openinfo.html
 #_
 </article>
 </node>
@@ -12333,7 +12333,7 @@ mtime=3601970233
 #_Else, `0` is returned.
 #_
 #_@@@
-#_{processconsoleinputinfo}: http://api.farmanager.com/ru/structures/processconsoleinputinfo.html
+#_{processconsoleinputinfo}: $(ENC_URL)/structures/processconsoleinputinfo.html
 #_
 </article>
 </node>
@@ -12359,7 +12359,7 @@ mtime=3601970236
 #_If Lua function [`export.ProcessDialogEvent`](221.html) exists, it is called. Else, `0` is returned.
 #_
 #_@@@
-#_{processdialogeventinfo}: http://api.farmanager.com/ru/structures/processdialogeventinfo.html
+#_{processdialogeventinfo}: $(ENC_URL)/structures/processdialogeventinfo.html
 #_
 </article>
 </node>
@@ -12385,7 +12385,7 @@ mtime=3601970239
 #_If Lua function [`export.ProcessEditorEvent`](110.html) exists, it is called. Else, `0` is returned.
 #_
 #_@@@
-#_{processeditoreventinfo}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html
+#_{processeditoreventinfo}: $(ENC_URL)/structures/processeditoreventinfo.html
 #_
 </article>
 </node>
@@ -12410,7 +12410,7 @@ mtime=3601970243
 #_If Lua function [`export.ProcessEditorInput`](111.html) exists, it is called. Else, `0` is returned.
 #_
 #_@@@
-#_{processeditorinputinfo}: http://api.farmanager.com/ru/structures/processeditorinputinfo.html
+#_{processeditorinputinfo}: $(ENC_URL)/structures/processeditorinputinfo.html
 #_
 </article>
 </node>
@@ -12436,7 +12436,7 @@ mtime=3602449785
 #_Else, `0` is returned.
 #_
 #_@@@
-#_{processpaneleventinfo}: http://api.farmanager.com/ru/structures/processpaneleventinfo.html
+#_{processpaneleventinfo}: $(ENC_URL)/structures/processpaneleventinfo.html
 #_
 </article>
 </node>
@@ -12462,7 +12462,7 @@ mtime=3601970248
 #_it is called. Else, `FALSE` is returned.
 #_
 #_@@@
-#_{processhostfileinfo}: http://api.farmanager.com/ru/structures/processhostfileinfo.html
+#_{processhostfileinfo}: $(ENC_URL)/structures/processhostfileinfo.html
 #_
 </article>
 </node>
@@ -12488,7 +12488,7 @@ mtime=3601970250
 #_Else, `FALSE` is returned.
 #_
 #_@@@
-#_{processpanelinputinfo}: http://api.farmanager.com/ru/structures/processpanelinputinfo.html
+#_{processpanelinputinfo}: $(ENC_URL)/structures/processpanelinputinfo.html
 #_
 </article>
 </node>
@@ -12515,7 +12515,7 @@ mtime=3601970253
 #_If Lua function [`export.ProcessSynchroEvent`](319.html) exists, it is called. Else, `0` is returned.
 #_
 #_@@@
-#_{processsynchroeventinfo}: http://api.farmanager.com/ru/structures/processsynchroeventinfo.html
+#_{processsynchroeventinfo}: $(ENC_URL)/structures/processsynchroeventinfo.html
 #_
 </article>
 </node>
@@ -12541,7 +12541,7 @@ mtime=3601970255
 #_If Lua function [`export.ProcessViewerEvent`](127.html) exists, it is called. Else, `0` is returned.
 #_
 #_@@@
-#_{processviewereventinfo}: http://api.farmanager.com/ru/structures/processviewereventinfo.html
+#_{processviewereventinfo}: $(ENC_URL)/structures/processviewereventinfo.html
 #_
 </article>
 </node>
@@ -12567,7 +12567,7 @@ mtime=3601970258
 #_Else, `0` is returned.
 #_
 #_@@@
-#_{putfilesinfo}: http://api.farmanager.com/ru/structures/putfilesinfo.html
+#_{putfilesinfo}: $(ENC_URL)/structures/putfilesinfo.html
 #_
 </article>
 </node>
@@ -12593,7 +12593,7 @@ mtime=3601970261
 #_Else, `0` is returned.
 #_
 #_@@@
-#_{setdirectoryinfo}: http://api.farmanager.com/ru/structures/setdirectoryinfo.html
+#_{setdirectoryinfo}: $(ENC_URL)/structures/setdirectoryinfo.html
 #_
 </article>
 </node>
@@ -12620,7 +12620,7 @@ mtime=3601970263
 #_Else, `FALSE` is returned.
 #_
 #_@@@
-#_{setfindlistinfo}: http://api.farmanager.com/ru/structures/setfindlistinfo.html
+#_{setfindlistinfo}: $(ENC_URL)/structures/setfindlistinfo.html
 #_
 </article>
 </node>
@@ -12748,11 +12748,11 @@ mtime=3602450753
 #_This is an alternative interface to the FAR function `Message`.
 #_
 #_@@@
-#_{fmsg_errortype}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_ERRORTYPE
-#_{fmsg_keepbackground}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_KEEPBACKGROUND
-#_{fmsg_leftalign}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_LEFTALIGN
-#_{fmsg_warning}: http://api.farmanager.com/ru/service_functions/message.html#FMSG_WARNING
-#_{pluginstartupinfo}: http://api.farmanager.com/ru/structures/pluginstartupinfo.html
+#_{fmsg_errortype}: $(ENC_URL)/service_functions/message.html#FMSG_ERRORTYPE
+#_{fmsg_keepbackground}: $(ENC_URL)/service_functions/message.html#FMSG_KEEPBACKGROUND
+#_{fmsg_leftalign}: $(ENC_URL)/service_functions/message.html#FMSG_LEFTALIGN
+#_{fmsg_warning}: $(ENC_URL)/service_functions/message.html#FMSG_WARNING
+#_{pluginstartupinfo}: $(ENC_URL)/structures/pluginstartupinfo.html
 #_
 </article>
 </node>
@@ -12780,7 +12780,7 @@ mtime=3601970278
 #_[`unicode`](250.html) libraries and calls `OpenLibs` function.
 #_
 #_@@@
-#_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
+#_{getglobalinfow}: $(ENC_URL)/exported_functions/getglobalinfow.html
 #_
 </article>
 </node>
@@ -12805,7 +12805,7 @@ mtime=3601970281
 #_This function is called by the plugin during **`SetStartupInfoW`** call. It stores pointer to the plugin's data within the Lua state, making them available to all LuaFAR functions. Then it loads [`far`](131.html) library.
 #_
 #_@@@
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>
@@ -12829,7 +12829,7 @@ mtime=3639762183
 #_It should be called **before** the first run of the plugin's default script.
 #_
 #_@@@
-#_{setstartupinfow}: http://api.farmanager.com/ru/exported_functions/setstartupinfow.html
+#_{setstartupinfow}: $(ENC_URL)/exported_functions/setstartupinfow.html
 #_
 </article>
 </node>

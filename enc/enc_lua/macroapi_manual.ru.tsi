@@ -38,7 +38,7 @@ mtime=3661282519
 #_[3]: 42.html
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
 #_
 </article>
 </node>
@@ -174,16 +174,16 @@ mtime=3915184059
 #_1. Допустимо более одного макроса на сочетание (`key`,`area`). В этом случае выполняется макрос с наибольшим приоритетом. Если есть более одного макроса с одинаковым наибольшим приоритетом - выводится меню выбора макроса.<br>
 #_   Автостартующие макросы выполняются все, независимо от приоритета. Очерёдность их исполнения не определена.
 #_
-#_[flags]: http://api.farmanager.com/ru/macro/techinfo.html#register
+#_[flags]: $(ENC_URL)/macro/techinfo.html#register
 #_[api changes]: 38.html
 #_
 #_@@@
-#_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
-#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
-#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
-#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
-#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_{far.height}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Height
+#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
+#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
+#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
 #_
 </article>
 </node>
@@ -225,8 +225,8 @@ mtime=3607111008
 #_  при временном создании клавиатурных макросов (типичный сценарий их использования).
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_saveall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SAVEALL
 #_
 #_
 </article>
@@ -606,7 +606,7 @@ mtime=3617996565
 #_При выходе из Far Manager плагин LuaMacro выгружается последним, чтобы могли быть обработаны запросы `MCTL_XXX` из функций `ExitFARW` других плагинов.
 #_
 #_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
+#_{exitfarw}: $(ENC_URL)/exported_functions/exitfarw.html
 #_
 </article>
 </node>
@@ -662,9 +662,9 @@ mtime=3925879937
 #_[2]: 96.html
 #_
 #_@@@
-#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
-#_{farmacroload}: http://api.farmanager.com/ru/structures/farmacroload.html
+#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{farmacroload}: $(ENC_URL)/structures/farmacroload.html
 #_
 </article>
 </node>
@@ -717,7 +717,7 @@ mtime=3717182379
 #_В идеале, API должен совпадать с оригинальным API макроязыка, за исключением случаев, перечисленных в статье [Изменения API в сравнении с макроязыком][APIchanges].
 #_
 #_[APIchanges]: 38.html
-#_[макроязык]: http://api.farmanager.com/ru/macro/macrocmd/index.html
+#_[макроязык]: $(ENC_URL)/macro/macrocmd/index.html
 #_
 #_**См. также:**<br>
 #_[Ограничения в использовании некоторых функций](62.html)
@@ -794,43 +794,43 @@ mtime=3720944750
 #_[SyncCall]: 83.html
 #_[Call]: 65.html
 #_
-#_[$akey]: http://api.farmanager.com/ru/macro/macrocmd/akey.html
-#_[$exit]: http://api.farmanager.com/ru/macro/macrocmd/exit.html
-#_[$selword]: http://api.farmanager.com/ru/macro/macrocmd/selword.html
-#_[$xlat]: http://api.farmanager.com/ru/macro/macrocmd/xlat.html
+#_[$akey]: $(ENC_URL)/macro/macrocmd/akey.html
+#_[$exit]: $(ENC_URL)/macro/macrocmd/exit.html
+#_[$selword]: $(ENC_URL)/macro/macrocmd/selword.html
+#_[$xlat]: $(ENC_URL)/macro/macrocmd/xlat.html
 #_
 #_@@@
-#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
-#_{dlg.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
-#_{far.cfg.err}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
-#_{far.cfg.get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#far.cfg.get
-#_{far.window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
-#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
-#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
-#_{history.disable}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
-#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
-#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
-#_{keybar.show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
-#_{macro.area}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Macro.Area
-#_{macro.const}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.const
-#_{macro.func}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.func
-#_{macro.keyword}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.keyword
-#_{macro.var}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.var
-#_{menu.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
-#_{mf.beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
-#_{mf.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
-#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
-#_{msbutton}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
-#_{msctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
-#_{mseventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
-#_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
-#_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
-#_{panel.setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
-#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
-#_{plugin.exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.exist
-#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
-#_{rcounter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#RCounter
-#_{window.scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
+#_{checkhotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{dlg.info.id}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_{far.cfg.err}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
+#_{far.cfg.get}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#far.cfg.get
+#_{far.window_scroll}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Window.Scroll
+#_{fullscreen}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{gethotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{history.disable}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#history.disable
+#_{isuseradmin}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar.show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#keybar.show
+#_{macro.area}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Macro.Area
+#_{macro.const}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#macro.const
+#_{macro.func}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#macro.func
+#_{macro.keyword}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#macro.keyword
+#_{macro.var}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#macro.var
+#_{menu.info.id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{mf.beep}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#beep
+#_{mf.fexist}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#fexist
+#_{mmode}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mmode
+#_{msbutton}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsButton
+#_{msctrlstate}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{mseventflags}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{msx}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsX
+#_{msy}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsY
+#_{panel.setpath}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpath
+#_{plugin.call}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.call
+#_{plugin.exist}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.exist
+#_{prompt}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#prompt
+#_{rcounter}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#RCounter
+#_{window.scroll}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
 </article>
 </node>
@@ -872,12 +872,12 @@ mtime=3659608671
 #_[mf]: 44.html
 #_[Keys]: 4.html
 #_
-#_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
-#_{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
-#_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
-#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
-#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
-#_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
+#_{akey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#akey
+#_{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
+#_{mmode}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mmode
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#prompt
 #_
 </article>
 </node>
@@ -1041,48 +1041,48 @@ mtime=3923469735
 #_[serialize]: 105.html
 #_[EnumScripts]: 106.html
 #_
-#_{abs}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
-#_{akey}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
-#_{asc}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#asc
-#_{atoi}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#atoi
-#_{beep}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
-#_{chr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#chr
-#_{clip}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#clip
-#_{date}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#date
-#_{env}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#env
-#_{fattr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fattr
-#_{fexist}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
-#_{float}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#float
-#_{flock}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#flock
-#_{fmatch}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fmatch
-#_{fsplit}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fsplit
-#_{iif}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#iif
-#_{index}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#index
-#_{int}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#int
-#_{itoa}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#itoa
-#_{key}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#key
-#_{lcase}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#lcase
-#_{len}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#len
-#_{max}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#max
-#_{min}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#min
-#_{mmode}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
-#_{mod}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mod
-#_{msgbox}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
-#_{print}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
-#_{prompt}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
-#_{replace}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#replace
-#_{rindex}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#rindex
-#_{size2str}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#size2str
-#_{sleep}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#sleep
-#_{string}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#string
-#_{strpad}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strpad
-#_{strwrap}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#strwrap
-#_{substr}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#substr
-#_{testfolder}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#testfolder
-#_{trim}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#trim
-#_{ucase}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#ucase
-#_{waitkey}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#waitkey
-#_{xlat}: https://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#xlat
+#_{abs}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#abs
+#_{akey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#akey
+#_{asc}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#asc
+#_{atoi}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#atoi
+#_{beep}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#beep
+#_{chr}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#chr
+#_{clip}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#clip
+#_{date}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#date
+#_{env}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#env
+#_{fattr}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#fattr
+#_{fexist}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#fexist
+#_{float}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#float
+#_{flock}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#flock
+#_{fmatch}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#fmatch
+#_{fsplit}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#fsplit
+#_{iif}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#iif
+#_{index}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#index
+#_{int}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#int
+#_{itoa}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#itoa
+#_{key}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#key
+#_{lcase}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#lcase
+#_{len}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#len
+#_{max}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#max
+#_{min}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#min
+#_{mmode}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mmode
+#_{mod}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mod
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#prompt
+#_{replace}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#replace
+#_{rindex}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#rindex
+#_{size2str}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#size2str
+#_{sleep}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#sleep
+#_{string}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#string
+#_{strpad}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#strpad
+#_{strwrap}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#strwrap
+#_{substr}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#substr
+#_{testfolder}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#testfolder
+#_{trim}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#trim
+#_{ucase}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#ucase
+#_{waitkey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#waitkey
+#_{xlat}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#xlat
 #_
 </article>
 </node>
@@ -1283,10 +1283,10 @@ mtime=3633295284
 #_* `-3` : если было выведено меню выбора макроса, и пользователь его отменил.
 #_* `-4` : если "запускаемый" макрос был прерван в результате ошибки времени исполнения.
 #_
-#_[1]: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_[1]: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
 #_
 #_@@@
-#_--{eval}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#eval
+#_--{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
 #_
 </article>
 </node>
@@ -1602,21 +1602,21 @@ mtime=3607091200
 #_  Нет.
 #_
 #_@@@
-#_{dialog}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Dialog
-#_{disks}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Disks
-#_{editor}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Editor
-#_{findfolder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#FindFolder
-#_{help}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Help
-#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
-#_{mainmenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MainMenu
-#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu
-#_{other}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Other
-#_{qview}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#QView
-#_{search}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Search
-#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
-#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
-#_{usermenu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#UserMenu
-#_{viewer}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Viewer
+#_{dialog}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Dialog
+#_{disks}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Disks
+#_{editor}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Editor
+#_{findfolder}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#FindFolder
+#_{help}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Help
+#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
+#_{mainmenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MainMenu
+#_{menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu
+#_{other}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Other
+#_{qview}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#QView
+#_{search}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Search
+#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
+#_{usermenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#UserMenu
+#_{viewer}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Viewer
 #_
 </article>
 </node>
@@ -1666,34 +1666,34 @@ mtime=3607094310
 #_  Нет.
 #_
 #_@@@
-#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Bof
-#_{columncount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ColumnCount
-#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.CurPos
-#_{current}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Current
-#_{drivetype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.DriveType
-#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Empty
-#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Eof
-#_{filepanel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.FilePanel
-#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Filter
-#_{folder}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Folder
-#_{format}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Format
-#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Height
-#_{hostfile}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.HostFile
-#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
-#_{left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
-#_{lfn}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.LFN
-#_{opiflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.OPIFlags
-#_{path}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path
-#_{path0}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Path0
-#_{plugin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Plugin
-#_{prefix}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Prefix
-#_{root}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Root
-#_{selcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.SelCount
-#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Selected
-#_{type}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Type
-#_{uncpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.UNCPath
-#_{visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Visible
-#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Width
+#_{bof}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Bof
+#_{columncount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.ColumnCount
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.CurPos
+#_{current}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Current
+#_{drivetype}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.DriveType
+#_{empty}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Empty
+#_{eof}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Eof
+#_{filepanel}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.FilePanel
+#_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Filter
+#_{folder}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Folder
+#_{format}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Format
+#_{height}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Height
+#_{hostfile}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.HostFile
+#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{left}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{lfn}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.LFN
+#_{opiflags}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.OPIFlags
+#_{path}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Path
+#_{path0}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Path0
+#_{plugin}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Plugin
+#_{prefix}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Prefix
+#_{root}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Root
+#_{selcount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.SelCount
+#_{selected}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Selected
+#_{type}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Type
+#_{uncpath}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.UNCPath
+#_{visible}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Visible
+#_{width}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Width
 #_
 </article>
 </node>
@@ -1733,13 +1733,13 @@ mtime=3607096939
 #_[SetCustomSortMode]: 81.html
 #_[LoadCustomSortMode]: 80.html
 #_
-#_{fattr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fattr
-#_{fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
-#_{item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
-#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
-#_{setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
-#_{setpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpos
-#_{setposidx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setposidx
+#_{fattr}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fattr
+#_{fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_{item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
+#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
+#_{setpath}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpath
+#_{setpos}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpos
+#_{setposidx}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setposidx
 #_
 </article>
 </node>
@@ -1871,7 +1871,7 @@ mtime=3807114127
 #_
 #_@@@
 #_[Panel.CustomSortMenu]: 82.html
-#_[SortingPanelItem]: http://api.farmanager.com/ru/structures/sortingpanelitem.html
+#_[SortingPanelItem]: $(ENC_URL)/structures/sortingpanelitem.html
 #_[Panel.SetCustomSortMode]: 81.html
 #_[документации]: http://luajit.org/ext_ffi.html
 #_
@@ -1912,7 +1912,7 @@ mtime=3807114155
 #_  }
 #_
 #_@@@
-#_[PluginPanelItem]: http://api.farmanager.com/ru/structures/pluginpanelitem.html
+#_[PluginPanelItem]: $(ENC_URL)/structures/pluginpanelitem.html
 #_[Panel.LoadCustomSortMode]: 80.html
 #_[документации]: http://luajit.org/ext_ffi.html
 #_
@@ -1947,17 +1947,17 @@ mtime=3607097496
 #_  Stat
 #_
 #_@@@
-#_{add}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.add
-#_{back}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.back
-#_{clear}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.clear
-#_{del}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.del
-#_{get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.get
-#_{goto}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.goto
-#_{next}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.next
-#_{pop}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.pop
-#_{prev}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.prev
-#_{push}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.push
-#_{stat}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#bm.stat
+#_{add}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.add
+#_{back}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.back
+#_{clear}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.clear
+#_{del}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.del
+#_{get}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.get
+#_{goto}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.goto
+#_{next}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.next
+#_{pop}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.pop
+#_{prev}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.prev
+#_{push}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.push
+#_{stat}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.stat
 #_
 </article>
 </node>
@@ -1988,13 +1988,13 @@ mtime=3637527697
 #_
 #_@@@
 #_[Result]: 92.html
-#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Bof
-#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Empty
-#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Eof
-#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Selected
-#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.CurPos
-#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.ItemCount
-#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/cmdline.html#CmdLine.Value
+#_{bof}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Bof
+#_{empty}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Empty
+#_{eof}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Eof
+#_{selected}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Selected
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.CurPos
+#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.ItemCount
+#_{value}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Value
 #_
 </article>
 </node>
@@ -2023,14 +2023,14 @@ mtime=3607098940
 #_  SetFocus
 #_
 #_@@@
-#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.CurPos
-#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
-#_--{owner}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Owner
-#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemCount
-#_{itemtype}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.ItemType
-#_{prevpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.PrevPos
-#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.GetValue
-#_{setfocus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.SetFocus
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.CurPos
+#_{id}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
+#_--{owner}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.Owner
+#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.ItemCount
+#_{itemtype}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.ItemType
+#_{prevpos}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.PrevPos
+#_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.GetValue
+#_{setfocus}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.SetFocus
 #_
 #_
 </article>
@@ -2055,8 +2055,8 @@ mtime=3607099165
 #_  Нет.
 #_
 #_@@@
-#_{showmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
-#_{showpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
+#_{showmode}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
+#_{showpos}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
 #_
 </article>
 </node>
@@ -2094,23 +2094,23 @@ mtime=3607106411
 #_  Undo
 #_
 #_@@@
-#_{curline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurLine
-#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.CurPos
-#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.FileName
-#_{lines}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Lines
-#_{realpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.RealPos
-#_{selvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.SelValue
-#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.State
-#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#Editor.Value
-#_{delline}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.delline
-#_{getstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.getstr
-#_{insstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.insstr
-#_{pos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.pos
-#_{sel}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.sel
-#_{set}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.set
-#_{setstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.setstr
-#_{settitle}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.settitle
-#_{undo}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/editor.html#editor.undo
+#_{curline}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.CurLine
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.CurPos
+#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.FileName
+#_{lines}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.Lines
+#_{realpos}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.RealPos
+#_{selvalue}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.SelValue
+#_{state}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.State
+#_{value}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#Editor.Value
+#_{delline}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.delline
+#_{getstr}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.getstr
+#_{insstr}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.insstr
+#_{pos}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.pos
+#_{sel}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.sel
+#_{set}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.set
+#_{setstr}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.setstr
+#_{settitle}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.settitle
+#_{undo}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.undo
 #_
 </article>
 </node>
@@ -2146,18 +2146,18 @@ mtime=3618906507
 #_@@@
 #_[GetConfig]: 95.html
 #_
-#_{cfg_get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Get
-#_{disablehistory}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
-#_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
-#_{height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
-#_{isuseradmin}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#IsUserAdmin
-#_{kbdlayout}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#kbdlayout
-#_{keybar_show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#keybar.show
-#_{pid}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.PID
-#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Title
-#_{uptime}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.UpTime
-#_{width}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Width
-#_{window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
+#_{cfg_get}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Cfg.Get
+#_{disablehistory}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#history.disable
+#_{fullscreen}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Fullscreen
+#_{height}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Height
+#_{isuseradmin}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#IsUserAdmin
+#_{kbdlayout}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#kbdlayout
+#_{keybar_show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#keybar.show
+#_{pid}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.PID
+#_{title}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Title
+#_{uptime}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.UpTime
+#_{width}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Width
+#_{window_scroll}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
 #_
 </article>
@@ -2217,9 +2217,9 @@ mtime=3607108730
 #_  Нет.
 #_
 #_@@@
-#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.FileName
-#_{seltopic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.SelTopic
-#_{topic}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/help.html#Help.Topic
+#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.FileName
+#_{seltopic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.SelTopic
+#_{topic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.Topic
 #_
 #_
 </article>
@@ -2250,15 +2250,15 @@ mtime=3607109106
 #_  Show
 #_
 #_@@@
-#_{filterstr}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
-#_{filter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Filter
-#_{getvalue}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.GetValue
-#_{horizontalalignment}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
-#_{id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
-#_{itemstatus}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
-#_{select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Select
-#_{show}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Menu.Show
-#_{value}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Value
+#_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
+#_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Filter
+#_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetValue
+#_{horizontalalignment}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
+#_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{itemstatus}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
+#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Select
+#_{show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu.Show
+#_{value}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Value
 #_
 #_
 </article>
@@ -2292,11 +2292,11 @@ mtime=3607109438
 #_  как по событиям от мыши, так и по клавиатурным событиям.
 #_
 #_@@@
-#_{button}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
-#_{ctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
-#_{eventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
-#_{x}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
-#_{y}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_{button}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsButton
+#_{ctrlstate}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{eventflags}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{x}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsX
+#_{y}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsY
 #_
 #_
 </article>
@@ -2331,15 +2331,15 @@ mtime=3607109929
 #_  GetHotkey
 #_
 #_@@@
-#_{bof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#bof
-#_{checkhotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#checkhotkey
-#_{curpos}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#CurPos
-#_{empty}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#empty
-#_{eof}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#eof
-#_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
-#_{itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#ItemCount
-#_{selected}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/context_dep.html#selected
-#_{title}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Title
+#_{bof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#bof
+#_{checkhotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#CurPos
+#_{empty}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#empty
+#_{eof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#eof
+#_{gethotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#ItemCount
+#_{selected}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#selected
+#_{title}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Title
 #_
 #_
 </article>
@@ -2373,12 +2373,12 @@ mtime=3717182328
 #_[SyncCall]: 83.html
 #_[Call]: 65.html
 #_
-#_{command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Command
-#_{config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Config
-#_{exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Exist
-#_{load}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Load
-#_{menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Menu
-#_{unload}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Plugin.Unload
+#_{command}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Command
+#_{config}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Config
+#_{exist}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Exist
+#_{load}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Load
+#_{menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Menu
+#_{unload}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Unload
 #_
 #_
 </article>
@@ -2442,16 +2442,16 @@ mtime=3717267269
 #_@@@
 #_[Ограничения в использовании некоторых функций]: 62.html
 #_
-#_{farmacrocall}: http://api.farmanager.com/ru/structures/farmacrocall.html
-#_{fmvt_array}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_ARRAY
-#_{fmvt_binary}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BINARY
-#_{fmvt_boolean}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BOOLEAN
-#_{fmvt_double}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_DOUBLE
-#_{fmvt_integer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_INTEGER
-#_{fmvt_nil}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_NIL
-#_{fmvt_string}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_STRING
-#_{fmvt_pointer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_POINTER
-#_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_{farmacrocall}: $(ENC_URL)/structures/farmacrocall.html
+#_{fmvt_array}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_ARRAY
+#_{fmvt_binary}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_BINARY
+#_{fmvt_boolean}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_BOOLEAN
+#_{fmvt_double}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_DOUBLE
+#_{fmvt_integer}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_INTEGER
+#_{fmvt_nil}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_NIL
+#_{fmvt_string}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_STRING
+#_{fmvt_pointer}: $(ENC_URL)/structures/farmacrovalue.html#FMVT_POINTER
+#_{plugin.call}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.call
 #_
 #_
 </article>
@@ -2476,7 +2476,7 @@ mtime=3588709114
 #_[ограничений]: 62.html
 #_[Plugin.Call]: 65.html
 #_
-#_{openw}: http://api.farmanager.com/ru/exported_functions/openw.html
+#_{openw}: $(ENC_URL)/exported_functions/openw.html
 #_
 </article>
 </node>
@@ -2500,8 +2500,8 @@ mtime=3607110556
 #_  Нет.
 #_
 #_@@@
-#_{filename}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
-#_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.State
+#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
+#_{state}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.State
 #_
 #_
 </article>
@@ -2583,8 +2583,8 @@ mtime=3564676943
 #_        function dec_var() var = var-1 end
 #_
 #_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>
@@ -2638,10 +2638,10 @@ mtime=3926597287
 #_[mainmenu]: 111.html
 #_
 #_@@@
-#_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command
-#_{plugin.config}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.config
-#_{plugin.menu}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.menu
-#_{print}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#print
+#_{plugin.command}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.command
+#_{plugin.config}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.config
+#_{plugin.menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.menu
+#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
 #_
 </article>
 </node>
@@ -2688,7 +2688,7 @@ mtime=3589531649
 #_[events]: 78.html
 #_
 #_@@@
-#_{ee_change}: http://api.farmanager.com/ru/structures/processeditoreventinfo.html#EE_CHANGE
+#_{ee_change}: $(ENC_URL)/structures/processeditoreventinfo.html#EE_CHANGE
 #_
 </article>
 </node>
@@ -2715,7 +2715,7 @@ mtime=3673450781
 #_макросов.
 #_
 #_@@@
-#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
 #_
 </article>
 </node>
@@ -2779,8 +2779,8 @@ mtime=3607111577
 #_```
 #_
 #_@@@
-#_{apanel.left}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.Left
-#_{ppanel.visible}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#PPanel.Visible
+#_{apanel.left}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{ppanel.visible}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#PPanel.Visible
 #_
 </article>
 </node>
@@ -2831,9 +2831,9 @@ mtime=3607111666
 #_```
 #_
 #_@@@
-#_{apanel.itemcount}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
-#_{panel.item}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.item
-#_{panel.select}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.select
+#_{apanel.itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{panel.item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
+#_{panel.select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
 #_
 </article>
 </node>
@@ -2862,7 +2862,7 @@ mtime=3607111753
 #_```
 #_
 #_@@@
-#_{panel.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_{panel.fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
 #_
 </article>
 </node>
