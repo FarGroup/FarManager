@@ -662,7 +662,7 @@ public:
 
 static auto OpenTreeFile(string_view const Name, bool const Writable)
 {
-	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, os::fs::file_share_read, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
+	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, os::fs::file_share_read, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 }
 
 static bool MustBeCached(string_view const Root)

@@ -2324,7 +2324,7 @@ static uintptr_t WINAPI apiDetectCodePage(DetectCodePageInfo* Info) noexcept
 		assert(Info);
 		assert(Info->StructSize);
 
-		os::fs::file const File(Info->FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
+		os::fs::file const File(Info->FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 		if (!File)
 			return uintptr_t{};
 

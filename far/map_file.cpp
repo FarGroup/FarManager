@@ -75,7 +75,7 @@ static string get_map_name(string_view const ModuleName)
 
 map_file::map_file(string_view const ModuleName)
 {
-	os::fs::file const Handle(get_map_name(ModuleName), FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
+	os::fs::file const Handle(get_map_name(ModuleName), FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!Handle)
 		return;
 

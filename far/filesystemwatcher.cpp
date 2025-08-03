@@ -190,7 +190,7 @@ static os::handle open(const string_view Directory)
 		os::fs::file_share_all,
 		{},
 		OPEN_EXISTING,
-		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED
+		FILE_FLAG_OVERLAPPED
 	);
 
 	if (!DirectoryHandle)

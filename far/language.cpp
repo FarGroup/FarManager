@@ -71,7 +71,7 @@ static const auto
 static lang_file open_impl(string_view const FileName, bool const IsHelp)
 {
 	lang_file Result;
-	if (!Result.File.Open(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING))
+	if (!Result.File.Open(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING, IsHelp? FILE_FLAG_RANDOM_ACCESS : FILE_FLAG_SEQUENTIAL_SCAN))
 		return {};
 
 	Result.Codepage = GetFileCodepage(Result.File, encoding::codepage::oem(), nullptr, false);
@@ -334,7 +334,7 @@ private:
 
 static void LoadCustomStrings(string_view const FileName, unordered_string_map<string>& Strings)
 {
-	const os::fs::file CustomFile(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING);
+	const os::fs::file CustomFile(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!CustomFile)
 		return;
 
