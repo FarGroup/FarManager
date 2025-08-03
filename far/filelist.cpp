@@ -4906,7 +4906,7 @@ void FileList::SelectSortMode()
 
 		SortOptCount
 	};
-	const menu_item InitSortMenuOptions[]=
+	const menu_item InitSortMenuOptions[]
 	{
 		{ msg(lng::MMenuSortUseGroups), GetSortGroups()? MIF_CHECKED : 0, KEY_SHIFTF11 },
 		{ msg(lng::MMenuSortSelectedFirst), SelectedFirst? MIF_CHECKED : 0, KEY_SHIFTF12 },
@@ -5545,7 +5545,7 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	string_view strPath = hPlugin->plugin()->ModuleName();
 	CutToSlash(strPath);
-	const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+	const auto HelpFile = OpenHelpFile(strPath, Global->Opt->strHelpLanguage);
 	if (!HelpFile)
 		return false;
 

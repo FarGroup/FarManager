@@ -576,7 +576,7 @@ static bool trace()
 
 	if (std::current_exception())
 	{
-		Menu->AddItem(MenuItemEx(L"Exception stack"s, LIF_SEPARATOR));
+		Menu->AddItem(MenuItemEx{ L"Exception stack"s, LIF_SEPARATOR });
 		tracer.exception_stacktrace({}, add_to_menu);
 	}
 

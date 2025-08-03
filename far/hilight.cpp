@@ -541,8 +541,7 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos) const
 
 		if (!i.next_title.empty())
 		{
-			MenuItemEx HiMenuItem(i.next_title);
-			HiMenuItem.Flags|=LIF_SEPARATOR;
+			MenuItemEx HiMenuItem{ string(i.next_title), LIF_SEPARATOR };
 			HiMenu->AddItem(HiMenuItem);
 		}
 	}
@@ -752,7 +751,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 					if (Count && RealSelectPos < static_cast<int>(HiData.size()) && FileFilterConfig(HiData[RealSelectPos], true))
 					{
 						HiMenu->DeleteItem(SelectPos);
-						HiMenu->AddItem(MenuItemEx(MenuString(&HiData[RealSelectPos], true)), SelectPos);
+						HiMenu->AddItem(MenuItemEx{ MenuString(&HiData[RealSelectPos], true) }, SelectPos);
 						HiMenu->SetSelectPos(SelectPos, 1);
 						NeedUpdate = true;
 					}
@@ -778,7 +777,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 						{
 							(*Count)++;
 							const auto Iterator = HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
-							HiMenu->AddItem(MenuItemEx(MenuString(std::to_address(Iterator), true)), SelectPos);
+							HiMenu->AddItem(MenuItemEx{ MenuString(std::to_address(Iterator), true) }, SelectPos);
 							HiMenu->SetSelectPos(SelectPos, 1);
 							NeedUpdate = true;
 						}

@@ -352,7 +352,41 @@ void map_file::read(std::istream& Stream)
 
 TEST_CASE("map_file.msvc")
 {
-	const auto MapFileData =
+	const auto check = [](std::map<uintptr_t, map_file::line>& Symbols, unordered_string_set const& Files)
+	{
+		REQUIRE(Files.size() == 6u);
+		REQUIRE(Symbols.size() == 8u);
+
+		static const struct
+		{
+			uintptr_t Address;
+			map_file::info Info;
+		}
+		Tests[]
+		{
+			{ 0x00000000, { L"<linker-defined>"sv, L"___ImageBase"sv, 0, }, },
+			{ 0x000007e9, { L"<absolute>"sv, L"___safe_se_handler_count"sv, 0, }, },
+			{ 0x000060e0, { L"LIBCMT:delete_scalar.obj"sv, L"operator delete(void *)"sv, 0, }, },
+			{ 0x000060e8, { L"LIBCMT:delete_scalar.obj"sv, L"operator delete(void *)"sv, 0x8, }, },
+			{ 0x0002f450, { L"sqlite.obj"sv, L"_sqlite3_step"sv, 0, }, },
+			{ 0x000a1d8F, { L"sqlite.obj"sv, L"_sqlite3_step"sv, 0x7293f, }, },
+			{ 0x000a1d90, { L"sqlite.obj"sv, L"_sqlite3_open"sv, 0, }, },
+			{ 0x000a8670, { L"config.obj"sv, L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0, }, },
+			{ 0x000a8678, { L"config.obj"sv, L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x8, }, },
+			{ 0x000ff9AF, { L"config.obj"sv, L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x5733f, }, },
+			{ 0x000ff9b0, { L"configdb.obj"sv, L"config_provider::config_provider(struct config_provider::clear_cache)"sv, 0, }, },
+			{ 0x000ffc00, { L"configdb.obj"sv, L"config_provider::~config_provider(void)"sv, 0, }, },
+			{ 0xffffffff, { L"configdb.obj"sv, L"config_provider::~config_provider(void)"sv, 0xfff003ff, }, },
+		};
+
+		for (const auto& i: Tests)
+		{
+			REQUIRE(i.Info == get_impl(i.Address, Symbols));
+		}
+	};
+
+	{
+		const auto MapFileData =
 R"( Far
 
  Preferred load address is 00400000
@@ -371,43 +405,47 @@ R"( Far
  0001:000fec00       ??1config_provider@@QAE@XZ 004ffc00 f   configdb.obj
 )"sv;
 
-	std::stringstream Stream(std::string{ MapFileData });
+		std::stringstream Stream(std::string{ MapFileData });
+		REQUIRE(determine_format(Stream) == map_format::msvc);
 
-	REQUIRE(determine_format(Stream) == map_format::msvc);
+		unordered_string_set Files;
+		std::map<uintptr_t, map_file::line> Symbols;
+		read_vc(Stream, Files, Symbols);
 
-	unordered_string_set Files;
-	std::map<uintptr_t, map_file::line> Symbols;
-
-	read_vc(Stream, Files, Symbols);
-
-	REQUIRE(Files.size() == 6u);
-	REQUIRE(Symbols.size() == 8u);
-
-	static const struct
-	{
-		uintptr_t Address;
-		map_file::info Info;
+		check(Symbols, Files);
 	}
-	Tests[]
-	{
-		{ 0x00000000, { L"<linker-defined>"sv,           L"___ImageBase"sv, 0, }, },
-		{ 0x000007e9, { L"<absolute>"sv,                 L"___safe_se_handler_count"sv, 0, }, },
-		{ 0x000060e0, { L"LIBCMT:delete_scalar.obj"sv,   L"operator delete(void *)"sv, 0, }, },
-		{ 0x000060e8, { L"LIBCMT:delete_scalar.obj"sv,   L"operator delete(void *)"sv, 0x8, }, },
-		{ 0x0002f450, { L"sqlite.obj"sv,                 L"_sqlite3_step"sv, 0, }, },
-		{ 0x000a1d8F, { L"sqlite.obj"sv,                 L"_sqlite3_step"sv, 0x7293f, }, },
-		{ 0x000a1d90, { L"sqlite.obj"sv,                 L"_sqlite3_open"sv, 0, }, },
-		{ 0x000a8670, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0, }, },
-		{ 0x000a8678, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x8, }, },
-		{ 0x000ff9AF, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x5733f, }, },
-		{ 0x000ff9b0, { L"configdb.obj"sv,               L"config_provider::config_provider(struct config_provider::clear_cache)"sv, 0, }, },
-		{ 0x000ffc00, { L"configdb.obj"sv,               L"config_provider::~config_provider(void)"sv, 0, }, },
-		{ 0xffffffff, { L"configdb.obj"sv,               L"config_provider::~config_provider(void)"sv, 0xfff003ff, }, },
-	};
 
-	for (const auto& i: Tests)
 	{
-		REQUIRE(i.Info == get_impl(i.Address, Symbols));
+		const auto MapFileData =
+R"(MINIMAP
+
+FILES
+0 <absolute>
+1 <linker-defined>
+2 LIBCMT:delete_scalar.obj
+3 config.obj
+4 configdb.obj
+5 sqlite.obj
+
+SYMBOLS
+0 1 ___ImageBase
+7E9 0 ___safe_se_handler_count
+60E0 2 ??3@YAXPAX@Z
+2F450 5 _sqlite3_step
+A1D90 5 _sqlite3_open
+A8670 3 ?_Xlength@?$vector@Ucolumn@@V?$allocator@Ucolumn@@@std@@@std@@CAXXZ
+FF9B0 4 ??0config_provider@@QAE@Uclear_cache@0@@Z
+FFC00 4 ??1config_provider@@QAE@XZ
+)"sv;
+
+		std::stringstream Stream(std::string{ MapFileData });
+		REQUIRE(determine_format(Stream) == map_format::mini);
+
+		unordered_string_set Files;
+		std::map<uintptr_t, map_file::line> Symbols;
+		read_mini(Stream, Files, Symbols);
+
+		check(Symbols, Files);
 	}
 }
 

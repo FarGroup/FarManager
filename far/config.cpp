@@ -489,10 +489,9 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 	for(const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv))
 	{
-		MenuItemEx Item;
 		const int NameWidth = 10;
 		const auto DisplayName = pad_right(truncate_right(Name, NameWidth), NameWidth);
-		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value);
+		MenuItemEx Item{ concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value) };
 		Item.ComplexUserData = Name;
 		MasksMenu.AddItem(Item);
 	}
@@ -3092,7 +3091,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	const auto OptionsMenuStrings = VMenu::AddHotkeys(OptionsMenu);
 
-	menu_item RightMenu[]=
+	menu_item RightMenu[]
 	{
 		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
 		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },

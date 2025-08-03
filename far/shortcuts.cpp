@@ -229,7 +229,7 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 	Menu.clear();
 	FOR_RANGE(List, i)
 	{
-		MenuItemEx ListItem(MakeName(*i));
+		MenuItemEx ListItem{ MakeName(*i) };
 		if (ListItem.Name.empty())
 			continue;
 
@@ -394,7 +394,7 @@ std::variant<std::list<Shortcuts::shortcut>::const_iterator, size_t> Shortcuts::
 			{
 				const auto newIter = m_Items.emplace(Iterator? *Iterator : m_Items.end(), CreateShortcutFromPanel());
 
-				MenuItemEx NewMenuItem(newIter->Folder);
+				MenuItemEx NewMenuItem{ newIter->Folder };
 				NewMenuItem.ComplexUserData = newIter;
 				FolderList->AddItem(NewMenuItem, ItemPos);
 				FolderList->SetSelectPos(ItemPos, 1);

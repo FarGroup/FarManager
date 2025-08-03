@@ -62,19 +62,25 @@ namespace detail
 				return result::out_of_range;
 		}
 
-		auto& Errno = errno; // Nonzero cost, pay it once
-
 		const null_terminated Data(Str);
 		const auto Ptr = Data.c_str();
 		auto EndPtr = const_cast<wchar_t*>(Ptr);
 
-		Errno = 0;
+		auto& Errno = errno; // Nonzero cost, pay it once
+		const auto OldErrno = Errno;
+		if (Errno)
+			Errno = 0;
+
 		const auto Result = Converter(Ptr, &EndPtr, Base);
+
+		const auto NewErrno = Errno;
+		if (!NewErrno && OldErrno)
+			Errno = OldErrno;
 
 		if (Ptr == EndPtr)
 			return result::invalid_argument;
 
-		if (Errno == ERANGE)
+		if (NewErrno == ERANGE)
 			return result::out_of_range;
 
 		if (Pos != nullptr)

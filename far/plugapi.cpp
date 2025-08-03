@@ -809,7 +809,6 @@ intptr_t WINAPI apiMenuFn(
 			{
 				MenuItemEx CurItem;
 				CurItem.Flags = i.Flags;
-				CurItem.Name.clear();
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
 				const auto SelCurItem = CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;

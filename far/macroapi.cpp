@@ -1866,13 +1866,12 @@ void FarMacroApi::menushowFunc() const
 
 	while(CRFound)
 	{
-		MenuItemEx NewItem;
 		size_t SubstrLen=PosLF-CurrentPos;
 
 		if (SubstrLen==0)
 			SubstrLen=1;
 
-		NewItem.Name = strItems.substr(CurrentPos, SubstrLen);
+		MenuItemEx NewItem{ strItems.substr(CurrentPos, SubstrLen) };
 
 		if (NewItem.Name != L"\n"sv)
 		{

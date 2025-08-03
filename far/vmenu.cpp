@@ -445,9 +445,7 @@ namespace
 
 	MenuItemEx far_list_item_to_menu_item(const FarListItem& FItem)
 	{
-		MenuItemEx Result;
-		Result.Flags = FItem.Flags;
-		Result.Name = NullToEmpty(FItem.Text);
+		MenuItemEx Result{ NullToEmpty(FItem.Text), FItem.Flags };
 		Result.SimpleUserData = FItem.UserData;
 		return Result;
 	}

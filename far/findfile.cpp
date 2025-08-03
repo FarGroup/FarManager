@@ -2224,7 +2224,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 		FindItem.Arc = Arc;
 
 		const auto Ptr = &FindItem;
-		MenuItemEx ListItem(strPathName);
+		MenuItemEx ListItem{ strPathName };
 		ListItem.ComplexUserData = Ptr;
 		ListBox->AddItem(std::move(ListItem));
 	}
@@ -2236,7 +2236,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 
 	int ListPos;
 	{
-		MenuItemEx ListItem(MenuText);
+		MenuItemEx ListItem{ MenuText };
 		ListItem.ComplexUserData = &FindItem;
 		ListPos = ListBox->AddItem(std::move(ListItem));
 	}

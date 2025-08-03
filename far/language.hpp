@@ -115,7 +115,8 @@ struct lang_file
 	}
 };
 
-lang_file OpenLangFile(string_view Path, string_view Mask, string_view Language);
+lang_file OpenLangFile(string_view Path, string_view Language);
+lang_file OpenHelpFile(string_view Path, string_view Language, string_view Mask = {});
 bool GetLangParam(lang_file& LangFile, string_view ParamName, string& Param);
 string SelectInterfaceLanguage(string_view Current);
 string SelectHelpLanguage(string_view Current);

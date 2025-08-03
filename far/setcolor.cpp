@@ -280,7 +280,8 @@ static void choose_theme()
 			SeparatorAdded = true;
 		}
 
-		MenuItemEx Item(Name);
+		MenuItemEx Item;
+		Item.Name = Name;
 		Item.ComplexUserData = string(FullPath);
 		ThemesMenu->AddItem(Item);
 	});

@@ -95,7 +95,6 @@ public:
 	far_clock CurrentTime;
 
 	size_t LastShownTimeSize{};
-	string_view HelpFileMask{L"*.hlf"sv};
 	bool OnlyEditorViewerUsed{}; // -e or -v
 #ifdef DIRECT_RT
 	bool DirectRT{};

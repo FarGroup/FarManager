@@ -92,20 +92,6 @@ struct menu_item
 	LISTITEMFLAGS Flags{};
 	DWORD AccelKey{};
 
-	menu_item() = default;
-
-	explicit menu_item(string_view const Text):
-		Name(Text)
-	{
-	}
-
-	menu_item(string_view const Text, LISTITEMFLAGS const Flags, DWORD const AccelKey = 0):
-		Name(Text),
-		Flags(Flags),
-		AccelKey(AccelKey)
-	{
-	}
-
 	unsigned long long SetCheck()
 	{
 		Flags &= ~0xFFFF;
@@ -134,12 +120,6 @@ struct menu_item
 
 struct MenuItemEx: menu_item
 {
-	NONCOPYABLE(MenuItemEx);
-	MOVABLE(MenuItemEx);
-
-	MenuItemEx() = default;
-	using menu_item::menu_item;
-
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 

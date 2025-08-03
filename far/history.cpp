@@ -310,7 +310,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
 					inplace::escape_ampersands(strRecord);
 
-				MenuItemEx MenuItem(strRecord);
+				MenuItemEx MenuItem{ std::move(strRecord) };
 				i.Lock? MenuItem.SetCheck() : MenuItem.ClearCheck();
 				MenuItem.ComplexUserData = i.Id;
 

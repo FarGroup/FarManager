@@ -154,7 +154,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	{
 		if (Menu.size())
 		{
-			Menu.AddItem(MenuItemEx(msg(TitleId), LIF_SEPARATOR));
+			Menu.AddItem(MenuItemEx{ msg(TitleId), LIF_SEPARATOR });
 		}
 		else
 		{
@@ -240,7 +240,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 			return Result;
 		};
 
-		MenuItemEx Item(BuildQuotedString(i));
+		MenuItemEx Item{ BuildQuotedString(i) };
 
 		// Preserve the case of the already entered part
 		if (Global->Opt->AutoComplete.AppendCompletion)
@@ -461,12 +461,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			{
 				for (const auto i: std::views::iota(0uz, pList->size()))
 				{
-					string_view const Text = pList->at(i).Name;
+					const auto& Text = pList->at(i).Name;
 
 					if (!starts_with_icase(Text, Str))
 						continue;
 
-					MenuItemEx Item(Text);
+					MenuItemEx Item{ Text };
 					// Preserve the case of the already entered part
 					if (Global->Opt->AutoComplete.AppendCompletion)
 					{

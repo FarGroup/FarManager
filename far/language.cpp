@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
@@ -65,9 +64,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static const auto LangFileMask = L"*.lng"sv;
+static const auto
+	LangFileMask = L"*.lng"sv,
+	HelpFileMask = L"*.hlf"sv;
 
-static lang_file open_impl(string_view const FileName)
+static lang_file open_impl(string_view const FileName, bool const IsHelp)
 {
 	lang_file Result;
 	if (!Result.File.Open(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING))
@@ -85,7 +86,7 @@ static lang_file open_impl(string_view const FileName)
 	return Result;
 }
 
-lang_file OpenLangFile(string_view const Path, string_view const Mask, string_view const Language)
+static lang_file open_lang_file_impl(bool const IsHelp, string_view const Path, string_view const Language, string_view const Mask)
 {
 	lang_file CurrentFile, EnglishFile;
 
@@ -94,7 +95,7 @@ lang_file OpenLangFile(string_view const Path, string_view const Mask, string_vi
 		if (!os::fs::is_file(FindData))
 			continue;
 
-		CurrentFile = open_impl(path::join(Path, FindData.FileName));
+		CurrentFile = open_impl(path::join(Path, FindData.FileName), IsHelp);
 		if (!CurrentFile)
 			continue;
 
@@ -113,6 +114,15 @@ lang_file OpenLangFile(string_view const Path, string_view const Mask, string_vi
 	return CurrentFile;
 }
 
+lang_file OpenLangFile(string_view const Path, string_view const Language)
+{
+	return open_lang_file_impl(false, Path, Language, LangFileMask);
+}
+
+lang_file OpenHelpFile(string_view const Path, string_view const Language, string_view const Mask)
+{
+	return open_lang_file_impl(true, Path, Language, Mask.empty()? HelpFileMask : Mask);
+}
 
 bool GetLangParam(lang_file& LangFile, string_view const ParamName, string& Param)
 {
@@ -151,7 +161,7 @@ bool GetLangParam(lang_file& LangFile, string_view const ParamName, string& Para
 static string SelectLanguage(bool HelpLanguage, string_view const Current)
 {
 	const auto Title = HelpLanguage? lng::MHelpLangTitle : lng::MLangTitle;
-	const auto Mask = HelpLanguage? Global->HelpFileMask : LangFileMask;
+	const auto Mask = HelpLanguage? HelpFileMask : LangFileMask;
 
 	const auto LangMenu = VMenu2::create(msg(Title), {}, ScrY - 4);
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -165,7 +175,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 		if (!os::fs::is_file(FindData))
 			continue;
 
-		auto LangFile = open_impl(path::join(Global->g_strFarPath, FindData.FileName));
+		auto LangFile = open_impl(path::join(Global->g_strFarPath, FindData.FileName), HelpLanguage);
 		if (!LangFile)
 			continue;
 
@@ -183,8 +193,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 
 	for (const auto& [Name, Description]: Languages)
 	{
-		string EntryName = far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description);
-		MenuItemEx LangMenuItem(EntryName);
+		MenuItemEx LangMenuItem{ far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description) };
 
 		LangMenuItem.SetSelect(Current == Name);
 		LangMenuItem.ComplexUserData = Name;
@@ -371,7 +380,7 @@ void language::load(string_view const Path, string_view const Language, int Coun
 
 	auto Data = m_Data->create();
 
-	auto LangFile = OpenLangFile(Path, LangFileMask, Language);
+	auto LangFile = OpenLangFile(Path, Language);
 	if (!LangFile)
 	{
 		throw far_known_exception(far::format(L"Cannot find any language files in \"{}\""sv, Path));

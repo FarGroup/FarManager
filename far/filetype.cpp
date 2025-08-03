@@ -178,7 +178,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 				strDescription = std::move(strCommandText);
 
 			MenuData.emplace_back(std::move(NewMenuData));
-			MenuItems.emplace_back(strDescription);
+			MenuItems.emplace_back(MenuItemEx{ strDescription });
 		}
 
 		if (!CommandCount)
@@ -365,7 +365,7 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 	for (const auto& i: Data)
 	{
 		const auto AddLen = visual_string_length(i.Description) - HiStrlen(i.Description);
-		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElementSize + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
+		MenuItemEx TypesMenuItem{ concat(fit_to_left(i.Description, MaxElementSize + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask) };
 		TypesMenuItem.ComplexUserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
 	}

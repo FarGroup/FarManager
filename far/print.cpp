@@ -83,7 +83,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, std::span<PRINTER_INFO_4W con
 
 	for (const auto& printer: Printers)
 	{
-		MenuItemEx Item(printer.pPrinterName);
+		MenuItemEx Item{ printer.pPrinterName };
 
 		if (!bDefaultPrinterFound && printer.pPrinterName == strDefaultPrinter)
 		{
