@@ -2242,16 +2242,15 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_F_MENU_FILTER:
 		case MCODE_F_MENU_FILTERSTR:
 		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		case MCODE_F_MENU_GETEXTENDEDDATA:
 		{
-			const auto str = static_cast<const wchar_t*>(vParam);
-
 			if (GetDropDownOpened() || Items[m_FocusPos].Type == DI_LISTBOX)
 			{
 				if (Items[m_FocusPos].ListPtr)
 					return Items[m_FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
 			}
 			else if (OpCode == MCODE_F_MENU_CHECKHOTKEY)
-				return CheckHighlights(*str, static_cast<int>(iParam)) + 1;
+				return CheckHighlights(*static_cast<const wchar_t*>(vParam), static_cast<int>(iParam)) + 1;
 
 			return 0;
 		}

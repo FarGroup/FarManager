@@ -110,6 +110,7 @@
 <?define Guid.Edit.SaveAndExit.lua = "235043E4-B707-40C0-88A7-E86D7DD231C3" ?>
 <?define Guid.Edit.SaveFile.lua = "09BF9550-1DF8-4228-824A-AD8A9341087C" ?>
 <?define Guid.Edit.SelectionStartEnd.lua = "43BBD6A1-7840-46D0-995E-5D8DC22BD50F" ?>
+<?define Guid.Edit.SyncEditorAndFindAllMenu.lua = "DE57C8EF-D78A-4A63-9A5D-6CE22E9C2AD8" ?>
 <?define Guid.F3.lua = "8446410F-A125-45BD-B791-0AFCB4F69CAB" ?>
 <?define Guid.F9DeactivateMenu.lua = "683BCAC2-01C4-49F5-9E43-F3503EA36823" ?>
 <?define Guid.F9Table.lua = "600732B1-B384-45C8-BDA8-3EC08DB00A83" ?>

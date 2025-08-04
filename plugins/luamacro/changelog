@@ -1,3 +1,7 @@
+MZK 2025-09-11 21:46:54-04:00 - build 891
+
+1. gh-948: Macro API to retrieve menu item extended data: Menu.GetItemExtendedData.
+
 shmuel 2025-09-06 09:05:47+03:00 - build 890
 
 1. LuaFAR: minor reformat in 3 files.

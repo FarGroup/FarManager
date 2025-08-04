@@ -78,6 +78,7 @@
           <ComponentRef Id="Edit.SaveAndExit.lua" />
           <ComponentRef Id="Edit.SaveFile.lua" />
           <ComponentRef Id="Edit.SelectionStartEnd.lua" />
+          <ComponentRef Id="Edit.SyncEditorAndFindAllMenu.lua" />
           <ComponentRef Id="F3.lua" />
           <ComponentRef Id="F9DeactivateMenu.lua" />
           <ComponentRef Id="F9Table.lua" />

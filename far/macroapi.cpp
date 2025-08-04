@@ -709,32 +709,27 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	case MCODE_V_MENU_VALUE:
 	case MCODE_V_MENUINFOID:
 		{
-			const auto CurArea = GetArea();
-
 			if (CheckCode == MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType() == windowtype_menu)
 			{
 				return api.PushValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
 			}
 
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				string Value;
+
+				switch(CheckCode)
 				{
-					string Value;
-
-					switch(CheckCode)
+				case MCODE_V_MENU_VALUE:
+					if (CurrentWindow->VMProcess(CheckCode, &Value))
 					{
-					case MCODE_V_MENU_VALUE:
-						if (CurrentWindow->VMProcess(CheckCode, &Value))
-						{
-							Value = trim(remove_highlight(Value));
-							return api.PushValue(Value);
-						}
-						break;
-
-					case MCODE_V_MENUINFOID:
-						return api.PushValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
+						Value = trim(remove_highlight(Value));
+						return api.PushValue(Value);
 					}
+					break;
+
+				case MCODE_V_MENUINFOID:
+					return api.PushValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
 				}
 			}
 
@@ -1064,41 +1059,34 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			tmpVar.toInteger();
 
-			int CurArea=GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				long long MenuItemPos=tmpVar.asInteger()-1;
+				if (CheckCode == MCODE_F_MENU_GETHOTKEY)
 				{
-					long long MenuItemPos=tmpVar.asInteger()-1;
-					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
+					if (const auto Result = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos); Result)
 					{
-						if (const auto Result = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos); Result)
-						{
-							const wchar_t value[]{ static_cast<wchar_t>(Result), 0 };
-							tmpVar = value;
-						}
-						else
-							tmpVar = L""sv;
+						const wchar_t value[]{ static_cast<wchar_t>(Result), 0 };
+						tmpVar = value;
 					}
-					else if (CheckCode == MCODE_F_MENU_GETVALUE)
-					{
-						string NewStr;
-						if (CurrentWindow->VMProcess(CheckCode,&NewStr,MenuItemPos))
-						{
-							NewStr = trim(remove_highlight(NewStr));
-							tmpVar=NewStr;
-						}
-						else
-							tmpVar = L""sv;
-					}
-					else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
-					{
-						tmpVar = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos);
-					}
+					else
+						tmpVar = L""sv;
 				}
-				else
-					tmpVar = L""sv;
+				else if (CheckCode == MCODE_F_MENU_GETVALUE)
+				{
+					string NewStr;
+					if (CurrentWindow->VMProcess(CheckCode,&NewStr,MenuItemPos))
+					{
+						NewStr = trim(remove_highlight(NewStr));
+						tmpVar=NewStr;
+					}
+					else
+						tmpVar = L""sv;
+				}
+				else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
+				{
+					tmpVar = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos);
+				}
 			}
 			else
 				tmpVar = L""sv;
@@ -1126,14 +1114,9 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			const auto CurArea = GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
-				{
-					Result = CurrentWindow->VMProcess(CheckCode, UNSAFE_CSTR(Params[0].toString()), tmpMode);
-				}
+				Result = CurrentWindow->VMProcess(CheckCode, UNSAFE_CSTR(Params[0].toString()), tmpMode);
 			}
 
 			return api.PushValue(Result);
@@ -1150,29 +1133,24 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (tmpAction.isUnknown())
 				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
 
-			int CurArea=GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				if (CheckCode == MCODE_F_MENU_FILTER)
 				{
-					if (CheckCode == MCODE_F_MENU_FILTER)
+					if (tmpVar.isUnknown())
+						tmpVar = -1;
+					tmpVar = CurrentWindow->VMProcess(CheckCode, std::bit_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+					success=true;
+				}
+				else
+				{
+					string NewStr;
+					if (tmpVar.isString())
+						NewStr = tmpVar.toString();
+					if (CurrentWindow->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, tmpAction.toInteger()))
 					{
-						if (tmpVar.isUnknown())
-							tmpVar = -1;
-						tmpVar = CurrentWindow->VMProcess(CheckCode, std::bit_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+						tmpVar=NewStr;
 						success=true;
-					}
-					else
-					{
-						string NewStr;
-						if (tmpVar.isString())
-							NewStr = tmpVar.toString();
-						if (CurrentWindow->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, tmpAction.toInteger()))
-						{
-							tmpVar=NewStr;
-							success=true;
-						}
 					}
 				}
 			}
@@ -1188,21 +1166,29 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PushValue(tmpVar);
 		}
 
-		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
 		{
-			long long Result = -1;
-
-			const auto CurArea = GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				const auto Params{ api.parseParams(1) };
+				const auto N{ Params[0].isUnknown() ? -1 : Params[0].asInteger() - 1 };
+
+				if (VMenu::extended_item_data ExtendedData; CurrentWindow->VMProcess(CheckCode, &ExtendedData, N) == 1)
 				{
-					Result = CurrentWindow->VMProcess(CheckCode);
+					api.PushTable();
+					for (const auto& [Key, Value] : ExtendedData)
+						api.SetField(Key, Value);
 				}
 			}
 
-			return api.PushValue(Result);
+			// If there was no PushSomething, the result is nil
+			return;
+		}
+
+		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		{
+			api.PushValue(IsMenuOrDialogArea(GetArea()) && CurrentWindow ? CurrentWindow->VMProcess(CheckCode) : -1);
+			return;
 		}
 	}
 }

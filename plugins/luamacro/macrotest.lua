@@ -1140,6 +1140,7 @@ function MT.test_Menu()
 
   assert_func(Menu.Filter)
   assert_func(Menu.FilterStr)
+  assert_func(Menu.GetItemExtendedData)
   assert_func(Menu.GetValue)
   assert_func(Menu.ItemStatus)
   assert_func(Menu.Select)

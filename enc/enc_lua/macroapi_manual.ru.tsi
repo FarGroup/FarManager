@@ -2248,10 +2248,12 @@ mtime=3607109106
 #_  ItemStatus
 #_  Select
 #_  Show
+#_  GetItemExtendedData
 #_
 #_@@@
 #_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
 #_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Filter
+#_{GetItemExtendedData}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetItemExtendedData
 #_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetValue
 #_{horizontalalignment}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
 #_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
