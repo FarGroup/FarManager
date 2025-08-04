@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "modal.hpp"
 #include "bitflags.hpp"
 #include "farcolor.hpp"
+#include "tvar.hpp"
 
 // Platform:
 
@@ -148,7 +149,8 @@ struct menu_item_ex: menu_item
 	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().start(); }
 };
 
-struct item_color_indicies;
+using extended_data_provider = std::function<TContainer(const menu_item_ex&)>;
+struct item_color_indices;
 struct menu_layout;
 class vmenu_horizontal_tracker;
 
@@ -245,6 +247,7 @@ public:
 		return std::any_cast<T>(GetComplexUserData(Position));
 	}
 	void SetComplexUserData(const std::any& Data, int Position = -1);
+	void RegisterExtendedDataProvider(extended_data_provider&& ExtendedDataProvider);
 
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
@@ -306,14 +309,14 @@ private:
 		const menu_item_ex& Item,
 		small_segment FixedColumnsArea,
 		int Y,
-		const item_color_indicies& ColorIndices,
+		const item_color_indices& ColorIndices,
 		string_view BlankLine) const;
 	[[nodiscard]]
 	bool DrawItemText(
 		const menu_item_ex& Item,
 		small_segment TextArea,
 		int Y,
-		const item_color_indicies& ColorIndices,
+		const item_color_indices& ColorIndices,
 		std::vector<int>& HighlightMarkup,
 		string_view BlankLine) const;
 
@@ -357,6 +360,7 @@ private:
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	std::vector<vmenu_fixed_column_t> m_FixedColumns;
 	small_segment m_ItemTextSegment{ small_segment::ray() };
+	extended_data_provider m_ExtendedDataProvider;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};

@@ -111,4 +111,6 @@ private:
 	Type vType;
 };
 
+using TContainer = std::vector<std::tuple<const wchar_t*, TVar>>;
+
 #endif // TVAR_HPP_684F1D24_C3BA_43F6_9099_C617C30385EE
