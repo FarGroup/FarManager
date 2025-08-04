@@ -276,7 +276,7 @@ static void choose_theme()
 	{
 		if (!SeparatorAdded)
 		{
-			ThemesMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
+			ThemesMenu->AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
 			SeparatorAdded = true;
 		}
 

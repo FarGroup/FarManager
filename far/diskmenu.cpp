@@ -217,7 +217,7 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 		return a.Hotkey < b.Hotkey;
 	});
 
-	ChDisk.AddItem(MenuItemEx{ {}, LIF_SEPARATOR});
+	ChDisk.AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
 
 	for (const auto& [i, index]: enumerate(MenuInitItems))
 	{

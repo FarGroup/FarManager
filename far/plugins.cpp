@@ -677,7 +677,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 		if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 		{
-			menu->AddItem(MenuItemEx{ {}, MIF_SEPARATOR });
+			menu->AddItem(MenuItemEx{ L""s, MIF_SEPARATOR });
 			menu->AddItem(msg(lng::MMenuPluginStdAssociation));
 		}
 

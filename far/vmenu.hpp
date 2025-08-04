@@ -120,13 +120,13 @@ struct menu_item
 
 struct MenuItemEx: menu_item
 {
+	std::list<segment> Annotations;
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
 	int HorizontalPosition{}; // Relative to m_LeftColumnWidth. Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
-	std::list<segment> Annotations;
 
 	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().start(); }
 };

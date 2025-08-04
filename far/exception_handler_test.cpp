@@ -679,7 +679,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 
 	static auto ForceStderrUI = false;
 
-	TestGroupsMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
+	TestGroupsMenu->AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
 	TestGroupsMenu->AddItem(MenuItemEx{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
 
 	const auto StdErrId = static_cast<int>(TestGroupsMenu->size() - 1);
