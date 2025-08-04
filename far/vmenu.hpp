@@ -229,6 +229,8 @@ public:
 	}
 	void SetComplexUserData(const std::any& Data, int Position = -1);
 
+	void SetVMProcessFunction(std::function<long long(int, void*, long long)> VMProcessFunction);
+
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;
@@ -340,6 +342,7 @@ private:
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	std::vector<vmenu_fixed_column_t> m_FixedColumns;
 	small_segment m_ItemTextSegment{ small_segment::ray() };
+	std::function<long long(int, void*, long long)> m_VMProcessFunction;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};

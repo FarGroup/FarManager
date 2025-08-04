@@ -629,6 +629,11 @@ std::any* VMenu2::GetComplexUserData(int Position)
 	return ListBox().GetComplexUserData(Position);
 }
 
+void VMenu2::SetVMProcessFunction(std::function<long long(int, void*, long long)> VMProcessFunction)
+{
+	ListBox().SetVMProcessFunction(std::move(VMProcessFunction));
+}
+
 void VMenu2::Key(int key)
 {
 	INPUT_RECORD rec;

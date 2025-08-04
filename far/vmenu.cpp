@@ -1578,6 +1578,12 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			}
 			return 0;
 		}
+		case MCODE_F_MENU_USERDATA:
+		{
+			if (m_VMProcessFunction)
+				return m_VMProcessFunction(OpCode, vParam, iParam);
+			return -1;
+		}
 	}
 
 	return 0;
@@ -3408,6 +3414,11 @@ std::any* VMenu::GetComplexUserData(int Position)
 		return nullptr;
 
 	return &Items[ItemPos].ComplexUserData;
+}
+
+void VMenu::SetVMProcessFunction(std::function<long long(int, void*, long long)> VMProcessFunction)
+{
+	m_VMProcessFunction = std::move(VMProcessFunction);
 }
 
 FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)

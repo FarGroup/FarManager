@@ -294,6 +294,7 @@ Menu = {
   ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
   Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
   Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
+  UserData   = function(...) return MacroCallFar(0x80C6B, ...) end,
 }
 
 SetProperties(Menu, {
