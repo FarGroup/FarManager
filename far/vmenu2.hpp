@@ -117,6 +117,8 @@ public:
 		return std::any_cast<T>(GetComplexUserData(Position));
 	}
 
+	void SetVMProcessFunction(std::function<long long(int, void*, long long)> VMProcessFunction);
+
 	void Key(int key);
 	int GetSelectPos(FarListPos* ListPos);
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);
