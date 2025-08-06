@@ -1140,11 +1140,7 @@ static const wchar_t* WINAPI apiGetMsgFn(const UUID* PluginId, intptr_t MsgId) n
 	return cpp_try(
 	[&]
 	{
-		if (const auto pPlugin = UuidToPlugin(PluginId)
-#ifndef NO_WRAPPER
-			; !pPlugin->IsOemPlugin() // OEM plugins don't have Unicode language strings
-#endif
-		)
+		if (const auto pPlugin = UuidToPlugin(PluginId))
 		{
 			string_view Path = pPlugin->ModuleName();
 			CutToSlash(Path);

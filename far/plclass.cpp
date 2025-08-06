@@ -877,7 +877,7 @@ void Plugin::CloseLang()
 
 const wchar_t* Plugin::Msg(intptr_t Id) const
 {
-	return static_cast<const plugin_language&>(*PluginLang).Msg(Id);
+	return PluginLang->Msg(Id).c_str();
 }
 
 void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)

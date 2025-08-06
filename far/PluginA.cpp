@@ -5681,6 +5681,12 @@ WARNING_POP()
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
 		size_t size() const override { return m_Messages.size(); }
+		const string& at(size_t Index) const override
+		{
+			static string s_Data;
+			s_Data = encoding::oem::get_chars(m_Messages[Index]);
+			return s_Data;
+		}
 
 		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }
 
@@ -5692,7 +5698,7 @@ WARNING_POP()
 	{
 	public:
 		explicit ansi_plugin_language(string_view const Path, string_view const Language):
-			language(std::make_unique<ansi_language_data>())
+			language(std::make_unique<ansi_language_data>(), true)
 		{
 			load(Path, Language);
 		}

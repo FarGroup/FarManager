@@ -59,6 +59,7 @@ public:
 	virtual void add(string&& Str) = 0;
 	virtual void set_at(size_t Index, string&& Str) = 0;
 	virtual size_t size() const = 0;
+	virtual const string& at(size_t Index) const = 0;
 
 	bool validate(size_t MsgId) const;
 
@@ -72,30 +73,35 @@ public:
 
 	virtual ~language() = default;
 
+	const string& Msg(size_t Id) const;
+
 protected:
-	explicit language(std::unique_ptr<i_language_data>&& Data): m_Data(std::move(Data)) {}
+	explicit language(std::unique_ptr<i_language_data>&& Data, bool const UseFallback):
+		m_Data(std::move(Data)),
+		m_UseFallback(UseFallback)
+	{
+	}
 
 	// Throws on failure, strong exception safety guarantee
 	void load(string_view Path, string_view Language, int CountNeed = -1);
 
 	std::unique_ptr<i_language_data> m_Data;
+	bool m_UseFallback;
 };
 
-class plugin_language final: public language
+class plugin_language: public language
 {
 public:
 	explicit plugin_language(string_view Path, string_view Language);
-	const wchar_t* Msg(intptr_t Id) const;
 };
 
-class far_language final: private language, public singleton<far_language>
+class far_language final: public language, public singleton<far_language>
 {
 	IMPLEMENTS_SINGLETON;
 
 public:
 	using language::load;
 	bool is_loaded() const;
-	const string& Msg(lng Id) const;
 
 private:
 	far_language();

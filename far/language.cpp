@@ -325,8 +325,7 @@ public:
 	void add(string&& Str) override { m_Messages.emplace_back(std::move(Str)); }
 	void set_at(size_t Index, string&& Str) override { m_Messages[Index] = std::move(Str); }
 	size_t size() const override { return m_Messages.size(); }
-
-	const string& at(size_t Index) const { return m_Messages[Index]; }
+	const string& at(size_t Index) const override { return m_Messages[Index]; }
 
 private:
 	std::vector<string> m_Messages;
@@ -372,6 +371,12 @@ static void LoadCustomStrings(string_view const FileName, unordered_string_map<s
 	}
 
 	LOGINFO(L"Loaded {} strings from {}"sv, Strings.size() - LastSize, FileName);
+}
+
+const string& language::Msg(size_t Id) const
+{
+	static const string s_Empty;
+	return !m_UseFallback || m_Data->validate(Id)? m_Data->at(Id) : s_Empty;
 }
 
 void language::load(string_view const Path, string_view const Language, int CountNeed)
@@ -476,36 +481,25 @@ bool i_language_data::validate(size_t MsgId) const
 }
 
 plugin_language::plugin_language(string_view const Path, string_view const Language):
-	language(std::make_unique<language_data>())
+	language(std::make_unique<language_data>(), true)
 {
 	load(Path, Language);
 }
 
-const wchar_t* plugin_language::Msg(intptr_t Id) const
-{
-	return m_Data->validate(Id)? static_cast<const language_data&>(*m_Data).at(Id).c_str() : L"";
-}
-
-
 far_language::far_language():
-	language(std::make_unique<language_data>())
+	language(std::make_unique<language_data>(), false)
 {
 }
 
 bool far_language::is_loaded() const
 {
-	return static_cast<const language_data&>(*m_Data).size() != 0;
-}
-
-const string& far_language::Msg(lng Id) const
-{
-	return static_cast<const language_data&>(*m_Data).at(static_cast<size_t>(Id));
+	return m_Data->size() != 0;
 }
 
 
 const string& msg(lng Id)
 {
-	return far_language::instance().Msg(Id);
+	return far_language::instance().Msg(static_cast<size_t>(Id));
 }
 
 #ifdef ENABLE_TESTS
