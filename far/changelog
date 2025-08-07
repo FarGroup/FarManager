@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-08-07 17:19:50+01:00 - build 6525
+
+1. gh-746: Specifying active or passive panel path makes that panel visible.
+
+2. gh-986: Find File dialog + External editor.
+
+--------------------------------------------------------------------------------
 drkns 2025-08-06 21:21:29+01:00 - build 6524
 
 1. Improve 6523: make such GetMsg calls work.
