@@ -2032,6 +2032,7 @@ void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const Fi
 		{
 			const auto& externalCommand = openMode == FILETYPE_ALTEDIT? Global->Opt->strExternalEditor : Global->Opt->strExternalViewer;
 			ProcessExternal(externalCommand, SearchFileName, FileNameOnly, PluginMode, PathOnly);
+			Dlg->Show();
 		}
 	}
 
