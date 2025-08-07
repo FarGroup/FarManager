@@ -227,8 +227,7 @@ static int MainProcess(
 				}
 
 				auto& CurrentPanelOptions = (Global->Opt->LeftFocus == active)? Global->Opt->LeftPanel : Global->Opt->RightPanel;
-				CurrentPanelOptions.m_Type = static_cast<int>(panel_type::FILE_PANEL);  // сменим моду панели
-				CurrentPanelOptions.Visible = true;     // и включим ее
+				CurrentPanelOptions.m_Type = static_cast<int>(panel_type::FILE_PANEL);
 				CurrentPanelOptions.Folder = strPath;
 			};
 
@@ -239,6 +238,17 @@ static int MainProcess(
 				if (!ppanel.empty())
 				{
 					SetupPanel(false);
+				}
+
+				if (Global->Opt->LeftFocus)
+				{
+					if (!Global->Opt->LeftPanel.Visible && Global->Opt->RightPanel.Visible)
+						Global->Opt->LeftFocus = false;
+				}
+				else
+				{
+					if (!Global->Opt->RightPanel.Visible && Global->Opt->LeftPanel.Visible)
+						Global->Opt->LeftFocus = true;
 				}
 			}
 
