@@ -815,7 +815,7 @@ void FileList::SortFileList(bool KeepPosition)
 	}
 
 	const auto PluginPanel = GetPluginHandle();
-	const auto hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin()->has(iCompare))? PluginPanel : nullptr;
+	auto hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin()->has(iCompare))? PluginPanel : nullptr;
 
 	// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 	// при считывании директории
@@ -824,6 +824,11 @@ void FileList::SortFileList(bool KeepPosition)
 	{
 		const auto NameColumn = std::ranges::find(m_ViewSettings.PanelColumns, column_type::name, &column::type);
 		const auto IgnorePaths = NameColumn != m_ViewSettings.PanelColumns.cend() && NameColumn->type_flags & COLFLAGS_NAMEONLY;
+
+		if (PluginPanel && ProcessPluginEvent(FE_STARTSORT, nullptr))
+		{
+			hSortPlugin = nullptr;
+		}
 
 		list_less const Predicate(this, hSortPlugin, IgnorePaths);
 
@@ -837,6 +842,11 @@ void FileList::SortFileList(bool KeepPosition)
 		else
 		{
 			std::ranges::stable_sort(m_ListData, Predicate);
+		}
+
+		if (PluginPanel)
+		{
+			ProcessPluginEvent(FE_ENDSORT, nullptr);
 		}
 	}
 	else if (m_SortMode >= panel_sort::BY_USER)

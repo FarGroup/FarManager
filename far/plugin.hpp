@@ -2992,6 +2992,8 @@ enum FAR_EVENTS
 	FE_GOTFOCUS         =6,
 	FE_KILLFOCUS        =7,
 	FE_CHANGESORTPARAMS =8,
+	FE_STARTSORT        =9,
+	FE_ENDSORT          =10,
 };
 
 struct OpenInfo

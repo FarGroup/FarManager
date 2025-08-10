@@ -71,6 +71,15 @@ struct ProcessPanelEventInfo
     <td class="cont" width="60%">Сменились параметры сортировки панели.<br>Панель плагина получает событие <code>FE_CHANGESORTPARAMS</code> после любого изменения в параметрах сортировки.<br>
     <code>Param</code> равен <code>NULL</code>.<br>
     Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_STARTSORT">FE_STARTSORT</a></td>
+    <td class="cont" width="60%">Сигнализирует начало сортировки в панели плагина.<br>
+    <code>Param</code> равен <code>NULL</code>.<br>
+    Если функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> вернёт <code>TRUE</code>,
+    то экспортируемая функция плагина <a href="../exported_functions/comparew.html">CompareW</a> не будет вызываться в процессе данной сортировки.
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_ENDSORT">FE_ENDSORT</a></td>
+    <td class="cont" width="60%">Сигнализирует окончание сортировки в панели плагина.<br>
+    <code>Param</code> равен <code>NULL</code>.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
     </table></div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
