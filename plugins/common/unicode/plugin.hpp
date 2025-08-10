@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6462.0
+Plugin API for Far Manager 3.0.6526.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6462
+#define FARMANAGERVERSION_BUILD 6526
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -2856,6 +2856,8 @@ enum FAR_EVENTS
 	FE_GOTFOCUS         =6,
 	FE_KILLFOCUS        =7,
 	FE_CHANGESORTPARAMS =8,
+	FE_STARTSORT        =9,
+	FE_ENDSORT          =10,
 };
 
 struct OpenInfo
