@@ -501,8 +501,12 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		InitialConsoleMode->Output |
 		ENABLE_PROCESSED_OUTPUT |
 		ENABLE_WRAP_AT_EOL_OUTPUT |
-		(::console.IsVtSupported()? ENABLE_LVB_GRID_WORLDWIDE : 0) |
-		(::console.IsVtSupported() && Global->Opt->VirtualTerminalRendering? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0);
+		// ENABLE_VIRTUAL_TERMINAL_PROCESSING is required for [x] Use Virtual Terminal for rendering (extended colors and styles),
+		// but we also use it to send various service commands regardless of that option.
+		// It should be set by default, but apparently it is not always the case (see M#4080),
+		// and when it's not, flipping it back and forth too frequently impacts the overall performance.
+		// Setting it unconditionally should prevent that and make the flow more predictable in general.
+		(::console.IsVtSupported()? ENABLE_LVB_GRID_WORLDWIDE | ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0);
 
 	ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
 	ChangeConsoleMode(console.GetErrorHandle(), OutputMode);

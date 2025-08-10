@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-08-10 18:34:47+01:00 - build 6526
+
+1. Set ENABLE_VIRTUAL_TERMINAL_PROCESSING unconditionally.
+   We use it not only for "[x] Use Virtual Terminal for rendering" anyway
+   and flipping it back and forth can impact the overall performance (see M#4080).
+
+--------------------------------------------------------------------------------
 drkns 2025-08-07 17:19:50+01:00 - build 6525
 
 1. gh-746: Specifying active or passive panel path makes that panel visible.
