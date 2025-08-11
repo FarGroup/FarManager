@@ -3479,8 +3479,8 @@ namespace
 
 					switch (std::bit_cast<intptr_t>(vParam))
 					{
-					case 0:     return Coord->Line;
-					case 1:     return Coord->Pos;
+					case 0:     return Coord->Line + 1;
+					case 1:     return Coord->Pos + 1;
 					case 2:     return Coord->SearchLen;
 					default:    return -1;
 					}

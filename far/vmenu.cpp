@@ -806,15 +806,23 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 
 	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
+		const auto SavedSelectPos{ SelectPos };
+
+		for (auto& i : Items)
+			i.Flags &= ~LIF_SELECTED;
+
+		if (Pos >= 0)
+			UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED); // Changes SelectPos
+
 		if (const auto Parent = GetDialog(); Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+		{
+			// Restore SelectPos
+			if (SavedSelectPos >= 0)
+				UpdateItemFlags(SavedSelectPos, Items[SavedSelectPos].Flags | LIF_SELECTED);
+
 			return -1;
+		}
 	}
-
-	for (auto& i: Items)
-		i.Flags &= ~LIF_SELECTED;
-
-	if (Pos >= 0)
-		UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED);
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 

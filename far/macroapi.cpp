@@ -1212,7 +1212,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			const auto CurArea = GetArea();
 
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG || CurArea == MACROAREA_EDITOR)
 			{
 				if (CurrentWindow)
 				{
