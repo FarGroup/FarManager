@@ -2547,7 +2547,8 @@ bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::
 								m_it_CurLine->ProcessKey(Manager::Key(i));
 						}
 
-						m_it_CurLine->SetTabCurPos(TabPos);
+						if (m_it_CurLine->GetTabCurPos() < TabPos)
+							m_it_CurLine->SetTabCurPos(TabPos);
 					}
 				}
 
