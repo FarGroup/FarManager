@@ -142,7 +142,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<os::fs::enum_files>(strFindPath);
+				LastItem.Find = std::make_unique<os::fs::enum_files>(strFindPath, false);
 				LastItem.Iterator = LastItem.Find->end();
 			}
 
