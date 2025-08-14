@@ -1184,7 +1184,7 @@ public:
     archive->create_dir(created_dir, remove_path_root(current_dir));
   }
 
-  void show_attr() {
+  bool show_attr() {
     AttrList attr_list;
     Far::PanelItem panel_item = Far::get_current_panel_item(PANEL_ACTIVE);
     if (panel_item.file_name == L"..") {
@@ -1199,7 +1199,8 @@ public:
       attr_list = archive->get_attr_list(static_cast<UInt32>(reinterpret_cast<size_t>(panel_item.user_data)));
     }
     if (!attr_list.empty())
-      attr_dialog(attr_list);
+      return attr_dialog(attr_list);
+    return false;
   }
 
   void close() {
@@ -1623,8 +1624,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
 	 auto plugin = reinterpret_cast<Plugin*>(info->hPanel);
     // Ctrl+A
     if (key_event.wVirtualKeyCode == 'A' && ctrl && !alt && !shift) {
-      plugin->show_attr();
-      return TRUE;
+      return plugin->show_attr();
     }
     // Alt+F6
     else if (key_event.wVirtualKeyCode == VK_F6 && !ctrl && alt && !shift) {
