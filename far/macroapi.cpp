@@ -1212,14 +1212,14 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			const auto CurArea = GetArea();
 
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG || CurArea == MACROAREA_EDITOR)
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				if (CurrentWindow)
 				{
 					Result = CurrentWindow->VMProcess(
 						CheckCode,
 						std::bit_cast<void*>(static_cast<intptr_t>(Params[0].asInteger())),
-						Params[0].isInteger() ? Params[0].asInteger() : -1);
+						Params[1].isInteger() ? Params[1].asInteger() : -1);
 				}
 			}
 
