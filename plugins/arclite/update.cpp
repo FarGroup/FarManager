@@ -548,6 +548,7 @@ private:
       filter_data.CreationTime = src_find_data.ftCreationTime;
       filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
       filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
+      filter_data.ChangeTime = src_find_data.ftChangeTime;
       filter_data.FileSize = src_find_data.size();
       filter_data.AllocationSize = 0;
       filter_data.FileName = const_cast<wchar_t*>(src_find_data.cFileName);
@@ -752,6 +753,8 @@ public:
       prop = file_index_info.find_data.ftLastAccessTime; break;
     case kpidMTime:
       prop = file_index_info.find_data.ftLastWriteTime; break;
+    case kpidChangeTime:
+      prop = file_index_info.find_data.ftChangeTime; break;
     }
     prop.detach(value);
     return S_OK;
@@ -1201,6 +1204,7 @@ void Archive::create_dir(const std::wstring& dir_name, const std::wstring& dst_d
   file_index_info.find_data.ftCreationTime = file_time;
   file_index_info.find_data.ftLastAccessTime = file_time;
   file_index_info.find_data.ftLastWriteTime = file_time;
+  file_index_info.find_data.ftChangeTime = file_time;
   std::wcscpy(file_index_info.find_data.cFileName, dir_name.c_str());
   (*file_index_map)[m_num_indices] = file_index_info;
 

@@ -923,6 +923,7 @@ FindData Archive::get_file_info(UInt32 index) {
   file_info.ftCreationTime = get_ctime(index);
   file_info.ftLastWriteTime = get_mtime(index);
   file_info.ftLastAccessTime = get_atime(index);
+  file_info.ftChangeTime = get_chtime(index);
   return file_info;
 }
 
@@ -1006,6 +1007,16 @@ FILETIME Archive::get_atime(UInt32 index) const {
     return prop.get_filetime();
   else
     return arc_info.ftLastAccessTime;
+}
+
+FILETIME Archive::get_chtime(UInt32 index) const {
+  PropVariant prop;
+  if (index >= m_num_indices)
+    return arc_info.ftChangeTime;
+  else if (in_arc->GetProperty(index, kpidChangeTime, prop.ref()) == S_OK && prop.is_filetime())
+    return prop.get_filetime();
+  else
+    return arc_info.ftChangeTime;
 }
 
 unsigned Archive::get_crc(UInt32 index) const {

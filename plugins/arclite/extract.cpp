@@ -239,7 +239,7 @@ private:
         RETRY_OR_IGNORE_BEGIN
         file.set_end(); // ensure end of file is set correctly
         File::set_attr_nt(current_rec.file_path, archive->get_attr(current_rec.file_id));
-        file.set_time_nt(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
+        file.set_time_nt(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id), archive->get_chtime(current_rec.file_id));
         IGNORE_END(*ignore_errors, *error_log, *progress)
         if (error_ignored) error_state = true;
       }
@@ -661,7 +661,7 @@ private:
           File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
           File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
           File::set_attr_nt(file_path, archive.get_attr(file_index));
-          file.set_time_nt(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+          file.set_time_nt(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index), archive.get_mtime(file_index));
         }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }

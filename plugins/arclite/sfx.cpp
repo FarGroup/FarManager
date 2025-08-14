@@ -126,7 +126,7 @@ void attach_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_opti
     }
 
     File::set_attr(file_path, file_data.dwFileAttributes);
-    dst_file.set_time(file_data.ftCreationTime, file_data.ftLastAccessTime, file_data.ftLastWriteTime);
+    dst_file.set_time(file_data.ftCreationTime, file_data.ftLastAccessTime, file_data.ftLastWriteTime, file_data.ftChangeTime);
   }
   catch (...) {
     File::delete_file_nt(dst_path);

@@ -213,11 +213,39 @@ bool File::write_nt(const void* data, size_t size, size_t& size_written) noexcep
     return false;
 }
 
-void File::set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) {
-  CHECK_FILE(set_time_nt(ctime, atime, mtime), m_file_path);
+void File::set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime, const FILETIME& chtime) {
+  CHECK_FILE(set_time_nt(ctime, atime, mtime, chtime), m_file_path);
 };
 
-bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) noexcept {
+bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime, const FILETIME& chtime) noexcept {
+  using NtSetInformationFile_t = LONG(NTAPI*)(HANDLE FileHandle, void* IoStatusBlock, PVOID FileInformation, ULONG Length, ULONG FileInformationClass);
+  static const auto pNtSetInformationFile = reinterpret_cast<NtSetInformationFile_t>(reinterpret_cast<void*>(GetProcAddress(GetModuleHandleW(L"ntdll"), "NtSetInformationFile")));
+
+  if (pNtSetInformationFile)
+  {
+    struct FILE_BASIC_INFORMATION
+    {
+      LARGE_INTEGER CreationTime;
+      LARGE_INTEGER LastAccessTime;
+      LARGE_INTEGER LastWriteTime;
+      LARGE_INTEGER ChangeTime;
+      ULONG FileAttributes;
+    }
+    fbi
+    {
+      {{ ctime.dwLowDateTime,  static_cast<LONG>(ctime.dwHighDateTime) }},
+      {{ atime.dwLowDateTime,  static_cast<LONG>(atime.dwHighDateTime) }},
+      {{ mtime.dwLowDateTime,  static_cast<LONG>(mtime.dwHighDateTime) }},
+      {{ chtime.dwLowDateTime, static_cast<LONG>(chtime.dwHighDateTime) }}
+    };
+
+    void* IoStatusBlock[2];
+    constexpr auto FileBasicInformation = 4ul;
+    const auto Status = pNtSetInformationFile(h_file, &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
+    if (Status >= 0)
+      return true;
+  }
+
   return SetFileTime(h_file, &ctime, &atime, &mtime) != 0;
 };
 
@@ -227,7 +255,7 @@ bool File::copy_ctime_from(const std::wstring& source_file) noexcept
   if (!attributes_ex(source_file, &fa))
     return false;
   FILETIME dummy{};
-  return set_time_nt(fa.ftCreationTime, dummy, dummy);
+  return set_time_nt(fa.ftCreationTime, dummy, dummy, dummy);
 }
 
 uint64_t File::set_pos(int64_t offset, DWORD method) {
@@ -304,6 +332,7 @@ bool File::attributes_ex(const std::wstring& file_path, WIN32_FILE_ATTRIBUTE_DAT
     ex_attrs->ftCreationTime   = ff.ftCreationTime;
     ex_attrs->ftLastWriteTime  = ff.ftLastWriteTime;
     ex_attrs->ftLastAccessTime = ff.ftLastAccessTime;
+    // BUGBUG ChangeTime
     ex_attrs->nFileSizeLow     = ff.nFileSizeLow;
     ex_attrs->nFileSizeHigh    = ff.nFileSizeHigh;
 	 return true;
@@ -651,6 +680,7 @@ int FileEnum::far_emum_cb(const PluginPanelItem& item)
   fdata.ftCreationTime = item.CreationTime;
   fdata.ftLastAccessTime = item.LastAccessTime;
   fdata.ftLastWriteTime = item.LastWriteTime;
+  fdata.ftChangeTime = item.ChangeTime;
   fdata.nFileSizeHigh = static_cast<DWORD>((item.FileSize >> 32) & 0xFFFFFFFF);
   fdata.nFileSizeLow = static_cast<DWORD>(item.FileSize & 0xFFFFFFFF);
   fdata.dwReserved0 = static_cast<DWORD>(item.Reserved[0]);

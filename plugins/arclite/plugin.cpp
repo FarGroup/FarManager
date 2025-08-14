@@ -354,6 +354,7 @@ public:
       items[idx].CreationTime = archive->get_ctime(file_index);
       items[idx].LastAccessTime = archive->get_atime(file_index);
       items[idx].LastWriteTime = archive->get_mtime(file_index);
+      items[idx].ChangeTime = archive->get_chtime(file_index);
       items[idx].FileSize = archive->get_size(file_index);
       items[idx].AllocationSize = archive->get_psize(file_index);
       if (part_mode && current_dir.empty()) // MBR or GPT root

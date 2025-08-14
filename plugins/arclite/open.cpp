@@ -181,6 +181,7 @@ public:
       file_info.ftCreationTime = fi.ftCreationTime;
       file_info.ftLastAccessTime = fi.ftLastAccessTime;
       file_info.ftLastWriteTime = fi.ftLastWriteTime;
+      file_info.ftChangeTime = {}; // BUGBUG
       file_info.nFileSizeLow = fi.nFileSizeLow;
       file_info.nFileSizeHigh = fi.nFileSizeHigh;
     }
@@ -261,6 +262,8 @@ public:
       prop = volume_file_info.ftLastAccessTime; break;
     case kpidMTime:
       prop = volume_file_info.ftLastWriteTime; break;
+    case kpidChangeTime:
+      prop = volume_file_info.ftChangeTime; break;
     }
     prop.detach(value);
     return S_OK;

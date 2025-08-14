@@ -281,6 +281,7 @@ public:
   FILETIME get_ctime(UInt32 index) const;
   FILETIME get_mtime(UInt32 index) const;
   FILETIME get_atime(UInt32 index) const;
+  FILETIME get_chtime(UInt32 index) const;
   unsigned get_crc(UInt32 index) const;
   bool get_anti(UInt32 index) const;
   bool get_isaltstream(UInt32 index) const;
