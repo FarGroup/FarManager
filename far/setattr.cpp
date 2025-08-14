@@ -311,13 +311,14 @@ static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 	});
 
 	int SavedState[advanced_attributes_count];
+	const auto Flag = DlgParam.Plugin? DIF_DISABLE : DIF_NONE;
 
 	for (const auto i: std::views::iota(0uz, advanced_attributes_count))
 	{
 		const auto AbsoluteIndex = main_attributes_count + i;
 		auto& Attr = DlgParam.Attributes[main_attributes_count + i];
 		SavedState[i] = Attr.CurrentValue;
-		Builder.AddCheckbox(AttributeMap[AbsoluteIndex].LngId, Attr.CurrentValue, 0, flags::check_one(Attr.Flags, DIF_3STATE));
+		Builder.AddCheckbox(AttributeMap[AbsoluteIndex].LngId, Attr.CurrentValue, 0, flags::check_one(Attr.Flags, DIF_3STATE)).Flags |= Flag;
 	}
 
 	Builder.AddOKCancel();
@@ -809,6 +810,23 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
+			for (const auto i: std::views::iota(SA_ATTR_FIRST + 0, SA_ATTR_LAST + 1))
+			{
+				AttrDlg[i].Flags |= DIF_DISABLE;
+			}
+
+			for (const auto& i: TimeMap)
+			{
+				AttrDlg[i.DateId].Flags |= DIF_READONLY;
+				AttrDlg[i.TimeId].Flags |= DIF_READONLY;
+			}
+
+			AttrDlg[SA_EDIT_OWNER].Flags |= DIF_READONLY;
+
+			AttrDlg[SA_BUTTON_ORIGINAL].Flags|=DIF_DISABLE;
+			AttrDlg[SA_BUTTON_CURRENT].Flags|=DIF_DISABLE;
+			AttrDlg[SA_BUTTON_BLANK].Flags|=DIF_DISABLE;
+
 			AttrDlg[SA_BUTTON_SET].Flags|=DIF_DISABLE;
 			AttrDlg[SA_BUTTON_SYSTEMDLG].Flags|=DIF_DISABLE;
 			DlgParam.Plugin=true;
@@ -1148,11 +1166,15 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			ComputerName = ExtractComputerName(SrcPanel?
-				SrcPanel->GetCurDir() :
-				ConvertNameToFull(SingleSelFileName));
+			if (!DlgParam.Plugin)
+			{
+				ComputerName = ExtractComputerName(SrcPanel?
+					SrcPanel->GetCurDir() :
+					ConvertNameToFull(SingleSelFileName)
+				);
 
-			GetFileOwner(ComputerName, SingleSelFileName, DlgParam.Owner.InitialValue);
+				GetFileOwner(ComputerName, SingleSelFileName, DlgParam.Owner.InitialValue);
+			}
 		}
 		else
 		{
@@ -1169,9 +1191,9 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			// так же проверка на атрибуты
 			auto FolderPresent = false;
 
-			ComputerName = ExtractComputerName(SrcPanel->GetCurDir());
+			ComputerName = DlgParam.Plugin? L""s : ExtractComputerName(SrcPanel->GetCurDir());
 
-			bool CheckOwner=true;
+			bool CheckOwner = !DlgParam.Plugin;
 
 			std::optional<os::chrono::time_point> Times[std::size(TimeMap)];
 			bool SkipCheckTimes[std::size(TimeMap)]{};
