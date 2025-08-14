@@ -3214,7 +3214,7 @@ void FarMacroApi::panelitemFunc() const
 			case 6:  // FileSize
 				return PassValue(filelistItem->FileSize);
 			case 7:  // AllocationSize
-				return PassValue(filelistItem->AllocationSize);
+				return PassValue(filelistItem->AllocationSize(fileList.get()));
 			case 8:  // Selected
 				return PassBoolean(filelistItem->Selected);
 			case 9:  // NumberOfLinks

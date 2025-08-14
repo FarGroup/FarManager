@@ -198,16 +198,23 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter
 
 			if (!CheckHardlinks || !FindData.FileId || FileIds.emplace(FindData.FileId).second)
 			{
-				Data.AllocationSize += FindData.AllocationSize;
-				if(FindData.AllocationSize > FindData.FileSize)
+				unsigned long long AllocationSize;
+
+				if (os::fs::is_allocation_size_read(FindData))
+					AllocationSize = FindData.AllocationSizeRaw;
+				else if (!os::fs::get_allocation_size(strFullName, AllocationSize))
+					AllocationSize = 0;
+
+				Data.AllocationSize += AllocationSize;
+				if(AllocationSize > FindData.FileSize)
 				{
-					if(FindData.AllocationSize >= Data.ClusterSize)
+					if(AllocationSize >= Data.ClusterSize)
 					{
-						Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
+						Data.FilesSlack += AllocationSize - FindData.FileSize;
 					}
 					else
 					{
-						Data.MFTOverhead += FindData.AllocationSize - FindData.FileSize;
+						Data.MFTOverhead += AllocationSize - FindData.FileSize;
 					}
 				}
 			}

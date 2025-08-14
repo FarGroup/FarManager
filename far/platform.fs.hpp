@@ -95,7 +95,7 @@ namespace os::fs
 		chrono::time_point LastWriteTime;
 		chrono::time_point ChangeTime;
 		unsigned long long FileSize{};
-		unsigned long long AllocationSize{};
+		mutable unsigned long long AllocationSizeRaw{};
 		unsigned long long FileId{};
 		attributes Attributes{ INVALID_FILE_ATTRIBUTES };
 		DWORD ReparseTag{};
@@ -646,6 +646,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	drives_set allowed_drives_mask();
+
+	bool is_allocation_size_read(find_data const& FindData);
+	bool get_allocation_size(string_view FileName, unsigned long long& AllocationSize);
 }
 
 #endif // PLATFORM_FS_HPP_1094D8B6_7681_46C8_9C08_C5253376E988

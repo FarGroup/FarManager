@@ -169,7 +169,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& 
 	Dest.LastWriteTime = os::chrono::nt_clock::from_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::from_filetime(Src.ChangeTime);
 	Dest.FileSize = Src.FileSize;
-	Dest.AllocationSize = Src.AllocationSize;
+	Dest.AllocationSizeRaw = Src.AllocationSize;
 	Dest.FileName = NullToEmpty(Src.FileName);
 	Dest.SetAlternateFileName(NullToEmpty(Src.AlternateFileName));
 	Dest.Attributes = Src.FileAttributes;
@@ -185,7 +185,7 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 	Dest.LastWriteTime = os::chrono::nt_clock::to_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::to_filetime(Src.ChangeTime);
 	Dest.FileSize = Src.FileSize;
-	Dest.AllocationSize = Src.AllocationSize;
+	Dest.AllocationSize = os::fs::is_allocation_size_read(Src)? Src.AllocationSizeRaw : 0;
 	Dest.FileAttributes = Src.Attributes;
 	Dest.NumberOfLinks = 1;
 

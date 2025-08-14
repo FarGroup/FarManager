@@ -2039,6 +2039,17 @@ void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const Fi
 	console.SetTitle(strOldTitle);
 }
 
+static auto allocation_size(const os::fs::find_data& FindData, string_view const FullName)
+{
+	if (os::fs::is_allocation_size_read(FindData))
+		return FindData.AllocationSizeRaw;
+
+	if (os::fs::get_allocation_size(FullName, FindData.AllocationSizeRaw))
+		return FindData.AllocationSizeRaw;
+
+	return 0ull;
+}
+
 void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, const os::fs::find_data& FindData, UserDataItem const& UserData, ArcListItem* const Arc)
 {
 	if (!Dlg)
@@ -2110,7 +2121,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 					i.type == column_type::size?
 						FindData.FileSize :
 						i.type == column_type::size_compressed?
-							FindData.AllocationSize :
+							allocation_size(FindData, FullName) :
 							i.type == column_type::streams_size?
 								Size :
 								Count; // ???
@@ -2120,7 +2131,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 						SizeToDisplay,
 						FindData.FileName,
 						FindData.Attributes,
-						0,
+						folder_size::unknown,
 						FindData.ReparseTag,
 						any_of(i.type, column_type::streams_number, column_type::links_number)?
 							column_type::streams_size :

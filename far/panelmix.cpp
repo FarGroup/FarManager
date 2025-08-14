@@ -679,7 +679,7 @@ string FormatStr_Size(
 	long long const Size,
 	string_view const strName,
 	os::fs::attributes const FileAttributes,
-	DWORD const ShowFolderSize,
+	folder_size const FolderSize,
 	DWORD const ReparseTag,
 	column_type const ColumnType,
 	unsigned long long const Flags,
@@ -690,7 +690,7 @@ string FormatStr_Size(
 
 	const auto Streams = ColumnType == column_type::streams_size;
 
-	if (ShowFolderSize==2)
+	if (FolderSize == folder_size::outdated)
 	{
 		Width--;
 		strResult += L'~';
@@ -700,7 +700,7 @@ string FormatStr_Size(
 	const auto rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
 	const auto have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || Size > 0);
 
-	if (!Streams && !have_size && !ShowFolderSize)
+	if (!Streams && !have_size && FolderSize == folder_size::unknown)
 	{
 		static const lng FolderLabels[] =
 		{

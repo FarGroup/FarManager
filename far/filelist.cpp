@@ -226,7 +226,7 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.FileName = fi.FileName.c_str();                   //! CHANGED
 	pi.AlternateFileName = fi.AlternateFileName().c_str(); //! CHANGED
 	pi.FileSize=fi.FileSize;
-	pi.AllocationSize=fi.AllocationSize;
+	pi.AllocationSize = fi.AllocationSize(FileListPtr);
 	pi.FileAttributes=fi.Attributes;
 	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
 	pi.CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
@@ -329,6 +329,17 @@ FileListItem::FileListItem()
 static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
 	return path::join(Owner->GetCurDir(), IsParentDirectory(Item)? string{} : Item.FileName);
+}
+
+unsigned long long FileListItem::AllocationSize(FileList const* const Owner) const
+{
+	if (!os::fs::is_allocation_size_read(*this) && SizeState != size_state::file_allocation_size_attempted)
+	{
+		(void)os::fs::get_allocation_size(GetItemFullName(*this, Owner), AllocationSizeRaw);
+		SizeState = size_state::file_allocation_size_attempted;
+	}
+
+	return AllocationSizeRaw;
 }
 
 bool FileListItem::IsNumberOfLinksRead() const
@@ -765,7 +776,7 @@ private:
 			return string_sort::compare(a.Owner(m_Owner), b.Owner(m_Owner));
 
 		case panel_sort::BY_COMPRESSEDSIZE:
-			return a.AllocationSize <=> b.AllocationSize;
+			return a.AllocationSize(m_Owner) <=> b.AllocationSize(m_Owner);
 
 		case panel_sort::BY_NUMLINKS:
 			return a.NumberOfLinks(m_Owner) <=> b.NumberOfLinks(m_Owner);
@@ -3794,6 +3805,17 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	}
 }
 
+static auto folder_size_display_type(FileListItem::size_state const SizeType)
+{
+	switch (SizeType)
+	{
+	default:
+	case FileListItem::size_state::folder_size_unknown: return folder_size::unknown;
+	case FileListItem::size_state::folder_size_precise: return folder_size::precise;
+	case FileListItem::size_state::folder_size_outdated: return folder_size::outdated;
+	}
+}
+
 // собрать в одну строку все данные в отображаемых колонках
 bool FileList::GetPlainString(string& Dest, int ListPos, os::chrono::time_point const CurrentTime) const
 {
@@ -3859,7 +3881,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos, os::chrono::time_point 
 			case column_type::streams_size:
 			{
 				const auto SizeToDisplay = (Column.type == column_type::size_compressed) ?
-					m_ListData[ListPos].AllocationSize :
+					m_ListData[ListPos].AllocationSize(this) :
 					Column.type == column_type::streams_size ?
 					m_ListData[ListPos].StreamsSize(this) :
 					m_ListData[ListPos].FileSize;
@@ -3868,7 +3890,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos, os::chrono::time_point 
 					SizeToDisplay,
 					m_ListData[ListPos].FileName,
 					m_ListData[ListPos].Attributes,
-					m_ListData[ListPos].ShowFolderSize,
+					folder_size_display_type(m_ListData[ListPos].SizeState),
 					m_ListData[ListPos].ReparseTag,
 					Column.type,
 					Column.type_flags,
@@ -5268,8 +5290,8 @@ void FileList::CountDirSize(bool IsRealNames)
 				SelFileSize += Data.FileSize;
 
 				i.FileSize = Data.FileSize;
-				i.AllocationSize = Data.AllocationSize;
-				i.ShowFolderSize = 1;
+				i.AllocationSizeRaw = Data.AllocationSize;
+				i.SizeState = FileListItem::size_state::folder_size_precise;
 
 				Total.Items += Data.DirCount + Data.FileCount;
 				Total.Size += Data.FileSize;
@@ -5314,7 +5336,7 @@ void FileList::CountDirSize(bool IsRealNames)
 				{
 					++BasicData.FileCount;
 					BasicData.FileSize += i.FileSize;
-					BasicData.AllocationSize += i.AllocationSize;
+					BasicData.AllocationSize += i.AllocationSize(this);
 
 					++Total.Items;
 					Total.Size += i.FileSize;
@@ -5337,8 +5359,8 @@ void FileList::CountDirSize(bool IsRealNames)
 		     (IsRealNames && GetDirInfo(IsParentDirectory(CurFile)? L"."s : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
-			CurFile.AllocationSize = Data.AllocationSize;
-			CurFile.ShowFolderSize = 1;
+			CurFile.AllocationSizeRaw = Data.AllocationSize;
+			CurFile.SizeState = FileListItem::size_state::folder_size_precise;
 		}
 	}
 
@@ -5813,7 +5835,7 @@ static void FileListItemToPluginPanelItemBasic(const FileListItem& From, PluginP
 	To.LastWriteTime = os::chrono::nt_clock::to_filetime(From.LastWriteTime);
 	To.ChangeTime = os::chrono::nt_clock::to_filetime(From.ChangeTime);
 	To.FileSize = From.FileSize;
-	To.AllocationSize = From.AllocationSize;
+	To.AllocationSize = os::fs::is_allocation_size_read(From)? From.AllocationSizeRaw : 0;
 	To.FileName = {};
 	To.AlternateFileName = {};
 	To.Description = {};
@@ -5985,7 +6007,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	ChangeTime = os::chrono::nt_clock::from_filetime(pi.ChangeTime);
 
 	FileSize = pi.FileSize;
-	AllocationSize = pi.AllocationSize;
+	AllocationSizeRaw = pi.AllocationSize;
 
 	UserFlags = pi.Flags;
 	UserData = pi.UserData;
@@ -7158,8 +7180,6 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 			for (const auto& i: PanelData)
 			{
 				FileListItem Item{ i };
-				Item.PrevSelected = Item.Selected = false;
-				Item.ShowFolderSize = 0;
 				Item.SortGroup = Global->CtrlObject->HiFiles->GetGroup(Item, this);
 				Item.Position = m_ListData.size();
 				m_ListData.emplace_back(std::move(Item));
@@ -7378,11 +7398,11 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 
 		OldPositions.emplace_back(OldItemIterator->Position);
 
-		if (OldItemIterator->ShowFolderSize)
+		if (OldItemIterator->SizeState == FileListItem::size_state::folder_size_precise || OldItemIterator->SizeState == FileListItem::size_state::folder_size_outdated)
 		{
-			i.ShowFolderSize = 2;
+			i.SizeState = FileListItem::size_state::folder_size_outdated;
 			i.FileSize = OldItemIterator->FileSize;
-			i.AllocationSize = OldItemIterator->AllocationSize;
+			i.AllocationSizeRaw = OldItemIterator->AllocationSizeRaw;
 		}
 
 		Select(i, OldItemIterator->Selected);
@@ -8892,7 +8912,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case column_type::streams_size:
 						{
 							const auto SizeToDisplay = (ColumnType == column_type::size_compressed)
-								? m_ListData[ListPos].AllocationSize
+								? m_ListData[ListPos].AllocationSize(this)
 								: (ColumnType == column_type::streams_size)
 									? m_ListData[ListPos].StreamsSize(this)
 									: m_ListData[ListPos].FileSize;
@@ -8901,7 +8921,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								SizeToDisplay,
 								m_ListData[ListPos].FileName,
 								m_ListData[ListPos].Attributes,
-								m_ListData[ListPos].ShowFolderSize,
+								folder_size_display_type(m_ListData[ListPos].SizeState),
 								m_ListData[ListPos].ReparseTag,
 								ColumnType,
 								Columns[K].type_flags,

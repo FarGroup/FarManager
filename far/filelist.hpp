@@ -72,6 +72,8 @@ public:
 	FileListItem();
 	explicit FileListItem(const PluginPanelItem& pi);
 
+	unsigned long long AllocationSize(FileList const* Owner) const;
+
 	bool IsNumberOfLinksRead() const;
 	DWORD NumberOfLinks(const FileList* Owner) const;
 
@@ -106,7 +108,15 @@ public:
 
 	bool Selected{};
 	bool PrevSelected{};
-	char ShowFolderSize{};
+
+	mutable enum size_state: unsigned char
+	{
+		folder_size_unknown,
+		folder_size_precise,
+		folder_size_outdated,
+		file_allocation_size_attempted
+	}
+	SizeState{ size_state::folder_size_unknown };
 
 	struct values
 	{
