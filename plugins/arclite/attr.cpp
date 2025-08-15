@@ -382,7 +382,8 @@ AttrList Archive::get_attr_list(UInt32 item_index) {
   }
 
   ComObject<IArchiveGetRawProps> raw_props;
-  CHECK_COM(in_arc->QueryInterface(IID_IArchiveGetRawProps, reinterpret_cast<void**>(&raw_props)));
+  if (FAILED(in_arc->QueryInterface(IID_IArchiveGetRawProps, reinterpret_cast<void**>(&raw_props))) || !raw_props)
+    return attr_list;
 
   UInt32 num_raw_props;
   CHECK_COM(raw_props->GetNumRawProps(&num_raw_props));
