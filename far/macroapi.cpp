@@ -1205,6 +1205,35 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PassValue(tmpVar);
 		}
 
+		case MCODE_F_MENU_USERDATA: // N=Menu.UserData(Field[,N])
+		{
+			const auto Params = api.parseParams(2);
+			long long Result = -1;
+
+			const auto CurArea = GetArea();
+
+			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			{
+				if (CurrentWindow)
+				{
+					for (intptr_t I = 0; I < 3; ++I)
+					{
+						Result = CurrentWindow->VMProcess(
+							CheckCode,
+							std::bit_cast<void*>(I),
+							Params[1].isInteger() && !Params[1].isUnknown() ? Params[1].asInteger() : -1);
+						api.PassValue(Result);
+					}
+					//Result = CurrentWindow->VMProcess(
+					//	CheckCode,
+					//	std::bit_cast<void*>(static_cast<intptr_t>(Params[0].asInteger())),
+					//	Params[1].isInteger() && !Params[1].isUnknown() ? Params[1].asInteger() : -1);
+				}
+			}
+
+			return;// api.PassValue(Result);
+		}
+
 		case MCODE_V_MENU_HORIZONTALALIGNMENT:
 		{
 			long long Result = -1;

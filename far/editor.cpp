@@ -3471,6 +3471,21 @@ namespace
 				},
 				small_segment::ray(ItemTextStart)
 			);
+			m_Menu->SetVMProcessFunction([this](int OpCode, void* vParam, long long iParam)
+				{
+					if (OpCode != MCODE_F_MENU_USERDATA) return 0;
+
+					const auto Coord{ m_Menu->GetComplexUserDataPtr<FindCoord>(iParam) };
+					if (!Coord) return -1;
+
+					switch (std::bit_cast<intptr_t>(vParam))
+					{
+					case 0:     return Coord->Line + 1;
+					case 1:     return Coord->Pos + 1;
+					case 2:     return Coord->SearchLen;
+					default:    return -1;
+					}
+				});
 		}
 
 		void toggle_zoom()

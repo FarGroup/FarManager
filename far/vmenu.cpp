@@ -806,15 +806,23 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 
 	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
+		const auto SavedSelectPos{ SelectPos };
+
+		for (auto& i : Items)
+			i.Flags &= ~LIF_SELECTED;
+
+		if (Pos >= 0)
+			UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED); // Changes SelectPos
+
 		if (const auto Parent = GetDialog(); Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+		{
+			// Restore SelectPos
+			if (SavedSelectPos >= 0)
+				UpdateItemFlags(SavedSelectPos, Items[SavedSelectPos].Flags | LIF_SELECTED);
+
 			return -1;
+		}
 	}
-
-	for (auto& i: Items)
-		i.Flags &= ~LIF_SELECTED;
-
-	if (Pos >= 0)
-		UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED);
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
@@ -1577,6 +1585,12 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 				}
 			}
 			return 0;
+		}
+		case MCODE_F_MENU_USERDATA:
+		{
+			if (m_VMProcessFunction)
+				return m_VMProcessFunction(OpCode, vParam, iParam);
+			return -1;
 		}
 	}
 
@@ -3408,6 +3422,11 @@ std::any* VMenu::GetComplexUserData(int Position)
 		return nullptr;
 
 	return &Items[ItemPos].ComplexUserData;
+}
+
+void VMenu::SetVMProcessFunction(std::function<long long(int, void*, long long)> VMProcessFunction)
+{
+	m_VMProcessFunction = std::move(VMProcessFunction);
 }
 
 FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
