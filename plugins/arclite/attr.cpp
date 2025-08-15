@@ -9,6 +9,8 @@
 #include "archive.hpp"
 #include "options.hpp"
 
+#include <sddl.h>
+
 static std::wstring uint_to_hex_str(UInt64 val, unsigned num_digits = 0) {
   wchar_t str[16];
   unsigned pos = 16;
@@ -298,10 +300,54 @@ static const PropInfo* find_prop_info(PROPID prop_id) {
     return c_prop_info + (prop_id - kpidPath);
 }
 
+static std::wstring decode_nt_security_decriptor(const void* data) {
+  LPWSTR sddl_string{};
+  if (!ConvertSecurityDescriptorToStringSecurityDescriptor(
+    const_cast<PSECURITY_DESCRIPTOR>(data),
+    SDDL_REVISION_1,
+      ATTRIBUTE_SECURITY_INFORMATION |
+      BACKUP_SECURITY_INFORMATION |
+      DACL_SECURITY_INFORMATION |
+      GROUP_SECURITY_INFORMATION |
+      LABEL_SECURITY_INFORMATION |
+      OWNER_SECURITY_INFORMATION |
+      SACL_SECURITY_INFORMATION |
+      SCOPE_SECURITY_INFORMATION,
+    &sddl_string,
+    {}
+    )
+  )
+    return {};
+
+  std::wstring result = sddl_string;
+  LocalFree(sddl_string);
+  return result;
+}
+
+static std::wstring decode_nt_reparse_buffer(const void* data) {
+  const auto Buffer = static_cast<REPARSE_GUID_DATA_BUFFER const*>(data);
+  // Decoding human-readable reparse tag names and fields like in Far is possible,
+  // but perhaps too much for this plugin.
+  // For now, we just display the reparse tag as a hex string.
+  return uint_to_hex_str(Buffer->ReparseTag, sizeof(Buffer->ReparseTag) * 2);
+}
+
 AttrList Archive::get_attr_list(UInt32 item_index) {
   AttrList attr_list;
   if (item_index >= m_num_indices) // fake index
     return attr_list;
+
+  const auto find_and_handle_prop_info = [](PROPID const prop_id, BStr const& name, Attr& attr) {
+    const auto prop_info = find_prop_info(prop_id);
+    if (prop_info)
+      attr.name = Far::get_msg(prop_info->name_id);
+    else if (name)
+      attr.name.assign(name, name.size());
+    else
+      attr.name = int_to_str(prop_id);
+    return prop_info;
+  };
+
   UInt32 num_props;
   CHECK_COM(in_arc->GetNumberOfProperties(&num_props));
   for (unsigned i = 0; i < num_props; i++) {
@@ -310,13 +356,8 @@ AttrList Archive::get_attr_list(UInt32 item_index) {
     PROPID prop_id;
     VARTYPE vt;
     CHECK_COM(in_arc->GetPropertyInfo(i, name.ref(), &prop_id, &vt));
-    const PropInfo* prop_info = find_prop_info(prop_id);
-    if (prop_info)
-      attr.name = Far::get_msg(prop_info->name_id);
-    else if (name)
-      attr.name.assign(name, name.size());
-    else
-      attr.name = int_to_str(prop_id);
+
+    const auto prop_info = find_and_handle_prop_info(prop_id, name, attr);
 
     PropVariant prop;
     CHECK_COM(in_arc->GetProperty(item_index, prop_id, prop.ref()));
@@ -337,8 +378,46 @@ AttrList Archive::get_attr_list(UInt32 item_index) {
         attr.value = format_filetime_prop(prop);
     }
 
-    if (!attr.value.empty())
-      attr_list.push_back(attr);
+    attr_list.push_back(attr);
+  }
+
+  ComObject<IArchiveGetRawProps> raw_props;
+  CHECK_COM(in_arc->QueryInterface(IID_IArchiveGetRawProps, reinterpret_cast<void**>(&raw_props)));
+
+  UInt32 num_raw_props;
+  CHECK_COM(raw_props->GetNumRawProps(&num_raw_props));
+
+  for (unsigned i = 0; i != num_raw_props; ++i)
+  {
+    Attr attr;
+    BStr name;
+    PROPID prop_id;
+    CHECK_COM(raw_props->GetRawPropInfo(i, name.ref(), &prop_id));
+
+    const void *data;
+    UInt32 data_size;
+    UInt32 prop_type;
+    CHECK_COM(raw_props->GetRawProp(item_index, prop_id, &data, &data_size, &prop_type));
+    if (prop_type != NPropDataType::kRaw)
+      continue;
+
+    switch (const auto prop_info = find_and_handle_prop_info(prop_id, name, attr); prop_info->prop_id)
+    {
+    case kpidNtSecure:
+      attr.value = decode_nt_security_decriptor(data);
+      attr.ignore_value_length = true; // SDDL string can be very long, no point in stretching the dialog to accommodate it
+      break;
+
+    case kpidNtReparse:
+      attr.value = decode_nt_reparse_buffer(data);
+      break;
+
+    default:
+      attr.value.append(std::to_wstring(data_size).append(L" "s).append(Far::get_msg(MSG_SUFFIX_SIZE_B)));
+      break;
+    }
+
+    attr_list.push_back(attr);
   }
 
   return attr_list;

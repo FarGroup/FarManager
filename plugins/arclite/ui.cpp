@@ -2039,7 +2039,7 @@ public:
     std::for_each(attr_list.begin(), attr_list.end(), [&] (const Attr& attr) {
       if (attr.name.size() > max_name_len)
         max_name_len = static_cast<unsigned>(attr.name.size());
-      if (attr.value.size() > max_value_len)
+      if (!attr.ignore_value_length && attr.value.size() > max_value_len)
         max_value_len = static_cast<unsigned>(attr.value.size());
     });
     max_value_len += 1;

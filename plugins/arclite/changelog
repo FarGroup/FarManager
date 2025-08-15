@@ -1,3 +1,7 @@
+drkns 2025-08-15 17:47:30+01:00 - build 350
+
+1. Properly decode raw properties (kpidNtSecure, kpidNtReparse).
+
 drkns 2025-08-14 23:21:08+01:00 - build 349
 
 1. Change Time support.
