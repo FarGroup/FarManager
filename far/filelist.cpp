@@ -4769,7 +4769,7 @@ static void edit_sort_layers(int MenuPos)
 				const auto NewSortModeIndex = std::ranges::find(SortModes, Result, &sort_mode::MenuPosition) - SortModes;
 				const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
 				const auto InsertPos = Pos > 0? Pos : 1;
-				SortLayersMenu->AddItem(MenuItemEx{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, InsertPos);
+				SortLayersMenu->AddItem(menu_item_ex{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, InsertPos);
 				SortLayersMenu->SetSelectPos(InsertPos);
 				SortLayers.emplace(SortLayers.begin() + InsertPos, static_cast<panel_sort>(NewSortModeIndex), Order);
 			}

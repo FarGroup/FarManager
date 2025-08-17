@@ -229,7 +229,7 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 	Menu.clear();
 	FOR_RANGE(List, i)
 	{
-		MenuItemEx ListItem{ MakeName(*i) };
+		menu_item_ex ListItem{ MakeName(*i) };
 		if (ListItem.Name.empty())
 			continue;
 
@@ -394,7 +394,7 @@ std::variant<std::list<Shortcuts::shortcut>::const_iterator, size_t> Shortcuts::
 			{
 				const auto newIter = m_Items.emplace(Iterator? *Iterator : m_Items.end(), CreateShortcutFromPanel());
 
-				MenuItemEx NewMenuItem{ newIter->Folder };
+				menu_item_ex NewMenuItem{ newIter->Folder };
 				NewMenuItem.ComplexUserData = newIter;
 				FolderList->AddItem(NewMenuItem, ItemPos);
 				FolderList->SetSelectPos(ItemPos, 1);
@@ -499,7 +499,7 @@ bool Shortcuts::Get(size_t Index, data& Data)
 	}
 }
 
-static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, MenuItemEx& MenuItem)
+static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, menu_item_ex& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
 	MenuItem.Name = far::format(L"{}+&{} {} {}"sv, KeyToLocalizedText(KEY_RCTRL), Key, BoxSymbols[BS_V1], ItemName);
@@ -540,7 +540,7 @@ int Shortcuts::Configure()
 
 	for (auto& i: AllShortcuts)
 	{
-		MenuItemEx ListItem;
+		menu_item_ex ListItem;
 		MakeListName(i.m_Items, i.m_KeyName, ListItem);
 		FolderList->AddItem(ListItem);
 	}

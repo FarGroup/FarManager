@@ -299,8 +299,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					LastDay = SavedTime.Day;
 					LastMonth = SavedTime.Month;
 					LastYear = SavedTime.Year;
-					MenuItemEx Separator;
-					Separator.Flags = LIF_SEPARATOR;
+					menu_item_ex Separator{ LIF_SEPARATOR };
 					string Time;
 					std::tie(Separator.Name, Time) = time_point_to_string(i.Time, 8, 1);
 					HistoryMenu.AddItem(Separator);
@@ -310,7 +309,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
 					inplace::escape_ampersands(strRecord);
 
-				MenuItemEx MenuItem{ std::move(strRecord) };
+				menu_item_ex MenuItem{ std::move(strRecord) };
 				i.Lock? MenuItem.SetCheck() : MenuItem.ClearCheck();
 				MenuItem.ComplexUserData = i.Id;
 

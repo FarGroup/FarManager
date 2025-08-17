@@ -217,11 +217,11 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 		return a.Hotkey < b.Hotkey;
 	});
 
-	ChDisk.AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
+	ChDisk.AddItem(menu_item_ex{ LIF_SEPARATOR });
 
 	for (const auto& [i, index]: enumerate(MenuInitItems))
 	{
-		MenuItemEx MenuItem{ concat(i.Hotkey? concat(L'&', i.Hotkey, L"  "sv) : L"   "sv, i.Str), i.Flags };
+		menu_item_ex MenuItem{ concat(i.Hotkey? concat(L'&', i.Hotkey, L"  "sv) : L"   "sv, i.Str), i.Flags };
 		MenuItem.ComplexUserData = disk_menu_item{ i.PluginData };
 		if (Pos > DiskCount && !SetSelected && DiskCount + static_cast<int>(index) + 1 == Pos)
 		{
@@ -868,7 +868,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		for (const auto& i: Items)
 		{
-			MenuItemEx ChDiskItem;
+			menu_item_ex ChDiskItem;
 
 			const auto IsDisk = is_disk(i.RootDirectory);
 

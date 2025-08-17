@@ -576,7 +576,7 @@ static bool trace()
 
 	if (std::current_exception())
 	{
-		Menu->AddItem(MenuItemEx{ L"Exception stack"s, LIF_SEPARATOR });
+		Menu->AddItem(menu_item_ex{ L"Exception stack"s, LIF_SEPARATOR });
 		tracer.exception_stacktrace({}, add_to_menu);
 	}
 
@@ -679,8 +679,8 @@ static bool ExceptionTestHook(Manager::Key const& key)
 
 	static auto ForceStderrUI = false;
 
-	TestGroupsMenu->AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
-	TestGroupsMenu->AddItem(MenuItemEx{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
+	TestGroupsMenu->AddItem(menu_item_ex{ LIF_SEPARATOR });
+	TestGroupsMenu->AddItem(menu_item_ex{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
 
 	const auto StdErrId = static_cast<int>(TestGroupsMenu->size() - 1);
 

@@ -456,7 +456,7 @@ window_ptr Manager::WindowMenu()
 			const auto Hotkey = static_cast<wchar_t>(i < 10? L'0' + i : i < 36? L'A' + i - 10 : L' ');
 			inplace::escape_ampersands(Name);
 			/*  добавляется "*" если файл изменен */
-			MenuItemEx ModalMenuItem{ far::format(
+			menu_item_ex ModalMenuItem{ far::format(
 				L"{}{}  {:<{}} {} {}"sv,
 				Hotkey == L' '? L""sv : L"&"sv,
 				Hotkey,

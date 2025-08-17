@@ -193,7 +193,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 
 	for (const auto& [Name, Description]: Languages)
 	{
-		MenuItemEx LangMenuItem{ far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description) };
+		menu_item_ex LangMenuItem{ far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description) };
 
 		LangMenuItem.SetSelect(Current == Name);
 		LangMenuItem.ComplexUserData = Name;

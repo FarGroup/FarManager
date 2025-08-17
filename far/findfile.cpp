@@ -2205,9 +2205,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 	{
 		if (!ListBox->empty())
 		{
-			MenuItemEx ListItem;
-			ListItem.Flags|=LIF_SEPARATOR;
-			ListBox->AddItem(std::move(ListItem));
+			ListBox->AddItem(menu_item_ex{ LIF_SEPARATOR });
 		}
 
 		m_LastDirName = strPathName;
@@ -2236,7 +2234,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 		FindItem.Arc = Arc;
 
 		const auto Ptr = &FindItem;
-		MenuItemEx ListItem{ strPathName };
+		menu_item_ex ListItem{ strPathName };
 		ListItem.ComplexUserData = Ptr;
 		ListBox->AddItem(std::move(ListItem));
 	}
@@ -2248,7 +2246,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 
 	int ListPos;
 	{
-		MenuItemEx ListItem{ MenuText };
+		menu_item_ex ListItem{ MenuText };
 		ListItem.ComplexUserData = &FindItem;
 		ListPos = ListBox->AddItem(std::move(ListItem));
 	}

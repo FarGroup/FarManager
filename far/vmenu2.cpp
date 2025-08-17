@@ -61,12 +61,12 @@ void VMenu2::Pack()
 	ListBox().Pack();
 }
 
-MenuItemEx& VMenu2::at(size_t n)
+menu_item_ex& VMenu2::at(size_t n)
 {
 	return ListBox().at(n);
 }
 
-MenuItemEx& VMenu2::current()
+menu_item_ex& VMenu2::current()
 {
 	return ListBox().current();
 }
@@ -442,7 +442,7 @@ int VMenu2::DeleteItem(int ID, int Count)
 	return static_cast<int>(size());
 }
 
-int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
+int VMenu2::AddItem(const menu_item_ex& NewItem, int PosAdd)
 {
 	// BUGBUG
 
@@ -654,7 +654,7 @@ void VMenu2::SortItems(bool Reverse, int Offset)
 	ListBox().SortItems(Reverse, Offset);
 }
 
-void VMenu2::SortItems(function_ref<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)> const Pred, bool Reverse, int Offset)
+void VMenu2::SortItems(function_ref<bool(const menu_item_ex&, const menu_item_ex&, SortItemParam&)> const Pred, bool Reverse, int Offset)
 {
 	ListBox().SortItems(Pred, Reverse, Offset);
 }

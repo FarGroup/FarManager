@@ -154,7 +154,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	{
 		if (Menu.size())
 		{
-			Menu.AddItem(MenuItemEx{ msg(TitleId), LIF_SEPARATOR });
+			Menu.AddItem(menu_item_ex{ msg(TitleId), LIF_SEPARATOR });
 		}
 		else
 		{
@@ -240,7 +240,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 			return Result;
 		};
 
-		MenuItemEx Item{ BuildQuotedString(i) };
+		menu_item_ex Item{ BuildQuotedString(i) };
 
 		// Preserve the case of the already entered part
 		if (Global->Opt->AutoComplete.AppendCompletion)
@@ -444,11 +444,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				bool AnyAdded = false;
 				pHistory->GetAllSimilar(Str, [&](string_view const Name, unsigned long long const Id, bool const IsLocked)
 				{
-					MenuItemEx Item;
+					menu_item_ex Item{ string{ Name }, IsLocked? LIF_CHECKED : LIF_NONE };
 					// Preserve the case of the already entered part
 					Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + Name.substr(Str.size()) : L""s, Id };
-					Item.Name = Name;
-					Item.Flags |= IsLocked? LIF_CHECKED : LIF_NONE;
 					ComplMenu->AddItem(std::move(Item));
 
 					AnyAdded = true;
@@ -466,7 +464,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					if (!starts_with_icase(Text, Str))
 						continue;
 
-					MenuItemEx Item{ Text };
+					menu_item_ex Item{ Text };
 					// Preserve the case of the already entered part
 					if (Global->Opt->AutoComplete.AppendCompletion)
 					{
@@ -543,7 +541,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{
-				ComplMenu->AddItem(MenuItemEx(), 0);
+				ComplMenu->AddItem(menu_item_ex{}, 0);
 				SetMenuPos(*ComplMenu);
 				ComplMenu->SetSelectPos(0,0);
 				ComplMenu->SetBoxType(SHORT_SINGLE_BOX);
@@ -627,7 +625,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									{
 										AppendCmd();
 									}
-									ComplMenu->AddItem(MenuItemEx(), 0);
+									ComplMenu->AddItem(menu_item_ex{}, 0);
 									SetMenuPos(*ComplMenu);
 									ComplMenu->SetSelectPos(0,0);
 								}

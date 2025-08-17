@@ -3420,7 +3420,7 @@ namespace
 
 		void add_item(FindCoord FoundCoords, string_view ItemText)
 		{
-			MenuItemEx Item{ far::format(L"{:{}}{:{}}{}"sv,
+			menu_item_ex Item{ far::format(L"{:{}}{:{}}{}"sv,
 				FoundCoords.Line + 1, m_LineNumColumnMaxWidth,
 				FoundCoords.Pos + 1, m_FoundPosColumnMaxWidth,
 				ItemText) };

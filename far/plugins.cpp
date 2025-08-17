@@ -677,7 +677,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 		if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 		{
-			menu->AddItem(MenuItemEx{ L""s, MIF_SEPARATOR });
+			menu->AddItem(menu_item_ex{ MIF_SEPARATOR });
 			menu->AddItem(msg(lng::MMenuPluginStdAssociation));
 		}
 
@@ -1310,7 +1310,7 @@ void PluginManager::Configure(int StartPos) const
 					}
 
 					const auto Hotkey = GetPluginHotKey(i, Uuid, hotkey_type::config_menu);
-					MenuItemEx ListItem;
+					menu_item_ex ListItem;
 #ifndef NO_WRAPPER
 					if (i->IsOemPlugin())
 						ListItem.Flags=LIF_CHECKED|L'A';
@@ -1476,7 +1476,7 @@ bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histo
 						}
 
 						const auto Hotkey = GetPluginHotKey(i, Uuid, hotkey_type::plugins_menu);
-						MenuItemEx ListItem;
+						menu_item_ex ListItem;
 #ifndef NO_WRAPPER
 						if (i->IsOemPlugin())
 							ListItem.Flags=LIF_CHECKED|L'A';
