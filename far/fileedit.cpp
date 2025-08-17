@@ -1208,6 +1208,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			case KEY_F8:
 			{
 				SetCodePageEx(f8cps.NextCP(m_codepage));
+				Show();
 				return true;
 			}
 			case KEY_SHIFTF8:
@@ -1215,7 +1216,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 				uintptr_t codepage = m_codepage;
 				if (codepages::instance().SelectCodePage(codepage, false, true))
 					SetCodePageEx(codepage == CP_DEFAULT? CP_REDETECT : codepage);
-
+				Show();
 				return true;
 			}
 
