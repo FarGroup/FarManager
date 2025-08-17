@@ -349,8 +349,7 @@ public:
     unsigned idx = 0;
     std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
       ArcFileInfo& file_info = archive->file_list[file_index];
-      constexpr DWORD c_valid_attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
-		items[idx].FileAttributes = archive->get_attr(file_index) & c_valid_attributes;
+      items[idx].FileAttributes = archive->get_attr(file_index);
       items[idx].CreationTime = archive->get_ctime(file_index);
       items[idx].LastAccessTime = archive->get_atime(file_index);
       items[idx].LastWriteTime = archive->get_mtime(file_index);
