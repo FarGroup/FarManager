@@ -1,8 +1,7 @@
 ﻿#include <errno.h>
 #include "lf_string.h"
 #include "lf_luafar.h"
-
-extern int IsLuaJIT(void);
+#include "lf_service.h"
 
 /* Taken from Lua 5.1; modified to work with Unicode filenames. */
 /* ------------------------------------------------------------ */

@@ -80,7 +80,7 @@ local file_top = [[
 #include <lua.h>
 #include <plugin.hpp>
 
-extern int bit64_push(lua_State *L, __int64 v);
+#include "lf_bit64.h"
 ]]
 
 

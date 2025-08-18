@@ -13,15 +13,14 @@ WARNING_POP()
 #include "lf_util.h"
 #include "lf_string.h"
 #include "lf_luafar.h"
+#include "lf_bit64.h"
+#include "lf_service.h"
 
-extern const char* VirtualKeyStrings[256];
-extern void pushFileTime(lua_State *L, const FILETIME *ft);
-extern void NewVirtualKeyTable(lua_State* L, BOOL twoways);
-extern BOOL dir_exist(const wchar_t* path);
-extern UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt);
-extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
-extern int bit64_pushuserdata(lua_State *L, INT64 v);
-extern INT64 check64(lua_State *L, int pos, int* success);
+static BOOL dir_exist(const wchar_t* path)
+{
+	DWORD attr = GetFileAttributesW(path);
+	return (attr != 0xFFFFFFFF) && (attr & FILE_ATTRIBUTE_DIRECTORY);
+}
 
 // os.getenv does not always work correctly, hence the following.
 static int win_GetEnv(lua_State *L)

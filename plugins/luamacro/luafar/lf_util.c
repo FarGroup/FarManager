@@ -1,9 +1,7 @@
 ﻿#include "lf_string.h"
 #include "lf_util.h"
 #include "lf_luafar.h"
-
-extern int bit64_pushuserdata(lua_State *L, INT64 v);
-extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
+#include "lf_bit64.h"
 
 // stack[-2] - table
 // stack[-1] - value

@@ -5,22 +5,10 @@
 #include "lf_luafar.h"
 #include "lf_util.h"
 #include "lf_string.h"
+#include "lf_bit64.h"
+#include "lf_service.h"
 
-extern int bit64_push(lua_State *L, INT64 v);
-extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
-extern void PutFlagsToTable(lua_State *L, const char* key, UINT64 flags);
-extern UINT64 GetFlagCombination(lua_State *L, int pos, int *success);
-extern UINT64 GetFlagsFromTable(lua_State *L, int pos, const char* key);
-
-extern void LF_Error(lua_State *L, const wchar_t* aMsg);
-extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
-extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
-extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
-extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
-extern intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2);
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
-extern HANDLE GetLuaStateTimerQueue(lua_State *L);
-extern void DeleteLuaStateTimerQueue(lua_State *L);
 
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values); // forward declaration
 

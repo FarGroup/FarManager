@@ -1,14 +1,15 @@
 ﻿#include <inttypes.h>
+#include <windows.h>
 
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include "lf_bit64.h"
+
 #define MAX52 (1LL << 52)
 #define FIT52(v) ((v >= 0 && v < MAX52) || (v < 0 && v >= -MAX52))
 
-typedef __int64 INT64;
-typedef unsigned __int64 UINT64;
 static int f_new(lua_State *L); /* forward declaration */
 
 const char metatable_name[] = "64 bit integer";

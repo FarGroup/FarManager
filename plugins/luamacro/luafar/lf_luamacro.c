@@ -4,11 +4,11 @@
 #include "lf_luafar.h"
 #include "lf_string.h"
 #include "lf_util.h"
+#include "lf_bit64.h"
+#include "lf_service.h"
 
-extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 extern int pcall_msg(lua_State* L, int narg, int nret);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
-extern void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target);
 
 static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77};
 
