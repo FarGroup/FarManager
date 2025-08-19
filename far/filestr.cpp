@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/io.hpp"
+#include "common/lazy.hpp"
 
 // External:
 #include "format.hpp"
@@ -311,12 +312,18 @@ static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
 	return false;
 }
 
-static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& Codepage)
+static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& Codepage, bool& NotUTF16, function_ref<bool(uintptr_t)> const IsCodepageAcceptable)
 {
+	if (NotUTF16)
+		return false;
+
 	// MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
 	// We can also check the size ourselves (IS_TEXT_UNICODE_ODD_LENGTH) to avoid pointless calls
 	if (Size < 2 || Size & 1)
+	{
+		NotUTF16 = true;
 		return false;
+	}
 
 	int Test = IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK;
 
@@ -324,17 +331,24 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 	IsTextUnicode(Data, static_cast<int>(Size), &Test);
 
 	if (Test & IS_TEXT_UNICODE_NOT_UNICODE_MASK)
+	{
+		NotUTF16 = true;
 		return false;
+	}
+
+	lazy<bool>
+		IsUTF16LEAcceptable([&]{ return IsCodepageAcceptable(CP_UTF16LE); }),
+		IsUTF16BEAcceptable([&]{ return IsCodepageAcceptable(CP_UTF16BE); });
 
 	// High confidence, non-ambiguous
-	if (Test & IS_TEXT_UNICODE_ASCII16)
+	if (Test & IS_TEXT_UNICODE_ASCII16 && *IsUTF16LEAcceptable)
 	{
 		Codepage = CP_UTF16LE;
 		return true;
 	}
 
 	// High confidence, non-ambiguous
-	if (Test & IS_TEXT_UNICODE_REVERSE_ASCII16)
+	if (Test & IS_TEXT_UNICODE_REVERSE_ASCII16 && *IsUTF16BEAcceptable)
 	{
 		Codepage = CP_UTF16BE;
 		return true;
@@ -346,28 +360,28 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 	// Looks like IS_TEXT_UNICODE_REVERSE_CONTROLS doesn't check it at all, so it's better to try it first:
 
 	// High confidence, non-ambiguous
-	if (Test & IS_TEXT_UNICODE_REVERSE_CONTROLS)
+	if (Test & IS_TEXT_UNICODE_REVERSE_CONTROLS && *IsUTF16BEAcceptable)
 	{
 		Codepage = CP_UTF16BE;
 		return true;
 	}
 
 	// Medium confidence, statistical analysis
-	if (Test & IS_TEXT_UNICODE_STATISTICS)
+	if (Test & IS_TEXT_UNICODE_STATISTICS && *IsUTF16LEAcceptable)
 	{
 		Codepage = CP_UTF16LE;
 		return true;
 	}
 
 	// Medium confidence, statistical analysis
-	if (Test & IS_TEXT_UNICODE_REVERSE_STATISTICS)
+	if (Test & IS_TEXT_UNICODE_REVERSE_STATISTICS && *IsUTF16BEAcceptable)
 	{
 		Codepage = CP_UTF16BE;
 		return true;
 	}
 
 	// Low confidence, false positives (see above)
-	if (Test & IS_TEXT_UNICODE_CONTROLS)
+	if (Test & IS_TEXT_UNICODE_CONTROLS && *IsUTF16LEAcceptable)
 	{
 		Codepage = CP_UTF16LE;
 		return true;
@@ -414,25 +428,32 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	return true;
 }
 
-static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintptr_t& Codepage, bool const IgnoreUTF8)
+static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintptr_t& Codepage, bool const IgnoreUTF8, bool& NotUTF16)
 {
-	const auto IsCodepageNotBlacklisted = [IgnoreUTF8](uintptr_t const Cp)
+	const auto IsNotCodepage = [&](uintptr_t const Cp)
 	{
-		if (IgnoreUTF8 && Cp == CP_UTF8)
+		return
+			(IgnoreUTF8 && Cp == CP_UTF8) ||
+			(NotUTF16 && IsUtf16CodePage(Cp));
+	};
+
+	const auto IsCodepageNotBlacklisted = [&](uintptr_t const Cp)
+	{
+		if (IsNotCodepage(Cp))
 			return false;
 
 		return !contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Cp));
 	};
 
-	const auto IsCodepageWhitelisted = [IgnoreUTF8](uintptr_t const Cp)
+	const auto IsCodepageWhitelisted = [&](uintptr_t const Cp)
 	{
-		if (IgnoreUTF8 && Cp == CP_UTF8)
+		if (IsNotCodepage(Cp))
 			return false;
 
 		if (!Global->Opt->CPMenuMode)
 			return true;
 
-		if (any_of(Cp, encoding::codepage::ansi(), encoding::codepage::oem()))
+		if (IsStandardCodePage(Cp))
 			return true;
 
 		const auto CodepageType = codepages::GetFavorite(Cp);
@@ -444,6 +465,9 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 			function_ref(IsCodepageWhitelisted) :
 			function_ref(IsCodepageNotBlacklisted);
 
+	if (GetUnicodeCpUsingWindows(Str.data(), Str.size(), Codepage, NotUTF16, IsCodepageAcceptable))
+		return true;
+
 	if (GetCpUsingUniversalDetector(Str, Codepage, IsCodepageAcceptable))
 		return true;
 
@@ -451,7 +475,7 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
-static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, uintptr_t& Codepage, bool& SignatureFound, bool& NotUTF8, bool& NotUTF16, bool UseHeuristics)
+static bool GetFileCodepage(const os::fs::file& File, uintptr_t& Codepage, bool& SignatureFound, bool& NotUTF8, bool& NotUTF16, bool UseHeuristics)
 {
 	if (GetUnicodeCpUsingBOM(File, Codepage))
 	{
@@ -473,13 +497,6 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	if (!ReadResult || !ReadSize)
 		return false;
 
-	if (GetUnicodeCpUsingWindows(Buffer.data(), ReadSize, Codepage))
-	{
-		return true;
-	}
-
-	NotUTF16 = true;
-
 	unsigned long long FileSize = 0;
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
 
@@ -499,7 +516,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		break;
 	}
 
-	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage, NotUTF8);
+	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage, NotUTF8, NotUTF16);
 }
 
 uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)
@@ -509,7 +526,7 @@ uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, b
 	bool NotUTF8 = false;
 	bool NotUTF16 = false;
 
-	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics) || Codepage == 20127)
+	if (!GetFileCodepage(File, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics) || Codepage == 20127)
 	{
 		// Even though there's a dedicated code page for ASCII - 20127, detecting it as such is not particularly useful.
 		// E.g. if it's an editor and the user adds some localized text and saves the file, there will be useless warnings about unsupported characters.
