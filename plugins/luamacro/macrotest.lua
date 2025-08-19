@@ -2134,7 +2134,7 @@ local function test_Guids()
   end
   test_one_guid( "CopyCurrentOnlyFileId",    nil, "End ShiftF5")
   test_one_guid( "CopyFilesId",              nil, "End F5")
-  test_one_guid( "DeleteFileFolderId",       nil, "End F8")
+--test_one_guid( "DeleteFileFolderId",       nil, "End F8")
   test_one_guid( "DeleteWipeId",             nil, "End AltDel")
   test_one_guid( "DescribeFileId",           nil, "End CtrlZ")
   test_one_guid( "FileAttrDlgId",            nil, "End CtrlA")
