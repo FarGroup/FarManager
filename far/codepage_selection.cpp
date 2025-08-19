@@ -198,7 +198,7 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 	else
 	{
 		// Создаём новый элемент меню
-		MenuItemEx item{ FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), enabled? 0 : MIF_GRAYED };
+		menu_item_ex item{ FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), enabled? 0 : MIF_GRAYED };
 		item.SimpleUserData = codePage;
 
 		// Добавляем новый элемент в меню
@@ -264,7 +264,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	}
 	else
 	{
-		const MenuItemEx item{ Label, MIF_SEPARATOR };
+		const menu_item_ex item{ Label, MIF_SEPARATOR };
 
 		if (position == static_cast<size_t>(-1))
 			CodePagesMenu->AddItem(item);
@@ -452,7 +452,7 @@ void codepages::SetFavorite(bool State)
 			DeleteFavorite(codePage);
 
 		// Создаём новый элемент меню
-		MenuItemEx newItem{ CodePagesMenu->current().Name };
+		menu_item_ex newItem{ CodePagesMenu->current().Name };
 		newItem.SimpleUserData = codePage;
 		// Сохраняем позицию курсора
 		size_t position = CodePagesMenu->GetSelectPos();
@@ -616,7 +616,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				const auto IsCodePageNameCustom = GetCodePageCustomName(CodePage, Copy.Name);
 				const auto Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
-				MenuItemEx NewItem{ FormatCodePageString(CodePage, Copy.Name, IsCodePageNameCustom) };
+				menu_item_ex NewItem{ FormatCodePageString(CodePage, Copy.Name, IsCodePageNameCustom) };
 				NewItem.SimpleUserData = CodePage;
 				CodePagesMenu->AddItem(NewItem, Position);
 				CodePagesMenu->SetSelectPos(Position, 1);

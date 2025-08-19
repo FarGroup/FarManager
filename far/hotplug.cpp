@@ -542,7 +542,7 @@ void ShowHotplugDevices()
 
 		for (const auto& i: Info)
 		{
-			MenuItemEx ListItem;
+			menu_item_ex ListItem;
 			string strDescription;
 			if (GetDevicePropertyRecursive(i.DevInst, SPDRP_DEVICEDESC, strDescription) && !strDescription.empty())
 			{

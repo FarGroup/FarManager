@@ -276,12 +276,11 @@ static void choose_theme()
 	{
 		if (!SeparatorAdded)
 		{
-			ThemesMenu->AddItem(MenuItemEx{ L""s, LIF_SEPARATOR });
+			ThemesMenu->AddItem(menu_item_ex{ LIF_SEPARATOR });
 			SeparatorAdded = true;
 		}
 
-		MenuItemEx Item;
-		Item.Name = Name;
+		menu_item_ex Item{ string{ Name } };
 		Item.ComplexUserData = string(FullPath);
 		ThemesMenu->AddItem(Item);
 	});
@@ -544,21 +543,13 @@ void SetColors()
 			GroupsMenu->AddItem(msg(i.MenuId));
 		}
 
-		{
-			MenuItemEx tmp;
-			tmp.Flags = LIF_SEPARATOR;
-			GroupsMenu->AddItem(tmp);
-		}
+		GroupsMenu->AddItem(menu_item_ex{ LIF_SEPARATOR });
 
 		const auto ThemesId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MColorThemes));
 		GroupsMenu->SetHelp(L"ColorGroups"sv);
 
-		{
-			MenuItemEx tmp;
-			tmp.Flags = LIF_SEPARATOR;
-			GroupsMenu->AddItem(tmp);
-		}
+		GroupsMenu->AddItem(menu_item_ex{ LIF_SEPARATOR });
 
 		const auto PaletteId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MColorsPalette));

@@ -212,7 +212,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 
 	for (auto& i: FilterData())
 	{
-		MenuItemEx ListItem{ MenuString(&i) };
+		menu_item_ex ListItem{ MenuString(&i) };
 		if (const auto Check = GetCheck(Area, i))
 			ListItem.SetCustomCheck(Check);
 		FilterList->AddItem(ListItem);
@@ -234,15 +234,11 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 			}
 		}
 
-		{
-			MenuItemEx ListItem;
-			ListItem.Flags = LIF_SEPARATOR;
-			FilterList->AddItem(ListItem);
-		}
+		FilterList->AddItem(menu_item_ex{ LIF_SEPARATOR });
 
 		{
 			FoldersFilter->SetTitle(msg(lng::MFolderFileType));
-			MenuItemEx ListItem{ MenuString(FoldersFilter, false, L'0') };
+			menu_item_ex ListItem{ MenuString(FoldersFilter, false, L'0') };
 
 			if (const auto Check = GetCheck(Area, *FoldersFilter))
 				ListItem.SetCustomCheck(Check);
@@ -269,7 +265,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 		wchar_t h = L'1';
 		for (const auto& [Ext, Mark]: Extensions)
 		{
-			MenuItemEx ListItem{ MenuString({}, false, h, true, Ext, msg(lng::MPanelFileType)) };
+			menu_item_ex ListItem{ MenuString({}, false, h, true, Ext, msg(lng::MPanelFileType)) };
 			Mark? ListItem.SetCustomCheck(Mark) : ListItem.ClearCheck();
 			ListItem.ComplexUserData = Ext;
 			FilterList->AddItem(ListItem);
@@ -347,7 +343,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 				{
 					if (FileFilterConfig(FilterData()[SelPos]))
 					{
-						MenuItemEx ListItem{ MenuString(&FilterData()[SelPos]) };
+						menu_item_ex ListItem{ MenuString(&FilterData()[SelPos]) };
 
 						if (const auto Check = FilterList->GetCheck(SelPos))
 							ListItem.SetCustomCheck(Check);
@@ -420,7 +416,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 				{
 					const auto NewPos = std::min(FilterData().size(), static_cast<size_t>(pos));
 					const auto FilterIterator = FilterData().emplace(FilterData().begin() + NewPos, std::move(NewFilter));
-					FilterList->AddItem(MenuItemEx{ MenuString(std::to_address(FilterIterator))}, static_cast<int>(NewPos));
+					FilterList->AddItem(menu_item_ex{ MenuString(std::to_address(FilterIterator))}, static_cast<int>(NewPos));
 					FilterList->SetSelectPos(static_cast<int>(NewPos),1);
 					NeedUpdate = true;
 				}

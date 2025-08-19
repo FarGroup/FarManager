@@ -118,8 +118,25 @@ struct menu_item
 	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
 };
 
-struct MenuItemEx: menu_item
+struct menu_item_ex: menu_item
 {
+	menu_item_ex() = default;
+	NONCOPYABLE(menu_item_ex);
+	MOVABLE(menu_item_ex);
+
+	explicit menu_item_ex(const menu_item& Item)
+		: menu_item{ Item }
+	{}
+
+	explicit menu_item_ex(LISTITEMFLAGS Flags)
+		: menu_item{ string{}, Flags }
+	{}
+
+	template<typename T> requires (std::is_constructible_v<menu_item, T, LISTITEMFLAGS>)
+	explicit menu_item_ex(T&& Name, LISTITEMFLAGS Flags = 0)
+		: menu_item{ std::forward<T>(Name), Flags }
+	{}
+
 	std::list<segment> Annotations;
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
@@ -190,7 +207,7 @@ public:
 	bool ProcessFilterKey(int Key);
 	void clear();
 	int DeleteItem(int ID, int Count = 1);
-	int AddItem(MenuItemEx&& NewItem, int PosAdd = std::numeric_limits<int>::max());
+	int AddItem(menu_item_ex&& NewItem, int PosAdd = std::numeric_limits<int>::max());
 	int AddItem(const FarList *List);
 	int AddItem(const wchar_t *NewStrItem);
 	int InsertItem(const FarListInsert *NewItem);
@@ -206,7 +223,7 @@ public:
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	bool HasVisible() const { return SelectPos > -1 && !Items.empty(); }
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
-	std::span<MenuItemEx const> GetItems() const noexcept { return Items; }
+	std::span<menu_item_ex const> GetItems() const noexcept { return Items; }
 	int GetVisualPos(int Pos) const;
 	int VisualPosToReal(int VPos) const;
 
@@ -240,8 +257,8 @@ public:
 	void ClearCheck(int Position = -1);
 	bool UpdateRequired() const;
 	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
-	MenuItemEx& at(size_t n);
-	MenuItemEx& current() { return at(-1); }
+	menu_item_ex& at(size_t n);
+	menu_item_ex& current() { return at(-1); }
 	bool Pack();
 	bool GetVMenuInfo(FarListInfo* Info) const;
 	void SetMaxHeight(int NewMaxHeight);
@@ -265,7 +282,7 @@ public:
 		SetMenuFlags(VMENU_UPDATEREQUIRED);
 	}
 
-	static FarListItem *MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem);
+	static FarListItem *MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem);
 	static std::vector<string> AddHotkeys(std::span<menu_item> MenuItems);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
@@ -283,17 +300,17 @@ private:
 	[[nodiscard]] int AdjustTopPos(int BoxType); // Sets TopPos
 	void DrawSeparator(size_t ItemIndex, int BoxType, int Y) const;
 	void ConnectSeparator(size_t ItemIndex, string& separator, int BoxType) const;
-	void ApplySeparatorName(const MenuItemEx& Item, string& separator) const;
-	void DrawRegularItem(const MenuItemEx& Item, const menu_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
+	void ApplySeparatorName(const menu_item_ex& Item, string& separator) const;
+	void DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
 	void DrawFixedColumns(
-		const MenuItemEx& Item,
+		const menu_item_ex& Item,
 		small_segment FixedColumnsArea,
 		int Y,
 		const item_color_indicies& ColorIndices,
 		string_view BlankLine) const;
 	[[nodiscard]]
 	bool DrawItemText(
-		const MenuItemEx& Item,
+		const menu_item_ex& Item,
 		small_segment TextArea,
 		int Y,
 		const item_color_indicies& ColorIndices,
@@ -301,17 +318,17 @@ private:
 		string_view BlankLine) const;
 
 	[[nodiscard]] int CalculateTextAreaWidth() const;
-	[[nodiscard]] int GetItemVisualLength(const MenuItemEx& Item) const; // Intersected with m_ItemTextSegment
-	[[nodiscard]] string_view GetItemText(const MenuItemEx& Item) const; // Intersected with m_ItemTextSegment
+	[[nodiscard]] int GetItemVisualLength(const menu_item_ex& Item) const; // Intersected with m_ItemTextSegment
+	[[nodiscard]] string_view GetItemText(const menu_item_ex& Item) const; // Intersected with m_ItemTextSegment
 
 
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
 	void AssignHighlights(const menu_layout& Layout);
-	wchar_t GetHighlights(const MenuItemEx *Item) const;
+	wchar_t GetHighlights(const menu_item_ex *Item) const;
 
-	[[nodiscard]] bool SetItemHPos(MenuItemEx& Item, const auto& GetNewHPos);
+	[[nodiscard]] bool SetItemHPos(menu_item_ex& Item, const auto& GetNewHPos);
 	[[nodiscard]] bool SetCurItemSmartHPos(int NewHPos);
 	[[nodiscard]] bool ShiftCurItemHPos(int Shift);
 	[[nodiscard]] bool SetAllItemsHPos(const auto& GetNewHPos);
@@ -351,7 +368,7 @@ private:
 	bool bFilterEnabled{};
 	bool bFilterLocked{};
 	string strFilter;
-	std::vector<MenuItemEx> Items;
+	std::vector<menu_item_ex> Items;
 	intptr_t ItemHiddenCount{};
 	intptr_t ItemSubMenusCount{};
 	vmenu_colors_t Colors{};

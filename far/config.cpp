@@ -491,7 +491,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 	{
 		const int NameWidth = 10;
 		const auto DisplayName = pad_right(truncate_right(Name, NameWidth), NameWidth);
-		MenuItemEx Item{ concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value) };
+		menu_item_ex Item{ concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value) };
 		Item.ComplexUserData = Name;
 		MasksMenu.AddItem(Item);
 	}

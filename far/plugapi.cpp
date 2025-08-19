@@ -807,8 +807,7 @@ intptr_t WINAPI apiMenuFn(
 
 			for (const auto& i: std::span(Item, ItemsNumber))
 			{
-				MenuItemEx CurItem;
-				CurItem.Flags = i.Flags;
+				menu_item_ex CurItem{ i.Flags };
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
 				const auto SelCurItem = CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;

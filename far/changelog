@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2025-08-17 17:56:03-04:00 - build 6532
+
+1. Refactored menu_item_ex to address clang warnings like
+   config.cpp:494:20: warning: suggest braces around initialization of subobject [-Wmissing-braces]
+
+--------------------------------------------------------------------------------
 drkns 2025-08-17 22:31:28+01:00 - build 6531
 
 1. Ensure editor keybar redraw on (Shift+)F8.

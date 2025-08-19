@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 struct menu_item;
-struct MenuItemEx;
+struct menu_item_ex;
 struct vmenu_fixed_column_t;
 struct SortItemParam;
 
@@ -76,7 +76,7 @@ public:
 	void EnableAutoHighlight(bool Reverse = false);
 	void clear();
 	int DeleteItem(int ID,int Count=1);
-	int AddItem(const MenuItemEx& NewItem,int PosAdd = std::numeric_limits<int>::max());
+	int AddItem(const menu_item_ex& NewItem,int PosAdd = std::numeric_limits<int>::max());
 	int AddItem(const FarList *NewItem);
 	int AddItem(const string& NewStrItem);
 	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
@@ -122,11 +122,11 @@ public:
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);
 
 	void SortItems(bool Reverse, int Offset);
-	void SortItems(function_ref<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)> Pred, bool Reverse = false, int Offset = 0);
+	void SortItems(function_ref<bool(const menu_item_ex&, const menu_item_ex&, SortItemParam&)> Pred, bool Reverse = false, int Offset = 0);
 
 	void Pack();
-	MenuItemEx& at(size_t n);
-	MenuItemEx& current();
+	menu_item_ex& at(size_t n);
+	menu_item_ex& current();
 	int GetShowItemCount() const;
 	VMenu& ListBox() const { return *GetAllItem()[0].ListPtr; }
 

@@ -538,7 +538,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 	FOR_RANGE(Menu, MenuItem)
 	{
 		++NumLines;
-		MenuItemEx FarUserMenuItem;
+		menu_item_ex FarUserMenuItem;
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"

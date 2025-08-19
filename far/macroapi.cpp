@@ -1871,7 +1871,7 @@ void FarMacroApi::menushowFunc() const
 		if (SubstrLen==0)
 			SubstrLen=1;
 
-		MenuItemEx NewItem{ strItems.substr(CurrentPos, SubstrLen) };
+		menu_item_ex NewItem{ strItems.substr(CurrentPos, SubstrLen) };
 
 		if (NewItem.Name != L"\n"sv)
 		{
@@ -1912,7 +1912,7 @@ void FarMacroApi::menushowFunc() const
 
 	if (bSorting)
 	{
-		Menu->SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)
+		Menu->SortItems([](const menu_item_ex& a, const menu_item_ex& b, const SortItemParam& Param)
 		{
 			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 				return false;
