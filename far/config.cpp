@@ -1812,6 +1812,19 @@ Options::Options():
 		std::ranges::sort(Exec.ExcludeCmds, string_sort::less_icase);
 	}));
 
+	strNoAutoDetectCP.SetCallback(option::notifier([&](string_view const Value)
+	{
+		NoAutoDetectCP.clear();
+
+		for (const auto& i: enum_tokens(Value, L",;"sv))
+		{
+			if (unsigned Codepage; from_string(i, Codepage, {}, 10))
+				NoAutoDetectCP.emplace(Codepage);
+			else
+				LOGWARNING(L"Unsupported value in CodePages.NoAutoDetectCP: [{}]"sv, i);
+		}
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;

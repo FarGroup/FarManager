@@ -442,7 +442,7 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 		if (IsNotCodepage(Cp))
 			return false;
 
-		return !contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Cp));
+		return !Global->Opt->NoAutoDetectCP.contains(Cp);
 	};
 
 	const auto IsCodepageWhitelisted = [&](uintptr_t const Cp)
