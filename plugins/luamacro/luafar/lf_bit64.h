@@ -1,6 +1,9 @@
 #ifndef LUAFAR_BIT64_H
 #define LUAFAR_BIT64_H
 
+#include <windows.h>
+#include <lua.h>
+
 int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 int bit64_push(lua_State *L, INT64 v);
 int bit64_pushuserdata(lua_State *L, INT64 v);
