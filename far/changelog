@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-08-19 17:30:40+01:00 - build 6533
+
+1. Take CodePages.NoAutoDetectCP into account when using IsTextUnicode API.
+
+--------------------------------------------------------------------------------
 MZK 2025-08-17 17:56:03-04:00 - build 6532
 
 1. Refactored menu_item_ex to address clang warnings like
