@@ -181,7 +181,8 @@ static_assert(MCODE_F_SETCUSTOMSORTMODE == 0x80C67);    // Установить 
 static_assert(MCODE_F_KEYMACRO == 0x80C68);             // Набор простых операций
 static_assert(MCODE_F_FAR_GETCONFIG == 0x80C69);        // V=Far.GetConfig(Key,Name)
 static_assert(MCODE_F_MACROSETTINGS == 0x80C6A);        // Диалог редактирования макроса
-static_assert(MCODE_F_LAST == 0x80C6B);                 // marker
+static_assert(MCODE_F_MENU_GETEXTENDEDDATA == 0x80C6B); // T=Menu.GetItemExtendedData([N])
+static_assert(MCODE_F_LAST == 0x80C6C);                 // marker
 
 // булевые переменные - различные состояния
 static_assert(MCODE_C_AREA_OTHER == 0x80400);           // Режим копирования текста с экрана, вертикальные меню

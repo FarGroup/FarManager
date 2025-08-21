@@ -134,6 +134,7 @@ private:
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}
+inline bool IsMenuOrDialogArea(int Area){return IsMenuArea(Area) || Area==MACROAREA_DIALOG;}
 
 inline bool IsPanelsArea(int Area){return Area==MACROAREA_SHELL || Area==MACROAREA_INFOPANEL || Area==MACROAREA_QVIEWPANEL || Area==MACROAREA_TREEPANEL;}
 

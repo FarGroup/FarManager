@@ -117,6 +117,12 @@ public:
 		return std::any_cast<T>(GetComplexUserData(Position));
 	}
 
+	template<class F, class M = VMenu>
+	void RegisterExtendedDataProvider(F&& ExtendedDataProvider)
+	{
+		static_cast<M&>(ListBox()).RegisterExtendedDataProvider(std::forward<F>(ExtendedDataProvider));
+	}
+
 	void Key(int key);
 	int GetSelectPos(FarListPos* ListPos);
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);

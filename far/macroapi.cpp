@@ -117,6 +117,7 @@ public:
 	void PassValue(const wchar_t* str) const;
 	void PassValue(const string& str) const;
 	void PassValue(const TVar& Var) const;
+	void PassTable(const TContainer& Table) const;
 
 	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	void PassValue(T const Value) const
@@ -254,6 +255,15 @@ void FarMacroApi::PassValue(const TVar& Var) const
 		PassValue(Var.asString());
 	else
 		PassValue(Var.asInteger());
+}
+
+void FarMacroApi::PassTable(const TContainer& Table) const
+{
+	for (const auto& [Name, Value] : Table)
+	{
+		PassValue(Name);
+		PassValue(Value);
+	}
 }
 
 std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
@@ -726,32 +736,27 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	case MCODE_V_MENU_VALUE:
 	case MCODE_V_MENUINFOID:
 		{
-			const auto CurArea = GetArea();
-
 			if (CheckCode == MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType() == windowtype_menu)
 			{
 				return api.PassValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
 			}
 
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				string Value;
+
+				switch(CheckCode)
 				{
-					string Value;
-
-					switch(CheckCode)
+				case MCODE_V_MENU_VALUE:
+					if (CurrentWindow->VMProcess(CheckCode, &Value))
 					{
-					case MCODE_V_MENU_VALUE:
-						if (CurrentWindow->VMProcess(CheckCode, &Value))
-						{
-							Value = trim(HiText2Str(Value));
-							return api.PassValue(Value);
-						}
-						break;
-
-					case MCODE_V_MENUINFOID:
-						return api.PassValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
+						Value = trim(HiText2Str(Value));
+						return api.PassValue(Value);
 					}
+					break;
+
+				case MCODE_V_MENUINFOID:
+					return api.PassValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
 				}
 			}
 
@@ -1081,41 +1086,34 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			tmpVar.toInteger();
 
-			int CurArea=GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				long long MenuItemPos=tmpVar.asInteger()-1;
+				if (CheckCode == MCODE_F_MENU_GETHOTKEY)
 				{
-					long long MenuItemPos=tmpVar.asInteger()-1;
-					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
+					if (const auto Result = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos); Result)
 					{
-						if (const auto Result = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos); Result)
-						{
-							const wchar_t value[]{ static_cast<wchar_t>(Result), 0 };
-							tmpVar = value;
-						}
-						else
-							tmpVar = L""sv;
+						const wchar_t value[]{ static_cast<wchar_t>(Result), 0 };
+						tmpVar = value;
 					}
-					else if (CheckCode == MCODE_F_MENU_GETVALUE)
-					{
-						string NewStr;
-						if (CurrentWindow->VMProcess(CheckCode,&NewStr,MenuItemPos))
-						{
-							NewStr = trim(HiText2Str(NewStr));
-							tmpVar=NewStr;
-						}
-						else
-							tmpVar = L""sv;
-					}
-					else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
-					{
-						tmpVar = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos);
-					}
+					else
+						tmpVar = L""sv;
 				}
-				else
-					tmpVar = L""sv;
+				else if (CheckCode == MCODE_F_MENU_GETVALUE)
+				{
+					string NewStr;
+					if (CurrentWindow->VMProcess(CheckCode,&NewStr,MenuItemPos))
+					{
+						NewStr = trim(HiText2Str(NewStr));
+						tmpVar=NewStr;
+					}
+					else
+						tmpVar = L""sv;
+				}
+				else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
+				{
+					tmpVar = CurrentWindow->VMProcess(CheckCode, nullptr, MenuItemPos);
+				}
 			}
 			else
 				tmpVar = L""sv;
@@ -1143,14 +1141,9 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			const auto CurArea = GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
-				{
-					Result = CurrentWindow->VMProcess(CheckCode, UNSAFE_CSTR(Params[0].toString()), tmpMode);
-				}
+				Result = CurrentWindow->VMProcess(CheckCode, UNSAFE_CSTR(Params[0].toString()), tmpMode);
 			}
 
 			return api.PassValue(Result);
@@ -1167,29 +1160,24 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (tmpAction.isUnknown())
 				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
 
-			int CurArea=GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
+				if (CheckCode == MCODE_F_MENU_FILTER)
 				{
-					if (CheckCode == MCODE_F_MENU_FILTER)
+					if (tmpVar.isUnknown())
+						tmpVar = -1;
+					tmpVar = CurrentWindow->VMProcess(CheckCode, std::bit_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+					success=true;
+				}
+				else
+				{
+					string NewStr;
+					if (tmpVar.isString())
+						NewStr = tmpVar.toString();
+					if (CurrentWindow->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, tmpAction.toInteger()))
 					{
-						if (tmpVar.isUnknown())
-							tmpVar = -1;
-						tmpVar = CurrentWindow->VMProcess(CheckCode, std::bit_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+						tmpVar=NewStr;
 						success=true;
-					}
-					else
-					{
-						string NewStr;
-						if (tmpVar.isString())
-							NewStr = tmpVar.toString();
-						if (CurrentWindow->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, tmpAction.toInteger()))
-						{
-							tmpVar=NewStr;
-							success=true;
-						}
 					}
 				}
 			}
@@ -1205,21 +1193,25 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PassValue(tmpVar);
 		}
 
-		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
 		{
-			long long Result = -1;
-
-			const auto CurArea = GetArea();
-
-			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
+			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
-				if (CurrentWindow)
-				{
-					Result = CurrentWindow->VMProcess(CheckCode);
-				}
+				const auto Params{ api.parseParams(1) };
+				const auto N{ Params[0].isInteger() && !Params[0].isUnknown() ? Params[0].asInteger() : -1 };
+
+				if (TContainer Table; CurrentWindow->VMProcess(CheckCode, &Table, N) == 1)
+					api.PassTable(Table);
 			}
 
-			return api.PassValue(Result);
+			// If there were no PassValue, the result is nil
+			return;
+		}
+
+		case MCODE_V_MENU_HORIZONTALALIGNMENT:
+		{
+			api.PassValue(IsMenuOrDialogArea(GetArea()) && CurrentWindow ? CurrentWindow->VMProcess(CheckCode) : -1);
+			return;
 		}
 	}
 }

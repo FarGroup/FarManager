@@ -3471,6 +3471,16 @@ namespace
 				},
 				small_segment::ray(ItemTextStart)
 			);
+			m_Menu->RegisterExtendedDataProvider([](const menu_item_ex& Item)
+				{
+					const auto Coord{ std::any_cast<FindCoord>(Item.ComplexUserData) };
+
+					return TContainer{
+						{ L"Line", TVar{ Coord.Line + 1 } },
+						{ L"Position", TVar{ Coord.Pos + 1 } },
+						{ L"Length", TVar{ Coord.SearchLen } },
+					};
+				});
 		}
 
 		void toggle_zoom()

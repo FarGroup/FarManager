@@ -296,6 +296,15 @@ Menu = {
   Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
 }
 
+Menu.GetItemExtendedData = function(...)
+  local T = { MacroCallFar(0x80C6B, ...) }
+  local Out = {}
+  for k = 1,#T,2 do
+    Out[T[k]] = T[k+1]
+  end
+  return next(Out) and Out
+end
+
 SetProperties(Menu, {
   HorizontalAlignment = function() return MacroCallFar(0x80845) end,
   Id                  = function() return MacroCallFar(0x80844) end,
