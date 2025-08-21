@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+Yegor 2025-08-20 17:00:00-07:00 - build 6534
+
+1. Refactored wildcard processing to use backtracking instead of recursion.
+
+--------------------------------------------------------------------------------
 drkns 2025-08-19 17:30:40+01:00 - build 6533
 
 1. Take CodePages.NoAutoDetectCP into account when using IsTextUnicode API.
