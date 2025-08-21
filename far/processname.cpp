@@ -144,142 +144,134 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask)
 	return Result;
 }
 
-bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameLegacyMode)
+bool CmpName(const string_view pattern, string_view str, const bool skippath, const bool CmpNameLegacyMode)
 {
-	// BUGBUG rewrite
-
-	// Special case for these simplest and most common masks:
+	// Special case for these simplest and most common masks
 	if (pattern == L"*"sv || (CmpNameLegacyMode && pattern == L"*.*"sv))
 		return true;
 
 	if (pattern.empty() || str.empty())
-		return false;
+		return pattern.empty() && str.empty(); // used to be `false` but this looks more accurate
 
 	if (skippath)
 		str = PointToName(str);
 
-	for (;; str.remove_prefix(1))
+	size_t pi = 0, si = 0;
+	auto StarPI = string_view::npos;
+	auto StarSI = string_view::npos;
+
+	const auto try_backtrack = [&]
 	{
-		if (pattern.empty())
-			return str.empty();
-
-		const auto stringc = str.empty()? 0 : upper(str.front());
-		const auto patternc = upper(pattern.front());
-		pattern.remove_prefix(1);
-
-		switch (patternc)
-		{
-		case L'?':
-			if (str.empty())
-				return false;
-			break;
-
-		case L'*':
-			if (pattern.empty())
-				return true;
-
-			/* $ 01.05.2001 DJ
-				оптимизированная ветка работает и для имен с несколькими
-				точками
-			*/
-			if (pattern[0] == L'.')
-			{
-				if (pattern.size() == 2 && pattern[1]==L'*')
-					return true;
-
-				if (std::ranges::none_of(pattern, [](wchar_t Char) { return contains(L"*?["sv, Char); }))
-				{
-					const auto RDotIt = std::ranges::find(str | std::views::reverse, L'.');
-					const auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
-
-					if (pattern.size() == 1)
-						return DotIt == str.cend() || DotIt + 1 == str.cend();
-
-					const auto PatternContainsDot = contains(pattern.substr(1), L'.');
-
-					if (PatternContainsDot && DotIt == str.cend())
-						return false;
-
-					if (!PatternContainsDot && DotIt != str.cend())
-						return equal_icase(pattern.substr(1), str.substr(DotIt + 1 - str.cbegin()));
-				}
-			}
-
-			for(;;)
-			{
-				if(CmpName(pattern, str, false, CmpNameLegacyMode))
-					return true;
-
-				if (str.empty())
-					break;
-
-				str.remove_prefix(1);
-			}
-
+		if (StarPI == string_view::npos || StarSI >= str.size())
 			return false;
 
-		case L'[':
+		++StarSI;
+		si = StarSI;
+		pi = StarPI;
+		return true;
+	};
+
+	const auto match_char_in_set = [&](const size_t SetStart, const size_t SetEnd, const wchar_t ch)
+	{
+		for (auto i = SetStart; i < SetEnd; ++i)
+		{
+			if (i + 2 < SetEnd && pattern[i + 1] == L'-')
 			{
-				if (!contains(pattern, L']'))
-				{
-					if (patternc != stringc)
-						return false;
+				if (ch >= upper(pattern[i]) && ch <= upper(pattern[i + 2]))
+					return true;
 
-					break;
-				}
-
-				if (pattern.size() > 1 && pattern[1] == L']')
-				{
-					if (str.empty() || pattern[0] != str[0])
-						return false;
-
-					pattern.remove_prefix(2);
-					break;
-				}
-
-				int match = 0;
-
-				for(;;)
-				{
-					if (pattern.empty())
-						return false;
-
-					const auto rangec = upper(pattern[0]);
-
-					pattern.remove_prefix(1);
-
-					if (rangec == L']')
-					{
-						if (match)
-							break;
-						else
-							return false;
-					}
-
-					if (match)
-						continue;
-
-					// BUGBUG data() - 2 is legal but awful
-					if (rangec == L'-' && *(pattern.data() - 2) != L'[' && pattern[0] != L']')
-					{
-						match = (stringc <= upper(pattern[0]) &&
-									upper(*(pattern.data() - 2)) <= stringc);
-						pattern.remove_prefix(1);
-					}
-					else
-						match = (stringc == rangec);
-				}
+				i += 2;
+				continue;
 			}
-			break;
 
-		default:
-			if (patternc != stringc)
-			{
-				return CmpNameLegacyMode && str.empty() && patternc == L'.' && pattern == L"*"sv;
-			}
-			break;
+			if (string_comparer_icase()(ch, pattern[i]))
+				return true;
 		}
+
+		return false;
+	};
+
+	while (si <= str.size())
+	{
+		if (pi >= pattern.size())
+		{
+			if (si == str.size())
+				return true;
+
+			if (!try_backtrack())
+				return false;
+
+			continue;
+		}
+
+		const wchar_t pc = pattern[pi];
+
+		if (pc == L'*')
+		{
+			StarPI = ++pi;
+			StarSI = si;
+			continue;
+		}
+
+		if (pc == L'?')
+		{
+			if (si == str.size())
+				return false;
+
+			++pi;
+			++si;
+			continue;
+		}
+
+		if (pc == L'[')
+		{
+			const auto SetStart = pi + 1;
+			auto SetEnd = SetStart;
+
+			while (SetEnd < pattern.size() && pattern[SetEnd] != L']')
+				++SetEnd;
+
+			if (SetEnd != pattern.size())
+			{
+				if (SetEnd == SetStart)
+				{
+					pi = SetEnd + 1;
+					continue;
+				}
+
+				if (si == str.size())
+					return false;
+
+				if (match_char_in_set(SetStart, SetEnd, upper(str[si])))
+				{
+					pi = SetEnd + 1;
+					++si;
+
+					continue;
+				}
+
+				if (!try_backtrack())
+					return false;
+
+				continue;
+			}
+		}
+
+		if (si < str.size() && string_comparer_icase()(pc, str[si]))
+		{
+			++pi;
+			++si;
+			continue;
+		}
+
+		if (CmpNameLegacyMode && si == str.size() && pattern.substr(pi) == L".*"sv)
+			return true;
+
+		if (!try_backtrack())
+			return false;
 	}
+
+	return false;
 }
 
 string exclude_sets(string_view const Str)
@@ -319,6 +311,17 @@ static const string_view Masks[]
 	L"*_NEW.*"sv,
 	L"?x.????999.*rForTheCourse"sv,
 	L"*.*.2"sv,
+	L"test.*"sv,
+	L"t*?."sv,
+	L"t?*."sv,
+	L"t*?.*"sv,
+	L"*.*.*.txt"sv,
+	L"[a-cf]*.txt"sv,
+	L"*[a-cf].t[]x[]t"sv,
+	L"t[est.txt"sv,
+	L"*a*a*a*a*a*a*a*a*b"sv,
+	L"[t-]*"sv,
+	L"*?**??*???*.??*?"sv,
 };
 
 TEST_CASE("ConvertWildcards")
@@ -433,6 +436,105 @@ TEST_CASE("CmpName")
 		{ 7, L"foo..2"sv,                    true  },
 		{ 7, L"foo.bar.2"sv,                 true  },
 		{ 7, L"foo.bar."sv,                  false },
+
+		{ 8, L"...txt"sv,                    false },
+		{ 8, L"..txt"sv,                     false },
+		{ 8, L".txt"sv,                      false },
+		{ 8, L"a.txt"sv,                     false },
+		{ 8, L"t.txt"sv,                     false },
+		{ 8, L"test"sv,                      true  },
+		{ 8, L"test."sv,                     true  },
+		{ 8, L"test.."sv,                    true  },
+		{ 8, L"test.b.txt"sv,                true  },
+		{ 8, L"test.foo.bar.txt"sv,          true  },
+		{ 8, L"test.md"sv,                   true  },
+		{ 8, L"test.txt"sv,                  true  },
+
+		{ 9, L"...txt"sv,                    false },
+		{ 9, L"..txt"sv,                     false },
+		{ 9, L".txt"sv,                      false },
+		{ 9, L"a.txt"sv,                     false },
+		{ 9, L"t.txt"sv,                     false },
+		{ 9, L"test"sv,                      false },
+		{ 9, L"test."sv,                     true  },
+		{ 9, L"test.."sv,                    true  },
+		{ 9, L"test.b.txt"sv,                false },
+		{ 9, L"test.foo.bar.txt"sv,          false },
+		{ 9, L"test.md"sv,                   false },
+		{ 9, L"test.txt"sv,                  false },
+
+		{ 10, L"...txt"sv,                   false },
+		{ 10, L"..txt"sv,                    false },
+		{ 10, L".txt"sv,                     false },
+		{ 10, L"a.txt"sv,                    false },
+		{ 10, L"t.txt"sv,                    false },
+		{ 10, L"test"sv,                     false },
+		{ 10, L"test."sv,                    true  },
+		{ 10, L"test.."sv,                   true  },
+		{ 10, L"test.b.txt"sv,               false },
+		{ 10, L"test.foo.bar.txt"sv,         false },
+		{ 10, L"test.md"sv,                  false },
+		{ 10, L"test.txt"sv,                 false },
+
+		{ 11, L"...txt"sv,                   false },
+		{ 11, L"..txt"sv,                    false },
+		{ 11, L".txt"sv,                     false },
+		{ 11, L"a.txt"sv,                    false },
+		{ 11, L"t.txt"sv,                    true  },
+		{ 11, L"test"sv,                     true  },
+		{ 11, L"test."sv,                    true  },
+		{ 11, L"test.."sv,                   true  },
+		{ 11, L"test.b.txt"sv,               true  },
+		{ 11, L"test.foo.bar.txt"sv,         true  },
+		{ 11, L"test.md"sv,                  true  },
+		{ 11, L"test.txt"sv,                 true  },
+
+		{ 12, L"...txt"sv,                   true  },
+		{ 12, L"..txt"sv,                    false },
+		{ 12, L".txt"sv,                     false },
+		{ 12, L"a.txt"sv,                    false },
+		{ 12, L"t.txt"sv,                    false },
+		{ 12, L"test"sv,                     false },
+		{ 12, L"test."sv,                    false },
+		{ 12, L"test.."sv,                   false },
+		{ 12, L"test.b.txt"sv,               false },
+		{ 12, L"TEST.FOO.BAR.TXT"sv,         true  },
+		{ 12, L"test.md"sv,                  false },
+		{ 12, L"test.txt"sv,                 false },
+
+		{ 13, L"a.txt"sv,                    true  },
+		{ 13, L"bc.txt"sv,                   true  },
+		{ 13, L"CDE.TXT"sv,                  true  },
+		{ 13, L"e.txt"sv,                    false },
+		{ 13, L"f.txt"sv,                    true  },
+		{ 13, L"g.txt"sv,                    false },
+
+		{ 14, L"a.txt"sv,                    true  },
+		{ 14, L"BC.TXT"sv,                   true  },
+		{ 14, L"cde.txt"sv,                  false },
+		{ 14, L"e.txt"sv,                    false },
+		{ 14, L"f.txt"sv,                    true  },
+		{ 14, L"g.txt"sv,                    false },
+
+		{ 15, L"test.txt"sv,                 false },
+		{ 15, L"t[est.txt"sv,                true  },
+
+		{ 16, L"aaaaaaaaaaaaaaaaaab"sv,      true  },
+		{ 16, L"aaaaaaaaaaaaaaaaaaaac"sv,    false },
+
+		{ 17, L"aaa.txt"sv,                  false },
+		{ 17, L"t.txt"sv,                    true  },
+		{ 17, L"test"sv,                     true  },
+		{ 17, L"-.txt"sv,                    true  },
+		{ 17, L"t-test.txt"sv,               true  },
+		{ 17, L".txt"sv,                     false },
+
+		{ 18, L"12345.txt"sv,                false },
+		{ 18, L"123456.txt"sv,               true  },
+		{ 18, L"12345678.txt"sv,             true  },
+		{ 18, L"FOO.TEST.BAR.TXT"sv,         true  },
+		{ 18, L"1.1.1.1.md"sv,               false },
+		{ 18, L"1.1.1.1.text"sv,             true  },
 	};
 
 	for (const auto& i: Tests)
