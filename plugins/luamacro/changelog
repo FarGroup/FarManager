@@ -1,3 +1,7 @@
+shmuel 2025-08-22 18:26:47+03:00 - build 889
+
+1. LuaFAR: correct build 888.
+
 shmuel 2025-08-22 17:21:33+03:00 - build 888
 
 1. LuaFAR: support returning Lua tables from Macro API.
