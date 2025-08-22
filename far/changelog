@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+zg 2025-08-22 11:51:41+03:00 - build 6535
+
+1. pasting into the command line and edit controls with active persistent blocks
+   broke the selection.
+
+--------------------------------------------------------------------------------
 Yegor 2025-08-20 17:00:00-07:00 - build 6534
 
 1. Refactored wildcard processing to use backtracking instead of recursion.

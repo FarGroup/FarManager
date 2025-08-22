@@ -1723,8 +1723,19 @@ void Edit::InsertString(string_view Str)
 
 			m_Str.insert(m_CurPos, Str);
 
+			auto Length = static_cast<int>(Str.size());
+			if (m_SelStart!=-1)
+			{
+				if (m_SelEnd!=-1 && m_CurPos<m_SelEnd)
+					m_SelEnd+=Length;
+
+				if (m_CurPos<m_SelStart)
+					m_SelStart+=Length;
+			}
+
 			SetPrevCurPos(m_CurPos);
-			m_CurPos += static_cast<int>(Str.size());
+			m_CurPos += Length;
+
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
 				ReplaceTabs();
