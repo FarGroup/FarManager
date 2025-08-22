@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6526.0
+Plugin API for Far Manager 3.0.6536.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6526
+#define FARMANAGERVERSION_BUILD 6536
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -1382,6 +1382,9 @@ enum FARMACROVARTYPE
 	FMVT_ARRAY                  = 8,
 	FMVT_PANEL                  = 9,
 	FMVT_ERROR                  = 10,
+	FMVT_MBSTRING               = 11,
+	FMVT_NEWTABLE               = 12,
+	FMVT_SETTABLE               = 13,
 };
 
 struct FarMacroValue
@@ -1393,6 +1396,7 @@ struct FarMacroValue
 		long long        Boolean;
 		double         Double;
 		const wchar_t *String;
+		const char    *MBString;
 		void          *Pointer;
 		struct
 		{
@@ -1418,7 +1422,9 @@ struct FarMacroValue
 	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v; }
 	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
 	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
+	FarMacroValue(const char* v)      { Type=FMVT_MBSTRING; MBString=v; }
 	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }
+	FarMacroValue(FARMACROVARTYPE tp) { Type=tp; Integer=0; }
 	FarMacroValue(const UUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<UUID&>(v); Binary.Size=sizeof(UUID); }
 	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
 #endif
