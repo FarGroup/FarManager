@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2025-08-22 17:11:22+03:00 - build 6536
+
+1. Far API: extend struct FarMacroValue to return Lua tables.
+
+--------------------------------------------------------------------------------
 zg 2025-08-22 11:51:41+03:00 - build 6535
 
 1. pasting into the command line and edit controls with active persistent blocks

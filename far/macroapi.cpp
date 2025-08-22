@@ -117,6 +117,9 @@ public:
 	void PassValue(const wchar_t* str) const;
 	void PassValue(const string& str) const;
 	void PassValue(const TVar& Var) const;
+	void PassValue(const char* str) const;
+	void NewTable();
+	void SetTable(const FarMacroValue &Key, const FarMacroValue &Value);
 
 	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	void PassValue(T const Value) const
@@ -190,25 +193,29 @@ public:
 
 private:
 	void fattrFuncImpl(int Type) const;
-	void SendValue(FarMacroValue &val) const;
+	void SendValue(const FarMacroValue &val) const;
 
 	FarMacroCall* mData;
 };
 
-void FarMacroApi::SendValue(FarMacroValue &val) const
+void FarMacroApi::SendValue(const FarMacroValue &val) const
 {
-	mData->Callback(mData->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, const_cast<FarMacroValue*>(&val), 1);
 }
 
 void FarMacroApi::PassValue(const wchar_t *str) const
 {
-	FarMacroValue val = NullToEmpty(str);
-	SendValue(val);
+	SendValue(NullToEmpty(str));
 }
 
 void FarMacroApi::PassValue(const string& str) const
 {
 	PassValue(str.c_str());
+}
+
+void FarMacroApi::PassValue(const char *str) const
+{
+	SendValue(str ? str : "");
 }
 
 void FarMacroApi::PassError(const wchar_t *str) const
@@ -220,8 +227,7 @@ void FarMacroApi::PassError(const wchar_t *str) const
 
 void FarMacroApi::PassValue(double dbl) const
 {
-	FarMacroValue val = dbl;
-	SendValue(val);
+	SendValue(dbl);
 }
 
 void FarMacroApi::PassValue(long long Int) const
@@ -230,20 +236,17 @@ void FarMacroApi::PassValue(long long Int) const
 	if (ToDouble(Int, Double))
 		return PassValue(Double);
 
-	FarMacroValue val = Int;
-	SendValue(val);
+	SendValue(Int);
 }
 
 void FarMacroApi::PassBoolean(bool const b) const
 {
-	FarMacroValue val = b;
-	SendValue(val);
+	SendValue(b);
 }
 
 void FarMacroApi::PassPointer(void *ptr) const
 {
-	FarMacroValue val = ptr;
-	SendValue(val);
+	SendValue(ptr);
 }
 
 void FarMacroApi::PassValue(const TVar& Var) const
@@ -254,6 +257,18 @@ void FarMacroApi::PassValue(const TVar& Var) const
 		PassValue(Var.asString());
 	else
 		PassValue(Var.asInteger());
+}
+
+void FarMacroApi::NewTable()
+{
+	SendValue(FMVT_NEWTABLE);
+}
+
+void FarMacroApi::SetTable(const FarMacroValue &Key, const FarMacroValue &Value)
+{
+	SendValue(Key);
+	SendValue(Value);
+	SendValue(FMVT_SETTABLE);
 }
 
 std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
