@@ -798,6 +798,14 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 			lua_setfield(L, -2, "type");
 			break;
 
+		case FMVT_NEWTABLE:
+			lua_newtable(L);
+			break;
+
+		case FMVT_SETTABLE:
+			lua_settable(L, -3);
+			break;
+
 		default:
 			lua_pushnil(L);
 			break;

@@ -177,7 +177,7 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, s
 	if (!cbdata->error && cbdata->ret_avail > 0)
 	{
 		cbdata->error = (Val->Type == FMVT_ERROR);
-		--cbdata->ret_avail;
+		cbdata->ret_avail += (Val->Type == FMVT_SETTABLE) ? 2 : -1;
 		PushFarMacroValue(cbdata->L, Val);
 	}
 }

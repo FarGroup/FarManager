@@ -1,3 +1,7 @@
+shmuel 2025-08-22 17:21:33+03:00 - build 888
+
+1. LuaFAR: support returning Lua tables from Macro API.
+
 shmuel 2025-08-19 17:35:24+03:00 - build 887
 
 1. LuaFAR: refactoring.
