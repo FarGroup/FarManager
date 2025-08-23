@@ -305,9 +305,11 @@ string exclude_sets(string_view const Str)
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+#include "common/view/zip.hpp"
 
 static const string_view Masks[]
 {
+	{},
 	L"*"sv,
 	L"A?Z*"sv,
 	L"*.txt"sv,
@@ -331,220 +333,333 @@ static const string_view Masks[]
 
 TEST_CASE("ConvertWildcards")
 {
-	static const struct
+	struct test
 	{
-		size_t Mask;
 		string_view Src, Expected;
-	}
-	Tests[]
-	{
-		{ 0, {},                            {} },
-		{ 0, L"whatever"sv,                 L"whatever"sv },
-
-		{ 1, L"1"sv,                        L"AZ"sv },
-		{ 1, L"12"sv,                       L"A2Z"sv },
-		{ 1, L"1.txt"sv,                    L"AZ.txt"sv },
-		{ 1, L"12.txt"sv,                   L"A2Z.txt"sv },
-		{ 1, L"123"sv,                      L"A2Z"sv },
-		{ 1, L"123.txt"sv,                  L"A2Z.txt"sv },
-		{ 1, L"1234"sv,                     L"A2Z4"sv },
-		{ 1, L"1234.txt"sv,                 L"A2Z4.txt"sv },
-
-		{ 2, L"a"sv,                        L"a.txt"sv },
-		{ 2, L"b.dat"sv,                    L"b.txt"sv },
-		{ 2, L"c.x.y"sv,                    L"c.x.txt"sv },
-
-		{ 3, L"a"sv,                        L"a.bak"sv },
-		{ 3, L"b.dat"sv,                    L"b.dat.bak"sv },
-		{ 3, L"c.x.y"sv,                    L"c.x.y.bak"sv },
-
-		{ 4, L"a"sv,                        L"a"sv },
-		{ 4, L"a.b"sv,                      L"a.b"sv },
-		{ 4, L"a.b.c"sv,                    L"a.b"sv },
-		{ 4, L"part1.part2.part3"sv,        L"part1.part2"sv },
-		{ 4, L"123456.123456.123456"sv,     L"12345.12345"sv },
-
-		{ 5, L"abcd_12345.txt"sv,           L"abcd_NEW.txt"sv },
-		{ 5, L"abc_newt_1.dat"sv,           L"abc_newt_NEW.dat"sv },
-		{ 5, L"abcd_123.a_b"sv,             L"abcd_123.a_NEW"sv },
-
-		{ 6, L"part1.part2"sv,              L"px.part999.rForTheCourse"sv },
-		{ 6, L"part1.part2.part3"sv,        L"px.part999.parForTheCourse"sv },
-		{ 6, L"a.b.c"sv,                    L"ax.b999.crForTheCourse"sv },
-		{ 6, L"a.b.CarPart3BEER"sv,         L"ax.b999.CarParForTheCourse"sv },
-
-		{ 7, L"1.1.1"sv,                    L"1.1.1.2"sv },
 	};
 
-	for (const auto& i: Tests)
+	static std::initializer_list<test> const Tests[]
 	{
-		REQUIRE(i.Expected == ConvertWildcards(i.Src, Masks[i.Mask]));
+		{
+			{ {},                            {} },
+			{ L"non-empty"sv,                {} },
+		},
+		{
+			{ {},                            {} },
+			{ L"whatever"sv,                 L"whatever"sv },
+		},
+		{
+			{ {},                            L"AZ"sv },
+			{ L"1"sv,                        L"AZ"sv },
+			{ L"12"sv,                       L"A2Z"sv },
+			{ L"1.txt"sv,                    L"AZ.txt"sv },
+			{ L"12.txt"sv,                   L"A2Z.txt"sv },
+			{ L"123"sv,                      L"A2Z"sv },
+			{ L"123.txt"sv,                  L"A2Z.txt"sv },
+			{ L"1234"sv,                     L"A2Z4"sv },
+			{ L"1234.txt"sv,                 L"A2Z4.txt"sv },
+		},
+		{
+			{ {},                            L".txt"sv },
+			{ L"a"sv,                        L"a.txt"sv },
+			{ L"b.dat"sv,                    L"b.txt"sv },
+			{ L"c.x.y"sv,                    L"c.x.txt"sv },
+		},
+		{
+			{ {},                            L".bak"sv },
+			{ L"a"sv,                        L"a.bak"sv },
+			{ L"b.dat"sv,                    L"b.dat.bak"sv },
+			{ L"c.x.y"sv,                    L"c.x.y.bak"sv },
+		},
+		{
+			{ {},                            {} },
+			{ L"a"sv,                        L"a"sv },
+			{ L"a.b"sv,                      L"a.b"sv },
+			{ L"a.b.c"sv,                    L"a.b"sv },
+			{ L"part1.part2.part3"sv,        L"part1.part2"sv },
+			{ L"123456.123456.123456"sv,     L"12345.12345"sv },
+		},
+		{
+			{ {},                            L"_NEW"sv },
+			{ L"abcd_12345.txt"sv,           L"abcd_NEW.txt"sv },
+			{ L"abc_newt_1.dat"sv,           L"abc_newt_NEW.dat"sv },
+			{ L"abcd_123.a_b"sv,             L"abcd_123.a_NEW"sv },
+		},
+		{
+			{ {},                            L"x.999.rForTheCourse"sv },
+			{ L"part1.part2"sv,              L"px.part999.rForTheCourse"sv },
+			{ L"part1.part2.part3"sv,        L"px.part999.parForTheCourse"sv },
+			{ L"a.b.c"sv,                    L"ax.b999.crForTheCourse"sv },
+			{ L"a.b.CarPart3BEER"sv,         L"ax.b999.CarParForTheCourse"sv },
+		},
+		{
+			{ {},                            L"..2"sv },
+			{ L"1"sv,                        L"1..2"sv },
+			{ L"1.2"sv,                      L"1.2.2"sv },
+			{ L"1.1.1"sv,                    L"1.1.1.2"sv },
+		},
+		{
+			{ {},                            L"test"sv },
+			{ L"1"sv,                        L"test"sv },
+			{ L"1.2"sv,                      L"test.2"sv },
+		},
+		{
+			{ {},                            L"t"sv },
+			{ L"1"sv,                        L"t"sv },
+			{ L"1.2"sv,                      L"t.2"sv },
+		},
+		{
+			{ {},                            L"t"sv },
+			{ L"1"sv,                        L"t"sv },
+			{ L"1.2"sv,                      L"t"sv },
+		},
+		{
+			{ {},                            L"t"sv },
+			{ L"1"sv,                        L"t"sv },
+			{ L"1.2"sv,                      L"t.2"sv },
+		},
+		{
+			{ {},                            L"...txt"sv },
+			{ L"1"sv,                        L"1...txt"sv },
+			{ L"1.2"sv,                      L"1.2..txt"sv },
+		},
+		{
+			{ {},                            L"[a-cf].txt"sv },
+			{ L"1"sv,                        L"[a-cf].txt"sv },
+			{ L"1.2"sv,                      L"[a-cf].txt"sv },
+		},
+		{
+			{ {},                            L"[a-cf].t[]x[]t"sv },
+			{ L"1"sv,                        L"1[a-cf].t[]x[]t"sv },
+			{ L"1.2"sv,                      L"1.2[a-cf].t[]x[]t"sv },
+		},
+		{
+			{ {},                            L"t[est.txt"sv },
+			{ L"1"sv,                        L"t[est.txt"sv },
+			{ L"1.2"sv,                      L"t[est.txt"sv },
+		},
+		{
+			{ {},                            L"aaaaaaaab"sv },
+			{ L"1"sv,                        L"1aaaaaaaab"sv },
+			{ L"1.2"sv,                      L"1.2aaaaaaaab"sv },
+		},
+		{
+			{ {},                            L"[t-]"sv },
+			{ L"1"sv,                        L"[t-]"sv },
+			{ L"1.2"sv,                      L"[t-].2"sv },
+		},
+		{
+			{ {},                            L"*"sv },
+			{ L"1"sv,                        L"1*"sv },
+			{ L"1.2"sv,                      L"1.2*"sv },
+		},
+	};
+
+	static_assert(std::size(Tests) == std::size(Masks));
+
+	for (const auto& [Mask, Group]: zip(Masks, Tests))
+	{
+		for (const auto& Test: Group)
+		{
+			REQUIRE(Test.Expected == ConvertWildcards(Test.Src, Mask));
+			// Only about 50% success rate here, so commenting out for now
+			//REQUIRE(CmpName(Mask, Test.Expected));
+		}
 	}
 }
 
 TEST_CASE("CmpName")
 {
-	static const struct
+	struct test
 	{
-		size_t Mask;
 		string_view Src;
 		bool Match;
-	}
-	Tests[]
-	{
-		{ 0, {},                             true  },
-		{ 0, L"."sv,                         true  },
-		{ 0, L"whatever"sv,                  true  },
-
-		{ 1, {},                             false },
-		{ 1, L"1"sv,                         false },
-		{ 1, L"AZ"sv,                        false },
-		{ 1, L"ALZ"sv,                       true  },
-		{ 1, L"ALZA1"sv,                     true  },
-
-		{ 2, {},                             false },
-		{ 2, L"foo.bar"sv,                   false },
-		{ 2, L"foo.txt"sv,                   true  },
-		{ 2, L".txt"sv,                      true  },
-		{ 2, L"foo.txt1"sv,                  false },
-
-		{ 3, {},                             false },
-		{ 3, L"foo.bar"sv,                   false },
-		{ 3, L"1.bak"sv,                     true  },
-		{ 3, L"foo.bak"sv,                   true  },
-		{ 3, L"foo.bak1"sv,                  false },
-
-		{ 4, {},                             false },
-		{ 4, L"12345.1234"sv,                false },
-		{ 4, L"12345.12345"sv,               true  },
-		{ 4, L"1.234.123.4"sv,               true  },
-		{ 4, L"..........."sv,               true  },
-		{ 4, L"123456.12345"sv,              false },
-
-		{ 5, {},                             false },
-		{ 5, L"1"sv,                         false },
-		{ 5, L"_NEW"sv,                      true  },
-		{ 5, L"1_NEW"sv,                     true  },
-		{ 5, L"1_NEW."sv,                    true  },
-		{ 5, L"1_NEW.2"sv,                   true  },
-		{ 5, L"1_NEW2"sv,                    false },
-
-		{ 6, {},                             false },
-		{ 6, L"1"sv,                         false },
-		{ 6, L"Rx.1234999.rForTheCourse"sv,  true  },
-		{ 6, L"Rx.1234999.QrForTheCourse"sv, true  },
-		{ 6, L"Rx.999.rForTheCourse"sv,      false },
-
-		{ 7, {},                             false },
-		{ 7, L".bar.2"sv,                    true  },
-		{ 7, L"..2"sv,                       true  },
-		{ 7, L"foo..2"sv,                    true  },
-		{ 7, L"foo.bar.2"sv,                 true  },
-		{ 7, L"foo.bar."sv,                  false },
-
-		{ 8, L"...txt"sv,                    false },
-		{ 8, L"..txt"sv,                     false },
-		{ 8, L".txt"sv,                      false },
-		{ 8, L"a.txt"sv,                     false },
-		{ 8, L"t.txt"sv,                     false },
-		{ 8, L"test"sv,                      true  },
-		{ 8, L"test."sv,                     true  },
-		{ 8, L"test.."sv,                    true  },
-		{ 8, L"test.b.txt"sv,                true  },
-		{ 8, L"test.foo.bar.txt"sv,          true  },
-		{ 8, L"test.md"sv,                   true  },
-		{ 8, L"test.txt"sv,                  true  },
-
-		{ 9, L"...txt"sv,                    false },
-		{ 9, L"..txt"sv,                     false },
-		{ 9, L".txt"sv,                      false },
-		{ 9, L"a.txt"sv,                     false },
-		{ 9, L"t.txt"sv,                     false },
-		{ 9, L"test"sv,                      true  },
-		{ 9, L"test."sv,                     true  },
-		{ 9, L"test.."sv,                    true  },
-		{ 9, L"test.b.txt"sv,                false },
-		{ 9, L"test.foo.bar.txt"sv,          false },
-		{ 9, L"test.md"sv,                   false },
-		{ 9, L"test.txt"sv,                  false },
-
-		{ 10, L"...txt"sv,                   false },
-		{ 10, L"..txt"sv,                    false },
-		{ 10, L".txt"sv,                     false },
-		{ 10, L"a.txt"sv,                    false },
-		{ 10, L"t.txt"sv,                    false },
-		{ 10, L"test"sv,                     true  },
-		{ 10, L"test."sv,                    true  },
-		{ 10, L"test.."sv,                   true  },
-		{ 10, L"test.b.txt"sv,               false },
-		{ 10, L"test.foo.bar.txt"sv,         false },
-		{ 10, L"test.md"sv,                  false },
-		{ 10, L"test.txt"sv,                 false },
-
-		{ 11, L"...txt"sv,                   false },
-		{ 11, L"..txt"sv,                    false },
-		{ 11, L".txt"sv,                     false },
-		{ 11, L"a.txt"sv,                    false },
-		{ 11, L"t.txt"sv,                    true  },
-		{ 11, L"test"sv,                     true  },
-		{ 11, L"test."sv,                    true  },
-		{ 11, L"test.."sv,                   true  },
-		{ 11, L"test.b.txt"sv,               true  },
-		{ 11, L"test.foo.bar.txt"sv,         true  },
-		{ 11, L"test.md"sv,                  true  },
-		{ 11, L"test.txt"sv,                 true  },
-
-		{ 12, L"...txt"sv,                   true  },
-		{ 12, L"..txt"sv,                    false },
-		{ 12, L".txt"sv,                     false },
-		{ 12, L"a.txt"sv,                    false },
-		{ 12, L"t.txt"sv,                    false },
-		{ 12, L"test"sv,                     false },
-		{ 12, L"test."sv,                    false },
-		{ 12, L"test.."sv,                   false },
-		{ 12, L"test.b.txt"sv,               false },
-		{ 12, L"TEST.FOO.BAR.TXT"sv,         true  },
-		{ 12, L"test.md"sv,                  false },
-		{ 12, L"test.txt"sv,                 false },
-
-		{ 13, L"a.txt"sv,                    true  },
-		{ 13, L"bc.txt"sv,                   true  },
-		{ 13, L"CDE.TXT"sv,                  true  },
-		{ 13, L"e.txt"sv,                    false },
-		{ 13, L"f.txt"sv,                    true  },
-		{ 13, L"g.txt"sv,                    false },
-
-		{ 14, L"a.txt"sv,                    true  },
-		{ 14, L"BC.TXT"sv,                   true  },
-		{ 14, L"cde.txt"sv,                  false },
-		{ 14, L"e.txt"sv,                    false },
-		{ 14, L"f.txt"sv,                    true  },
-		{ 14, L"g.txt"sv,                    false },
-
-		{ 15, L"test.txt"sv,                 false },
-		{ 15, L"t[est.txt"sv,                true  },
-
-		{ 16, L"aaaaaaaaaaaaaaaaaab"sv,      true  },
-		{ 16, L"aaaaaaaaaaaaaaaaaaaac"sv,    false },
-
-		{ 17, L"aaa.txt"sv,                  false },
-		{ 17, L"t.txt"sv,                    true  },
-		{ 17, L"test"sv,                     true  },
-		{ 17, L"-.txt"sv,                    true  },
-		{ 17, L"t-test.txt"sv,               true  },
-		{ 17, L".txt"sv,                     false },
-
-		{ 18, L"12345.txt"sv,                false },
-		{ 18, L"123456.txt"sv,               true  },
-		{ 18, L"12345678.txt"sv,             true  },
-		{ 18, L"FOO.TEST.BAR.TXT"sv,         true  },
-		{ 18, L"1.1.1.1.md"sv,               false },
-		{ 18, L"1.1.1.1.text"sv,             true  },
 	};
 
-	for (const auto& i: Tests)
+	static std::initializer_list<test> const Tests[]
 	{
-		REQUIRE(i.Match == CmpName(Masks[i.Mask], i.Src));
+		{
+			{ {},                             true  },
+			{ L"non-empty"sv,                 false },
+		},
+		{
+			{ {},                             true  },
+			{ L"."sv,                         true  },
+			{ L"whatever"sv,                  true  },
+		},
+		{
+			{ {},                             false },
+			{ L"1"sv,                         false },
+			{ L"AZ"sv,                        false },
+			{ L"ALZ"sv,                       true  },
+			{ L"ALZA1"sv,                     true  },
+		},
+		{
+			{ {},                             false },
+			{ L"foo.bar"sv,                   false },
+			{ L"foo.txt"sv,                   true  },
+			{ L".txt"sv,                      true  },
+			{ L"foo.txt1"sv,                  false },
+		},
+		{
+			{ {},                             false },
+			{ L"foo.bar"sv,                   false },
+			{ L"1.bak"sv,                     true  },
+			{ L"foo.bak"sv,                   true  },
+			{ L"foo.bak1"sv,                  false },
+		},
+		{
+			{ {},                             false },
+			{ L"12345.1234"sv,                false },
+			{ L"12345.12345"sv,               true  },
+			{ L"1.234.123.4"sv,               true  },
+			{ L"..........."sv,               true  },
+			{ L"123456.12345"sv,              false },
+		},
+		{
+			{ {},                             false },
+			{ L"1"sv,                         false },
+			{ L"_NEW"sv,                      true  },
+			{ L"1_NEW"sv,                     true  },
+			{ L"1_NEW."sv,                    true  },
+			{ L"1_NEW.2"sv,                   true  },
+			{ L"1_NEW2"sv,                    false },
+		},
+		{
+			{ {},                             false },
+			{ L"1"sv,                         false },
+			{ L"Rx.1234999.rForTheCourse"sv,  true  },
+			{ L"Rx.1234999.QrForTheCourse"sv, true  },
+			{ L"Rx.999.rForTheCourse"sv,      false },
+		},
+		{
+			{ {},                             false },
+			{ L".bar.2"sv,                    true  },
+			{ L"..2"sv,                       true  },
+			{ L"foo..2"sv,                    true  },
+			{ L"foo.bar.2"sv,                 true  },
+			{ L"foo.bar."sv,                  false },
+		},
+		{
+			{ L"...txt"sv,                    false },
+			{ L"..txt"sv,                     false },
+			{ L".txt"sv,                      false },
+			{ L"a.txt"sv,                     false },
+			{ L"t.txt"sv,                     false },
+			{ L"test"sv,                      true  },
+			{ L"test."sv,                     true  },
+			{ L"test.."sv,                    true  },
+			{ L"test.b.txt"sv,                true  },
+			{ L"test.foo.bar.txt"sv,          true  },
+			{ L"test.md"sv,                   true  },
+			{ L"test.txt"sv,                  true  },
+		},
+		{
+			{ L"...txt"sv,                    false },
+			{ L"..txt"sv,                     false },
+			{ L".txt"sv,                      false },
+			{ L"a.txt"sv,                     false },
+			{ L"t.txt"sv,                     false },
+			{ L"test"sv,                      true  },
+			{ L"test."sv,                     true  },
+			{ L"test.."sv,                    true  },
+			{ L"test.b.txt"sv,                false },
+			{ L"test.foo.bar.txt"sv,          false },
+			{ L"test.md"sv,                   false },
+			{ L"test.txt"sv,                  false },
+		},
+		{
+			{ L"...txt"sv,                   false },
+			{ L"..txt"sv,                    false },
+			{ L".txt"sv,                     false },
+			{ L"a.txt"sv,                    false },
+			{ L"t.txt"sv,                    false },
+			{ L"test"sv,                     true  },
+			{ L"test."sv,                    true  },
+			{ L"test.."sv,                   true  },
+			{ L"test.b.txt"sv,               false },
+			{ L"test.foo.bar.txt"sv,         false },
+			{ L"test.md"sv,                  false },
+			{ L"test.txt"sv,                 false },
+		},
+		{
+			{ L"...txt"sv,                   false },
+			{ L"..txt"sv,                    false },
+			{ L".txt"sv,                     false },
+			{ L"a.txt"sv,                    false },
+			{ L"t.txt"sv,                    true  },
+			{ L"test"sv,                     true  },
+			{ L"test."sv,                    true  },
+			{ L"test.."sv,                   true  },
+			{ L"test.b.txt"sv,               true  },
+			{ L"test.foo.bar.txt"sv,         true  },
+			{ L"test.md"sv,                  true  },
+			{ L"test.txt"sv,                 true  },
+		},
+		{
+			{ L"...txt"sv,                   true  },
+			{ L"..txt"sv,                    false },
+			{ L".txt"sv,                     false },
+			{ L"a.txt"sv,                    false },
+			{ L"t.txt"sv,                    false },
+			{ L"test"sv,                     false },
+			{ L"test."sv,                    false },
+			{ L"test.."sv,                   false },
+			{ L"test.b.txt"sv,               false },
+			{ L"TEST.FOO.BAR.TXT"sv,         true  },
+			{ L"test.md"sv,                  false },
+			{ L"test.txt"sv,                 false },
+		},
+		{
+			{ L"a.txt"sv,                    true  },
+			{ L"bc.txt"sv,                   true  },
+			{ L"CDE.TXT"sv,                  true  },
+			{ L"e.txt"sv,                    false },
+			{ L"f.txt"sv,                    true  },
+			{ L"g.txt"sv,                    false },
+		},
+		{
+			{ L"a.txt"sv,                    true  },
+			{ L"BC.TXT"sv,                   true  },
+			{ L"cde.txt"sv,                  false },
+			{ L"e.txt"sv,                    false },
+			{ L"f.txt"sv,                    true  },
+			{ L"g.txt"sv,                    false },
+		},
+		{
+			{ L"test.txt"sv,                 false },
+			{ L"t[est.txt"sv,                true  },
+		},
+		{
+			{ L"aaaaaaaaaaaaaaaaaab"sv,      true  },
+			{ L"aaaaaaaaaaaaaaaaaaaac"sv,    false },
+		},
+		{
+			{ L"aaa.txt"sv,                  false },
+			{ L"t.txt"sv,                    true  },
+			{ L"test"sv,                     true  },
+			{ L"-.txt"sv,                    true  },
+			{ L"t-test.txt"sv,               true  },
+			{ L".txt"sv,                     false },
+		},
+		{
+			{ L"12345.txt"sv,                false },
+			{ L"123456.txt"sv,               true  },
+			{ L"12345678.txt"sv,             true  },
+			{ L"FOO.TEST.BAR.TXT"sv,         true  },
+			{ L"1.1.1.1.md"sv,               false },
+			{ L"1.1.1.1.text"sv,             true  },
+		},
+	};
+
+	static_assert(std::size(Tests) == std::size(Masks));
+
+	for (const auto& [Mask, Group]: zip(Masks, Tests))
+	{
+		for (const auto& Test: Group)
+		{
+			REQUIRE(Test.Match == CmpName(Mask, Test.Src));
+		}
 	}
 }
 
