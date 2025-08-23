@@ -159,6 +159,7 @@ bool CmpName(const string_view pattern, string_view str, const bool skippath, co
 	size_t pi = 0, si = 0;
 	auto StarPI = string_view::npos;
 	auto StarSI = string_view::npos;
+	auto HasDot = false;
 
 	const auto try_backtrack = [&]
 	{
@@ -193,6 +194,9 @@ bool CmpName(const string_view pattern, string_view str, const bool skippath, co
 
 	while (si <= str.size())
 	{
+		if (si < str.size() && str[si] == L'.')
+			HasDot = true;
+
 		if (pi >= pattern.size())
 		{
 			if (si == str.size())
@@ -264,7 +268,8 @@ bool CmpName(const string_view pattern, string_view str, const bool skippath, co
 			continue;
 		}
 
-		if (CmpNameLegacyMode && si == str.size() && pattern.substr(pi) == L".*"sv)
+		if (CmpNameLegacyMode && si == str.size() &&
+			(pattern.substr(pi) == L".*"sv || !HasDot && pattern.substr(pi) == L"."sv))
 			return true;
 
 		if (!try_backtrack())
@@ -455,7 +460,7 @@ TEST_CASE("CmpName")
 		{ 9, L".txt"sv,                      false },
 		{ 9, L"a.txt"sv,                     false },
 		{ 9, L"t.txt"sv,                     false },
-		{ 9, L"test"sv,                      false },
+		{ 9, L"test"sv,                      true  },
 		{ 9, L"test."sv,                     true  },
 		{ 9, L"test.."sv,                    true  },
 		{ 9, L"test.b.txt"sv,                false },
@@ -468,7 +473,7 @@ TEST_CASE("CmpName")
 		{ 10, L".txt"sv,                     false },
 		{ 10, L"a.txt"sv,                    false },
 		{ 10, L"t.txt"sv,                    false },
-		{ 10, L"test"sv,                     false },
+		{ 10, L"test"sv,                     true  },
 		{ 10, L"test."sv,                    true  },
 		{ 10, L"test.."sv,                   true  },
 		{ 10, L"test.b.txt"sv,               false },
