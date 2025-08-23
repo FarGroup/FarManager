@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+Yegor 2025-08-22 17:17:00-07:00 - build 6537
+
+1. Continue 6534: Add support for *. to match files without extensions.
+
+--------------------------------------------------------------------------------
 shmuel 2025-08-22 17:11:22+03:00 - build 6536
 
 1. Far API: extend struct FarMacroValue to return Lua tables.
