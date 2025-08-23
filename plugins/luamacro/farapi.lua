@@ -614,6 +614,7 @@ static const /*FARDIALOGFLAGS*/ uint32_t
 	FDLG_NODRAWPANEL         = 0x0000000000000008,
 	FDLG_KEEPCONSOLETITLE    = 0x0000000000000010,
 	FDLG_NONMODAL            = 0x0000000000000020,
+	FDLG_STAY_ON_TOP         = 0x0000000000000040,
 	FDLG_NONE                = 0;
 
 typedef intptr_t(__stdcall *FARWINDOWPROC)(
@@ -1828,6 +1829,7 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 	RECTL_SEARCHEX                  = 5,
 	RECTL_BRACKETSCOUNT             = 6,
 	RECTL_NAMEDGROUPINDEX           = 7,
+	RECTL_GETNAMEDGROUPS            = 8,
 };
 
 struct RegExpMatch
@@ -1843,6 +1845,12 @@ struct RegExpSearch
 	struct RegExpMatch* Match;
 	intptr_t Count;
 	void* Reserved;
+};
+
+struct RegExpNamedGroup
+{
+	size_t Index;
+	const wchar_t* Name;
 };
 
 enum FAR_SETTINGS_CONTROL_COMMANDS
