@@ -2278,7 +2278,113 @@ function MT.test_coroutine()
   end
 end
 
-local function test_Editor_Sel()
+local function test_Editor_Sel_Cmdline()
+  assert_true(Area.Shell)
+
+  local str = ("123456789-"):rep(4)
+  panel.SetCmdLine(nil, "")
+  print(str)
+
+  local act = 0
+  for opt = 0,4 do
+    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+  end
+
+  local line, pos, w, h = 1, 13, 5, 1
+
+  panel.SetCmdLineSelection(nil, pos, pos+w)
+  assert_eq(Editor.Sel(act,0), line)
+  assert_eq(Editor.Sel(act,1), pos)
+  assert_eq(Editor.Sel(act,2), line)
+  assert_eq(Editor.Sel(act,3), pos + w)
+  assert_eq(Editor.Sel(act,4), 1)
+  --------------------------------------------------------------------------------------------------
+  act = 1
+  panel.SetCmdLineSelection(nil, pos, pos+w)
+
+  assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+  assert_eq(panel.GetCmdLinePos(), pos)
+
+  assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+  assert_eq(panel.GetCmdLinePos(), pos + w + 1)
+  --------------------------------------------------------------------------------------------------
+  for act = 2,3 do
+    panel.SetCmdLinePos(nil,10)              -- set block start
+    assert_eq(1, Editor.Sel(act,0))          -- +++
+    panel.SetCmdLinePos(nil,20)              -- set block end (it also selects the block)
+    assert_eq(1, Editor.Sel(act,1))          -- +++
+
+    assert_eq(Editor.Sel(0,0), 1)
+    assert_eq(Editor.Sel(0,1), 10)
+    assert_eq(Editor.Sel(0,2), 1)
+    assert_eq(Editor.Sel(0,3), 20-1)
+    assert_eq(Editor.Sel(0,4), 1)
+  end
+  --------------------------------------------------------------------------------------------------
+  assert_eq(1, Editor.Sel(4)) -- reset the block
+  assert_eq(Editor.Sel(0,4), 0)
+
+  panel.SetCmdLine(nil, "")
+end
+
+local function test_Editor_Sel_Dialog()
+  Keys("F7 Del")
+  assert_true(Area.Dialog)
+  local inf = actl.GetWindowInfo()
+  local hDlg = assert_udata(inf.Id)
+  local EditPos = assert_num(hDlg:GetFocus())
+
+  local str = ("123456789-"):rep(4)
+  print(str)
+
+  local act = 0
+  for opt = 0,4 do
+    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+  end
+
+  local tSel = { BlockType = F.BTYPE_STREAM; BlockStartLine = 1; BlockStartPos = 13,
+                 BlockWidth = 5; BlockHeight = 1; }
+
+  hDlg:SetSelection(EditPos, tSel)
+  assert_eq(Editor.Sel(act,0), tSel.BlockStartLine)
+  assert_eq(Editor.Sel(act,1), tSel.BlockStartPos)
+  assert_eq(Editor.Sel(act,2), tSel.BlockStartLine)
+  assert_eq(Editor.Sel(act,3), tSel.BlockStartPos + tSel.BlockWidth - 1) -- [-1: DIFFERENT FROM EDITOR]
+  assert_eq(Editor.Sel(act,4), tSel.BlockType)
+  --------------------------------------------------------------------------------------------------
+  act = 1
+  hDlg:SetSelection(EditPos, tSel)
+
+  assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+  local pos = assert_table(hDlg:GetCursorPos(EditPos))
+  assert_eq(pos.Y+1, tSel.BlockStartLine)
+  assert_eq(pos.X+1, tSel.BlockStartPos)
+
+  assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+  pos = assert_table(hDlg:GetCursorPos(EditPos))
+  assert_eq(pos.Y+1, tSel.BlockStartLine)
+  assert_eq(pos.X+1, tSel.BlockStartPos + tSel.BlockWidth)
+  --------------------------------------------------------------------------------------------------
+  for act = 2,3 do
+    hDlg:SetCursorPos(EditPos, {X=10; Y=0})  -- set block start
+    assert_eq(1, Editor.Sel(act,0))          -- +++
+    hDlg:SetCursorPos(EditPos, {X=20; Y=0})  -- set block end (it also selects the block)
+    assert_eq(1, Editor.Sel(act,1))          -- +++
+
+    assert_eq(Editor.Sel(0,0), 1)
+    assert_eq(Editor.Sel(0,1), 10+1)
+    assert_eq(Editor.Sel(0,2), 1)
+    assert_eq(Editor.Sel(0,3), 20)
+    assert_eq(Editor.Sel(0,4), 1)
+  end
+  --------------------------------------------------------------------------------------------------
+  assert_eq(1, Editor.Sel(4)) -- reset the block
+  assert_eq(Editor.Sel(0,4), 0)
+
+  Keys("Esc")
+end
+
+local function test_Editor_Sel_Editor()
   Keys("ShiftF4 Del Enter")
   assert_true(Area.Editor)
   local str = ("123456789-"):rep(8)
@@ -2297,13 +2403,13 @@ local function test_Editor_Sel()
   for ii=1,2 do
     local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
     assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
-    assert_eq(Editor.Sel(act,0), line)
-    assert_eq(Editor.Sel(act,1), pos)
-    assert_eq(Editor.Sel(act,2), line-1+h)
-    assert_eq(Editor.Sel(act,3), pos+w)
-    assert_eq(Editor.Sel(act,4), ii)
+    assert_eq(Editor.Sel(act,0), line)      -- get block start line
+    assert_eq(Editor.Sel(act,1), pos)       -- get block start pos
+    assert_eq(Editor.Sel(act,2), line-1+h)  -- get block end line
+    assert_eq(Editor.Sel(act,3), pos+w)     -- get block end pos
+    assert_eq(Editor.Sel(act,4), ii)        -- get block type
   end
-
+  --------------------------------------------------------------------------------------------------
   act = 1
   for ii=1,2 do
     local inf
@@ -2320,20 +2426,20 @@ local function test_Editor_Sel()
     assert_eq(inf.CurLine, line-1+h)
     assert_eq(inf.CurPos, pos+w)
   end
-
+  --------------------------------------------------------------------------------------------------
   for act = 2,3 do
     editor.SetPosition(nil,2,10)     -- set block start
     assert_eq(1, Editor.Sel(act,0))  -- +++
     editor.SetPosition(nil,6,20)     -- set block end (it also selects the block)
     assert_eq(1, Editor.Sel(act,1))  -- +++
 
-    assert_eq(Editor.Sel(0,0), 2)
-    assert_eq(Editor.Sel(0,1), 10)
-    assert_eq(Editor.Sel(0,2), 6)
-    assert_eq(Editor.Sel(0,3), 20)
-    assert_eq(Editor.Sel(0,4), act==2 and 1 or 2)
+    assert_eq(Editor.Sel(0,0), 2)                  -- get block start line
+    assert_eq(Editor.Sel(0,1), 10)                 -- get block start pos
+    assert_eq(Editor.Sel(0,2), 6)                  -- get block end line
+    assert_eq(Editor.Sel(0,3), 20)                 -- get block end pos
+    assert_eq(Editor.Sel(0,4), act==2 and 1 or 2)  -- get block type
   end
-
+  --------------------------------------------------------------------------------------------------
   assert_eq(1, Editor.Sel(4)) -- reset the block
   assert_eq(Editor.Sel(0,4), 0)
 
@@ -2341,7 +2447,9 @@ local function test_Editor_Sel()
 end
 
 function MT.test_Editor()
-  test_Editor_Sel()
+  test_Editor_Sel_Cmdline()
+  test_Editor_Sel_Dialog()
+  test_Editor_Sel_Editor()
 end
 
 function MT.test_all()
