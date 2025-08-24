@@ -2278,6 +2278,72 @@ function MT.test_coroutine()
   end
 end
 
+local function test_Editor_Sel()
+  Keys("ShiftF4 Del Enter")
+  assert_true(Area.Editor)
+  local str = ("123456789-"):rep(8)
+  for k=1,8 do
+    editor.InsertString()
+    editor.SetString(nil, k, str)
+  end
+
+  local act = 0
+  for opt = 0,4 do
+    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+  end
+
+  local line, pos, w, h = 3, 13, 5, 4
+
+  for ii=1,2 do
+    local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
+    assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
+    assert_eq(Editor.Sel(act,0), line)
+    assert_eq(Editor.Sel(act,1), pos)
+    assert_eq(Editor.Sel(act,2), line-1+h)
+    assert_eq(Editor.Sel(act,3), pos+w)
+    assert_eq(Editor.Sel(act,4), ii)
+  end
+
+  act = 1
+  for ii=1,2 do
+    local inf
+    local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
+    assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
+
+    assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+    inf = editor.GetInfo()
+    assert_eq(inf.CurLine, line)
+    assert_eq(inf.CurPos, pos)
+
+    assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+    inf = editor.GetInfo()
+    assert_eq(inf.CurLine, line-1+h)
+    assert_eq(inf.CurPos, pos+w)
+  end
+
+  for act = 2,3 do
+    editor.SetPosition(nil,2,10)     -- set block start
+    assert_eq(1, Editor.Sel(act,0))  -- +++
+    editor.SetPosition(nil,6,20)     -- set block end (it also selects the block)
+    assert_eq(1, Editor.Sel(act,1))  -- +++
+
+    assert_eq(Editor.Sel(0,0), 2)
+    assert_eq(Editor.Sel(0,1), 10)
+    assert_eq(Editor.Sel(0,2), 6)
+    assert_eq(Editor.Sel(0,3), 20)
+    assert_eq(Editor.Sel(0,4), act==2 and 1 or 2)
+  end
+
+  assert_eq(1, Editor.Sel(4)) -- reset the block
+  assert_eq(Editor.Sel(0,4), 0)
+
+  assert_true(editor.Quit())
+end
+
+function MT.test_Editor()
+  test_Editor_Sel()
+end
+
 function MT.test_all()
   TestArea("Shell", "Run these tests from the Shell area.")
   assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
@@ -2288,6 +2354,7 @@ function MT.test_all()
   MT.test_Help()
   MT.test_Dlg()
   MT.test_Drv()
+  MT.test_Editor()
   MT.test_Far()
   MT.test_Menu()
   MT.test_Mouse()
