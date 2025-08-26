@@ -2315,8 +2315,49 @@ protected:
 		return implementation::WriteOutputNT(Buffer, BufferCoord, WriteRegion);
 	}
 
+	static bool is_synchronized_output_supported()
+	{
+		static const auto Result = []
+		{
+			const auto Response = decrqm(L"2026"sv);
+			if (!Response)
+				return false;
+
+			switch (*Response)
+			{
+			case L'1':
+			case L'2':
+				return true;
+
+			case L'3':
+			case L'4':
+				return false;
+
+			default:
+				std::unreachable();
+			}
+		}();
+
+		return Result;
+	}
+
+	static void begin_synchronized_update()
+	{
+		if (is_synchronized_output_supported())
+			send_vt_command(CSI L"?2026h"sv);
+	}
+
+	static void end_synchronized_update()
+	{
+		if (is_synchronized_output_supported())
+			send_vt_command(CSI L"?2026l"sv);
+	}
+
 	bool console::WriteOutputGather(matrix<FAR_CHAR_INFO>& Buffer, std::span<rectangle const> WriteRegions) const
 	{
+		begin_synchronized_update();
+		SCOPE_EXIT{ end_synchronized_update(); };
+
 		// TODO: VT can handle this in one go
 		for (const auto& i: WriteRegions)
 		{
