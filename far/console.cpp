@@ -670,6 +670,56 @@ protected:
 		}
 	}
 
+	static std::optional<wchar_t> decrqm(string_view const Query)
+	{
+		// No need to make noise on legacy systems
+		if (!::console.IsVtSupported())
+			return {};
+
+		try
+		{
+			const auto ResponseData = query_vt(concat(CSI, L'?', Query, L"$p"sv));
+			if (ResponseData.empty())
+			{
+				LOGWARNING(L"DECRQM {} query is not supported"sv, Query);
+				return {};
+			}
+
+			const auto Prefix = concat(CSI, L'?', Query, L';');
+			const auto Suffix = L"$y"sv;
+
+			const auto give_up = [&]
+			{
+				throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
+			};
+
+			if (ResponseData.size() != Prefix.size() + 1 + Suffix.size() || !ResponseData.starts_with(Prefix) || !ResponseData.ends_with(Suffix))
+				give_up();
+
+			switch (const auto Char = ResponseData[Prefix.size()])
+			{
+			case L'0':
+				LOGWARNING(L"DECRQM {} query is not supported"sv, Query);
+				return {};
+
+			case L'1':
+			case L'2':
+			case L'3':
+			case L'4':
+				return Char;
+
+			default:
+				give_up();
+				std::unreachable();
+			}
+		}
+		catch (std::exception const& e)
+		{
+			LOGERROR(L"{}"sv, e);
+			return {};
+		}
+	}
+
 	console::console():
 		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
 		m_StreamBuf(std::make_unique<consolebuf>(GetStdHandle(STD_OUTPUT_HANDLE))),
@@ -3100,56 +3150,22 @@ protected:
 
 	std::optional<bool> console::is_grapheme_clusters_on() const
 	{
-		// No need to make noise on legacy systems
-		if (!IsVtSupported())
+		const auto Response = decrqm(L"2027"sv);
+		if (!Response)
 			return {};
 
-		try
+		switch (*Response)
 		{
-#define DECRQM_REQUEST "?2027"
+		case L'1':
+		case L'3':
+			return true;
 
-			const auto ResponseData = query_vt(CSI DECRQM_REQUEST "$p"sv);
-			if (ResponseData.empty())
-			{
-				LOGWARNING(L"DECRQM 2027 query is not supported"sv);
-				return {};
-			}
+		case L'2':
+		case L'4':
+			return false;
 
-			const auto
-				Prefix = CSI DECRQM_REQUEST ";"sv,
-				Suffix = L"$y"sv;
-
-#undef DECRQM_REQUEST
-
-			const auto give_up = [&]
-			{
-				throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
-			};
-
-			if (ResponseData.size() != Prefix.size() + 1 + Suffix.size() || !ResponseData.starts_with(Prefix) || !ResponseData.ends_with(Suffix))
-				give_up();
-
-			switch (ResponseData[Prefix.size()])
-			{
-			case L'0':
-				LOGWARNING(L"DECRQM 2027 query is not supported"sv);
-				return {};
-
-			case L'1':
-			case L'3': return true;
-
-			case L'2':
-			case L'4': return false;
-
-			default:
-				give_up();
-				std::unreachable();
-			}
-		}
-		catch (std::exception const& e)
-		{
-			LOGERROR(L"{}"sv, e);
-			return {};
+		default:
+			std::unreachable();
 		}
 	}
 
