@@ -269,7 +269,7 @@ bool CmpName(const string_view pattern, string_view str, const bool skippath, co
 		}
 
 		if (CmpNameLegacyMode && si == str.size() &&
-			(pattern.substr(pi) == L".*"sv || !HasDot && pattern.substr(pi) == L"."sv))
+			(pattern.substr(pi) == L".*"sv || (!HasDot && pattern.substr(pi) == L"."sv)))
 			return true;
 
 		if (!try_backtrack())

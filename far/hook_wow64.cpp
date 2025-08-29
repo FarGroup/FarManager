@@ -113,7 +113,7 @@ Wow
 	&wow::e_revert,
 };
 
-static_assert(std::is_trivial_v<wow>);
+static_assert(std::is_trivially_default_constructible_v<wow> && std::is_trivially_copyable_v<wow>);
 
 
 #if COMPILER(GCC) || COMPILER(CLANG)
