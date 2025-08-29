@@ -911,8 +911,8 @@ void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(lng::MEditConfigSavePos, EdOptRef.SavePos);
 		Builder.AddCheckbox(lng::MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
 		Builder.AddCheckbox(lng::MEditShareWrite, EdOpt.EditOpenedForWrite);
-		Builder.AddCheckbox(lng::MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
-		Builder.AddCheckbox(lng::MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
+		Builder.AddCheckbox(lng::MEditLockROFileModification, EdOpt.ReadOnlyLock, 0b01);
+		Builder.AddCheckbox(lng::MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 0b10);
 		Builder.AddCheckbox(lng::MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(lng::MEditConfigDefaultCodePage);
 		codepages::instance().FillCodePagesList(Items, false, false, false, false, false);

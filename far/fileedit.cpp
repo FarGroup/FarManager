@@ -472,6 +472,14 @@ FileEditor::~FileEditor()
 	}
 }
 
+static DWORD get_read_only_attributes(uint64_t const ReadOnlyLock)
+{
+	return
+		FILE_ATTRIBUTE_READONLY |
+		(ReadOnlyLock & 0b0010'0000? FILE_ATTRIBUTE_HIDDEN : 0) |
+		(ReadOnlyLock & 0b0100'0000? FILE_ATTRIBUTE_SYSTEM : 0);
+}
+
 void FileEditor::Init(
     const string_view Name,
     uintptr_t codepage,
@@ -678,15 +686,7 @@ void FileEditor::Init(
 		return;
 	}
 
-	if (m_editor->EdOpt.ReadOnlyLock & 1_bit &&
-		FileStatus.check(FILE_ATTRIBUTE_READONLY |
-		/*  Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-		    поэтому применяем маску 0110.0000 и
-		    сдвигаем на свое место => 0000.0110 и получаем
-		    те самые нужные атрибуты */
-			((m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4)
-		)
-	)
+	if (m_editor->EdOpt.ReadOnlyLock & 1_bit && FileStatus.check(get_read_only_attributes(m_editor->EdOpt.ReadOnlyLock)))
 	{
 		if (Message(MSG_WARNING,
 			msg(lng::MEditTitle),
@@ -1481,7 +1481,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		const auto Cached = LoadFromCache(pc);
 
 		const os::fs::file_status FileStatus(Name);
-		if ((m_editor->EdOpt.ReadOnlyLock & 0_bit) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
+		if (m_editor->EdOpt.ReadOnlyLock & 0_bit && FileStatus.check(get_read_only_attributes(m_editor->EdOpt.ReadOnlyLock)))
 		{
 			m_editor->m_Flags.Invert(Editor::FEDITOR_LOCKMODE);
 		}
