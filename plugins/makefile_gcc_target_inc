@@ -17,12 +17,12 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
 	$(MKDIR) $(@D)
-	$(CXX) -c -MM $(CPPFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+	$(CXX) -MM $(CPPFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<
 	$(MKDIR) $(@D)
-	$(CC) -c -MM $(CFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+	$(CC) -MM $(CFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
 

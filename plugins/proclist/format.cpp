@@ -1,4 +1,6 @@
-﻿#include "format.hpp"
+﻿#include <cstdlib>
+
+#include "format.hpp"
 
 WARNING_PUSH(3)
 
