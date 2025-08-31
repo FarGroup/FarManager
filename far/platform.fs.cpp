@@ -1435,7 +1435,10 @@ namespace os::fs
 		return seekoff(Pos, std::ios::beg, Which);
 	}
 
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	filebuf::int_type filebuf::pbackfail(int_type Ch)
+WARNING_POP()
 	{
 		throw far_fatal_exception(L"Not implemented"sv);
 	}

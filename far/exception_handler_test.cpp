@@ -106,7 +106,9 @@ namespace tests
 			cpp_try(
 			[]
 			{
-				throw std::runtime_error("Test nested std error"s);
+				// TODO: remove and mark the lambda as [[noreturn]] once we have cl >= 19.44 (VS2022 17.14)
+				if ([[maybe_unused]] volatile auto Throw = true)
+					throw std::runtime_error("Test nested std error"s);
 			},
 			save_exception_to(Ptr)
 			);
@@ -126,7 +128,9 @@ namespace tests
 			cpp_try(
 			[]
 			{
-				throw std::runtime_error("Test nested std error (thread)"s);
+				// TODO: remove and mark the lambda as [[noreturn]] once we have cl >= 19.44 (VS2022 17.14)
+				if ([[maybe_unused]] volatile auto Throw = true)
+					throw std::runtime_error("Test nested std error (thread)"s);
 			},
 			save_exception_to(Ptr)
 			);
@@ -166,7 +170,9 @@ namespace tests
 		cpp_try(
 		[]
 		{
-			throw 69u;
+			// TODO: remove and mark the lambda as [[noreturn]] once we have cl >= 19.44 (VS2022 17.14)
+			if ([[maybe_unused]] volatile auto Throw = true)
+				throw 69u;
 		},
 		save_exception_to(Ptr)
 		);
@@ -211,7 +217,12 @@ namespace tests
 	{
 		try
 		{
-			const auto do_throw = []{ throw far_exception(L"throw from a noexcept function"); };
+			const auto do_throw = []
+			{
+				// TODO: remove and mark the lambda as [[noreturn]] once we have cl >= 19.44 (VS2022 17.14)
+				if ([[maybe_unused]] volatile auto Throw = true)
+					throw far_exception(L"throw from a noexcept function");
+			};
 
 			[&]() noexcept
 			{
