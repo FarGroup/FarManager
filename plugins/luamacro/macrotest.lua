@@ -16,24 +16,29 @@ Macro {
 }
 --]]
 
-local function assert_eq(a,b)      assert(a == b)               return true; end
-local function assert_neq(a,b)     assert(a ~= b)               return true; end
-local function assert_num(v)       assert(type(v)=="number")    return v; end
-local function assert_str(v)       assert(type(v)=="string")    return v; end
-local function assert_table(v)     assert(type(v)=="table")     return v; end
-local function assert_bool(v)      assert(type(v)=="boolean")   return v; end
-local function assert_func(v)      assert(type(v)=="function")  return v; end
-local function assert_udata(v)     assert(type(v)=="userdata")  return v; end
-local function assert_nil(v)       assert(v==nil)               return v; end
-local function assert_false(v)     assert(v==false)             return v; end
-local function assert_true(v)      assert(v==true)              return v; end
-local function assert_falsy(v)     assert(not v == true)        return v; end
-local function assert_truthy(v)    assert(not v == false)       return v; end
+local AF = "my assertion failed"
+local function assert_eq(a,b,m)    assert(a == b, m or AF)               return true; end
+local function assert_neq(a,b,m)   assert(a ~= b, m or AF)               return true; end
+local function assert_num(v,m)     assert(type(v)=="number", m or AF)    return v; end
+local function assert_str(v,m)     assert(type(v)=="string", m or AF)    return v; end
+local function assert_table(v,m)   assert(type(v)=="table", m or AF)     return v; end
+local function assert_bool(v,m)    assert(type(v)=="boolean", m or AF)   return true; end
+local function assert_func(v,m)    assert(type(v)=="function", m or AF)  return v; end
+local function assert_udata(v,m)   assert(type(v)=="userdata", m or AF)  return v; end
+local function assert_nil(v,m)     assert(v==nil, m or AF)               return true; end
+local function assert_false(v,m)   assert(v==false, m or AF)             return true; end
+local function assert_true(v,m)    assert(v==true, m or AF)              return true; end
+local function assert_err(...)     assert(pcall(...)==false, AF)         return true; end
 
-local function assert_range(val, low, high)
-  if low then assert(val >= low) end
-  if high then assert(val <= high) end
-  return true
+local function assert_range(v, low, high)
+  if low then assert(v >= low, v) end
+  if high then assert(v <= high, v) end
+  return v
+end
+
+local function assert_numint(v,m)
+  assert(type(v)=="number" or bit64.type(v), m or AF)
+  return v
 end
 
 local MT = {} -- "macrotest", this module
@@ -2278,178 +2283,251 @@ function MT.test_coroutine()
   end
 end
 
-local function test_Editor_Sel_Cmdline()
-  assert_true(Area.Shell)
+local function test_Editor_Sel_Cmdline(args)
+  for _, str in ipairs(args) do
+    assert_true(Area.Shell)
+    panel.SetCmdLine(nil, str)
 
-  local str = ("123456789-"):rep(4)
-  panel.SetCmdLine(nil, "")
-  print(str)
+    local act = 0
+    for opt = 0,4 do
+      assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+    end
 
-  local act = 0
-  for opt = 0,4 do
-    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+    local line, pos, w, h = 1, 13, 5, 1
+
+    panel.SetCmdLineSelection(nil, pos, pos+w)
+    assert_eq(Editor.Sel(act,0), line)
+    assert_eq(Editor.Sel(act,1), pos)
+    assert_eq(Editor.Sel(act,2), line)
+    assert_eq(Editor.Sel(act,3), pos + w)
+    assert_eq(Editor.Sel(act,4), 1)
+    --------------------------------------------------------------------------------------------------
+    act = 1
+    panel.SetCmdLineSelection(nil, pos, pos+w)
+
+    assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+    assert_eq(panel.GetCmdLinePos(), pos)
+
+    assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+    assert_eq(panel.GetCmdLinePos(), pos + w + 1)
+    --------------------------------------------------------------------------------------------------
+    for act = 2,3 do
+      panel.SetCmdLinePos(nil,pos)             -- set block start
+      assert_eq(1, Editor.Sel(act,0))          -- +++
+      panel.SetCmdLinePos(nil,pos + w)         -- set block end (it also selects the block)
+      assert_eq(1, Editor.Sel(act,1))          -- +++
+
+      assert_eq(Editor.Sel(0,0), 1)
+      assert_eq(Editor.Sel(0,1), pos)
+      assert_eq(Editor.Sel(0,2), 1)
+      assert_eq(Editor.Sel(0,3), pos + w - 1)
+      assert_eq(Editor.Sel(0,4), 1)
+    end
+    --------------------------------------------------------------------------------------------------
+    assert_eq(1, Editor.Sel(4)) -- reset the block
+    assert_eq(Editor.Sel(0,4), 0)
+
+    panel.SetCmdLine(nil, "")
   end
-
-  local line, pos, w, h = 1, 13, 5, 1
-
-  panel.SetCmdLineSelection(nil, pos, pos+w)
-  assert_eq(Editor.Sel(act,0), line)
-  assert_eq(Editor.Sel(act,1), pos)
-  assert_eq(Editor.Sel(act,2), line)
-  assert_eq(Editor.Sel(act,3), pos + w)
-  assert_eq(Editor.Sel(act,4), 1)
-  --------------------------------------------------------------------------------------------------
-  act = 1
-  panel.SetCmdLineSelection(nil, pos, pos+w)
-
-  assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
-  assert_eq(panel.GetCmdLinePos(), pos)
-
-  assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
-  assert_eq(panel.GetCmdLinePos(), pos + w + 1)
-  --------------------------------------------------------------------------------------------------
-  for act = 2,3 do
-    panel.SetCmdLinePos(nil,10)              -- set block start
-    assert_eq(1, Editor.Sel(act,0))          -- +++
-    panel.SetCmdLinePos(nil,20)              -- set block end (it also selects the block)
-    assert_eq(1, Editor.Sel(act,1))          -- +++
-
-    assert_eq(Editor.Sel(0,0), 1)
-    assert_eq(Editor.Sel(0,1), 10)
-    assert_eq(Editor.Sel(0,2), 1)
-    assert_eq(Editor.Sel(0,3), 20-1)
-    assert_eq(Editor.Sel(0,4), 1)
-  end
-  --------------------------------------------------------------------------------------------------
-  assert_eq(1, Editor.Sel(4)) -- reset the block
-  assert_eq(Editor.Sel(0,4), 0)
-
-  panel.SetCmdLine(nil, "")
 end
 
-local function test_Editor_Sel_Dialog()
+local function test_Editor_Sel_Dialog(args)
   Keys("F7 Del")
   assert_true(Area.Dialog)
   local inf = actl.GetWindowInfo()
   local hDlg = assert_udata(inf.Id)
   local EditPos = assert_num(hDlg:GetFocus())
 
-  local str = ("123456789-"):rep(4)
-  print(str)
+  for _, str in ipairs(args) do
+    hDlg:SetText(EditPos, str)
 
-  local act = 0
-  for opt = 0,4 do
-    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+    local act = 0
+    for opt = 0,4 do
+      assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+    end
+
+    local tSel = { BlockType = F.BTYPE_STREAM; BlockStartLine = 1; BlockStartPos = 13,
+                   BlockWidth = 5; BlockHeight = 1; }
+
+    hDlg:SetSelection(EditPos, tSel)
+    assert_eq(Editor.Sel(act,0), tSel.BlockStartLine)
+    assert_eq(Editor.Sel(act,1), tSel.BlockStartPos)
+    assert_eq(Editor.Sel(act,2), tSel.BlockStartLine)
+    assert_eq(Editor.Sel(act,3), tSel.BlockStartPos + tSel.BlockWidth - 1) -- [-1: DIFFERENT FROM EDITOR]
+    assert_eq(Editor.Sel(act,4), tSel.BlockType)
+    --------------------------------------------------------------------------------------------------
+    act = 1
+    hDlg:SetSelection(EditPos, tSel)
+
+    assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+    local pos = assert_table(hDlg:GetCursorPos(EditPos))
+    assert_eq(pos.Y+1, tSel.BlockStartLine)
+    assert_eq(pos.X+1, tSel.BlockStartPos)
+
+    assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+    pos = assert_table(hDlg:GetCursorPos(EditPos))
+    assert_eq(pos.Y+1, tSel.BlockStartLine)
+    assert_eq(pos.X+1, tSel.BlockStartPos + tSel.BlockWidth)
+    --------------------------------------------------------------------------------------------------
+    for act = 2,3 do
+      hDlg:SetCursorPos(EditPos, {X=10; Y=0})  -- set block start
+      assert_eq(1, Editor.Sel(act,0))          -- +++
+      hDlg:SetCursorPos(EditPos, {X=20; Y=0})  -- set block end (it also selects the block)
+      assert_eq(1, Editor.Sel(act,1))          -- +++
+
+      assert_eq(Editor.Sel(0,0), 1)
+      assert_eq(Editor.Sel(0,1), 10+1)
+      assert_eq(Editor.Sel(0,2), 1)
+      assert_eq(Editor.Sel(0,3), 20)
+      assert_eq(Editor.Sel(0,4), 1)
+    end
+    --------------------------------------------------------------------------------------------------
+    assert_eq(1, Editor.Sel(4)) -- reset the block
+    assert_eq(Editor.Sel(0,4), 0)
   end
-
-  local tSel = { BlockType = F.BTYPE_STREAM; BlockStartLine = 1; BlockStartPos = 13,
-                 BlockWidth = 5; BlockHeight = 1; }
-
-  hDlg:SetSelection(EditPos, tSel)
-  assert_eq(Editor.Sel(act,0), tSel.BlockStartLine)
-  assert_eq(Editor.Sel(act,1), tSel.BlockStartPos)
-  assert_eq(Editor.Sel(act,2), tSel.BlockStartLine)
-  assert_eq(Editor.Sel(act,3), tSel.BlockStartPos + tSel.BlockWidth - 1) -- [-1: DIFFERENT FROM EDITOR]
-  assert_eq(Editor.Sel(act,4), tSel.BlockType)
-  --------------------------------------------------------------------------------------------------
-  act = 1
-  hDlg:SetSelection(EditPos, tSel)
-
-  assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
-  local pos = assert_table(hDlg:GetCursorPos(EditPos))
-  assert_eq(pos.Y+1, tSel.BlockStartLine)
-  assert_eq(pos.X+1, tSel.BlockStartPos)
-
-  assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
-  pos = assert_table(hDlg:GetCursorPos(EditPos))
-  assert_eq(pos.Y+1, tSel.BlockStartLine)
-  assert_eq(pos.X+1, tSel.BlockStartPos + tSel.BlockWidth)
-  --------------------------------------------------------------------------------------------------
-  for act = 2,3 do
-    hDlg:SetCursorPos(EditPos, {X=10; Y=0})  -- set block start
-    assert_eq(1, Editor.Sel(act,0))          -- +++
-    hDlg:SetCursorPos(EditPos, {X=20; Y=0})  -- set block end (it also selects the block)
-    assert_eq(1, Editor.Sel(act,1))          -- +++
-
-    assert_eq(Editor.Sel(0,0), 1)
-    assert_eq(Editor.Sel(0,1), 10+1)
-    assert_eq(Editor.Sel(0,2), 1)
-    assert_eq(Editor.Sel(0,3), 20)
-    assert_eq(Editor.Sel(0,4), 1)
-  end
-  --------------------------------------------------------------------------------------------------
-  assert_eq(1, Editor.Sel(4)) -- reset the block
-  assert_eq(Editor.Sel(0,4), 0)
 
   Keys("Esc")
 end
 
-local function test_Editor_Sel_Editor()
+local function test_Editor_Sel_Editor(args)
+  local R2T, T2R = editor.RealToTab, editor.TabToReal
+  local T2R2T = function(id, y, x)
+    return R2T(id, y, T2R(id, y, x)) -- needed when the column position is "inside" a tab
+  end
+
   Keys("ShiftF4 Del Enter")
   assert_true(Area.Editor)
-  local str = ("123456789-"):rep(8)
-  for k=1,8 do
-    editor.InsertString()
-    editor.SetString(nil, k, str)
+
+  for _, str in ipairs(args) do
+    Keys("CtrlA Del")
+
+    for k=1,8 do
+      editor.InsertString()
+      editor.SetString(nil, k, str)
+    end
+
+    local act = 0
+    for opt = 0,4 do
+      assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
+    end
+
+    local line, pos, w, h = 3, 13, 5, 4
+
+    for ii=1,2 do
+      local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
+      local ref_x1 = (ii==1 and R2T or T2R2T)(nil, line, pos)
+      local ref_x2 = (ii==1 and R2T or T2R2T)(nil, line-1+h, pos+w)
+
+      assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
+      assert_eq(Editor.Sel(act,0), line)      -- get block start line
+      assert_eq(Editor.Sel(act,1), ref_x1)    -- get block start pos
+      assert_eq(Editor.Sel(act,2), line-1+h)  -- get block end line
+      assert_eq(Editor.Sel(act,3), ref_x2)    -- get block end pos
+      assert_eq(Editor.Sel(act,4), ii)        -- get block type
+    end
+    --------------------------------------------------------------------------------------------------
+    act = 1
+    for ii=1,2 do
+      local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
+      local ref_x1 = ii==1 and pos or T2R(nil, line, pos) or pos
+      local ref_x2 = ii==1 and pos+w or T2R(nil, line-1+h, pos+w)
+
+      local inf
+      assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
+
+      assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
+      inf = editor.GetInfo()
+      assert_eq(inf.CurLine, line)
+      assert_eq(inf.CurPos, ref_x1)
+
+      assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
+      inf = editor.GetInfo()
+      assert_eq(inf.CurLine, line-1+h)
+      assert_eq(inf.CurPos, ref_x2)
+    end
+    --------------------------------------------------------------------------------------------------
+    local y1,x1,y2,x2 = 2,10,6,20
+    for act = 2,3 do
+      editor.SetPosition(nil,y1,x1)    -- set block start
+      assert_eq(1, Editor.Sel(act,0))  -- +++
+      editor.SetPosition(nil,y2,x2)    -- set block end (it also selects the block)
+      assert_eq(1, Editor.Sel(act,1))  -- +++
+
+      local ref_x1 = (act==2 and R2T or T2R2T)(nil,y1,x1)
+      local ref_x2 = (act==2 and R2T or T2R2T)(nil,y2,x2)
+
+      assert_eq(Editor.Sel(0,0), y1)                 -- get block start line
+      assert_eq(Editor.Sel(0,1), ref_x1)             -- get block start pos
+      assert_eq(Editor.Sel(0,2), y2)                 -- get block end line
+      assert_eq(Editor.Sel(0,3), ref_x2)             -- get block end pos
+      assert_eq(Editor.Sel(0,4), act==2 and 1 or 2)  -- get block type
+    end
+    --------------------------------------------------------------------------------------------------
+    assert_eq(1, Editor.Sel(4)) -- reset the block
+    assert_eq(Editor.Sel(0,4), 0)
   end
-
-  local act = 0
-  for opt = 0,4 do
-    assert_eq(Editor.Sel(act,opt), 0) -- no block exists, zeros returned
-  end
-
-  local line, pos, w, h = 3, 13, 5, 4
-
-  for ii=1,2 do
-    local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
-    assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
-    assert_eq(Editor.Sel(act,0), line)      -- get block start line
-    assert_eq(Editor.Sel(act,1), pos)       -- get block start pos
-    assert_eq(Editor.Sel(act,2), line-1+h)  -- get block end line
-    assert_eq(Editor.Sel(act,3), pos+w)     -- get block end pos
-    assert_eq(Editor.Sel(act,4), ii)        -- get block type
-  end
-  --------------------------------------------------------------------------------------------------
-  act = 1
-  for ii=1,2 do
-    local inf
-    local typ = ii==1 and "BTYPE_STREAM" or "BTYPE_COLUMN"
-    assert_true(editor.Select(nil, typ, line, pos, w, h)) -- select the block
-
-    assert_eq(1, Editor.Sel(act, 0)) -- set cursor at block start
-    inf = editor.GetInfo()
-    assert_eq(inf.CurLine, line)
-    assert_eq(inf.CurPos, pos)
-
-    assert_eq(1, Editor.Sel(act, 1)) -- set cursor next to block end
-    inf = editor.GetInfo()
-    assert_eq(inf.CurLine, line-1+h)
-    assert_eq(inf.CurPos, pos+w)
-  end
-  --------------------------------------------------------------------------------------------------
-  for act = 2,3 do
-    editor.SetPosition(nil,2,10)     -- set block start
-    assert_eq(1, Editor.Sel(act,0))  -- +++
-    editor.SetPosition(nil,6,20)     -- set block end (it also selects the block)
-    assert_eq(1, Editor.Sel(act,1))  -- +++
-
-    assert_eq(Editor.Sel(0,0), 2)                  -- get block start line
-    assert_eq(Editor.Sel(0,1), 10)                 -- get block start pos
-    assert_eq(Editor.Sel(0,2), 6)                  -- get block end line
-    assert_eq(Editor.Sel(0,3), 20)                 -- get block end pos
-    assert_eq(Editor.Sel(0,4), act==2 and 1 or 2)  -- get block type
-  end
-  --------------------------------------------------------------------------------------------------
-  assert_eq(1, Editor.Sel(4)) -- reset the block
-  assert_eq(Editor.Sel(0,4), 0)
 
   assert_true(editor.Quit())
 end
 
+local function test_Editor_Misc()
+  local fname = far.MkTemp()
+  local flags = {EF_NONMODAL=1, EF_IMMEDIATERETURN=1, EF_DISABLEHISTORY=1, EF_DELETEONCLOSE=1}
+  assert_eq(editor.Editor(fname,nil,nil,nil,nil,nil,flags), F.EEC_MODIFIED)
+  assert_true(Area.Editor)
+
+  local EI = assert_table(editor.GetInfo())
+
+  local str = ("123456789-"):rep(4)
+  local str2, num
+
+  -- test Editor.Value
+  editor.SetString(nil,1,str)
+  assert_eq(Editor.Value, str)
+
+  -- test insertion with overtype=OFF
+  editor.SetString(nil,1,str)
+  editor.SetPosition(nil,1,1)
+  editor.InsertText(nil, "AB")
+  assert_eq(Editor.Value, "AB"..str)
+
+  -- test insertion with overtype=ON
+  editor.SetString(nil,1,str)
+  Keys("Ins")
+  editor.SetPosition(nil,1,1)
+  editor.InsertText(nil, "CD")
+  assert_eq(Editor.Value, "CD"..str:sub(3))
+  Keys("Ins")
+
+  -- test insertion beyond EOL (overtype=ON then OFF)
+  num = 20
+  assert_true(editor.SetParam(nil, "ESPT_CURSORBEYONDEOL", true))
+  str2 = str .. (" "):rep(num) .. "AB"
+  for _=1,2 do
+    Keys("Ins")
+    editor.SetString(nil,1,str)
+    editor.SetPosition(nil, 1, #str + 1 + num)
+    editor.InsertText(nil, "AB")
+    assert_eq(Editor.Value, str2)
+  end
+  assert_true(editor.SetParam(nil, "ESPT_CURSORBEYONDEOL", band(EI.Options, F.EOPT_CURSORBEYONDEOL) ~= 0))
+
+  editor.Quit()
+end
+
 function MT.test_Editor()
-  test_Editor_Sel_Cmdline()
-  test_Editor_Sel_Dialog()
-  test_Editor_Sel_Editor()
+  local args = {
+    ("123456789-"):rep(4),     -- plain ASCII
+    ("12\t4\t6789-"):rep(4),   -- includes tabs
+    ("12🔥4🔥6789-"):rep(4),   -- includes 🔥 (a multi-byte double-width character)
+    ("1Ю23456789-"):rep(4),    -- insert 'Ю' (a multi-byte character) into position 2
+    ("1Ю2\t4\t6789-"):rep(4),  -- ditto
+    ("1Ю2🔥4🔥6789-"):rep(4),  -- ditto
+  }
+  test_Editor_Sel_Cmdline(args)
+  test_Editor_Sel_Dialog(args)
+  test_Editor_Sel_Editor(args)
+  test_Editor_Misc()
 end
 
 function MT.test_all()
