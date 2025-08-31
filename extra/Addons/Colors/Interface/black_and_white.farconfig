@@ -30,10 +30,10 @@
     <object name="Dialog.DefaultButton.Highlight" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.DefaultButton.Highlight.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.DefaultButton.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
-    <object name="Dialog.Disabled" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
+    <object name="Dialog.Disabled" background="FF000007" foreground="FF000008" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Edit" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Edit.Disabled" background="FF000007" foreground="FF000008" flags="fgindex bgindex inherit"/>
-    <object name="Dialog.Edit.Selected" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
+    <object name="Dialog.Edit.Selected" background="FF00000F" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Edit.Unchanged" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Arrows" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fgindex bgindex inherit"/>
@@ -46,7 +46,7 @@
     <object name="Dialog.List.Highlight.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Scrollbar" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
-    <object name="Dialog.List.Text.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+    <object name="Dialog.List.Text.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="Dialog.List.Title" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Dialog.Text.Highlight" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
@@ -121,7 +121,7 @@
     <object name="WarnDialog.Combo.Highlight.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.Combo.Scrollbar" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.Combo.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
-    <object name="WarnDialog.Combo.Text.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+    <object name="WarnDialog.Combo.Text.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.Combo.Title" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.DefaultButton" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.DefaultButton.Highlight" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
@@ -143,7 +143,7 @@
     <object name="WarnDialog.List.Highlight.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.List.Scrollbar" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.List.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
-    <object name="WarnDialog.List.Text.Selected" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+    <object name="WarnDialog.List.Text.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.List.Title" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.Text" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="WarnDialog.Text.Highlight" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>

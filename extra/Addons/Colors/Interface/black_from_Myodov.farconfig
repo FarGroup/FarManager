@@ -56,7 +56,7 @@
     <object name="Editor.Text" background="FF000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Editor.Text.Selected" background="FF000003" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="HMenu.Highlight" background="FF000008" foreground="FF00000E" flags="fgindex bgindex inherit"/>
-    <object name="HMenu.Highlight.Selected" background="FF000001" foreground="FF00000E" flags="fgindex bgindex inherit"/>
+    <object name="HMenu.Highlight.Selected" background="FF000001" foreground="FF00000C" flags="fgindex bgindex inherit"/>
     <object name="HMenu.Text" background="FF000008" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="HMenu.Text.Selected" background="FF000001" foreground="FF00000E" flags="fgindex bgindex inherit"/>
     <object name="Help.Box" background="FF000003" foreground="FF000000" flags="fgindex bgindex inherit"/>
@@ -76,7 +76,7 @@
     <object name="Menu.GrayText" background="FF000003" foreground="FF000008" flags="fgindex bgindex inherit"/>
     <object name="Menu.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="Menu.Highlight" background="FF000008" foreground="FF00000E" flags="fgindex bgindex inherit"/>
-    <object name="Menu.Highlight.Selected" background="FF000001" foreground="FF00000E" flags="fgindex bgindex inherit"/>
+    <object name="Menu.Highlight.Selected" background="FF000001" foreground="FF00000C" flags="fgindex bgindex inherit"/>
     <object name="Menu.Scrollbar" background="FF000003" foreground="FF00000F" flags="fgindex bgindex inherit"/>
     <object name="Menu.Text" background="FF000008" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Menu.Text.Disabled" background="FF000008" foreground="FF000001" flags="fgindex bgindex inherit"/>
