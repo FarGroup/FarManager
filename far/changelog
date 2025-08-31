@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2025-08-31 18:02:48+01:00 - build 6542
+
+1. Fix editor.sel(...) in edit controls.
+
+2. Fix plugin panels refresh after cd in command line.
+
+3. Refactoring.
+
+4. Clang warnings.
+
+--------------------------------------------------------------------------------
 drkns 2025-08-31 13:14:02+01:00 - build 6541
 
 1. Fix editor.sel(1, ...) in edit controls.
