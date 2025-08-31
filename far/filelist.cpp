@@ -3039,6 +3039,8 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		IsPopPlugin = !PrevDataList.empty();
 		PopPrevData(strFindDir, PluginClosed, !GoToPanelFile, IsParent, SetDirectorySuccess);
 
+		Parent()->Refresh();
+
 		return SetDirectorySuccess;
 	}
 
