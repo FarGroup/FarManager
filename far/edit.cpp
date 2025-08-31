@@ -536,15 +536,15 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 					{
 						case 0:  // selection start
 						{
-							SetMacroSelectionStart(GetTabCurPos());
+							SetMacroSelectionStart(GetCurPos());
 							return 1;
 						}
 						case 1:  // selection finish
 						{
 							if (GetMacroSelectionStart() != -1)
 							{
-								if (GetMacroSelectionStart() != GetTabCurPos())
-									Select(GetMacroSelectionStart(),GetTabCurPos());
+								if (GetMacroSelectionStart() != GetCurPos())
+									Select(GetMacroSelectionStart(),GetCurPos());
 								else
 									RemoveSelection();
 
