@@ -1438,10 +1438,10 @@ namespace os::fs
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	filebuf::int_type filebuf::pbackfail(int_type Ch)
-WARNING_POP()
 	{
 		throw far_fatal_exception(L"Not implemented"sv);
 	}
+WARNING_POP()
 
 	void filebuf::reset_get_area()
 	{
