@@ -520,7 +520,7 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 							case 0: // begin block (FirstLine & FirstPos)
 							case 1: // end block (LastLine & LastPos)
 							{
-								SetTabCurPos(iParam?m_SelEnd:m_SelStart);
+								SetCurPos(iParam? m_SelEnd : m_SelStart);
 								Show();
 								return 1;
 							}
