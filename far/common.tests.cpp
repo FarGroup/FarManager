@@ -659,7 +659,7 @@ TEST_CASE("expected")
 
 	REQUIRE(GoodValue.has_value());
 	REQUIRE(GoodValue.value() == L"42"sv);
-	REQUIRE_THROWS_AS(GoodValue.error(), std::logic_error);
+	REQUIRE_THROWS_AS(GoodValue.error(), far_exception);
 
 	REQUIRE(!BadValue.has_value());
 	REQUIRE(BadValue.error() == 42);

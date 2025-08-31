@@ -545,9 +545,9 @@ struct args_context
 };
 
 [[noreturn]]
-static void invalid_argument(string_view const Argument, string_view const Str)
+static void invalid_argument(string_view const Argument, string_view const Str, source_location const& Location = source_location::current())
 {
-	throw far_known_exception(far::format(L"Error processing \"{}\": {}"sv, Argument, Str));
+	throw far_known_exception(far::format(L"Error processing \"{}\": {}"sv, Argument, Str), Location);
 }
 
 namespace args

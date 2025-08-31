@@ -688,13 +688,13 @@ protected:
 			const auto Prefix = concat(CSI, L'?', Query, L';');
 			const auto Suffix = L"$y"sv;
 
-			const auto give_up = [&]
+			const auto make_exception = [&](source_location const& Location = source_location::current())
 			{
-				throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
+				return far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false, Location);
 			};
 
 			if (ResponseData.size() != Prefix.size() + 1 + Suffix.size() || !ResponseData.starts_with(Prefix) || !ResponseData.ends_with(Suffix))
-				give_up();
+				throw make_exception();
 
 			switch (const auto Char = ResponseData[Prefix.size()])
 			{
@@ -709,8 +709,7 @@ protected:
 				return Char;
 
 			default:
-				give_up();
-				std::unreachable();
+				throw make_exception();
 			}
 		}
 		catch (std::exception const& e)
@@ -2145,14 +2144,14 @@ protected:
 					return false;
 				}
 
-				const auto give_up = [&]
+				const auto make_exception = [&](source_location const& Location = source_location::current())
 				{
-					throw far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false);
+					return far_exception(far::format(L"Incorrect response: {}"sv, ResponseData), false, Location);
 				};
 
 				string_view Response = ResponseData;
 				if (!Response.ends_with(L'\\'))
-					give_up();
+					throw make_exception();
 
 				Response.remove_suffix(1);
 
@@ -2166,7 +2165,7 @@ protected:
 				for (auto PaletteToken: enum_tokens(Response, L"\\"sv))
 				{
 					if (!PaletteToken.starts_with(Prefix) || !PaletteToken.ends_with(Suffix))
-						give_up();
+						throw make_exception();
 
 					PaletteToken.remove_prefix(Prefix.size());
 					PaletteToken.remove_suffix(Suffix.size());
@@ -2175,31 +2174,31 @@ protected:
 
 					auto SubIterator = Subtokens.cbegin();
 					if (SubIterator == Subtokens.cend())
-						give_up();
+						throw make_exception();
 
 					if (*SubIterator++ != L"4"sv)
-						give_up();
+						throw make_exception();
 
 					const auto VtIndex = from_string<unsigned>(*SubIterator++);
 					if (VtIndex >= Palette.size())
-						give_up();
+						throw make_exception();
 
 					auto& PaletteColor = Palette[vt_color_index(VtIndex)];
 
 					auto ColorStr = *SubIterator;
 					if (!ColorStr.starts_with(RGBPrefix))
-						give_up();
+						throw make_exception();
 
 					ColorStr.remove_prefix(RGBPrefix.size());
 
 					if (ColorStr.size() != L"0000"sv.size() * 3 + 2)
-						give_up();
+						throw make_exception();
 
 					const auto color = [&](size_t const Offset)
 					{
 						const auto Value = from_string<unsigned>(ColorStr.substr(Offset * L"0000/"sv.size(), 4), {}, 16);
 						if (Value > 0xffff)
-							give_up();
+							throw make_exception();
 
 						return Value / 0x0101;
 					};
@@ -2209,7 +2208,7 @@ protected:
 				}
 
 				if (ColorsSet != Palette.size())
-					give_up();
+					throw make_exception();
 
 				LOGDEBUG(L"VT palette read successfuly"sv);
 				return true;

@@ -67,12 +67,14 @@ void apply_permutation(std::ranges::random_access_range auto& Range, std::random
 			if (next < 0 || next >= length)
 			{
 				indices[i] = next;
-				throw_exception("Invalid index in permutation");
+				using namespace std::string_view_literals;
+				throw_exception("Invalid index in permutation"sv);
 			}
 			if (next == current)
 			{
 				indices[i] = next;
-				throw_exception("Not a permutation");
+				using namespace std::string_view_literals;
+				throw_exception("Not a permutation"sv);
 			}
 
 			std::ranges::swap(first[current], first[next]);

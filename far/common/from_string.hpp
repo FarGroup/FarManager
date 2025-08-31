@@ -164,16 +164,18 @@ template<typename T>
 [[nodiscard]]
 T from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Base = 10)
 {
+	using namespace std::string_view_literals;
+
 	switch (T Value; detail::from_string(Str, Value, Pos, Base))
 	{
 	case detail::result::ok:
 		return Value;
 
 	case detail::result::invalid_argument:
-		throw_exception("invalid from_string argument");
+		throw_exception("invalid from_string argument"sv);
 
 	case detail::result::out_of_range:
-		throw_exception("from_string argument is out of range");
+		throw_exception("from_string argument is out of range"sv);
 
 	default:
 		std::unreachable();

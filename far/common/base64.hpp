@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "algorithm.hpp"
 #include "bytes_view.hpp"
+#include "exception.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -86,18 +87,18 @@ namespace base64
 				no, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, no, no, no, no, no,
 			};
 
-			const auto error = [&]
+			if (static_cast<size_t>(Char) >= std::size(DecodingTable))
 			{
 				using namespace std::string_literals;
-				throw std::runtime_error("Invalid base64 character "s + Char);
-			};
-
-			if (static_cast<size_t>(Char) >= std::size(DecodingTable))
-				error();
+				throw_exception("Invalid base64 character "s + Char);
+			}
 
 			const auto Bits = DecodingTable[static_cast<size_t>(Char)];
 			if (Bits == no)
-				error();
+			{
+				using namespace std::string_literals;
+				throw_exception("Invalid base64 character "s + Char);
+			}
 
 			return static_cast<bits_set>((Bits & 0b111111) << (6 * (3 - i)));
 		}

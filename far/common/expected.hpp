@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
 #include "preprocessor.hpp"
 
 #include <stdexcept>
@@ -98,7 +99,8 @@ public:
 		if (!has_value())
 			return std::get<1>(m_Data);
 
-		throw std::logic_error("No error stored");
+		using namespace std::string_view_literals;
+		throw_exception("No error stored"sv);
 	}
 
 private:

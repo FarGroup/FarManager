@@ -62,7 +62,8 @@ namespace uuid
 			if (L'A' <= c && c <= L'F')
 				return c - L'A' + 10;
 
-			throw_exception("Invalid character");
+			using namespace std::string_view_literals;
+			throw_exception("Invalid character"sv);
 		}
 
 		template<size_t... I>
@@ -94,7 +95,10 @@ namespace uuid
 		constexpr auto& operator+=(std::random_access_iterator auto& Iterator, separator_t)
 		{
 			if (*Iterator != L'-')
-				throw_exception("Invalid character");
+			{
+				using namespace std::string_view_literals;
+				throw_exception("Invalid character"sv);
+			}
 
 			return ++Iterator;
 		}
@@ -149,7 +153,10 @@ namespace uuid
 		constexpr auto parse(std::basic_string_view<char_type> const Str)
 		{
 			if (!(Str.size() == uuid_length || (Str.size() == uuid_length + 2 && Str.front() == L'{' && Str.back() == L'}')))
-				throw_exception("Incorrect format");
+			{
+				using namespace std::string_view_literals;
+				throw_exception("Incorrect format"sv);
+			}
 
 			return detail::parse(Str.data() + (Str.size() != uuid_length));
 		}
