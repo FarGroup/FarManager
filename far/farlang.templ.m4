@@ -1,4 +1,4 @@
-#
+﻿#
 # Note: https://learn.microsoft.com/en-us/globalization/reference/microsoft-language-resources is a good source of system- and UI-specific translations.
 #
 

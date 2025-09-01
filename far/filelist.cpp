@@ -6882,6 +6882,17 @@ void FileList::UpdateIfRequired()
 	Update((m_KeepSelection? UPDATE_KEEP_SELECTION : 0) | UPDATE_IGNORE_VISIBLE);
 }
 
+static bool ShouldHideFilesFromView(DWORD Attributes, const string &FileName)
+{
+	if (Global->Opt->ShowHidden)
+		return false;
+	if (Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM))
+		return true;
+	if (!Global->Opt->TreatDotFilesAsHidden)
+		return false;
+	return FileName.starts_with(L'.');
+}
+
 void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPanelInvisible)
 {
 	const auto DataLock = lock_data();
@@ -7069,7 +7080,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 
 		const auto IsDirectory = os::fs::is_directory(fdata);
 
-		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
+		if (ShouldHideFilesFromView(fdata.Attributes, fdata.FileName))
 			continue;
 
 		if (UseFilter && !m_Filter->FileInFilter(fdata, fdata.FileName))
@@ -7577,7 +7588,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 			}
 		}
 
-		if (!Global->Opt->ShowHidden && (PanelItem.FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+		if (ShouldHideFilesFromView(PanelItem.FileAttributes, PanelItem.FileName))
 			continue;
 
 		FileListItem NewItem(PanelItem);

@@ -1983,6 +1983,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanel,                  L"ShellRightLeftArrowsRule"sv,      ShellRightLeftArrowsRule, false},
 		{FSSF_PANEL,             NKeyPanel,                  L"ShowBytes"sv,                     ShowBytes, false},
 		{FSSF_PANEL,             NKeyPanel,                  L"ShowHidden"sv,                    ShowHidden, true},
+		{FSSF_PANEL,             NKeyPanel,                  L"TreatDotFilesAsHidden"sv,         TreatDotFilesAsHidden, false},
 		{FSSF_PANEL,             NKeyPanel,                  L"ShortcutAlwaysChdir"sv,           ShortcutAlwaysChdir, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"SortFolderExt"sv,                 SortFolderExt, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RightClickSelect"sv,              RightClickSelect, false},
