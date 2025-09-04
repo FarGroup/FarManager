@@ -815,6 +815,7 @@ public:
 	BoolOption ScreenSaver;
 	IntOption ScreenSaverTime;
 	BoolOption ShowHidden;
+	BoolOption TreatDotFilesAsHidden;
 	BoolOption ShortcutAlwaysChdir;
 	BoolOption Highlight;
 	BoolOption RightClickSelect;

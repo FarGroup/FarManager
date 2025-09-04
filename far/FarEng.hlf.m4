@@ -6874,6 +6874,21 @@ deleted, or renamed.
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
+@Panel.TreatDotFilesAsHidden
+$ #far:config Panel.TreatDotFilesAsHidden#
+ This Boolean parameter controls the filtering of files or folders
+starting with a dot (“dotfiles”). It works in combination with the
+#Show hidden and system files# option in the
+~panel settings~@PanelSettings@ dialog.
+
+ False - ^<wrap>Dotfiles will always be shown.
+ True  - Dotfiles will be hidden/shown together with the Hidden and System files.
+
+ Default value: False (Dotfiles will always be shown.)
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
+
+
 @Index
 $ #Index help file#
 <%INDEX%>
