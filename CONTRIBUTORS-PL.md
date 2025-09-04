@@ -130,6 +130,7 @@
 * XSAk
 * Arūnas Bartišius
 * Rohitab Batra
+* Mihai Nita
  
 > I specjalne podziękowania dla wszystkich członków naszej społeczności!<br/>
 > Jesteście nie mniej ważni niż osoby tutaj wymienione.
