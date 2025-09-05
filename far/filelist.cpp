@@ -6882,14 +6882,17 @@ void FileList::UpdateIfRequired()
 	Update((m_KeepSelection? UPDATE_KEEP_SELECTION : 0) | UPDATE_IGNORE_VISIBLE);
 }
 
-static bool ShouldHideFilesFromView(DWORD Attributes, const string &FileName)
+static bool ShouldHideFilesFromView(DWORD const Attributes, string_view const FileName)
 {
 	if (Global->Opt->ShowHidden)
 		return false;
+
 	if (Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM))
 		return true;
+
 	if (!Global->Opt->TreatDotFilesAsHidden)
 		return false;
+
 	return FileName.starts_with(L'.');
 }
 
@@ -7076,12 +7079,12 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 
 	for (const auto& fdata: Find)
 	{
+		if (ShouldHideFilesFromView(fdata.Attributes, fdata.FileName))
+			continue;
+
 		ErrorState = os::last_error();
 
 		const auto IsDirectory = os::fs::is_directory(fdata);
-
-		if (ShouldHideFilesFromView(fdata.Attributes, fdata.FileName))
-			continue;
 
 		if (UseFilter && !m_Filter->FileInFilter(fdata, fdata.FileName))
 		{
@@ -7577,19 +7580,19 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 
 	for (const auto& PanelItem: PanelData)
 	{
+		if (ShouldHideFilesFromView(PanelItem.FileAttributes, NullToEmpty(PanelItem.FileName)))
+			continue;
+
 		if (UseFilter && !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEFILTER))
 		{
 			if (!m_Filter->FileInFilter(PanelItem))
 			{
 				if (!(PanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					m_FilteredExtensions.emplace(name_ext(PanelItem.FileName).second);
+					m_FilteredExtensions.emplace(name_ext(NullToEmpty(PanelItem.FileName)).second);
 
 				continue;
 			}
 		}
-
-		if (ShouldHideFilesFromView(PanelItem.FileAttributes, PanelItem.FileName))
-			continue;
 
 		FileListItem NewItem(PanelItem);
 
