@@ -6999,17 +6999,16 @@ $ #far:config Panel.Tree.TurnOffCompletely#
 
 @Panel.TreatDotFilesAsHidden
 $ #far:config Panel.TreatDotFilesAsHidden#
- This Boolean parameter controls the filtering of files or folders
-starting with a dot (“dotfiles”). It works in combination with the
-#Show hidden and system files# option in the
-~panel settings~@PanelSettings@ dialog.
+ Этот логический (Boolean) параметр управляет фильтрацией файлов и папок,
+имена которых начинаются с точки («точка-файлы»). Он работает совместно
+с ~настройкой панели~@PanelSettings@ #Показывать скрытые и системные файлы#.
 
- False - ^<wrap>Dotfiles will always be shown.
- True  - Dotfiles will be hidden/shown together with the Hidden and System files.
+ False - ^<wrap>Точка-файлы отображаются всегда.
+ True  - Точка-файлы отображаются или нет вместе с файлами, имеющими атрибуты Скрытый или Системный.
 
- Default value: False (Dotfiles will always be shown.)
+ Значение по умолчанию: False (точка-файлы отображаются всегда).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Изменить этот параметр можно только через ~far:config~@FarConfig@.
 
 
 @Index
