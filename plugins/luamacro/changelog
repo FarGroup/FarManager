@@ -1,3 +1,9 @@
+shmuel 2025-09-06 09:05:47+03:00 - build 890
+
+1. LuaFAR: minor reformat in 3 files.
+
+2. LuaFAR: fix crash during Polygon test on Far 3.0.6543.
+
 shmuel 2025-08-22 18:26:47+03:00 - build 889
 
 1. LuaFAR: correct build 888.

@@ -166,7 +166,7 @@ const wchar_t* _AddStringToCollector(lua_State *L, int pos)
 	}
 
 	lua_pop(L,1);
-	return NULL;
+	return L"";
 }
 
 // input table is on stack top (-1)
