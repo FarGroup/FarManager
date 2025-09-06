@@ -144,7 +144,7 @@ DLLFUNC intptr_t LF_ProcessEditorInput(lua_State* L, const struct ProcessEditorI
 DLLFUNC intptr_t LF_ProcessHostFile(lua_State* L, const struct ProcessHostFileInfo *Info);
 DLLFUNC intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *Info);
 DLLFUNC intptr_t LF_ProcessPanelInput(lua_State* L, const struct ProcessPanelInputInfo *Info);
-DLLFUNC	intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *Info);
+DLLFUNC intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *Info);
 DLLFUNC intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventInfo *Info);
 DLLFUNC intptr_t LF_ProcessViewerEvent(lua_State* L, const struct ProcessViewerEventInfo *Info);
 DLLFUNC intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info);

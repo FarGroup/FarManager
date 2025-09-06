@@ -2412,11 +2412,14 @@ static int panel_SetPanelDirectory(lua_State *L)
 
 		if (id && len == sizeof(GUID)) fpd.PluginId = *id;
 
-		lua_getfield(L, 3, "Name");  if (lua_isstring(L, -1)) fpd.Name = check_utf8_string(L, -1, NULL);
+		lua_getfield(L, 3, "Name");
+		if (lua_isstring(L, -1)) fpd.Name = check_utf8_string(L, -1, NULL);
 
-		lua_getfield(L, 3, "Param"); if (lua_isstring(L, -1)) fpd.Param = check_utf8_string(L, -1, NULL);
+		lua_getfield(L, 3, "Param");
+		if (lua_isstring(L, -1)) fpd.Param = check_utf8_string(L, -1, NULL);
 
-		lua_getfield(L, 3, "File");  if (lua_isstring(L, -1)) fpd.File = check_utf8_string(L, -1, NULL);
+		lua_getfield(L, 3, "File");
+		if (lua_isstring(L, -1)) fpd.File = check_utf8_string(L, -1, NULL);
 	}
 	else if (lua_isstring(L, 3))
 		fpd.Name = check_utf8_string(L, 3, NULL);
@@ -6784,7 +6787,7 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_pushliteral(L, "");                     //+3
 	lua_getmetatable(L, -1);                    //+4
 	lua_pushvalue(L, -4);                       //+5
-	lua_setfield(L, -2, "__index");	            //+4
+	lua_setfield(L, -2, "__index");             //+4
 	lua_pop(L, 4);                              //+0
 	// add utf8.reformat
 	(void) luaL_dostring(L, utf8_reformat);

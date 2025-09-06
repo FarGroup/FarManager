@@ -625,11 +625,11 @@ int ustring_SearchPath(lua_State *L)
 	wchar_t* lpFilePart;
 	DWORD result = SearchPathW(
 	                   lpPath,         // address of search path
-	                   lpFileName,	    // address of filename
-	                   lpExtension,	  // address of extension
-	                   sizeof(buf)/sizeof(wchar_t),	  // size, in characters, of buffer
-	                   buf,	          // address of buffer for found filename
-	                   &lpFilePart 	  // address of pointer to file component
+	                   lpFileName,     // address of filename
+	                   lpExtension,    // address of extension
+	                   sizeof(buf)/sizeof(wchar_t),  // size, in characters, of buffer
+	                   buf,            // address of buffer for found filename
+	                   &lpFilePart     // address of pointer to file component
 	               );
 
 	if (result > 0)
