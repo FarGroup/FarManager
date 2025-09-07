@@ -1358,7 +1358,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 						continue;
 
 					int Res = 0;
-					const auto strTemp = trim(HiText2Str(Item.Name));
+					const auto strTemp = trim(remove_highlight(Item.Name));
 
 					switch (iParam)
 					{
@@ -2959,9 +2959,12 @@ bool VMenu::DrawItemText(
 	}
 
 	set_color(Colors, ColorIndices.Normal);
-	Text(BlankLine.substr(0, TextArea.end() - WhereX()));
 
-	assert(WhereX() == TextArea.end());
+	if (WhereX() < TextArea.end())
+	{
+		Text(BlankLine.substr(0, TextArea.end() - WhereX()));
+		assert(WhereX() == TextArea.end());
+	}
 
 	return Item.HorizontalPosition + static_cast<int>(ItemText.size()) > TextArea.length();
 }

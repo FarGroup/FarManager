@@ -41,11 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "lang.hpp"
 #include "interf.hpp"
+#include "strmix.hpp"
 
 // Platform:
 
 // Common:
-#include "common/string_utils.hpp"
 
 // External:
 

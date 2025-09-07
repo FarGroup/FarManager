@@ -7994,7 +7994,7 @@ void FileList::ShowFileList(bool Fast)
 
 	strTitle = GetTitle();
 	int TitleX2 = m_Where.right;
-	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_Where.left + strTitle.size() + 2 >= ScrX - Global->CurrentTime.size())
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_Where.left + visual_string_length(strTitle) + 2 >= ScrX - Global->CurrentTime.size())
 		TitleX2 = std::min(static_cast<int>(ScrX - Global->CurrentTime.size()), static_cast<int>(m_Where.right));
 
 	int MaxSize = TitleX2 - m_Where.left - 1;
@@ -8013,7 +8013,7 @@ void FileList::ShowFileList(bool Fast)
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
 
-	const auto TitleSize = static_cast<int>(strTitle.size());
+	const auto TitleSize = static_cast<int>(visual_string_length(strTitle));
 	int TitleX = m_Where.left + 1 + XShift + (TitleX2 - m_Where.left - XShift - TitleSize) / 2;
 
 	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - static_cast<int>(Global->CurrentTime.size()))
@@ -8021,7 +8021,7 @@ void FileList::ShowFileList(bool Fast)
 
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(TitleX, m_Where.top);
-	Text(strTitle);
+	Text(strTitle, MaxSize);
 
 	const auto DataLock = lock_data();
 	const auto& m_ListData = *DataLock;

@@ -310,7 +310,7 @@ const string& DialogBuilderListItem::str() const
 
 static int TextWidth(const DialogItemEx& Item)
 {
-	return static_cast<int>(Item.strData.size());
+	return static_cast<int>(visual_string_length(Item.strData));
 }
 
 static intptr_t ItemWidth(const DialogItemEx& Item)

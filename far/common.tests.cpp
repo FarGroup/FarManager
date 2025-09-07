@@ -1459,67 +1459,6 @@ TEST_CASE("smart_ptr.block_ptr")
 
 #include "common/string_utils.hpp"
 
-TEST_CASE("string_utils.cut")
-{
-	static const struct
-	{
-		string_view Src;
-		size_t Size;
-		string_view ResultLeft, ResultRight;
-	}
-	Tests[]
-	{
-		{ {},         0, {},         {},         },
-
-		{ {},         1, {},         {},         },
-
-		{ L"1"sv,     0, {},         {},         },
-		{ L"1"sv,     1, L"1"sv,     L"1"sv,     },
-		{ L"1"sv,     2, L"1"sv,     L"1"sv,     },
-
-		{ L"12345"sv, 0, {},         {},         },
-		{ L"12345"sv, 1, L"5"sv,     L"1"sv,     },
-		{ L"12345"sv, 3, L"345"sv,   L"123"sv,   },
-		{ L"12345"sv, 6, L"12345"sv, L"12345"sv, },
-	};
-
-	for (const auto& i: Tests)
-	{
-		REQUIRE(cut_left(i.Src, i.Size) == i.ResultLeft);
-		REQUIRE(cut_right(i.Src, i.Size) == i.ResultRight);
-	}
-}
-
-TEST_CASE("string_utils.pad")
-{
-	static const struct
-	{
-		string_view Src;
-		size_t Size;
-		string_view ResultLeft, ResultRight;
-	}
-	Tests[]
-	{
-		{ {},       0, {},         {},         },
-		{ {},       1, L" "sv,     L" "sv,     },
-		{ {},       2, L"  "sv,    L"  "sv,    },
-
-		{ L"1"sv,   0, L"1"sv,     L"1"sv,     },
-		{ L"1"sv,   1, L"1"sv,     L"1"sv,     },
-		{ L"1"sv,   3, L"  1"sv,   L"1  "sv,   },
-
-		{ L"123"sv, 0, L"123"sv,   L"123"sv,   },
-		{ L"123"sv, 2, L"123"sv,   L"123"sv,   },
-		{ L"123"sv, 5, L"  123"sv, L"123  "sv, },
-	};
-
-	for (const auto& i: Tests)
-	{
-		REQUIRE(pad_left(string(i.Src), i.Size) == i.ResultLeft);
-		REQUIRE(pad_right(string(i.Src), i.Size) == i.ResultRight);
-	}
-}
-
 TEST_CASE("string_utils.trim")
 {
 	static const struct
@@ -1542,39 +1481,6 @@ TEST_CASE("string_utils.trim")
 		REQUIRE(trim_left(string(i.Src)) == i.ResultLeft);
 		REQUIRE(trim_right(string(i.Src)) == i.ResultRight);
 		REQUIRE(trim(string(i.Src)) == i.Result);
-	}
-}
-
-TEST_CASE("string_utils.fit")
-{
-	static const struct
-	{
-		string_view Src;
-		size_t Size;
-		string_view ResultLeft, ResultCenter, ResultRight;
-	}
-	Tests[]
-	{
-		{ {},          0,   {},             {},             {},           },
-		{ {},          1,   L" "sv,         L" "sv,         L" "sv,       },
-		{ {},          2,   L"  "sv,        L"  "sv,        L"  "sv,      },
-
-		{ L"1"sv,      0,   {},             {},             {},           },
-		{ L"1"sv,      1,   L"1"sv,         L"1"sv,         L"1"sv,       },
-		{ L"1"sv,      2,   L"1 "sv,        L"1 "sv,        L" 1"sv,      },
-
-		{ L"12345"sv,  0,   {},             {},             {},           },
-		{ L"12345"sv,  1,   L"1"sv,         L"1"sv,         L"1"sv,       },
-		{ L"12345"sv,  3,   L"123"sv,       L"123"sv,       L"123"sv,     },
-		{ L"12345"sv,  5,   L"12345"sv,     L"12345"sv,     L"12345"sv,   },
-		{ L"12345"sv,  7,   L"12345  "sv,   L" 12345 "sv,   L"  12345"sv, },
-	};
-
-	for (const auto& i: Tests)
-	{
-		REQUIRE(fit_to_left(string(i.Src), i.Size) == i.ResultLeft);
-		REQUIRE(fit_to_center(string(i.Src), i.Size) == i.ResultCenter);
-		REQUIRE(fit_to_right(string(i.Src), i.Size) == i.ResultRight);
 	}
 }
 

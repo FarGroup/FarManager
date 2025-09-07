@@ -727,7 +727,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					case MCODE_V_MENU_VALUE:
 						if (CurrentWindow->VMProcess(CheckCode, &Value))
 						{
-							Value = trim(HiText2Str(Value));
+							Value = trim(remove_highlight(Value));
 							return api.PushValue(Value);
 						}
 						break;
@@ -1086,7 +1086,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (CurrentWindow->VMProcess(CheckCode,&NewStr,MenuItemPos))
 						{
-							NewStr = trim(HiText2Str(NewStr));
+							NewStr = trim(remove_highlight(NewStr));
 							tmpVar=NewStr;
 						}
 						else

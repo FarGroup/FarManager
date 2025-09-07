@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "strmix.hpp"
 
 // Platform:
 

@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "log.hpp"
 #include "codepage.hpp"
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.hpp"

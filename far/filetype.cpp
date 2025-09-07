@@ -58,13 +58,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "keyboard.hpp"
 #include "RegExp.hpp"
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
 
 // Common:
 #include "common.hpp"
-#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"

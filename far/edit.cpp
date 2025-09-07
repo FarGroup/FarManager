@@ -1526,7 +1526,7 @@ void Edit::SetHiString(string_view const Str)
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
-	const auto NewStr = HiText2Str(Str);
+	const auto NewStr = remove_highlight(Str);
 	RemoveSelection();
 	SetString(NewStr);
 }

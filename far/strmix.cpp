@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "codepage.hpp"
+#include "interf.hpp"
 
 // Platform:
 
@@ -154,6 +155,99 @@ void inplace::QuoteOuterSpace(string& Str)
 		quote(Str);
 }
 
+void inplace::cut_left(std::wstring& Str, size_t const CellsAvailable)
+{
+	for (;;)
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+
+		if (CharsConsumed == Str.size())
+			break;
+
+		Str.erase(0, is_valid_surrogate_pair(Str)? 2 : 1);
+	}
+}
+
+void inplace::cut_left(std::wstring_view& Str, size_t const CellsAvailable)
+{
+	for (;;)
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+
+		if (CharsConsumed == Str.size())
+			break;
+
+		Str.remove_prefix(is_valid_surrogate_pair(Str)? 2 : 1);
+	}
+}
+
+void inplace::cut_right(std::wstring& Str, size_t const CellsAvailable)
+{
+	size_t CharsConsumed{}, CellsConsumed{};
+	chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	Str.resize(CharsConsumed);
+}
+
+void inplace::cut_right(std::wstring_view& Str, size_t const CellsAvailable)
+{
+	size_t CharsConsumed{}, CellsConsumed{};
+	chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	Str.remove_suffix(Str.size() - CharsConsumed);
+}
+
+void inplace::pad_left(std::wstring& Str, size_t const CellsAvailable, wchar_t const Padding)
+{
+	for (;;)
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+
+		if (CellsConsumed == CellsAvailable)
+			break;
+
+		Str.insert(0, 1, Padding);
+	}
+
+}
+
+void inplace::pad_right(std::wstring& Str, size_t const CellsAvailable, wchar_t const Padding)
+{
+	size_t CharsConsumed{}, CellsConsumed{};
+	chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	Str.append(CellsAvailable - CellsConsumed, Padding);
+}
+
+void inplace::fit_to_left(std::wstring& Str, size_t const CellsAvailable)
+{
+	cut_right(Str, CellsAvailable);
+	pad_right(Str, CellsAvailable);
+}
+
+void inplace::fit_to_center(std::wstring& Str, size_t const CellsAvailable)
+{
+	size_t CharsConsumed{}, CellsConsumed{};
+	chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	if (CellsConsumed < CellsAvailable)
+	{
+		const auto LeftPadding = (CellsAvailable - CellsConsumed) / 2;
+		const auto RightPadding = CellsAvailable - CellsConsumed - LeftPadding;
+		Str.insert(0, LeftPadding, L' ');
+		Str.append(RightPadding, L' ');
+	}
+	else
+	{
+		cut_right(Str, CellsAvailable);
+	}
+}
+
+void inplace::fit_to_right(std::wstring& Str, size_t const CellsAvailable)
+{
+	cut_right(Str, CellsAvailable);
+	pad_left(Str, CellsAvailable);
+}
+
 // TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?
 static const auto Dots = L"…"sv;
 
@@ -174,24 +268,53 @@ static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(std:
 	return Str;
 }
 
-void inplace::truncate_right(string& Str, size_t const MaxLength)
+void inplace::truncate_right(string& Str, size_t CellsAvailable)
 {
-	if (Str.size() <= MaxLength)
+	if (Str.empty())
 		return;
 
-	const auto CurrentDots = Dots.substr(0, MaxLength);
-	Str.replace(MaxLength - CurrentDots.size(), Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+	if (!CellsAvailable)
+	{
+		Str.clear();
+		return;
+	}
+
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+		if (CharsConsumed == Str.size())
+			return;
+	}
+
+	string_view Prefix, CurrentDots;
+
+	{
+		size_t DotsCharsConsumed{}, CellsConsumedByDots{};
+		chars_to_cells(Dots, DotsCharsConsumed, CellsAvailable, CellsConsumedByDots);
+		CurrentDots = Dots.substr(0, DotsCharsConsumed);
+		CellsAvailable -= CellsConsumedByDots;
+	}
+
+	if (CellsAvailable)
+	{
+		Prefix = string_view(Str);
+		size_t PrefixCharsConsumed{}, CellsConsumedByPrefix{};
+		chars_to_cells(Prefix, PrefixCharsConsumed, CellsAvailable, CellsConsumedByPrefix);
+		Prefix = Prefix.substr(0, PrefixCharsConsumed);
+	}
+
+	Str.replace(Prefix.size(), Str.size() - Prefix.size(), CurrentDots);
 }
 
-string truncate_right(string Str, size_t const MaxLength)
+string truncate_right(string Str, size_t const CellsAvailable)
 {
-	inplace::truncate_right(Str, MaxLength);
+	inplace::truncate_right(Str, CellsAvailable);
 	return Str;
 }
 
-string truncate_right(string_view const Str, size_t const MaxLength)
+string truncate_right(string_view const Str, size_t const CellsAvailable)
 {
-	return truncate_right(string(Str), MaxLength);
+	return truncate_right(string(Str), CellsAvailable);
 }
 
 wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
@@ -207,44 +330,123 @@ wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
 	});
 }
 
-void inplace::truncate_left(string& Str, size_t const MaxLength)
+void inplace::truncate_left(string& Str, size_t CellsAvailable)
 {
-	if (Str.size() <= MaxLength)
+	if (Str.empty())
 		return;
 
-	const auto CurrentDots = Dots.substr(0, MaxLength);
-	Str.replace(0, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+	if (!CellsAvailable)
+	{
+		Str.clear();
+		return;
+	}
+
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+		if (CharsConsumed == Str.size())
+			return;
+	}
+
+	string_view CurrentDots, Suffix;
+
+	{
+		size_t DotsCharsConsumed{}, CellsConsumedByDots{};
+		chars_to_cells(Dots, DotsCharsConsumed, CellsAvailable, CellsConsumedByDots);
+		CurrentDots = Dots.substr(0, DotsCharsConsumed);
+		CellsAvailable -= CellsConsumedByDots;
+	}
+
+	if (CellsAvailable)
+	{
+		Suffix = string_view(Str);
+		for (;;)
+		{
+			size_t SuffixCharsConsumed{}, CellsConsumedBySuffix{};
+			chars_to_cells(Suffix, SuffixCharsConsumed, CellsAvailable, CellsConsumedBySuffix);
+			if (SuffixCharsConsumed == Suffix.size())
+				break;
+
+			Suffix.remove_prefix(is_valid_surrogate_pair(Suffix)? 2 : 1);
+		}
+	}
+
+	Str.replace(0, Str.size() - Suffix.size(), CurrentDots);
 }
 
-string truncate_left(string Str, size_t const MaxLength)
+string truncate_left(string Str, size_t const CellsAvailable)
 {
-	inplace::truncate_left(Str, MaxLength);
+	inplace::truncate_left(Str, CellsAvailable);
 	return Str;
 }
 
-string truncate_left(string_view const Str, size_t const MaxLength)
+string truncate_left(string_view const Str, size_t const CellsAvailable)
 {
-	return truncate_left(string(Str), MaxLength);
+	return truncate_left(string(Str), CellsAvailable);
 }
 
-void inplace::truncate_center(string& Str, size_t const MaxLength)
+void inplace::truncate_center(string& Str, size_t CellsAvailable)
 {
-	if (Str.size() <= MaxLength)
+	if (Str.empty())
 		return;
 
-	const auto CurrentDots = Dots.substr(0, MaxLength);
-	Str.replace((MaxLength - CurrentDots.size()) / 2, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+	if (!CellsAvailable)
+	{
+		Str.clear();
+		return;
+	}
+
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+		if (CharsConsumed == Str.size())
+			return;
+	}
+
+	string_view Prefix, CurrentDots, Suffix;
+
+	{
+		size_t DotsCharsConsumed{}, CellsConsumedByDots{};
+		chars_to_cells(Dots, DotsCharsConsumed, CellsAvailable, CellsConsumedByDots);
+		CurrentDots = Dots.substr(0, DotsCharsConsumed);
+		CellsAvailable -= CellsConsumedByDots;
+	}
+
+	if (CellsAvailable)
+	{
+		Prefix = string_view(Str);
+		size_t PrefixCharsConsumed{}, CellsConsumedByPrefix{};
+		chars_to_cells(Prefix, PrefixCharsConsumed, CellsAvailable / 2, CellsConsumedByPrefix);
+		CellsAvailable -= CellsConsumedByPrefix;
+		Prefix = Prefix.substr(0, PrefixCharsConsumed);
+
+		if (CellsAvailable)
+		{
+			Suffix = string_view(Str).substr(PrefixCharsConsumed);
+			for (;;)
+			{
+				size_t SuffixCharsConsumed{}, CellsConsumedBySuffix{};
+				chars_to_cells(Suffix, SuffixCharsConsumed, CellsAvailable, CellsConsumedBySuffix);
+				if (SuffixCharsConsumed == Suffix.size())
+					break;
+
+				Suffix.remove_prefix(is_valid_surrogate_pair(Suffix)? 2 : 1);
+			}
+		}
+	}
+
+	Str.replace(Prefix.size(), Str.size() - Prefix.size() - Suffix.size(), CurrentDots);
 }
 
-string truncate_center(string Str, size_t const MaxLength)
+string truncate_center(string Str, size_t const CellsAvailable)
 {
-	inplace::truncate_center(Str, MaxLength);
+	inplace::truncate_center(Str, CellsAvailable);
 	return Str;
 }
 
-string truncate_center(string_view const Str, size_t const MaxLength)
+string truncate_center(string_view const Str, size_t const CellsAvailable)
 {
-	return truncate_center(string(Str), MaxLength);
+	return truncate_center(string(Str), CellsAvailable);
 }
 
 static auto StartOffset(string_view const Str)
@@ -269,25 +471,68 @@ wchar_t* legacy::truncate_path(wchar_t*Str, int MaxLength)
 	});
 }
 
-void inplace::truncate_path(string& Str, size_t const MaxLength)
+void inplace::truncate_path(string& Str, size_t CellsAvailable)
 {
-	if (Str.size() <= MaxLength)
+	if (Str.empty())
 		return;
 
-	const auto CurrentDots = Dots.substr(0, MaxLength);
-	const auto Offset = std::min(StartOffset(Str), MaxLength - CurrentDots.size());
-	Str.replace(Offset, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+	if (!CellsAvailable)
+	{
+		Str.clear();
+		return;
+	}
+
+	{
+		size_t CharsConsumed{}, CellsConsumed{};
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+		if (CharsConsumed == Str.size())
+			return;
+	}
+
+	string_view Prefix, CurrentDots, Suffix;
+
+	{
+		size_t DotsCharsConsumed{}, CellsConsumedByDots{};
+		chars_to_cells(Dots, DotsCharsConsumed, CellsAvailable, CellsConsumedByDots);
+		CurrentDots = Dots.substr(0, DotsCharsConsumed);
+		CellsAvailable -= CellsConsumedByDots;
+	}
+
+	if (CellsAvailable)
+	{
+		Prefix = string_view(Str).substr(0, StartOffset(Str));
+		size_t PrefixCharsConsumed{}, CellsConsumedByPrefix{};
+		chars_to_cells(Prefix, PrefixCharsConsumed, CellsAvailable, CellsConsumedByPrefix);
+		CellsAvailable -= CellsConsumedByPrefix;
+		Prefix = Prefix.substr(0, PrefixCharsConsumed);
+
+		if (CellsAvailable)
+		{
+			Suffix = string_view(Str).substr(PrefixCharsConsumed);
+			for (;;)
+			{
+				size_t SuffixCharsConsumed{}, CellsConsumedBySuffix{};
+				chars_to_cells(Suffix, SuffixCharsConsumed, CellsAvailable, CellsConsumedBySuffix);
+				if (SuffixCharsConsumed == Suffix.size())
+					break;
+
+				Suffix.remove_prefix(is_valid_surrogate_pair(Suffix)? 2 : 1);
+			}
+		}
+	}
+
+	Str.replace(Prefix.size(), Str.size() - Prefix.size() - Suffix.size(), CurrentDots);
 }
 
-string truncate_path(string Str, size_t const MaxLength)
+string truncate_path(string Str, size_t const CellsAvailable)
 {
-	inplace::truncate_path(Str, MaxLength);
+	inplace::truncate_path(Str, CellsAvailable);
 	return Str;
 }
 
-string truncate_path(string_view const Str, size_t const MaxLength)
+string truncate_path(string_view const Str, size_t const CellsAvailable)
 {
-	return truncate_path(string(Str), MaxLength);
+	return truncate_path(string(Str), CellsAvailable);
 }
 
 bool IsCaseMixed(const string_view Str)
@@ -1684,6 +1929,101 @@ TEST_CASE("wrapped_text")
 		}
 
 		REQUIRE(Iterator == Test.Result.end());
+	}
+}
+
+TEST_CASE("strmix.cut")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultRight;
+	}
+	Tests[]
+	{
+		{ {}, 0, {}, {}, },
+
+		{ {}, 1, {}, {}, },
+
+		{ L"1"sv, 0, {}, {}, },
+		{ L"1"sv, 1, L"1"sv, L"1"sv, },
+		{ L"1"sv, 2, L"1"sv, L"1"sv, },
+
+		{ L"12345"sv, 0, {}, {}, },
+		{ L"12345"sv, 1, L"5"sv, L"1"sv, },
+		{ L"12345"sv, 3, L"345"sv, L"123"sv, },
+		{ L"12345"sv, 6, L"12345"sv, L"12345"sv, },
+	};
+
+	for (const auto& i : Tests)
+	{
+		REQUIRE(cut_left(i.Src, i.Size) == i.ResultLeft);
+		REQUIRE(cut_right(i.Src, i.Size) == i.ResultRight);
+	}
+}
+
+TEST_CASE("strmix.pad")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultRight;
+	}
+	Tests[]
+	{
+		{ {},         0, {},         {},         },
+
+		{ {},         1, {},         {},         },
+
+		{ L"1"sv,     0, {},         {},         },
+		{ L"1"sv,     1, L"1"sv,     L"1"sv,     },
+		{ L"1"sv,     2, L"1"sv,     L"1"sv,     },
+
+		{ L"12345"sv, 0, {},         {},         },
+		{ L"12345"sv, 1, L"5"sv,     L"1"sv,     },
+		{ L"12345"sv, 3, L"345"sv,   L"123"sv,   },
+		{ L"12345"sv, 6, L"12345"sv, L"12345"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(cut_left(i.Src, i.Size) == i.ResultLeft);
+		REQUIRE(cut_right(i.Src, i.Size) == i.ResultRight);
+	}
+}
+
+TEST_CASE("strmix.fit")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultCenter, ResultRight;
+	}
+	Tests[]
+	{
+		{ {},          0,   {},             {},             {},           },
+		{ {},          1,   L" "sv,         L" "sv,         L" "sv,       },
+		{ {},          2,   L"  "sv,        L"  "sv,        L"  "sv,      },
+
+		{ L"1"sv,      0,   {},             {},             {},           },
+		{ L"1"sv,      1,   L"1"sv,         L"1"sv,         L"1"sv,       },
+		{ L"1"sv,      2,   L"1 "sv,        L"1 "sv,        L" 1"sv,      },
+
+		{ L"12345"sv,  0,   {},             {},             {},           },
+		{ L"12345"sv,  1,   L"1"sv,         L"1"sv,         L"1"sv,       },
+		{ L"12345"sv,  3,   L"123"sv,       L"123"sv,       L"123"sv,     },
+		{ L"12345"sv,  5,   L"12345"sv,     L"12345"sv,     L"12345"sv,   },
+		{ L"12345"sv,  7,   L"12345  "sv,   L" 12345 "sv,   L"  12345"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(fit_to_left(string(i.Src), i.Size) == i.ResultLeft);
+		REQUIRE(fit_to_center(string(i.Src), i.Size) == i.ResultCenter);
+		REQUIRE(fit_to_right(string(i.Src), i.Size) == i.ResultRight);
 	}
 }
 

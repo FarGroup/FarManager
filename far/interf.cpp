@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Common:
+#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -777,20 +778,71 @@ void Text(point Where, const FarColor& Color, string_view const Str)
 	Text(Str);
 }
 
-static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
-{
-	const auto From = Str.substr(0, MaxSize);
-	Buffer.reserve(From.size());
+using real_cells = std::vector<FAR_CHAR_INFO>;
+using cells = std::variant<size_t, real_cells>;
 
-	std::ranges::transform(From, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, {}, {}, CurColor }; });
+static void string_to_cells_simple(string_view const Str, size_t& CharsConsumed, cells& Cells, size_t const CellsAvailable)
+{
+	const auto From = Str.substr(0, CellsAvailable);
+	CharsConsumed = From.size();
+
+	std::visit(overload
+	{
+		[&](size_t& Size)
+		{
+			Size = From.size();
+		},
+		[&](real_cells& Buffer)
+		{
+			Buffer.clear();
+			Buffer.reserve(From.size());
+			std::ranges::transform(From, std::back_inserter(Buffer), [](wchar_t c){ return FAR_CHAR_INFO{ c, {}, {}, CurColor }; });
+		}
+	}, Cells);
 }
 
-static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
+static void string_to_cells_full_width_aware(string_view Str, size_t& CharsConsumed, cells& Cells, size_t const CellsAvailable)
 {
-	Buffer.reserve(Str.size());
-
-	while(!Str.empty() && Buffer.size() != MaxSize)
+	std::visit(overload
 	{
+		[&](size_t&){},
+		[&](real_cells& Buffer){ Buffer.reserve(Str.size()); }
+	}, Cells);
+
+	const auto get_cells_count = [&]
+	{
+		return std::visit(overload
+		{
+			[&](size_t const& Size){ return Size; },
+			[&](real_cells const& Buffer){ return Buffer.size(); }
+		}, Cells);
+	};
+
+	const auto push_back = [&](wchar_t const Char)
+	{
+		std::visit(overload
+		{
+			[&](size_t& Size) { ++Size; },
+			[&](std::vector<FAR_CHAR_INFO>& Buffer) { Buffer.push_back({ Char, {}, {}, CurColor }); }
+		}, Cells);
+	};
+
+	const auto pop_back = [&]
+	{
+		std::visit(overload
+		{
+			[&](size_t& Size) { --Size; },
+			[&](real_cells& Buffer) { Buffer.pop_back(); }
+		}, Cells);
+	};
+
+	CharsConsumed = 0;
+
+	while(!Str.empty() && get_cells_count() != CellsAvailable)
+	{
+		size_t CharsConsumedNow{};
+		SCOPE_EXIT{ CharsConsumed += CharsConsumedNow; };
+
 		wchar_t Char[]{ Str[0], 0 };
 
 		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
@@ -799,34 +851,44 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 		{
 			Char[1] = Str[1];
 			Str.remove_prefix(2);
+			CharsConsumedNow = 2;
 		}
 		else
 		{
 			Str.remove_prefix(1);
+			CharsConsumedNow = 1;
 		}
 
-		Buffer.push_back({ Char[0], {}, {}, CurColor });
+		push_back(Char[0]);
 
 		if (char_width::is_wide(Codepoint))
 		{
-			if (Buffer.size() == MaxSize)
+			if (get_cells_count() == CellsAvailable)
 			{
 				// No space left for the trailing char
-				Buffer.back().Char = char_width::is_wide(L'…')? L' ' : L'…';
+				CharsConsumedNow = 0;
+				pop_back();
 				break;
 			}
 
 			if (Char[1])
 			{
 				// It's wide and it already occupies two cells - awesome
-				Buffer.push_back({ Char[1], {}, {}, CurColor });
+				push_back(Char[1]);
 			}
 			else
 			{
 				// It's wide and we need to add a bogus cell
-				Buffer.back().Attributes.Flags |= COMMON_LVB_LEADING_BYTE;
-				Buffer.push_back({ Char[0], {}, {}, CurColor });
-				Buffer.back().Attributes.Flags |= COMMON_LVB_TRAILING_BYTE;
+				std::visit(overload
+				{
+					[&](size_t& Size){ ++Size; },
+					[&](std::vector<FAR_CHAR_INFO>& Buffer)
+					{
+						Buffer.back().Attributes.Flags |= COMMON_LVB_LEADING_BYTE;
+						Buffer.push_back({ Char[0], {}, {}, CurColor });
+						Buffer.back().Attributes.Flags |= COMMON_LVB_TRAILING_BYTE;
+					}
+				}, Cells);
 			}
 		}
 		else
@@ -836,16 +898,32 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 				// It's a surrogate pair that occupies one cell only. Here be dragons.
 				if (console.IsVtActive())
 				{
-					// Put *one* fake character:
-					Buffer.back().Char = encoding::replace_char;
-					// Stash the actual codepoint. The drawing code will restore it from here:
-					Buffer.back().Reserved1 = Codepoint;
+					std::visit(overload
+					{
+						[&](size_t&){},
+						[&](std::vector<FAR_CHAR_INFO>& Buffer)
+						{
+							// Put *one* fake character:
+							Buffer.back().Char = encoding::replace_char;
+							// Stash the actual codepoint. The drawing code will restore it from here:
+							Buffer.back().Reserved1 = Codepoint;
+						}
+					}, Cells);
 				}
 				else
 				{
 					// Classic grid mode, nothing we can do :(
 					// Expect the broken UI
-					Buffer.push_back({ Char[1], {}, {}, CurColor });
+
+					if (get_cells_count() == CellsAvailable)
+					{
+						// No space left for the trailing char
+						CharsConsumedNow = 0;
+						pop_back();
+						break;
+					}
+
+					push_back(Char[1]);
 				}
 			}
 			else
@@ -856,14 +934,25 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 	}
 }
 
-size_t Text(string_view Str, size_t const MaxWidth)
+void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
+{
+	cells Cells;
+	const auto& CellsToBeConsumed = Cells.emplace<0>();
+	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
+	CellsConsumed = CellsToBeConsumed;
+}
+
+size_t Text(string_view Str, size_t const CellsAvailable)
 {
 	if (Str.empty())
 		return 0;
 
-	std::vector<FAR_CHAR_INFO> Buffer;
+	cells Cells;
+	const auto& Buffer = Cells.emplace<1>();
 
-	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer, MaxWidth);
+	size_t CharsConsumed = 0;
+
+	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());
@@ -876,9 +965,9 @@ size_t Text(string_view Str)
 	return Text(Str, Str.size());
 }
 
-size_t Text(wchar_t const Char, size_t const MaxWidth)
+size_t Text(wchar_t const Char, size_t const CellsAvailable)
 {
-	return Text({ &Char, 1 }, MaxWidth);
+	return Text({ &Char, 1 }, CellsAvailable);
 }
 
 size_t Text(wchar_t const Char)
@@ -886,9 +975,9 @@ size_t Text(wchar_t const Char)
 	return Text(Char, 1);
 }
 
-size_t Text(lng const MsgId, size_t const MaxWidth)
+size_t Text(lng const MsgId, size_t const CellsAvailable)
 {
-	return Text(msg(MsgId), MaxWidth);
+	return Text(msg(MsgId), CellsAvailable);
 }
 
 size_t Text(lng const MsgId)
@@ -897,7 +986,7 @@ size_t Text(lng const MsgId)
 	return Text(Str, Str.size());
 }
 
-size_t VText(string_view const Str, size_t const MaxWidth)
+size_t VText(string_view const Str, size_t const CellsAvailable)
 {
 	if (Str.empty())
 		return 0;
@@ -909,7 +998,7 @@ size_t VText(string_view const Str, size_t const MaxWidth)
 	for (const auto i: Str)
 	{
 		GotoXY(CurX, CurY);
-		OccupiedWidth = std::max(OccupiedWidth, Text(i, MaxWidth));
+		OccupiedWidth = std::max(OccupiedWidth, Text(i, CellsAvailable));
 		++CurY;
 		CurX = StartCurX;
 	}
@@ -922,7 +1011,14 @@ size_t VText(string_view const Str)
 	return VText(Str, 1);
 }
 
-static void HiTextBase(string_view const Str, function_ref<void(string_view, bool)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
+enum class hi_string_state
+{
+	ready,
+	needs_unescape,
+	highlight,
+};
+
+static void HiTextBase(string_view const Str, function_ref<void(string_view, hi_string_state)> const TextHandler)
 {
 	bool Unescape = false;
 	for (size_t Offset = 0;;)
@@ -930,7 +1026,7 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, boo
 		const auto AmpBegin = Str.find(L'&', Offset);
 		if (AmpBegin == string::npos)
 		{
-			TextHandler(Str, Offset != 0);
+			TextHandler(Str, Offset? hi_string_state::needs_unescape : hi_string_state::ready);
 			return;
 		}
 
@@ -958,19 +1054,26 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, boo
 		}
 
 		if (AmpBegin)
-			TextHandler(Str.substr(0, AmpBegin), Unescape);
+			TextHandler(Str.substr(0, AmpBegin), Unescape? hi_string_state::needs_unescape : hi_string_state::ready);
 
-		if (AmpBegin + 1 == Str.size())
+		auto CurPos = AmpBegin + 1;
+
+		if (CurPos == Str.size())
 			return;
 
-		HilightHandler(Str[AmpBegin + 1]);
+		// We can only use single characters as hotkeys now
+		if (const auto IsSurogate = CurPos + 1 != Str.size() && is_valid_surrogate_pair(Str[CurPos], Str[CurPos + 1]); !IsSurogate)
+		{
+			TextHandler(Str.substr(CurPos, 1), hi_string_state::highlight);
+			++CurPos;
+		}
 
-		if (AmpBegin + 2 == Str.size())
+		if (CurPos == Str.size())
 			return;
 
 		const auto HiAmpCollapse = Str[AmpBegin + 1] == L'&' && Str[AmpBegin + 2] == L'&';
-		const auto Tail = Str.substr(AmpBegin + (HiAmpCollapse ? 3 : 2));
-		TextHandler(Tail, Tail.find(L'&') != Tail.npos);
+		const auto Tail = Str.substr(CurPos + (HiAmpCollapse? 1 : 0));
+		TextHandler(Tail, Tail.find(L'&') == Tail.npos? hi_string_state::ready : hi_string_state::needs_unescape);
 
 		return;
 	}
@@ -1034,33 +1137,40 @@ private:
 	function_ref<void()> m_Commit;
 };
 
-static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool const Vertical, size_t MaxWidth)
+static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool const Vertical, size_t CellsAvailable)
 {
 	using text_func = size_t(*)(string_view, size_t);
 	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = Vertical? fVText : fText;
 
 	string Buffer;
-	size_t OccupiedWidth = 0;
+	size_t CellsConsumed = 0;
 
-	const auto PutString = [&](string_view const StrPart){ OccupiedWidth += TextFunc(StrPart, MaxWidth - OccupiedWidth); };
+	const auto PutString = [&](string_view const StrPart){ CellsConsumed += TextFunc(StrPart, CellsAvailable - CellsConsumed); };
 	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
-	const auto Commit = [&]{ OccupiedWidth += TextFunc(Buffer, MaxWidth - OccupiedWidth); Buffer.clear(); };
+	const auto Commit = [&]{ CellsConsumed += TextFunc(Buffer, CellsAvailable - CellsConsumed); Buffer.clear(); };
 
-	HiTextBase(Str, text_unescape(PutString, PutChar, Commit), [&](wchar_t c)
+	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		const auto SaveColor = CurColor;
-		SetColor(HiColor);
-		OccupiedWidth += TextFunc({ &c, 1 }, MaxWidth - OccupiedWidth);
-		SetColor(SaveColor);
+		if (State == hi_string_state::highlight)
+		{
+			const auto SaveColor = CurColor;
+			SetColor(HiColor);
+			CellsConsumed += TextFunc(Part, CellsAvailable - CellsConsumed);
+			SetColor(SaveColor);
+		}
+		else
+		{
+			text_unescape(PutString, PutChar, Commit)(Part, State == hi_string_state::needs_unescape);
+		}
 	});
 
-	return OccupiedWidth;
+	return CellsConsumed;
 }
 
-size_t HiText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+size_t HiText(string_view const Str, const FarColor& Color, size_t const CellsAvailable)
 {
-	return HiTextImpl(Str, Color, false, MaxWidth);
+	return HiTextImpl(Str, Color, false, CellsAvailable);
 }
 
 size_t HiText(string_view const Str, const FarColor& Color)
@@ -1068,9 +1178,9 @@ size_t HiText(string_view const Str, const FarColor& Color)
 	return HiText(Str, Color, Str.size());
 }
 
-size_t HiVText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+size_t HiVText(string_view const Str, const FarColor& Color, size_t const CellsAvailable)
 {
-	return HiTextImpl(Str, Color, true, MaxWidth);
+	return HiTextImpl(Str, Color, true, CellsAvailable);
 }
 
 size_t HiVText(string_view const Str, const FarColor& Color)
@@ -1088,11 +1198,18 @@ string HiText2Str(string_view const Str, size_t* HotkeyVisualPos)
 	const auto PutString = [&](string_view const s){ Result += s; };
 	const auto PutChar = [&](wchar_t const Ch){ Result.push_back(Ch); return true; };
 
-	HiTextBase(Str, text_unescape(PutString, PutChar, []{}), [&](wchar_t const Ch)
+	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		if (HotkeyVisualPos)
-			*HotkeyVisualPos = Result.size();
-		(void)PutChar(Ch);
+		if (State == hi_string_state::highlight)
+		{
+			if (HotkeyVisualPos)
+				*HotkeyVisualPos = Result.size();
+			PutString(Part);
+		}
+		else
+		{
+			text_unescape(PutString, PutChar, []{})(Part, State == hi_string_state::needs_unescape);
+		}
 	});
 
 	return Result;
@@ -1107,12 +1224,19 @@ bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos)
 	const auto PutString = [&](string_view const s) { Size += s.size(); };
 	const auto PutChar = [&](wchar_t const Ch) { ++Size; return true; };
 
-	HiTextBase(Str, text_unescape(PutString, PutChar, []{}), [&](wchar_t const Ch)
+	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		Hotkey = Ch;
-		if (HotkeyVisualPos)
-			*HotkeyVisualPos = Size;
-		Result = true;
+		if (State == hi_string_state::highlight)
+		{
+			Hotkey = Part[0];
+			if (HotkeyVisualPos)
+				*HotkeyVisualPos = Size;
+			Result = true;
+		}
+		else
+		{
+			text_unescape(PutString, PutChar, []{})(Part, State == hi_string_state::needs_unescape);
+		}
 	});
 
 	return Result;
@@ -1801,6 +1925,7 @@ TEST_CASE("interf.highlight")
 		size_t HotkeyPos{};
 		REQUIRE(HiText2Str(i.Input, &HotkeyPos) == i.Result);
 		REQUIRE(HotkeyPos == i.HotkeyVisualPos);
+		REQUIRE(remove_highlight(i.Input) == i.Result);
 
 		wchar_t Hotkey{};
 		HotkeyPos = np;

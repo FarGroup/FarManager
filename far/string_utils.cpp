@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 
 // Internal:
+#include "interf.hpp"
 
 // Platform:
 

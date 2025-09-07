@@ -934,10 +934,10 @@ void Dialog::InitDialogObjects(size_t ID, bool ReInit)
 				const auto ItemIterator = std::ranges::find_if(ListItems, [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
 				if (ItemIterator != ListItems.end())
 				{
-					const auto Text = NullToEmpty(ItemIterator->Text);
+					string_view const Text = NullToEmpty(ItemIterator->Text);
 
 					if (Item.Flags & DIF_LISTNOAMPERSAND)
-						Item.strData = HiText2Str(Text);
+						Item.strData = remove_highlight(Text);
 					else
 						Item.strData = Text;
 				}
@@ -3861,7 +3861,7 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 		auto strStr = EditLine.GetString();
 
 		if (CurItem.Flags & DIF_LISTNOAMPERSAND)
-			strStr = HiText2Str(strStr);
+			strStr = remove_highlight(strStr);
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 
@@ -3892,7 +3892,7 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 
 		if (CurItem.Flags & DIF_LISTNOAMPERSAND)
 		{
-			strStr = HiText2Str(ItemPtr.Name);
+			strStr = remove_highlight(ItemPtr.Name);
 			EditLine.SetString(strStr);
 		}
 		else

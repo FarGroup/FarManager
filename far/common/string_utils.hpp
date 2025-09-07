@@ -278,67 +278,6 @@ namespace detail
 
 namespace inplace
 {
-	inline void cut_left(std::wstring& Str, size_t const MaxWidth) noexcept
-	{
-		if (Str.size() > MaxWidth)
-			Str.erase(0, Str.size() - MaxWidth);
-	}
-
-	constexpr void cut_left(std::wstring_view& Str, size_t const MaxWidth) noexcept
-	{
-		if (Str.size() > MaxWidth)
-			Str.remove_prefix(Str.size() - MaxWidth);
-	}
-
-	inline void cut_right(std::wstring& Str, size_t const MaxWidth) noexcept
-	{
-		if (Str.size() > MaxWidth)
-			Str.resize(MaxWidth);
-	}
-
-	constexpr void cut_right(std::wstring_view& Str, size_t const MaxWidth) noexcept
-	{
-		if (Str.size() > MaxWidth)
-			Str.remove_suffix(Str.size() - MaxWidth);
-	}
-
-	inline void pad_left(std::wstring& Str, size_t const MinWidth, wchar_t const Padding = L' ')
-	{
-		if (Str.size() < MinWidth)
-			Str.insert(0, MinWidth - Str.size(), Padding);
-	}
-
-	inline void pad_right(std::wstring& Str, size_t const MinWidth, wchar_t const Padding = L' ')
-	{
-		if (Str.size() < MinWidth)
-			Str.append(MinWidth - Str.size(), Padding);
-	}
-
-	inline void fit_to_left(std::wstring& Str, size_t const Size)
-	{
-		Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
-	}
-
-	inline void fit_to_center(std::wstring& Str, size_t const Size)
-	{
-		const auto StrSize = Str.size();
-
-		if (StrSize < Size)
-		{
-			pad_left(Str, StrSize + (Size - StrSize) / 2);
-			pad_right(Str, Size);
-		}
-		else
-		{
-			cut_right(Str, Size);
-		}
-	}
-
-	inline void fit_to_right(std::wstring& Str, size_t const Size)
-	{
-		Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
-	}
-
 	inline void unquote(std::wstring& Str)
 	{
 		std::erase(Str, L'"');
@@ -410,69 +349,6 @@ namespace copy
 	{
 		std::ranges::remove_copy(Str, Destination, L'"');
 	}
-}
-
-[[nodiscard]]
-inline auto cut_left(std::wstring Str, size_t const MaxWidth)
-{
-	inplace::cut_left(Str, MaxWidth);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto cut_right(std::wstring Str, size_t const MaxWidth)
-{
-	inplace::cut_right(Str, MaxWidth);
-	return Str;
-}
-
-[[nodiscard]]
-constexpr auto cut_left(std::wstring_view Str, size_t const MaxWidth) noexcept
-{
-	inplace::cut_left(Str, MaxWidth);
-	return Str;
-}
-
-[[nodiscard]]
-constexpr auto cut_right(std::wstring_view Str, size_t const MaxWidth) noexcept
-{
-	inplace::cut_right(Str, MaxWidth);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto pad_left(std::wstring Str, size_t const MinWidth, wchar_t Padding = L' ')
-{
-	inplace::pad_left(Str, MinWidth, Padding);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto pad_right(std::wstring Str, size_t const MinWidth, wchar_t Padding = L' ')
-{
-	inplace::pad_right(Str, MinWidth, Padding);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto fit_to_left(std::wstring Str, const size_t Size)
-{
-	inplace::fit_to_left(Str, Size);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto fit_to_center(std::wstring Str, const size_t Size)
-{
-	inplace::fit_to_center(Str, Size);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto fit_to_right(std::wstring Str, const size_t Size)
-{
-	inplace::fit_to_right(Str, Size);
-	return Str;
 }
 
 [[nodiscard]]

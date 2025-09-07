@@ -2286,7 +2286,7 @@ void FileEditor::ShowStatus() const
 	inplace::cut_right(StatusLine, AvailableSpace);
 	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
 
-	Text(fit_to_left(truncate_path(GetTitle(), NameWidth), NameWidth));
+	Text(fit_to_left(truncate_path(GetTitle(), NameWidth), NameWidth), NameWidth);
 	Text(StatusLine);
 
 	if (ClockSize)
