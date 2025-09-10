@@ -185,8 +185,9 @@ static wchar_t *GetAlias(const wchar_t *ModuleName, const wchar_t *FindAlias)
 			ret=GetConsoleAliases(AllAliases, ret, const_cast<LPWSTR>(ModuleName));
 			if (ret)
 			{
+				const auto End = AllAliases + ret / sizeof(wchar_t);
 				wchar_t *ptr=AllAliases;
-				while(*ptr)
+				while(ptr != End)
 				{
 					wchar_t *p=wcschr(ptr,L'=');
 					if (p)
