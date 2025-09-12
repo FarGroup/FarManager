@@ -148,7 +148,7 @@ struct menu_item_ex: menu_item
 	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() ? 0 : Annotations.front().start(); }
 };
 
-struct item_color_indicies;
+struct item_color_indices;
 struct menu_layout;
 class vmenu_horizontal_tracker;
 
@@ -246,6 +246,10 @@ public:
 	}
 	void SetComplexUserData(const std::any& Data, int Position = -1);
 
+	using extended_item_data = std::vector<std::pair<FarMacroValue, FarMacroValue>>;
+	using extended_item_data_provider = std::function<extended_item_data(const menu_item_ex&)>;
+	void RegisterExtendedDataProvider(extended_item_data_provider&& ExtendedDataProvider);
+
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;
@@ -306,14 +310,14 @@ private:
 		const menu_item_ex& Item,
 		small_segment FixedColumnsArea,
 		int Y,
-		const item_color_indicies& ColorIndices,
+		const item_color_indices& ColorIndices,
 		string_view BlankLine) const;
 	[[nodiscard]]
 	bool DrawItemText(
 		const menu_item_ex& Item,
 		small_segment TextArea,
 		int Y,
-		const item_color_indicies& ColorIndices,
+		const item_color_indices& ColorIndices,
 		std::vector<int>& HighlightMarkup,
 		string_view BlankLine) const;
 
@@ -357,6 +361,7 @@ private:
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	std::vector<vmenu_fixed_column_t> m_FixedColumns;
 	small_segment m_ItemTextSegment{ small_segment::ray() };
+	extended_item_data_provider m_ExtendedDataProvider;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};

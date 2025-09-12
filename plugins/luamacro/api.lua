@@ -288,12 +288,13 @@ SetProperties(Editor, {
 --------------------------------------------------------------------------------
 
 Menu = {
-  Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
-  FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
-  GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
-  ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
-  Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
-  Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
+  Filter              = function(...) return MacroCallFar(0x80C55, ...) end,
+  FilterStr           = function(...) return MacroCallFar(0x80C56, ...) end,
+  GetValue            = function(...) return MacroCallFar(0x80C46, ...) end,
+  ItemStatus          = function(...) return MacroCallFar(0x80C47, ...) end,
+  Select              = function(...) return MacroCallFar(0x80C1B, ...) end,
+  Show                = function(...) return MacroCallFar(0x80C1C, ...) end,
+  GetItemExtendedData = function(...) return MacroCallFar(0x80C6B, ...) end,
 }
 
 SetProperties(Menu, {

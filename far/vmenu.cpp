@@ -105,11 +105,11 @@ enum class color_indices
 
 static_assert(std::tuple_size_v<vmenu_colors_t> == std::to_underlying(color_indices::COUNT));
 
-struct item_color_indicies
+struct item_color_indices
 {
 	color_indices Normal, Highlighted, HScroller;
 
-	explicit item_color_indicies(const menu_item_ex& CurItem)
+	explicit item_color_indices(const menu_item_ex& CurItem)
 	{
 		const auto Grayed{ !!(CurItem.Flags & LIF_GRAYED) };
 
@@ -640,7 +640,7 @@ namespace
 		SetColor(get_color(VMenuColors, ColorIndex));
 	}
 
-	std::tuple<color_indices, wchar_t> get_item_check_mark(const menu_item_ex& CurItem, item_color_indicies ColorIndices) noexcept
+	std::tuple<color_indices, wchar_t> get_item_check_mark(const menu_item_ex& CurItem, item_color_indices ColorIndices) noexcept
 	{
 		return
 		{
@@ -651,7 +651,7 @@ namespace
 		};
 	}
 
-	std::tuple<color_indices, wchar_t> get_item_submenu(const menu_item_ex& CurItem, item_color_indicies ColorIndices) noexcept
+	std::tuple<color_indices, wchar_t> get_item_submenu(const menu_item_ex& CurItem, item_color_indices ColorIndices) noexcept
 	{
 		return
 		{
@@ -660,7 +660,7 @@ namespace
 		};
 	}
 
-	std::tuple<color_indices, wchar_t> get_item_left_hscroll(const bool NeedLeftHScroll, item_color_indicies ColorIndices) noexcept
+	std::tuple<color_indices, wchar_t> get_item_left_hscroll(const bool NeedLeftHScroll, item_color_indices ColorIndices) noexcept
 	{
 		return
 		{
@@ -669,7 +669,7 @@ namespace
 		};
 	}
 
-	std::tuple<color_indices, wchar_t> get_item_right_hscroll(const bool NeedRightHScroll, item_color_indicies ColorIndices) noexcept
+	std::tuple<color_indices, wchar_t> get_item_right_hscroll(const bool NeedRightHScroll, item_color_indices ColorIndices) noexcept
 	{
 		return
 		{
@@ -804,15 +804,23 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 
 	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
+		const auto SavedSelectPos{ SelectPos };
+
+		for (auto& i : Items)
+			i.Flags &= ~LIF_SELECTED;
+
+		if (Pos >= 0)
+			UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED); // Changes SelectPos
+
 		if (const auto Parent = GetDialog(); Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+		{
+			// Restore SelectPos
+			if (SavedSelectPos >= 0)
+				UpdateItemFlags(SavedSelectPos, Items[SavedSelectPos].Flags | LIF_SELECTED);
+
 			return -1;
+		}
 	}
-
-	for (auto& i: Items)
-		i.Flags &= ~LIF_SELECTED;
-
-	if (Pos >= 0)
-		UpdateItemFlags(Pos, Items[Pos].Flags | LIF_SELECTED);
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
@@ -895,12 +903,11 @@ void VMenu::UpdateSelectPos()
 
 int VMenu::GetItemPosition(int Position) const
 {
-	int DataPos = (Position==-1) ? SelectPos : Position;
+	const auto DataPos{ Position < 0 ? SelectPos : Position };
 
-	if (DataPos>=static_cast<int>(Items.size()))
-		DataPos = -1; //Items.size()-1;
-
-	return DataPos;
+	return in_closed_range(0, DataPos, static_cast<int>(Items.size()) - 1)
+		? DataPos
+		: -1; //Items.size()-1; ???
 }
 
 // получить позицию курсора и верхнюю позицию элемента
@@ -1575,6 +1582,18 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 				}
 			}
 			return 0;
+		}
+		case MCODE_F_MENU_GETEXTENDEDDATA:
+		{
+			if (m_ExtendedDataProvider)
+			{
+				const auto ItemPos{ GetItemPosition(iParam) };
+				if (ItemPos == -1) return -1;
+
+				*static_cast<extended_item_data*>(vParam) = m_ExtendedDataProvider(Items[ItemPos]);
+				return 1;
+			}
+			return -1;
 		}
 	}
 
@@ -2848,7 +2867,7 @@ void VMenu::ApplySeparatorName(const menu_item_ex& Item, string& separator) cons
 
 void VMenu::DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, const int Y, std::vector<int>& HighlightMarkup, const string_view BlankLine) const
 {
-	const item_color_indicies ColorIndices{ Item };
+	const item_color_indices ColorIndices{ Item };
 
 	if (Layout.FixedColumnsArea)
 		DrawFixedColumns(Item, *Layout.FixedColumnsArea, Y, ColorIndices, BlankLine);
@@ -2883,7 +2902,7 @@ void VMenu::DrawFixedColumns(
 	const menu_item_ex& Item,
 	const small_segment FixedColumnsArea,
 	const int Y,
-	const item_color_indicies& ColorIndices,
+	const item_color_indices& ColorIndices,
 	const string_view BlankLine) const
 {
 	GotoXY(FixedColumnsArea.start(), Y);
@@ -2915,7 +2934,7 @@ bool VMenu::DrawItemText(
 	const menu_item_ex& Item,
 	const small_segment TextArea,
 	const int Y,
-	const item_color_indicies& ColorIndices,
+	const item_color_indices& ColorIndices,
 	std::vector<int>& HighlightMarkup,
 	string_view BlankLine) const
 {
@@ -3409,6 +3428,11 @@ std::any* VMenu::GetComplexUserData(int Position)
 		return nullptr;
 
 	return &Items[ItemPos].ComplexUserData;
+}
+
+void VMenu::RegisterExtendedDataProvider(extended_item_data_provider&& ExtendedDataProvider)
+{
+	m_ExtendedDataProvider = std::move(ExtendedDataProvider);
 }
 
 FarListItem *VMenu::MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem)

@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2025-09-11 21:46:54-04:00 - build 6548
+
+1. gh-948: Macro API to retrieve menu item extended data.
+
+2. New macro Edit.SyncEditorAndFindAllMenu.lua demonstrating usage of this API.
+   Based on https://forum.farmanager.com/viewtopic.php?t=11977
+
+--------------------------------------------------------------------------------
 drkns 2025-09-09 17:17:39+01:00 - build 6547
 
 1. Continue 6546.
