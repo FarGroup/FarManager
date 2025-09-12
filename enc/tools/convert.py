@@ -13,16 +13,17 @@ def postprocess(data):
 	return data
 
 
-def convert(from_filename, from_encoding, to_filename, to_encoding):
+def convert(from_filename, from_encoding, to_filename, to_encoding, do_postprocess):
 	data = None
 
 	with open(from_filename, encoding=from_encoding) as in_file:
 		data = in_file.read()
 
-	data = postprocess(data)
+	if do_postprocess:
+		data = postprocess(data)
 
 	with open(to_filename, "w", encoding=to_encoding) as out_file:
 		out_file.write(data)
 
 if __name__=="__main__":
-	convert(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+	convert(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], len(sys.argv) == 6 and sys.argv[5] == "-postprocess")

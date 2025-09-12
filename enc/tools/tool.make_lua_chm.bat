@@ -17,7 +17,7 @@ goto :end
 :make
 mkdir %1
 cd %1 || exit 1
-python %~dp0convert.py "..\..\..\enc_lua\%1.tsi" utf-8-sig "%1.tsi" windows-%2
+python %~dp0convert.py "..\..\..\enc_lua\%1.tsi" utf-8-sig "%1.tsi" windows-%2 -postprocess
 "%~dp0lua\lua.exe" "%~dp0lua\scripts\tp2hh.lua" "%1.tsi" tsi %3 "%~dp0lua\templates\api.tem" %2
 "%~dp0hh_compiler\hh_compiler.exe" %2 %1.hhp
 if not exist %1.chm (
