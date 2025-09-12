@@ -148,6 +148,7 @@ typedef struct _FILE_PROCESS_IDS_USING_FILE_INFORMATION
 }
 FILE_PROCESS_IDS_USING_FILE_INFORMATION, *PFILE_PROCESS_IDS_USING_FILE_INFORMATION;
 
-inline constexpr auto FileProcessIdsUsingFileInformation  = static_cast<FILE_INFORMATION_CLASS>(47);
+// NOT constexpr: such casts are technically UB and not available in constexpr context
+inline const auto FileProcessIdsUsingFileInformation  = static_cast<FILE_INFORMATION_CLASS>(47);
 
 #endif // SDK_COMMON_H_8710A968_FB61_435A_B9F6_166D668B92A9

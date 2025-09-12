@@ -47,7 +47,8 @@ struct THREAD_BASIC_INFORMATION
 };
 
 #ifdef _MSC_VER
-inline constexpr auto ObjectNameInformation = static_cast<OBJECT_INFORMATION_CLASS>(1);
+// NOT constexpr: such casts are technically UB and not available in constexpr context
+inline const auto ObjectNameInformation = static_cast<OBJECT_INFORMATION_CLASS>(1);
 #endif
 
 static bool GetProcessId(HANDLE Handle, DWORD& Pid)

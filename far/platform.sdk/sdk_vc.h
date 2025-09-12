@@ -150,7 +150,7 @@ REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
 #define SYMLINK_FLAG_RELATIVE 1
 #endif
 
-// NOT constexpr: clang is too smart for its own good and apparently such casts are now UB.
+// NOT constexpr: such casts are technically UB and not available in constexpr context
 
 // winternl.h
 inline const auto ObjectNameInformation               = static_cast<OBJECT_INFORMATION_CLASS>(1);
