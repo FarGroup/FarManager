@@ -150,14 +150,16 @@ REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
 #define SYMLINK_FLAG_RELATIVE 1
 #endif
 
+// NOT constexpr: clang is too smart for its own good and apparently such casts are now UB.
+
 // winternl.h
-inline constexpr auto ObjectNameInformation               = static_cast<OBJECT_INFORMATION_CLASS>(1);
+inline const auto ObjectNameInformation               = static_cast<OBJECT_INFORMATION_CLASS>(1);
 
-inline constexpr auto FileBothDirectoryInformation        = static_cast<FILE_INFORMATION_CLASS>(3);
-inline constexpr auto FileBasicInformation                = static_cast<FILE_INFORMATION_CLASS>(4);
-inline constexpr auto FileStreamInformation               = static_cast<FILE_INFORMATION_CLASS>(22);
-inline constexpr auto FileIdBothDirectoryInformation      = static_cast<FILE_INFORMATION_CLASS>(37);
+inline const auto FileBothDirectoryInformation        = static_cast<FILE_INFORMATION_CLASS>(3);
+inline const auto FileBasicInformation                = static_cast<FILE_INFORMATION_CLASS>(4);
+inline const auto FileStreamInformation               = static_cast<FILE_INFORMATION_CLASS>(22);
+inline const auto FileIdBothDirectoryInformation      = static_cast<FILE_INFORMATION_CLASS>(37);
 
-inline constexpr auto ProcessConsoleHostProcess           = static_cast<PROCESSINFOCLASS>(49);
+inline const auto ProcessConsoleHostProcess           = static_cast<PROCESSINFOCLASS>(49);
 
 #endif // SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7
