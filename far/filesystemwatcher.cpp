@@ -232,10 +232,8 @@ FileSystemWatcher::~FileSystemWatcher()
 
 		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 
-		if (const auto Handle = m_DirectoryHandle.native_handle(); imports.CancelIoEx)
-			imports.CancelIoEx(Handle, &m_Overlapped);
-		else
-			CancelIo(Handle);
+		if (const auto Handle = m_DirectoryHandle.native_handle(); imports.CancelIoEx? imports.CancelIoEx(Handle, &m_Overlapped) : CancelIo(Handle))
+			(void)get_result();
 
 		m_DirectoryHandle = {};
 

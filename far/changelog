@@ -1,4 +1,21 @@
 --------------------------------------------------------------------------------
+drkns 2025-09-12 22:23:09+01:00 - build 6549
+
+1. 0004083: BSOD on NFS.
+
+   Apparently these days you can cast a BSOD on a Microsoft driver from unprivileged user code as simply as:
+
+     overlapped.hEvent = CreateEvent({}, true, false, {});
+     HANDLE handle = CreateFile(L"\\\\nfs_server\\share", FILE_LIST_DIRECTORY, 0, {}, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, {});
+     ReadDirectoryChangesW(handle, &buffer, sizeof(buffer), false, FILE_NOTIFY_CHANGE_FILE_NAME, {}, &overlapped, {});
+     CancelIoEx(handle, &overlapped);
+     CloseHandle(handle);
+
+   Do what you want with this knowledge.
+
+   Good job, Microsoft.
+
+--------------------------------------------------------------------------------
 MZK 2025-09-11 21:46:54-04:00 - build 6548
 
 1. gh-948: Macro API to retrieve menu item extended data.
