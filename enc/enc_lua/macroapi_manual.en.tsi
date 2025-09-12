@@ -1867,7 +1867,7 @@ mtime=3807114389
 #_  local C = ffi.C
 #_  local F = far.Flags
 #_  Panel.LoadCustomSortMode (F.SM_USER+10,
-#_    { 
+#_    {
 #_      Compare = function(p1, p2, opt)
 #_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
 #_        return l1<l2 and -1 or l1>l2 and 1 or 0
@@ -2258,7 +2258,7 @@ mtime=3607109038
 #_@@@
 #_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
 #_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Filter
-#_{GetItemExtendedData}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetItemExtendedData
+#_{getitemextendeddata}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetItemExtendedData
 #_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetValue
 #_{horizontalalignment}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
 #_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
@@ -2283,7 +2283,7 @@ mtime=3607109427
 #_**Properties:**
 #_
 #_  X:              number
-#_  Y:              number 
+#_  Y:              number
 #_  Button:         number
 #_  CtrlState:      number
 #_  EventFlags:     number
@@ -2606,7 +2606,7 @@ ctime=3557323094
 mtime=3926597435
 <article>
 #_<markdown>
-#_The following functions have certain restrictions on their use in macros: 
+#_The following functions have certain restrictions on their use in macros:
 #_
 #_* [`exit`][exit]
 #_* [`mf.acall`][acall]
@@ -2722,7 +2722,7 @@ mtime=3600594181
 #_
 #_        package.nounload.mylib = true
 #_
-#_the module `mylib` will not be removed from `package.loaded` during macro unload/reload operations. 
+#_the module `mylib` will not be removed from `package.loaded` during macro unload/reload operations.
 #_
 #_[1]: 7.html
 #_
@@ -3236,18 +3236,18 @@ mtime=3607111919
 #_;; RCtrl single pressing or holding will pop-up the shortcuts menu. Press RCtrl again (or Esc) to close it.
 #_;; RCtrl1-0 will go to set shortcut
 #_;;
-#_ 
+#_
 #_const FolderShortcutsId = "4CD742BC-295F-4AFA-A158-7AA05A16BEA1"
-#_ 
+#_
 #_macro
 #_area="Shell"
 #_description="Folder shortcuts popup"
 #_key="RCtrl:Hold RCtrl:Release"  ;; call on holding LCtrl or single press of the button (Need to specify Release after Hold bc of a bug)
 #_EatOnRun=0 ;; allows RCtrl:Release in Menu area after RCtrl:Hold was caught
-#_{{ 
+#_{{
 #_    Keys("F9 c d");
 #_}}
-#_ 
+#_
 #_macro
 #_area="Menu"
 #_description="Folder shortcuts: RCtrl+digit"
@@ -3257,7 +3257,7 @@ mtime=3607111919
 #_        Keys(regex.match(akey(1),"RCtrl(\\d)?")) -- double escaping \\ because of LUA strings parsing
 #_    end;
 #_}}
-#_ 
+#_
 #_macro
 #_area="Menu"
 #_description="Folder shortcuts: pass RCtrl+not_digit through"
@@ -3267,8 +3267,8 @@ mtime=3607111919
 #_        Keys("Esc AKey");
 #_    end;
 #_}}
-#_ 
-#_ 
+#_
+#_
 #_macro
 #_area="Menu"
 #_description="Folder shortcuts popup close on second RCtrl or on RCtrl:Release after RCtrl:Hold"
