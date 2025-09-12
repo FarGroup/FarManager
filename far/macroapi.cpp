@@ -1177,11 +1177,13 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				{
 					api.PushTable();
 					for (const auto& [Key, Value] : ExtendedData)
+					{
 						api.SetField(Key, Value);
+					}
+					return;
 				}
 			}
-
-			// If there was no PushSomething, the result is nil
+			api.PushNil();
 			return;
 		}
 
