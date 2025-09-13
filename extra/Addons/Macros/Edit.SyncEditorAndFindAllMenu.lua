@@ -1,7 +1,9 @@
 --------------------------------------------------------------------------------
 -- Editor: Synchronizes the Editor with Find All menu.
 -- When Find All menu is active, highlights in the Editor
--- the pattern pointed by the current menu item.
+-- the text pointed by the current menu item.
+-- If the menu is closed with Shift+Enter, positions
+-- the Editor to the found text and leaves it highlighted.
 --
 -- This macro is based on https://forum.farmanager.com/viewtopic.php?t=11977
 --
@@ -9,17 +11,17 @@
 --
 -- The color used to highlight the pattern.
 local HighlightColor = 0x5f
+--
 -- If true, after menu is opened, selects the menu item corresponding
 -- to the first search pattern found below the cursor position.
 local PositionMenuOnStart = true
+--
 -- If true, highlights the search patterns in the text while the user moves around the menu items.
 -- If false, highlights the search pattern on Ctrl+Enter.
 local TrackMenu = true
--- If true, leaves the last highlighted pattern after the menu was closed.
-local KeepHighlightOnExit = false
 --------------------------------------------------------------------------------
 
-local FindAllListSyncId = "8564FC78-88C0-4044-9EB2-2FD345B52936"
+local FindAllListSyncId = win.Uuid("8564FC78-88C0-4044-9EB2-2FD345B52936")
 
 local F = far.Flags
 local EditorFindAllListId = win.Uuid(far.Guids.EditorFindAllListId)
@@ -27,6 +29,7 @@ local EditorFindAllListId = win.Uuid(far.Guids.EditorFindAllListId)
 local EditorInfo = nil
 local LastSeenItemData = nil
 local LastAddedColorCoordinates = nil
+local KeepHighlightOnExit = false
 
 -- Returns smallest I in [1, N] with GetData(I) >= target, or N if all keys are < target.
 local function LowerBound(N, Target, GetData, Less)
@@ -120,6 +123,7 @@ local function SetupMenuAndEditor(FarDialogEvent)
 end
 
 local function OnInitDialog(FarDialogEvent)
+  KeepHighlightOnExit = false
   EditorInfo = editor.GetInfo(nil)
   mf.postmacro(function() SetupMenuAndEditor(FarDialogEvent) end)
 end
@@ -131,6 +135,11 @@ end
 
 local function OnCtrlEnter()
   if not TrackMenu then HighlighText() end
+end
+
+local function OnShiftEnter()
+  KeepHighlightOnExit = true
+  Keys("Enter")
 end
 
 local function OnCloseDialog(FarDialogEvent)
@@ -146,6 +155,13 @@ local function OnCloseDialog(FarDialogEvent)
   end
 end
 
+local function OnKeyEvent(Key)
+  if     Key == "CtrlEnter"     then OnCtrlEnter()
+  elseif Key == "ShiftEnter"
+      or Key == "ShiftNumEnter" then mf.postmacro(OnShiftEnter)
+  end
+end
+
 Event {
   description="Sychronize editor with the Find All menu";
   group="DialogEvent";
@@ -155,12 +171,11 @@ Event {
     return DialogInfo and DialogInfo.Id == EditorFindAllListId
   end;
   action = function(Event, FarDialogEvent)
-    if     FarDialogEvent.Msg == F.DN_INITDIALOG                        then OnInitDialog(FarDialogEvent)
-    elseif FarDialogEvent.Msg == F.DN_LISTCHANGE                        then OnListChange()
+    if     FarDialogEvent.Msg == F.DN_INITDIALOG          then OnInitDialog(FarDialogEvent)
+    elseif FarDialogEvent.Msg == F.DN_LISTCHANGE          then OnListChange()
     elseif FarDialogEvent.Msg == F.DN_CONTROLINPUT
-       and FarDialogEvent.Param2.EventType == F.KEY_EVENT
-       and far.InputRecordToName(FarDialogEvent.Param2) == "CtrlEnter"  then OnCtrlEnter()
-    elseif FarDialogEvent.Msg == F.DN_CLOSE                             then OnCloseDialog(FarDialogEvent)
+       and FarDialogEvent.Param2.EventType == F.KEY_EVENT then OnKeyEvent(far.InputRecordToName(FarDialogEvent.Param2))
+    elseif FarDialogEvent.Msg == F.DN_CLOSE               then OnCloseDialog(FarDialogEvent)
     end
   end;
 }
