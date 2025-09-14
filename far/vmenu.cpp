@@ -2962,7 +2962,7 @@ bool VMenu::DrawItemText(
 
 	const auto VisibleTextSegment{ intersect(
 		segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-		segment{ -Item.HorizontalPosition, segment::length_tag{ std::numeric_limits<segment::domain_t>::max() } }) };
+		segment{ -Item.HorizontalPosition, segment::length_tag{ segment::domain_max() / 2 } }) }; // Exceedingly large, but / 2 to avoid overflows
 
 	if (!VisibleTextSegment.empty())
 	{
@@ -3101,7 +3101,7 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 		const auto ItemText = GetItemText(Item);
 		const auto VisibleTextSegment{ intersect(
 			segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-			segment{ -Item.HorizontalPosition, segment::length_tag{ std::numeric_limits<segment::domain_t>::max() } }) };
+			segment{ -Item.HorizontalPosition, segment::length_tag{ segment::domain_max() / 2 } }) }; // Exceedingly large, but / 2 to avoid overflows
 		if (VisibleTextSegment.empty()) continue;
 
 		if (const auto FoundHotKey{

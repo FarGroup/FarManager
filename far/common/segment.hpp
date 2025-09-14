@@ -41,13 +41,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 class segment_t
 {
+public:
 	[[nodiscard]]
 	static constexpr T domain_min() noexcept { return std::numeric_limits<T>::min(); }
 
 	[[nodiscard]]
 	static constexpr T domain_max() noexcept { return std::numeric_limits<T>::max(); }
 
-public:
 	using domain_t = T;
 	struct sentinel_tag { T m_End{}; };
 	struct length_tag { T m_Length{}; };
