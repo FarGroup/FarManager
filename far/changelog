@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2025-09-14 21:24:45+01:00 - build 6551
+
+1. Continue fullwidth-aware rendering.
+
+2. Support negative values in far:error.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 shmuel 2025-09-13 00:33:32+03:00 - build 6550
 
 1. A small correction to 6548.
