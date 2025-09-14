@@ -40,7 +40,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
+#include "char_width.hpp"
 #include "ctrlobj.hpp"
+#include "encoding.hpp"
 #include "scrbuf.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
@@ -308,8 +310,11 @@ void Edit::FastShow(const ShowInfo* Info)
 			TrailingSpaces = std::find_if_not(m_Str.crbegin(), m_Str.crend(), [](wchar_t i) { return std::iswblank(i);}).base();
 		}
 
+		// OutStr is either empty or whitespace at this point, so it's ok
+		auto VisualLength = OutStr.size();
+
 		const auto Begin = m_Str.cbegin() + std::min(static_cast<size_t>(RealLeftPos), m_Str.usize());
-		for(auto i = Begin, End = m_Str.cend(); i != End && OutStr.size() < EditLength; ++i)
+		for(auto i = Begin, End = m_Str.cend(); i != End; ++i)
 		{
 			if (*i == L' ')
 			{
@@ -317,6 +322,8 @@ void Edit::FastShow(const ShowInfo* Info)
 					OutStr.push_back(L'·');
 				else
 					OutStr.push_back(*i);
+
+				++VisualLength;
 			}
 			else if (*i == L'\t')
 			{
@@ -324,18 +331,40 @@ void Edit::FastShow(const ShowInfo* Info)
 				const auto TabEnd = RealToVisual.get(i + 1 - m_Str.begin());
 
 				OutStr.push_back(((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces)? L'→' : L' ');
-				OutStr.resize(OutStr.size() + TabEnd - TabStart - 1, L' ');
+				++VisualLength;
+				const auto Add = TabEnd - TabStart - 1;
+				OutStr.resize(OutStr.size() + Add, L' ');
+				VisualLength += Add;
 			}
 			else
 			{
 				OutStr.push_back(*i);
+
+				char32_t Codepoint;
+
+				if (is_valid_surrogate_pair_at(i - m_Str.cbegin()))
+				{
+					Codepoint = encoding::utf16::extract_codepoint(*i, i[1]);
+					++i;
+					OutStr.push_back(*i);
+				}
+				else
+				{
+					Codepoint = *i;
+				}
+
+				VisualLength += char_width::get(Codepoint);
 			}
+
+			// Overflow is ok, Text() will cut the extra
+			if (VisualLength >= EditLength)
+				break;
 		}
 
 		if (m_Flags.Check(FEDITLINE_PASSWORDMODE))
 			OutStr.assign(OutStr.size(), L'*');
 
-		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength))
+		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && VisualLength < EditLength)
 		{
 			const auto Cr = L'♪', Lf = L'◙';
 
@@ -346,25 +375,36 @@ void Edit::FastShow(const ShowInfo* Info)
 
 			case eol::eol_type::mac:
 				OutStr.push_back(Cr);
+				++VisualLength;
 				break;
 
 			case eol::eol_type::unix:
 				OutStr.push_back(Lf);
+				++VisualLength;
 				break;
 
 			case eol::eol_type::win:
 				OutStr.push_back(Cr);
-				if(OutStr.size() < EditLength)
+				++VisualLength;
+				if (VisualLength < EditLength)
+				{
 					OutStr.push_back(Lf);
+					++VisualLength;
+				}
 				break;
 
 			case eol::eol_type::bad_win:
 				OutStr.push_back(Cr);
-				if(OutStr.size() < EditLength)
+				++VisualLength;
+				if(VisualLength < EditLength)
 				{
 					OutStr.push_back(Cr);
-					if(OutStr.size() < EditLength)
+					++VisualLength;
+					if (VisualLength < EditLength)
+					{
 						OutStr.push_back(Lf);
+						++VisualLength;
+					}
 				}
 				break;
 
@@ -373,9 +413,10 @@ void Edit::FastShow(const ShowInfo* Info)
 			}
 		}
 
-		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength) && GetEditor()->IsLastLine(this))
+		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (VisualLength < EditLength) && GetEditor()->IsLastLine(this))
 		{
 			OutStr.push_back(L'□');
+			++VisualLength;
 		}
 	}
 

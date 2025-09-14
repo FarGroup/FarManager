@@ -2720,7 +2720,7 @@ void VMenu::DrawTitles() const
 			append(strDisplayTitle, bFilterLocked? L'<' : L'[', strFilter, bFilterLocked? L'>' : L']');
 		}
 
-		auto WidthTitle = static_cast<int>(strDisplayTitle.size());
+		auto WidthTitle = static_cast<int>(visual_string_length(strDisplayTitle));
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2728,12 +2728,14 @@ void VMenu::DrawTitles() const
 		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.top);
 		set_color(Colors, color_indices::Title);
 
-		Text(concat(L' ', string_view(strDisplayTitle).substr(0, WidthTitle), L' '));
+		::Text(L' ');
+		::Text(strDisplayTitle, MaxTitleLength - 1);
+		::Text(L' ');
 	}
 
 	if (!strBottomTitle.empty())
 	{
-		auto WidthTitle = static_cast<int>(strBottomTitle.size());
+		auto WidthTitle = static_cast<int>(visual_string_length(strBottomTitle));
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2741,7 +2743,9 @@ void VMenu::DrawTitles() const
 		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.bottom);
 		set_color(Colors, color_indices::Title);
 
-		Text(concat(L' ', string_view(strBottomTitle).substr(0, WidthTitle), L' '));
+		::Text(L' ');
+		::Text(strBottomTitle, MaxTitleLength - 1);
+		::Text(L' ');
 	}
 
 	if constexpr ((false))
@@ -2958,7 +2962,7 @@ bool VMenu::DrawItemText(
 
 	const auto VisibleTextSegment{ intersect(
 		segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-		segment{ -Item.HorizontalPosition, segment::length_tag{ TextArea.length() } }) };
+		segment{ -Item.HorizontalPosition, segment::length_tag{ std::numeric_limits<segment::domain_t>::max() } }) };
 
 	if (!VisibleTextSegment.empty())
 	{
@@ -2985,7 +2989,7 @@ bool VMenu::DrawItemText(
 		assert(WhereX() == TextArea.end());
 	}
 
-	return Item.HorizontalPosition + static_cast<int>(ItemText.size()) > TextArea.length();
+	return Item.HorizontalPosition + static_cast<int>(visual_string_length(ItemText)) > TextArea.length();
 }
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
@@ -3097,7 +3101,7 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 		const auto ItemText = GetItemText(Item);
 		const auto VisibleTextSegment{ intersect(
 			segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-			segment{ -Item.HorizontalPosition, segment::length_tag{ TextArea.length() } }) };
+			segment{ -Item.HorizontalPosition, segment::length_tag{ std::numeric_limits<segment::domain_t>::max() } }) };
 		if (VisibleTextSegment.empty()) continue;
 
 		if (const auto FoundHotKey{
@@ -3575,7 +3579,7 @@ int VMenu::GetNaturalMenuWidth() const
 	const auto NeedBox = menu_layout::need_box(*this);
 	return std::max(
 		m_MaxItemLength + menu_layout::get_service_area_size(*this, NeedBox),
-		static_cast<int>(std::max(strTitle.size(), strBottomTitle.size()) + menu_layout::get_title_service_area_size(NeedBox))
+		static_cast<int>(std::max(visual_string_length(strTitle), visual_string_length(strBottomTitle)) + menu_layout::get_title_service_area_size(NeedBox))
 	);
 }
 

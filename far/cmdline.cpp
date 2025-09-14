@@ -88,6 +88,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -148,12 +149,13 @@ size_t CommandLine::DrawPrompt()
 	size_t CollapsibleCount = 0;
 	for (const auto& i: PromptList)
 	{
-		Sizes.emplace_back(i.Text.size());
-		PromptLength += i.Text.size();
+		const auto VisualLength = visual_string_length(i.Text);
+		Sizes.emplace_back(VisualLength);
+		PromptLength += VisualLength;
 		if (i.Collapsible)
 			++CollapsibleCount;
 		else
-			FixedLength += i.Text.size();
+			FixedLength += VisualLength;
 	}
 
 	size_t CollapsibleItemLength = 0;
@@ -171,20 +173,26 @@ size_t CommandLine::DrawPrompt()
 	size_t CurLength = 0;
 	GotoXY(m_Where.left, m_Where.top);
 
-	for (const auto& i: PromptList)
+	for (const auto& [i, l]: zip(PromptList, Sizes))
 	{
 		auto str = i.Text;
+		auto VisualLength = l;
 
 		if (TryCollapse && i.Collapsible)
 		{
 			inplace::truncate_path(str, CollapsibleItemLength);
+			VisualLength = visual_string_length(str);
 		}
 
-		if (CurLength + str.size() > MaxLength)
+		if (CurLength + VisualLength > MaxLength)
+		{
 			inplace::truncate_path(str, std::max(0uz, MaxLength - CurLength));
+			VisualLength = visual_string_length(str);
+		}
+
 		SetColor(i.Colour);
-		Text(str);
-		CurLength += str.size();
+		Text(str, MaxLength - CurLength);
+		CurLength += VisualLength;
 
 		if (CurLength >= MaxLength)
 			break;
