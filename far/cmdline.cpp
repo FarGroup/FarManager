@@ -1013,11 +1013,19 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool NoWai
 
 	if (const auto ErrorCommand = L"error"sv; starts_with_icase(Command, ErrorCommand))
 	{
-		if (auto ErrorParameter = trim(Command.substr(ErrorCommand.size())); !ErrorParameter.empty())
+		if (const auto ErrorParameter = trim(Command.substr(ErrorCommand.size())); !ErrorParameter.empty())
 		{
-			if (unsigned Value; from_string(ErrorParameter, Value, {}, 0))
+
+			std::optional<unsigned> ErrorCode;
+			if (const auto UnsignedValue = try_from_string<unsigned>(ErrorParameter, {}, 0))
+				ErrorCode = *UnsignedValue;
+			else if (const auto SignedValue = try_from_string<signed>(ErrorParameter, {}, 0))
+				ErrorCode = static_cast<unsigned>(*SignedValue);
+
+			if (ErrorCode)
 			{
 				ConsoleActivator(true);
+				const auto Value = *ErrorCode;
 				error_lookup({ { Value, static_cast<NTSTATUS>(Value) }, {}, static_cast<int>(Value) });
 				return true;
 			}
