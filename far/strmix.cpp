@@ -2116,7 +2116,7 @@ TEST_CASE("truncate")
 	{
 		{ truncate_left,   legacy::truncate_left,   &tests::size::ResultLeft   },
 		{ truncate_center, {},                      &tests::size::ResultCenter },
-		{ truncate_right,  {},                      &tests::size::ResultRight },
+		{ truncate_right,  {},                      &tests::size::ResultRight  },
 		{ truncate_path,   legacy::truncate_path,   &tests::size::ResultPath   },
 	};
 

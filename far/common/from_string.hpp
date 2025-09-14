@@ -33,33 +33,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "exception.hpp"
+#include "expected.hpp"
 #include "string_utils.hpp"
 
 #include <limits>
-#include <stdexcept>
+#include <system_error>
 #include <utility>
 
 //----------------------------------------------------------------------------
 
 namespace detail
 {
-	enum class result
-	{
-		ok,
-		invalid_argument,
-		out_of_range,
-	};
-
 	template<typename result_type>
-	result from_string(std::wstring_view const Str, result_type& Value, size_t* const Pos, int const Base, auto const Converter)
+	std::errc from_string(std::wstring_view const Str, result_type& Value, size_t* const Pos, int const Base, auto const Converter)
 	{
 		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
-			return result::invalid_argument;
+			return std::errc::invalid_argument;
 
 		if constexpr(std::unsigned_integral<result_type>)
 		{
 			if (Str.front() == L'-')
-				return result::out_of_range;
+				return std::errc::result_out_of_range;
 		}
 
 		const null_terminated Data(Str);
@@ -78,17 +72,17 @@ namespace detail
 			Errno = OldErrno;
 
 		if (Ptr == EndPtr)
-			return result::invalid_argument;
+			return std::errc::invalid_argument;
 
 		if (NewErrno == ERANGE)
-			return result::out_of_range;
+			return std::errc::result_out_of_range;
 
 		if (Pos != nullptr)
 			*Pos = static_cast<size_t>(EndPtr - Ptr);
 
 		Value = Result;
 
-		return result::ok;
+		return {};
 	}
 
 	inline auto from_string(std::wstring_view const Str, long& Value, size_t* const Pos, int const Base)
@@ -115,14 +109,14 @@ namespace detail
 	auto from_string_long(std::wstring_view const Str, S& Value, size_t* const Pos, int const Base)
 	{
 		L LongValue;
-		if (const auto Result = from_string(Str, LongValue, Pos, Base); Result != result::ok)
+		if (const auto Result = from_string(Str, LongValue, Pos, Base); Result != std::errc{})
 			return Result;
 
 		if (LongValue < std::numeric_limits<S>::min() || LongValue > std::numeric_limits<S>::max())
-			return result::out_of_range;
+			return std::errc::result_out_of_range;
 
 		Value = static_cast<S>(LongValue);
-		return result::ok;
+		return std::errc{};
 	}
 
 	inline auto from_string(std::wstring_view const Str, int& Value, size_t* const Pos, int const Base)
@@ -148,7 +142,7 @@ namespace detail
 	inline auto from_string(std::wstring_view const Str, double& Value, size_t* const Pos, int const Base)
 	{
 		if (Base != 10)
-			return result::invalid_argument;
+			return std::errc::invalid_argument;
 
 		return from_string(Str, Value, Pos, Base, [](wchar_t const* const StrPtr, wchar_t** const EndPtr, int) { return std::wcstod(StrPtr, EndPtr); });
 	}
@@ -157,7 +151,7 @@ namespace detail
 [[nodiscard]]
 bool from_string(std::wstring_view const Str, auto& Value, size_t* const Pos = {}, int const Base = 10)
 {
-	return detail::from_string(Str, Value, Pos, Base) == detail::result::ok;
+	return detail::from_string(Str, Value, Pos, Base) == std::errc{};
 }
 
 template<typename T>
@@ -166,20 +160,36 @@ T from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Bas
 {
 	using namespace std::string_view_literals;
 
-	switch (T Value; detail::from_string(Str, Value, Pos, Base))
-	{
-	case detail::result::ok:
+	T Value;
+	const auto Result = detail::from_string(Str, Value, Pos, Base);
+	if (Result == std::errc{})
 		return Value;
 
-	case detail::result::invalid_argument:
+	switch (Result)
+	{
+	case std::errc::invalid_argument:
 		throw_exception("invalid from_string argument"sv);
 
-	case detail::result::out_of_range:
+	case std::errc::result_out_of_range:
 		throw_exception("from_string argument is out of range"sv);
 
 	default:
 		std::unreachable();
 	}
+}
+
+template<typename T>
+[[nodiscard]]
+expected<T, std::errc> try_from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Base = 10)
+{
+	using namespace std::string_view_literals;
+
+	T Value;
+	const auto Result = detail::from_string(Str, Value, Pos, Base);
+	if (Result == std::errc{})
+		return Value;
+
+	return Result;
 }
 
 #endif // FROM_STRING_HPP_B1AC0296_5353_4EFE_91BE_DD553796548A

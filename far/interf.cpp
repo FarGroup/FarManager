@@ -940,6 +940,11 @@ void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t const CellsAv
 	const auto& CellsToBeConsumed = Cells.emplace<0>();
 	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
 	CellsConsumed = CellsToBeConsumed;
+
+#ifdef _DEBUG
+	if (CharsConsumed == Str.size())
+		assert(CellsConsumed == visual_string_length(Str));
+#endif
 }
 
 size_t Text(string_view Str, size_t const CellsAvailable)
@@ -1112,31 +1117,6 @@ static size_t unescape(string_view const Str, function_ref<bool(wchar_t)> const 
 	return Str.size();
 }
 
-class text_unescape
-{
-public:
-	text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
-		m_PutString(PutString),
-		m_PutChar(PutChar),
-		m_Commit(Commit)
-	{
-	}
-
-	void operator()(string_view const Str, bool const Unescape) const
-	{
-		if (!Unescape)
-			return m_PutString(Str);
-
-		unescape(Str, m_PutChar);
-		m_Commit();
-	}
-
-private:
-	function_ref<void(string_view)> m_PutString;
-	function_ref<bool(wchar_t)> m_PutChar;
-	function_ref<void()> m_Commit;
-};
-
 static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool const Vertical, size_t CellsAvailable)
 {
 	using text_func = size_t(*)(string_view, size_t);
@@ -1146,22 +1126,27 @@ static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool co
 	string Buffer;
 	size_t CellsConsumed = 0;
 
-	const auto PutString = [&](string_view const StrPart){ CellsConsumed += TextFunc(StrPart, CellsAvailable - CellsConsumed); };
-	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
-	const auto Commit = [&]{ CellsConsumed += TextFunc(Buffer, CellsAvailable - CellsConsumed); Buffer.clear(); };
-
 	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		if (State == hi_string_state::highlight)
+		switch (State)
 		{
-			const auto SaveColor = CurColor;
-			SetColor(HiColor);
+		case hi_string_state::ready:
 			CellsConsumed += TextFunc(Part, CellsAvailable - CellsConsumed);
-			SetColor(SaveColor);
-		}
-		else
-		{
-			text_unescape(PutString, PutChar, Commit)(Part, State == hi_string_state::needs_unescape);
+			break;
+
+		case hi_string_state::needs_unescape:
+			unescape(Part, [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; });
+			CellsConsumed += TextFunc(Buffer, CellsAvailable - CellsConsumed); Buffer.clear();
+			break;
+
+		case hi_string_state::highlight:
+			{
+				const auto SaveColor = CurColor;
+				SetColor(HiColor);
+				CellsConsumed += TextFunc(Part, CellsAvailable - CellsConsumed);
+				SetColor(SaveColor);
+			}
+			break;
 		}
 	});
 
@@ -1195,20 +1180,23 @@ string HiText2Str(string_view const Str, size_t* HotkeyVisualPos)
 	if (HotkeyVisualPos)
 		*HotkeyVisualPos = string::npos;
 
-	const auto PutString = [&](string_view const s){ Result += s; };
-	const auto PutChar = [&](wchar_t const Ch){ Result.push_back(Ch); return true; };
-
 	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		if (State == hi_string_state::highlight)
+		switch (State)
 		{
+		case hi_string_state::ready:
+			Result += Part;
+			break;
+
+		case hi_string_state::needs_unescape:
+			unescape(Part, [&](wchar_t const Ch){ Result.push_back(Ch); return true; });
+			break;
+
+		case hi_string_state::highlight:
 			if (HotkeyVisualPos)
 				*HotkeyVisualPos = Result.size();
-			PutString(Part);
-		}
-		else
-		{
-			text_unescape(PutString, PutChar, []{})(Part, State == hi_string_state::needs_unescape);
+			Result += Part;
+			break;
 		}
 	});
 
@@ -1221,21 +1209,24 @@ bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos)
 
 	size_t Size{};
 
-	const auto PutString = [&](string_view const s) { Size += s.size(); };
-	const auto PutChar = [&](wchar_t const Ch) { ++Size; return true; };
-
 	HiTextBase(Str, [&](string_view const Part, hi_string_state const State)
 	{
-		if (State == hi_string_state::highlight)
+		switch (State)
 		{
+		case hi_string_state::ready:
+			Size += Part.size();
+			break;
+
+		case hi_string_state::needs_unescape:
+			unescape(Part, [&](wchar_t const Ch){ ++Size; return true; });
+			break;
+
+		case hi_string_state::highlight:
 			Hotkey = Part[0];
 			if (HotkeyVisualPos)
 				*HotkeyVisualPos = Size;
 			Result = true;
-		}
-		else
-		{
-			text_unescape(PutString, PutChar, []{})(Part, State == hi_string_state::needs_unescape);
+			break;
 		}
 	});
 

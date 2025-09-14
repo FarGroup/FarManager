@@ -40,6 +40,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+template<typename E>
+struct unexpected
+{
+	explicit(false)
+	unexpected(E Error):
+		m_Error(std::move(Error))
+	{
+	}
+
+	E m_Error;
+};
+
 template<typename T, typename E, typename W = E>
 class expected
 {
@@ -66,7 +78,7 @@ public:
 		if (has_value())
 			return std::get<0>(m_Data);
 
-		throw W{ std::get<1>(m_Data) };
+		throw W{ std::get<1>(m_Data).m_Error };
 	}
 
 	T& value()
@@ -97,14 +109,26 @@ public:
 	E const& error() const
 	{
 		if (!has_value())
-			return std::get<1>(m_Data);
+			return std::get<1>(m_Data).m_Error;
 
 		using namespace std::string_view_literals;
 		throw_exception("No error stored"sv);
 	}
 
+	template<class T2>
+	friend bool operator==(expected const& lhs, T2 const& Value)
+	{
+		return lhs && *lhs == Value;
+	}
+
+	template<class E2>
+	friend bool operator==(expected const& lhs, unexpected<E2> const& Error)
+	{
+		return !lhs && lhs.error() == Error.m_Error;
+	}
+
 private:
-	std::variant<T, E> m_Data;
+	std::variant<T, unexpected<E>> m_Data;
 };
 
 #endif // EXPECTED_HPP_01A3444E_1CF2_446D_851F_F91C5A5A34AA

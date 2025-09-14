@@ -719,6 +719,9 @@ TEST_CASE("from_string")
 		int Value;
 		REQUIRE(!from_string(L"qqq"sv, Value));
 	}
+
+	REQUIRE(try_from_string<int>(L"42"sv) == 42);
+	REQUIRE(try_from_string<int>(L"banana"sv) == unexpected{ std::errc::invalid_argument });
 }
 
 //----------------------------------------------------------------------------
