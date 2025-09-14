@@ -347,8 +347,8 @@ private:
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
 
-	size_t Text(string_view Str) const;
-	size_t Text(wchar_t Char) const;
+	size_t MenuText(string_view Str) const;
+	size_t MenuText(wchar_t Char) const;
 
 	string strTitle;
 	string strBottomTitle;

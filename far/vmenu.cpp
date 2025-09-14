@@ -2728,9 +2728,9 @@ void VMenu::DrawTitles() const
 		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.top);
 		set_color(Colors, color_indices::Title);
 
-		::Text(L' ');
-		::Text(strDisplayTitle, MaxTitleLength - 1);
-		::Text(L' ');
+		Text(L' ');
+		Text(strDisplayTitle, MaxTitleLength - 1);
+		Text(L' ');
 	}
 
 	if (!strBottomTitle.empty())
@@ -2743,9 +2743,9 @@ void VMenu::DrawTitles() const
 		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.bottom);
 		set_color(Colors, color_indices::Title);
 
-		::Text(L' ');
-		::Text(strBottomTitle, MaxTitleLength - 1);
-		::Text(L' ');
+		Text(L' ');
+		Text(strBottomTitle, MaxTitleLength - 1);
+		Text(L' ');
 	}
 
 	if constexpr ((false))
@@ -2753,11 +2753,11 @@ void VMenu::DrawTitles() const
 		set_color(Colors, color_indices::Title);
 
 		GotoXY(m_Where.left + 2, m_Where.bottom);
-		Text(m_HorizontalTracker->get_debug_string());
+		MenuText(m_HorizontalTracker->get_debug_string());
 
 		const auto TextAreaWidthLabel{ std::format(L" [{}] ", CalculateTextAreaWidth()) };
 		GotoXY(m_Where.right - 1 - static_cast<int>(TextAreaWidthLabel.size()), m_Where.bottom);
-		Text(TextAreaWidthLabel);
+		MenuText(TextAreaWidthLabel);
 	}
 }
 
@@ -2817,7 +2817,7 @@ void VMenu::DrawSeparator(const size_t ItemIndex, const int BoxType, const int Y
 	ApplySeparatorName(Items[ItemIndex], separator);
 	set_color(Colors, color_indices::Separator);
 	GotoXY(m_Where.left, Y);
-	Text(separator);
+	MenuText(separator);
 }
 
 void VMenu::ConnectSeparator(const size_t ItemIndex, string& separator, const int BoxType) const
@@ -2923,10 +2923,10 @@ void VMenu::DrawFixedColumns(
 			segment{ 0, segment::length_tag{ CellArea.length()}})};
 
 		if (!VisibleCellTextSegment.empty())
-			Text(CellText.substr(VisibleCellTextSegment.start(), VisibleCellTextSegment.length()));
+			MenuText(CellText.substr(VisibleCellTextSegment.start(), VisibleCellTextSegment.length()));
 
-		Text(BlankLine.substr(0, CellArea.end() - WhereX()));
-		Text(CurFixedColumn.Separator);
+		MenuText(BlankLine.substr(0, CellArea.end() - WhereX()));
+		MenuText(CurFixedColumn.Separator);
 
 		CurCellAreaStart = CellArea.end() + 1;
 	}
@@ -2975,7 +2975,7 @@ bool VMenu::DrawItemText(
 		for (const auto SliceEnd : HighlightMarkup)
 		{
 			set_color(Colors, CurColorIndex);
-			Text(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos));
+			MenuText(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos));
 			std::ranges::swap(CurColorIndex, AltColorIndex);
 			CurTextPos = SliceEnd;
 		}
@@ -3610,14 +3610,14 @@ string_view VMenu::GetItemText(const menu_item_ex& Item) const
 	return get_item_cell_text(Item.Name, m_ItemTextSegment);
 }
 
-size_t VMenu::Text(string_view const Str) const
+size_t VMenu::MenuText(string_view const Str) const
 {
-	return ::Text(Str, m_Where.width() - (WhereX() - m_Where.left));
+	return Text(Str, m_Where.width() - (WhereX() - m_Where.left));
 }
 
-size_t VMenu::Text(wchar_t const Char) const
+size_t VMenu::MenuText(wchar_t const Char) const
 {
-	return ::Text(Char, m_Where.width() - (WhereX() - m_Where.left));
+	return MenuText({ &Char, 1 });
 }
 
 #ifdef ENABLE_TESTS
