@@ -2962,7 +2962,7 @@ bool VMenu::DrawItemText(
 
 	const auto VisibleTextSegment{ intersect(
 		segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-		segment{ -Item.HorizontalPosition, segment::length_tag{ segment::domain_max() / 2 } }) }; // Exceedingly large, but / 2 to avoid overflows
+		segment::ray(-Item.HorizontalPosition))};
 
 	if (!VisibleTextSegment.empty())
 	{
@@ -2975,7 +2975,7 @@ bool VMenu::DrawItemText(
 		for (const auto SliceEnd : HighlightMarkup)
 		{
 			set_color(Colors, CurColorIndex);
-			MenuText(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos));
+			Text(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos), TextArea.end() - WhereX());
 			std::ranges::swap(CurColorIndex, AltColorIndex);
 			CurTextPos = SliceEnd;
 		}
@@ -2985,7 +2985,7 @@ bool VMenu::DrawItemText(
 
 	if (WhereX() < TextArea.end())
 	{
-		Text(BlankLine.substr(0, TextArea.end() - WhereX()));
+		Text(BlankLine, TextArea.end() - WhereX());
 		assert(WhereX() == TextArea.end());
 	}
 
@@ -3101,7 +3101,7 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 		const auto ItemText = GetItemText(Item);
 		const auto VisibleTextSegment{ intersect(
 			segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } },
-			segment{ -Item.HorizontalPosition, segment::length_tag{ segment::domain_max() / 2 } }) }; // Exceedingly large, but / 2 to avoid overflows
+			segment::ray(-Item.HorizontalPosition)) };
 		if (VisibleTextSegment.empty()) continue;
 
 		if (const auto FoundHotKey{
