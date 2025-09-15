@@ -2009,16 +2009,20 @@ WARNING_POP()
 		if (low::remove_directory(strNtName.c_str()))
 			return true;
 
-		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
-
-		if (!exists(strNtName))
 		{
-			// Someone deleted it already,
-			// but job is done, no need to report error.
-			return true;
+			last_error_guard const Guard;
+			const auto Error = Guard.get().Win32Error;
+
+			// exists can return false on access errors, so check the last error too
+			if ((Error == ERROR_FILE_NOT_FOUND || Error == ERROR_PATH_NOT_FOUND) && !exists(strNtName))
+			{
+				// Someone deleted it already,
+				// but the job is done, no need to report the error.
+				return true;
+			}
 		}
 
-		if (IsElevationRequired)
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
 			return elevation::instance().remove_directory(strNtName);
 
 		return false;
@@ -2072,16 +2076,20 @@ WARNING_POP()
 		if (low::delete_file(strNtName.c_str()))
 			return true;
 
-		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
-
-		if (!exists(strNtName))
 		{
-			// Someone deleted it already,
-			// but job is done, no need to report error.
-			return true;
+			last_error_guard const Guard;
+			const auto Error = Guard.get().Win32Error;
+
+			// exists can return false on access errors, so check the last error too
+			if ((Error == ERROR_FILE_NOT_FOUND || Error == ERROR_PATH_NOT_FOUND) && !exists(strNtName))
+			{
+				// Someone deleted it already,
+				// but the job is done, no need to report the error.
+				return true;
+			}
 		}
 
-		if (IsElevationRequired)
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
 			return elevation::instance().delete_file(strNtName);
 
 		return false;
@@ -2212,6 +2220,11 @@ WARNING_POP()
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
 			return elevation::instance().get_file_attributes(NtName);
+
+		// NOT find_data, it goes back here on error
+		enum_files const Find(FileName);
+		if (auto ItemIterator = Find.begin(); ItemIterator != Find.end())
+			return ItemIterator->Attributes;
 
 		return INVALID_FILE_ATTRIBUTES;
 	}

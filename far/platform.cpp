@@ -374,16 +374,21 @@ last_error_guard::last_error_guard():
 
 last_error_guard::~last_error_guard()
 {
-	if (!m_Error)
+	if (!m_Restore)
 		return;
 
-	SetLastError(m_Error->Win32Error);
-	set_last_nt_status(m_Error->NtError);
+	SetLastError(m_Error.Win32Error);
+	set_last_nt_status(m_Error.NtError);
+}
+
+error_state const& last_error_guard::get() const
+{
+	return m_Error;
 }
 
 void last_error_guard::dismiss()
 {
-	m_Error.reset();
+	m_Restore = false;
 }
 
 string error_state::Win32ErrorStr() const

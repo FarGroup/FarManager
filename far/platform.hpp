@@ -279,10 +279,12 @@ namespace os
 		last_error_guard();
 		~last_error_guard();
 
+		error_state const& get() const;
 		void dismiss();
 
 	private:
-		std::optional<error_state> m_Error;
+		error_state m_Error;
+		bool m_Restore{ true };
 	};
 
 	bool WNetGetConnection(string_view LocalName, string &RemoteName);
