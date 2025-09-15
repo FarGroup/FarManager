@@ -23,7 +23,7 @@ function blua {
 mkdir $1
 cd $1 || return 1
 
-python ../../../tools/convert.py "../../../enc_lua/${1}.tsi" utf-8-sig "${1}.tsi" windows-${2}
+python ../../../tools/convert.py "../../../enc_lua/${1}.tsi" utf-8-sig "${1}.tsi" windows-${2} -postprocess
 wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "${1}.tsi" tsi "${3}" "C:/src/enc/tools/lua/templates/api.tem" ${2}
 wine "../../../tools/hh_compiler/hh_compiler.exe" ${2} ${1}.hhp
 
