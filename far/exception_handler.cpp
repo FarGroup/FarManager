@@ -748,8 +748,13 @@ public:
 
 		try
 		{
-			if (!m_DebugControl)
+			if (!m_Initialized)
+			{
+				// One attempt is good enough, even if initialize() throws
+				m_Initialized = true;
+
 				initialize();
+			}
 
 			const auto DisassembleFlags =
 				DEBUG_DISASM_EFFECTIVE_ADDRESS |
@@ -827,6 +832,7 @@ private:
 
 	string* m_To;
 	DebugOutputCallbacks m_Callbacks;
+	bool m_Initialized{};
 	os::com::ptr<IDebugClient> m_DebugClient;
 	os::com::ptr<IDebugControl> m_DebugControl;
 };

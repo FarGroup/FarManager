@@ -79,10 +79,12 @@ namespace os::com
 		CoTaskMemFree(const_cast<void*>(Object));
 	}
 
-	void invoke(function_ref<HRESULT()> const Callable, string_view CallableName, source_location const& Location)
+	HRESULT invoke(function_ref<HRESULT()> const Callable, string_view CallableName, source_location const& Location)
 	{
 		if (const auto Result = Callable(); FAILED(Result))
 			throw exception(Result, CallableName, Location);
+		else
+			return Result;
 	}
 
 	string get_shell_name(string_view Path)
@@ -210,7 +212,7 @@ namespace os::com
 				try
 				{
 					ptr<IMoniker> Moniker;
-					if (EnumMoniker->Next(1, &ptr_setter(Moniker), {}) == S_FALSE)
+					if (COM_INVOKE(EnumMoniker->Next, (1, &ptr_setter(Moniker), {})) == S_FALSE)
 						return {};
 
 					DWORD Type;
@@ -220,13 +222,22 @@ namespace os::com
 						continue;
 
 					ptr<IMoniker> PrefixMoniker;
-					COM_INVOKE(FileMoniker->CommonPrefixWith, (Moniker.get(), &ptr_setter(PrefixMoniker)));
+					if (const auto Result = FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker)); FAILED(Result))
+					{
+						// MSDN mentions MK_S_NOPREFIX, but there's no such thing.
+						// Actually it's MK_E_NOPREFIX, and it's the most common case,
+						// so it's better to handle it explicitly and don't spam the log with exceptions
+						if (Result == MK_E_NOPREFIX)
+							continue;
 
-					if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
+						throw exception(Result, WIDE_SV_LITERAL(FileMoniker->CommonPrefixWith));
+					}
+
+					if (COM_INVOKE(FileMoniker->IsEqual, (PrefixMoniker.get())) == S_FALSE)
 						continue;
 
 					ptr<IUnknown> Unknown;
-					if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
+					if (COM_INVOKE(RunningObjectTable->GetObject, (Moniker.get(), &ptr_setter(Unknown))) == S_FALSE)
 						continue;
 
 					ptr<IFileIsInUse> FileIsInUse;

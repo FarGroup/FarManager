@@ -92,7 +92,7 @@ namespace os::com
 		}
 	};
 
-	void invoke(function_ref<HRESULT()> Callable, string_view CallableName, source_location const& Location = source_location::current());
+	HRESULT invoke(function_ref<HRESULT()> Callable, string_view CallableName, source_location const& Location = source_location::current());
 
 #define COM_INVOKE(Function, Args) \
 	os::com::invoke([&]{ return Function Args; }, WIDE_SV_LITERAL(Function))
