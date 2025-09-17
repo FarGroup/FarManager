@@ -1113,6 +1113,7 @@ namespace
 				return true;
 			}
 			while (static_cast<size_t>(CurrentPosition) != Source.size());
+			return false;
 		}
 
 		bool found = false;
