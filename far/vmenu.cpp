@@ -3490,7 +3490,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 			}
 			else
 			{
-				if (CmpName(Pattern, strTmpBuf, true))
+				if (CmpName(Pattern, strTmpBuf, false))
 					return static_cast<int>(I);
 			}
 		}
