@@ -551,7 +551,7 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_cell_text(string_view ItemName, small_segment CellSegment)
+	string_view get_item_cell_text(string_view ItemName, segment CellSegment)
 	{
 		const auto Intersection{ intersect(segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemName.size()) } }, CellSegment) };
 		if (Intersection.empty()) return {};
@@ -789,7 +789,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 
 	const auto DoWrap{ CheckFlags(VMENU_WRAPMODE) && Direct != 0 && !stop_on_edge };
 	const auto GoBackward{ Direct < 0 };
-	const auto ItemsSize{ static_cast<int>(Items.size()) };
+	const auto ItemsSize{ sizeAsInt() };
 
 	if (Pos < 0)
 	{
@@ -905,7 +905,7 @@ int VMenu::GetItemPosition(int Position) const
 {
 	const auto DataPos{ Position < 0 ? SelectPos : Position };
 
-	return in_closed_range(0, DataPos, static_cast<int>(Items.size()) - 1)
+	return in_closed_range(0, DataPos, sizeAsInt() - 1)
 		? DataPos
 		: -1; //Items.size()-1; ???
 }
@@ -924,7 +924,7 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 	if (NewItem)
 	{
 		if (AddItem(far_list_item_to_menu_item(NewItem->Item), NewItem->Index) >= 0)
-			return static_cast<int>(Items.size());
+			return sizeAsInt();
 	}
 
 	return -1;
@@ -940,7 +940,7 @@ int VMenu::AddItem(const FarList* List)
 		}
 	}
 
-	return static_cast<int>(Items.size());
+	return sizeAsInt();
 }
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
@@ -950,7 +950,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 
 int VMenu::AddItem(menu_item_ex&& NewItem,int PosAdd)
 {
-	PosAdd = std::clamp(PosAdd, 0, static_cast<int>(Items.size()));
+	PosAdd = std::clamp(PosAdd, 0, sizeAsInt());
 
 	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
 	auto& NewMenuItem = Items[PosAdd];
@@ -972,7 +972,7 @@ int VMenu::AddItem(menu_item_ex&& NewItem,int PosAdd)
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
-	return static_cast<int>(Items.size()-1);
+	return sizeAsInt() - 1;
 }
 
 bool VMenu::UpdateItem(const FarListUpdate *NewItem)
@@ -1007,19 +1007,16 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 //функция удаления N пунктов меню
 int VMenu::DeleteItem(int ID, int Count)
 {
-	if (ID < 0 || ID >= static_cast<int>(Items.size()) || Count <= 0)
-		return static_cast<int>(Items.size());
+	if (ID < 0 || ID >= sizeAsInt() || Count <= 0)
+		return sizeAsInt();
 
-	if (ID+Count > static_cast<int>(Items.size()))
-		Count=static_cast<int>(Items.size()-ID);
+	if (ID+Count > sizeAsInt())
+		Count = sizeAsInt() - ID;
 
-	if (Count <= 0)
-		return static_cast<int>(Items.size());
-
-	if (!ID && Count == static_cast<int>(Items.size()))
+	if (!ID && Count == sizeAsInt())
 	{
 		clear();
-		return static_cast<int>(Items.size());
+		return sizeAsInt();
 	}
 
 	for (const auto& I : std::span{ Items.cbegin() + ID, static_cast<size_t>(Count) })
@@ -1044,7 +1041,7 @@ int VMenu::DeleteItem(int ID, int Count)
 	// коррекция текущей позиции
 	if (SelectPos >= ID && SelectPos < ID+Count)
 	{
-		if(SelectPos==static_cast<int>(Items.size()))
+		if(SelectPos== sizeAsInt())
 		{
 			ID--;
 		}
@@ -1061,7 +1058,7 @@ int VMenu::DeleteItem(int ID, int Count)
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
-	return static_cast<int>(Items.size());
+	return sizeAsInt();
 }
 
 void VMenu::clear()
@@ -1074,7 +1071,7 @@ void VMenu::clear()
 	m_MaxItemLength = 0;
 	m_HorizontalTracker->clear();
 	m_FixedColumns.clear();
-	m_ItemTextSegment = small_segment::ray();
+	m_ItemTextSegment = segment::ray();
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
@@ -1334,7 +1331,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 				*/
 				iParam&=0xFF;
 				const auto StartPos=Direct?SelectPos:0;
-				int EndPos=static_cast<int>(Items.size()-1);
+				int EndPos = sizeAsInt() - 1;
 
 				if (Direct == 1)
 				{
@@ -1404,7 +1401,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			else
 				iParam = VisualPosToReal(static_cast<int>(iParam));
 
-			if (iParam < 0 || iParam >= static_cast<long long>(Items.size()))
+			if (iParam < 0 || iParam >= static_cast<long long>(size()))
 				return 0;
 
 			const auto& menuEx = at(iParam);
@@ -1801,7 +1798,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
-			int p = static_cast<int>(Items.size())-1;
+			int p = sizeAsInt() - 1;
 			FarListPos pos{ sizeof(pos), p, std::max(0, p - MaxHeight + 1) };
 			SetSelectPos(&pos, -1);
 			DrawMenu();
@@ -1828,8 +1825,8 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			int pSel = VisualPosToReal(GetVisualPos(SelectPos)+dy);
 			int pTop = VisualPosToReal(GetVisualPos(TopPos + 1));
 
-			pSel = std::min(pSel, static_cast<int>(Items.size())-1);
-			pTop = std::min(pTop, static_cast<int>(Items.size())-1);
+			pSel = std::min(pSel, sizeAsInt() - 1);
+			pTop = std::min(pTop, sizeAsInt() - 1);
 
 			FarListPos pos{ sizeof(pos), pSel, pTop };
 			SetSelectPos(&pos, -1);
@@ -2163,7 +2160,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 		bShowScrollBar = true;
 
-	if (bShowScrollBar && MsX == m_Where.right && (m_Where.height() - (NeedBox? 2 : 0)) < static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (bShowScrollBar && MsX == m_Where.right && (m_Where.height() - (NeedBox? 2 : 0)) < sizeAsInt() && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
 		const auto WrapState = CheckFlags(VMENU_WRAPMODE);
 		if (WrapState)
@@ -2277,7 +2274,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		const auto MsPos = VisualPosToReal(GetVisualPos(TopPos) + MsY - m_Where.top - (NeedBox? 1 : 0));
 
-		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && item_can_have_focus(Items[MsPos]))
+		if (MsPos >= 0 && MsPos < sizeAsInt() && item_can_have_focus(Items[MsPos]))
 		{
 			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || IsMouseButtonEvent(MouseEvent->dwEventFlags))
 			{
@@ -2329,7 +2326,7 @@ int VMenu::GetVisualPos(int Pos) const
 	if (Pos < 0)
 		return -1;
 
-	if (Pos >= static_cast<int>(Items.size()))
+	if (Pos >= sizeAsInt())
 		return GetShowItemCount();
 
 	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [](const auto& Item) { return item_is_visible(Item); });
@@ -2344,7 +2341,7 @@ int VMenu::VisualPosToReal(int VPos) const
 		return -1;
 
 	if (VPos >= GetShowItemCount())
-		return static_cast<int>(Items.size());
+		return sizeAsInt();
 
 	const auto ItemIterator = std::ranges::find_if(Items, [&](menu_item_ex const& i){ return item_is_visible(i) && !VPos--; });
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
@@ -2670,7 +2667,7 @@ void VMenu::DrawMenu()
 
 	for (int Y = Layout.ClientRect.top, I = TopPos; Y <= Layout.ClientRect.bottom; ++Y, ++I)
 	{
-		if (I >= static_cast<int>(Items.size()))
+		if (I >= sizeAsInt())
 		{
 			GotoXY(Layout.ClientRect.left, Y);
 			set_color(Colors, color_indices::Text);
@@ -3067,7 +3064,7 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 
 	const auto Reverse{ CheckFlags(VMENU_REVERSEHIGHLIGHT) };
 	const auto Delta{ Reverse ? -1 : 1 };
-	const auto ItemsSize{ static_cast<int>(Items.size()) };
+	const auto ItemsSize{ sizeAsInt() };
 
 	// проверка заданных хоткеев
 	if (CheckFlags(VMENU_SHOWAMPERSAND))
@@ -3087,10 +3084,6 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 			else
 				ClearItemHotkey(Item);
 		}
-
-	// Re: value_or(m_ItemTextSegment)
-	// Do we need to auto-assign hotkeys if there is nowhere to show them?
-	const auto TextArea{ Layout.TextArea.value_or(m_ItemTextSegment) };
 
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
 	for (auto I = Reverse ? ItemsSize - 1 : 0; I >= 0 && I < ItemsSize; I += Delta)
@@ -3189,12 +3182,12 @@ void VMenu::SetTitle(string_view const Title)
 	strTitle = Title;
 }
 
-void VMenu::SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, small_segment ItemTextSegment)
+void VMenu::SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, segment ItemTextSegment)
 {
 	m_FixedColumns = std::move(FixedColumns);
 	for (auto& column : m_FixedColumns)
 	{
-		column.CurrentWidth = std::clamp(column.CurrentWidth, short{}, column.TextSegment.length());
+		column.CurrentWidth = std::clamp(column.CurrentWidth, int{}, column.TextSegment.length());
 	}
 	m_ItemTextSegment = ItemTextSegment;
 }
