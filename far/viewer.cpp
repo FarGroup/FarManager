@@ -3915,6 +3915,15 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 
 				Info->TabSize=ViOpt.TabSize;
 				Info->LeftPos=LeftPos;
+
+				if (HostFileViewer)
+				{
+					if (HostFileViewer->IsTitleBarVisible())
+						Info->Options |= VOPT_SHOWTITLEBAR;
+					if (HostFileViewer->IsKeyBarVisible())
+						Info->Options |= VOPT_SHOWKEYBAR;
+				}
+
 				return TRUE;
 			}
 

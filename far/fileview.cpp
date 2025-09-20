@@ -584,21 +584,7 @@ bool FileViewer::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER) != 0;
 }
 
-int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2) const
-{
-	const auto result = m_View->ViewerControl(Command, Param1, Param2);
-	if (result&&VCTL_GETINFO==Command)
-	{
-		const auto Info=static_cast<ViewerInfo*>(Param2);
-		if (IsTitleBarVisible())
-			Info->Options |= VOPT_SHOWTITLEBAR;
-		if (IsKeyBarVisible())
-			Info->Options |= VOPT_SHOWKEYBAR;
-	}
-	return result;
-}
-
- string FileViewer::GetTitle() const
+string FileViewer::GetTitle() const
 {
 	return m_View->GetTitle();
 }

@@ -105,7 +105,6 @@ public:
 		архива для клавиши F2 сделать вызов ShiftF2.
 	*/
 	void SetSaveToSaveAs(bool ToSaveAs) { m_SaveToSaveAs=ToSaveAs; InitKeyBar(); }
-	int  ViewerControl(int Command, intptr_t Param1, void *Param2) const;
 	bool IsFullScreen() const {return m_FullScreen;}
 	long long GetViewFileSize() const;
 	long long GetViewFilePos() const;
