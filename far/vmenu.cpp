@@ -988,8 +988,8 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
 		Item.ComplexUserData = {};
+		Item.Annotations.clear();
 	}
-	Item.Annotations.clear();
 
 	Item.Name = NullToEmpty(NewItem->Item.Text);
 	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
