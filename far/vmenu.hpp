@@ -325,7 +325,6 @@ private:
 	[[nodiscard]] int GetItemVisualLength(const menu_item_ex& Item) const; // Intersected with m_ItemTextSegment
 	[[nodiscard]] string_view GetItemText(const menu_item_ex& Item) const; // Intersected with m_ItemTextSegment
 
-
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0) const;
@@ -346,6 +345,8 @@ private:
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
+
+	int sizeAsInt() const { return static_cast<int>(size()); }
 
 	size_t MenuText(string_view Str) const;
 	size_t MenuText(wchar_t Char) const;
