@@ -154,8 +154,8 @@ class vmenu_horizontal_tracker;
 
 struct vmenu_fixed_column_t
 {
-	small_segment TextSegment;
-	short CurrentWidth;
+	segment TextSegment;
+	int CurrentWidth;
 	wchar_t Separator;
 };
 
@@ -196,7 +196,7 @@ public:
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
 	void SetMenuFlags(DWORD Flags) { VMFlags.Set(Flags); }
-	void SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, small_segment ItemTextSegment);
+	void SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, segment ItemTextSegment);
 	void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
 	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
 	DWORD GetFlags() const { return VMFlags.Flags(); }
@@ -360,7 +360,7 @@ private:
 	int m_MaxItemLength{}; // Each Item.Name is intersected with m_ItemTextSegment
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	std::vector<vmenu_fixed_column_t> m_FixedColumns;
-	small_segment m_ItemTextSegment{ small_segment::ray() };
+	segment m_ItemTextSegment{ segment::ray() };
 	extended_item_data_provider m_ExtendedDataProvider;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};

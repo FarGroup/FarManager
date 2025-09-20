@@ -551,7 +551,7 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_cell_text(string_view ItemName, small_segment CellSegment)
+	string_view get_item_cell_text(string_view ItemName, segment CellSegment)
 	{
 		const auto Intersection{ intersect(segment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemName.size()) } }, CellSegment) };
 		if (Intersection.empty()) return {};
@@ -1074,7 +1074,7 @@ void VMenu::clear()
 	m_MaxItemLength = 0;
 	m_HorizontalTracker->clear();
 	m_FixedColumns.clear();
-	m_ItemTextSegment = small_segment::ray();
+	m_ItemTextSegment = segment::ray();
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 }
@@ -3088,10 +3088,6 @@ void VMenu::AssignHighlights(const menu_layout& Layout)
 				ClearItemHotkey(Item);
 		}
 
-	// Re: value_or(m_ItemTextSegment)
-	// Do we need to auto-assign hotkeys if there is nowhere to show them?
-	const auto TextArea{ Layout.TextArea.value_or(m_ItemTextSegment) };
-
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
 	for (auto I = Reverse ? ItemsSize - 1 : 0; I >= 0 && I < ItemsSize; I += Delta)
 	{
@@ -3189,12 +3185,12 @@ void VMenu::SetTitle(string_view const Title)
 	strTitle = Title;
 }
 
-void VMenu::SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, small_segment ItemTextSegment)
+void VMenu::SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, segment ItemTextSegment)
 {
 	m_FixedColumns = std::move(FixedColumns);
 	for (auto& column : m_FixedColumns)
 	{
-		column.CurrentWidth = std::clamp(column.CurrentWidth, short{}, column.TextSegment.length());
+		column.CurrentWidth = std::clamp(column.CurrentWidth, int{}, column.TextSegment.length());
 	}
 	m_ItemTextSegment = ItemTextSegment;
 }
