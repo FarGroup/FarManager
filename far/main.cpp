@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "log.hpp"
 #include "strmix.hpp"
+#include "message.hpp"
 
 // Platform:
 #include "platform.debug.hpp"
@@ -943,7 +944,15 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 	return cpp_try(
 	[&]
 	{
-		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
+		try
+		{
+			return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
+		}
+		catch (far_known_exception const& e)
+		{
+			Message(FMSG_WARNING, e, msg(lng::MError), {}, { lng::MQuit });
+			return EXIT_FAILURE;
+		}
 	},
 	[](source_location const& Location) -> int
 	{

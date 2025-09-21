@@ -129,7 +129,7 @@ class far_exception: public detail::far_std_exception
 /*
   For the cases where it is pretty clear what is wrong, no need to show the stack etc.
  */
-class far_known_exception final: public far_exception
+class far_known_exception: public virtual far_exception
 {
 public:
 	explicit far_known_exception(string_view const Message, source_location const& Location = source_location::current()):

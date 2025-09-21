@@ -1355,7 +1355,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (!ErrorState.What.empty())
 				Builder.AddTextWrap(ErrorState.What, true);
 
-			if (ErrorState.any())
+			if (ErrorState.Win32Error)
 				Builder.AddTextWrap(ErrorState.system_error(), true);
 
 			Builder.AddOKCancel(lng::MRetry, lng::MCancel);

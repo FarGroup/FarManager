@@ -104,11 +104,11 @@ namespace
 	string GetDatabaseName(sqlite::sqlite3* Db, string_view const DbName = {})
 	{
 		if (!DbName.empty())
-			return string(PointToName(DbName));
+			return string(DbName);
 
 		const auto NamePtr = sqlite::sqlite3_db_filename(Db, "main");
 		const string Name(NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : SQLiteDb::memory_db_name : L"unknown"sv);
-		return string(PointToName(Name));
+		return Name;
 	}
 
 	string GetLastErrorString(sqlite::sqlite3* Db)
@@ -116,17 +116,46 @@ namespace
 		return encoding::utf8::get_chars(sqlite::sqlite3_errmsg(Db));
 	}
 
+	bool is_user_problem(int const ErrorCode)
+	{
+		// These are errors that typically only the user can fix.
+		// No point in recording dumps, creating bug_report etc., just show them the message.
+		switch (ErrorCode)
+		{
+		case SQLITE_PERM:        // Access permission denied
+		case SQLITE_NOMEM:       // A malloc() failed
+		case SQLITE_READONLY:    // Attempt to write a readonly database
+		case SQLITE_IOERR:       // Some kind of disk I/O error occurred
+		case SQLITE_CORRUPT:     // The database disk image is malformed
+		case SQLITE_FULL:        // Insertion failed because database is full
+		case SQLITE_CANTOPEN:    // Unable to open the database file
+		case SQLITE_AUTH:        // Authorization denied
+		case SQLITE_NOTADB:      // File opened that is not a database file
+			return true;
+
+		default:
+			return false;
+		}
+	}
+
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0, string_view const Sql = {}, int const ErrorOffset = -1, source_location const& Location = source_location::current())
 	{
-		throw far_sqlite_exception(ErrorCode, far::format(L"[{}] - SQLite error {}: {}{}{}{}"sv,
-			DatabaseName,
+		const auto IsUserProblem = is_user_problem(ErrorCode);
+
+		const auto Message = far::format(L"SQLite error {}: {}\n{}{}{}{}"sv,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
-			SystemErrorCode? far::format(L" ({})"sv, os::format_error(SystemErrorCode)) : L""sv,
-			Sql.empty()? L""sv : far::format(L" while executing \"{}\""sv, Sql),
-			ErrorOffset == -1? L""sv : far::format(L" at position {}"sv, ErrorOffset)
-		), Location);
+			DatabaseName,
+			IsUserProblem || !SystemErrorCode? L""sv : far::format(L"\n({})"sv, os::format_error(SystemErrorCode)),
+			IsUserProblem || Sql.empty()? L""sv : far::format(L"\nwhile executing\n\"{}\""sv, Sql),
+			IsUserProblem || ErrorOffset == -1? L""sv : far::format(L" at position {}"sv, ErrorOffset)
+		);
+
+		if (IsUserProblem)
+			throw far_known_sqlite_exception(ErrorCode, Message, Location);
+		else
+			throw far_sqlite_exception(ErrorCode, Message, Location);
 	}
 
 	[[noreturn]]

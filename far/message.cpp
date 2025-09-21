@@ -184,7 +184,7 @@ static message_result MessageImpl(
 		Context.ErrorState = *ErrorState;
 		ErrorMessage = Context.ErrorState->What;
 
-		if (Context.ErrorState->any())
+		if (Context.ErrorState->Win32Error)
 			SystemErrorMessage = Context.ErrorState->system_error();
 
 		if (!SystemErrorMessage.empty())

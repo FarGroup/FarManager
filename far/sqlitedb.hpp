@@ -54,7 +54,7 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class far_sqlite_exception final: public far_exception
+class far_sqlite_exception: public virtual far_exception
 {
 public:
 	explicit far_sqlite_exception(int const ErrorCode, string_view const Message, source_location const& Location = source_location::current()) :
@@ -67,6 +67,18 @@ public:
 private:
 	int m_ErrorCode;
 };
+
+class far_known_sqlite_exception final: public far_known_exception, public far_sqlite_exception
+{
+public:
+	explicit far_known_sqlite_exception(int const ErrorCode, string_view const Message, source_location const& Location = source_location::current()):
+		far_exception(Message, false, Location),
+		far_known_exception(Message, Location),
+		far_sqlite_exception(ErrorCode, Message, Location)
+	{
+	}
+};
+
 
 class SQLiteDb: virtual protected transactional
 {
