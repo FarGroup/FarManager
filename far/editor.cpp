@@ -5613,7 +5613,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->BookmarkCount=BOOKMARK_COUNT;
 			Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
 			Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
-			Info->CurState|=!m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
+			if (const auto HostFileEditor = GetHostFileEditor())
+				Info->CurState |= HostFileEditor->WasFileSaved()? ECSTATE_SAVED : 0;
 			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_MODIFIED:0;
 			Info->CodePage = GetCodePage();
 
