@@ -1906,7 +1906,7 @@ lv=3
 dt=Text
 nm=actl namespace
 ctime=3917945155
-mtime=3939576259
+mtime=3968044811
 <article>
 #_This is an alternative interface to FAR's advanced control commands.
 #_It is shorter and more expressive, e.g. the following 2 calls do the
@@ -1937,7 +1937,7 @@ mtime=3939576259
 #_  SetProgressState        ACTL_SETPROGRESSSTATE
 #_  SetProgressValue        ACTL_SETPROGRESSVALUE
 #_  Synchro                 ACTL_SYNCHRO
-#_  Waitkey                 ACTL_WAITKEY
+#_  WaitKey                 ACTL_WAITKEY
 #_
 #_@@@
 #_{actl_commit}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_COMMIT

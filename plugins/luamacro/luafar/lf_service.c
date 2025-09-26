@@ -5087,7 +5087,7 @@ AdvCommand( SetCursorPos,           ACTL_SETCURSORPOS)
 AdvCommand( SetProgressState,       ACTL_SETPROGRESSSTATE)
 AdvCommand( SetProgressValue,       ACTL_SETPROGRESSVALUE)
 AdvCommand( Synchro,                ACTL_SYNCHRO)
-AdvCommand( Waitkey,                ACTL_WAITKEY)
+AdvCommand( WaitKey,                ACTL_WAITKEY)
 
 static int far_MacroLoadAll(lua_State* L)
 {
@@ -6381,7 +6381,7 @@ static const luaL_Reg actl_funcs[] =
 	PAIR( adv, SetProgressState),
 	PAIR( adv, SetProgressValue),
 	PAIR( adv, Synchro),
-	PAIR( adv, Waitkey),
+	PAIR( adv, WaitKey),
 
 	{NULL, NULL},
 };
