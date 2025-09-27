@@ -1,3 +1,7 @@
+rohitab 2025-09-27 13:33:20+10:00 - build 893
+
+1. gh-611: Enable win.GetFileTimes/win.SetFileTimes to get/set change time.
+
 shmuel 2025-09-26 10:38:38+03:00 - build 892
 
 1. LuaFAR: rename actl.Waitkey to actl.WaitKey

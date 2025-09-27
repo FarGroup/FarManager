@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <shellapi.h>
+#include <winternl.h>
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4255)
@@ -858,10 +859,9 @@ int win_IsWinVersion(lua_State *L)
 	return 1;
 }
 
-static void PutFileTimeToTableEx(lua_State *L, const FILETIME *FT, const char *key)
+static void PutFileTimeToTableEx(lua_State *L, const LARGE_INTEGER *FT, const char *key)
 {
-	INT64 FileTime = FT->dwLowDateTime + 0x100000000LL * FT->dwHighDateTime;
-	bit64_pushuserdata(L, FileTime);
+	bit64_pushuserdata(L, FT->QuadPart);
 	lua_setfield(L, -2, key);
 }
 
@@ -876,14 +876,23 @@ static int win_GetFileTimes(lua_State *L)
 		HANDLE hFile = CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
-			FILETIME t_create, t_access, t_write;
-			if (GetFileTime(hFile, &t_create, &t_access, &t_write))
+			HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
+			if (hNtDll)
 			{
-				lua_createtable(L, 0, 3);
-				PutFileTimeToTableEx(L, &t_create, "CreationTime");
-				PutFileTimeToTableEx(L, &t_access, "LastAccessTime");
-				PutFileTimeToTableEx(L, &t_write,  "LastWriteTime");
-				res = 1;
+				IO_STATUS_BLOCK iob;
+				FILE_BASIC_INFO fbi;
+				const int FileBasicInformation = 4;
+				typedef NTSTATUS(NTAPI* NtQueryInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+				NtQueryInformationFile pNtQueryInformationFile = (NtQueryInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtQueryInformationFile");
+				if (pNtQueryInformationFile && NT_SUCCESS(pNtQueryInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
+				{
+					lua_createtable(L, 0, 4);
+					PutFileTimeToTableEx(L, &fbi.CreationTime, "CreationTime");
+					PutFileTimeToTableEx(L, &fbi.LastAccessTime, "LastAccessTime");
+					PutFileTimeToTableEx(L, &fbi.LastWriteTime, "LastWriteTime");
+					PutFileTimeToTableEx(L, &fbi.ChangeTime, "ChangeTime");
+					res = 1;
+				}
 			}
 			CloseHandle(hFile);
 		}
@@ -893,7 +902,7 @@ static int win_GetFileTimes(lua_State *L)
 	return 1;
 }
 
-static int ExtractFileTime(lua_State *L, const char *key, FILETIME* target, HANDLE hFile)
+static int ExtractFileTime(lua_State *L, const char *key, LARGE_INTEGER* target, HANDLE hFile)
 {
 	int success = 0;
 	lua_getfield(L, -1, key);
@@ -902,8 +911,7 @@ static int ExtractFileTime(lua_State *L, const char *key, FILETIME* target, HAND
 		INT64 DateTime = check64(L, -1, &success);
 		if (success)
 		{
-			target->dwLowDateTime = DateTime & 0xFFFFFFFF;
-			target->dwHighDateTime = DateTime >> 32;
+			target->QuadPart = DateTime;
 		}
 		else
 		{
@@ -928,16 +936,29 @@ static int win_SetFileTimes(lua_State *L)
 		HANDLE hFile = CreateFileW(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
-			FILETIME t_create, t_access, t_write;
-			FILETIME *p_create=NULL, *p_access=NULL, *p_write=NULL;
-			lua_pushvalue(L, 2);
-			if (ExtractFileTime(L, "CreationTime", &t_create, hFile))
-				p_create = &t_create;
-			if (ExtractFileTime(L, "LastAccessTime", &t_access, hFile))
-				p_access = &t_access;
-			if (ExtractFileTime(L, "LastWriteTime", &t_write, hFile))
-				p_write = &t_write;
-			res = (p_create||p_access||p_write) && SetFileTime(hFile,p_create,p_access,p_write);
+			HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
+			if (hNtDll)
+			{
+				BOOL extracted = FALSE;
+				IO_STATUS_BLOCK iob;
+				FILE_BASIC_INFO fbi;
+				memset(&fbi, 0, sizeof(fbi));
+				lua_pushvalue(L, 2);
+				extracted |= ExtractFileTime(L, "CreationTime", &fbi.CreationTime, hFile);
+				extracted |= ExtractFileTime(L, "LastAccessTime", &fbi.LastAccessTime, hFile);
+				extracted |= ExtractFileTime(L, "LastWriteTime", &fbi.LastWriteTime, hFile);
+				extracted |= ExtractFileTime(L, "ChangeTime", &fbi.ChangeTime, hFile);
+				if (extracted)
+				{
+					const int FileBasicInformation = 4;
+					typedef NTSTATUS(NTAPI* NtSetInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+					NtSetInformationFile pNtSetInformationFile = (NtSetInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtSetInformationFile");
+					if (pNtSetInformationFile && NT_SUCCESS(pNtSetInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
+					{
+						res = 1;
+					}
+				}
+			}
 			CloseHandle(hFile);
 		}
 	}
