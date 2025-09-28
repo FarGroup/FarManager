@@ -2,12 +2,14 @@ local cyclic = true -- set false to disable cyclic jump
 
 local is_selected = 8
 local function JumpToSelected (from, to)
-  for pos=from,to,from<to and 1 or -1 do
-    if Panel.Item(0,pos,is_selected) then return Panel.SetPosIdx(0,pos) end
+  if from>0 and from<=APanel.ItemCount then
+    for pos=from,to,from<to and 1 or -1 do
+      if Panel.Item(0,pos,is_selected) then return Panel.SetPosIdx(0,pos) end
+    end
   end
   if cyclic then
     mf.beep()
-    JumpToSelected(APanel.ItemCount-to,to)
+    JumpToSelected(APanel.ItemCount-to+1,to)
   end
 end
 
