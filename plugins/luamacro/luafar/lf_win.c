@@ -17,6 +17,14 @@ WARNING_POP()
 #include "lf_bit64.h"
 #include "lf_service.h"
 
+typedef NTSTATUS(NTAPI* tpNtQueryInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+typedef NTSTATUS(NTAPI* tpNtSetInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+typedef LSTATUS(* tpRegDeleteKeyExW)(HKEY hKey, LPCWSTR lpSubKey, REGSAM samDesired, DWORD Reserved);
+
+static tpNtQueryInformationFile pNtQueryInformationFile;
+static tpNtSetInformationFile pNtSetInformationFile;
+static tpRegDeleteKeyExW pRegDeleteKeyExW;
+
 static BOOL dir_exist(const wchar_t* path)
 {
 	DWORD attr = GetFileAttributesW(path);
@@ -213,22 +221,11 @@ static int win_GetRegKey(lua_State *L)
 //   Result:     TRUE if success, FALSE if failure, [boolean]
 static int win_DeleteRegKey(lua_State *L)
 {
-	long res;
 	HKEY hRoot = CheckHKey(L, 1);
 	const wchar_t* Key = check_utf8_string(L, 2, NULL);
 	REGSAM samDesired = (REGSAM) OptFlags(L, 3, 0);
 
-	FARPROC ProcAddr;
-	HMODULE module = GetModuleHandleW(L"Advapi32.dll");
-	if (module && (ProcAddr = GetProcAddress(module, "RegDeleteKeyExW")) != NULL)
-	{
-		typedef LONG (WINAPI *pRegDeleteKeyEx)(HKEY, LPCTSTR, REGSAM, DWORD);
-		res = ((pRegDeleteKeyEx)(intptr_t)ProcAddr)(hRoot, Key, samDesired, 0);
-	}
-	else
-	{
-		res = RegDeleteKeyW(hRoot, Key);
-	}
+	long res = pRegDeleteKeyExW ? pRegDeleteKeyExW(hRoot, Key, samDesired, 0) : RegDeleteKeyW(hRoot, Key);
 	return lua_pushboolean(L, res==ERROR_SUCCESS), 1;
 }
 
@@ -865,18 +862,19 @@ static void PutFileTimeToTableEx(lua_State *L, const LARGE_INTEGER *FT, const ch
 	lua_setfield(L, -2, key);
 }
 
-typedef NTSTATUS(NTAPI* QueryInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-typedef NTSTATUS(NTAPI* SetInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-static QueryInformationFile pNtQueryInformationFile;
-static SetInformationFile pNtSetInformationFile;
-
 static void SetFunctionPointers()
 {
 	HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
 	if (hNtDll)
 	{
-		pNtQueryInformationFile = (QueryInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtQueryInformationFile");
-		pNtSetInformationFile = (SetInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtSetInformationFile");
+		pNtQueryInformationFile = (tpNtQueryInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtQueryInformationFile");
+		pNtSetInformationFile = (tpNtSetInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtSetInformationFile");
+	}
+
+	HMODULE hAdvApi = GetModuleHandleW(L"Advapi32.dll");
+	if (hAdvApi)
+	{
+		pRegDeleteKeyExW = (tpRegDeleteKeyExW)(INT_PTR)GetProcAddress(hAdvApi, "RegDeleteKeyExW");
 	}
 }
 
