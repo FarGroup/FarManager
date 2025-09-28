@@ -1,3 +1,7 @@
+zg 2025-09-28 23:12:02+03:00 - build 896
+
+1. Menu.GetItemExtendedData now has 1st optional parameter: dialog handle.
+
 shmuel 2025-09-28 15:08:34+03:00 - build 895
 
 1. LuaFAR: refactoring.

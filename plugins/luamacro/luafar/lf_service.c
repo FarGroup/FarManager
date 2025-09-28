@@ -417,9 +417,29 @@ static int PluginHandle_rawhandle(lua_State *L)
 	return 1;
 }
 
+static int Dialog_getvalue(lua_State *L, int pos, HANDLE *target)
+{
+	if (lua_type(L, pos) == LUA_TUSERDATA)
+	{
+		int equal;
+		lua_getmetatable(L, pos);
+		luaL_getmetatable(L, FarDialogType);
+		equal = lua_rawequal(L, -1, -2);
+		lua_pop(L, 2);
+		if (equal && target)
+		{
+			*target = ((TDialogData*)lua_touserdata(L, pos))->hDlg;
+			equal = *target != INVALID_HANDLE_VALUE;
+		}
+		return equal;
+	}
+	return 0;
+}
+
 void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
 {
 	INT64 val64;
+	HANDLE val_handle;
 	int type = lua_type(L, pos);
 	pos = abs_index(L, pos);
 	target->Type = FMVT_UNKNOWN;
@@ -462,6 +482,11 @@ void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
 	{
 		target->Type = FMVT_INTEGER;
 		target->Value.Integer = val64;
+	}
+	else if (Dialog_getvalue(L, pos, &val_handle))
+	{
+		target->Type = FMVT_DIALOG;
+		target->Value.Pointer = val_handle;
 	}
 }
 
