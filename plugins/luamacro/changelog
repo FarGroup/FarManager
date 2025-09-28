@@ -1,3 +1,7 @@
+shmuel 2025-09-28 10:56:35+03:00 - build 894
+
+1. LuaFAR: refactoring.
+
 rohitab 2025-09-27 13:33:20+10:00 - build 893
 
 1. gh-611: Enable win.GetFileTimes/win.SetFileTimes to get/set change time.

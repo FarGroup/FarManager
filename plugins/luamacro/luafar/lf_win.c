@@ -865,26 +865,38 @@ static void PutFileTimeToTableEx(lua_State *L, const LARGE_INTEGER *FT, const ch
 	lua_setfield(L, -2, key);
 }
 
+typedef NTSTATUS(NTAPI* QueryInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+typedef NTSTATUS(NTAPI* SetInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
+static QueryInformationFile pNtQueryInformationFile;
+static SetInformationFile pNtSetInformationFile;
+
+static void SetFunctionPointers()
+{
+	HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
+	if (hNtDll)
+	{
+		pNtQueryInformationFile = (QueryInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtQueryInformationFile");
+		pNtSetInformationFile = (SetInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtSetInformationFile");
+	}
+}
+
 static int win_GetFileTimes(lua_State *L)
 {
 	int res = 0;
-	const wchar_t* FileName = check_utf8_string(L, 1, NULL);
-	DWORD attr = GetFileAttributesW(FileName);
-	if (attr != INVALID_FILE_ATTRIBUTES)
+	if (pNtQueryInformationFile)
 	{
-		DWORD flags = (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0;
-		HANDLE hFile = CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
-		if (hFile != INVALID_HANDLE_VALUE)
+		const wchar_t* FileName = check_utf8_string(L, 1, NULL);
+		DWORD attr = GetFileAttributesW(FileName);
+		if (attr != INVALID_FILE_ATTRIBUTES)
 		{
-			HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
-			if (hNtDll)
+			DWORD flags = (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0;
+			HANDLE hFile = CreateFileW(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
 			{
 				IO_STATUS_BLOCK iob;
 				FILE_BASIC_INFO fbi;
 				const int FileBasicInformation = 4;
-				typedef NTSTATUS(NTAPI* NtQueryInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-				NtQueryInformationFile pNtQueryInformationFile = (NtQueryInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtQueryInformationFile");
-				if (pNtQueryInformationFile && NT_SUCCESS(pNtQueryInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
+				if (NT_SUCCESS(pNtQueryInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
 				{
 					lua_createtable(L, 0, 4);
 					PutFileTimeToTableEx(L, &fbi.CreationTime, "CreationTime");
@@ -893,8 +905,8 @@ static int win_GetFileTimes(lua_State *L)
 					PutFileTimeToTableEx(L, &fbi.ChangeTime, "ChangeTime");
 					res = 1;
 				}
+				CloseHandle(hFile);
 			}
-			CloseHandle(hFile);
 		}
 	}
 	if (res == 0)
@@ -927,39 +939,34 @@ static int ExtractFileTime(lua_State *L, const char *key, LARGE_INTEGER* target,
 static int win_SetFileTimes(lua_State *L)
 {
 	int res = 0;
-	const wchar_t* FileName = check_utf8_string(L, 1, NULL);
-	DWORD attr = GetFileAttributesW(FileName);
-	luaL_checktype(L, 2, LUA_TTABLE);
-	if (attr != INVALID_FILE_ATTRIBUTES)
+	if (pNtSetInformationFile)
 	{
-		DWORD flags = (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0;
-		HANDLE hFile = CreateFileW(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
-		if (hFile != INVALID_HANDLE_VALUE)
+		const wchar_t* FileName = check_utf8_string(L, 1, NULL);
+		DWORD attr = GetFileAttributesW(FileName);
+		luaL_checktype(L, 2, LUA_TTABLE);
+		if (attr != INVALID_FILE_ATTRIBUTES && pNtSetInformationFile)
 		{
-			HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
-			if (hNtDll)
+			DWORD flags = (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0;
+			HANDLE hFile = CreateFileW(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_EXISTING,flags,NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
 			{
-				BOOL extracted = FALSE;
 				IO_STATUS_BLOCK iob;
 				FILE_BASIC_INFO fbi;
 				memset(&fbi, 0, sizeof(fbi));
 				lua_pushvalue(L, 2);
-				extracted |= ExtractFileTime(L, "CreationTime", &fbi.CreationTime, hFile);
-				extracted |= ExtractFileTime(L, "LastAccessTime", &fbi.LastAccessTime, hFile);
-				extracted |= ExtractFileTime(L, "LastWriteTime", &fbi.LastWriteTime, hFile);
-				extracted |= ExtractFileTime(L, "ChangeTime", &fbi.ChangeTime, hFile);
-				if (extracted)
+				if (ExtractFileTime(L, "CreationTime", &fbi.CreationTime, hFile)  // don't use || here
+					| ExtractFileTime(L, "LastAccessTime", &fbi.LastAccessTime, hFile)
+					| ExtractFileTime(L, "LastWriteTime", &fbi.LastWriteTime, hFile)
+					| ExtractFileTime(L, "ChangeTime", &fbi.ChangeTime, hFile))
 				{
 					const int FileBasicInformation = 4;
-					typedef NTSTATUS(NTAPI* NtSetInformationFile)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-					NtSetInformationFile pNtSetInformationFile = (NtSetInformationFile)(INT_PTR)GetProcAddress(hNtDll, "NtSetInformationFile");
-					if (pNtSetInformationFile && NT_SUCCESS(pNtSetInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
+					if (NT_SUCCESS(pNtSetInformationFile(hFile, &iob, &fbi, sizeof(fbi), FileBasicInformation)))
 					{
 						res = 1;
 					}
 				}
+				CloseHandle(hFile);
 			}
-			CloseHandle(hFile);
 		}
 	}
 	lua_pushboolean(L, res);
@@ -1060,6 +1067,8 @@ LUALIB_API int luaopen_win(lua_State *L)
 	lua_pushcfunction(L, luaopen_ustring);
 	lua_pushvalue(L, -2);
 	lua_call(L, 1, 0);
+
+	SetFunctionPointers();
 
 	return 1;
 }
