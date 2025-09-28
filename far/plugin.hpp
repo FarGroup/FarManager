@@ -1483,6 +1483,7 @@ enum FARMACROVARTYPE
 	FMVT_MBSTRING               = 11,
 	FMVT_NEWTABLE               = 12,
 	FMVT_SETTABLE               = 13,
+	FMVT_DIALOG                 = 14,
 };
 
 struct FarMacroValue

@@ -281,6 +281,18 @@ TVar::TVar(const wchar_t* v):
 {
 }
 
+TVar::TVar(void* v):
+	ptr(v),
+	vType(Type::Pointer)
+{
+}
+
+TVar::TVar(Dialog* v):
+	ptr(v),
+	vType(Type::Dialog)
+{
+}
+
 const string& TVar::toString()
 {
 	// this already writes to str
@@ -360,6 +372,30 @@ double TVar::asDouble() const
 	}
 }
 
+void* TVar::asPointer() const
+{
+	switch (vType)
+	{
+	case Type::Pointer:
+		return ptr;
+
+	default:
+		return nullptr;
+	}
+}
+
+Dialog* TVar::asDialog() const
+{
+	switch (vType)
+	{
+	case Type::Dialog:
+		return static_cast<Dialog*>(ptr);
+
+	default:
+		return nullptr;
+	}
+}
+
 bool TVar::isNumber() const
 {
 	switch (type())
@@ -378,6 +414,9 @@ bool TVar::isNumber() const
 				default:
 					return false;
 			}
+		case Type::Pointer:
+		case Type::Dialog:
+			return false;
 	}
 
 	return false;
@@ -429,6 +468,9 @@ bool TVar::operator<(const TVar& rhs) const
 				return asDouble() < rhs.asDouble();
 			}
 			break;
+		case Type::Pointer:
+		case Type::Dialog:
+			break;
 		}
 		break;
 
@@ -451,11 +493,18 @@ bool TVar::operator<(const TVar& rhs) const
 				return asDouble() < rhs.asDouble();
 			}
 			break;
+		case Type::Pointer:
+		case Type::Dialog:
+			break;
 		}
 		break;
 
 	case Type::String:
 		return string_sort::less(asString(), rhs.asString());
+
+	case Type::Pointer:
+	case Type::Dialog:
+		break;
 	}
 
 	return false;

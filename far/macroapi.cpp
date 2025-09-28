@@ -252,6 +252,8 @@ std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
 			case FMVT_BOOLEAN: return TVar(i.Boolean);
 			case FMVT_DOUBLE: return TVar(i.Double);
 			case FMVT_STRING: return TVar(i.String);
+			case FMVT_POINTER: return TVar(i.Pointer);
+			case FMVT_DIALOG: return TVar(static_cast<Dialog*>(i.Pointer));
 			default: return TVar();
 		}
 	});
@@ -1168,12 +1170,23 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
 		{
-			if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+			const auto Params{ api.parseParams(2) };
+			auto Nidx = 0;
+			Dialog* Dlg{};
+			if(Params[0].isDialog())
 			{
-				const auto Params{ api.parseParams(1) };
-				const auto N{ Params[0].isUnknown() ? -1 : Params[0].asInteger() - 1 };
+				Nidx = 1;
+				Dlg = Params[0].asDialog();
+			}
+			else if(IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+			{
+				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
+			}
+			if (Dlg)
+			{
+				const auto N{ Params[Nidx].isUnknown() ? -1 : Params[Nidx].asInteger() - 1 };
 
-				if (VMenu::extended_item_data ExtendedData; CurrentWindow->VMProcess(CheckCode, &ExtendedData, N) == 1)
+				if (VMenu::extended_item_data ExtendedData; Dlg->VMProcess(CheckCode, &ExtendedData, N) == 1)
 				{
 					api.PushTable();
 					for (const auto& [Key, Value] : ExtendedData)
@@ -2493,6 +2506,16 @@ void FarMacroApi::dlggetvalueFunc() const
 					case TVar::Type::Double:
 						fgv.Value.Type = FMVT_DOUBLE;
 						fgv.Value.Double=Ret.asDouble();
+						break;
+
+					case TVar::Type::Pointer:
+						fgv.Value.Type = FMVT_POINTER;
+						fgv.Value.Pointer = Ret.asPointer();
+						break;
+
+					case TVar::Type::Dialog:
+						fgv.Value.Type = FMVT_DIALOG;
+						fgv.Value.Pointer = Ret.asDialog();
 						break;
 				}
 

@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
+class Dialog;
 class TVar
 {
 public:
@@ -62,6 +63,8 @@ public:
 		Integer = 1,
 		String = 2,
 		Double = 3,
+		Pointer = 4,
+		Dialog = 5,
 	};
 
 	COPYABLE(TVar);
@@ -73,12 +76,16 @@ public:
 	explicit TVar(string_view);
 	explicit TVar(const wchar_t*);
 	explicit TVar(double);
+	explicit TVar(void*);
+	explicit TVar(Dialog*);
 
 	COPY_AND_MOVE(TVar, long long)
 	COPY_AND_MOVE(TVar, string_view)
 	COPY_AND_MOVE(TVar, const wchar_t*)
 	COPY_AND_MOVE(TVar, int)
 	COPY_AND_MOVE(TVar, double)
+	COPY_AND_MOVE(TVar, void*)
+	COPY_AND_MOVE(TVar, Dialog*)
 
 	bool operator<(const TVar&) const;
 
@@ -89,6 +96,8 @@ public:
 	bool isString()   const { return vType == Type::String; }
 	bool isInteger()  const { return vType == Type::Integer || vType == Type::Unknown; }
 	bool isDouble()   const { return vType == Type::Double; }
+	bool isPointer()  const { return vType == Type::Pointer; }
+	bool isDialog()  const { return vType == Type::Dialog; }
 	bool isUnknown()  const { return vType == Type::Unknown; }
 
 	bool isNumber()   const;
@@ -100,12 +109,15 @@ public:
 	const string& asString() const;
 	double asDouble() const;
 	long long asInteger() const;
+	void* asPointer() const;
+	Dialog* asDialog() const;
 
 private:
 	union
 	{
 		long long inum{};
 		double dnum;
+		void* ptr;
 	};
 	mutable string str;
 	Type vType;
