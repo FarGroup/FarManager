@@ -292,9 +292,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					}
 				}
 
-				os::chrono::local_time SavedTime;
-				utc_to_local(i.Time, SavedTime);
-				if(LastDay != SavedTime.Day || LastMonth != SavedTime.Month || LastYear != SavedTime.Year)
+				if (os::chrono::local_time SavedTime; utc_to_local(i.Time, SavedTime) && (LastDay != SavedTime.Day || LastMonth != SavedTime.Month || LastYear != SavedTime.Year))
 				{
 					LastDay = SavedTime.Day;
 					LastMonth = SavedTime.Month;

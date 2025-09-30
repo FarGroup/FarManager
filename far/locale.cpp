@@ -244,7 +244,7 @@ static auto get_month_day_names(int const Language)
 
 		if (!os::get_locale_value(CurLCID, Init.AbbrIndex, Dest.Short))
 		{
-			Dest.Full = Init.Default.substr(0, 3);
+			Dest.Short = Init.Default.substr(0, 3);
 			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}"sv, Init.AbbrIndex, os::last_error());
 		}
 	}
