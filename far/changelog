@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-10-01 00:35:30+01:00 - build 6565
+
+1. gh-1018: Cursor is missing when first console command is run with echo off.
+
+2. Minor fixes.
+
+--------------------------------------------------------------------------------
 zg 2025-09-28 23:02:00+03:00 - build 6564
 
 1. Menu.GetItemExtendedData now has 1st optional parameter: dialog handle.
