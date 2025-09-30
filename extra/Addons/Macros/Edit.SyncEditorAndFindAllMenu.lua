@@ -53,10 +53,6 @@ local function LowerBound(N, Target, GetData, Less)
   end
 end
 
-local function CoordinatesFromMenuItem(I)
-  return Menu.GetItemExtendedData(I)
-end
-
 local function CoordinatesLess(A, B)
   if A.Line ~= B.Line then return A.Line < B.Line end
   if A.Position ~= B.Position then return A.Position < B.Position end
@@ -112,24 +108,24 @@ end
 local function SetupMenuAndEditor(FarDialogEvent)
   local SelectPos = 1
   if PositionMenuOnStart then
-    SelectPos = LowerBound(Object.ItemCount,
+    SelectPos = LowerBound(FarDialogEvent.hDlg:send(F.DM_LISTINFO, 1).ItemsNumber,
                            { Line = EditorInfo.CurLine, Position = EditorInfo.CurPos, Length = 0 },
-                           CoordinatesFromMenuItem,
+                           function(I) return Menu.GetItemExtendedData(FarDialogEvent.hDlg, I) end,
                            CoordinatesLess)
     FarDialogEvent.hDlg:send(F.DM_LISTSETCURPOS, 1, { SelectPos = SelectPos })
   end
-  LastSeenItemData = Menu.GetItemExtendedData(SelectPos)
+  LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg, SelectPos)
   if TrackMenu then HighlighText() end
 end
 
 local function OnInitDialog(FarDialogEvent)
   KeepHighlightOnExit = false
   EditorInfo = editor.GetInfo(nil)
-  mf.postmacro(function() SetupMenuAndEditor(FarDialogEvent) end)
+  SetupMenuAndEditor(FarDialogEvent)
 end
 
-local function OnListChange()
-  LastSeenItemData = Menu.GetItemExtendedData()
+local function OnListChange(FarDialogEvent)
+  LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg)
   if TrackMenu then HighlighText() end
 end
 
@@ -146,7 +142,7 @@ local function OnCloseDialog(FarDialogEvent)
   DelColor()
   if FarDialogEvent.Param1 > 0 then
     if KeepHighlightOnExit then
-      LastSeenItemData = Menu.GetItemExtendedData()
+      LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg)
       AddColor()
     end
   else
@@ -172,7 +168,7 @@ Event {
   end;
   action = function(Event, FarDialogEvent)
     if     FarDialogEvent.Msg == F.DN_INITDIALOG          then OnInitDialog(FarDialogEvent)
-    elseif FarDialogEvent.Msg == F.DN_LISTCHANGE          then OnListChange()
+    elseif FarDialogEvent.Msg == F.DN_LISTCHANGE          then OnListChange(FarDialogEvent)
     elseif FarDialogEvent.Msg == F.DN_CONTROLINPUT
        and FarDialogEvent.Param2.EventType == F.KEY_EVENT then OnKeyEvent(far.InputRecordToName(FarDialogEvent.Param2))
     elseif FarDialogEvent.Msg == F.DN_CLOSE               then OnCloseDialog(FarDialogEvent)
