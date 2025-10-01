@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+rohitab 2025-10-01 13:36:49+10:00 - build 6566
+
+1. gh-1019: Enable saving find all results from modal editors.
+
+--------------------------------------------------------------------------------
 drkns 2025-10-01 00:35:30+01:00 - build 6565
 
 1. gh-1018: Cursor is missing when first console command is run with echo off.
