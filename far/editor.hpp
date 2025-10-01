@@ -287,7 +287,6 @@ private:
 	void DoSearchReplace(SearchReplaceDisposition Disposition);
 	int CalculateSearchStartPosition(bool Continue, bool Backward, bool Regex) const;
 	int CalculateSearchNextPositionInTheLine(bool Backward, bool Regex) const;
-	bool CanSaveFoundItemsToNewEditor() const;
 	void SelectFoundPattern(FindCoord coord);
 	void SaveFoundItemsToNewEditor(const VMenu& ListBox, bool MatchingFilter, intptr_t ExitCode);
 	string GetSearchAllFileName() const;
