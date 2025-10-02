@@ -111,6 +111,12 @@ private:
 	static void SetPassivePanelInternal(panel_ptr ToBePassive);
 	void SetActivePanelInternal(panel_ptr ToBeActive);
 
+	// Panel border mouse handling for resizing
+	bool IsMouseOverPanelBorder(const MOUSE_EVENT_RECORD *MouseEvent) const;
+	void DrawBorderFeedback(bool IsHovering, bool IsDragging);
+	void ClearBorderFeedback();
+	void ResetAllMouseStates();
+
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;
 	int SetAnhoterPanelFocus();
@@ -139,6 +145,20 @@ private:
 	m_Panels[panels_count];
 
 	panel_index m_ActivePanelIndex;
+
+	// Panel resizing state
+	mutable int m_ResizeStartX = 0;
+	mutable int m_ResizeStartWidthDecrement = 0;
+	mutable int m_LastFeedbackY = -1;
+	mutable DWORD m_HoverStartTime = 0;  // For hover delay
+
+	enum class MouseState
+	{
+		None,
+		Hovering,
+		Resizing
+	};
+	mutable MouseState m_MouseState = MouseState::None;
 };
 
 #endif // FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316
