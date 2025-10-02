@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+ m4_include(`farversion.m4')m4_dnl
 .Language=English,English
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
@@ -365,9 +365,11 @@ $ #Panel control commands#
  Hide/show right panel                                      #Ctrl+F2#
  Change panels height                             #Ctrl+Up,Ctrl+Down#
  Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
- Change panels width                           #Ctrl+Left,Ctrl+Right#
- (when the command line is empty)
+ Change panels width with keyboard             #Ctrl+Left,Ctrl+Right#
+ (only when the command line is empty)
+ Change panels width with mouse          #Drag border between panels#
  Restore default panels width                          #Ctrl+Numpad5#
+                        #Mouse double click on border between panels#
  Restore default panels height                     #Ctrl+Alt+Numpad5#
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
@@ -884,8 +886,8 @@ default button or does another similar thing).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
-effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
-#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+ #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
@@ -900,7 +902,7 @@ $ #Special commands#
 $ #Mouse: wheel support#
  #Panels#
  Rotating the wheel scrolls the file list without changing the cursor position on the screen.
-Pressing the #middle button# has the same effect as pressing #Enter#.
+ Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Editor#
  Rotating the wheel scrolls the text without changing the cursor position on the screen
@@ -914,11 +916,11 @@ Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Menus#
  Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
-pressing #Enter#. It is possible to choose items without moving the cursor.
+ pressing #Enter#. It is possible to choose items without moving the cursor.
 
  #Dialogs#
  In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
-the drop-down list is opened. In the drop-down list scrolling works the same as in menus.
+ the drop-down list is opened. In the drop-down list scrolling works the same as in menus.
 
  You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see ~System.MsWheelDelta~@System.MsWheelDelta@).
@@ -1159,6 +1161,14 @@ if the initial panel type differs it will be automatically set to the file panel
 
  ~Fast find~@FastFind@ action can be used to point to the required file
 by the first letters of its name.
+
+ #Mouse panel resizing#
+
+ You can resize the width of file panels using the mouse:
+
+ - ^<wrap>Hover the mouse cursor over the border between the left and right panels to see visual feedback indicating the resizable area.
+ - ^<wrap>Click and drag the border left or right to adjust the panel widths.
+ - ^<wrap>Double-click on the border to restore default equal panel widths (50/50 split).
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

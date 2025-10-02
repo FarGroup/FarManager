@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "colormix.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1080,6 +1081,12 @@ void FilePanels::DisplayObject()
 	if (RightPanel()->IsVisible())
 		RightPanel()->Show();
 
+	// Draw the border feedback if currently resizing
+	if (m_MouseState == MouseState::Resizing)
+	{
+		DrawBorderFeedback(false, true);
+	}
+
 #else
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
@@ -1126,11 +1133,19 @@ void FilePanels::DisplayObject()
 #endif
 }
 
-bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent)
 {
-	if (!MouseEvent->dwMousePosition.Y)
+	// Cache essential inputs for better performance
+	// Defer expensive calculations until needed
+	const auto& pos = MouseEvent->dwMousePosition;
+	const DWORD  btn = MouseEvent->dwButtonState;
+	const DWORD  flags = MouseEvent->dwEventFlags;
+	auto& opts = Global->Opt;
+
+	// 1) Far-style title‐bar (row 0) click
+	if (pos.Y == 0)
 	{
-		if (!Global->Opt->ShowColumnTitles) // Sort Mark letter in the menu area
+		if (!opts->ShowColumnTitles)  // Sort Mark letter in the menu area
 		{
 			if (ActivePanel()->ProcessMouse(MouseEvent))
 				return true;
@@ -1138,28 +1153,28 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				return true;
 		}
 
-		if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
+		if ((btn & 3) && !flags)
 		{
-			if (!MouseEvent->dwMousePosition.X)
+			if (pos.X == 0)
 				ProcessKey(Manager::Key(KEY_CTRLO));
 			else
-				Global->Opt->ShellOptions(false, MouseEvent);
-
+				opts->ShellOptions(false, MouseEvent);
 			return true;
 		}
 	}
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
+	// 2) Middle‐click -> ENTER Key
+	if (btn & FROM_LEFT_2ND_BUTTON_PRESSED)
 	{
-		if (!IsMouseButtonEvent(MouseEvent->dwEventFlags))
+		if (!IsMouseButtonEvent(flags))
 			return true;
 
 		int Key = KEY_ENTER;
-		if (MouseEvent->dwControlKeyState&SHIFT_PRESSED)
+		if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
 		{
 			Key |= KEY_SHIFT;
 		}
-		if (MouseEvent->dwControlKeyState&(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+		if (MouseEvent->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
 		{
 			Key |= KEY_CTRL;
 		}
@@ -1171,16 +1186,225 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
+	// 3) Continue/finish a Resizing operation
+	if (m_MouseState == MouseState::Resizing)
+	{
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (leftPressed)
+		{
+			const int dx = pos.X - m_ResizeStartX;
+			const int newDec = m_ResizeStartWidthDecrement - dx;
+			const int halfXminus10 = ScrX / 2 - 10;  // Calculate only when needed
+			const int clamped = std::clamp(newDec, -halfXminus10, halfXminus10);
+			if (opts->WidthDecrement != clamped)
+			{
+				opts->WidthDecrement = clamped;
+				Global->WindowManager->ResizeAllWindows();
+			}
+		}
+		else
+		{
+			// mouse released -> stop resizing
+			m_MouseState = MouseState::None;
+			ClearBorderFeedback();
+			m_HoverStartTime = 0;
+			ResetAllMouseStates();
+		}
+		return true;
+	}
+
+	// 4) Border interaction: hover, double‐click, start resize
+	if (IsMouseOverPanelBorder(MouseEvent))
+	{
+		// 4a) Double‐click resets to center
+		if (flags & DOUBLE_CLICK)
+		{
+			m_MouseState = MouseState::None;
+			m_HoverStartTime = 0;
+			//ClearBorderFeedback();
+
+			opts->WidthDecrement = 0;
+			SetScreenPosition();
+			Global->WindowManager->RefreshWindow();
+
+			// Final flush and reset after the refresh to ensure clean state
+			ResetAllMouseStates();
+
+			// Consume the event completely to prevent propagation to panels
+			return true;
+		}
+
+		// 4b) Hover (no button pressed)
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (!leftPressed)
+		{
+			const DWORD now = GetTickCount();
+			if (m_MouseState == MouseState::None)
+			{
+				if (m_HoverStartTime == 0)
+				{
+					m_HoverStartTime = now;
+				}
+				else
+				{
+					const int hoverThreshold = 300;  // Calculate only when needed
+					if (now - m_HoverStartTime >= hoverThreshold)
+					{
+						m_MouseState = MouseState::Hovering;
+						DrawBorderFeedback(true, false);
+					}
+				}
+			}
+			else // already hovering
+			{
+				DrawBorderFeedback(true, false);
+			}
+			return true;
+		}
+
+		// 4c) Begin resize on first click (no movement yet)
+		if (m_MouseState == MouseState::Hovering)
+		{
+			const bool moved = (flags & MOUSE_MOVED) != 0;
+			if (!moved)
+			{
+				m_MouseState = MouseState::Resizing;
+				m_ResizeStartX = pos.X;
+				m_ResizeStartWidthDecrement = opts->WidthDecrement;
+				m_HoverStartTime = 0;
+
+				// No ResetAllMouseStates() here, as we are starting the resize
+				return true;
+			}
+		}
+	}
+	else if (m_MouseState == MouseState::Hovering)
+	{
+		// left border, but moved off -> clear hover
+		m_MouseState = MouseState::None;
+		ClearBorderFeedback();
+		m_HoverStartTime = 0;
+		ResetAllMouseStates();
+	}
+
+	// 5) Fallback routing: panels -> key bar -> cmdline
+	if (pos.Y == 0 && !opts->ShowColumnTitles)
+	{
+		if (ActivePanel()->ProcessMouse(MouseEvent) || PassivePanel()->ProcessMouse(MouseEvent))
+			return true;
+	}
+
+	// Additional safeguard: Don't process double-clicks that might have been 
+	// intended for border but are now over panel area due to resize
+	if ((flags & DOUBLE_CLICK) && IsMouseOverPanelBorder(MouseEvent))
+	{
+		// This is a double-click that should have been handled by border logic above
+		// but somehow reached here. Consume it to prevent unwanted panel actions.
+		return true;
+	}
+
 	if (!ActivePanel()->ProcessMouse(MouseEvent))
 	{
-		if (!PassivePanel()->ProcessMouse(MouseEvent))
-			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
-				CmdLine->ProcessMouse(MouseEvent);
+		if (!PassivePanel()->ProcessMouse(MouseEvent) &&
+			!m_windowKeyBar->ProcessMouse(MouseEvent))
+		{
+			CmdLine->ProcessMouse(MouseEvent);
+		}
 
 		ActivePanel()->SetCurPath();
 	}
 
 	return true;
+}
+
+bool FilePanels::IsMouseOverPanelBorder(const MOUSE_EVENT_RECORD *MouseEvent) const
+{
+	const auto MouseX = MouseEvent->dwMousePosition.X;
+
+	// The border is at the center, adjusted by WidthDecrement.
+	// We now check the column of the border itself and the one to its right.
+	const auto BorderX = ScrX / 2 - Global->Opt->WidthDecrement;
+
+	// Check a 2-column wide area for the border between panels
+	//return MouseX >= BorderX && MouseX <= BorderX + 1;
+
+	// Check a 4-column wide area for the border between panels - works better
+	return MouseX >= BorderX -1 && MouseX <= BorderX + 2;
+}
+
+void FilePanels::DrawBorderFeedback(bool IsHovering, bool IsDragging)
+{
+	// Show visual feedback on hover and during dragging
+	if (!IsHovering && !IsDragging)
+	{
+		return;
+	}
+
+	const auto BorderX = ScrX / 2 - Global->Opt->WidthDecrement;
+	// Use custom dragging border colors if set, otherwise derive from other colors
+	const auto BorderColor = [&]
+	{
+		// Get the dragging border color first - this respects user's custom color choices
+		auto Result = colors::PaletteColorToFarColor(COL_PANELDRAGBORDER);
+		auto DragTextColor = colors::PaletteColorToFarColor(COL_PANELDRAGTEXT);
+		auto SelectedTextColor = colors::PaletteColorToFarColor(COL_PANELSELECTEDTEXT);
+		auto PanelTextColor = colors::PaletteColorToFarColor(COL_PANELTEXT);
+
+		// Check if the dragging border color is using the default palette value
+		// Default palette value for COL_PANELDRAGBORDER is F_YELLOW|B_BLUE
+		const auto DefaultDragBorderColor = F_YELLOW | B_BLUE;
+		const auto CurrentDragBorderRaw = (Result.ForegroundColor & 0x0F) | ((Result.BackgroundColor & 0x0F) << 4);
+
+		// If the current color matches the default palette value, or if it seems uninitialized,
+		// apply the fallback logic (theme doesn't define this color or user hasn't customized it)
+		if (CurrentDragBorderRaw == DefaultDragBorderColor ||
+		    Result.ForegroundColor == Result.BackgroundColor ||
+		    Result.ForegroundColor == 0)
+		{
+			// Apply fallback logic: foreground from dragging text (or selected text), background from panel
+			Result.ForegroundColor = DragTextColor.ForegroundColor != 0 ? DragTextColor.ForegroundColor : SelectedTextColor.ForegroundColor;
+			Result.BackgroundColor = PanelTextColor.BackgroundColor;
+		}
+
+		return Result;
+	}();
+
+	const wchar_t* BorderChar = L"║";
+
+	// Draw full height border feedback
+	const auto StartY = 1;
+	const auto EndY = ScrY - 2;
+
+	int borderX = static_cast<int>(BorderX);
+	int borderXPlus = borderX + 1;
+	bool drawLeft = LeftPanel()->IsVisible();
+	bool drawRight = RightPanel()->IsVisible() && borderX < ScrX - 1;
+
+	for (int y = StartY; y < EndY; ++y)
+	{
+		if (drawLeft)
+		{
+			GotoXY(borderX, y);
+			Text({ borderX, y }, BorderColor, BorderChar);
+		}
+		if (drawRight)
+		{
+			GotoXY(borderXPlus, y);
+			Text({ borderXPlus, y }, BorderColor, BorderChar);
+		}
+	}
+
+	m_LastFeedbackY = StartY; // Mark that feedback is drawn
+}
+
+void FilePanels::ClearBorderFeedback()
+{
+	if (m_LastFeedbackY == -1)
+		return;
+
+	// Clear feedback by refreshing the window
+	Global->WindowManager->RefreshWindow();
+	m_LastFeedbackY = -1;
 }
 
 void FilePanels::ShowConsoleTitle()
@@ -1301,4 +1525,21 @@ void FilePanels::Show()
 	{
 		TopMenuBar->Show();
 	}
+}
+
+void FilePanels::ResetAllMouseStates()
+{
+	FlushInputBuffer();
+
+	// Reset Far's internal mouse state tracking
+	IntKeyState.MouseButtonState = 0;
+	IntKeyState.PrevMouseButtonState = 0;
+	IntKeyState.PrevLButtonPressed = false;
+	IntKeyState.PrevRButtonPressed = false;
+	IntKeyState.PrevMButtonPressed = false;
+	IntKeyState.MouseEventFlags = 0;
+	IntKeyState.PreMouseEventFlags = 0;
+
+	// Reset drag-and-drop state
+	Panel::EndDrag();
 }

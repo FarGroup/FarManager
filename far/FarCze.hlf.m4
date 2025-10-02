@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+m4_include(`farversion.m4')m4_dnl
 .Language=Czech,Čeština
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
@@ -365,10 +365,11 @@ $ #Ovládání panelů#
  Skrytí/ukázání levého panelu                               #Ctrl+F1#
  Skrytí/ukázání pravého panelu                              #Ctrl+F2#
  Změna výšky panelu                           #Ctrl+Nahoru,Ctrl+Dolů#
- Změna šířky panelu                          #Ctrl+Vlevo,Ctrl+Vpravo#
- Change panels width                           #Ctrl+Left,Ctrl+Right#
+ Změna šířky panelů klávesnicí               #Ctrl+Vlevo,Ctrl+Vpravo#
  (pokud je příkazová řádka prázdná)
+ Změna šířky panelů myší              #Přetažení hranice mezi panely#
  Obnovení nastavení implicitní šířky panelů            #Ctrl+Numpad5#
+                               #Dvojklik myší na hranici mezi panely#
  Restore default panels height                     #Ctrl+Alt+Numpad5#
  Zobrazení/Skrytí panelu funkčních kláves na spodní části.   #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
@@ -1180,6 +1181,14 @@ přepnut na souborový.
 
  ~Rychlé hledání~@FastFind@ může být použito pro dosažení požadovaného souboru
 pomocí prvního znaku jeho názvu.
+
+ #Změna velikosti panelů myší#
+
+ Můžete změnit šířku souborových panelů pomocí myši:
+
+ - ^<wrap>Najeďte kurzorem myši na hranici mezi levým a pravým panelem, abyste viděli vizuální zpětnou vazbu označující oblast, kterou lze změnit.
+ - ^<wrap>Klikněte a táhněte hranici doleva nebo doprava pro úpravu šířky panelů.
+ - ^<wrap>Dvojklikněte na hranici pro obnovení výchozí stejné šířky panelů (rozdělení 50/50).
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
