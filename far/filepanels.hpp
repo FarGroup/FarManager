@@ -159,7 +159,6 @@ private:
 		Resizing
 	};
 	mutable MouseState m_MouseState = MouseState::None;
-
 };
 
 #endif // FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316
