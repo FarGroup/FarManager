@@ -1,16 +1,9 @@
 ﻿// Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
-#include <algorithm>
-#include <memory>
-#include <mutex>
-#include <string_view>
 
 #include "Proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData
 #include "Proclng.hpp"
-
-#include <lmcons.h>
-#include <sddl.h>
 
 #include <algorithm.hpp>
 #include <smart_ptr.hpp>

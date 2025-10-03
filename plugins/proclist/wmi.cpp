@@ -1,12 +1,7 @@
-﻿#include <memory>
-
-#define WIN32_NO_STATUS
-#include <windows.h>
-#undef WIN32_NO_STATUS
+﻿#include "Proclist.hpp"
+#include "perfthread.hpp"
 
 #include <wbemidl.h>
-#include "Proclist.hpp"
-#include "perfthread.hpp"
 
 #include <smart_ptr.hpp>
 

@@ -1,33 +1,10 @@
 ﻿#ifndef PROCLIST_HPP_71FFA62B_457B_416D_B4F5_DAB215BE015F
 #define PROCLIST_HPP_71FFA62B_457B_416D_B4F5_DAB215BE015F
-
 #pragma once
-
-#include <memory>
-#include <string>
-#include <vector>
-
-#ifndef _MSC_VER
-
-#include <winsdkver.h>
-
-#undef WINVER
-#define WINVER WINVER_MAXVER
-
-#endif
-
-#define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
-#include <windows.h>
-#undef WIN32_NO_STATUS
-
-#include <winternl.h>
-#include <ntstatus.h>
-#include <unknwn.h>
 
 #include <plugin.hpp>
 
 #include "format.hpp"
-
 
 struct free_deleter
 {
@@ -71,18 +48,6 @@ struct local_deleter
 
 template<typename T>
 using local_ptr = std::unique_ptr<T, local_deleter>;
-
-
-#ifdef _MSC_VER
-#pragma hdrstop
-#  pragma comment( lib, "version.lib" )
-#endif
-
-#ifndef BELOW_NORMAL_PRIORITY_CLASS
-#  define BELOW_NORMAL_PRIORITY_CLASS 0x00004000
-#  define ABOVE_NORMAL_PRIORITY_CLASS 0x00008000
-typedef unsigned long ULONG_PTR, * PULONG_PTR;
-#endif
 
 inline constexpr auto
 	NPANELMODES     = 10,      // Number of panel modes
@@ -217,8 +182,6 @@ struct ProcessData
 	uint64_t dwElapsedTime{};
 	std::wstring CommandLine;
 };
-
-class PerfThread;
 
 bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& PThread);
 bool KillProcess(DWORD pid, HWND hwnd);

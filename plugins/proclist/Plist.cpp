@@ -1,7 +1,4 @@
-﻿#include <algorithm>
-#include <mutex>
-
-#include "Proclist.hpp"
+﻿#include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 #include "ipc.hpp"

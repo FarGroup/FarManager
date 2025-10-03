@@ -1,6 +1,5 @@
 ﻿#ifndef FORMAT_HPP_0FD1BABD_50A_4184_87C2_3C0EB2D444B3
 #define FORMAT_HPP_0FD1BABD_50A_4184_87C2_3C0EB2D444B3
-
 #pragma once
 
 #include <compiler.hpp>
@@ -15,8 +14,6 @@ WARNING_DISABLE_CLANG("-Weverything")
 
 #define FMT_CONSTEVAL consteval
 #define FMT_HAS_CONSTEVAL
-
-#include <algorithm>
 
 #include <fmt/format.h>
 #include <fmt/xchar.h>

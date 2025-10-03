@@ -5,6 +5,9 @@
     <ProjectGuid>{1F12132B-4424-48C4-8B9C-B10E8AEDE9C7}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <PrecompiledHeaders>headers</PrecompiledHeaders>
+  </PropertyGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>

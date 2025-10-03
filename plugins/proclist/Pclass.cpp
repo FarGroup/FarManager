@@ -1,16 +1,4 @@
-﻿#include <algorithm>
-#include <array>
-#include <mutex>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <cassert>
-#include <cmath>
-#include <cwchar>
-#include <cwctype>
-
-#include "Proclist.hpp"
+﻿#include "Proclist.hpp"
 #include "perfthread.hpp"
 #include "Proclng.hpp"
 #include "guid.hpp"

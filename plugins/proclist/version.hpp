@@ -1,11 +1,10 @@
 #ifndef VERSION_HPP_AFF7D87D_8E88_42B9_BFE5_A6CC301A086B
 #define VERSION_HPP_AFF7D87D_8E88_42B9_BFE5_A6CC301A086B
-
 #pragma once
 
 #include <farversion.hpp>
 
-#define PLUGIN_BUILD 223
+#define PLUGIN_BUILD 224
 #define PLUGIN_DESC L"Process List for FAR Manager"
 #define PLUGIN_NAME L"ProcList"
 #define PLUGIN_FILENAME L"ProcList.dll"

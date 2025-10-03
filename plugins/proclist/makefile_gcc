@@ -1,5 +1,7 @@
 NAME = Proclist
 
+PRECOMPILED_HEADER=headers
+
 SRCS = \
 	Proclist.cpp \
 	fileio.cpp \

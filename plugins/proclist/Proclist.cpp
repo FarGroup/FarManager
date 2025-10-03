@@ -1,7 +1,4 @@
-﻿#include <cstdio>
-#include <ctime>
-
-#include "Proclist.hpp"
+﻿#include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "version.hpp"
 

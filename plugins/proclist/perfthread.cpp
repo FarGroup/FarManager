@@ -1,10 +1,4 @@
-﻿#include <algorithm>
-#include <mutex>
-#include <cassert>
-#include <cstddef>
-#include <cassert>
-
-#include "Proclist.hpp"
+﻿#include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 #include "ipc.hpp"

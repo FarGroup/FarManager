@@ -1,11 +1,6 @@
 ﻿#ifndef PERFTHREAD_HPP_319B828C_E001_4BB5_93EE_3A505C9A5ABF
 #define PERFTHREAD_HPP_319B828C_E001_4BB5_93EE_3A505C9A5ABF
-
 #pragma once
-
-#include <functional>
-#include <optional>
-#include <string>
 
 #include <expected.hpp>
 

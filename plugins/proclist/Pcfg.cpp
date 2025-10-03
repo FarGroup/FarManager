@@ -1,10 +1,4 @@
-﻿#include <cstdlib>
-
-#define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
-#include <windows.h>
-#undef WIN32_NO_STATUS
-
-#include <PluginSettings.hpp>
+﻿#include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Proclist.hpp"
 #include "Proclng.hpp"

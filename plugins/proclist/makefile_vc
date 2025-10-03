@@ -1,5 +1,7 @@
 NAME = ProcList
 
+PRECOMPILED_HEADER=headers
+
 LINK_OBJS = \
 	$(INTDIR)\fileio.obj \
 	$(INTDIR)\format.obj \
