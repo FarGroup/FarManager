@@ -86,7 +86,7 @@ TEST_CASE("common.NullToEmpty")
 //----------------------------------------------------------------------------
 
 #if COMPILER(GCC)
-#include "common/cpp.hpp"
+#include "common/polyfills.hpp"
 
 TEST_CASE("cpp.const_return")
 {

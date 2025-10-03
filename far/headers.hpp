@@ -45,26 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error Clang 16.0.0 (or higher) required
 #endif
 
-#ifdef __GNUC__
-// Current implementation of wcschr etc. in gcc removes const from returned pointer. Issue has been opened since 2007.
-// These semi-magical defines and appropriate overloads in cpp.hpp are intended to fix this madness.
-
-// Force C version to return const
-#undef _CONST_RETURN
-#define _CONST_RETURN const
-// Disable broken inline overloads
-#define __CORRECT_ISO_CPP_WCHAR_H_PROTO
-// Enable inline overloads in common/cpp.hpp
-#define FAR_ENABLE_CORRECT_ISO_CPP_WCHAR_H_OVERLOADS
-#endif
-
-#if COMPILER(CLANG)
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wbuiltin-macro-redefined")
-// Seems to be broken in v20 or incompatible with libstdc++ headers
-#undef __cpp_explicit_this_parameter
-WARNING_POP()
-#endif
+#include "common/shims_pre.hpp"
 
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
@@ -127,7 +108,9 @@ WARNING_POP()
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
 
-#include "common/cpp.hpp"
+#include "common/shims_post.hpp"
+
+#include "common/polyfills.hpp"
 
 using string = std::wstring;
 using string_view = std::wstring_view;

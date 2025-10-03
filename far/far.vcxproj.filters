@@ -586,9 +586,6 @@
     <ClInclude Include="common\compiler.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\cpp.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\enum_substrings.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -646,6 +643,9 @@
     <ClInclude Include="common\placement.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\polyfills.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\preprocessor.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -653,6 +653,12 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\segment.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\shims_pre.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\shims_post.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\singleton.hpp">

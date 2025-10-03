@@ -261,7 +261,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />
     <ClInclude Include="common\compiler.hpp" />
-    <ClInclude Include="common\cpp.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\enum_tokens.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
@@ -281,9 +280,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\placement.hpp" />
+    <ClInclude Include="common\polyfills.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\segment.hpp" />
+    <ClInclude Include="common\shims_pre.hpp" />
+    <ClInclude Include="common\shims_post.hpp" />
     <ClInclude Include="common\singleton.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\source_location.hpp" />
