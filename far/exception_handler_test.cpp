@@ -536,6 +536,13 @@ namespace tests
 		});
 	}
 
+	static void asan_stack_buffer_underflow()
+	{
+		[[maybe_unused]] int v[1];
+		const volatile size_t Index = -1;
+		v[Index] = 42;
+	}
+
 	static void asan_stack_buffer_overflow()
 	{
 		[[maybe_unused]] int v[1];
@@ -550,6 +557,13 @@ namespace tests
 		v.data()[Index] = 42;
 	}
 
+	static void asan_container_overflow()
+	{
+		std::vector<int> v(10);
+		v.reserve(20);
+		v.data()[10] = 42;
+	}
+
 	static void asan_stack_use_after_scope()
 	{
 		volatile int* Ptr;
@@ -561,6 +575,21 @@ namespace tests
 
 		[[maybe_unused]]
 		volatile const auto i = *Ptr;
+	}
+
+	static void asan_heap_use_after_free()
+	{
+		auto Data = std::make_unique<int>(42);
+		const auto DataRaw = Data.get();
+		Data.reset();
+		[[maybe_unused]] const auto Use = *DataRaw;
+	}
+
+	static void asan_double_free()
+	{
+		const auto Ptr = malloc(1);
+		free(Ptr);
+		free(Ptr);
 	}
 }
 
@@ -667,9 +696,13 @@ static bool ExceptionTestHook(Manager::Key const& key)
 
 	static constexpr test_entry AsanTests[]
 	{
+		{ tests::asan_stack_buffer_underflow,  L"stack-buffer-underflow"sv },
 		{ tests::asan_stack_buffer_overflow,   L"stack-buffer-overflow"sv },
 		{ tests::asan_heap_buffer_overflow,    L"heap-buffer-overflow"sv },
+		{ tests::asan_container_overflow,      L"container-overflow"sv },
 		{ tests::asan_stack_use_after_scope,   L"stack-use-after-scope"sv },
+		{ tests::asan_heap_use_after_free,     L"heap-use-after-free"sv },
+		{ tests::asan_double_free,             L"double-free"sv },
 	};
 
 	static constexpr std::pair<std::span<test_entry const>, string_view> TestGroups[]
