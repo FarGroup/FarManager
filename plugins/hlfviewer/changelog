@@ -1,3 +1,7 @@
+drkns 2025-10-03 10:13:12+01:00 - build 51
+
+1. Adapt to 6562 / gh-939.
+
 drkns 2022-11-10 17:40:00+00:00 - build 50
 
 1. Handle errors and fill structures properly.
