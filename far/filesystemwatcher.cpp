@@ -89,6 +89,7 @@ public:
 			SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 			std::erase(m_Clients, Client);
+			m_OutdatedDirectoryHandles.emplace(Client->m_DirectoryHandle.native_handle());
 
 			m_Synchronised.reset();
 			m_Update.set();
@@ -126,6 +127,13 @@ private:
 						}
 						return Handle;
 					});
+
+					while (!m_OutdatedDirectoryHandles.empty())
+					{
+						// "Continue monitoring..." read is issued by this thread, so CancelIo must come from it as well.
+						CancelIo(m_OutdatedDirectoryHandles.front());
+						m_OutdatedDirectoryHandles.pop();
+					}
 				}
 			}
 
@@ -177,6 +185,7 @@ private:
 	os::event m_Synchronised{ os::event::type::manual, os::event::state::nonsignaled };
 	std::vector<FileSystemWatcher*> m_Clients;
 	std::atomic_bool m_Exit{};
+	std::queue<HANDLE> m_OutdatedDirectoryHandles;
 	os::thread m_Thread;
 };
 
@@ -232,6 +241,7 @@ FileSystemWatcher::~FileSystemWatcher()
 
 		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 
+		// CancelIoEx isn't really necessary as we issue CancelIo from the background thread too, but why not.
 		if (const auto Handle = m_DirectoryHandle.native_handle(); imports.CancelIoEx? imports.CancelIoEx(Handle, &m_Overlapped) : CancelIo(Handle))
 			(void)get_result();
 
