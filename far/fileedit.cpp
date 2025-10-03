@@ -2129,7 +2129,7 @@ void FileEditor::SetFileName(const string_view NewFileName)
 			LocalTime.Hours,
 			LocalTime.Minutes,
 			LocalTime.Seconds,
-			LocalTime.Hectonanoseconds / (1ms / 1_hns)
+			LocalTime.milliseconds()
 		)
 	);
 }

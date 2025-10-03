@@ -97,6 +97,8 @@ namespace os::chrono
 		uint32_t Hectonanoseconds;     // 0 - 9999999
 
 		bool operator==(time const&) const = default;
+
+		uint16_t milliseconds() const;
 	};
 
 	namespace detail

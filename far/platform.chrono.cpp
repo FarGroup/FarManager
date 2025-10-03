@@ -127,8 +127,13 @@ namespace os::chrono
 			.wHour = Time.Hours,
 			.wMinute = Time.Minutes,
 			.wSecond = Time.Seconds,
-			.wMilliseconds = static_cast<WORD>(Time.Hectonanoseconds / (1ms / 1_hns)),
+			.wMilliseconds = Time.milliseconds(),
 		};
+	}
+
+	uint16_t time::milliseconds() const
+	{
+		return static_cast<uint16_t>(Hectonanoseconds / (1ms / 1_hns));
 	}
 
 	utc_time now_utc()
@@ -155,17 +160,27 @@ namespace os::chrono
 		return local_time{ make_time(LocalTime) };
 	}
 
-	bool timepoint_to_utc_time(time_point const TimePoint, utc_time& UtcTime)
+	static bool timepoint_to_system_time(time_point const TimePoint, SYSTEMTIME& SystemTime)
 	{
 		const auto FileTime = nt_clock::to_filetime(TimePoint);
+		return FileTimeToSystemTime(&FileTime, &SystemTime);
+	}
 
+	static void transfer_hns(time_point const TimePoint, time& Time)
+	{
+		assert(!(Time.Hectonanoseconds % (1ms / 1_hns)));
+		Time.Hectonanoseconds += TimePoint.time_since_epoch() % 1ms / 1_hns;
+	}
+
+	bool timepoint_to_utc_time(time_point const TimePoint, utc_time& UtcTime)
+	{
 		SYSTEMTIME SystemTime;
-		if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+		if (!timepoint_to_system_time(TimePoint, SystemTime))
 			return false;
 
 		UtcTime = utc_time{ make_time(SystemTime) };
 
-		UtcTime.Hectonanoseconds += TimePoint.time_since_epoch() % 1ms / 1_hns;
+		transfer_hns(TimePoint, UtcTime);
 
 		return true;
 	}
@@ -177,10 +192,8 @@ namespace os::chrono
 
 	bool utc_to_local(time_point UtcTime, local_time& LocalTime)
 	{
-		const auto FileTime = nt_clock::to_filetime(UtcTime);
-
 		SYSTEMTIME SystemTime;
-		if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+		if (!timepoint_to_system_time(UtcTime, SystemTime))
 			return false;
 
 		SYSTEMTIME LocalSystemTime;
@@ -189,7 +202,7 @@ namespace os::chrono
 
 		LocalTime = local_time{ make_time(LocalSystemTime) };
 
-		LocalTime.Hectonanoseconds += UtcTime.time_since_epoch() % 1ms / 1_hns;
+		transfer_hns(UtcTime, LocalTime);
 
 		return true;
 	}
