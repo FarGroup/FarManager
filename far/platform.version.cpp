@@ -300,7 +300,7 @@ WARNING_POP()
 			const auto CurrentVersion = Key->get_string(L"CurrentVersion"sv);
 			const auto DisplayVersion = Key->get_string(L"DisplayVersion"sv);
 			const auto ReleaseId = Key->get_string(L"ReleaseId"sv);
-			const auto CurrentBuild = Key->get_string(L"CurrentBuild"sv);
+			const auto CurrentBuild = Key->get_string(L"CurrentBuildNumber"sv);
 			const auto CSDVersion = Key->get_string(L"CSDVersion"sv);
 			const auto UBR = Key->get_dword(L"UBR"sv);
 

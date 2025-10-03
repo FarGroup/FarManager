@@ -91,6 +91,16 @@ void message_manager::commit_remove()
 	});
 }
 
+void message_manager::suppress_dispatch()
+{
+	++m_SuppressDispatch;
+}
+
+void message_manager::restore_dispatch()
+{
+	--m_SuppressDispatch;
+}
+
 message_manager::handlers_map::iterator message_manager::subscribe(UUID const& EventId, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
@@ -155,6 +165,9 @@ void message_manager::notify(string_view const EventId, std::any&& Payload)
 
 bool message_manager::dispatch()
 {
+	if (m_SuppressDispatch)
+		return false;
+
 	bool Result = false;
 
 	if (!m_DispatchInProgress)

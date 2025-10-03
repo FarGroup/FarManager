@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/preprocessor.hpp"
 #include "common/singleton.hpp"
+#include "common/smart_ptr.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -114,6 +115,10 @@ public:
 	void enable_power_notifications();
 	void disable_power_notifications();
 
+	[[nodiscard]]
+	auto suppressor() { return make_raii_wrapper<&message_manager::suppress_dispatch, &message_manager::restore_dispatch>(this); }
+
+
 private:
 	struct message
 	{
@@ -129,6 +134,9 @@ private:
 	void commit_add();
 	void commit_remove();
 
+	void suppress_dispatch();
+	void restore_dispatch();
+
 	os::concurrency::critical_section
 		m_QueueLock,
 		m_PendingLock,
@@ -143,6 +151,7 @@ private:
 	std::unique_ptr<wm_listener> m_Window;
 
 	std::atomic_size_t m_DispatchInProgress{};
+	std::atomic_size_t m_SuppressDispatch{};
 };
 
 class listener: noncopyable
