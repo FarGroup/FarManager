@@ -5604,9 +5604,12 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->BookmarkCount=BOOKMARK_COUNT;
 			Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
 			Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
+			// ECSTATE_SAVED means "commited state" or "no unsaved changes" (no * in status bar)
+			// ECSTATE_MODIFIED means "the underlying file has been overwritten at least once" (so it's not the same as it used to be)
+			// It somewhat contradicts the internal nomenclature, so be careful here (and see gh-939).
 			if (const auto HostFileEditor = GetHostFileEditor())
-				Info->CurState |= HostFileEditor->WasFileSaved()? ECSTATE_SAVED : 0;
-			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_MODIFIED:0;
+				Info->CurState |= HostFileEditor->WasFileSaved()? ECSTATE_MODIFIED : 0;
+			Info->CurState |= m_Flags.Check(FEDITOR_MODIFIED)? 0 : ECSTATE_SAVED;
 			Info->CodePage = GetCodePage();
 
 			return true;

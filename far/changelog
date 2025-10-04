@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2025-10-04 21:05:17+01:00 - build 6570
+
+1. gh-939: ECSTATE_SAVED / ECSTATE_MODIFIED changed their meaning.
+   The original meaning restored (more or less).
+
+--------------------------------------------------------------------------------
 drkns 2025-10-04 00:00:33+01:00 - build 6569
 
 1. Refactoring.
