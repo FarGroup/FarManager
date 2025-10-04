@@ -1,3 +1,7 @@
+drkns 2025-10-04 21:07:53+01:00 - build 52
+
+1. Adapt to 6570 / gh-939 (revert v51).
+
 drkns 2025-10-03 10:13:12+01:00 - build 51
 
 1. Adapt to 6562 / gh-939.

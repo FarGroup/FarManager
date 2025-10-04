@@ -325,7 +325,7 @@ bool ShowCurrentHelpTopic()
 	{
 		case 1:
 
-			if (ei.CurState & ECSTATE_MODIFIED)
+			if (!(ei.CurState & ECSTATE_SAVED))
 				ShowHelpFromTempFile();
 			else
 			{
@@ -341,7 +341,7 @@ bool ShowCurrentHelpTopic()
 			break;
 		case 2:
 
-			if (ei.CurState & ECSTATE_MODIFIED)
+			if (!(ei.CurState & ECSTATE_SAVED))
 				PsInfo.EditorControl(-1,ECTL_SAVEFILE, 0, {});
 			[[fallthrough]];
 		default:
