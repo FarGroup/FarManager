@@ -966,7 +966,7 @@ void Viewer::ShowDump()
 			const int bsel = SelectPos > bpos? static_cast<int>(SelectPos - bpos) / CharSize : 0;
 			const int esel = SelectPos + SelectSize < bpos + mb? (static_cast<int>(SelectPos + SelectSize - bpos) + CharSize - 1) / CharSize : ScrollbarAdjustedWidth;
 			SetColor(COL_VIEWERSELECTEDTEXT);
-			GotoXY(bsel, Y);
+			GotoXY(m_Where.left + bsel, Y);
 			Text(cut_right(OutStr.substr(bsel), esel - bsel));
 		}
 	}
