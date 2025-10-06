@@ -2253,6 +2253,7 @@ mtime=3607109038
 #_  Select
 #_  Show
 #_  GetItemExtendedData
+#_  SetItemExtendedData
 #_
 #_@@@
 #_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
@@ -2263,6 +2264,7 @@ mtime=3607109038
 #_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
 #_{itemstatus}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
 #_{select}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Select
+#_{setitemextendeddata}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.SetItemExtendedData
 #_{show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu.Show
 #_{value}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Value
 #_

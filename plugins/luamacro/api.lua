@@ -294,6 +294,7 @@ Menu = {
   Select              = function(...) return MacroCallFar(0x80C1B, ...) end,
   Show                = function(...) return MacroCallFar(0x80C1C, ...) end,
   GetItemExtendedData = function(...) return MacroCallFar(0x80C6B, ...) end,
+  SetItemExtendedData = function(...) return MacroCallFar(0x80C6C, ...) end,
 }
 
 SetProperties(Menu, {

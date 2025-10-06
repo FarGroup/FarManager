@@ -76,6 +76,7 @@ public:
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsModified() const;
 	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
+	size_t GetSize() const { return Lines.size(); }
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);

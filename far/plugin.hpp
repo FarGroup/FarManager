@@ -1490,6 +1490,7 @@ enum FARMACROVARTYPE
 	FMVT_STACKGETTOP            = 18,
 	FMVT_STACKSETTOP            = 19,
 	FMVT_STACKPUSHVALUE         = 20,
+	FMVT_NEXT                   = 21,
 };
 
 struct FarMacroValue

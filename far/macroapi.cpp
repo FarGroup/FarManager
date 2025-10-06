@@ -145,9 +145,11 @@ public:
 	void PushError(const wchar_t* str) const;
 	void PushValue(long long Int) const;
 	void PushValue(const TVar& Var) const;
+	void PushValue(const FarMacroValue& Value) const { SendValue(Value); }
 	void SetField(const FarMacroValue &Key, const FarMacroValue &Value, int Pos) const;
 	int  StackGetTop() const;
-	TVar GetTable(int pos, const TVar &Key) const;
+	FarMacroValue GetTable(int pos, const FarMacroValue& Key) const;
+	std::pair<FarMacroValue, FarMacroValue> Next(int pos) const;
 
 	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	void PushValue(T const Value) const
@@ -222,6 +224,7 @@ public:
 private:
 	void fattrFuncImpl(int Type) const;
 	void SendValue(const FarMacroValue &val) const;
+	void SendValueN(const FarMacroValue *vals, size_t size) const;
 
 	FarMacroCall* mData;
 };
@@ -229,6 +232,11 @@ private:
 void FarMacroApi::SendValue(const FarMacroValue &val) const
 {
 	mData->Callback(mData->CallbackData, const_cast<FarMacroValue*>(&val), 1);
+}
+
+void FarMacroApi::SendValueN(const FarMacroValue *vals, size_t size) const
+{
+	mData->Callback(mData->CallbackData, const_cast<FarMacroValue*>(vals), size);
 }
 
 void FarMacroApi::PushError(const wchar_t *str) const
@@ -271,14 +279,20 @@ int FarMacroApi::StackGetTop() const
 	return val.Integer;
 }
 
-TVar FarMacroApi::GetTable(int pos, const TVar &Key) const
+FarMacroValue FarMacroApi::GetTable(int pos, const FarMacroValue& Key) const
 {
-	pos = pos > 0 ? pos : StackGetTop() + 1 + pos;
 	FarMacroValue Res(FMVT_GETTABLE, pos);
-	PushValue(Key);
+	SendValue(Key);
 	SendValue(Res);
 	StackPop(1);
-	return Convert2TVar(Res);
+	return Res;
+}
+
+std::pair<FarMacroValue, FarMacroValue> FarMacroApi::Next(int pos) const
+{
+	std::array Res{ FarMacroValue{ FMVT_NEXT, pos }, FarMacroValue{} };
+	SendValueN(Res.data(), Res.size());
+	return Res;
 }
 
 std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
@@ -341,6 +355,39 @@ static bool is_active_panel_code(intptr_t const Code)
 	default:
 		return false;
 	}
+}
+
+static Dialog* get_optional_dialog_param(std::vector<TVar>::const_iterator& ParamIter, const FARMACROAREA Area, const window_ptr CurrentWindow)
+{
+	if (ParamIter->isDialog())
+		return (ParamIter++)->asDialog();
+
+	if (IsMenuOrDialogArea(Area) && CurrentWindow)
+		return dynamic_cast<Dialog*>(CurrentWindow.get());
+
+	return {};
+}
+
+static std::optional<long long> get_optional_integer_param(std::vector<TVar>::const_iterator& ParamIter)
+{
+	switch (ParamIter->type())
+	{
+	case TVar::Type::Integer:
+	case TVar::Type::Double:
+	case TVar::Type::String:
+		return (ParamIter++)->asInteger();
+
+	default:
+		return {};
+	}
+}
+
+static std::optional<long long> get_optional_table_pos_param(std::vector<TVar>::const_iterator& ParamIter)
+{
+	if (ParamIter->isTable())
+		return (ParamIter++)->asInteger();
+
+	return {};
 }
 
 void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
@@ -1204,31 +1251,62 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([hDlg,][Pos])
 		{
 			const auto Params{ api.parseParams(2) };
-			auto Nidx = 0;
-			Dialog* Dlg{};
-			if(Params[0].isDialog())
-			{
-				Nidx = 1;
-				Dlg = Params[0].asDialog();
-			}
-			else if(IsMenuOrDialogArea(GetArea()) && CurrentWindow)
-			{
-				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
-			}
-			if (Dlg)
-			{
-				const auto N{ Params[Nidx].isUnknown() ? -1 : Params[Nidx].asInteger() - 1 };
+			auto ParamIter{ Params.cbegin() };
+			auto Dlg{ get_optional_dialog_param(ParamIter, GetArea(), CurrentWindow) };
+			const auto N{ get_optional_integer_param(ParamIter).value_or(0) - 1 };
 
-				if (VMenu::extended_item_data ExtendedData; Dlg->VMProcess(CheckCode, &ExtendedData, N) == 1)
-				{
-					api.PushTable();
-					for (const auto& [Key, Value] : ExtendedData)
-					{
-						api.SetField(Key, Value, -3);
-					}
-					return;
-				}
+			if (!Dlg)
+			{
+				api.PushNil();
+				return;
 			}
+
+			if (VMenu::extended_item_data ExtendedData; Dlg->VMProcess(CheckCode, &ExtendedData, N) == 1)
+			{
+				api.PushTable();
+				for (const auto& [Key, Value] : ExtendedData)
+				{
+					api.SetField(Key, Value, -3);
+				}
+				return;
+			}
+
+			api.PushNil();
+			return;
+		}
+
+		case MCODE_F_MENU_SETEXTENDEDDATA: // B=Menu.SetItemExtendedData([hDlg,][Pos,]T)
+		{
+			const auto Params{ api.parseParams(3) };
+			auto ParamIter{ Params.cbegin() };
+			auto Dlg{ get_optional_dialog_param(ParamIter, GetArea(), CurrentWindow) };
+			const auto N{ get_optional_integer_param(ParamIter).value_or(0) - 1 };
+			const auto TPos{ get_optional_table_pos_param(ParamIter) };
+
+			if (!Dlg || !TPos)
+			{
+				api.PushNil();
+				return;
+			}
+
+			VMenu::extended_item_data ExtendedData;
+
+			api.PushNil();
+			while (true)
+			{
+				auto KeyValue{ api.Next(*TPos) };
+				if (KeyValue.first.Type == FMVT_NIL) break;
+				api.StackPop(2);
+				api.PushValue(KeyValue.first);
+				ExtendedData.emplace_back(KeyValue);
+			}
+
+			if (const auto Ret{ Dlg->VMProcess(CheckCode, &ExtendedData, N) }; Ret >= 0)
+			{
+				api.PushBoolean(!!Ret);
+				return;
+			}
+
 			api.PushNil();
 			return;
 		}
@@ -1508,11 +1586,6 @@ void FarMacroApi::maxFunc() const
 {
 	const auto Params = parseParams(2);
 	PushValue(std::max(Params[0], Params[1]));
-/*
-	const auto &tbl = Params[0];
-	if (tbl.isTable())
-		PushValue(GetTable(tbl.asInteger(), TVar(L"foo")));
-*/
 }
 
 // n=mod(n1,n2)
