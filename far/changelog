@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+MZK 2026-04-18 10:27:01-04:00 - build 6678
+
+1. gh-1006: Macro API to set menu item extended data: Menu.SetItemExtendedData.
+
+2. Updated Edit.SyncEditorAndFindAllMenu.lua to demonstrate usage of this API.
+
+--------------------------------------------------------------------------------
 drkns 2026-04-13 21:37:42+01:00 - build 6677
 
 1. Continue 6673.2.

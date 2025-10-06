@@ -2247,6 +2247,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_F_MENU_FILTERSTR:
 		case MCODE_V_MENU_HORIZONTALALIGNMENT:
 		case MCODE_F_MENU_GETEXTENDEDDATA:
+		case MCODE_F_MENU_SETEXTENDEDDATA:
 		{
 			if (GetDropDownOpened() || Items[m_FocusPos].Type == DI_LISTBOX)
 			{
