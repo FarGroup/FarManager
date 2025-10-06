@@ -159,7 +159,8 @@ enum MACRO_OP_CODE
 	MCODE_F_FAR_GETCONFIG,            //
 	MCODE_F_MACROSETTINGS,            //
 	//----------------------------------------------------------------------------
-	MCODE_F_MENU_GETEXTENDEDDATA,     // T=Menu.GetItemExtendedData([N])
+	MCODE_F_MENU_GETEXTENDEDDATA,     // T=Menu.GetItemExtendedData([hDlg,][N])
+	MCODE_F_MENU_SETEXTENDEDDATA,     // B=Menu.SetItemExtendedData([hDlg,][N,](Key,Value)*)
 
 	MCODE_F_LAST,                     // marker
 
