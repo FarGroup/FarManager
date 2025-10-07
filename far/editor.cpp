@@ -3483,7 +3483,7 @@ namespace
 		if (!MaybeLine || !in_closed_range(1, *MaybeLine, LinesSize + 1)) return std::nullopt;
 		if (MaybePos.value_or(1) < 1 || MaybeSearchLen.value_or(0) < 0) return std::nullopt;
 
-		FindCoord
+		return FindCoord
 		{
 			.Line = *MaybeLine - 1,
 			.Pos = MaybePos.value_or(1) - 1,

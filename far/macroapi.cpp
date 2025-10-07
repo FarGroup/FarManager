@@ -76,7 +76,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/segment.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 
@@ -109,6 +111,7 @@ public:
 	explicit FarMacroApi(FarMacroCall* Data) : mData(Data) {}
 
 	std::vector<TVar> parseParams(size_t Count) const;
+	std::span<const FarMacroValue> getParams(size_t Start = 0) const;
 
 	void PushBoolean(bool Param) const          { SendValue(Param); }
 	void PushPointer(void* Param) const         { SendValue(Param); }
@@ -259,6 +262,13 @@ std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
 	});
 	Params.resize(Count);
 	return Params;
+}
+
+std::span<const FarMacroValue> FarMacroApi::getParams(const size_t Start) const
+{
+	const auto ParamsSegment{ intersect(size_t_segment{ 0, size_t_segment::length_tag{ mData->Count } }, size_t_segment::ray(Start)) };
+	if (ParamsSegment.empty()) return {};
+	return { mData->Values + ParamsSegment.start(), ParamsSegment.length() };
 }
 
 class LockOutput: noncopyable
@@ -1168,17 +1178,17 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PushValue(tmpVar);
 		}
 
-		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
+		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([hDlg,][N])
 		{
 			const auto Params{ api.parseParams(2) };
 			auto Nidx = 0;
 			Dialog* Dlg{};
-			if(Params[0].isDialog())
+			if (Params[0].isDialog())
 			{
 				Nidx = 1;
 				Dlg = Params[0].asDialog();
 			}
-			else if(IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+			else if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
 				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
 			}
@@ -1193,6 +1203,47 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						api.SetField(Key, Value);
 					}
+					return;
+				}
+			}
+			api.PushNil();
+			return;
+		}
+
+		case MCODE_F_MENU_SETEXTENDEDDATA: // B=Menu.SetItemExtendedData([hDlg,][N,](Key,Value)*)
+		{
+			const auto Params{ api.parseParams(2) };
+			auto Nidx = 0;
+			Dialog* Dlg{};
+			if (Params[0].isDialog())
+			{
+				Nidx = 1;
+				Dlg = Params[0].asDialog();
+			}
+			else if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+			{
+				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
+			}
+			if (Dlg)
+			{
+				const auto N{ Params[Nidx].isUnknown() ? -1 : Params[Nidx].asInteger() - 1 };
+
+				const auto Rest{ api.getParams(2) };
+				if (Rest.empty() || Rest.size() % 2 != 0)
+				{
+					api.PushNil();
+					return;
+				}
+
+				VMenu::extended_item_data ExtendedData;
+				for (auto I{ Rest.cbegin() }; I < Rest.cend();)
+				{
+					ExtendedData.emplace_back(std::pair{ *I++, *I++ });
+				}
+
+				if (const auto Ret{ Dlg->VMProcess(CheckCode, &ExtendedData, N) }; Ret >= 0)
+				{
+					api.PushBoolean(!!Ret);
 					return;
 				}
 			}
