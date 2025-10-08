@@ -313,6 +313,7 @@ void SetColors()
 		{ lng::MSetColorPanelHighlightedInfo,       COL_PANELINFOTEXT },
 		{ lng::MSetColorPanelDragging,              COL_PANELDRAGTEXT },
 		{ lng::MSetColorPanelBox,                   COL_PANELBOX },
+		{ lng::MSetColorPanelDraggingBorder,        COL_PANELDRAGBORDER, {}, { COL_PANELDRAGTEXT } },
 		{ lng::MSetColorPanelNormalCursor,          COL_PANELCURSOR, {}, { COL_PANELTEXT } },
 		{ lng::MSetColorPanelSelectedCursor,        COL_PANELSELECTEDCURSOR, {}, { COL_PANELCURSOR, COL_PANELSELECTEDTEXT, COL_PANELTEXT } },
 		{ lng::MSetColorPanelNormalTitle,           COL_PANELTITLE },

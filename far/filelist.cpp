@@ -121,7 +121,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static_assert(static_cast<size_t>(panel_sort::BY_USER) == static_cast<size_t>(OPENPANELINFO_SORTMODES::SM_USER));
 
-
 constexpr auto operator+(panel_sort const Value) noexcept
 {
 	return std::to_underlying(Value);
@@ -135,6 +134,7 @@ static const struct sort_mode
 
 	std::initializer_list<std::pair<panel_sort, sort_order>> DefaultLayers;
 }
+
 SortModes[]
 {
 	{ lng::MMenuUnsorted,             5,  KEY_CTRLF7,  {  { panel_sort::UNSORTED,         sort_order::ascend,  }, }, },
@@ -196,7 +196,6 @@ static auto compare_fat_write_time(os::chrono::time_point First, os::chrono::tim
 
 	return First <=> Second;
 }
-
 
 enum SELECT_MODES
 {
@@ -553,7 +552,6 @@ FileList::~FileList()
 	dispose();
 }
 
-
 FileList::list_data& FileList::list_data::operator=(FileList::list_data&& rhs) noexcept
 {
 	clear();
@@ -595,7 +593,6 @@ void FileList::ToBegin()
 	m_CurFile = 0;
 	ShowFileList();
 }
-
 
 void FileList::ToEnd()
 {
@@ -722,7 +719,6 @@ public:
 
 		return false;
 	}
-
 private:
 	std::strong_ordering compare(panel_sort const SortMode, bool const Reverse, FileListItem const& Item1, FileListItem const& Item2) const
 	{
@@ -804,7 +800,6 @@ private:
 	bool m_SortFolderExt;
 	bool m_IgnorePaths;
 };
-
 
 void FileList::SortFileList(bool KeepPosition)
 {
@@ -1778,7 +1773,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ProcessHostFile();
 			return true;
 		}
-
 		case KEY_F3:
 		case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
 		case KEY_ALTF3:
@@ -2631,7 +2625,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 	return false;
 }
 
-
 void FileList::Select(FileListItem& SelItem, bool Selection)
 {
 	if (IsParentDirectory(SelItem) || SelItem.Selected == Selection)
@@ -2848,7 +2841,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		}
 	}
 }
-
 
 bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated, bool const Silent)
 {
@@ -3396,7 +3388,6 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return false;
 }
 
-
 /* $ 12.09.2000 SVS
   + Опциональное поведение для правой клавиши мыши на пустой панели
 */
@@ -3661,7 +3652,6 @@ long FileList::FindNext(int StartPos, string_view const Name)
 
 	return -1;
 }
-
 
 bool FileList::IsSelected(string_view const Name)
 {
@@ -4022,7 +4012,6 @@ bool FileList::GetSelName(string* strName, string* strShortName, os::fs::find_da
 	return false;
 }
 
-
 void FileList::ClearLastGetSelection()
 {
 	if (LastSelPosition < 0 || LastSelPosition >= static_cast<int>(data_size()))
@@ -4370,7 +4359,6 @@ void FileList::UpdateViewPanel()
 	RefreshTitle();
 }
 
-
 void FileList::CompareDir()
 {
 	const auto Another = std::dynamic_pointer_cast<FileList>(Parent()->GetAnotherPanel(this));
@@ -4631,7 +4619,6 @@ void FileList::ClearSelection()
 		SortFileList(true);
 }
 
-
 void FileList::SaveSelection()
 {
 	const auto DataLock = lock_data();
@@ -4642,7 +4629,6 @@ void FileList::SaveSelection()
 		i.PrevSelected = i.Selected;
 	}
 }
-
 
 void FileList::RestoreSelection()
 {
@@ -4659,8 +4645,6 @@ void FileList::RestoreSelection()
 
 	Redraw();
 }
-
-
 
 bool FileList::GetFileName(string& strName, int Pos, os::fs::attributes& FileAttr) const
 {
@@ -5065,7 +5049,6 @@ void FileList::SelectSortMode()
 	}
 }
 
-
 void FileList::DeleteDiz(const string_view Name, const string_view ShortName)
 {
 	if (m_PanelMode == panel_mode::NORMAL_PANEL)
@@ -5078,7 +5061,6 @@ void FileList::FlushDiz()
 	if (m_PanelMode == panel_mode::NORMAL_PANEL)
 		Diz.Flush(m_CurDir);
 }
-
 
 string FileList::GetDizName() const
 {
@@ -5166,12 +5148,10 @@ void FileList::DescribeFiles()
 	}*/
 }
 
-
 void FileList::SetReturnCurrentFile(bool Mode)
 {
 	ReturnCurrentFile=Mode;
 }
-
 
 bool FileList::ApplyCommand()
 {
@@ -5240,7 +5220,6 @@ bool FileList::ApplyCommand()
 	--UpdateDisabled;
 	return true;
 }
-
 
 void FileList::CountDirSize(bool IsRealNames)
 {
@@ -5369,12 +5348,10 @@ void FileList::CountDirSize(bool IsRealNames)
 	InitFSWatcher(true);
 }
 
-
 int FileList::GetPrevViewMode() const
 {
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->m_PrevViewMode:m_ViewMode;
 }
-
 
 panel_sort FileList::GetPrevSortMode() const
 {
@@ -5450,7 +5427,6 @@ void FileList::SetAndUpdateFilePlugin(const string& FileName, std::unique_ptr<pl
 	if ((AnotherPanel->GetType() == panel_type::INFO_PANEL) || WasFullscreen)
 		AnotherPanel->Redraw();
 }
-
 
 void FileList::ProcessCopyKeys(unsigned const Key)
 {
@@ -5605,7 +5581,6 @@ string FileList::GetPluginPrefix() const
 
 	return {};
 }
-
 
 void FileList::GoHome(string_view const Drive)
 {
@@ -6060,7 +6035,6 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	m_StreamsSize = FileSize;
 }
 
-
 std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName, os::fs::attributes const FileAttr, OPENFILEPLUGINTYPE const Type, bool* const StopProcessing)
 {
 	if (FileName.empty() || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -6130,7 +6104,6 @@ void FileList::PluginDelete()
 	AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	AnotherPanel->Redraw();
 }
-
 
 void FileList::PutDizToPlugin(FileList *DestPanel, std::span<PluginPanelItem> const ItemList, bool Delete, bool Move, DizList *SrcDiz) const
 {
@@ -6208,7 +6181,6 @@ void FileList::PutDizToPlugin(FileList *DestPanel, std::span<PluginPanelItem> co
 	DeleteFileWithFolder(strDizName);
 }
 
-
 void FileList::PluginGetFiles(const string& DestPath, bool Move)
 {
 	SaveSelection();
@@ -6270,7 +6242,6 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 	AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	AnotherPanel->Redraw();
 }
-
 
 void FileList::PluginToPluginFiles(bool Move)
 {
@@ -6402,7 +6373,6 @@ void FileList::PluginHostGetFiles()
 	AnotherPanel->Redraw();
 }
 
-
 void FileList::PluginPutFilesToNew()
 {
 	const auto DataLock = lock_data();
@@ -6451,7 +6421,6 @@ void FileList::PluginPutFilesToNew()
 		Redraw();
 	}
 }
-
 
 /* $ 12.04.2002 IS
      PluginPutFilesToAnother теперь int - возвращает то, что возвращает
@@ -6506,7 +6475,6 @@ int FileList::PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel)
 	return PutCode;
 }
 
-
 void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
 {
 	*Info = {};
@@ -6514,7 +6482,6 @@ void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), Info);
 }
-
 
 /*
    Функция для вызова команды "Архивные команды" (Shift-F3)
@@ -7656,7 +7623,6 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 	RefreshTitle();
 }
 
-
 void FileList::ReadDiz(std::span<PluginPanelItem> const Items)
 {
 	if (DizRead)
@@ -7742,7 +7708,6 @@ void FileList::ReadDiz(std::span<PluginPanelItem> const Items)
 		}
 	}
 }
-
 
 void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 {
@@ -8107,7 +8072,6 @@ void FileList::ShowFileList(bool Fast)
 	Parent()->ShowChildren();
 }
 
-
 FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
 	if (static_cast<size_t>(Position) >= data_size())
@@ -8203,6 +8167,9 @@ void FileList::ShowSelectedSize()
 			if (strSelStr.size() > AvailableWidth)
 				inplace::truncate_right(strSelStr, AvailableWidth);
 		}
+		// Cache the status text length for GetBottomStatusTextBounds
+		m_CachedStatusTextLength = static_cast<int>(strSelStr.size());
+
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.bottom - 2 * Global->Opt->ShowPanelStatus);
 		Text(L' ');
@@ -8214,7 +8181,10 @@ void FileList::ShowSelectedSize()
 void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 {
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
+	{
+		InvalidateStatusTextCache();
 		return;
+	}
 
 	const auto calc_total_string = [this, Info](bool ShowBytes)
 	{
@@ -8255,6 +8225,9 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 
 	const string_view TotalStrView = TotalStr;
+
+	// Cache the status text length for GetBottomStatusTextBounds
+	m_CachedStatusTextLength = static_cast<int>(TotalStrView.size());
 
 	SetColor(COL_PANELTOTALINFO);
 	GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - TotalStrView.size()) / 2), m_Where.bottom);
@@ -8433,14 +8406,12 @@ void FileList::PrepareViewSettings(int ViewMode)
 	UpdateHeight();
 }
 
-
 void FileList::PreparePanelView()
 {
 	PrepareColumnWidths(m_ViewSettings.StatusColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
 	PrepareColumnWidths(m_ViewSettings.PanelColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
 	PrepareStripes(m_ViewSettings.PanelColumns);
 }
-
 
 void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen) const
 {
@@ -8602,7 +8573,6 @@ void FileList::PrepareStripes(const std::vector<column>& Columns)
 	m_Stripes = 1;
 	m_ColumnsInStripe = ColumnsSize;
 }
-
 
 void FileList::HighlightBorder(int Level, int ListPos) const
 {
@@ -9140,6 +9110,37 @@ void FileList::background_update()
 
 }
 
+bool FileList::GetBottomStatusTextBounds(int& OutStartX, int& OutEndX) const
+{
+	OutStartX = -1;
+	OutEndX = -1;
+
+	if (m_CachedStatusTextLength == -1)
+	{
+		return false;
+	}
+
+	// Check if status text should be displayed
+	const bool hasSelectedFiles = m_SelFileCount > 0;
+	const bool shouldShowTotals = Global->Opt->ShowPanelTotals || Global->Opt->ShowPanelFree;
+
+	if (!hasSelectedFiles && !shouldShowTotals)
+	{
+		return false; // No status text to display
+	}
+
+	const int BorderSize = 1;
+	const int MarginSize = 1;
+	const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
+
+	const auto statusTextLength = static_cast<size_t>(m_CachedStatusTextLength);
+
+	// Calculate the start and end positions for text status
+	OutStartX = m_Where.left + BorderSize + static_cast<int>((AvailableWidth - statusTextLength) / 2);
+	OutEndX = OutStartX + static_cast<int>(statusTextLength) - 1;
+
+	return true;
+}
 
 bool FileList::IsDizDisplayed() const
 {

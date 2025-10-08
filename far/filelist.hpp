@@ -198,6 +198,7 @@ public:
 	int GetColumnsCount() const override;
 	void SetReturnCurrentFile(bool Mode) override;
 	void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
+	bool GetBottomStatusTextBounds(int& OutStartX, int& OutEndX) const override;
 	void SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string_view PluginFile, bool SendOnFocus = false) override;
 	size_t GetSelCount() const override;
 	bool GetSelName(string *strName, string *strShortName = nullptr, os::fs::find_data *fd = nullptr) override;
@@ -487,6 +488,10 @@ private:
 
 	class background_updater;
 	std::unique_ptr<background_updater> m_BackgroundUpdater;
+
+	// Cached status text length for performance optimization
+	mutable int m_CachedStatusTextLength = -1;
+	void InvalidateStatusTextCache() const { m_CachedStatusTextLength = -1; }
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

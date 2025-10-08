@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+m4_include(`farversion.m4')m4_dnl
 .Language=Polish,Polski
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
@@ -369,9 +369,12 @@ $ #Polecenia kontroli panelu#
  Ukryj/pokaż prawy panel                                    #Ctrl+F2#
  Zmień wysokość panelu                           #Ctrl+Góra,Ctrl+Dół#
  Zmień wysokość bieżącego panelu     #Ctrl+Shift+Góra,Ctrl+Shift+Dół#
- Zmień szerokość panelu                        #Ctrl+Lewo,Ctrl+Prawo#
+ Zmień wysokość paneli myszą      #Przeciągnij dolną granicę paneli#
+ Zmień szerokość paneli klawiaturą             #Ctrl+Lewo,Ctrl+Prawo#
  (tylko gdy wiersz poleceń jest pusty)
+ Zmień szerokość paneli myszą   #Przeciągnij granicę między panelami#
  Przywróć domyślną szerokość paneli                    #Ctrl+Numpad5#
+                        #Podwójne kliknięcie myszy na granicy paneli#
  Przywróć domyślną wysokość paneli                 #Ctrl+Alt+Numpad5#
  Pokaż/Ukryj pasek skrótów w dolnej linii                    #Ctrl+B#
  Przełącz tryb całkowitej i wolnej wielkości           #Ctrl+Shift+S#
@@ -1151,6 +1154,14 @@ automatycznie ustawiony na panel plików.
 
  Operacja ~szybkiego szukania~@FastFind@ może być użyta jako odnośnik do żądanego
 plików po pierwszej literze jego nazwy.
+
+ #Zmiana rozmiaru paneli myszą#
+
+ Można zmieniać szerokość paneli plików za pomocą myszy:
+
+ - ^<wrap>Najedź kursorem myszy na granicę między lewym i prawym panelem, aby zobaczyć wizualną informację o możliwości zmiany rozmiaru.
+ - ^<wrap>Kliknij i przeciągnij granicę w lewo lub w prawo, aby dostosować szerokość paneli.
+ - ^<wrap>Kliknij dwukrotnie na granicy, aby przywrócić domyślną równą szerokość paneli (podział 50/50).
 
  Zobacz także listę ~klawiszy makropoleceń~@KeyMacroShellList@, dostępnych w panelach.
 

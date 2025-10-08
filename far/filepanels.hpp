@@ -92,6 +92,8 @@ public:
 	bool IsLeftActive() const { return m_ActivePanelIndex == panel_left; }
 	bool IsRightActive() const { return m_ActivePanelIndex == panel_right; }
 
+	// Check if currently in resizing mode (for macro ESC key handling)
+	bool IsInResizingMode() const { return m_MouseState == MouseState::Resizing || m_MouseState == MouseState::HeightResizing; }
 
 	panel_ptr GetAnotherPanel(panel_ptr Current) const { return GetAnotherPanel(Current.get()); }
 	panel_ptr GetAnotherPanel(const Panel* Current) const;
@@ -110,6 +112,26 @@ private:
 	void Init();
 	static void SetPassivePanelInternal(panel_ptr ToBePassive);
 	void SetActivePanelInternal(panel_ptr ToBeActive);
+
+	// Panel border mouse handling for resizing
+	bool IsMouseOverPanelInnerBorder(const MOUSE_EVENT_RECORD *MouseEvent) const;
+	void DrawWidthBorderFeedback(bool IsHovering, bool IsDragging);
+	void ClearWidthBorderFeedback();
+	void ResetAllMouseStates();
+	void ResetWidthMouseStates() const;
+
+	// Panel height resizing functions
+	bool IsMouseOverPanelBottomBorder(const MOUSE_EVENT_RECORD *MouseEvent) const;
+	void DrawHeightBorderFeedback(bool IsHovering, bool IsDragging);
+	void ClearHeightBorderFeedback();
+	void ResetHeightMouseStates() const;
+
+	// Helper functions for height border feedback
+	std::pair<bool, bool> DetermineHeightHighlightPanels(bool IsDragging, const rectangle& leftPanelPos, const rectangle& rightPanelPos);
+	void DrawPanelBottomBorder(const std::shared_ptr<Panel>& panel, const rectangle& panelPos, const FarColor& BorderColor, const wchar_t* BorderChar);
+
+	// Common helper for border color calculation
+	static FarColor GetBorderFeedbackColor();
 
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;
@@ -139,6 +161,34 @@ private:
 	m_Panels[panels_count];
 
 	panel_index m_ActivePanelIndex;
+
+	// Panel resizing state
+	mutable int m_ResizeStartX = 0;
+	mutable int m_ResizeStartWidthDecrement = 0;
+	mutable int m_LastWidthFeedbackY = -1;
+	mutable DWORD m_HoverStartTime = 0;  // For hover delay
+
+	// Panel height resizing state
+	mutable int m_ResizeStartY = 0;
+	mutable int m_ResizeStartLeftHeightDecrement = 0;
+	mutable int m_ResizeStartRightHeightDecrement = 0;
+	mutable int m_LastHeightFeedbackX = -1;
+	mutable DWORD m_HeightHoverStartTime = 0;
+
+	// Original state for ESC cancellation
+	mutable int m_OriginalWidthDecrement = 0;
+	mutable int m_OriginalLeftHeightDecrement = 0;
+	mutable int m_OriginalRightHeightDecrement = 0;
+
+	enum class MouseState
+	{
+		None,
+		Hovering,
+		Resizing,
+		HeightHovering,
+		HeightResizing
+	};
+	mutable MouseState m_MouseState = MouseState::None;
 };
 
 #endif // FILEPANELS_HPP_B2D6495E_DA8B_4E72_80F5_37282A14C316

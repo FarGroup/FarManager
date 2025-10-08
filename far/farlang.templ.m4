@@ -18791,6 +18791,21 @@ MSetColorPanelDragging
 "Tempiamas tekstas"
 upd:"Dragging text"
 
+MSetColorPanelDraggingBorder
+"Граница перетаскивания"
+"Dragging border"
+"Tažená hranice"
+"Drag && Drop Border"
+"Vonszolt szegély"
+"Przeciągana krawędź"
+"Texto arrastrado"
+"Potiahnutý okraj"
+"Spostamento Bordo"
+"Межа перетягув."
+"Мяжа пераносу"
+"Tempiama riba"
+upd:"Dragging border"
+
 MSetColorPanelBox
 "Рамка"
 "Border"

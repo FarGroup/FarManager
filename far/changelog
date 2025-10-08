@@ -1,4 +1,40 @@
 --------------------------------------------------------------------------------
+yulian5 2025-10-07 21:00:00-07:00 - build 6572
+
+1. New feature: panel resizing with mouse
+
+--------------------------------------------------------------------------------
+zg 2025-10-05 23:11:22+03:00 - build 6571
+
+1. selection drawn incorrectly in viewer in dump mode.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-04 21:05:17+01:00 - build 6570
+
+1. gh-939: ECSTATE_SAVED / ECSTATE_MODIFIED changed their meaning.
+   The original meaning restored (more or less).
+
+--------------------------------------------------------------------------------
+drkns 2025-10-04 00:00:33+01:00 - build 6569
+
+1. Refactoring.
+
+2. More ASAN tests.
+
+3. Reorganize headers.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-03 20:47:49+01:00 - build 6568
+
+1. gh-1022: crash on smb share.
+   This was already fixed in 1805 and broken again in 5838.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-03 11:10:57+01:00 - build 6567
+
+1. Correction of 6549 for old OSes.
+
+--------------------------------------------------------------------------------
 rohitab 2025-10-01 13:36:49+10:00 - build 6566
 
 1. gh-1019: Enable saving find all results from modal editors.

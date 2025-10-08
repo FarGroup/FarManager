@@ -158,6 +158,7 @@ public:
 	virtual void SetReturnCurrentFile(bool Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(OpenPanelInfo* Info) const;
+	virtual bool GetBottomStatusTextBounds(int& OutStartX, int& OutEndX) const { OutStartX = -1; OutEndX = -1; return false; }
 	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, string_view PluginFile, bool SendOnFocus = false) {}
 	virtual void SetPluginModified() {}
 	virtual bool ProcessPluginEvent(int Event,void *Param) {return false;}

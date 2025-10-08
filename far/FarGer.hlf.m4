@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+m4_include(`farversion.m4')m4_dnl
 .Language=German,Deutsch
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
@@ -369,9 +369,12 @@ $ #Befehl zur Fenstersteuerung#
  Rechtes Fenster anzeigen/verbergen                         #Strg+F2#
  Fensterhöhe ändern                                   #Strg+↑,Strg+↓#
  Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
- Fensterbreite ändern                        #Strg+Links,Strg+Rechts#
+ Fensterhöhe mit Maus ändern       #Untere Grenze der Fenster ziehen#
+ Fensterbreite mit Tastatur ändern           #Strg+Links,Strg+Rechts#
  (b.leerer Kommandozeile)
+ Fensterbreite mit Maus ändern      #Grenze zwischen Fenstern ziehen#
  Standardfensterbreite wiederherstellen                   #Strg+Num5#
+                      #Maus-Doppelklick auf Grenze zwischen Fenstern#
  Restore default panels height                     #Ctrl+Alt+Numpad5#
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
@@ -896,8 +899,8 @@ default button or does another similar thing).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
-effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
-#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+ #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
@@ -912,7 +915,7 @@ $ #Special commands#
 $ #Mouse: wheel support#
  #Panels#
  Rotating the wheel scrolls the file list without changing the cursor position on the screen.
-Pressing the #middle button# has the same effect as pressing #Enter#.
+ Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Editor#
  Rotating the wheel scrolls the text without changing the cursor position on the screen
@@ -926,7 +929,7 @@ Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Menus#
  Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
-pressing #Enter#. It is possible to choose items without moving the cursor.
+ pressing #Enter#. It is possible to choose items without moving the cursor.
 
  #Dialogs#
  In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
@@ -1182,6 +1185,30 @@ automatisch die Starteinstellung des Fenstertyps benutzt.
 
  Die ~Schnellsuche~@FastFind@ kann benutzt werden, um durch die Anfangsbuch-
 staben eines Namens auf die Datei zu springen.
+
+ #Fenstergröße mit der Maus ändern#
+
+ Sie können die Breite und Höhe der Dateifenster mit der Maus ändern:
+
+ #Breite ändern:#
+ - ^<wrap>Bewegen Sie den Mauszeiger über die vertikale Grenze zwischen dem linken und rechten Fenster, um eine visuelle Rückmeldung für den veränderbaren Bereich zu sehen.
+ - ^<wrap>Klicken und ziehen Sie die Grenze nach links oder rechts, um die Fensterbreiten anzupassen.
+ - ^<wrap>Doppelklicken Sie auf die vertikale Grenze, um die standardmäßigen gleichen Fensterbreiten wiederherzustellen (50/50-Aufteilung).
+ - ^<wrap>Drücken Sie #Esc# während der Größenänderung, um abzubrechen und zur ursprünglichen Fensterbreite zurückzukehren.
+
+ #Höhe ändern:#
+ - ^<wrap>Bewegen Sie den Mauszeiger über die untere Grenze eines Fensters, um eine visuelle Rückmeldung für den veränderbaren Bereich zu sehen.
+ - ^<wrap>Klicken und ziehen Sie die untere Grenze nach oben oder unten, um die Fensterhöhe anzupassen.
+ - ^<wrap>Das Verhalten der Größenänderung hängt von der horizontalen Mausposition ab:
+   - ^<wrap>Über LINKEM Fenster in linker Hälfte → Nur LINKES Fenster ändern
+   - ^<wrap>Über LINKEM Fenster in rechter Hälfte → BEIDE Fenster ändern
+   - ^<wrap>Über RECHTEM Fenster in linker Hälfte → BEIDE Fenster ändern
+   - ^<wrap>Über RECHTEM Fenster in rechter Hälfte → Nur RECHTES Fenster ändern
+ - ^<wrap>Doppelklicken Sie auf die untere Grenze, um die volle Fensterhöhe wiederherzustellen.
+ - ^<wrap>Drücken Sie #Esc# während der Größenänderung, um abzubrechen und zur ursprünglichen Fensterhöhe zurückzukehren.
+
+ #Hinweis für ConEmu-Benutzer:#
+ ^<wrap>Um doppelte Größenänderungsindikatoren und -methoden zu vermeiden, wird empfohlen, die Far Manager-Fenstergröße-Funktion in ConEmu zu deaktivieren, indem Sie #Einstellungen → Far Manager → Resize panels by mouse# deaktivieren.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

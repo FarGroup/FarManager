@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "colormix.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -386,6 +387,36 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 bool FilePanels::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
+
+	// Handle ESC key during resizing to cancel and revert
+	if (LocalKey == KEY_ESC)
+	{
+		if (m_MouseState == MouseState::Resizing)
+		{
+			// Cancel width resizing and revert to original state
+			Global->Opt->WidthDecrement = m_OriginalWidthDecrement;
+			m_MouseState = MouseState::None;
+			ClearWidthBorderFeedback();
+			m_HoverStartTime = 0;
+			ResetAllMouseStates();
+			SetScreenPosition();
+			Global->WindowManager->RefreshWindow();
+			return true;
+		}
+		else if (m_MouseState == MouseState::HeightResizing)
+		{
+			// Cancel height resizing and revert to original state
+			Global->Opt->LeftHeightDecrement = m_OriginalLeftHeightDecrement;
+			Global->Opt->RightHeightDecrement = m_OriginalRightHeightDecrement;
+			m_MouseState = MouseState::None;
+			ClearHeightBorderFeedback();
+			m_HeightHoverStartTime = 0;
+			ResetAllMouseStates();
+			SetScreenPosition();
+			Global->WindowManager->RefreshWindow();
+			return true;
+		}
+	}
 
 	if (
 		any_of(LocalKey,
@@ -1080,6 +1111,18 @@ void FilePanels::DisplayObject()
 	if (RightPanel()->IsVisible())
 		RightPanel()->Show();
 
+	// Draw the border feedback if currently resizing
+	if (m_MouseState == MouseState::Resizing)
+	{
+		DrawWidthBorderFeedback(false, true);
+	}
+
+	// Draw the height border feedback if currently height resizing
+	if (m_MouseState == MouseState::HeightResizing)
+	{
+		DrawHeightBorderFeedback(false, true);
+	}
+
 #else
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
@@ -1126,11 +1169,19 @@ void FilePanels::DisplayObject()
 #endif
 }
 
-bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent)
 {
-	if (!MouseEvent->dwMousePosition.Y)
+	// Cache essential inputs for better performance
+	// Defer expensive calculations until needed
+	const auto& pos = MouseEvent->dwMousePosition;
+	const DWORD  btn = MouseEvent->dwButtonState;
+	const DWORD  flags = MouseEvent->dwEventFlags;
+	auto& opts = Global->Opt;
+
+	// 1) Far-style title‐bar click
+	if (pos.Y == 0)
 	{
-		if (!Global->Opt->ShowColumnTitles) // Sort Mark letter in the menu area
+		if (!opts->ShowColumnTitles)  // Sort Mark letter in the menu area
 		{
 			if (ActivePanel()->ProcessMouse(MouseEvent))
 				return true;
@@ -1138,28 +1189,28 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				return true;
 		}
 
-		if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
+		if ((btn & 3) && !flags)
 		{
-			if (!MouseEvent->dwMousePosition.X)
+			if (pos.X == 0)
 				ProcessKey(Manager::Key(KEY_CTRLO));
 			else
-				Global->Opt->ShellOptions(false, MouseEvent);
-
+				opts->ShellOptions(false, MouseEvent);
 			return true;
 		}
 	}
 
-	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
+	// 2) Middle‐click -> ENTER Key
+	if (btn & FROM_LEFT_2ND_BUTTON_PRESSED)
 	{
-		if (!IsMouseButtonEvent(MouseEvent->dwEventFlags))
+		if (!IsMouseButtonEvent(flags))
 			return true;
 
 		int Key = KEY_ENTER;
-		if (MouseEvent->dwControlKeyState&SHIFT_PRESSED)
+		if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
 		{
 			Key |= KEY_SHIFT;
 		}
-		if (MouseEvent->dwControlKeyState&(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
+		if (MouseEvent->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
 		{
 			Key |= KEY_CTRL;
 		}
@@ -1171,16 +1222,627 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
+	// 3) Continue/finish a Resizing operation
+	if (m_MouseState == MouseState::Resizing)
+	{
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (leftPressed)
+		{
+			const int dx = pos.X - m_ResizeStartX;
+			const int newDec = m_ResizeStartWidthDecrement - dx;
+			const int halfXminus10 = ScrX / 2 - 10;  // Calculate only when needed
+			const int clamped = std::clamp(newDec, -halfXminus10, halfXminus10);
+			if (opts->WidthDecrement != clamped)
+			{
+				opts->WidthDecrement = clamped;
+				Global->WindowManager->ResizeAllWindows();
+			}
+		}
+		else
+		{
+			// mouse released -> stop resizing
+			m_MouseState = MouseState::None;
+			ClearWidthBorderFeedback();
+			m_HoverStartTime = 0;
+			ResetAllMouseStates();
+		}
+		return true;
+	}
+
+	// 3a) Continue/finish a Height Resizing operation
+	if (m_MouseState == MouseState::HeightResizing)
+	{
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (leftPressed)
+		{
+			const int dy = m_ResizeStartY - pos.Y;  // Inverted: positive dy means mouse moved up (decrease height)
+			const auto leftPanel = LeftPanel();
+			const auto rightPanel = RightPanel();
+			const auto leftPanelPos = leftPanel->GetPosition();
+			const auto rightPanelPos = rightPanel->GetPosition();
+
+			// Determine which panel(s) to resize based on mouse X position at start of resize
+			const int startX = m_ResizeStartX;
+
+			// Calculate boundaries for each panel
+			const int leftPanelMidX = leftPanelPos.left + (leftPanelPos.right - leftPanelPos.left) / 2;
+			const int rightPanelMidX = rightPanelPos.left + (rightPanelPos.right - rightPanelPos.left) / 2;
+
+			// First determine which panel the mouse is over
+			const bool overLeftPanel = (startX >= leftPanelPos.left && startX <= leftPanelPos.right);
+			const bool overRightPanel = (startX >= rightPanelPos.left && startX <= rightPanelPos.right);
+
+			if (overLeftPanel)
+			{
+				// Mouse is over left panel
+				if (startX <= leftPanelMidX)
+				{
+					// Left half of left panel - resize left panel only
+					const int newLeftDec = m_ResizeStartLeftHeightDecrement + dy;
+					const int maxDec = ScrY - 7;
+					const int clampedLeft = std::clamp(newLeftDec, 0, maxDec);
+					if (opts->LeftHeightDecrement == clampedLeft)
+						return true;
+
+					opts->LeftHeightDecrement = clampedLeft;
+					SetScreenPosition();
+					Global->WindowManager->RefreshWindow();
+				}
+				else
+				{
+					// Right half of left panel (inner half, closer to center) - resize both panels
+					const int newLeftDec = m_ResizeStartLeftHeightDecrement + dy;
+					const int newRightDec = m_ResizeStartRightHeightDecrement + dy;
+					const int maxDec = ScrY - 7;
+					const int clampedLeft = std::clamp(newLeftDec, 0, maxDec);
+					const int clampedRight = std::clamp(newRightDec, 0, maxDec);
+					if (opts->LeftHeightDecrement == clampedLeft && opts->RightHeightDecrement == clampedRight)
+						return true;
+
+					opts->LeftHeightDecrement = clampedLeft;
+					opts->RightHeightDecrement = clampedRight;
+					SetScreenPosition();
+					Global->WindowManager->RefreshWindow();
+				}
+			}
+			else if (overRightPanel)
+			{
+				// Mouse is over right panel
+				if (startX < rightPanelMidX)
+				{
+					// Left half of right panel (inner half, closer to center) - resize both panels
+					const int newLeftDec = m_ResizeStartLeftHeightDecrement + dy;
+					const int newRightDec = m_ResizeStartRightHeightDecrement + dy;
+					const int maxDec = ScrY - 7;
+					const int clampedLeft = std::clamp(newLeftDec, 0, maxDec);
+					const int clampedRight = std::clamp(newRightDec, 0, maxDec);
+					if (opts->LeftHeightDecrement == clampedLeft && opts->RightHeightDecrement == clampedRight)
+						return true;
+
+					opts->LeftHeightDecrement = clampedLeft;
+					opts->RightHeightDecrement = clampedRight;
+					SetScreenPosition();
+					Global->WindowManager->RefreshWindow();
+				}
+				else
+				{
+					// Right half of right panel - resize right panel only
+					const int newRightDec = m_ResizeStartRightHeightDecrement + dy;
+					const int maxDec = ScrY - 7;
+					const int clampedRight = std::clamp(newRightDec, 0, maxDec);
+					if (opts->RightHeightDecrement == clampedRight)
+						return true;
+
+					opts->RightHeightDecrement = clampedRight;
+					SetScreenPosition();
+					Global->WindowManager->RefreshWindow();
+				}
+			}
+		}
+		else
+		{
+			// mouse released -> stop height resizing
+			m_MouseState = MouseState::None;
+			ClearHeightBorderFeedback();
+			m_HeightHoverStartTime = 0;
+			ResetAllMouseStates();
+		}
+		return true;
+	}
+
+	// 4) Border interaction: hover, double‐click, start resize
+	// Check width border first, but only if NOT already in height resizing mode
+	const bool overWidthBorder = IsMouseOverPanelInnerBorder(MouseEvent);
+	const bool overHeightBorder = IsMouseOverPanelBottomBorder(MouseEvent);
+
+	// Priority: if in height resizing mode, ignore width border
+	// If over both borders, prefer height border (bottom border takes priority)
+	const bool processWidthBorder = overWidthBorder && !overHeightBorder &&
+	                                 m_MouseState != MouseState::HeightHovering &&
+	                                 m_MouseState != MouseState::HeightResizing;
+	const bool processHeightBorder = overHeightBorder &&
+	                                  m_MouseState != MouseState::Hovering &&
+	                                  m_MouseState != MouseState::Resizing;
+
+	if (processWidthBorder)
+	{
+		// 4a) Double‐click resets to center
+		if (flags & DOUBLE_CLICK)
+		{
+			m_MouseState = MouseState::None;
+			m_HoverStartTime = 0;
+			opts->WidthDecrement = 0;
+			SetScreenPosition();
+			Global->WindowManager->RefreshWindow();
+
+			// Final flush and reset after the refresh to ensure clean state
+			ResetWidthMouseStates();
+
+			// Consume the event completely to prevent propagation to panels
+			return true;
+		}
+
+		// 4b) Hover (no button pressed)
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (!leftPressed)
+		{
+			const DWORD now = GetTickCount();
+			if (m_MouseState == MouseState::None)
+			{
+				if (m_HoverStartTime == 0)
+				{
+					m_HoverStartTime = now;
+					return true;
+				}
+
+				const int hoverThreshold = 300;
+				if (now - m_HoverStartTime < hoverThreshold)
+					return true;
+
+				m_MouseState = MouseState::Hovering;
+				DrawWidthBorderFeedback(true, false);
+			}
+			else if (m_MouseState == MouseState::Hovering)
+			{
+				DrawWidthBorderFeedback(true, false);
+			}
+			return true;
+		}
+
+		// 4c) Begin resize on first click (no movement yet)
+		if (m_MouseState == MouseState::Hovering)
+		{
+			const bool moved = (flags & MOUSE_MOVED) != 0;
+			if (!moved)
+			{
+				m_MouseState = MouseState::Resizing;
+				m_ResizeStartX = pos.X;
+				m_ResizeStartWidthDecrement = opts->WidthDecrement;
+				m_OriginalWidthDecrement = opts->WidthDecrement; // Save for ESC cancellation
+				m_HoverStartTime = 0;
+
+				// No ResetWidthMouseStates() here, as we are starting the resize
+				return true;
+			}
+		}
+	}
+	else if (m_MouseState == MouseState::Hovering && !overWidthBorder)
+	{
+		// left border, but moved off -> clear hover
+		m_MouseState = MouseState::None;
+		ClearWidthBorderFeedback();
+		m_HoverStartTime = 0;
+		ResetWidthMouseStates();
+	}
+
+	// 4d) Height border interaction: hover, double‐click, start resize
+	if (processHeightBorder)
+	{
+		// 4d1) Double‐click resets to full height
+		if (flags & DOUBLE_CLICK)
+		{
+			m_MouseState = MouseState::None;
+			m_HeightHoverStartTime = 0;
+			opts->LeftHeightDecrement = 0;
+			opts->RightHeightDecrement = 0;
+			SetScreenPosition();
+			Global->WindowManager->RefreshWindow();
+
+			// Final flush and reset after the refresh to ensure clean state
+			ResetHeightMouseStates();
+
+			// Consume the event completely to prevent propagation to panels
+			return true;
+		}
+
+		// 4d2) Hover (no button pressed)
+		const bool leftPressed = (btn & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+		if (!leftPressed)
+		{
+			const DWORD now = GetTickCount();
+			if (m_MouseState == MouseState::None)
+			{
+				if (m_HeightHoverStartTime == 0)
+				{
+					m_HeightHoverStartTime = now;
+					return true;
+				}
+
+				const int hoverThreshold = 300;
+				if (now - m_HeightHoverStartTime < hoverThreshold)
+					return true;
+
+				m_MouseState = MouseState::HeightHovering;
+				DrawHeightBorderFeedback(true, false);
+			}
+			else if (m_MouseState == MouseState::HeightHovering)
+			{
+				DrawHeightBorderFeedback(true, false);
+			}
+			return true;
+		}
+
+		// 4d3) Begin height resize on first click (no movement yet)
+		if (m_MouseState == MouseState::HeightHovering)
+		{
+			const bool moved = (flags & MOUSE_MOVED) != 0;
+			if (!moved)
+			{
+				m_MouseState = MouseState::HeightResizing;
+				m_ResizeStartX = pos.X;  // Store X position to determine which panel(s) to resize
+				m_ResizeStartY = pos.Y;
+				m_ResizeStartLeftHeightDecrement = opts->LeftHeightDecrement;
+				m_ResizeStartRightHeightDecrement = opts->RightHeightDecrement;
+				m_OriginalLeftHeightDecrement = opts->LeftHeightDecrement; // Save for ESC cancellation
+				m_OriginalRightHeightDecrement = opts->RightHeightDecrement; // Save for ESC cancellation
+				m_HeightHoverStartTime = 0;
+
+				// No ResetHeightMouseStates() here, as we are starting the resize
+				return true;
+			}
+		}
+	}
+	else if (m_MouseState == MouseState::HeightHovering && !overHeightBorder)
+	{
+		// left height border, but moved off -> clear hover
+		m_MouseState = MouseState::None;
+		ClearHeightBorderFeedback();
+		m_HeightHoverStartTime = 0;
+		ResetHeightMouseStates();
+	}
+
+	// 5) Additional safeguard: Don't process double-clicks that might have been 
+	// intended for border but are now over panel area due to resize
+	if ((flags & DOUBLE_CLICK) && IsMouseOverPanelInnerBorder(MouseEvent))
+	{
+		// This is a double-click that should have been handled by border logic above
+		// but somehow reached here. Consume it to prevent unwanted panel actions.
+		return true;
+	}
+
 	if (!ActivePanel()->ProcessMouse(MouseEvent))
 	{
-		if (!PassivePanel()->ProcessMouse(MouseEvent))
-			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
-				CmdLine->ProcessMouse(MouseEvent);
+		if (!PassivePanel()->ProcessMouse(MouseEvent) &&
+			!m_windowKeyBar->ProcessMouse(MouseEvent))
+		{
+			CmdLine->ProcessMouse(MouseEvent);
+		}
 
 		ActivePanel()->SetCurPath();
 	}
 
 	return true;
+}
+
+bool FilePanels::IsMouseOverPanelInnerBorder(const MOUSE_EVENT_RECORD *MouseEvent) const
+{
+	const auto MouseX = MouseEvent->dwMousePosition.X;
+	const auto MouseY = MouseEvent->dwMousePosition.Y;
+
+	// Cache frequently accessed values
+	const auto& opt = Global->Opt;
+	const auto BorderX = ScrX / 2 - opt->WidthDecrement;
+
+	// Check a 2-column wide area for the border between panels
+	if (!(MouseX >= BorderX && MouseX <= BorderX + 1))
+		return false;
+
+	// Exclude scroll bar areas from border detection to give scroll bars priority
+	// But allow 1 additional row below the scrollbar as grip area for width resizing
+	// Somehow it works only for hightlighting - need to fix
+	if (opt->ShowPanelScrollbar)
+	{
+		const auto leftPanel = LeftPanel();
+		const auto leftPanelPos = leftPanel->GetPosition();
+
+	// Left panel - border (BorderX) is on the right side - we need to avoid the scrollbar area
+	if (!leftPanel->IsVisible() || MouseX != BorderX)
+		return true;
+
+	if (MouseX != leftPanelPos.right || leftPanel->GetType() != panel_type::FILE_PANEL)
+		return true;
+
+	const auto filePanel = std::dynamic_pointer_cast<FileList>(leftPanel);
+	if (!filePanel)
+		return true;
+
+	const int height = leftPanelPos.bottom - leftPanelPos.top - 1;
+	if (filePanel->GetFileCount() <= static_cast<size_t>(height))
+		return true;
+
+	const auto scrollBarStartY = leftPanelPos.top + 1 + (opt->ShowColumnTitles ? 1 : 0);
+	// There is conflict with scrollbar area, let's grab one cell from it for the  better grip
+	const auto scrollBarEndY = scrollBarStartY + (height - (opt->ShowColumnTitles ? 1 : 0)) - 1;
+	if (MouseY >= scrollBarStartY && MouseY < scrollBarEndY)
+		return false; // This is scroll bar area, not border for width resizing
+
+	// Right panel - scrollbar area doesn't conflict with border (BorderX + 1) - do nothing
+
+		return true; // not scrollbar area or grip area above/below scrollbar
+	}
+
+	return true;
+}
+
+bool FilePanels::IsMouseOverPanelBottomBorder(const MOUSE_EVENT_RECORD *MouseEvent) const
+{
+	const auto MouseX = MouseEvent->dwMousePosition.X;
+	const auto MouseY = MouseEvent->dwMousePosition.Y;
+
+	// Cache frequently accessed values
+	const auto leftPanel = LeftPanel();
+	const auto rightPanel = RightPanel();
+	const auto leftPanelPos = leftPanel->GetPosition();
+	const auto rightPanelPos = rightPanel->GetPosition();
+
+	// Check if mouse is over the bottom border of either panel
+	const auto leftBottomY = leftPanelPos.bottom;
+	const auto rightBottomY = rightPanelPos.bottom;
+
+	// Left panel bottom border
+	if (leftPanel->IsVisible() && MouseY == leftBottomY &&
+		MouseX >= leftPanelPos.left && MouseX <= leftPanelPos.right)
+	{
+		return true;
+	}
+
+	// Right panel bottom border
+	if (rightPanel->IsVisible() && MouseY == rightBottomY &&
+		MouseX >= rightPanelPos.left && MouseX <= rightPanelPos.right)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+FarColor FilePanels::GetBorderFeedbackColor()
+{
+	// Get the dragging border color first - this respects user's custom color choices
+	auto Result = colors::PaletteColorToFarColor(COL_PANELDRAGBORDER);
+	const auto& DragTextColor = colors::PaletteColorToFarColor(COL_PANELDRAGTEXT);
+	const auto& SelectedTextColor = colors::PaletteColorToFarColor(COL_PANELSELECTEDTEXT);
+	const auto& PanelTextColor = colors::PaletteColorToFarColor(COL_PANELTEXT);
+
+	// Check if the dragging border color is using the default palette value
+	// Default palette value for COL_PANELDRAGBORDER is F_YELLOW|B_BLUE
+	const auto DefaultDragBorderColor = F_YELLOW | B_BLUE;
+
+	// If the current color matches the default palette value, or if it seems uninitialized,
+	// apply the fallback logic (theme doesn't define this color or user hasn't customized it)
+	if (const auto CurrentDragBorderRaw = (Result.ForegroundColor & 0x0F) | ((Result.BackgroundColor & 0x0F) << 4);
+		CurrentDragBorderRaw == DefaultDragBorderColor ||
+		Result.ForegroundColor == Result.BackgroundColor ||
+		Result.ForegroundColor == 0)
+	{
+		// Apply fallback logic: foreground from dragging text (or selected text), background from panel
+		Result.ForegroundColor = DragTextColor.ForegroundColor != 0 ? DragTextColor.ForegroundColor : SelectedTextColor.ForegroundColor;
+		Result.BackgroundColor = PanelTextColor.BackgroundColor;
+	}
+
+	return Result;
+}
+
+void FilePanels::DrawWidthBorderFeedback(bool IsHovering, bool IsDragging)
+{
+	// Show visual feedback on hover and during dragging
+	if (!IsHovering && !IsDragging)
+		return;
+
+	// Cache frequently accessed pointers and values
+	const auto leftPanel = LeftPanel();
+	const auto rightPanel = RightPanel();
+	const auto leftPanelPos = leftPanel->GetPosition();
+	const auto rightPanelPos = rightPanel->GetPosition();
+	const auto& opt = Global->Opt;
+
+	const auto BorderX = ScrX / 2 - opt->WidthDecrement;
+	const auto borderX = static_cast<int>(BorderX);
+
+	const auto BorderColor = GetBorderFeedbackColor();
+
+	static constexpr wchar_t BorderChar[] = L"║";
+
+	// Draw full height border feedback
+	const auto StartY = 1;
+	const auto EndY = ScrY - 2;
+
+	const int borderXPlus = borderX + 1;
+	const bool drawLeft = leftPanel->IsVisible();
+	const bool drawRight = rightPanel->IsVisible() && borderX < ScrX - 1;
+
+	// Calculate actual drawing boundaries based on panel heights
+	const auto leftPanelStartY = std::max(StartY, static_cast<int>(leftPanelPos.top + 1));
+	const auto leftPanelEndY = std::min(EndY, static_cast<int>(leftPanelPos.bottom));
+	const auto rightPanelStartY = std::max(StartY, static_cast<int>(rightPanelPos.top + 1));
+	const auto rightPanelEndY = std::min(EndY, static_cast<int>(rightPanelPos.bottom));
+
+	// Helper function to get scroll bar boundaries for a panel
+	auto getScrollBarBounds = [&](const panel_ptr& panel) -> std::tuple<bool, int, int> {
+		if (!opt->ShowPanelScrollbar || !panel->IsVisible() || panel->GetType() != panel_type::FILE_PANEL)
+			return {false, 0, 0};
+
+		const auto filePanel = std::dynamic_pointer_cast<FileList>(panel);
+		if (!filePanel) return {false, 0, 0};
+
+		const auto panelPos = panel->GetPosition();
+		const bool hasScrollBar = filePanel->GetFileCount() > static_cast<size_t>(panelPos.bottom - panelPos.top - 1);
+
+		if (!hasScrollBar) return {false, 0, 0};
+
+		const auto scrollBarStartY = panelPos.top + 1 + (opt->ShowColumnTitles ? 1 : 0);
+		// There is conflict with scrollbar area, let's grab one cell from it for the  better grip
+		const auto scrollBarEndY = scrollBarStartY + (panelPos.bottom - panelPos.top - 2 - (opt->ShowColumnTitles ? 1 : 0)) - 1;
+
+		return {true, scrollBarStartY, scrollBarEndY};
+	};
+
+	const auto [leftHasScrollBar, leftScrollBarStart, leftScrollBarEnd] = getScrollBarBounds(LeftPanel());
+
+	// Draw borders for full height, respecting panel boundaries and scrollbars
+	for (int y = StartY; y < EndY; ++y)
+	{
+		if (drawLeft && y >= leftPanelStartY && y < leftPanelEndY)
+		{
+			bool skipForScrollBar = leftHasScrollBar && (borderX == leftPanelPos.right) &&
+			                       (y >= leftScrollBarStart && y < leftScrollBarEnd);
+
+			if (!skipForScrollBar)
+			{
+				GotoXY(borderX, y);
+				Text({ borderX, y }, BorderColor, BorderChar);
+			}
+		}
+		if (drawRight && y >= rightPanelStartY && y < rightPanelEndY)
+		{
+			GotoXY(borderXPlus, y);
+			Text({ borderXPlus, y }, BorderColor, BorderChar);
+		}
+	}
+
+	m_LastWidthFeedbackY = StartY; // Mark that width feedback is drawn
+}
+
+void FilePanels::ClearWidthBorderFeedback()
+{
+	if (m_LastWidthFeedbackY == -1)
+		return;
+
+	// Clear feedback by refreshing the window
+	Global->WindowManager->RefreshWindow();
+	m_LastWidthFeedbackY = -1;
+}
+
+std::pair<bool, bool> FilePanels::DetermineHeightHighlightPanels(bool IsDragging, const rectangle& leftPanelPos, const rectangle& rightPanelPos)
+{
+	const int mouseX = IsDragging ? m_ResizeStartX : IntKeyState.MousePos.x;
+	const int leftPanelMidX = leftPanelPos.left + (leftPanelPos.right - leftPanelPos.left) / 2;
+	const int rightPanelMidX = rightPanelPos.left + (rightPanelPos.right - rightPanelPos.left) / 2;
+
+	bool highlightLeft = false;
+	bool highlightRight = false;
+
+	const bool overLeftPanel = (mouseX >= leftPanelPos.left && mouseX <= leftPanelPos.right);
+	const bool overRightPanel = (mouseX >= rightPanelPos.left && mouseX <= rightPanelPos.right);
+
+	if (overLeftPanel)
+	{
+		if (mouseX <= leftPanelMidX)
+		{
+			highlightLeft = true;
+		}
+		else
+		{
+			highlightLeft = true;
+			highlightRight = true;
+		}
+	}
+	else if (overRightPanel)
+	{
+		if (mouseX < rightPanelMidX)
+		{
+			highlightLeft = true;
+			highlightRight = true;
+		}
+		else
+		{
+			highlightRight = true;
+		}
+	}
+
+	return { highlightLeft, highlightRight };
+}
+
+void FilePanels::DrawPanelBottomBorder(const std::shared_ptr<Panel>& panel, const rectangle& panelPos, const FarColor& BorderColor, const wchar_t* BorderChar)
+{
+	if (!panel->IsVisible())
+		return;
+
+	const auto bottomY = panelPos.bottom;
+	int statusStartX = -1, statusEndX = -1;
+
+	if (const auto fileListPanel = std::dynamic_pointer_cast<FileList>(panel))
+	{
+		fileListPanel->GetBottomStatusTextBounds(statusStartX, statusEndX);
+	}
+
+	if (statusStartX != -1 && statusEndX != -1)
+	{
+		// Draw border segments around status text
+		for (int x = panelPos.left + 1; x < statusStartX; ++x)
+		{
+			GotoXY(x, bottomY);
+			Text({ x, bottomY }, BorderColor, BorderChar);
+		}
+
+		for (int x = statusEndX + 3; x < panelPos.right; ++x)
+		{
+			GotoXY(x, bottomY);
+			Text({ x, bottomY }, BorderColor, BorderChar);
+		}
+	}
+	else
+	{
+		// Draw full bottom border (except corners)
+		for (int x = panelPos.left + 1; x < panelPos.right; ++x)
+		{
+			GotoXY(x, bottomY);
+			Text({ x, bottomY }, BorderColor, BorderChar);
+		}
+	}
+}
+
+void FilePanels::DrawHeightBorderFeedback(bool IsHovering, bool IsDragging)
+{
+	if (!IsHovering && !IsDragging)
+		return;
+
+	const auto leftPanel = LeftPanel();
+	const auto rightPanel = RightPanel();
+	const auto leftPanelPos = leftPanel->GetPosition();
+	const auto rightPanelPos = rightPanel->GetPosition();
+
+	const auto BorderColor = GetBorderFeedbackColor();
+	static constexpr wchar_t BorderChar[] = L"═";
+
+	const auto [highlightLeft, highlightRight] = DetermineHeightHighlightPanels(IsDragging, leftPanelPos, rightPanelPos);
+
+	if (highlightLeft)
+		DrawPanelBottomBorder(leftPanel, leftPanelPos, BorderColor, BorderChar);
+
+	if (highlightRight)
+		DrawPanelBottomBorder(rightPanel, rightPanelPos, BorderColor, BorderChar);
+
+	m_LastHeightFeedbackX = leftPanelPos.left; // Mark that height feedback is drawn
+}
+void FilePanels::ClearHeightBorderFeedback()
+{
+	if (m_LastHeightFeedbackX == -1)
+		return;
+
+	// Clear feedback by refreshing the window
+	Global->WindowManager->RefreshWindow();
+	m_LastHeightFeedbackX = -1;
 }
 
 void FilePanels::ShowConsoleTitle()
@@ -1301,4 +1963,37 @@ void FilePanels::Show()
 	{
 		TopMenuBar->Show();
 	}
+}
+
+void FilePanels::ResetAllMouseStates()
+{
+	FlushInputBuffer();
+
+	// Reset Far's internal mouse state tracking
+	IntKeyState.MouseButtonState = 0;
+	IntKeyState.PrevMouseButtonState = 0;
+	IntKeyState.PrevLButtonPressed = false;
+	IntKeyState.PrevRButtonPressed = false;
+	IntKeyState.PrevMButtonPressed = false;
+	IntKeyState.MouseEventFlags = 0;
+	IntKeyState.PreMouseEventFlags = 0;
+
+	// Reset drag-and-drop state
+	Panel::EndDrag();
+}
+
+void FilePanels::ResetWidthMouseStates() const
+{
+	// Reset width-specific states only
+	m_HoverStartTime = 0;
+}
+
+void FilePanels::ResetHeightMouseStates() const
+{
+	// Reset height-specific states only
+	m_HeightHoverStartTime = 0;
+	m_LastHeightFeedbackX = -1;
+	m_ResizeStartY = 0;
+	m_ResizeStartLeftHeightDecrement = 0;
+	m_ResizeStartRightHeightDecrement = 0;
 }

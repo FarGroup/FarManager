@@ -673,6 +673,13 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 
 	if (const auto MacroKey = Global->CtrlObject->Macro.GetKey())
 	{
+		// Block ESC key from being processed by macros during panel resizing
+		// ESC should only be handled by FilePanels::ProcessKey to cancel resizing
+		if (MacroKey == KEY_ESC && Global->CtrlObject->Cp()->IsInResizingMode())
+		{
+			return false; // Prevent ESC macro from executing during resizing
+		}
+
 		static int LastMsClickMacroKey = 0;
 		if (const auto MsClickKey = KeyMsClickToButtonState(MacroKey))
 		{
@@ -913,6 +920,13 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		if (NotMacros || ExcludeMacro)
 			return CalcKey;
 
+		// Block ESC key from being processed by macros during panel resizing
+		// ESC should only be handled by FilePanels::ProcessKey to cancel resizing
+		if (CalcKey == KEY_ESC && Global->CtrlObject && Global->CtrlObject->Cp() && Global->CtrlObject->Cp()->IsInResizingMode())
+		{
+			return CalcKey; // Don't process ESC through macros during resizing, consume the event
+		}
+
 		const FAR_INPUT_RECORD irec{ CalcKey, *rec };
 		if (!Global->CtrlObject || !Global->CtrlObject->Macro.ProcessEvent(&irec))
 			return CalcKey;
@@ -1074,6 +1088,14 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	}
 
 	console.ReadOneInput(*rec);
+
+	// Block ALL keyboard input during panel resizing (except ESC which is handled in FilePanels::ProcessKey)
+	// This check is AFTER ReadOneInput to ensure the event is consumed from the queue
+	if (rec->EventType == KEY_EVENT && CalcKey != KEY_NONE && Global->CtrlObject && Global->CtrlObject->Cp() && 
+		Global->CtrlObject->Cp()->IsInResizingMode() && CalcKey != KEY_ESC)
+	{
+		return KEY_NONE; // Block all other keyboard keys during resizing
+	}
 
 	if (rec->EventType == FOCUS_EVENT)
 	{

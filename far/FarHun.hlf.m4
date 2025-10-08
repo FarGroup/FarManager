@@ -1,4 +1,4 @@
-﻿m4_include(`farversion.m4')m4_dnl
+m4_include(`farversion.m4')m4_dnl
 .Language=Hungarian,Magyar
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
@@ -373,9 +373,13 @@ $ #Panelvezérlő parancsok#
  Elrejti/megmutatja a bal panelt                            #Ctrl+F1#
  Elrejti/megmutatja a jobb panelt                           #Ctrl+F2#
  A panelek magasságán változtat                    #Ctrl+Fel,Ctrl+Le#
- A panelek szélességén változtat                 #Ctrl+Jobb,Ctrl+Bal#
+ A panelek magasságán változtat egérrel  #Alsó határ húzása a paneleken#
+ A panelek szélességén változtat billentyűzettel #Ctrl+Jobb,Ctrl+Bal#
  (ha a parancssor üres)
+ A panelek szélességén változtat egérrel
+                                      #Határ húzása a panelek között#
  Visszaállítja a panelszélességek alapértékét          #Ctrl+Numpad5#
+                              #Dupla egérkattintás a panelek határán#
  Visszaállítja a panelmagasságok alapértékét       #Ctrl+Alt+Numpad5#
  Megmutatja/elrejti a funkcióbillentyűk sorát                #Ctrl+B#
  a képernyő alján
@@ -908,8 +912,8 @@ alapértelmezett gombot vagy más hasonló dolgot művel).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
-effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
-#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+ #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  A Far Manager kezeli az ~egér görgőjét~@MsWheel@.
 
@@ -1184,6 +1188,14 @@ volt, a módváltás vagy a meghajtóváltás után automatikusan fájlpanel mó
 
  A ~gyorskeresés~@FastFind@ művelet a keresett fájlnév karaktereinek
 begépelésével a megfelelő fájlra állítja a kurzort.
+
+ #Panel átméretezése egérrel#
+
+ A fájlpanelek szélességét egérrel is módosíthatja:
+
+ - ^<wrap>Vigye az egérmutatót a bal és jobb panel közötti határvonalra, hogy lássa az átméretezési terület vizuális jelzését.
+ - ^<wrap>Kattintson és húzza a határvonalat balra vagy jobbra a panelek szélességének beállításához.
+ - ^<wrap>Kattintson duplán a határvonalra az alapértelmezett egyenlő panelszélesség visszaállításához (50/50 felosztás).
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
