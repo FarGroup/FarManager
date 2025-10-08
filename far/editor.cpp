@@ -3563,7 +3563,7 @@ namespace
 				{
 					if (const auto Coord{ coord_from_extended_data(ExtendedData, ParentEditor.GetSize()) })
 					{
-						Item.ComplexUserData = Coord;
+						Item.ComplexUserData = *Coord;
 						return true;
 					}
 					return false;

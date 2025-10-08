@@ -1212,41 +1212,36 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_MENU_SETEXTENDEDDATA: // B=Menu.SetItemExtendedData([hDlg,][N,](Key,Value)*)
 		{
+// -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa --
 			const auto Params{ api.parseParams(2) };
-			auto Nidx = 0;
-			Dialog* Dlg{};
-			if (Params[0].isDialog())
+			const auto Rest{ api.getParams(2) };
+			if (!Params[0].isDialog() || Params[1].isUnknown() || Rest.empty() || Rest.size() % 2 != 0)
 			{
-				Nidx = 1;
-				Dlg = Params[0].asDialog();
+				api.PushNil();
+				return;
 			}
-			else if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+
+			Dialog* Dlg{ Params[0].asDialog() };
+			const auto N{ Params[1].asInteger() - 1 };
+
+			VMenu::extended_item_data ExtendedData;
+			for (auto I{ Rest.cbegin() }; I < Rest.cend();)
 			{
-				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
+				if (I->Type == FMVT_UNKNOWN || I->Type == FMVT_NIL)
+				{
+					std::ranges::advance(I, 2);
+					continue;
+				}
+				ExtendedData.emplace_back(std::pair{ *I++, *I++ });
 			}
-			if (Dlg)
+
+			if (const auto Ret{ Dlg->VMProcess(CheckCode, &ExtendedData, N) }; Ret >= 0)
 			{
-				const auto N{ Params[Nidx].isUnknown() ? -1 : Params[Nidx].asInteger() - 1 };
-
-				const auto Rest{ api.getParams(2) };
-				if (Rest.empty() || Rest.size() % 2 != 0)
-				{
-					api.PushNil();
-					return;
-				}
-
-				VMenu::extended_item_data ExtendedData;
-				for (auto I{ Rest.cbegin() }; I < Rest.cend();)
-				{
-					ExtendedData.emplace_back(std::pair{ *I++, *I++ });
-				}
-
-				if (const auto Ret{ Dlg->VMProcess(CheckCode, &ExtendedData, N) }; Ret >= 0)
-				{
-					api.PushBoolean(!!Ret);
-					return;
-				}
+				api.PushBoolean(!!Ret);
+				return;
 			}
+// -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa --
+
 			api.PushNil();
 			return;
 		}
