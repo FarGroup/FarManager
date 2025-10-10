@@ -6607,21 +6607,21 @@ w Edytorze.
 
 @Editor.SearchAllUseAltFileNameFormat
 $ #far:config Editor.SearchAllUseAltFileNameFormat#
- This string parameter controls composing of the file name used by the
-new Editor containing ~all matching entries~@FindAllMenu@. The value
-is one or more ~file masks~@FileMasks@.
+ Ten parametr łańcuchowy kontroluje tworzenie nazwy pliku używanej przez
+nowy Edytor zawierający ~wszystkie pasujące wpisy~@FindAllMenu@.
+Wartością jest jedna lub więcej ~masek plików~@FileMasks@.
 
- The new filename is created from the stem filename and the extension
-of the file currently opened in the Editor. Depending on the original
-file name, the new file name is formatted using one of the two
-alternative UI format strings defined in ~.lng files~@CustomizingUI@.
-The string with the ID #MEditSearchAllFileNameFormatAlt# is used if the
-original file name matches one of the file masks; otherwise,
-#MEditSearchAllFileNameFormat# is used.
+ Nowa nazwa pliku jest tworzona wg nazwy podstawowego pliku i rozszerzenia
+pliku aktualnie otwartego w edytorze. W zależoności od oryginalnej nazwy
+pliku, nowa nazwa jest formatowana przy użyciu jednego z dwóch alternatywnych
+ciągów zdefiniowanych w ~plikach .lng~@CustomizingUI@.
+Łańcuch o identyfikatorze #MEditSearchAllFileNameFormatAlt# jest używany,
+jeżeli oryginalna nazwa pliku pasuje do jednej z masek plików;
+w przeciwnym razie używany jest identyfikator #MEditSearchAllFileNameFormat#.
 
- Default value: #*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map#
+ Wartość domyślna: #*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map#
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Parametr też można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.ShortcutAlwaysChdir
@@ -6890,17 +6890,17 @@ tworzenia, usuwania lub zmiany nazw folderów.
 
 @Panel.TreatDotFilesAsHidden
 $ #far:config Panel.TreatDotFilesAsHidden#
- This Boolean parameter controls the filtering of files or folders
-starting with a dot (“dotfiles”). It works in combination with the
-#Show hidden and system files# option in the
-~panel settings~@PanelSettings@ dialog.
+ Ten parametr logiczny kontroluje filtrowanie plików lub folderów rozpoczynających się
+od kropki (“dotfiles”). Działa w połączeniu z opcją #Pokazuj pliki ukryte i systemowe#
+w oknie ~ustawień panelu~@PanelSettings@.
 
- False - ^<wrap>Dotfiles will always be shown.
- True  - Dotfiles will be hidden/shown together with the Hidden and System files.
+ Fałsz  - ^<wrap>Pliki zaczynające się kropkami zawsze będę widoczne.
+ Prawda  - Pliki zaczynające się kropkami będą ukrywane/wyświetlane razem z plikami
+ukrytymi i systemowymi.
 
- Default value: False (Dotfiles will always be shown.)
+ Domyślna wartość: Fałsz (pliki zawsze będą wyświetlane.)
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Index
