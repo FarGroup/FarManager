@@ -2215,7 +2215,7 @@ extern "C" void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 
-static void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t)
+void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t)
 {
 	os::process::terminate(STATUS_INVALID_CRUNTIME_PARAMETER);
 }
