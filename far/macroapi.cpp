@@ -76,7 +76,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/segment.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 
@@ -109,6 +111,7 @@ public:
 	explicit FarMacroApi(FarMacroCall* Data) : mData(Data) {}
 
 	std::vector<TVar> parseParams(size_t Count) const;
+	std::span<const FarMacroValue> getParams(size_t Start = 0) const;
 
 	void PushBoolean(bool Param) const          { SendValue(Param); }
 	void PushPointer(void* Param) const         { SendValue(Param); }
@@ -259,6 +262,13 @@ std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
 	});
 	Params.resize(Count);
 	return Params;
+}
+
+std::span<const FarMacroValue> FarMacroApi::getParams(const size_t Start) const
+{
+	const auto ParamsSegment{ intersect(size_t_segment{ 0, size_t_segment::length_tag{ mData->Count } }, size_t_segment::ray(Start)) };
+	if (ParamsSegment.empty()) return {};
+	return { mData->Values + ParamsSegment.start(), ParamsSegment.length() };
 }
 
 class LockOutput: noncopyable
@@ -1168,17 +1178,17 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PushValue(tmpVar);
 		}
 
-		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
+		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([hDlg,][N])
 		{
 			const auto Params{ api.parseParams(2) };
 			auto Nidx = 0;
 			Dialog* Dlg{};
-			if(Params[0].isDialog())
+			if (Params[0].isDialog())
 			{
 				Nidx = 1;
 				Dlg = Params[0].asDialog();
 			}
-			else if(IsMenuOrDialogArea(GetArea()) && CurrentWindow)
+			else if (IsMenuOrDialogArea(GetArea()) && CurrentWindow)
 			{
 				Dlg = dynamic_cast<Dialog*>(CurrentWindow.get());
 			}
@@ -1196,6 +1206,42 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					return;
 				}
 			}
+			api.PushNil();
+			return;
+		}
+
+		case MCODE_F_MENU_SETEXTENDEDDATA: // B=Menu.SetItemExtendedData([hDlg,][N,](Key,Value)*)
+		{
+// -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa --
+			const auto Params{ api.parseParams(2) };
+			const auto Rest{ api.getParams(2) };
+			if (!Params[0].isDialog() || Params[1].isUnknown() || Rest.empty() || Rest.size() % 2 != 0)
+			{
+				api.PushNil();
+				return;
+			}
+
+			Dialog* Dlg{ Params[0].asDialog() };
+			const auto N{ Params[1].asInteger() - 1 };
+
+			VMenu::extended_item_data ExtendedData;
+			for (auto I{ Rest.cbegin() }; I < Rest.cend();)
+			{
+				if (I->Type == FMVT_UNKNOWN || I->Type == FMVT_NIL)
+				{
+					std::ranges::advance(I, 2);
+					continue;
+				}
+				ExtendedData.emplace_back(std::pair{ *I++, *I++ });
+			}
+
+			if (const auto Ret{ Dlg->VMProcess(CheckCode, &ExtendedData, N) }; Ret >= 0)
+			{
+				api.PushBoolean(!!Ret);
+				return;
+			}
+// -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa -- renyxa --
+
 			api.PushNil();
 			return;
 		}

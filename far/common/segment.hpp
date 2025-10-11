@@ -107,5 +107,6 @@ private:
 
 using small_segment = segment_t<short>;
 using segment = segment_t<int>;
+using size_t_segment = segment_t<size_t>;
 
 #endif // SEGMENT_HPP_DC38F7F7_0E1B_486E_8368_2ACE6415D234
