@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6564.0
+Plugin API for Far Manager 3.0.6571.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6564
+#define FARMANAGERVERSION_BUILD 6571
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -1193,7 +1193,7 @@ FAR_INLINE_CONSTANT EDITOR_FLAGS
 	EF_OPENMODE_USEEXISTING  = 0x0000000020000000ULL,
 	EF_OPENMODE_BREAKIFOPEN  = 0x0000000030000000ULL,
 	EF_OPENMODE_RELOADIFOPEN = 0x0000000040000000ULL,
-	EN_NONE                  = 0;
+	EF_NONE                  = 0;
 
 enum EDITOR_EXITCODE
 {
