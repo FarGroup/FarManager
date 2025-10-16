@@ -304,8 +304,6 @@ namespace colors
 
 		auto Result = Bottom;
 
-		flags::clear(Result.Flags, FCF_FOREIGN);
-
 		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopValue = std::invoke(ColorAccessor, Top);
@@ -313,6 +311,8 @@ namespace colors
 			// Nothing to apply
 			if (is_transparent(TopValue))
 				return;
+
+			flags::clear(Result.Flags, FCF_FOREIGN);
 
 			auto& ResultValue = std::invoke(ColorAccessor, Result);
 
