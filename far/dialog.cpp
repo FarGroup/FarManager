@@ -4196,7 +4196,7 @@ intptr_t Dialog::CloseDialog()
 		{
 			if (i.Flags & DIF_HISTORY && !(i.Flags & DIF_MANUALADDHISTORY) && !i.strHistory.empty() && IsEdit(i.Type))
 			{
-				if (const auto EditPtr = static_cast<const DlgEdit*>(i.ObjPtr); EditPtr && !EditPtr->GetClearFlag())
+				if (const auto EditPtr = static_cast<const DlgEdit*>(i.ObjPtr); EditPtr && (!(i.Flags & DIF_HIDDEN) || !EditPtr->GetClearFlag()))
 					AddToEditHistory(i, i.strData);
 			}
 		}

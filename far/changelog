@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2025-10-16 23:42:46+01:00 - build 6573
+
+1. Continue gh-1031.
+   Save the history if the user touched the control or if the control is visible.
+
+--------------------------------------------------------------------------------
 drkns 2025-10-16 20:22:16+01:00 - build 6572
 
 1. gh-1031: History saved for hidden edit controls.
