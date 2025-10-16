@@ -4194,8 +4194,11 @@ intptr_t Dialog::CloseDialog()
 	{
 		for (auto& i: Items)
 		{
-			if (i.Flags & DIF_HISTORY && !(i.Flags & DIF_MANUALADDHISTORY) && !i.strHistory.empty())
-				AddToEditHistory(i, i.strData);
+			if (i.Flags & DIF_HISTORY && !(i.Flags & DIF_MANUALADDHISTORY) && !i.strHistory.empty() && IsEdit(i.Type))
+			{
+				if (const auto EditPtr = static_cast<const DlgEdit*>(i.ObjPtr); EditPtr && !EditPtr->GetClearFlag())
+					AddToEditHistory(i, i.strData);
+			}
 		}
 	}
 
