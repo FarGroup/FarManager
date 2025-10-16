@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2025-10-16 20:22:16+01:00 - build 6572
+
+1. gh-1031: History saved for hidden edit controls.
+   Only save the history if the user touched the control.
+
+2. Minor fix in color processing.
+
+--------------------------------------------------------------------------------
 zg 2025-10-05 23:11:22+03:00 - build 6571
 
 1. selection drawn incorrectly in viewer in dump mode.
