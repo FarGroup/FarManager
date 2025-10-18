@@ -3,18 +3,18 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `DupName()`
-- `HDBCharConvert()`
-- `HDBColWidth()`
-- `HDBCreate()`
-- `HDBCreateColumns()`
-- `HDBDestroy()`
-- `HDBDestroyColumns()`
-- `HDBFillColumns()`
-- `HDBType2Str()`
-- `HDBValue2Str()`
+- `DupName()`: Performs specific operation
+- `HDBType2Str()`: Performs specific operation
+- `HDBColWidth()`: Performs specific operation
+- `HDBCreate()`: Performs specific operation
+- `HDBDestroy()`: Performs specific operation
+- `HDBValue2Str()`: Performs specific operation
+- `HDBDestroyColumns()`: Performs specific operation
+- `HDBCreateColumns()`: Performs specific operation
+- `HDBFillColumns()`: Performs specific operation
+- `HDBCharConvert()`: Performs specific operation
 ### Summary
-The `hdbase.cpp` file provides essential functionality for core functionality. and contains approximately 11 function(s) to support the Far Manager file manager operations.
+The `hdbase.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -22,15 +22,15 @@ The `hdbase.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `DupName()`
-- `HDBCharConvert()`
-- `HDBColWidth()`
-- `HDBCreate()`
-- `HDBCreateColumns()`
-- `HDBDestroy()`
-- `HDBDestroyColumns()`
-- `HDBFillColumns()`
-- `HDBType2Str()`
-- `HDBValue2Str()`
+- `DupName()`: Wykonuje specyficzną operację
+- `HDBType2Str()`: Wykonuje specyficzną operację
+- `HDBColWidth()`: Wykonuje specyficzną operację
+- `HDBCreate()`: Wykonuje specyficzną operację
+- `HDBDestroy()`: Wykonuje specyficzną operację
+- `HDBValue2Str()`: Wykonuje specyficzną operację
+- `HDBDestroyColumns()`: Wykonuje specyficzną operację
+- `HDBCreateColumns()`: Wykonuje specyficzną operację
+- `HDBFillColumns()`: Wykonuje specyficzną operację
+- `HDBCharConvert()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `hdbase.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 11 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `hdbase.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

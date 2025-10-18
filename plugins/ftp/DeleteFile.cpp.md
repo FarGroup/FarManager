@@ -5,9 +5,9 @@ Main functional areas: file system operations
 ### Key Classes
 - `DeleteData`: Implements file system operations
 ### Key Functions
-- `ExpandList()`
-- `FP_DeleteRegKeyAll()`
-- `idDeleteCB()`
+- `idDeleteCB()`: Performs specific operation
+- `FP_DeleteRegKeyAll()`: Performs specific operation
+- `ExpandList()`: Performs specific operation
 ### Summary
 The `DeleteFile.cpp` file provides essential functionality for file system operations. It defines 1 class(es) and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,12 +15,12 @@ The `DeleteFile.cpp` file provides essential functionality for file system opera
 
 ## Polski (Polish)
 ### Cel
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Kluczowe Klasy
-- `DeleteData`: Implementuje operacje systemowyu plików
+- `DeleteData`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `ExpandList()`
-- `FP_DeleteRegKeyAll()`
-- `idDeleteCB()`
+- `idDeleteCB()`: Wykonuje specyficzną operację
+- `FP_DeleteRegKeyAll()`: Wykonuje specyficzną operację
+- `ExpandList()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `DeleteFile.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. Definiuje 1 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `DeleteFile.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 1 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

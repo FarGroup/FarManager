@@ -7,11 +7,11 @@ Main functional areas: core functionality
 - `level`: Implements core functionality
 - `suppressor`: Implements core functionality
 ### Key Functions
-- `configure()`
-- `filter()`
-- `is_log_argument()`
-- `main()`
-- `show()`
+- `filter()`: Performs specific operation
+- `show()`: Displays or shows content
+- `configure()`: Performs specific operation
+- `is_log_argument()`: Checks a condition or state
+- `main()`: Main entry point
 ### Namespaces
 - `detail`
 - `logging`
@@ -28,11 +28,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `level`: Implementuje podstawowa funkcjonalność
 - `suppressor`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `configure()`
-- `filter()`
-- `is_log_argument()`
-- `main()`
-- `show()`
+- `filter()`: Wykonuje specyficzną operację
+- `show()`: Wyświetla lub pokazuje zawartość
+- `configure()`: Wykonuje specyficzną operację
+- `is_log_argument()`: Sprawdza warunek lub stan
+- `main()`: Główny punkt wejścia
 ### Przestrzenie nazw
 - `detail`
 - `logging`

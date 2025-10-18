@@ -7,15 +7,15 @@ Main functional areas: core functionality
 - `ARJHd1`: Implements core functionality
 - `ARJHd2`: Implements core functionality
 ### Key Functions
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `OpenArchive()`
-- `crc_buf()`
-- `make_crctable()`
+- `make_crctable()`: Performs specific operation
+- `crc_buf()`: Performs specific operation
+- `IsArchive()`: Checks a condition or state
+- `OpenArchive()`: Opens a resource
+- `GetArcItem()`: Retrieves or returns data
+- `CloseArchive()`: Closes a resource
+- `GetSFXPos()`: Retrieves or returns data
+- `GetFormatName()`: Retrieves or returns data
+- `GetDefaultCommands()`: Retrieves or returns data
 ### Summary
 The `arj.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
@@ -29,14 +29,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ARJHd1`: Implementuje podstawowa funkcjonalność
 - `ARJHd2`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `OpenArchive()`
-- `crc_buf()`
-- `make_crctable()`
+- `make_crctable()`: Wykonuje specyficzną operację
+- `crc_buf()`: Wykonuje specyficzną operację
+- `IsArchive()`: Sprawdza warunek lub stan
+- `OpenArchive()`: Otwiera zasób
+- `GetArcItem()`: Pobiera lub zwraca dane
+- `CloseArchive()`: Zamyka zasób
+- `GetSFXPos()`: Pobiera lub zwraca dane
+- `GetFormatName()`: Pobiera lub zwraca dane
+- `GetDefaultCommands()`: Pobiera lub zwraca dane
 ### Podsumowanie
 Plik `arj.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

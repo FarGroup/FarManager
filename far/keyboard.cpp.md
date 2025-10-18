@@ -12,18 +12,18 @@ Main functional areas: core functionality
 - `wake_event`: Implements core functionality
 - `window_state`: Implements core functionality
 ### Key Functions
-- `ButtonStateToKeyMsClick()`
-- `CalcKeyCode()`
-- `CheckForEscSilent()`
-- `FarKeyToInputRecord()`
-- `GetMouseKey()`
-- `GetNumpadKey()`
-- `IsMouseButtonEvent()`
-- `KeyMsClickToButtonState()`
-- `KeyQueue()`
-- `KeyToLocalizedText()`
+- `is_restored()`: Checks a condition or state
+- `update()`: Updates existing data
+- `wakeup_for_clock()`: Performs specific operation
+- `wakeup_for_screensaver()`: Performs specific operation
+- `wakeup_for_screensaver_time()`: Performs specific operation
+- `Layouts()`: Performs specific operation
+- `InitKeysArray()`: Initializes or sets up
+- `xlat_observe_tables()`: Performs specific operation
+- `KeyToKeyLayoutCompare()`: Performs specific operation
+- `KeyToKeyLayout()`: Performs specific operation
 ### Summary
-The `keyboard.cpp` file provides essential functionality for core functionality. It defines 7 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `keyboard.cpp` file provides essential functionality for core functionality. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -40,15 +40,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `wake_event`: Implementuje podstawowa funkcjonalność
 - `window_state`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ButtonStateToKeyMsClick()`
-- `CalcKeyCode()`
-- `CheckForEscSilent()`
-- `FarKeyToInputRecord()`
-- `GetMouseKey()`
-- `GetNumpadKey()`
-- `IsMouseButtonEvent()`
-- `KeyMsClickToButtonState()`
-- `KeyQueue()`
-- `KeyToLocalizedText()`
+- `is_restored()`: Sprawdza warunek lub stan
+- `update()`: Aktualizuje istniejące dane
+- `wakeup_for_clock()`: Wykonuje specyficzną operację
+- `wakeup_for_screensaver()`: Wykonuje specyficzną operację
+- `wakeup_for_screensaver_time()`: Wykonuje specyficzną operację
+- `Layouts()`: Wykonuje specyficzną operację
+- `InitKeysArray()`: Inicjalizuje lub konfiguruje
+- `xlat_observe_tables()`: Wykonuje specyficzną operację
+- `KeyToKeyLayoutCompare()`: Wykonuje specyficzną operację
+- `KeyToKeyLayout()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `keyboard.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 7 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `keyboard.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

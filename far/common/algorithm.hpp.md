@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `any_of()`
-- `apply_permutation()`
-- `contains()`
-- `emplace()`
-- `in_closed_range()`
-- `intersect()`
-- `none_of()`
-- `repeat()`
+- `repeat()`: Performs specific operation
+- `apply_permutation()`: Performs specific operation
+- `emplace()`: Performs specific operation
+- `contains()`: Performs specific operation
+- `in_closed_range()`: Performs specific operation
+- `any_of()`: Performs specific operation
+- `none_of()`: Performs specific operation
+- `intersect()`: Performs specific operation
 ### Namespaces
 - `std`
 ### Summary
@@ -22,14 +22,14 @@ The `algorithm.hpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `any_of()`
-- `apply_permutation()`
-- `contains()`
-- `emplace()`
-- `in_closed_range()`
-- `intersect()`
-- `none_of()`
-- `repeat()`
+- `repeat()`: Wykonuje specyficzną operację
+- `apply_permutation()`: Wykonuje specyficzną operację
+- `emplace()`: Wykonuje specyficzną operację
+- `contains()`: Wykonuje specyficzną operację
+- `in_closed_range()`: Wykonuje specyficzną operację
+- `any_of()`: Wykonuje specyficzną operację
+- `none_of()`: Wykonuje specyficzną operację
+- `intersect()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

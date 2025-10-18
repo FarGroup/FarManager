@@ -6,16 +6,16 @@ Main functional areas: core functionality
 ### Key Classes
 - `file_version`: Implements core functionality
 ### Key Functions
-- `description()`
-- `get_file_version()`
-- `get_fixed_info()`
-- `get_string()`
-- `is_win10_1607_or_later()`
-- `is_win10_1703_or_later()`
-- `is_win10_build_or_later()`
-- `os_version()`
-- `read()`
-- `version()`
+- `read()`: Reads data from a source
+- `get_string()`: Retrieves or returns data
+- `get_fixed_info()`: Retrieves or returns data
+- `version()`: Performs specific operation
+- `description()`: Performs specific operation
+- `is_win10_build_or_later()`: Checks a condition or state
+- `is_win10_1607_or_later()`: Checks a condition or state
+- `is_win10_1703_or_later()`: Checks a condition or state
+- `get_file_version()`: Retrieves or returns data
+- `os_version()`: Performs specific operation
 ### Namespaces
 - `os`
 ### Summary
@@ -30,16 +30,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `file_version`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `description()`
-- `get_file_version()`
-- `get_fixed_info()`
-- `get_string()`
-- `is_win10_1607_or_later()`
-- `is_win10_1703_or_later()`
-- `is_win10_build_or_later()`
-- `os_version()`
-- `read()`
-- `version()`
+- `read()`: Odczytuje dane ze źródła
+- `get_string()`: Pobiera lub zwraca dane
+- `get_fixed_info()`: Pobiera lub zwraca dane
+- `version()`: Wykonuje specyficzną operację
+- `description()`: Wykonuje specyficzną operację
+- `is_win10_build_or_later()`: Sprawdza warunek lub stan
+- `is_win10_1607_or_later()`: Sprawdza warunek lub stan
+- `is_win10_1703_or_later()`: Sprawdza warunek lub stan
+- `get_file_version()`: Pobiera lub zwraca dane
+- `os_version()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

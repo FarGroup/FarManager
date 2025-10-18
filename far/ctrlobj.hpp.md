@@ -15,11 +15,11 @@ Main functional areas: core functionality
 - `Shortcuts`: Implements core functionality
 - `configuration`: Implements core functionality
 ### Key Functions
-- `CmdLine()`
-- `CreateDummyFilePanels()`
-- `Init()`
-- `Panels()`
-- `close()`
+- `Init()`: Initializes or sets up
+- `close()`: Closes a resource
+- `Panels()`: Performs specific operation
+- `CreateDummyFilePanels()`: Creates a new instance or object
+- `CmdLine()`: Performs specific operation
 ### Namespaces
 - `highlight`
 ### Summary
@@ -43,11 +43,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Shortcuts`: Implementuje podstawowa funkcjonalność
 - `configuration`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CmdLine()`
-- `CreateDummyFilePanels()`
-- `Init()`
-- `Panels()`
-- `close()`
+- `Init()`: Inicjalizuje lub konfiguruje
+- `close()`: Zamyka zasób
+- `Panels()`: Wykonuje specyficzną operację
+- `CreateDummyFilePanels()`: Tworzy nową instancję lub obiekt
+- `CmdLine()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `highlight`
 ### Podsumowanie

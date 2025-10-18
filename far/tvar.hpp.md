@@ -8,18 +8,18 @@ Main functional areas: core functionality
 - `TVar`: Implements core functionality
 - `Type`: Implements core functionality
 ### Key Functions
-- `ParseType()`
-- `SetType()`
-- `TVar()`
-- `asDialog()`
-- `asDouble()`
-- `asInteger()`
-- `asPointer()`
-- `asString()`
-- `isDialog()`
-- `isDouble()`
+- `TVar()`: Performs specific operation
+- `type()`: Performs specific operation
+- `ParseType()`: Parses input data
+- `SetType()`: Sets or assigns data
+- `isString()`: Checks a condition or state
+- `isInteger()`: Checks a condition or state
+- `isDouble()`: Checks a condition or state
+- `isPointer()`: Checks a condition or state
+- `isDialog()`: Checks a condition or state
+- `isUnknown()`: Checks a condition or state
 ### Summary
-The `tvar.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 19 function(s) to support the Far Manager file manager operations.
+The `tvar.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `TVar`: Implementuje podstawowa funkcjonalność
 - `Type`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ParseType()`
-- `SetType()`
-- `TVar()`
-- `asDialog()`
-- `asDouble()`
-- `asInteger()`
-- `asPointer()`
-- `asString()`
-- `isDialog()`
-- `isDouble()`
+- `TVar()`: Wykonuje specyficzną operację
+- `type()`: Wykonuje specyficzną operację
+- `ParseType()`: Parsuje dane wejściowe
+- `SetType()`: Ustawia lub przypisuje dane
+- `isString()`: Sprawdza warunek lub stan
+- `isInteger()`: Sprawdza warunek lub stan
+- `isDouble()`: Sprawdza warunek lub stan
+- `isPointer()`: Sprawdza warunek lub stan
+- `isDialog()`: Sprawdza warunek lub stan
+- `isUnknown()`: Sprawdza warunek lub stan
 ### Podsumowanie
-Plik `tvar.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 19 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `tvar.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

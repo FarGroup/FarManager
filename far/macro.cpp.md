@@ -7,18 +7,9 @@ Main functional areas: core functionality
 - `DlgParam`: Implements core functionality
 - `GetMacroData`: Implements core functionality
 ### Key Functions
-- `CallMacroPlugin()`
-- `CheckAll()`
-- `CheckCmdLine()`
-- `CheckEditSelected()`
-- `CheckFileFolder()`
-- `CheckPanel()`
-- `Get3State()`
-- `GetHistoryDisableMask()`
-- `GetInputFromMacro()`
-- `GetMacroLanguage()`
+- `static_assert()`: Performs specific operation
 ### Summary
-The `macro.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `macro.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -30,15 +21,6 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `DlgParam`: Implementuje podstawowa funkcjonalność
 - `GetMacroData`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CallMacroPlugin()`
-- `CheckAll()`
-- `CheckCmdLine()`
-- `CheckEditSelected()`
-- `CheckFileFolder()`
-- `CheckPanel()`
-- `Get3State()`
-- `GetHistoryDisableMask()`
-- `GetInputFromMacro()`
-- `GetMacroLanguage()`
+- `static_assert()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `macro.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `macro.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

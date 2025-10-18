@@ -4,18 +4,18 @@
 This file implements functionality related to: Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
 Main functional areas: core functionality
 ### Key Functions
-- `CompareStringW()`
-- `LCMapStringW()`
-- `TlsAlloc()`
-- `delayFailureHook()`
-- `sim_CompareStringEx()`
-- `sim_FlsAlloc()`
-- `sim_GetModuleHandleExW()`
-- `sim_InitializeCriticalSectionEx()`
-- `sim_LCMapStringEx()`
-- `sim_SleepConditionVariableSRW()`
+- `sim_GetModuleHandleExW()`: Performs specific operation
+- `sim_InitializeCriticalSectionEx()`: Performs specific operation
+- `sim_LCMapStringEx()`: Performs specific operation
+- `LCMapStringW()`: Performs specific operation
+- `sim_CompareStringEx()`: Performs specific operation
+- `CompareStringW()`: Performs specific operation
+- `sim_FlsAlloc()`: Performs specific operation
+- `TlsAlloc()`: Performs specific operation
+- `sim_SleepConditionVariableSRW()`: Performs specific operation
+- `sim__unimpl_1arg()`: Performs specific operation
 ### Summary
-The `vc_crt_fix_ulink.cpp` file provides essential functionality for core functionality. and contains approximately 11 function(s) to support the Far Manager file manager operations.
+The `vc_crt_fix_ulink.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -24,15 +24,15 @@ The `vc_crt_fix_ulink.cpp` file provides essential functionality for core functi
 Ten plik implementuje funkcjonalność związaną z: Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CompareStringW()`
-- `LCMapStringW()`
-- `TlsAlloc()`
-- `delayFailureHook()`
-- `sim_CompareStringEx()`
-- `sim_FlsAlloc()`
-- `sim_GetModuleHandleExW()`
-- `sim_InitializeCriticalSectionEx()`
-- `sim_LCMapStringEx()`
-- `sim_SleepConditionVariableSRW()`
+- `sim_GetModuleHandleExW()`: Wykonuje specyficzną operację
+- `sim_InitializeCriticalSectionEx()`: Wykonuje specyficzną operację
+- `sim_LCMapStringEx()`: Wykonuje specyficzną operację
+- `LCMapStringW()`: Wykonuje specyficzną operację
+- `sim_CompareStringEx()`: Wykonuje specyficzną operację
+- `CompareStringW()`: Wykonuje specyficzną operację
+- `sim_FlsAlloc()`: Wykonuje specyficzną operację
+- `TlsAlloc()`: Wykonuje specyficzną operację
+- `sim_SleepConditionVariableSRW()`: Wykonuje specyficzną operację
+- `sim__unimpl_1arg()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `vc_crt_fix_ulink.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 11 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `vc_crt_fix_ulink.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

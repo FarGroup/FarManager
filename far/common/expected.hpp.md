@@ -6,10 +6,10 @@ Main functional areas: core functionality
 - `expected`: Implements core functionality
 - `unexpected`: Implements core functionality
 ### Key Functions
-- `bool()`
-- `error()`
-- `has_value()`
-- `value()`
+- `has_value()`: Checks a condition or state
+- `bool()`: Performs specific operation
+- `value()`: Performs specific operation
+- `error()`: Performs specific operation
 ### Namespaces
 - `std`
 ### Summary
@@ -24,10 +24,10 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `expected`: Implementuje podstawowa funkcjonalność
 - `unexpected`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `bool()`
-- `error()`
-- `has_value()`
-- `value()`
+- `has_value()`: Sprawdza warunek lub stan
+- `bool()`: Wykonuje specyficzną operację
+- `value()`: Wykonuje specyficzną operację
+- `error()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

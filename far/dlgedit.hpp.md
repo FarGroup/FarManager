@@ -11,18 +11,18 @@ Main functional areas: dialog handling, text editing
 - `History`: Implements dialog handling, text editing
 - `SetAutocomplete`: Implements dialog handling, text editing
 ### Key Functions
-- `AutoComplete()`
-- `DeleteBlock()`
-- `DisplayObject()`
-- `FastShow()`
-- `GetClearFlag()`
-- `GetCursorType()`
-- `GetDelRemovesBlocks()`
-- `GetDialog()`
-- `GetOvertypeMode()`
-- `GetPosition()`
+- `Flags()`: Performs specific operation
+- `Init()`: Initializes or sets up
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `Show()`: Displays or shows content
+- `SetPosition()`: Sets or assigns data
+- `GetPosition()`: Retrieves or returns data
+- `Hide()`: Hides content
+- `ShowConsoleTitle()`: Displays or shows content
+- `SetScreenPosition()`: Sets or assigns data
 ### Summary
-The `dlgedit.hpp` file provides essential functionality for dialog handling, text editing. It defines 6 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `dlgedit.hpp` file provides essential functionality for dialog handling, text editing. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: obsługa dialogów, edycja tekstu
 - `History`: Implementuje obsługa dialogów, edycja tekstu
 - `SetAutocomplete`: Implementuje obsługa dialogów, edycja tekstu
 ### Kluczowe Funkcje
-- `AutoComplete()`
-- `DeleteBlock()`
-- `DisplayObject()`
-- `FastShow()`
-- `GetClearFlag()`
-- `GetCursorType()`
-- `GetDelRemovesBlocks()`
-- `GetDialog()`
-- `GetOvertypeMode()`
-- `GetPosition()`
+- `Flags()`: Wykonuje specyficzną operację
+- `Init()`: Inicjalizuje lub konfiguruje
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `Show()`: Wyświetla lub pokazuje zawartość
+- `SetPosition()`: Ustawia lub przypisuje dane
+- `GetPosition()`: Pobiera lub zwraca dane
+- `Hide()`: Ukrywa zawartość
+- `ShowConsoleTitle()`: Wyświetla lub pokazuje zawartość
+- `SetScreenPosition()`: Ustawia lub przypisuje dane
 ### Podsumowanie
-Plik `dlgedit.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów, edycja tekstu. Definiuje 6 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `dlgedit.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów, edycja tekstu. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -14,18 +14,18 @@ Main functional areas: core functionality
 - `ResourceUpdate`: Implements core functionality
 - `RsrcId`: Implements core functionality
 ### Key Functions
-- `LPCTSTR()`
-- `close()`
-- `encode()`
-- `encode_DWORD()`
-- `encode_WORD()`
-- `enum_langs_proc()`
-- `enum_names_proc()`
-- `file()`
-- `finalize()`
-- `handle()`
+- `set()`: Sets or assigns data
+- `LPCTSTR()`: Performs specific operation
+- `is_int()`: Checks a condition or state
+- `load_icon_file()`: Loads data or resources
+- `file()`: Performs specific operation
+- `load_icon_rsrc()`: Loads data or resources
+- `enum_names_proc()`: Performs specific operation
+- `enum_langs_proc()`: Performs specific operation
+- `handle()`: Handles an event or action
+- `close()`: Closes a resource
 ### Summary
-The `rsrc.cpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `rsrc.cpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ResourceUpdate`: Implementuje podstawowa funkcjonalność
 - `RsrcId`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `LPCTSTR()`
-- `close()`
-- `encode()`
-- `encode_DWORD()`
-- `encode_WORD()`
-- `enum_langs_proc()`
-- `enum_names_proc()`
-- `file()`
-- `finalize()`
-- `handle()`
+- `set()`: Ustawia lub przypisuje dane
+- `LPCTSTR()`: Wykonuje specyficzną operację
+- `is_int()`: Sprawdza warunek lub stan
+- `load_icon_file()`: Ładuje dane lub zasoby
+- `file()`: Wykonuje specyficzną operację
+- `load_icon_rsrc()`: Ładuje dane lub zasoby
+- `enum_names_proc()`: Wykonuje specyficzną operację
+- `enum_langs_proc()`: Wykonuje specyficzną operację
+- `handle()`: Obsługuje zdarzenie lub akcję
+- `close()`: Zamyka zasób
 ### Podsumowanie
-Plik `rsrc.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `rsrc.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

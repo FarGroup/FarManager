@@ -4,20 +4,20 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `FileTimeToSystemTime()`
-- `from_filetime()`
-- `get_process_creation_time()`
-- `local_to_utc()`
-- `local_to_utc_impl()`
-- `make_system_time()`
-- `make_time()`
-- `now_local()`
-- `now_utc()`
-- `posix_shift()`
+- `from_filetime()`: Performs specific operation
+- `posix_shift()`: Performs specific operation
+- `make_time()`: Performs specific operation
+- `make_system_time()`: Performs specific operation
+- `now_utc()`: Performs specific operation
+- `now_local()`: Performs specific operation
+- `timepoint_to_system_time()`: Performs specific operation
+- `FileTimeToSystemTime()`: Performs specific operation
+- `transfer_hns()`: Performs specific operation
+- `timepoint_to_utc_time()`: Performs specific operation
 ### Namespaces
 - `os`
 ### Summary
-The `platform.chrono.cpp` file provides essential functionality for core functionality. and contains approximately 17 function(s) to support the Far Manager file manager operations.
+The `platform.chrono.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -26,17 +26,17 @@ The `platform.chrono.cpp` file provides essential functionality for core functio
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `FileTimeToSystemTime()`
-- `from_filetime()`
-- `get_process_creation_time()`
-- `local_to_utc()`
-- `local_to_utc_impl()`
-- `make_system_time()`
-- `make_time()`
-- `now_local()`
-- `now_utc()`
-- `posix_shift()`
+- `from_filetime()`: Wykonuje specyficzną operację
+- `posix_shift()`: Wykonuje specyficzną operację
+- `make_time()`: Wykonuje specyficzną operację
+- `make_system_time()`: Wykonuje specyficzną operację
+- `now_utc()`: Wykonuje specyficzną operację
+- `now_local()`: Wykonuje specyficzną operację
+- `timepoint_to_system_time()`: Wykonuje specyficzną operację
+- `FileTimeToSystemTime()`: Wykonuje specyficzną operację
+- `transfer_hns()`: Wykonuje specyficzną operację
+- `timepoint_to_utc_time()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie
-Plik `platform.chrono.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 17 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `platform.chrono.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

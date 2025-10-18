@@ -6,14 +6,14 @@ Main functional areas: screen operations
 ### Key Classes
 - `border`: Implements screen operations
 ### Key Functions
-- `Flush()`
-- `apply_index_shadow()`
-- `apply_nt_index_shadow()`
-- `apply_shadow()`
-- `bake_shadows()`
-- `expand_write_region_if_needed()`
-- `invalidate_broken_pairs_in_cache()`
-- `is_visible()`
+- `is_visible()`: Checks a condition or state
+- `invalidate_broken_pairs_in_cache()`: Performs specific operation
+- `apply_nt_index_shadow()`: Performs specific operation
+- `apply_index_shadow()`: Performs specific operation
+- `apply_shadow()`: Performs specific operation
+- `bake_shadows()`: Performs specific operation
+- `expand_write_region_if_needed()`: Performs specific operation
+- `Flush()`: Flushes buffered data
 ### Namespaces
 - `colors`
 ### Summary
@@ -28,14 +28,14 @@ Główne obszary funkcjonalne: operacje ekranowe
 ### Kluczowe Klasy
 - `border`: Implementuje operacje ekranowe
 ### Kluczowe Funkcje
-- `Flush()`
-- `apply_index_shadow()`
-- `apply_nt_index_shadow()`
-- `apply_shadow()`
-- `bake_shadows()`
-- `expand_write_region_if_needed()`
-- `invalidate_broken_pairs_in_cache()`
-- `is_visible()`
+- `is_visible()`: Sprawdza warunek lub stan
+- `invalidate_broken_pairs_in_cache()`: Wykonuje specyficzną operację
+- `apply_nt_index_shadow()`: Wykonuje specyficzną operację
+- `apply_index_shadow()`: Wykonuje specyficzną operację
+- `apply_shadow()`: Wykonuje specyficzną operację
+- `bake_shadows()`: Wykonuje specyficzną operację
+- `expand_write_region_if_needed()`: Wykonuje specyficzną operację
+- `Flush()`: Opróżnia buforowane dane
 ### Przestrzenie nazw
 - `colors`
 ### Podsumowanie

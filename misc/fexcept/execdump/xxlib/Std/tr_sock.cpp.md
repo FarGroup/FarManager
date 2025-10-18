@@ -3,18 +3,18 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Close()`
-- `Cvt()`
-- `DOSend()`
-- `Destroy()`
-- `FlushCache()`
-- `ISRead()`
-- `ISWrite()`
-- `MemMove()`
-- `PRClientReconnect()`
-- `PRCloseHandle()`
+- `Destroy()`: Performs specific operation
+- `Close()`: Closes a resource
+- `ISRead()`: Checks a condition or state
+- `ISWrite()`: Checks a condition or state
+- `DOSend()`: Performs specific operation
+- `FlushCache()`: Flushes buffered data
+- `UseHandle()`: Performs specific operation
+- `ReleaseHandle()`: Performs specific operation
+- `Cvt()`: Performs specific operation
+- `MemMove()`: Performs specific operation
 ### Summary
-The `tr_sock.cpp` file provides essential functionality for core functionality. and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `tr_sock.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -22,15 +22,15 @@ The `tr_sock.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Close()`
-- `Cvt()`
-- `DOSend()`
-- `Destroy()`
-- `FlushCache()`
-- `ISRead()`
-- `ISWrite()`
-- `MemMove()`
-- `PRClientReconnect()`
-- `PRCloseHandle()`
+- `Destroy()`: Wykonuje specyficzną operację
+- `Close()`: Zamyka zasób
+- `ISRead()`: Sprawdza warunek lub stan
+- `ISWrite()`: Sprawdza warunek lub stan
+- `DOSend()`: Wykonuje specyficzną operację
+- `FlushCache()`: Opróżnia buforowane dane
+- `UseHandle()`: Wykonuje specyficzną operację
+- `ReleaseHandle()`: Wykonuje specyficzną operację
+- `Cvt()`: Wykonuje specyficzną operację
+- `MemMove()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `tr_sock.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `tr_sock.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

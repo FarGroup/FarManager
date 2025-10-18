@@ -7,11 +7,11 @@ Main functional areas: core functionality
 - `indeterminate`: Implements core functionality
 - `state`: Implements core functionality
 ### Key Functions
-- `flash()`
-- `indeterminate()`
-- `set_state()`
-- `set_value()`
-- `state()`
+- `set_state()`: Sets or assigns data
+- `set_value()`: Sets or assigns data
+- `flash()`: Performs specific operation
+- `indeterminate()`: Constructor
+- `state()`: Performs specific operation
 ### Namespaces
 - `taskbar`
 ### Summary
@@ -27,11 +27,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `indeterminate`: Implementuje podstawowa funkcjonalność
 - `state`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `flash()`
-- `indeterminate()`
-- `set_state()`
-- `set_value()`
-- `state()`
+- `set_state()`: Ustawia lub przypisuje dane
+- `set_value()`: Ustawia lub przypisuje dane
+- `flash()`: Wykonuje specyficzną operację
+- `indeterminate()`: Konstruktor
+- `state()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `taskbar`
 ### Podsumowanie

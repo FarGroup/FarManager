@@ -3,18 +3,18 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `GetOP()`
-- `GetOPGroup()`
-- `INTUnassemble()`
-- `SetFlags()`
-- `Unassemble()`
-- `addr_to_hex()`
-- `bytes()`
-- `do_modrm()`
-- `do_sib()`
-- `floating_point()`
+- `getbyte()`: Retrieves or returns data
+- `ua_str()`: Performs specific operation
+- `addr_to_hex()`: Adds an item or element
+- `modrm()`: Performs specific operation
+- `sib()`: Performs specific operation
+- `uprintf()`: Performs specific operation
+- `uputchar()`: Performs specific operation
+- `bytes()`: Performs specific operation
+- `outhex()`: Performs specific operation
+- `reg_name()`: Performs specific operation
 ### Summary
-The `2asm.cpp` file provides essential functionality for core functionality. and contains approximately 19 function(s) to support the Far Manager file manager operations.
+The `2asm.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -22,15 +22,15 @@ The `2asm.cpp` file provides essential functionality for core functionality. and
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetOP()`
-- `GetOPGroup()`
-- `INTUnassemble()`
-- `SetFlags()`
-- `Unassemble()`
-- `addr_to_hex()`
-- `bytes()`
-- `do_modrm()`
-- `do_sib()`
-- `floating_point()`
+- `getbyte()`: Pobiera lub zwraca dane
+- `ua_str()`: Wykonuje specyficzną operację
+- `addr_to_hex()`: Dodaje element
+- `modrm()`: Wykonuje specyficzną operację
+- `sib()`: Wykonuje specyficzną operację
+- `uprintf()`: Wykonuje specyficzną operację
+- `uputchar()`: Wykonuje specyficzną operację
+- `bytes()`: Wykonuje specyficzną operację
+- `outhex()`: Wykonuje specyficzną operację
+- `reg_name()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `2asm.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 19 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `2asm.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

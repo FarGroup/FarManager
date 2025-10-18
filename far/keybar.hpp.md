@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `keybar_area`: Implements core functionality
 - `lng`: Implements core functionality
 ### Key Functions
-- `Change()`
-- `ClearKeyTitles()`
-- `DisplayObject()`
-- `KeyBar()`
-- `ProcessKey()`
-- `ProcessMouse()`
-- `RedrawIfChanged()`
-- `SetCustomLabels()`
-- `SetLabels()`
-- `keybar_area()`
+- `KeyBar()`: Performs specific operation
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `SetLabels()`: Sets or assigns data
+- `SetCustomLabels()`: Sets or assigns data
+- `keybar_area()`: Performs specific operation
+- `Change()`: Performs specific operation
+- `RedrawIfChanged()`: Performs specific operation
+- `DisplayObject()`: Displays or shows content
+- `ClearKeyTitles()`: Clears or resets data
 ### Summary
 The `keybar.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `keybar_area`: Implementuje podstawowa funkcjonalność
 - `lng`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Change()`
-- `ClearKeyTitles()`
-- `DisplayObject()`
-- `KeyBar()`
-- `ProcessKey()`
-- `ProcessMouse()`
-- `RedrawIfChanged()`
-- `SetCustomLabels()`
-- `SetLabels()`
-- `keybar_area()`
+- `KeyBar()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `SetLabels()`: Ustawia lub przypisuje dane
+- `SetCustomLabels()`: Ustawia lub przypisuje dane
+- `keybar_area()`: Wykonuje specyficzną operację
+- `Change()`: Wykonuje specyficzną operację
+- `RedrawIfChanged()`: Wykonuje specyficzną operację
+- `DisplayObject()`: Wyświetla lub pokazuje zawartość
+- `ClearKeyTitles()`: Czyści lub resetuje dane
 ### Podsumowanie
 Plik `keybar.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

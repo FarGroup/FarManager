@@ -10,16 +10,16 @@ Main functional areas: clipboard operations
 - `clipboard_restorer`: Implements clipboard operations
 - `default_clipboard_mode`: Implements clipboard operations
 ### Key Functions
-- `ClearClipboard()`
-- `ClearInternalClipboard()`
-- `CopyData()`
-- `GetClipboardText()`
-- `GetClipboardVText()`
-- `GetInstance()`
-- `SetClipboardText()`
-- `SetClipboardVText()`
-- `get()`
-- `set()`
+- `set()`: Sets or assigns data
+- `get()`: Retrieves or returns data
+- `GetInstance()`: Retrieves or returns data
+- `SetClipboardText()`: Sets or assigns data
+- `SetClipboardVText()`: Sets or assigns data
+- `GetClipboardText()`: Retrieves or returns data
+- `GetClipboardVText()`: Retrieves or returns data
+- `ClearClipboard()`: Clears or resets data
+- `ClearInternalClipboard()`: Clears or resets data
+- `CopyData()`: Copies data
 ### Summary
 The `clipboard.hpp` file provides essential functionality for clipboard operations. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: operacje schowka
 - `clipboard_restorer`: Implementuje operacje schowka
 - `default_clipboard_mode`: Implementuje operacje schowka
 ### Kluczowe Funkcje
-- `ClearClipboard()`
-- `ClearInternalClipboard()`
-- `CopyData()`
-- `GetClipboardText()`
-- `GetClipboardVText()`
-- `GetInstance()`
-- `SetClipboardText()`
-- `SetClipboardVText()`
-- `get()`
-- `set()`
+- `set()`: Ustawia lub przypisuje dane
+- `get()`: Pobiera lub zwraca dane
+- `GetInstance()`: Pobiera lub zwraca dane
+- `SetClipboardText()`: Ustawia lub przypisuje dane
+- `SetClipboardVText()`: Ustawia lub przypisuje dane
+- `GetClipboardText()`: Pobiera lub zwraca dane
+- `GetClipboardVText()`: Pobiera lub zwraca dane
+- `ClearClipboard()`: Czyści lub resetuje dane
+- `ClearInternalClipboard()`: Czyści lub resetuje dane
+- `CopyData()`: Kopiuje dane
 ### Podsumowanie
 Plik `clipboard.hpp` zapewnia podstawową funkcjonalność dla operacje schowka. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

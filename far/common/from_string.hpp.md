@@ -3,10 +3,10 @@
 ### Purpose
 Main functional areas: string utilities
 ### Key Functions
-- `Data()`
-- `constexpr()`
-- `from_string()`
-- `from_string_long()`
+- `from_string()`: Performs specific operation
+- `constexpr()`: Performs specific operation
+- `Data()`: Performs specific operation
+- `from_string_long()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `std`
@@ -19,10 +19,10 @@ The `from_string.hpp` file provides essential functionality for string utilities
 ### Cel
 Główne obszary funkcjonalne: narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `Data()`
-- `constexpr()`
-- `from_string()`
-- `from_string_long()`
+- `from_string()`: Wykonuje specyficzną operację
+- `constexpr()`: Wykonuje specyficzną operację
+- `Data()`: Wykonuje specyficzną operację
+- `from_string_long()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `std`

@@ -7,10 +7,10 @@ Main functional areas: core functionality
 - `FileInfo`: Implements core functionality
 - `FileStream`: Implements core functionality
 ### Key Functions
-- `CHECK()`
-- `CreateObject()`
-- `GetHandlerProperty()`
-- `path_buf()`
+- `GetHandlerProperty()`: Retrieves or returns data
+- `path_buf()`: Performs specific operation
+- `CHECK()`: Validates or checks data
+- `CreateObject()`: Creates a new instance or object
 ### Summary
 The `module.cpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -24,9 +24,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `FileInfo`: Implementuje podstawowa funkcjonalność
 - `FileStream`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CHECK()`
-- `CreateObject()`
-- `GetHandlerProperty()`
-- `path_buf()`
+- `GetHandlerProperty()`: Pobiera lub zwraca dane
+- `path_buf()`: Wykonuje specyficzną operację
+- `CHECK()`: Waliduje lub sprawdza dane
+- `CreateObject()`: Tworzy nową instancję lub obiekt
 ### Podsumowanie
 Plik `module.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

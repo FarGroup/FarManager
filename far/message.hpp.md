@@ -8,7 +8,7 @@ Main functional areas: core functionality
 - `lng`: Implements core functionality
 - `message_result`: Implements core functionality
 ### Key Functions
-- `Message()`
+- `Message()`: Performs specific operation
 ### Summary
 The `message.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -23,6 +23,6 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `lng`: Implementuje podstawowa funkcjonalność
 - `message_result`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Message()`
+- `Message()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `message.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

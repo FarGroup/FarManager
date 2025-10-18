@@ -3,15 +3,15 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `bits_to_bytes()`
-- `bits_to_char()`
-- `bits_to_chars()`
-- `byte_to_bits()`
-- `bytes_to_bits()`
-- `char_to_bits()`
-- `chars_to_bits()`
-- `decode()`
-- `encode()`
+- `byte_to_bits()`: Performs specific operation
+- `bytes_to_bits()`: Performs specific operation
+- `bits_to_char()`: Performs specific operation
+- `bits_to_chars()`: Performs specific operation
+- `encode()`: Performs specific operation
+- `char_to_bits()`: Performs specific operation
+- `chars_to_bits()`: Performs specific operation
+- `bits_to_bytes()`: Performs specific operation
+- `decode()`: Performs specific operation
 ### Namespaces
 - `base64`
 - `detail`
@@ -25,15 +25,15 @@ The `base64.hpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `bits_to_bytes()`
-- `bits_to_char()`
-- `bits_to_chars()`
-- `byte_to_bits()`
-- `bytes_to_bits()`
-- `char_to_bits()`
-- `chars_to_bits()`
-- `decode()`
-- `encode()`
+- `byte_to_bits()`: Wykonuje specyficzną operację
+- `bytes_to_bits()`: Wykonuje specyficzną operację
+- `bits_to_char()`: Wykonuje specyficzną operację
+- `bits_to_chars()`: Wykonuje specyficzną operację
+- `encode()`: Wykonuje specyficzną operację
+- `char_to_bits()`: Wykonuje specyficzną operację
+- `chars_to_bits()`: Wykonuje specyficzną operację
+- `bits_to_bytes()`: Wykonuje specyficzną operację
+- `decode()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `base64`
 - `detail`

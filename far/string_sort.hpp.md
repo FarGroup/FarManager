@@ -10,11 +10,11 @@ Main functional areas: string utilities
 - `less_t`: Implements string utilities
 - `pluginapi_sort_accessor`: Implements string utilities
 ### Key Functions
-- `adjust_comparer()`
-- `compare()`
-- `compare_ordinal_icase()`
-- `compare_ordinal_numeric()`
-- `ordering_as_int()`
+- `compare()`: Performs specific operation
+- `adjust_comparer()`: Adjusts or modifies settings
+- `compare_ordinal_icase()`: Performs specific operation
+- `compare_ordinal_numeric()`: Performs specific operation
+- `ordering_as_int()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `string_sort`
@@ -34,11 +34,11 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `less_t`: Implementuje narzędzia łańcuchowe
 - `pluginapi_sort_accessor`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `adjust_comparer()`
-- `compare()`
-- `compare_ordinal_icase()`
-- `compare_ordinal_numeric()`
-- `ordering_as_int()`
+- `compare()`: Wykonuje specyficzną operację
+- `adjust_comparer()`: Dostosowuje lub modyfikuje ustawienia
+- `compare_ordinal_icase()`: Wykonuje specyficzną operację
+- `compare_ordinal_numeric()`: Wykonuje specyficzną operację
+- `ordering_as_int()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `string_sort`

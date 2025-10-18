@@ -9,21 +9,21 @@ Main functional areas: core functionality
 - `stack_frame`: Implements core functionality
 - `symbol`: Implements core functionality
 ### Key Functions
-- `breakpoint()`
-- `breakpoint_if_debugging()`
-- `clean()`
-- `crt_report_to_stderr()`
-- `crt_report_to_ui()`
-- `demangle()`
-- `exception_information()`
-- `fake_exception_information()`
-- `get_thread_name()`
-- `initialize()`
+- `is_debugger_present()`: Checks a condition or state
+- `breakpoint()`: Performs specific operation
+- `breakpoint_if_debugging()`: Performs specific operation
+- `print()`: Performs specific operation
+- `set_thread_name()`: Sets or assigns data
+- `get_thread_name()`: Retrieves or returns data
+- `exception_information()`: Performs specific operation
+- `fake_exception_information()`: Performs specific operation
+- `is_inline_frame()`: Checks a condition or state
+- `initialize()`: Initializes or sets up
 ### Namespaces
 - `os`
 - `symbols`
 ### Summary
-The `platform.debug.hpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 14 function(s) to support the Far Manager file manager operations.
+The `platform.debug.hpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -37,18 +37,18 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `stack_frame`: Implementuje podstawowa funkcjonalność
 - `symbol`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `breakpoint()`
-- `breakpoint_if_debugging()`
-- `clean()`
-- `crt_report_to_stderr()`
-- `crt_report_to_ui()`
-- `demangle()`
-- `exception_information()`
-- `fake_exception_information()`
-- `get_thread_name()`
-- `initialize()`
+- `is_debugger_present()`: Sprawdza warunek lub stan
+- `breakpoint()`: Wykonuje specyficzną operację
+- `breakpoint_if_debugging()`: Wykonuje specyficzną operację
+- `print()`: Wykonuje specyficzną operację
+- `set_thread_name()`: Ustawia lub przypisuje dane
+- `get_thread_name()`: Pobiera lub zwraca dane
+- `exception_information()`: Wykonuje specyficzną operację
+- `fake_exception_information()`: Wykonuje specyficzną operację
+- `is_inline_frame()`: Sprawdza warunek lub stan
+- `initialize()`: Inicjalizuje lub konfiguruje
 ### Przestrzenie nazw
 - `os`
 - `symbols`
 ### Podsumowanie
-Plik `platform.debug.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 14 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `platform.debug.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -7,8 +7,8 @@ Main functional areas: core functionality
 - `memory_releaser`: Implements core functionality
 - `releaser`: Implements core functionality
 ### Key Functions
-- `get_shell_filetype_description()`
-- `get_shell_name()`
+- `get_shell_name()`: Retrieves or returns data
+- `get_shell_filetype_description()`: Retrieves or returns data
 ### Namespaces
 - `detail`
 - `os`
@@ -25,8 +25,8 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `memory_releaser`: Implementuje podstawowa funkcjonalność
 - `releaser`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get_shell_filetype_description()`
-- `get_shell_name()`
+- `get_shell_name()`: Pobiera lub zwraca dane
+- `get_shell_filetype_description()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `detail`
 - `os`

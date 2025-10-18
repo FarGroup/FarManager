@@ -11,10 +11,10 @@ Main functional areas: core functionality
 - `multifilter`: Implements core functionality
 - `plugin_panel`: Implements core functionality
 ### Key Functions
-- `FreePluginDirList()`
-- `GetDirInfo()`
-- `GetPluginDirInfo()`
-- `GetPluginDirList()`
+- `GetDirInfo()`: Retrieves or returns data
+- `GetPluginDirInfo()`: Retrieves or returns data
+- `GetPluginDirList()`: Retrieves or returns data
+- `FreePluginDirList()`: Performs specific operation
 ### Summary
 The `dirinfo.hpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -32,9 +32,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `multifilter`: Implementuje podstawowa funkcjonalność
 - `plugin_panel`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `FreePluginDirList()`
-- `GetDirInfo()`
-- `GetPluginDirInfo()`
-- `GetPluginDirList()`
+- `GetDirInfo()`: Pobiera lub zwraca dane
+- `GetPluginDirInfo()`: Pobiera lub zwraca dane
+- `GetPluginDirList()`: Pobiera lub zwraca dane
+- `FreePluginDirList()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `dirinfo.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

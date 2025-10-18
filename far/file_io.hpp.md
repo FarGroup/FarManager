@@ -11,6 +11,6 @@ The `file_io.hpp` file provides essential functionality for file system operatio
 ## Polski (Polish)
 ### Cel
 Ten plik implementuje funkcjonalność związaną z: */
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Podsumowanie
-Plik `file_io.hpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. wspierających operacje menedżera plików Far Manager.
+Plik `file_io.hpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. wspierających operacje menedżera plików Far Manager.

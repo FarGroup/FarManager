@@ -14,16 +14,16 @@ Main functional areas: singleton implementation
 - `FileRedirect`: Implements singleton implementation
 - `FloatingPointKind`: Implements singleton implementation
 ### Key Functions
-- `Equals()`
-- `applyFilenamesAsTags()`
-- `contains()`
-- `f()`
-- `getEnv()`
-- `getExceptionTranslatorRegistry()`
-- `handleSignal()`
-- `in()`
-- `isColourImplAvailable()`
-- `isOptPrefix()`
+- `analyse()`: Performs specific operation
+- `throw_optimized_away_error()`: Performs specific operation
+- `resample()`: Performs specific operation
+- `outlier_variance()`: Performs specific operation
+- `erf_inv()`: Performs specific operation
+- `standard_deviation()`: Performs specific operation
+- `weighted_average_quantile()`: Performs specific operation
+- `classify_outliers()`: Performs specific operation
+- `mean()`: Performs specific operation
+- `normal_cdf()`: Performs specific operation
 ### Namespaces
 - `Benchmark`
 - `Catch`
@@ -44,7 +44,7 @@ Main functional areas: singleton implementation
 - `std`
 - `void`
 ### Summary
-The `catch_amalgamated.cpp` file provides essential functionality for singleton implementation. It defines 32 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `catch_amalgamated.cpp` file provides essential functionality for singleton implementation. It defines 32 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -63,16 +63,16 @@ Główne obszary funkcjonalne: implementacja singletona
 - `FileRedirect`: Implementuje implementacja singletona
 - `FloatingPointKind`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `Equals()`
-- `applyFilenamesAsTags()`
-- `contains()`
-- `f()`
-- `getEnv()`
-- `getExceptionTranslatorRegistry()`
-- `handleSignal()`
-- `in()`
-- `isColourImplAvailable()`
-- `isOptPrefix()`
+- `analyse()`: Wykonuje specyficzną operację
+- `throw_optimized_away_error()`: Wykonuje specyficzną operację
+- `resample()`: Wykonuje specyficzną operację
+- `outlier_variance()`: Wykonuje specyficzną operację
+- `erf_inv()`: Wykonuje specyficzną operację
+- `standard_deviation()`: Wykonuje specyficzną operację
+- `weighted_average_quantile()`: Wykonuje specyficzną operację
+- `classify_outliers()`: Wykonuje specyficzną operację
+- `mean()`: Wykonuje specyficzną operację
+- `normal_cdf()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `Benchmark`
 - `Catch`
@@ -93,4 +93,4 @@ Główne obszary funkcjonalne: implementacja singletona
 - `std`
 - `void`
 ### Podsumowanie
-Plik `catch_amalgamated.cpp` zapewnia podstawową funkcjonalność dla implementacja singletona. Definiuje 32 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `catch_amalgamated.cpp` zapewnia podstawową funkcjonalność dla implementacja singletona. Definiuje 32 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

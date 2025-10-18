@@ -10,18 +10,18 @@ Main functional areas: menu management
 - `plugin_item`: Implements menu management
 - `separator`: Implements menu management
 ### Key Functions
-- `AddPluginItems()`
-- `Builder()`
-- `C_DosDriveName()`
-- `ChangeDisk()`
-- `ChangeDiskMenu()`
-- `ConfigureChangeDriveMode()`
-- `DisconnectDrive()`
-- `DriveLocalToRemoteName()`
-- `EjectFailed()`
-- `GetShellName()`
+- `is_disk()`: Checks a condition or state
+- `dos_drive_name()`: Performs specific operation
+- `dos_drive_root_directory()`: Performs specific operation
+- `EjectFailed()`: Performs specific operation
+- `AddPluginItems()`: Adds an item or element
+- `ConfigureChangeDriveMode()`: Performs specific operation
+- `Builder()`: Performs specific operation
+- `MessageRemoveConnection()`: Performs specific operation
+- `DriveLocalToRemoteName()`: Performs specific operation
+- `ProcessDelDisk()`: Processes data or events
 ### Summary
-The `diskmenu.cpp` file provides essential functionality for menu management. It defines 6 class(es) and contains approximately 17 function(s) to support the Far Manager file manager operations.
+The `diskmenu.cpp` file provides essential functionality for menu management. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: zarządzanie menu
 - `plugin_item`: Implementuje zarządzanie menu
 - `separator`: Implementuje zarządzanie menu
 ### Kluczowe Funkcje
-- `AddPluginItems()`
-- `Builder()`
-- `C_DosDriveName()`
-- `ChangeDisk()`
-- `ChangeDiskMenu()`
-- `ConfigureChangeDriveMode()`
-- `DisconnectDrive()`
-- `DriveLocalToRemoteName()`
-- `EjectFailed()`
-- `GetShellName()`
+- `is_disk()`: Sprawdza warunek lub stan
+- `dos_drive_name()`: Wykonuje specyficzną operację
+- `dos_drive_root_directory()`: Wykonuje specyficzną operację
+- `EjectFailed()`: Wykonuje specyficzną operację
+- `AddPluginItems()`: Dodaje element
+- `ConfigureChangeDriveMode()`: Wykonuje specyficzną operację
+- `Builder()`: Wykonuje specyficzną operację
+- `MessageRemoveConnection()`: Wykonuje specyficzną operację
+- `DriveLocalToRemoteName()`: Wykonuje specyficzną operację
+- `ProcessDelDisk()`: Przetwarza dane lub zdarzenia
 ### Podsumowanie
-Plik `diskmenu.cpp` zapewnia podstawową funkcjonalność dla zarządzanie menu. Definiuje 6 klas(y) i zawiera około 17 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `diskmenu.cpp` zapewnia podstawową funkcjonalność dla zarządzanie menu. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -14,18 +14,18 @@ Main functional areas: core functionality
 - `Patch7zCP`: Implements core functionality
 - `TempFile`: Implements core functionality
 ### Key Functions
-- `GetSync()`
-- `attributes()`
-- `create_dir()`
-- `create_dir_nt()`
-- `expand_env_vars()`
-- `get_info_nt()`
-- `is_open()`
-- `open_nt()`
-- `query_bool_nt()`
-- `query_str()`
+- `get_system_message()`: Retrieves or returns data
+- `get_console_title()`: Retrieves or returns data
+- `wait_for_single_object()`: Performs specific operation
+- `ansi_to_unicode()`: Performs specific operation
+- `unicode_to_ansi()`: Performs specific operation
+- `expand_env_vars()`: Performs specific operation
+- `get_full_path_name()`: Retrieves or returns data
+- `get_current_directory()`: Retrieves or returns data
+- `GetSync()`: Retrieves or returns data
+- `GetExportSync()`: Retrieves or returns data
 ### Summary
-The `sysutils.hpp` file provides essential functionality for core functionality. It defines 10 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `sysutils.hpp` file provides essential functionality for core functionality. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Patch7zCP`: Implementuje podstawowa funkcjonalność
 - `TempFile`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetSync()`
-- `attributes()`
-- `create_dir()`
-- `create_dir_nt()`
-- `expand_env_vars()`
-- `get_info_nt()`
-- `is_open()`
-- `open_nt()`
-- `query_bool_nt()`
-- `query_str()`
+- `get_system_message()`: Pobiera lub zwraca dane
+- `get_console_title()`: Pobiera lub zwraca dane
+- `wait_for_single_object()`: Wykonuje specyficzną operację
+- `ansi_to_unicode()`: Wykonuje specyficzną operację
+- `unicode_to_ansi()`: Wykonuje specyficzną operację
+- `expand_env_vars()`: Wykonuje specyficzną operację
+- `get_full_path_name()`: Pobiera lub zwraca dane
+- `get_current_directory()`: Pobiera lub zwraca dane
+- `GetSync()`: Pobiera lub zwraca dane
+- `GetExportSync()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `sysutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 10 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `sysutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

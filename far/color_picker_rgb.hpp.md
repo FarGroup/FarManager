@@ -4,7 +4,7 @@
 This file implements functionality related to: RGB colors extension to the standard color picker
 Main functional areas: color management
 ### Key Functions
-- `pick_color_rgb()`
+- `pick_color_rgb()`: Performs specific operation
 ### Summary
 The `color_picker_rgb.hpp` file provides essential functionality for color management. and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -15,6 +15,6 @@ The `color_picker_rgb.hpp` file provides essential functionality for color manag
 Ten plik implementuje funkcjonalność związaną z: RGB colors extension to the standard color picker
 Główne obszary funkcjonalne: zarządzanie kolorami
 ### Kluczowe Funkcje
-- `pick_color_rgb()`
+- `pick_color_rgb()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `color_picker_rgb.hpp` zapewnia podstawową funkcjonalność dla zarządzanie kolorami. i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

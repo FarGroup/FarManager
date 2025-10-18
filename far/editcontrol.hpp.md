@@ -9,18 +9,18 @@ Main functional areas: text editing
 - `History`: Implements text editing
 - `VMenu2`: Implements text editing
 ### Key Functions
-- `AutoComplete()`
-- `AutoCompleteProc()`
-- `GetAutocomplete()`
-- `GetClearFlag()`
-- `GetLineCursorPos()`
-- `GetNormalColor()`
-- `ProcessKey()`
-- `ResizeConsole()`
-- `RevertCallback()`
-- `SetAutocomplete()`
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `Show()`: Displays or shows content
+- `Changed()`: Performs specific operation
+- `GetMaxLength()`: Retrieves or returns data
+- `ResizeConsole()`: Resizes or adjusts dimensions
+- `AutoComplete()`: Performs specific operation
+- `SetAutocomplete()`: Sets or assigns data
+- `GetAutocomplete()`: Retrieves or returns data
+- `SetMacroAreaAC()`: Sets or assigns data
 ### Summary
-The `editcontrol.hpp` file provides essential functionality for text editing. It defines 4 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `editcontrol.hpp` file provides essential functionality for text editing. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: edycja tekstu
 - `History`: Implementuje edycja tekstu
 - `VMenu2`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `AutoComplete()`
-- `AutoCompleteProc()`
-- `GetAutocomplete()`
-- `GetClearFlag()`
-- `GetLineCursorPos()`
-- `GetNormalColor()`
-- `ProcessKey()`
-- `ResizeConsole()`
-- `RevertCallback()`
-- `SetAutocomplete()`
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `Show()`: Wyświetla lub pokazuje zawartość
+- `Changed()`: Wykonuje specyficzną operację
+- `GetMaxLength()`: Pobiera lub zwraca dane
+- `ResizeConsole()`: Zmienia rozmiar lub dostosowuje wymiary
+- `AutoComplete()`: Wykonuje specyficzną operację
+- `SetAutocomplete()`: Ustawia lub przypisuje dane
+- `GetAutocomplete()`: Pobiera lub zwraca dane
+- `SetMacroAreaAC()`: Ustawia lub przypisuje dane
 ### Podsumowanie
-Plik `editcontrol.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 4 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `editcontrol.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

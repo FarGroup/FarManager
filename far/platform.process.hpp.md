@@ -7,14 +7,14 @@ Main functional areas: core functionality
 - `enum_process_entry`: Implements core functionality
 - `image_type`: Implements core functionality
 ### Key Functions
-- `enum_processes()`
-- `enumerate_locking_processes_nt()`
-- `enumerate_locking_processes_rm()`
-- `get()`
-- `get_process_name()`
-- `get_process_subsystem()`
-- `terminate()`
-- `terminate_other()`
+- `get_process_subsystem()`: Retrieves or returns data
+- `get_process_name()`: Retrieves or returns data
+- `enumerate_locking_processes_rm()`: Performs specific operation
+- `enumerate_locking_processes_nt()`: Performs specific operation
+- `enum_processes()`: Performs specific operation
+- `get()`: Retrieves or returns data
+- `terminate_other()`: Performs specific operation
+- `terminate()`: Performs specific operation
 ### Namespaces
 - `os`
 ### Summary
@@ -30,14 +30,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `enum_process_entry`: Implementuje podstawowa funkcjonalność
 - `image_type`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `enum_processes()`
-- `enumerate_locking_processes_nt()`
-- `enumerate_locking_processes_rm()`
-- `get()`
-- `get_process_name()`
-- `get_process_subsystem()`
-- `terminate()`
-- `terminate_other()`
+- `get_process_subsystem()`: Pobiera lub zwraca dane
+- `get_process_name()`: Pobiera lub zwraca dane
+- `enumerate_locking_processes_rm()`: Wykonuje specyficzną operację
+- `enumerate_locking_processes_nt()`: Wykonuje specyficzną operację
+- `enum_processes()`: Wykonuje specyficzną operację
+- `get()`: Pobiera lub zwraca dane
+- `terminate_other()`: Wykonuje specyficzną operację
+- `terminate()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

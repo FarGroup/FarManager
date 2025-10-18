@@ -6,8 +6,8 @@ Main functional areas: core functionality
 ### Key Classes
 - `basic_streambuf_override`: Implements core functionality
 ### Key Functions
-- `read()`
-- `write()`
+- `read()`: Reads data from a source
+- `write()`: Writes data to a destination
 ### Namespaces
 - `detail`
 - `io`
@@ -23,8 +23,8 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `basic_streambuf_override`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `read()`
-- `write()`
+- `read()`: Odczytuje dane ze źródła
+- `write()`: Zapisuje dane do miejsca docelowego
 ### Przestrzenie nazw
 - `detail`
 - `io`

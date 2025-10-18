@@ -6,13 +6,13 @@ Main functional areas: core functionality
 ### Key Classes
 - `VersionInfo`: Implements core functionality
 ### Key Functions
-- `compiler()`
-- `copyright()`
-- `library()`
-- `platform()`
-- `scm_revision()`
-- `version()`
-- `version_string()`
+- `version_string()`: Performs specific operation
+- `copyright()`: Copies data
+- `scm_revision()`: Performs specific operation
+- `platform()`: Performs specific operation
+- `version()`: Performs specific operation
+- `compiler()`: Performs specific operation
+- `library()`: Performs specific operation
 ### Namespaces
 - `build`
 ### Summary
@@ -27,13 +27,13 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `VersionInfo`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `compiler()`
-- `copyright()`
-- `library()`
-- `platform()`
-- `scm_revision()`
-- `version()`
-- `version_string()`
+- `version_string()`: Wykonuje specyficzną operację
+- `copyright()`: Kopiuje dane
+- `scm_revision()`: Wykonuje specyficzną operację
+- `platform()`: Wykonuje specyficzną operację
+- `version()`: Wykonuje specyficzną operację
+- `compiler()`: Wykonuje specyficzną operację
+- `library()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `build`
 ### Podsumowanie

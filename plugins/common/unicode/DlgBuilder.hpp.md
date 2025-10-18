@@ -13,18 +13,17 @@ Main functional areas: dialog handling
 - `PluginRadioButtonBinding`: Implements dialog handling
 - `PluginUIntEditFieldBinding`: Implements dialog handling
 ### Key Functions
-- `AddBorder()`
-- `AddDialogItem()`
-- `AddEditField()`
-- `AddEmptyLine()`
-- `AddListBox()`
-- `AddOKCancel()`
-- `AddPasswordField()`
-- `ColumnBreak()`
-- `GetBuffer()`
-- `GetItemID()`
+- `SaveValue()`: Saves data or state
+- `lstrcpynW()`: Performs specific operation
+- `GetBuffer()`: Retrieves or returns data
+- `GetMask()`: Retrieves or returns data
+- `GetLastID()`: Retrieves or returns data
+- `AddText()`: Adds an item or element
+- `AddCheckbox()`: Adds an item or element
+- `AddRadioButtons()`: Adds an item or element
+- `AddIntEditField()`: Adds an item or element
 ### Summary
-The `DlgBuilder.hpp` file provides essential functionality for dialog handling. It defines 8 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `DlgBuilder.hpp` file provides essential functionality for dialog handling. It defines 8 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -42,15 +41,14 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `PluginRadioButtonBinding`: Implementuje obsługa dialogów
 - `PluginUIntEditFieldBinding`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `AddBorder()`
-- `AddDialogItem()`
-- `AddEditField()`
-- `AddEmptyLine()`
-- `AddListBox()`
-- `AddOKCancel()`
-- `AddPasswordField()`
-- `ColumnBreak()`
-- `GetBuffer()`
-- `GetItemID()`
+- `SaveValue()`: Zapisuje dane lub stan
+- `lstrcpynW()`: Wykonuje specyficzną operację
+- `GetBuffer()`: Pobiera lub zwraca dane
+- `GetMask()`: Pobiera lub zwraca dane
+- `GetLastID()`: Pobiera lub zwraca dane
+- `AddText()`: Dodaje element
+- `AddCheckbox()`: Dodaje element
+- `AddRadioButtons()`: Dodaje element
+- `AddIntEditField()`: Dodaje element
 ### Podsumowanie
-Plik `DlgBuilder.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 8 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `DlgBuilder.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 8 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

@@ -15,18 +15,18 @@ Main functional areas: text editing
 - `ShowInfo`: Implements text editing
 - `edit_string`: Implements text editing
 ### Key Functions
-- `AdjustMarkBlock()`
-- `ApplyColor()`
-- `CallbackSuppressor()`
-- `DisplayObject()`
-- `FastShow()`
-- `GetCurPos()`
-- `GetEditor()`
-- `GetInputMask()`
-- `GetLength()`
-- `GetSelString()`
+- `GetOwner()`: Retrieves or returns data
+- `SetOwner()`: Sets or assigns data
+- `GetColor()`: Retrieves or returns data
+- `SetColor()`: Sets or assigns data
+- `Edit()`: Performs specific operation
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `VMProcess()`: Performs specific operation
+- `Changed()`: Performs specific operation
+- `GetMaxLength()`: Retrieves or returns data
 ### Summary
-The `edit.hpp` file provides essential functionality for text editing. It defines 11 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `edit.hpp` file provides essential functionality for text editing. It defines 11 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: edycja tekstu
 - `ShowInfo`: Implementuje edycja tekstu
 - `edit_string`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `AdjustMarkBlock()`
-- `ApplyColor()`
-- `CallbackSuppressor()`
-- `DisplayObject()`
-- `FastShow()`
-- `GetCurPos()`
-- `GetEditor()`
-- `GetInputMask()`
-- `GetLength()`
-- `GetSelString()`
+- `GetOwner()`: Pobiera lub zwraca dane
+- `SetOwner()`: Ustawia lub przypisuje dane
+- `GetColor()`: Pobiera lub zwraca dane
+- `SetColor()`: Ustawia lub przypisuje dane
+- `Edit()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `VMProcess()`: Wykonuje specyficzną operację
+- `Changed()`: Wykonuje specyficzną operację
+- `GetMaxLength()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `edit.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 11 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `edit.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 11 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

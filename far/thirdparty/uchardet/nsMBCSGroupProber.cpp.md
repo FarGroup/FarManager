@@ -3,18 +3,17 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `nsBig5Prober()`
-- `nsCJKDetector()`
-- `nsEUCJPProber()`
-- `nsEUCKRProber()`
-- `nsEUCTWProber()`
-- `nsGB18030Prober()`
-- `nsJohabProber()`
-- `nsLanguageDetector()`
-- `nsSJISProber()`
-- `nsUTF8Prober()`
+- `nsUTF8Prober()`: Performs specific operation
+- `nsSJISProber()`: Performs specific operation
+- `nsEUCJPProber()`: Performs specific operation
+- `nsGB18030Prober()`: Performs specific operation
+- `nsEUCKRProber()`: Performs specific operation
+- `nsJohabProber()`: Performs specific operation
+- `nsBig5Prober()`: Performs specific operation
+- `nsEUCTWProber()`: Performs specific operation
+- `nsLanguageDetector()`: Performs specific operation
 ### Summary
-The `nsMBCSGroupProber.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
+The `nsMBCSGroupProber.cpp` file provides essential functionality for core functionality. and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -22,15 +21,14 @@ The `nsMBCSGroupProber.cpp` file provides essential functionality for core funct
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `nsBig5Prober()`
-- `nsCJKDetector()`
-- `nsEUCJPProber()`
-- `nsEUCKRProber()`
-- `nsEUCTWProber()`
-- `nsGB18030Prober()`
-- `nsJohabProber()`
-- `nsLanguageDetector()`
-- `nsSJISProber()`
-- `nsUTF8Prober()`
+- `nsUTF8Prober()`: Wykonuje specyficzną operację
+- `nsSJISProber()`: Wykonuje specyficzną operację
+- `nsEUCJPProber()`: Wykonuje specyficzną operację
+- `nsGB18030Prober()`: Wykonuje specyficzną operację
+- `nsEUCKRProber()`: Wykonuje specyficzną operację
+- `nsJohabProber()`: Wykonuje specyficzną operację
+- `nsBig5Prober()`: Wykonuje specyficzną operację
+- `nsEUCTWProber()`: Wykonuje specyficzną operację
+- `nsLanguageDetector()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `nsMBCSGroupProber.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `nsMBCSGroupProber.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

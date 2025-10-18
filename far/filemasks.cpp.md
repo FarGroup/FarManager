@@ -8,39 +8,39 @@ Main functional areas: file system operations
 - `regex_data`: Implements file system operations
 - `with_brackets`: Implements file system operations
 ### Key Functions
-- `CmpName()`
-- `ExpandedGroups()`
-- `NewMask()`
-- `active()`
-- `add_pathext()`
-- `assign()`
-- `empty()`
-- `extract_impl()`
-- `extract_masks()`
-- `extract_re()`
+- `extract_impl()`: Performs specific operation
+- `extract_separators()`: Performs specific operation
+- `extract_masks()`: Performs specific operation
+- `extract_re()`: Performs specific operation
+- `assign()`: Performs specific operation
+- `empty()`: Performs specific operation
+- `last_matches()`: Performs specific operation
+- `get_mask_group()`: Retrieves or returns data
+- `ExpandedGroups()`: Performs specific operation
+- `add_pathext()`: Adds an item or element
 ### Summary
-The `filemasks.cpp` file provides essential functionality for file system operations. It defines 3 class(es) and contains approximately 14 function(s) to support the Far Manager file manager operations.
+The `filemasks.cpp` file provides essential functionality for file system operations. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
 ## Polski (Polish)
 ### Cel
 Ten plik implementuje funkcjonalność związaną z: Класс для работы с масками файлов (учитывается наличие масок исключения).
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Kluczowe Klasy
-- `filemasks`: Implementuje operacje systemowyu plików
-- `regex_data`: Implementuje operacje systemowyu plików
-- `with_brackets`: Implementuje operacje systemowyu plików
+- `filemasks`: Implementuje operacje systemu plików
+- `regex_data`: Implementuje operacje systemu plików
+- `with_brackets`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `CmpName()`
-- `ExpandedGroups()`
-- `NewMask()`
-- `active()`
-- `add_pathext()`
-- `assign()`
-- `empty()`
-- `extract_impl()`
-- `extract_masks()`
-- `extract_re()`
+- `extract_impl()`: Wykonuje specyficzną operację
+- `extract_separators()`: Wykonuje specyficzną operację
+- `extract_masks()`: Wykonuje specyficzną operację
+- `extract_re()`: Wykonuje specyficzną operację
+- `assign()`: Wykonuje specyficzną operację
+- `empty()`: Wykonuje specyficzną operację
+- `last_matches()`: Wykonuje specyficzną operację
+- `get_mask_group()`: Pobiera lub zwraca dane
+- `ExpandedGroups()`: Wykonuje specyficzną operację
+- `add_pathext()`: Dodaje element
 ### Podsumowanie
-Plik `filemasks.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. Definiuje 3 klas(y) i zawiera około 14 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `filemasks.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

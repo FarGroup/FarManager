@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `C_Path()`
-- `LOGDEBUG()`
-- `exception()`
-- `get_shell_filetype_description()`
-- `get_shell_name()`
-- `get_shell_type()`
-- `initialize_impl()`
-- `is_proper_progid()`
+- `initialize_impl()`: Initializes or sets up
+- `exception()`: Performs specific operation
+- `get_shell_name()`: Retrieves or returns data
+- `C_Path()`: Performs specific operation
+- `is_proper_progid()`: Checks a condition or state
+- `get_shell_type()`: Retrieves or returns data
+- `LOGDEBUG()`: Performs specific operation
+- `get_shell_filetype_description()`: Retrieves or returns data
 ### Namespaces
 - `os`
 ### Summary
@@ -22,14 +22,14 @@ The `platform.com.cpp` file provides essential functionality for core functional
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `C_Path()`
-- `LOGDEBUG()`
-- `exception()`
-- `get_shell_filetype_description()`
-- `get_shell_name()`
-- `get_shell_type()`
-- `initialize_impl()`
-- `is_proper_progid()`
+- `initialize_impl()`: Inicjalizuje lub konfiguruje
+- `exception()`: Wykonuje specyficzną operację
+- `get_shell_name()`: Pobiera lub zwraca dane
+- `C_Path()`: Wykonuje specyficzną operację
+- `is_proper_progid()`: Sprawdza warunek lub stan
+- `get_shell_type()`: Pobiera lub zwraca dane
+- `LOGDEBUG()`: Wykonuje specyficzną operację
+- `get_shell_filetype_description()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

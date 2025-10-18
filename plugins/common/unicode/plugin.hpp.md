@@ -15,18 +15,18 @@ Main functional areas: plugin interface
 - `DetectCodePageInfo`: Implements plugin interface
 - `DialogInfo`: Implements plugin interface
 ### Key Functions
-- `CloseAnalyseW()`
-- `ConfigureW()`
-- `ExitFARW()`
-- `GetFilesW()`
-- `GetFindDataW()`
-- `GetUnderline()`
-- `IsFg4Bit()`
-- `IsUnderlineDefault()`
-- `MAKEFARVERSION()`
-- `ProcessEditorInputW()`
+- `IsBgIndex()`: Checks a condition or state
+- `IsFgIndex()`: Checks a condition or state
+- `IsUnderlineIndex()`: Checks a condition or state
+- `IsBgDefault()`: Checks a condition or state
+- `IsFgDefault()`: Checks a condition or state
+- `IsUnderlineDefault()`: Checks a condition or state
+- `GetUnderline()`: Retrieves or returns data
+- `SetBgIndex()`: Sets or assigns data
+- `SetFgIndex()`: Sets or assigns data
+- `SetUnderlineIndex()`: Sets or assigns data
 ### Summary
-The `plugin.hpp` file provides essential functionality for plugin interface. It defines 121 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `plugin.hpp` file provides essential functionality for plugin interface. It defines 121 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `DetectCodePageInfo`: Implementuje interfejs wtyczek
 - `DialogInfo`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `CloseAnalyseW()`
-- `ConfigureW()`
-- `ExitFARW()`
-- `GetFilesW()`
-- `GetFindDataW()`
-- `GetUnderline()`
-- `IsFg4Bit()`
-- `IsUnderlineDefault()`
-- `MAKEFARVERSION()`
-- `ProcessEditorInputW()`
+- `IsBgIndex()`: Sprawdza warunek lub stan
+- `IsFgIndex()`: Sprawdza warunek lub stan
+- `IsUnderlineIndex()`: Sprawdza warunek lub stan
+- `IsBgDefault()`: Sprawdza warunek lub stan
+- `IsFgDefault()`: Sprawdza warunek lub stan
+- `IsUnderlineDefault()`: Sprawdza warunek lub stan
+- `GetUnderline()`: Pobiera lub zwraca dane
+- `SetBgIndex()`: Ustawia lub przypisuje dane
+- `SetFgIndex()`: Ustawia lub przypisuje dane
+- `SetUnderlineIndex()`: Ustawia lub przypisuje dane
 ### Podsumowanie
-Plik `plugin.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 121 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `plugin.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 121 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

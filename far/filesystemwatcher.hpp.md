@@ -7,9 +7,9 @@ Main functional areas: file system operations
 - `FileSystemWatcher`: Implements file system operations
 - `background_watcher`: Implements file system operations
 ### Key Functions
-- `callback_notify()`
-- `get_result()`
-- `read_async()`
+- `read_async()`: Reads data from a source
+- `get_result()`: Retrieves or returns data
+- `callback_notify()`: Performs specific operation
 ### Summary
 The `filesystemwatcher.hpp` file provides essential functionality for file system operations. It defines 2 class(es) and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -18,13 +18,13 @@ The `filesystemwatcher.hpp` file provides essential functionality for file syste
 ## Polski (Polish)
 ### Cel
 Ten plik implementuje funkcjonalność związaną z: Класс FileSystemWatcher
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Kluczowe Klasy
-- `FileSystemWatcher`: Implementuje operacje systemowyu plików
-- `background_watcher`: Implementuje operacje systemowyu plików
+- `FileSystemWatcher`: Implementuje operacje systemu plików
+- `background_watcher`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `callback_notify()`
-- `get_result()`
-- `read_async()`
+- `read_async()`: Odczytuje dane ze źródła
+- `get_result()`: Pobiera lub zwraca dane
+- `callback_notify()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `filesystemwatcher.hpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. Definiuje 2 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `filesystemwatcher.hpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 2 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

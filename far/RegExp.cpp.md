@@ -14,18 +14,16 @@ Main functional areas: core functionality
 - `Setter`: Implements core functionality
 - `tests`: Implements core functionality
 ### Key Functions
-- `CalcPatternLength()`
-- `ClearBit()`
-- `FindStateByPos()`
-- `GetBit()`
-- `GetNum()`
-- `ISWORD()`
-- `MatchEx()`
-- `Reset()`
-- `Search()`
-- `SearchEx()`
+- `isType()`: Checks a condition or state
+- `Reset()`: Performs specific operation
+- `bool()`: Performs specific operation
+- `GetBit()`: Retrieves or returns data
+- `Setter()`: Sets or assigns data
+- `SetBit()`: Sets or assigns data
+- `ClearBit()`: Clears or resets data
+- `regex_exception()`: Performs specific operation
 ### Summary
-The `RegExp.cpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 18 function(s) to support the Far Manager file manager operations.
+The `RegExp.cpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 8 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -44,15 +42,13 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Setter`: Implementuje podstawowa funkcjonalność
 - `tests`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CalcPatternLength()`
-- `ClearBit()`
-- `FindStateByPos()`
-- `GetBit()`
-- `GetNum()`
-- `ISWORD()`
-- `MatchEx()`
-- `Reset()`
-- `Search()`
-- `SearchEx()`
+- `isType()`: Sprawdza warunek lub stan
+- `Reset()`: Wykonuje specyficzną operację
+- `bool()`: Wykonuje specyficzną operację
+- `GetBit()`: Pobiera lub zwraca dane
+- `Setter()`: Ustawia lub przypisuje dane
+- `SetBit()`: Ustawia lub przypisuje dane
+- `ClearBit()`: Czyści lub resetuje dane
+- `regex_exception()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `RegExp.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 18 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `RegExp.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 8 funkcji wspierających operacje menedżera plików Far Manager.

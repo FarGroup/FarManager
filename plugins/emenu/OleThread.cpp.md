@@ -3,13 +3,13 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Cleanup()`
-- `EnsureThreadStarted()`
-- `OpenPlugin()`
-- `ShowMenu()`
-- `Startup()`
-- `Stop()`
-- `ThreadProc()`
+- `ThreadProc()`: Performs specific operation
+- `EnsureThreadStarted()`: Performs specific operation
+- `OpenPlugin()`: Opens a resource
+- `ShowMenu()`: Displays or shows content
+- `Stop()`: Performs specific operation
+- `Startup()`: Performs specific operation
+- `Cleanup()`: Performs specific operation
 ### Namespaces
 - `OleThread`
 - `OpenPluginArgs`
@@ -23,13 +23,13 @@ The `OleThread.cpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Cleanup()`
-- `EnsureThreadStarted()`
-- `OpenPlugin()`
-- `ShowMenu()`
-- `Startup()`
-- `Stop()`
-- `ThreadProc()`
+- `ThreadProc()`: Wykonuje specyficzną operację
+- `EnsureThreadStarted()`: Wykonuje specyficzną operację
+- `OpenPlugin()`: Otwiera zasób
+- `ShowMenu()`: Wyświetla lub pokazuje zawartość
+- `Stop()`: Wykonuje specyficzną operację
+- `Startup()`: Wykonuje specyficzną operację
+- `Cleanup()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `OleThread`
 - `OpenPluginArgs`

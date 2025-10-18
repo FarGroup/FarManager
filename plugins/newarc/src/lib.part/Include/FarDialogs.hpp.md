@@ -9,18 +9,18 @@ Main functional areas: dialog handling
 - `FarPagedDialogHandler`: Implements dialog handling
 - `PageInfo`: Implements dialog handling
 ### Key Functions
-- `FirstButton()`
-- `FixEdit()`
-- `GetDlgData()`
-- `GetItemPosition()`
-- `ListGetData()`
-- `ListGetTitles()`
-- `ListSetCurrentPos()`
-- `ListSetMouseReaction()`
-- `ListSetTitles()`
-- `ListSort()`
+- `SetFlags()`: Sets or assigns data
+- `SetDialogFlags()`: Sets or assigns data
+- `GetDialogFlags()`: Retrieves or returns data
+- `FirstButton()`: Performs specific operation
+- `SetFocus()`: Sets or assigns data
+- `DefaultButton()`: Performs specific operation
+- `Control()`: Performs specific operation
+- `SingleBox()`: Performs specific operation
+- `DoubleBox()`: Performs specific operation
+- `Edit()`: Performs specific operation
 ### Summary
-The `FarDialogs.hpp` file provides essential functionality for dialog handling. It defines 5 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `FarDialogs.hpp` file provides essential functionality for dialog handling. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `FarPagedDialogHandler`: Implementuje obsługa dialogów
 - `PageInfo`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `FirstButton()`
-- `FixEdit()`
-- `GetDlgData()`
-- `GetItemPosition()`
-- `ListGetData()`
-- `ListGetTitles()`
-- `ListSetCurrentPos()`
-- `ListSetMouseReaction()`
-- `ListSetTitles()`
-- `ListSort()`
+- `SetFlags()`: Ustawia lub przypisuje dane
+- `SetDialogFlags()`: Ustawia lub przypisuje dane
+- `GetDialogFlags()`: Pobiera lub zwraca dane
+- `FirstButton()`: Wykonuje specyficzną operację
+- `SetFocus()`: Ustawia lub przypisuje dane
+- `DefaultButton()`: Wykonuje specyficzną operację
+- `Control()`: Wykonuje specyficzną operację
+- `SingleBox()`: Wykonuje specyficzną operację
+- `DoubleBox()`: Wykonuje specyficzną operację
+- `Edit()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `FarDialogs.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 5 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `FarDialogs.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

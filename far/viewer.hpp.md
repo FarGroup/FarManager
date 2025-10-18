@@ -15,18 +15,18 @@ Main functional areas: file viewing
 - `search_data`: Implements file viewing
 - `vgetc_cache`: Implements file viewing
 ### Key Functions
-- `AdjustFilePos()`
-- `AdjustHexModeBytesPerLineToViewWidth()`
-- `CacheFindUp()`
-- `ChangeViewKeyBar()`
-- `DoSearchReplace()`
-- `GetFilePos()`
-- `GetTitle()`
-- `MaxViewLineBufferSize()`
-- `OpenFile()`
-- `ProcessDisplayMode()`
+- `Viewer()`: Performs specific operation
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `VMProcess()`: Performs specific operation
+- `OpenFile()`: Opens a resource
+- `SetViewKeyBar()`: Sets or assigns data
+- `UpdateViewKeyBar()`: Updates existing data
+- `SetStatusMode()`: Sets or assigns data
+- `EnableHideCursor()`: Performs specific operation
+- `GetWrapMode()`: Retrieves or returns data
 ### Summary
-The `viewer.hpp` file provides essential functionality for file viewing. It defines 10 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `viewer.hpp` file provides essential functionality for file viewing. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: przeglądanie plików
 - `search_data`: Implementuje przeglądanie plików
 - `vgetc_cache`: Implementuje przeglądanie plików
 ### Kluczowe Funkcje
-- `AdjustFilePos()`
-- `AdjustHexModeBytesPerLineToViewWidth()`
-- `CacheFindUp()`
-- `ChangeViewKeyBar()`
-- `DoSearchReplace()`
-- `GetFilePos()`
-- `GetTitle()`
-- `MaxViewLineBufferSize()`
-- `OpenFile()`
-- `ProcessDisplayMode()`
+- `Viewer()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `VMProcess()`: Wykonuje specyficzną operację
+- `OpenFile()`: Otwiera zasób
+- `SetViewKeyBar()`: Ustawia lub przypisuje dane
+- `UpdateViewKeyBar()`: Aktualizuje istniejące dane
+- `SetStatusMode()`: Ustawia lub przypisuje dane
+- `EnableHideCursor()`: Wykonuje specyficzną operację
+- `GetWrapMode()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `viewer.hpp` zapewnia podstawową funkcjonalność dla przeglądanie plików. Definiuje 10 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `viewer.hpp` zapewnia podstawową funkcjonalność dla przeglądanie plików. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

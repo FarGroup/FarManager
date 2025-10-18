@@ -11,18 +11,18 @@ Main functional areas: core functionality
 - `security`: Implements core functionality
 - `total_info`: Implements core functionality
 ### Key Functions
-- `CheckNulOrCon()`
-- `CmpFullNames()`
-- `CopyDlgProc()`
-- `CreatePath()`
-- `DeleteAfterMove()`
-- `DeleteEndSlash()`
-- `MkHardLink()`
-- `MkSymLink()`
-- `NewPathStatus()`
-- `ResetSecurity()`
+- `copy_selected_items()`: Copies data
+- `ShellCopyOneFile()`: Performs specific operation
+- `CheckStreams()`: Validates or checks data
+- `ShellCopyFile()`: Performs specific operation
+- `ShellSystemCopy()`: Performs specific operation
+- `DeleteAfterMove()`: Removes or deletes an item
+- `AskOverwrite()`: Performs specific operation
+- `GetSecurity()`: Retrieves or returns data
+- `SetSecurity()`: Sets or assigns data
+- `ResetSecurity()`: Performs specific operation
 ### Summary
-The `copy.cpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `copy.cpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `security`: Implementuje podstawowa funkcjonalność
 - `total_info`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CheckNulOrCon()`
-- `CmpFullNames()`
-- `CopyDlgProc()`
-- `CreatePath()`
-- `DeleteAfterMove()`
-- `DeleteEndSlash()`
-- `MkHardLink()`
-- `MkSymLink()`
-- `NewPathStatus()`
-- `ResetSecurity()`
+- `copy_selected_items()`: Kopiuje dane
+- `ShellCopyOneFile()`: Wykonuje specyficzną operację
+- `CheckStreams()`: Waliduje lub sprawdza dane
+- `ShellCopyFile()`: Wykonuje specyficzną operację
+- `ShellSystemCopy()`: Wykonuje specyficzną operację
+- `DeleteAfterMove()`: Usuwa element
+- `AskOverwrite()`: Wykonuje specyficzną operację
+- `GetSecurity()`: Pobiera lub zwraca dane
+- `SetSecurity()`: Ustawia lub przypisuje dane
+- `ResetSecurity()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `copy.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `copy.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

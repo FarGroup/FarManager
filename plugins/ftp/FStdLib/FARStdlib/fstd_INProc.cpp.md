@@ -9,6 +9,6 @@ The `fstd_INProc.cpp` file provides essential functionality for file system oper
 
 ## Polski (Polish)
 ### Cel
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Podsumowanie
-Plik `fstd_INProc.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. wspierających operacje menedżera plików Far Manager.
+Plik `fstd_INProc.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. wspierających operacje menedżera plików Far Manager.

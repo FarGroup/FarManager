@@ -12,20 +12,20 @@ Main functional areas: singleton implementation
 - `update_devices_message`: Implements singleton implementation
 - `wm_listener`: Implements singleton implementation
 ### Key Functions
-- `CreateEventName()`
-- `GetEventName()`
-- `commit_add()`
-- `commit_remove()`
-- `disable_power_notifications()`
-- `dispatch()`
-- `enable_power_notifications()`
-- `notify()`
-- `restore_dispatch()`
-- `subscribe()`
+- `subscribe()`: Performs specific operation
+- `unsubscribe()`: Performs specific operation
+- `notify()`: Performs specific operation
+- `dispatch()`: Performs specific operation
+- `enable_power_notifications()`: Performs specific operation
+- `disable_power_notifications()`: Performs specific operation
+- `suppressor()`: Performs specific operation
+- `commit_add()`: Performs specific operation
+- `commit_remove()`: Performs specific operation
+- `suppress_dispatch()`: Performs specific operation
 ### Namespaces
 - `detail`
 ### Summary
-The `notification.hpp` file provides essential functionality for singleton implementation. It defines 7 class(es) and contains approximately 13 function(s) to support the Far Manager file manager operations.
+The `notification.hpp` file provides essential functionality for singleton implementation. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -42,17 +42,17 @@ Główne obszary funkcjonalne: implementacja singletona
 - `update_devices_message`: Implementuje implementacja singletona
 - `wm_listener`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `CreateEventName()`
-- `GetEventName()`
-- `commit_add()`
-- `commit_remove()`
-- `disable_power_notifications()`
-- `dispatch()`
-- `enable_power_notifications()`
-- `notify()`
-- `restore_dispatch()`
-- `subscribe()`
+- `subscribe()`: Wykonuje specyficzną operację
+- `unsubscribe()`: Wykonuje specyficzną operację
+- `notify()`: Wykonuje specyficzną operację
+- `dispatch()`: Wykonuje specyficzną operację
+- `enable_power_notifications()`: Wykonuje specyficzną operację
+- `disable_power_notifications()`: Wykonuje specyficzną operację
+- `suppressor()`: Wykonuje specyficzną operację
+- `commit_add()`: Wykonuje specyficzną operację
+- `commit_remove()`: Wykonuje specyficzną operację
+- `suppress_dispatch()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie
-Plik `notification.hpp` zapewnia podstawową funkcjonalność dla implementacja singletona. Definiuje 7 klas(y) i zawiera około 13 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `notification.hpp` zapewnia podstawową funkcjonalność dla implementacja singletona. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

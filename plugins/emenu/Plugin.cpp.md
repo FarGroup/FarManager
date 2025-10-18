@@ -7,18 +7,18 @@ Main functional areas: plugin interface
 - `SMenuDlgParam`: Implements plugin interface
 - `output_suppressor`: Implements plugin interface
 ### Key Functions
-- `Builder()`
-- `IsWindowsVersionOrGreater()`
-- `IsWindowsXPOrGreater()`
-- `MenuDlgProc()`
-- `invoke_GetCommandString()`
-- `oDrivesMenu()`
-- `oFarMenu()`
-- `oMainMenu()`
-- `oTypeMenu()`
-- `pCMenu2()`
+- `IsWindowsVersionOrGreater()`: Checks a condition or state
+- `IsWindowsXPOrGreater()`: Checks a condition or state
+- `settings()`: Sets or assigns data
+- `Builder()`: Performs specific operation
+- `oMainMenu()`: Main entry point
+- `oDrivesMenu()`: Performs specific operation
+- `szMenuItem()`: Performs specific operation
+- `strDir()`: Performs specific operation
+- `szFile()`: Performs specific operation
+- `pCMenu2()`: Performs specific operation
 ### Summary
-The `Plugin.cpp` file provides essential functionality for plugin interface. It defines 3 class(es) and contains approximately 15 function(s) to support the Far Manager file manager operations.
+The `Plugin.cpp` file provides essential functionality for plugin interface. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -30,15 +30,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `SMenuDlgParam`: Implementuje interfejs wtyczek
 - `output_suppressor`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `Builder()`
-- `IsWindowsVersionOrGreater()`
-- `IsWindowsXPOrGreater()`
-- `MenuDlgProc()`
-- `invoke_GetCommandString()`
-- `oDrivesMenu()`
-- `oFarMenu()`
-- `oMainMenu()`
-- `oTypeMenu()`
-- `pCMenu2()`
+- `IsWindowsVersionOrGreater()`: Sprawdza warunek lub stan
+- `IsWindowsXPOrGreater()`: Sprawdza warunek lub stan
+- `settings()`: Ustawia lub przypisuje dane
+- `Builder()`: Wykonuje specyficzną operację
+- `oMainMenu()`: Główny punkt wejścia
+- `oDrivesMenu()`: Wykonuje specyficzną operację
+- `szMenuItem()`: Wykonuje specyficzną operację
+- `strDir()`: Wykonuje specyficzną operację
+- `szFile()`: Wykonuje specyficzną operację
+- `pCMenu2()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `Plugin.cpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 3 klas(y) i zawiera około 15 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `Plugin.cpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -13,18 +13,18 @@ Main functional areas: core functionality
 - `PluginClass`: Implements core functionality
 - `PluginItem`: Implements core functionality
 ### Key Functions
-- `DeleteRegKey()`
-- `FarLangChanged()`
-- `FindExecuteFile()`
-- `FmtCount()`
-- `FreeFindData()`
-- `GetDefaultCommands()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetGroupName()`
-- `GetOpenPluginInfo()`
+- `IsArchive()`: Checks a condition or state
+- `OpenArchive()`: Opens a resource
+- `GetArcItem()`: Retrieves or returns data
+- `CloseArchive()`: Closes a resource
+- `GetFormatName()`: Retrieves or returns data
+- `GetDefaultCommands()`: Retrieves or returns data
+- `FmtCount()`: Performs specific operation
+- `LoadFmtModules()`: Loads data or resources
+- `CompareFmtModules()`: Performs specific operation
+- `GetGroupName()`: Retrieves or returns data
 ### Summary
-The `MultiArc.hpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `MultiArc.hpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -42,15 +42,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `PluginClass`: Implementuje podstawowa funkcjonalność
 - `PluginItem`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `DeleteRegKey()`
-- `FarLangChanged()`
-- `FindExecuteFile()`
-- `FmtCount()`
-- `FreeFindData()`
-- `GetDefaultCommands()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetGroupName()`
-- `GetOpenPluginInfo()`
+- `IsArchive()`: Sprawdza warunek lub stan
+- `OpenArchive()`: Otwiera zasób
+- `GetArcItem()`: Pobiera lub zwraca dane
+- `CloseArchive()`: Zamyka zasób
+- `GetFormatName()`: Pobiera lub zwraca dane
+- `GetDefaultCommands()`: Pobiera lub zwraca dane
+- `FmtCount()`: Wykonuje specyficzną operację
+- `LoadFmtModules()`: Ładuje dane lub zasoby
+- `CompareFmtModules()`: Wykonuje specyficzną operację
+- `GetGroupName()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `MultiArc.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `MultiArc.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

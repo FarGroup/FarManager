@@ -10,13 +10,13 @@ Main functional areas: core functionality
 - `menu_item_ex`: Implements core functionality
 - `shortcut`: Implements core functionality
 ### Key Functions
-- `Add()`
-- `Configure()`
-- `Enumerator()`
-- `Get()`
-- `GetOne()`
-- `Save()`
-- `Shortcuts()`
+- `Shortcuts()`: Performs specific operation
+- `Get()`: Retrieves or returns data
+- `Add()`: Adds an item or element
+- `Configure()`: Performs specific operation
+- `Enumerator()`: Performs specific operation
+- `GetOne()`: Retrieves or returns data
+- `Save()`: Saves data or state
 ### Summary
 The `shortcuts.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -33,12 +33,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `menu_item_ex`: Implementuje podstawowa funkcjonalność
 - `shortcut`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Add()`
-- `Configure()`
-- `Enumerator()`
-- `Get()`
-- `GetOne()`
-- `Save()`
-- `Shortcuts()`
+- `Shortcuts()`: Wykonuje specyficzną operację
+- `Get()`: Pobiera lub zwraca dane
+- `Add()`: Dodaje element
+- `Configure()`: Wykonuje specyficzną operację
+- `Enumerator()`: Wykonuje specyficzną operację
+- `GetOne()`: Pobiera lub zwraca dane
+- `Save()`: Zapisuje dane lub stan
 ### Podsumowanie
 Plik `shortcuts.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

@@ -6,7 +6,7 @@ Main functional areas: color management
 ### Key Classes
 - `FarColor`: Implements color management
 ### Key Functions
-- `GetColorDialog()`
+- `GetColorDialog()`: Retrieves or returns data
 ### Summary
 The `color_picker.hpp` file provides essential functionality for color management. It defines 1 class(es) and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -19,6 +19,6 @@ Główne obszary funkcjonalne: zarządzanie kolorami
 ### Kluczowe Klasy
 - `FarColor`: Implementuje zarządzanie kolorami
 ### Kluczowe Funkcje
-- `GetColorDialog()`
+- `GetColorDialog()`: Pobiera lub zwraca dane
 ### Podsumowanie
 Plik `color_picker.hpp` zapewnia podstawową funkcjonalność dla zarządzanie kolorami. Definiuje 1 klas(y) i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

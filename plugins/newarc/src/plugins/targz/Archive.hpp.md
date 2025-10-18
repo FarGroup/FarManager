@@ -10,9 +10,9 @@ Main functional areas: core functionality
 - `CpioBase`: Implements core functionality
 - `TarBase`: Implements core functionality
 ### Key Functions
-- `Extract()`
-- `Next()`
-- `Read()`
+- `Next()`: Performs specific operation
+- `Extract()`: Performs specific operation
+- `Read()`: Reads data from a source
 ### Summary
 The `Archive.hpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -29,8 +29,8 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `CpioBase`: Implementuje podstawowa funkcjonalność
 - `TarBase`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Extract()`
-- `Next()`
-- `Read()`
+- `Next()`: Wykonuje specyficzną operację
+- `Extract()`: Wykonuje specyficzną operację
+- `Read()`: Odczytuje dane ze źródła
 ### Podsumowanie
 Plik `Archive.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

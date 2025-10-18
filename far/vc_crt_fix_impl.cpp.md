@@ -6,20 +6,15 @@ Main functional areas: core functionality
 ### Key Classes
 - `implementation`: Implements core functionality
 ### Key Functions
-- `GetFunctionPointer()`
-- `TlsAlloc()`
-- `TlsFree()`
-- `TlsGetValue()`
-- `TlsSetValue()`
-- `XorPointer()`
-- `__telemetry_main_invoke_trigger()`
-- `__telemetry_main_return_trigger()`
-- `__vcrt_initialize_telemetry_provider()`
-- `__vcrt_uninitialize_telemetry_provider()`
+- `GetFunctionPointer()`: Retrieves or returns data
+- `XorPointer()`: Performs specific operation
+- `impl()`: Performs specific operation
+- `atomic_assign()`: Performs specific operation
+- `locale_name_to_lcid()`: Performs specific operation
 ### Namespaces
 - `modules`
 ### Summary
-The `vc_crt_fix_impl.cpp` file provides essential functionality for core functionality. It defines 1 class(es) and contains approximately 13 function(s) to support the Far Manager file manager operations.
+The `vc_crt_fix_impl.cpp` file provides essential functionality for core functionality. It defines 1 class(es) and contains approximately 5 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -30,17 +25,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `implementation`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetFunctionPointer()`
-- `TlsAlloc()`
-- `TlsFree()`
-- `TlsGetValue()`
-- `TlsSetValue()`
-- `XorPointer()`
-- `__telemetry_main_invoke_trigger()`
-- `__telemetry_main_return_trigger()`
-- `__vcrt_initialize_telemetry_provider()`
-- `__vcrt_uninitialize_telemetry_provider()`
+- `GetFunctionPointer()`: Pobiera lub zwraca dane
+- `XorPointer()`: Wykonuje specyficzną operację
+- `impl()`: Wykonuje specyficzną operację
+- `atomic_assign()`: Wykonuje specyficzną operację
+- `locale_name_to_lcid()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `modules`
 ### Podsumowanie
-Plik `vc_crt_fix_impl.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 1 klas(y) i zawiera około 13 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `vc_crt_fix_impl.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 1 klas(y) i zawiera około 5 funkcji wspierających operacje menedżera plików Far Manager.

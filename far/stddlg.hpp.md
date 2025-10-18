@@ -15,18 +15,18 @@ Main functional areas: dialog handling
 - `progress_impl`: Implements dialog handling
 - `single_progress`: Implements dialog handling
 ### Key Functions
-- `CheckForEscAndConfirmAbort()`
-- `ConfirmAbort()`
-- `GetNameAndPassword()`
-- `GetShared()`
-- `GetString()`
-- `GoToRowCol()`
-- `IsSearchPatternEmpty()`
-- `OperationFailed()`
-- `ReCompileErrorMessage()`
-- `SaveToShared()`
+- `GetShared()`: Retrieves or returns data
+- `SaveToShared()`: Saves data or state
+- `SetSearchPattern()`: Sets or assigns data
+- `IsSearchPatternEmpty()`: Checks a condition or state
+- `GetString()`: Retrieves or returns data
+- `GetNameAndPassword()`: Retrieves or returns data
+- `OperationFailed()`: Performs specific operation
+- `cancel_operation()`: Performs specific operation
+- `ReCompileErrorMessage()`: Performs specific operation
+- `GoToRowCol()`: Performs specific operation
 ### Summary
-The `stddlg.hpp` file provides essential functionality for dialog handling. It defines 10 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `stddlg.hpp` file provides essential functionality for dialog handling. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `progress_impl`: Implementuje obsługa dialogów
 - `single_progress`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `CheckForEscAndConfirmAbort()`
-- `ConfirmAbort()`
-- `GetNameAndPassword()`
-- `GetShared()`
-- `GetString()`
-- `GoToRowCol()`
-- `IsSearchPatternEmpty()`
-- `OperationFailed()`
-- `ReCompileErrorMessage()`
-- `SaveToShared()`
+- `GetShared()`: Pobiera lub zwraca dane
+- `SaveToShared()`: Zapisuje dane lub stan
+- `SetSearchPattern()`: Ustawia lub przypisuje dane
+- `IsSearchPatternEmpty()`: Sprawdza warunek lub stan
+- `GetString()`: Pobiera lub zwraca dane
+- `GetNameAndPassword()`: Pobiera lub zwraca dane
+- `OperationFailed()`: Wykonuje specyficzną operację
+- `cancel_operation()`: Wykonuje specyficzną operację
+- `ReCompileErrorMessage()`: Wykonuje specyficzną operację
+- `GoToRowCol()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `stddlg.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 10 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `stddlg.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

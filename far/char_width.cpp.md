@@ -8,20 +8,20 @@ Main functional areas: core functionality
 - `full_width`: Implements core functionality
 - `unicode_range`: Implements core functionality
 ### Key Functions
-- `device_width()`
-- `enable()`
-- `get()`
-- `get_width()`
-- `invalidate()`
-- `is_bmp()`
-- `is_enabled()`
-- `is_fullwidth_needed()`
-- `is_grapheme_clusters_on()`
-- `is_half_width_surrogate_broken()`
+- `quick_width()`: Performs specific operation
+- `lookup_width()`: Performs specific operation
+- `is_bmp()`: Checks a condition or state
+- `device_width()`: Performs specific operation
+- `is_fullwidth_needed()`: Checks a condition or state
+- `get_width()`: Retrieves or returns data
+- `get()`: Retrieves or returns data
+- `is_wide()`: Checks a condition or state
+- `enable()`: Performs specific operation
+- `is_enabled()`: Checks a condition or state
 ### Namespaces
 - `char_width`
 ### Summary
-The `char_width.cpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 13 function(s) to support the Far Manager file manager operations.
+The `char_width.cpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -34,17 +34,17 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `full_width`: Implementuje podstawowa funkcjonalność
 - `unicode_range`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `device_width()`
-- `enable()`
-- `get()`
-- `get_width()`
-- `invalidate()`
-- `is_bmp()`
-- `is_enabled()`
-- `is_fullwidth_needed()`
-- `is_grapheme_clusters_on()`
-- `is_half_width_surrogate_broken()`
+- `quick_width()`: Wykonuje specyficzną operację
+- `lookup_width()`: Wykonuje specyficzną operację
+- `is_bmp()`: Sprawdza warunek lub stan
+- `device_width()`: Wykonuje specyficzną operację
+- `is_fullwidth_needed()`: Sprawdza warunek lub stan
+- `get_width()`: Pobiera lub zwraca dane
+- `get()`: Pobiera lub zwraca dane
+- `is_wide()`: Sprawdza warunek lub stan
+- `enable()`: Wykonuje specyficzną operację
+- `is_enabled()`: Sprawdza warunek lub stan
 ### Przestrzenie nazw
 - `char_width`
 ### Podsumowanie
-Plik `char_width.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 13 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `char_width.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

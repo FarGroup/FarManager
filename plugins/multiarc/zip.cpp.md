@@ -12,18 +12,18 @@ Main functional areas: core functionality
 - `ZipHdr2`: Implements core functionality
 - `ZipHeader`: Implements core functionality
 ### Key Functions
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFilePosition()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `IsValidHeader()`
-- `IsZIPFileMagic()`
-- `OpenArchive()`
+- `IsValidHeader()`: Checks a condition or state
+- `GetFilePosition()`: Retrieves or returns data
+- `IsZIPFileMagic()`: Checks a condition or state
+- `IsArchive()`: Checks a condition or state
+- `OpenArchive()`: Opens a resource
+- `GetArcItem()`: Retrieves or returns data
+- `SetFilePointer()`: Sets or assigns data
+- `CloseArchive()`: Closes a resource
+- `GetSFXPos()`: Retrieves or returns data
+- `GetFormatName()`: Retrieves or returns data
 ### Summary
-The `zip.cpp` file provides essential functionality for core functionality. It defines 7 class(es) and contains approximately 11 function(s) to support the Far Manager file manager operations.
+The `zip.cpp` file provides essential functionality for core functionality. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -40,15 +40,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ZipHdr2`: Implementuje podstawowa funkcjonalność
 - `ZipHeader`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFilePosition()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `IsValidHeader()`
-- `IsZIPFileMagic()`
-- `OpenArchive()`
+- `IsValidHeader()`: Sprawdza warunek lub stan
+- `GetFilePosition()`: Pobiera lub zwraca dane
+- `IsZIPFileMagic()`: Sprawdza warunek lub stan
+- `IsArchive()`: Sprawdza warunek lub stan
+- `OpenArchive()`: Otwiera zasób
+- `GetArcItem()`: Pobiera lub zwraca dane
+- `SetFilePointer()`: Ustawia lub przypisuje dane
+- `CloseArchive()`: Zamyka zasób
+- `GetSFXPos()`: Pobiera lub zwraca dane
+- `GetFormatName()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `zip.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 7 klas(y) i zawiera około 11 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `zip.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

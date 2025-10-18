@@ -15,20 +15,20 @@ Main functional areas: core functionality
 - `ThrowInfo`: Implements core functionality
 - `debug_client`: Implements core functionality
 ### Key Functions
-- `CatchableTypesEnumerator()`
-- `DebugClient()`
-- `ExcConsole()`
-- `ExtractObjectType()`
-- `__cxa_pure_virtual()`
-- `collect_information()`
-- `disassembly()`
-- `enum_catchable_objects()`
-- `file_timestamp()`
-- `get_console_host()`
+- `code()`: Performs specific operation
+- `exception_record()`: Performs specific operation
+- `context_record()`: Performs specific operation
+- `thread_handle()`: Performs specific operation
+- `thread_id()`: Performs specific operation
+- `report_to_stderr()`: Performs specific operation
+- `set_report_location()`: Sets or assigns data
+- `disable_exception_handling()`: Performs specific operation
+- `exception_handling_in_progress()`: Performs specific operation
+- `force_stderr_exception_ui()`: Performs specific operation
 ### Namespaces
 - `detail`
 ### Summary
-The `exception_handler.cpp` file provides essential functionality for core functionality. It defines 16 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `exception_handler.cpp` file provides essential functionality for core functionality. It defines 16 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -48,17 +48,17 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ThrowInfo`: Implementuje podstawowa funkcjonalność
 - `debug_client`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CatchableTypesEnumerator()`
-- `DebugClient()`
-- `ExcConsole()`
-- `ExtractObjectType()`
-- `__cxa_pure_virtual()`
-- `collect_information()`
-- `disassembly()`
-- `enum_catchable_objects()`
-- `file_timestamp()`
-- `get_console_host()`
+- `code()`: Wykonuje specyficzną operację
+- `exception_record()`: Wykonuje specyficzną operację
+- `context_record()`: Wykonuje specyficzną operację
+- `thread_handle()`: Wykonuje specyficzną operację
+- `thread_id()`: Wykonuje specyficzną operację
+- `report_to_stderr()`: Wykonuje specyficzną operację
+- `set_report_location()`: Ustawia lub przypisuje dane
+- `disable_exception_handling()`: Wykonuje specyficzną operację
+- `exception_handling_in_progress()`: Wykonuje specyficzną operację
+- `force_stderr_exception_ui()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie
-Plik `exception_handler.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 16 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `exception_handler.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 16 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

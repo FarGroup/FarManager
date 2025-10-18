@@ -7,18 +7,18 @@ Main functional areas: core functionality
 - `lng_line`: Implements core functionality
 - `lng_line_type`: Implements core functionality
 ### Key Functions
-- `CustomFile()`
-- `GetLangParam()`
-- `LoadCustomStrings()`
-- `OpenHelpFile()`
-- `OpenLangFile()`
-- `SelectHelpLanguage()`
-- `SelectInterfaceLanguage()`
-- `SelectLanguage()`
-- `Stream()`
-- `StreamBuffer()`
+- `open_impl()`: Opens a resource
+- `open_lang_file_impl()`: Opens a resource
+- `OpenLangFile()`: Opens a resource
+- `OpenHelpFile()`: Opens a resource
+- `GetLangParam()`: Retrieves or returns data
+- `StreamBuffer()`: Performs specific operation
+- `Stream()`: Performs specific operation
+- `SelectLanguage()`: Performs specific operation
+- `SelectInterfaceLanguage()`: Performs specific operation
+- `SelectHelpLanguage()`: Performs specific operation
 ### Summary
-The `language.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `language.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -30,15 +30,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `lng_line`: Implementuje podstawowa funkcjonalność
 - `lng_line_type`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CustomFile()`
-- `GetLangParam()`
-- `LoadCustomStrings()`
-- `OpenHelpFile()`
-- `OpenLangFile()`
-- `SelectHelpLanguage()`
-- `SelectInterfaceLanguage()`
-- `SelectLanguage()`
-- `Stream()`
-- `StreamBuffer()`
+- `open_impl()`: Otwiera zasób
+- `open_lang_file_impl()`: Otwiera zasób
+- `OpenLangFile()`: Otwiera zasób
+- `OpenHelpFile()`: Otwiera zasób
+- `GetLangParam()`: Pobiera lub zwraca dane
+- `StreamBuffer()`: Wykonuje specyficzną operację
+- `Stream()`: Wykonuje specyficzną operację
+- `SelectLanguage()`: Wykonuje specyficzną operację
+- `SelectInterfaceLanguage()`: Wykonuje specyficzną operację
+- `SelectHelpLanguage()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `language.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `language.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

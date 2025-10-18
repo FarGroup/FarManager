@@ -15,50 +15,50 @@ Main functional areas: file system operations
 - `percent`: Implements file system operations
 - `pop`: Implements file system operations
 ### Key Functions
-- `AddFindListItem()`
-- `AddMenuRecord()`
-- `AdvancedDialog()`
-- `DoPreparePluginListImpl()`
-- `ExceptionPtr()`
-- `Finished()`
-- `GetPluginFile()`
-- `InitInFileSearch()`
-- `IsFileIncluded()`
-- `LookForString()`
+- `IsWordDiv()`: Checks a condition or state
+- `AddMenuRecord()`: Adds an item or element
+- `ScopedLock()`: Performs specific operation
+- `AdvancedDialog()`: Performs specific operation
+- `MainDlgProc()`: Main entry point
+- `FindDlgProc()`: Finds or searches for data
+- `OpenFile()`: Opens a resource
+- `FindFilesProcess()`: Finds or searches for data
+- `ProcessMessage()`: Processes data or events
+- `SetPluginDirectory()`: Sets or assigns data
 ### Namespaces
 - `messages`
 ### Summary
-The `findfile.cpp` file provides essential functionality for file system operations. It defines 12 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `findfile.cpp` file provides essential functionality for file system operations. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
 ## Polski (Polish)
 ### Cel
 Ten plik implementuje funkcjonalność związaną z: Поиск (Alt-F7)
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Kluczowe Klasy
-- `ArcListItem`: Implementuje operacje systemowyu plików
-- `CodePageInfo`: Implementuje operacje systemowyu plików
-- `FindFiles`: Implementuje operacje systemowyu plików
-- `FindFilesOptions`: Implementuje operacje systemowyu plików
-- `FindListItem`: Implementuje operacje systemowyu plików
-- `InterThreadData`: Implementuje operacje systemowyu plików
-- `background_searcher`: Implementuje operacje systemowyu plików
-- `menu_data`: Implementuje operacje systemowyu plików
-- `percent`: Implementuje operacje systemowyu plików
-- `pop`: Implementuje operacje systemowyu plików
+- `ArcListItem`: Implementuje operacje systemu plików
+- `CodePageInfo`: Implementuje operacje systemu plików
+- `FindFiles`: Implementuje operacje systemu plików
+- `FindFilesOptions`: Implementuje operacje systemu plików
+- `FindListItem`: Implementuje operacje systemu plików
+- `InterThreadData`: Implementuje operacje systemu plików
+- `background_searcher`: Implementuje operacje systemu plików
+- `menu_data`: Implementuje operacje systemu plików
+- `percent`: Implementuje operacje systemu plików
+- `pop`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `AddFindListItem()`
-- `AddMenuRecord()`
-- `AdvancedDialog()`
-- `DoPreparePluginListImpl()`
-- `ExceptionPtr()`
-- `Finished()`
-- `GetPluginFile()`
-- `InitInFileSearch()`
-- `IsFileIncluded()`
-- `LookForString()`
+- `IsWordDiv()`: Sprawdza warunek lub stan
+- `AddMenuRecord()`: Dodaje element
+- `ScopedLock()`: Wykonuje specyficzną operację
+- `AdvancedDialog()`: Wykonuje specyficzną operację
+- `MainDlgProc()`: Główny punkt wejścia
+- `FindDlgProc()`: Znajduje lub wyszukuje dane
+- `OpenFile()`: Otwiera zasób
+- `FindFilesProcess()`: Znajduje lub wyszukuje dane
+- `ProcessMessage()`: Przetwarza dane lub zdarzenia
+- `SetPluginDirectory()`: Ustawia lub przypisuje dane
 ### Przestrzenie nazw
 - `messages`
 ### Podsumowanie
-Plik `findfile.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. Definiuje 12 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `findfile.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -4,11 +4,11 @@
 This file implements functionality related to: Workarounds for supported compilers & libraries
 Main functional areas: core functionality
 ### Key Functions
-- `wcschr()`
-- `wcspbrk()`
-- `wcsrchr()`
-- `wcsstr()`
-- `wmemchr()`
+- `wcschr()`: Performs specific operation
+- `wcspbrk()`: Performs specific operation
+- `wcsrchr()`: Performs specific operation
+- `wcsstr()`: Performs specific operation
+- `wmemchr()`: Performs specific operation
 ### Namespaces
 - `std`
 ### Summary
@@ -21,11 +21,11 @@ The `shims_post.hpp` file provides essential functionality for core functionalit
 Ten plik implementuje funkcjonalność związaną z: Workarounds for supported compilers & libraries
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `wcschr()`
-- `wcspbrk()`
-- `wcsrchr()`
-- `wcsstr()`
-- `wmemchr()`
+- `wcschr()`: Wykonuje specyficzną operację
+- `wcspbrk()`: Wykonuje specyficzną operację
+- `wcsrchr()`: Wykonuje specyficzną operację
+- `wcsstr()`: Wykonuje specyficzną operację
+- `wmemchr()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

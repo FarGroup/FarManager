@@ -13,20 +13,20 @@ Main functional areas: core functionality
 - `Selection`: Implements core functionality
 - `Settings`: Implements core functionality
 ### Key Functions
-- `button()`
-- `create()`
-- `def_button()`
-- `dialog_proc()`
-- `editor()`
-- `enable()`
-- `fix_edit_box()`
-- `get_check()`
-- `get_check3()`
-- `get_color()`
+- `get_error_dlg_title()`: Retrieves or returns data
+- `init()`: Initializes or sets up
+- `get_plugin_module_path()`: Retrieves or returns data
+- `msg_ptr()`: Performs specific operation
+- `get_msg()`: Retrieves or returns data
+- `get_optimal_msg_width()`: Retrieves or returns data
+- `message()`: Performs specific operation
+- `add()`: Adds an item or element
+- `menu()`: Performs specific operation
+- `get_progress_bar_str()`: Retrieves or returns data
 ### Namespaces
 - `Far`
 ### Summary
-The `farutils.hpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `farutils.hpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -44,17 +44,17 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Selection`: Implementuje podstawowa funkcjonalność
 - `Settings`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `button()`
-- `create()`
-- `def_button()`
-- `dialog_proc()`
-- `editor()`
-- `enable()`
-- `fix_edit_box()`
-- `get_check()`
-- `get_check3()`
-- `get_color()`
+- `get_error_dlg_title()`: Pobiera lub zwraca dane
+- `init()`: Inicjalizuje lub konfiguruje
+- `get_plugin_module_path()`: Pobiera lub zwraca dane
+- `msg_ptr()`: Wykonuje specyficzną operację
+- `get_msg()`: Pobiera lub zwraca dane
+- `get_optimal_msg_width()`: Pobiera lub zwraca dane
+- `message()`: Wykonuje specyficzną operację
+- `add()`: Dodaje element
+- `menu()`: Wykonuje specyficzną operację
+- `get_progress_bar_str()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `Far`
 ### Podsumowanie
-Plik `farutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `farutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

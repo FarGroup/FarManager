@@ -14,18 +14,18 @@ Main functional areas: core functionality
 - `SimpleUpdateStream`: Implements core functionality
 - `UpdateStream`: Implements core functionality
 ### Key Functions
-- `FileReadStream()`
-- `SfxUpdateStream()`
-- `delete_src_dir()`
-- `delete_src_file()`
-- `dir_list()`
-- `do_update_ui()`
-- `file_enum()`
-- `format_time()`
-- `get_last_volume_idx()`
-- `get_volume_path()`
+- `format_time()`: Performs specific operation
+- `do_update_ui()`: Performs specific operation
+- `on_open_file()`: Event handler
+- `on_read_file()`: Event handler
+- `on_write_archive()`: Event handler
+- `on_total_update()`: Event handler
+- `on_completed_update()`: Event handler
+- `translate_seek_method()`: Performs specific operation
+- `open()`: Opens a resource
+- `set_pos()`: Sets or assigns data
 ### Summary
-The `update.cpp` file provides essential functionality for core functionality. It defines 10 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `update.cpp` file provides essential functionality for core functionality. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `SimpleUpdateStream`: Implementuje podstawowa funkcjonalność
 - `UpdateStream`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `FileReadStream()`
-- `SfxUpdateStream()`
-- `delete_src_dir()`
-- `delete_src_file()`
-- `dir_list()`
-- `do_update_ui()`
-- `file_enum()`
-- `format_time()`
-- `get_last_volume_idx()`
-- `get_volume_path()`
+- `format_time()`: Wykonuje specyficzną operację
+- `do_update_ui()`: Wykonuje specyficzną operację
+- `on_open_file()`: Procedura obsługi zdarzeń
+- `on_read_file()`: Procedura obsługi zdarzeń
+- `on_write_archive()`: Procedura obsługi zdarzeń
+- `on_total_update()`: Procedura obsługi zdarzeń
+- `on_completed_update()`: Procedura obsługi zdarzeń
+- `translate_seek_method()`: Wykonuje specyficzną operację
+- `open()`: Otwiera zasób
+- `set_pos()`: Ustawia lub przypisuje dane
 ### Podsumowanie
-Plik `update.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 10 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `update.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

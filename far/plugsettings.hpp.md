@@ -9,8 +9,8 @@ Main functional areas: core functionality
 - `FarSettingsItem`: Implements core functionality
 - `FarSettingsValue`: Implements core functionality
 ### Key Functions
-- `Add()`
-- `Allocate()`
+- `Add()`: Adds an item or element
+- `Allocate()`: Performs specific operation
 ### Summary
 The `plugsettings.hpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 2 function(s) to support the Far Manager file manager operations.
 
@@ -26,7 +26,7 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `FarSettingsItem`: Implementuje podstawowa funkcjonalność
 - `FarSettingsValue`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Add()`
-- `Allocate()`
+- `Add()`: Dodaje element
+- `Allocate()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `plugsettings.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 2 funkcji wspierających operacje menedżera plików Far Manager.

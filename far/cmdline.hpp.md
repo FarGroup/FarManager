@@ -11,18 +11,18 @@ Main functional areas: core functionality
 - `source_mode`: Implements core functionality
 - `wait_mode`: Implements core functionality
 ### Key Functions
-- `DisplayObject()`
-- `DrawPrompt()`
-- `ExecString()`
-- `GetCurPos()`
-- `GetLeftPos()`
-- `GetPromptSize()`
-- `GetSelection()`
-- `InsertString()`
-- `LockUpdatePanel()`
-- `ProcessKey()`
+- `CommandLine()`: Performs specific operation
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `VMProcess()`: Performs specific operation
+- `ResizeConsole()`: Resizes or adjusts dimensions
+- `GetCurDir()`: Retrieves or returns data
+- `SetCurDir()`: Sets or assigns data
+- `GetString()`: Retrieves or returns data
+- `SetString()`: Sets or assigns data
+- `InsertString()`: Performs specific operation
 ### Summary
-The `cmdline.hpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `cmdline.hpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `source_mode`: Implementuje podstawowa funkcjonalność
 - `wait_mode`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `DisplayObject()`
-- `DrawPrompt()`
-- `ExecString()`
-- `GetCurPos()`
-- `GetLeftPos()`
-- `GetPromptSize()`
-- `GetSelection()`
-- `InsertString()`
-- `LockUpdatePanel()`
-- `ProcessKey()`
+- `CommandLine()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `VMProcess()`: Wykonuje specyficzną operację
+- `ResizeConsole()`: Zmienia rozmiar lub dostosowuje wymiary
+- `GetCurDir()`: Pobiera lub zwraca dane
+- `SetCurDir()`: Ustawia lub przypisuje dane
+- `GetString()`: Pobiera lub zwraca dane
+- `SetString()`: Ustawia lub przypisuje dane
+- `InsertString()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `cmdline.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `cmdline.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

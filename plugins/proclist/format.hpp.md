@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `format()`
-- `str()`
-- `vformat()`
+- `format()`: Performs specific operation
+- `vformat()`: Performs specific operation
+- `str()`: Performs specific operation
 ### Namespaces
 - `far`
 ### Summary
@@ -17,9 +17,9 @@ The `format.hpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `format()`
-- `str()`
-- `vformat()`
+- `format()`: Wykonuje specyficzną operację
+- `vformat()`: Wykonuje specyficzną operację
+- `str()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `far`
 ### Podsumowanie

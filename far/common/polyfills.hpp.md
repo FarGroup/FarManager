@@ -6,10 +6,10 @@ Main functional areas: core functionality
 ### Key Classes
 - `fold_left_fn`: Implements core functionality
 ### Key Functions
-- `__builtin_unreachable()`
-- `to_underlying()`
-- `unreachable()`
-- `yield()`
+- `yield()`: Performs specific operation
+- `to_underlying()`: Performs specific operation
+- `unreachable()`: Performs specific operation
+- `__builtin_unreachable()`: Performs specific operation
 ### Namespaces
 - `std`
 ### Summary
@@ -24,10 +24,10 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `fold_left_fn`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `__builtin_unreachable()`
-- `to_underlying()`
-- `unreachable()`
-- `yield()`
+- `yield()`: Wykonuje specyficzną operację
+- `to_underlying()`: Wykonuje specyficzną operację
+- `unreachable()`: Wykonuje specyficzną operację
+- `__builtin_unreachable()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

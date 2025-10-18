@@ -10,15 +10,15 @@ Main functional areas: core functionality
 - `simple_policy`: Implements core functionality
 - `trimmer`: Implements core functionality
 ### Key Functions
-- `active()`
-- `active_impl()`
-- `extract()`
-- `get()`
-- `get_opt()`
-- `postprocess()`
-- `postprocess_impl()`
-- `reset()`
-- `reset_impl()`
+- `reset()`: Performs specific operation
+- `active()`: Performs specific operation
+- `postprocess()`: Performs specific operation
+- `reset_impl()`: Performs specific operation
+- `active_impl()`: Performs specific operation
+- `postprocess_impl()`: Performs specific operation
+- `get_opt()`: Retrieves or returns data
+- `extract()`: Performs specific operation
+- `get()`: Retrieves or returns data
 ### Namespaces
 - `detail`
 ### Summary
@@ -37,15 +37,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `simple_policy`: Implementuje podstawowa funkcjonalność
 - `trimmer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `active()`
-- `active_impl()`
-- `extract()`
-- `get()`
-- `get_opt()`
-- `postprocess()`
-- `postprocess_impl()`
-- `reset()`
-- `reset_impl()`
+- `reset()`: Wykonuje specyficzną operację
+- `active()`: Wykonuje specyficzną operację
+- `postprocess()`: Wykonuje specyficzną operację
+- `reset_impl()`: Wykonuje specyficzną operację
+- `active_impl()`: Wykonuje specyficzną operację
+- `postprocess_impl()`: Wykonuje specyficzną operację
+- `get_opt()`: Pobiera lub zwraca dane
+- `extract()`: Wykonuje specyficzną operację
+- `get()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

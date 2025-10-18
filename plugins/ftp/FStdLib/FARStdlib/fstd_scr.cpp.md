@@ -9,6 +9,6 @@ The `fstd_scr.cpp` file provides essential functionality for file system operati
 
 ## Polski (Polish)
 ### Cel
-Główne obszary funkcjonalne: operacje systemowyu plików, operacje ekranowe
+Główne obszary funkcjonalne: operacje systemu plików, operacje ekranowe
 ### Podsumowanie
-Plik `fstd_scr.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików, operacje ekranowe. wspierających operacje menedżera plików Far Manager.
+Plik `fstd_scr.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików, operacje ekranowe. wspierających operacje menedżera plików Far Manager.

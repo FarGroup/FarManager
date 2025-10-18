@@ -3,7 +3,7 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `delete()`
+- `delete()`: Removes or deletes an item
 ### Summary
 The `delete_array.cpp` file provides essential functionality for core functionality. and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -13,6 +13,6 @@ The `delete_array.cpp` file provides essential functionality for core functional
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `delete()`
+- `delete()`: Usuwa element
 ### Podsumowanie
 Plik `delete_array.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

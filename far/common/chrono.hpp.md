@@ -5,9 +5,9 @@ Main functional areas: core functionality
 ### Key Classes
 - `split_duration`: Implements core functionality
 ### Key Functions
-- `get()`
-- `set_and_chop()`
-- `split_duration()`
+- `split_duration()`: Constructor
+- `get()`: Retrieves or returns data
+- `set_and_chop()`: Sets or assigns data
 ### Namespaces
 - `literals`
 ### Summary
@@ -21,9 +21,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `split_duration`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get()`
-- `set_and_chop()`
-- `split_duration()`
+- `split_duration()`: Konstruktor
+- `get()`: Pobiera lub zwraca dane
+- `set_and_chop()`: Ustawia lub przypisuje dane
 ### Przestrzenie nazw
 - `literals`
 ### Podsumowanie

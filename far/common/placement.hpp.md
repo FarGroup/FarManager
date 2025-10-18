@@ -3,8 +3,8 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `construct()`
-- `destruct()`
+- `construct()`: Performs specific operation
+- `destruct()`: Performs specific operation
 ### Namespaces
 - `placement`
 ### Summary
@@ -16,8 +16,8 @@ The `placement.hpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `construct()`
-- `destruct()`
+- `construct()`: Wykonuje specyficzną operację
+- `destruct()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `placement`
 ### Podsumowanie

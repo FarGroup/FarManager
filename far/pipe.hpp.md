@@ -4,8 +4,8 @@
 This file implements functionality related to: Pipe-based IPC
 Main functional areas: core functionality
 ### Key Functions
-- `read()`
-- `write()`
+- `read()`: Reads data from a source
+- `write()`: Writes data to a destination
 ### Namespaces
 - `detail`
 - `pipe`
@@ -19,8 +19,8 @@ The `pipe.hpp` file provides essential functionality for core functionality. and
 Ten plik implementuje funkcjonalność związaną z: Pipe-based IPC
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `read()`
-- `write()`
+- `read()`: Odczytuje dane ze źródła
+- `write()`: Zapisuje dane do miejsca docelowego
 ### Przestrzenie nazw
 - `detail`
 - `pipe`

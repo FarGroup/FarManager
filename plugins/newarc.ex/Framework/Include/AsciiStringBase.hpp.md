@@ -6,18 +6,11 @@ Main functional areas: string utilities
 - `AsciiStringBase`: Implements string utilities
 - `AsciiStringBaseEx`: Implements string utilities
 ### Key Functions
-- `Append()`
-- `At()`
-- `ConvertEncoding()`
-- `Format()`
-- `FreeData()`
-- `GetEncoding()`
-- `GetLength()`
-- `GetString()`
-- `IsEmpty()`
-- `SetData()`
+- `SetData()`: Sets or assigns data
+- `GetEncoding()`: Retrieves or returns data
+- `Append()`: Performs specific operation
 ### Summary
-The `AsciiStringBase.hpp` file provides essential functionality for string utilities. It defines 2 class(es) and contains approximately 11 function(s) to support the Far Manager file manager operations.
+The `AsciiStringBase.hpp` file provides essential functionality for string utilities. It defines 2 class(es) and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -28,15 +21,8 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `AsciiStringBase`: Implementuje narzędzia łańcuchowe
 - `AsciiStringBaseEx`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `Append()`
-- `At()`
-- `ConvertEncoding()`
-- `Format()`
-- `FreeData()`
-- `GetEncoding()`
-- `GetLength()`
-- `GetString()`
-- `IsEmpty()`
-- `SetData()`
+- `SetData()`: Ustawia lub przypisuje dane
+- `GetEncoding()`: Pobiera lub zwraca dane
+- `Append()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `AsciiStringBase.hpp` zapewnia podstawową funkcjonalność dla narzędzia łańcuchowe. Definiuje 2 klas(y) i zawiera około 11 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `AsciiStringBase.hpp` zapewnia podstawową funkcjonalność dla narzędzia łańcuchowe. Definiuje 2 klas(y) i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

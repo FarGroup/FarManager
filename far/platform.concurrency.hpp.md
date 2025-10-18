@@ -15,21 +15,21 @@ Main functional areas: core functionality
 - `timer`: Implements core functionality
 - `timer_closer`: Implements core functionality
 ### Key Functions
-- `check_valid()`
-- `clear()`
-- `detach()`
-- `emplace()`
-- `join()`
-- `joinable()`
-- `lock_shared()`
-- `make_name()`
-- `reset()`
-- `scoped_lock()`
+- `make_name()`: Performs specific operation
+- `lock()`: Performs specific operation
+- `unlock()`: Performs specific operation
+- `thread()`: Performs specific operation
+- `get_id()`: Retrieves or returns data
+- `joinable()`: Performs specific operation
+- `detach()`: Performs specific operation
+- `join()`: Performs specific operation
+- `check_joinable()`: Validates or checks data
+- `finalise()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `os`
 ### Summary
-The `platform.concurrency.hpp` file provides essential functionality for core functionality. It defines 11 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `platform.concurrency.hpp` file provides essential functionality for core functionality. It defines 11 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -49,18 +49,18 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `timer`: Implementuje podstawowa funkcjonalność
 - `timer_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `check_valid()`
-- `clear()`
-- `detach()`
-- `emplace()`
-- `join()`
-- `joinable()`
-- `lock_shared()`
-- `make_name()`
-- `reset()`
-- `scoped_lock()`
+- `make_name()`: Wykonuje specyficzną operację
+- `lock()`: Wykonuje specyficzną operację
+- `unlock()`: Wykonuje specyficzną operację
+- `thread()`: Wykonuje specyficzną operację
+- `get_id()`: Pobiera lub zwraca dane
+- `joinable()`: Wykonuje specyficzną operację
+- `detach()`: Wykonuje specyficzną operację
+- `join()`: Wykonuje specyficzną operację
+- `check_joinable()`: Waliduje lub sprawdza dane
+- `finalise()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `os`
 ### Podsumowanie
-Plik `platform.concurrency.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 11 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `platform.concurrency.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 11 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

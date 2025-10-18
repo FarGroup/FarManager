@@ -15,18 +15,18 @@ Main functional areas: plugin interface
 - `Viewer`: Implements plugin interface
 - `delayed_deleter`: Implements plugin interface
 ### Key Functions
-- `CallPluginFromMacro()`
-- `CallPluginItem()`
-- `ClosePanel()`
-- `CommandsMenu()`
-- `ConfigureCurrent()`
-- `FreeFindData()`
-- `GetDiskMenuItem()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetUUID()`
+- `plugin()`: Performs specific operation
+- `panel()`: Performs specific operation
+- `set_panel()`: Sets or assigns data
+- `delayed_delete()`: Performs specific operation
+- `NotifyExitLuaMacro()`: Performs specific operation
+- `ClosePanel()`: Closes a resource
+- `GetOpenPanelInfo()`: Retrieves or returns data
+- `GetFindData()`: Retrieves or returns data
+- `FreeFindData()`: Performs specific operation
+- `GetVirtualFindData()`: Retrieves or returns data
 ### Summary
-The `plugins.hpp` file provides essential functionality for plugin interface. It defines 14 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `plugins.hpp` file provides essential functionality for plugin interface. It defines 14 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `Viewer`: Implementuje interfejs wtyczek
 - `delayed_deleter`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `CallPluginFromMacro()`
-- `CallPluginItem()`
-- `ClosePanel()`
-- `CommandsMenu()`
-- `ConfigureCurrent()`
-- `FreeFindData()`
-- `GetDiskMenuItem()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetUUID()`
+- `plugin()`: Wykonuje specyficzną operację
+- `panel()`: Wykonuje specyficzną operację
+- `set_panel()`: Ustawia lub przypisuje dane
+- `delayed_delete()`: Wykonuje specyficzną operację
+- `NotifyExitLuaMacro()`: Wykonuje specyficzną operację
+- `ClosePanel()`: Zamyka zasób
+- `GetOpenPanelInfo()`: Pobiera lub zwraca dane
+- `GetFindData()`: Pobiera lub zwraca dane
+- `FreeFindData()`: Wykonuje specyficzną operację
+- `GetVirtualFindData()`: Pobiera lub zwraca dane
 ### Podsumowanie
-Plik `plugins.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 14 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `plugins.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 14 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

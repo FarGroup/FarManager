@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `module_deleter`: Implements core functionality
 - `nt_handle_closer`: Implements core functionality
 ### Key Functions
-- `GetAppPathsRedirectionFlag()`
-- `GetComputerName()`
-- `GetDefaultPrinter()`
-- `GetProcAddress()`
-- `OpenConsoleInputBuffer()`
-- `OpenCurrentThread()`
-- `any()`
-- `buffer()`
-- `get_last_nt_status()`
-- `get_locale_value()`
+- `buffer()`: Performs specific operation
+- `wait()`: Performs specific operation
+- `is_signaled()`: Checks a condition or state
+- `wait_any()`: Performs specific operation
+- `wait_all()`: Performs specific operation
+- `normalise()`: Performs specific operation
+- `native_handle()`: Performs specific operation
+- `reset()`: Performs specific operation
+- `close()`: Closes a resource
+- `set_error_mode()`: Sets or assigns data
 ### Namespaces
 - `detail`
 - `netapi`
@@ -32,7 +32,7 @@ Main functional areas: core functionality
 - `rtdl`
 - `uuid`
 ### Summary
-The `platform.hpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `platform.hpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -52,16 +52,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `module_deleter`: Implementuje podstawowa funkcjonalność
 - `nt_handle_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetAppPathsRedirectionFlag()`
-- `GetComputerName()`
-- `GetDefaultPrinter()`
-- `GetProcAddress()`
-- `OpenConsoleInputBuffer()`
-- `OpenCurrentThread()`
-- `any()`
-- `buffer()`
-- `get_last_nt_status()`
-- `get_locale_value()`
+- `buffer()`: Wykonuje specyficzną operację
+- `wait()`: Wykonuje specyficzną operację
+- `is_signaled()`: Sprawdza warunek lub stan
+- `wait_any()`: Wykonuje specyficzną operację
+- `wait_all()`: Wykonuje specyficzną operację
+- `normalise()`: Wykonuje specyficzną operację
+- `native_handle()`: Wykonuje specyficzną operację
+- `reset()`: Wykonuje specyficzną operację
+- `close()`: Zamyka zasób
+- `set_error_mode()`: Ustawia lub przypisuje dane
 ### Przestrzenie nazw
 - `detail`
 - `netapi`
@@ -69,4 +69,4 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `rtdl`
 - `uuid`
 ### Podsumowanie
-Plik `platform.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `platform.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

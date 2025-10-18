@@ -6,9 +6,9 @@ Main functional areas: core functionality
 ### Key Classes
 - `rectangle_t`: Implements core functionality
 ### Key Functions
-- `contains()`
-- `height()`
-- `width()`
+- `width()`: Performs specific operation
+- `height()`: Performs specific operation
+- `contains()`: Performs specific operation
 ### Namespaces
 - `detail`
 ### Summary
@@ -23,9 +23,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `rectangle_t`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `contains()`
-- `height()`
-- `width()`
+- `width()`: Wykonuje specyficzną operację
+- `height()`: Wykonuje specyficzną operację
+- `contains()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

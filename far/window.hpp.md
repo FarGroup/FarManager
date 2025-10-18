@@ -8,18 +8,18 @@ Main functional areas: window management
 - `Manager`: Implements window management
 - `window`: Implements window management
 ### Key Functions
-- `CanFastHide()`
-- `GetExitCode()`
-- `ID()`
-- `InitKeyBar()`
-- `IsDeleting()`
-- `IsPinned()`
-- `IsTitleBarVisible()`
-- `IsTopWindow()`
-- `OnDestroy()`
-- `Pin()`
+- `Refresh()`: Refreshes or reloads data
+- `GetCanLoseFocus()`: Retrieves or returns data
+- `SetExitCode()`: Sets or assigns data
+- `IsFileModified()`: Checks a condition or state
+- `OnDestroy()`: Event handler
+- `OnChangeFocus()`: Event handler
+- `InitKeyBar()`: Initializes or sets up
+- `RedrawKeyBar()`: Performs specific operation
+- `GetMacroArea()`: Retrieves or returns data
+- `CanFastHide()`: Performs specific operation
 ### Summary
-The `window.hpp` file provides essential functionality for window management. It defines 3 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `window.hpp` file provides essential functionality for window management. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: zarządzanie oknami
 - `Manager`: Implementuje zarządzanie oknami
 - `window`: Implementuje zarządzanie oknami
 ### Kluczowe Funkcje
-- `CanFastHide()`
-- `GetExitCode()`
-- `ID()`
-- `InitKeyBar()`
-- `IsDeleting()`
-- `IsPinned()`
-- `IsTitleBarVisible()`
-- `IsTopWindow()`
-- `OnDestroy()`
-- `Pin()`
+- `Refresh()`: Odświeża lub przeładowuje dane
+- `GetCanLoseFocus()`: Pobiera lub zwraca dane
+- `SetExitCode()`: Ustawia lub przypisuje dane
+- `IsFileModified()`: Sprawdza warunek lub stan
+- `OnDestroy()`: Procedura obsługi zdarzeń
+- `OnChangeFocus()`: Procedura obsługi zdarzeń
+- `InitKeyBar()`: Inicjalizuje lub konfiguruje
+- `RedrawKeyBar()`: Wykonuje specyficzną operację
+- `GetMacroArea()`: Pobiera lub zwraca dane
+- `CanFastHide()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `window.hpp` zapewnia podstawową funkcjonalność dla zarządzanie oknami. Definiuje 3 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `window.hpp` zapewnia podstawową funkcjonalność dla zarządzanie oknami. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

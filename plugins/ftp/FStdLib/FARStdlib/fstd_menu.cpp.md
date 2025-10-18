@@ -9,6 +9,6 @@ The `fstd_menu.cpp` file provides essential functionality for menu management, f
 
 ## Polski (Polish)
 ### Cel
-Główne obszary funkcjonalne: zarządzanie menu, operacje systemowyu plików
+Główne obszary funkcjonalne: zarządzanie menu, operacje systemu plików
 ### Podsumowanie
-Plik `fstd_menu.cpp` zapewnia podstawową funkcjonalność dla zarządzanie menu, operacje systemowyu plików. wspierających operacje menedżera plików Far Manager.
+Plik `fstd_menu.cpp` zapewnia podstawową funkcjonalność dla zarządzanie menu, operacje systemu plików. wspierających operacje menedżera plików Far Manager.

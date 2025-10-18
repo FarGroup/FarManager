@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `ScanTree`: Implements core functionality
 - `scantree_item`: Implements core functionality
 ### Key Functions
-- `GetNextName()`
-- `InsideReparsePoint()`
-- `IsDirSearchDone()`
-- `ScanTree()`
-- `SetFindPath()`
-- `SkipDir()`
+- `ScanTree()`: Performs specific operation
+- `SetFindPath()`: Sets or assigns data
+- `GetNextName()`: Retrieves or returns data
+- `SkipDir()`: Performs specific operation
+- `IsDirSearchDone()`: Checks a condition or state
+- `InsideReparsePoint()`: Performs specific operation
 ### Summary
 The `scantree.hpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 6 function(s) to support the Far Manager file manager operations.
 
@@ -26,11 +26,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ScanTree`: Implementuje podstawowa funkcjonalność
 - `scantree_item`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetNextName()`
-- `InsideReparsePoint()`
-- `IsDirSearchDone()`
-- `ScanTree()`
-- `SetFindPath()`
-- `SkipDir()`
+- `ScanTree()`: Wykonuje specyficzną operację
+- `SetFindPath()`: Ustawia lub przypisuje dane
+- `GetNextName()`: Pobiera lub zwraca dane
+- `SkipDir()`: Wykonuje specyficzną operację
+- `IsDirSearchDone()`: Sprawdza warunek lub stan
+- `InsideReparsePoint()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `scantree.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 6 funkcji wspierających operacje menedżera plików Far Manager.

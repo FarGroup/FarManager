@@ -15,18 +15,18 @@ Main functional areas: dialog handling
 - `PluginEditFieldBinding`: Implements dialog handling
 - `PluginIntEditFieldBinding`: Implements dialog handling
 ### Key Functions
-- `AddBorder()`
-- `AddEmptyLine()`
-- `AddOKCancel()`
-- `AddSeparator()`
-- `ColumnBreak()`
-- `DoShowDialog()`
-- `EndColumns()`
-- `GetItemID()`
-- `InitDialogItem()`
-- `ItemWidth()`
+- `SaveValue()`: Saves data or state
+- `ReallocDialogItems()`: Performs specific operation
+- `SetNextY()`: Sets or assigns data
+- `ItemWidth()`: Performs specific operation
+- `TextWidth()`: Performs specific operation
+- `AddBorder()`: Adds an item or element
+- `UpdateBorderSize()`: Updates existing data
+- `MaxTextWidth()`: Performs specific operation
+- `UpdateSecondColumnPosition()`: Updates existing data
+- `InitDialogItem()`: Initializes or sets up
 ### Summary
-The `DlgBuilder.hpp` file provides essential functionality for dialog handling. It defines 12 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `DlgBuilder.hpp` file provides essential functionality for dialog handling. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `PluginEditFieldBinding`: Implementuje obsługa dialogów
 - `PluginIntEditFieldBinding`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `AddBorder()`
-- `AddEmptyLine()`
-- `AddOKCancel()`
-- `AddSeparator()`
-- `ColumnBreak()`
-- `DoShowDialog()`
-- `EndColumns()`
-- `GetItemID()`
-- `InitDialogItem()`
-- `ItemWidth()`
+- `SaveValue()`: Zapisuje dane lub stan
+- `ReallocDialogItems()`: Wykonuje specyficzną operację
+- `SetNextY()`: Ustawia lub przypisuje dane
+- `ItemWidth()`: Wykonuje specyficzną operację
+- `TextWidth()`: Wykonuje specyficzną operację
+- `AddBorder()`: Dodaje element
+- `UpdateBorderSize()`: Aktualizuje istniejące dane
+- `MaxTextWidth()`: Wykonuje specyficzną operację
+- `UpdateSecondColumnPosition()`: Aktualizuje istniejące dane
+- `InitDialogItem()`: Inicjalizuje lub konfiguruje
 ### Podsumowanie
-Plik `DlgBuilder.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 12 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `DlgBuilder.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

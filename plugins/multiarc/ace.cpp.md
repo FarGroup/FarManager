@@ -10,15 +10,15 @@ Main functional areas: core functionality
 - `ACERECORDS`: Implements core functionality
 - `OSIDType`: Implements core functionality
 ### Key Functions
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `OpenArchive()`
-- `getcrc()`
-- `make_crctable()`
+- `make_crctable()`: Performs specific operation
+- `getcrc()`: Retrieves or returns data
+- `IsArchive()`: Checks a condition or state
+- `OpenArchive()`: Opens a resource
+- `GetArcItem()`: Retrieves or returns data
+- `CloseArchive()`: Closes a resource
+- `GetSFXPos()`: Retrieves or returns data
+- `GetFormatName()`: Retrieves or returns data
+- `GetDefaultCommands()`: Retrieves or returns data
 ### Summary
 The `ace.cpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
@@ -35,14 +35,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ACERECORDS`: Implementuje podstawowa funkcjonalność
 - `OSIDType`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CloseArchive()`
-- `GetArcItem()`
-- `GetDefaultCommands()`
-- `GetFormatName()`
-- `GetSFXPos()`
-- `IsArchive()`
-- `OpenArchive()`
-- `getcrc()`
-- `make_crctable()`
+- `make_crctable()`: Wykonuje specyficzną operację
+- `getcrc()`: Pobiera lub zwraca dane
+- `IsArchive()`: Sprawdza warunek lub stan
+- `OpenArchive()`: Otwiera zasób
+- `GetArcItem()`: Pobiera lub zwraca dane
+- `CloseArchive()`: Zamyka zasób
+- `GetSFXPos()`: Pobiera lub zwraca dane
+- `GetFormatName()`: Pobiera lub zwraca dane
+- `GetDefaultCommands()`: Pobiera lub zwraca dane
 ### Podsumowanie
 Plik `ace.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

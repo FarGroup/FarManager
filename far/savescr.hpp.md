@@ -7,14 +7,14 @@ Main functional areas: screen operations
 - `Grabber`: Implements screen operations
 - `SaveScreen`: Implements screen operations
 ### Key Functions
-- `AppendArea()`
-- `Discard()`
-- `Resize()`
-- `RestoreArea()`
-- `SaveArea()`
-- `SaveScreen()`
-- `height()`
-- `width()`
+- `SaveScreen()`: Saves data or state
+- `SaveArea()`: Saves data or state
+- `RestoreArea()`: Performs specific operation
+- `Discard()`: Performs specific operation
+- `AppendArea()`: Performs specific operation
+- `Resize()`: Resizes or adjusts dimensions
+- `width()`: Performs specific operation
+- `height()`: Performs specific operation
 ### Summary
 The `savescr.hpp` file provides essential functionality for screen operations. It defines 2 class(es) and contains approximately 8 function(s) to support the Far Manager file manager operations.
 
@@ -28,13 +28,13 @@ Główne obszary funkcjonalne: operacje ekranowe
 - `Grabber`: Implementuje operacje ekranowe
 - `SaveScreen`: Implementuje operacje ekranowe
 ### Kluczowe Funkcje
-- `AppendArea()`
-- `Discard()`
-- `Resize()`
-- `RestoreArea()`
-- `SaveArea()`
-- `SaveScreen()`
-- `height()`
-- `width()`
+- `SaveScreen()`: Zapisuje dane lub stan
+- `SaveArea()`: Zapisuje dane lub stan
+- `RestoreArea()`: Wykonuje specyficzną operację
+- `Discard()`: Wykonuje specyficzną operację
+- `AppendArea()`: Wykonuje specyficzną operację
+- `Resize()`: Zmienia rozmiar lub dostosowuje wymiary
+- `width()`: Wykonuje specyficzną operację
+- `height()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `savescr.hpp` zapewnia podstawową funkcjonalność dla operacje ekranowe. Definiuje 2 klas(y) i zawiera około 8 funkcji wspierających operacje menedżera plików Far Manager.

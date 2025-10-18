@@ -4,9 +4,9 @@
 This file implements functionality related to: Заголовок консоли
 Main functional areas: core functionality
 ### Key Functions
-- `GetTitle()`
-- `SetFarTitle()`
-- `SetUserTitle()`
+- `SetFarTitle()`: Sets or assigns data
+- `SetUserTitle()`: Sets or assigns data
+- `GetTitle()`: Retrieves or returns data
 ### Namespaces
 - `ConsoleTitle`
 ### Summary
@@ -19,9 +19,9 @@ The `constitle.hpp` file provides essential functionality for core functionality
 Ten plik implementuje funkcjonalność związaną z: Заголовок консоли
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetTitle()`
-- `SetFarTitle()`
-- `SetUserTitle()`
+- `SetFarTitle()`: Ustawia lub przypisuje dane
+- `SetUserTitle()`: Ustawia lub przypisuje dane
+- `GetTitle()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `ConsoleTitle`
 ### Podsumowanie

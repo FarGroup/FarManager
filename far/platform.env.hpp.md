@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `block`: Implements core functionality
 - `strings`: Implements core functionality
 ### Key Functions
-- `data()`
-- `del()`
-- `expand()`
-- `get()`
-- `get_pathext()`
-- `set()`
+- `data()`: Performs specific operation
+- `get()`: Retrieves or returns data
+- `set()`: Sets or assigns data
+- `del()`: Performs specific operation
+- `expand()`: Performs specific operation
+- `get_pathext()`: Retrieves or returns data
 ### Namespaces
 - `os`
 - `provider`
@@ -29,12 +29,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `block`: Implementuje podstawowa funkcjonalność
 - `strings`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `data()`
-- `del()`
-- `expand()`
-- `get()`
-- `get_pathext()`
-- `set()`
+- `data()`: Wykonuje specyficzną operację
+- `get()`: Pobiera lub zwraca dane
+- `set()`: Ustawia lub przypisuje dane
+- `del()`: Wykonuje specyficzną operację
+- `expand()`: Wykonuje specyficzną operację
+- `get_pathext()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `os`
 - `provider`

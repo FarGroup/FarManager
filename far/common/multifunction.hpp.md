@@ -9,7 +9,7 @@ Main functional areas: core functionality
 - `icallable_base`: Implements core functionality
 - `multifunction`: Implements core functionality
 ### Key Functions
-- `bool()`
+- `bool()`: Performs specific operation
 ### Namespaces
 - `detail`
 ### Summary
@@ -27,7 +27,7 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `icallable_base`: Implementuje podstawowa funkcjonalność
 - `multifunction`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `bool()`
+- `bool()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

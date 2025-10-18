@@ -6,8 +6,8 @@ Main functional areas: core functionality
 ### Key Classes
 - `deleter`: Implements core functionality
 ### Key Functions
-- `enable_low_fragmentation_heap()`
-- `is_pointer()`
+- `is_pointer()`: Checks a condition or state
+- `enable_low_fragmentation_heap()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `local`
@@ -24,8 +24,8 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `deleter`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `enable_low_fragmentation_heap()`
-- `is_pointer()`
+- `is_pointer()`: Sprawdza warunek lub stan
+- `enable_low_fragmentation_heap()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `local`

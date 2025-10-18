@@ -15,50 +15,50 @@ Main functional areas: file system operations
 - `list_data_lock`: Implements file system operations
 - `multifilter`: Implements file system operations
 ### Key Functions
-- `ChangeDir()`
-- `ChangeDirectoriesFirst()`
-- `ClearLastGetSelection()`
-- `FileInFilter()`
-- `FileListToPluginItem()`
-- `FindFile()`
-- `FlushDiz()`
-- `GetComputerName()`
-- `GetFilteredExtensions()`
-- `GetItem()`
+- `FileListItem()`: Performs specific operation
+- `AllocationSize()`: Performs specific operation
+- `IsNumberOfLinksRead()`: Checks a condition or state
+- `NumberOfLinks()`: Performs specific operation
+- `IsNumberOfStreamsRead()`: Checks a condition or state
+- `NumberOfStreams()`: Performs specific operation
+- `IsStreamsSizeRead()`: Checks a condition or state
+- `StreamsSize()`: Performs specific operation
+- `IsOwnerRead()`: Checks a condition or state
+- `Owner()`: Performs specific operation
 ### Namespaces
 - `highlight`
 ### Summary
-The `filelist.hpp` file provides essential functionality for file system operations. It defines 13 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `filelist.hpp` file provides essential functionality for file system operations. It defines 13 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
 ## Polski (Polish)
 ### Cel
 Ten plik implementuje funkcjonalność związaną z: Файловая панель - общие функции
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Kluczowe Klasy
-- `FileListItem`: Implementuje operacje systemowyu plików
-- `Plugin`: Implementuje operacje systemowyu plików
-- `PluginsListItem`: Implementuje operacje systemowyu plików
-- `PrevDataItem`: Implementuje operacje systemowyu plików
-- `background_updater`: Implementuje operacje systemowyu plików
-- `data_lock_ptr`: Implementuje operacje systemowyu plików
-- `element`: Implementuje operacje systemowyu plików
-- `list_data`: Implementuje operacje systemowyu plików
-- `list_data_lock`: Implementuje operacje systemowyu plików
-- `multifilter`: Implementuje operacje systemowyu plików
+- `FileListItem`: Implementuje operacje systemu plików
+- `Plugin`: Implementuje operacje systemu plików
+- `PluginsListItem`: Implementuje operacje systemu plików
+- `PrevDataItem`: Implementuje operacje systemu plików
+- `background_updater`: Implementuje operacje systemu plików
+- `data_lock_ptr`: Implementuje operacje systemu plików
+- `element`: Implementuje operacje systemu plików
+- `list_data`: Implementuje operacje systemu plików
+- `list_data_lock`: Implementuje operacje systemu plików
+- `multifilter`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `ChangeDir()`
-- `ChangeDirectoriesFirst()`
-- `ClearLastGetSelection()`
-- `FileInFilter()`
-- `FileListToPluginItem()`
-- `FindFile()`
-- `FlushDiz()`
-- `GetComputerName()`
-- `GetFilteredExtensions()`
-- `GetItem()`
+- `FileListItem()`: Wykonuje specyficzną operację
+- `AllocationSize()`: Wykonuje specyficzną operację
+- `IsNumberOfLinksRead()`: Sprawdza warunek lub stan
+- `NumberOfLinks()`: Wykonuje specyficzną operację
+- `IsNumberOfStreamsRead()`: Sprawdza warunek lub stan
+- `NumberOfStreams()`: Wykonuje specyficzną operację
+- `IsStreamsSizeRead()`: Sprawdza warunek lub stan
+- `StreamsSize()`: Wykonuje specyficzną operację
+- `IsOwnerRead()`: Sprawdza warunek lub stan
+- `Owner()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `highlight`
 ### Podsumowanie
-Plik `filelist.hpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. Definiuje 13 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `filelist.hpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 13 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

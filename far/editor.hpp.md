@@ -15,18 +15,18 @@ Main functional areas: text editing
 - `InternalEditorSessionBookMark`: Implements text editing
 - `KeyBar`: Implements text editing
 ### Key Functions
-- `AddSessionBookmark()`
-- `BeginVBlockMarking()`
-- `BlockStart2NumLine()`
-- `CurrentSessionBookmarkIdx()`
-- `DoSearchReplace()`
-- `GetCurCol()`
-- `GetCurPos()`
-- `GetDefaultEOL()`
-- `GetSessionBookmark()`
-- `GoToLineAndShow()`
+- `Editor()`: Performs specific operation
+- `ProcessKey()`: Processes data or events
+- `ProcessMouse()`: Processes data or events
+- `VMProcess()`: Performs specific operation
+- `SetCacheParams()`: Sets or assigns data
+- `GetCacheParams()`: Retrieves or returns data
+- `TryCodePage()`: Performs specific operation
+- `SetCodePage()`: Sets or assigns data
+- `KeepInitParameters()`: Performs specific operation
+- `SetStartPos()`: Sets or assigns data
 ### Summary
-The `editor.hpp` file provides essential functionality for text editing. It defines 14 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `editor.hpp` file provides essential functionality for text editing. It defines 14 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: edycja tekstu
 - `InternalEditorSessionBookMark`: Implementuje edycja tekstu
 - `KeyBar`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `AddSessionBookmark()`
-- `BeginVBlockMarking()`
-- `BlockStart2NumLine()`
-- `CurrentSessionBookmarkIdx()`
-- `DoSearchReplace()`
-- `GetCurCol()`
-- `GetCurPos()`
-- `GetDefaultEOL()`
-- `GetSessionBookmark()`
-- `GoToLineAndShow()`
+- `Editor()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `ProcessMouse()`: Przetwarza dane lub zdarzenia
+- `VMProcess()`: Wykonuje specyficzną operację
+- `SetCacheParams()`: Ustawia lub przypisuje dane
+- `GetCacheParams()`: Pobiera lub zwraca dane
+- `TryCodePage()`: Wykonuje specyficzną operację
+- `SetCodePage()`: Ustawia lub przypisuje dane
+- `KeepInitParameters()`: Wykonuje specyficzną operację
+- `SetStartPos()`: Ustawia lub przypisuje dane
 ### Podsumowanie
-Plik `editor.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 14 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `editor.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 14 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

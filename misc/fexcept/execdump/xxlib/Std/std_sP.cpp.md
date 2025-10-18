@@ -3,8 +3,8 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `DllEntryPoint()`
-- `Register()`
+- `Register()`: Performs specific operation
+- `DllEntryPoint()`: Performs specific operation
 ### Namespaces
 - `Std_sp`
 ### Summary
@@ -16,8 +16,8 @@ The `std_sP.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `DllEntryPoint()`
-- `Register()`
+- `Register()`: Wykonuje specyficzną operację
+- `DllEntryPoint()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `Std_sp`
 ### Podsumowanie

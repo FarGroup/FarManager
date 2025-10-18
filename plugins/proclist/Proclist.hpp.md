@@ -14,21 +14,21 @@ Main functional areas: core functionality
 - `free_deleter`: Implements core functionality
 - `handle_closer`: Implements core functionality
 ### Key Functions
-- `ConvertDate()`
-- `DeleteRegKey()`
-- `Enable()`
-- `FreeFindData()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetList()`
-- `GetPData()`
-- `Menu()`
-- `Message()`
+- `make_malloc()`: Performs specific operation
+- `normalise_handle()`: Performs specific operation
+- `Read()`: Reads data from a source
+- `Write()`: Writes data to a destination
+- `Message()`: Performs specific operation
+- `Connect()`: Performs specific operation
+- `GetFindData()`: Retrieves or returns data
+- `FreeFindData()`: Performs specific operation
+- `GetOpenPanelInfo()`: Retrieves or returns data
+- `GetFiles()`: Retrieves or returns data
 ### Namespaces
 - `literals`
 - `std`
 ### Summary
-The `Proclist.hpp` file provides essential functionality for core functionality. It defines 14 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `Proclist.hpp` file provides essential functionality for core functionality. It defines 14 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -47,18 +47,18 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `free_deleter`: Implementuje podstawowa funkcjonalność
 - `handle_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ConvertDate()`
-- `DeleteRegKey()`
-- `Enable()`
-- `FreeFindData()`
-- `GetFiles()`
-- `GetFindData()`
-- `GetList()`
-- `GetPData()`
-- `Menu()`
-- `Message()`
+- `make_malloc()`: Wykonuje specyficzną operację
+- `normalise_handle()`: Wykonuje specyficzną operację
+- `Read()`: Odczytuje dane ze źródła
+- `Write()`: Zapisuje dane do miejsca docelowego
+- `Message()`: Wykonuje specyficzną operację
+- `Connect()`: Wykonuje specyficzną operację
+- `GetFindData()`: Pobiera lub zwraca dane
+- `FreeFindData()`: Wykonuje specyficzną operację
+- `GetOpenPanelInfo()`: Pobiera lub zwraca dane
+- `GetFiles()`: Pobiera lub zwraca dane
 ### Przestrzenie nazw
 - `literals`
 - `std`
 ### Podsumowanie
-Plik `Proclist.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 14 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `Proclist.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 14 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

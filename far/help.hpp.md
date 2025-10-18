@@ -6,9 +6,9 @@ Main functional areas: core functionality
 ### Key Classes
 - `Plugin`: Implements core functionality
 ### Key Functions
-- `make_link()`
-- `make_topic()`
-- `show()`
+- `show()`: Displays or shows content
+- `make_link()`: Performs specific operation
+- `make_topic()`: Performs specific operation
 ### Namespaces
 - `help`
 ### Summary
@@ -23,9 +23,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `Plugin`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `make_link()`
-- `make_topic()`
-- `show()`
+- `show()`: Wyświetla lub pokazuje zawartość
+- `make_link()`: Wykonuje specyficzną operację
+- `make_topic()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `help`
 ### Podsumowanie

@@ -8,7 +8,7 @@ Main functional areas: core functionality
 - `scope_guard`: Implements core functionality
 - `scope_type`: Implements core functionality
 ### Key Functions
-- `invoke_handler()`
+- `invoke_handler()`: Performs specific operation
 ### Namespaces
 - `scope_exit`
 ### Summary
@@ -25,7 +25,7 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `scope_guard`: Implementuje podstawowa funkcjonalność
 - `scope_type`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `invoke_handler()`
+- `invoke_handler()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `scope_exit`
 ### Podsumowanie

@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `MemCpy()`
-- `MemMove()`
-- `MemSet()`
+- `MemSet()`: Performs specific operation
+- `MemMove()`: Performs specific operation
+- `MemCpy()`: Performs specific operation
 ### Summary
 The `std_mem.cpp` file provides essential functionality for core functionality. and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,8 +15,8 @@ The `std_mem.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `MemCpy()`
-- `MemMove()`
-- `MemSet()`
+- `MemSet()`: Wykonuje specyficzną operację
+- `MemMove()`: Wykonuje specyficzną operację
+- `MemCpy()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `std_mem.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

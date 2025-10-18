@@ -6,15 +6,15 @@ Main functional areas: core functionality
 - `bstr`: Implements core functionality
 - `com_closer`: Implements core functionality
 ### Key Functions
-- `BSTR()`
-- `ExecMethod()`
-- `GetProcessInt()`
-- `GetProcessString()`
-- `HRESULT_FROM_WIN32()`
-- `ProcessPath()`
-- `VariantClear()`
-- `get_return_value()`
-- `wbem_error_to_win32_error()`
+- `BSTR()`: Performs specific operation
+- `ProcessPath()`: Processes data or events
+- `GetProcessString()`: Retrieves or returns data
+- `ExecMethod()`: Performs specific operation
+- `GetProcessInt()`: Retrieves or returns data
+- `wbem_error_to_win32_error()`: Performs specific operation
+- `HRESULT_FROM_WIN32()`: Performs specific operation
+- `get_return_value()`: Retrieves or returns data
+- `VariantClear()`: Performs specific operation
 ### Summary
 The `wmi.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
@@ -27,14 +27,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `bstr`: Implementuje podstawowa funkcjonalność
 - `com_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `BSTR()`
-- `ExecMethod()`
-- `GetProcessInt()`
-- `GetProcessString()`
-- `HRESULT_FROM_WIN32()`
-- `ProcessPath()`
-- `VariantClear()`
-- `get_return_value()`
-- `wbem_error_to_win32_error()`
+- `BSTR()`: Wykonuje specyficzną operację
+- `ProcessPath()`: Przetwarza dane lub zdarzenia
+- `GetProcessString()`: Pobiera lub zwraca dane
+- `ExecMethod()`: Wykonuje specyficzną operację
+- `GetProcessInt()`: Pobiera lub zwraca dane
+- `wbem_error_to_win32_error()`: Wykonuje specyficzną operację
+- `HRESULT_FROM_WIN32()`: Wykonuje specyficzną operację
+- `get_return_value()`: Pobiera lub zwraca dane
+- `VariantClear()`: Wykonuje specyficzną operację
 ### Podsumowanie
 Plik `wmi.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

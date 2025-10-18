@@ -7,18 +7,18 @@ Main functional areas: core functionality
 - `files`: Implements core functionality
 - `lng`: Implements core functionality
 ### Key Functions
-- `CanvasWidth()`
-- `CheckEsc()`
-- `Flush()`
-- `FormatCounter()`
-- `GetWidth()`
-- `IsCancelled()`
-- `IsTotalVisible()`
-- `SetCurrentProgress()`
-- `SetNames()`
-- `SetTotalProgress()`
+- `IsCancelled()`: Checks a condition or state
+- `IsTotalVisible()`: Checks a condition or state
+- `SetNames()`: Sets or assigns data
+- `reset_current()`: Performs specific operation
+- `set_current_total()`: Sets or assigns data
+- `set_current_copied()`: Sets or assigns data
+- `set_total_files()`: Sets or assigns data
+- `set_total_bytes()`: Sets or assigns data
+- `add_total_bytes()`: Adds an item or element
+- `skip()`: Performs specific operation
 ### Summary
-The `copy_progress.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `copy_progress.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -30,15 +30,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `files`: Implementuje podstawowa funkcjonalność
 - `lng`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CanvasWidth()`
-- `CheckEsc()`
-- `Flush()`
-- `FormatCounter()`
-- `GetWidth()`
-- `IsCancelled()`
-- `IsTotalVisible()`
-- `SetCurrentProgress()`
-- `SetNames()`
-- `SetTotalProgress()`
+- `IsCancelled()`: Sprawdza warunek lub stan
+- `IsTotalVisible()`: Sprawdza warunek lub stan
+- `SetNames()`: Ustawia lub przypisuje dane
+- `reset_current()`: Wykonuje specyficzną operację
+- `set_current_total()`: Ustawia lub przypisuje dane
+- `set_current_copied()`: Ustawia lub przypisuje dane
+- `set_total_files()`: Ustawia lub przypisuje dane
+- `set_total_bytes()`: Ustawia lub przypisuje dane
+- `add_total_bytes()`: Dodaje element
+- `skip()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `copy_progress.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `copy_progress.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

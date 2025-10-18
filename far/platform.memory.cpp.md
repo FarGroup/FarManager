@@ -4,8 +4,8 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `enable_low_fragmentation_heap()`
-- `is_pointer()`
+- `is_pointer()`: Checks a condition or state
+- `enable_low_fragmentation_heap()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `local`
@@ -20,8 +20,8 @@ The `platform.memory.cpp` file provides essential functionality for core functio
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `enable_low_fragmentation_heap()`
-- `is_pointer()`
+- `is_pointer()`: Sprawdza warunek lub stan
+- `enable_low_fragmentation_heap()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `local`

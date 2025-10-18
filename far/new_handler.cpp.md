@@ -4,13 +4,13 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `_set_new_handler()`
-- `_set_new_handler_impl()`
-- `_set_new_mode()`
-- `_set_new_mode_impl()`
-- `create_ui()`
-- `invoke_crt_new_handler()`
-- `invoke_new_handler()`
+- `_set_new_handler()`: Performs specific operation
+- `_set_new_mode()`: Performs specific operation
+- `_set_new_handler_impl()`: Performs specific operation
+- `_set_new_mode_impl()`: Performs specific operation
+- `invoke_crt_new_handler()`: Performs specific operation
+- `invoke_new_handler()`: Performs specific operation
+- `create_ui()`: Creates a new instance or object
 ### Namespaces
 - `and`
 ### Summary
@@ -23,13 +23,13 @@ The `new_handler.cpp` file provides essential functionality for core functionali
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `_set_new_handler()`
-- `_set_new_handler_impl()`
-- `_set_new_mode()`
-- `_set_new_mode_impl()`
-- `create_ui()`
-- `invoke_crt_new_handler()`
-- `invoke_new_handler()`
+- `_set_new_handler()`: Wykonuje specyficzną operację
+- `_set_new_mode()`: Wykonuje specyficzną operację
+- `_set_new_handler_impl()`: Wykonuje specyficzną operację
+- `_set_new_mode_impl()`: Wykonuje specyficzną operację
+- `invoke_crt_new_handler()`: Wykonuje specyficzną operację
+- `invoke_new_handler()`: Wykonuje specyficzną operację
+- `create_ui()`: Tworzy nową instancję lub obiekt
 ### Przestrzenie nazw
 - `and`
 ### Podsumowanie

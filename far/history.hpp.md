@@ -10,18 +10,18 @@ Main functional areas: core functionality
 - `HistoryConfig`: Implements core functionality
 - `VMenu2`: Implements core functionality
 ### Key Functions
-- `AddToHistory()`
-- `CompactHistory()`
-- `DeleteIfUnlocked()`
-- `EqualType()`
-- `GetNext()`
-- `GetPrev()`
-- `GetSimilar()`
-- `IsOnTop()`
-- `LastItem()`
-- `ProcessMenu()`
+- `AddToHistory()`: Adds an item or element
+- `Select()`: Performs specific operation
+- `GetPrev()`: Retrieves or returns data
+- `GetNext()`: Retrieves or returns data
+- `GetSimilar()`: Retrieves or returns data
+- `ResetPosition()`: Performs specific operation
+- `DeleteIfUnlocked()`: Removes or deletes an item
+- `LastItem()`: Performs specific operation
+- `IsOnTop()`: Checks a condition or state
+- `CompactHistory()`: Performs specific operation
 ### Summary
-The `history.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 19 function(s) to support the Far Manager file manager operations.
+The `history.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `HistoryConfig`: Implementuje podstawowa funkcjonalność
 - `VMenu2`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `AddToHistory()`
-- `CompactHistory()`
-- `DeleteIfUnlocked()`
-- `EqualType()`
-- `GetNext()`
-- `GetPrev()`
-- `GetSimilar()`
-- `IsOnTop()`
-- `LastItem()`
-- `ProcessMenu()`
+- `AddToHistory()`: Dodaje element
+- `Select()`: Wykonuje specyficzną operację
+- `GetPrev()`: Pobiera lub zwraca dane
+- `GetNext()`: Pobiera lub zwraca dane
+- `GetSimilar()`: Pobiera lub zwraca dane
+- `ResetPosition()`: Wykonuje specyficzną operację
+- `DeleteIfUnlocked()`: Usuwa element
+- `LastItem()`: Wykonuje specyficzną operację
+- `IsOnTop()`: Sprawdza warunek lub stan
+- `CompactHistory()`: Wykonuje specyficzną operację
 ### Podsumowanie
-Plik `history.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 19 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `history.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

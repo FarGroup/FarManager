@@ -4,9 +4,9 @@
 This file implements functionality related to: Версия Far Manager
 Main functional areas: core functionality
 ### Key Functions
-- `compiler()`
-- `library()`
-- `version()`
+- `version()`: Performs specific operation
+- `compiler()`: Performs specific operation
+- `library()`: Performs specific operation
 ### Namespaces
 - `build`
 ### Summary
@@ -19,9 +19,9 @@ The `farversion.cpp` file provides essential functionality for core functionalit
 Ten plik implementuje funkcjonalność związaną z: Версия Far Manager
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `compiler()`
-- `library()`
-- `version()`
+- `version()`: Wykonuje specyficzną operację
+- `compiler()`: Wykonuje specyficzną operację
+- `library()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `build`
 ### Podsumowanie

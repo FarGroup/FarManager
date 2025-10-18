@@ -8,18 +8,18 @@ Main functional areas: core functionality
 - `ComObject`: Implements core functionality
 - `PropVariant`: Implements core functionality
 ### Key Functions
-- `Release()`
-- `clear()`
-- `detach()`
-- `get_bool()`
-- `get_filetime()`
-- `get_int()`
-- `get_str()`
-- `get_uint()`
-- `is_bool()`
-- `is_filetime()`
+- `Release()`: Performs specific operation
+- `bool()`: Performs specific operation
+- `detach()`: Performs specific operation
+- `clear()`: Clears or resets data
+- `ref()`: Performs specific operation
+- `set_binary()`: Sets or assigns data
+- `is_int()`: Checks a condition or state
+- `is_uint()`: Checks a condition or state
+- `is_int64()`: Checks a condition or state
+- `is_uint64()`: Checks a condition or state
 ### Summary
-The `comutils.hpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 20 function(s) to support the Far Manager file manager operations.
+The `comutils.hpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
 ---
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ComObject`: Implementuje podstawowa funkcjonalność
 - `PropVariant`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Release()`
-- `clear()`
-- `detach()`
-- `get_bool()`
-- `get_filetime()`
-- `get_int()`
-- `get_str()`
-- `get_uint()`
-- `is_bool()`
-- `is_filetime()`
+- `Release()`: Wykonuje specyficzną operację
+- `bool()`: Wykonuje specyficzną operację
+- `detach()`: Wykonuje specyficzną operację
+- `clear()`: Czyści lub resetuje dane
+- `ref()`: Wykonuje specyficzną operację
+- `set_binary()`: Ustawia lub przypisuje dane
+- `is_int()`: Sprawdza warunek lub stan
+- `is_uint()`: Sprawdza warunek lub stan
+- `is_int64()`: Sprawdza warunek lub stan
+- `is_uint64()`: Sprawdza warunek lub stan
 ### Podsumowanie
-Plik `comutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 20 funkcji wspierających operacje menedżera plików Far Manager.
+Plik `comutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -7,10 +7,10 @@ Main functional areas: core functionality
 - `tracer`: Implements core functionality
 - `with_symbols`: Implements core functionality
 ### Key Functions
-- `get_symbol()`
-- `sym_cleanup()`
-- `sym_initialise()`
-- `with_symbols()`
+- `get_symbol()`: Retrieves or returns data
+- `with_symbols()`: Constructor
+- `sym_initialise()`: Performs specific operation
+- `sym_cleanup()`: Performs specific operation
 ### Namespaces
 - `tracer_detail`
 ### Summary
@@ -26,10 +26,10 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `tracer`: Implementuje podstawowa funkcjonalność
 - `with_symbols`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get_symbol()`
-- `sym_cleanup()`
-- `sym_initialise()`
-- `with_symbols()`
+- `get_symbol()`: Pobiera lub zwraca dane
+- `with_symbols()`: Konstruktor
+- `sym_initialise()`: Wykonuje specyficzną operację
+- `sym_cleanup()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `tracer_detail`
 ### Podsumowanie

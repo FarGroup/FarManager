@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `privilege`: Implements core functionality
 - `sid_deleter`: Implements core functionality
 ### Key Functions
-- `check()`
-- `elevation_type()`
-- `is_admin()`
-- `make_sid()`
-- `open_current_process_token()`
-- `privilege()`
+- `make_sid()`: Performs specific operation
+- `is_admin()`: Checks a condition or state
+- `elevation_type()`: Performs specific operation
+- `open_current_process_token()`: Opens a resource
+- `privilege()`: Performs specific operation
+- `check()`: Validates or checks data
 ### Namespaces
 - `detail`
 - `os`
@@ -29,12 +29,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `privilege`: Implementuje podstawowa funkcjonalność
 - `sid_deleter`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `check()`
-- `elevation_type()`
-- `is_admin()`
-- `make_sid()`
-- `open_current_process_token()`
-- `privilege()`
+- `make_sid()`: Wykonuje specyficzną operację
+- `is_admin()`: Sprawdza warunek lub stan
+- `elevation_type()`: Wykonuje specyficzną operację
+- `open_current_process_token()`: Otwiera zasób
+- `privilege()`: Wykonuje specyficzną operację
+- `check()`: Waliduje lub sprawdza dane
 ### Przestrzenie nazw
 - `detail`
 - `os`

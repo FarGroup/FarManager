@@ -5,14 +5,14 @@ Main functional areas: core functionality
 ### Key Classes
 - `separator_t`: Implements core functionality
 ### Key Functions
-- `hex_to_int()`
-- `int_to_hex()`
-- `parse()`
-- `parse_impl()`
-- `serialise()`
-- `serialise_impl()`
-- `str()`
-- `try_parse()`
+- `hex_to_int()`: Performs specific operation
+- `parse_impl()`: Parses input data
+- `parse()`: Parses input data
+- `int_to_hex()`: Performs specific operation
+- `serialise_impl()`: Performs specific operation
+- `serialise()`: Performs specific operation
+- `try_parse()`: Performs specific operation
+- `str()`: Performs specific operation
 ### Namespaces
 - `detail`
 - `literals`
@@ -29,14 +29,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `separator_t`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `hex_to_int()`
-- `int_to_hex()`
-- `parse()`
-- `parse_impl()`
-- `serialise()`
-- `serialise_impl()`
-- `str()`
-- `try_parse()`
+- `hex_to_int()`: Wykonuje specyficzną operację
+- `parse_impl()`: Parsuje dane wejściowe
+- `parse()`: Parsuje dane wejściowe
+- `int_to_hex()`: Wykonuje specyficzną operację
+- `serialise_impl()`: Wykonuje specyficzną operację
+- `serialise()`: Wykonuje specyficzną operację
+- `try_parse()`: Wykonuje specyficzną operację
+- `str()`: Wykonuje specyficzną operację
 ### Przestrzenie nazw
 - `detail`
 - `literals`

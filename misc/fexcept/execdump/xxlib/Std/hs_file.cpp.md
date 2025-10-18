@@ -9,6 +9,6 @@ The `hs_file.cpp` file provides essential functionality for file system operatio
 
 ## Polski (Polish)
 ### Cel
-Główne obszary funkcjonalne: operacje systemowyu plików
+Główne obszary funkcjonalne: operacje systemu plików
 ### Podsumowanie
-Plik `hs_file.cpp` zapewnia podstawową funkcjonalność dla operacje systemowyu plików. wspierających operacje menedżera plików Far Manager.
+Plik `hs_file.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. wspierających operacje menedżera plików Far Manager.
