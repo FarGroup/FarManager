@@ -4,11 +4,11 @@
 This file implements functionality related to: Workarounds for supported compilers & libraries
 Main functional areas: core functionality
 ### Key Functions
-- `wcschr()`: Performs specific operation
-- `wcspbrk()`: Performs specific operation
-- `wcsrchr()`: Performs specific operation
-- `wcsstr()`: Performs specific operation
-- `wmemchr()`: Performs specific operation
+- `wcschr()`: Constructor that initializes wcschr object with provided parameters
+- `wcspbrk()`: Constructor that initializes wcspbrk object with provided parameters
+- `wcsrchr()`: Constructor that initializes wcsrchr object with provided parameters
+- `wcsstr()`: Constructor that initializes wcsstr object with provided parameters
+- `wmemchr()`: Constructor that initializes wmemchr object with provided parameters
 ### Namespaces
 - `std`
 ### Summary
@@ -21,11 +21,11 @@ The `shims_post.hpp` file provides essential functionality for core functionalit
 Ten plik implementuje funkcjonalność związaną z: Workarounds for supported compilers & libraries
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `wcschr()`: Wykonuje specyficzną operację
-- `wcspbrk()`: Wykonuje specyficzną operację
-- `wcsrchr()`: Wykonuje specyficzną operację
-- `wcsstr()`: Wykonuje specyficzną operację
-- `wmemchr()`: Wykonuje specyficzną operację
+- `wcschr()`: Konstruktor inicjalizujący wcschr obiekt z dostarczonymi parametrami
+- `wcspbrk()`: Konstruktor inicjalizujący wcspbrk obiekt z dostarczonymi parametrami
+- `wcsrchr()`: Konstruktor inicjalizujący wcsrchr obiekt z dostarczonymi parametrami
+- `wcsstr()`: Konstruktor inicjalizujący wcsstr obiekt z dostarczonymi parametrami
+- `wmemchr()`: Konstruktor inicjalizujący wmemchr obiekt z dostarczonymi parametrami
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

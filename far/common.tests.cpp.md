@@ -15,16 +15,16 @@ Main functional areas: testing, singleton implementation
 - `square`: Implements testing, singleton implementation
 - `test`: Implements testing, singleton implementation
 ### Key Functions
-- `Matrix()`: Performs specific operation
-- `Copy()`: Copies data
-- `ConstView()`: Performs specific operation
-- `CharDist()`: Performs specific operation
-- `test_enum_tokens()`: Performs specific operation
-- `square()`: Performs specific operation
-- `f()`: Performs specific operation
-- `TestKeepAlive()`: Performs specific operation
-- `LazyValue()`: Performs specific operation
-- `a()`: Performs specific operation
+- `Matrix()`: Executes Matrix operation as part of testing, singleton implementation
+- `Copy()`: Copies data from source to destination location
+- `ConstView()`: Executes ConstView operation as part of testing, singleton implementation
+- `CharDist()`: Executes CharDist operation as part of testing, singleton implementation
+- `test_enum_tokens()`: Executes test_enum_tokens operation as part of testing, singleton implementation
+- `square()`: Executes square operation as part of testing, singleton implementation
+- `f()`: Executes f operation as part of testing, singleton implementation
+- `TestKeepAlive()`: Executes TestKeepAlive operation as part of testing, singleton implementation
+- `LazyValue()`: Executes LazyValue operation as part of testing, singleton implementation
+- `a()`: Executes a operation as part of testing, singleton implementation
 ### Namespaces
 - `detail`
 - `utility_integers_detail`
@@ -49,16 +49,16 @@ Główne obszary funkcjonalne: testowanie, implementacja singletona
 - `square`: Implementuje testowanie, implementacja singletona
 - `test`: Implementuje testowanie, implementacja singletona
 ### Kluczowe Funkcje
-- `Matrix()`: Wykonuje specyficzną operację
-- `Copy()`: Kopiuje dane
-- `ConstView()`: Wykonuje specyficzną operację
-- `CharDist()`: Wykonuje specyficzną operację
-- `test_enum_tokens()`: Wykonuje specyficzną operację
-- `square()`: Wykonuje specyficzną operację
-- `f()`: Wykonuje specyficzną operację
-- `TestKeepAlive()`: Wykonuje specyficzną operację
-- `LazyValue()`: Wykonuje specyficzną operację
-- `a()`: Wykonuje specyficzną operację
+- `Matrix()`: Wykonuje Matrix operację jako część testowanie, implementacja singletona
+- `Copy()`: Kopiuje dane ze źródła do miejsca docelowego
+- `ConstView()`: Wykonuje ConstView operację jako część testowanie, implementacja singletona
+- `CharDist()`: Wykonuje CharDist operację jako część testowanie, implementacja singletona
+- `test_enum_tokens()`: Wykonuje test_enum_tokens operację jako część testowanie, implementacja singletona
+- `square()`: Wykonuje square operację jako część testowanie, implementacja singletona
+- `f()`: Wykonuje f operację jako część testowanie, implementacja singletona
+- `TestKeepAlive()`: Wykonuje TestKeepAlive operację jako część testowanie, implementacja singletona
+- `LazyValue()`: Wykonuje LazyValue operację jako część testowanie, implementacja singletona
+- `a()`: Wykonuje a operację jako część testowanie, implementacja singletona
 ### Przestrzenie nazw
 - `detail`
 - `utility_integers_detail`

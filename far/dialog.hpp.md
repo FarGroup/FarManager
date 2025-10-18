@@ -15,16 +15,16 @@ Main functional areas: dialog handling
 - `private_tag`: Implements dialog handling
 - `suppress_redraw`: Implements dialog handling
 ### Key Functions
-- `Indent()`: Performs specific operation
-- `AddAutomation()`: Adds an item or element
-- `IsKeyHighlighted()`: Checks a condition or state
-- `ItemsToItemsEx()`: Performs specific operation
-- `MakeDialogItems()`: Performs specific operation
-- `create()`: Creates a new instance or object
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `VMProcess()`: Performs specific operation
-- `Show()`: Displays or shows content
+- `Indent()`: Adjusts indentation level for text formatting or display
+- `AddAutomation()`: Adds automation behavior to dialog items for dynamic interaction handling
+- `IsKeyHighlighted()`: Checks if given key combination is used for highlighting/navigation in dialog
+- `ItemsToItemsEx()`: Converts between standard dialog item format and extended item format
+- `MakeDialogItems()`: Constructs and configures dialog structure from item specifications
+- `create()`: Creates and initializes new object instance
+- `ProcessKey()`: Processes keyboard input events and updates dialog state accordingly
+- `ProcessMouse()`: Handles mouse events including clicks, movement, and wheel actions in dialog
+- `VMProcess()`: Processes virtual machine operations or commands
+- `Show()`: Renders dialog on screen and enters message loop for user interaction
 ### Summary
 The `dialog.hpp` file provides essential functionality for dialog handling. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `private_tag`: Implementuje obsługa dialogów
 - `suppress_redraw`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `Indent()`: Wykonuje specyficzną operację
-- `AddAutomation()`: Dodaje element
-- `IsKeyHighlighted()`: Sprawdza warunek lub stan
-- `ItemsToItemsEx()`: Wykonuje specyficzną operację
-- `MakeDialogItems()`: Wykonuje specyficzną operację
-- `create()`: Tworzy nową instancję lub obiekt
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `VMProcess()`: Wykonuje specyficzną operację
-- `Show()`: Wyświetla lub pokazuje zawartość
+- `Indent()`: Dostosowuje poziom wcięcia dla formatowania lub wyświetlania tekstu
+- `AddAutomation()`: Dodaje zachowanie automatyzacji do elementów dialogu dla dynamicznej obsługi interakcji
+- `IsKeyHighlighted()`: Sprawdza czy dana kombinacja klawiszy jest używana do podświetlania/nawigacji w dialogu
+- `ItemsToItemsEx()`: Konwertuje między standardowym formatem elementu dialogu a formatem rozszerzonym
+- `MakeDialogItems()`: Konstruuje i konfiguruje strukturę dialogu ze specyfikacji elementów
+- `create()`: Tworzy i inicjalizuje nowy obiekt instancję
+- `ProcessKey()`: Przetwarza zdarzenia wejścia klawiatury i odpowiednio aktualizuje stan dialogu
+- `ProcessMouse()`: Obsługuje zdarzenia myszy włączając kliknięcia, ruch i akcje kółka w dialogu
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
+- `Show()`: Renderuje dialog na ekranie i wchodzi w pętlę komunikatów dla interakcji użytkownika
 ### Podsumowanie
 Plik `dialog.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

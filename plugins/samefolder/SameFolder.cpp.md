@@ -6,15 +6,15 @@ Main functional areas: core functionality
 - `Options`: Implements core functionality
 - `OptionsName`: Implements core functionality
 ### Key Functions
-- `ComparePPI()`: Performs specific operation
-- `GetGlobalInfoW()`: Retrieves or returns data
-- `SetStartupInfoW()`: Sets or assigns data
-- `settings()`: Sets or assigns data
-- `OpenW()`: Opens a resource
-- `GetPluginInfoW()`: Retrieves or returns data
-- `ConfigureW()`: Performs specific operation
-- `Builder()`: Performs specific operation
-- `FileTimeToUI64()`: Performs specific operation
+- `ComparePPI()`: Executes ComparePPI operation as part of core functionality
+- `GetGlobalInfoW()`: Retrieves GlobalInfoW from internal state or data structure
+- `SetStartupInfoW()`: Updates StartupInfoW in internal state or configuration
+- `settings()`: Updates tings in internal state or configuration
+- `OpenW()`: Opens resource and prepares it for access operations
+- `GetPluginInfoW()`: Retrieves PluginInfoW from internal state or data structure
+- `ConfigureW()`: Executes ConfigureW operation as part of core functionality
+- `Builder()`: Executes Builder operation as part of core functionality
+- `FileTimeToUI64()`: Executes FileTimeToUI64 operation as part of core functionality
 ### Summary
 The `SameFolder.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
@@ -27,14 +27,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Options`: Implementuje podstawowa funkcjonalność
 - `OptionsName`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ComparePPI()`: Wykonuje specyficzną operację
-- `GetGlobalInfoW()`: Pobiera lub zwraca dane
-- `SetStartupInfoW()`: Ustawia lub przypisuje dane
-- `settings()`: Ustawia lub przypisuje dane
-- `OpenW()`: Otwiera zasób
-- `GetPluginInfoW()`: Pobiera lub zwraca dane
-- `ConfigureW()`: Wykonuje specyficzną operację
-- `Builder()`: Wykonuje specyficzną operację
-- `FileTimeToUI64()`: Wykonuje specyficzną operację
+- `ComparePPI()`: Wykonuje ComparePPI operację jako część podstawowa funkcjonalność
+- `GetGlobalInfoW()`: Pobiera GlobalInfoW ze stanu wewnętrznego lub struktury danych
+- `SetStartupInfoW()`: Aktualizuje StartupInfoW w stanie wewnętrznym lub konfiguracji
+- `settings()`: Aktualizuje tings w stanie wewnętrznym lub konfiguracji
+- `OpenW()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetPluginInfoW()`: Pobiera PluginInfoW ze stanu wewnętrznego lub struktury danych
+- `ConfigureW()`: Wykonuje ConfigureW operację jako część podstawowa funkcjonalność
+- `Builder()`: Wykonuje Builder operację jako część podstawowa funkcjonalność
+- `FileTimeToUI64()`: Wykonuje FileTimeToUI64 operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `SameFolder.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

@@ -3,7 +3,7 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `SH_Cfg1()`: Performs specific operation
+- `SH_Cfg1()`: Executes SH_Cfg1 operation as part of core functionality
 ### Summary
 The `shcfg1.cpp` file provides essential functionality for core functionality. and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -13,6 +13,6 @@ The `shcfg1.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `SH_Cfg1()`: Wykonuje specyficzną operację
+- `SH_Cfg1()`: Wykonuje SH_Cfg1 operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `shcfg1.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

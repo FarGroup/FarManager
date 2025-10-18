@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `CharInStr()`: Performs specific operation
-- `InPattern()`: Performs specific operation
-- `CmpFile()`: Performs specific operation
+- `CharInStr()`: Executes CharInStr operation as part of core functionality
+- `InPattern()`: Executes InPattern operation as part of core functionality
+- `CmpFile()`: Executes CmpFile operation as part of core functionality
 ### Summary
 The `io_patt.cpp` file provides essential functionality for core functionality. and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,8 +15,8 @@ The `io_patt.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CharInStr()`: Wykonuje specyficzną operację
-- `InPattern()`: Wykonuje specyficzną operację
-- `CmpFile()`: Wykonuje specyficzną operację
+- `CharInStr()`: Wykonuje CharInStr operację jako część podstawowa funkcjonalność
+- `InPattern()`: Wykonuje InPattern operację jako część podstawowa funkcjonalność
+- `CmpFile()`: Wykonuje CmpFile operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `io_patt.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

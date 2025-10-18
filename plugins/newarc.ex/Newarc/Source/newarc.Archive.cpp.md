@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `GetFileInfo()`: Retrieves or returns data
-- `CheckForEsc()`: Validates or checks data
-- `ArchiveTree()`: Performs specific operation
+- `GetFileInfo()`: Retrieves FileInfo from internal state or data structure
+- `CheckForEsc()`: Validates data integrity and checks for correctness
+- `ArchiveTree()`: Executes ArchiveTree operation as part of core functionality
 ### Summary
 The `newarc.Archive.cpp` file provides essential functionality for core functionality. and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,8 +15,8 @@ The `newarc.Archive.cpp` file provides essential functionality for core function
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetFileInfo()`: Pobiera lub zwraca dane
-- `CheckForEsc()`: Waliduje lub sprawdza dane
-- `ArchiveTree()`: Wykonuje specyficzną operację
+- `GetFileInfo()`: Pobiera FileInfo ze stanu wewnętrznego lub struktury danych
+- `CheckForEsc()`: Waliduje integralność danych i sprawdza poprawność
+- `ArchiveTree()`: Wykonuje ArchiveTree operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `newarc.Archive.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

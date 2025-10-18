@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `Error`: Implements core functionality
 - `NonCopyable`: Implements core functionality
 ### Key Functions
-- `DllMain()`: Main entry point
-- `FAIL()`: Performs specific operation
-- `FAIL_MSG()`: Performs specific operation
-- `CHECK_SYS()`: Validates or checks data
-- `CHECK_ADVSYS()`: Validates or checks data
-- `CHECK_COM()`: Validates or checks data
-- `CHECK()`: Validates or checks data
-- `resize()`: Resizes or adjusts dimensions
-- `data()`: Performs specific operation
-- `size()`: Performs specific operation
+- `DllMain()`: Executes DllMain operation as part of core functionality
+- `FAIL()`: Executes FAIL operation as part of core functionality
+- `FAIL_MSG()`: Executes FAIL_MSG operation as part of core functionality
+- `CHECK_SYS()`: Validates data integrity and checks for correctness
+- `CHECK_ADVSYS()`: Validates data integrity and checks for correctness
+- `CHECK_COM()`: Validates data integrity and checks for correctness
+- `CHECK()`: Validates data integrity and checks for correctness
+- `resize()`: Changes size dimensions while preserving content when possible
+- `data()`: Constructor that initializes data object with provided parameters
+- `size()`: Executes size operation as part of core functionality
 ### Namespaces
 - `std`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Error`: Implementuje podstawowa funkcjonalność
 - `NonCopyable`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `DllMain()`: Główny punkt wejścia
-- `FAIL()`: Wykonuje specyficzną operację
-- `FAIL_MSG()`: Wykonuje specyficzną operację
-- `CHECK_SYS()`: Waliduje lub sprawdza dane
-- `CHECK_ADVSYS()`: Waliduje lub sprawdza dane
-- `CHECK_COM()`: Waliduje lub sprawdza dane
-- `CHECK()`: Waliduje lub sprawdza dane
-- `resize()`: Zmienia rozmiar lub dostosowuje wymiary
-- `data()`: Wykonuje specyficzną operację
-- `size()`: Wykonuje specyficzną operację
+- `DllMain()`: Wykonuje DllMain operację jako część podstawowa funkcjonalność
+- `FAIL()`: Wykonuje FAIL operację jako część podstawowa funkcjonalność
+- `FAIL_MSG()`: Wykonuje FAIL_MSG operację jako część podstawowa funkcjonalność
+- `CHECK_SYS()`: Waliduje integralność danych i sprawdza poprawność
+- `CHECK_ADVSYS()`: Waliduje integralność danych i sprawdza poprawność
+- `CHECK_COM()`: Waliduje integralność danych i sprawdza poprawność
+- `CHECK()`: Waliduje integralność danych i sprawdza poprawność
+- `resize()`: Zmienia wymiary rozmiaru zachowując zawartość gdy to możliwe
+- `data()`: Konstruktor inicjalizujący dane obiekt z dostarczonymi parametrami
+- `size()`: Wykonuje size operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

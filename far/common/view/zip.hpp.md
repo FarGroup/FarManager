@@ -7,16 +7,16 @@ Main functional areas: core functionality
 - `zip_iterator`: Implements core functionality
 - `zip_sentinel`: Implements core functionality
 ### Key Functions
-- `dereference_impl()`: Performs specific operation
-- `dereference()`: Performs specific operation
-- `binary_any_of_impl()`: Performs specific operation
-- `binary_any_of()`: Performs specific operation
-- `binary_all_of_impl()`: Performs specific operation
-- `binary_all_of()`: Performs specific operation
-- `tuple_difference()`: Performs specific operation
-- `begin()`: Performs specific operation
-- `end()`: Performs specific operation
-- `cbegin()`: Performs specific operation
+- `dereference_impl()`: Executes dereference_impl operation as part of core functionality
+- `dereference()`: Executes dereference operation as part of core functionality
+- `binary_any_of_impl()`: Executes binary_any_of_impl operation as part of core functionality
+- `binary_any_of()`: Executes binary_any_of operation as part of core functionality
+- `binary_all_of_impl()`: Executes binary_all_of_impl operation as part of core functionality
+- `binary_all_of()`: Executes binary_all_of operation as part of core functionality
+- `tuple_difference()`: Executes tuple_difference operation as part of core functionality
+- `begin()`: Executes begin operation as part of core functionality
+- `end()`: Executes end operation as part of core functionality
+- `cbegin()`: Executes cbegin operation as part of core functionality
 ### Namespaces
 - `detail`
 ### Summary
@@ -32,16 +32,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `zip_iterator`: Implementuje podstawowa funkcjonalność
 - `zip_sentinel`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `dereference_impl()`: Wykonuje specyficzną operację
-- `dereference()`: Wykonuje specyficzną operację
-- `binary_any_of_impl()`: Wykonuje specyficzną operację
-- `binary_any_of()`: Wykonuje specyficzną operację
-- `binary_all_of_impl()`: Wykonuje specyficzną operację
-- `binary_all_of()`: Wykonuje specyficzną operację
-- `tuple_difference()`: Wykonuje specyficzną operację
-- `begin()`: Wykonuje specyficzną operację
-- `end()`: Wykonuje specyficzną operację
-- `cbegin()`: Wykonuje specyficzną operację
+- `dereference_impl()`: Wykonuje dereference_impl operację jako część podstawowa funkcjonalność
+- `dereference()`: Wykonuje dereference operację jako część podstawowa funkcjonalność
+- `binary_any_of_impl()`: Wykonuje binary_any_of_impl operację jako część podstawowa funkcjonalność
+- `binary_any_of()`: Wykonuje binary_any_of operację jako część podstawowa funkcjonalność
+- `binary_all_of_impl()`: Wykonuje binary_all_of_impl operację jako część podstawowa funkcjonalność
+- `binary_all_of()`: Wykonuje binary_all_of operację jako część podstawowa funkcjonalność
+- `tuple_difference()`: Wykonuje tuple_difference operację jako część podstawowa funkcjonalność
+- `begin()`: Wykonuje begin operację jako część podstawowa funkcjonalność
+- `end()`: Wykonuje end operację jako część podstawowa funkcjonalność
+- `cbegin()`: Wykonuje cbegin operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

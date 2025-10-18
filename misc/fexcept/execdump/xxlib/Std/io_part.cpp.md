@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `FixSlashChars()`: Performs specific operation
-- `ChangeFilePart()`: Performs specific operation
-- `ChangeFileExt()`: Performs specific operation
-- `ChangeFileName()`: Performs specific operation
-- `AddLastSlash()`: Adds an item or element
-- `DelLastSlash()`: Performs specific operation
-- `path()`: Performs specific operation
-- `GetFPath()`: Retrieves or returns data
-- `FPath()`: Performs specific operation
-- `GetFName()`: Retrieves or returns data
+- `FixSlashChars()`: Executes FixSlashChars operation as part of core functionality
+- `ChangeFilePart()`: Executes ChangeFilePart operation as part of core functionality
+- `ChangeFileExt()`: Executes ChangeFileExt operation as part of core functionality
+- `ChangeFileName()`: Executes ChangeFileName operation as part of core functionality
+- `AddLastSlash()`: Adds new LastSlash to collection or list
+- `DelLastSlash()`: Executes DelLastSlash operation as part of core functionality
+- `path()`: Executes path operation as part of core functionality
+- `GetFPath()`: Retrieves FPath from internal state or data structure
+- `FPath()`: Executes FPath operation as part of core functionality
+- `GetFName()`: Retrieves FName from internal state or data structure
 ### Summary
 The `io_part.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `io_part.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `FixSlashChars()`: Wykonuje specyficzną operację
-- `ChangeFilePart()`: Wykonuje specyficzną operację
-- `ChangeFileExt()`: Wykonuje specyficzną operację
-- `ChangeFileName()`: Wykonuje specyficzną operację
-- `AddLastSlash()`: Dodaje element
-- `DelLastSlash()`: Wykonuje specyficzną operację
-- `path()`: Wykonuje specyficzną operację
-- `GetFPath()`: Pobiera lub zwraca dane
-- `FPath()`: Wykonuje specyficzną operację
-- `GetFName()`: Pobiera lub zwraca dane
+- `FixSlashChars()`: Wykonuje FixSlashChars operację jako część podstawowa funkcjonalność
+- `ChangeFilePart()`: Wykonuje ChangeFilePart operację jako część podstawowa funkcjonalność
+- `ChangeFileExt()`: Wykonuje ChangeFileExt operację jako część podstawowa funkcjonalność
+- `ChangeFileName()`: Wykonuje ChangeFileName operację jako część podstawowa funkcjonalność
+- `AddLastSlash()`: Dodaje nowy LastSlash do kolekcji lub listy
+- `DelLastSlash()`: Wykonuje DelLastSlash operację jako część podstawowa funkcjonalność
+- `path()`: Wykonuje path operację jako część podstawowa funkcjonalność
+- `GetFPath()`: Pobiera FPath ze stanu wewnętrznego lub struktury danych
+- `FPath()`: Wykonuje FPath operację jako część podstawowa funkcjonalność
+- `GetFName()`: Pobiera FName ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `io_part.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

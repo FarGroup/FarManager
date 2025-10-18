@@ -12,16 +12,16 @@ Main functional areas: core functionality
 - `key`: Implements core functionality
 - `value`: Implements core functionality
 ### Key Functions
-- `close()`: Closes a resource
-- `native_handle()`: Performs specific operation
-- `enum_keys()`: Performs specific operation
-- `enum_values()`: Performs specific operation
-- `exits()`: Performs specific operation
-- `key()`: Performs specific operation
-- `enum_keys_impl()`: Performs specific operation
-- `enum_values_impl()`: Performs specific operation
-- `name()`: Performs specific operation
-- `type()`: Performs specific operation
+- `close()`: Closes resource and performs cleanup operations
+- `native_handle()`: Executes native_handle operation as part of core functionality
+- `enum_keys()`: Executes enum_keys operation as part of core functionality
+- `enum_values()`: Executes enum_values operation as part of core functionality
+- `exits()`: Executes exits operation as part of core functionality
+- `key()`: Executes key operation as part of core functionality
+- `enum_keys_impl()`: Executes enum_keys_impl operation as part of core functionality
+- `enum_values_impl()`: Executes enum_values_impl operation as part of core functionality
+- `name()`: Constructor that initializes name object with provided parameters
+- `type()`: Executes type operation as part of core functionality
 ### Namespaces
 - `os`
 ### Summary
@@ -42,16 +42,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `key`: Implementuje podstawowa funkcjonalność
 - `value`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `close()`: Zamyka zasób
-- `native_handle()`: Wykonuje specyficzną operację
-- `enum_keys()`: Wykonuje specyficzną operację
-- `enum_values()`: Wykonuje specyficzną operację
-- `exits()`: Wykonuje specyficzną operację
-- `key()`: Wykonuje specyficzną operację
-- `enum_keys_impl()`: Wykonuje specyficzną operację
-- `enum_values_impl()`: Wykonuje specyficzną operację
-- `name()`: Wykonuje specyficzną operację
-- `type()`: Wykonuje specyficzną operację
+- `close()`: Zamyka zasób i wykonuje operacje czyszczące
+- `native_handle()`: Wykonuje native_handle operację jako część podstawowa funkcjonalność
+- `enum_keys()`: Wykonuje enum_keys operację jako część podstawowa funkcjonalność
+- `enum_values()`: Wykonuje enum_wartośćs operację jako część podstawowa funkcjonalność
+- `exits()`: Wykonuje exits operację jako część podstawowa funkcjonalność
+- `key()`: Wykonuje key operację jako część podstawowa funkcjonalność
+- `enum_keys_impl()`: Wykonuje enum_keys_impl operację jako część podstawowa funkcjonalność
+- `enum_values_impl()`: Wykonuje enum_wartośćs_impl operację jako część podstawowa funkcjonalność
+- `name()`: Konstruktor inicjalizujący name obiekt z dostarczonymi parametrami
+- `type()`: Wykonuje type operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

@@ -8,7 +8,7 @@ Main functional areas: window management
 - `SaveScreen`: Implements window management
 - `UndoGlobalSaveScrPtr`: Implements window management
 ### Key Functions
-- `UndoGlobalSaveScrPtr()`: Performs specific operation
+- `UndoGlobalSaveScrPtr()`: Executes UndoGlobalSaveScrPtr operation as part of window management
 ### Summary
 The `refreshwindowmanager.hpp` file provides essential functionality for window management. It defines 3 class(es) and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -23,6 +23,6 @@ Główne obszary funkcjonalne: zarządzanie oknami
 - `SaveScreen`: Implementuje zarządzanie oknami
 - `UndoGlobalSaveScrPtr`: Implementuje zarządzanie oknami
 ### Kluczowe Funkcje
-- `UndoGlobalSaveScrPtr()`: Wykonuje specyficzną operację
+- `UndoGlobalSaveScrPtr()`: Wykonuje UndoGlobalSaveScrPtr operację jako część zarządzanie oknami
 ### Podsumowanie
 Plik `refreshwindowmanager.hpp` zapewnia podstawową funkcjonalność dla zarządzanie oknami. Definiuje 3 klas(y) i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

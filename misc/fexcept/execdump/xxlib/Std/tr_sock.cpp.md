@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Destroy()`: Performs specific operation
-- `Close()`: Closes a resource
-- `ISRead()`: Checks a condition or state
-- `ISWrite()`: Checks a condition or state
-- `DOSend()`: Performs specific operation
-- `FlushCache()`: Flushes buffered data
-- `UseHandle()`: Performs specific operation
-- `ReleaseHandle()`: Performs specific operation
-- `Cvt()`: Performs specific operation
-- `MemMove()`: Performs specific operation
+- `Destroy()`: Executes Destroy operation as part of core functionality
+- `Close()`: Closes resource and performs cleanup operations
+- `ISRead()`: Tests whether Read condition is true or property exists
+- `ISWrite()`: Tests whether Write condition is true or property exists
+- `DOSend()`: Executes DOSend operation as part of core functionality
+- `FlushCache()`: Executes FlushCache operation as part of core functionality
+- `UseHandle()`: Executes UseHandle operation as part of core functionality
+- `ReleaseHandle()`: Executes ReleaseHandle operation as part of core functionality
+- `Cvt()`: Executes Cvt operation as part of core functionality
+- `MemMove()`: Executes MemMove operation as part of core functionality
 ### Summary
 The `tr_sock.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `tr_sock.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Destroy()`: Wykonuje specyficzną operację
-- `Close()`: Zamyka zasób
-- `ISRead()`: Sprawdza warunek lub stan
-- `ISWrite()`: Sprawdza warunek lub stan
-- `DOSend()`: Wykonuje specyficzną operację
-- `FlushCache()`: Opróżnia buforowane dane
-- `UseHandle()`: Wykonuje specyficzną operację
-- `ReleaseHandle()`: Wykonuje specyficzną operację
-- `Cvt()`: Wykonuje specyficzną operację
-- `MemMove()`: Wykonuje specyficzną operację
+- `Destroy()`: Wykonuje Destroy operację jako część podstawowa funkcjonalność
+- `Close()`: Zamyka zasób i wykonuje operacje czyszczące
+- `ISRead()`: Testuje czy Read warunek jest prawdziwy lub właściwość istnieje
+- `ISWrite()`: Testuje czy Write warunek jest prawdziwy lub właściwość istnieje
+- `DOSend()`: Wykonuje DOSend operację jako część podstawowa funkcjonalność
+- `FlushCache()`: Wykonuje FlushCache operację jako część podstawowa funkcjonalność
+- `UseHandle()`: Wykonuje UseHandle operację jako część podstawowa funkcjonalność
+- `ReleaseHandle()`: Wykonuje ReleaseHandle operację jako część podstawowa funkcjonalność
+- `Cvt()`: Wykonuje Cvt operację jako część podstawowa funkcjonalność
+- `MemMove()`: Wykonuje MemMove operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `tr_sock.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

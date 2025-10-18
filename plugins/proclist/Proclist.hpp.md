@@ -14,16 +14,16 @@ Main functional areas: core functionality
 - `free_deleter`: Implements core functionality
 - `handle_closer`: Implements core functionality
 ### Key Functions
-- `make_malloc()`: Performs specific operation
-- `normalise_handle()`: Performs specific operation
-- `Read()`: Reads data from a source
-- `Write()`: Writes data to a destination
-- `Message()`: Performs specific operation
-- `Connect()`: Performs specific operation
-- `GetFindData()`: Retrieves or returns data
-- `FreeFindData()`: Performs specific operation
-- `GetOpenPanelInfo()`: Retrieves or returns data
-- `GetFiles()`: Retrieves or returns data
+- `make_malloc()`: Executes make_malloc operation as part of core functionality
+- `normalise_handle()`: Executes normalise_handle operation as part of core functionality
+- `Read()`: Reads data from source into provided buffer
+- `Write()`: Writes data from buffer to destination
+- `Message()`: Executes Message operation as part of core functionality
+- `Connect()`: Executes Connect operation as part of core functionality
+- `GetFindData()`: Retrieves FindData from internal state or data structure
+- `FreeFindData()`: Executes FreeFindData operation as part of core functionality
+- `GetOpenPanelInfo()`: Retrieves OpenPanelInfo from internal state or data structure
+- `GetFiles()`: Retrieves Files from internal state or data structure
 ### Namespaces
 - `literals`
 - `std`
@@ -47,16 +47,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `free_deleter`: Implementuje podstawowa funkcjonalność
 - `handle_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `make_malloc()`: Wykonuje specyficzną operację
-- `normalise_handle()`: Wykonuje specyficzną operację
-- `Read()`: Odczytuje dane ze źródła
-- `Write()`: Zapisuje dane do miejsca docelowego
-- `Message()`: Wykonuje specyficzną operację
-- `Connect()`: Wykonuje specyficzną operację
-- `GetFindData()`: Pobiera lub zwraca dane
-- `FreeFindData()`: Wykonuje specyficzną operację
-- `GetOpenPanelInfo()`: Pobiera lub zwraca dane
-- `GetFiles()`: Pobiera lub zwraca dane
+- `make_malloc()`: Wykonuje make_malloc operację jako część podstawowa funkcjonalność
+- `normalise_handle()`: Wykonuje normalise_handle operację jako część podstawowa funkcjonalność
+- `Read()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `Write()`: Zapisuje dane z bufora do miejsca docelowego
+- `Message()`: Wykonuje Message operację jako część podstawowa funkcjonalność
+- `Connect()`: Wykonuje Connect operację jako część podstawowa funkcjonalność
+- `GetFindData()`: Pobiera FindData ze stanu wewnętrznego lub struktury danych
+- `FreeFindData()`: Wykonuje FreeFindData operację jako część podstawowa funkcjonalność
+- `GetOpenPanelInfo()`: Pobiera OpenPanelInfo ze stanu wewnętrznego lub struktury danych
+- `GetFiles()`: Pobiera Files ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `literals`
 - `std`

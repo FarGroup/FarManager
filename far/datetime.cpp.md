@@ -6,16 +6,16 @@ Main functional areas: core functionality
 ### Key Classes
 - `time_zone_information`: Implements core functionality
 ### Key Functions
-- `full_year()`: Performs specific operation
-- `st_time()`: Performs specific operation
-- `StrFTime()`: Performs specific operation
-- `MkStrFTime()`: Performs specific operation
-- `ParseTimeComponents()`: Parses input data
-- `get_date_ranges()`: Retrieves or returns data
-- `parse_time()`: Parses input data
-- `ParseTimePoint()`: Parses input data
-- `ParseDuration()`: Parses input data
-- `decimal_duration_width()`: Performs specific operation
+- `full_year()`: Executes full_year operation as part of core functionality
+- `st_time()`: Executes st_time operation as part of core functionality
+- `StrFTime()`: Executes StrFTime operation as part of core functionality
+- `MkStrFTime()`: Executes MkStrFTime operation as part of core functionality
+- `ParseTimeComponents()`: Parses input string or data into structured format
+- `get_date_ranges()`: Retrieves _date_ranges from internal state or data structure
+- `parse_time()`: Parses input string or data into structured format
+- `ParseTimePoint()`: Parses input string or data into structured format
+- `ParseDuration()`: Parses input string or data into structured format
+- `decimal_duration_width()`: Executes decimal_duration_width operation as part of core functionality
 ### Namespaces
 - `os`
 - `std`
@@ -31,16 +31,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `time_zone_information`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `full_year()`: Wykonuje specyficzną operację
-- `st_time()`: Wykonuje specyficzną operację
-- `StrFTime()`: Wykonuje specyficzną operację
-- `MkStrFTime()`: Wykonuje specyficzną operację
-- `ParseTimeComponents()`: Parsuje dane wejściowe
-- `get_date_ranges()`: Pobiera lub zwraca dane
-- `parse_time()`: Parsuje dane wejściowe
-- `ParseTimePoint()`: Parsuje dane wejściowe
-- `ParseDuration()`: Parsuje dane wejściowe
-- `decimal_duration_width()`: Wykonuje specyficzną operację
+- `full_year()`: Wykonuje full_year operację jako część podstawowa funkcjonalność
+- `st_time()`: Wykonuje st_time operację jako część podstawowa funkcjonalność
+- `StrFTime()`: Wykonuje StrFTime operację jako część podstawowa funkcjonalność
+- `MkStrFTime()`: Wykonuje MkStrFTime operację jako część podstawowa funkcjonalność
+- `ParseTimeComponents()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `get_date_ranges()`: Pobiera _date_ranges ze stanu wewnętrznego lub struktury danych
+- `parse_time()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `ParseTimePoint()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `ParseDuration()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `decimal_duration_width()`: Wykonuje decimal_duration_width operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `os`
 - `std`

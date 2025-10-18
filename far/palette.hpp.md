@@ -7,16 +7,16 @@ Main functional areas: core functionality
 - `FarColor`: Implements core functionality
 - `palette`: Implements core functionality
 ### Key Functions
-- `fg()`: Performs specific operation
-- `bg()`: Performs specific operation
-- `Load()`: Loads data or resources
-- `Save()`: Saves data or state
-- `ResetToDefaultIndex()`: Performs specific operation
-- `ResetToDefaultRGB()`: Performs specific operation
-- `Default()`: Performs specific operation
-- `Set()`: Sets or assigns data
-- `CopyTo()`: Copies data
-- `size()`: Performs specific operation
+- `fg()`: Executes fg operation as part of core functionality
+- `bg()`: Executes bg operation as part of core functionality
+- `Load()`: Loads data or resources from storage into memory
+- `Save()`: Saves current state or data to persistent storage
+- `ResetToDefaultIndex()`: Executes ResetToDefaultIndex operation as part of core functionality
+- `ResetToDefaultRGB()`: Executes ResetToDefaultRGB operation as part of core functionality
+- `Default()`: Executes Default operation as part of core functionality
+- `Set()`: Updates value in internal state or configuration
+- `CopyTo()`: Copies data from source to destination location
+- `size()`: Executes size operation as part of core functionality
 ### Namespaces
 - `channel`
 - `detail`
@@ -33,16 +33,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `FarColor`: Implementuje podstawowa funkcjonalność
 - `palette`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `fg()`: Wykonuje specyficzną operację
-- `bg()`: Wykonuje specyficzną operację
-- `Load()`: Ładuje dane lub zasoby
-- `Save()`: Zapisuje dane lub stan
-- `ResetToDefaultIndex()`: Wykonuje specyficzną operację
-- `ResetToDefaultRGB()`: Wykonuje specyficzną operację
-- `Default()`: Wykonuje specyficzną operację
-- `Set()`: Ustawia lub przypisuje dane
-- `CopyTo()`: Kopiuje dane
-- `size()`: Wykonuje specyficzną operację
+- `fg()`: Wykonuje fg operację jako część podstawowa funkcjonalność
+- `bg()`: Wykonuje bg operację jako część podstawowa funkcjonalność
+- `Load()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `Save()`: Zapisuje bieżący stan lub dane do trwałego magazynu
+- `ResetToDefaultIndex()`: Wykonuje ResetToDefaultIndex operację jako część podstawowa funkcjonalność
+- `ResetToDefaultRGB()`: Wykonuje ResetToDefaultRGB operację jako część podstawowa funkcjonalność
+- `Default()`: Wykonuje Default operację jako część podstawowa funkcjonalność
+- `Set()`: Aktualizuje wartość w stanie wewnętrznym lub konfiguracji
+- `CopyTo()`: Kopiuje dane ze źródła do miejsca docelowego
+- `size()`: Wykonuje size operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `channel`
 - `detail`

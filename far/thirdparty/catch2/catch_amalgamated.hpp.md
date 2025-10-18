@@ -14,16 +14,16 @@ Main functional areas: singleton implementation
 - `AssertionResult`: Implements singleton implementation
 - `AssertionResultData`: Implements singleton implementation
 ### Key Functions
-- `getCurrentMutableContext()`: Retrieves or returns data
-- `getCurrentContext()`: Retrieves or returns data
-- `createContext()`: Creates a new instance or object
-- `cleanUpContext()`: Performs specific operation
-- `getResultCapture()`: Retrieves or returns data
-- `getConfig()`: Retrieves or returns data
-- `setResultCapture()`: Sets or assigns data
-- `setConfig()`: Sets or assigns data
-- `sharedRng()`: Performs specific operation
-- `throw_test_failure_exception()`: Performs specific operation
+- `getCurrentMutableContext()`: Retrieves CurrentMutableContext from internal state or data structure
+- `getCurrentContext()`: Retrieves CurrentContext from internal state or data structure
+- `createContext()`: Creates and initializes new Context instance
+- `cleanUpContext()`: Executes cleanUpContext operation as part of singleton implementation
+- `getResultCapture()`: Retrieves ResultCapture from internal state or data structure
+- `getConfig()`: Retrieves Config from internal state or data structure
+- `setResultCapture()`: Updates ResultCapture in internal state or configuration
+- `setConfig()`: Updates Config in internal state or configuration
+- `sharedRng()`: Constructor that initializes sharedRng object with provided parameters
+- `throw_test_failure_exception()`: Executes throw_test_failure_exception operation as part of singleton implementation
 ### Namespaces
 - `Benchmark`
 - `Catch`
@@ -60,16 +60,16 @@ Główne obszary funkcjonalne: implementacja singletona
 - `AssertionResult`: Implementuje implementacja singletona
 - `AssertionResultData`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `getCurrentMutableContext()`: Pobiera lub zwraca dane
-- `getCurrentContext()`: Pobiera lub zwraca dane
-- `createContext()`: Tworzy nową instancję lub obiekt
-- `cleanUpContext()`: Wykonuje specyficzną operację
-- `getResultCapture()`: Pobiera lub zwraca dane
-- `getConfig()`: Pobiera lub zwraca dane
-- `setResultCapture()`: Ustawia lub przypisuje dane
-- `setConfig()`: Ustawia lub przypisuje dane
-- `sharedRng()`: Wykonuje specyficzną operację
-- `throw_test_failure_exception()`: Wykonuje specyficzną operację
+- `getCurrentMutableContext()`: Pobiera CurrentMutableContext ze stanu wewnętrznego lub struktury danych
+- `getCurrentContext()`: Pobiera CurrentContext ze stanu wewnętrznego lub struktury danych
+- `createContext()`: Tworzy i inicjalizuje nowy Context instancję
+- `cleanUpContext()`: Wykonuje cleanUpContext operację jako część implementacja singletona
+- `getResultCapture()`: Pobiera ResultCapture ze stanu wewnętrznego lub struktury danych
+- `getConfig()`: Pobiera Config ze stanu wewnętrznego lub struktury danych
+- `setResultCapture()`: Aktualizuje ResultCapture w stanie wewnętrznym lub konfiguracji
+- `setConfig()`: Aktualizuje Config w stanie wewnętrznym lub konfiguracji
+- `sharedRng()`: Konstruktor inicjalizujący sharedRng obiekt z dostarczonymi parametrami
+- `throw_test_failure_exception()`: Wykonuje throw_test_failure_exception operację jako część implementacja singletona
 ### Przestrzenie nazw
 - `Benchmark`
 - `Catch`

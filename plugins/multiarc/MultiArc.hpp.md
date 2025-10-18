@@ -13,16 +13,16 @@ Main functional areas: core functionality
 - `PluginClass`: Implements core functionality
 - `PluginItem`: Implements core functionality
 ### Key Functions
-- `IsArchive()`: Checks a condition or state
-- `OpenArchive()`: Opens a resource
-- `GetArcItem()`: Retrieves or returns data
-- `CloseArchive()`: Closes a resource
-- `GetFormatName()`: Retrieves or returns data
-- `GetDefaultCommands()`: Retrieves or returns data
-- `FmtCount()`: Performs specific operation
-- `LoadFmtModules()`: Loads data or resources
-- `CompareFmtModules()`: Performs specific operation
-- `GetGroupName()`: Retrieves or returns data
+- `IsArchive()`: Tests whether Archive condition is true or property exists
+- `OpenArchive()`: Opens resource and prepares it for access operations
+- `GetArcItem()`: Retrieves ArcItem from internal state or data structure
+- `CloseArchive()`: Closes resource and performs cleanup operations
+- `GetFormatName()`: Retrieves FormatName from internal state or data structure
+- `GetDefaultCommands()`: Retrieves DefaultCommands from internal state or data structure
+- `FmtCount()`: Executes FmtCount operation as part of core functionality
+- `LoadFmtModules()`: Loads data or resources from storage into memory
+- `CompareFmtModules()`: Executes CompareFmtModules operation as part of core functionality
+- `GetGroupName()`: Retrieves GroupName from internal state or data structure
 ### Summary
 The `MultiArc.hpp` file provides essential functionality for core functionality. It defines 9 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -42,15 +42,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `PluginClass`: Implementuje podstawowa funkcjonalność
 - `PluginItem`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `IsArchive()`: Sprawdza warunek lub stan
-- `OpenArchive()`: Otwiera zasób
-- `GetArcItem()`: Pobiera lub zwraca dane
-- `CloseArchive()`: Zamyka zasób
-- `GetFormatName()`: Pobiera lub zwraca dane
-- `GetDefaultCommands()`: Pobiera lub zwraca dane
-- `FmtCount()`: Wykonuje specyficzną operację
-- `LoadFmtModules()`: Ładuje dane lub zasoby
-- `CompareFmtModules()`: Wykonuje specyficzną operację
-- `GetGroupName()`: Pobiera lub zwraca dane
+- `IsArchive()`: Testuje czy Archive warunek jest prawdziwy lub właściwość istnieje
+- `OpenArchive()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetArcItem()`: Pobiera ArcItem ze stanu wewnętrznego lub struktury danych
+- `CloseArchive()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetFormatName()`: Pobiera FormatName ze stanu wewnętrznego lub struktury danych
+- `GetDefaultCommands()`: Pobiera DefaultCommands ze stanu wewnętrznego lub struktury danych
+- `FmtCount()`: Wykonuje FmtCount operację jako część podstawowa funkcjonalność
+- `LoadFmtModules()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `CompareFmtModules()`: Wykonuje CompareFmtModules operację jako część podstawowa funkcjonalność
+- `GetGroupName()`: Pobiera GroupName ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `MultiArc.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 9 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

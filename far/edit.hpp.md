@@ -15,16 +15,16 @@ Main functional areas: text editing
 - `ShowInfo`: Implements text editing
 - `edit_string`: Implements text editing
 ### Key Functions
-- `GetOwner()`: Retrieves or returns data
-- `SetOwner()`: Sets or assigns data
-- `GetColor()`: Retrieves or returns data
-- `SetColor()`: Sets or assigns data
-- `Edit()`: Performs specific operation
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `VMProcess()`: Performs specific operation
-- `Changed()`: Performs specific operation
-- `GetMaxLength()`: Retrieves or returns data
+- `GetOwner()`: Retrieves Owner from internal state or data structure
+- `SetOwner()`: Updates Owner in internal state or configuration
+- `GetColor()`: Retrieves Color from internal state or data structure
+- `SetColor()`: Updates Color in internal state or configuration
+- `Edit()`: Executes Edit operation as part of text editing
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `VMProcess()`: Processes virtual machine operations or commands
+- `Changed()`: Executes Changed operation as part of text editing
+- `GetMaxLength()`: Retrieves MaxLength from internal state or data structure
 ### Summary
 The `edit.hpp` file provides essential functionality for text editing. It defines 11 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: edycja tekstu
 - `ShowInfo`: Implementuje edycja tekstu
 - `edit_string`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `GetOwner()`: Pobiera lub zwraca dane
-- `SetOwner()`: Ustawia lub przypisuje dane
-- `GetColor()`: Pobiera lub zwraca dane
-- `SetColor()`: Ustawia lub przypisuje dane
-- `Edit()`: Wykonuje specyficzną operację
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `VMProcess()`: Wykonuje specyficzną operację
-- `Changed()`: Wykonuje specyficzną operację
-- `GetMaxLength()`: Pobiera lub zwraca dane
+- `GetOwner()`: Pobiera Owner ze stanu wewnętrznego lub struktury danych
+- `SetOwner()`: Aktualizuje Owner w stanie wewnętrznym lub konfiguracji
+- `GetColor()`: Pobiera Color ze stanu wewnętrznego lub struktury danych
+- `SetColor()`: Aktualizuje Color w stanie wewnętrznym lub konfiguracji
+- `Edit()`: Wykonuje Edit operację jako część edycja tekstu
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
+- `Changed()`: Wykonuje Changed operację jako część edycja tekstu
+- `GetMaxLength()`: Pobiera MaxLength ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `edit.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 11 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

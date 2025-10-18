@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `timer`: Implements core functionality
 - `timer_closer`: Implements core functionality
 ### Key Functions
-- `make_name()`: Performs specific operation
-- `lock()`: Performs specific operation
-- `unlock()`: Performs specific operation
-- `thread()`: Performs specific operation
-- `get_id()`: Retrieves or returns data
-- `joinable()`: Performs specific operation
-- `detach()`: Performs specific operation
-- `join()`: Performs specific operation
-- `check_joinable()`: Validates or checks data
-- `finalise()`: Performs specific operation
+- `make_name()`: Executes make_name operation as part of core functionality
+- `lock()`: Executes lock operation as part of core functionality
+- `unlock()`: Executes unlock operation as part of core functionality
+- `thread()`: Executes thread operation as part of core functionality
+- `get_id()`: Retrieves _id from internal state or data structure
+- `joinable()`: Executes joinable operation as part of core functionality
+- `detach()`: Executes detach operation as part of core functionality
+- `join()`: Executes join operation as part of core functionality
+- `check_joinable()`: Validates data integrity and checks for correctness
+- `finalise()`: Executes finalise operation as part of core functionality
 ### Namespaces
 - `detail`
 - `os`
@@ -49,16 +49,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `timer`: Implementuje podstawowa funkcjonalność
 - `timer_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `make_name()`: Wykonuje specyficzną operację
-- `lock()`: Wykonuje specyficzną operację
-- `unlock()`: Wykonuje specyficzną operację
-- `thread()`: Wykonuje specyficzną operację
-- `get_id()`: Pobiera lub zwraca dane
-- `joinable()`: Wykonuje specyficzną operację
-- `detach()`: Wykonuje specyficzną operację
-- `join()`: Wykonuje specyficzną operację
-- `check_joinable()`: Waliduje lub sprawdza dane
-- `finalise()`: Wykonuje specyficzną operację
+- `make_name()`: Wykonuje make_name operację jako część podstawowa funkcjonalność
+- `lock()`: Wykonuje lock operację jako część podstawowa funkcjonalność
+- `unlock()`: Wykonuje unlock operację jako część podstawowa funkcjonalność
+- `thread()`: Wykonuje thread operację jako część podstawowa funkcjonalność
+- `get_id()`: Pobiera _id ze stanu wewnętrznego lub struktury danych
+- `joinable()`: Wykonuje joinable operację jako część podstawowa funkcjonalność
+- `detach()`: Wykonuje detach operację jako część podstawowa funkcjonalność
+- `join()`: Wykonuje join operację jako część podstawowa funkcjonalność
+- `check_joinable()`: Waliduje integralność danych i sprawdza poprawność
+- `finalise()`: Wykonuje finalise operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `os`

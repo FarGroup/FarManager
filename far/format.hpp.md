@@ -10,13 +10,13 @@ Main functional areas: core functionality
 - `no_spec`: Implements core functionality
 - `parse_no_spec`: Implements core functionality
 ### Key Functions
-- `format()`: Performs specific operation
-- `vformat()`: Performs specific operation
-- `format_to()`: Performs specific operation
-- `str()`: Performs specific operation
-- `parse()`: Parses input data
-- `to_string()`: Performs specific operation
-- `format_as()`: Performs specific operation
+- `format()`: Executes format operation as part of core functionality
+- `vformat()`: Executes vformat operation as part of core functionality
+- `format_to()`: Executes format_to operation as part of core functionality
+- `str()`: Executes str operation as part of core functionality
+- `parse()`: Parses input string or data into structured format
+- `to_string()`: Converts object to string representation for display or serialization
+- `format_as()`: Executes format_as operation as part of core functionality
 ### Namespaces
 - `detail`
 - `far`
@@ -37,13 +37,13 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `no_spec`: Implementuje podstawowa funkcjonalność
 - `parse_no_spec`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `format()`: Wykonuje specyficzną operację
-- `vformat()`: Wykonuje specyficzną operację
-- `format_to()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
-- `parse()`: Parsuje dane wejściowe
-- `to_string()`: Wykonuje specyficzną operację
-- `format_as()`: Wykonuje specyficzną operację
+- `format()`: Wykonuje format operację jako część podstawowa funkcjonalność
+- `vformat()`: Wykonuje vformat operację jako część podstawowa funkcjonalność
+- `format_to()`: Wykonuje format_to operację jako część podstawowa funkcjonalność
+- `str()`: Wykonuje str operację jako część podstawowa funkcjonalność
+- `parse()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `to_string()`: Konwertuje obiekt do reprezentacji łańcuchowej dla wyświetlenia lub serializacji
+- `format_as()`: Wykonuje format_as operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `far`

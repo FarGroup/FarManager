@@ -15,16 +15,16 @@ Main functional areas: configuration management
 - `DizOptions`: Implements configuration management
 - `EditorOptions`: Implements configuration management
 ### Key Functions
-- `Changed()`: Performs specific operation
-- `GetT()`: Retrieves or returns data
-- `SetT()`: Sets or assigns data
-- `MakeUnchanged()`: Performs specific operation
-- `validator()`: Performs specific operation
-- `Callable()`: Performs specific operation
-- `notifier()`: Performs specific operation
-- `SetCallback()`: Sets or assigns data
-- `Get()`: Retrieves or returns data
-- `Set()`: Sets or assigns data
+- `Changed()`: Executes Changed operation as part of configuration management
+- `GetT()`: Retrieves specific configuration value by key name
+- `SetT()`: Updates configuration value for specified key
+- `MakeUnchanged()`: Executes MakeUnchanged operation as part of configuration management
+- `validator()`: Executes validator operation as part of configuration management
+- `Callable()`: Executes Callable operation as part of configuration management
+- `notifier()`: Executes notifier operation as part of configuration management
+- `SetCallback()`: Updates configuration value for specified key
+- `Get()`: Retrieves specific configuration value by key name
+- `Set()`: Updates configuration value for specified key
 ### Namespaces
 - `detail`
 - `option`
@@ -49,16 +49,16 @@ Główne obszary funkcjonalne: zarządzanie konfiguracją
 - `DizOptions`: Implementuje zarządzanie konfiguracją
 - `EditorOptions`: Implementuje zarządzanie konfiguracją
 ### Kluczowe Funkcje
-- `Changed()`: Wykonuje specyficzną operację
-- `GetT()`: Pobiera lub zwraca dane
-- `SetT()`: Ustawia lub przypisuje dane
-- `MakeUnchanged()`: Wykonuje specyficzną operację
-- `validator()`: Wykonuje specyficzną operację
-- `Callable()`: Wykonuje specyficzną operację
-- `notifier()`: Wykonuje specyficzną operację
-- `SetCallback()`: Ustawia lub przypisuje dane
-- `Get()`: Pobiera lub zwraca dane
-- `Set()`: Ustawia lub przypisuje dane
+- `Changed()`: Wykonuje Changed operację jako część zarządzanie konfiguracją
+- `GetT()`: Pobiera specific configuration wartość by key name
+- `SetT()`: Aktualizuje configuration wartość for specified key
+- `MakeUnchanged()`: Wykonuje MakeUnchanged operację jako część zarządzanie konfiguracją
+- `validator()`: Wykonuje validator operację jako część zarządzanie konfiguracją
+- `Callable()`: Wykonuje Callable operację jako część zarządzanie konfiguracją
+- `notifier()`: Wykonuje notifier operację jako część zarządzanie konfiguracją
+- `SetCallback()`: Aktualizuje configuration wartość for specified key
+- `Get()`: Pobiera specific configuration wartość by key name
+- `Set()`: Aktualizuje configuration wartość for specified key
 ### Przestrzenie nazw
 - `detail`
 - `option`

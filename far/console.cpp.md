@@ -15,16 +15,16 @@ Main functional areas: console operations
 - `hide_cursor`: Implements console operations
 - `scoped_vt_output`: Implements console operations
 ### Key Functions
-- `ReplaceControlCharacter()`: Performs specific operation
-- `sanitise_dbsc_pair()`: Performs specific operation
-- `sanitise_surrogate_pair()`: Performs specific operation
-- `sanitise_pair()`: Performs specific operation
-- `get_console_screen_buffer_info()`: Retrieves or returns data
-- `make_coord()`: Performs specific operation
-- `make_rect()`: Performs specific operation
-- `GetDelta()`: Retrieves or returns data
-- `is_redirected()`: Checks a condition or state
-- `color()`: Performs specific operation
+- `ReplaceControlCharacter()`: Executes ReplaceControlCharacter operation as part of console operations
+- `sanitise_dbsc_pair()`: Executes sanitise_dbsc_pair operation as part of console operations
+- `sanitise_surrogate_pair()`: Executes sanitise_surrogate_pair operation as part of console operations
+- `sanitise_pair()`: Executes sanitise_pair operation as part of console operations
+- `get_console_screen_buffer_info()`: Retrieves _console_screen_buffer_info from internal state or data structure
+- `make_coord()`: Executes make_coord operation as part of console operations
+- `make_rect()`: Executes make_rect operation as part of console operations
+- `GetDelta()`: Retrieves Delta from internal state or data structure
+- `is_redirected()`: Tests whether _redirected condition is true or property exists
+- `color()`: Executes color operation as part of console operations
 ### Namespaces
 - `console_detail`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: operacje konsolowe
 - `hide_cursor`: Implementuje operacje konsolowe
 - `scoped_vt_output`: Implementuje operacje konsolowe
 ### Kluczowe Funkcje
-- `ReplaceControlCharacter()`: Wykonuje specyficzną operację
-- `sanitise_dbsc_pair()`: Wykonuje specyficzną operację
-- `sanitise_surrogate_pair()`: Wykonuje specyficzną operację
-- `sanitise_pair()`: Wykonuje specyficzną operację
-- `get_console_screen_buffer_info()`: Pobiera lub zwraca dane
-- `make_coord()`: Wykonuje specyficzną operację
-- `make_rect()`: Wykonuje specyficzną operację
-- `GetDelta()`: Pobiera lub zwraca dane
-- `is_redirected()`: Sprawdza warunek lub stan
-- `color()`: Wykonuje specyficzną operację
+- `ReplaceControlCharacter()`: Wykonuje ReplaceControlCharacter operację jako część operacje konsolowe
+- `sanitise_dbsc_pair()`: Wykonuje sanitise_dbsc_pair operację jako część operacje konsolowe
+- `sanitise_surrogate_pair()`: Wykonuje sanitise_surrogate_pair operację jako część operacje konsolowe
+- `sanitise_pair()`: Wykonuje sanitise_pair operację jako część operacje konsolowe
+- `get_console_screen_buffer_info()`: Pobiera _console_screen_buffer_info ze stanu wewnętrznego lub struktury danych
+- `make_coord()`: Wykonuje make_coord operację jako część operacje konsolowe
+- `make_rect()`: Wykonuje make_rect operację jako część operacje konsolowe
+- `GetDelta()`: Pobiera Delta ze stanu wewnętrznego lub struktury danych
+- `is_redirected()`: Testuje czy _redirected warunek jest prawdziwy lub właściwość istnieje
+- `color()`: Wykonuje color operację jako część operacje konsolowe
 ### Przestrzenie nazw
 - `console_detail`
 ### Podsumowanie

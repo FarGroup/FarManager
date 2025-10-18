@@ -7,7 +7,7 @@ Main functional areas: core functionality
 - `DlgParam`: Implements core functionality
 - `GetMacroData`: Implements core functionality
 ### Key Functions
-- `static_assert()`: Performs specific operation
+- `static_assert()`: Executes static_assert operation as part of core functionality
 ### Summary
 The `macro.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -21,6 +21,6 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `DlgParam`: Implementuje podstawowa funkcjonalność
 - `GetMacroData`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `static_assert()`: Wykonuje specyficzną operację
+- `static_assert()`: Wykonuje static_assert operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `macro.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

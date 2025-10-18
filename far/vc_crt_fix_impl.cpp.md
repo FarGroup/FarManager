@@ -6,11 +6,11 @@ Main functional areas: core functionality
 ### Key Classes
 - `implementation`: Implements core functionality
 ### Key Functions
-- `GetFunctionPointer()`: Retrieves or returns data
-- `XorPointer()`: Performs specific operation
-- `impl()`: Performs specific operation
-- `atomic_assign()`: Performs specific operation
-- `locale_name_to_lcid()`: Performs specific operation
+- `GetFunctionPointer()`: Retrieves FunctionPointer from internal state or data structure
+- `XorPointer()`: Constructor that initializes XorPointer object with provided parameters
+- `impl()`: Executes impl operation as part of core functionality
+- `atomic_assign()`: Executes atomic_assign operation as part of core functionality
+- `locale_name_to_lcid()`: Executes locale_name_to_lcid operation as part of core functionality
 ### Namespaces
 - `modules`
 ### Summary
@@ -25,11 +25,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `implementation`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetFunctionPointer()`: Pobiera lub zwraca dane
-- `XorPointer()`: Wykonuje specyficzną operację
-- `impl()`: Wykonuje specyficzną operację
-- `atomic_assign()`: Wykonuje specyficzną operację
-- `locale_name_to_lcid()`: Wykonuje specyficzną operację
+- `GetFunctionPointer()`: Pobiera FunctionPointer ze stanu wewnętrznego lub struktury danych
+- `XorPointer()`: Konstruktor inicjalizujący XorPointer obiekt z dostarczonymi parametrami
+- `impl()`: Wykonuje impl operację jako część podstawowa funkcjonalność
+- `atomic_assign()`: Wykonuje atomic_assign operację jako część podstawowa funkcjonalność
+- `locale_name_to_lcid()`: Wykonuje locale_name_to_lcid operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `modules`
 ### Podsumowanie

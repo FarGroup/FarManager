@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Zero()`: Performs specific operation
-- `TDateTime()`: Performs specific operation
-- `Time2Str()`: Performs specific operation
-- `Sec2Str()`: Performs specific operation
-- `FillStartTime()`: Fills buffer or container
-- `DoubleToDate()`: Performs specific operation
-- `DateToDouble()`: Performs specific operation
-- `TimeDiff2TimeStr()`: Performs specific operation
+- `Zero()`: Executes Zero operation as part of core functionality
+- `TDateTime()`: Executes TDateTime operation as part of core functionality
+- `Time2Str()`: Executes Time2Str operation as part of core functionality
+- `Sec2Str()`: Executes Sec2Str operation as part of core functionality
+- `FillStartTime()`: Executes FillStartTime operation as part of core functionality
+- `DoubleToDate()`: Executes DoubleToDate operation as part of core functionality
+- `DateToDouble()`: Executes DateToDouble operation as part of core functionality
+- `TimeDiff2TimeStr()`: Executes TimeDiff2TimeStr operation as part of core functionality
 ### Summary
 The `htime.cpp` file provides essential functionality for core functionality. and contains approximately 8 function(s) to support the Far Manager file manager operations.
 
@@ -20,13 +20,13 @@ The `htime.cpp` file provides essential functionality for core functionality. an
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Zero()`: Wykonuje specyficzną operację
-- `TDateTime()`: Wykonuje specyficzną operację
-- `Time2Str()`: Wykonuje specyficzną operację
-- `Sec2Str()`: Wykonuje specyficzną operację
-- `FillStartTime()`: Wypełnia bufor lub kontener
-- `DoubleToDate()`: Wykonuje specyficzną operację
-- `DateToDouble()`: Wykonuje specyficzną operację
-- `TimeDiff2TimeStr()`: Wykonuje specyficzną operację
+- `Zero()`: Wykonuje Zero operację jako część podstawowa funkcjonalność
+- `TDateTime()`: Wykonuje TDateTime operację jako część podstawowa funkcjonalność
+- `Time2Str()`: Wykonuje Time2Str operację jako część podstawowa funkcjonalność
+- `Sec2Str()`: Wykonuje Sec2Str operację jako część podstawowa funkcjonalność
+- `FillStartTime()`: Wykonuje FillStartTime operację jako część podstawowa funkcjonalność
+- `DoubleToDate()`: Wykonuje DoubleToDate operację jako część podstawowa funkcjonalność
+- `DateToDouble()`: Wykonuje DateToDouble operację jako część podstawowa funkcjonalność
+- `TimeDiff2TimeStr()`: Wykonuje TimeDiff2TimeStr operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `htime.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 8 funkcji wspierających operacje menedżera plików Far Manager.

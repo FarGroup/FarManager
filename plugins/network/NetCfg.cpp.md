@@ -3,10 +3,10 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Config()`: Performs specific operation
-- `Builder()`: Performs specific operation
-- `settings()`: Sets or assigns data
-- `GetSetting()`: Retrieves or returns data
+- `Config()`: Executes Config operation as part of core functionality
+- `Builder()`: Executes Builder operation as part of core functionality
+- `settings()`: Updates tings in internal state or configuration
+- `GetSetting()`: Retrieves Setting from internal state or data structure
 ### Summary
 The `NetCfg.cpp` file provides essential functionality for core functionality. and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -16,9 +16,9 @@ The `NetCfg.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Config()`: Wykonuje specyficzną operację
-- `Builder()`: Wykonuje specyficzną operację
-- `settings()`: Ustawia lub przypisuje dane
-- `GetSetting()`: Pobiera lub zwraca dane
+- `Config()`: Wykonuje Config operację jako część podstawowa funkcjonalność
+- `Builder()`: Wykonuje Builder operację jako część podstawowa funkcjonalność
+- `settings()`: Aktualizuje tings w stanie wewnętrznym lub konfiguracji
+- `GetSetting()`: Pobiera Setting ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `NetCfg.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

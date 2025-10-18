@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `keybar_area`: Implements core functionality
 - `lng`: Implements core functionality
 ### Key Functions
-- `KeyBar()`: Performs specific operation
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `SetLabels()`: Sets or assigns data
-- `SetCustomLabels()`: Sets or assigns data
-- `keybar_area()`: Performs specific operation
-- `Change()`: Performs specific operation
-- `RedrawIfChanged()`: Performs specific operation
-- `DisplayObject()`: Displays or shows content
-- `ClearKeyTitles()`: Clears or resets data
+- `KeyBar()`: Executes KeyBar operation as part of core functionality
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `SetLabels()`: Updates Labels in internal state or configuration
+- `SetCustomLabels()`: Updates CustomLabels in internal state or configuration
+- `keybar_area()`: Executes keybar_area operation as part of core functionality
+- `Change()`: Executes Change operation as part of core functionality
+- `RedrawIfChanged()`: Executes RedrawIfChanged operation as part of core functionality
+- `DisplayObject()`: Displays content or makes visual element visible on screen
+- `ClearKeyTitles()`: Clears all data and resets to initial empty state
 ### Summary
 The `keybar.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `keybar_area`: Implementuje podstawowa funkcjonalność
 - `lng`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `KeyBar()`: Wykonuje specyficzną operację
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `SetLabels()`: Ustawia lub przypisuje dane
-- `SetCustomLabels()`: Ustawia lub przypisuje dane
-- `keybar_area()`: Wykonuje specyficzną operację
-- `Change()`: Wykonuje specyficzną operację
-- `RedrawIfChanged()`: Wykonuje specyficzną operację
-- `DisplayObject()`: Wyświetla lub pokazuje zawartość
-- `ClearKeyTitles()`: Czyści lub resetuje dane
+- `KeyBar()`: Wykonuje KeyBar operację jako część podstawowa funkcjonalność
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `SetLabels()`: Aktualizuje Labels w stanie wewnętrznym lub konfiguracji
+- `SetCustomLabels()`: Aktualizuje CustomLabels w stanie wewnętrznym lub konfiguracji
+- `keybar_area()`: Wykonuje keybar_area operację jako część podstawowa funkcjonalność
+- `Change()`: Wykonuje Change operację jako część podstawowa funkcjonalność
+- `RedrawIfChanged()`: Wykonuje RedrawIfChanged operację jako część podstawowa funkcjonalność
+- `DisplayObject()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `ClearKeyTitles()`: Czyści wszystkie dane i resetuje do początkowego pustego stanu
 ### Podsumowanie
 Plik `keybar.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

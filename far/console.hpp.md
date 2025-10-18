@@ -11,16 +11,16 @@ Main functional areas: console operations
 - `input_queue_inspector`: Implements console operations
 - `stream_buffers_overrider`: Implements console operations
 ### Key Functions
-- `ReplaceControlCharacter()`: Performs specific operation
-- `sanitise_pair()`: Performs specific operation
-- `get_console_screen_buffer_info()`: Retrieves or returns data
-- `Allocate()`: Performs specific operation
-- `Free()`: Performs specific operation
-- `GetInputHandle()`: Retrieves or returns data
-- `GetOutputHandle()`: Retrieves or returns data
-- `GetErrorHandle()`: Retrieves or returns data
-- `GetOriginalInputHandle()`: Retrieves or returns data
-- `GetWindow()`: Retrieves or returns data
+- `ReplaceControlCharacter()`: Executes ReplaceControlCharacter operation as part of console operations
+- `sanitise_pair()`: Executes sanitise_pair operation as part of console operations
+- `get_console_screen_buffer_info()`: Retrieves _console_screen_buffer_info from internal state or data structure
+- `Allocate()`: Executes Allocate operation as part of console operations
+- `Free()`: Executes Free operation as part of console operations
+- `GetInputHandle()`: Retrieves InputHandle from internal state or data structure
+- `GetOutputHandle()`: Retrieves OutputHandle from internal state or data structure
+- `GetErrorHandle()`: Retrieves ErrorHandle from internal state or data structure
+- `GetOriginalInputHandle()`: Retrieves OriginalInputHandle from internal state or data structure
+- `GetWindow()`: Retrieves Window from internal state or data structure
 ### Namespaces
 - `console_detail`
 ### Summary
@@ -40,16 +40,16 @@ Główne obszary funkcjonalne: operacje konsolowe
 - `input_queue_inspector`: Implementuje operacje konsolowe
 - `stream_buffers_overrider`: Implementuje operacje konsolowe
 ### Kluczowe Funkcje
-- `ReplaceControlCharacter()`: Wykonuje specyficzną operację
-- `sanitise_pair()`: Wykonuje specyficzną operację
-- `get_console_screen_buffer_info()`: Pobiera lub zwraca dane
-- `Allocate()`: Wykonuje specyficzną operację
-- `Free()`: Wykonuje specyficzną operację
-- `GetInputHandle()`: Pobiera lub zwraca dane
-- `GetOutputHandle()`: Pobiera lub zwraca dane
-- `GetErrorHandle()`: Pobiera lub zwraca dane
-- `GetOriginalInputHandle()`: Pobiera lub zwraca dane
-- `GetWindow()`: Pobiera lub zwraca dane
+- `ReplaceControlCharacter()`: Wykonuje ReplaceControlCharacter operację jako część operacje konsolowe
+- `sanitise_pair()`: Wykonuje sanitise_pair operację jako część operacje konsolowe
+- `get_console_screen_buffer_info()`: Pobiera _console_screen_buffer_info ze stanu wewnętrznego lub struktury danych
+- `Allocate()`: Wykonuje Allocate operację jako część operacje konsolowe
+- `Free()`: Wykonuje Free operację jako część operacje konsolowe
+- `GetInputHandle()`: Pobiera InputHandle ze stanu wewnętrznego lub struktury danych
+- `GetOutputHandle()`: Pobiera OutputHandle ze stanu wewnętrznego lub struktury danych
+- `GetErrorHandle()`: Pobiera ErrorHandle ze stanu wewnętrznego lub struktury danych
+- `GetOriginalInputHandle()`: Pobiera OriginalInputHandle ze stanu wewnętrznego lub struktury danych
+- `GetWindow()`: Pobiera Window ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `console_detail`
 ### Podsumowanie

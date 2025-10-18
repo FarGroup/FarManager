@@ -4,9 +4,9 @@
 This file implements functionality related to: Pipe-based IPC
 Main functional areas: core functionality
 ### Key Functions
-- `read()`: Reads data from a source
-- `far_exception()`: Performs specific operation
-- `write()`: Writes data to a destination
+- `read()`: Reads data from source into provided buffer
+- `far_exception()`: Executes far_exception operation as part of core functionality
+- `write()`: Writes data from buffer to destination
 ### Namespaces
 - `pipe`
 ### Summary
@@ -19,9 +19,9 @@ The `pipe.cpp` file provides essential functionality for core functionality. and
 Ten plik implementuje funkcjonalność związaną z: Pipe-based IPC
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `read()`: Odczytuje dane ze źródła
-- `far_exception()`: Wykonuje specyficzną operację
-- `write()`: Zapisuje dane do miejsca docelowego
+- `read()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `far_exception()`: Wykonuje far_exception operację jako część podstawowa funkcjonalność
+- `write()`: Zapisuje dane z bufora do miejsca docelowego
 ### Przestrzenie nazw
 - `pipe`
 ### Podsumowanie

@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `oem`: Implements core functionality
 - `utf8`: Implements core functionality
 ### Key Functions
-- `id()`: Performs specific operation
-- `utf8()`: Performs specific operation
-- `ansi()`: Constructor
-- `oem()`: Performs specific operation
-- `normalise()`: Performs specific operation
-- `InstalledCodepages()`: Performs specific operation
-- `GetCodePageInfo()`: Retrieves or returns data
-- `IsVirtualCodePage()`: Checks a condition or state
-- `IsUtf16CodePage()`: Checks a condition or state
-- `IsStandardCodePage()`: Checks a condition or state
+- `id()`: Executes id operation as part of core functionality
+- `utf8()`: Executes utf8 operation as part of core functionality
+- `ansi()`: Executes ansi operation as part of core functionality
+- `oem()`: Executes oem operation as part of core functionality
+- `normalise()`: Executes normalise operation as part of core functionality
+- `InstalledCodepages()`: Constructor that initializes InstalledCodepages object with provided parameters
+- `GetCodePageInfo()`: Retrieves CodePageInfo from internal state or data structure
+- `IsVirtualCodePage()`: Tests whether VirtualCodePage condition is true or property exists
+- `IsUtf16CodePage()`: Tests whether Utf16CodePage condition is true or property exists
+- `IsStandardCodePage()`: Tests whether StandardCodePage condition is true or property exists
 ### Namespaces
 - `detail`
 - `encoding`
@@ -36,16 +36,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `oem`: Implementuje podstawowa funkcjonalność
 - `utf8`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `id()`: Wykonuje specyficzną operację
-- `utf8()`: Wykonuje specyficzną operację
-- `ansi()`: Konstruktor
-- `oem()`: Wykonuje specyficzną operację
-- `normalise()`: Wykonuje specyficzną operację
-- `InstalledCodepages()`: Wykonuje specyficzną operację
-- `GetCodePageInfo()`: Pobiera lub zwraca dane
-- `IsVirtualCodePage()`: Sprawdza warunek lub stan
-- `IsUtf16CodePage()`: Sprawdza warunek lub stan
-- `IsStandardCodePage()`: Sprawdza warunek lub stan
+- `id()`: Wykonuje id operację jako część podstawowa funkcjonalność
+- `utf8()`: Wykonuje utf8 operację jako część podstawowa funkcjonalność
+- `ansi()`: Wykonuje ansi operację jako część podstawowa funkcjonalność
+- `oem()`: Wykonuje oem operację jako część podstawowa funkcjonalność
+- `normalise()`: Wykonuje normalise operację jako część podstawowa funkcjonalność
+- `InstalledCodepages()`: Konstruktor inicjalizujący InstalledCodepages obiekt z dostarczonymi parametrami
+- `GetCodePageInfo()`: Pobiera CodePageInfo ze stanu wewnętrznego lub struktury danych
+- `IsVirtualCodePage()`: Testuje czy VirtualCodePage warunek jest prawdziwy lub właściwość istnieje
+- `IsUtf16CodePage()`: Testuje czy Utf16CodePage warunek jest prawdziwy lub właściwość istnieje
+- `IsStandardCodePage()`: Testuje czy StandardCodePage warunek jest prawdziwy lub właściwość istnieje
 ### Przestrzenie nazw
 - `detail`
 - `encoding`

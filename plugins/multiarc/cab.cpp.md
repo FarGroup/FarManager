@@ -7,13 +7,13 @@ Main functional areas: core functionality
 - `CFFILE`: Implements core functionality
 - `CFHEADER`: Implements core functionality
 ### Key Functions
-- `IsArchive()`: Checks a condition or state
-- `OpenArchive()`: Opens a resource
-- `GetArcItem()`: Retrieves or returns data
-- `CloseArchive()`: Closes a resource
-- `GetSFXPos()`: Retrieves or returns data
-- `GetFormatName()`: Retrieves or returns data
-- `GetDefaultCommands()`: Retrieves or returns data
+- `IsArchive()`: Tests whether Archive condition is true or property exists
+- `OpenArchive()`: Opens resource and prepares it for access operations
+- `GetArcItem()`: Retrieves ArcItem from internal state or data structure
+- `CloseArchive()`: Closes resource and performs cleanup operations
+- `GetSFXPos()`: Retrieves SFXPos from internal state or data structure
+- `GetFormatName()`: Retrieves FormatName from internal state or data structure
+- `GetDefaultCommands()`: Retrieves DefaultCommands from internal state or data structure
 ### Summary
 The `cab.cpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -27,12 +27,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `CFFILE`: Implementuje podstawowa funkcjonalność
 - `CFHEADER`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `IsArchive()`: Sprawdza warunek lub stan
-- `OpenArchive()`: Otwiera zasób
-- `GetArcItem()`: Pobiera lub zwraca dane
-- `CloseArchive()`: Zamyka zasób
-- `GetSFXPos()`: Pobiera lub zwraca dane
-- `GetFormatName()`: Pobiera lub zwraca dane
-- `GetDefaultCommands()`: Pobiera lub zwraca dane
+- `IsArchive()`: Testuje czy Archive warunek jest prawdziwy lub właściwość istnieje
+- `OpenArchive()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetArcItem()`: Pobiera ArcItem ze stanu wewnętrznego lub struktury danych
+- `CloseArchive()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetSFXPos()`: Pobiera SFXPos ze stanu wewnętrznego lub struktury danych
+- `GetFormatName()`: Pobiera FormatName ze stanu wewnętrznego lub struktury danych
+- `GetDefaultCommands()`: Pobiera DefaultCommands ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `cab.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

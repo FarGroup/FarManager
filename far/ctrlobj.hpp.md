@@ -15,11 +15,11 @@ Main functional areas: core functionality
 - `Shortcuts`: Implements core functionality
 - `configuration`: Implements core functionality
 ### Key Functions
-- `Init()`: Initializes or sets up
-- `close()`: Closes a resource
-- `Panels()`: Performs specific operation
-- `CreateDummyFilePanels()`: Creates a new instance or object
-- `CmdLine()`: Performs specific operation
+- `Init()`: Initializes data structures and sets up initial state for operation
+- `close()`: Closes resource and performs cleanup operations
+- `Panels()`: Executes Panels operation as part of core functionality
+- `CreateDummyFilePanels()`: Creates and initializes new DummyFilePanels instance
+- `CmdLine()`: Constructor that initializes CmdLine object with provided parameters
 ### Namespaces
 - `highlight`
 ### Summary
@@ -43,11 +43,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `Shortcuts`: Implementuje podstawowa funkcjonalność
 - `configuration`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Init()`: Inicjalizuje lub konfiguruje
-- `close()`: Zamyka zasób
-- `Panels()`: Wykonuje specyficzną operację
-- `CreateDummyFilePanels()`: Tworzy nową instancję lub obiekt
-- `CmdLine()`: Wykonuje specyficzną operację
+- `Init()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `close()`: Zamyka zasób i wykonuje operacje czyszczące
+- `Panels()`: Wykonuje Panels operację jako część podstawowa funkcjonalność
+- `CreateDummyFilePanels()`: Tworzy i inicjalizuje nowy DummyFilePanels instancję
+- `CmdLine()`: Konstruktor inicjalizujący CmdLine obiekt z dostarczonymi parametrami
 ### Przestrzenie nazw
 - `highlight`
 ### Podsumowanie

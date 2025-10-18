@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `Cvt()`: Performs specific operation
-- `PRThreadCreate()`: Performs specific operation
-- `PRThreadTerminate()`: Performs specific operation
-- `PRThreadSuspend()`: Performs specific operation
-- `PRThreadResume()`: Performs specific operation
-- `PRThreadExit()`: Performs specific operation
-- `PRThreadValid()`: Performs specific operation
-- `PRThreadID()`: Performs specific operation
-- `PRThreadCurrentID()`: Performs specific operation
-- `GetCurrentThreadId()`: Retrieves or returns data
+- `Cvt()`: Executes Cvt operation as part of core functionality
+- `PRThreadCreate()`: Executes PRThreadCreate operation as part of core functionality
+- `PRThreadTerminate()`: Executes PRThreadTerminate operation as part of core functionality
+- `PRThreadSuspend()`: Executes PRThreadSuspend operation as part of core functionality
+- `PRThreadResume()`: Executes PRThreadResume operation as part of core functionality
+- `PRThreadExit()`: Executes PRThreadExit operation as part of core functionality
+- `PRThreadValid()`: Executes PRThreadValid operation as part of core functionality
+- `PRThreadID()`: Executes PRThreadID operation as part of core functionality
+- `PRThreadCurrentID()`: Executes PRThreadCurrentID operation as part of core functionality
+- `GetCurrentThreadId()`: Retrieves CurrentThreadId from internal state or data structure
 ### Summary
 The `threads.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `threads.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Cvt()`: Wykonuje specyficzną operację
-- `PRThreadCreate()`: Wykonuje specyficzną operację
-- `PRThreadTerminate()`: Wykonuje specyficzną operację
-- `PRThreadSuspend()`: Wykonuje specyficzną operację
-- `PRThreadResume()`: Wykonuje specyficzną operację
-- `PRThreadExit()`: Wykonuje specyficzną operację
-- `PRThreadValid()`: Wykonuje specyficzną operację
-- `PRThreadID()`: Wykonuje specyficzną operację
-- `PRThreadCurrentID()`: Wykonuje specyficzną operację
-- `GetCurrentThreadId()`: Pobiera lub zwraca dane
+- `Cvt()`: Wykonuje Cvt operację jako część podstawowa funkcjonalność
+- `PRThreadCreate()`: Wykonuje PRThreadCreate operację jako część podstawowa funkcjonalność
+- `PRThreadTerminate()`: Wykonuje PRThreadTerminate operację jako część podstawowa funkcjonalność
+- `PRThreadSuspend()`: Wykonuje PRThreadSuspend operację jako część podstawowa funkcjonalność
+- `PRThreadResume()`: Wykonuje PRThreadResume operację jako część podstawowa funkcjonalność
+- `PRThreadExit()`: Wykonuje PRThreadExit operację jako część podstawowa funkcjonalność
+- `PRThreadValid()`: Wykonuje PRThreadValid operację jako część podstawowa funkcjonalność
+- `PRThreadID()`: Wykonuje PRThreadID operację jako część podstawowa funkcjonalność
+- `PRThreadCurrentID()`: Wykonuje PRThreadCurrentID operację jako część podstawowa funkcjonalność
+- `GetCurrentThreadId()`: Pobiera CurrentThreadId ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `threads.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

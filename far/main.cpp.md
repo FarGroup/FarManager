@@ -6,16 +6,16 @@ Main functional areas: core functionality
 ### Key Classes
 - `args_context`: Implements core functionality
 ### Key Functions
-- `show_help()`: Displays or shows content
-- `MainProcess()`: Main entry point
-- `full_path_expanded()`: Performs specific operation
-- `InitTemplateProfile()`: Initializes or sets up
-- `InitProfile()`: Initializes or sets up
-- `GetShellProfilePath()`: Retrieves or returns data
-- `is_arg()`: Checks a condition or state
-- `ShowVersion()`: Displays or shows content
-- `log_hook_wow64_status()`: Performs specific operation
-- `parse_argument()`: Parses input data
+- `show_help()`: Displays content or makes visual element visible on screen
+- `MainProcess()`: Executes MainProcess operation as part of core functionality
+- `full_path_expanded()`: Executes full_path_expanded operation as part of core functionality
+- `InitTemplateProfile()`: Initializes data structures and sets up initial state for operation
+- `InitProfile()`: Initializes data structures and sets up initial state for operation
+- `GetShellProfilePath()`: Retrieves ShellProfilePath from internal state or data structure
+- `is_arg()`: Tests whether _arg condition is true or property exists
+- `ShowVersion()`: Displays content or makes visual element visible on screen
+- `log_hook_wow64_status()`: Executes log_hook_wow64_status operation as part of core functionality
+- `parse_argument()`: Parses input string or data into structured format
 ### Namespaces
 - `args`
 ### Summary
@@ -30,16 +30,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `args_context`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `show_help()`: Wyświetla lub pokazuje zawartość
-- `MainProcess()`: Główny punkt wejścia
-- `full_path_expanded()`: Wykonuje specyficzną operację
-- `InitTemplateProfile()`: Inicjalizuje lub konfiguruje
-- `InitProfile()`: Inicjalizuje lub konfiguruje
-- `GetShellProfilePath()`: Pobiera lub zwraca dane
-- `is_arg()`: Sprawdza warunek lub stan
-- `ShowVersion()`: Wyświetla lub pokazuje zawartość
-- `log_hook_wow64_status()`: Wykonuje specyficzną operację
-- `parse_argument()`: Parsuje dane wejściowe
+- `show_help()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `MainProcess()`: Wykonuje MainProcess operację jako część podstawowa funkcjonalność
+- `full_path_expanded()`: Wykonuje full_path_expanded operację jako część podstawowa funkcjonalność
+- `InitTemplateProfile()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `InitProfile()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `GetShellProfilePath()`: Pobiera ShellProfilePath ze stanu wewnętrznego lub struktury danych
+- `is_arg()`: Testuje czy _arg warunek jest prawdziwy lub właściwość istnieje
+- `ShowVersion()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `log_hook_wow64_status()`: Wykonuje log_hook_wow64_status operację jako część podstawowa funkcjonalność
+- `parse_argument()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
 ### Przestrzenie nazw
 - `args`
 ### Podsumowanie

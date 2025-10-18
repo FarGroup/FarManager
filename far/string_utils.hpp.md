@@ -8,16 +8,16 @@ Main functional areas: string utilities
 - `i_searcher`: Implements string utilities
 - `search_replace_string_options`: Implements string utilities
 ### Key Functions
-- `IsEol()`: Checks a condition or state
-- `IsBlankOrEos()`: Checks a condition or state
-- `GetBlanks()`: Retrieves or returns data
-- `GetEols()`: Retrieves or returns data
-- `is_alpha()`: Checks a condition or state
-- `is_alphanumeric()`: Checks a condition or state
-- `is_upper()`: Checks a condition or state
-- `is_lower()`: Checks a condition or state
-- `upper()`: Performs specific operation
-- `lower()`: Performs specific operation
+- `IsEol()`: Tests whether Eol condition is true or property exists
+- `IsBlankOrEos()`: Tests whether BlankOrEos condition is true or property exists
+- `GetBlanks()`: Retrieves Blanks from internal state or data structure
+- `GetEols()`: Retrieves Eols from internal state or data structure
+- `is_alpha()`: Tests whether _alpha condition is true or property exists
+- `is_alphanumeric()`: Tests whether _alphanumeric condition is true or property exists
+- `is_upper()`: Tests whether _upper condition is true or property exists
+- `is_lower()`: Tests whether _lower condition is true or property exists
+- `upper()`: Executes upper operation as part of string utilities
+- `lower()`: Executes lower operation as part of string utilities
 ### Namespaces
 - `detail`
 - `inplace`
@@ -35,16 +35,16 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `i_searcher`: Implementuje narzędzia łańcuchowe
 - `search_replace_string_options`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `IsEol()`: Sprawdza warunek lub stan
-- `IsBlankOrEos()`: Sprawdza warunek lub stan
-- `GetBlanks()`: Pobiera lub zwraca dane
-- `GetEols()`: Pobiera lub zwraca dane
-- `is_alpha()`: Sprawdza warunek lub stan
-- `is_alphanumeric()`: Sprawdza warunek lub stan
-- `is_upper()`: Sprawdza warunek lub stan
-- `is_lower()`: Sprawdza warunek lub stan
-- `upper()`: Wykonuje specyficzną operację
-- `lower()`: Wykonuje specyficzną operację
+- `IsEol()`: Testuje czy Eol warunek jest prawdziwy lub właściwość istnieje
+- `IsBlankOrEos()`: Testuje czy BlankOrEos warunek jest prawdziwy lub właściwość istnieje
+- `GetBlanks()`: Pobiera Blanks ze stanu wewnętrznego lub struktury danych
+- `GetEols()`: Pobiera Eols ze stanu wewnętrznego lub struktury danych
+- `is_alpha()`: Testuje czy _alpha warunek jest prawdziwy lub właściwość istnieje
+- `is_alphanumeric()`: Testuje czy _alphanumeric warunek jest prawdziwy lub właściwość istnieje
+- `is_upper()`: Testuje czy _upper warunek jest prawdziwy lub właściwość istnieje
+- `is_lower()`: Testuje czy _lower warunek jest prawdziwy lub właściwość istnieje
+- `upper()`: Wykonuje upper operację jako część narzędzia łańcuchowe
+- `lower()`: Wykonuje lower operację jako część narzędzia łańcuchowe
 ### Przestrzenie nazw
 - `detail`
 - `inplace`

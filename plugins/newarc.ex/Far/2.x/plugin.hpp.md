@@ -15,16 +15,16 @@ Main functional areas: plugin interface
 - `EditorInfo`: Implements plugin interface
 - `EditorSaveFile`: Implements plugin interface
 ### Key Functions
-- `IsEdit()`: Checks a condition or state
-- `DlgList_SetCurPos()`: Performs specific operation
-- `DlgList_DeleteItem()`: Performs specific operation
-- `DlgList_SetItemStrAsData()`: Performs specific operation
-- `ClosePluginW()`: Closes a resource
-- `CompareW()`: Performs specific operation
-- `ConfigureW()`: Performs specific operation
-- `DeleteFilesW()`: Removes or deletes an item
-- `ExitFARW()`: Performs specific operation
-- `FreeFindDataW()`: Performs specific operation
+- `IsEdit()`: Tests whether Edit condition is true or property exists
+- `DlgList_SetCurPos()`: Executes DlgList_SetCurPos operation as part of plugin interface
+- `DlgList_DeleteItem()`: Executes DlgList_DeleteItem operation as part of plugin interface
+- `DlgList_SetItemStrAsData()`: Executes DlgList_SetItemStrAsData operation as part of plugin interface
+- `ClosePluginW()`: Closes resource and performs cleanup operations
+- `CompareW()`: Executes CompareW operation as part of plugin interface
+- `ConfigureW()`: Executes ConfigureW operation as part of plugin interface
+- `DeleteFilesW()`: Removes FilesW from collection and frees associated resources
+- `ExitFARW()`: Executes ExitFARW operation as part of plugin interface
+- `FreeFindDataW()`: Executes FreeFindDataW operation as part of plugin interface
 ### Summary
 The `plugin.hpp` file provides essential functionality for plugin interface. It defines 56 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `EditorInfo`: Implementuje interfejs wtyczek
 - `EditorSaveFile`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `IsEdit()`: Sprawdza warunek lub stan
-- `DlgList_SetCurPos()`: Wykonuje specyficzną operację
-- `DlgList_DeleteItem()`: Wykonuje specyficzną operację
-- `DlgList_SetItemStrAsData()`: Wykonuje specyficzną operację
-- `ClosePluginW()`: Zamyka zasób
-- `CompareW()`: Wykonuje specyficzną operację
-- `ConfigureW()`: Wykonuje specyficzną operację
-- `DeleteFilesW()`: Usuwa element
-- `ExitFARW()`: Wykonuje specyficzną operację
-- `FreeFindDataW()`: Wykonuje specyficzną operację
+- `IsEdit()`: Testuje czy Edit warunek jest prawdziwy lub właściwość istnieje
+- `DlgList_SetCurPos()`: Wykonuje DlgList_SetCurPos operację jako część interfejs wtyczek
+- `DlgList_DeleteItem()`: Wykonuje DlgList_DeleteItem operację jako część interfejs wtyczek
+- `DlgList_SetItemStrAsData()`: Wykonuje DlgList_SetItemStrAsData operację jako część interfejs wtyczek
+- `ClosePluginW()`: Zamyka zasób i wykonuje operacje czyszczące
+- `CompareW()`: Wykonuje CompareW operację jako część interfejs wtyczek
+- `ConfigureW()`: Wykonuje ConfigureW operację jako część interfejs wtyczek
+- `DeleteFilesW()`: Usuwa FilesW z kolekcji i zwalnia powiązane zasoby
+- `ExitFARW()`: Wykonuje ExitFARW operację jako część interfejs wtyczek
+- `FreeFindDataW()`: Wykonuje FreeFindDataW operację jako część interfejs wtyczek
 ### Podsumowanie
 Plik `plugin.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 56 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

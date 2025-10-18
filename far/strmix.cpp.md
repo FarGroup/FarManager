@@ -8,16 +8,16 @@ Main functional areas: string utilities
 - `tests`: Implements string utilities
 - `units`: Implements string utilities
 ### Key Functions
-- `GroupDigitsImpl()`: Performs specific operation
-- `GroupDigits()`: Performs specific operation
-- `GroupDigitsInvariant()`: Performs specific operation
-- `legacy_InsertQuotes()`: Performs specific operation
-- `InsertRegexpQuote()`: Performs specific operation
-- `truncate_right()`: Performs specific operation
-- `legacy_operation()`: Performs specific operation
-- `truncate_left()`: Performs specific operation
-- `truncate_center()`: Performs specific operation
-- `StartOffset()`: Performs specific operation
+- `GroupDigitsImpl()`: Executes GroupDigitsImpl operation as part of string utilities
+- `GroupDigits()`: Executes GroupDigits operation as part of string utilities
+- `GroupDigitsInvariant()`: Executes GroupDigitsInvariant operation as part of string utilities
+- `legacy_InsertQuotes()`: Constructor that initializes legacy_InsertQuotes object with provided parameters
+- `InsertRegexpQuote()`: Executes InsertRegexpQuote operation as part of string utilities
+- `truncate_right()`: Executes truncate_right operation as part of string utilities
+- `legacy_operation()`: Executes legacy_operation operation as part of string utilities
+- `truncate_left()`: Executes truncate_left operation as part of string utilities
+- `truncate_center()`: Executes truncate_center operation as part of string utilities
+- `StartOffset()`: Executes StartOffset operation as part of string utilities
 ### Namespaces
 - `id`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `tests`: Implementuje narzędzia łańcuchowe
 - `units`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `GroupDigitsImpl()`: Wykonuje specyficzną operację
-- `GroupDigits()`: Wykonuje specyficzną operację
-- `GroupDigitsInvariant()`: Wykonuje specyficzną operację
-- `legacy_InsertQuotes()`: Wykonuje specyficzną operację
-- `InsertRegexpQuote()`: Wykonuje specyficzną operację
-- `truncate_right()`: Wykonuje specyficzną operację
-- `legacy_operation()`: Wykonuje specyficzną operację
-- `truncate_left()`: Wykonuje specyficzną operację
-- `truncate_center()`: Wykonuje specyficzną operację
-- `StartOffset()`: Wykonuje specyficzną operację
+- `GroupDigitsImpl()`: Wykonuje GroupDigitsImpl operację jako część narzędzia łańcuchowe
+- `GroupDigits()`: Wykonuje GroupDigits operację jako część narzędzia łańcuchowe
+- `GroupDigitsInvariant()`: Wykonuje GroupDigitsInvariant operację jako część narzędzia łańcuchowe
+- `legacy_InsertQuotes()`: Konstruktor inicjalizujący legacy_InsertQuotes obiekt z dostarczonymi parametrami
+- `InsertRegexpQuote()`: Wykonuje InsertRegexpQuote operację jako część narzędzia łańcuchowe
+- `truncate_right()`: Wykonuje truncate_right operację jako część narzędzia łańcuchowe
+- `legacy_operation()`: Wykonuje legacy_operation operację jako część narzędzia łańcuchowe
+- `truncate_left()`: Wykonuje truncate_left operację jako część narzędzia łańcuchowe
+- `truncate_center()`: Wykonuje truncate_center operację jako część narzędzia łańcuchowe
+- `StartOffset()`: Wykonuje StartOffset operację jako część narzędzia łańcuchowe
 ### Przestrzenie nazw
 - `id`
 ### Podsumowanie

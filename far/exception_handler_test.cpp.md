@@ -10,16 +10,16 @@ Main functional areas: testing
 - `derived2`: Implements testing
 - `test`: Implements testing
 ### Key Functions
-- `cpp_far()`: Performs specific operation
-- `far_exception()`: Performs specific operation
-- `cpp_far_rethrow()`: Performs specific operation
-- `cpp_far_fatal()`: Performs specific operation
-- `far_fatal_exception()`: Performs specific operation
-- `cpp_std()`: Performs specific operation
-- `cpp_std_lib()`: Performs specific operation
-- `cpp_std_nested()`: Performs specific operation
-- `cpp_std_nested_thread()`: Performs specific operation
-- `cpp_std_bad_alloc()`: Performs specific operation
+- `cpp_far()`: Executes cpp_far operation as part of testing
+- `far_exception()`: Executes far_exception operation as part of testing
+- `cpp_far_rethrow()`: Executes cpp_far_rethrow operation as part of testing
+- `cpp_far_fatal()`: Executes cpp_far_fatal operation as part of testing
+- `far_fatal_exception()`: Executes far_fatal_exception operation as part of testing
+- `cpp_std()`: Executes cpp_std operation as part of testing
+- `cpp_std_lib()`: Executes cpp_std_lib operation as part of testing
+- `cpp_std_nested()`: Executes cpp_std_nested operation as part of testing
+- `cpp_std_nested_thread()`: Executes cpp_std_nested_thread operation as part of testing
+- `cpp_std_bad_alloc()`: Executes cpp_std_bad_alloc operation as part of testing
 ### Namespaces
 - `tests`
 ### Summary
@@ -38,16 +38,16 @@ Główne obszary funkcjonalne: testowanie
 - `derived2`: Implementuje testowanie
 - `test`: Implementuje testowanie
 ### Kluczowe Funkcje
-- `cpp_far()`: Wykonuje specyficzną operację
-- `far_exception()`: Wykonuje specyficzną operację
-- `cpp_far_rethrow()`: Wykonuje specyficzną operację
-- `cpp_far_fatal()`: Wykonuje specyficzną operację
-- `far_fatal_exception()`: Wykonuje specyficzną operację
-- `cpp_std()`: Wykonuje specyficzną operację
-- `cpp_std_lib()`: Wykonuje specyficzną operację
-- `cpp_std_nested()`: Wykonuje specyficzną operację
-- `cpp_std_nested_thread()`: Wykonuje specyficzną operację
-- `cpp_std_bad_alloc()`: Wykonuje specyficzną operację
+- `cpp_far()`: Wykonuje cpp_far operację jako część testowanie
+- `far_exception()`: Wykonuje far_exception operację jako część testowanie
+- `cpp_far_rethrow()`: Wykonuje cpp_far_rethrow operację jako część testowanie
+- `cpp_far_fatal()`: Wykonuje cpp_far_fatal operację jako część testowanie
+- `far_fatal_exception()`: Wykonuje far_fatal_exception operację jako część testowanie
+- `cpp_std()`: Wykonuje cpp_std operację jako część testowanie
+- `cpp_std_lib()`: Wykonuje cpp_std_lib operację jako część testowanie
+- `cpp_std_nested()`: Wykonuje cpp_std_nested operację jako część testowanie
+- `cpp_std_nested_thread()`: Wykonuje cpp_std_nested_thread operację jako część testowanie
+- `cpp_std_bad_alloc()`: Wykonuje cpp_std_bad_alloc operację jako część testowanie
 ### Przestrzenie nazw
 - `tests`
 ### Podsumowanie

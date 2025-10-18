@@ -9,16 +9,16 @@ Main functional areas: core functionality
 - `private_tag`: Implements core functionality
 - `regex_handle`: Implements core functionality
 ### Key Functions
-- `UuidToPlugin()`: Performs specific operation
-- `GetHostPanel()`: Retrieves or returns data
-- `bsearch_comparer_wrapper()`: Performs specific operation
-- `bsearch_comparer()`: Performs specific operation
-- `bsearchex()`: Performs specific operation
-- `qsort_comparer_wrapper()`: Performs specific operation
-- `qsort_comparer()`: Performs specific operation
-- `qsortex()`: Performs specific operation
-- `compare_ordinal_icase()`: Performs specific operation
-- `_vsnwprintf()`: Performs specific operation
+- `UuidToPlugin()`: Constructor that initializes UuidToPlugin object with provided parameters
+- `GetHostPanel()`: Retrieves HostPanel from internal state or data structure
+- `bsearch_comparer_wrapper()`: Executes bsearch_comparer_wrapper operation as part of core functionality
+- `bsearch_comparer()`: Executes bsearch_comparer operation as part of core functionality
+- `bsearchex()`: Constructor that initializes bsearchex object with provided parameters
+- `qsort_comparer_wrapper()`: Executes qsort_comparer_wrapper operation as part of core functionality
+- `qsort_comparer()`: Executes qsort_comparer operation as part of core functionality
+- `qsortex()`: Executes qsortex operation as part of core functionality
+- `compare_ordinal_icase()`: Executes compare_ordinal_icase operation as part of core functionality
+- `_vsnwprintf()`: Executes _vsnwprintf operation as part of core functionality
 ### Namespaces
 - `cfunctions`
 - `magic`
@@ -38,16 +38,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `private_tag`: Implementuje podstawowa funkcjonalność
 - `regex_handle`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `UuidToPlugin()`: Wykonuje specyficzną operację
-- `GetHostPanel()`: Pobiera lub zwraca dane
-- `bsearch_comparer_wrapper()`: Wykonuje specyficzną operację
-- `bsearch_comparer()`: Wykonuje specyficzną operację
-- `bsearchex()`: Wykonuje specyficzną operację
-- `qsort_comparer_wrapper()`: Wykonuje specyficzną operację
-- `qsort_comparer()`: Wykonuje specyficzną operację
-- `qsortex()`: Wykonuje specyficzną operację
-- `compare_ordinal_icase()`: Wykonuje specyficzną operację
-- `_vsnwprintf()`: Wykonuje specyficzną operację
+- `UuidToPlugin()`: Konstruktor inicjalizujący UuidToPlugin obiekt z dostarczonymi parametrami
+- `GetHostPanel()`: Pobiera HostPanel ze stanu wewnętrznego lub struktury danych
+- `bsearch_comparer_wrapper()`: Wykonuje bsearch_comparer_wrapper operację jako część podstawowa funkcjonalność
+- `bsearch_comparer()`: Wykonuje bsearch_comparer operację jako część podstawowa funkcjonalność
+- `bsearchex()`: Konstruktor inicjalizujący bsearchex obiekt z dostarczonymi parametrami
+- `qsort_comparer_wrapper()`: Wykonuje qsort_comparer_wrapper operację jako część podstawowa funkcjonalność
+- `qsort_comparer()`: Wykonuje qsort_comparer operację jako część podstawowa funkcjonalność
+- `qsortex()`: Wykonuje qsortex operację jako część podstawowa funkcjonalność
+- `compare_ordinal_icase()`: Wykonuje compare_ordinal_icase operację jako część podstawowa funkcjonalność
+- `_vsnwprintf()`: Wykonuje _vsnwprintf operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `cfunctions`
 - `magic`

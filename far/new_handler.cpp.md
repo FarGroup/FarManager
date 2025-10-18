@@ -4,13 +4,13 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `_set_new_handler()`: Performs specific operation
-- `_set_new_mode()`: Performs specific operation
-- `_set_new_handler_impl()`: Performs specific operation
-- `_set_new_mode_impl()`: Performs specific operation
-- `invoke_crt_new_handler()`: Performs specific operation
-- `invoke_new_handler()`: Performs specific operation
-- `create_ui()`: Creates a new instance or object
+- `_set_new_handler()`: Executes _set_new_handler operation as part of core functionality
+- `_set_new_mode()`: Executes _set_new_mode operation as part of core functionality
+- `_set_new_handler_impl()`: Executes _set_new_handler_impl operation as part of core functionality
+- `_set_new_mode_impl()`: Executes _set_new_mode_impl operation as part of core functionality
+- `invoke_crt_new_handler()`: Executes invoke_crt_new_handler operation as part of core functionality
+- `invoke_new_handler()`: Executes invoke_new_handler operation as part of core functionality
+- `create_ui()`: Creates and initializes new _ui instance
 ### Namespaces
 - `and`
 ### Summary
@@ -23,13 +23,13 @@ The `new_handler.cpp` file provides essential functionality for core functionali
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `_set_new_handler()`: Wykonuje specyficzną operację
-- `_set_new_mode()`: Wykonuje specyficzną operację
-- `_set_new_handler_impl()`: Wykonuje specyficzną operację
-- `_set_new_mode_impl()`: Wykonuje specyficzną operację
-- `invoke_crt_new_handler()`: Wykonuje specyficzną operację
-- `invoke_new_handler()`: Wykonuje specyficzną operację
-- `create_ui()`: Tworzy nową instancję lub obiekt
+- `_set_new_handler()`: Wykonuje _set_new_handler operację jako część podstawowa funkcjonalność
+- `_set_new_mode()`: Wykonuje _set_new_mode operację jako część podstawowa funkcjonalność
+- `_set_new_handler_impl()`: Wykonuje _set_new_handler_impl operację jako część podstawowa funkcjonalność
+- `_set_new_mode_impl()`: Wykonuje _set_new_mode_impl operację jako część podstawowa funkcjonalność
+- `invoke_crt_new_handler()`: Wykonuje invoke_crt_new_handler operację jako część podstawowa funkcjonalność
+- `invoke_new_handler()`: Wykonuje invoke_new_handler operację jako część podstawowa funkcjonalność
+- `create_ui()`: Tworzy i inicjalizuje nowy _ui instancję
 ### Przestrzenie nazw
 - `and`
 ### Podsumowanie

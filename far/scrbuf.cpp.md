@@ -6,14 +6,14 @@ Main functional areas: screen operations
 ### Key Classes
 - `border`: Implements screen operations
 ### Key Functions
-- `is_visible()`: Checks a condition or state
-- `invalidate_broken_pairs_in_cache()`: Performs specific operation
-- `apply_nt_index_shadow()`: Performs specific operation
-- `apply_index_shadow()`: Performs specific operation
-- `apply_shadow()`: Performs specific operation
-- `bake_shadows()`: Performs specific operation
-- `expand_write_region_if_needed()`: Performs specific operation
-- `Flush()`: Flushes buffered data
+- `is_visible()`: Tests whether _visible condition is true or property exists
+- `invalidate_broken_pairs_in_cache()`: Executes invalidate_broken_pairs_in_cache operation as part of screen operations
+- `apply_nt_index_shadow()`: Executes apply_nt_index_shadow operation as part of screen operations
+- `apply_index_shadow()`: Executes apply_index_shadow operation as part of screen operations
+- `apply_shadow()`: Executes apply_shadow operation as part of screen operations
+- `bake_shadows()`: Executes bake_shadows operation as part of screen operations
+- `expand_write_region_if_needed()`: Executes expand_write_region_if_needed operation as part of screen operations
+- `Flush()`: Executes Flush operation as part of screen operations
 ### Namespaces
 - `colors`
 ### Summary
@@ -28,14 +28,14 @@ Główne obszary funkcjonalne: operacje ekranowe
 ### Kluczowe Klasy
 - `border`: Implementuje operacje ekranowe
 ### Kluczowe Funkcje
-- `is_visible()`: Sprawdza warunek lub stan
-- `invalidate_broken_pairs_in_cache()`: Wykonuje specyficzną operację
-- `apply_nt_index_shadow()`: Wykonuje specyficzną operację
-- `apply_index_shadow()`: Wykonuje specyficzną operację
-- `apply_shadow()`: Wykonuje specyficzną operację
-- `bake_shadows()`: Wykonuje specyficzną operację
-- `expand_write_region_if_needed()`: Wykonuje specyficzną operację
-- `Flush()`: Opróżnia buforowane dane
+- `is_visible()`: Testuje czy _visible warunek jest prawdziwy lub właściwość istnieje
+- `invalidate_broken_pairs_in_cache()`: Wykonuje invalidate_broken_pairs_in_cache operację jako część operacje ekranowe
+- `apply_nt_index_shadow()`: Wykonuje apply_nt_index_shadow operację jako część operacje ekranowe
+- `apply_index_shadow()`: Wykonuje apply_index_shadow operację jako część operacje ekranowe
+- `apply_shadow()`: Wykonuje apply_shadow operację jako część operacje ekranowe
+- `bake_shadows()`: Wykonuje bake_shadows operację jako część operacje ekranowe
+- `expand_write_region_if_needed()`: Wykonuje expand_write_region_if_needed operację jako część operacje ekranowe
+- `Flush()`: Wykonuje Flush operację jako część operacje ekranowe
 ### Przestrzenie nazw
 - `colors`
 ### Podsumowanie

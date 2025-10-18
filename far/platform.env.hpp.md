@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `block`: Implements core functionality
 - `strings`: Implements core functionality
 ### Key Functions
-- `data()`: Performs specific operation
-- `get()`: Retrieves or returns data
-- `set()`: Sets or assigns data
-- `del()`: Performs specific operation
-- `expand()`: Performs specific operation
-- `get_pathext()`: Retrieves or returns data
+- `data()`: Constructor that initializes data object with provided parameters
+- `get()`: Retrieves value from internal state or data structure
+- `set()`: Updates value in internal state or configuration
+- `del()`: Executes del operation as part of core functionality
+- `expand()`: Executes expand operation as part of core functionality
+- `get_pathext()`: Retrieves _pathext from internal state or data structure
 ### Namespaces
 - `os`
 - `provider`
@@ -29,12 +29,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `block`: Implementuje podstawowa funkcjonalność
 - `strings`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `data()`: Wykonuje specyficzną operację
-- `get()`: Pobiera lub zwraca dane
-- `set()`: Ustawia lub przypisuje dane
-- `del()`: Wykonuje specyficzną operację
-- `expand()`: Wykonuje specyficzną operację
-- `get_pathext()`: Pobiera lub zwraca dane
+- `data()`: Konstruktor inicjalizujący dane obiekt z dostarczonymi parametrami
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
+- `set()`: Aktualizuje wartość w stanie wewnętrznym lub konfiguracji
+- `del()`: Wykonuje del operację jako część podstawowa funkcjonalność
+- `expand()`: Wykonuje expand operację jako część podstawowa funkcjonalność
+- `get_pathext()`: Pobiera _pathext ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `os`
 - `provider`

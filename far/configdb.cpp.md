@@ -13,16 +13,16 @@ Main functional areas: configuration management
 - `representation_source`: Implements configuration management
 - `sqlite_boilerplate`: Implements configuration management
 ### Key Functions
-- `representation_source()`: Performs specific operation
-- `Root()`: Performs specific operation
-- `SetRoot()`: Sets or assigns data
-- `GetError()`: Retrieves or returns data
-- `CreateChild()`: Creates a new instance or object
-- `SetAttribute()`: Sets or assigns data
-- `Save()`: Saves data or state
-- `m_AsyncDone()`: Performs specific operation
-- `finish()`: Performs specific operation
-- `serialise_integer()`: Performs specific operation
+- `representation_source()`: Executes representation_source operation as part of configuration management
+- `Root()`: Executes Root operation as part of configuration management
+- `SetRoot()`: Updates configuration value for specified key
+- `GetError()`: Retrieves specific configuration value by key name
+- `CreateChild()`: Creates and initializes new Child instance
+- `SetAttribute()`: Updates configuration value for specified key
+- `Save()`: Persists current configuration settings to storage
+- `m_AsyncDone()`: Executes m_AsyncDone operation as part of configuration management
+- `finish()`: Executes finish operation as part of configuration management
+- `serialise_integer()`: Executes serialise_integer operation as part of configuration management
 ### Summary
 The `configdb.cpp` file provides essential functionality for configuration management. It defines 8 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -42,15 +42,15 @@ Główne obszary funkcjonalne: zarządzanie konfiguracją
 - `representation_source`: Implementuje zarządzanie konfiguracją
 - `sqlite_boilerplate`: Implementuje zarządzanie konfiguracją
 ### Kluczowe Funkcje
-- `representation_source()`: Wykonuje specyficzną operację
-- `Root()`: Wykonuje specyficzną operację
-- `SetRoot()`: Ustawia lub przypisuje dane
-- `GetError()`: Pobiera lub zwraca dane
-- `CreateChild()`: Tworzy nową instancję lub obiekt
-- `SetAttribute()`: Ustawia lub przypisuje dane
-- `Save()`: Zapisuje dane lub stan
-- `m_AsyncDone()`: Wykonuje specyficzną operację
-- `finish()`: Wykonuje specyficzną operację
-- `serialise_integer()`: Wykonuje specyficzną operację
+- `representation_source()`: Wykonuje representation_source operację jako część zarządzanie konfiguracją
+- `Root()`: Wykonuje Root operację jako część zarządzanie konfiguracją
+- `SetRoot()`: Aktualizuje configuration wartość for specified key
+- `GetError()`: Pobiera specific configuration wartość by key name
+- `CreateChild()`: Tworzy i inicjalizuje nowy Child instancję
+- `SetAttribute()`: Aktualizuje configuration wartość for specified key
+- `Save()`: Persists current configuration settings to storage
+- `m_AsyncDone()`: Wykonuje m_AsyncDone operację jako część zarządzanie konfiguracją
+- `finish()`: Wykonuje finish operację jako część zarządzanie konfiguracją
+- `serialise_integer()`: Wykonuje serialise_integer operację jako część zarządzanie konfiguracją
 ### Podsumowanie
 Plik `configdb.cpp` zapewnia podstawową funkcjonalność dla zarządzanie konfiguracją. Definiuje 8 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

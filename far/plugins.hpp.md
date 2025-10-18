@@ -15,16 +15,16 @@ Main functional areas: plugin interface
 - `Viewer`: Implements plugin interface
 - `delayed_deleter`: Implements plugin interface
 ### Key Functions
-- `plugin()`: Performs specific operation
-- `panel()`: Performs specific operation
-- `set_panel()`: Sets or assigns data
-- `delayed_delete()`: Performs specific operation
-- `NotifyExitLuaMacro()`: Performs specific operation
-- `ClosePanel()`: Closes a resource
-- `GetOpenPanelInfo()`: Retrieves or returns data
-- `GetFindData()`: Retrieves or returns data
-- `FreeFindData()`: Performs specific operation
-- `GetVirtualFindData()`: Retrieves or returns data
+- `plugin()`: Executes plugin operation as part of plugin interface
+- `panel()`: Executes panel operation as part of plugin interface
+- `set_panel()`: Updates _panel in internal state or configuration
+- `delayed_delete()`: Executes delayed_delete operation as part of plugin interface
+- `NotifyExitLuaMacro()`: Executes NotifyExitLuaMacro operation as part of plugin interface
+- `ClosePanel()`: Closes resource and performs cleanup operations
+- `GetOpenPanelInfo()`: Retrieves OpenPanelInfo from internal state or data structure
+- `GetFindData()`: Retrieves FindData from internal state or data structure
+- `FreeFindData()`: Executes FreeFindData operation as part of plugin interface
+- `GetVirtualFindData()`: Retrieves VirtualFindData from internal state or data structure
 ### Summary
 The `plugins.hpp` file provides essential functionality for plugin interface. It defines 14 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `Viewer`: Implementuje interfejs wtyczek
 - `delayed_deleter`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `plugin()`: Wykonuje specyficzną operację
-- `panel()`: Wykonuje specyficzną operację
-- `set_panel()`: Ustawia lub przypisuje dane
-- `delayed_delete()`: Wykonuje specyficzną operację
-- `NotifyExitLuaMacro()`: Wykonuje specyficzną operację
-- `ClosePanel()`: Zamyka zasób
-- `GetOpenPanelInfo()`: Pobiera lub zwraca dane
-- `GetFindData()`: Pobiera lub zwraca dane
-- `FreeFindData()`: Wykonuje specyficzną operację
-- `GetVirtualFindData()`: Pobiera lub zwraca dane
+- `plugin()`: Wykonuje plugin operację jako część interfejs wtyczek
+- `panel()`: Wykonuje panel operację jako część interfejs wtyczek
+- `set_panel()`: Aktualizuje _panel w stanie wewnętrznym lub konfiguracji
+- `delayed_delete()`: Wykonuje delayed_delete operację jako część interfejs wtyczek
+- `NotifyExitLuaMacro()`: Wykonuje NotifyExitLuaMacro operację jako część interfejs wtyczek
+- `ClosePanel()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetOpenPanelInfo()`: Pobiera OpenPanelInfo ze stanu wewnętrznego lub struktury danych
+- `GetFindData()`: Pobiera FindData ze stanu wewnętrznego lub struktury danych
+- `FreeFindData()`: Wykonuje FreeFindData operację jako część interfejs wtyczek
+- `GetVirtualFindData()`: Pobiera VirtualFindData ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `plugins.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 14 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `TarGzip`: Implements core functionality
 - `TarPlain`: Implements core functionality
 ### Key Functions
-- `read()`: Reads data from a source
-- `ReadFile()`: Reads data from a source
-- `error()`: Performs specific operation
-- `seek()`: Performs specific operation
-- `SetFilePointer()`: Sets or assigns data
-- `pgzseek()`: Performs specific operation
+- `read()`: Reads data from source into provided buffer
+- `ReadFile()`: Reads data from source into provided buffer
+- `error()`: Executes error operation as part of core functionality
+- `seek()`: Executes seek operation as part of core functionality
+- `SetFilePointer()`: Updates FilePointer in internal state or configuration
+- `pgzseek()`: Executes pgzseek operation as part of core functionality
 ### Summary
 The `ArchiveGzip.hpp` file provides essential functionality for core functionality. It defines 3 class(es) and contains approximately 6 function(s) to support the Far Manager file manager operations.
 
@@ -26,11 +26,11 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `TarGzip`: Implementuje podstawowa funkcjonalność
 - `TarPlain`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `read()`: Odczytuje dane ze źródła
-- `ReadFile()`: Odczytuje dane ze źródła
-- `error()`: Wykonuje specyficzną operację
-- `seek()`: Wykonuje specyficzną operację
-- `SetFilePointer()`: Ustawia lub przypisuje dane
-- `pgzseek()`: Wykonuje specyficzną operację
+- `read()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `ReadFile()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `error()`: Wykonuje error operację jako część podstawowa funkcjonalność
+- `seek()`: Wykonuje seek operację jako część podstawowa funkcjonalność
+- `SetFilePointer()`: Aktualizuje FilePointer w stanie wewnętrznym lub konfiguracji
+- `pgzseek()`: Wykonuje pgzseek operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `ArchiveGzip.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 3 klas(y) i zawiera około 6 funkcji wspierających operacje menedżera plików Far Manager.

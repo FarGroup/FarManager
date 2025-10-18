@@ -15,16 +15,16 @@ Main functional areas: text editing
 - `InternalEditorSessionBookMark`: Implements text editing
 - `KeyBar`: Implements text editing
 ### Key Functions
-- `Editor()`: Performs specific operation
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `VMProcess()`: Performs specific operation
-- `SetCacheParams()`: Sets or assigns data
-- `GetCacheParams()`: Retrieves or returns data
-- `TryCodePage()`: Performs specific operation
-- `SetCodePage()`: Sets or assigns data
-- `KeepInitParameters()`: Performs specific operation
-- `SetStartPos()`: Sets or assigns data
+- `Editor()`: Executes Editor operation as part of text editing
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `VMProcess()`: Processes virtual machine operations or commands
+- `SetCacheParams()`: Updates CacheParams in internal state or configuration
+- `GetCacheParams()`: Retrieves CacheParams from internal state or data structure
+- `TryCodePage()`: Executes TryCodePage operation as part of text editing
+- `SetCodePage()`: Updates CodePage in internal state or configuration
+- `KeepInitParameters()`: Executes KeepInitParameters operation as part of text editing
+- `SetStartPos()`: Updates StartPos in internal state or configuration
 ### Summary
 The `editor.hpp` file provides essential functionality for text editing. It defines 14 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: edycja tekstu
 - `InternalEditorSessionBookMark`: Implementuje edycja tekstu
 - `KeyBar`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `Editor()`: Wykonuje specyficzną operację
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `VMProcess()`: Wykonuje specyficzną operację
-- `SetCacheParams()`: Ustawia lub przypisuje dane
-- `GetCacheParams()`: Pobiera lub zwraca dane
-- `TryCodePage()`: Wykonuje specyficzną operację
-- `SetCodePage()`: Ustawia lub przypisuje dane
-- `KeepInitParameters()`: Wykonuje specyficzną operację
-- `SetStartPos()`: Ustawia lub przypisuje dane
+- `Editor()`: Wykonuje Editor operację jako część edycja tekstu
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
+- `SetCacheParams()`: Aktualizuje CacheParams w stanie wewnętrznym lub konfiguracji
+- `GetCacheParams()`: Pobiera CacheParams ze stanu wewnętrznego lub struktury danych
+- `TryCodePage()`: Wykonuje TryCodePage operację jako część edycja tekstu
+- `SetCodePage()`: Aktualizuje CodePage w stanie wewnętrznym lub konfiguracji
+- `KeepInitParameters()`: Wykonuje KeepInitParameters operację jako część edycja tekstu
+- `SetStartPos()`: Aktualizuje StartPos w stanie wewnętrznym lub konfiguracji
 ### Podsumowanie
 Plik `editor.hpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 14 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

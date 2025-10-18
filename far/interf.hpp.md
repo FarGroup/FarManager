@@ -12,16 +12,16 @@ Main functional areas: singleton implementation
 - `lng`: Implements singleton implementation
 - `position_parser_state`: Implements singleton implementation
 ### Key Functions
-- `ShowTime()`: Displays or shows content
-- `InitConsole()`: Initializes or sets up
-- `CloseConsole()`: Closes a resource
-- `SetFarConsoleMode()`: Sets or assigns data
-- `ChangeConsoleMode()`: Performs specific operation
-- `FlushInputBuffer()`: Flushes buffered data
-- `SetVideoMode()`: Sets or assigns data
-- `ChangeVideoMode()`: Performs specific operation
-- `UpdateScreenSize()`: Updates existing data
-- `GenerateWINDOW_BUFFER_SIZE_EVENT()`: Performs specific operation
+- `ShowTime()`: Displays content or makes visual element visible on screen
+- `InitConsole()`: Initializes data structures and sets up initial state for operation
+- `CloseConsole()`: Closes resource and performs cleanup operations
+- `SetFarConsoleMode()`: Updates FarConsoleMode in internal state or configuration
+- `ChangeConsoleMode()`: Executes ChangeConsoleMode operation as part of singleton implementation
+- `FlushInputBuffer()`: Executes FlushInputBuffer operation as part of singleton implementation
+- `SetVideoMode()`: Updates VideoMode in internal state or configuration
+- `ChangeVideoMode()`: Executes ChangeVideoMode operation as part of singleton implementation
+- `UpdateScreenSize()`: Updates existing data with new values while preserving structure
+- `GenerateWINDOW_BUFFER_SIZE_EVENT()`: Executes GenerateWINDOW_BUFFER_SIZE_EVENT operation as part of singleton implementation
 ### Namespaces
 - `inplace`
 ### Summary
@@ -42,16 +42,16 @@ Główne obszary funkcjonalne: implementacja singletona
 - `lng`: Implementuje implementacja singletona
 - `position_parser_state`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `ShowTime()`: Wyświetla lub pokazuje zawartość
-- `InitConsole()`: Inicjalizuje lub konfiguruje
-- `CloseConsole()`: Zamyka zasób
-- `SetFarConsoleMode()`: Ustawia lub przypisuje dane
-- `ChangeConsoleMode()`: Wykonuje specyficzną operację
-- `FlushInputBuffer()`: Opróżnia buforowane dane
-- `SetVideoMode()`: Ustawia lub przypisuje dane
-- `ChangeVideoMode()`: Wykonuje specyficzną operację
-- `UpdateScreenSize()`: Aktualizuje istniejące dane
-- `GenerateWINDOW_BUFFER_SIZE_EVENT()`: Wykonuje specyficzną operację
+- `ShowTime()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `InitConsole()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `CloseConsole()`: Zamyka zasób i wykonuje operacje czyszczące
+- `SetFarConsoleMode()`: Aktualizuje FarConsoleMode w stanie wewnętrznym lub konfiguracji
+- `ChangeConsoleMode()`: Wykonuje ChangeConsoleMode operację jako część implementacja singletona
+- `FlushInputBuffer()`: Wykonuje FlushInputBuffer operację jako część implementacja singletona
+- `SetVideoMode()`: Aktualizuje VideoMode w stanie wewnętrznym lub konfiguracji
+- `ChangeVideoMode()`: Wykonuje ChangeVideoMode operację jako część implementacja singletona
+- `UpdateScreenSize()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `GenerateWINDOW_BUFFER_SIZE_EVENT()`: Wykonuje GenerateWINDOW_BUFFER_SIZE_EVENT operację jako część implementacja singletona
 ### Przestrzenie nazw
 - `inplace`
 ### Podsumowanie

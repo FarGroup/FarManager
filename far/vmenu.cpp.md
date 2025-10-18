@@ -14,16 +14,16 @@ Main functional areas: menu management
 - `test_segment`: Implements menu management
 - `vmenu_horizontal_tracker`: Implements menu management
 ### Key Functions
-- `item_color_indices()`: Constructor
-- `need_box()`: Performs specific operation
-- `get_box_type()`: Retrieves or returns data
-- `get_service_area_size()`: Retrieves or returns data
-- `fixed_columns_width()`: Performs specific operation
-- `get_title_service_area_size()`: Retrieves or returns data
-- `get_client_rect()`: Retrieves or returns data
-- `need_check_mark()`: Performs specific operation
-- `need_left_hscroll()`: Performs specific operation
-- `need_right_hscroll()`: Performs specific operation
+- `item_color_indices()`: Executes item_color_indices operation as part of menu management
+- `need_box()`: Executes need_box operation as part of menu management
+- `get_box_type()`: Retrieves _box_type from internal state or data structure
+- `get_service_area_size()`: Retrieves _service_area_size from internal state or data structure
+- `fixed_columns_width()`: Executes fixed_columns_width operation as part of menu management
+- `get_title_service_area_size()`: Retrieves _title_service_area_size from internal state or data structure
+- `get_client_rect()`: Retrieves _client_rect from internal state or data structure
+- `need_check_mark()`: Executes need_check_mark operation as part of menu management
+- `need_left_hscroll()`: Executes need_left_hscroll operation as part of menu management
+- `need_right_hscroll()`: Executes need_right_hscroll operation as part of menu management
 ### Namespaces
 - `std`
 ### Summary
@@ -46,16 +46,16 @@ Główne obszary funkcjonalne: zarządzanie menu
 - `test_segment`: Implementuje zarządzanie menu
 - `vmenu_horizontal_tracker`: Implementuje zarządzanie menu
 ### Kluczowe Funkcje
-- `item_color_indices()`: Konstruktor
-- `need_box()`: Wykonuje specyficzną operację
-- `get_box_type()`: Pobiera lub zwraca dane
-- `get_service_area_size()`: Pobiera lub zwraca dane
-- `fixed_columns_width()`: Wykonuje specyficzną operację
-- `get_title_service_area_size()`: Pobiera lub zwraca dane
-- `get_client_rect()`: Pobiera lub zwraca dane
-- `need_check_mark()`: Wykonuje specyficzną operację
-- `need_left_hscroll()`: Wykonuje specyficzną operację
-- `need_right_hscroll()`: Wykonuje specyficzną operację
+- `item_color_indices()`: Wykonuje element_color_indices operację jako część zarządzanie menu
+- `need_box()`: Wykonuje need_box operację jako część zarządzanie menu
+- `get_box_type()`: Pobiera _box_type ze stanu wewnętrznego lub struktury danych
+- `get_service_area_size()`: Pobiera _service_area_size ze stanu wewnętrznego lub struktury danych
+- `fixed_columns_width()`: Wykonuje fixed_columns_width operację jako część zarządzanie menu
+- `get_title_service_area_size()`: Pobiera _title_service_area_size ze stanu wewnętrznego lub struktury danych
+- `get_client_rect()`: Pobiera _client_rect ze stanu wewnętrznego lub struktury danych
+- `need_check_mark()`: Wykonuje need_check_mark operację jako część zarządzanie menu
+- `need_left_hscroll()`: Wykonuje need_left_hscroll operację jako część zarządzanie menu
+- `need_right_hscroll()`: Wykonuje need_right_hscroll operację jako część zarządzanie menu
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

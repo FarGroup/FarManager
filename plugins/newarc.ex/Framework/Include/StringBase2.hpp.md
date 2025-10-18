@@ -9,16 +9,16 @@ Main functional areas: string utilities
 - `StringData`: Implements string utilities
 - `UnicodeTraits`: Implements string utilities
 ### Key Functions
-- `StrLengthW()`: Performs specific operation
-- `StrLengthA()`: Performs specific operation
-- `ConvertString()`: Converts or transforms data
-- `Free()`: Performs specific operation
-- `GetDefaultEncoding()`: Retrieves or returns data
-- `StrLength()`: Performs specific operation
-- `GetAnsiDataLength()`: Retrieves or returns data
-- `MultiByteToWideChar()`: Performs specific operation
-- `CopyAnsiData()`: Copies data
-- `GetUnicodeDataLength()`: Retrieves or returns data
+- `StrLengthW()`: Executes StrLengthW operation as part of string utilities
+- `StrLengthA()`: Executes StrLengthA operation as part of string utilities
+- `ConvertString()`: Converts data from one format or type to another
+- `Free()`: Executes Free operation as part of string utilities
+- `GetDefaultEncoding()`: Retrieves DefaultEncoding from internal state or data structure
+- `StrLength()`: Executes StrLength operation as part of string utilities
+- `GetAnsiDataLength()`: Retrieves AnsiDataLength from internal state or data structure
+- `MultiByteToWideChar()`: Executes MultiByteToWideChar operation as part of string utilities
+- `CopyAnsiData()`: Copies data from source to destination location
+- `GetUnicodeDataLength()`: Retrieves UnicodeDataLength from internal state or data structure
 ### Summary
 The `StringBase2.hpp` file provides essential functionality for string utilities. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `StringData`: Implementuje narzędzia łańcuchowe
 - `UnicodeTraits`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `StrLengthW()`: Wykonuje specyficzną operację
-- `StrLengthA()`: Wykonuje specyficzną operację
-- `ConvertString()`: Konwertuje lub przekształca dane
-- `Free()`: Wykonuje specyficzną operację
-- `GetDefaultEncoding()`: Pobiera lub zwraca dane
-- `StrLength()`: Wykonuje specyficzną operację
-- `GetAnsiDataLength()`: Pobiera lub zwraca dane
-- `MultiByteToWideChar()`: Wykonuje specyficzną operację
-- `CopyAnsiData()`: Kopiuje dane
-- `GetUnicodeDataLength()`: Pobiera lub zwraca dane
+- `StrLengthW()`: Wykonuje StrLengthW operację jako część narzędzia łańcuchowe
+- `StrLengthA()`: Wykonuje StrLengthA operację jako część narzędzia łańcuchowe
+- `ConvertString()`: Konwertuje dane z jednego formatu lub typu do innego
+- `Free()`: Wykonuje Free operację jako część narzędzia łańcuchowe
+- `GetDefaultEncoding()`: Pobiera DefaultEncoding ze stanu wewnętrznego lub struktury danych
+- `StrLength()`: Wykonuje StrLength operację jako część narzędzia łańcuchowe
+- `GetAnsiDataLength()`: Pobiera AnsiDataLength ze stanu wewnętrznego lub struktury danych
+- `MultiByteToWideChar()`: Wykonuje MultiByteToWideChar operację jako część narzędzia łańcuchowe
+- `CopyAnsiData()`: Kopiuje dane ze źródła do miejsca docelowego
+- `GetUnicodeDataLength()`: Pobiera UnicodeDataLength ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `StringBase2.hpp` zapewnia podstawową funkcjonalność dla narzędzia łańcuchowe. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

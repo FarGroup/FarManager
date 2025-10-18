@@ -11,16 +11,16 @@ Main functional areas: singleton implementation
 - `lng`: Implements singleton implementation
 - `system_codepages_enumerator`: Implements singleton implementation
 ### Key Functions
-- `SelectCodePage()`: Performs specific operation
-- `FillCodePagesList()`: Fills buffer or container
-- `FormatName()`: Performs specific operation
-- `UnsupportedDataMessageFull()`: Performs specific operation
-- `GetFavorite()`: Retrieves or returns data
-- `SetFavorite()`: Sets or assigns data
-- `DeleteFavorite()`: Removes or deletes an item
-- `GetFavoritesEnumerator()`: Retrieves or returns data
-- `GetCodePageCustomName()`: Retrieves or returns data
-- `GetMenuItemCodePage()`: Retrieves or returns data
+- `SelectCodePage()`: Executes SelectCodePage operation as part of singleton implementation
+- `FillCodePagesList()`: Executes FillCodePagesList operation as part of singleton implementation
+- `FormatName()`: Executes FormatName operation as part of singleton implementation
+- `UnsupportedDataMessageFull()`: Executes UnsupportedDataMessageFull operation as part of singleton implementation
+- `GetFavorite()`: Retrieves Favorite from internal state or data structure
+- `SetFavorite()`: Updates Favorite in internal state or configuration
+- `DeleteFavorite()`: Removes Favorite from collection and frees associated resources
+- `GetFavoritesEnumerator()`: Retrieves FavoritesEnumerator from internal state or data structure
+- `GetCodePageCustomName()`: Retrieves CodePageCustomName from internal state or data structure
+- `GetMenuItemCodePage()`: Retrieves MenuItemCodePage from internal state or data structure
 ### Summary
 The `codepage_selection.hpp` file provides essential functionality for singleton implementation. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: implementacja singletona
 - `lng`: Implementuje implementacja singletona
 - `system_codepages_enumerator`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `SelectCodePage()`: Wykonuje specyficzną operację
-- `FillCodePagesList()`: Wypełnia bufor lub kontener
-- `FormatName()`: Wykonuje specyficzną operację
-- `UnsupportedDataMessageFull()`: Wykonuje specyficzną operację
-- `GetFavorite()`: Pobiera lub zwraca dane
-- `SetFavorite()`: Ustawia lub przypisuje dane
-- `DeleteFavorite()`: Usuwa element
-- `GetFavoritesEnumerator()`: Pobiera lub zwraca dane
-- `GetCodePageCustomName()`: Pobiera lub zwraca dane
-- `GetMenuItemCodePage()`: Pobiera lub zwraca dane
+- `SelectCodePage()`: Wykonuje SelectCodePage operację jako część implementacja singletona
+- `FillCodePagesList()`: Wykonuje FillCodePagesList operację jako część implementacja singletona
+- `FormatName()`: Wykonuje FormatName operację jako część implementacja singletona
+- `UnsupportedDataMessageFull()`: Wykonuje UnsupportedDataMessageFull operację jako część implementacja singletona
+- `GetFavorite()`: Pobiera Favorite ze stanu wewnętrznego lub struktury danych
+- `SetFavorite()`: Aktualizuje Favorite w stanie wewnętrznym lub konfiguracji
+- `DeleteFavorite()`: Usuwa Favorite z kolekcji i zwalnia powiązane zasoby
+- `GetFavoritesEnumerator()`: Pobiera FavoritesEnumerator ze stanu wewnętrznego lub struktury danych
+- `GetCodePageCustomName()`: Pobiera CodePageCustomName ze stanu wewnętrznego lub struktury danych
+- `GetMenuItemCodePage()`: Pobiera MenuItemCodePage ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `codepage_selection.hpp` zapewnia podstawową funkcjonalność dla implementacja singletona. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

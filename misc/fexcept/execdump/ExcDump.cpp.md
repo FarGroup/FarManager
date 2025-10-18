@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `idLogName()`: Performs specific operation
-- `idFileLog()`: Performs specific operation
-- `LogProcedure()`: Performs specific operation
-- `HEX_SetLogProc()`: Performs specific operation
-- `HEX_StackWalkListAddress()`: Performs specific operation
-- `MakeStackWalkListIP()`: Performs specific operation
-- `HEX_StackWalkListContext()`: Performs specific operation
-- `MakeStackWalkListCTX()`: Performs specific operation
-- `HEX_StackWalkListCurrent()`: Performs specific operation
-- `MakeStackWalkListCUR()`: Performs specific operation
+- `idLogName()`: Executes idLogName operation as part of core functionality
+- `idFileLog()`: Executes idFileLog operation as part of core functionality
+- `LogProcedure()`: Executes LogProcedure operation as part of core functionality
+- `HEX_SetLogProc()`: Executes HEX_SetLogProc operation as part of core functionality
+- `HEX_StackWalkListAddress()`: Executes HEX_StackWalkListAddress operation as part of core functionality
+- `MakeStackWalkListIP()`: Executes MakeStackWalkListIP operation as part of core functionality
+- `HEX_StackWalkListContext()`: Executes HEX_StackWalkListContext operation as part of core functionality
+- `MakeStackWalkListCTX()`: Executes MakeStackWalkListCTX operation as part of core functionality
+- `HEX_StackWalkListCurrent()`: Executes HEX_StackWalkListCurrent operation as part of core functionality
+- `MakeStackWalkListCUR()`: Executes MakeStackWalkListCUR operation as part of core functionality
 ### Summary
 The `ExcDump.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `ExcDump.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `idLogName()`: Wykonuje specyficzną operację
-- `idFileLog()`: Wykonuje specyficzną operację
-- `LogProcedure()`: Wykonuje specyficzną operację
-- `HEX_SetLogProc()`: Wykonuje specyficzną operację
-- `HEX_StackWalkListAddress()`: Wykonuje specyficzną operację
-- `MakeStackWalkListIP()`: Wykonuje specyficzną operację
-- `HEX_StackWalkListContext()`: Wykonuje specyficzną operację
-- `MakeStackWalkListCTX()`: Wykonuje specyficzną operację
-- `HEX_StackWalkListCurrent()`: Wykonuje specyficzną operację
-- `MakeStackWalkListCUR()`: Wykonuje specyficzną operację
+- `idLogName()`: Wykonuje idLogName operację jako część podstawowa funkcjonalność
+- `idFileLog()`: Wykonuje idFileLog operację jako część podstawowa funkcjonalność
+- `LogProcedure()`: Wykonuje LogProcedure operację jako część podstawowa funkcjonalność
+- `HEX_SetLogProc()`: Wykonuje HEX_SetLogProc operację jako część podstawowa funkcjonalność
+- `HEX_StackWalkListAddress()`: Wykonuje HEX_StackWalkListAddress operację jako część podstawowa funkcjonalność
+- `MakeStackWalkListIP()`: Wykonuje MakeStackWalkListIP operację jako część podstawowa funkcjonalność
+- `HEX_StackWalkListContext()`: Wykonuje HEX_StackWalkListContext operację jako część podstawowa funkcjonalność
+- `MakeStackWalkListCTX()`: Wykonuje MakeStackWalkListCTX operację jako część podstawowa funkcjonalność
+- `HEX_StackWalkListCurrent()`: Wykonuje HEX_StackWalkListCurrent operację jako część podstawowa funkcjonalność
+- `MakeStackWalkListCUR()`: Wykonuje MakeStackWalkListCUR operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `ExcDump.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

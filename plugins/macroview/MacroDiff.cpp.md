@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `MenuDialogProc()`: Performs specific operation
-- `MacroDialogProc()`: Performs specific operation
-- `lstrcpy()`: Performs specific operation
-- `DefKeyDialogProc()`: Performs specific operation
-- `CopyDialogProc()`: Copies data
-- `myReadConsoleInputA()`: Performs specific operation
-- `myReadConsoleInputW()`: Performs specific operation
-- `myPeekConsoleInputA()`: Performs specific operation
-- `myPeekConsoleInputW()`: Performs specific operation
-- `ProcessKey()`: Processes data or events
+- `MenuDialogProc()`: Executes MenuDialogProc operation as part of core functionality
+- `MacroDialogProc()`: Executes MacroDialogProc operation as part of core functionality
+- `lstrcpy()`: Executes lstrcpy operation as part of core functionality
+- `DefKeyDialogProc()`: Executes DefKeyDialogProc operation as part of core functionality
+- `CopyDialogProc()`: Copies data from source to destination location
+- `myReadConsoleInputA()`: Executes myReadConsoleInputA operation as part of core functionality
+- `myReadConsoleInputW()`: Executes myReadConsoleInputW operation as part of core functionality
+- `myPeekConsoleInputA()`: Executes myPeekConsoleInputA operation as part of core functionality
+- `myPeekConsoleInputW()`: Executes myPeekConsoleInputW operation as part of core functionality
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
 ### Summary
 The `MacroDiff.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `MacroDiff.cpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `MenuDialogProc()`: Wykonuje specyficzną operację
-- `MacroDialogProc()`: Wykonuje specyficzną operację
-- `lstrcpy()`: Wykonuje specyficzną operację
-- `DefKeyDialogProc()`: Wykonuje specyficzną operację
-- `CopyDialogProc()`: Kopiuje dane
-- `myReadConsoleInputA()`: Wykonuje specyficzną operację
-- `myReadConsoleInputW()`: Wykonuje specyficzną operację
-- `myPeekConsoleInputA()`: Wykonuje specyficzną operację
-- `myPeekConsoleInputW()`: Wykonuje specyficzną operację
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
+- `MenuDialogProc()`: Wykonuje MenuDialogProc operację jako część podstawowa funkcjonalność
+- `MacroDialogProc()`: Wykonuje MacroDialogProc operację jako część podstawowa funkcjonalność
+- `lstrcpy()`: Wykonuje lstrcpy operację jako część podstawowa funkcjonalność
+- `DefKeyDialogProc()`: Wykonuje DefKeyDialogProc operację jako część podstawowa funkcjonalność
+- `CopyDialogProc()`: Kopiuje dane ze źródła do miejsca docelowego
+- `myReadConsoleInputA()`: Wykonuje myReadConsoleInputA operację jako część podstawowa funkcjonalność
+- `myReadConsoleInputW()`: Wykonuje myReadConsoleInputW operację jako część podstawowa funkcjonalność
+- `myPeekConsoleInputA()`: Wykonuje myPeekConsoleInputA operację jako część podstawowa funkcjonalność
+- `myPeekConsoleInputW()`: Wykonuje myPeekConsoleInputW operację jako część podstawowa funkcjonalność
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
 ### Podsumowanie
 Plik `MacroDiff.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

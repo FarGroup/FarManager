@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `MetaReplacer`: Implements core functionality
 - `StringList`: Implements core functionality
 ### Key Functions
-- `OpenArchivePipe()`: Opens a resource
-- `GetString()`: Retrieves or returns data
-- `HexCharToNum()`: Performs specific operation
-- `GetSectionName()`: Retrieves or returns data
-- `GetIniString()`: Retrieves or returns data
-- `GetIniInt()`: Retrieves or returns data
-- `FillFormat()`: Fills buffer or container
-- `MakeFiletime()`: Performs specific operation
-- `StringToInt()`: Performs specific operation
-- `StringToInt64()`: Performs specific operation
+- `OpenArchivePipe()`: Opens resource and prepares it for access operations
+- `GetString()`: Retrieves String from internal state or data structure
+- `HexCharToNum()`: Executes HexCharToNum operation as part of core functionality
+- `GetSectionName()`: Retrieves SectionName from internal state or data structure
+- `GetIniString()`: Retrieves IniString from internal state or data structure
+- `GetIniInt()`: Retrieves IniInt from internal state or data structure
+- `FillFormat()`: Executes FillFormat operation as part of core functionality
+- `MakeFiletime()`: Executes MakeFiletime operation as part of core functionality
+- `StringToInt()`: Executes StringToInt operation as part of core functionality
+- `StringToInt64()`: Executes StringToInt64 operation as part of core functionality
 ### Namespaces
 - `PCRE`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `MetaReplacer`: Implementuje podstawowa funkcjonalność
 - `StringList`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `OpenArchivePipe()`: Otwiera zasób
-- `GetString()`: Pobiera lub zwraca dane
-- `HexCharToNum()`: Wykonuje specyficzną operację
-- `GetSectionName()`: Pobiera lub zwraca dane
-- `GetIniString()`: Pobiera lub zwraca dane
-- `GetIniInt()`: Pobiera lub zwraca dane
-- `FillFormat()`: Wypełnia bufor lub kontener
-- `MakeFiletime()`: Wykonuje specyficzną operację
-- `StringToInt()`: Wykonuje specyficzną operację
-- `StringToInt64()`: Wykonuje specyficzną operację
+- `OpenArchivePipe()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetString()`: Pobiera String ze stanu wewnętrznego lub struktury danych
+- `HexCharToNum()`: Wykonuje HexCharToNum operację jako część podstawowa funkcjonalność
+- `GetSectionName()`: Pobiera SectionName ze stanu wewnętrznego lub struktury danych
+- `GetIniString()`: Pobiera IniString ze stanu wewnętrznego lub struktury danych
+- `GetIniInt()`: Pobiera IniInt ze stanu wewnętrznego lub struktury danych
+- `FillFormat()`: Wykonuje FillFormat operację jako część podstawowa funkcjonalność
+- `MakeFiletime()`: Wykonuje MakeFiletime operację jako część podstawowa funkcjonalność
+- `StringToInt()`: Wykonuje StringToInt operację jako część podstawowa funkcjonalność
+- `StringToInt64()`: Wykonuje StringToInt64 operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `PCRE`
 ### Podsumowanie

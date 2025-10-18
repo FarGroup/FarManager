@@ -9,16 +9,16 @@ Main functional areas: core functionality
 - `elevated`: Implements core functionality
 - `security_attributes_wrapper`: Implements core functionality
 ### Key Functions
-- `CreateBackupRestorePrivilege()`: Creates a new instance or object
-- `WritePipe()`: Writes data to a destination
-- `ReadPipe()`: Reads data from a source
-- `set_attributes()`: Sets or assigns data
-- `set_descriptor()`: Sets or assigns data
-- `PrivilegedHander()`: Performs specific operation
-- `ElevatedHandler()`: Performs specific operation
-- `TerminateChildProcess()`: Performs specific operation
-- `make_admin_sid()`: Performs specific operation
-- `make_explicit_admin_access()`: Performs specific operation
+- `CreateBackupRestorePrivilege()`: Creates and initializes new BackupRestorePrivilege instance
+- `WritePipe()`: Writes data from buffer to destination
+- `ReadPipe()`: Reads data from source into provided buffer
+- `set_attributes()`: Updates _attributes in internal state or configuration
+- `set_descriptor()`: Updates _descriptor in internal state or configuration
+- `PrivilegedHander()`: Executes PrivilegedHander operation as part of core functionality
+- `ElevatedHandler()`: Executes ElevatedHandler operation as part of core functionality
+- `TerminateChildProcess()`: Executes TerminateChildProcess operation as part of core functionality
+- `make_admin_sid()`: Executes make_admin_sid operation as part of core functionality
+- `make_explicit_admin_access()`: Executes make_explicit_admin_access operation as part of core functionality
 ### Summary
 The `elevation.cpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `elevated`: Implementuje podstawowa funkcjonalność
 - `security_attributes_wrapper`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CreateBackupRestorePrivilege()`: Tworzy nową instancję lub obiekt
-- `WritePipe()`: Zapisuje dane do miejsca docelowego
-- `ReadPipe()`: Odczytuje dane ze źródła
-- `set_attributes()`: Ustawia lub przypisuje dane
-- `set_descriptor()`: Ustawia lub przypisuje dane
-- `PrivilegedHander()`: Wykonuje specyficzną operację
-- `ElevatedHandler()`: Wykonuje specyficzną operację
-- `TerminateChildProcess()`: Wykonuje specyficzną operację
-- `make_admin_sid()`: Wykonuje specyficzną operację
-- `make_explicit_admin_access()`: Wykonuje specyficzną operację
+- `CreateBackupRestorePrivilege()`: Tworzy i inicjalizuje nowy BackupRestorePrivilege instancję
+- `WritePipe()`: Zapisuje dane z bufora do miejsca docelowego
+- `ReadPipe()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `set_attributes()`: Aktualizuje _attributes w stanie wewnętrznym lub konfiguracji
+- `set_descriptor()`: Aktualizuje _descriptor w stanie wewnętrznym lub konfiguracji
+- `PrivilegedHander()`: Wykonuje PrivilegedHander operację jako część podstawowa funkcjonalność
+- `ElevatedHandler()`: Wykonuje ElevatedHandler operację jako część podstawowa funkcjonalność
+- `TerminateChildProcess()`: Wykonuje TerminateChildProcess operację jako część podstawowa funkcjonalność
+- `make_admin_sid()`: Wykonuje make_admin_sid operację jako część podstawowa funkcjonalność
+- `make_explicit_admin_access()`: Wykonuje make_explicit_admin_access operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `elevation.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

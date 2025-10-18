@@ -15,16 +15,16 @@ Main functional areas: file system operations
 - `list_data_lock`: Implements file system operations
 - `multifilter`: Implements file system operations
 ### Key Functions
-- `FileListItem()`: Performs specific operation
-- `AllocationSize()`: Performs specific operation
-- `IsNumberOfLinksRead()`: Checks a condition or state
-- `NumberOfLinks()`: Performs specific operation
-- `IsNumberOfStreamsRead()`: Checks a condition or state
-- `NumberOfStreams()`: Performs specific operation
-- `IsStreamsSizeRead()`: Checks a condition or state
-- `StreamsSize()`: Performs specific operation
-- `IsOwnerRead()`: Checks a condition or state
-- `Owner()`: Performs specific operation
+- `FileListItem()`: Executes FileListItem operation as part of file system operations
+- `AllocationSize()`: Executes AllocationSize operation as part of file system operations
+- `IsNumberOfLinksRead()`: Tests whether NumberOfLinksRead condition is true or property exists
+- `NumberOfLinks()`: Executes NumberOfLinks operation as part of file system operations
+- `IsNumberOfStreamsRead()`: Tests whether NumberOfStreamsRead condition is true or property exists
+- `NumberOfStreams()`: Executes NumberOfStreams operation as part of file system operations
+- `IsStreamsSizeRead()`: Tests whether StreamsSizeRead condition is true or property exists
+- `StreamsSize()`: Executes StreamsSize operation as part of file system operations
+- `IsOwnerRead()`: Tests whether OwnerRead condition is true or property exists
+- `Owner()`: Constructor that initializes Owner object with provided parameters
 ### Namespaces
 - `highlight`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `list_data_lock`: Implementuje operacje systemu plików
 - `multifilter`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `FileListItem()`: Wykonuje specyficzną operację
-- `AllocationSize()`: Wykonuje specyficzną operację
-- `IsNumberOfLinksRead()`: Sprawdza warunek lub stan
-- `NumberOfLinks()`: Wykonuje specyficzną operację
-- `IsNumberOfStreamsRead()`: Sprawdza warunek lub stan
-- `NumberOfStreams()`: Wykonuje specyficzną operację
-- `IsStreamsSizeRead()`: Sprawdza warunek lub stan
-- `StreamsSize()`: Wykonuje specyficzną operację
-- `IsOwnerRead()`: Sprawdza warunek lub stan
-- `Owner()`: Wykonuje specyficzną operację
+- `FileListItem()`: Wykonuje FileListItem operację jako część operacje systemu plików
+- `AllocationSize()`: Wykonuje AllocationSize operację jako część operacje systemu plików
+- `IsNumberOfLinksRead()`: Testuje czy NumberOfLinksRead warunek jest prawdziwy lub właściwość istnieje
+- `NumberOfLinks()`: Wykonuje NumberOfLinks operację jako część operacje systemu plików
+- `IsNumberOfStreamsRead()`: Testuje czy NumberOfStreamsRead warunek jest prawdziwy lub właściwość istnieje
+- `NumberOfStreams()`: Wykonuje NumberOfStreams operację jako część operacje systemu plików
+- `IsStreamsSizeRead()`: Testuje czy StreamsSizeRead warunek jest prawdziwy lub właściwość istnieje
+- `StreamsSize()`: Wykonuje StreamsSize operację jako część operacje systemu plików
+- `IsOwnerRead()`: Testuje czy OwnerRead warunek jest prawdziwy lub właściwość istnieje
+- `Owner()`: Konstruktor inicjalizujący Owner obiekt z dostarczonymi parametrami
 ### Przestrzenie nazw
 - `highlight`
 ### Podsumowanie

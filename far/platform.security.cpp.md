@@ -4,12 +4,12 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `lookup_privilege_value()`: Performs specific operation
-- `make_sid()`: Performs specific operation
-- `is_admin()`: Checks a condition or state
-- `elevation_type()`: Performs specific operation
-- `open_current_process_token()`: Opens a resource
-- `handle()`: Handles an event or action
+- `lookup_privilege_value()`: Constructor that initializes lookup_privilege_value object with provided parameters
+- `make_sid()`: Executes make_sid operation as part of core functionality
+- `is_admin()`: Tests whether _admin condition is true or property exists
+- `elevation_type()`: Executes elevation_type operation as part of core functionality
+- `open_current_process_token()`: Opens resource and prepares it for access operations
+- `handle()`: Handles event by executing appropriate response logic
 ### Namespaces
 - `os`
 ### Summary
@@ -22,12 +22,12 @@ The `platform.security.cpp` file provides essential functionality for core funct
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `lookup_privilege_value()`: Wykonuje specyficzną operację
-- `make_sid()`: Wykonuje specyficzną operację
-- `is_admin()`: Sprawdza warunek lub stan
-- `elevation_type()`: Wykonuje specyficzną operację
-- `open_current_process_token()`: Otwiera zasób
-- `handle()`: Obsługuje zdarzenie lub akcję
+- `lookup_privilege_value()`: Konstruktor inicjalizujący lookup_privilege_wartość obiekt z dostarczonymi parametrami
+- `make_sid()`: Wykonuje make_sid operację jako część podstawowa funkcjonalność
+- `is_admin()`: Testuje czy _admin warunek jest prawdziwy lub właściwość istnieje
+- `elevation_type()`: Wykonuje elevation_type operację jako część podstawowa funkcjonalność
+- `open_current_process_token()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `handle()`: Obsługuje zdarzenie wykonując odpowiednią logikę odpowiedzi
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

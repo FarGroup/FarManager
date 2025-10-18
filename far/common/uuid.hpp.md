@@ -5,14 +5,14 @@ Main functional areas: core functionality
 ### Key Classes
 - `separator_t`: Implements core functionality
 ### Key Functions
-- `hex_to_int()`: Performs specific operation
-- `parse_impl()`: Parses input data
-- `parse()`: Parses input data
-- `int_to_hex()`: Performs specific operation
-- `serialise_impl()`: Performs specific operation
-- `serialise()`: Performs specific operation
-- `try_parse()`: Performs specific operation
-- `str()`: Performs specific operation
+- `hex_to_int()`: Executes hex_to_int operation as part of core functionality
+- `parse_impl()`: Parses input string or data into structured format
+- `parse()`: Parses input string or data into structured format
+- `int_to_hex()`: Executes int_to_hex operation as part of core functionality
+- `serialise_impl()`: Executes serialise_impl operation as part of core functionality
+- `serialise()`: Executes serialise operation as part of core functionality
+- `try_parse()`: Executes try_parse operation as part of core functionality
+- `str()`: Executes str operation as part of core functionality
 ### Namespaces
 - `detail`
 - `literals`
@@ -29,14 +29,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `separator_t`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `hex_to_int()`: Wykonuje specyficzną operację
-- `parse_impl()`: Parsuje dane wejściowe
-- `parse()`: Parsuje dane wejściowe
-- `int_to_hex()`: Wykonuje specyficzną operację
-- `serialise_impl()`: Wykonuje specyficzną operację
-- `serialise()`: Wykonuje specyficzną operację
-- `try_parse()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
+- `hex_to_int()`: Wykonuje hex_to_int operację jako część podstawowa funkcjonalność
+- `parse_impl()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `parse()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
+- `int_to_hex()`: Wykonuje int_to_hex operację jako część podstawowa funkcjonalność
+- `serialise_impl()`: Wykonuje serialise_impl operację jako część podstawowa funkcjonalność
+- `serialise()`: Wykonuje serialise operację jako część podstawowa funkcjonalność
+- `try_parse()`: Wykonuje try_parse operację jako część podstawowa funkcjonalność
+- `str()`: Wykonuje str operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `literals`

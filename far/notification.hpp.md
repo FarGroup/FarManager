@@ -12,16 +12,16 @@ Main functional areas: singleton implementation
 - `update_devices_message`: Implements singleton implementation
 - `wm_listener`: Implements singleton implementation
 ### Key Functions
-- `subscribe()`: Performs specific operation
-- `unsubscribe()`: Performs specific operation
-- `notify()`: Performs specific operation
-- `dispatch()`: Performs specific operation
-- `enable_power_notifications()`: Performs specific operation
-- `disable_power_notifications()`: Performs specific operation
-- `suppressor()`: Performs specific operation
-- `commit_add()`: Performs specific operation
-- `commit_remove()`: Performs specific operation
-- `suppress_dispatch()`: Performs specific operation
+- `subscribe()`: Executes subscribe operation as part of singleton implementation
+- `unsubscribe()`: Executes unsubscribe operation as part of singleton implementation
+- `notify()`: Executes notify operation as part of singleton implementation
+- `dispatch()`: Executes dispatch operation as part of singleton implementation
+- `enable_power_notifications()`: Executes enable_power_notifications operation as part of singleton implementation
+- `disable_power_notifications()`: Executes disable_power_notifications operation as part of singleton implementation
+- `suppressor()`: Executes suppressor operation as part of singleton implementation
+- `commit_add()`: Executes commit_add operation as part of singleton implementation
+- `commit_remove()`: Executes commit_remove operation as part of singleton implementation
+- `suppress_dispatch()`: Executes suppress_dispatch operation as part of singleton implementation
 ### Namespaces
 - `detail`
 ### Summary
@@ -42,16 +42,16 @@ Główne obszary funkcjonalne: implementacja singletona
 - `update_devices_message`: Implementuje implementacja singletona
 - `wm_listener`: Implementuje implementacja singletona
 ### Kluczowe Funkcje
-- `subscribe()`: Wykonuje specyficzną operację
-- `unsubscribe()`: Wykonuje specyficzną operację
-- `notify()`: Wykonuje specyficzną operację
-- `dispatch()`: Wykonuje specyficzną operację
-- `enable_power_notifications()`: Wykonuje specyficzną operację
-- `disable_power_notifications()`: Wykonuje specyficzną operację
-- `suppressor()`: Wykonuje specyficzną operację
-- `commit_add()`: Wykonuje specyficzną operację
-- `commit_remove()`: Wykonuje specyficzną operację
-- `suppress_dispatch()`: Wykonuje specyficzną operację
+- `subscribe()`: Wykonuje subscribe operację jako część implementacja singletona
+- `unsubscribe()`: Wykonuje unsubscribe operację jako część implementacja singletona
+- `notify()`: Wykonuje notify operację jako część implementacja singletona
+- `dispatch()`: Wykonuje dispatch operację jako część implementacja singletona
+- `enable_power_notifications()`: Wykonuje enable_power_notifications operację jako część implementacja singletona
+- `disable_power_notifications()`: Wykonuje disable_power_notifications operację jako część implementacja singletona
+- `suppressor()`: Wykonuje suppressor operację jako część implementacja singletona
+- `commit_add()`: Wykonuje commit_add operację jako część implementacja singletona
+- `commit_remove()`: Wykonuje commit_remove operację jako część implementacja singletona
+- `suppress_dispatch()`: Wykonuje suppress_dispatch operację jako część implementacja singletona
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

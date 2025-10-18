@@ -11,16 +11,16 @@ Main functional areas: menu management
 - `private_tag`: Implements menu management
 - `vmenu_fixed_column_t`: Implements menu management
 ### Key Functions
-- `create()`: Creates a new instance or object
-- `GetTypeAndName()`: Retrieves or returns data
-- `GetType()`: Retrieves or returns data
-- `ProcessMouse()`: Processes data or events
-- `SetPosition()`: Sets or assigns data
-- `SendMessage()`: Performs specific operation
-- `Resize()`: Resizes or adjusts dimensions
-- `SetTitle()`: Sets or assigns data
-- `SetBottomTitle()`: Sets or assigns data
-- `SetBoxType()`: Sets or assigns data
+- `create()`: Creates and initializes new object instance
+- `GetTypeAndName()`: Retrieves TypeAndName from internal state or data structure
+- `GetType()`: Retrieves Type from internal state or data structure
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `SetPosition()`: Updates Position in internal state or configuration
+- `SendMessage()`: Executes SendMessage operation as part of menu management
+- `Resize()`: Changes size dimensions while preserving content when possible
+- `SetTitle()`: Updates Title in internal state or configuration
+- `SetBottomTitle()`: Updates BottomTitle in internal state or configuration
+- `SetBoxType()`: Updates BoxType in internal state or configuration
 ### Summary
 The `vmenu2.hpp` file provides essential functionality for menu management. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: zarządzanie menu
 - `private_tag`: Implementuje zarządzanie menu
 - `vmenu_fixed_column_t`: Implementuje zarządzanie menu
 ### Kluczowe Funkcje
-- `create()`: Tworzy nową instancję lub obiekt
-- `GetTypeAndName()`: Pobiera lub zwraca dane
-- `GetType()`: Pobiera lub zwraca dane
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `SetPosition()`: Ustawia lub przypisuje dane
-- `SendMessage()`: Wykonuje specyficzną operację
-- `Resize()`: Zmienia rozmiar lub dostosowuje wymiary
-- `SetTitle()`: Ustawia lub przypisuje dane
-- `SetBottomTitle()`: Ustawia lub przypisuje dane
-- `SetBoxType()`: Ustawia lub przypisuje dane
+- `create()`: Tworzy i inicjalizuje nowy obiekt instancję
+- `GetTypeAndName()`: Pobiera TypeAndName ze stanu wewnętrznego lub struktury danych
+- `GetType()`: Pobiera Type ze stanu wewnętrznego lub struktury danych
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `SetPosition()`: Aktualizuje Position w stanie wewnętrznym lub konfiguracji
+- `SendMessage()`: Wykonuje SendMessage operację jako część zarządzanie menu
+- `Resize()`: Zmienia wymiary rozmiaru zachowując zawartość gdy to możliwe
+- `SetTitle()`: Aktualizuje Title w stanie wewnętrznym lub konfiguracji
+- `SetBottomTitle()`: Aktualizuje BottomTitle w stanie wewnętrznym lub konfiguracji
+- `SetBoxType()`: Aktualizuje BoxType w stanie wewnętrznym lub konfiguracji
 ### Podsumowanie
 Plik `vmenu2.hpp` zapewnia podstawową funkcjonalność dla zarządzanie menu. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

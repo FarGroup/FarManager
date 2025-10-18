@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `OpenProcessForced()`: Opens a resource
-- `OpenProcess()`: Opens a resource
-- `GetPData()`: Retrieves or returns data
-- `FreeUserData()`: Performs specific operation
-- `GetList()`: Retrieves or returns data
-- `l()`: Performs specific operation
-- `ProcessData()`: Processes data or events
-- `KillProcess()`: Performs specific operation
-- `PrintNTCurDirAndEnv()`: Performs specific operation
-- `PrintModuleVersion()`: Performs specific operation
+- `OpenProcessForced()`: Opens resource and prepares it for access operations
+- `OpenProcess()`: Opens resource and prepares it for access operations
+- `GetPData()`: Retrieves PData from internal state or data structure
+- `FreeUserData()`: Executes FreeUserData operation as part of core functionality
+- `GetList()`: Retrieves List from internal state or data structure
+- `l()`: Executes l operation as part of core functionality
+- `ProcessData()`: Processes Data through transformation or handling pipeline
+- `KillProcess()`: Executes KillProcess operation as part of core functionality
+- `PrintNTCurDirAndEnv()`: Executes PrintNTCurDirAndEnv operation as part of core functionality
+- `PrintModuleVersion()`: Executes PrintModuleVersion operation as part of core functionality
 ### Namespaces
 - `std`
 ### Summary
@@ -24,16 +24,16 @@ The `Plist.cpp` file provides essential functionality for core functionality. an
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `OpenProcessForced()`: Otwiera zasób
-- `OpenProcess()`: Otwiera zasób
-- `GetPData()`: Pobiera lub zwraca dane
-- `FreeUserData()`: Wykonuje specyficzną operację
-- `GetList()`: Pobiera lub zwraca dane
-- `l()`: Wykonuje specyficzną operację
-- `ProcessData()`: Przetwarza dane lub zdarzenia
-- `KillProcess()`: Wykonuje specyficzną operację
-- `PrintNTCurDirAndEnv()`: Wykonuje specyficzną operację
-- `PrintModuleVersion()`: Wykonuje specyficzną operację
+- `OpenProcessForced()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `OpenProcess()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetPData()`: Pobiera PData ze stanu wewnętrznego lub struktury danych
+- `FreeUserData()`: Wykonuje FreeUserData operację jako część podstawowa funkcjonalność
+- `GetList()`: Pobiera List ze stanu wewnętrznego lub struktury danych
+- `l()`: Wykonuje l operację jako część podstawowa funkcjonalność
+- `ProcessData()`: Przetwarza Data przez potok transformacji lub obsługi
+- `KillProcess()`: Wykonuje KillProcess operację jako część podstawowa funkcjonalność
+- `PrintNTCurDirAndEnv()`: Wykonuje PrintNTCurDirAndEnv operację jako część podstawowa funkcjonalność
+- `PrintModuleVersion()`: Wykonuje PrintModuleVersion operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

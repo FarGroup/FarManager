@@ -10,13 +10,13 @@ Main functional areas: core functionality
 - `menu_item_ex`: Implements core functionality
 - `shortcut`: Implements core functionality
 ### Key Functions
-- `Shortcuts()`: Performs specific operation
-- `Get()`: Retrieves or returns data
-- `Add()`: Adds an item or element
-- `Configure()`: Performs specific operation
-- `Enumerator()`: Performs specific operation
-- `GetOne()`: Retrieves or returns data
-- `Save()`: Saves data or state
+- `Shortcuts()`: Executes Shortcuts operation as part of core functionality
+- `Get()`: Retrieves value from internal state or data structure
+- `Add()`: Adds new item to collection or list
+- `Configure()`: Executes Configure operation as part of core functionality
+- `Enumerator()`: Executes Enumerator operation as part of core functionality
+- `GetOne()`: Retrieves One from internal state or data structure
+- `Save()`: Saves current state or data to persistent storage
 ### Summary
 The `shortcuts.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -33,12 +33,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `menu_item_ex`: Implementuje podstawowa funkcjonalność
 - `shortcut`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `Shortcuts()`: Wykonuje specyficzną operację
-- `Get()`: Pobiera lub zwraca dane
-- `Add()`: Dodaje element
-- `Configure()`: Wykonuje specyficzną operację
-- `Enumerator()`: Wykonuje specyficzną operację
-- `GetOne()`: Pobiera lub zwraca dane
-- `Save()`: Zapisuje dane lub stan
+- `Shortcuts()`: Wykonuje Shortcuts operację jako część podstawowa funkcjonalność
+- `Get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
+- `Add()`: Dodaje nowy element do kolekcji lub listy
+- `Configure()`: Wykonuje Configure operację jako część podstawowa funkcjonalność
+- `Enumerator()`: Wykonuje Enumerator operację jako część podstawowa funkcjonalność
+- `GetOne()`: Pobiera One ze stanu wewnętrznego lub struktury danych
+- `Save()`: Zapisuje bieżący stan lub dane do trwałego magazynu
 ### Podsumowanie
 Plik `shortcuts.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

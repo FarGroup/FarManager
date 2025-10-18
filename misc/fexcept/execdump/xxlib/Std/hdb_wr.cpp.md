@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `dbWrite()`: Performs specific operation
-- `dbWriteInfo()`: Performs specific operation
-- `HDBWrite()`: Performs specific operation
+- `dbWrite()`: Executes dbWrite operation as part of core functionality
+- `dbWriteInfo()`: Executes dbWriteInfo operation as part of core functionality
+- `HDBWrite()`: Executes HDBWrite operation as part of core functionality
 ### Summary
 The `hdb_wr.cpp` file provides essential functionality for core functionality. and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,8 +15,8 @@ The `hdb_wr.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `dbWrite()`: Wykonuje specyficzną operację
-- `dbWriteInfo()`: Wykonuje specyficzną operację
-- `HDBWrite()`: Wykonuje specyficzną operację
+- `dbWrite()`: Wykonuje dbWrite operację jako część podstawowa funkcjonalność
+- `dbWriteInfo()`: Wykonuje dbWriteInfo operację jako część podstawowa funkcjonalność
+- `HDBWrite()`: Wykonuje HDBWrite operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `hdb_wr.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

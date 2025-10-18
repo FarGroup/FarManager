@@ -8,16 +8,16 @@ Main functional areas: dialog handling
 - `DialogBuilderListItem`: Implements dialog handling
 - `lng`: Implements dialog handling
 ### Key Functions
-- `c_str()`: Performs specific operation
-- `str()`: Performs specific operation
-- `value()`: Performs specific operation
-- `flags()`: Performs specific operation
-- `DialogBuilder()`: Performs specific operation
-- `AddText()`: Adds an item or element
-- `AddCheckbox()`: Adds an item or element
-- `AddTextBefore()`: Adds an item or element
-- `AddTextAfter()`: Adds an item or element
-- `AddButtonAfter()`: Adds an item or element
+- `c_str()`: Constructor that initializes c_str object with provided parameters
+- `str()`: Executes str operation as part of dialog handling
+- `value()`: Executes value operation as part of dialog handling
+- `flags()`: Executes flags operation as part of dialog handling
+- `DialogBuilder()`: Executes DialogBuilder operation as part of dialog handling
+- `AddText()`: Adds new Text to collection or list
+- `AddCheckbox()`: Adds new Checkbox to collection or list
+- `AddTextBefore()`: Adds new TextBefore to collection or list
+- `AddTextAfter()`: Adds new TextAfter to collection or list
+- `AddButtonAfter()`: Adds new ButtonAfter to collection or list
 ### Summary
 The `FarDlgBuilder.hpp` file provides essential functionality for dialog handling. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `DialogBuilderListItem`: Implementuje obsługa dialogów
 - `lng`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `c_str()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
-- `value()`: Wykonuje specyficzną operację
-- `flags()`: Wykonuje specyficzną operację
-- `DialogBuilder()`: Wykonuje specyficzną operację
-- `AddText()`: Dodaje element
-- `AddCheckbox()`: Dodaje element
-- `AddTextBefore()`: Dodaje element
-- `AddTextAfter()`: Dodaje element
-- `AddButtonAfter()`: Dodaje element
+- `c_str()`: Konstruktor inicjalizujący c_str obiekt z dostarczonymi parametrami
+- `str()`: Wykonuje str operację jako część obsługa dialogów
+- `value()`: Wykonuje wartość operację jako część obsługa dialogów
+- `flags()`: Wykonuje flags operację jako część obsługa dialogów
+- `DialogBuilder()`: Wykonuje DialogBuilder operację jako część obsługa dialogów
+- `AddText()`: Dodaje nowy Text do kolekcji lub listy
+- `AddCheckbox()`: Dodaje nowy Checkbox do kolekcji lub listy
+- `AddTextBefore()`: Dodaje nowy TextBefore do kolekcji lub listy
+- `AddTextAfter()`: Dodaje nowy TextAfter do kolekcji lub listy
+- `AddButtonAfter()`: Dodaje nowy ButtonAfter do kolekcji lub listy
 ### Podsumowanie
 Plik `FarDlgBuilder.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

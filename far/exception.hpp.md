@@ -12,16 +12,16 @@ Main functional areas: core functionality
 - `formattable`: Implements core functionality
 - `unknown_exception_t`: Implements core functionality
 ### Key Functions
-- `any()`: Performs specific operation
-- `ErrnoStr()`: Performs specific operation
-- `system_error()`: Performs specific operation
-- `to_string()`: Performs specific operation
-- `source_location_to_string()`: Performs specific operation
-- `message()`: Performs specific operation
-- `location()`: Performs specific operation
-- `far_base_exception()`: Performs specific operation
-- `far_std_exception()`: Performs specific operation
-- `convert_message()`: Converts or transforms data
+- `any()`: Executes any operation as part of core functionality
+- `ErrnoStr()`: Executes ErrnoStr operation as part of core functionality
+- `system_error()`: Executes system_error operation as part of core functionality
+- `to_string()`: Converts object to string representation for display or serialization
+- `source_location_to_string()`: Converts object to string representation for display or serialization
+- `message()`: Constructor that initializes message object with provided parameters
+- `location()`: Constructor that initializes location object with provided parameters
+- `far_base_exception()`: Executes far_base_exception operation as part of core functionality
+- `far_std_exception()`: Executes far_std_exception operation as part of core functionality
+- `convert_message()`: Converts data from one format or type to another
 ### Namespaces
 - `detail`
 ### Summary
@@ -42,16 +42,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `formattable`: Implementuje podstawowa funkcjonalność
 - `unknown_exception_t`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `any()`: Wykonuje specyficzną operację
-- `ErrnoStr()`: Wykonuje specyficzną operację
-- `system_error()`: Wykonuje specyficzną operację
-- `to_string()`: Wykonuje specyficzną operację
-- `source_location_to_string()`: Wykonuje specyficzną operację
-- `message()`: Wykonuje specyficzną operację
-- `location()`: Wykonuje specyficzną operację
-- `far_base_exception()`: Wykonuje specyficzną operację
-- `far_std_exception()`: Wykonuje specyficzną operację
-- `convert_message()`: Konwertuje lub przekształca dane
+- `any()`: Wykonuje any operację jako część podstawowa funkcjonalność
+- `ErrnoStr()`: Wykonuje ErrnoStr operację jako część podstawowa funkcjonalność
+- `system_error()`: Wykonuje system_error operację jako część podstawowa funkcjonalność
+- `to_string()`: Konwertuje obiekt do reprezentacji łańcuchowej dla wyświetlenia lub serializacji
+- `source_location_to_string()`: Konwertuje obiekt do reprezentacji łańcuchowej dla wyświetlenia lub serializacji
+- `message()`: Konstruktor inicjalizujący message obiekt z dostarczonymi parametrami
+- `location()`: Konstruktor inicjalizujący location obiekt z dostarczonymi parametrami
+- `far_base_exception()`: Wykonuje far_base_exception operację jako część podstawowa funkcjonalność
+- `far_std_exception()`: Wykonuje far_std_exception operację jako część podstawowa funkcjonalność
+- `convert_message()`: Konwertuje dane z jednego formatu lub typu do innego
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

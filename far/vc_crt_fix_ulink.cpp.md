@@ -4,16 +4,16 @@
 This file implements functionality related to: Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
 Main functional areas: core functionality
 ### Key Functions
-- `sim_GetModuleHandleExW()`: Performs specific operation
-- `sim_InitializeCriticalSectionEx()`: Performs specific operation
-- `sim_LCMapStringEx()`: Performs specific operation
-- `LCMapStringW()`: Performs specific operation
-- `sim_CompareStringEx()`: Performs specific operation
-- `CompareStringW()`: Performs specific operation
-- `sim_FlsAlloc()`: Performs specific operation
-- `TlsAlloc()`: Performs specific operation
-- `sim_SleepConditionVariableSRW()`: Performs specific operation
-- `sim__unimpl_1arg()`: Performs specific operation
+- `sim_GetModuleHandleExW()`: Executes sim_GetModuleHandleExW operation as part of core functionality
+- `sim_InitializeCriticalSectionEx()`: Executes sim_InitializeCriticalSectionEx operation as part of core functionality
+- `sim_LCMapStringEx()`: Executes sim_LCMapStringEx operation as part of core functionality
+- `LCMapStringW()`: Executes LCMapStringW operation as part of core functionality
+- `sim_CompareStringEx()`: Executes sim_CompareStringEx operation as part of core functionality
+- `CompareStringW()`: Executes CompareStringW operation as part of core functionality
+- `sim_FlsAlloc()`: Executes sim_FlsAlloc operation as part of core functionality
+- `TlsAlloc()`: Executes TlsAlloc operation as part of core functionality
+- `sim_SleepConditionVariableSRW()`: Executes sim_SleepConditionVariableSRW operation as part of core functionality
+- `sim__unimpl_1arg()`: Executes sim__unimpl_1arg operation as part of core functionality
 ### Summary
 The `vc_crt_fix_ulink.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -24,15 +24,15 @@ The `vc_crt_fix_ulink.cpp` file provides essential functionality for core functi
 Ten plik implementuje funkcjonalność związaną z: Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `sim_GetModuleHandleExW()`: Wykonuje specyficzną operację
-- `sim_InitializeCriticalSectionEx()`: Wykonuje specyficzną operację
-- `sim_LCMapStringEx()`: Wykonuje specyficzną operację
-- `LCMapStringW()`: Wykonuje specyficzną operację
-- `sim_CompareStringEx()`: Wykonuje specyficzną operację
-- `CompareStringW()`: Wykonuje specyficzną operację
-- `sim_FlsAlloc()`: Wykonuje specyficzną operację
-- `TlsAlloc()`: Wykonuje specyficzną operację
-- `sim_SleepConditionVariableSRW()`: Wykonuje specyficzną operację
-- `sim__unimpl_1arg()`: Wykonuje specyficzną operację
+- `sim_GetModuleHandleExW()`: Wykonuje sim_GetModuleHandleExW operację jako część podstawowa funkcjonalność
+- `sim_InitializeCriticalSectionEx()`: Wykonuje sim_InitializeCriticalSectionEx operację jako część podstawowa funkcjonalność
+- `sim_LCMapStringEx()`: Wykonuje sim_LCMapStringEx operację jako część podstawowa funkcjonalność
+- `LCMapStringW()`: Wykonuje LCMapStringW operację jako część podstawowa funkcjonalność
+- `sim_CompareStringEx()`: Wykonuje sim_CompareStringEx operację jako część podstawowa funkcjonalność
+- `CompareStringW()`: Wykonuje CompareStringW operację jako część podstawowa funkcjonalność
+- `sim_FlsAlloc()`: Wykonuje sim_FlsAlloc operację jako część podstawowa funkcjonalność
+- `TlsAlloc()`: Wykonuje TlsAlloc operację jako część podstawowa funkcjonalność
+- `sim_SleepConditionVariableSRW()`: Wykonuje sim_SleepConditionVariableSRW operację jako część podstawowa funkcjonalność
+- `sim__unimpl_1arg()`: Wykonuje sim__unimpl_1arg operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `vc_crt_fix_ulink.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

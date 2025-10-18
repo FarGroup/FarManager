@@ -10,16 +10,16 @@ Main functional areas: core functionality
 - `collation_context`: Implements core functionality
 - `lock`: Implements core functionality
 ### Key Functions
-- `GetLastErrorCode()`: Retrieves or returns data
-- `GetLastSystemErrorCode()`: Retrieves or returns data
-- `GetErrorString()`: Retrieves or returns data
-- `GetDatabaseName()`: Retrieves or returns data
-- `string()`: Performs specific operation
-- `GetLastErrorString()`: Retrieves or returns data
-- `is_user_problem()`: Checks a condition or state
-- `far_known_sqlite_exception()`: Performs specific operation
-- `far_sqlite_exception()`: Performs specific operation
-- `throw_exception()`: Performs specific operation
+- `GetLastErrorCode()`: Retrieves LastErrorCode from internal state or data structure
+- `GetLastSystemErrorCode()`: Retrieves LastSystemErrorCode from internal state or data structure
+- `GetErrorString()`: Retrieves ErrorString from internal state or data structure
+- `GetDatabaseName()`: Retrieves DatabaseName from internal state or data structure
+- `string()`: Executes string operation as part of core functionality
+- `GetLastErrorString()`: Retrieves LastErrorString from internal state or data structure
+- `is_user_problem()`: Tests whether _user_problem condition is true or property exists
+- `far_known_sqlite_exception()`: Executes far_known_sqlite_exception operation as part of core functionality
+- `far_sqlite_exception()`: Executes far_sqlite_exception operation as part of core functionality
+- `throw_exception()`: Executes throw_exception operation as part of core functionality
 ### Summary
 The `sqlitedb.cpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `collation_context`: Implementuje podstawowa funkcjonalność
 - `lock`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetLastErrorCode()`: Pobiera lub zwraca dane
-- `GetLastSystemErrorCode()`: Pobiera lub zwraca dane
-- `GetErrorString()`: Pobiera lub zwraca dane
-- `GetDatabaseName()`: Pobiera lub zwraca dane
-- `string()`: Wykonuje specyficzną operację
-- `GetLastErrorString()`: Pobiera lub zwraca dane
-- `is_user_problem()`: Sprawdza warunek lub stan
-- `far_known_sqlite_exception()`: Wykonuje specyficzną operację
-- `far_sqlite_exception()`: Wykonuje specyficzną operację
-- `throw_exception()`: Wykonuje specyficzną operację
+- `GetLastErrorCode()`: Pobiera LastErrorCode ze stanu wewnętrznego lub struktury danych
+- `GetLastSystemErrorCode()`: Pobiera LastSystemErrorCode ze stanu wewnętrznego lub struktury danych
+- `GetErrorString()`: Pobiera ErrorString ze stanu wewnętrznego lub struktury danych
+- `GetDatabaseName()`: Pobiera DatabaseName ze stanu wewnętrznego lub struktury danych
+- `string()`: Wykonuje string operację jako część podstawowa funkcjonalność
+- `GetLastErrorString()`: Pobiera LastErrorString ze stanu wewnętrznego lub struktury danych
+- `is_user_problem()`: Testuje czy _user_problem warunek jest prawdziwy lub właściwość istnieje
+- `far_known_sqlite_exception()`: Wykonuje far_known_sqlite_exception operację jako część podstawowa funkcjonalność
+- `far_sqlite_exception()`: Wykonuje far_sqlite_exception operację jako część podstawowa funkcjonalność
+- `throw_exception()`: Wykonuje throw_exception operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `sqlitedb.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

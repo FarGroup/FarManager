@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `THREAD_BASIC_INFORMATION`: Implements core functionality
 - `test`: Implements core functionality
 ### Key Functions
-- `GetProcessId()`: Retrieves or returns data
-- `GetThreadId()`: Retrieves or returns data
-- `to_string()`: Performs specific operation
-- `GetFileName()`: Retrieves or returns data
-- `GetFileNameThread()`: Retrieves or returns data
-- `GetTypeToken()`: Retrieves or returns data
-- `GetTypeFromTypeToken()`: Retrieves or returns data
-- `GetUserAccountID()`: Retrieves or returns data
-- `GetNameByType()`: Retrieves or returns data
-- `l()`: Performs specific operation
+- `GetProcessId()`: Retrieves ProcessId from internal state or data structure
+- `GetThreadId()`: Retrieves ThreadId from internal state or data structure
+- `to_string()`: Converts object to string representation for display or serialization
+- `GetFileName()`: Retrieves FileName from internal state or data structure
+- `GetFileNameThread()`: Retrieves FileNameThread from internal state or data structure
+- `GetTypeToken()`: Retrieves TypeToken from internal state or data structure
+- `GetTypeFromTypeToken()`: Retrieves TypeFromTypeToken from internal state or data structure
+- `GetUserAccountID()`: Retrieves UserAccountID from internal state or data structure
+- `GetNameByType()`: Retrieves NameByType from internal state or data structure
+- `l()`: Executes l operation as part of core functionality
 ### Namespaces
 - `std`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `THREAD_BASIC_INFORMATION`: Implementuje podstawowa funkcjonalność
 - `test`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetProcessId()`: Pobiera lub zwraca dane
-- `GetThreadId()`: Pobiera lub zwraca dane
-- `to_string()`: Wykonuje specyficzną operację
-- `GetFileName()`: Pobiera lub zwraca dane
-- `GetFileNameThread()`: Pobiera lub zwraca dane
-- `GetTypeToken()`: Pobiera lub zwraca dane
-- `GetTypeFromTypeToken()`: Pobiera lub zwraca dane
-- `GetUserAccountID()`: Pobiera lub zwraca dane
-- `GetNameByType()`: Pobiera lub zwraca dane
-- `l()`: Wykonuje specyficzną operację
+- `GetProcessId()`: Pobiera ProcessId ze stanu wewnętrznego lub struktury danych
+- `GetThreadId()`: Pobiera ThreadId ze stanu wewnętrznego lub struktury danych
+- `to_string()`: Konwertuje obiekt do reprezentacji łańcuchowej dla wyświetlenia lub serializacji
+- `GetFileName()`: Pobiera FileName ze stanu wewnętrznego lub struktury danych
+- `GetFileNameThread()`: Pobiera FileNameThread ze stanu wewnętrznego lub struktury danych
+- `GetTypeToken()`: Pobiera TypeToken ze stanu wewnętrznego lub struktury danych
+- `GetTypeFromTypeToken()`: Pobiera TypeFromTypeToken ze stanu wewnętrznego lub struktury danych
+- `GetUserAccountID()`: Pobiera UserAccountID ze stanu wewnętrznego lub struktury danych
+- `GetNameByType()`: Pobiera NameByType ze stanu wewnętrznego lub struktury danych
+- `l()`: Wykonuje l operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

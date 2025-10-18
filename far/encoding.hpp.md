@@ -12,15 +12,15 @@ Main functional areas: core functionality
 - `utf8_or_ansi`: Implements core functionality
 - `writer`: Implements core functionality
 ### Key Functions
-- `diagnostics()`: Performs specific operation
-- `clear()`: Clears or resets data
-- `set_is_utf8()`: Sets or assigns data
-- `get_is_utf8()`: Retrieves or returns data
-- `error_data()`: Performs specific operation
-- `get_bytes()`: Retrieves or returns data
-- `get_bytes_count()`: Retrieves or returns data
-- `get_chars()`: Retrieves or returns data
-- `get_chars_count()`: Retrieves or returns data
+- `diagnostics()`: Executes diagnostics operation as part of core functionality
+- `clear()`: Clears all data and resets to initial empty state
+- `set_is_utf8()`: Updates _is_utf8 in internal state or configuration
+- `get_is_utf8()`: Retrieves _is_utf8 from internal state or data structure
+- `error_data()`: Executes error_data operation as part of core functionality
+- `get_bytes()`: Retrieves _bytes from internal state or data structure
+- `get_bytes_count()`: Retrieves _bytes_count from internal state or data structure
+- `get_chars()`: Retrieves _chars from internal state or data structure
+- `get_chars_count()`: Retrieves _chars_count from internal state or data structure
 ### Namespaces
 - `Utf8`
 - `detail`
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `utf8_or_ansi`: Implementuje podstawowa funkcjonalność
 - `writer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `diagnostics()`: Wykonuje specyficzną operację
-- `clear()`: Czyści lub resetuje dane
-- `set_is_utf8()`: Ustawia lub przypisuje dane
-- `get_is_utf8()`: Pobiera lub zwraca dane
-- `error_data()`: Wykonuje specyficzną operację
-- `get_bytes()`: Pobiera lub zwraca dane
-- `get_bytes_count()`: Pobiera lub zwraca dane
-- `get_chars()`: Pobiera lub zwraca dane
-- `get_chars_count()`: Pobiera lub zwraca dane
+- `diagnostics()`: Wykonuje diagnostics operację jako część podstawowa funkcjonalność
+- `clear()`: Czyści wszystkie dane i resetuje do początkowego pustego stanu
+- `set_is_utf8()`: Aktualizuje _is_utf8 w stanie wewnętrznym lub konfiguracji
+- `get_is_utf8()`: Pobiera _is_utf8 ze stanu wewnętrznego lub struktury danych
+- `error_data()`: Wykonuje error_dane operację jako część podstawowa funkcjonalność
+- `get_bytes()`: Pobiera _bytes ze stanu wewnętrznego lub struktury danych
+- `get_bytes_count()`: Pobiera _bytes_count ze stanu wewnętrznego lub struktury danych
+- `get_chars()`: Pobiera _chars ze stanu wewnętrznego lub struktury danych
+- `get_chars_count()`: Pobiera _chars_count ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `Utf8`
 - `detail`

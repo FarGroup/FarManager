@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `language_item`: Implements core functionality
 - `layout_item`: Implements core functionality
 ### Key Functions
-- `ApiDynamicStringReceiverImpl()`: Performs specific operation
-- `single_wait()`: Performs specific operation
-- `multi_wait()`: Performs specific operation
-- `set_error_mode()`: Sets or assigns data
-- `unset_error_mode()`: Performs specific operation
-- `get_last_nt_status()`: Retrieves or returns data
-- `get_last_error()`: Retrieves or returns data
-- `set_last_nt_status()`: Sets or assigns data
-- `set_last_error_from_ntstatus()`: Sets or assigns data
-- `postprocess_error_string()`: Performs specific operation
+- `ApiDynamicStringReceiverImpl()`: Executes ApiDynamicStringReceiverImpl operation as part of core functionality
+- `single_wait()`: Executes single_wait operation as part of core functionality
+- `multi_wait()`: Executes multi_wait operation as part of core functionality
+- `set_error_mode()`: Updates _error_mode in internal state or configuration
+- `unset_error_mode()`: Executes unset_error_mode operation as part of core functionality
+- `get_last_nt_status()`: Retrieves _last_nt_status from internal state or data structure
+- `get_last_error()`: Retrieves _last_error from internal state or data structure
+- `set_last_nt_status()`: Updates _last_nt_status in internal state or configuration
+- `set_last_error_from_ntstatus()`: Updates _last_error_from_ntstatus in internal state or configuration
+- `postprocess_error_string()`: Executes postprocess_error_string operation as part of core functionality
 ### Namespaces
 - `detail`
 - `os`
@@ -37,16 +37,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `language_item`: Implementuje podstawowa funkcjonalność
 - `layout_item`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ApiDynamicStringReceiverImpl()`: Wykonuje specyficzną operację
-- `single_wait()`: Wykonuje specyficzną operację
-- `multi_wait()`: Wykonuje specyficzną operację
-- `set_error_mode()`: Ustawia lub przypisuje dane
-- `unset_error_mode()`: Wykonuje specyficzną operację
-- `get_last_nt_status()`: Pobiera lub zwraca dane
-- `get_last_error()`: Pobiera lub zwraca dane
-- `set_last_nt_status()`: Ustawia lub przypisuje dane
-- `set_last_error_from_ntstatus()`: Ustawia lub przypisuje dane
-- `postprocess_error_string()`: Wykonuje specyficzną operację
+- `ApiDynamicStringReceiverImpl()`: Wykonuje ApiDynamicStringReceiverImpl operację jako część podstawowa funkcjonalność
+- `single_wait()`: Wykonuje single_wait operację jako część podstawowa funkcjonalność
+- `multi_wait()`: Wykonuje multi_wait operację jako część podstawowa funkcjonalność
+- `set_error_mode()`: Aktualizuje _error_mode w stanie wewnętrznym lub konfiguracji
+- `unset_error_mode()`: Wykonuje unset_error_mode operację jako część podstawowa funkcjonalność
+- `get_last_nt_status()`: Pobiera _last_nt_status ze stanu wewnętrznego lub struktury danych
+- `get_last_error()`: Pobiera _last_error ze stanu wewnętrznego lub struktury danych
+- `set_last_nt_status()`: Aktualizuje _last_nt_status w stanie wewnętrznym lub konfiguracji
+- `set_last_error_from_ntstatus()`: Aktualizuje _last_error_from_ntstatus w stanie wewnętrznym lub konfiguracji
+- `postprocess_error_string()`: Wykonuje postprocess_error_string operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `os`

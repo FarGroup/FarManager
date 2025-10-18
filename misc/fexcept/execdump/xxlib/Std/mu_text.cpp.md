@@ -3,11 +3,11 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `AttrStrLen()`: Performs specific operation
-- `MakeOuttedStr()`: Performs specific operation
-- `Str2Text()`: Performs specific operation
-- `Text2Str()`: Performs specific operation
-- `Text2Bytes()`: Performs specific operation
+- `AttrStrLen()`: Executes AttrStrLen operation as part of core functionality
+- `MakeOuttedStr()`: Executes MakeOuttedStr operation as part of core functionality
+- `Str2Text()`: Executes Str2Text operation as part of core functionality
+- `Text2Str()`: Executes Text2Str operation as part of core functionality
+- `Text2Bytes()`: Executes Text2Bytes operation as part of core functionality
 ### Summary
 The `mu_text.cpp` file provides essential functionality for core functionality. and contains approximately 5 function(s) to support the Far Manager file manager operations.
 
@@ -17,10 +17,10 @@ The `mu_text.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `AttrStrLen()`: Wykonuje specyficzną operację
-- `MakeOuttedStr()`: Wykonuje specyficzną operację
-- `Str2Text()`: Wykonuje specyficzną operację
-- `Text2Str()`: Wykonuje specyficzną operację
-- `Text2Bytes()`: Wykonuje specyficzną operację
+- `AttrStrLen()`: Wykonuje AttrStrLen operację jako część podstawowa funkcjonalność
+- `MakeOuttedStr()`: Wykonuje MakeOuttedStr operację jako część podstawowa funkcjonalność
+- `Str2Text()`: Wykonuje Str2Text operację jako część podstawowa funkcjonalność
+- `Text2Str()`: Wykonuje Text2Str operację jako część podstawowa funkcjonalność
+- `Text2Bytes()`: Wykonuje Text2Bytes operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `mu_text.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 5 funkcji wspierających operacje menedżera plików Far Manager.

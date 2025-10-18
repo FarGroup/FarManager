@@ -7,14 +7,14 @@ Main functional areas: core functionality
 - `i_shared_mutex`: Implements core functionality
 - `s`: Implements core functionality
 ### Key Functions
-- `far_fatal_exception()`: Performs specific operation
-- `lock()`: Performs specific operation
-- `try_lock()`: Performs specific operation
-- `unlock()`: Performs specific operation
-- `lock_shared()`: Performs specific operation
-- `try_lock_shared()`: Performs specific operation
-- `unlock_shared()`: Performs specific operation
-- `wrapper()`: Performs specific operation
+- `far_fatal_exception()`: Executes far_fatal_exception operation as part of core functionality
+- `lock()`: Executes lock operation as part of core functionality
+- `try_lock()`: Executes try_lock operation as part of core functionality
+- `unlock()`: Executes unlock operation as part of core functionality
+- `lock_shared()`: Executes lock_shared operation as part of core functionality
+- `try_lock_shared()`: Executes try_lock_shared operation as part of core functionality
+- `unlock_shared()`: Executes unlock_shared operation as part of core functionality
+- `wrapper()`: Executes wrapper operation as part of core functionality
 ### Namespaces
 - `detail`
 - `os`
@@ -31,14 +31,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `i_shared_mutex`: Implementuje podstawowa funkcjonalność
 - `s`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `far_fatal_exception()`: Wykonuje specyficzną operację
-- `lock()`: Wykonuje specyficzną operację
-- `try_lock()`: Wykonuje specyficzną operację
-- `unlock()`: Wykonuje specyficzną operację
-- `lock_shared()`: Wykonuje specyficzną operację
-- `try_lock_shared()`: Wykonuje specyficzną operację
-- `unlock_shared()`: Wykonuje specyficzną operację
-- `wrapper()`: Wykonuje specyficzną operację
+- `far_fatal_exception()`: Wykonuje far_fatal_exception operację jako część podstawowa funkcjonalność
+- `lock()`: Wykonuje lock operację jako część podstawowa funkcjonalność
+- `try_lock()`: Wykonuje try_lock operację jako część podstawowa funkcjonalność
+- `unlock()`: Wykonuje unlock operację jako część podstawowa funkcjonalność
+- `lock_shared()`: Wykonuje lock_shared operację jako część podstawowa funkcjonalność
+- `try_lock_shared()`: Wykonuje try_lock_shared operację jako część podstawowa funkcjonalność
+- `unlock_shared()`: Wykonuje unlock_shared operację jako część podstawowa funkcjonalność
+- `wrapper()`: Wykonuje wrapper operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `os`

@@ -8,16 +8,16 @@ Main functional areas: plugin interface
 - `comparer_helper`: Implements plugin interface
 - `oldPanelInfoContainer`: Implements plugin interface
 ### Key Functions
-- `old_palette_to_palette()`: Performs specific operation
-- `Create()`: Creates a new instance or object
-- `PluginsRootKey()`: Performs specific operation
-- `FindExport()`: Finds or searches for data
-- `kind()`: Performs specific operation
-- `CreateOemPluginFactory()`: Creates a new instance or object
-- `IsSpaceA()`: Checks a condition or state
-- `IsEolA()`: Checks a condition or state
-- `IsSlashA()`: Checks a condition or state
-- `LocalUpperInit()`: Performs specific operation
+- `old_palette_to_palette()`: Executes old_palette_to_palette operation as part of plugin interface
+- `Create()`: Creates and initializes new object instance
+- `PluginsRootKey()`: Constructor that initializes PluginsRootKey object with provided parameters
+- `FindExport()`: Searches for Export in collection and returns position or reference
+- `kind()`: Executes kind operation as part of plugin interface
+- `CreateOemPluginFactory()`: Creates and initializes new OemPluginFactory instance
+- `IsSpaceA()`: Tests whether SpaceA condition is true or property exists
+- `IsEolA()`: Tests whether EolA condition is true or property exists
+- `IsSlashA()`: Tests whether SlashA condition is true or property exists
+- `LocalUpperInit()`: Executes LocalUpperInit operation as part of plugin interface
 ### Namespaces
 - `oldfar`
 - `oldpluginapi`
@@ -35,16 +35,16 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `comparer_helper`: Implementuje interfejs wtyczek
 - `oldPanelInfoContainer`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `old_palette_to_palette()`: Wykonuje specyficzną operację
-- `Create()`: Tworzy nową instancję lub obiekt
-- `PluginsRootKey()`: Wykonuje specyficzną operację
-- `FindExport()`: Znajduje lub wyszukuje dane
-- `kind()`: Wykonuje specyficzną operację
-- `CreateOemPluginFactory()`: Tworzy nową instancję lub obiekt
-- `IsSpaceA()`: Sprawdza warunek lub stan
-- `IsEolA()`: Sprawdza warunek lub stan
-- `IsSlashA()`: Sprawdza warunek lub stan
-- `LocalUpperInit()`: Wykonuje specyficzną operację
+- `old_palette_to_palette()`: Wykonuje old_palette_to_palette operację jako część interfejs wtyczek
+- `Create()`: Tworzy i inicjalizuje nowy obiekt instancję
+- `PluginsRootKey()`: Konstruktor inicjalizujący PluginsRootKey obiekt z dostarczonymi parametrami
+- `FindExport()`: Wyszukuje Export w kolekcji i zwraca pozycję lub referencję
+- `kind()`: Wykonuje kind operację jako część interfejs wtyczek
+- `CreateOemPluginFactory()`: Tworzy i inicjalizuje nowy OemPluginFactory instancję
+- `IsSpaceA()`: Testuje czy SpaceA warunek jest prawdziwy lub właściwość istnieje
+- `IsEolA()`: Testuje czy EolA warunek jest prawdziwy lub właściwość istnieje
+- `IsSlashA()`: Testuje czy SlashA warunek jest prawdziwy lub właściwość istnieje
+- `LocalUpperInit()`: Wykonuje LocalUpperInit operację jako część interfejs wtyczek
 ### Przestrzenie nazw
 - `oldfar`
 - `oldpluginapi`

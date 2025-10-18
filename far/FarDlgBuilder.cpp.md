@@ -7,13 +7,13 @@ Main functional areas: dialog handling
 - `DialogItemBinding`: Implements dialog handling
 - `ListControlBinding`: Implements dialog handling
 ### Key Functions
-- `SaveValue()`: Saves data or state
-- `GetMask()`: Retrieves or returns data
-- `msg()`: Performs specific operation
-- `TextWidth()`: Performs specific operation
-- `ItemWidth()`: Performs specific operation
-- `AddListControlImpl()`: Adds an item or element
-- `LinkFlagsByID()`: Performs specific operation
+- `SaveValue()`: Saves current state or data to persistent storage
+- `GetMask()`: Retrieves Mask from internal state or data structure
+- `msg()`: Executes msg operation as part of dialog handling
+- `TextWidth()`: Executes TextWidth operation as part of dialog handling
+- `ItemWidth()`: Executes ItemWidth operation as part of dialog handling
+- `AddListControlImpl()`: Adds new ListControlImpl to collection or list
+- `LinkFlagsByID()`: Executes LinkFlagsByID operation as part of dialog handling
 ### Summary
 The `FarDlgBuilder.cpp` file provides essential functionality for dialog handling. It defines 2 class(es) and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -27,12 +27,12 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `DialogItemBinding`: Implementuje obsługa dialogów
 - `ListControlBinding`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `SaveValue()`: Zapisuje dane lub stan
-- `GetMask()`: Pobiera lub zwraca dane
-- `msg()`: Wykonuje specyficzną operację
-- `TextWidth()`: Wykonuje specyficzną operację
-- `ItemWidth()`: Wykonuje specyficzną operację
-- `AddListControlImpl()`: Dodaje element
-- `LinkFlagsByID()`: Wykonuje specyficzną operację
+- `SaveValue()`: Zapisuje bieżący stan lub dane do trwałego magazynu
+- `GetMask()`: Pobiera Mask ze stanu wewnętrznego lub struktury danych
+- `msg()`: Wykonuje msg operację jako część obsługa dialogów
+- `TextWidth()`: Wykonuje TextWidth operację jako część obsługa dialogów
+- `ItemWidth()`: Wykonuje ItemWidth operację jako część obsługa dialogów
+- `AddListControlImpl()`: Dodaje nowy ListControlImpl do kolekcji lub listy
+- `LinkFlagsByID()`: Wykonuje LinkFlagsByID operację jako część obsługa dialogów
 ### Podsumowanie
 Plik `FarDlgBuilder.cpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 2 klas(y) i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

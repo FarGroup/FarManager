@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `initialize_impl()`: Initializes or sets up
-- `exception()`: Performs specific operation
-- `get_shell_name()`: Retrieves or returns data
-- `C_Path()`: Performs specific operation
-- `is_proper_progid()`: Checks a condition or state
-- `get_shell_type()`: Retrieves or returns data
-- `LOGDEBUG()`: Performs specific operation
-- `get_shell_filetype_description()`: Retrieves or returns data
+- `initialize_impl()`: Initializes data structures and sets up initial state for operation
+- `exception()`: Executes exception operation as part of core functionality
+- `get_shell_name()`: Retrieves _shell_name from internal state or data structure
+- `C_Path()`: Executes C_Path operation as part of core functionality
+- `is_proper_progid()`: Tests whether _proper_progid condition is true or property exists
+- `get_shell_type()`: Retrieves _shell_type from internal state or data structure
+- `LOGDEBUG()`: Executes LOGDEBUG operation as part of core functionality
+- `get_shell_filetype_description()`: Retrieves _shell_filetype_description from internal state or data structure
 ### Namespaces
 - `os`
 ### Summary
@@ -22,14 +22,14 @@ The `platform.com.cpp` file provides essential functionality for core functional
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `initialize_impl()`: Inicjalizuje lub konfiguruje
-- `exception()`: Wykonuje specyficzną operację
-- `get_shell_name()`: Pobiera lub zwraca dane
-- `C_Path()`: Wykonuje specyficzną operację
-- `is_proper_progid()`: Sprawdza warunek lub stan
-- `get_shell_type()`: Pobiera lub zwraca dane
-- `LOGDEBUG()`: Wykonuje specyficzną operację
-- `get_shell_filetype_description()`: Pobiera lub zwraca dane
+- `initialize_impl()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `exception()`: Wykonuje exception operację jako część podstawowa funkcjonalność
+- `get_shell_name()`: Pobiera _shell_name ze stanu wewnętrznego lub struktury danych
+- `C_Path()`: Wykonuje C_Path operację jako część podstawowa funkcjonalność
+- `is_proper_progid()`: Testuje czy _proper_progid warunek jest prawdziwy lub właściwość istnieje
+- `get_shell_type()`: Pobiera _shell_type ze stanu wewnętrznego lub struktury danych
+- `LOGDEBUG()`: Wykonuje LOGDEBUG operację jako część podstawowa funkcjonalność
+- `get_shell_filetype_description()`: Pobiera _shell_filetype_description ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

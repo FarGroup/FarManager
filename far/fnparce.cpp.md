@@ -11,16 +11,16 @@ Main functional areas: core functionality
 - `subst_data`: Implements core functionality
 - `subst_strings`: Implements core functionality
 ### Key Functions
-- `GetDescription()`: Retrieves or returns data
-- `Default()`: Performs specific operation
-- `bool()`: Performs specific operation
-- `string_view()`: Performs specific operation
-- `prefix()`: Performs specific operation
-- `suffix()`: Performs specific operation
-- `str()`: Performs specific operation
-- `ProcessBrackets()`: Processes data or events
-- `SkipInputToken()`: Performs specific operation
-- `Tail()`: Performs specific operation
+- `GetDescription()`: Retrieves Description from internal state or data structure
+- `Default()`: Constructor that initializes Default object with provided parameters
+- `bool()`: Executes bool operation as part of core functionality
+- `string_view()`: Executes string_view operation as part of core functionality
+- `prefix()`: Executes prefix operation as part of core functionality
+- `suffix()`: Executes suffix operation as part of core functionality
+- `str()`: Executes str operation as part of core functionality
+- `ProcessBrackets()`: Processes Brackets through transformation or handling pipeline
+- `SkipInputToken()`: Executes SkipInputToken operation as part of core functionality
+- `Tail()`: Executes Tail operation as part of core functionality
 ### Namespaces
 - `tokens`
 ### Summary
@@ -40,16 +40,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `subst_data`: Implementuje podstawowa funkcjonalność
 - `subst_strings`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetDescription()`: Pobiera lub zwraca dane
-- `Default()`: Wykonuje specyficzną operację
-- `bool()`: Wykonuje specyficzną operację
-- `string_view()`: Wykonuje specyficzną operację
-- `prefix()`: Wykonuje specyficzną operację
-- `suffix()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
-- `ProcessBrackets()`: Przetwarza dane lub zdarzenia
-- `SkipInputToken()`: Wykonuje specyficzną operację
-- `Tail()`: Wykonuje specyficzną operację
+- `GetDescription()`: Pobiera Description ze stanu wewnętrznego lub struktury danych
+- `Default()`: Konstruktor inicjalizujący Default obiekt z dostarczonymi parametrami
+- `bool()`: Wykonuje bool operację jako część podstawowa funkcjonalność
+- `string_view()`: Wykonuje string_view operację jako część podstawowa funkcjonalność
+- `prefix()`: Wykonuje prefix operację jako część podstawowa funkcjonalność
+- `suffix()`: Wykonuje suffix operację jako część podstawowa funkcjonalność
+- `str()`: Wykonuje str operację jako część podstawowa funkcjonalność
+- `ProcessBrackets()`: Przetwarza Brackets przez potok transformacji lub obsługi
+- `SkipInputToken()`: Wykonuje SkipInputToken operację jako część podstawowa funkcjonalność
+- `Tail()`: Wykonuje Tail operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `tokens`
 ### Podsumowanie

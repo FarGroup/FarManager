@@ -7,16 +7,16 @@ Main functional areas: panel management
 - `PluginPanel`: Implements panel management
 - `shared_data`: Implements panel management
 ### Key Functions
-- `clear()`: Clears or resets data
-- `GetMsg()`: Retrieves or returns data
-- `GoToFile()`: Performs specific operation
-- `WFD2FFD()`: Performs specific operation
-- `FormNtPath()`: Performs specific operation
-- `ExpandEnvStrs()`: Performs specific operation
-- `FindListFile()`: Finds or searches for data
-- `GetFullPath()`: Retrieves or returns data
-- `IsTextUTF8()`: Checks a condition or state
-- `GetFileInfoAndValidate()`: Retrieves or returns data
+- `clear()`: Clears all data and resets to initial empty state
+- `GetMsg()`: Retrieves Msg from internal state or data structure
+- `GoToFile()`: Executes GoToFile operation as part of panel management
+- `WFD2FFD()`: Executes WFD2FFD operation as part of panel management
+- `FormNtPath()`: Executes FormNtPath operation as part of panel management
+- `ExpandEnvStrs()`: Executes ExpandEnvStrs operation as part of panel management
+- `FindListFile()`: Searches for ListFile in collection and returns position or reference
+- `GetFullPath()`: Retrieves FullPath from internal state or data structure
+- `IsTextUTF8()`: Tests whether TextUTF8 condition is true or property exists
+- `GetFileInfoAndValidate()`: Retrieves FileInfoAndValidate from internal state or data structure
 ### Summary
 The `TmpPanel.hpp` file provides essential functionality for panel management. It defines 2 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -30,15 +30,15 @@ Główne obszary funkcjonalne: zarządzanie panelami
 - `PluginPanel`: Implementuje zarządzanie panelami
 - `shared_data`: Implementuje zarządzanie panelami
 ### Kluczowe Funkcje
-- `clear()`: Czyści lub resetuje dane
-- `GetMsg()`: Pobiera lub zwraca dane
-- `GoToFile()`: Wykonuje specyficzną operację
-- `WFD2FFD()`: Wykonuje specyficzną operację
-- `FormNtPath()`: Wykonuje specyficzną operację
-- `ExpandEnvStrs()`: Wykonuje specyficzną operację
-- `FindListFile()`: Znajduje lub wyszukuje dane
-- `GetFullPath()`: Pobiera lub zwraca dane
-- `IsTextUTF8()`: Sprawdza warunek lub stan
-- `GetFileInfoAndValidate()`: Pobiera lub zwraca dane
+- `clear()`: Czyści wszystkie dane i resetuje do początkowego pustego stanu
+- `GetMsg()`: Pobiera Msg ze stanu wewnętrznego lub struktury danych
+- `GoToFile()`: Wykonuje GoToFile operację jako część zarządzanie panelami
+- `WFD2FFD()`: Wykonuje WFD2FFD operację jako część zarządzanie panelami
+- `FormNtPath()`: Wykonuje FormNtPath operację jako część zarządzanie panelami
+- `ExpandEnvStrs()`: Wykonuje ExpandEnvStrs operację jako część zarządzanie panelami
+- `FindListFile()`: Wyszukuje ListFile w kolekcji i zwraca pozycję lub referencję
+- `GetFullPath()`: Pobiera FullPath ze stanu wewnętrznego lub struktury danych
+- `IsTextUTF8()`: Testuje czy TextUTF8 warunek jest prawdziwy lub właściwość istnieje
+- `GetFileInfoAndValidate()`: Pobiera FileInfoAndValidate ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `TmpPanel.hpp` zapewnia podstawową funkcjonalność dla zarządzanie panelami. Definiuje 2 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -15,16 +15,16 @@ Main functional areas: plugin interface
 - `DetectCodePageInfo`: Implements plugin interface
 - `DialogInfo`: Implements plugin interface
 ### Key Functions
-- `IsBgIndex()`: Checks a condition or state
-- `IsFgIndex()`: Checks a condition or state
-- `IsUnderlineIndex()`: Checks a condition or state
-- `IsBgDefault()`: Checks a condition or state
-- `IsFgDefault()`: Checks a condition or state
-- `IsUnderlineDefault()`: Checks a condition or state
-- `GetUnderline()`: Retrieves or returns data
-- `SetBgIndex()`: Sets or assigns data
-- `SetFgIndex()`: Sets or assigns data
-- `SetUnderlineIndex()`: Sets or assigns data
+- `IsBgIndex()`: Tests whether BgIndex condition is true or property exists
+- `IsFgIndex()`: Tests whether FgIndex condition is true or property exists
+- `IsUnderlineIndex()`: Tests whether UnderlineIndex condition is true or property exists
+- `IsBgDefault()`: Tests whether BgDefault condition is true or property exists
+- `IsFgDefault()`: Tests whether FgDefault condition is true or property exists
+- `IsUnderlineDefault()`: Tests whether UnderlineDefault condition is true or property exists
+- `GetUnderline()`: Retrieves Underline from internal state or data structure
+- `SetBgIndex()`: Updates BgIndex in internal state or configuration
+- `SetFgIndex()`: Updates FgIndex in internal state or configuration
+- `SetUnderlineIndex()`: Updates UnderlineIndex in internal state or configuration
 ### Summary
 The `plugin.hpp` file provides essential functionality for plugin interface. It defines 121 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: interfejs wtyczek
 - `DetectCodePageInfo`: Implementuje interfejs wtyczek
 - `DialogInfo`: Implementuje interfejs wtyczek
 ### Kluczowe Funkcje
-- `IsBgIndex()`: Sprawdza warunek lub stan
-- `IsFgIndex()`: Sprawdza warunek lub stan
-- `IsUnderlineIndex()`: Sprawdza warunek lub stan
-- `IsBgDefault()`: Sprawdza warunek lub stan
-- `IsFgDefault()`: Sprawdza warunek lub stan
-- `IsUnderlineDefault()`: Sprawdza warunek lub stan
-- `GetUnderline()`: Pobiera lub zwraca dane
-- `SetBgIndex()`: Ustawia lub przypisuje dane
-- `SetFgIndex()`: Ustawia lub przypisuje dane
-- `SetUnderlineIndex()`: Ustawia lub przypisuje dane
+- `IsBgIndex()`: Testuje czy BgIndex warunek jest prawdziwy lub właściwość istnieje
+- `IsFgIndex()`: Testuje czy FgIndex warunek jest prawdziwy lub właściwość istnieje
+- `IsUnderlineIndex()`: Testuje czy UnderlineIndex warunek jest prawdziwy lub właściwość istnieje
+- `IsBgDefault()`: Testuje czy BgDefault warunek jest prawdziwy lub właściwość istnieje
+- `IsFgDefault()`: Testuje czy FgDefault warunek jest prawdziwy lub właściwość istnieje
+- `IsUnderlineDefault()`: Testuje czy UnderlineDefault warunek jest prawdziwy lub właściwość istnieje
+- `GetUnderline()`: Pobiera Underline ze stanu wewnętrznego lub struktury danych
+- `SetBgIndex()`: Aktualizuje BgIndex w stanie wewnętrznym lub konfiguracji
+- `SetFgIndex()`: Aktualizuje FgIndex w stanie wewnętrznym lub konfiguracji
+- `SetUnderlineIndex()`: Aktualizuje UnderlineIndex w stanie wewnętrznym lub konfiguracji
 ### Podsumowanie
 Plik `plugin.hpp` zapewnia podstawową funkcjonalność dla interfejs wtyczek. Definiuje 121 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

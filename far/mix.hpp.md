@@ -10,16 +10,16 @@ Main functional areas: core functionality
 - `plugin_item_list`: Implements core functionality
 - `std`: Implements core functionality
 ### Key Functions
-- `ToPercent()`: Performs specific operation
-- `FromPercent()`: Performs specific operation
-- `MakeTemp()`: Performs specific operation
-- `MakeTempInSameDir()`: Performs specific operation
-- `PluginPanelItemToFindDataEx()`: Performs specific operation
-- `set_name()`: Sets or assigns data
-- `set_alt_name()`: Sets or assigns data
-- `set_description()`: Sets or assigns data
-- `set_owner()`: Sets or assigns data
-- `set_columns()`: Sets or assigns data
+- `ToPercent()`: Executes ToPercent operation as part of core functionality
+- `FromPercent()`: Executes FromPercent operation as part of core functionality
+- `MakeTemp()`: Executes MakeTemp operation as part of core functionality
+- `MakeTempInSameDir()`: Executes MakeTempInSameDir operation as part of core functionality
+- `PluginPanelItemToFindDataEx()`: Executes PluginPanelItemToFindDataEx operation as part of core functionality
+- `set_name()`: Updates _name in internal state or configuration
+- `set_alt_name()`: Updates _alt_name in internal state or configuration
+- `set_description()`: Updates _description in internal state or configuration
+- `set_owner()`: Updates _owner in internal state or configuration
+- `set_columns()`: Updates _columns in internal state or configuration
 ### Summary
 The `mix.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `plugin_item_list`: Implementuje podstawowa funkcjonalność
 - `std`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ToPercent()`: Wykonuje specyficzną operację
-- `FromPercent()`: Wykonuje specyficzną operację
-- `MakeTemp()`: Wykonuje specyficzną operację
-- `MakeTempInSameDir()`: Wykonuje specyficzną operację
-- `PluginPanelItemToFindDataEx()`: Wykonuje specyficzną operację
-- `set_name()`: Ustawia lub przypisuje dane
-- `set_alt_name()`: Ustawia lub przypisuje dane
-- `set_description()`: Ustawia lub przypisuje dane
-- `set_owner()`: Ustawia lub przypisuje dane
-- `set_columns()`: Ustawia lub przypisuje dane
+- `ToPercent()`: Wykonuje ToPercent operację jako część podstawowa funkcjonalność
+- `FromPercent()`: Wykonuje FromPercent operację jako część podstawowa funkcjonalność
+- `MakeTemp()`: Wykonuje MakeTemp operację jako część podstawowa funkcjonalność
+- `MakeTempInSameDir()`: Wykonuje MakeTempInSameDir operację jako część podstawowa funkcjonalność
+- `PluginPanelItemToFindDataEx()`: Wykonuje PluginPanelItemToFindDataEx operację jako część podstawowa funkcjonalność
+- `set_name()`: Aktualizuje _name w stanie wewnętrznym lub konfiguracji
+- `set_alt_name()`: Aktualizuje _alt_name w stanie wewnętrznym lub konfiguracji
+- `set_description()`: Aktualizuje _description w stanie wewnętrznym lub konfiguracji
+- `set_owner()`: Aktualizuje _owner w stanie wewnętrznym lub konfiguracji
+- `set_columns()`: Aktualizuje _columns w stanie wewnętrznym lub konfiguracji
 ### Podsumowanie
 Plik `mix.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

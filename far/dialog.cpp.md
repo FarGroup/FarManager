@@ -8,16 +8,16 @@ Main functional areas: dialog handling, singleton implementation
 - `DlgUserControl`: Implements dialog handling, singleton implementation
 - `dialogs_set`: Implements dialog handling, singleton implementation
 ### Key Functions
-- `CanGetFocus()`: Performs specific operation
-- `IsEmulatedEditorLine()`: Checks a condition or state
-- `IsKeyHighlighted()`: Checks a condition or state
-- `ConvertItemSmall()`: Converts or transforms data
-- `ItemString()`: Performs specific operation
-- `ConvertItemEx2()`: Converts or transforms data
-- `ItemsToItemsEx()`: Performs specific operation
-- `DefProcFunction()`: Performs specific operation
-- `InitDialogObjects()`: Initializes or sets up
-- `IsSuitableItem()`: Checks a condition or state
+- `CanGetFocus()`: Executes CanGetFocus operation as part of dialog handling, singleton implementation
+- `IsEmulatedEditorLine()`: Tests whether EmulatedEditorLine condition is true or property exists
+- `IsKeyHighlighted()`: Checks if given key combination is used for highlighting/navigation in dialog
+- `ConvertItemSmall()`: Converts data from one format or type to another
+- `ItemString()`: Executes ItemString operation as part of dialog handling, singleton implementation
+- `ConvertItemEx2()`: Converts data from one format or type to another
+- `ItemsToItemsEx()`: Converts between standard dialog item format and extended item format
+- `DefProcFunction()`: Executes DefProcFunction operation as part of dialog handling, singleton implementation
+- `InitDialogObjects()`: Initializes data structures and sets up initial state for operation
+- `IsSuitableItem()`: Tests whether SuitableItem condition is true or property exists
 ### Summary
 The `dialog.cpp` file provides essential functionality for dialog handling, singleton implementation. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: obsługa dialogów, implementacja singletona
 - `DlgUserControl`: Implementuje obsługa dialogów, implementacja singletona
 - `dialogs_set`: Implementuje obsługa dialogów, implementacja singletona
 ### Kluczowe Funkcje
-- `CanGetFocus()`: Wykonuje specyficzną operację
-- `IsEmulatedEditorLine()`: Sprawdza warunek lub stan
-- `IsKeyHighlighted()`: Sprawdza warunek lub stan
-- `ConvertItemSmall()`: Konwertuje lub przekształca dane
-- `ItemString()`: Wykonuje specyficzną operację
-- `ConvertItemEx2()`: Konwertuje lub przekształca dane
-- `ItemsToItemsEx()`: Wykonuje specyficzną operację
-- `DefProcFunction()`: Wykonuje specyficzną operację
-- `InitDialogObjects()`: Inicjalizuje lub konfiguruje
-- `IsSuitableItem()`: Sprawdza warunek lub stan
+- `CanGetFocus()`: Wykonuje CanGetFocus operację jako część obsługa dialogów, implementacja singletona
+- `IsEmulatedEditorLine()`: Testuje czy EmulatedEditorLine warunek jest prawdziwy lub właściwość istnieje
+- `IsKeyHighlighted()`: Sprawdza czy dana kombinacja klawiszy jest używana do podświetlania/nawigacji w dialogu
+- `ConvertItemSmall()`: Konwertuje dane z jednego formatu lub typu do innego
+- `ItemString()`: Wykonuje ItemString operację jako część obsługa dialogów, implementacja singletona
+- `ConvertItemEx2()`: Konwertuje dane z jednego formatu lub typu do innego
+- `ItemsToItemsEx()`: Konwertuje między standardowym formatem elementu dialogu a formatem rozszerzonym
+- `DefProcFunction()`: Wykonuje DefProcFunction operację jako część obsługa dialogów, implementacja singletona
+- `InitDialogObjects()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `IsSuitableItem()`: Testuje czy SuitableItem warunek jest prawdziwy lub właściwość istnieje
 ### Podsumowanie
 Plik `dialog.cpp` zapewnia podstawową funkcjonalność dla obsługa dialogów, implementacja singletona. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

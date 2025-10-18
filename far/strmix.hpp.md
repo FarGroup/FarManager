@@ -8,16 +8,16 @@ Main functional areas: string utilities
 - `RegExpMatch`: Implements string utilities
 - `regex_match`: Implements string utilities
 ### Key Functions
-- `QuoteSpaceOnly()`: Performs specific operation
-- `InsertRegexpQuote()`: Performs specific operation
-- `QuoteSpace()`: Performs specific operation
-- `QuoteOuterSpace()`: Performs specific operation
-- `ReplaceStrings()`: Performs specific operation
-- `replace()`: Performs specific operation
-- `Copy()`: Copies data
-- `replace_icase()`: Performs specific operation
-- `remove_duplicates()`: Removes or deletes an item
-- `get()`: Retrieves or returns data
+- `QuoteSpaceOnly()`: Constructor that initializes QuoteSpaceOnly object with provided parameters
+- `InsertRegexpQuote()`: Executes InsertRegexpQuote operation as part of string utilities
+- `QuoteSpace()`: Executes QuoteSpace operation as part of string utilities
+- `QuoteOuterSpace()`: Executes QuoteOuterSpace operation as part of string utilities
+- `ReplaceStrings()`: Executes ReplaceStrings operation as part of string utilities
+- `replace()`: Executes replace operation as part of string utilities
+- `Copy()`: Copies data from source to destination location
+- `replace_icase()`: Executes replace_icase operation as part of string utilities
+- `remove_duplicates()`: Removes _duplicates from collection and frees associated resources
+- `get()`: Retrieves value from internal state or data structure
 ### Namespaces
 - `detail`
 - `inplace`
@@ -36,16 +36,16 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `RegExpMatch`: Implementuje narzędzia łańcuchowe
 - `regex_match`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `QuoteSpaceOnly()`: Wykonuje specyficzną operację
-- `InsertRegexpQuote()`: Wykonuje specyficzną operację
-- `QuoteSpace()`: Wykonuje specyficzną operację
-- `QuoteOuterSpace()`: Wykonuje specyficzną operację
-- `ReplaceStrings()`: Wykonuje specyficzną operację
-- `replace()`: Wykonuje specyficzną operację
-- `Copy()`: Kopiuje dane
-- `replace_icase()`: Wykonuje specyficzną operację
-- `remove_duplicates()`: Usuwa element
-- `get()`: Pobiera lub zwraca dane
+- `QuoteSpaceOnly()`: Konstruktor inicjalizujący QuoteSpaceOnly obiekt z dostarczonymi parametrami
+- `InsertRegexpQuote()`: Wykonuje InsertRegexpQuote operację jako część narzędzia łańcuchowe
+- `QuoteSpace()`: Wykonuje QuoteSpace operację jako część narzędzia łańcuchowe
+- `QuoteOuterSpace()`: Wykonuje QuoteOuterSpace operację jako część narzędzia łańcuchowe
+- `ReplaceStrings()`: Wykonuje ReplaceStrings operację jako część narzędzia łańcuchowe
+- `replace()`: Wykonuje replace operację jako część narzędzia łańcuchowe
+- `Copy()`: Kopiuje dane ze źródła do miejsca docelowego
+- `replace_icase()`: Wykonuje replace_icase operację jako część narzędzia łańcuchowe
+- `remove_duplicates()`: Usuwa _duplicates z kolekcji i zwalnia powiązane zasoby
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 - `inplace`

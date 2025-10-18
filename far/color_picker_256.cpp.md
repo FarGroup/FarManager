@@ -6,16 +6,16 @@ Main functional areas: color management
 ### Key Classes
 - `color_256_state`: Implements color management
 ### Key Functions
-- `Console256ColorToFarColor()`: Performs specific operation
-- `cube_color()`: Performs specific operation
-- `cube_index()`: Performs specific operation
-- `grey_color()`: Performs specific operation
-- `grey_index()`: Performs specific operation
-- `foreground_inverse_mapping()`: Performs specific operation
-- `is_rgb()`: Checks a condition or state
-- `in_closed_range()`: Performs specific operation
-- `is_grey()`: Checks a condition or state
-- `channel_value()`: Performs specific operation
+- `Console256ColorToFarColor()`: Executes Console256ColorToFarColor operation as part of color management
+- `cube_color()`: Executes cube_color operation as part of color management
+- `cube_index()`: Executes cube_index operation as part of color management
+- `grey_color()`: Executes grey_color operation as part of color management
+- `grey_index()`: Executes grey_index operation as part of color management
+- `foreground_inverse_mapping()`: Executes foreground_inverse_mapping operation as part of color management
+- `is_rgb()`: Tests whether _rgb condition is true or property exists
+- `in_closed_range()`: Executes in_closed_range operation as part of color management
+- `is_grey()`: Tests whether _grey condition is true or property exists
+- `channel_value()`: Executes channel_value operation as part of color management
 ### Namespaces
 - `color_picker_common`
 ### Summary
@@ -30,16 +30,16 @@ Główne obszary funkcjonalne: zarządzanie kolorami
 ### Kluczowe Klasy
 - `color_256_state`: Implementuje zarządzanie kolorami
 ### Kluczowe Funkcje
-- `Console256ColorToFarColor()`: Wykonuje specyficzną operację
-- `cube_color()`: Wykonuje specyficzną operację
-- `cube_index()`: Wykonuje specyficzną operację
-- `grey_color()`: Wykonuje specyficzną operację
-- `grey_index()`: Wykonuje specyficzną operację
-- `foreground_inverse_mapping()`: Wykonuje specyficzną operację
-- `is_rgb()`: Sprawdza warunek lub stan
-- `in_closed_range()`: Wykonuje specyficzną operację
-- `is_grey()`: Sprawdza warunek lub stan
-- `channel_value()`: Wykonuje specyficzną operację
+- `Console256ColorToFarColor()`: Wykonuje Console256ColorToFarColor operację jako część zarządzanie kolorami
+- `cube_color()`: Wykonuje cube_color operację jako część zarządzanie kolorami
+- `cube_index()`: Wykonuje cube_index operację jako część zarządzanie kolorami
+- `grey_color()`: Wykonuje grey_color operację jako część zarządzanie kolorami
+- `grey_index()`: Wykonuje grey_index operację jako część zarządzanie kolorami
+- `foreground_inverse_mapping()`: Wykonuje foreground_inverse_mapping operację jako część zarządzanie kolorami
+- `is_rgb()`: Testuje czy _rgb warunek jest prawdziwy lub właściwość istnieje
+- `in_closed_range()`: Wykonuje in_closed_range operację jako część zarządzanie kolorami
+- `is_grey()`: Testuje czy _grey warunek jest prawdziwy lub właściwość istnieje
+- `channel_value()`: Wykonuje channel_wartość operację jako część zarządzanie kolorami
 ### Przestrzenie nazw
 - `color_picker_common`
 ### Podsumowanie

@@ -6,13 +6,13 @@ Main functional areas: core functionality
 ### Key Classes
 - `VersionInfo`: Implements core functionality
 ### Key Functions
-- `version_string()`: Performs specific operation
-- `copyright()`: Copies data
-- `scm_revision()`: Performs specific operation
-- `platform()`: Performs specific operation
-- `version()`: Performs specific operation
-- `compiler()`: Performs specific operation
-- `library()`: Performs specific operation
+- `version_string()`: Executes version_string operation as part of core functionality
+- `copyright()`: Copies data from source to destination location
+- `scm_revision()`: Executes scm_revision operation as part of core functionality
+- `platform()`: Executes platform operation as part of core functionality
+- `version()`: Executes version operation as part of core functionality
+- `compiler()`: Executes compiler operation as part of core functionality
+- `library()`: Executes library operation as part of core functionality
 ### Namespaces
 - `build`
 ### Summary
@@ -27,13 +27,13 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `VersionInfo`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `version_string()`: Wykonuje specyficzną operację
-- `copyright()`: Kopiuje dane
-- `scm_revision()`: Wykonuje specyficzną operację
-- `platform()`: Wykonuje specyficzną operację
-- `version()`: Wykonuje specyficzną operację
-- `compiler()`: Wykonuje specyficzną operację
-- `library()`: Wykonuje specyficzną operację
+- `version_string()`: Wykonuje version_string operację jako część podstawowa funkcjonalność
+- `copyright()`: Kopiuje dane ze źródła do miejsca docelowego
+- `scm_revision()`: Wykonuje scm_revision operację jako część podstawowa funkcjonalność
+- `platform()`: Wykonuje platform operację jako część podstawowa funkcjonalność
+- `version()`: Wykonuje version operację jako część podstawowa funkcjonalność
+- `compiler()`: Wykonuje compiler operację jako część podstawowa funkcjonalność
+- `library()`: Wykonuje library operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `build`
 ### Podsumowanie

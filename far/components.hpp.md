@@ -7,8 +7,8 @@ Main functional areas: core functionality
 - `component`: Implements core functionality
 - `components_list`: Implements core functionality
 ### Key Functions
-- `component()`: Constructor
-- `GetComponentsInfo()`: Retrieves or returns data
+- `component()`: Executes component operation as part of core functionality
+- `GetComponentsInfo()`: Retrieves ComponentsInfo from internal state or data structure
 ### Namespaces
 - `components`
 ### Summary
@@ -24,8 +24,8 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `component`: Implementuje podstawowa funkcjonalność
 - `components_list`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `component()`: Konstruktor
-- `GetComponentsInfo()`: Pobiera lub zwraca dane
+- `component()`: Wykonuje component operację jako część podstawowa funkcjonalność
+- `GetComponentsInfo()`: Pobiera ComponentsInfo ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `components`
 ### Podsumowanie

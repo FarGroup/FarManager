@@ -10,16 +10,16 @@ Main functional areas: core functionality
 - `WCI_REPARSE_DATA_BUFFER`: Implements core functionality
 - `name_data`: Implements core functionality
 ### Key Functions
-- `CreateVolumeMountPoint()`: Creates a new instance or object
-- `FillREPARSE_DATA_BUFFER()`: Fills buffer or container
-- `sizeof()`: Performs specific operation
-- `GetDesiredAccessForReparsePointChange()`: Retrieves or returns data
-- `SetREPARSE_DATA_BUFFER()`: Sets or assigns data
-- `SetBuffer()`: Sets or assigns data
-- `PrepareAndSetREPARSE_DATA_BUFFER()`: Performs specific operation
-- `GetREPARSE_DATA_BUFFER()`: Retrieves or returns data
-- `fObject()`: Performs specific operation
-- `CreateReparsePoint()`: Creates a new instance or object
+- `CreateVolumeMountPoint()`: Creates and initializes new VolumeMountPoint instance
+- `FillREPARSE_DATA_BUFFER()`: Executes FillREPARSE_DATA_BUFFER operation as part of core functionality
+- `sizeof()`: Constructor that initializes sizeof object with provided parameters
+- `GetDesiredAccessForReparsePointChange()`: Retrieves DesiredAccessForReparsePointChange from internal state or data structure
+- `SetREPARSE_DATA_BUFFER()`: Updates REPARSE_DATA_BUFFER in internal state or configuration
+- `SetBuffer()`: Updates Buffer in internal state or configuration
+- `PrepareAndSetREPARSE_DATA_BUFFER()`: Executes PrepareAndSetREPARSE_DATA_BUFFER operation as part of core functionality
+- `GetREPARSE_DATA_BUFFER()`: Retrieves REPARSE_DATA_BUFFER from internal state or data structure
+- `fObject()`: Executes fObject operation as part of core functionality
+- `CreateReparsePoint()`: Creates and initializes new ReparsePoint instance
 ### Summary
 The `flink.cpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -36,15 +36,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `WCI_REPARSE_DATA_BUFFER`: Implementuje podstawowa funkcjonalność
 - `name_data`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CreateVolumeMountPoint()`: Tworzy nową instancję lub obiekt
-- `FillREPARSE_DATA_BUFFER()`: Wypełnia bufor lub kontener
-- `sizeof()`: Wykonuje specyficzną operację
-- `GetDesiredAccessForReparsePointChange()`: Pobiera lub zwraca dane
-- `SetREPARSE_DATA_BUFFER()`: Ustawia lub przypisuje dane
-- `SetBuffer()`: Ustawia lub przypisuje dane
-- `PrepareAndSetREPARSE_DATA_BUFFER()`: Wykonuje specyficzną operację
-- `GetREPARSE_DATA_BUFFER()`: Pobiera lub zwraca dane
-- `fObject()`: Wykonuje specyficzną operację
-- `CreateReparsePoint()`: Tworzy nową instancję lub obiekt
+- `CreateVolumeMountPoint()`: Tworzy i inicjalizuje nowy VolumeMountPoint instancję
+- `FillREPARSE_DATA_BUFFER()`: Wykonuje FillREPARSE_DATA_BUFFER operację jako część podstawowa funkcjonalność
+- `sizeof()`: Konstruktor inicjalizujący sizeof obiekt z dostarczonymi parametrami
+- `GetDesiredAccessForReparsePointChange()`: Pobiera DesiredAccessForReparsePointChange ze stanu wewnętrznego lub struktury danych
+- `SetREPARSE_DATA_BUFFER()`: Aktualizuje REPARSE_DATA_BUFFER w stanie wewnętrznym lub konfiguracji
+- `SetBuffer()`: Aktualizuje Buffer w stanie wewnętrznym lub konfiguracji
+- `PrepareAndSetREPARSE_DATA_BUFFER()`: Wykonuje PrepareAndSetREPARSE_DATA_BUFFER operację jako część podstawowa funkcjonalność
+- `GetREPARSE_DATA_BUFFER()`: Pobiera REPARSE_DATA_BUFFER ze stanu wewnętrznego lub struktury danych
+- `fObject()`: Wykonuje fObject operację jako część podstawowa funkcjonalność
+- `CreateReparsePoint()`: Tworzy i inicjalizuje nowy ReparsePoint instancję
 ### Podsumowanie
 Plik `flink.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

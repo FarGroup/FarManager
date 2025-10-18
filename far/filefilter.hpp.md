@@ -8,16 +8,16 @@ Main functional areas: file system operations
 - `filter_result`: Implements file system operations
 - `multifilter`: Implements file system operations
 ### Key Functions
-- `bool()`: Performs specific operation
-- `UpdateCurrentTime()`: Updates existing data
-- `FileInFilterEx()`: Performs specific operation
-- `FileInFilter()`: Performs specific operation
-- `IsEnabledOnPanel()`: Checks a condition or state
-- `area()`: Performs specific operation
-- `panel()`: Performs specific operation
-- `should_include_folders_by_default()`: Performs specific operation
-- `LoadFilter()`: Loads data or resources
-- `SaveFilter()`: Saves data or state
+- `bool()`: Executes bool operation as part of file system operations
+- `UpdateCurrentTime()`: Updates existing data with new values while preserving structure
+- `FileInFilterEx()`: Executes FileInFilterEx operation as part of file system operations
+- `FileInFilter()`: Executes FileInFilter operation as part of file system operations
+- `IsEnabledOnPanel()`: Tests whether EnabledOnPanel condition is true or property exists
+- `area()`: Executes area operation as part of file system operations
+- `panel()`: Constructor that initializes panel object with provided parameters
+- `should_include_folders_by_default()`: Executes should_include_folders_by_default operation as part of file system operations
+- `LoadFilter()`: Loads data or resources from storage into memory
+- `SaveFilter()`: Saves current state or data to persistent storage
 ### Namespaces
 - `filters`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `filter_result`: Implementuje operacje systemu plików
 - `multifilter`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `bool()`: Wykonuje specyficzną operację
-- `UpdateCurrentTime()`: Aktualizuje istniejące dane
-- `FileInFilterEx()`: Wykonuje specyficzną operację
-- `FileInFilter()`: Wykonuje specyficzną operację
-- `IsEnabledOnPanel()`: Sprawdza warunek lub stan
-- `area()`: Wykonuje specyficzną operację
-- `panel()`: Wykonuje specyficzną operację
-- `should_include_folders_by_default()`: Wykonuje specyficzną operację
-- `LoadFilter()`: Ładuje dane lub zasoby
-- `SaveFilter()`: Zapisuje dane lub stan
+- `bool()`: Wykonuje bool operację jako część operacje systemu plików
+- `UpdateCurrentTime()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `FileInFilterEx()`: Wykonuje FileInFilterEx operację jako część operacje systemu plików
+- `FileInFilter()`: Wykonuje FileInFilter operację jako część operacje systemu plików
+- `IsEnabledOnPanel()`: Testuje czy EnabledOnPanel warunek jest prawdziwy lub właściwość istnieje
+- `area()`: Wykonuje area operację jako część operacje systemu plików
+- `panel()`: Konstruktor inicjalizujący panel obiekt z dostarczonymi parametrami
+- `should_include_folders_by_default()`: Wykonuje should_include_folders_by_default operację jako część operacje systemu plików
+- `LoadFilter()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `SaveFilter()`: Zapisuje bieżący stan lub dane do trwałego magazynu
 ### Przestrzenie nazw
 - `filters`
 ### Podsumowanie

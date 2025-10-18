@@ -14,16 +14,16 @@ Main functional areas: file system operations
 - `ps_mode`: Implements file system operations
 - `sort_mode`: Implements file system operations
 ### Key Functions
-- `order_indicator()`: Performs specific operation
-- `to_fat_write_time()`: Performs specific operation
-- `to_whole_seconds()`: Performs specific operation
-- `compare_fat_write_time()`: Performs specific operation
-- `FileListToSortingPanelItem()`: Performs specific operation
-- `SortFileList()`: Performs specific operation
-- `CanSort()`: Performs specific operation
-- `GetItemFullName()`: Retrieves or returns data
-- `GetStreamsCountAndSize()`: Retrieves or returns data
-- `event_id()`: Performs specific operation
+- `order_indicator()`: Executes order_indicator operation as part of file system operations
+- `to_fat_write_time()`: Executes to_fat_write_time operation as part of file system operations
+- `to_whole_seconds()`: Executes to_whole_seconds operation as part of file system operations
+- `compare_fat_write_time()`: Executes compare_fat_write_time operation as part of file system operations
+- `FileListToSortingPanelItem()`: Executes FileListToSortingPanelItem operation as part of file system operations
+- `SortFileList()`: Executes SortFileList operation as part of file system operations
+- `CanSort()`: Executes CanSort operation as part of file system operations
+- `GetItemFullName()`: Retrieves ItemFullName from internal state or data structure
+- `GetStreamsCountAndSize()`: Retrieves StreamsCountAndSize from internal state or data structure
+- `event_id()`: Constructor that initializes event_id object with provided parameters
 ### Namespaces
 - `custom_sort`
 - `std`
@@ -47,16 +47,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `ps_mode`: Implementuje operacje systemu plików
 - `sort_mode`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `order_indicator()`: Wykonuje specyficzną operację
-- `to_fat_write_time()`: Wykonuje specyficzną operację
-- `to_whole_seconds()`: Wykonuje specyficzną operację
-- `compare_fat_write_time()`: Wykonuje specyficzną operację
-- `FileListToSortingPanelItem()`: Wykonuje specyficzną operację
-- `SortFileList()`: Wykonuje specyficzną operację
-- `CanSort()`: Wykonuje specyficzną operację
-- `GetItemFullName()`: Pobiera lub zwraca dane
-- `GetStreamsCountAndSize()`: Pobiera lub zwraca dane
-- `event_id()`: Wykonuje specyficzną operację
+- `order_indicator()`: Wykonuje order_indicator operację jako część operacje systemu plików
+- `to_fat_write_time()`: Wykonuje to_fat_write_time operację jako część operacje systemu plików
+- `to_whole_seconds()`: Wykonuje to_whole_seconds operację jako część operacje systemu plików
+- `compare_fat_write_time()`: Wykonuje compare_fat_write_time operację jako część operacje systemu plików
+- `FileListToSortingPanelItem()`: Wykonuje FileListToSortingPanelItem operację jako część operacje systemu plików
+- `SortFileList()`: Wykonuje SortFileList operację jako część operacje systemu plików
+- `CanSort()`: Wykonuje CanSort operację jako część operacje systemu plików
+- `GetItemFullName()`: Pobiera ItemFullName ze stanu wewnętrznego lub struktury danych
+- `GetStreamsCountAndSize()`: Pobiera StreamsCountAndSize ze stanu wewnętrznego lub struktury danych
+- `event_id()`: Konstruktor inicjalizujący zdarzenie_id obiekt z dostarczonymi parametrami
 ### Przestrzenie nazw
 - `custom_sort`
 - `std`

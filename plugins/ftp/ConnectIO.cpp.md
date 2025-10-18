@@ -3,10 +3,10 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `setascii()`: Sets or assigns data
-- `setbinary()`: Sets or assigns data
-- `setebcdic()`: Sets or assigns data
-- `select()`: Performs specific operation
+- `setascii()`: Updates ascii in internal state or configuration
+- `setbinary()`: Updates binary in internal state or configuration
+- `setebcdic()`: Updates ebcdic in internal state or configuration
+- `select()`: Executes select operation as part of core functionality
 ### Summary
 The `ConnectIO.cpp` file provides essential functionality for core functionality. and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -16,9 +16,9 @@ The `ConnectIO.cpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `setascii()`: Ustawia lub przypisuje dane
-- `setbinary()`: Ustawia lub przypisuje dane
-- `setebcdic()`: Ustawia lub przypisuje dane
-- `select()`: Wykonuje specyficzną operację
+- `setascii()`: Aktualizuje ascii w stanie wewnętrznym lub konfiguracji
+- `setbinary()`: Aktualizuje binary w stanie wewnętrznym lub konfiguracji
+- `setebcdic()`: Aktualizuje ebcdic w stanie wewnętrznym lub konfiguracji
+- `select()`: Wykonuje select operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `ConnectIO.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

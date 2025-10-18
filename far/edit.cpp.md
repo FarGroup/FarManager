@@ -6,16 +6,16 @@ Main functional areas: text editing
 ### Key Classes
 - `positions_cache`: Implements text editing
 ### Key Functions
-- `get()`: Retrieves or returns data
-- `RealPosToVisual()`: Performs specific operation
-- `VisualPosToReal()`: Performs specific operation
-- `block()`: Performs specific operation
-- `RemoveSelection()`: Removes or deletes an item
-- `flatten_string()`: Performs specific operation
-- `Select()`: Performs specific operation
-- `Show()`: Displays or shows content
-- `repeat()`: Performs specific operation
-- `InsertKey()`: Performs specific operation
+- `get()`: Retrieves value from internal state or data structure
+- `RealPosToVisual()`: Executes RealPosToVisual operation as part of text editing
+- `VisualPosToReal()`: Executes VisualPosToReal operation as part of text editing
+- `block()`: Executes block operation as part of text editing
+- `RemoveSelection()`: Removes Selection from collection and frees associated resources
+- `flatten_string()`: Executes flatten_string operation as part of text editing
+- `Select()`: Executes Select operation as part of text editing
+- `Show()`: Displays content or makes visual element visible on screen
+- `repeat()`: Executes repeat operation as part of text editing
+- `InsertKey()`: Executes InsertKey operation as part of text editing
 ### Summary
 The `edit.cpp` file provides essential functionality for text editing. It defines 1 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -28,15 +28,15 @@ Główne obszary funkcjonalne: edycja tekstu
 ### Kluczowe Klasy
 - `positions_cache`: Implementuje edycja tekstu
 ### Kluczowe Funkcje
-- `get()`: Pobiera lub zwraca dane
-- `RealPosToVisual()`: Wykonuje specyficzną operację
-- `VisualPosToReal()`: Wykonuje specyficzną operację
-- `block()`: Wykonuje specyficzną operację
-- `RemoveSelection()`: Usuwa element
-- `flatten_string()`: Wykonuje specyficzną operację
-- `Select()`: Wykonuje specyficzną operację
-- `Show()`: Wyświetla lub pokazuje zawartość
-- `repeat()`: Wykonuje specyficzną operację
-- `InsertKey()`: Wykonuje specyficzną operację
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
+- `RealPosToVisual()`: Wykonuje RealPosToVisual operację jako część edycja tekstu
+- `VisualPosToReal()`: Wykonuje VisualPosToReal operację jako część edycja tekstu
+- `block()`: Wykonuje block operację jako część edycja tekstu
+- `RemoveSelection()`: Usuwa Selection z kolekcji i zwalnia powiązane zasoby
+- `flatten_string()`: Wykonuje flatten_string operację jako część edycja tekstu
+- `Select()`: Wykonuje Select operację jako część edycja tekstu
+- `Show()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `repeat()`: Wykonuje repeat operację jako część edycja tekstu
+- `InsertKey()`: Wykonuje InsertKey operację jako część edycja tekstu
 ### Podsumowanie
 Plik `edit.cpp` zapewnia podstawową funkcjonalność dla edycja tekstu. Definiuje 1 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

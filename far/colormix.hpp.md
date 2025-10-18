@@ -11,16 +11,16 @@ Main functional areas: color management
 - `single_color`: Implements color management
 - `std`: Implements color management
 ### Key Functions
-- `foreground()`: Performs specific operation
-- `background()`: Performs specific operation
-- `underline()`: Performs specific operation
-- `default_color()`: Performs specific operation
-- `index_bits()`: Performs specific operation
-- `color_bits()`: Performs specific operation
-- `alpha_bits()`: Performs specific operation
-- `index_value()`: Performs specific operation
-- `color_value()`: Performs specific operation
-- `alpha_value()`: Performs specific operation
+- `foreground()`: Executes foreground operation as part of color management
+- `background()`: Executes background operation as part of color management
+- `underline()`: Executes underline operation as part of color management
+- `default_color()`: Executes default_color operation as part of color management
+- `index_bits()`: Executes index_bits operation as part of color management
+- `color_bits()`: Executes color_bits operation as part of color management
+- `alpha_bits()`: Executes alpha_bits operation as part of color management
+- `index_value()`: Executes index_value operation as part of color management
+- `color_value()`: Executes color_value operation as part of color management
+- `alpha_value()`: Executes alpha_value operation as part of color management
 ### Namespaces
 - `colors`
 - `index`
@@ -41,16 +41,16 @@ Główne obszary funkcjonalne: zarządzanie kolorami
 - `single_color`: Implementuje zarządzanie kolorami
 - `std`: Implementuje zarządzanie kolorami
 ### Kluczowe Funkcje
-- `foreground()`: Wykonuje specyficzną operację
-- `background()`: Wykonuje specyficzną operację
-- `underline()`: Wykonuje specyficzną operację
-- `default_color()`: Wykonuje specyficzną operację
-- `index_bits()`: Wykonuje specyficzną operację
-- `color_bits()`: Wykonuje specyficzną operację
-- `alpha_bits()`: Wykonuje specyficzną operację
-- `index_value()`: Wykonuje specyficzną operację
-- `color_value()`: Wykonuje specyficzną operację
-- `alpha_value()`: Wykonuje specyficzną operację
+- `foreground()`: Wykonuje foreground operację jako część zarządzanie kolorami
+- `background()`: Wykonuje background operację jako część zarządzanie kolorami
+- `underline()`: Wykonuje underline operację jako część zarządzanie kolorami
+- `default_color()`: Wykonuje default_color operację jako część zarządzanie kolorami
+- `index_bits()`: Wykonuje index_bits operację jako część zarządzanie kolorami
+- `color_bits()`: Wykonuje color_bits operację jako część zarządzanie kolorami
+- `alpha_bits()`: Wykonuje alpha_bits operację jako część zarządzanie kolorami
+- `index_value()`: Wykonuje index_wartość operację jako część zarządzanie kolorami
+- `color_value()`: Wykonuje color_wartość operację jako część zarządzanie kolorami
+- `alpha_value()`: Wykonuje alpha_wartość operację jako część zarządzanie kolorami
 ### Przestrzenie nazw
 - `colors`
 - `index`

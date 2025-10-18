@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `module_deleter`: Implements core functionality
 - `nt_handle_closer`: Implements core functionality
 ### Key Functions
-- `buffer()`: Performs specific operation
-- `wait()`: Performs specific operation
-- `is_signaled()`: Checks a condition or state
-- `wait_any()`: Performs specific operation
-- `wait_all()`: Performs specific operation
-- `normalise()`: Performs specific operation
-- `native_handle()`: Performs specific operation
-- `reset()`: Performs specific operation
-- `close()`: Closes a resource
-- `set_error_mode()`: Sets or assigns data
+- `buffer()`: Executes buffer operation as part of core functionality
+- `wait()`: Executes wait operation as part of core functionality
+- `is_signaled()`: Tests whether _signaled condition is true or property exists
+- `wait_any()`: Executes wait_any operation as part of core functionality
+- `wait_all()`: Executes wait_all operation as part of core functionality
+- `normalise()`: Executes normalise operation as part of core functionality
+- `native_handle()`: Executes native_handle operation as part of core functionality
+- `reset()`: Executes reset operation as part of core functionality
+- `close()`: Closes resource and performs cleanup operations
+- `set_error_mode()`: Updates _error_mode in internal state or configuration
 ### Namespaces
 - `detail`
 - `netapi`
@@ -52,16 +52,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `module_deleter`: Implementuje podstawowa funkcjonalność
 - `nt_handle_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `buffer()`: Wykonuje specyficzną operację
-- `wait()`: Wykonuje specyficzną operację
-- `is_signaled()`: Sprawdza warunek lub stan
-- `wait_any()`: Wykonuje specyficzną operację
-- `wait_all()`: Wykonuje specyficzną operację
-- `normalise()`: Wykonuje specyficzną operację
-- `native_handle()`: Wykonuje specyficzną operację
-- `reset()`: Wykonuje specyficzną operację
-- `close()`: Zamyka zasób
-- `set_error_mode()`: Ustawia lub przypisuje dane
+- `buffer()`: Wykonuje buffer operację jako część podstawowa funkcjonalność
+- `wait()`: Wykonuje wait operację jako część podstawowa funkcjonalność
+- `is_signaled()`: Testuje czy _signaled warunek jest prawdziwy lub właściwość istnieje
+- `wait_any()`: Wykonuje wait_any operację jako część podstawowa funkcjonalność
+- `wait_all()`: Wykonuje wait_all operację jako część podstawowa funkcjonalność
+- `normalise()`: Wykonuje normalise operację jako część podstawowa funkcjonalność
+- `native_handle()`: Wykonuje native_handle operację jako część podstawowa funkcjonalność
+- `reset()`: Wykonuje reset operację jako część podstawowa funkcjonalność
+- `close()`: Zamyka zasób i wykonuje operacje czyszczące
+- `set_error_mode()`: Aktualizuje _error_mode w stanie wewnętrznym lub konfiguracji
 ### Przestrzenie nazw
 - `detail`
 - `netapi`

@@ -10,15 +10,15 @@ Main functional areas: core functionality
 - `simple_policy`: Implements core functionality
 - `trimmer`: Implements core functionality
 ### Key Functions
-- `reset()`: Performs specific operation
-- `active()`: Performs specific operation
-- `postprocess()`: Performs specific operation
-- `reset_impl()`: Performs specific operation
-- `active_impl()`: Performs specific operation
-- `postprocess_impl()`: Performs specific operation
-- `get_opt()`: Retrieves or returns data
-- `extract()`: Performs specific operation
-- `get()`: Retrieves or returns data
+- `reset()`: Executes reset operation as part of core functionality
+- `active()`: Executes active operation as part of core functionality
+- `postprocess()`: Executes postprocess operation as part of core functionality
+- `reset_impl()`: Executes reset_impl operation as part of core functionality
+- `active_impl()`: Executes active_impl operation as part of core functionality
+- `postprocess_impl()`: Executes postprocess_impl operation as part of core functionality
+- `get_opt()`: Retrieves _opt from internal state or data structure
+- `extract()`: Executes extract operation as part of core functionality
+- `get()`: Retrieves value from internal state or data structure
 ### Namespaces
 - `detail`
 ### Summary
@@ -37,15 +37,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `simple_policy`: Implementuje podstawowa funkcjonalność
 - `trimmer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `reset()`: Wykonuje specyficzną operację
-- `active()`: Wykonuje specyficzną operację
-- `postprocess()`: Wykonuje specyficzną operację
-- `reset_impl()`: Wykonuje specyficzną operację
-- `active_impl()`: Wykonuje specyficzną operację
-- `postprocess_impl()`: Wykonuje specyficzną operację
-- `get_opt()`: Pobiera lub zwraca dane
-- `extract()`: Wykonuje specyficzną operację
-- `get()`: Pobiera lub zwraca dane
+- `reset()`: Wykonuje reset operację jako część podstawowa funkcjonalność
+- `active()`: Wykonuje active operację jako część podstawowa funkcjonalność
+- `postprocess()`: Wykonuje postprocess operację jako część podstawowa funkcjonalność
+- `reset_impl()`: Wykonuje reset_impl operację jako część podstawowa funkcjonalność
+- `active_impl()`: Wykonuje active_impl operację jako część podstawowa funkcjonalność
+- `postprocess_impl()`: Wykonuje postprocess_impl operację jako część podstawowa funkcjonalność
+- `get_opt()`: Pobiera _opt ze stanu wewnętrznego lub struktury danych
+- `extract()`: Wykonuje extract operację jako część podstawowa funkcjonalność
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

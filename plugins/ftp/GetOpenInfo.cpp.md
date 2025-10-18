@@ -3,9 +3,9 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `SetTitles()`: Sets or assigns data
-- `strcpy()`: Performs specific operation
-- `strcat()`: Performs specific operation
+- `SetTitles()`: Updates Titles in internal state or configuration
+- `strcpy()`: Executes strcpy operation as part of core functionality
+- `strcat()`: Executes strcat operation as part of core functionality
 ### Summary
 The `GetOpenInfo.cpp` file provides essential functionality for core functionality. and contains approximately 3 function(s) to support the Far Manager file manager operations.
 
@@ -15,8 +15,8 @@ The `GetOpenInfo.cpp` file provides essential functionality for core functionali
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `SetTitles()`: Ustawia lub przypisuje dane
-- `strcpy()`: Wykonuje specyficzną operację
-- `strcat()`: Wykonuje specyficzną operację
+- `SetTitles()`: Aktualizuje Titles w stanie wewnętrznym lub konfiguracji
+- `strcpy()`: Wykonuje strcpy operację jako część podstawowa funkcjonalność
+- `strcat()`: Wykonuje strcat operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `GetOpenInfo.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 3 funkcji wspierających operacje menedżera plików Far Manager.

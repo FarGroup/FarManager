@@ -7,16 +7,16 @@ Main functional areas: color management
 - `color_state`: Implements color management
 - `single_color_state`: Implements color management
 ### Key Functions
-- `color_code()`: Performs specific operation
-- `fg_item()`: Performs specific operation
-- `bg_item()`: Performs specific operation
-- `GetSingleColorDlgProc()`: Retrieves or returns data
-- `refresh_fg()`: Refreshes or reloads data
-- `refresh_bg()`: Refreshes or reloads data
-- `GetColorDlgProc()`: Retrieves or returns data
-- `scd_item()`: Performs specific operation
-- `activate_control()`: Performs specific operation
-- `disable_if_needed()`: Performs specific operation
+- `color_code()`: Executes color_code operation as part of color management
+- `fg_item()`: Executes fg_item operation as part of color management
+- `bg_item()`: Executes bg_item operation as part of color management
+- `GetSingleColorDlgProc()`: Retrieves SingleColorDlgProc from internal state or data structure
+- `refresh_fg()`: Refreshes data by reloading from source or recalculating
+- `refresh_bg()`: Refreshes data by reloading from source or recalculating
+- `GetColorDlgProc()`: Retrieves ColorDlgProc from internal state or data structure
+- `scd_item()`: Executes scd_item operation as part of color management
+- `activate_control()`: Executes activate_control operation as part of color management
+- `disable_if_needed()`: Executes disable_if_needed operation as part of color management
 ### Namespaces
 - `cb`
 - `cd`
@@ -37,16 +37,16 @@ Główne obszary funkcjonalne: zarządzanie kolorami
 - `color_state`: Implementuje zarządzanie kolorami
 - `single_color_state`: Implementuje zarządzanie kolorami
 ### Kluczowe Funkcje
-- `color_code()`: Wykonuje specyficzną operację
-- `fg_item()`: Wykonuje specyficzną operację
-- `bg_item()`: Wykonuje specyficzną operację
-- `GetSingleColorDlgProc()`: Pobiera lub zwraca dane
-- `refresh_fg()`: Odświeża lub przeładowuje dane
-- `refresh_bg()`: Odświeża lub przeładowuje dane
-- `GetColorDlgProc()`: Pobiera lub zwraca dane
-- `scd_item()`: Wykonuje specyficzną operację
-- `activate_control()`: Wykonuje specyficzną operację
-- `disable_if_needed()`: Wykonuje specyficzną operację
+- `color_code()`: Wykonuje color_code operację jako część zarządzanie kolorami
+- `fg_item()`: Wykonuje fg_element operację jako część zarządzanie kolorami
+- `bg_item()`: Wykonuje bg_element operację jako część zarządzanie kolorami
+- `GetSingleColorDlgProc()`: Pobiera SingleColorDlgProc ze stanu wewnętrznego lub struktury danych
+- `refresh_fg()`: Odświeża dane przeładowując ze źródła lub przeliczając
+- `refresh_bg()`: Odświeża dane przeładowując ze źródła lub przeliczając
+- `GetColorDlgProc()`: Pobiera ColorDlgProc ze stanu wewnętrznego lub struktury danych
+- `scd_item()`: Wykonuje scd_element operację jako część zarządzanie kolorami
+- `activate_control()`: Wykonuje activate_control operację jako część zarządzanie kolorami
+- `disable_if_needed()`: Wykonuje disable_if_needed operację jako część zarządzanie kolorami
 ### Przestrzenie nazw
 - `cb`
 - `cd`

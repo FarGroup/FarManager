@@ -15,16 +15,16 @@ Main functional areas: configuration management
 - `VersionInfo`: Implements configuration management
 - `async_delete`: Implements configuration management
 ### Key Functions
-- `GetValue()`: Retrieves or returns data
-- `ValuesEnumerator()`: Performs specific operation
-- `get()`: Retrieves or returns data
-- `bool()`: Performs specific operation
-- `KeysEnumerator()`: Performs specific operation
-- `EnumKeys()`: Performs specific operation
-- `EnumValues()`: Performs specific operation
-- `ToSettingsType()`: Performs specific operation
-- `MasksEnumerator()`: Performs specific operation
-- `EnumMasks()`: Performs specific operation
+- `GetValue()`: Retrieves specific configuration value by key name
+- `ValuesEnumerator()`: Executes ValuesEnumerator operation as part of configuration management
+- `get()`: Retrieves specific configuration value by key name
+- `bool()`: Executes bool operation as part of configuration management
+- `KeysEnumerator()`: Executes KeysEnumerator operation as part of configuration management
+- `EnumKeys()`: Executes EnumKeys operation as part of configuration management
+- `EnumValues()`: Executes EnumValues operation as part of configuration management
+- `ToSettingsType()`: Updates configuration value for specified key
+- `MasksEnumerator()`: Executes MasksEnumerator operation as part of configuration management
+- `EnumMasks()`: Executes EnumMasks operation as part of configuration management
 ### Namespaces
 - `concurrency`
 - `detail`
@@ -50,16 +50,16 @@ Główne obszary funkcjonalne: zarządzanie konfiguracją
 - `VersionInfo`: Implementuje zarządzanie konfiguracją
 - `async_delete`: Implementuje zarządzanie konfiguracją
 ### Kluczowe Funkcje
-- `GetValue()`: Pobiera lub zwraca dane
-- `ValuesEnumerator()`: Wykonuje specyficzną operację
-- `get()`: Pobiera lub zwraca dane
-- `bool()`: Wykonuje specyficzną operację
-- `KeysEnumerator()`: Wykonuje specyficzną operację
-- `EnumKeys()`: Wykonuje specyficzną operację
-- `EnumValues()`: Wykonuje specyficzną operację
-- `ToSettingsType()`: Wykonuje specyficzną operację
-- `MasksEnumerator()`: Wykonuje specyficzną operację
-- `EnumMasks()`: Wykonuje specyficzną operację
+- `GetValue()`: Pobiera specific configuration wartość by key name
+- `ValuesEnumerator()`: Wykonuje ValuesEnumerator operację jako część zarządzanie konfiguracją
+- `get()`: Pobiera specific configuration wartość by key name
+- `bool()`: Wykonuje bool operację jako część zarządzanie konfiguracją
+- `KeysEnumerator()`: Wykonuje KeysEnumerator operację jako część zarządzanie konfiguracją
+- `EnumKeys()`: Wykonuje EnumKeys operację jako część zarządzanie konfiguracją
+- `EnumValues()`: Wykonuje EnumValues operację jako część zarządzanie konfiguracją
+- `ToSettingsType()`: Aktualizuje configuration wartość for specified key
+- `MasksEnumerator()`: Wykonuje MasksEnumerator operację jako część zarządzanie konfiguracją
+- `EnumMasks()`: Wykonuje EnumMasks operację jako część zarządzanie konfiguracją
 ### Przestrzenie nazw
 - `concurrency`
 - `detail`

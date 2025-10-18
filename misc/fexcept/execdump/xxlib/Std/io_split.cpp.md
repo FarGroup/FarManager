@@ -3,11 +3,11 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `MakePathName()`: Performs specific operation
-- `str()`: Performs specific operation
-- `GetLastDirName()`: Retrieves or returns data
-- `RootDir()`: Performs specific operation
-- `MakeRootDir()`: Performs specific operation
+- `MakePathName()`: Executes MakePathName operation as part of core functionality
+- `str()`: Executes str operation as part of core functionality
+- `GetLastDirName()`: Retrieves LastDirName from internal state or data structure
+- `RootDir()`: Executes RootDir operation as part of core functionality
+- `MakeRootDir()`: Executes MakeRootDir operation as part of core functionality
 ### Summary
 The `io_split.cpp` file provides essential functionality for core functionality. and contains approximately 5 function(s) to support the Far Manager file manager operations.
 
@@ -17,10 +17,10 @@ The `io_split.cpp` file provides essential functionality for core functionality.
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `MakePathName()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
-- `GetLastDirName()`: Pobiera lub zwraca dane
-- `RootDir()`: Wykonuje specyficzną operację
-- `MakeRootDir()`: Wykonuje specyficzną operację
+- `MakePathName()`: Wykonuje MakePathName operację jako część podstawowa funkcjonalność
+- `str()`: Wykonuje str operację jako część podstawowa funkcjonalność
+- `GetLastDirName()`: Pobiera LastDirName ze stanu wewnętrznego lub struktury danych
+- `RootDir()`: Wykonuje RootDir operację jako część podstawowa funkcjonalność
+- `MakeRootDir()`: Wykonuje MakeRootDir operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `io_split.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 5 funkcji wspierających operacje menedżera plików Far Manager.

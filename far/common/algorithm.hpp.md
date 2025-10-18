@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `repeat()`: Performs specific operation
-- `apply_permutation()`: Performs specific operation
-- `emplace()`: Performs specific operation
-- `contains()`: Performs specific operation
-- `in_closed_range()`: Performs specific operation
-- `any_of()`: Performs specific operation
-- `none_of()`: Performs specific operation
-- `intersect()`: Performs specific operation
+- `repeat()`: Executes repeat operation as part of core functionality
+- `apply_permutation()`: Executes apply_permutation operation as part of core functionality
+- `emplace()`: Executes emplace operation as part of core functionality
+- `contains()`: Executes contains operation as part of core functionality
+- `in_closed_range()`: Executes in_closed_range operation as part of core functionality
+- `any_of()`: Executes any_of operation as part of core functionality
+- `none_of()`: Executes none_of operation as part of core functionality
+- `intersect()`: Executes intersect operation as part of core functionality
 ### Namespaces
 - `std`
 ### Summary
@@ -22,14 +22,14 @@ The `algorithm.hpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `repeat()`: Wykonuje specyficzną operację
-- `apply_permutation()`: Wykonuje specyficzną operację
-- `emplace()`: Wykonuje specyficzną operację
-- `contains()`: Wykonuje specyficzną operację
-- `in_closed_range()`: Wykonuje specyficzną operację
-- `any_of()`: Wykonuje specyficzną operację
-- `none_of()`: Wykonuje specyficzną operację
-- `intersect()`: Wykonuje specyficzną operację
+- `repeat()`: Wykonuje repeat operację jako część podstawowa funkcjonalność
+- `apply_permutation()`: Wykonuje apply_permutation operację jako część podstawowa funkcjonalność
+- `emplace()`: Wykonuje emplace operację jako część podstawowa funkcjonalność
+- `contains()`: Wykonuje contains operację jako część podstawowa funkcjonalność
+- `in_closed_range()`: Wykonuje in_closed_range operację jako część podstawowa funkcjonalność
+- `any_of()`: Wykonuje any_of operację jako część podstawowa funkcjonalność
+- `none_of()`: Wykonuje none_of operację jako część podstawowa funkcjonalność
+- `intersect()`: Wykonuje intersect operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

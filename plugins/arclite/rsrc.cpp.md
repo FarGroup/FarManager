@@ -14,16 +14,16 @@ Main functional areas: core functionality
 - `ResourceUpdate`: Implements core functionality
 - `RsrcId`: Implements core functionality
 ### Key Functions
-- `set()`: Sets or assigns data
-- `LPCTSTR()`: Performs specific operation
-- `is_int()`: Checks a condition or state
-- `load_icon_file()`: Loads data or resources
-- `file()`: Performs specific operation
-- `load_icon_rsrc()`: Loads data or resources
-- `enum_names_proc()`: Performs specific operation
-- `enum_langs_proc()`: Performs specific operation
-- `handle()`: Handles an event or action
-- `close()`: Closes a resource
+- `set()`: Updates value in internal state or configuration
+- `LPCTSTR()`: Executes LPCTSTR operation as part of core functionality
+- `is_int()`: Tests whether _int condition is true or property exists
+- `load_icon_file()`: Loads data or resources from storage into memory
+- `file()`: Executes file operation as part of core functionality
+- `load_icon_rsrc()`: Loads data or resources from storage into memory
+- `enum_names_proc()`: Executes enum_names_proc operation as part of core functionality
+- `enum_langs_proc()`: Executes enum_langs_proc operation as part of core functionality
+- `handle()`: Handles event by executing appropriate response logic
+- `close()`: Closes resource and performs cleanup operations
 ### Summary
 The `rsrc.cpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ResourceUpdate`: Implementuje podstawowa funkcjonalność
 - `RsrcId`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `set()`: Ustawia lub przypisuje dane
-- `LPCTSTR()`: Wykonuje specyficzną operację
-- `is_int()`: Sprawdza warunek lub stan
-- `load_icon_file()`: Ładuje dane lub zasoby
-- `file()`: Wykonuje specyficzną operację
-- `load_icon_rsrc()`: Ładuje dane lub zasoby
-- `enum_names_proc()`: Wykonuje specyficzną operację
-- `enum_langs_proc()`: Wykonuje specyficzną operację
-- `handle()`: Obsługuje zdarzenie lub akcję
-- `close()`: Zamyka zasób
+- `set()`: Aktualizuje wartość w stanie wewnętrznym lub konfiguracji
+- `LPCTSTR()`: Wykonuje LPCTSTR operację jako część podstawowa funkcjonalność
+- `is_int()`: Testuje czy _int warunek jest prawdziwy lub właściwość istnieje
+- `load_icon_file()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `file()`: Wykonuje file operację jako część podstawowa funkcjonalność
+- `load_icon_rsrc()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `enum_names_proc()`: Wykonuje enum_names_proc operację jako część podstawowa funkcjonalność
+- `enum_langs_proc()`: Wykonuje enum_langs_proc operację jako część podstawowa funkcjonalność
+- `handle()`: Obsługuje zdarzenie wykonując odpowiednią logikę odpowiedzi
+- `close()`: Zamyka zasób i wykonuje operacje czyszczące
 ### Podsumowanie
 Plik `rsrc.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

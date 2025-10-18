@@ -8,16 +8,16 @@ Main functional areas: window management
 - `Manager`: Implements window management
 - `window`: Implements window management
 ### Key Functions
-- `Refresh()`: Refreshes or reloads data
-- `GetCanLoseFocus()`: Retrieves or returns data
-- `SetExitCode()`: Sets or assigns data
-- `IsFileModified()`: Checks a condition or state
-- `OnDestroy()`: Event handler
-- `OnChangeFocus()`: Event handler
-- `InitKeyBar()`: Initializes or sets up
-- `RedrawKeyBar()`: Performs specific operation
-- `GetMacroArea()`: Retrieves or returns data
-- `CanFastHide()`: Performs specific operation
+- `Refresh()`: Refreshes data by reloading from source or recalculating
+- `GetCanLoseFocus()`: Retrieves CanLoseFocus from internal state or data structure
+- `SetExitCode()`: Updates ExitCode in internal state or configuration
+- `IsFileModified()`: Tests whether FileModified condition is true or property exists
+- `OnDestroy()`: Event handler invoked when Destroy occurs
+- `OnChangeFocus()`: Event handler invoked when ChangeFocus occurs
+- `InitKeyBar()`: Initializes data structures and sets up initial state for operation
+- `RedrawKeyBar()`: Executes RedrawKeyBar operation as part of window management
+- `GetMacroArea()`: Retrieves MacroArea from internal state or data structure
+- `CanFastHide()`: Executes CanFastHide operation as part of window management
 ### Summary
 The `window.hpp` file provides essential functionality for window management. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: zarządzanie oknami
 - `Manager`: Implementuje zarządzanie oknami
 - `window`: Implementuje zarządzanie oknami
 ### Kluczowe Funkcje
-- `Refresh()`: Odświeża lub przeładowuje dane
-- `GetCanLoseFocus()`: Pobiera lub zwraca dane
-- `SetExitCode()`: Ustawia lub przypisuje dane
-- `IsFileModified()`: Sprawdza warunek lub stan
-- `OnDestroy()`: Procedura obsługi zdarzeń
-- `OnChangeFocus()`: Procedura obsługi zdarzeń
-- `InitKeyBar()`: Inicjalizuje lub konfiguruje
-- `RedrawKeyBar()`: Wykonuje specyficzną operację
-- `GetMacroArea()`: Pobiera lub zwraca dane
-- `CanFastHide()`: Wykonuje specyficzną operację
+- `Refresh()`: Odświeża dane przeładowując ze źródła lub przeliczając
+- `GetCanLoseFocus()`: Pobiera CanLoseFocus ze stanu wewnętrznego lub struktury danych
+- `SetExitCode()`: Aktualizuje ExitCode w stanie wewnętrznym lub konfiguracji
+- `IsFileModified()`: Testuje czy FileModified warunek jest prawdziwy lub właściwość istnieje
+- `OnDestroy()`: Procedura obsługi zdarzeń wywoływana gdy Destroy występuje
+- `OnChangeFocus()`: Procedura obsługi zdarzeń wywoływana gdy ChangeFocus występuje
+- `InitKeyBar()`: Inicjalizuje struktury danych i ustawia stan początkowy dla operacji
+- `RedrawKeyBar()`: Wykonuje RedrawKeyBar operację jako część zarządzanie oknami
+- `GetMacroArea()`: Pobiera MacroArea ze stanu wewnętrznego lub struktury danych
+- `CanFastHide()`: Wykonuje CanFastHide operację jako część zarządzanie oknami
 ### Podsumowanie
 Plik `window.hpp` zapewnia podstawową funkcjonalność dla zarządzanie oknami. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

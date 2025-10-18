@@ -9,16 +9,16 @@ Main functional areas: color management
 - `rgb_context_t`: Implements color management
 - `shapes`: Implements color management
 ### Key Functions
-- `rotate_coord()`: Performs specific operation
-- `rotate_cube()`: Performs specific operation
-- `copy_row()`: Copies data
-- `copy_col()`: Copies data
-- `move_step()`: Moves data or objects
-- `move_plane()`: Moves data or objects
-- `slice_str()`: Performs specific operation
-- `rotate()`: Performs specific operation
-- `Event()`: Performs specific operation
-- `Timer()`: Performs specific operation
+- `rotate_coord()`: Executes rotate_coord operation as part of color management
+- `rotate_cube()`: Executes rotate_cube operation as part of color management
+- `copy_row()`: Copies data from source to destination location
+- `copy_col()`: Copies data from source to destination location
+- `move_step()`: Moves data or object from current location to new location
+- `move_plane()`: Moves data or object from current location to new location
+- `slice_str()`: Executes slice_str operation as part of color management
+- `rotate()`: Executes rotate operation as part of color management
+- `Event()`: Executes Event operation as part of color management
+- `Timer()`: Executes Timer operation as part of color management
 ### Namespaces
 - `color_picker_common`
 ### Summary
@@ -36,16 +36,16 @@ Główne obszary funkcjonalne: zarządzanie kolorami
 - `rgb_context_t`: Implementuje zarządzanie kolorami
 - `shapes`: Implementuje zarządzanie kolorami
 ### Kluczowe Funkcje
-- `rotate_coord()`: Wykonuje specyficzną operację
-- `rotate_cube()`: Wykonuje specyficzną operację
-- `copy_row()`: Kopiuje dane
-- `copy_col()`: Kopiuje dane
-- `move_step()`: Przenosi dane lub obiekty
-- `move_plane()`: Przenosi dane lub obiekty
-- `slice_str()`: Wykonuje specyficzną operację
-- `rotate()`: Wykonuje specyficzną operację
-- `Event()`: Wykonuje specyficzną operację
-- `Timer()`: Wykonuje specyficzną operację
+- `rotate_coord()`: Wykonuje rotate_coord operację jako część zarządzanie kolorami
+- `rotate_cube()`: Wykonuje rotate_cube operację jako część zarządzanie kolorami
+- `copy_row()`: Kopiuje dane ze źródła do miejsca docelowego
+- `copy_col()`: Kopiuje dane ze źródła do miejsca docelowego
+- `move_step()`: Przenosi dane lub obiekt z bieżącej lokalizacji do nowej lokalizacji
+- `move_plane()`: Przenosi dane lub obiekt z bieżącej lokalizacji do nowej lokalizacji
+- `slice_str()`: Wykonuje slice_str operację jako część zarządzanie kolorami
+- `rotate()`: Wykonuje rotate operację jako część zarządzanie kolorami
+- `Event()`: Wykonuje Event operację jako część zarządzanie kolorami
+- `Timer()`: Wykonuje Timer operację jako część zarządzanie kolorami
 ### Przestrzenie nazw
 - `color_picker_common`
 ### Podsumowanie

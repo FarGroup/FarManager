@@ -7,15 +7,15 @@ Main functional areas: core functionality
 - `ArcInfo`: Implements core functionality
 - `ArcItemInfo`: Implements core functionality
 ### Key Functions
-- `LoadFormatModule()`: Loads data or resources
-- `SetFarInfo()`: Sets or assigns data
-- `IsArchive()`: Checks a condition or state
-- `GetSFXPos()`: Retrieves or returns data
-- `OpenArchive()`: Opens a resource
-- `GetArcItem()`: Retrieves or returns data
-- `CloseArchive()`: Closes a resource
-- `GetFormatName()`: Retrieves or returns data
-- `GetDefaultCommands()`: Retrieves or returns data
+- `LoadFormatModule()`: Loads data or resources from storage into memory
+- `SetFarInfo()`: Updates FarInfo in internal state or configuration
+- `IsArchive()`: Tests whether Archive condition is true or property exists
+- `GetSFXPos()`: Retrieves SFXPos from internal state or data structure
+- `OpenArchive()`: Opens resource and prepares it for access operations
+- `GetArcItem()`: Retrieves ArcItem from internal state or data structure
+- `CloseArchive()`: Closes resource and performs cleanup operations
+- `GetFormatName()`: Retrieves FormatName from internal state or data structure
+- `GetDefaultCommands()`: Retrieves DefaultCommands from internal state or data structure
 ### Summary
 The `fmt.hpp` file provides essential functionality for core functionality. It defines 2 class(es) and contains approximately 9 function(s) to support the Far Manager file manager operations.
 
@@ -29,14 +29,14 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ArcInfo`: Implementuje podstawowa funkcjonalność
 - `ArcItemInfo`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `LoadFormatModule()`: Ładuje dane lub zasoby
-- `SetFarInfo()`: Ustawia lub przypisuje dane
-- `IsArchive()`: Sprawdza warunek lub stan
-- `GetSFXPos()`: Pobiera lub zwraca dane
-- `OpenArchive()`: Otwiera zasób
-- `GetArcItem()`: Pobiera lub zwraca dane
-- `CloseArchive()`: Zamyka zasób
-- `GetFormatName()`: Pobiera lub zwraca dane
-- `GetDefaultCommands()`: Pobiera lub zwraca dane
+- `LoadFormatModule()`: Ładuje dane lub zasoby z magazynu do pamięci
+- `SetFarInfo()`: Aktualizuje FarInfo w stanie wewnętrznym lub konfiguracji
+- `IsArchive()`: Testuje czy Archive warunek jest prawdziwy lub właściwość istnieje
+- `GetSFXPos()`: Pobiera SFXPos ze stanu wewnętrznego lub struktury danych
+- `OpenArchive()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetArcItem()`: Pobiera ArcItem ze stanu wewnętrznego lub struktury danych
+- `CloseArchive()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetFormatName()`: Pobiera FormatName ze stanu wewnętrznego lub struktury danych
+- `GetDefaultCommands()`: Pobiera DefaultCommands ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `fmt.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 2 klas(y) i zawiera około 9 funkcji wspierających operacje menedżera plików Far Manager.

@@ -4,10 +4,10 @@
 This file implements functionality related to: Temporary panel configuration
 Main functional areas: core functionality
 ### Key Functions
-- `GetOptions()`: Retrieves or returns data
-- `settings()`: Sets or assigns data
-- `Config()`: Performs specific operation
-- `Builder()`: Performs specific operation
+- `GetOptions()`: Retrieves Options from internal state or data structure
+- `settings()`: Updates tings in internal state or configuration
+- `Config()`: Executes Config operation as part of core functionality
+- `Builder()`: Executes Builder operation as part of core functionality
 ### Summary
 The `TmpCfg.cpp` file provides essential functionality for core functionality. and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -18,9 +18,9 @@ The `TmpCfg.cpp` file provides essential functionality for core functionality. a
 Ten plik implementuje funkcjonalność związaną z: Temporary panel configuration
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetOptions()`: Pobiera lub zwraca dane
-- `settings()`: Ustawia lub przypisuje dane
-- `Config()`: Wykonuje specyficzną operację
-- `Builder()`: Wykonuje specyficzną operację
+- `GetOptions()`: Pobiera Options ze stanu wewnętrznego lub struktury danych
+- `settings()`: Aktualizuje tings w stanie wewnętrznym lub konfiguracji
+- `Config()`: Wykonuje Config operację jako część podstawowa funkcjonalność
+- `Builder()`: Wykonuje Builder operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `TmpCfg.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

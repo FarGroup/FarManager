@@ -11,16 +11,16 @@ Main functional areas: core functionality
 - `source_mode`: Implements core functionality
 - `wait_mode`: Implements core functionality
 ### Key Functions
-- `CommandLine()`: Performs specific operation
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `VMProcess()`: Performs specific operation
-- `ResizeConsole()`: Resizes or adjusts dimensions
-- `GetCurDir()`: Retrieves or returns data
-- `SetCurDir()`: Sets or assigns data
-- `GetString()`: Retrieves or returns data
-- `SetString()`: Sets or assigns data
-- `InsertString()`: Performs specific operation
+- `CommandLine()`: Executes CommandLine operation as part of core functionality
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `VMProcess()`: Processes virtual machine operations or commands
+- `ResizeConsole()`: Changes size dimensions while preserving content when possible
+- `GetCurDir()`: Retrieves CurDir from internal state or data structure
+- `SetCurDir()`: Updates CurDir in internal state or configuration
+- `GetString()`: Retrieves String from internal state or data structure
+- `SetString()`: Updates String in internal state or configuration
+- `InsertString()`: Executes InsertString operation as part of core functionality
 ### Summary
 The `cmdline.hpp` file provides essential functionality for core functionality. It defines 6 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -38,15 +38,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `source_mode`: Implementuje podstawowa funkcjonalność
 - `wait_mode`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CommandLine()`: Wykonuje specyficzną operację
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `VMProcess()`: Wykonuje specyficzną operację
-- `ResizeConsole()`: Zmienia rozmiar lub dostosowuje wymiary
-- `GetCurDir()`: Pobiera lub zwraca dane
-- `SetCurDir()`: Ustawia lub przypisuje dane
-- `GetString()`: Pobiera lub zwraca dane
-- `SetString()`: Ustawia lub przypisuje dane
-- `InsertString()`: Wykonuje specyficzną operację
+- `CommandLine()`: Wykonuje CommandLine operację jako część podstawowa funkcjonalność
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
+- `ResizeConsole()`: Zmienia wymiary rozmiaru zachowując zawartość gdy to możliwe
+- `GetCurDir()`: Pobiera CurDir ze stanu wewnętrznego lub struktury danych
+- `SetCurDir()`: Aktualizuje CurDir w stanie wewnętrznym lub konfiguracji
+- `GetString()`: Pobiera String ze stanu wewnętrznego lub struktury danych
+- `SetString()`: Aktualizuje String w stanie wewnętrznym lub konfiguracji
+- `InsertString()`: Wykonuje InsertString operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `cmdline.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 6 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -3,7 +3,7 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `IsRarHeader()`: Checks a condition or state
+- `IsRarHeader()`: Tests whether RarHeader condition is true or property exists
 ### Summary
 The `rardetect.cpp` file provides essential functionality for core functionality. and contains approximately 1 function(s) to support the Far Manager file manager operations.
 
@@ -13,6 +13,6 @@ The `rardetect.cpp` file provides essential functionality for core functionality
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `IsRarHeader()`: Sprawdza warunek lub stan
+- `IsRarHeader()`: Testuje czy RarHeader warunek jest prawdziwy lub właściwość istnieje
 ### Podsumowanie
 Plik `rardetect.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 1 funkcji wspierających operacje menedżera plików Far Manager.

@@ -6,10 +6,10 @@ Main functional areas: menu management
 - `FarMenu`: Implements menu management
 - `UserDataStruct`: Implements menu management
 ### Key Functions
-- `Add()`: Adds an item or element
-- `Run()`: Performs specific operation
-- `GetData()`: Retrieves or returns data
-- `Done()`: Performs specific operation
+- `Add()`: Adds new item to collection or list
+- `Run()`: Executes Run operation as part of menu management
+- `GetData()`: Retrieves Data from internal state or data structure
+- `Done()`: Executes Done operation as part of menu management
 ### Summary
 The `FarMenu.hpp` file provides essential functionality for menu management. It defines 2 class(es) and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -22,9 +22,9 @@ Główne obszary funkcjonalne: zarządzanie menu
 - `FarMenu`: Implementuje zarządzanie menu
 - `UserDataStruct`: Implementuje zarządzanie menu
 ### Kluczowe Funkcje
-- `Add()`: Dodaje element
-- `Run()`: Wykonuje specyficzną operację
-- `GetData()`: Pobiera lub zwraca dane
-- `Done()`: Wykonuje specyficzną operację
+- `Add()`: Dodaje nowy element do kolekcji lub listy
+- `Run()`: Wykonuje Run operację jako część zarządzanie menu
+- `GetData()`: Pobiera Data ze stanu wewnętrznego lub struktury danych
+- `Done()`: Wykonuje Done operację jako część zarządzanie menu
 ### Podsumowanie
 Plik `FarMenu.hpp` zapewnia podstawową funkcjonalność dla zarządzanie menu. Definiuje 2 klas(y) i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

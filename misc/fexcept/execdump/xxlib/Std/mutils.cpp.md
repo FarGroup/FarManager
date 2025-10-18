@@ -3,14 +3,14 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `StrChrCount()`: Performs specific operation
-- `StrNChr()`: Performs specific operation
-- `StrPosChr()`: Performs specific operation
-- `StrPosStr()`: Performs specific operation
-- `MakeStringHash()`: Performs specific operation
-- `GetEOLStr()`: Retrieves or returns data
-- `GetTextEOLStr()`: Retrieves or returns data
-- `IsPrintChar()`: Checks a condition or state
+- `StrChrCount()`: Executes StrChrCount operation as part of core functionality
+- `StrNChr()`: Executes StrNChr operation as part of core functionality
+- `StrPosChr()`: Executes StrPosChr operation as part of core functionality
+- `StrPosStr()`: Executes StrPosStr operation as part of core functionality
+- `MakeStringHash()`: Executes MakeStringHash operation as part of core functionality
+- `GetEOLStr()`: Retrieves EOLStr from internal state or data structure
+- `GetTextEOLStr()`: Retrieves TextEOLStr from internal state or data structure
+- `IsPrintChar()`: Tests whether PrintChar condition is true or property exists
 ### Summary
 The `mutils.cpp` file provides essential functionality for core functionality. and contains approximately 8 function(s) to support the Far Manager file manager operations.
 
@@ -20,13 +20,13 @@ The `mutils.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `StrChrCount()`: Wykonuje specyficzną operację
-- `StrNChr()`: Wykonuje specyficzną operację
-- `StrPosChr()`: Wykonuje specyficzną operację
-- `StrPosStr()`: Wykonuje specyficzną operację
-- `MakeStringHash()`: Wykonuje specyficzną operację
-- `GetEOLStr()`: Pobiera lub zwraca dane
-- `GetTextEOLStr()`: Pobiera lub zwraca dane
-- `IsPrintChar()`: Sprawdza warunek lub stan
+- `StrChrCount()`: Wykonuje StrChrCount operację jako część podstawowa funkcjonalność
+- `StrNChr()`: Wykonuje StrNChr operację jako część podstawowa funkcjonalność
+- `StrPosChr()`: Wykonuje StrPosChr operację jako część podstawowa funkcjonalność
+- `StrPosStr()`: Wykonuje StrPosStr operację jako część podstawowa funkcjonalność
+- `MakeStringHash()`: Wykonuje MakeStringHash operację jako część podstawowa funkcjonalność
+- `GetEOLStr()`: Pobiera EOLStr ze stanu wewnętrznego lub struktury danych
+- `GetTextEOLStr()`: Pobiera TextEOLStr ze stanu wewnętrznego lub struktury danych
+- `IsPrintChar()`: Testuje czy PrintChar warunek jest prawdziwy lub właściwość istnieje
 ### Podsumowanie
 Plik `mutils.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 8 funkcji wspierających operacje menedżera plików Far Manager.

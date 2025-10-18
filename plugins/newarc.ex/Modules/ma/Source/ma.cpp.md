@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `OnInitialize()`: Event handler
-- `OnFinalize()`: Event handler
-- `OnQueryArchive()`: Event handler
-- `OnOpenArchive()`: Event handler
-- `OnCloseArchive()`: Event handler
-- `OnGetArchiveModuleInfo()`: Event handler
-- `OnGetArchiveItem()`: Event handler
-- `OnFreeArchiveItem()`: Event handler
-- `OnStartOperation()`: Event handler
-- `OnEndOperation()`: Event handler
+- `OnInitialize()`: Event handler invoked when Initialize occurs
+- `OnFinalize()`: Event handler invoked when Finalize occurs
+- `OnQueryArchive()`: Event handler invoked when QueryArchive occurs
+- `OnOpenArchive()`: Event handler invoked when OpenArchive occurs
+- `OnCloseArchive()`: Event handler invoked when CloseArchive occurs
+- `OnGetArchiveModuleInfo()`: Event handler invoked when GetArchiveModuleInfo occurs
+- `OnGetArchiveItem()`: Event handler invoked when GetArchiveItem occurs
+- `OnFreeArchiveItem()`: Event handler invoked when FreeArchiveItem occurs
+- `OnStartOperation()`: Event handler invoked when StartOperation occurs
+- `OnEndOperation()`: Event handler invoked when EndOperation occurs
 ### Summary
 The `ma.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `ma.cpp` file provides essential functionality for core functionality. and c
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `OnInitialize()`: Procedura obsługi zdarzeń
-- `OnFinalize()`: Procedura obsługi zdarzeń
-- `OnQueryArchive()`: Procedura obsługi zdarzeń
-- `OnOpenArchive()`: Procedura obsługi zdarzeń
-- `OnCloseArchive()`: Procedura obsługi zdarzeń
-- `OnGetArchiveModuleInfo()`: Procedura obsługi zdarzeń
-- `OnGetArchiveItem()`: Procedura obsługi zdarzeń
-- `OnFreeArchiveItem()`: Procedura obsługi zdarzeń
-- `OnStartOperation()`: Procedura obsługi zdarzeń
-- `OnEndOperation()`: Procedura obsługi zdarzeń
+- `OnInitialize()`: Procedura obsługi zdarzeń wywoływana gdy Initialize występuje
+- `OnFinalize()`: Procedura obsługi zdarzeń wywoływana gdy Finalize występuje
+- `OnQueryArchive()`: Procedura obsługi zdarzeń wywoływana gdy QueryArchive występuje
+- `OnOpenArchive()`: Procedura obsługi zdarzeń wywoływana gdy OpenArchive występuje
+- `OnCloseArchive()`: Procedura obsługi zdarzeń wywoływana gdy CloseArchive występuje
+- `OnGetArchiveModuleInfo()`: Procedura obsługi zdarzeń wywoływana gdy GetArchiveModuleInfo występuje
+- `OnGetArchiveItem()`: Procedura obsługi zdarzeń wywoływana gdy GetArchiveItem występuje
+- `OnFreeArchiveItem()`: Procedura obsługi zdarzeń wywoływana gdy FreeArchiveItem występuje
+- `OnStartOperation()`: Procedura obsługi zdarzeń wywoływana gdy StartOperation występuje
+- `OnEndOperation()`: Procedura obsługi zdarzeń wywoływana gdy EndOperation występuje
 ### Podsumowanie
 Plik `ma.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -12,16 +12,16 @@ Main functional areas: panel management
 - `panel_sort`: Implements panel management
 - `plugin_panel`: Implements panel management
 ### Key Functions
-- `clone()`: Performs specific operation
-- `Show()`: Displays or shows content
-- `Hide()`: Hides content
-- `DisplayObject()`: Displays or shows content
-- `ShowConsoleTitle()`: Displays or shows content
-- `VMProcess()`: Performs specific operation
-- `CloseFile()`: Closes a resource
-- `UpdateViewPanel()`: Updates existing data
-- `CompareDir()`: Performs specific operation
-- `MoveToMouse()`: Moves data or objects
+- `clone()`: Executes clone operation as part of panel management
+- `Show()`: Displays content or makes visual element visible on screen
+- `Hide()`: Hides visual element from screen without destroying it
+- `DisplayObject()`: Displays content or makes visual element visible on screen
+- `ShowConsoleTitle()`: Displays content or makes visual element visible on screen
+- `VMProcess()`: Processes virtual machine operations or commands
+- `CloseFile()`: Closes resource and performs cleanup operations
+- `UpdateViewPanel()`: Updates existing data with new values while preserving structure
+- `CompareDir()`: Executes CompareDir operation as part of panel management
+- `MoveToMouse()`: Moves data or object from current location to new location
 ### Summary
 The `panel.hpp` file provides essential functionality for panel management. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -40,15 +40,15 @@ Główne obszary funkcjonalne: zarządzanie panelami
 - `panel_sort`: Implementuje zarządzanie panelami
 - `plugin_panel`: Implementuje zarządzanie panelami
 ### Kluczowe Funkcje
-- `clone()`: Wykonuje specyficzną operację
-- `Show()`: Wyświetla lub pokazuje zawartość
-- `Hide()`: Ukrywa zawartość
-- `DisplayObject()`: Wyświetla lub pokazuje zawartość
-- `ShowConsoleTitle()`: Wyświetla lub pokazuje zawartość
-- `VMProcess()`: Wykonuje specyficzną operację
-- `CloseFile()`: Zamyka zasób
-- `UpdateViewPanel()`: Aktualizuje istniejące dane
-- `CompareDir()`: Wykonuje specyficzną operację
-- `MoveToMouse()`: Przenosi dane lub obiekty
+- `clone()`: Wykonuje clone operację jako część zarządzanie panelami
+- `Show()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `Hide()`: Ukrywa element wizualny z ekranu bez niszczenia go
+- `DisplayObject()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `ShowConsoleTitle()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
+- `CloseFile()`: Zamyka zasób i wykonuje operacje czyszczące
+- `UpdateViewPanel()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `CompareDir()`: Wykonuje CompareDir operację jako część zarządzanie panelami
+- `MoveToMouse()`: Przenosi dane lub obiekt z bieżącej lokalizacji do nowej lokalizacji
 ### Podsumowanie
 Plik `panel.hpp` zapewnia podstawową funkcjonalność dla zarządzanie panelami. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

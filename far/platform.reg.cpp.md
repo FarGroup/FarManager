@@ -4,14 +4,14 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `succeeded()`: Performs specific operation
-- `failed()`: Performs specific operation
-- `is_string_type()`: Checks a condition or state
-- `query_value()`: Performs specific operation
-- `enum_key()`: Performs specific operation
-- `enum_value()`: Performs specific operation
-- `exception()`: Performs specific operation
-- `string()`: Performs specific operation
+- `succeeded()`: Executes succeeded operation as part of core functionality
+- `failed()`: Executes failed operation as part of core functionality
+- `is_string_type()`: Tests whether _string_type condition is true or property exists
+- `query_value()`: Executes query_value operation as part of core functionality
+- `enum_key()`: Executes enum_key operation as part of core functionality
+- `enum_value()`: Executes enum_value operation as part of core functionality
+- `exception()`: Executes exception operation as part of core functionality
+- `string()`: Executes string operation as part of core functionality
 ### Namespaces
 - `os`
 ### Summary
@@ -24,14 +24,14 @@ The `platform.reg.cpp` file provides essential functionality for core functional
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `succeeded()`: Wykonuje specyficzną operację
-- `failed()`: Wykonuje specyficzną operację
-- `is_string_type()`: Sprawdza warunek lub stan
-- `query_value()`: Wykonuje specyficzną operację
-- `enum_key()`: Wykonuje specyficzną operację
-- `enum_value()`: Wykonuje specyficzną operację
-- `exception()`: Wykonuje specyficzną operację
-- `string()`: Wykonuje specyficzną operację
+- `succeeded()`: Wykonuje succeeded operację jako część podstawowa funkcjonalność
+- `failed()`: Wykonuje failed operację jako część podstawowa funkcjonalność
+- `is_string_type()`: Testuje czy _string_type warunek jest prawdziwy lub właściwość istnieje
+- `query_value()`: Wykonuje query_wartość operację jako część podstawowa funkcjonalność
+- `enum_key()`: Wykonuje enum_key operację jako część podstawowa funkcjonalność
+- `enum_value()`: Wykonuje enum_wartość operację jako część podstawowa funkcjonalność
+- `exception()`: Wykonuje exception operację jako część podstawowa funkcjonalność
+- `string()`: Wykonuje string operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

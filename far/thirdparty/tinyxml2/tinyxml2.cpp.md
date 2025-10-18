@@ -6,16 +6,16 @@ Main functional areas: core functionality
 ### Key Classes
 - `Entity`: Implements core functionality
 ### Key Functions
-- `_snprintf_s()`: Performs specific operation
-- `TIXML_SNPRINTF()`: Performs specific operation
-- `TIXML_VSNPRINTF()`: Performs specific operation
-- `TIXML_VSCPRINTF()`: Performs specific operation
-- `ConvertUTF32ToUTF8()`: Converts or transforms data
-- `InsertEndChild()`: Performs specific operation
-- `tracker()`: Performs specific operation
-- `ClearError()`: Clears or resets data
-- `callfopen()`: Performs specific operation
-- `SetError()`: Sets or assigns data
+- `_snprintf_s()`: Executes _snprintf_s operation as part of core functionality
+- `TIXML_SNPRINTF()`: Executes TIXML_SNPRINTF operation as part of core functionality
+- `TIXML_VSNPRINTF()`: Executes TIXML_VSNPRINTF operation as part of core functionality
+- `TIXML_VSCPRINTF()`: Executes TIXML_VSCPRINTF operation as part of core functionality
+- `ConvertUTF32ToUTF8()`: Converts data from one format or type to another
+- `InsertEndChild()`: Executes InsertEndChild operation as part of core functionality
+- `tracker()`: Executes tracker operation as part of core functionality
+- `ClearError()`: Clears all data and resets to initial empty state
+- `callfopen()`: Constructor that initializes callfopen object with provided parameters
+- `SetError()`: Updates Error in internal state or configuration
 ### Namespaces
 - `tinyxml2`
 ### Summary
@@ -30,16 +30,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `Entity`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `_snprintf_s()`: Wykonuje specyficzną operację
-- `TIXML_SNPRINTF()`: Wykonuje specyficzną operację
-- `TIXML_VSNPRINTF()`: Wykonuje specyficzną operację
-- `TIXML_VSCPRINTF()`: Wykonuje specyficzną operację
-- `ConvertUTF32ToUTF8()`: Konwertuje lub przekształca dane
-- `InsertEndChild()`: Wykonuje specyficzną operację
-- `tracker()`: Wykonuje specyficzną operację
-- `ClearError()`: Czyści lub resetuje dane
-- `callfopen()`: Wykonuje specyficzną operację
-- `SetError()`: Ustawia lub przypisuje dane
+- `_snprintf_s()`: Wykonuje _snprintf_s operację jako część podstawowa funkcjonalność
+- `TIXML_SNPRINTF()`: Wykonuje TIXML_SNPRINTF operację jako część podstawowa funkcjonalność
+- `TIXML_VSNPRINTF()`: Wykonuje TIXML_VSNPRINTF operację jako część podstawowa funkcjonalność
+- `TIXML_VSCPRINTF()`: Wykonuje TIXML_VSCPRINTF operację jako część podstawowa funkcjonalność
+- `ConvertUTF32ToUTF8()`: Konwertuje dane z jednego formatu lub typu do innego
+- `InsertEndChild()`: Wykonuje InsertEndChild operację jako część podstawowa funkcjonalność
+- `tracker()`: Wykonuje tracker operację jako część podstawowa funkcjonalność
+- `ClearError()`: Czyści wszystkie dane i resetuje do początkowego pustego stanu
+- `callfopen()`: Konstruktor inicjalizujący callfopen obiekt z dostarczonymi parametrami
+- `SetError()`: Aktualizuje Error w stanie wewnętrznym lub konfiguracji
 ### Przestrzenie nazw
 - `tinyxml2`
 ### Podsumowanie

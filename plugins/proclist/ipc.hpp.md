@@ -14,16 +14,16 @@ Main functional areas: core functionality
 - `bitness`: Implements core functionality
 - `ipc_t`: Implements core functionality
 ### Key Functions
-- `read_process_memory()`: Reads data from a source
-- `constexpr()`: Performs specific operation
-- `NT_SUCCESS()`: Performs specific operation
-- `read_string()`: Reads data from a source
-- `query_information_process()`: Performs specific operation
-- `get_internal_process_data()`: Retrieves or returns data
-- `find_terminator()`: Finds or searches for data
-- `get_open_process_data()`: Retrieves or returns data
-- `print_modules()`: Performs specific operation
-- `get_bitness()`: Retrieves or returns data
+- `read_process_memory()`: Reads data from source into provided buffer
+- `constexpr()`: Executes constexpr operation as part of core functionality
+- `NT_SUCCESS()`: Executes NT_SUCCESS operation as part of core functionality
+- `read_string()`: Reads data from source into provided buffer
+- `query_information_process()`: Executes query_information_process operation as part of core functionality
+- `get_internal_process_data()`: Retrieves _internal_process_data from internal state or data structure
+- `find_terminator()`: Searches for _terminator in collection and returns position or reference
+- `get_open_process_data()`: Retrieves _open_process_data from internal state or data structure
+- `print_modules()`: Executes print_modules operation as part of core functionality
+- `get_bitness()`: Retrieves _bitness from internal state or data structure
 ### Summary
 The `ipc.hpp` file provides essential functionality for core functionality. It defines 11 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `bitness`: Implementuje podstawowa funkcjonalność
 - `ipc_t`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `read_process_memory()`: Odczytuje dane ze źródła
-- `constexpr()`: Wykonuje specyficzną operację
-- `NT_SUCCESS()`: Wykonuje specyficzną operację
-- `read_string()`: Odczytuje dane ze źródła
-- `query_information_process()`: Wykonuje specyficzną operację
-- `get_internal_process_data()`: Pobiera lub zwraca dane
-- `find_terminator()`: Znajduje lub wyszukuje dane
-- `get_open_process_data()`: Pobiera lub zwraca dane
-- `print_modules()`: Wykonuje specyficzną operację
-- `get_bitness()`: Pobiera lub zwraca dane
+- `read_process_memory()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `constexpr()`: Wykonuje constexpr operację jako część podstawowa funkcjonalność
+- `NT_SUCCESS()`: Wykonuje NT_SUCCESS operację jako część podstawowa funkcjonalność
+- `read_string()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `query_information_process()`: Wykonuje query_information_process operację jako część podstawowa funkcjonalność
+- `get_internal_process_data()`: Pobiera _internal_process_dane ze stanu wewnętrznego lub struktury danych
+- `find_terminator()`: Wyszukuje _terminator w kolekcji i zwraca pozycję lub referencję
+- `get_open_process_data()`: Pobiera _open_process_dane ze stanu wewnętrznego lub struktury danych
+- `print_modules()`: Wykonuje print_modules operację jako część podstawowa funkcjonalność
+- `get_bitness()`: Pobiera _bitness ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `ipc.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 11 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

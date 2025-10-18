@@ -4,11 +4,11 @@
 This file implements functionality related to: UCD wrapper
 Main functional areas: core functionality
 ### Key Functions
-- `CpMap()`: Performs specific operation
-- `GetCodePage()`: Retrieves or returns data
-- `Report()`: Performs specific operation
-- `format_result()`: Performs specific operation
-- `Detector()`: Performs specific operation
+- `CpMap()`: Constructor that initializes CpMap object with provided parameters
+- `GetCodePage()`: Retrieves CodePage from internal state or data structure
+- `Report()`: Executes Report operation as part of core functionality
+- `format_result()`: Executes format_result operation as part of core functionality
+- `Detector()`: Executes Detector operation as part of core functionality
 ### Namespaces
 - `uchardet`
 ### Summary
@@ -21,11 +21,11 @@ The `uchardet.cpp` file provides essential functionality for core functionality.
 Ten plik implementuje funkcjonalność związaną z: UCD wrapper
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `CpMap()`: Wykonuje specyficzną operację
-- `GetCodePage()`: Pobiera lub zwraca dane
-- `Report()`: Wykonuje specyficzną operację
-- `format_result()`: Wykonuje specyficzną operację
-- `Detector()`: Wykonuje specyficzną operację
+- `CpMap()`: Konstruktor inicjalizujący CpMap obiekt z dostarczonymi parametrami
+- `GetCodePage()`: Pobiera CodePage ze stanu wewnętrznego lub struktury danych
+- `Report()`: Wykonuje Report operację jako część podstawowa funkcjonalność
+- `format_result()`: Wykonuje format_wynik operację jako część podstawowa funkcjonalność
+- `Detector()`: Wykonuje Detector operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `uchardet`
 ### Podsumowanie

@@ -8,16 +8,16 @@ Main functional areas: file system operations
 - `ffp_context`: Implements file system operations
 - `filter_file_object`: Implements file system operations
 ### Key Functions
-- `bool()`: Performs specific operation
-- `FileInFilter()`: Performs specific operation
-- `AttributesString()`: Performs specific operation
-- `pad_right()`: Performs specific operation
-- `MenuString()`: Performs specific operation
-- `HighlightDlgUpdateUserControl()`: Performs specific operation
-- `FilterDlgRelativeDateItemsUpdate()`: Performs specific operation
-- `AttributesDialog()`: Performs specific operation
-- `Builder()`: Performs specific operation
-- `FileFilterConfigDlgProc()`: Performs specific operation
+- `bool()`: Executes bool operation as part of file system operations
+- `FileInFilter()`: Executes FileInFilter operation as part of file system operations
+- `AttributesString()`: Executes AttributesString operation as part of file system operations
+- `pad_right()`: Executes pad_right operation as part of file system operations
+- `MenuString()`: Executes MenuString operation as part of file system operations
+- `HighlightDlgUpdateUserControl()`: Executes HighlightDlgUpdateUserControl operation as part of file system operations
+- `FilterDlgRelativeDateItemsUpdate()`: Executes FilterDlgRelativeDateItemsUpdate operation as part of file system operations
+- `AttributesDialog()`: Executes AttributesDialog operation as part of file system operations
+- `Builder()`: Executes Builder operation as part of file system operations
+- `FileFilterConfigDlgProc()`: Executes FileFilterConfigDlgProc operation as part of file system operations
 ### Summary
 The `filefilterparams.cpp` file provides essential functionality for file system operations. It defines 3 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -32,15 +32,15 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `ffp_context`: Implementuje operacje systemu plików
 - `filter_file_object`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `bool()`: Wykonuje specyficzną operację
-- `FileInFilter()`: Wykonuje specyficzną operację
-- `AttributesString()`: Wykonuje specyficzną operację
-- `pad_right()`: Wykonuje specyficzną operację
-- `MenuString()`: Wykonuje specyficzną operację
-- `HighlightDlgUpdateUserControl()`: Wykonuje specyficzną operację
-- `FilterDlgRelativeDateItemsUpdate()`: Wykonuje specyficzną operację
-- `AttributesDialog()`: Wykonuje specyficzną operację
-- `Builder()`: Wykonuje specyficzną operację
-- `FileFilterConfigDlgProc()`: Wykonuje specyficzną operację
+- `bool()`: Wykonuje bool operację jako część operacje systemu plików
+- `FileInFilter()`: Wykonuje FileInFilter operację jako część operacje systemu plików
+- `AttributesString()`: Wykonuje AttributesString operację jako część operacje systemu plików
+- `pad_right()`: Wykonuje pad_right operację jako część operacje systemu plików
+- `MenuString()`: Wykonuje MenuString operację jako część operacje systemu plików
+- `HighlightDlgUpdateUserControl()`: Wykonuje HighlightDlgUpdateUserControl operację jako część operacje systemu plików
+- `FilterDlgRelativeDateItemsUpdate()`: Wykonuje FilterDlgRelativeDateItemsUpdate operację jako część operacje systemu plików
+- `AttributesDialog()`: Wykonuje AttributesDialog operację jako część operacje systemu plików
+- `Builder()`: Wykonuje Builder operację jako część operacje systemu plików
+- `FileFilterConfigDlgProc()`: Wykonuje FileFilterConfigDlgProc operację jako część operacje systemu plików
 ### Podsumowanie
 Plik `filefilterparams.cpp` zapewnia podstawową funkcjonalność dla operacje systemu plików. Definiuje 3 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

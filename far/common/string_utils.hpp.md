@@ -8,16 +8,16 @@ Main functional areas: string utilities
 - `string_comparer`: Implements string utilities
 - `string_copyref`: Implements string utilities
 ### Key Functions
-- `copy_string()`: Copies data
-- `null_terminated_t()`: Performs specific operation
-- `c_str()`: Performs specific operation
-- `empty()`: Performs specific operation
-- `append_impl()`: Performs specific operation
-- `append()`: Performs specific operation
-- `concat()`: Performs specific operation
-- `contains()`: Performs specific operation
-- `constexpr()`: Performs specific operation
-- `within()`: Performs specific operation
+- `copy_string()`: Copies data from source to destination location
+- `null_terminated_t()`: Executes null_terminated_t operation as part of string utilities
+- `c_str()`: Constructor that initializes c_str object with provided parameters
+- `empty()`: Executes empty operation as part of string utilities
+- `append_impl()`: Executes append_impl operation as part of string utilities
+- `append()`: Executes append operation as part of string utilities
+- `concat()`: Executes concat operation as part of string utilities
+- `contains()`: Executes contains operation as part of string utilities
+- `constexpr()`: Executes constexpr operation as part of string utilities
+- `within()`: Executes within operation as part of string utilities
 ### Namespaces
 - `copy`
 - `detail`
@@ -37,16 +37,16 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `string_comparer`: Implementuje narzędzia łańcuchowe
 - `string_copyref`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `copy_string()`: Kopiuje dane
-- `null_terminated_t()`: Wykonuje specyficzną operację
-- `c_str()`: Wykonuje specyficzną operację
-- `empty()`: Wykonuje specyficzną operację
-- `append_impl()`: Wykonuje specyficzną operację
-- `append()`: Wykonuje specyficzną operację
-- `concat()`: Wykonuje specyficzną operację
-- `contains()`: Wykonuje specyficzną operację
-- `constexpr()`: Wykonuje specyficzną operację
-- `within()`: Wykonuje specyficzną operację
+- `copy_string()`: Kopiuje dane ze źródła do miejsca docelowego
+- `null_terminated_t()`: Wykonuje null_terminated_t operację jako część narzędzia łańcuchowe
+- `c_str()`: Konstruktor inicjalizujący c_str obiekt z dostarczonymi parametrami
+- `empty()`: Wykonuje empty operację jako część narzędzia łańcuchowe
+- `append_impl()`: Wykonuje append_impl operację jako część narzędzia łańcuchowe
+- `append()`: Wykonuje append operację jako część narzędzia łańcuchowe
+- `concat()`: Wykonuje concat operację jako część narzędzia łańcuchowe
+- `contains()`: Wykonuje contains operację jako część narzędzia łańcuchowe
+- `constexpr()`: Wykonuje constexpr operację jako część narzędzia łańcuchowe
+- `within()`: Wykonuje within operację jako część narzędzia łańcuchowe
 ### Przestrzenie nazw
 - `copy`
 - `detail`

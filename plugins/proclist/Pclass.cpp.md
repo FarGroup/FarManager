@@ -7,16 +7,16 @@ Main functional areas: core functionality
 - `custom_data`: Implements core functionality
 - `priority_mapping`: Implements core functionality
 ### Key Functions
-- `bool()`: Performs specific operation
-- `ui64toa_width()`: Performs specific operation
-- `str()`: Performs specific operation
-- `PrintTitle()`: Performs specific operation
-- `settings()`: Sets or assigns data
-- `upper()`: Performs specific operation
-- `TranslateMode()`: Performs specific operation
-- `can_be_per_sec()`: Performs specific operation
-- `generate_titles()`: Performs specific operation
-- `convert_panel_modes()`: Converts or transforms data
+- `bool()`: Executes bool operation as part of core functionality
+- `ui64toa_width()`: Executes ui64toa_width operation as part of core functionality
+- `str()`: Executes str operation as part of core functionality
+- `PrintTitle()`: Executes PrintTitle operation as part of core functionality
+- `settings()`: Updates tings in internal state or configuration
+- `upper()`: Executes upper operation as part of core functionality
+- `TranslateMode()`: Executes TranslateMode operation as part of core functionality
+- `can_be_per_sec()`: Executes can_be_per_sec operation as part of core functionality
+- `generate_titles()`: Executes generate_titles operation as part of core functionality
+- `convert_panel_modes()`: Converts data from one format or type to another
 ### Namespaces
 - `std`
 ### Summary
@@ -32,16 +32,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `custom_data`: Implementuje podstawowa funkcjonalność
 - `priority_mapping`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `bool()`: Wykonuje specyficzną operację
-- `ui64toa_width()`: Wykonuje specyficzną operację
-- `str()`: Wykonuje specyficzną operację
-- `PrintTitle()`: Wykonuje specyficzną operację
-- `settings()`: Ustawia lub przypisuje dane
-- `upper()`: Wykonuje specyficzną operację
-- `TranslateMode()`: Wykonuje specyficzną operację
-- `can_be_per_sec()`: Wykonuje specyficzną operację
-- `generate_titles()`: Wykonuje specyficzną operację
-- `convert_panel_modes()`: Konwertuje lub przekształca dane
+- `bool()`: Wykonuje bool operację jako część podstawowa funkcjonalność
+- `ui64toa_width()`: Wykonuje ui64toa_width operację jako część podstawowa funkcjonalność
+- `str()`: Wykonuje str operację jako część podstawowa funkcjonalność
+- `PrintTitle()`: Wykonuje PrintTitle operację jako część podstawowa funkcjonalność
+- `settings()`: Aktualizuje tings w stanie wewnętrznym lub konfiguracji
+- `upper()`: Wykonuje upper operację jako część podstawowa funkcjonalność
+- `TranslateMode()`: Wykonuje TranslateMode operację jako część podstawowa funkcjonalność
+- `can_be_per_sec()`: Wykonuje can_be_per_sec operację jako część podstawowa funkcjonalność
+- `generate_titles()`: Wykonuje generate_titles operację jako część podstawowa funkcjonalność
+- `convert_panel_modes()`: Konwertuje dane z jednego formatu lub typu do innego
 ### Przestrzenie nazw
 - `std`
 ### Podsumowanie

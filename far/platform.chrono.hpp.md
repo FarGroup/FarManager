@@ -10,16 +10,16 @@ Main functional areas: core functionality
 - `typed_time`: Implements core functionality
 - `utc_tag`: Implements core functionality
 ### Key Functions
-- `now()`: Performs specific operation
-- `to_time_t()`: Performs specific operation
-- `from_time_t()`: Performs specific operation
-- `to_filetime()`: Performs specific operation
-- `from_filetime()`: Performs specific operation
-- `from_hectonanoseconds()`: Performs specific operation
-- `to_hectonanoseconds()`: Performs specific operation
-- `milliseconds()`: Performs specific operation
-- `now_utc()`: Performs specific operation
-- `now_local()`: Performs specific operation
+- `now()`: Executes now operation as part of core functionality
+- `to_time_t()`: Executes to_time_t operation as part of core functionality
+- `from_time_t()`: Executes from_time_t operation as part of core functionality
+- `to_filetime()`: Executes to_filetime operation as part of core functionality
+- `from_filetime()`: Executes from_filetime operation as part of core functionality
+- `from_hectonanoseconds()`: Executes from_hectonanoseconds operation as part of core functionality
+- `to_hectonanoseconds()`: Executes to_hectonanoseconds operation as part of core functionality
+- `milliseconds()`: Executes milliseconds operation as part of core functionality
+- `now_utc()`: Executes now_utc operation as part of core functionality
+- `now_local()`: Executes now_local operation as part of core functionality
 ### Namespaces
 - `detail`
 - `literals`
@@ -40,16 +40,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `typed_time`: Implementuje podstawowa funkcjonalność
 - `utc_tag`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `now()`: Wykonuje specyficzną operację
-- `to_time_t()`: Wykonuje specyficzną operację
-- `from_time_t()`: Wykonuje specyficzną operację
-- `to_filetime()`: Wykonuje specyficzną operację
-- `from_filetime()`: Wykonuje specyficzną operację
-- `from_hectonanoseconds()`: Wykonuje specyficzną operację
-- `to_hectonanoseconds()`: Wykonuje specyficzną operację
-- `milliseconds()`: Wykonuje specyficzną operację
-- `now_utc()`: Wykonuje specyficzną operację
-- `now_local()`: Wykonuje specyficzną operację
+- `now()`: Wykonuje now operację jako część podstawowa funkcjonalność
+- `to_time_t()`: Wykonuje to_time_t operację jako część podstawowa funkcjonalność
+- `from_time_t()`: Wykonuje from_time_t operację jako część podstawowa funkcjonalność
+- `to_filetime()`: Wykonuje to_filetime operację jako część podstawowa funkcjonalność
+- `from_filetime()`: Wykonuje from_filetime operację jako część podstawowa funkcjonalność
+- `from_hectonanoseconds()`: Wykonuje from_hectonanoseconds operację jako część podstawowa funkcjonalność
+- `to_hectonanoseconds()`: Wykonuje to_hectonanoseconds operację jako część podstawowa funkcjonalność
+- `milliseconds()`: Wykonuje milliseconds operację jako część podstawowa funkcjonalność
+- `now_utc()`: Wykonuje now_utc operację jako część podstawowa funkcjonalność
+- `now_local()`: Wykonuje now_local operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 - `literals`

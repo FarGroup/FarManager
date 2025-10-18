@@ -3,13 +3,13 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `GetGlobalInfoW()`: Retrieves or returns data
-- `SetStartupInfoW()`: Sets or assigns data
-- `settings()`: Sets or assigns data
-- `OpenW()`: Opens a resource
-- `GetPluginInfoW()`: Retrieves or returns data
-- `ConfigureW()`: Performs specific operation
-- `Builder()`: Performs specific operation
+- `GetGlobalInfoW()`: Retrieves GlobalInfoW from internal state or data structure
+- `SetStartupInfoW()`: Updates StartupInfoW in internal state or configuration
+- `settings()`: Updates tings in internal state or configuration
+- `OpenW()`: Opens resource and prepares it for access operations
+- `GetPluginInfoW()`: Retrieves PluginInfoW from internal state or data structure
+- `ConfigureW()`: Executes ConfigureW operation as part of core functionality
+- `Builder()`: Executes Builder operation as part of core functionality
 ### Summary
 The `FARCmds.cpp` file provides essential functionality for core functionality. and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -19,12 +19,12 @@ The `FARCmds.cpp` file provides essential functionality for core functionality. 
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetGlobalInfoW()`: Pobiera lub zwraca dane
-- `SetStartupInfoW()`: Ustawia lub przypisuje dane
-- `settings()`: Ustawia lub przypisuje dane
-- `OpenW()`: Otwiera zasób
-- `GetPluginInfoW()`: Pobiera lub zwraca dane
-- `ConfigureW()`: Wykonuje specyficzną operację
-- `Builder()`: Wykonuje specyficzną operację
+- `GetGlobalInfoW()`: Pobiera GlobalInfoW ze stanu wewnętrznego lub struktury danych
+- `SetStartupInfoW()`: Aktualizuje StartupInfoW w stanie wewnętrznym lub konfiguracji
+- `settings()`: Aktualizuje tings w stanie wewnętrznym lub konfiguracji
+- `OpenW()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetPluginInfoW()`: Pobiera PluginInfoW ze stanu wewnętrznego lub struktury danych
+- `ConfigureW()`: Wykonuje ConfigureW operację jako część podstawowa funkcjonalność
+- `Builder()`: Wykonuje Builder operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `FARCmds.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

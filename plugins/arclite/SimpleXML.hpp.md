@@ -8,9 +8,9 @@ Main functional areas: core functionality
 - `parseRet`: Implements core functionality
 - `str_view`: Implements core functionality
 ### Key Functions
-- `empty()`: Performs specific operation
-- `size()`: Performs specific operation
-- `parse()`: Parses input data
+- `empty()`: Executes empty operation as part of core functionality
+- `size()`: Executes size operation as part of core functionality
+- `parse()`: Parses input string or data into structured format
 ### Namespaces
 - `SimpleXML`
 ### Summary
@@ -27,9 +27,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `parseRet`: Implementuje podstawowa funkcjonalność
 - `str_view`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `empty()`: Wykonuje specyficzną operację
-- `size()`: Wykonuje specyficzną operację
-- `parse()`: Parsuje dane wejściowe
+- `empty()`: Wykonuje empty operację jako część podstawowa funkcjonalność
+- `size()`: Wykonuje size operację jako część podstawowa funkcjonalność
+- `parse()`: Parsuje łańcuch wejściowy lub dane do formatu strukturalnego
 ### Przestrzenie nazw
 - `SimpleXML`
 ### Podsumowanie

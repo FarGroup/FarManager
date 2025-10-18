@@ -3,16 +3,16 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `GetMinFarVersion()`: Retrieves or returns data
-- `SetStartupInfo()`: Sets or assigns data
-- `ArcPlugins()`: Performs specific operation
-- `lstrcpy()`: Performs specific operation
-- `OpenFilePlugin()`: Opens a resource
-- `PluginClass()`: Performs specific operation
-- `OpenPlugin()`: Opens a resource
-- `ClosePlugin()`: Closes a resource
-- `GetFindData()`: Retrieves or returns data
-- `FreeFindData()`: Performs specific operation
+- `GetMinFarVersion()`: Retrieves MinFarVersion from internal state or data structure
+- `SetStartupInfo()`: Updates StartupInfo in internal state or configuration
+- `ArcPlugins()`: Executes ArcPlugins operation as part of core functionality
+- `lstrcpy()`: Executes lstrcpy operation as part of core functionality
+- `OpenFilePlugin()`: Opens resource and prepares it for access operations
+- `PluginClass()`: Executes PluginClass operation as part of core functionality
+- `OpenPlugin()`: Opens resource and prepares it for access operations
+- `ClosePlugin()`: Closes resource and performs cleanup operations
+- `GetFindData()`: Retrieves FindData from internal state or data structure
+- `FreeFindData()`: Executes FreeFindData operation as part of core functionality
 ### Summary
 The `MultiArc.cpp` file provides essential functionality for core functionality. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -22,15 +22,15 @@ The `MultiArc.cpp` file provides essential functionality for core functionality.
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `GetMinFarVersion()`: Pobiera lub zwraca dane
-- `SetStartupInfo()`: Ustawia lub przypisuje dane
-- `ArcPlugins()`: Wykonuje specyficzną operację
-- `lstrcpy()`: Wykonuje specyficzną operację
-- `OpenFilePlugin()`: Otwiera zasób
-- `PluginClass()`: Wykonuje specyficzną operację
-- `OpenPlugin()`: Otwiera zasób
-- `ClosePlugin()`: Zamyka zasób
-- `GetFindData()`: Pobiera lub zwraca dane
-- `FreeFindData()`: Wykonuje specyficzną operację
+- `GetMinFarVersion()`: Pobiera MinFarVersion ze stanu wewnętrznego lub struktury danych
+- `SetStartupInfo()`: Aktualizuje StartupInfo w stanie wewnętrznym lub konfiguracji
+- `ArcPlugins()`: Wykonuje ArcPlugins operację jako część podstawowa funkcjonalność
+- `lstrcpy()`: Wykonuje lstrcpy operację jako część podstawowa funkcjonalność
+- `OpenFilePlugin()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `PluginClass()`: Wykonuje PluginClass operację jako część podstawowa funkcjonalność
+- `OpenPlugin()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `ClosePlugin()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetFindData()`: Pobiera FindData ze stanu wewnętrznego lub struktury danych
+- `FreeFindData()`: Wykonuje FreeFindData operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `MultiArc.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

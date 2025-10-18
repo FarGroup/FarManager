@@ -10,11 +10,11 @@ Main functional areas: string utilities
 - `less_t`: Implements string utilities
 - `pluginapi_sort_accessor`: Implements string utilities
 ### Key Functions
-- `compare()`: Performs specific operation
-- `adjust_comparer()`: Adjusts or modifies settings
-- `compare_ordinal_icase()`: Performs specific operation
-- `compare_ordinal_numeric()`: Performs specific operation
-- `ordering_as_int()`: Performs specific operation
+- `compare()`: Executes compare operation as part of string utilities
+- `adjust_comparer()`: Adjusts _comparer based on current conditions or requirements
+- `compare_ordinal_icase()`: Executes compare_ordinal_icase operation as part of string utilities
+- `compare_ordinal_numeric()`: Executes compare_ordinal_numeric operation as part of string utilities
+- `ordering_as_int()`: Executes ordering_as_int operation as part of string utilities
 ### Namespaces
 - `detail`
 - `string_sort`
@@ -34,11 +34,11 @@ Główne obszary funkcjonalne: narzędzia łańcuchowe
 - `less_t`: Implementuje narzędzia łańcuchowe
 - `pluginapi_sort_accessor`: Implementuje narzędzia łańcuchowe
 ### Kluczowe Funkcje
-- `compare()`: Wykonuje specyficzną operację
-- `adjust_comparer()`: Dostosowuje lub modyfikuje ustawienia
-- `compare_ordinal_icase()`: Wykonuje specyficzną operację
-- `compare_ordinal_numeric()`: Wykonuje specyficzną operację
-- `ordering_as_int()`: Wykonuje specyficzną operację
+- `compare()`: Wykonuje compare operację jako część narzędzia łańcuchowe
+- `adjust_comparer()`: Dostosowuje _comparer na podstawie bieżących warunków lub wymagań
+- `compare_ordinal_icase()`: Wykonuje compare_ordinal_icase operację jako część narzędzia łańcuchowe
+- `compare_ordinal_numeric()`: Wykonuje compare_ordinal_numeric operację jako część narzędzia łańcuchowe
+- `ordering_as_int()`: Wykonuje ordering_as_int operację jako część narzędzia łańcuchowe
 ### Przestrzenie nazw
 - `detail`
 - `string_sort`

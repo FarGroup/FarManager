@@ -7,16 +7,16 @@ Main functional areas: file system operations
 - `file_walker`: Implements file system operations
 - `i_find_file_handle_impl`: Implements file system operations
 ### Key Functions
-- `SHErrorToWinError()`: Performs specific operation
-- `set_current_directory_syncronisation()`: Sets or assigns data
-- `is_standard_letter()`: Checks a condition or state
-- `get_number()`: Retrieves or returns data
-- `get_letter()`: Retrieves or returns data
-- `get_device_path()`: Retrieves or returns data
-- `get_win32nt_device_path()`: Retrieves or returns data
-- `get_root_directory()`: Retrieves or returns data
-- `get_win32nt_root_directory()`: Retrieves or returns data
-- `get_type()`: Retrieves or returns data
+- `SHErrorToWinError()`: Executes SHErrorToWinError operation as part of file system operations
+- `set_current_directory_syncronisation()`: Updates _current_directory_syncronisation in internal state or configuration
+- `is_standard_letter()`: Tests whether _standard_letter condition is true or property exists
+- `get_number()`: Retrieves _number from internal state or data structure
+- `get_letter()`: Retrieves _letter from internal state or data structure
+- `get_device_path()`: Retrieves _device_path from internal state or data structure
+- `get_win32nt_device_path()`: Retrieves _win32nt_device_path from internal state or data structure
+- `get_root_directory()`: Retrieves _root_directory from internal state or data structure
+- `get_win32nt_root_directory()`: Retrieves _win32nt_root_directory from internal state or data structure
+- `get_type()`: Retrieves _type from internal state or data structure
 ### Namespaces
 - `detail`
 - `drive`
@@ -37,16 +37,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `file_walker`: Implementuje operacje systemu plików
 - `i_find_file_handle_impl`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `SHErrorToWinError()`: Wykonuje specyficzną operację
-- `set_current_directory_syncronisation()`: Ustawia lub przypisuje dane
-- `is_standard_letter()`: Sprawdza warunek lub stan
-- `get_number()`: Pobiera lub zwraca dane
-- `get_letter()`: Pobiera lub zwraca dane
-- `get_device_path()`: Pobiera lub zwraca dane
-- `get_win32nt_device_path()`: Pobiera lub zwraca dane
-- `get_root_directory()`: Pobiera lub zwraca dane
-- `get_win32nt_root_directory()`: Pobiera lub zwraca dane
-- `get_type()`: Pobiera lub zwraca dane
+- `SHErrorToWinError()`: Wykonuje SHErrorToWinError operację jako część operacje systemu plików
+- `set_current_directory_syncronisation()`: Aktualizuje _current_directory_syncronisation w stanie wewnętrznym lub konfiguracji
+- `is_standard_letter()`: Testuje czy _standard_letter warunek jest prawdziwy lub właściwość istnieje
+- `get_number()`: Pobiera _number ze stanu wewnętrznego lub struktury danych
+- `get_letter()`: Pobiera _letter ze stanu wewnętrznego lub struktury danych
+- `get_device_path()`: Pobiera _device_path ze stanu wewnętrznego lub struktury danych
+- `get_win32nt_device_path()`: Pobiera _win32nt_device_path ze stanu wewnętrznego lub struktury danych
+- `get_root_directory()`: Pobiera _root_directory ze stanu wewnętrznego lub struktury danych
+- `get_win32nt_root_directory()`: Pobiera _win32nt_root_directory ze stanu wewnętrznego lub struktury danych
+- `get_type()`: Pobiera _type ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 - `drive`

@@ -15,16 +15,16 @@ Main functional areas: file system operations
 - `percent`: Implements file system operations
 - `pop`: Implements file system operations
 ### Key Functions
-- `IsWordDiv()`: Checks a condition or state
-- `AddMenuRecord()`: Adds an item or element
-- `ScopedLock()`: Performs specific operation
-- `AdvancedDialog()`: Performs specific operation
-- `MainDlgProc()`: Main entry point
-- `FindDlgProc()`: Finds or searches for data
-- `OpenFile()`: Opens a resource
-- `FindFilesProcess()`: Finds or searches for data
-- `ProcessMessage()`: Processes data or events
-- `SetPluginDirectory()`: Sets or assigns data
+- `IsWordDiv()`: Tests whether WordDiv condition is true or property exists
+- `AddMenuRecord()`: Adds new MenuRecord to collection or list
+- `ScopedLock()`: Executes ScopedLock operation as part of file system operations
+- `AdvancedDialog()`: Executes AdvancedDialog operation as part of file system operations
+- `MainDlgProc()`: Executes MainDlgProc operation as part of file system operations
+- `FindDlgProc()`: Searches for DlgProc in collection and returns position or reference
+- `OpenFile()`: Opens resource and prepares it for access operations
+- `FindFilesProcess()`: Searches for FilesProcess in collection and returns position or reference
+- `ProcessMessage()`: Processes Message through transformation or handling pipeline
+- `SetPluginDirectory()`: Updates PluginDirectory in internal state or configuration
 ### Namespaces
 - `messages`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `percent`: Implementuje operacje systemu plików
 - `pop`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `IsWordDiv()`: Sprawdza warunek lub stan
-- `AddMenuRecord()`: Dodaje element
-- `ScopedLock()`: Wykonuje specyficzną operację
-- `AdvancedDialog()`: Wykonuje specyficzną operację
-- `MainDlgProc()`: Główny punkt wejścia
-- `FindDlgProc()`: Znajduje lub wyszukuje dane
-- `OpenFile()`: Otwiera zasób
-- `FindFilesProcess()`: Znajduje lub wyszukuje dane
-- `ProcessMessage()`: Przetwarza dane lub zdarzenia
-- `SetPluginDirectory()`: Ustawia lub przypisuje dane
+- `IsWordDiv()`: Testuje czy WordDiv warunek jest prawdziwy lub właściwość istnieje
+- `AddMenuRecord()`: Dodaje nowy MenuRecord do kolekcji lub listy
+- `ScopedLock()`: Wykonuje ScopedLock operację jako część operacje systemu plików
+- `AdvancedDialog()`: Wykonuje AdvancedDialog operację jako część operacje systemu plików
+- `MainDlgProc()`: Wykonuje MainDlgProc operację jako część operacje systemu plików
+- `FindDlgProc()`: Wyszukuje DlgProc w kolekcji i zwraca pozycję lub referencję
+- `OpenFile()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `FindFilesProcess()`: Wyszukuje FilesProcess w kolekcji i zwraca pozycję lub referencję
+- `ProcessMessage()`: Przetwarza Message przez potok transformacji lub obsługi
+- `SetPluginDirectory()`: Aktualizuje PluginDirectory w stanie wewnętrznym lub konfiguracji
 ### Przestrzenie nazw
 - `messages`
 ### Podsumowanie

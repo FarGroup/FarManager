@@ -7,12 +7,12 @@ Main functional areas: core functionality
 - `privilege`: Implements core functionality
 - `sid_deleter`: Implements core functionality
 ### Key Functions
-- `make_sid()`: Performs specific operation
-- `is_admin()`: Checks a condition or state
-- `elevation_type()`: Performs specific operation
-- `open_current_process_token()`: Opens a resource
-- `privilege()`: Performs specific operation
-- `check()`: Validates or checks data
+- `make_sid()`: Executes make_sid operation as part of core functionality
+- `is_admin()`: Tests whether _admin condition is true or property exists
+- `elevation_type()`: Executes elevation_type operation as part of core functionality
+- `open_current_process_token()`: Opens resource and prepares it for access operations
+- `privilege()`: Executes privilege operation as part of core functionality
+- `check()`: Validates data integrity and checks for correctness
 ### Namespaces
 - `detail`
 - `os`
@@ -29,12 +29,12 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `privilege`: Implementuje podstawowa funkcjonalność
 - `sid_deleter`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `make_sid()`: Wykonuje specyficzną operację
-- `is_admin()`: Sprawdza warunek lub stan
-- `elevation_type()`: Wykonuje specyficzną operację
-- `open_current_process_token()`: Otwiera zasób
-- `privilege()`: Wykonuje specyficzną operację
-- `check()`: Waliduje lub sprawdza dane
+- `make_sid()`: Wykonuje make_sid operację jako część podstawowa funkcjonalność
+- `is_admin()`: Testuje czy _admin warunek jest prawdziwy lub właściwość istnieje
+- `elevation_type()`: Wykonuje elevation_type operację jako część podstawowa funkcjonalność
+- `open_current_process_token()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `privilege()`: Wykonuje privilege operację jako część podstawowa funkcjonalność
+- `check()`: Waliduje integralność danych i sprawdza poprawność
 ### Przestrzenie nazw
 - `detail`
 - `os`

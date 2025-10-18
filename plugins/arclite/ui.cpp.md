@@ -14,16 +14,16 @@ Main functional areas: core functionality
 - `OverwriteDialog`: Implements core functionality
 - `PasswordDialog`: Implements core functionality
 ### Key Functions
-- `get_error_dlg_title()`: Retrieves or returns data
-- `discard_time()`: Performs specific operation
-- `ps()`: Performs specific operation
-- `get_suffixes()`: Retrieves or returns data
-- `dialog_proc()`: Performs specific operation
-- `default_dialog_proc()`: Performs specific operation
-- `show()`: Displays or shows content
-- `password_dialog()`: Performs specific operation
-- `FAIL()`: Performs specific operation
-- `overwrite_dialog()`: Performs specific operation
+- `get_error_dlg_title()`: Retrieves _error_dlg_title from internal state or data structure
+- `discard_time()`: Executes discard_time operation as part of core functionality
+- `ps()`: Executes ps operation as part of core functionality
+- `get_suffixes()`: Retrieves _suffixes from internal state or data structure
+- `dialog_proc()`: Executes dialog_proc operation as part of core functionality
+- `default_dialog_proc()`: Executes default_dialog_proc operation as part of core functionality
+- `show()`: Displays content or makes visual element visible on screen
+- `password_dialog()`: Executes password_dialog operation as part of core functionality
+- `FAIL()`: Executes FAIL operation as part of core functionality
+- `overwrite_dialog()`: Executes overwrite_dialog operation as part of core functionality
 ### Summary
 The `ui.cpp` file provides essential functionality for core functionality. It defines 12 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -44,15 +44,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `OverwriteDialog`: Implementuje podstawowa funkcjonalność
 - `PasswordDialog`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get_error_dlg_title()`: Pobiera lub zwraca dane
-- `discard_time()`: Wykonuje specyficzną operację
-- `ps()`: Wykonuje specyficzną operację
-- `get_suffixes()`: Pobiera lub zwraca dane
-- `dialog_proc()`: Wykonuje specyficzną operację
-- `default_dialog_proc()`: Wykonuje specyficzną operację
-- `show()`: Wyświetla lub pokazuje zawartość
-- `password_dialog()`: Wykonuje specyficzną operację
-- `FAIL()`: Wykonuje specyficzną operację
-- `overwrite_dialog()`: Wykonuje specyficzną operację
+- `get_error_dlg_title()`: Pobiera _error_dlg_title ze stanu wewnętrznego lub struktury danych
+- `discard_time()`: Wykonuje discard_time operację jako część podstawowa funkcjonalność
+- `ps()`: Wykonuje ps operację jako część podstawowa funkcjonalność
+- `get_suffixes()`: Pobiera _suffixes ze stanu wewnętrznego lub struktury danych
+- `dialog_proc()`: Wykonuje dialog_proc operację jako część podstawowa funkcjonalność
+- `default_dialog_proc()`: Wykonuje default_dialog_proc operację jako część podstawowa funkcjonalność
+- `show()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `password_dialog()`: Wykonuje password_dialog operację jako część podstawowa funkcjonalność
+- `FAIL()`: Wykonuje FAIL operację jako część podstawowa funkcjonalność
+- `overwrite_dialog()`: Wykonuje overwrite_dialog operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `ui.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 12 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

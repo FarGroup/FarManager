@@ -15,16 +15,16 @@ Main functional areas: file system operations
 - `find_volume_handle_closer`: Implements file system operations
 - `process_current_directory_guard`: Implements file system operations
 ### Key Functions
-- `set_current_directory_syncronisation()`: Sets or assigns data
-- `AlternateFileName()`: Performs specific operation
-- `SetAlternateFileName()`: Sets or assigns data
-- `HasAlternateFileName()`: Checks a condition or state
-- `is_standard_letter()`: Checks a condition or state
-- `get_number()`: Retrieves or returns data
-- `get_letter()`: Retrieves or returns data
-- `get_device_path()`: Retrieves or returns data
-- `get_win32nt_device_path()`: Retrieves or returns data
-- `get_root_directory()`: Retrieves or returns data
+- `set_current_directory_syncronisation()`: Updates _current_directory_syncronisation in internal state or configuration
+- `AlternateFileName()`: Constructor that initializes AlternateFileName object with provided parameters
+- `SetAlternateFileName()`: Updates AlternateFileName in internal state or configuration
+- `HasAlternateFileName()`: Tests whether AlternateFileName condition is true or property exists
+- `is_standard_letter()`: Tests whether _standard_letter condition is true or property exists
+- `get_number()`: Retrieves _number from internal state or data structure
+- `get_letter()`: Retrieves _letter from internal state or data structure
+- `get_device_path()`: Retrieves _device_path from internal state or data structure
+- `get_win32nt_device_path()`: Retrieves _win32nt_device_path from internal state or data structure
+- `get_root_directory()`: Retrieves _root_directory from internal state or data structure
 ### Namespaces
 - `detail`
 - `drive`
@@ -52,16 +52,16 @@ Główne obszary funkcjonalne: operacje systemu plików
 - `find_volume_handle_closer`: Implementuje operacje systemu plików
 - `process_current_directory_guard`: Implementuje operacje systemu plików
 ### Kluczowe Funkcje
-- `set_current_directory_syncronisation()`: Ustawia lub przypisuje dane
-- `AlternateFileName()`: Wykonuje specyficzną operację
-- `SetAlternateFileName()`: Ustawia lub przypisuje dane
-- `HasAlternateFileName()`: Sprawdza warunek lub stan
-- `is_standard_letter()`: Sprawdza warunek lub stan
-- `get_number()`: Pobiera lub zwraca dane
-- `get_letter()`: Pobiera lub zwraca dane
-- `get_device_path()`: Pobiera lub zwraca dane
-- `get_win32nt_device_path()`: Pobiera lub zwraca dane
-- `get_root_directory()`: Pobiera lub zwraca dane
+- `set_current_directory_syncronisation()`: Aktualizuje _current_directory_syncronisation w stanie wewnętrznym lub konfiguracji
+- `AlternateFileName()`: Konstruktor inicjalizujący AlternateFileName obiekt z dostarczonymi parametrami
+- `SetAlternateFileName()`: Aktualizuje AlternateFileName w stanie wewnętrznym lub konfiguracji
+- `HasAlternateFileName()`: Testuje czy AlternateFileName warunek jest prawdziwy lub właściwość istnieje
+- `is_standard_letter()`: Testuje czy _standard_letter warunek jest prawdziwy lub właściwość istnieje
+- `get_number()`: Pobiera _number ze stanu wewnętrznego lub struktury danych
+- `get_letter()`: Pobiera _letter ze stanu wewnętrznego lub struktury danych
+- `get_device_path()`: Pobiera _device_path ze stanu wewnętrznego lub struktury danych
+- `get_win32nt_device_path()`: Pobiera _win32nt_device_path ze stanu wewnętrznego lub struktury danych
+- `get_root_directory()`: Pobiera _root_directory ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 - `drive`

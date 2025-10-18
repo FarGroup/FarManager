@@ -15,16 +15,16 @@ Main functional areas: dialog handling
 - `progress_impl`: Implements dialog handling
 - `single_progress`: Implements dialog handling
 ### Key Functions
-- `GetShared()`: Retrieves or returns data
-- `SaveToShared()`: Saves data or state
-- `SetSearchPattern()`: Sets or assigns data
-- `IsSearchPatternEmpty()`: Checks a condition or state
-- `GetString()`: Retrieves or returns data
-- `GetNameAndPassword()`: Retrieves or returns data
-- `OperationFailed()`: Performs specific operation
-- `cancel_operation()`: Performs specific operation
-- `ReCompileErrorMessage()`: Performs specific operation
-- `GoToRowCol()`: Performs specific operation
+- `GetShared()`: Retrieves Shared from internal state or data structure
+- `SaveToShared()`: Saves current state or data to persistent storage
+- `SetSearchPattern()`: Updates SearchPattern in internal state or configuration
+- `IsSearchPatternEmpty()`: Tests whether SearchPatternEmpty condition is true or property exists
+- `GetString()`: Retrieves String from internal state or data structure
+- `GetNameAndPassword()`: Retrieves NameAndPassword from internal state or data structure
+- `OperationFailed()`: Executes OperationFailed operation as part of dialog handling
+- `cancel_operation()`: Executes cancel_operation operation as part of dialog handling
+- `ReCompileErrorMessage()`: Executes ReCompileErrorMessage operation as part of dialog handling
+- `GoToRowCol()`: Executes GoToRowCol operation as part of dialog handling
 ### Summary
 The `stddlg.hpp` file provides essential functionality for dialog handling. It defines 10 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -46,15 +46,15 @@ Główne obszary funkcjonalne: obsługa dialogów
 - `progress_impl`: Implementuje obsługa dialogów
 - `single_progress`: Implementuje obsługa dialogów
 ### Kluczowe Funkcje
-- `GetShared()`: Pobiera lub zwraca dane
-- `SaveToShared()`: Zapisuje dane lub stan
-- `SetSearchPattern()`: Ustawia lub przypisuje dane
-- `IsSearchPatternEmpty()`: Sprawdza warunek lub stan
-- `GetString()`: Pobiera lub zwraca dane
-- `GetNameAndPassword()`: Pobiera lub zwraca dane
-- `OperationFailed()`: Wykonuje specyficzną operację
-- `cancel_operation()`: Wykonuje specyficzną operację
-- `ReCompileErrorMessage()`: Wykonuje specyficzną operację
-- `GoToRowCol()`: Wykonuje specyficzną operację
+- `GetShared()`: Pobiera Shared ze stanu wewnętrznego lub struktury danych
+- `SaveToShared()`: Zapisuje bieżący stan lub dane do trwałego magazynu
+- `SetSearchPattern()`: Aktualizuje SearchPattern w stanie wewnętrznym lub konfiguracji
+- `IsSearchPatternEmpty()`: Testuje czy SearchPatternEmpty warunek jest prawdziwy lub właściwość istnieje
+- `GetString()`: Pobiera String ze stanu wewnętrznego lub struktury danych
+- `GetNameAndPassword()`: Pobiera NameAndPassword ze stanu wewnętrznego lub struktury danych
+- `OperationFailed()`: Wykonuje OperationFailed operację jako część obsługa dialogów
+- `cancel_operation()`: Wykonuje cancel_operation operację jako część obsługa dialogów
+- `ReCompileErrorMessage()`: Wykonuje ReCompileErrorMessage operację jako część obsługa dialogów
+- `GoToRowCol()`: Wykonuje GoToRowCol operację jako część obsługa dialogów
 ### Podsumowanie
 Plik `stddlg.hpp` zapewnia podstawową funkcjonalność dla obsługa dialogów. Definiuje 10 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

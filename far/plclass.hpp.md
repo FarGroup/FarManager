@@ -14,16 +14,16 @@ Main functional areas: core functionality
 - `native_plugin_module`: Implements core functionality
 - `plugin_factory`: Implements core functionality
 ### Key Functions
-- `plugin_factory()`: Performs specific operation
-- `ProcessError()`: Processes data or events
-- `IsExternal()`: Checks a condition or state
-- `Title()`: Performs specific operation
-- `version()`: Performs specific operation
-- `Id()`: Performs specific operation
-- `Owner()`: Performs specific operation
-- `ExportsNames()`: Performs specific operation
-- `opaque()`: Performs specific operation
-- `GetProcAddress()`: Retrieves or returns data
+- `plugin_factory()`: Executes plugin_factory operation as part of core functionality
+- `ProcessError()`: Processes Error through transformation or handling pipeline
+- `IsExternal()`: Tests whether External condition is true or property exists
+- `Title()`: Executes Title operation as part of core functionality
+- `version()`: Executes version operation as part of core functionality
+- `Id()`: Constructor that initializes Id object with provided parameters
+- `Owner()`: Executes Owner operation as part of core functionality
+- `ExportsNames()`: Executes ExportsNames operation as part of core functionality
+- `opaque()`: Constructor that initializes opaque object with provided parameters
+- `GetProcAddress()`: Retrieves ProcAddress from internal state or data structure
 ### Namespaces
 - `detail`
 ### Summary
@@ -46,16 +46,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `native_plugin_module`: Implementuje podstawowa funkcjonalność
 - `plugin_factory`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `plugin_factory()`: Wykonuje specyficzną operację
-- `ProcessError()`: Przetwarza dane lub zdarzenia
-- `IsExternal()`: Sprawdza warunek lub stan
-- `Title()`: Wykonuje specyficzną operację
-- `version()`: Wykonuje specyficzną operację
-- `Id()`: Wykonuje specyficzną operację
-- `Owner()`: Wykonuje specyficzną operację
-- `ExportsNames()`: Wykonuje specyficzną operację
-- `opaque()`: Wykonuje specyficzną operację
-- `GetProcAddress()`: Pobiera lub zwraca dane
+- `plugin_factory()`: Wykonuje plugin_factory operację jako część podstawowa funkcjonalność
+- `ProcessError()`: Przetwarza Error przez potok transformacji lub obsługi
+- `IsExternal()`: Testuje czy External warunek jest prawdziwy lub właściwość istnieje
+- `Title()`: Wykonuje Title operację jako część podstawowa funkcjonalność
+- `version()`: Wykonuje version operację jako część podstawowa funkcjonalność
+- `Id()`: Konstruktor inicjalizujący Id obiekt z dostarczonymi parametrami
+- `Owner()`: Wykonuje Owner operację jako część podstawowa funkcjonalność
+- `ExportsNames()`: Wykonuje ExportsNames operację jako część podstawowa funkcjonalność
+- `opaque()`: Konstruktor inicjalizujący opaque obiekt z dostarczonymi parametrami
+- `GetProcAddress()`: Pobiera ProcAddress ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

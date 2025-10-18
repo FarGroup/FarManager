@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `unhandled_exception_filter`: Implements core functionality
 - `vectored_exception_handler`: Implements core functionality
 ### Key Functions
-- `report_to_stderr()`: Performs specific operation
-- `set_report_location()`: Sets or assigns data
-- `disable_exception_handling()`: Performs specific operation
-- `exception_handling_in_progress()`: Performs specific operation
-- `force_stderr_exception_ui()`: Performs specific operation
-- `restore_system_exception_handler()`: Performs specific operation
-- `set()`: Sets or assigns data
-- `raise()`: Performs specific operation
-- `dismiss()`: Performs specific operation
-- `get()`: Retrieves or returns data
+- `report_to_stderr()`: Executes report_to_stderr operation as part of core functionality
+- `set_report_location()`: Updates _report_location in internal state or configuration
+- `disable_exception_handling()`: Executes disable_exception_handling operation as part of core functionality
+- `exception_handling_in_progress()`: Executes exception_handling_in_progress operation as part of core functionality
+- `force_stderr_exception_ui()`: Executes force_stderr_exception_ui operation as part of core functionality
+- `restore_system_exception_handler()`: Executes restore_system_exception_handler operation as part of core functionality
+- `set()`: Updates value in internal state or configuration
+- `raise()`: Executes raise operation as part of core functionality
+- `dismiss()`: Executes dismiss operation as part of core functionality
+- `get()`: Retrieves value from internal state or data structure
 ### Namespaces
 - `detail`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `unhandled_exception_filter`: Implementuje podstawowa funkcjonalność
 - `vectored_exception_handler`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `report_to_stderr()`: Wykonuje specyficzną operację
-- `set_report_location()`: Ustawia lub przypisuje dane
-- `disable_exception_handling()`: Wykonuje specyficzną operację
-- `exception_handling_in_progress()`: Wykonuje specyficzną operację
-- `force_stderr_exception_ui()`: Wykonuje specyficzną operację
-- `restore_system_exception_handler()`: Wykonuje specyficzną operację
-- `set()`: Ustawia lub przypisuje dane
-- `raise()`: Wykonuje specyficzną operację
-- `dismiss()`: Wykonuje specyficzną operację
-- `get()`: Pobiera lub zwraca dane
+- `report_to_stderr()`: Wykonuje report_to_stderr operację jako część podstawowa funkcjonalność
+- `set_report_location()`: Aktualizuje _report_location w stanie wewnętrznym lub konfiguracji
+- `disable_exception_handling()`: Wykonuje disable_exception_handling operację jako część podstawowa funkcjonalność
+- `exception_handling_in_progress()`: Wykonuje exception_handling_in_progress operację jako część podstawowa funkcjonalność
+- `force_stderr_exception_ui()`: Wykonuje force_stderr_exception_ui operację jako część podstawowa funkcjonalność
+- `restore_system_exception_handler()`: Wykonuje restore_system_exception_handler operację jako część podstawowa funkcjonalność
+- `set()`: Aktualizuje wartość w stanie wewnętrznym lub konfiguracji
+- `raise()`: Wykonuje raise operację jako część podstawowa funkcjonalność
+- `dismiss()`: Wykonuje dismiss operację jako część podstawowa funkcjonalność
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

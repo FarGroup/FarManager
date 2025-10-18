@@ -9,16 +9,16 @@ Main functional areas: core functionality
 - `progress`: Implements core functionality
 - `total_items`: Implements core functionality
 ### Key Functions
-- `set_wipe_percent()`: Sets or assigns data
-- `update()`: Updates existing data
-- `ConfirmDeleteReadOnlyFile()`: Performs specific operation
-- `ShellRemoveFile()`: Performs specific operation
-- `ERemoveDirectory()`: Performs specific operation
-- `RemoveToRecycleBin()`: Removes or deletes an item
-- `process_item()`: Processes data or events
-- `EraseFileData()`: Performs specific operation
-- `TimeCheck()`: Performs specific operation
-- `CharDist()`: Performs specific operation
+- `set_wipe_percent()`: Updates _wipe_percent in internal state or configuration
+- `update()`: Updates existing data with new values while preserving structure
+- `ConfirmDeleteReadOnlyFile()`: Executes ConfirmDeleteReadOnlyFile operation as part of core functionality
+- `ShellRemoveFile()`: Executes ShellRemoveFile operation as part of core functionality
+- `ERemoveDirectory()`: Executes ERemoveDirectory operation as part of core functionality
+- `RemoveToRecycleBin()`: Removes ToRecycleBin from collection and frees associated resources
+- `process_item()`: Processes _item through transformation or handling pipeline
+- `EraseFileData()`: Executes EraseFileData operation as part of core functionality
+- `TimeCheck()`: Executes TimeCheck operation as part of core functionality
+- `CharDist()`: Executes CharDist operation as part of core functionality
 ### Summary
 The `delete.cpp` file provides essential functionality for core functionality. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `progress`: Implementuje podstawowa funkcjonalność
 - `total_items`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `set_wipe_percent()`: Ustawia lub przypisuje dane
-- `update()`: Aktualizuje istniejące dane
-- `ConfirmDeleteReadOnlyFile()`: Wykonuje specyficzną operację
-- `ShellRemoveFile()`: Wykonuje specyficzną operację
-- `ERemoveDirectory()`: Wykonuje specyficzną operację
-- `RemoveToRecycleBin()`: Usuwa element
-- `process_item()`: Przetwarza dane lub zdarzenia
-- `EraseFileData()`: Wykonuje specyficzną operację
-- `TimeCheck()`: Wykonuje specyficzną operację
-- `CharDist()`: Wykonuje specyficzną operację
+- `set_wipe_percent()`: Aktualizuje _wipe_percent w stanie wewnętrznym lub konfiguracji
+- `update()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `ConfirmDeleteReadOnlyFile()`: Wykonuje ConfirmDeleteReadOnlyFile operację jako część podstawowa funkcjonalność
+- `ShellRemoveFile()`: Wykonuje ShellRemoveFile operację jako część podstawowa funkcjonalność
+- `ERemoveDirectory()`: Wykonuje ERemoveDirectory operację jako część podstawowa funkcjonalność
+- `RemoveToRecycleBin()`: Usuwa ToRecycleBin z kolekcji i zwalnia powiązane zasoby
+- `process_item()`: Przetwarza _element przez potok transformacji lub obsługi
+- `EraseFileData()`: Wykonuje EraseFileData operację jako część podstawowa funkcjonalność
+- `TimeCheck()`: Wykonuje TimeCheck operację jako część podstawowa funkcjonalność
+- `CharDist()`: Wykonuje CharDist operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `delete.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

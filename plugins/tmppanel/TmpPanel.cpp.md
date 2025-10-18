@@ -4,16 +4,16 @@
 This file implements functionality related to: Temporary panel main plugin code
 Main functional areas: panel management
 ### Key Functions
-- `get_console_title()`: Retrieves or returns data
-- `IsEol()`: Checks a condition or state
-- `ReadFileLines()`: Reads data from a source
-- `ShowMenuFromList()`: Displays or shows content
-- `ProcessList()`: Processes data or events
-- `run_command()`: Performs specific operation
-- `TempFilename()`: Performs specific operation
-- `GetGlobalInfoW()`: Retrieves or returns data
-- `SetStartupInfoW()`: Sets or assigns data
-- `OpenW()`: Opens a resource
+- `get_console_title()`: Retrieves _console_title from internal state or data structure
+- `IsEol()`: Tests whether Eol condition is true or property exists
+- `ReadFileLines()`: Reads data from source into provided buffer
+- `ShowMenuFromList()`: Displays content or makes visual element visible on screen
+- `ProcessList()`: Processes List through transformation or handling pipeline
+- `run_command()`: Executes run_command operation as part of panel management
+- `TempFilename()`: Executes TempFilename operation as part of panel management
+- `GetGlobalInfoW()`: Retrieves GlobalInfoW from internal state or data structure
+- `SetStartupInfoW()`: Updates StartupInfoW in internal state or configuration
+- `OpenW()`: Opens resource and prepares it for access operations
 ### Summary
 The `TmpPanel.cpp` file provides essential functionality for panel management. and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -24,15 +24,15 @@ The `TmpPanel.cpp` file provides essential functionality for panel management. a
 Ten plik implementuje funkcjonalność związaną z: Temporary panel main plugin code
 Główne obszary funkcjonalne: zarządzanie panelami
 ### Kluczowe Funkcje
-- `get_console_title()`: Pobiera lub zwraca dane
-- `IsEol()`: Sprawdza warunek lub stan
-- `ReadFileLines()`: Odczytuje dane ze źródła
-- `ShowMenuFromList()`: Wyświetla lub pokazuje zawartość
-- `ProcessList()`: Przetwarza dane lub zdarzenia
-- `run_command()`: Wykonuje specyficzną operację
-- `TempFilename()`: Wykonuje specyficzną operację
-- `GetGlobalInfoW()`: Pobiera lub zwraca dane
-- `SetStartupInfoW()`: Ustawia lub przypisuje dane
-- `OpenW()`: Otwiera zasób
+- `get_console_title()`: Pobiera _console_title ze stanu wewnętrznego lub struktury danych
+- `IsEol()`: Testuje czy Eol warunek jest prawdziwy lub właściwość istnieje
+- `ReadFileLines()`: Odczytuje dane ze źródła do dostarczonego bufora
+- `ShowMenuFromList()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `ProcessList()`: Przetwarza List przez potok transformacji lub obsługi
+- `run_command()`: Wykonuje run_command operację jako część zarządzanie panelami
+- `TempFilename()`: Wykonuje TempFilename operację jako część zarządzanie panelami
+- `GetGlobalInfoW()`: Pobiera GlobalInfoW ze stanu wewnętrznego lub struktury danych
+- `SetStartupInfoW()`: Aktualizuje StartupInfoW w stanie wewnętrznym lub konfiguracji
+- `OpenW()`: Otwiera zasób i przygotowuje go do operacji dostępu
 ### Podsumowanie
 Plik `TmpPanel.cpp` zapewnia podstawową funkcjonalność dla zarządzanie panelami. i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

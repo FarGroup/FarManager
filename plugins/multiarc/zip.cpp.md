@@ -12,16 +12,16 @@ Main functional areas: core functionality
 - `ZipHdr2`: Implements core functionality
 - `ZipHeader`: Implements core functionality
 ### Key Functions
-- `IsValidHeader()`: Checks a condition or state
-- `GetFilePosition()`: Retrieves or returns data
-- `IsZIPFileMagic()`: Checks a condition or state
-- `IsArchive()`: Checks a condition or state
-- `OpenArchive()`: Opens a resource
-- `GetArcItem()`: Retrieves or returns data
-- `SetFilePointer()`: Sets or assigns data
-- `CloseArchive()`: Closes a resource
-- `GetSFXPos()`: Retrieves or returns data
-- `GetFormatName()`: Retrieves or returns data
+- `IsValidHeader()`: Tests whether ValidHeader condition is true or property exists
+- `GetFilePosition()`: Retrieves FilePosition from internal state or data structure
+- `IsZIPFileMagic()`: Tests whether ZIPFileMagic condition is true or property exists
+- `IsArchive()`: Tests whether Archive condition is true or property exists
+- `OpenArchive()`: Opens resource and prepares it for access operations
+- `GetArcItem()`: Retrieves ArcItem from internal state or data structure
+- `SetFilePointer()`: Updates FilePointer in internal state or configuration
+- `CloseArchive()`: Closes resource and performs cleanup operations
+- `GetSFXPos()`: Retrieves SFXPos from internal state or data structure
+- `GetFormatName()`: Retrieves FormatName from internal state or data structure
 ### Summary
 The `zip.cpp` file provides essential functionality for core functionality. It defines 7 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -40,15 +40,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ZipHdr2`: Implementuje podstawowa funkcjonalność
 - `ZipHeader`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `IsValidHeader()`: Sprawdza warunek lub stan
-- `GetFilePosition()`: Pobiera lub zwraca dane
-- `IsZIPFileMagic()`: Sprawdza warunek lub stan
-- `IsArchive()`: Sprawdza warunek lub stan
-- `OpenArchive()`: Otwiera zasób
-- `GetArcItem()`: Pobiera lub zwraca dane
-- `SetFilePointer()`: Ustawia lub przypisuje dane
-- `CloseArchive()`: Zamyka zasób
-- `GetSFXPos()`: Pobiera lub zwraca dane
-- `GetFormatName()`: Pobiera lub zwraca dane
+- `IsValidHeader()`: Testuje czy ValidHeader warunek jest prawdziwy lub właściwość istnieje
+- `GetFilePosition()`: Pobiera FilePosition ze stanu wewnętrznego lub struktury danych
+- `IsZIPFileMagic()`: Testuje czy ZIPFileMagic warunek jest prawdziwy lub właściwość istnieje
+- `IsArchive()`: Testuje czy Archive warunek jest prawdziwy lub właściwość istnieje
+- `OpenArchive()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetArcItem()`: Pobiera ArcItem ze stanu wewnętrznego lub struktury danych
+- `SetFilePointer()`: Aktualizuje FilePointer w stanie wewnętrznym lub konfiguracji
+- `CloseArchive()`: Zamyka zasób i wykonuje operacje czyszczące
+- `GetSFXPos()`: Pobiera SFXPos ze stanu wewnętrznego lub struktury danych
+- `GetFormatName()`: Pobiera FormatName ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `zip.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 7 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

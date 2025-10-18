@@ -6,16 +6,16 @@ Main functional areas: core functionality
 ### Key Classes
 - `ModuleImports`: Implements core functionality
 ### Key Functions
-- `ModuleFile()`: Performs specific operation
-- `StreamBuffer()`: Performs specific operation
-- `Stream()`: Performs specific operation
-- `IsPlugin()`: Checks a condition or state
-- `PrepareModulePath()`: Performs specific operation
-- `CreatePluginStartupInfo()`: Creates a new instance or object
-- `ShowMessageAboutIllegalPluginVersion()`: Displays or shows content
-- `MakeSignature()`: Performs specific operation
-- `SetUuid()`: Sets or assigns data
-- `CheckFarVersion()`: Validates or checks data
+- `ModuleFile()`: Executes ModuleFile operation as part of core functionality
+- `StreamBuffer()`: Executes StreamBuffer operation as part of core functionality
+- `Stream()`: Executes Stream operation as part of core functionality
+- `IsPlugin()`: Tests whether Plugin condition is true or property exists
+- `PrepareModulePath()`: Executes PrepareModulePath operation as part of core functionality
+- `CreatePluginStartupInfo()`: Creates and initializes new PluginStartupInfo instance
+- `ShowMessageAboutIllegalPluginVersion()`: Displays content or makes visual element visible on screen
+- `MakeSignature()`: Executes MakeSignature operation as part of core functionality
+- `SetUuid()`: Updates Uuid in internal state or configuration
+- `CheckFarVersion()`: Validates data integrity and checks for correctness
 ### Summary
 The `plclass.cpp` file provides essential functionality for core functionality. It defines 1 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -28,15 +28,15 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Klasy
 - `ModuleImports`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ModuleFile()`: Wykonuje specyficzną operację
-- `StreamBuffer()`: Wykonuje specyficzną operację
-- `Stream()`: Wykonuje specyficzną operację
-- `IsPlugin()`: Sprawdza warunek lub stan
-- `PrepareModulePath()`: Wykonuje specyficzną operację
-- `CreatePluginStartupInfo()`: Tworzy nową instancję lub obiekt
-- `ShowMessageAboutIllegalPluginVersion()`: Wyświetla lub pokazuje zawartość
-- `MakeSignature()`: Wykonuje specyficzną operację
-- `SetUuid()`: Ustawia lub przypisuje dane
-- `CheckFarVersion()`: Waliduje lub sprawdza dane
+- `ModuleFile()`: Wykonuje ModuleFile operację jako część podstawowa funkcjonalność
+- `StreamBuffer()`: Wykonuje StreamBuffer operację jako część podstawowa funkcjonalność
+- `Stream()`: Wykonuje Stream operację jako część podstawowa funkcjonalność
+- `IsPlugin()`: Testuje czy Plugin warunek jest prawdziwy lub właściwość istnieje
+- `PrepareModulePath()`: Wykonuje PrepareModulePath operację jako część podstawowa funkcjonalność
+- `CreatePluginStartupInfo()`: Tworzy i inicjalizuje nowy PluginStartupInfo instancję
+- `ShowMessageAboutIllegalPluginVersion()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `MakeSignature()`: Wykonuje MakeSignature operację jako część podstawowa funkcjonalność
+- `SetUuid()`: Aktualizuje Uuid w stanie wewnętrznym lub konfiguracji
+- `CheckFarVersion()`: Waliduje integralność danych i sprawdza poprawność
 ### Podsumowanie
 Plik `plclass.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 1 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

@@ -11,10 +11,10 @@ Main functional areas: file caching
 - `editor_bookmark`: Implements file caching
 - `viewer_bookmark`: Implements file caching
 ### Key Functions
-- `Clear()`: Clears or resets data
-- `AddPosition()`: Adds an item or element
-- `GetPosition()`: Retrieves or returns data
-- `CompactHistory()`: Performs specific operation
+- `Clear()`: Clears all data and resets to initial empty state
+- `AddPosition()`: Adds new Position to collection or list
+- `GetPosition()`: Retrieves Position from internal state or data structure
+- `CompactHistory()`: Executes CompactHistory operation as part of file caching
 ### Summary
 The `poscache.hpp` file provides essential functionality for file caching. It defines 6 class(es) and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -32,9 +32,9 @@ Główne obszary funkcjonalne: buforowanie plików
 - `editor_bookmark`: Implementuje buforowanie plików
 - `viewer_bookmark`: Implementuje buforowanie plików
 ### Kluczowe Funkcje
-- `Clear()`: Czyści lub resetuje dane
-- `AddPosition()`: Dodaje element
-- `GetPosition()`: Pobiera lub zwraca dane
-- `CompactHistory()`: Wykonuje specyficzną operację
+- `Clear()`: Czyści wszystkie dane i resetuje do początkowego pustego stanu
+- `AddPosition()`: Dodaje nowy Position do kolekcji lub listy
+- `GetPosition()`: Pobiera Position ze stanu wewnętrznego lub struktury danych
+- `CompactHistory()`: Wykonuje CompactHistory operację jako część buforowanie plików
 ### Podsumowanie
 Plik `poscache.hpp` zapewnia podstawową funkcjonalność dla buforowanie plików. Definiuje 6 klas(y) i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

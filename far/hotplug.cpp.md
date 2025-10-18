@@ -8,16 +8,16 @@ Main functional areas: core functionality
 - `device_paths`: Implements core functionality
 - `devinfo_handle_closer`: Implements core functionality
 ### Key Functions
-- `get()`: Retrieves or returns data
-- `dev_info()`: Performs specific operation
-- `bool()`: Performs specific operation
-- `OpenDeviceInfo()`: Opens a resource
-- `GetDeviceRegistryProperty()`: Retrieves or returns data
-- `EnumDeviceInterfaces()`: Performs specific operation
-- `DeviceInterfacesEnumerator()`: Performs specific operation
-- `GetDevicePath()`: Retrieves or returns data
-- `Info()`: Performs specific operation
-- `Receiver()`: Performs specific operation
+- `get()`: Retrieves value from internal state or data structure
+- `dev_info()`: Executes dev_info operation as part of core functionality
+- `bool()`: Executes bool operation as part of core functionality
+- `OpenDeviceInfo()`: Opens resource and prepares it for access operations
+- `GetDeviceRegistryProperty()`: Retrieves DeviceRegistryProperty from internal state or data structure
+- `EnumDeviceInterfaces()`: Executes EnumDeviceInterfaces operation as part of core functionality
+- `DeviceInterfacesEnumerator()`: Executes DeviceInterfacesEnumerator operation as part of core functionality
+- `GetDevicePath()`: Retrieves DevicePath from internal state or data structure
+- `Info()`: Executes Info operation as part of core functionality
+- `Receiver()`: Executes Receiver operation as part of core functionality
 ### Namespaces
 - `detail`
 ### Summary
@@ -34,16 +34,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `device_paths`: Implementuje podstawowa funkcjonalność
 - `devinfo_handle_closer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get()`: Pobiera lub zwraca dane
-- `dev_info()`: Wykonuje specyficzną operację
-- `bool()`: Wykonuje specyficzną operację
-- `OpenDeviceInfo()`: Otwiera zasób
-- `GetDeviceRegistryProperty()`: Pobiera lub zwraca dane
-- `EnumDeviceInterfaces()`: Wykonuje specyficzną operację
-- `DeviceInterfacesEnumerator()`: Wykonuje specyficzną operację
-- `GetDevicePath()`: Pobiera lub zwraca dane
-- `Info()`: Wykonuje specyficzną operację
-- `Receiver()`: Wykonuje specyficzną operację
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
+- `dev_info()`: Wykonuje dev_info operację jako część podstawowa funkcjonalność
+- `bool()`: Wykonuje bool operację jako część podstawowa funkcjonalność
+- `OpenDeviceInfo()`: Otwiera zasób i przygotowuje go do operacji dostępu
+- `GetDeviceRegistryProperty()`: Pobiera DeviceRegistryProperty ze stanu wewnętrznego lub struktury danych
+- `EnumDeviceInterfaces()`: Wykonuje EnumDeviceInterfaces operację jako część podstawowa funkcjonalność
+- `DeviceInterfacesEnumerator()`: Wykonuje DeviceInterfacesEnumerator operację jako część podstawowa funkcjonalność
+- `GetDevicePath()`: Pobiera DevicePath ze stanu wewnętrznego lub struktury danych
+- `Info()`: Wykonuje Info operację jako część podstawowa funkcjonalność
+- `Receiver()`: Wykonuje Receiver operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie

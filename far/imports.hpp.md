@@ -7,10 +7,10 @@ Main functional areas: core functionality
 - `imports`: Implements core functionality
 - `unique_function_pointer`: Implements core functionality
 ### Key Functions
-- `function_type()`: Performs specific operation
-- `get_pointer()`: Retrieves or returns data
-- `bool()`: Performs specific operation
-- `DEFINE_IMPORT_FUNCTION()`: Performs specific operation
+- `function_type()`: Executes function_type operation as part of core functionality
+- `get_pointer()`: Retrieves _pointer from internal state or data structure
+- `bool()`: Executes bool operation as part of core functionality
+- `DEFINE_IMPORT_FUNCTION()`: Executes DEFINE_IMPORT_FUNCTION operation as part of core functionality
 ### Namespaces
 - `imports_detail`
 ### Summary
@@ -26,10 +26,10 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `imports`: Implementuje podstawowa funkcjonalność
 - `unique_function_pointer`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `function_type()`: Wykonuje specyficzną operację
-- `get_pointer()`: Pobiera lub zwraca dane
-- `bool()`: Wykonuje specyficzną operację
-- `DEFINE_IMPORT_FUNCTION()`: Wykonuje specyficzną operację
+- `function_type()`: Wykonuje function_type operację jako część podstawowa funkcjonalność
+- `get_pointer()`: Pobiera _pointer ze stanu wewnętrznego lub struktury danych
+- `bool()`: Wykonuje bool operację jako część podstawowa funkcjonalność
+- `DEFINE_IMPORT_FUNCTION()`: Wykonuje DEFINE_IMPORT_FUNCTION operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `imports_detail`
 ### Podsumowanie

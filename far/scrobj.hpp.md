@@ -9,16 +9,16 @@ Main functional areas: screen operations
 - `ScreenObjectWithShadow`: Implements screen operations
 - `SimpleScreenObject`: Implements screen operations
 ### Key Functions
-- `ProcessKey()`: Processes data or events
-- `ProcessMouse()`: Processes data or events
-- `Hide()`: Hides content
-- `Show()`: Displays or shows content
-- `ShowConsoleTitle()`: Displays or shows content
-- `SetPosition()`: Sets or assigns data
-- `GetPosition()`: Retrieves or returns data
-- `SetScreenPosition()`: Sets or assigns data
-- `ResizeConsole()`: Resizes or adjusts dimensions
-- `VMProcess()`: Performs specific operation
+- `ProcessKey()`: Processes Key through transformation or handling pipeline
+- `ProcessMouse()`: Processes Mouse through transformation or handling pipeline
+- `Hide()`: Hides visual element from screen without destroying it
+- `Show()`: Displays content or makes visual element visible on screen
+- `ShowConsoleTitle()`: Displays content or makes visual element visible on screen
+- `SetPosition()`: Updates Position in internal state or configuration
+- `GetPosition()`: Retrieves Position from internal state or data structure
+- `SetScreenPosition()`: Updates ScreenPosition in internal state or configuration
+- `ResizeConsole()`: Changes size dimensions while preserving content when possible
+- `VMProcess()`: Processes virtual machine operations or commands
 ### Summary
 The `scrobj.hpp` file provides essential functionality for screen operations. It defines 4 class(es) and contains approximately 10 function(s) to support the Far Manager file manager operations.
 
@@ -34,15 +34,15 @@ Główne obszary funkcjonalne: operacje ekranowe
 - `ScreenObjectWithShadow`: Implementuje operacje ekranowe
 - `SimpleScreenObject`: Implementuje operacje ekranowe
 ### Kluczowe Funkcje
-- `ProcessKey()`: Przetwarza dane lub zdarzenia
-- `ProcessMouse()`: Przetwarza dane lub zdarzenia
-- `Hide()`: Ukrywa zawartość
-- `Show()`: Wyświetla lub pokazuje zawartość
-- `ShowConsoleTitle()`: Wyświetla lub pokazuje zawartość
-- `SetPosition()`: Ustawia lub przypisuje dane
-- `GetPosition()`: Pobiera lub zwraca dane
-- `SetScreenPosition()`: Ustawia lub przypisuje dane
-- `ResizeConsole()`: Zmienia rozmiar lub dostosowuje wymiary
-- `VMProcess()`: Wykonuje specyficzną operację
+- `ProcessKey()`: Przetwarza Key przez potok transformacji lub obsługi
+- `ProcessMouse()`: Przetwarza Mouse przez potok transformacji lub obsługi
+- `Hide()`: Ukrywa element wizualny z ekranu bez niszczenia go
+- `Show()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `ShowConsoleTitle()`: Wyświetla zawartość lub czyni element wizualny widocznym na ekranie
+- `SetPosition()`: Aktualizuje Position w stanie wewnętrznym lub konfiguracji
+- `GetPosition()`: Pobiera Position ze stanu wewnętrznego lub struktury danych
+- `SetScreenPosition()`: Aktualizuje ScreenPosition w stanie wewnętrznym lub konfiguracji
+- `ResizeConsole()`: Zmienia wymiary rozmiaru zachowując zawartość gdy to możliwe
+- `VMProcess()`: Przetwarza operacje lub polecenia maszyny wirtualnej
 ### Podsumowanie
 Plik `scrobj.hpp` zapewnia podstawową funkcjonalność dla operacje ekranowe. Definiuje 4 klas(y) i zawiera około 10 funkcji wspierających operacje menedżera plików Far Manager.

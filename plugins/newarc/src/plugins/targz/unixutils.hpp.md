@@ -9,10 +9,10 @@ Main functional areas: core functionality
 - `posix_header`: Implements core functionality
 - `time`: Implements core functionality
 ### Key Functions
-- `UnixToDos()`: Performs specific operation
-- `GetOctal()`: Retrieves or returns data
-- `GetHex()`: Retrieves or returns data
-- `UnixTimeToFileTime()`: Performs specific operation
+- `UnixToDos()`: Executes UnixToDos operation as part of core functionality
+- `GetOctal()`: Retrieves Octal from internal state or data structure
+- `GetHex()`: Retrieves Hex from internal state or data structure
+- `UnixTimeToFileTime()`: Executes UnixTimeToFileTime operation as part of core functionality
 ### Summary
 The `unixutils.hpp` file provides essential functionality for core functionality. It defines 5 class(es) and contains approximately 4 function(s) to support the Far Manager file manager operations.
 
@@ -28,9 +28,9 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `posix_header`: Implementuje podstawowa funkcjonalność
 - `time`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `UnixToDos()`: Wykonuje specyficzną operację
-- `GetOctal()`: Pobiera lub zwraca dane
-- `GetHex()`: Pobiera lub zwraca dane
-- `UnixTimeToFileTime()`: Wykonuje specyficzną operację
+- `UnixToDos()`: Wykonuje UnixToDos operację jako część podstawowa funkcjonalność
+- `GetOctal()`: Pobiera Octal ze stanu wewnętrznego lub struktury danych
+- `GetHex()`: Pobiera Hex ze stanu wewnętrznego lub struktury danych
+- `UnixTimeToFileTime()`: Wykonuje UnixTimeToFileTime operację jako część podstawowa funkcjonalność
 ### Podsumowanie
 Plik `unixutils.hpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. Definiuje 5 klas(y) i zawiera około 4 funkcji wspierających operacje menedżera plików Far Manager.

@@ -4,13 +4,13 @@
 This file implements functionality related to: */
 Main functional areas: core functionality
 ### Key Functions
-- `get()`: Retrieves or returns data
-- `C_Name()`: Performs specific operation
-- `set()`: Sets or assigns data
-- `del()`: Performs specific operation
-- `expand()`: Performs specific operation
-- `C_Str()`: Performs specific operation
-- `get_pathext()`: Retrieves or returns data
+- `get()`: Retrieves value from internal state or data structure
+- `C_Name()`: Executes C_Name operation as part of core functionality
+- `set()`: Updates value in internal state or configuration
+- `del()`: Executes del operation as part of core functionality
+- `expand()`: Executes expand operation as part of core functionality
+- `C_Str()`: Executes C_Str operation as part of core functionality
+- `get_pathext()`: Retrieves _pathext from internal state or data structure
 ### Namespaces
 - `os`
 ### Summary
@@ -23,13 +23,13 @@ The `platform.env.cpp` file provides essential functionality for core functional
 Ten plik implementuje funkcjonalność związaną z: */
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `get()`: Pobiera lub zwraca dane
-- `C_Name()`: Wykonuje specyficzną operację
-- `set()`: Ustawia lub przypisuje dane
-- `del()`: Wykonuje specyficzną operację
-- `expand()`: Wykonuje specyficzną operację
-- `C_Str()`: Wykonuje specyficzną operację
-- `get_pathext()`: Pobiera lub zwraca dane
+- `get()`: Pobiera wartość ze stanu wewnętrznego lub struktury danych
+- `C_Name()`: Wykonuje C_Name operację jako część podstawowa funkcjonalność
+- `set()`: Aktualizuje wartość w stanie wewnętrznym lub konfiguracji
+- `del()`: Wykonuje del operację jako część podstawowa funkcjonalność
+- `expand()`: Wykonuje expand operację jako część podstawowa funkcjonalność
+- `C_Str()`: Wykonuje C_Str operację jako część podstawowa funkcjonalność
+- `get_pathext()`: Pobiera _pathext ze stanu wewnętrznego lub struktury danych
 ### Przestrzenie nazw
 - `os`
 ### Podsumowanie

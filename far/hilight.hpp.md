@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `element`: Implements core functionality
 - `element_hash`: Implements core functionality
 ### Key Functions
-- `ToFarColor()`: Performs specific operation
-- `UpdateCurrentTime()`: Updates existing data
-- `GetHiColor()`: Retrieves or returns data
-- `GetGroup()`: Retrieves or returns data
-- `HiEdit()`: Performs specific operation
-- `UpdateHighlighting()`: Updates existing data
-- `Save()`: Saves data or state
-- `InheritPaletteColor()`: Performs specific operation
-- `ApplyFinalColor()`: Performs specific operation
-- `Load()`: Loads data or resources
+- `ToFarColor()`: Constructor that initializes ToFarColor object with provided parameters
+- `UpdateCurrentTime()`: Updates existing data with new values while preserving structure
+- `GetHiColor()`: Retrieves HiColor from internal state or data structure
+- `GetGroup()`: Retrieves Group from internal state or data structure
+- `HiEdit()`: Executes HiEdit operation as part of core functionality
+- `UpdateHighlighting()`: Updates existing data with new values while preserving structure
+- `Save()`: Saves current state or data to persistent storage
+- `InheritPaletteColor()`: Executes InheritPaletteColor operation as part of core functionality
+- `ApplyFinalColor()`: Executes ApplyFinalColor operation as part of core functionality
+- `Load()`: Loads data or resources from storage into memory
 ### Namespaces
 - `highlight`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `element`: Implementuje podstawowa funkcjonalność
 - `element_hash`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `ToFarColor()`: Wykonuje specyficzną operację
-- `UpdateCurrentTime()`: Aktualizuje istniejące dane
-- `GetHiColor()`: Pobiera lub zwraca dane
-- `GetGroup()`: Pobiera lub zwraca dane
-- `HiEdit()`: Wykonuje specyficzną operację
-- `UpdateHighlighting()`: Aktualizuje istniejące dane
-- `Save()`: Zapisuje dane lub stan
-- `InheritPaletteColor()`: Wykonuje specyficzną operację
-- `ApplyFinalColor()`: Wykonuje specyficzną operację
-- `Load()`: Ładuje dane lub zasoby
+- `ToFarColor()`: Konstruktor inicjalizujący ToFarColor obiekt z dostarczonymi parametrami
+- `UpdateCurrentTime()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `GetHiColor()`: Pobiera HiColor ze stanu wewnętrznego lub struktury danych
+- `GetGroup()`: Pobiera Group ze stanu wewnętrznego lub struktury danych
+- `HiEdit()`: Wykonuje HiEdit operację jako część podstawowa funkcjonalność
+- `UpdateHighlighting()`: Aktualizuje istniejące dane nowymi wartościami zachowując strukturę
+- `Save()`: Zapisuje bieżący stan lub dane do trwałego magazynu
+- `InheritPaletteColor()`: Wykonuje InheritPaletteColor operację jako część podstawowa funkcjonalność
+- `ApplyFinalColor()`: Wykonuje ApplyFinalColor operację jako część podstawowa funkcjonalność
+- `Load()`: Ładuje dane lub zasoby z magazynu do pamięci
 ### Przestrzenie nazw
 - `highlight`
 ### Podsumowanie

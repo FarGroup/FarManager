@@ -3,13 +3,13 @@
 ### Purpose
 Main functional areas: core functionality
 ### Key Functions
-- `FPIL_ADDSET()`: Performs specific operation
-- `_brk()`: Performs specific operation
-- `SetCurrentDirectory()`: Sets or assigns data
-- `GetFindData()`: Retrieves or returns data
-- `il()`: Performs specific operation
-- `free()`: Performs specific operation
-- `GetCurPath()`: Retrieves or returns data
+- `FPIL_ADDSET()`: Executes FPIL_ADDSET operation as part of core functionality
+- `_brk()`: Executes _brk operation as part of core functionality
+- `SetCurrentDirectory()`: Updates CurrentDirectory in internal state or configuration
+- `GetFindData()`: Retrieves FindData from internal state or data structure
+- `il()`: Executes il operation as part of core functionality
+- `free()`: Executes free operation as part of core functionality
+- `GetCurPath()`: Retrieves CurPath from internal state or data structure
 ### Summary
 The `fUtils.cpp` file provides essential functionality for core functionality. and contains approximately 7 function(s) to support the Far Manager file manager operations.
 
@@ -19,12 +19,12 @@ The `fUtils.cpp` file provides essential functionality for core functionality. a
 ### Cel
 Główne obszary funkcjonalne: podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `FPIL_ADDSET()`: Wykonuje specyficzną operację
-- `_brk()`: Wykonuje specyficzną operację
-- `SetCurrentDirectory()`: Ustawia lub przypisuje dane
-- `GetFindData()`: Pobiera lub zwraca dane
-- `il()`: Wykonuje specyficzną operację
-- `free()`: Wykonuje specyficzną operację
-- `GetCurPath()`: Pobiera lub zwraca dane
+- `FPIL_ADDSET()`: Wykonuje FPIL_ADDSET operację jako część podstawowa funkcjonalność
+- `_brk()`: Wykonuje _brk operację jako część podstawowa funkcjonalność
+- `SetCurrentDirectory()`: Aktualizuje CurrentDirectory w stanie wewnętrznym lub konfiguracji
+- `GetFindData()`: Pobiera FindData ze stanu wewnętrznego lub struktury danych
+- `il()`: Wykonuje il operację jako część podstawowa funkcjonalność
+- `free()`: Wykonuje free operację jako część podstawowa funkcjonalność
+- `GetCurPath()`: Pobiera CurPath ze stanu wewnętrznego lub struktury danych
 ### Podsumowanie
 Plik `fUtils.cpp` zapewnia podstawową funkcjonalność dla podstawowa funkcjonalność. i zawiera około 7 funkcji wspierających operacje menedżera plików Far Manager.

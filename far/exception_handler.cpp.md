@@ -15,16 +15,16 @@ Main functional areas: core functionality
 - `ThrowInfo`: Implements core functionality
 - `debug_client`: Implements core functionality
 ### Key Functions
-- `code()`: Performs specific operation
-- `exception_record()`: Performs specific operation
-- `context_record()`: Performs specific operation
-- `thread_handle()`: Performs specific operation
-- `thread_id()`: Performs specific operation
-- `report_to_stderr()`: Performs specific operation
-- `set_report_location()`: Sets or assigns data
-- `disable_exception_handling()`: Performs specific operation
-- `exception_handling_in_progress()`: Performs specific operation
-- `force_stderr_exception_ui()`: Performs specific operation
+- `code()`: Returns operation code or encoded value representation
+- `exception_record()`: Constructor that initializes exception_record object with provided parameters
+- `context_record()`: Constructor that initializes context_record object with provided parameters
+- `thread_handle()`: Executes thread_handle operation as part of core functionality
+- `thread_id()`: Executes thread_id operation as part of core functionality
+- `report_to_stderr()`: Executes report_to_stderr operation as part of core functionality
+- `set_report_location()`: Updates _report_location in internal state or configuration
+- `disable_exception_handling()`: Executes disable_exception_handling operation as part of core functionality
+- `exception_handling_in_progress()`: Executes exception_handling_in_progress operation as part of core functionality
+- `force_stderr_exception_ui()`: Executes force_stderr_exception_ui operation as part of core functionality
 ### Namespaces
 - `detail`
 ### Summary
@@ -48,16 +48,16 @@ Główne obszary funkcjonalne: podstawowa funkcjonalność
 - `ThrowInfo`: Implementuje podstawowa funkcjonalność
 - `debug_client`: Implementuje podstawowa funkcjonalność
 ### Kluczowe Funkcje
-- `code()`: Wykonuje specyficzną operację
-- `exception_record()`: Wykonuje specyficzną operację
-- `context_record()`: Wykonuje specyficzną operację
-- `thread_handle()`: Wykonuje specyficzną operację
-- `thread_id()`: Wykonuje specyficzną operację
-- `report_to_stderr()`: Wykonuje specyficzną operację
-- `set_report_location()`: Ustawia lub przypisuje dane
-- `disable_exception_handling()`: Wykonuje specyficzną operację
-- `exception_handling_in_progress()`: Wykonuje specyficzną operację
-- `force_stderr_exception_ui()`: Wykonuje specyficzną operację
+- `code()`: Zwraca kod operacji lub zakodowaną reprezentację wartości
+- `exception_record()`: Konstruktor inicjalizujący exception_record obiekt z dostarczonymi parametrami
+- `context_record()`: Konstruktor inicjalizujący context_record obiekt z dostarczonymi parametrami
+- `thread_handle()`: Wykonuje thread_handle operację jako część podstawowa funkcjonalność
+- `thread_id()`: Wykonuje thread_id operację jako część podstawowa funkcjonalność
+- `report_to_stderr()`: Wykonuje report_to_stderr operację jako część podstawowa funkcjonalność
+- `set_report_location()`: Aktualizuje _report_location w stanie wewnętrznym lub konfiguracji
+- `disable_exception_handling()`: Wykonuje disable_exception_handling operację jako część podstawowa funkcjonalność
+- `exception_handling_in_progress()`: Wykonuje exception_handling_in_progress operację jako część podstawowa funkcjonalność
+- `force_stderr_exception_ui()`: Wykonuje force_stderr_exception_ui operację jako część podstawowa funkcjonalność
 ### Przestrzenie nazw
 - `detail`
 ### Podsumowanie
