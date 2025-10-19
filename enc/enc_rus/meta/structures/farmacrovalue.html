@@ -29,6 +29,7 @@ struct FarMacroValue
     __int64        Boolean;
     double         Double;
     const wchar_t *String;
+    const char    *MBString;
     void          *Pointer;
     struct
     {
@@ -59,7 +60,9 @@ struct FarMacroValue
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_INTEGER">FMVT_INTEGER</a></td>
     <td class="cont" width="60%">Число. Компонента <code>Value.Integer</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_STRING">FMVT_STRING</a></td>
-    <td class="cont" width="60%">Строка. Компонента <code>Value.String</code>.</td></tr>
+    <td class="cont" width="60%">Строка в кодировке UTF-16. Компонента <code>Value.String</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMVT_MBSTRING">FMVT_MBSTRING</a></td>
+    <td class="cont" width="60%">Строка в кодировке UTF-8. Компонента <code>Value.MBString</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_DOUBLE">FMVT_DOUBLE</a></td>
     <td class="cont" width="60%">Вещественное значение. Компонента <code>Value.Double</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_BOOLEAN">FMVT_BOOLEAN</a></td>
