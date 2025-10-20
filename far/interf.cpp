@@ -896,27 +896,101 @@ static void string_to_cells(string_view Str, size_t& CharsConsumed, cells& Cells
 void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
 {
 	cells Cells;
-	const auto& CellsToBeConsumed = Cells.emplace<0>();
+	const auto& CellsToBeConsumed = Cells.emplace<size_t>();
 	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
 	CellsConsumed = CellsToBeConsumed;
 
-#ifdef _DEBUG
-	if (CharsConsumed == Str.size())
-		assert(CellsConsumed == visual_string_length(Str));
-#endif
+	assert(CharsConsumed < Str.size() || CellsConsumed == visual_string_length(Str));
 }
 
-std::vector<FAR_CHAR_INFO> text_to_char_info(string_view Str, size_t CellsAvailable)
+std::vector<FAR_CHAR_INFO> text_to_char_info(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
 {
+	CharsConsumed = 0;
+	CellsConsumed = 0;
+
 	cells Cells;
-	auto& Buffer = Cells.emplace<1>();
+	auto& Buffer = Cells.emplace<real_cells>();
 
 	if (Str.empty())
 		return Buffer;
 
-	size_t CharsConsumed = 0;
 	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
+	CellsConsumed = Buffer.size();
 	return Buffer;
+}
+
+std::vector<FAR_CHAR_INFO> text_to_char_info(string_view Str, size_t CellsAvailable)
+{
+	size_t CharsConsumed{};
+	size_t CellsConsumed{};
+	return text_to_char_info(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+}
+
+bool ClippedText(string_view Str, const segment ViewPort, bool& AllCharsConsumed)
+{
+	AllCharsConsumed = false;
+	if (ViewPort.empty()) return false;
+	if (CurX >= ViewPort.end()) return true;
+
+	const auto skip_text{ [](string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
+	{
+		chars_to_cells(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	} };
+
+	const auto write_text{ [](string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
+	{
+		Global->ScrBuf->Write(CurX, CurY, text_to_char_info(Str, CharsConsumed, CellsAvailable, CellsConsumed));
+	} };
+
+	// Returns true if a wide codepoint straddles across the EndX position.
+	const auto WriteOrSkip{ [&Str](const auto EndX, const auto Operation)
+	{
+		if (Str.empty() || CurX >= EndX) return false;
+
+		size_t CharsConsumed{};
+		size_t CellsConsumed{};
+		Operation(Str, CharsConsumed, EndX - CurX, CellsConsumed);
+		Str.remove_prefix(CharsConsumed);
+		CurX += static_cast<int>(CellsConsumed);
+
+		if (Str.empty() || CurX >= EndX) return false;
+
+		// Neither the string nor the screen area were exhausted.
+		// It must be a wide codepoint when only one cell is remaining.
+		assert(char_width::is_wide(encoding::utf16::extract_codepoint(Str)));
+		assert(CurX == EndX - 1);
+		return true;
+	} };
+
+	if (WriteOrSkip(ViewPort.start(), skip_text))
+	{
+		// A wide codepoint straddles the left edge of the clipping area.
+		// Prepare to continue with the visible part of the string.
+		// Skip the codepoint, advance CurX by two cells, and fill the trailing
+		// cell (where the right half of the glyph should have been) with a space.
+		encoding::utf16::remove_first_codepoint(Str);
+		CurX++;
+		Text(L' ');
+	}
+	if (WriteOrSkip(ViewPort.end(), write_text))
+	{
+		// A wide codepoint straddles the right edge of the clipping area.
+		// Fill the leading cell (where the left half of the glyph should have been)
+		// with a space and leave the codepoint in the input string to indicate
+		// that something was cut off by the right edge.
+		Text(L' ');
+	}
+
+	AllCharsConsumed = Str.empty();
+
+	assert(CurX <= ViewPort.end());
+	return CurX >= ViewPort.end();
+}
+
+bool ClippedText(string_view Str, const segment ViewPort)
+{
+	bool AllCharsConsumed{};
+	return ClippedText(Str, ViewPort, AllCharsConsumed);
 }
 
 size_t Text(string_view Str, size_t const CellsAvailable)

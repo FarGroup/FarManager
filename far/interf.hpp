@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/matrix.hpp"
 #include "common/2d/rectangle.hpp"
 #include "common/function_ref.hpp"
+#include "common/segment.hpp"
 #include "common/singleton.hpp"
 
 // External:
@@ -178,6 +179,28 @@ bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
 std::vector<FAR_CHAR_INFO> text_to_char_info(string_view Str, size_t CellsAvailable);
 
 void Text(point Where, const FarColor& Color, string_view Str);
+
+// This function is handy when one needs to write a long string, only part of which
+// is visible within a viewport, and the string must be written by adjacent slices,
+// for example each slice in a different color. To accomplish this task, the caller
+// should set CurX somewhere to the left of ViewPort.end() and call this function
+// repeatedly for each slice passing the same ViewPort every time. When the function
+// returns true, the caller should stop calling it. More formally, the function:
+// - Lays out Str starting at CurX and writes the part visible within ViewPort.
+// - Returns true if CurX reached ViewPort.end(), i.e., the entire
+//   ViewPort was written over, a.k.a. all cells were consumed.
+// - Advances CurX accordingly even if Str is entirely to the left of ViewPort.
+// - Never advances CurX beyond ViewPort.end() This is an optimization
+//   to avoid scanning the part of the string clipped by ViewPort.end().
+//   Supposedly after the function returned true, the caller should not care about CurX.
+// - If a wide character straddles ViewPort.start(), writes one padding whitespace
+//   at the trailing cell of this character, i.e., at ViewPort.start().
+// - If a wide character straddles ViewPort.end(), writes one padding whitespace
+//   at the leading cell of this character, i.e., at ViewPort.end() - 1.
+//   In this case, the function returns true (reached the end of the ViewPort)
+//   and sets AllCharsConsumed to false (something was cut off).
+bool ClippedText(string_view Str, const segment ViewPort, bool& AllCharsConsumed);
+bool ClippedText(string_view Str, const segment ViewPort);
 
 size_t Text(string_view Str, size_t CellsAvailable);
 size_t Text(string_view Str);

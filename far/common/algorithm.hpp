@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 #include "preprocessor.hpp"
-#include "segment.hpp"
 #include "type_traits.hpp"
 
 #include <algorithm>
@@ -125,21 +124,6 @@ constexpr bool any_of(auto const& Arg, auto const&... Args)
 constexpr bool none_of(auto const&... Args)
 {
 	return !any_of(Args...);
-}
-
-template<typename TA, typename TB, typename TC = std::common_type_t<TA, TB>>
-segment_t<TC> intersect(segment_t<TA> const A, segment_t<TB> const B)
-{
-	if (A.empty() || B.empty())
-		return {};
-
-	if (B.start() < A.start())
-		return intersect(B, A);
-
-	if (A.end() <= B.start())
-		return {};
-
-	return { static_cast<TC>(B.start()), typename segment_t<TC>::sentinel_tag{ std::min(static_cast<TC>(A.end()), static_cast<TC>(B.end())) } };
 }
 
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0
