@@ -8754,14 +8754,17 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && !m_ListData[ListPos].Colors->Mark.Mark.empty() && Width>1)
 							{
 								const auto MarkLength = visual_string_length(m_ListData[ListPos].Colors->Mark.Mark);
-								Width -= static_cast<int>(MarkLength);
+								if (Width >= MarkLength)
+								{
+									Width -= static_cast<int>(MarkLength);
 
-								const auto OldColor = GetColor();
-								if (!ShowStatus)
-									SetShowColor(ListPos, false);
+									const auto OldColor = GetColor();
+									if (!ShowStatus)
+										SetShowColor(ListPos, false);
 
-								Text(m_ListData[ListPos].Colors->Mark.Mark, MarkLength);
-								SetColor(OldColor);
+									Text(m_ListData[ListPos].Colors->Mark.Mark, MarkLength);
+									SetColor(OldColor);
+								}
 							}
 
 							string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
