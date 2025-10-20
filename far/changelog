@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2025-10-20 23:56:08+01:00 - build 6575
+
+1. Clarify DI_COMBOBOX and DIF_DROPDOWNLIST behavior in corner cases.
+
+2. Refactoring.
+
+3. Warnings.
+
+--------------------------------------------------------------------------------
 rohitab 2025-10-20 08:50:41+11:00 - build 6574
 
 1. gh-1032: Crash if size of name column is less than size of mark character.

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rectangle.hpp"
 #include "../function_traits.hpp"
 
-#include <limits>
+#include <utility>
 
 //----------------------------------------------------------------------------
 
@@ -58,8 +58,8 @@ void for_submatrix(auto& Matrix, rectangle Rect, P Predicate)
 template<typename T, size_t Width, size_t Height>
 static consteval auto column_major_iota()
 {
-	std::array<T, Width* Height> Result;
-	static_assert(Result.size() - 1 <= std::numeric_limits<T>::max());
+	std::array<T, Width * Height> Result;
+	static_assert(std::in_range<T>(Result.size() - 1));
 
 	for (size_t Row = 0; Row != Height; ++Row)
 		for (size_t Col = 0; Col != Width; ++Col)

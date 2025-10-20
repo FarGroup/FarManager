@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "expected.hpp"
 #include "string_utils.hpp"
 
-#include <limits>
 #include <system_error>
 #include <utility>
 
@@ -112,7 +111,7 @@ namespace detail
 		if (const auto Result = from_string(Str, LongValue, Pos, Base); Result != std::errc{})
 			return Result;
 
-		if (LongValue < std::numeric_limits<S>::min() || LongValue > std::numeric_limits<S>::max())
+		if (!std::in_range<S>(LongValue))
 			return std::errc::result_out_of_range;
 
 		Value = static_cast<S>(LongValue);

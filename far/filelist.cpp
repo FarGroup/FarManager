@@ -8753,10 +8753,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && !m_ListData[ListPos].Colors->Mark.Mark.empty() && Width>1)
 							{
-								const auto MarkLength = visual_string_length(m_ListData[ListPos].Colors->Mark.Mark);
+								const auto MarkLength = static_cast<int>(visual_string_length(m_ListData[ListPos].Colors->Mark.Mark));
 								if (Width >= MarkLength)
 								{
-									Width -= static_cast<int>(MarkLength);
+									Width -= MarkLength;
 
 									const auto OldColor = GetColor();
 									if (!ShowStatus)

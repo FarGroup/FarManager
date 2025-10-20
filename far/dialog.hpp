@@ -273,7 +273,7 @@ private:
 	int LenStrItem(size_t ID);
 	int LenStrItem(const DialogItemEx& Item);
 	void ShowDialog(size_t ID=static_cast<size_t>(-1));  //    ID=-1 - отрисовать весь диалог
-	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
+	intptr_t CtlColorDlgItem(std::array<FarColor, 4>& Color, size_t ItemPos);
 	/* $ 28.07.2000 SVS
 		+ Изменяет фокус ввода между двумя элементами.
 		    Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
@@ -304,7 +304,8 @@ private:
 	rectangle CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount) const;
 	void ProcessKey(int Key, size_t ItemPos);
 	void ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent);
-
+	bool IsEditableComboBox(size_t Index) const;
+	bool IsDropDownComboBox(size_t Index) const;
 	static bool ItemHasDropDownArrow(const DialogItemEx *Item);
 
 
