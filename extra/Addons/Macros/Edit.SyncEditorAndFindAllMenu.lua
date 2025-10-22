@@ -126,6 +126,16 @@ end
 
 local function OnListChange(FarDialogEvent)
   LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg)
+
+  -- -- Test -- renyxa -- Test -- renyxa -- Test -- renyxa -- Test -- renyxa -- Test -- --
+  Menu.SetItemExtendedData(
+    FarDialogEvent.hDlg, FarDialogEvent.hDlg:send(F.DM_LISTINFO, 1).SelectPos,
+    "Line", LastSeenItemData.Line,
+    "Position", LastSeenItemData.Position + 1,
+    "Length", LastSeenItemData.Length + 1)
+  LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg)
+  -- -- Test -- renyxa -- Test -- renyxa -- Test -- renyxa -- Test -- renyxa -- Test -- --
+
   if TrackMenu then HighlighText() end
 end
 
