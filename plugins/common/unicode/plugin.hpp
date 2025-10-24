@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6571.0
+Plugin API for Far Manager 3.0.6575.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6571
+#define FARMANAGERVERSION_BUILD 6575
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -1386,6 +1386,12 @@ enum FARMACROVARTYPE
 	FMVT_NEWTABLE               = 12,
 	FMVT_SETTABLE               = 13,
 	FMVT_DIALOG                 = 14,
+	FMVT_TABLE                  = 15,
+	FMVT_GETTABLE               = 16,
+	FMVT_STACKPOP               = 17,
+	FMVT_STACKGETTOP            = 18,
+	FMVT_STACKSETTOP            = 19,
+	FMVT_STACKPUSHVALUE         = 20,
 };
 
 struct FarMacroValue
