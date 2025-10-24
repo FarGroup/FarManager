@@ -130,6 +130,31 @@ public:
 		return PushValue(static_cast<long long>(Value));
 	}
 
+	int StackGetTop() const
+	{
+		FarMacroValue val(FMVT_STACKGETTOP);
+		SendValue(val);
+		return val.Integer;
+	}
+	void StackSetTop(int top) const
+	{
+		FarMacroValue val(FMVT_STACKSETTOP);
+		val.Integer = top;
+		SendValue(val);
+	}
+	void StackPop(int count) const
+	{
+		FarMacroValue val(FMVT_STACKPOP);
+		val.Integer = count;
+		SendValue(val);
+	}
+	void StackPushValue(int pos) const
+	{
+		FarMacroValue val(FMVT_STACKPUSHVALUE);
+		val.Integer = pos;
+		SendValue(val);
+	}
+
 	void absFunc() const;
 	void ascFunc() const;
 	void atoiFunc() const;

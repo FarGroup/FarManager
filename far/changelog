@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2025-10-24 20:22:16+03:00 - build 6576
+
+1. Add a few stack operations to Macro-API engine.
+
+--------------------------------------------------------------------------------
 drkns 2025-10-20 23:56:08+01:00 - build 6575
 
 1. Clarify DI_COMBOBOX and DIF_DROPDOWNLIST behavior in corner cases.

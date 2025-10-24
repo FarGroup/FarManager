@@ -166,19 +166,71 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 typedef struct
 {
 	lua_State *L;
-	int ret_avail;
+	int start_stack;
+	int max_stack;
 	int error;
 } mcfc_data;
 
 static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, size_t Count)
 {
 	mcfc_data *cbdata = (mcfc_data*)Data;
+	if (cbdata->error)
+		return;
+
 	(void) Count;
-	if (!cbdata->error && cbdata->ret_avail > 0)
+	lua_State *L = cbdata->L;
+	int top = lua_gettop(L);
+	int stack_avail = cbdata->max_stack - top;
+
+	switch(Val->Type)
 	{
-		cbdata->error = (Val->Type == FMVT_ERROR);
-		cbdata->ret_avail += (Val->Type == FMVT_SETTABLE) ? 2 : -1;
-		PushFarMacroValue(cbdata->L, Val);
+		case FMVT_NEWTABLE:
+			if (stack_avail > 0)
+				lua_newtable(L);
+			break;
+
+		case FMVT_SETTABLE:
+			if (lua_istable(L, -3))
+				lua_settable(L, -3);
+			break;
+
+		case FMVT_GETTABLE:
+			if (stack_avail > 0)
+			{
+				lua_gettable(L, -3);
+				ConvertLuaValue(L, -1, Val);
+			}
+			break;
+
+		case FMVT_STACKPOP:
+			int param = (int)Val->Value.Integer;
+			if (param > 0 && (top - param) >= cbdata->start_stack)
+				lua_pop(L, param);
+			break;
+
+		case FMVT_STACKGETTOP:
+			Val->Type = FMVT_INTEGER;
+			Val->Value.Integer = lua_gettop(L);
+			break;
+
+		case FMVT_STACKSETTOP:
+			int val = (int)Val->Value.Integer;
+			if (val >= cbdata->start_stack && val <= cbdata->max_stack)
+				lua_settop(L, val);
+			break;
+
+		case FMVT_STACKPUSHVALUE:
+			if (stack_avail > 0)
+				lua_pushvalue(L, (int)Val->Value.Integer);
+			break;
+
+		default:
+			if (stack_avail > 0)
+			{
+				cbdata->error = (Val->Type == FMVT_ERROR);
+				PushFarMacroValue(L, Val);
+			}
+			break;
 	}
 }
 
@@ -187,17 +239,18 @@ int far_MacroCallFar(lua_State *L)
 	enum { MAXARG=32, MAXRET=32 };
 	struct FarMacroValue args[MAXARG];
 	struct FarMacroCall fmc;
-	int idx, ret, pushed;
-	mcfc_data cbdata = { L, MAXRET, 0 };
+	int top = lua_gettop(L);
+	mcfc_data cbdata = { L, top, top + MAXRET, 0 };
 	TPluginData *pd = GetPluginData(L);
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
+
 	int opcode = (int)luaL_checkinteger(L, 1);
-	fmc.Count = lua_gettop(L) - 1;
+	fmc.Count = top - 1;
 	fmc.Values = fmc.Count<=MAXARG ? args:(struct FarMacroValue*)malloc(fmc.Count*sizeof(struct FarMacroValue));
 	fmc.Callback = MacroCallFarCallback;
 	fmc.CallbackData = &cbdata;
 
-	for(idx=0; idx<(int)fmc.Count; idx++)
+	for(int idx=0; idx<(int)fmc.Count; idx++)
 	{
 		ConvertLuaValue(L, idx+2, fmc.Values+idx);
 		if (fmc.Values[idx].Type == FMVT_UNKNOWN)
@@ -213,9 +266,9 @@ int far_MacroCallFar(lua_State *L)
 	}
 
 	lua_checkstack(L, MAXRET);
-	ret = (int) privateInfo->CallFar(opcode, &fmc);
+	int ret = (int) privateInfo->CallFar(opcode, &fmc);
 	FP_PROTECT(); // protect from plugins activating FPU exceptions
-	pushed = MAXRET - cbdata.ret_avail;
+	int pushed = lua_gettop(L) - top;
 	if (fmc.Values != args)
 		free(fmc.Values);
 	if (cbdata.error)
