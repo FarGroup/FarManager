@@ -2207,21 +2207,18 @@ signal_handler::~signal_handler()
 		std::signal(SIGABRT, m_PreviousHandler);
 }
 
-#if IS_MICROSOFT_SDK()
-#ifndef _DEBUG // 🤦
+#if IS_MICROSOFT_SDK() && !defined _DEBUG // 🤦
 extern "C" void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t);
 #endif
-#else
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 
-void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t)
+[[noreturn]]
+static void default_invalid_parameter_handler(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
+#if IS_MICROSOFT_SDK()
+	_invalid_parameter(Expression, Function, File, Line, Reserved);
+#endif
 	os::process::terminate(STATUS_INVALID_CRUNTIME_PARAMETER);
 }
-
-WARNING_POP()
-#endif
 
 static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
@@ -2265,8 +2262,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 	case handler_result::continue_search:
 		restore_system_exception_handler();
 		_set_invalid_parameter_handler({});
-		_invalid_parameter(Expression, Function, File, Line, Reserved);
-		break;
+		default_invalid_parameter_handler(Expression, Function, File, Line, Reserved);
 	}
 }
 

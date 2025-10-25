@@ -587,7 +587,7 @@ namespace tests
 
 	static void asan_double_free()
 	{
-		const auto Ptr = malloc(1);
+		volatile const auto Ptr = malloc(1);
 		free(Ptr);
 		free(Ptr);
 	}
