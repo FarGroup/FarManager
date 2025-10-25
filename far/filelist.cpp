@@ -2842,7 +2842,19 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				{
 					int PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_EDIT);
 					if (PutCode == 1 || PutCode == 2)
+					{
 						SetPluginModified();
+
+						Update(UPDATE_KEEP_SELECTION);
+						Redraw();
+						const auto AnotherPanel = Parent()->GetAnotherPanel(this);
+
+						if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
+						{
+							AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+							AnotherPanel->Redraw();
+						}
+					}
 				}
 			}
 		}
