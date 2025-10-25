@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2025-10-25 17:09:40+03:00 - build 6578
+
+1. Add more stack operations to Macro-API engine.
+
+--------------------------------------------------------------------------------
 ssvine 2025-10-25 10:12:06+03:00 - build 6577
 
 1. gh-1034: Refresh plugin panel after uploading a changed file in ProcessEnter.

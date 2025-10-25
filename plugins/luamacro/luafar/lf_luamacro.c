@@ -62,13 +62,13 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 	if (pcall_msg(L, 2+(int)argc, 2) == 0)
 	{
-		intptr_t ReturnType;
 		if (!lua_toboolean(L,-2))
 		{
 			lua_pop(L,2);
 			return NULL;
 		}
-		ReturnType = lua_type(L,-2)==LUA_TNUMBER ? lua_tointeger(L,-2) : 1;
+
+		intptr_t ReturnType = lua_type(L,-2)==LUA_TNUMBER ? lua_tointeger(L,-2) : 1;
 
 		if (lua_istable(L,-2))
 		{
@@ -84,74 +84,72 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 		else
 		{
 			struct MacroPluginReturn* Ret = &om_info->Ret;
-			int nargs, idx;
 
 			lua_getfield(L,-1,"n");
-			nargs = lua_type(L,-1)==LUA_TNUMBER ? (int)lua_tointeger(L,-1) : (int)lua_objlen(L,-2);
+			int nargs = lua_type(L,-1)==LUA_TNUMBER ? (int)lua_tointeger(L,-1) : (int)lua_objlen(L,-2);
 			lua_pop(L,1);
-			if (nargs < 0) nargs = 0;
+			if (nargs < 0)
+				nargs = 0;
 
 			InitMPR(L, Ret, (size_t)nargs, ReturnType);
 
-			for(idx=0; idx<nargs; idx++)
+			for(int idx=0; idx<nargs; idx++)
 			{
-				int type;
-				INT64 val64;
+				Ret->Values[idx].Type = FMVT_NIL;
 				lua_rawgeti(L,-1,idx+1);
-				type = lua_type(L, -1);
 
-				if (type == LUA_TNUMBER)
+				switch (lua_type(L, -1))
 				{
-					Ret->Values[idx].Type = FMVT_DOUBLE;
-					Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
-					lua_pop(L,1);
-				}
-				else if (type == LUA_TSTRING)
-				{
-					Ret->Values[idx].Type = FMVT_STRING;
-					Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
-					lua_rawseti(L,-2,idx+1);
-				}
-				else if (type == LUA_TBOOLEAN)
-				{
-					Ret->Values[idx].Type = FMVT_BOOLEAN;
-					Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
-					lua_pop(L,1);
-				}
-				else if (type == LUA_TLIGHTUSERDATA)
-				{
-					Ret->Values[idx].Type = FMVT_POINTER;
-					Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
-					lua_rawseti(L,-2,idx+1);
-				}
-				else if (type == LUA_TTABLE)
-				{
-					Ret->Values[idx].Type = FMVT_BINARY;
-					lua_rawgeti(L,-1,1);
-					if (lua_type(L,-1) == LUA_TSTRING)
-					{
-						Ret->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
-						Ret->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
-						lua_rawseti(L,-3,idx+1);
-					}
-					else
-					{
-						Ret->Values[idx].Value.Binary.Data = (char*)"";
-						Ret->Values[idx].Value.Binary.Size = 0;
+					case LUA_TNUMBER:
+						Ret->Values[idx].Type = FMVT_DOUBLE;
+						Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
 						lua_pop(L,1);
-					}
-					lua_pop(L,1);
-				}
-				else if (bit64_getvalue(L, -1, &val64))
-				{
-					Ret->Values[idx].Type = FMVT_INTEGER;
-					Ret->Values[idx].Value.Integer = val64;
-					lua_pop(L,1);
-				}
-				else
-				{
-					Ret->Values[idx].Type = FMVT_NIL;
-					lua_pop(L,1);
+						break;
+
+					case LUA_TSTRING:
+						Ret->Values[idx].Type = FMVT_STRING;
+						Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
+						lua_rawseti(L,-2,idx+1);
+						break;
+
+					case LUA_TBOOLEAN:
+						Ret->Values[idx].Type = FMVT_BOOLEAN;
+						Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
+						lua_pop(L,1);
+						break;
+
+					case LUA_TLIGHTUSERDATA:
+						Ret->Values[idx].Type = FMVT_POINTER;
+						Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
+						lua_rawseti(L,-2,idx+1);
+						break;
+
+					case LUA_TTABLE:
+						lua_getfield(L, -1, TKEY_BINARY);
+						if (lua_type(L, -1) == LUA_TSTRING)
+						{
+							Ret->Values[idx].Type = FMVT_BINARY;
+							Ret->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
+							Ret->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
+							lua_rawseti(L,-3,idx+1);
+						}
+						lua_pop(L,1);
+						break;
+
+					default:
+						INT64 val64;
+						if (bit64_getvalue(L, -1, &val64))
+						{
+							Ret->Values[idx].Type = FMVT_INTEGER;
+							Ret->Values[idx].Value.Integer = val64;
+							lua_pop(L,1);
+						}
+						else
+						{
+							Ret->Values[idx].Type = FMVT_NIL;
+							lua_pop(L,1);
+						}
+						break;
 				}
 			}
 
@@ -181,6 +179,8 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, s
 	lua_State *L = cbdata->L;
 	int top = lua_gettop(L);
 	int stack_avail = cbdata->max_stack - top;
+	int param = (int)Val->Value.Integer;
+	int pos = param >= 0 ? param : top + 1 + param;
 
 	switch(Val->Type)
 	{
@@ -190,38 +190,36 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, s
 			break;
 
 		case FMVT_SETTABLE:
-			if (lua_istable(L, -3))
-				lua_settable(L, -3);
+			if (pos >= 1 && pos <= top-2 && lua_istable(L, pos))
+				lua_settable(L, pos);
 			break;
 
 		case FMVT_GETTABLE:
-			if (stack_avail > 0)
+			if (pos >= 1 && pos <= top-1 && lua_istable(L, pos))
 			{
-				lua_gettable(L, -3);
+				lua_gettable(L, pos);
 				ConvertLuaValue(L, -1, Val);
 			}
 			break;
 
 		case FMVT_STACKPOP:
-			int param = (int)Val->Value.Integer;
 			if (param > 0 && (top - param) >= cbdata->start_stack)
 				lua_pop(L, param);
 			break;
 
 		case FMVT_STACKGETTOP:
 			Val->Type = FMVT_INTEGER;
-			Val->Value.Integer = lua_gettop(L);
+			Val->Value.Integer = top;
 			break;
 
 		case FMVT_STACKSETTOP:
-			int val = (int)Val->Value.Integer;
-			if (val >= cbdata->start_stack && val <= cbdata->max_stack)
-				lua_settop(L, val);
+			if (pos >= cbdata->start_stack && pos <= cbdata->max_stack)
+				lua_settop(L, pos);
 			break;
 
 		case FMVT_STACKPUSHVALUE:
-			if (stack_avail > 0)
-				lua_pushvalue(L, (int)Val->Value.Integer);
+			if (stack_avail > 0 && pos >= 1 && pos <= top)
+				lua_pushvalue(L, pos);
 			break;
 
 		default:

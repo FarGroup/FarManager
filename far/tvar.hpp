@@ -65,6 +65,7 @@ public:
 		Double = 3,
 		Pointer = 4,
 		Dialog = 5,
+		Table = 6,
 	};
 
 	COPYABLE(TVar);
@@ -97,7 +98,8 @@ public:
 	bool isInteger()  const { return vType == Type::Integer || vType == Type::Unknown; }
 	bool isDouble()   const { return vType == Type::Double; }
 	bool isPointer()  const { return vType == Type::Pointer; }
-	bool isDialog()  const { return vType == Type::Dialog; }
+	bool isDialog()   const { return vType == Type::Dialog; }
+	bool isTable()    const { return vType == Type::Table; }
 	bool isUnknown()  const { return vType == Type::Unknown; }
 
 	bool isNumber()   const;

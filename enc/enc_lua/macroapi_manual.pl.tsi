@@ -2395,7 +2395,7 @@ lv=3
 dt=Text
 nm=Call
 ctime=3560706460
-mtime=3717266757
+mtime=3970573104
 <article>
 #_... = Plugin.Call (PluginId [, ...])
 #_
@@ -2426,7 +2426,7 @@ mtime=3717266757
 #_       string   -> FMVT_STRING  (automatically converted from UTF-8 to UTF-16LE)
 #_       {string} -> FMVT_BINARY  (in order to pass an arbitrary string without UTF-8 -> UTF16LE
 #_                                conversion, the string should be placed in a table as an element
-#_                                with its key==1)
+#_                                with its key=="__binary")
 #_
 #_  4. Values returned by the plugin via a *FarMacroCall* structure are passed to the macro
 #_     the following way:
@@ -2435,7 +2435,7 @@ mtime=3717266757
 #_       FMVT_DOUBLE  -> number
 #_       FMVT_INTEGER -> number, if it "fits" in 53 bits, otherwise int64
 #_       FMVT_STRING  -> string (automatically converted from UTF-16LE to UTF-8)
-#_       FMVT_BINARY  -> table (the table contains a string as an element with its key==1;
+#_       FMVT_BINARY  -> table (the table contains a string as an element with its key=="__binary";
 #_                              the string is placed as is, without conversion)
 #_       FMVT_POINTER -> light userdata
 #_       FMVT_ARRAY   -> table (array of elements; the table contains 2 fields:

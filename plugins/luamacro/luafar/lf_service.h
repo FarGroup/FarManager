@@ -1,6 +1,8 @@
 #ifndef LUAFAR_SERVICE_H
 #define LUAFAR_SERVICE_H
 
+#define TKEY_BINARY "__binary"
+
 UINT64   OptFlags(lua_State* L, int pos, UINT64 dflt);
 UINT64   GetFlagCombination(lua_State *L, int pos, int *success);
 UINT64   GetFlagsFromTable(lua_State *L, int pos, const char* key);

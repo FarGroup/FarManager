@@ -456,27 +456,18 @@ void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
 	}
 	else if (type == LUA_TTABLE)
 	{
-		lua_rawgeti(L,pos,1);
-		if (lua_type(L,-1) == LUA_TSTRING)
+		lua_getfield(L, pos, TKEY_BINARY);
+		if (lua_type(L, -1) == LUA_TSTRING)
 		{
 			target->Type = FMVT_BINARY;
 			target->Value.Binary.Data = (void*)lua_tolstring(L, -1, &target->Value.Binary.Size);
 		}
-		lua_pop(L,1);
-//		lua_rawgeti(L,pos,0);
-//		if (lua_type(L,-1) == LUA_TSTRING && !strcmp("binary", lua_tostring(L,-1)))
-//		{
-//			lua_rawgeti(L,pos,1);
-//			target->Type = FMVT_BINARY;
-//			target->Value.Binary.Size = 0;
-//			target->Value.Binary.Data = (void*)lua_tolstring(L, -1, &target->Value.Binary.Size);
-//			lua_pop(L,1);
-//		}
-//		else
-//		{
-//			target->Type = FMVT_TABLE;
-//		}
-//		lua_pop(L,1);
+		else
+		{
+			target->Type = FMVT_TABLE;
+			target->Value.Integer = pos;
+		}
+		lua_pop(L, 1);
 	}
 	else if (type == LUA_TBOOLEAN)
 	{

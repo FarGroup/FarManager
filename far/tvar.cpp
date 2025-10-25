@@ -333,6 +333,7 @@ long long TVar::asInteger() const
 	switch (vType)
 	{
 	case Type::Integer:
+	case Type::Table:
 	case Type::Unknown:
 		return inum;
 
@@ -355,6 +356,7 @@ double TVar::asDouble() const
 	switch (vType)
 	{
 	case Type::Integer:
+	case Type::Table:
 	case Type::Unknown:
 		return inum;
 
@@ -403,6 +405,7 @@ bool TVar::isNumber() const
 		case Type::Unknown:
 		case Type::Integer:
 		case Type::Double:
+		case Type::Table:
 			return true;
 
 		case Type::String:
@@ -446,10 +449,12 @@ bool TVar::operator<(const TVar& rhs) const
 	{
 	case Type::Unknown:
 	case Type::Integer:
+	case Type::Table:
 		switch (rhs.type())
 		{
 		case Type::Unknown:
 		case Type::Integer:
+		case Type::Table:
 			return asInteger() < rhs.asInteger();
 
 		case Type::Double:
@@ -479,6 +484,7 @@ bool TVar::operator<(const TVar& rhs) const
 		{
 		case Type::Unknown:
 		case Type::Integer:
+		case Type::Table:
 		case Type::Double:
 			return asDouble() < rhs.asDouble();
 

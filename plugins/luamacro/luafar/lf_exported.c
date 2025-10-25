@@ -793,7 +793,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 		case FMVT_BINARY:
 			lua_createtable(L,1,0);
 			lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
-			lua_rawseti(L,-2,1);
+			lua_setfield(L, -2, TKEY_BINARY);
 			break;
 
 		case FMVT_ARRAY:
@@ -841,7 +841,6 @@ static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacr
 static HANDLE FillFarMacroCall (lua_State* L, int narg)
 {
 	INT64 val64;
-	int i;
 
 	struct FarMacroCall *fmc = (struct FarMacroCall*)
 		malloc(sizeof(struct FarMacroCall) + narg*sizeof(struct FarMacroValue));
@@ -852,53 +851,51 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 	fmc->Callback = FillFarMacroCall_Callback;
 	fmc->CallbackData = fmc;
 
-	for (i=0; i<narg; i++)
+	for (int i=0; i<narg; i++)
 	{
-		int type = lua_type(L, i-narg);
+		int pos = i - narg;
+		int type = lua_type(L, pos);
+		fmc->Values[i].Type = FMVT_NIL;
+
 		if (type == LUA_TNUMBER)
 		{
 			fmc->Values[i].Type = FMVT_DOUBLE;
-			fmc->Values[i].Value.Double = lua_tonumber(L, i-narg);
+			fmc->Values[i].Value.Double = lua_tonumber(L, pos);
 		}
 		else if (type == LUA_TBOOLEAN)
 		{
 			fmc->Values[i].Type = FMVT_BOOLEAN;
-			fmc->Values[i].Value.Boolean = lua_toboolean(L, i-narg);
+			fmc->Values[i].Value.Boolean = lua_toboolean(L, pos);
 		}
 		else if (type == LUA_TSTRING)
 		{
 			fmc->Values[i].Type = FMVT_STRING;
-			fmc->Values[i].Value.String = _wcsdup(check_utf8_string(L, i-narg, NULL));
+			fmc->Values[i].Value.String = _wcsdup(check_utf8_string(L, pos, NULL));
 		}
 		else if (type == LUA_TLIGHTUSERDATA)
 		{
 			fmc->Values[i].Type = FMVT_POINTER;
-			fmc->Values[i].Value.Pointer = lua_touserdata(L, i-narg);
+			fmc->Values[i].Value.Pointer = lua_touserdata(L, pos);
 		}
 		else if (type == LUA_TTABLE)
 		{
-			size_t len;
-			fmc->Values[i].Type = FMVT_BINARY;
-			fmc->Values[i].Value.Binary.Data = (char*)"";
-			fmc->Values[i].Value.Binary.Size = 0;
-			lua_rawgeti(L, i-narg, 1);
-			if (lua_type(L,-1) == LUA_TSTRING && (len=lua_objlen(L,-1)) != 0)
+			lua_getfield(L, pos, TKEY_BINARY);
+			if (lua_type(L,-1) == LUA_TSTRING)
 			{
+				size_t len;
+				const char *str = lua_tolstring(L, -1, &len);
 				void* arr = malloc(len);
-				memcpy(arr, lua_tostring(L,-1), len);
+				memcpy(arr, str, len);
 				fmc->Values[i].Value.Binary.Data = arr;
 				fmc->Values[i].Value.Binary.Size = len;
+				fmc->Values[i].Type = FMVT_BINARY;
 			}
 			lua_pop(L,1);
 		}
-		else if (bit64_getvalue(L, i-narg, &val64))
+		else if (bit64_getvalue(L, pos, &val64))
 		{
 			fmc->Values[i].Type = FMVT_INTEGER;
 			fmc->Values[i].Value.Integer = val64;
-		}
-		else
-		{
-			fmc->Values[i].Type = FMVT_NIL;
 		}
 	}
 

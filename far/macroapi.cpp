@@ -103,6 +103,25 @@ static panel_ptr SelectPanel(long long const Which)
 	}
 }
 
+static TVar Convert2TVar(const FarMacroValue &val)
+{
+	switch (val.Type)
+	{
+		case FMVT_INTEGER: return TVar(val.Integer);
+		case FMVT_BOOLEAN: return TVar(val.Boolean);
+		case FMVT_DOUBLE:  return TVar(val.Double);
+		case FMVT_STRING:  return TVar(val.String);
+		case FMVT_POINTER: return TVar(val.Pointer);
+		case FMVT_DIALOG:  return TVar(static_cast<Dialog*>(val.Pointer));
+		case FMVT_TABLE: {
+			TVar tv(val.Integer);
+			tv.SetType(TVar::Type::Table);
+			return tv;
+		}
+		default: return TVar();
+	}
+}
+
 class FarMacroApi
 {
 public:
@@ -119,40 +138,21 @@ public:
 	void PushNil() const                        { SendValue(FMVT_NIL); }
 	void PushTable() const                      { SendValue(FMVT_NEWTABLE); }
 	void SetTable() const                       { SendValue(FMVT_SETTABLE); }
+	void StackSetTop(int top) const             { SendValue(FarMacroValue(FMVT_STACKSETTOP, top)); }
+	void StackPop(int count) const              { SendValue(FarMacroValue(FMVT_STACKPOP, count)); }
+	void StackPushValue(int pos) const          { SendValue(FarMacroValue(FMVT_STACKPUSHVALUE, pos)); }
+
 	void PushError(const wchar_t* str) const;
 	void PushValue(long long Int) const;
 	void PushValue(const TVar& Var) const;
-	void SetField(const FarMacroValue &Key, const FarMacroValue &Value) const;
+	void SetField(const FarMacroValue &Key, const FarMacroValue &Value, int Pos) const;
+	int  StackGetTop() const;
+	TVar GetTable(int pos, const TVar &Key) const;
 
 	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	void PushValue(T const Value) const
 	{
 		return PushValue(static_cast<long long>(Value));
-	}
-
-	int StackGetTop() const
-	{
-		FarMacroValue val(FMVT_STACKGETTOP);
-		SendValue(val);
-		return val.Integer;
-	}
-	void StackSetTop(int top) const
-	{
-		FarMacroValue val(FMVT_STACKSETTOP);
-		val.Integer = top;
-		SendValue(val);
-	}
-	void StackPop(int count) const
-	{
-		FarMacroValue val(FMVT_STACKPOP);
-		val.Integer = count;
-		SendValue(val);
-	}
-	void StackPushValue(int pos) const
-	{
-		FarMacroValue val(FMVT_STACKPUSHVALUE);
-		val.Integer = pos;
-		SendValue(val);
 	}
 
 	void absFunc() const;
@@ -257,11 +257,28 @@ void FarMacroApi::PushValue(const TVar& Var) const
 		PushValue(Var.asInteger());
 }
 
-void FarMacroApi::SetField(const FarMacroValue &Key, const FarMacroValue &Value) const
+void FarMacroApi::SetField(const FarMacroValue &Key, const FarMacroValue &Value, int Pos) const
 {
 	SendValue(Key);
 	SendValue(Value);
-	SendValue(FMVT_SETTABLE);
+	SendValue(FarMacroValue(FMVT_SETTABLE, Pos));
+}
+
+int FarMacroApi::StackGetTop() const
+{
+	FarMacroValue val(FMVT_STACKGETTOP); //[IN,OUT]
+	SendValue(val);
+	return val.Integer;
+}
+
+TVar FarMacroApi::GetTable(int pos, const TVar &Key) const
+{
+	pos = pos > 0 ? pos : StackGetTop() + 1 + pos;
+	FarMacroValue Res(FMVT_GETTABLE, pos);
+	PushValue(Key);
+	SendValue(Res);
+	StackPop(1);
+	return Convert2TVar(Res);
 }
 
 std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
@@ -271,16 +288,7 @@ std::vector<TVar> FarMacroApi::parseParams(size_t Count) const
 	Params.reserve(Count);
 	std::ranges::transform(mData->Values, mData->Values + argNum, std::back_inserter(Params), [](const auto& i)
 	{
-		switch (i.Type)
-		{
-			case FMVT_INTEGER: return TVar(i.Integer);
-			case FMVT_BOOLEAN: return TVar(i.Boolean);
-			case FMVT_DOUBLE: return TVar(i.Double);
-			case FMVT_STRING: return TVar(i.String);
-			case FMVT_POINTER: return TVar(i.Pointer);
-			case FMVT_DIALOG: return TVar(static_cast<Dialog*>(i.Pointer));
-			default: return TVar();
-		}
+		return Convert2TVar(i);
 	});
 	Params.resize(Count);
 	return Params;
@@ -1216,7 +1224,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					api.PushTable();
 					for (const auto& [Key, Value] : ExtendedData)
 					{
-						api.SetField(Key, Value);
+						api.SetField(Key, Value, -3);
 					}
 					return;
 				}
@@ -1500,6 +1508,9 @@ void FarMacroApi::maxFunc() const
 {
 	const auto Params = parseParams(2);
 	PushValue(std::max(Params[0], Params[1]));
+//###	const auto &tbl = Params[0];
+//###	if (tbl.isTable())
+//###		PushValue(GetTable(tbl.asInteger(), TVar(L"foo")));
 }
 
 // n=mod(n1,n2)
@@ -2541,6 +2552,11 @@ void FarMacroApi::dlggetvalueFunc() const
 					case TVar::Type::Dialog:
 						fgv.Value.Type = FMVT_DIALOG;
 						fgv.Value.Pointer = Ret.asDialog();
+						break;
+
+					case TVar::Type::Table:
+						fgv.Value.Type = FMVT_TABLE;
+						fgv.Value.Integer = Ret.asInteger();
 						break;
 				}
 

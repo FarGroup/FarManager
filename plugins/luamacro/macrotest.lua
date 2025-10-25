@@ -45,6 +45,7 @@ local MT = {} -- "macrotest", this module
 local F = far.Flags
 local band, bor, bnot = bit64.band, bit64.bor, bit64.bnot
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
+local TKEY_BINARY = "__binary"
 
 local function pack (...)
   return { n=select("#",...), ... }
@@ -1419,8 +1420,10 @@ function MT.test_Plugin()
 
   local function test (func, N) -- Plugin.Call, Plugin.SyncCall: test arguments and returns
     local i1 = bit64.new("0x8765876587658765")
-    local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
-    assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
+    local a1,a2,a3,a4,a5 = "foo", i1, -2.34, false, {[TKEY_BINARY]="foo\0bar"}
+    local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", a1,a2,a3,a4,a5)
+    assert(r1==a1 and r2==a2 and r3==a3 and r4==a4
+      and type(r5)=="table" and r5[TKEY_BINARY]==a5[TKEY_BINARY])
 
     local src = {}
     for k=1,N do src[k]=k end
@@ -1439,7 +1442,7 @@ local function test_far_MacroExecute()
       5,
       nil,
       bit64.new("0x8765876587658765"),
-      {"bar"})
+      {[TKEY_BINARY] = "bar"})
     assert_table (t)
     assert_eq    (t.n,  6)
     assert_eq    (t[1], "foo")
@@ -1447,7 +1450,7 @@ local function test_far_MacroExecute()
     assert_eq    (t[3], 5)
     assert_nil   (t[4])
     assert_eq    (t[5], bit64.new("0x8765876587658765"))
-    assert_eq    (assert_table(t[6])[1], "bar")
+    assert_eq    (assert_table(t[6])[TKEY_BINARY], "bar")
   end
   test("return ...", nil)
   test("return ...", "KMFLAGS_LUA")

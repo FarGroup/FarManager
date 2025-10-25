@@ -1519,19 +1519,31 @@ struct FarMacroValue
 #endif
 	;
 #ifdef __cplusplus
-	FarMacroValue()                   { Type=FMVT_NIL; }
-	FarMacroValue(int v)              { Type=FMVT_INTEGER; Integer=v; }
-	FarMacroValue(unsigned int v)     { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue()                     { Type=FMVT_NIL; }
+	FarMacroValue(int v)                { Type=FMVT_INTEGER; Integer=v; }
+	FarMacroValue(unsigned int v)       { Type=FMVT_INTEGER; Integer=v; }
 	FarMacroValue(long long v)          { Type=FMVT_INTEGER; Integer=v; }
 	FarMacroValue(unsigned long long v) { Type=FMVT_INTEGER; Integer=v; }
-	FarMacroValue(bool v)             { Type=FMVT_BOOLEAN; Boolean=v; }
-	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
-	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
-	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }
-	FarMacroValue(const char* v)      { Type=FMVT_MBSTRING; MBString=v; }
-	FarMacroValue(FARMACROVARTYPE tp) { Type=tp; Integer=0; }
-	FarMacroValue(const UUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<UUID&>(v); Binary.Size=sizeof(UUID); }
-	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
+	FarMacroValue(bool v)               { Type=FMVT_BOOLEAN; Boolean=v; }
+	FarMacroValue(double v)             { Type=FMVT_DOUBLE; Double=v; }
+	FarMacroValue(const wchar_t* v)     { Type=FMVT_STRING; String=v; }
+	FarMacroValue(void* v)              { Type=FMVT_POINTER; Pointer=v; }
+	FarMacroValue(const char* v)        { Type=FMVT_MBSTRING; MBString=v; }
+
+	FarMacroValue(FARMACROVARTYPE tp, long long param=0) {
+		Type = tp;
+		Integer = param;
+	}
+	FarMacroValue(const UUID& v) {
+		Type = FMVT_BINARY;
+		Binary.Data = &const_cast<UUID&>(v);
+		Binary.Size = sizeof(UUID);
+	}
+	FarMacroValue(FarMacroValue* arr, size_t count) {
+		Type = FMVT_ARRAY;
+		Array.Values = arr;
+		Array.Count = count;
+	}
 #ifdef FAR_USE_INTERNALS
 	explicit(false) FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.c_str(); }
 #endif // END FAR_USE_INTERNALS
