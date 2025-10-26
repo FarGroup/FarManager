@@ -109,3 +109,8 @@ int GetAttrFromTable(lua_State *L)
 	lua_pop(L, 1);
 	return attr;
 }
+
+size_t aligned_size(size_t Size, size_t Alignment)
+{
+	return (Size + (Alignment - 1)) & ~(Alignment - 1);
+}

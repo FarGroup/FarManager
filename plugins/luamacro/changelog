@@ -1,3 +1,7 @@
+shmuel 2025-10-26 16:31:48+02:00 - build 899
+
+1. LuaFAR: refactoring.
+
 shmuel 2025-10-25 17:10:58+03:00 - build 898
 
 1. LuaFAR: Add more stack operations to Macro-API engine.

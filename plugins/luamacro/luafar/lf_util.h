@@ -80,6 +80,7 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color);
 void PushFarColor(lua_State *L, const struct FarColor* Color);
 HANDLE OptHandle(lua_State *L);
 void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
+size_t aligned_size(size_t Size, size_t Alignment);
 
 typedef struct
 {

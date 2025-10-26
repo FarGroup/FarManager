@@ -17,8 +17,7 @@ static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)
 	int ret = lua_checkstack(L, 2 + (int)Data->Count);
 	if (ret)
 	{
-		size_t i;
-		for(i=0; i < Data->Count; i++)
+		for(size_t i=0; i < Data->Count; i++)
 			PushFarMacroValue(L, Data->Values + i);
 	}
 	if (Data->Callback)
@@ -276,9 +275,9 @@ int far_MacroCallFar(lua_State *L)
 
 int far_MacroCallToLua(lua_State *L)
 {
-  if (lua_type(L,1) == LUA_TLIGHTUSERDATA)
+	if (lua_type(L,1) == LUA_TLIGHTUSERDATA)
 	{
-		struct FarMacroCall* Data = (struct FarMacroCall*)lua_touserdata(L, 1);
+		const struct FarMacroCall* Data = (struct FarMacroCall*)lua_touserdata(L, 1);
 		lua_settop(L, 0);
 		if (Data && !FL_PushParams(L, Data))
 		{

@@ -862,7 +862,7 @@ static void PutFileTimeToTableEx(lua_State *L, const LARGE_INTEGER *FT, const ch
 	lua_setfield(L, -2, key);
 }
 
-static void SetFunctionPointers()
+static void SetFunctionPointers(void)
 {
 	HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
 	if (hNtDll)

@@ -1435,22 +1435,19 @@ function MT.test_Plugin()
 end
 
 local function test_far_MacroExecute()
+  local i1 = bit64.new("0x8765876587658765")
+  local a1,a2,a3,a4,a5,a6 = "foo", false, 5, nil, i1, {[TKEY_BINARY]="bar"}
   local function test(code, flags)
-    local t = far.MacroExecute(code, flags,
-      "foo",
-      false,
-      5,
-      nil,
-      bit64.new("0x8765876587658765"),
-      {[TKEY_BINARY] = "bar"})
-    assert_table (t)
-    assert_eq    (t.n,  6)
-    assert_eq    (t[1], "foo")
-    assert_false (t[2])
-    assert_eq    (t[3], 5)
-    assert_nil   (t[4])
-    assert_eq    (t[5], bit64.new("0x8765876587658765"))
-    assert_eq    (assert_table(t[6])[TKEY_BINARY], "bar")
+    local r = far.MacroExecute(code, flags, a1, a2, a3, a4, a5, a6)
+    assert_table (r)
+    assert_eq    (r.n,  6)
+    assert_eq    (r[1], a1)
+    assert_eq    (r[2], a2)
+    assert_eq    (r[3], a3)
+    assert_eq    (r[4], a4)
+    assert_eq    (r[5], a5)
+    assert_table (r[6])
+    assert_eq    (r[6][TKEY_BINARY], a6[TKEY_BINARY])
   end
   test("return ...", nil)
   test("return ...", "KMFLAGS_LUA")
