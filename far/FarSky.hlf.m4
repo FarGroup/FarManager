@@ -363,14 +363,15 @@ $ #Príkazy na ovládanie panelov#
  Schovaj/zobraz ľavý panel                                  #Ctrl+F1#
  Schovaj/zobraz pravý panel                                 #Ctrl+F2#
  Zmeň výšku panelov                           #Ctrl+Nahor,Ctrl+Nadol#
- Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
+ Zmeň výšku aktuálneho panelu      #Ctrl+Shift+Nahor,Ctrl+Shift+Nadol#
  Zmeň výšku panelov myšou          #Ťahanie dolnej hranice panelov#
  Zmeň šírku panelov klávesnicou                  #Ctrl+Doľ,Ctrl+Dopr#
  (ak je prík. riadok prázdny)
  Zmeň šírku panelov myšou             #Ťahanie hranice medzi panelmi#
  Vráť štandartnú šírku panelov                        #Ctrl+NumKlav5#
-                            #Dvojklik myšou na hranicu medzi panelmi#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
+ alebo myšou                      #Dvojklik# na hranicu medzi panelmi
+ Vráť štandartnú výšku panelov                    #Ctrl+Alt+NumKlav5#
+ alebo myšou                       #Dvojklik# na dolnú hranicu panelu
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
  in bytes (if possible) or with size suffixes K/M/G/T
@@ -884,8 +885,8 @@ default button or does another similar thing).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
- effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
- #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
@@ -900,7 +901,7 @@ $ #Special commands#
 $ #Mouse: wheel support#
  #Panels#
  Rotating the wheel scrolls the file list without changing the cursor position on the screen.
- Pressing the #middle button# has the same effect as pressing #Enter#.
+Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Editor#
  Rotating the wheel scrolls the text without changing the cursor position on the screen
@@ -914,7 +915,7 @@ $ #Mouse: wheel support#
 
  #Menus#
  Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
- pressing #Enter#. It is possible to choose items without moving the cursor.
+pressing #Enter#. It is possible to choose items without moving the cursor.
 
  #Dialogs#
  In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
@@ -1168,6 +1169,18 @@ požadovaný súbor použitím prvých písmen jeho mena.
  - ^<wrap>Navedite kurzor myši na hranicu medzi ľavým a pravým panelom, aby ste videli vizuálnu spätnú väzbu označujúcu oblasť, ktorú možno zmeniť.
  - ^<wrap>Kliknite a ťahajte hranicu doľava alebo doprava na úpravu šírky panelov.
  - ^<wrap>Dvakrát kliknite na hranicu na obnovenie predvolenej rovnakej šírky panelov (rozdelenie 50/50).
+ - ^<wrap>Stlačte #Esc# počas zmeny veľkosti na zrušenie a návrat k pôvodnej šírke panelov.
+
+ #Zmena výšky:#
+ - ^<wrap>Navedite kurzor myši na spodnú hranicu panelu, aby ste videli vizuálnu spätnú väzbu označujúcu oblasť, ktorú možno zmeniť.
+ - ^<wrap>Kliknite a ťahajte spodnú hranicu hore alebo dole na úpravu výšky panelu.
+ - ^<wrap>Správanie zmeny veľkosti závisí od horizontálnej pozície myši:
+   - ^<wrap>Nad spodnou hranicou ĽAVÉHO panelu v ľavej polovici panelu → Zmena veľkosti iba ĽAVÉHO panelu
+   - ^<wrap>Nad spodnou hranicou ĽAVÉHO panelu v pravej polovici panelu → Zmena veľkosti OBOCH panelov
+   - ^<wrap>Nad spodnou hranicou PRAVÉHO panelu v ľavej polovici panelu → Zmena veľkosti OBOCH panelov
+   - ^<wrap>Nad spodnou hranicou PRAVÉHO panelu v pravej polovici panelu → Zmena veľkosti iba PRAVÉHO panelu
+ - ^<wrap>Dvakrát kliknite na spodnú hranicu na obnovenie plnej výšky panelu.
+ - ^<wrap>Stlačte #Esc# počas zmeny veľkosti na zrušenie a návrat k pôvodnej výške panelov.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

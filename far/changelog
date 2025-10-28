@@ -1,7 +1,50 @@
 --------------------------------------------------------------------------------
-yulian5 2025-10-07 21:00:00-07:00 - build 6572
+yulian5 2025-10-26 21:00:00-06:00 - build 6579
 
 1. New feature: panel resizing with mouse
+
+--------------------------------------------------------------------------------
+shmuel 2025-10-25 17:09:40+03:00 - build 6578
+
+1. Add more stack operations to Macro-API engine.
+
+--------------------------------------------------------------------------------
+ssvine 2025-10-25 10:12:06+03:00 - build 6577
+
+1. gh-1034: Refresh plugin panel after uploading a changed file in ProcessEnter.
+
+--------------------------------------------------------------------------------
+shmuel 2025-10-24 20:22:16+03:00 - build 6576
+
+1. Add a few stack operations to Macro-API engine.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-20 23:56:08+01:00 - build 6575
+
+1. Clarify DI_COMBOBOX and DIF_DROPDOWNLIST behavior in corner cases.
+
+2. Refactoring.
+
+3. Warnings.
+
+--------------------------------------------------------------------------------
+rohitab 2025-10-20 08:50:41+11:00 - build 6574
+
+1. gh-1032: Crash if size of name column is less than size of mark character.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-16 23:42:46+01:00 - build 6573
+
+1. Continue gh-1031.
+   Save the history if the user touched the control or if the control is visible.
+
+--------------------------------------------------------------------------------
+drkns 2025-10-16 20:22:16+01:00 - build 6572
+
+1. gh-1031: History saved for hidden edit controls.
+   Only save the history if the user touched the control.
+
+2. Minor fix in color processing.
 
 --------------------------------------------------------------------------------
 zg 2025-10-05 23:11:22+03:00 - build 6571

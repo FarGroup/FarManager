@@ -374,8 +374,9 @@ $ #Polecenia kontroli panelu#
  (tylko gdy wiersz poleceń jest pusty)
  Zmień szerokość paneli myszą   #Przeciągnij granicę między panelami#
  Przywróć domyślną szerokość paneli                    #Ctrl+Numpad5#
-                        #Podwójne kliknięcie myszy na granicy paneli#
+ lub myszą           #Podwójne kliknięcie# na granicy między panelami
  Przywróć domyślną wysokość paneli                 #Ctrl+Alt+Numpad5#
+ lub myszą             #Podwójne kliknięcie# na dolnej granicy panelu
  Pokaż/Ukryj pasek skrótów w dolnej linii                    #Ctrl+B#
  Przełącz tryb całkowitej i wolnej wielkości           #Ctrl+Shift+S#
  w bajtach (jeżeli możliwe) lub w wielokrotnościach K/M/G/T
@@ -1162,6 +1163,18 @@ plików po pierwszej literze jego nazwy.
  - ^<wrap>Najedź kursorem myszy na granicę między lewym i prawym panelem, aby zobaczyć wizualną informację o możliwości zmiany rozmiaru.
  - ^<wrap>Kliknij i przeciągnij granicę w lewo lub w prawo, aby dostosować szerokość paneli.
  - ^<wrap>Kliknij dwukrotnie na granicy, aby przywrócić domyślną równą szerokość paneli (podział 50/50).
+ - ^<wrap>Naciśnij #Esc# podczas zmiany rozmiaru, aby anulować i powrócić do oryginalnej szerokości paneli.
+
+ #Zmiana wysokości:#
+ - ^<wrap>Najedź kursorem myszy na dolną granicę panelu, aby zobaczyć wizualną informację zwrotną wskazującą obszar, który można zmieniać.
+ - ^<wrap>Kliknij i przeciągnij dolną granicę w górę lub w dół, aby dostosować wysokość panelu.
+ - ^<wrap>Zachowanie zmiany rozmiaru zależy od poziomej pozycji myszy:
+   - ^<wrap>Nad dolną granicą LEWEGO panelu w lewej połowie panelu → Zmiana rozmiaru tylko LEWEGO panelu
+   - ^<wrap>Nad dolną granicą LEWEGO panelu w prawej połowie panelu → Zmiana rozmiaru OBU paneli
+   - ^<wrap>Nad dolną granicą PRAWEGO panelu w lewej połowie panelu → Zmiana rozmiaru OBU paneli
+   - ^<wrap>Nad dolną granicą PRAWEGO panelu w prawej połowie panelu → Zmiana rozmiaru tylko PRAWEGO panelu
+ - ^<wrap>Kliknij dwukrotnie na dolną granicę, aby przywrócić pełną wysokość panelu.
+ - ^<wrap>Naciśnij #Esc# podczas zmiany rozmiaru, aby anulować i powrócić do oryginalnej wysokości paneli.
 
  Zobacz także listę ~klawiszy makropoleceń~@KeyMacroShellList@, dostępnych w panelach.
 
@@ -6618,21 +6631,21 @@ w Edytorze.
 
 @Editor.SearchAllUseAltFileNameFormat
 $ #far:config Editor.SearchAllUseAltFileNameFormat#
- This string parameter controls composing of the file name used by the
-new Editor containing ~all matching entries~@FindAllMenu@. The value
-is one or more ~file masks~@FileMasks@.
+ Ten parametr łańcuchowy kontroluje tworzenie nazwy pliku używanej przez
+nowy Edytor zawierający ~wszystkie pasujące wpisy~@FindAllMenu@.
+Wartością jest jedna lub więcej ~masek plików~@FileMasks@.
 
- The new filename is created from the stem filename and the extension
-of the file currently opened in the Editor. Depending on the original
-file name, the new file name is formatted using one of the two
-alternative UI format strings defined in ~.lng files~@CustomizingUI@.
-The string with the ID #MEditSearchAllFileNameFormatAlt# is used if the
-original file name matches one of the file masks; otherwise,
-#MEditSearchAllFileNameFormat# is used.
+ Nowa nazwa pliku jest tworzona wg nazwy podstawowego pliku i rozszerzenia
+pliku aktualnie otwartego w edytorze. W zależoności od oryginalnej nazwy
+pliku, nowa nazwa jest formatowana przy użyciu jednego z dwóch alternatywnych
+ciągów zdefiniowanych w ~plikach .lng~@CustomizingUI@.
+Łańcuch o identyfikatorze #MEditSearchAllFileNameFormatAlt# jest używany,
+jeżeli oryginalna nazwa pliku pasuje do jednej z masek plików;
+w przeciwnym razie używany jest identyfikator #MEditSearchAllFileNameFormat#.
 
- Default value: #*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map#
+ Wartość domyślna: #*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map#
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Parametr też można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.ShortcutAlwaysChdir
@@ -6901,17 +6914,17 @@ tworzenia, usuwania lub zmiany nazw folderów.
 
 @Panel.TreatDotFilesAsHidden
 $ #far:config Panel.TreatDotFilesAsHidden#
- This Boolean parameter controls the filtering of files or folders
-starting with a dot (“dotfiles”). It works in combination with the
-#Show hidden and system files# option in the
-~panel settings~@PanelSettings@ dialog.
+ Ten parametr logiczny kontroluje filtrowanie plików lub folderów rozpoczynających się
+od kropki (“dotfiles”). Działa w połączeniu z opcją #Pokazuj pliki ukryte i systemowe#
+w oknie ~ustawień panelu~@PanelSettings@.
 
- False - ^<wrap>Dotfiles will always be shown.
- True  - Dotfiles will be hidden/shown together with the Hidden and System files.
+ Fałsz  - ^<wrap>Pliki zaczynające się kropkami zawsze będę widoczne.
+ Prawda  - Pliki zaczynające się kropkami będą ukrywane/wyświetlane razem z plikami
+ukrytymi i systemowymi.
 
- Default value: False (Dotfiles will always be shown.)
+ Domyślna wartość: Fałsz (pliki zawsze będą wyświetlane.)
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Index

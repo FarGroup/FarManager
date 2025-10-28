@@ -18801,7 +18801,7 @@ MSetColorPanelDraggingBorder
 "Texto arrastrado"
 "Potiahnutý okraj"
 "Spostamento Bordo"
-"Межа перетягув."
+"Межа перетягуванні"
 "Мяжа пераносу"
 "Tempiama riba"
 upd:"Dragging border"

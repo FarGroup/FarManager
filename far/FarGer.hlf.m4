@@ -368,14 +368,15 @@ $ #Befehl zur Fenstersteuerung#
  Linkes Fenster anzeigen/verbergen                          #Strg+F1#
  Rechtes Fenster anzeigen/verbergen                         #Strg+F2#
  Fensterhöhe ändern                                   #Strg+↑,Strg+↓#
- Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
+ Aktuelle Fensterhöhe ändern           #Strg+Shift+↑,Strg+Shift+↓#
  Fensterhöhe mit Maus ändern       #Untere Grenze der Fenster ziehen#
  Fensterbreite mit Tastatur ändern           #Strg+Links,Strg+Rechts#
  (b.leerer Kommandozeile)
  Fensterbreite mit Maus ändern      #Grenze zwischen Fenstern ziehen#
  Standardfensterbreite wiederherstellen                   #Strg+Num5#
-                      #Maus-Doppelklick auf Grenze zwischen Fenstern#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
+ oder mit Maus             #Doppelklick# auf Grenze zwischen Fenstern
+ Standardfensterhöhe wiederherstellen                 #Strg+Alt+Num5#
+ oder mit Maus            #Doppelklick# auf untere Grenze der Fenster
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
  in bytes (if possible) or with size suffixes K/M/G/T
@@ -899,8 +900,8 @@ default button or does another similar thing).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
- effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
- #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
@@ -915,7 +916,7 @@ $ #Special commands#
 $ #Mouse: wheel support#
  #Panels#
  Rotating the wheel scrolls the file list without changing the cursor position on the screen.
- Pressing the #middle button# has the same effect as pressing #Enter#.
+Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Editor#
  Rotating the wheel scrolls the text without changing the cursor position on the screen
@@ -929,7 +930,7 @@ $ #Mouse: wheel support#
 
  #Menus#
  Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
- pressing #Enter#. It is possible to choose items without moving the cursor.
+pressing #Enter#. It is possible to choose items without moving the cursor.
 
  #Dialogs#
  In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
@@ -1206,9 +1207,6 @@ staben eines Namens auf die Datei zu springen.
    - ^<wrap>Über RECHTEM Fenster in rechter Hälfte → Nur RECHTES Fenster ändern
  - ^<wrap>Doppelklicken Sie auf die untere Grenze, um die volle Fensterhöhe wiederherzustellen.
  - ^<wrap>Drücken Sie #Esc# während der Größenänderung, um abzubrechen und zur ursprünglichen Fensterhöhe zurückzukehren.
-
- #Hinweis für ConEmu-Benutzer:#
- ^<wrap>Um doppelte Größenänderungsindikatoren und -methoden zu vermeiden, wird empfohlen, die Far Manager-Fenstergröße-Funktion in ConEmu zu deaktivieren, indem Sie #Einstellungen → Far Manager → Resize panels by mouse# deaktivieren.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

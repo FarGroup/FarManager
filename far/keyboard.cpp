@@ -1302,6 +1302,8 @@ bool CheckForEscSilent()
 		return true;
 	}
 
+	SCOPED_ACTION(auto)(message_manager::instance().suppressor());
+
 	INPUT_RECORD rec;
 	bool Processed = true;
 	/* TODO: Здесь, в общем то - ХЗ, т.к.

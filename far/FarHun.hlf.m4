@@ -373,14 +373,16 @@ $ #Panelvezérlő parancsok#
  Elrejti/megmutatja a bal panelt                            #Ctrl+F1#
  Elrejti/megmutatja a jobb panelt                           #Ctrl+F2#
  A panelek magasságán változtat                    #Ctrl+Fel,Ctrl+Le#
+ Az aktuális panel magasságán változtat    #Ctrl+Shift+Fel,Ctrl+Shift+Le#
  A panelek magasságán változtat egérrel  #Alsó határ húzása a paneleken#
  A panelek szélességén változtat billentyűzettel #Ctrl+Jobb,Ctrl+Bal#
  (ha a parancssor üres)
  A panelek szélességén változtat egérrel
                                       #Határ húzása a panelek között#
  Visszaállítja a panelszélességek alapértékét          #Ctrl+Numpad5#
-                              #Dupla egérkattintás a panelek határán#
+ vagy egérrel                     #Dupla kattintás# a panelek határán
  Visszaállítja a panelmagasságok alapértékét       #Ctrl+Alt+Numpad5#
+ vagy egérrel                  #Dupla kattintás# a panel alsó határán
  Megmutatja/elrejti a funkcióbillentyűk sorát                #Ctrl+B#
  a képernyő alján
  Toggle total and free size show mode                  #Ctrl+Shift+S#
@@ -912,8 +914,8 @@ alapértelmezett gombot vagy más hasonló dolgot művel).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
- effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
- #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  A Far Manager kezeli az ~egér görgőjét~@MsWheel@.
 
@@ -1196,6 +1198,18 @@ begépelésével a megfelelő fájlra állítja a kurzort.
  - ^<wrap>Vigye az egérmutatót a bal és jobb panel közötti határvonalra, hogy lássa az átméretezési terület vizuális jelzését.
  - ^<wrap>Kattintson és húzza a határvonalat balra vagy jobbra a panelek szélességének beállításához.
  - ^<wrap>Kattintson duplán a határvonalra az alapértelmezett egyenlő panelszélesség visszaállításához (50/50 felosztás).
+ - ^<wrap>Nyomja meg az #Esc# billentyűt az átméretezés során a megszakításhoz és az eredeti panelszélességek visszaállításához.
+
+ #Magasság átméretezése:#
+ - ^<wrap>Vigye az egérmutatót a panel alsó határvonalára, hogy lássa az átméretezési terület vizuális jelzését.
+ - ^<wrap>Kattintson és húzza az alsó határvonalat fel vagy le a panel magasságának beállításához.
+ - ^<wrap>Az átméretezés viselkedése az egér vízszintes pozíciójától függ:
+   - ^<wrap>A BAL panel alsó határvonala felett a panel bal felében → Csak a BAL panel átméretezése
+   - ^<wrap>A BAL panel alsó határvonala felett a panel jobb felében → MINDKÉT panel átméretezése
+   - ^<wrap>A JOBB panel alsó határvonala felett a panel bal felében → MINDKÉT panel átméretezése
+   - ^<wrap>A JOBB panel alsó határvonala felett a panel jobb felében → Csak a JOBB panel átméretezése
+ - ^<wrap>Kattintson duplán az alsó határvonalra a teljes panelmagasság visszaállításához.
+ - ^<wrap>Nyomja meg az #Esc# billentyűt az átméretezés során a megszakításhoz és az eredeti panelmagasságok visszaállításához.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

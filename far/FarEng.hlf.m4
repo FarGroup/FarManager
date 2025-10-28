@@ -365,13 +365,14 @@ $ #Panel control commands#
  Hide/show right panel                                      #Ctrl+F2#
  Change panels height                             #Ctrl+Up,Ctrl+Down#
  Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
- Change panels height with mouse       #Drag bottom border of panels#
+ Change panels height with mouse       #Drag bottom border# of panels
  Change panels width with keyboard             #Ctrl+Left,Ctrl+Right#
- (only when the command line is empty)
+ (when the command line is empty)
  Change panels width with mouse          #Drag border between panels#
- Restore default panels width                          #Ctrl+Numpad5#
-                        #Mouse double click on border between panels#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
+ Restore default panels width keyboard                 #Ctrl+Numpad5#
+ or with mouse                #Double click# on border between panels
+ Restore default panels height with keyboard       #Ctrl+Alt+Numpad5#
+ or with mouse               #Double click# on bottom border of panel
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
  in bytes (if possible) or with size suffixes K/M/G/T
@@ -887,8 +888,8 @@ default button or does another similar thing).
  #Mouse#
 
  Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
- effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
- #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
+#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
 
  Far Manager also supports the ~mouse wheel~@MsWheel@.
 
@@ -903,7 +904,7 @@ $ #Special commands#
 $ #Mouse: wheel support#
  #Panels#
  Rotating the wheel scrolls the file list without changing the cursor position on the screen.
- Pressing the #middle button# has the same effect as pressing #Enter#.
+Pressing the #middle button# has the same effect as pressing #Enter#.
 
  #Editor#
  Rotating the wheel scrolls the text without changing the cursor position on the screen
@@ -917,11 +918,11 @@ $ #Mouse: wheel support#
 
  #Menus#
  Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
- pressing #Enter#. It is possible to choose items without moving the cursor.
+pressing #Enter#. It is possible to choose items without moving the cursor.
 
  #Dialogs#
  In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
- the drop-down list is opened. In the drop-down list scrolling works the same as in menus.
+the drop-down list is opened. In the drop-down list scrolling works the same as in menus.
 
  You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see ~System.MsWheelDelta~@System.MsWheelDelta@).
@@ -1183,9 +1184,6 @@ by the first letters of its name.
    - ^<wrap>Over RIGHT panel bottom border in Right half of panel → Resize RIGHT panel only
  - ^<wrap>Double-click on the bottom border to restore full panel height.
  - ^<wrap>Press #Esc# during resizing to cancel and revert to the original panel heights.
-
- #Note for ConEmu users:#
- ^<wrap>To avoid duplicated resizing indicators and methods, it's recommended to disable ConEmu's Far Manager panel resize feature by unchecking #Settings → Far Manager → Resize panels by mouse#.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

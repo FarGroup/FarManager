@@ -85,6 +85,7 @@
     <object name="Panel.Box" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
     <object name="Panel.Cursor" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Panel.Cursor.Selected" background="FF000007" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+    <object name="Panel.DragBorder" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Panel.DragText" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Panel.Info.Selected" background="FF000007" foreground="FF000000" flags="fgindex bgindex inherit"/>
     <object name="Panel.Info.Total" background="FF000000" foreground="FF000007" flags="fgindex bgindex inherit"/>

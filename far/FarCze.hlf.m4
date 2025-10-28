@@ -365,12 +365,15 @@ $ #Ovládání panelů#
  Skrytí/ukázání levého panelu                               #Ctrl+F1#
  Skrytí/ukázání pravého panelu                              #Ctrl+F2#
  Změna výšky panelu                           #Ctrl+Nahoru,Ctrl+Dolů#
+ Změna výšky aktuálního panelu        #Ctrl+Shift+Nahoru,Ctrl+Shift+Dolů#
+ Změna výšky panelů myší            #Přetažení dolní hranice panelů#
  Změna šířky panelů klávesnicí               #Ctrl+Vlevo,Ctrl+Vpravo#
  (pokud je příkazová řádka prázdná)
  Změna šířky panelů myší              #Přetažení hranice mezi panely#
  Obnovení nastavení implicitní šířky panelů            #Ctrl+Numpad5#
-                               #Dvojklik myší na hranici mezi panely#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
+ nebo myší                          #Dvojklik# na hranici mezi panely
+ Obnovení nastavení implicitní výšky panelů        #Ctrl+Alt+Numpad5#
+ nebo myší                         #Dvojklik# na dolní hranici panelu
  Zobrazení/Skrytí panelu funkčních kláves na spodní části.   #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
  in bytes (if possible) or with size suffixes K/M/G/T
@@ -1189,6 +1192,18 @@ pomocí prvního znaku jeho názvu.
  - ^<wrap>Najeďte kurzorem myši na hranici mezi levým a pravým panelem, abyste viděli vizuální zpětnou vazbu označující oblast, kterou lze změnit.
  - ^<wrap>Klikněte a táhněte hranici doleva nebo doprava pro úpravu šířky panelů.
  - ^<wrap>Dvojklikněte na hranici pro obnovení výchozí stejné šířky panelů (rozdělení 50/50).
+ - ^<wrap>Stiskněte #Esc# během změny velikosti pro zrušení a návrat k původní šířce panelů.
+
+ #Změna výšky:#
+ - ^<wrap>Najeďte kurzorem myši na spodní hranici panelu, abyste viděli vizuální zpětnou vazbu označující oblast, kterou lze změnit.
+ - ^<wrap>Klikněte a táhněte spodní hranici nahoru nebo dolů pro úpravu výšky panelu.
+ - ^<wrap>Chování změny velikosti závisí na horizontální pozici myši:
+   - ^<wrap>Nad spodní hranicí LEVÉHO panelu v levé polovině panelu → Změna velikosti pouze LEVÉHO panelu
+   - ^<wrap>Nad spodní hranicí LEVÉHO panelu v pravé polovině panelu → Změna velikosti OBOU panelů
+   - ^<wrap>Nad spodní hranicí PRAVÉHO panelu v levé polovině panelu → Změna velikosti OBOU panelů
+   - ^<wrap>Nad spodní hranicí PRAVÉHO panelu v pravé polovině panelu → Změna velikosti pouze PRAVÉHO panelu
+ - ^<wrap>Dvojklikněte na spodní hranici pro obnovení plné výšky panelu.
+ - ^<wrap>Stiskněte #Esc# během změny velikosti pro zrušení a návrat k původní výšce panelů.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

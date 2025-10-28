@@ -130,8 +130,6 @@ private:
 	std::pair<bool, bool> DetermineHeightHighlightPanels(bool IsDragging, const rectangle& leftPanelPos, const rectangle& rightPanelPos);
 	void DrawPanelBottomBorder(const std::shared_ptr<Panel>& panel, const rectangle& panelPos, const FarColor& BorderColor, const wchar_t* BorderChar);
 
-	// Common helper for border color calculation
-	static FarColor GetBorderFeedbackColor();
 
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;

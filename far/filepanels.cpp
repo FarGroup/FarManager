@@ -1616,33 +1616,6 @@ bool FilePanels::IsMouseOverPanelBottomBorder(const MOUSE_EVENT_RECORD *MouseEve
 	return false;
 }
 
-FarColor FilePanels::GetBorderFeedbackColor()
-{
-	// Get the dragging border color first - this respects user's custom color choices
-	auto Result = colors::PaletteColorToFarColor(COL_PANELDRAGBORDER);
-	const auto& DragTextColor = colors::PaletteColorToFarColor(COL_PANELDRAGTEXT);
-	const auto& SelectedTextColor = colors::PaletteColorToFarColor(COL_PANELSELECTEDTEXT);
-	const auto& PanelTextColor = colors::PaletteColorToFarColor(COL_PANELTEXT);
-
-	// Check if the dragging border color is using the default palette value
-	// Default palette value for COL_PANELDRAGBORDER is F_YELLOW|B_BLUE
-	const auto DefaultDragBorderColor = F_YELLOW | B_BLUE;
-
-	// If the current color matches the default palette value, or if it seems uninitialized,
-	// apply the fallback logic (theme doesn't define this color or user hasn't customized it)
-	if (const auto CurrentDragBorderRaw = (Result.ForegroundColor & 0x0F) | ((Result.BackgroundColor & 0x0F) << 4);
-		CurrentDragBorderRaw == DefaultDragBorderColor ||
-		Result.ForegroundColor == Result.BackgroundColor ||
-		Result.ForegroundColor == 0)
-	{
-		// Apply fallback logic: foreground from dragging text (or selected text), background from panel
-		Result.ForegroundColor = DragTextColor.ForegroundColor != 0 ? DragTextColor.ForegroundColor : SelectedTextColor.ForegroundColor;
-		Result.BackgroundColor = PanelTextColor.BackgroundColor;
-	}
-
-	return Result;
-}
-
 void FilePanels::DrawWidthBorderFeedback(bool IsHovering, bool IsDragging)
 {
 	// Show visual feedback on hover and during dragging
@@ -1659,7 +1632,7 @@ void FilePanels::DrawWidthBorderFeedback(bool IsHovering, bool IsDragging)
 	const auto BorderX = ScrX / 2 - opt->WidthDecrement;
 	const auto borderX = static_cast<int>(BorderX);
 
-	const auto BorderColor = GetBorderFeedbackColor();
+	const auto BorderColor = colors::PaletteColorToFarColor(COL_PANELDRAGBORDER);
 
 	static constexpr wchar_t BorderChar[] = L"║";
 
@@ -1822,7 +1795,7 @@ void FilePanels::DrawHeightBorderFeedback(bool IsHovering, bool IsDragging)
 	const auto leftPanelPos = leftPanel->GetPosition();
 	const auto rightPanelPos = rightPanel->GetPosition();
 
-	const auto BorderColor = GetBorderFeedbackColor();
+	const auto BorderColor = colors::PaletteColorToFarColor(COL_PANELDRAGBORDER);
 	static constexpr wchar_t BorderChar[] = L"═";
 
 	const auto [highlightLeft, highlightRight] = DetermineHeightHighlightPanels(IsDragging, leftPanelPos, rightPanelPos);
