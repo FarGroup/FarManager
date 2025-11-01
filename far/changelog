@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-11-01 19:50:42+00:00 - build 6579
+
+1. gh-1036: Suppress elevation requests when scanning %path% for executables.
+
+--------------------------------------------------------------------------------
 shmuel 2025-10-25 17:09:40+03:00 - build 6578
 
 1. Add more stack operations to Macro-API engine.

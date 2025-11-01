@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
+#include "elevation.hpp"
 #include "encoding.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -83,6 +84,8 @@ static bool FindObject(string_view const Command, string& strDest)
 
 	if (Module.empty())
 		return false;
+
+	SCOPED_ACTION(elevation::suppress);
 
 	const auto ModuleExt = name_ext(Module).second;
 	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"sv);
