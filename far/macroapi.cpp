@@ -1508,9 +1508,11 @@ void FarMacroApi::maxFunc() const
 {
 	const auto Params = parseParams(2);
 	PushValue(std::max(Params[0], Params[1]));
-//###	const auto &tbl = Params[0];
-//###	if (tbl.isTable())
-//###		PushValue(GetTable(tbl.asInteger(), TVar(L"foo")));
+/*
+	const auto &tbl = Params[0];
+	if (tbl.isTable())
+		PushValue(GetTable(tbl.asInteger(), TVar(L"foo")));
+*/
 }
 
 // n=mod(n1,n2)

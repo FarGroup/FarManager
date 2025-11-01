@@ -23,7 +23,7 @@ def check(filename):
 		content = RawContent.splitlines()
 		basename = os.path.basename(filename)
 		name, extension = os.path.splitext(basename)
-		UuidRe = re.compile('_[0-9A-F]{8}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{12}\Z', re.I)
+		UuidRe = re.compile(r'_[0-9A-F]{8}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{12}\Z', re.I)
 		LineNumber = 0
 
 		IsBom = content[0][0] == '\ufeff'
