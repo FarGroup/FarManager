@@ -522,6 +522,8 @@ function export.Open (OpenFrom, guid, ...)
       return unpack(argtable, 2, argtable.n)
     elseif argtable[1]=="macropost" then -- test Mantis # 2222
       return far.MacroPost([[far.Message"macropost"]])
+    elseif argtable[1]=="browser" then
+      macrobrowser()
     end
 
   else -- OPEN_DIALOG, OPEN_EDITOR, OPEN_FILEPANEL, OPEN_LEFTDISKMENU,

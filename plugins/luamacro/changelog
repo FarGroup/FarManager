@@ -1,3 +1,7 @@
+shmuel 2025-11-02 12:35:31+02:00 - build 900
+
+1. Make possible invoking macro browser via Plugin.Call(guid,"browser").
+
 shmuel 2025-10-26 16:31:48+02:00 - build 899
 
 1. LuaFAR: refactoring.
