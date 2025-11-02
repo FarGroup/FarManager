@@ -669,9 +669,9 @@ void Manager::ExitMainLoop(int Ask, int ExitCode)
 			const auto cp = Global->CtrlObject->Cp();
 			if (!cp || (!cp->LeftPanel()->ProcessPluginEvent(FE_CLOSE, nullptr) && !cp->RightPanel()->ProcessPluginEvent(FE_CLOSE, nullptr)) || Global->CloseFAR)
 			{
+				Global->CtrlObject->Plugins->NotifyExitLuaMacro();
 				EndLoop = true;
 				Global->FarExitCode = ExitCode;
-				Global->CtrlObject->Plugins->NotifyExitLuaMacro();
 			}
 		}
 	}
