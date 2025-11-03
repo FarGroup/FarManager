@@ -1015,7 +1015,7 @@ string ReplaceBrackets(
 		auto NextPos = i;
 		string_view Replacement;
 
-		if (const auto NextChar = Str[i + 1]; std::iswdigit(NextChar))
+		if (const auto NextChar = Str[i + 1]; std::iswdigit(NextChar)) // $<digit>
 		{
 			// 0, 1, 2, ...
 			size_t NumberEnd;
@@ -1026,7 +1026,7 @@ string ReplaceBrackets(
 			Replacement = get_match(MatchData, Match[GroupNumber]);
 			NextPos += NumberEnd;
 		}
-		else if (NextChar == L'{')
+		else if (NextChar == L'{') // ${...
 		{
 			// {some text}
 			if (const auto NameEnd = Str.find(L'}', i + 2); NameEnd != Str.npos)
@@ -1039,10 +1039,10 @@ string ReplaceBrackets(
 				{
 					if (GroupIterator->second < Match.size())
 					{
-						GroupNumber = GroupIterator->second;
+						GroupNumber = GroupIterator->second; // group name found
 					}
 				}
-				else if (iswdigit(Str[i+2]))
+				else if (iswdigit(Str[i+2])) // ${<digit>...
 				{
 					size_t NumberEnd;
 					const auto group_number = from_string<size_t>(Str.substr(i + 2), &NumberEnd);
@@ -1063,6 +1063,10 @@ string ReplaceBrackets(
 				Replacement = get_match(MatchData, Match[GroupNumber]);
 				NextPos = NameEnd;
 			}
+		}
+		else if (NextChar == L'$') // $$
+		{
+			NextPos = ++i;
 		}
 
 		if (NextPos != i)
