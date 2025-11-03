@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+w17 2025-11-03 20:52:30+03:00 - build 6581
+
+1. Allow \{group_number} backreference in regex pattern.
+
+2. Allow ${group_number} in regex replace (if named group was not found).
+
+--------------------------------------------------------------------------------
 drkns 2025-11-02 22:05:07+00:00 - build 6580
 
 1. Correction of 6421.3.
