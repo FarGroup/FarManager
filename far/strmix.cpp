@@ -1033,13 +1033,34 @@ string ReplaceBrackets(
 			{
 				const auto Name = Str.substr(i + 2, NameEnd - i - 2);
 
+				auto GroupNumber = MAXSIZE_T;
 				const auto GroupIterator = NamedGroups.find(Name);
-				if (GroupIterator == NamedGroups.cend())
+				if (GroupIterator != NamedGroups.cend())
+				{
+					if (GroupIterator->second < Match.size())
+					{
+						GroupNumber = GroupIterator->second;
+					}
+				}
+				else if (iswdigit(Str[i+2]))
+				{
+					size_t NumberEnd;
+					const auto group_number = from_string<size_t>(Str.substr(i + 2), &NumberEnd);
+					if (i + 2 + NumberEnd == NameEnd)
+					{
+						if (group_number >= Match.size())
+							throw far_known_exception(far::format(L"Invalid group number: {}"sv, group_number));
+						else
+							GroupNumber = group_number;
+					}
+				}
+
+				if (GroupNumber == MAXSIZE_T)
+				{
 					throw far_known_exception(far::format(L"Invalid group name: {}"sv, Name));
+				}
 
-				if (const auto GroupNumber = GroupIterator->second; GroupNumber < Match.size())
-					Replacement = get_match(MatchData, Match[GroupNumber]);
-
+				Replacement = get_match(MatchData, Match[GroupNumber]);
 				NextPos = NameEnd;
 			}
 		}

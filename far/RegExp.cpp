@@ -1017,13 +1017,16 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 				}
 				default:
 				{
-					if (ISDIGIT(src[i]))
+					const auto curves = src[i] == L'{' ? 1 : 0;
+					if (ISDIGIT(src[curves+i]))
 					{
 						int save=i;
 						op->op=opBackRef;
-						op->refindex=GetNum(src,i); i--;
+						i += curves;
+						op->refindex=GetNum(src,i);
+						i -= (1 - curves);
 
-						if (op->refindex<=0 || op->refindex>brcount || !closedbrackets[op->refindex])
+						if ((curves && src[i] != L'}') || op->refindex <= 0 || op->refindex>brcount || !closedbrackets[op->refindex])
 						{
 							throw regex_exception(errInvalidBackRef, save + (src - start) - 1);
 						}
