@@ -1244,7 +1244,7 @@ void regex_playground()
 				{
 					Result = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
 					const auto BakedReplaceStr = ReplaceBrackets(ReplaceStr, Result, Match.Matches, Regex.GetNamedGroups());
-					Result.replace(Match.Matches[0].start, Match.Matches[0].end, BakedReplaceStr);
+					Result.replace(Result.begin() + Match.Matches[0].start, Result.begin() + Match.Matches[0].end, BakedReplaceStr);
 					update_status(status::normal, L"Replaced"s);
 				}
 				catch (far_exception const& e)
