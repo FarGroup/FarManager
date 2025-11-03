@@ -1520,7 +1520,7 @@ TEST_CASE("ReplaceBrackets")
 		{ L"meow"sv, L"${a }$cat$"sv, {}, {}, {}, L"Invalid group name"sv },
 		{ L"Ni!"sv, L"$0$0$0"sv, L"Ni!Ni!Ni!"sv, { { 0, 3 } } },
 		{ L"Fus Ro Dah"sv, L"$3-${first}-$2-$1-${oops$"sv, L"Dah-Fus-Ro-Fus-${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
-		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 } }, { { L"name1"sv, 1 }, { L"name2"sv, 2 } } },
+		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 }, { 3, 3 } }, { { L"name1"sv, 1 }, { L"name2"sv, 2 } } },
 	};
 
 	const auto Matcher = [](string_view const Message)
