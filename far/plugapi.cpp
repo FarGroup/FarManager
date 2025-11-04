@@ -2582,6 +2582,23 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		{
 			RegExp Regex;
 			std::vector<RegExpNamedGroup> NamedGroupsFlat;
+			std::wstring LastError;
+			intptr_t     LastPos{};
+			int       LastStatus{};
+
+			void clear_status()
+			{
+				LastError.clear();
+				LastPos = 0;
+				LastStatus = 0;
+			}
+
+			void set_status(const regex_exception& e)
+			{
+				LastError = e.message();
+				LastPos = e.position();
+				LastStatus = static_cast<int>(e.code());
+			}
 		};
 
 		switch (Command)
@@ -2595,9 +2612,11 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			return true;
 
 		case RECTL_COMPILE:
+		{
+			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			try
 			{
-				auto& Handle = *static_cast<regex_handle*>(hHandle);
+				Handle.clear_status();
 				Handle.NamedGroupsFlat.clear();
 				Handle.Regex.Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
 				return true;
@@ -2605,8 +2624,10 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			catch (regex_exception const& e)
 			{
 				LOGERROR(L"RECTL_COMPILE error: {}; position {}"sv, e.message(), e.position());
+				Handle.set_status(e);
 				return false;
 			}
+		}
 
 		case RECTL_OPTIMIZE:
 			return static_cast<regex_handle*>(hHandle)->Regex.Optimize();
@@ -2615,20 +2636,30 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		case RECTL_SEARCHEX:
 		{
 			auto& Handle = *static_cast<regex_handle*>(hHandle);
-			const auto data = static_cast<RegExpSearch*>(Param2);
-			regex_match Match;
+			try
+			{
+				Handle.clear_status();
+				const auto data = static_cast<RegExpSearch*>(Param2);
+				regex_match Match;
 
-			const auto Handler = Command == RECTL_SEARCHEX?
-				&RegExp::SearchEx :
-				&RegExp::MatchEx;
+				const auto Handler = Command == RECTL_SEARCHEX?
+					&RegExp::SearchEx :
+					&RegExp::MatchEx;
 
-			if (!(Handle.Regex.*Handler)({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+				if (!(Handle.Regex.*Handler)({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+					return false;
+
+				const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
+				std::copy_n(Match.Matches.cbegin(), MaxSize, data->Match);
+				data->Count = MaxSize;
+				return true;
+			}
+			catch (regex_exception const& e)
+			{
+				LOGERROR(L"RECTL_{}CHEX error: {}; position {}"sv, Command == RECTL_SEARCHEX ? L"SEAR"s : L"MAT"s, e.message(), e.position());
+				Handle.set_status(e);
 				return false;
-
-			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.Matches.size());
-			std::copy_n(Match.Matches.cbegin(), MaxSize, data->Match);
-			data->Count = MaxSize;
-			return true;
+			}
 		}
 
 		case RECTL_BRACKETSCOUNT:
@@ -2644,24 +2675,34 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 		}
 
 		case RECTL_GETNAMEDGROUPS:
+		{
+			auto& Handle = *static_cast<regex_handle*>(hHandle);
+
+			if (Handle.NamedGroupsFlat.empty())
 			{
-				auto& Handle = *static_cast<regex_handle*>(hHandle);
-
-				if (Handle.NamedGroupsFlat.empty())
+				const auto& NamedGroups = Handle.Regex.GetNamedGroups();
+				Handle.NamedGroupsFlat.reserve(NamedGroups.size());
+				std::ranges::transform(NamedGroups, std::back_inserter(Handle.NamedGroupsFlat), [](const auto& i)
 				{
-					const auto& NamedGroups = Handle.Regex.GetNamedGroups();
-					Handle.NamedGroupsFlat.reserve(NamedGroups.size());
-					std::ranges::transform(NamedGroups, std::back_inserter(Handle.NamedGroupsFlat), [](const auto& i)
-					{
-						return RegExpNamedGroup{ i.second, i.first.c_str() };
-					});
+					return RegExpNamedGroup{ i.second, i.first.c_str() };
+				});
 
-					std::ranges::sort(Handle.NamedGroupsFlat, {}, &RegExpNamedGroup::Index);
-				}
-
-				*static_cast<RegExpNamedGroup const**>(Param2) = Handle.NamedGroupsFlat.data();
-				return Handle.NamedGroupsFlat.size();
+				std::ranges::sort(Handle.NamedGroupsFlat, {}, &RegExpNamedGroup::Index);
 			}
+
+			*static_cast<RegExpNamedGroup const**>(Param2) = Handle.NamedGroupsFlat.data();
+			return Handle.NamedGroupsFlat.size();
+		}
+
+		case RECTL_GETSTATUS:
+		{
+			auto& Handle    = *static_cast<regex_handle*>(hHandle);
+			auto& Status    = *static_cast<RegExpStatus*>(Param2);
+			Status.Error    = Handle.LastError.c_str();
+			Status.Position = Handle.LastPos;
+			Status.Status   = Handle.LastStatus;
+			return true;
+		}
 
 		default:
 			return false;
