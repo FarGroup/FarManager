@@ -46,7 +46,7 @@ build_script:
   - cd ..
   #build Plugins
   - cd plugins
-  - mingw32-make -j4 %ADD_MAKE% -f makefile_all_gcc
+  - mingw32-make -j1 %ADD_MAKE% -f makefile_all_gcc
   - cd ..
 
 test: off
