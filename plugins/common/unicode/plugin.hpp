@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6578.0
+Plugin API for Far Manager 3.0.6584.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6578
+#define FARMANAGERVERSION_BUILD 6584
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -2060,6 +2060,7 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 	RECTL_BRACKETSCOUNT             = 6,
 	RECTL_NAMEDGROUPINDEX           = 7,
 	RECTL_GETNAMEDGROUPS            = 8,
+	RECTL_GETSTATUS                 = 9,
 };
 
 struct RegExpMatch
@@ -2081,6 +2082,13 @@ struct RegExpNamedGroup
 {
 	size_t Index;
 	const wchar_t* Name;
+};
+
+struct RegExpStatus
+{
+	const wchar_t* Error; // Error description
+	intptr_t    Position; // position in regex pattern
+	int           Status; // 0 - ok
 };
 
 enum FAR_SETTINGS_CONTROL_COMMANDS
