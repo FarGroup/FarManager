@@ -2216,6 +2216,7 @@ struct RegExpNamedGroup
 
 struct RegExpStatus
 {
+	size_t StructSize;
 	const wchar_t* Error; // Error description
 	intptr_t    Position; // position in regex pattern
 	int           Status; // 0 - ok

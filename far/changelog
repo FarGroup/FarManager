@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2025-11-04 17:37:42+00:00 - build 6585
+
+1. Add RegExpStatus::StructSize.
+   Just in case if we ever decide to extend it, e.g. with localized diagnostics.
+
+--------------------------------------------------------------------------------
 w17 2025-11-04 18:20:17+03:00 - build 6584
 
 1. RegExpControl: + RECTL_GETSTATUS
