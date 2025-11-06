@@ -1,3 +1,7 @@
+shmuel 2025-11-06 23:58:14+02:00 - build 901
+
+1. LuaFAR: make far.MkLink match docs.
+
 shmuel 2025-11-02 12:35:31+02:00 - build 900
 
 1. Make possible invoking macro browser via Plugin.Call(guid,"browser").
