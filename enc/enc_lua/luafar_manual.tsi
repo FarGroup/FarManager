@@ -7807,18 +7807,18 @@ id=208
 lv=2
 dt=Text
 nm=far.MkLink
-mtime=3602448040
+mtime=3971626480
 <article>
-#_result = far.MkLink (Src, Dest, Type, Flags)
+#_result = far.MkLink (Target, LinkName, LinkType, Flags)
 #_
 #_**Parameters:**
-#_  Src:    string
-#_  Dest:   string
-#_  Type:   flags
-#_  Flags:  flags
+#_  Target:    string
+#_  LinkName:  string
+#_  LinkType:  flags (default=LINK_SYMLINK)
+#_  Flags:     flags (default=0)
 #_
 #_**Returns:**
-#_  result: boolean
+#_  result:    boolean
 #_
 #_**Far API used:**
 #_  MkLink
