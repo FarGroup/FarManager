@@ -1,3 +1,10 @@
+shmuel 2025-11-07 08:50:00+02:00 - build 902
+
+1. Enable mf.usermenu for Far started with -e or -v.
+   - It was disabled due to crashes (see Mantis 0002986)
+     but that seems to have changed since Far 3.0.5190.
+   - See also: build 508 in this changelog.
+
 shmuel 2025-11-06 23:58:14+02:00 - build 901
 
 1. LuaFAR: make far.MkLink match docs.
