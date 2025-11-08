@@ -1,3 +1,7 @@
+ssvine 2025-11-08 12:56:45+03:00 - build 122
+
+1. gh-1041: Temporary panel loses files that differ in letter case
+
 drkns 2024-11-24 11:48:49+00:00 - build 121
 
 1. Remove quadratic complexity from panel updates.

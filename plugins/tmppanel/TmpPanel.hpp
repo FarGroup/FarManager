@@ -36,7 +36,6 @@ struct shared_data
 inline shared_data* SharedData;
 
 inline PluginStartupInfo PsInfo;
-inline FarStandardFunctions FSF;
 
 #define NT_MAX_PATH 32768
 
