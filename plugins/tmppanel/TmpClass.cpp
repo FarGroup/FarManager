@@ -380,7 +380,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 	m_LastOwnersRead = ShowOwners;
 	m_LastLinksRead = ShowLinks;
 
-	std::unordered_map<string_view, PluginPanelItem*> SameFolderItems;
+	unordered_string_map_icase<PluginPanelItem*> SameFolderItems;
 
 	auto NameDataIterator = m_Panel->StringData.begin();
 	for (auto CurItem = m_Panel->Items.begin(), end = m_Panel->Items.end(); CurItem != end; ++CurItem, ++NameDataIterator)
@@ -411,7 +411,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 		// несколько файлов из одного и того же каталога. При этом
 		// FindFirstFile() делается один раз на каталог, а не отдельно для
 		// каждого файла.
-		if (SameFolderItemsNumber > 2)
+		if (SameFolderItemsNumber >= 2)
 		{
 			WIN32_FIND_DATA FindData;
 			const auto FindFile = Dir + L"*"sv;
