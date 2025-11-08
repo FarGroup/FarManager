@@ -314,7 +314,8 @@ void copy_progress::add_total_bytes(unsigned long long const Value)
 
 void copy_progress::SetNames(const string_view Src, const string_view Dst)
 {
-	if (m_ShowTime && !m_Files.Copied)
+	// Lazy initialization of timing on first actual file operation
+	if (m_ShowTime && m_CopyStartTime == std::chrono::steady_clock::time_point{})
 	{
 		m_CopyStartTime = std::chrono::steady_clock::now();
 		WaitUserTime = 0s;

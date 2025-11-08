@@ -92,6 +92,7 @@ enum COPY_CODES
 {
 	COPY_FILTERED,
 	COPY_SKIPPED,
+	COPY_SKIPPED_DIRECTORY,
 	COPY_FAILURE,
 	COPY_SUCCESS,
 	COPY_SUCCESS_MOVE,
@@ -1608,6 +1609,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 					CP->skip(i.FileSize);
 					continue;
 
+				case COPY_SKIPPED_DIRECTORY:
+					CP->skip(0);
+					break;
+
 				case COPY_FILTERED:
 					continue;
 
@@ -1651,6 +1656,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 			case COPY_FAILURE:
 				CP->skip(i.FileSize);
 				continue;
+
+			case COPY_SKIPPED_DIRECTORY:
+				CP->skip(0);
+				break;
 			}
 		}
 
@@ -1777,6 +1786,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 					case COPY_SKIPPED:
 					case COPY_FAILURE:
 						CP->skip(SrcData.FileSize);
+						break;
+
+					case COPY_SKIPPED_DIRECTORY:
+						CP->skip(0);
 						break;
 					}
 				}
@@ -1968,7 +1981,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (SetAttr!=DestAttr)
 						ShellSetAttr(strDestPath,SetAttr);
 
-					return ConvertNameToFull(Src) == strDestPath? COPY_SKIPPED : COPY_SUCCESS;
+					return COPY_SKIPPED_DIRECTORY;
 				}
 			}
 
