@@ -84,10 +84,10 @@ struct rectangle_t
 	bool operator==(rectangle_t const&) const = default;
 
 	[[nodiscard]]
-	auto width() const noexcept { assert(left <= right); return right - left + 1; }
+	auto width() const noexcept { assert(right - left + 1 >= 0); return right - left + 1; }
 
 	[[nodiscard]]
-	auto height() const noexcept { assert(top <= bottom); return bottom - top + 1; }
+	auto height() const noexcept { assert(bottom - top + 1 >= 0); return bottom - top + 1; }
 
 	[[nodiscard]]
 	bool contains(point const& Point) const noexcept
