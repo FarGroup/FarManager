@@ -179,10 +179,10 @@ private:
 		string resrc;
 #endif
 
-		int CalcLength(string_view src, const int shift);
-		void InnerCompile(const wchar_t* src, const int srclength, const int shift, int options);
+		int CalcLength(string_view src);
+		void InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
 
-		bool InnerMatch(const wchar_t*start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, state_stack& Statetack) const;
+		bool InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, state_stack& Statetack) const;
 
 		void TrimTail(const wchar_t* start, const wchar_t*& strend) const;
 
