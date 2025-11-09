@@ -756,7 +756,8 @@ local function LoadMacros (unload, paths)
       local f, msg = (isMoonScript and moonscript.loadfile or loadfile)(FullPath)
       if not f then
         numerrors=numerrors+1
-        msg = ('Error in MoonScript file: %s\n%s'):format(FullPath, string.gsub(msg, "\n\t", "\n   "))
+        msg = ('Error in %s file: %s\n%s'):format(isMoonScript and "MoonScript" or "Lua",
+              FullPath, string.gsub(msg, "\n\t", "\n   "))
         ErrMsgLoad(msg,FullPath,isMoonScript,"compile")
         return
       end
