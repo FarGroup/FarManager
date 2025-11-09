@@ -107,7 +107,7 @@ static const wchar_t* ops[]=
 	L"opAlternative",
 	L"opBackRef",
 	L"opNamedBracket",
-	L"opNamedBackRef",
+//	L"opNamedBackRef",
 	L"opRangesBegin",
 	L"opRange",
 	L"opMinRange",
@@ -127,8 +127,8 @@ static const wchar_t* ops[]=
 	L"opBracketMinRange",
 	L"opBackRefRange",
 	L"opBackRefMinRange",
-	L"opNamedRefRange",
-	L"opNamedRefMinRange",
+//	L"opNamedRefRange",
+//	L"opNamedRefMinRange",
 	L"opRangesEnd",
 	L"opAssertionsBegin",
 	L"opLookAhead",
@@ -344,10 +344,10 @@ enum REOp
 
 	opAlternative,          // |
 
-	opBackRef,              // \1
+	opBackRef,              // \number \-number {number|-number|name} \g{number|-number|name} \p{number|-number|name}
 
-	opNamedBracket,         // (?{name}
-	opNamedBackRef,         // \p{name}
+//	opNamedBracket,         // (?{name}
+//	opNamedBackRef,         // \p{name} \g{name} \{name} -- resolved as opBackRef
 
 	opRangesBegin,          // for op type check
 
@@ -378,8 +378,8 @@ enum REOp
 	opBackRefRange,         // for backrefs
 	opBackRefMinRange,
 
-	opNamedRefRange,
-	opNamedRefMinRange,
+//	opNamedRefRange,
+//	opNamedRefMinRange,
 
 	opRangesEnd,            // end of ranges
 
@@ -428,10 +428,6 @@ struct REOpCode_data
 		int min,max;
 	};
 
-	struct SNamedBracket: SBracket
-	{
-		const wchar_t* name;
-	};
 
 	struct SAssert
 	{
@@ -450,13 +446,11 @@ struct REOpCode_data
 	{
 		SRange range;
 		SBracket bracket;
-		SNamedBracket nbracket;
 		SAssert assert;
 		SAlternative alternative;
 		wchar_t symbol;
 		RegExp::UniSet *symbolclass;
 		int refindex;
-		const wchar_t* refname;
 		int type;
 	};
 };
@@ -478,8 +472,6 @@ struct RegExp::REOpCode: public REOpCode_data
 		case opSymbolClass:delete symbolclass; break;
 		case opClassRange:
 		case opClassMinRange:delete range.symbolclass; break;
-		case opNamedBracket:delete[] nbracket.name; break;
-		case opNamedBackRef:delete[] refname; break;
 		}
 	}
 };
@@ -493,9 +485,126 @@ RegExp::RegExp():
 RegExp::~RegExp() = default;
 RegExp::RegExp(RegExp&&) noexcept = default;
 
+static wchar_t get_next_char(string_view src, int& pos, const int shift=0, const bool do_throw=false)
+{
+	++pos;
+	if (static_cast<size_t>(pos) < src.size())
+		return src[pos];
+	pos = static_cast<int>(src.size());
+	if (do_throw)
+		throw regex_exception(errSyntax, pos + shift);
+	return L'\0';
+}
+
+// \h \{h} \hh \{hh} \hhh \{hhh} \hhhh \{hhhh}
+//
+static int get_HexChar(string_view src, int& pos, const int shift)
+{
+	auto c = get_next_char(src, pos);
+
+	const auto curve_pos = pos + shift;
+	const auto curves = c == L'{';
+	if (curves)
+		c = get_next_char(src, pos);
+	if (!isxdigit(c))
+	{
+		if (!curves || c) throw regex_exception(errSyntax, pos + shift);
+		throw regex_exception(errBrackets, curve_pos);
+	}
+
+	int unicode_char = 0;
+	for (int j = 1; j <= 4; ++j)
+	{
+		c = TOLOWER(c);
+		unicode_char = (unicode_char << 4) | (c - (c > '9' ? 'a' - 10 : '0'));
+		c = get_next_char(src, pos);
+		if (!isxdigit(c))
+			break;
+	}
+	if (!curves)
+		--pos;
+	else if (c != L'}')
+	{
+		if (static_cast<size_t>(pos) >= src.size()) throw regex_exception(errBrackets, curve_pos);
+		else throw regex_exception(errSyntax, pos + shift);
+	}
+
+	return unicode_char;
+}
+
+// (?{name}... or (?<name>...
+//   ^              ^
+static string_view get_NamedGroup(string_view src, int& pos, const int shift)
+{
+	const auto close_bracket = src[pos] == L'{' ? L'}' : (src[pos] == L'<' ? L'>' : src[pos]);
+	const auto start_bracket = pos + shift;
+
+	wchar_t c;
+	do { c = get_next_char(src, pos); } while (ISSPACE(c));
+	if (!ISALPHA(c))
+		if (c && c != close_bracket) throw regex_exception(errSyntax, pos + shift);
+	   else throw regex_exception(c ? errIncompleteGroupStructure : errBrackets, start_bracket);
+
+	const auto b_pos = pos;
+	do { c = get_next_char(src, pos); } while (ISWORD(c));
+	const auto e_pos = pos;
+
+	while (ISSPACE(c)) c = get_next_char(src, pos);
+	if (c != close_bracket)
+		throw regex_exception(c ? errSyntax : errBrackets, c ? pos + shift : start_bracket);
+
+	return src.substr(b_pos, e_pos - b_pos);
+}
+
+// \num \{num} \-num \{-num} \{num} \{-num} \{name}
+//  ^    ^      ^     ^       ^       ^      ^
+// \pnum \p{num} \p-num \p{-num} \p{name} \gnum ... \g{name}
+//  ^     ^       ^      ^        ^        ^         ^
+static string_view get_BackRef(string_view src, int& pos, const int shift)
+{
+	auto c = src[pos];
+	if (c == L'p' || c == L'g')
+		c = get_next_char(src, pos);
+
+	const auto curve_pos = pos;
+	const auto curves = c == L'{';
+	if (curves)
+		do { c = get_next_char(src, pos); } while (c == L' '); // {g1} { g2 } \g{ -5} ...
+
+	const auto n_pos = pos;
+	const auto minus = c == L'-';
+	if (minus)
+		c = get_next_char(src, pos);
+
+	const auto number_mode = !curves || minus || ISDIGIT(c);
+	if ((number_mode && !ISDIGIT(c)) || (!number_mode && !ISALPHA(c)))
+	{
+		if (curves)
+		{
+			if (!c) throw regex_exception(errBrackets, curve_pos + shift);
+			if (c == L'}') throw regex_exception(errIncompleteGroupStructure, curve_pos + shift);
+		}
+		throw regex_exception(errSyntax, pos + shift);
+	}
+
+	do { c = get_next_char(src, pos); } while (ISDIGIT(c) || (!number_mode && ISWORD(c)));
+	const auto e_pos = pos;
+
+	if (curves)
+	{
+		while (c == L' ') { c = get_next_char(src, pos); }
+		if (c != L'}')
+			throw regex_exception(c ? errSyntax : errBrackets, (c ? pos : curve_pos) + shift);
+	}
+	else
+		--pos;
+
+	return src.substr(n_pos, e_pos - n_pos);
+}
+
 constexpr auto MinCodeLength = 3; //global brackets
 
-int RegExp::CalcLength(string_view src)
+int RegExp::CalcLength(string_view src, const int shift)
 {
 	const auto srclength = static_cast<int>(src.size());
 	int length = MinCodeLength;
@@ -505,6 +614,31 @@ int RegExp::CalcLength(string_view src)
 	bracketscount=1;
 	int inquote=0;
 
+	const auto next_char = [src, shift](int& pos, const bool do_throw = false)
+	{
+		return get_next_char(src, pos, shift, do_throw);
+	};
+
+	const auto test_char = [src](const int pos)
+	{
+		return static_cast<size_t>(pos) < src.size() ? src[pos] : L'\0';
+	};
+
+	const auto hex_char = [src, shift](int& pos)
+	{
+		return get_HexChar(src, pos, shift);
+	};
+
+	const auto named_group = [src, shift](int& pos)
+	{
+		return get_NamedGroup(src, pos, shift);
+	};
+
+	const auto back_ref = [src, shift](int& pos)
+	{
+		return get_BackRef(src, pos, shift);
+	};
+
 	for (int i=0; i<srclength; i++,length++)
 	{
 		if (inquote && src[i]!=backslashChar && (i + 1 == srclength || src[i+1] != L'E'))
@@ -512,57 +646,35 @@ int RegExp::CalcLength(string_view src)
 			continue;
 		}
 
-		if (src[i]==backslashChar)
+		if (src[i] == backslashChar)
 		{
-			i++;
-			if (i == srclength)
+			auto c = next_char(i);
+			if (i >= srclength)
 				continue;
 
-			if (src[i] == L'Q')inquote=1;
-
-			if (src[i] == L'E')inquote=0;
-
-			if (src[i] == L'x')
+			if (c == L'Q')
 			{
-				i++;
-				if(i != srclength && isxdigit(src[i]))
-				{
-					for(int j=1,k=i;j<4;j++)
-					{
-						if(k + j != srclength && isxdigit(src[k+j]))
-						{
-							i++;
-						}
-						else
-						{
-							break;
-						}
-					}
-				}
-				else
-					throw regex_exception(errSyntax, i);
+				inquote = 1; continue;
 			}
 
-			if (src[i] == L'p')
+			if (c == L'E')
 			{
-				i++;
-
-				if (i == srclength || src[i] != L'{')
-					throw regex_exception(errSyntax, i);
-
-				i++;
-				const auto save2 = i;
-
-				while (i < srclength && (ISWORD(src[i]) || ISSPACE(src[i])) && src[i] != L'}')
-					i++;
-
-				if (i >= srclength)
-					throw regex_exception(errBrackets, save2);
-
-				if (src[i] != L'}' && !(ISWORD(src[i]) || ISSPACE(src[i])))
-					throw regex_exception(errSyntax, i);
+				inquote = 0; continue;
 			}
 
+			if (c == L'x')
+			{
+				hex_char(i);
+				continue;
+			}
+
+			//  \n  \-n  \{n}  \{-n}  \{name}
+			// \pn \p-n \p{n} \p{-n} \p{name}
+			// \gn \g-n \g{n} \g{-n} \g{name}
+			if (c && wcschr(L"pg{-", c) || ISDIGIT(c))
+			{
+				back_ref(i);
+			}
 			continue;
 		}
 
@@ -572,26 +684,15 @@ int RegExp::CalcLength(string_view src)
 			{
 				brackets[count++]=i;
 				if (count >= MAXDEPTH)
-					throw regex_exception(errMaxDepth, i);
+					throw regex_exception(errMaxDepth, i + shift);
 
-				if (i + 1 != srclength && src[i + 1]==L'?')
+				if (test_char(i + 1) == L'?')
 				{
-					i+=2;
-
-					if (i != srclength && src[i] == L'{')
+					i += 2;
+					auto c1 = test_char(i), c2 = test_char(i + 1);
+					if (c1 == L'{' || (c1 == L'<' && c2 != L'=' && c2 != L'!'))
 					{
-						save = i;
-						i++;
-
-						while (i < srclength && (ISWORD(src[i]) || ISSPACE(src[i])) && src[i] != L'}')
-							i++;
-
-						if (i >= srclength)
-							throw regex_exception(errBrackets, save);
-
-						if (src[i] != L'}' && !(ISWORD(src[i]) || ISSPACE(src[i])))
-							throw regex_exception(errSyntax, i);
-
+						named_group(i);
 						++bracketscount;
 					}
 				}
@@ -607,7 +708,7 @@ int RegExp::CalcLength(string_view src)
 				count--;
 
 				if (count < 0)
-					throw regex_exception(errBrackets,i);
+					throw regex_exception(errBrackets,i + shift);
 
 				break;
 			}
@@ -626,10 +727,10 @@ int RegExp::CalcLength(string_view src)
 						++i;
 
 					if (i >= srclength)
-						throw regex_exception(errBrackets,save);
+						throw regex_exception(errBrackets, save + shift);
 				}
 
-				if (i + 1 != srclength && src[i + 1] == '?')
+				if (i + 1 != srclength && src[i + 1] == L'?')
 					++i;
 
 				break;
@@ -648,7 +749,7 @@ int RegExp::CalcLength(string_view src)
 					i += (backslashChar == src[i] && src[i+1] ? 2 : 1);
 
 				if (i >= srclength)
-					throw regex_exception(errBrackets,save);
+					throw regex_exception(errBrackets, save + shift);
 
 				break;
 			}
@@ -657,9 +758,8 @@ int RegExp::CalcLength(string_view src)
 
 	if (count)
 	{
-		throw regex_exception(errBrackets, brackets[0]);
+		throw regex_exception(errBrackets, brackets[0] + shift);
 	}
-
 	return length;
 }
 
@@ -693,11 +793,11 @@ void RegExp::Compile(string_view const src, int options)
 		{
 			switch (*i)
 			{
-				case 'i':options|=OP_IGNORECASE; break;
-				case 's':options|=OP_SINGLELINE; break;
-				case 'm':options|=OP_MULTILINE; break;
-				case 'x':options|=OP_XTENDEDSYNTAX; break;
-				case 'o':options|=OP_OPTIMIZE; break;
+				case L'i':options|=OP_IGNORECASE; break;
+				case L's':options|=OP_SINGLELINE; break;
+				case L'm':options|=OP_MULTILINE; break;
+				case L'x':options|=OP_XTENDEDSYNTAX; break;
+				case L'o':options|=OP_OPTIMIZE; break;
 				default: throw regex_exception(errOptions, 1 + Regex.size() + 1 + (i - Options.cbegin()));
 			}
 		}
@@ -707,15 +807,16 @@ void RegExp::Compile(string_view const src, int options)
 		Regex = src;
 	}
 
-	ignorecase=options&OP_IGNORECASE?1:0;
+	ignorecase = options & OP_IGNORECASE ? 1 : 0;
 
-	code.resize(CalcLength(Regex));
+	const auto shift = static_cast<int>(Regex.data() - src.data());
+	code.resize(CalcLength(Regex, shift));
 
-	InnerCompile(src.data(), Regex.data(), static_cast<int>(Regex.size()), options);
+	InnerCompile(Regex.data(), static_cast<int>(Regex.size()), shift, options);
 
 	minlength = 0;
 
-	if (options&OP_OPTIMIZE)
+	if (options & OP_OPTIMIZE)
 		Optimize();
 }
 
@@ -765,7 +866,6 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 				altcnt++;
 				continue;
 
-			case opNamedBracket:
 			case opOpenBracket:
 			{
 				const auto l = CalcPatternLength(from + 1, from->bracket.pairindex - 1);
@@ -787,7 +887,6 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 				altcnt=0;
 				continue;
 			case opBackRef:
-			case opNamedBackRef:
 				return -1;
 			case opRangesBegin:
 			case opRange:
@@ -826,8 +925,6 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 			}
 			case opBackRefRange:
 			case opBackRefMinRange:
-			case opNamedRefRange:
-			case opNamedRefMinRange:
 				return -1;
 			case opRangesEnd:
 			case opAssertionsBegin:
@@ -848,7 +945,7 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 	return altlen==-1?len:altlen;
 }
 
-void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int srclength, int options)
+void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shift, int options)
 {
 	REOpCode* brackets[MAXDEPTH];
 	// current brackets depth
@@ -873,7 +970,32 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 #endif
 	havelookahead=0;
 
-	for (int i=0; i<srclength; i++)
+	const auto next_char = [src, srclength, shift](int& pos, const bool do_throw = false)
+	{
+		return get_next_char({src, static_cast<size_t>(srclength)}, pos, shift, do_throw);
+	};
+
+	const auto peek_char = [src, srclength](const int pos)
+	{
+		return pos < srclength ? src[pos] : L'\0';
+	};
+
+	const auto hex_char = [src, srclength, shift](int& pos)
+	{
+		return get_HexChar({src, static_cast<size_t>(srclength)}, pos, shift);
+	};
+
+	const auto named_group = [src, srclength, shift](int& pos)
+	{
+		return get_NamedGroup({src, static_cast<size_t>(srclength)}, pos, shift);
+	};
+
+	const auto back_ref = [src, srclength, shift](int& pos)
+	{
+		return get_BackRef({ src, static_cast<size_t>(srclength) }, pos, shift);
+	};
+
+	for (int i = 0; i < srclength; i++)
 	{
 		auto op = &code[pos];
 		pos++;
@@ -881,176 +1003,104 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 		op->srcpos=i+1;
 #endif
 
-		if (inquote && src[i]!=backslashChar)
+		if (inquote && src[i] != backslashChar)
 		{
-			op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
-			op->symbol=ignorecase?TOLOWER(src[i]):src[i];
+			op->op = ignorecase ? opSymbolIgnoreCase : opSymbol;
+			op->symbol = ignorecase ? TOLOWER(src[i]) : src[i];
 
-			if (ignorecase && TOUPPER(op->symbol)==op->symbol)op->op=opSymbol;
+			if (ignorecase && TOUPPER(op->symbol) == op->symbol) op->op = opSymbol;
 
 			continue;
 		}
 
-		if (src[i]==backslashChar)
+		if (src[i] == backslashChar)
 		{
-			i++;
-			if (i == srclength)
-				throw regex_exception(errSyntax, i);
+			auto c = next_char(i);
 
-			if (inquote && src[i]!='E')
+			if (inquote && c != 'E')
 			{
-				op->op=opSymbol;
-				op->symbol=backslashChar;
+				op->op = opSymbol;
+				op->symbol = backslashChar;
 				op = &code[pos];
 				pos++;
-				op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
-				op->symbol=ignorecase?TOLOWER(src[i]):src[i];
+				op->op = ignorecase?opSymbolIgnoreCase:opSymbol;
+				op->symbol = ignorecase ? TOLOWER(src[i]) : src[i];
 
-				if (ignorecase && TOUPPER(op->symbol)==op->symbol)op->op=opSymbol;
+				if (ignorecase && TOUPPER(op->symbol) == op->symbol) op->op=opSymbol;
 
 				continue;
 			}
 
 			op->op=opType;
 
-			switch (src[i])
+			switch (c)
 			{
-				case 'Q':inquote=1; pos--; continue;
-				case 'E':inquote=0; pos--; continue;
-				case 'b':op->op=opWordBound; continue;
-				case 'B':op->op=opNotWordBound; continue;
-				case 'D':op->op=opNotType; [[fallthrough]];
-				case 'd':op->type=TYPE_DIGITCHAR; continue;
-				case 'S':op->op=opNotType; [[fallthrough]];
-				case 's':op->type=TYPE_SPACECHAR; continue;
-				case 'W':op->op=opNotType; [[fallthrough]];
-				case 'w':op->type=TYPE_WORDCHAR; continue;
-				case 'U':op->op=opNotType; [[fallthrough]];
-				case 'u':op->type=TYPE_UPCASE; continue;
-				case 'L':op->op=opNotType; [[fallthrough]];
-				case 'l':op->type=TYPE_LOWCASE; continue;
-				case 'I':op->op=opNotType; [[fallthrough]];
-				case 'i':op->type=TYPE_ALPHACHAR; continue;
-				case 'A':op->op=opDataStart; continue;
-				case 'Z':op->op=opDataEnd; continue;
-				case 'n':op->op=opSymbol; op->symbol='\n'; continue;
-				case 'r':op->op=opSymbol; op->symbol='\r'; continue;
-				case 't':op->op=opSymbol; op->symbol='\t'; continue;
-				case 'f':op->op=opSymbol; op->symbol='\f'; continue;
-				case 'e':op->op=opSymbol; op->symbol=27; continue;
-				case 'O':op->op=opNoReturn; continue;
-				case 'p':
+				case L'Q':inquote=1; pos--; continue;
+				case L'E':inquote=0; pos--; continue;
+				case L'b':op->op=opWordBound; continue;
+				case L'B':op->op=opNotWordBound; continue;
+				case L'D':op->op=opNotType; [[fallthrough]];
+				case L'd':op->type=TYPE_DIGITCHAR; continue;
+				case L'S':op->op=opNotType; [[fallthrough]];
+				case L's':op->type=TYPE_SPACECHAR; continue;
+				case L'W':op->op=opNotType; [[fallthrough]];
+				case L'w':op->type=TYPE_WORDCHAR; continue;
+				case L'U':op->op=opNotType; [[fallthrough]];
+				case L'u':op->type=TYPE_UPCASE; continue;
+				case L'L':op->op=opNotType; [[fallthrough]];
+				case L'l':op->type=TYPE_LOWCASE; continue;
+				case L'I':op->op=opNotType; [[fallthrough]];
+				case L'i':op->type=TYPE_ALPHACHAR; continue;
+				case L'A':op->op=opDataStart; continue;
+				case L'Z':op->op=opDataEnd; continue;
+				case L'n':op->op=opSymbol; op->symbol=L'\n'; continue;
+				case L'r':op->op=opSymbol; op->symbol=L'\r'; continue;
+				case L't':op->op=opSymbol; op->symbol=L'\t'; continue;
+				case L'f':op->op=opSymbol; op->symbol=L'\f'; continue;
+				case L'e':op->op=opSymbol; op->symbol=L'\x1B'; continue;
+				case L'O':op->op=opNoReturn; continue;
+
+				case L'x': // \xH \x{H} ... \xHHHH \x{HHHH}
 				{
-					op->op = opNamedBackRef;
-					i++;
+					const auto unicode_char = hex_char(i);
 
-					if (src[i] != L'{')
-						throw regex_exception(errSyntax, i + (src - start));
-
-					int len = 0; i++;
-
-					while (src[i + len] != L'}')len++;
-
-					if (len > 0)
-					{
-						const auto Name = new wchar_t[len + 1];
-						std::memcpy(Name, src + i, len*sizeof(wchar_t));
-						Name[len] = 0;
-						if (!NamedGroups.contains(Name))
-						{
-							delete[] Name;
-							throw regex_exception(errReferenceToUndefinedNamedBracket, i + (src - start));
-						}
-						op->refname = Name;
-
-						i += len;
-					}
-					else
-					{
-						throw regex_exception(errSyntax, i + (src - start));
-					}
-				} continue;
-
-				case 'x':
-				{
-					i++;
-
-					if (i >= srclength)
-						throw regex_exception(errSyntax, i + (src - start) - 1);
-
-					if(isxdigit(src[i]))
-					{
-						int c=TOLOWER(src[i])-'0';
-
-						if (c>9)c-='a'-'0'-10;
-
-						op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
-						op->symbol=c;
-						for(int j=1,k=i;j<4 && k+j<srclength;j++)
-						{
-							if(isxdigit(src[k+j]))
-							{
-								i++;
-								c=TOLOWER(src[k+j])-'0';
-								if (c>9)c-='a'-'0'-10;
-								op->symbol<<=4;
-								op->symbol|=c;
-							}
-							else
-							{
-								break;
-							}
-						}
-						if (ignorecase)
-						{
-							op->symbol=TOLOWER(op->symbol);
-							if (TOUPPER(op->symbol)==TOLOWER(op->symbol))
-							{
-								op->op=opSymbol;
-							}
-						}
-					}
-					else
-						throw regex_exception(errSyntax, i + (src - start));
+					op->op = ignorecase ? opSymbolIgnoreCase : opSymbol;
+					op->symbol = ignorecase ? TOLOWER(unicode_char) : unicode_char;
+					if (ignorecase && unicode_char == TOLOWER(unicode_char)) op->op = opSymbol;
 
 					continue;
 				}
+
 				default:
 				{
-					const auto curves = src[i] == L'{' ? 1 : 0;
-					if (ISDIGIT(src[curves+i]))
+					if (c && wcschr(L"pg{-", c) || ISDIGIT(c)) // \n \-n \{n} \{-n} \p{n} \p{-n} \p{name} \g{n} \g{-n} \g{name}
 					{
-						int save=i;
-						op->op=opBackRef;
-						i += curves;
-						op->refindex=GetNum(src,i);
-						i -= (1 - curves);
+						const auto bref = back_ref(i);
+						const auto b_pos = static_cast<int>(bref.data() - src);
 
-						if ((curves && src[i] != L'}') || op->refindex <= 0 || op->refindex>brcount || !closedbrackets[op->refindex])
+						int number = -1;
+						const auto number_mode = ISDIGIT(bref[0]) || bref[0] == L'-';
+						if (number_mode)
 						{
-							throw regex_exception(errInvalidBackRef, save + (src - start) - 1);
+							number = std::stoi(std::wstring(bref));
+							if (number < 0) number = brcount + 1 + number; // -1 == brcount
+							if (number <= 0 || number > brcount || !closedbrackets[number])
+								throw regex_exception(errInvalidBackRef, b_pos + shift);
+						}
+						else
+						{
+							const auto found = NamedGroups.find(bref);
+							if (found != NamedGroups.cend())
+								number = static_cast<int>(found->second);
+							if (number <= 0)
+								throw regex_exception(errReferenceToUndefinedNamedBracket, b_pos + shift);
 						}
 
-						if (op->refindex>maxbackref)maxbackref=op->refindex;
-					}
-					else
-					{
-						if (options&OP_STRICT && ISALPHA(src[i]))
-						{
-							throw regex_exception(errInvalidEscape, i + (src - start) - 1);
-						}
-
-						op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
-						op->symbol=ignorecase?TOLOWER(src[i]):src[i];
-
-						if (TOLOWER(op->symbol)==TOUPPER(op->symbol))
-						{
-							op->op=opSymbol;
-						}
+						op->op = opBackRef;
+						op->refindex = number;
 					}
 				}
 			}
-
 			continue;
 		}
 
@@ -1114,7 +1164,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 				}
 
 				if ((brdepth + 1) >= MAXDEPTH)
-					throw regex_exception(errMaxDepth, i + (src - start));
+					throw regex_exception(errMaxDepth, i + shift);
 
 				brackets[brdepth++]=op;
 				op->op=opAlternative;
@@ -1124,53 +1174,50 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 			{
 				op->op=opOpenBracket;
 
-				if (src[i+1]=='?')
+				if (src[i+1] == L'?')
 				{
-					i+=2;
+					i += 2;
+					const char c1 = peek_char(i);
+					const char c2 = peek_char(i+1);
 
-					switch (src[i])
+					switch (c1)
 					{
-						case ':':op->bracket.index=-1; break;
-						case '=':op->op=opLookAhead; havelookahead=1; break;
-						case '!':op->op=opNotLookAhead; havelookahead=1; break;
-						case '<':
-						{
-							i++;
+						case L':': op->bracket.index=-1; break;
+						case L'=': op->op=opLookAhead; havelookahead=1; break;
+						case L'!': op->op=opNotLookAhead; havelookahead=1; break;
 
-							if (src[i]=='=')
+						case L'<':
+						{
+							if (c2 == L'=')
 							{
-								op->op=opLookBehind;
+								++i;
+								op->op = opLookBehind;
+								break;
 							}
-							else if (src[i]=='!')
+							else if (c2 == L'!')
 							{
-								op->op=opNotLookBehind;
+								++i;
+								op->op = opNotLookBehind;
+								break;
 							}
-							else
-								throw regex_exception(errSyntax, i + (src - start));
-						} break;
+							} [[fallthrough]];
 						case L'{':
 						{
-							op->op = opNamedBracket;
-							int len = 0;
-							i++;
+							auto group_name = named_group(i);
 
-							while (src[i + len] != L'}')len++;
-
-							if (!len)
-								throw regex_exception(errIncompleteGroupStructure, i + (src - start));
-
-							const auto Name = new wchar_t[len + 1];
-							std::memcpy(Name, src + i, len * sizeof(wchar_t));
-							Name[len] = 0;
-							op->nbracket.name = Name;
+							op->op = opOpenBracket; // opNamedBracket;
 							++brcount;
 							closedbrackets.push_back(false);
-							op->nbracket.index = brcount;
-							i += len;
+							op->bracket.index = brcount;
+
+							if (!NamedGroups.emplace(group_name, brcount).second)
+								throw regex_exception(errSubpatternGroupNameMustBeUnique, (group_name.data() - src) + shift);
+
 						} break;
+
 						default:
 						{
-							throw regex_exception(errSyntax, i + (src - start));
+							throw regex_exception(errSyntax, i + shift);
 						}
 					}
 				}
@@ -1211,31 +1258,14 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 
 						break;
 					}
-					case opNamedBracket:
-					{
-						op->nbracket.pairindex = brackets[brdepth];
-						brackets[brdepth]->nbracket.pairindex = op;
-						op->bracket.index = brackets[brdepth]->bracket.index;
 
-						if (op->bracket.index != -1)
-						{
-							closedbrackets[op->bracket.index] = true;
-						}
-
-						op->nbracket.name = brackets[brdepth]->nbracket.name;
-
-						if (!NamedGroups.emplace(op->nbracket.name, op->bracket.index).second)
-							throw regex_exception(errSubpatternGroupNameMustBeUnique, i + (src - start));
-
-						break;
-					}
 					case opLookBehind:
 					case opNotLookBehind:
 					{
 						int l=CalcPatternLength(brackets[brdepth] + 1, op - 1);
 
 						if (l == -1)
-							throw regex_exception(errVariableLengthLookBehind, i + (src - start));
+							throw regex_exception(errVariableLengthLookBehind, i + shift);
 
 						brackets[brdepth]->assert.length=l;
 					}
@@ -1282,70 +1312,36 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 
 						switch (src[i])
 						{
-							case 'D':isnottype=1; [[fallthrough]];
-							case 'd':type=TYPE_DIGITCHAR; break;
-							case 'W':isnottype=1; [[fallthrough]];
-							case 'w':type=TYPE_WORDCHAR; break;
-							case 'S':isnottype=1; [[fallthrough]];
-							case 's':type=TYPE_SPACECHAR; break;
-							case 'L':isnottype=1; [[fallthrough]];
-							case 'l':type=TYPE_LOWCASE; break;
-							case 'U':isnottype=1; [[fallthrough]];
-							case 'u':type=TYPE_UPCASE; break;
-							case 'I':isnottype=1; [[fallthrough]];
-							case 'i':type=TYPE_ALPHACHAR; break;
-							case 'n':lastchar='\n'; break;
-							case 'r':lastchar='\r'; break;
-							case 't':lastchar='\t'; break;
-							case 'f':lastchar='\f'; break;
-							case 'e':lastchar=27; break;
-							case 'x':
+							case L'D':isnottype=1; [[fallthrough]];
+							case L'd':type=TYPE_DIGITCHAR; break;
+							case L'W':isnottype=1; [[fallthrough]];
+							case L'w':type=TYPE_WORDCHAR; break;
+							case L'S':isnottype=1; [[fallthrough]];
+							case L's':type=TYPE_SPACECHAR; break;
+							case L'L':isnottype=1; [[fallthrough]];
+							case L'l':type=TYPE_LOWCASE; break;
+							case L'U':isnottype=1; [[fallthrough]];
+							case L'u':type=TYPE_UPCASE; break;
+							case L'I':isnottype=1; [[fallthrough]];
+							case L'i':type=TYPE_ALPHACHAR; break;
+							case L'n':lastchar=L'\n'; break;
+							case L'r':lastchar=L'\r'; break;
+							case L't':lastchar=L'\t'; break;
+							case L'f':lastchar=L'\f'; break;
+							case L'e':lastchar=L'\x1B'; break;
+							case L'x':
 							{
-								i++;
-
-								if (i >= srclength)
-									throw regex_exception(errSyntax, i + (src - start) - 1);
-
-								if (isxdigit(src[i]))
-								{
-									int c=TOLOWER(src[i])-'0';
-
-									if (c>9)c-='a'-'0'-10;
-
-									lastchar=c;
-
-									for(int j=1,k=i;j<4 && k+j<srclength;j++)
-									{
-										if (isxdigit(src[k+j]))
-										{
-											i++;
-											c=TOLOWER(src[k+j])-'0';
-
-											if (c>9)c-='a'-'0'-10;
-
-											lastchar<<=4;
-											lastchar|=c;
-										}
-										else
-										{
-											break;
-										}
-									}
-									dpf((L"Last char=%c(%02x)\n",lastchar,lastchar));
-								}
-								else
-									throw regex_exception(errSyntax, i + (src - start));
-
+								lastchar = hex_char(i);
+								dpf((L"Last char=%c(%04x)\n", lastchar, lastchar));
 								break;
 							}
+
 							default:
 							{
-								if (options&OP_STRICT && ISALPHA(src[i]))
-								{
-									throw regex_exception(errInvalidEscape, i + (src - start) - 1);
-								}
+								if (options & OP_STRICT && ISALPHA(src[i]))
+									throw regex_exception(errInvalidEscape, i + shift - 1);
 
-								lastchar=src[i];
+								lastchar = src[i];
 							}
 						}
 
@@ -1440,7 +1436,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 										}
 									}
 									else
-										throw regex_exception(errSyntax, i + (src - start));
+										throw regex_exception(errSyntax, i + shift);
 								}
 								else
 								{
@@ -1527,7 +1523,6 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 					case '*':min=0; max=-2; break;
 					case '?':
 					{
-						//if(src[i+1]=='?') return SetError(errInvalidQuantifiersCombination,i);
 						min=0; max=1;
 						break;
 					}
@@ -1539,9 +1534,8 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						max=min;
 
 						if (min<0)
-							throw regex_exception(errInvalidRange, save + (src - start));
+							throw regex_exception(errInvalidRange, save + shift);
 
-//            i++;
 						if (src[i]==',')
 						{
 							if (src[i+1]=='}')
@@ -1554,14 +1548,13 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 								i++;
 								max=GetNum(src,i);
 
-//                i++;
 								if (max<min)
-									throw regex_exception(errInvalidRange, save + (src - start));
+									throw regex_exception(errInvalidRange, save + shift);
 							}
 						}
 
 						if (src[i] != '}')
-							throw regex_exception(errInvalidRange, save + (src - start));
+							throw regex_exception(errInvalidRange, save + shift);
 					}
 				}
 
@@ -1582,10 +1575,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 					case opWordBound:
 					case opNotWordBound:
 					{
-						throw regex_exception(errInvalidQuantifiersCombination, i + (src - start));
-//            op->range.op=op->op;
-//            op->op=opRange;
-//            continue;
+						throw regex_exception(errInvalidQuantifiersCombination, i + shift);
 					}
 					case opCharAny:
 					case opCharAnyAll:
@@ -1626,20 +1616,13 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						op->op=opBackRefRange;
 						break;
 					}
-					case opNamedBackRef:
-					{
-						op->op = opNamedRefRange;
-						break;
-					}
 					case opClosingBracket:
 					{
 						op=op->bracket.pairindex;
 
-						if (op->op != opOpenBracket && op->op != opNamedBracket)
-							throw regex_exception(errInvalidQuantifiersCombination, i + (src - start));
+						if (op->op != opOpenBracket /* && op->op != opNamedBracket */)
+							throw regex_exception(errInvalidQuantifiersCombination, i + shift);
 
-						if (op->op == opNamedBracket)
-							delete[] op->nbracket.name;
 
 						op->range.min=min;
 						op->range.max=max;
@@ -1649,7 +1632,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 					default:
 					{
 						dpf((L"op->=%d\n",op->op));
-						throw regex_exception(errInvalidQuantifiersCombination, i + (src - start));
+						throw regex_exception(errInvalidQuantifiersCombination, i + shift);
 					}
 				}//switch(code.op)
 
@@ -1773,7 +1756,7 @@ int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end
 
 static constexpr RegExpMatch DefaultMatch{ -1, -1 };
 
-bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, state_stack& StateStack) const
+bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, regex_match& RegexMatch, state_stack& StateStack) const
 {
 	int i,j;
 	int minimizing;
@@ -2064,34 +2047,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					continue;
 				}
-				case opNamedBracket:
-				{
-					if (op->bracket.index >= 0)
-					{
-						//if (inrangebracket) Mantis#1388
-						{
-							StateStackItem st;
-							st.op = opNamedBracket;
-							st.pos = op;
-							st.min = match[op->bracket.index].start;
-							st.max = match[op->bracket.index].end;
-							stack.emplace_back(st);
-						}
 
-						match[op->bracket.index].start = str - start;
-					}
-
-					if (op->bracket.nextalt)
-					{
-						StateStackItem st;
-						st.op = opAlternative;
-						st.pos = op->bracket.nextalt;
-						st.savestr = str;
-						stack.emplace_back(st);
-					}
-
-					continue;
-				}
 				case opClosingBracket:
 				{
 					switch (op->bracket.pairindex->op)
@@ -2102,18 +2058,9 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							{
 								match[op->bracket.index].end = str - start;
 							}
-
 							continue;
 						}
-						case opNamedBracket:
-						{
-							if (op->nbracket.index >= 0)
-							{
-								match[op->nbracket.index].end = str - start;
-							}
 
-							continue;
-						}
 						case opBracketRange:
 						{
 							auto st = FindStateByPos(stack, op->bracket.pairindex,opBracketRange);
@@ -2310,53 +2257,43 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					op = std::prev(op->alternative.endindex);
 					continue;
 				}
-				case opNamedBackRef:
+
 				case opBackRef:
 				{
-					if (op->op == opBackRef)
-					{
-						m = &match[op->refindex];
-					}
-					else
-					{
-						const auto Iterator = NamedGroups.find(op->refname);
-						if (Iterator == NamedGroups.cend())
-							break;
-
-						m = &match[Iterator->second];
-					}
-
-					if (m->start==-1 || m->end==-1)break;
+					m = &match[op->refindex];
+					if (m->start== - 1 || m->end == -1)
+						break;
 
 					if (ignorecase)
 					{
-						j=m->end;
-
-						for (i=m->start; i<j; i++,str++)
+						j = m->end;
+						for (i = m->start; i < j; i++, str++)
 						{
-							if (TOLOWER(start[i])!=TOLOWER(*str))break;
-
-							if (str>strend)break;
+							if (TOLOWER(start[i]) != TOLOWER(*str))
+								break;
+							if (str > strend)
+								break;
 						}
-
-						if (i<j)break;
+						if (i < j)
+							break;
 					}
 					else
 					{
-						j=m->end;
-
-						for (i=m->start; i<j; i++,str++)
+						j = m->end;
+						for (i = m->start; i < j; i++, str++)
 						{
-							if (start[i]!=*str)break;
-
-							if (str>strend)break;
+							if (start[i] != *str)
+								break;
+							if (str > strend)
+								break;
 						}
-
-						if (i<j)break;
+						if (i < j)
+							break;
 					}
 
 					continue;
 				}
+
 				case opAnyRange:
 				case opAnyMinRange:
 				{
@@ -2665,14 +2602,12 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					stack.emplace_back(st);
 					continue;
 				}
-				case opNamedRefRange:
-				case opNamedRefMinRange:
 				case opBackRefRange:
 				case opBackRefMinRange:
 				{
 					StateStackItem st;
 					st.op = op->op;
-					minimizing = op->op == opBackRefMinRange || op->op == opNamedRefMinRange;
+					minimizing = op->op == opBackRefMinRange; // || op->op == opNamedRefMinRange;
 					j=op->range.min;
 					st.max=op->range.max-j;
 					if (op->op == opBackRefRange || op->op == opBackRefMinRange)
@@ -2880,7 +2815,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					ps.savestr = str;
 					break;
 				}
-				case opNamedRefRange:
 				case opBackRefRange:
 				{
 					if (ps.op == opBackRefRange)
@@ -3071,7 +3005,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					break;
 				}
-				case opNamedRefMinRange:
 				case opBackRefMinRange:
 				{
 					if (!(ps.max--))
@@ -3191,18 +3124,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					continue;
 				}
-				case opNamedBracket:
-				{
-					j = ps.pos->nbracket.index;
 
-					if (j >= 0)
-					{
-						match[j].start = ps.min;
-						match[j].end = ps.max;
-					}
-
-					continue;
-				}
 				case opLookAhead:
 				case opLookBehind:
 				{
@@ -3328,7 +3250,6 @@ bool RegExp::Optimize()
 			case opClassMinRange:
 				minlength+=it->range.min;
 				break;
-			case opNamedBracket:
 			case opOpenBracket:
 			case opBracketRange:
 			case opBracketMinRange:
@@ -3437,7 +3358,6 @@ bool RegExp::Optimize()
 
 				break;
 			}
-			case opNamedBracket:
 			case opOpenBracket:
 			{
 				if (op->bracket.nextalt)
