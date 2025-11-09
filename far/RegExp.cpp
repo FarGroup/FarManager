@@ -107,7 +107,7 @@ static const wchar_t* ops[]=
 	L"opAlternative",
 	L"opBackRef",
 	L"opNamedBracket",
-//	L"opNamedBackRef",
+	//	L"opNamedBackRef",
 	L"opRangesBegin",
 	L"opRange",
 	L"opMinRange",
@@ -127,8 +127,8 @@ static const wchar_t* ops[]=
 	L"opBracketMinRange",
 	L"opBackRefRange",
 	L"opBackRefMinRange",
-//	L"opNamedRefRange",
-//	L"opNamedRefMinRange",
+	//	L"opNamedRefRange",
+	//	L"opNamedRefMinRange",
 	L"opRangesEnd",
 	L"opAssertionsBegin",
 	L"opLookAhead",
@@ -346,8 +346,8 @@ enum REOp
 
 	opBackRef,              // \number \-number {number|-number|name} \g{number|-number|name} \p{number|-number|name}
 
-//	opNamedBracket,         // (?{name}
-//	opNamedBackRef,         // \p{name} \g{name} \{name} -- resolved as opBackRef
+	//	opNamedBracket,         // (?{name}
+	//	opNamedBackRef,         // \p{name} \g{name} \{name} -- resolved as opBackRef
 
 	opRangesBegin,          // for op type check
 
