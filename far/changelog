@@ -1,4 +1,21 @@
 --------------------------------------------------------------------------------
+w17 2025-10-04 00:59:47+03:00 - build 6590
+
+1. RegExp: (?<name>... added, (?{name}... still works. Name starts with LETTER.
+
+2. RegExp: relative backrefs -- \-n \{-n}; {-1} === upper known group when parsing.
+
+3. RegExp: \g{name/num} added, \p{name/num} still works.
+
+4. RegExp: Any \g... modifications allowed: \gnum \g{num} \g-num \g{-num} \g{name}
+
+5. RegExp: $+{name/num} added, ${name/num) still works.
+
+6. RegExp: \x{h} .. \x{hhhh} added, \xh .. \xhhhh still works.
+
+7. RegExp: A bit code simplification.
+
+--------------------------------------------------------------------------------
 drkns 2025-11-08 19:25:50+00:00 - build 6589
 
 1. gh-1042: Show file name in local user menu title.
