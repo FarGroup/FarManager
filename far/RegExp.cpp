@@ -1098,10 +1098,12 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 
 						op->op = opBackRef;
 						op->refindex = number;
+
+						continue;
 					}
 				}
+				break;
 			}
-			continue;
 		}
 
 		switch (src[i])
