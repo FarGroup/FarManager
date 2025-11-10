@@ -999,7 +999,12 @@ protected:
 		wchar_t Buffer[KL_NAMELENGTH];
 		if (!imports.GetConsoleKeyboardLayoutNameW(Buffer))
 		{
-			LOGWARNING(L"GetConsoleKeyboardLayoutNameW(): {}"sv, os::last_error());
+			// This API is unsupported and looks like they broke it in Windows 10 entirely.
+			// Moreover, the error code is also broken (see microsoft/terminal#14479),
+			// FormatMessage does not recognize it and produces another error.
+			// All this just spams the log endlessly, so no point in even trying for now.
+
+			// LOGWARNING(L"GetConsoleKeyboardLayoutNameW(): {}"sv, os::last_error());
 			return {};
 		}
 
