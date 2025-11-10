@@ -13,9 +13,7 @@ EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.dep
 
 ifndef ENABLE_TESTS
-ifdef DEBUG
 ENABLE_TESTS = 1
-endif
 endif
 
 ifeq ($(ENABLE_TESTS),1)

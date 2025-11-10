@@ -41,7 +41,7 @@ ROOTDIR = ..
 
 !include $(ROOTDIR)\_build\vc\config\common.mak
 
-!ifdef DEBUG
+!ifndef ENABLE_TESTS
 ENABLE_TESTS=1
 !endif
 
@@ -246,7 +246,7 @@ ADDINCLUDE=/I $(BOOTSTRAPDIR)..
 CPPFLAGS = $(CPPFLAGS) $(ADDINCLUDE) /D "FAR_USE_INTERNALS"
 RFLAGS = $(RFLAGS) $(ADDINCLUDE)
 
-!ifdef ENABLE_TESTS
+!if ("$(ENABLE_TESTS)" == "1")
 CPPFLAGS = $(CPPFLAGS) /D "ENABLE_TESTS"
 !endif
 
@@ -319,7 +319,7 @@ AllDirs:
 	@echo Fixing subsystem version
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
 !endif
-!ifdef ENABLE_TESTS
+!if ("$(ENABLE_TESTS)" == "1")
 	@echo Running unit tests
 	$(OUTDIR)\Far.exe /service:test
 !endif

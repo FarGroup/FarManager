@@ -258,7 +258,9 @@ constexpr inline auto aligned_sizeof = aligned_size(sizeof(T), Alignment);
 [[nodiscard]]
 inline bool is_aligned(const void* Address, const size_t Alignment)
 {
-	return !(std::bit_cast<uintptr_t>(Address) % Alignment);
+	// Without volatile Clang may optimize the code away as otherwise it's UB
+	const volatile auto AddressValue = std::bit_cast<uintptr_t>(Address);
+	return !(AddressValue % Alignment);
 }
 
 template<typename T>

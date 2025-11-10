@@ -37,7 +37,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">
+  <ItemDefinitionGroup Condition="'$(EnableTests)'!='0' or '$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">
     <ClCompile>
       <PreprocessorDefinitions>ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
