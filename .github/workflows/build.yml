@@ -129,7 +129,7 @@ jobs:
           set far.log.level=all
           set far.log.sink=stdout
           set far.log.sink.stdout.mode=sync
-          #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
+          rem Run macrotest.lua, on failure %ERRORLEVEL% is non zero
           Far.exe -service "macro:test"
 
       - name: Build Far
