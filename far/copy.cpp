@@ -1610,7 +1610,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 					continue;
 
 				case COPY_SKIPPED_DIRECTORY:
+					// The directory was not created because it already exists in the destination, so no need to increment the counter.
 					CP->skip(0);
+					// However, for all intent and purposes, the operation was successful.
+					CopyCode = COPY_SUCCESS;
 					break;
 
 				case COPY_FILTERED:
@@ -1658,7 +1661,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 				continue;
 
 			case COPY_SKIPPED_DIRECTORY:
+				// The directory was not created because it already exists in the destination, so no need to increment the counter.
 				CP->skip(0);
+				// However, for all intent and purposes, the operation was successful.
+				CopyCode = COPY_SUCCESS;
 				break;
 			}
 		}
@@ -1789,7 +1795,10 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 						break;
 
 					case COPY_SKIPPED_DIRECTORY:
+						// The directory was not created because it already exists in the destination, so no need to increment the counter.
 						CP->skip(0);
+						// However, for all intent and purposes, the operation was successful.
+						CopyCode = COPY_SUCCESS;
 						break;
 					}
 				}
