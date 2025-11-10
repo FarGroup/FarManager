@@ -3745,7 +3745,7 @@ TEST_CASE("regex.corner.empty_needle")
 
 	for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 	{
-		re.Compile({}, Flag);
+		REQUIRE_NOTHROW(re.Compile({}, Flag));
 
 		for (const auto& i: Tests)
 		{
@@ -3787,7 +3787,7 @@ TEST_CASE("regex.corner.empty_haystack")
 
 		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 		{
-			re.Compile(i.Needle, Flag);
+			REQUIRE_NOTHROW(re.Compile(i.Needle, Flag));
 			REQUIRE(re.Match({}, Match) == MatchExpected);
 
 			if (MatchExpected)
@@ -3814,7 +3814,7 @@ TEST_CASE("regex.list.special")
 
 	for (const auto& i: Tests)
 	{
-		re.Compile(i.Regex);
+		REQUIRE_NOTHROW(re.Compile(i.Regex));
 		REQUIRE(!re.Match(i.BadMatch, Match));
 		REQUIRE(re.Match(i.GoodMatch, Match));
 		REQUIRE(Match.Matches == i.Match);
@@ -3883,8 +3883,15 @@ TEST_CASE("regex.regression")
 		{ L"([bc]+)|(zz)"sv,                       L"abc"sv,        {{ 1,  3}, { 1,  3}, {-1, -1}} },
 		{ L"(?:abc)"sv,                            L"abc"sv,        {{ 0,  3}} },
 		{ L"a(?!b)d"sv,                            L"ad"sv,         {{ 0,  2}} },
+		// https://bugs.farmanager.com/view.php?id=1388
 		{ L"(\\d+)A|(\\d+)"sv,                     L"123"sv,        {{ 0,  3}, {-1, -1}, { 0,  3}} },
+		// https://github.com/FarGroup/FarManager/issues/609
 		{ L"(8)+"sv,                               L"88"sv,         {{ 0,  2}, { 1, 2 }} },
+		// https://bugs.farmanager.com/view.php?id=3336
+		{ L"\\{(.)?\\}"sv,                         L"{}"sv,         {{ 0,  2}, {-1, -1}} },
+		{ L"(b)?b(b)?(b)?b"sv,                     L"bbb"sv,        {{ 0,  3}, { 0, 1 }, {-1, -1}, {-1, -1}} },
+		{ L"([bc]+)"sv,                            L"abc"sv,        {{ 1,  3}, { 1, 3 }} },
+		{ L"([bc]+)|(zz)"sv,                       L"abc"sv,        {{ 1,  3}, { 1, 3 }, {-1, -1}} },
 	};
 
 	RegExp re;
@@ -3896,7 +3903,7 @@ TEST_CASE("regex.regression")
 
 		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 		{
-			re.Compile(i.Regex, Flag);
+			REQUIRE_NOTHROW(re.Compile(i.Regex, Flag));
 			REQUIRE(re.Search(i.Input, Match) == MatchExpected);
 
 			if (MatchExpected)
@@ -3930,7 +3937,7 @@ TEST_CASE("regex.named_groups")
 
 		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 		{
-			re.Compile(i.Regex, Flag);
+			REQUIRE_NOTHROW(re.Compile(i.Regex, Flag));
 			REQUIRE(re.Search(i.Input, Match) == MatchExpected);
 
 			if (!MatchExpected)
@@ -3950,4 +3957,20 @@ TEST_CASE("regex.named_groups")
 		}
 	}
 }
+
+TEST_CASE("regex.ex")
+{
+	RegExp re;
+	REQUIRE_NOTHROW(re.Compile(L"."sv));
+
+	const auto Str = L"abc"sv;
+	for (const auto i: std::views::iota(uint8_t{}, Str.size()))
+	{
+		regex_match Match;
+		re.MatchEx(Str, i, Match);
+		REQUIRE(Match.Matches[0].start == i);
+		REQUIRE(Match.Matches[0].end == i + 1);
+	}
+}
+
 #endif
