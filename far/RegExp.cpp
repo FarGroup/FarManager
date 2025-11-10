@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
+#include "common/from_string.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
@@ -542,8 +543,12 @@ static string_view get_NamedGroup(string_view src, int& pos, const int shift)
 	wchar_t c;
 	do { c = get_next_char(src, pos); } while (ISSPACE(c));
 	if (!ISALPHA(c))
-		if (c && c != close_bracket) throw regex_exception(errSyntax, pos + shift);
-	   else throw regex_exception(c ? errIncompleteGroupStructure : errBrackets, start_bracket);
+	{
+		if (c && c != close_bracket)
+			throw regex_exception(errSyntax, pos + shift);
+		else
+			throw regex_exception(c? errIncompleteGroupStructure : errBrackets, start_bracket);
+	}
 
 	const auto b_pos = pos;
 	do { c = get_next_char(src, pos); } while (ISWORD(c));
@@ -1080,7 +1085,7 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 						const auto number_mode = ISDIGIT(bref[0]) || bref[0] == L'-';
 						if (number_mode)
 						{
-							number = std::stoi(std::wstring(bref));
+							number = from_string<int>(bref);
 							if (number < 0) number = brcount + 1 + number; // -1 == brcount
 							if (number <= 0 || number > brcount || !closedbrackets[number])
 								throw regex_exception(errInvalidBackRef, b_pos + shift);
