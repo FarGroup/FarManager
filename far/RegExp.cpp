@@ -344,7 +344,7 @@ enum REOp
 
 	opAlternative,          // |
 
-	opBackRef,              // \number \-number \g{number|-number|name} \p{number|-number|name}
+	opBackRef,              // \number \g{number|-number|name} \p{number|-number|name}
 
 	//opNamedBracket,       // (?{name}
 	//opNamedBackRef,       // \p{name} \g{name} -- resolved as opBackRef
@@ -556,8 +556,8 @@ static string_view get_NamedGroup(string_view src, int& pos, const int shift)
 	return src.substr(b_pos, e_pos - b_pos);
 }
 
-// \num \-num \pnum \p{num} \p-num \p{-num} \p{name} \gnum ... \g{name}
-//  ^    ^     ^     ^       ^      ^        ^        ^         ^
+// \num \pnum \p{num} \p-num \p{-num} \p{name} \gnum ... \g{name}
+//  ^    ^     ^       ^      ^        ^        ^         ^
 static string_view get_BackRef(string_view src, int& pos, const int shift)
 {
 	auto c = src[pos];
@@ -666,10 +666,10 @@ int RegExp::CalcLength(string_view src, const int shift)
 				continue;
 			}
 
-			//  \n  \-n
+			// \n
 			// \pn \p-n \p{n} \p{-n} \p{name}
 			// \gn \g-n \g{n} \g{-n} \g{name}
-			if (c && wcschr(L"pg-", c) || ISDIGIT(c))
+			if (c == L'p' || c == L'g' || ISDIGIT(c))
 			{
 				back_ref(i);
 			}
@@ -1071,7 +1071,7 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 
 				default:
 				{
-					if (c && wcschr(L"pg-", c) || ISDIGIT(c)) // \n \-n \p{n} \p{-n} \p{name} \g{n} \g{-n} \g{name}
+					if (c == L'p' || c == L'g' || ISDIGIT(c)) // \n \p{n} \p{-n} \p{name} \g{n} \g{-n} \g{name}
 					{
 						const auto bref = back_ref(i);
 						const auto b_pos = static_cast<int>(bref.data() - src);
