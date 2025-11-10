@@ -121,6 +121,17 @@ jobs:
           cl
           msbuild -m /property:Configuration=${{ matrix.build_type }} /property:Platform=${{ matrix.platform_sln }} all.sln
 
+      - name: Run macro tests
+        if: matrix.builder == 'msbuild' && matrix.platform_sln != 'ARM64'
+        working-directory: _build/vc/_output/product/${{ matrix.build_type }}.${{ matrix.platform_sln }}
+        shell: cmd
+        run: |
+          set far.log.level=all
+          set far.log.sink=stdout
+          set far.log.sink.stdout.mode=sync
+          #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
+          Far.exe -service "macro:test"
+
       - name: Build Far
         if: matrix.builder == 'nmake'
         working-directory: far
