@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+w17 2025-11-11 15:52:31+03:00 - build 6597
+
+1. Minor cleanup.
+
+--------------------------------------------------------------------------------
 drkns 2025-11-10 21:12:28+00:00 - build 6596
 
 1. Compiler warnings & minor cleanup.
@@ -6,7 +11,7 @@ drkns 2025-11-10 21:12:28+00:00 - build 6596
 --------------------------------------------------------------------------------
 w17 2025-11-10 23:52:10+03:00 - build 6595
 
-1. once Correction of 6592 \-n \{n} \{-n} \{name} backreference's is not valid
+1. again Correction of 6592 \-n \{n} \{-n} \{name} backreference's is not valid
 
 --------------------------------------------------------------------------------
 w17 2025-11-10 22:37:26+03:00 - build 6594
@@ -35,7 +40,7 @@ w17 2025-11-10 00:59:47+03:00 - build 6590
 
 1. RegExp: (?<name>... added, (?{name}... still works. Name starts with LETTER.
 
-2. RegExp: relative backrefs -- \-n \{-n}; {-1} === upper known group when parsing.
+2. RegExp: relative backrefs -- \p-1 \p{-2}  -1 === upper known group when parsing.
 
 3. RegExp: \g{name/num} added, \p{name/num} still works.
 

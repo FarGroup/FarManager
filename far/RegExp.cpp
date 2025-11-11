@@ -108,7 +108,6 @@ static const wchar_t* ops[]=
 	L"opAlternative",
 	L"opBackRef",
 	L"opNamedBracket",
-	//L"opNamedBackRef",
 	L"opRangesBegin",
 	L"opRange",
 	L"opMinRange",
@@ -128,8 +127,6 @@ static const wchar_t* ops[]=
 	L"opBracketMinRange",
 	L"opBackRefRange",
 	L"opBackRefMinRange",
-	//L"opNamedRefRange",
-	//L"opNamedRefMinRange",
 	L"opRangesEnd",
 	L"opAssertionsBegin",
 	L"opLookAhead",
@@ -345,10 +342,7 @@ enum REOp
 
 	opAlternative,          // |
 
-	opBackRef,              // \number \g{number|-number|name} \p{number|-number|name}
-
-	//opNamedBracket,       // (?{name}
-	//opNamedBackRef,       // \p{name} \g{name} -- resolved as opBackRef
+	opBackRef,              // \1 \g1 \g-1 \g{1} \g{-1) \g{group1} \p2 \p-2 \p{2} \p{-2} \p{group2}
 
 	opRangesBegin,          // for op type check
 
@@ -378,9 +372,6 @@ enum REOp
 
 	opBackRefRange,         // for backrefs
 	opBackRefMinRange,
-
-	//opNamedRefRange,
-	//opNamedRefMinRange,
 
 	opRangesEnd,            // end of ranges
 
@@ -423,7 +414,6 @@ struct REOpCode_data
 			RegExp::UniSet *symbolclass;
 			RegExp::REOpCode* nextalt;
 			int refindex;
-			const wchar_t* refname;
 			int type;
 		};
 		int min,max;
@@ -497,7 +487,7 @@ static wchar_t get_next_char(string_view src, int& pos, const int shift=0, const
 	return L'\0';
 }
 
-// \h \{h} \hh \{hh} \hhh \{hhh} \hhhh \{hhhh}
+// \xh \x{h} \xhh \x{hh} \xhhh \x{hhh} \xhhhh \x{hhhh}
 //
 static int get_HexChar(string_view src, int& pos, const int shift)
 {
@@ -1076,7 +1066,7 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 
 				default:
 				{
-					if (c == L'p' || c == L'g' || ISDIGIT(c)) // \n \p{n} \p{-n} \p{name} \g{n} \g{-n} \g{name}
+					if (c == L'p' || c == L'g' || ISDIGIT(c)) // \1 \p1 \p-1 \p{1} \p{-1} \p{g1} \g2 ... \g{g2}
 					{
 						const auto bref = back_ref(i);
 						const auto b_pos = static_cast<int>(bref.data() - src);
@@ -1312,7 +1302,6 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 				int lastchar=-1;
 				int classsize=0;
 				op->op=opSymbolClass;
-				//op->symbolclass=new wchar_t[32]();
 				op->symbolclass=new UniSet();
 				tmpclass=op->symbolclass;
 
@@ -1372,26 +1361,6 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 								tmpclass->types|=type;
 							}
 							classsize=257;
-							//for(int j=0;j<32;j++)op->symbolclass[j]|=charbits[classindex+j]^isnottype;
-							//classsize+=charsizes[classindex>>5];
-							//int setbit;
-							/*for(int j=0;j<256;j++)
-							{
-								setbit=(chartypes[j]^isnottype)&type;
-								if(setbit)
-								{
-									if(ignorecase)
-									{
-										SetBit(op->symbolclass,lc[j]);
-										SetBit(op->symbolclass,uc[j]);
-									}
-									else
-									{
-										SetBit(op->symbolclass,j);
-									}
-									classsize++;
-								}
-							}*/
 						}
 						else
 						{
@@ -1502,7 +1471,6 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 				if (negative && classsize>1)
 				{
 					tmpclass->negative=negative;
-					//for(int j=0;j<32;j++)op->symbolclass[j]^=0xff;
 				}
 
 				if (classsize==1)
@@ -1705,7 +1673,6 @@ void RegExp::InnerCompile(const wchar_t* src, const int srclength, const int shi
 	op->srcpos=i;
 #endif
 	op = &code[pos];
-	//pos++;
 	op->op=opRegExpEnd;
 #ifdef RE_DEBUG
 	op->srcpos=i+1;
@@ -2180,7 +2147,6 @@ bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t*
 
 							if (st.min)
 							{
-								//st.min--;
 								st.max--;
 								st.startstr=str;
 								st.savestr=str;
@@ -2623,21 +2589,10 @@ bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t*
 				{
 					StateStackItem st;
 					st.op = op->op;
-					minimizing = op->op == opBackRefMinRange; // || op->op == opNamedRefMinRange;
+					minimizing = op->op == opBackRefMinRange;
 					j=op->range.min;
 					st.max=op->range.max-j;
-					if (op->op == opBackRefRange || op->op == opBackRefMinRange)
-					{
-						m = &match[op->range.refindex];
-					}
-					else
-					{
-						const auto Iterator = NamedGroups.find(op->range.refname);
-						if (Iterator == NamedGroups.cend())
-							break;
-
-						m = &match[Iterator->second];
-					}
+					m = &match[op->range.refindex];
 
 					if (m->start==-1 || m->end==-1)
 					{
@@ -2833,18 +2788,7 @@ bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t*
 				}
 				case opBackRefRange:
 				{
-					if (ps.op == opBackRefRange)
-					{
-						m = &match[ps.pos->range.refindex];
-					}
-					else
-					{
-						const auto Iterator = NamedGroups.find(ps.pos->range.refname);
-						if (Iterator == NamedGroups.cend())
-							break;
-
-						m = &match[Iterator->second];
-					}
+					m = &match[ps.pos->range.refindex];
 					str = ps.savestr-(m->end-m->start);
 					op = ps.pos;
 
@@ -3028,18 +2972,7 @@ bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t*
 
 					str = ps.savestr;
 					op = ps.pos;
-					if (ps.op == opBackRefMinRange)
-					{
-						m = &match[op->range.refindex];
-					}
-					else
-					{
-						const auto Iterator = NamedGroups.find(op->range.refname);
-						if (Iterator == NamedGroups.cend())
-							break;
-
-						m = &match[Iterator->second];
-					}
+					m = &match[op->range.refindex];
 
 					if (str+m->end-m->start<strend && StrCmp(str,start+m->start,start+m->end))
 					{
@@ -3606,43 +3539,36 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 		case opSymbol:
 		{
 			while (strend>=start && *strend!=op->symbol)strend--;
-
 			break;
 		}
 		case opNotSymbol:
 		{
 			while (strend>=start && *strend==op->symbol)strend--;
-
 			break;
 		}
 		case opSymbolIgnoreCase:
 		{
 			while (strend>=start && TOLOWER(*strend)!=op->symbol)strend--;
-
 			break;
 		}
 		case opNotSymbolIgnoreCase:
 		{
 			while (strend>=start && TOLOWER(*strend)==op->symbol)strend--;
-
 			break;
 		}
 		case opType:
 		{
 			while (strend>=start && !isType(*strend,op->type))strend--;
-
 			break;
 		}
 		case opNotType:
 		{
 			while (strend>=start && isType(*strend,op->type))strend--;
-
 			break;
 		}
 		case opSymbolClass:
 		{
 			while (strend>=start && !op->symbolclass->GetBit(*strend))strend--;
-
 			break;
 		}
 		case opSymbolRange:
@@ -3658,7 +3584,6 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 			{
 				while (strend>=start && *strend!=op->range.symbol)strend--;
 			}
-
 			break;
 		}
 		case opNotSymbolRange:
@@ -3674,8 +3599,7 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 			{
 				while (strend>=start && *strend==op->range.symbol)strend--;
 			}
-
-			break;
+		break;
 		}
 		case opTypeRange:
 		case opTypeMinRange:
@@ -3683,7 +3607,6 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 			if (!op->range.min)break;
 
 			while (strend>=start && !isType(*strend,op->range.type))strend--;
-
 			break;
 		}
 		case opNotTypeRange:
@@ -3692,7 +3615,6 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 			if (!op->range.min)break;
 
 			while (strend>=start && isType(*strend,op->range.type))strend--;
-
 			break;
 		}
 		case opClassRange:
@@ -3701,7 +3623,6 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 			if (!op->range.min)break;
 
 			while (strend>=start && !op->range.symbolclass->GetBit(*strend))strend--;
-
 			break;
 		}
 		default:break;
