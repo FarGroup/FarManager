@@ -16,6 +16,9 @@ Macro {
 }
 --]]
 
+-- The keys that invoke the whole macrotest from a macro. Some tests depend on that.
+local MacroKey1, MacroKey2 = "CtrlShiftF12", "RCtrlShiftF12"
+
 local AF = "my assertion failed"
 local function assert_eq(a,b,m)    assert(a == b, m or AF)               return true; end
 local function assert_neq(a,b,m)   assert(a ~= b, m or AF)               return true; end
@@ -51,10 +54,6 @@ local function pack (...)
   return { n=select("#",...), ... }
 end
 
-local function IsNumOrInt(v)
-  return type(v)=="number" or bit64.type(v)
-end
-
 local TmpFileName = win.JoinPath(assert(win.GetEnv"tmp" or win.GetEnv"temp"), "tmp.tmp")
 
 local function WriteTmpFile(...)
@@ -67,33 +66,35 @@ local function DeleteTmpFile()
   win.DeleteFile(TmpFileName)
 end
 
-local function TestArea (area, msg)
-  assert(Area[area]==true and Area.Current==area, msg or "assertion failed!")
+local function TestArea (area, k_before, k_after)
+  if k_before then Keys(k_before) end
+  assert(Area[area]==true and Area.Current==area)
+  if k_after then Keys(k_after) end
 end
 
 function MT.test_areas()
-  Keys "AltIns"              TestArea "Grabber"    Keys "Esc"
-  Keys "F12 0"               TestArea "Desktop"    Keys "F12 1"
-  Keys "ShiftF4 CtrlY Enter" TestArea "Editor"     Keys "Esc"
-  Keys "F7"                  TestArea "Dialog"     Keys "Esc"
-  Keys "Alt?"                TestArea "Search"     Keys "Esc"
-  Keys "AltF1"               TestArea "Disks"      Keys "Esc"
-  Keys "AltF2"               TestArea "Disks"      Keys "Esc"
-  Keys "F9"                  TestArea "MainMenu"   Keys "Esc"
-  Keys "F9 Enter"            TestArea "MainMenu"   Keys "Esc Esc"
-  Keys "F12"                 TestArea "Menu"       Keys "Esc"
-  Keys "F1"                  TestArea "Help"       Keys "Esc"
-  Keys "CtrlL Tab"           TestArea "Info"       Keys "Tab CtrlL"
-  Keys "CtrlQ Tab"           TestArea "QView"      Keys "Tab CtrlQ"
+  TestArea ("Shell")
+  TestArea ("Grabber",    "AltIns",     "Esc")
+  TestArea ("Desktop",    "F12 0",      "F12 1")
+  TestArea ("Editor",     "ShiftF4 CtrlY Enter", "Esc")
+  TestArea ("Dialog",     "F7",         "Esc")
+  TestArea ("Search",     "Alt?",       "Esc")
+  TestArea ("Disks",      "AltF1",      "Esc")
+  TestArea ("Disks",      "AltF2",      "Esc")
+  TestArea ("MainMenu",   "F9",         "Esc")
+  TestArea ("MainMenu",   "F9 Enter",   "Esc Esc")
+  TestArea ("Menu",       "F12",        "Esc")
+  TestArea ("Help",       "F1",         "Esc")
+  TestArea ("Info",       "CtrlL Tab",  "Tab CtrlL")
+  TestArea ("QView",      "CtrlQ Tab",  "Tab CtrlQ")
   if Far.GetConfig("Panel.Tree.TurnOffCompletely") ~= true then
-    Keys "CtrlT Tab"         TestArea "Tree"       Keys "Tab CtrlT"
-    Keys "AltF10"            TestArea "FindFolder" Keys "Esc"
+    TestArea ("Tree",       "CtrlT Tab",  "Tab CtrlT")
+    TestArea ("FindFolder", "AltF10",     "Esc")
   end
-  Keys "F2"                  TestArea "UserMenu"   Keys "Esc"
+  TestArea ("UserMenu",   "F2",         "Esc")
 
-  assert_eq    (Area.Current, "Shell")
+  TestArea("Shell")
   assert_false (Area.Other)
-  assert_true  (Area.Shell)
   assert_false (Area.Viewer)
   assert_false (Area.Editor)
   assert_false (Area.Dialog)
@@ -115,9 +116,9 @@ end
 
 local function test_mf_akey()
   assert_eq(akey, mf.akey)
-  local k0,k1 = akey(0),akey(1)
-  assert(k0==0x0501007B and k1=="CtrlShiftF12" or
-         k0==0x1401007B and k1=="RCtrlShiftF12")
+  local key,name = akey(0),akey(1)
+  assert(key==0x0501007B and name==MacroKey1 or
+         key==0x1401007B and name==MacroKey2)
   -- (the 2nd parameter is tested in function test_mf_eval).
 end
 
@@ -182,6 +183,9 @@ local function test_mf_eval()
   -- test macro-not-found error
   assert_eq (eval("", 2), -2)
 
+  -- We will modify the global 'temp'. Let it be restored when the macro terminates.
+  -- luacheck: globals temp
+  mf.AddExitHandler(function(v) temp=v; end, temp)
   temp=3
   assert_eq (eval("temp=5+7"), 0)
   assert_eq (temp, 12)
@@ -202,13 +206,14 @@ local function test_mf_eval()
   assert_eq (eval("5 7",1,"moonscript"), 11)
 
   -- test with Mode==2
-  local Id = assert_udata(far.MacroAdd(nil,nil,"CtrlA",[[
+  local code = ([[
     local key = akey(1,0)
-    assert(key=="CtrlShiftF12" or key=="RCtrlShiftF12")
+    assert(key=="%s" or key=="%s")
     assert(akey(1,1)=="CtrlA")
     foobar = (foobar or 0) + 1
     return foobar,false,5,nil,"foo"
-  ]]))
+  ]]):format(MacroKey1, MacroKey2)
+  local Id = assert_udata(far.MacroAdd(nil,nil,"CtrlA",code))
   for k=1,3 do
     local ret1,a,b,c,d,e = eval("CtrlA",2)
     assert_true(ret1==0 and a==k and b==false and c==5 and d==nil and e=="foo")
@@ -226,7 +231,7 @@ local function test_mf_acall()
   local a,b,c,d = mf.acall(function(p) return 3, nil, p, "foo" end, 77)
   assert_true (a==3 and b==nil and c==77 and d=="foo")
   assert_true (mf.acall(far.Show))
-  Keys"Esc"
+  TestArea("Menu",nil,"Esc")
 end
 
 local function test_mf_asc()
@@ -235,14 +240,20 @@ local function test_mf_asc()
 end
 
 local function test_mf_atoi()
-  assert_eq (mf.atoi("0"), 0)
-  assert_eq (mf.atoi("-10"), -10)
-  assert_eq (mf.atoi("0x11"), 17)
-  assert_eq (mf.atoi("1011",2), 11)
-  assert_eq (mf.atoi("123456789123456789"),  bit64.new("123456789123456789"))
-  assert_eq (mf.atoi("-123456789123456789"), bit64.new("-123456789123456789"))
-  assert_eq (mf.atoi("0x1B69B4BACD05F15"),   bit64.new("0x1B69B4BACD05F15"))
-  assert_eq (mf.atoi("-0x1B69B4BACD05F15"),  bit64.new("-0x1B69B4BACD05F15"))
+  local function check(str, base)
+    assert_eq(mf.atoi(str,base), tonumber(str,base))
+  end
+
+  for _,v in ipairs { "0", "-10", "0x11" } do check(v) end
+
+  check("1011",  2)
+  check("1234",  5)
+  check("-1234", 5)
+
+  for _,v in ipairs { "123456789123456789", "-123456789123456789",
+                      "0x1B69B4BACD05F15", "-0x1B69B4BACD05F15" } do
+    assert_eq(mf.atoi(v), bit64.new(v))
+  end
 end
 
 local function test_mf_chr()
@@ -310,17 +321,17 @@ end
 
 local function test_mf_msgbox()
   assert_eq (msgbox, mf.msgbox)
-  mf.postmacro(function() Keys("Esc") end)
+  mf.postmacro(Keys, "Esc")
   assert_eq (0, msgbox("title","message"))
-  mf.postmacro(function() Keys("Enter") end)
+  mf.postmacro(Keys, "Enter")
   assert_eq (1, msgbox("title","message"))
 end
 
 local function test_mf_prompt()
   assert_eq (prompt, mf.prompt)
-  mf.postmacro(function() Keys("a b c Esc") end)
+  mf.postmacro(Keys, "a b c Esc")
   assert_false (prompt())
-  mf.postmacro(function() Keys("a b c Enter") end)
+  mf.postmacro(Keys, "a b c Enter")
   assert_eq ("abc", prompt())
 end
 
@@ -642,7 +653,7 @@ local function test_mf_exit()
       local function f() N=50; exit(); end
       f(); N=100
     end)
-  mf.postmacro(function() Keys"Esc" end)
+  mf.postmacro(Keys, "Esc")
   far.Message("dummy")
   assert_eq (N, 50)
 end
@@ -1229,31 +1240,32 @@ MT.test_APanel = function() test_XPanel(APanel) end
 MT.test_PPanel = function() test_XPanel(PPanel) end
 
 local function test_Panel_Item()
-  for pt=0,1 do
-    assert_str (Panel.Item(pt,0,0))
-    assert_str (Panel.Item(pt,0,1))
-    assert_num (Panel.Item(pt,0,2))
-    assert_str (Panel.Item(pt,0,3))
-    assert_str (Panel.Item(pt,0,4))
-    assert_str (Panel.Item(pt,0,5))
-    assert(IsNumOrInt(Panel.Item(pt,0,6)))
-    assert(IsNumOrInt(Panel.Item(pt,0,7)))
-    assert_bool (Panel.Item(pt,0,8))
-    assert_num (Panel.Item(pt,0,9))
-    assert_num (Panel.Item(pt,0,10))
-    assert_str (Panel.Item(pt,0,11))
-    assert_str (Panel.Item(pt,0,12))
-    assert_num (Panel.Item(pt,0,13))
-    assert_num (Panel.Item(pt,0,14))
-    assert(IsNumOrInt(Panel.Item(pt,0,15)))
-    assert(IsNumOrInt(Panel.Item(pt,0,16)))
-    assert(IsNumOrInt(Panel.Item(pt,0,17)))
-    assert_num (Panel.Item(pt,0,18))
-    assert(IsNumOrInt(Panel.Item(pt,0,19)))
-    assert_str (Panel.Item(pt,0,20))
-    assert(IsNumOrInt(Panel.Item(pt,0,21)))
-    assert(not pcall(Panel.Item,pt,0,22))
-    assert_num (Panel.Item(pt,0,23))
+  local index = 0 -- 0 is the current element, otherwise element index
+  for pan=0,1 do
+    assert_str    (Panel.Item(pan,index,0))  -- file name
+    assert_str    (Panel.Item(pan,index,1))  -- short file name
+    assert_num    (Panel.Item(pan,index,2))  -- file attributes
+    assert_str    (Panel.Item(pan,index,3))  -- creation time
+    assert_str    (Panel.Item(pan,index,4))  -- last access time
+    assert_str    (Panel.Item(pan,index,5))  -- modification time
+    assert_numint (Panel.Item(pan,index,6))  -- size
+    assert_numint (Panel.Item(pan,index,7))  -- packed size
+    assert_bool   (Panel.Item(pan,index,8))  -- selected
+    assert_num    (Panel.Item(pan,index,9))  -- number of links
+    assert_num    (Panel.Item(pan,index,10)) -- sort group
+    assert_str    (Panel.Item(pan,index,11)) -- diz text
+    assert_str    (Panel.Item(pan,index,12)) -- owner
+    assert_num    (Panel.Item(pan,index,13)) -- crc32
+    assert_num    (Panel.Item(pan,index,14)) -- position when read from the file system
+    assert_numint (Panel.Item(pan,index,15)) -- creation time
+    assert_numint (Panel.Item(pan,index,16)) -- last access time
+    assert_numint (Panel.Item(pan,index,17)) -- modification time
+    assert_num    (Panel.Item(pan,index,18)) -- number of streams
+    assert_numint (Panel.Item(pan,index,19)) -- size of streams
+    assert_str    (Panel.Item(pan,index,20)) -- change time
+    assert_numint (Panel.Item(pan,index,21)) -- change time
+    assert_false(pcall(Panel.Item,pan,index,22))
+    assert_num    (Panel.Item(pan,index,23))
   end
 end
 
@@ -2532,8 +2544,8 @@ function MT.test_Editor()
 end
 
 function MT.test_all()
-  TestArea("Shell", "Run these tests from the Shell area.")
-  assert(not APanel.Plugin and not PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
+  assert_true(Area.Shell, "Run these tests from the Shell area.")
+  assert_false(APanel.Plugin or PPanel.Plugin, "Run these tests when neither of panels is a plugin panel.")
 
   MT.test_areas()
   MT.test_mf()
