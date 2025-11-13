@@ -1,3 +1,7 @@
+shmuel 2025-11-13 20:17:29+02:00 - build 904
+
+1. Adapt to the change in binary string representation made in build 898.
+
 shmuel 2025-11-09 08:37:33+02:00 - build 903
 
 1. Fix incorrect error message (since build 881).
