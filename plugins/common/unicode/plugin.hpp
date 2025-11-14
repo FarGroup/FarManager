@@ -1,4 +1,4 @@
-// validator: no-bom
+﻿// validator: no-bom
 #ifndef PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #define PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #pragma once
@@ -1392,6 +1392,7 @@ enum FARMACROVARTYPE
 	FMVT_STACKGETTOP            = 18,
 	FMVT_STACKSETTOP            = 19,
 	FMVT_STACKPUSHVALUE         = 20,
+	FMVT_NEXT                   = 21,
 };
 
 struct FarMacroValue
