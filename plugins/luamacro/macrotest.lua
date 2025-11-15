@@ -47,7 +47,8 @@ end
 local MT = {} -- "macrotest", this module
 local F = far.Flags
 local band, bor, bnot = bit64.band, bit64.bor, bit64.bnot
-local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
+local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d"
+local hlfviewerId = "1AF0754D-5020-49CB-9474-1F82691C84C1"
 local TKEY_BINARY = "__binary"
 
 local function pack (...)
@@ -246,9 +247,9 @@ local function test_mf_atoi()
 
   for _,v in ipairs { "0", "-10", "0x11" } do check(v) end
 
-  check("1011",  2)
-  check("1234",  5)
-  check("-1234", 5)
+  check("1011", 2)
+  check("1234", 5)
+  assert_eq(mf.atoi(-1234, 5), -194)
 
   for _,v in ipairs { "123456789123456789", "-123456789123456789",
                       "0x1B69B4BACD05F15", "-0x1B69B4BACD05F15" } do
@@ -1419,18 +1420,44 @@ function MT.test_Dlg()
 
   assert_eq(Dlg.GetValue(0,0), Dlg.ItemCount)
   Keys"Esc"
+
+  Keys"F10"
+  assert_true(Area.Dialog)
+  assert_str(Dlg.Id)
+  assert_eq(Dlg.Id, far.Guids.FarAskQuitId)
+  Keys"Esc"
 end
 
 function MT.test_Plugin()
+  -- Plugin.Menu
   assert_false(Plugin.Menu())
+  assert_true(Plugin.Menu(luamacroId, "EF6D67A2-59F7-4DF3-952E-F9049877B492")) -- call macrobrowser
+  assert_true(Area.Menu)
+  assert_eq(Menu.Id, "03DEFB28-8734-4EC0-8B25-C879846F0BE5")
+  Keys("Esc")
+  assert_true(Area.Shell)
+
+  -- Plugin.Config
   assert_false(Plugin.Config())
+  if Plugin.Exist(hlfviewerId) then
+    assert_true(Plugin.Config(hlfviewerId))
+    TestArea("Dialog", nil, "Esc")
+    assert_true(Area.Shell)
+  end
+
+  -- Plugin.Command
   assert_false(Plugin.Command())
   assert_true(Plugin.Command(luamacroId))
+  assert_true(Plugin.Command(luamacroId, "luas:=5,6,7"))
+  TestArea("Menu", nil, "Esc")
+  assert_true(Area.Shell)
 
+  -- Plugin.Exist
   assert_true(Plugin.Exist(luamacroId))
   assert_false(Plugin.Exist(luamacroId:gsub("^...","000")))
 
-  local function test (func, N) -- Plugin.Call, Plugin.SyncCall: test arguments and returns
+  -- Plugin.Call, Plugin.SyncCall
+  local function test (func, N) -- test arguments and return
     local i1 = bit64.new("0x8765876587658765")
     local a1,a2,a3,a4,a5 = "foo", i1, -2.34, false, {[TKEY_BINARY]="foo\0bar"}
     local r1,r2,r3,r4,r5 = func(luamacroId, "argtest", a1,a2,a3,a4,a5)
