@@ -573,9 +573,10 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			const auto have_hotkey = !strHotKey.empty();
-			const auto Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
+			const auto Offset = have_hotkey && strHotKey.front() == L'&'? 5uz : 4uz;
 			const auto VisualSize = visual_string_length(strHotKey);
-			strHotKey.append(Offset - VisualSize, L' ');
+			if (Offset > VisualSize)
+				strHotKey.append(Offset - VisualSize, L' ');
 			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
