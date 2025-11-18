@@ -672,21 +672,6 @@ TEST_CASE("expected")
 
 TEST_CASE("from_string")
 {
-	{
-		size_t Pos = 0;
-		REQUIRE(from_string<int>(L"0x42qqq"sv, &Pos, 16) == 66);
-		REQUIRE(Pos == 4u);
-	}
-
-	REQUIRE(from_string<int>(L"-1"sv) == -1);
-	REQUIRE(from_string<int32_t>(L"-2147483648"sv) == std::numeric_limits<int32_t>::min());
-	REQUIRE(from_string<int32_t>(L"2147483647"sv) == std::numeric_limits<int32_t>::max());
-	REQUIRE(from_string<uint32_t>(L"4294967295"sv) == std::numeric_limits<uint32_t>::max());
-	REQUIRE(from_string<int64_t>(L"-9223372036854775808"sv) == std::numeric_limits<int64_t>::min());
-	REQUIRE(from_string<int64_t>(L"9223372036854775807"sv) == std::numeric_limits<int64_t>::max());
-	REQUIRE(from_string<uint64_t>(L"18446744073709551615"sv) == std::numeric_limits<uint64_t>::max());
-	REQUIRE(from_string<double>(L"0.03125"sv) == 0.03125);
-
 	const auto make_matcher = [](string_view const Message)
 	{
 		return generic_exception_matcher{[Message](std::any const& e)
@@ -695,20 +680,61 @@ TEST_CASE("from_string")
 		}};
 	};
 
-	const auto
-		InvalidArgumentMatcher = make_matcher(L"invalid from_string argument"sv),
-		OutOfRangeMatcher = make_matcher(L"from_string argument is out of range"sv);
+	static const struct integral_ranges
+	{
+		string_view
+			min,
+			max,
+			underflow,
+			overflow;
+	}
+	IntegralRanges[]
+	{
+		{ L"-128"sv,                 L"127"sv,                  L"-129"sv,                 L"128"sv },
+		{ L"0"sv,                    L"255"sv,                  L"-1"sv,                   L"256"sv },
+		{ L"-32768"sv,               L"32767"sv,                L"-32769"sv,               L"32768"sv },
+		{ L"0"sv,                    L"65535"sv,                L"-1"sv,                   L"65536"sv },
+		{ L"-2147483648"sv,          L"2147483647"sv,           L"-2147483649"sv,          L"2147483648"sv },
+		{ L"0"sv,                    L"4294967295"sv,           L"-1"sv,                   L"4294967296"sv },
+		{ L"-9223372036854775808"sv, L"9223372036854775807"sv,  L"-9223372036854775809"sv, L"9223372036854775808"sv },
+		{ L"0"sv,                    L"18446744073709551615"sv, L"-1"sv,                   L"18446744073709551616"sv },
+	};
 
-	REQUIRE_THROWS_MATCHES(from_string<uint64_t>(L"18446744073709551616"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int64_t>(L"-9223372036854775809"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int64_t>(L"9223372036854775808"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<uint32_t>(L"4294967296"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int32_t>(L"-2147483649"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int32_t>(L"2147483648"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<uint16_t>(L"65536"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int16_t>(L"-32769"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<int16_t>(L"32768"sv), far_exception, OutOfRangeMatcher);
-	REQUIRE_THROWS_MATCHES(from_string<unsigned int>(L"-42"sv), far_exception, OutOfRangeMatcher);
+	const auto OutOfRangeMatcher = make_matcher(L"from_string argument is out of range"sv);
+
+	const auto test_range = [&]<std::integral I>(I)
+	{
+		const auto Index = static_cast<size_t>(std::log2(sizeof(I))) * 2 + (std::is_signed_v<I>? 0 : 1);
+		const auto& Ranges = IntegralRanges[Index];
+
+		REQUIRE(from_string<I>(Ranges.min) == std::numeric_limits<I>::min());
+		REQUIRE(from_string<I>(Ranges.max) == std::numeric_limits<I>::max());
+
+		REQUIRE_THROWS_MATCHES(from_string<I>(Ranges.underflow), far_exception, OutOfRangeMatcher);
+		REQUIRE_THROWS_MATCHES(from_string<I>(Ranges.overflow), far_exception, OutOfRangeMatcher);
+	};
+
+	test_range(int8_t{});
+	test_range(uint8_t{});
+	test_range(int16_t{});
+	test_range(uint16_t{});
+	test_range(int32_t{});
+	test_range(uint32_t{});
+	test_range(int64_t{});
+	test_range(uint64_t{});
+
+	{
+		size_t Pos = 0;
+		REQUIRE(from_string<int>(L"0x42qqq"sv, &Pos, 16) == 66);
+		REQUIRE(Pos == 4u);
+	}
+
+	REQUIRE(from_string<int>(L"-1"sv) == -1);
+	REQUIRE(from_string<double>(L"0.03125"sv) == 0.03125);
+
+
+	const auto InvalidArgumentMatcher = make_matcher(L"invalid from_string argument"sv);
+
 	REQUIRE_THROWS_MATCHES(from_string<int>(L"fubar"sv), far_exception, InvalidArgumentMatcher);
 	REQUIRE_THROWS_MATCHES(from_string<int>({}), far_exception, InvalidArgumentMatcher);
 	REQUIRE_THROWS_MATCHES(from_string<int>(L" 42"sv), far_exception, InvalidArgumentMatcher);
@@ -793,6 +819,14 @@ TEST_CASE("function_traits")
 	}
 
 	{
+		using function_ptr = void(*)();
+		function_ptr const Function = {};
+		using t = function_traits<decltype(Function)>;
+		STATIC_REQUIRE(t::arity == 0);
+		STATIC_REQUIRE(std::same_as<t::result_type, void>);
+	}
+
+	{
 		using t = function_traits<char(short, int, long)>;
 		STATIC_REQUIRE(t::arity == 3);
 		STATIC_REQUIRE(std::same_as<t::arg<0>, short>);
@@ -804,6 +838,16 @@ TEST_CASE("function_traits")
 	{
 		struct s { double f(bool) const { return 0; } };
 		using t = function_traits<decltype(&s::f)>;
+		STATIC_REQUIRE(t::arity == 1);
+		STATIC_REQUIRE(std::same_as<t::arg<0>, bool>);
+		STATIC_REQUIRE(std::same_as<t::result_type, double>);
+	}
+
+	{
+		struct s { double f(bool) const { return 0; } };
+		using function_ptr = decltype(&s::f);
+		function_ptr const Function = {};
+		using t = function_traits<decltype(Function)>;
 		STATIC_REQUIRE(t::arity == 1);
 		STATIC_REQUIRE(std::same_as<t::arg<0>, bool>);
 		STATIC_REQUIRE(std::same_as<t::result_type, double>);

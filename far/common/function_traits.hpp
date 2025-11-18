@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <tuple>
+#include <type_traits>
 
 //----------------------------------------------------------------------------
 
@@ -49,24 +50,53 @@ namespace detail
 		template<size_t i>
 		using arg = std::tuple_element_t<i, std::tuple<args...>>;
 	};
+
+	template<typename T>
+	struct member_function_traits_helper;
+
+	template<typename result, typename object, typename... args>
+	struct member_function_traits_helper<result(object::*)(args...)>: function_traits_impl<result, object, args...> {};
+
+	template<typename result, typename object, typename... args>
+	struct member_function_traits_helper<result(object::*)(args...) const>: function_traits_impl<result, object, args...> {};
 }
 
+template<typename T, typename = void>
+struct function_traits
+{
+	static_assert(sizeof(T) == 0, "unsupported type");
+};
+
 template<typename object>
-struct function_traits: function_traits<decltype(&object::operator())> {};
+struct function_traits<object, std::void_t<decltype(&object::operator())>>: function_traits<decltype(&object::operator())> {};
 
 template<typename result, typename... args>
-struct function_traits<result(args...)>: ::detail::function_traits_impl<result, void, args...> {};
+struct function_traits<result(args...), void>: detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename... args>
-struct function_traits<result(*)(args...)>: ::detail::function_traits_impl<result, void, args...> {};
+struct function_traits<result(*)(args...), void>: detail::function_traits_impl<result, void, args...> {};
 
-template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...)>: ::detail::function_traits_impl<result, object, args...> {};
+template<typename T>
+struct function_traits<
+	T,
+	std::enable_if_t<
+		std::is_pointer_v<T> &&
+		std::is_function_v<std::remove_pointer_t<std::remove_cv_t<T>>> &&
+		!std::is_same_v<T, std::remove_cv_t<T>>
+	>
+>: function_traits<std::remove_cv_t<T>>
+{
+};
 
-template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...) const>: ::detail::function_traits_impl<result, object, args...> {};
+template<typename T>
+struct function_traits<
+	T,
+	std::enable_if_t<std::is_member_function_pointer_v<std::remove_cv_t<T>>>
+>: detail::member_function_traits_helper<std::remove_cv_t<T>>
+{
+};
 
-
-#define FN_RETURN_TYPE(...) std::decay_t<function_traits<decltype(&__VA_ARGS__)>::result_type>
+template<auto F>
+using fn_return_type = std::decay_t<typename function_traits<decltype(F)>::result_type>;
 
 #endif // FUNCTION_TRAITS_HPP_071DD1DD_F933_40DC_A662_CB85F7BE7F00

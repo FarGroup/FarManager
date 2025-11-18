@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 #include "expected.hpp"
+#include "function_traits.hpp"
 #include "string_utils.hpp"
 
 #include <system_error>
@@ -84,58 +85,40 @@ namespace detail
 		return {};
 	}
 
-	inline auto from_string(std::wstring_view const Str, long& Value, size_t* const Pos, int const Base)
+	template<std::integral T>
+	auto get_converter()
 	{
-		return from_string(Str, Value, Pos, Base, std::wcstol);
+		if constexpr (sizeof(T) > sizeof(long))
+		{
+			if constexpr (std::is_signed_v<T>)
+				return &std::wcstoll;
+			else
+				return &std::wcstoull;
+		}
+		else
+		{
+			if constexpr (std::is_signed_v<T>)
+				return &std::wcstol;
+			else
+				return &std::wcstoul;
+		}
 	}
 
-	inline auto from_string(std::wstring_view const Str, unsigned long& Value, size_t* const Pos, int const Base)
+	template<std::integral I>
+	auto from_string(std::wstring_view const Str, I& Value, size_t* const Pos, int const Base)
 	{
-		return from_string(Str, Value, Pos, Base, std::wcstoul);
-	}
+		const auto Converter = get_converter<I>();
 
-	inline auto from_string(std::wstring_view const Str, long long& Value, size_t* const Pos, int const Base)
-	{
-		return from_string(Str, Value, Pos, Base, std::wcstoll);
-	}
+		typename function_traits<decltype(Converter)>::result_type LongValue;
 
-	inline auto from_string(std::wstring_view const Str, unsigned long long& Value, size_t* const Pos, int const Base)
-	{
-		return from_string(Str, Value, Pos, Base, std::wcstoull);
-	}
-
-	template<typename L, typename S>
-	auto from_string_long(std::wstring_view const Str, S& Value, size_t* const Pos, int const Base)
-	{
-		L LongValue;
-		if (const auto Result = from_string(Str, LongValue, Pos, Base); Result != std::errc{})
+		if (const auto Result = from_string(Str, LongValue, Pos, Base, Converter); Result != std::errc{})
 			return Result;
 
-		if (!std::in_range<S>(LongValue))
+		if (!std::in_range<I>(LongValue))
 			return std::errc::result_out_of_range;
 
-		Value = static_cast<S>(LongValue);
+		Value = static_cast<I>(LongValue);
 		return std::errc{};
-	}
-
-	inline auto from_string(std::wstring_view const Str, int& Value, size_t* const Pos, int const Base)
-	{
-		return from_string_long<long>(Str, Value, Pos, Base);
-	}
-
-	inline auto from_string(std::wstring_view const Str, unsigned int& Value, size_t* const Pos, int const Base)
-	{
-		return from_string_long<unsigned long>(Str, Value, Pos, Base);
-	}
-
-	inline auto from_string(std::wstring_view const Str, short& Value, size_t* const Pos, int const Base)
-	{
-		return from_string_long<long>(Str, Value, Pos, Base);
-	}
-
-	inline auto from_string(std::wstring_view const Str, unsigned short& Value, size_t* const Pos, int const Base)
-	{
-		return from_string_long<unsigned long>(Str, Value, Pos, Base);
 	}
 
 	inline auto from_string(std::wstring_view const Str, double& Value, size_t* const Pos, int const Base)
