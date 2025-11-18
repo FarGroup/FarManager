@@ -2317,6 +2317,32 @@ mtime=3605129666
 </article>
 </node>
 <node>
+id=598
+lv=3
+dt=Text
+nm=Buffer:write
+ctime=3972662101
+mtime=3972662773
+<article>
+#_len = Buffer:write (Index, Text, Color)
+#_
+#_**Parameters:**
+#_  Buffer : user control (userdata)
+#_  Index  : integer
+#_  Text   : string
+#_  Color  : table `tFarColor` or integer
+#_
+#_**Returns:**
+#_  len    : number of user control cells used
+#_           (usually equals Text:len() but may be greater
+#_           if text contains some special chars, e.g. emoji)
+#_
+#_@@@
+#_[tFarColor]: 427.html
+#_
+</article>
+</node>
+<node>
 id=20
 lv=2
 dt=Text
