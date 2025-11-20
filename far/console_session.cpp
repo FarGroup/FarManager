@@ -68,8 +68,8 @@ static void command(std::optional<string_view> const Command)
 	if (!Command.has_value())
 		return;
 
-	Global->CtrlObject->CmdLine()->DrawFakeCommand(*Command);
 	ConsoleTitle::SetFarTitle(*Command);
+	Global->CtrlObject->CmdLine()->DrawFakeCommand(*Command);
 }
 
 void console_session::activate(std::optional<string_view> const Command, bool const NewLine)
