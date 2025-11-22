@@ -1,5 +1,6 @@
 ﻿#include <shlobj.h>
 #include "lf_string.h"
+#include "lf_util.h"
 
 // initially from: https://www.lua.org/source/5.2/lauxlib.c.html#luaL_tolstring,
 // but additionally throws on invalid __tostring return values, like in Lua 5.3
@@ -37,6 +38,7 @@ const char *luaL_tolstring(lua_State *L, int idx, size_t *len)
 // otherwise it is called and the result string (or error msg) is pushed onto the stack
 ToStringResult safe__tostring_meta(lua_State *L, int idx)
 {
+	idx = abs_index(L, idx);
 	if (luaL_getmetafield(L, idx, "__tostring"))
 	{
 		lua_pushvalue(L, idx);

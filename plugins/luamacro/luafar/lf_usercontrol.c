@@ -39,7 +39,7 @@ static int uc_write(lua_State* L)
 
 	size_t len = 0;
 	const wchar_t* Char = check_utf8_string(L, 3, &len);
-  if (index + len > (size_t)fuc->Size)
+	if (index + len > (size_t)fuc->Size)
 		len = fuc->Size - index;
 
 	struct FarColor Attr;

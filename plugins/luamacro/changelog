@@ -1,3 +1,7 @@
+shmuel 2025-11-22 22:24:00+02:00 - build 906
+
+1. LuaFAR: fix a problem with mf.acall (forum.farmanager.com/viewtopic.php?p=181675).
+
 shmuel 2025-11-18 21:30:58+02:00 - build 905
 
 1. LuaFAR: add method 'write' to user control.
