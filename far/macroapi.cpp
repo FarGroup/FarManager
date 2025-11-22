@@ -1201,7 +1201,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PushValue(tmpVar);
 		}
 
-		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([N])
+		case MCODE_F_MENU_GETEXTENDEDDATA: // T=Menu.GetItemExtendedData([hDlg,][Pos])
 		{
 			const auto Params{ api.parseParams(2) };
 			auto Nidx = 0;
