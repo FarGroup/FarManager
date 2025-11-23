@@ -4,10 +4,11 @@
 
 const char *global_tolstring(lua_State *L, int idx, size_t *len)
 {
+	idx = abs_index(L, idx);
 	lua_getglobal(L, "tostring");
 	if (lua_isfunction(L, -1))
 	{
-		lua_pushvalue(L, abs_index(L, idx));
+		lua_pushvalue(L, idx);
 		lua_call(L, 1, 1);
 	}
 	else

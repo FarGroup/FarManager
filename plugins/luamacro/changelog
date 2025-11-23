@@ -1,3 +1,7 @@
+shmuel 2025-11-23 12:04:52+02:00 - build 908
+
+1. Correct the previous commit.
+
 shmuel 2025-11-23 09:53:48+02:00 - build 907
 
 1. LuaFAR: use global tostring in far.Show and far.Message (as it was originally).

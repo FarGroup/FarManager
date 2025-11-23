@@ -1,6 +1,6 @@
 function export.GetGlobalInfo()
   return {
-    Version       = { 3, 0, 0, 907 },
+    Version       = { 3, 0, 0, 908 },
     MinFarVersion = { 3, 0, 0, 6564 },
     Guid          = win.Uuid("4EBBEFC8-2084-4B7F-94C0-692CE136894D"),
     Title         = "LuaMacro",
