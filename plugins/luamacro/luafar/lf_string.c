@@ -2,6 +2,22 @@
 #include "lf_string.h"
 #include "lf_util.h"
 
+const char *global_tolstring(lua_State *L, int idx, size_t *len)
+{
+	lua_getglobal(L, "tostring");
+	if (lua_isfunction(L, -1))
+	{
+		lua_pushvalue(L, abs_index(L, idx));
+		lua_call(L, 1, 1);
+	}
+	else
+	{
+		lua_pop(L, 1);
+		lua_pushliteral(L, "");
+	}
+	return lua_tolstring(L, -1, len);
+}
+
 // initially from: https://www.lua.org/source/5.2/lauxlib.c.html#luaL_tolstring,
 // but additionally throws on invalid __tostring return values, like in Lua 5.3
 const char *luaL_tolstring(lua_State *L, int idx, size_t *len)

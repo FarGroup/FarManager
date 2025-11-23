@@ -1,3 +1,7 @@
+shmuel 2025-11-23 09:53:48+02:00 - build 907
+
+1. LuaFAR: use global tostring in far.Show and far.Message (as it was originally).
+
 shmuel 2025-11-22 22:24:00+02:00 - build 906
 
 1. LuaFAR: fix a problem with mf.acall (forum.farmanager.com/viewtopic.php?p=181675).

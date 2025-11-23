@@ -2178,7 +2178,7 @@ static int far_Message(lua_State *L)
 	lua_settop(L,6);
 	Msg = NULL;
 
-	luaL_tolstring(L, 1, NULL);
+	global_tolstring(L, 1, NULL);
 	Msg = check_utf8_string(L, -1, NULL);
 	lua_replace(L,1);
 
@@ -5358,7 +5358,7 @@ static int far_MakeMenuItems(lua_State *L)
 			const char *start;
 			char* str;
 
-			start = luaL_tolstring(L, i, &len_arg); //+2
+			start = global_tolstring(L, i, &len_arg); //+2
 			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);

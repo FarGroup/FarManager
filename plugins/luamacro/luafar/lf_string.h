@@ -26,6 +26,7 @@ typedef enum {
     TOSTRING_SUCCESS = 1
 } ToStringResult;
 
+const char *global_tolstring(lua_State *L, int idx, size_t *len);
 const char *luaL_tolstring(lua_State *L, int idx, size_t *len);
 ToStringResult safe__tostring_meta(lua_State *L, int idx);
 const char *safe_luaL_tolstring(lua_State *L, int idx, size_t *len);
