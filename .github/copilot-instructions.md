@@ -204,11 +204,13 @@ dotnet run --project ./ChangelogChecker.csproj --configuration Release --propert
 **Changelog format** (in `far/changelog`):
 ```
 --------------------------------------------------------------------------------
-username YYYY-MM-DD HH:MM:SS+TZ:TZ - build NNNN
+username YYYY-MM-DD HH:MM:SS+03:00 - build NNNN
 
 1. Description of change.
 2. Another change.
 ```
+
+**Example**: `drkns 2025-10-16 23:42:46+01:00 - build 6573`
 
 **Important**: Recent changes go on top. Use `misc/changelog/ChangelogHeader.lua` macro to generate headers.
 
@@ -327,15 +329,14 @@ To add/modify language strings:
 
 1. Run source_validator.py to check code style
 2. Update `far/changelog` with your changes
-3. If you changed version, run `far/tag_build.bat` after committing
-4. Build and test on at least one platform
-5. Run relevant validation checks
+3. Build and test on at least one platform
+4. Run relevant validation checks
 
 ### Version Changes
 
 - **farversion.m4**: Major, minor, revision
 - **vbuild.m4**: Build number (increment for each release)
-- After committing version changes, run `tag_build.bat`
+- **Important**: After committing build number changes to vbuild.m4, run `far/tag_build.bat` to tag the repository
 
 ## Testing
 
