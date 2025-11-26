@@ -383,11 +383,9 @@ static void show_confirmation(
 		{
 			items.emplace_back(QuoteOuterSpace(i.FileName));
 
-			if (items.size() - 1 == ItemsToShow)
+			if (items.size() - 1 == ItemsToShow && ItemsMore > 1)
 			{
-				if (ItemsMore)
-					items.emplace_back(far::vformat(msg(lng::MAskDeleteAndMore), ItemsMore));
-
+				items.emplace_back(far::vformat(msg(lng::MAskDeleteAndMore), ItemsMore));
 				break;
 			}
 		}
