@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2025-11-27 20:02:04+00:00 - build 6602
+
+1. gh-1049: Crash on window resize when help opened.
+
+2. Remove restoring console size on exit.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2025-11-26 22:05:45+00:00 - build 6601
 
 1. Improve deletion confirmation.
