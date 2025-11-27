@@ -156,8 +156,6 @@ point CurSize{};
 int ScrX=0, ScrY=0;
 int PrevScrX=-1, PrevScrY=-1;
 std::optional<console_mode> InitialConsoleMode;
-static rectangle InitWindowRect;
-static point InitialSize;
 
 static os::event& CancelIoInProgress()
 {
@@ -358,8 +356,6 @@ void InitConsole()
 	InitialConsoleMode = Mode;
 
 	Global->strInitTitle = console.GetPhysicalTitle();
-	console.GetWindowRect(InitWindowRect);
-	console.GetSize(InitialSize);
 	console.GetCursorInfo(InitialCursorInfo);
 
 	rectangle WindowRect;
@@ -416,30 +412,6 @@ void CloseConsole()
 	}
 
 	console.SetTitle(Global->strInitTitle);
-	console.SetSize(InitialSize);
-
-	point CursorPos{};
-	console.GetCursorPosition(CursorPos);
-
-	const auto Height = InitWindowRect.bottom - InitWindowRect.top;
-	const auto Width = InitWindowRect.right - InitWindowRect.left;
-
-	if (!in_closed_range(InitWindowRect.top, CursorPos.y, InitWindowRect.bottom))
-		InitWindowRect.top = std::max(0, CursorPos.y - Height);
-
-	if (!in_closed_range(InitWindowRect.left, CursorPos.x, InitWindowRect.right))
-		InitWindowRect.left = std::max(0, CursorPos.x - Width);
-
-	InitWindowRect.bottom = InitWindowRect.top + Height;
-	InitWindowRect.right = InitWindowRect.left + Width;
-
-	rectangle CurrentRect{};
-	console.GetWindowRect(CurrentRect);
-	if (CurrentRect != InitWindowRect)
-	{
-		console.SetWindowRect(InitWindowRect);
-		console.SetSize(InitialSize);
-	}
 
 	ClearKeyQueue();
 	consoleicons::instance().restore_icon();
