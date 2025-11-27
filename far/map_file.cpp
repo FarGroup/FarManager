@@ -62,6 +62,30 @@ struct map_file::line
 	string const* File;
 };
 
+void map_file::data::add(uintptr_t const Address, string_view const Symbol, string_view const File)
+{
+	m_Symbols.try_emplace(Address, line{ string(Symbol), std::to_address(m_Files.emplace(File).first) });
+}
+
+map_file::data::symbols::value_type const* map_file::data::find(uintptr_t const Address)
+{
+	const auto It = m_Symbols.upper_bound(Address);
+
+	if (It == m_Symbols.begin())
+		return {};
+
+	const auto Result = std::to_address(std::prev(It));
+	os::debug::demangle(Result->second.Name);
+
+	return Result;
+}
+
+void map_file::data::clear()
+{
+	m_Symbols.clear();
+	m_Files.clear();
+}
+
 static string get_map_name(string_view const ModuleName)
 {
 	return name_ext(
@@ -89,40 +113,30 @@ map_file::map_file(string_view const ModuleName)
 	}
 	catch (std::exception const& e)
 	{
-		m_Symbols.clear();
-		m_Files.clear();
-
+		m_Data.clear();
 		LOGERROR(L"{}"sv, e);
 	}
 }
 
 map_file::~map_file() = default;
 
-static map_file::info get_impl(uintptr_t const Address, std::map<uintptr_t, map_file::line>& Symbols)
+static map_file::info get_impl(uintptr_t const Address, map_file::data& Data)
 {
-	auto [Begin, End] = Symbols.equal_range(Address);
-
-	if (Begin == Symbols.end() || Begin->first > Address)
-	{
-		if (Begin == Symbols.begin())
-			return {};
-
-		--Begin;
-	}
-
-	os::debug::demangle(Begin->second.Name);
+	const auto Line = Data.find(Address);
+	if (!Line)
+		return {};
 
 	return
 	{
-		.File = *Begin->second.File,
-		.Symbol = Begin->second.Name,
-		.Displacement = Address - Begin->first
+		.File = *Line->second.File,
+		.Symbol = Line->second.Name,
+		.Displacement = Address - Line->first
 	};
 }
 
 map_file::info map_file::get(uintptr_t const Address)
 {
-	return get_impl(Address, m_Symbols);
+	return get_impl(Address, m_Data);
 }
 
 enum class map_format
@@ -163,7 +177,7 @@ static auto determine_format(std::istream& Stream)
 	return determine_format(Lines.begin()->Str);
 }
 
-static void read_mini(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+static void read_mini(std::istream& Stream, map_file::data& Data)
 {
 	RegExp ReObject, ReSymbol;
 	ReObject.Compile(L"^(\\d+) (.+)$"sv, OP_OPTIMIZE);
@@ -195,18 +209,20 @@ static void read_mini(std::istream& Stream, unordered_string_set& Files, std::ma
 
 		if (SymbolsSeen && ReSymbol.Search(i.Str, Match))
 		{
-			map_file::line Line;
-			Line.Name = get_match(i.Str, m[3]);
 			const auto FileIndex = from_string<size_t>(get_match(i.Str, m[2]));
-			Line.File = std::to_address(Files.emplace(ObjNames.find(FileIndex)->second).first);
-			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
-			Symbols.try_emplace(Address, std::move(Line));
+
+			Data.add(
+				from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16),
+				get_match(i.Str, m[3]),
+				ObjNames.find(FileIndex)->second
+			);
+
 			continue;
 		}
 	}
 }
 
-static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+static void read_vc(std::istream& Stream, map_file::data& Data)
 {
 	RegExp ReBase, ReSymbol;
 	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$"sv, OP_OPTIMIZE);
@@ -238,18 +254,18 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 			if (Address >= BaseAddress)
 				Address -= BaseAddress;
 
-			map_file::line Line;
-			Line.Name = get_match(i.Str, m[1]);
-			const auto File = get_match(i.Str, m[3]);
-			Line.File = std::to_address(Files.emplace(File).first);
+			Data.add(
+				Address,
+				get_match(i.Str, m[1]),
+				get_match(i.Str, m[3])
+			);
 
-			Symbols.try_emplace(Address, std::move(Line));
 			continue;
 		}
 	}
 }
 
-static void read_clang(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+static void read_clang(std::istream& Stream, map_file::data& Data)
 {
 	RegExp ReObject, ReSymbol;
 	ReObject.Compile(L"^[0-9A-Fa-f]+ [0-9A-Fa-f]+ +[0-9]+         (.+)$"sv);
@@ -268,11 +284,12 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 
 		if (ReSymbol.Search(i.Str, Match))
 		{
-			map_file::line Line;
-			Line.Name = get_match(i.Str, m[2]);
-			Line.File = std::to_address(Files.emplace(ObjName).first);
-			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16);
-			Symbols.try_emplace(Address, std::move(Line));
+			Data.add(
+				from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16),
+				get_match(i.Str, m[2]),
+				ObjName
+			);
+
 			continue;
 		}
 
@@ -284,7 +301,7 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 	}
 }
 
-static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+static void read_gcc(std::istream& Stream, map_file::data& Data)
 {
 	RegExp ReFile, ReFileName, ReSymbol;
 	ReFile.Compile(L"^File $"sv);
@@ -313,11 +330,12 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 
 		if (ReSymbol.Search(i.Str, Match))
 		{
-			map_file::line Line;
-			Line.Name = get_match(i.Str, m[2]);
-			Line.File = std::to_address(Files.emplace(FileName).first);
-			const auto Address = from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16) + BaseAddress;
-			Symbols.try_emplace(Address, std::move(Line));
+			Data.add(
+				from_string<uintptr_t>(get_match(i.Str, m[1]), {}, 16) + BaseAddress,
+				get_match(i.Str, m[2]),
+				FileName
+			);
+
 			continue;
 		}
 
@@ -330,16 +348,16 @@ void map_file::read(std::istream& Stream)
 	switch (determine_format(Stream))
 	{
 	case map_format::mini:
-		return read_mini(Stream, m_Files, m_Symbols);
+		return read_mini(Stream, m_Data);
 
 	case map_format::msvc:
-		return read_vc(Stream, m_Files, m_Symbols);
+		return read_vc(Stream, m_Data);
 
 	case map_format::clang:
-		return read_clang(Stream, m_Files, m_Symbols);
+		return read_clang(Stream, m_Data);
 
 	case map_format::gcc:
-		return read_gcc(Stream, m_Files, m_Symbols);
+		return read_gcc(Stream, m_Data);
 
 	case map_format::unknown:
 		return;
@@ -352,11 +370,8 @@ void map_file::read(std::istream& Stream)
 
 TEST_CASE("map_file.msvc")
 {
-	const auto check = [](std::map<uintptr_t, map_file::line>& Symbols, unordered_string_set const& Files)
+	const auto check = [](map_file::data& Data)
 	{
-		REQUIRE(Files.size() == 6u);
-		REQUIRE(Symbols.size() == 8u);
-
 		static const struct
 		{
 			uintptr_t Address;
@@ -381,7 +396,7 @@ TEST_CASE("map_file.msvc")
 
 		for (const auto& i: Tests)
 		{
-			REQUIRE(i.Info == get_impl(i.Address, Symbols));
+			REQUIRE(i.Info == get_impl(i.Address, Data));
 		}
 	};
 
@@ -408,11 +423,10 @@ R"( Far
 		std::stringstream Stream(std::string{ MapFileData });
 		REQUIRE(determine_format(Stream) == map_format::msvc);
 
-		unordered_string_set Files;
-		std::map<uintptr_t, map_file::line> Symbols;
-		read_vc(Stream, Files, Symbols);
+		map_file::data Data;
+		read_vc(Stream, Data);
 
-		check(Symbols, Files);
+		check(Data);
 	}
 
 	{
@@ -441,11 +455,10 @@ FFC00 4 ??1config_provider@@QAE@XZ
 		std::stringstream Stream(std::string{ MapFileData });
 		REQUIRE(determine_format(Stream) == map_format::mini);
 
-		unordered_string_set Files;
-		std::map<uintptr_t, map_file::line> Symbols;
-		read_mini(Stream, Files, Symbols);
+		map_file::data Data;
+		read_mini(Stream, Data);
 
-		check(Symbols, Files);
+		check(Data);
 	}
 }
 
@@ -469,13 +482,9 @@ R"(Address  Size     Align Out     In      Symbol
 
 	REQUIRE(determine_format(Stream) == map_format::clang);
 
-	unordered_string_set Files;
-	std::map<uintptr_t, map_file::line> Symbols;
+	map_file::data Data;
 
-	read_clang(Stream, Files, Symbols);
-
-	REQUIRE(Files.size() == 4u);
-	REQUIRE(Symbols.size() == 6u);
+	read_clang(Stream, Data);
 
 	static const struct
 	{
@@ -498,7 +507,7 @@ R"(Address  Size     Align Out     In      Symbol
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.Info == get_impl(i.Address, Symbols));
+		REQUIRE(i.Info == get_impl(i.Address, Data));
 	}
 }
 
@@ -531,13 +540,9 @@ File )" R"(
 
 	REQUIRE(determine_format(Stream) == map_format::gcc);
 
-	unordered_string_set Files;
-	std::map<uintptr_t, map_file::line> Symbols;
+	map_file::data Data;
 
-	read_gcc(Stream, Files, Symbols);
-
-	REQUIRE(Files.size() == 4u);
-	REQUIRE(Symbols.size() == 8u);
+	read_gcc(Stream, Data);
 
 	static const struct
 	{
@@ -562,7 +567,7 @@ File )" R"(
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.Info == get_impl(i.Address, Symbols));
+		REQUIRE(i.Info == get_impl(i.Address, Data));
 	}
 }
 #endif

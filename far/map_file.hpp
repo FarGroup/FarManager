@@ -64,12 +64,24 @@ public:
 	info get(uintptr_t Address);
 
 	struct line;
+	class data
+	{
+	public:
+		using symbols = std::map<uintptr_t, line>;
+
+		void add(uintptr_t Address, string_view Symbol, string_view File);
+		symbols::value_type const* find(uintptr_t Address);
+		void clear();
+
+	private:
+		symbols m_Symbols;
+		std::set<string> m_Files;
+	};
 
 private:
 	void read(std::istream& Stream);
 
-	std::map<uintptr_t, line> m_Symbols;
-	unordered_string_set m_Files;
+	data m_Data;
 };
 
 #endif // MAP_FILE_HPP_29032DD0_A55A_4E8B_97AC_C991B24BBBFE

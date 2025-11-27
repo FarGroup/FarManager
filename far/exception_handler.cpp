@@ -145,7 +145,7 @@ void set_report_location(string_view Directory)
 {
 	if (Directory.size() < std::size(s_ReportLocation))
 	{
-		std::copy(ALL_CONST_RANGE(Directory), s_ReportLocation);
+		*std::copy(ALL_CONST_RANGE(Directory), s_ReportLocation) = L'\0';
 	}
 }
 
