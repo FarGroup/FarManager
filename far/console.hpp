@@ -82,7 +82,7 @@ namespace console_detail
 
 		HWND GetWindow() const;
 
-		bool GetSize(point& Size) const;
+		bool GetSize(point& Size, bool Sanitize = true) const;
 		bool SetSize(point Size) const;
 
 		bool SetScreenBufferSize(point Size) const;

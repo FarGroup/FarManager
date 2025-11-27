@@ -794,7 +794,26 @@ protected:
 		return Window;
 	}
 
-	bool console::GetSize(point& Size) const
+	static void sanitize_console_size(point& Size)
+	{
+		// The user can set the console size to ludicrously small values, accidentally or not.
+		// UI is not designed to handle that, and even if it was, it does not make sense anyway.
+		// Better lie and show a badly cropped UI than crash and burn.
+
+		const auto
+			MinimalSaneWidth = 20,
+			MinimalSaneHeight = 10;
+
+		if (Size.x < MinimalSaneWidth || Size.y < MinimalSaneHeight)
+		{
+			LOGNOTICE(L"Console size [{}x{}] is too small, make it bigger"sv, Size.x, Size.y);
+			Size.x = std::max(Size.x, 20);
+			Size.y = std::max(Size.y, 10);
+		}
+
+	}
+
+	bool console::GetSize(point& Size, bool const Sanitize) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
@@ -815,10 +834,15 @@ protected:
 			Size = ConsoleScreenBufferInfo.dwSize;
 		}
 
+		if (!Sanitize)
+			return true;
+
+		sanitize_console_size(Size);
+
 		return true;
 	}
 
-	bool console::SetSize(point const Size) const
+	bool console::SetSize(point Size) const
 	{
 		if (!sWindowMode)
 			return SetScreenBufferSize(Size);
@@ -826,6 +850,8 @@ protected:
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
+
+		sanitize_console_size(Size);
 
 		csbi.srWindow.Left = 0;
 		csbi.srWindow.Right = Size.x - 1;
@@ -849,8 +875,10 @@ protected:
 		return SetWindowRect(csbi.srWindow);
 	}
 
-	bool console::SetScreenBufferSize(point const Size) const
+	bool console::SetScreenBufferSize(point Size) const
 	{
+		sanitize_console_size(Size);
+
 		const auto Out = GetOutputHandle();
 
 		// This abominable workaround is for another Windows 10 bug, see https://github.com/microsoft/terminal/issues/2366
@@ -1244,7 +1272,7 @@ protected:
 
 		MouseEvent.dwMousePosition.Y = std::max(0, MouseEvent.dwMousePosition.Y - ::console.GetDelta());
 
-		if (point Size; ::console.GetSize(Size))
+		if (point Size; ::console.GetSize(Size, false))
 			MouseEvent.dwMousePosition.X = std::min(MouseEvent.dwMousePosition.X, static_cast<short>(Size.x - 1));
 	}
 
@@ -2465,7 +2493,7 @@ protected:
 		if (sWindowMode)
 		{
 			point Size{};
-			GetSize(Size);
+			GetSize(Size, false);
 			Position.x = std::min(Position.x, Size.x - 1);
 			Position.y = std::max(0, Position.y);
 			Position.y += GetDelta();
@@ -2726,7 +2754,7 @@ protected:
 		ClearExtraRegions(Color, CR_BOTH);
 
 		point ViewportSize;
-		if (!GetSize(ViewportSize))
+		if (!GetSize(ViewportSize, false))
 			return false;
 
 		const auto ConColor = colors::FarColorToConsoleColor(Color);
