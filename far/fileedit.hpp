@@ -120,6 +120,7 @@ public:
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
+	void UpdateKeyBar() { InitKeyBar(); }
 
 private:
 	void DisplayObject() override;

@@ -1,4 +1,4 @@
-﻿#
+#
 # Note: https://learn.microsoft.com/en-us/globalization/reference/microsoft-language-resources is a good source of system- and UI-specific translations.
 #
 
@@ -4527,7 +4527,7 @@ MEditAutoDetectCodePage
 
 MEditShareWrite
 "Разрешить редактирование открытых для записи &файлов"
-"Allow editing files ope&ned for writing"
+"Allow editing files opened for &writing"
 "Umožnit úpravu souborů otevřených &pro zápis"
 upd:"Allow editing files opened for &writing"
 "Írásra m&egnyitott fájlok szerkeszthetők"
@@ -4557,7 +4557,7 @@ upd:"Lock editing of read-only &files"
 
 MEditWarningBeforeOpenROFile
 "Пре&дупреждать при открытии файлов с атрибутом R/O"
-"&Warn when opening read-only files"
+"Warn when opening &read-only files"
 "&Varovat při otevření souborů určených jen pro čtení"
 "Beim Öffnen von Dateien mit Schreibschutz &warnen"
 "Figyelmeztet &csak olvasható fájl megnyitásakor"
@@ -4600,6 +4600,21 @@ MEditConfigScrollbar
 "Rodyti šlia&užiklį"
 upd:"S&how scrollbar"
 
+MEditConfigLineNumbers
+"Показывать &номера строк"
+"Show li&ne numbers"
+"Zobrazovat čísla ř&ádků"
+"Zeilennummern &anzeigen"
+"Sorokszámok me&gjelenítes"
+"Wyświetl &numery wierszy"
+"Mostrar &números de línea"
+"Zobrazovať čísla r&iadkov"
+"Mostra &Numeri Di Riga"
+"Показувати &номери рядків"
+"Адлюстроўваць &нумары радкоў"
+"Rodyti &eilučių numerius"
+"Mostrar &números de linha"
+
 MEditShowWhiteSpace
 "Пробел&ьные символы"
 "Sh&ow white space"
@@ -4631,8 +4646,8 @@ upd:"Se&lect found"
 upd:"Se&lect found"
 
 MEditConfigCursorAtEnd
-"Курсор в ко&нце"
-"Cu&rsor at the end"
+"Курсор в кон&це"
+"C&ursor at the end"
 "Kurzor je na konci"
 "Pfeile am Ende"
 upd:"Cursor at the end"
@@ -4640,8 +4655,8 @@ upd:"Cursor at the end"
 "Cursor al final"
 "Kurzor na konci"
 "Cursore Alla &Fine"
-"Курсор у кі&нці"
-"Курсор у ка&нцы"
+"Курсор у кін&ці"
+"Курсор у кан&цы"
 upd:"Cu&rsor at the end"
 upd:"Cu&rsor at the end"
 
@@ -8609,19 +8624,19 @@ MEditCtrlF2
 ""
 
 MEditCtrlF3
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
+"НомСтр"
+"LineNum"
+"ČíslaŘ"
+"ZeilNr"
+"SorSzám"
+"NrWier"
+"NúmLín"
+"ČísRiad"
+"NumRig"
+"НомРяд"
+"НумРад"
+"EilNr"
+"NúmLin"
 
 MEditCtrlF4
 ""
@@ -8757,6 +8772,21 @@ MEditCtrlF12
 ""
 ""
 ""
+
+MEditCtrlF3Hide
+"СкрСтр"
+"HideNum"
+"SkrýtČ"
+"VerstNr"
+"ElrejtS"
+"UkrWier"
+"OcultN"
+"SkryťČ"
+"NascRig"
+"СховРяд"
+"СхавНум"
+"SlėptEil"
+"OcultN"
 
 MEditAltShiftF1
 l:
@@ -19984,6 +20014,21 @@ MSetColorEditorScrollbar
 "Працяжнік"
 "Šliaužiklis"
 "Barra de rolagem"
+
+MSetColorEditorLineNumbers
+"Номера строк"
+"Line numbers"
+"Čísla řádků"
+"Zeilennummern"
+"Sorokszámok"
+"Numery wierszy"
+"Números de línea"
+"Čísla riadkov"
+"Numeri Di Riga"
+"Номери рядків"
+"Нумары радкоў"
+"Eilučių numeriai"
+"Números de linha"
 
 MSetColorHelpNormal
 l:

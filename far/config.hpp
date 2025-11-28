@@ -568,6 +568,7 @@ public:
 		BoolOption ShowKeyBar;
 		BoolOption ShowTitleBar;
 		BoolOption ShowScrollBar;
+		BoolOption ShowLineNumbers;
 		BoolOption EditOpenedForWrite;
 		StringOption SearchAllUseAltFileNameFormat;
 		BoolOption SearchSelFound;
