@@ -1,4 +1,4 @@
-#
+﻿#
 # Note: https://learn.microsoft.com/en-us/globalization/reference/microsoft-language-resources is a good source of system- and UI-specific translations.
 #
 
@@ -4602,7 +4602,7 @@ upd:"S&how scrollbar"
 
 MEditConfigLineNumbers
 "Показывать &номера строк"
-"Show li&ne numbers"
+"Show line &numbers"
 "Zobrazovat čísla ř&ádků"
 "Zeilennummern &anzeigen"
 "Sorokszámok me&gjelenítes"
