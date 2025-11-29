@@ -246,7 +246,7 @@ void Editor::ShowEditor()
 	// Calculate line number column width if needed
 	// Minimum width of 3 for "1", "10", "100", etc. plus 1 for spacing
 	const auto LineNumWidth = EdOpt.ShowLineNumbers ?
-		(Lines.empty() ? 0 : std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
+		(std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
 
 	XX2 = m_Where.right - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
@@ -324,7 +324,7 @@ void Editor::ShowEditor()
 	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
-	const auto LineNumColor = LineNumWidth > 0 ? colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS) : FarColor{};
+	const auto LineNumColor = colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS);
 	const auto LineNumLeft = m_Where.left;
 	const auto LineNumRight = m_Where.left + LineNumWidth - 1;
 	const auto TextLeft = m_Where.left + LineNumWidth;
@@ -339,8 +339,7 @@ void Editor::ShowEditor()
 
 		if (LineNumWidth > 0)
 		{
-			const auto LineNumStr = far::format(L"{:>{}}"sv, CurPtr.Number() + 1, LineNumWidth - 1);
-			SetScreen({ LineNumLeft, Y, LineNumRight, Y }, L' ', LineNumColor);
+			const auto LineNumStr = far::format(L"{:>{}} "sv, CurPtr.Number() + 1, LineNumWidth - 1);
 			Text({ LineNumLeft, Y }, LineNumColor, LineNumStr);
 		}
 
