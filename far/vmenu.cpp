@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/view/zip.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -351,7 +352,7 @@ public:
 				}
 			} };
 
-		return std::format(L" [{}:{} {} {} {}] ", m_LBoundary, m_RBoundary, AlignmentMark(), m_AlignedAtColumn, m_StrayItems);
+		return far::format(L" [{}:{} {} {} {}] "sv, m_LBoundary, m_RBoundary, AlignmentMark(), m_AlignedAtColumn, m_StrayItems);
 	}
 
 private:
@@ -2752,7 +2753,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_Where.left + 2, m_Where.bottom);
 		MenuText(m_HorizontalTracker->get_debug_string());
 
-		const auto TextAreaWidthLabel{ std::format(L" [{}] ", CalculateTextAreaWidth()) };
+		const auto TextAreaWidthLabel{ far::format(L" [{}] "sv, CalculateTextAreaWidth()) };
 		GotoXY(m_Where.right - 1 - static_cast<int>(TextAreaWidthLabel.size()), m_Where.bottom);
 		MenuText(TextAreaWidthLabel);
 	}

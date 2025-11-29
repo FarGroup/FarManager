@@ -7116,23 +7116,25 @@ TEST_CASE("radix10_formatted_width")
 		std::ranges::iota_view(0uLL, 1001uLL),
 		[](const auto Value) -> bool
 		{
-			return radix10_formatted_width(Value) == static_cast<short>(std::format("{}", Value).size());
+			return radix10_formatted_width(Value) == static_cast<short>(far::format("{}"sv, Value).size());
 		}));
+
 	REQUIRE(std::ranges::all_of(
 		std::ranges::iota_view(
 			static_cast<unsigned long long>(std::numeric_limits<int>::max()) - 10,
 			static_cast<unsigned long long>(std::numeric_limits<int>::max()) + 10),
 		[](const auto Value) -> bool
 		{
-			return radix10_formatted_width(Value) == static_cast<short>(std::format("{}", Value).size());
+			return radix10_formatted_width(Value) == static_cast<short>(far::format("{}"sv, Value).size());
 		}));
+
 	REQUIRE(std::ranges::all_of(
 		std::ranges::iota_view(
 		static_cast<unsigned long long>(std::numeric_limits<unsigned int>::max()) - 10,
 		static_cast<unsigned long long>(std::numeric_limits<unsigned int>::max()) + 10),
 		[](const auto Value) -> bool
 		{
-			return radix10_formatted_width(Value) == static_cast<short>(std::format("{}", Value).size());
+			return radix10_formatted_width(Value) == static_cast<short>(far::format("{}"sv, Value).size());
 		}));
 }
 
