@@ -244,13 +244,9 @@ void Editor::ShowEditor()
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
 	// Calculate line number column width if needed
-	int LineNumWidth = 0;
-	if (EdOpt.ShowLineNumbers)
-	{
-		LineNumWidth = static_cast<int>(std::log10(Lines.size())) + 1;
-		// Minimum width of 3 for "1", "10", "100", etc. and at least 4 for spacing
-		LineNumWidth = std::max(4, LineNumWidth + 1);
-	}
+	// Minimum width of 3 for "1", "10", "100", etc. plus 1 for spacing
+	const auto LineNumWidth = EdOpt.ShowLineNumbers ?
+		(Lines.empty() ? 0 : std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
 
 	XX2 = m_Where.right - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
@@ -327,20 +323,18 @@ void Editor::ShowEditor()
 	auto LeftPos = m_it_CurLine->GetLeftPos();
 	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
-	int LineNum = m_it_TopScreen.Number() + 1;
 
-	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y, ++LineNum)
-	{
+	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
+		{
 		CurPtr->SetEditBeyondEnd(true);
 		CurPtr->SetPosition({ m_Where.left + LineNumWidth, Y, XX2, Y });
 		CurPtr->SetLeftPos(LeftPos);
 		CurPtr->SetTabCurPos(CurPos);
 		CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
 
-		// Draw line numbers if enabled
-		if (EdOpt.ShowLineNumbers && LineNumWidth > 0)
+		if (LineNumWidth > 0)
 		{
-			const auto LineNumStr = std::format(L"{:>{}}", LineNum, LineNumWidth - 1);
+			const auto LineNumStr = far::format(L"{:>{}}"sv, CurPtr.Number() + 1, LineNumWidth - 1);
 			const auto LineNumColor = colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS);
 			SetScreen({ m_Where.left, Y, m_Where.left + LineNumWidth - 1, Y }, L' ', LineNumColor);
 			SetColor(LineNumColor);
@@ -1910,7 +1904,7 @@ bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::
 			// Update keybar to reflect new state
 			if (const auto HostFileEditor = GetHostFileEditor())
 			{
-				HostFileEditor->UpdateKeyBar();
+				HostFileEditor->InitKeyBar();
 			}
 			return true;
 		}
