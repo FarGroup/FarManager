@@ -1157,6 +1157,7 @@ function MT.test_Menu()
   assert_func(Menu.GetValue)
   assert_func(Menu.ItemStatus)
   assert_func(Menu.Select)
+  assert_func(Menu.SetItemExtendedData)
   assert_func(Menu.Show)
 end
 
