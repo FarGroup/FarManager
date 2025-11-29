@@ -97,6 +97,7 @@ public:
 	void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase = NewMode % 3; }
 	int GetCharCodeBase() const { return EdOpt.CharCodeBase; }
 	void SetShowScrollBar(bool NewMode) { EdOpt.ShowScrollBar = NewMode; }
+	bool GetShowLineNumbers() const { return EdOpt.ShowLineNumbers; }
 	void SetSearchCursorAtEnd(bool NewMode) { EdOpt.SearchCursorAtEnd = NewMode; }
 	void SetWordDiv(string_view const WordDiv) { EdOpt.strWordDiv = string(WordDiv); }
 	const string& GetWordDiv() const { return EdOpt.strWordDiv; }

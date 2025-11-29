@@ -4079,6 +4079,10 @@ Other tabs won't be converted.
  #Show a scrollbar#
  Show a scrollbar.
 
+ #Zeilennummern anzeigen#
+ Zeigt Zeilennummern links vom Editor-Text an. Diese Option kann während der
+Bearbeitung mit #Strg+F3# umgeschaltet werden.
+
 @=
  #Dateiposition sichern#
  Sichert und restauriert die Position in der zuletzt bearbeiteten Datei. Diese Option sichert und restauriert auch die

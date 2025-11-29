@@ -3997,6 +3997,10 @@ Other tabs won't be converted.
  #Show a scrollbar#
  Show a scrollbar.
 
+ #Zobrazovať čísla riadkov#
+ Zobrazuje čísla riadkov naľavo od textu editora. Túto možnosť možno prepínať
+stlačením #Ctrl+F3# počas úprav.
+
 @=
  #Uložiť pozíciu v súbore#
  Uloží pozíciu a vráti sa na ňu v naposledy editovaných súboroch. Ak bola predtým užívateľom

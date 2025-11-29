@@ -120,10 +120,10 @@ public:
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
+	void InitKeyBar() override;
 
 private:
 	void DisplayObject() override;
-	void InitKeyBar() override;
 	bool ProcessKey(const Manager::Key& Key) override;
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void ShowConsoleTitle() override;

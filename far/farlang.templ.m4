@@ -4600,6 +4600,21 @@ MEditConfigScrollbar
 "Rodyti šlia&užiklį"
 upd:"S&how scrollbar"
 
+MEditConfigLineNumbers
+"Показывать номера строк"
+"Show line numbers"
+"Zobrazovat čísla řádků"
+"Zeilennummern anzeigen"
+"Sorokszámok megjelenítes"
+"Wyświetl numery wierszy"
+"Mostrar números de línea"
+"Zobrazovať čísla riadkov"
+"Mostra Numeri Di Riga"
+"Показувати номери рядків"
+"Адлюстроўваць нумары радкоў"
+"Rodyti eilučių numerius"
+"Mostrar números de linha"
+
 MEditShowWhiteSpace
 "Пробел&ьные символы"
 "Sh&ow white space"
@@ -8609,19 +8624,19 @@ MEditCtrlF2
 ""
 
 MEditCtrlF3
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
-""
+"НомСтр"
+"LineNum"
+"ČíslaŘ"
+"ZeilNr"
+"SorSzám"
+"NrWier"
+"NúmLín"
+"ČísRiad"
+"NumRig"
+"НомРяд"
+"НумРад"
+"EilNr"
+"NúmLin"
 
 MEditCtrlF4
 ""
@@ -8757,6 +8772,21 @@ MEditCtrlF12
 ""
 ""
 ""
+
+MEditCtrlF3Hide
+"СкрСтр"
+"HideNum"
+"SkrýtČ"
+"VerstNr"
+"ElrejtS"
+"UkrWier"
+"OcultN"
+"SkryťČ"
+"NascRig"
+"СховРяд"
+"СхавНум"
+"SlėptEil"
+"OcultN"
 
 MEditAltShiftF1
 l:
@@ -19984,6 +20014,21 @@ MSetColorEditorScrollbar
 "Працяжнік"
 "Šliaužiklis"
 "Barra de rolagem"
+
+MSetColorEditorLineNumbers
+"Номера строк"
+"Line numbers"
+"Čísla řádků"
+"Zeilennummern"
+"Sorokszámok"
+"Numery wierszy"
+"Números de línea"
+"Čísla riadkov"
+"Numeri Di Riga"
+"Номери рядків"
+"Нумары радкоў"
+"Eilučių numeriai"
+"Números de linha"
 
 MSetColorHelpNormal
 l:
