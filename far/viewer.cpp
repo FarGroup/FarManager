@@ -2437,8 +2437,9 @@ void Viewer::Up(int nlines, bool adjust)
 					if (process_back<char>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (std::exception const&)
+				catch (std::exception const& e)
 				{
+					LOGERROR(L"{}"sv, e);
 					return; //??? error handling
 				}
 			}
@@ -2453,8 +2454,9 @@ void Viewer::Up(int nlines, bool adjust)
 					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (std::exception const&)
+				catch (std::exception const& e)
 				{
+					LOGERROR(L"{}"sv, e);
 					return; //??? error handling
 				}
 			}

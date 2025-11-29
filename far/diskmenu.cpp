@@ -69,6 +69,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
+#include "log.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -575,8 +577,10 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 		EjectVolume(item.Path);
 		return true;
 	}
-	catch (std::exception const&)
+	catch (std::exception const& e)
 	{
+		LOGERROR(L"{}"sv, e);
+
 		// запоминаем состояние панелей
 		const auto CMode = Owner->GetMode();
 		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
@@ -1307,9 +1311,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				LoadVolume(item.Path);
 			}
-			catch (std::exception const&)
+			catch (std::exception const& e)
 			{
 				// TODO: Message & retry? It conflicts with the CD retry dialog.
+				LOGERROR(L"{}"sv, e);
 			}
 		},
 		[](plugin_item const&){}}, *mitem);

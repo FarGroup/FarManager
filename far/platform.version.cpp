@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "imports.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.reg.hpp"
@@ -313,8 +314,9 @@ WARNING_POP()
 			);
 
 		}
-		catch (std::exception const&)
+		catch (std::exception const& e)
 		{
+			LOGERROR(L"{}"sv, e);
 			return {};
 		}
 	}

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keyboard.hpp"
 #include "encoding.hpp"
+#include "exception.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -1640,23 +1641,28 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 	return true;
 
 	}
-	catch (std::bad_alloc const&)
+	catch (std::bad_alloc const& e)
 	{
+		LOGERROR(L"{}"sv, e);
+
 		// TODO: better diagnostics
 		m_editor->FreeAllocatedData();
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
 		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 		ErrorState = os::last_error();
+		LOGERROR(L"{}"sv, ErrorState);
 		return false;
 	}
-	catch (std::exception const&)
+	catch (std::exception const& e)
 	{
+		LOGERROR(L"{}"sv, e);
 		// A portion of file can be locked
 
 		// TODO: better diagnostics
 		m_editor->FreeAllocatedData();
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
 		ErrorState = os::last_error();
+		LOGERROR(L"{}"sv, ErrorState);
 		return false;
 	}
 }
