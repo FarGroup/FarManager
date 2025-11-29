@@ -372,9 +372,11 @@ static std::optional<long long> get_optional_integer_param(std::vector<TVar>::co
 {
 	switch (ParamIter->type())
 	{
-	case TVar::Type::Integer:
-	case TVar::Type::Double:
-	case TVar::Type::String:
+	using enum TVar::Type;
+
+	case Integer:
+	case Double:
+	case String:
 		return (ParamIter++)->asInteger();
 
 	default:
@@ -1266,6 +1268,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				api.PushTable();
 				for (const auto& [Key, Value] : ExtendedData)
 				{
+					// Here (-3) is the position of the table on Lua stack after SetField will have pushed Key and Value
 					api.SetField(Key, Value, -3);
 				}
 				return;
