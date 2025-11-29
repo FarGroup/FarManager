@@ -147,6 +147,15 @@ struct formattable<std::exception>
 	static string to_string(std::exception const& e);
 };
 
+template<std::derived_from<std::exception> E>
+struct formattable<E>
+{
+	static string to_string(E const& e)
+	{
+		return formattable<std::exception>::to_string(e);
+	}
+};
+
 constexpr inline struct unknown_exception_t
 {
 	static string to_string();

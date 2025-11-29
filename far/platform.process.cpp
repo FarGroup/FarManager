@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.process.hpp"
 
 // Internal:
+#include "exception.hpp"
 #include "imports.hpp"
 #include "log.hpp"
 
@@ -251,8 +252,9 @@ namespace os::process
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			return get_process_subsystem_from_module_impl(Stream);
 		}
-		catch (std::exception const&)
+		catch (std::exception const& e)
 		{
+			LOGERROR(L"{}"sv, e);
 			return image_type::unknown;
 		}
 	}

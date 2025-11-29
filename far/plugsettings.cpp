@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "global.hpp"
 #include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -135,8 +136,9 @@ std::unique_ptr<AbstractSettings> AbstractSettings::CreatePluginSettings(const U
 	{
 		return std::make_unique<PluginSettings>(pPlugin, Local);
 	}
-	catch (std::exception const&)
+	catch (std::exception const& e)
 	{
+		LOGERROR(L"{}"sv, e);
 		return nullptr;
 	}
 }
