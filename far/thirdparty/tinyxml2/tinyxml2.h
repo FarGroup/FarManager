@@ -96,11 +96,11 @@ distribution.
 /* Versioning, past 1.0.14:
 	http://semver.org/
 */
-static const int TIXML2_MAJOR_VERSION = 10;
+static const int TIXML2_MAJOR_VERSION = 11;
 static const int TIXML2_MINOR_VERSION = 0;
 static const int TIXML2_PATCH_VERSION = 0;
 
-#define TINYXML2_MAJOR_VERSION 10
+#define TINYXML2_MAJOR_VERSION 11
 #define TINYXML2_MINOR_VERSION 0
 #define TINYXML2_PATCH_VERSION 0
 
@@ -266,7 +266,6 @@ public:
     }
 
     size_t Size() const {
-        TIXMLASSERT( _size >= 0 );
         return _size;
     }
 
@@ -2240,13 +2239,18 @@ private:
 class TINYXML2_LIB XMLPrinter : public XMLVisitor
 {
 public:
+    enum EscapeAposCharsInAttributes {
+        ESCAPE_APOS_CHARS_IN_ATTRIBUTES,
+        DONT_ESCAPE_APOS_CHARS_IN_ATTRIBUTES
+    };
+
     /** Construct the printer. If the FILE* is specified,
     	this will print to the FILE. Else it will print
     	to memory, and the result is available in CStr().
     	If 'compact' is set to true, then output is created
     	with only required whitespace and newlines.
     */
-    XMLPrinter( FILE* file=0, bool compact = false, int depth = 0 );
+    XMLPrinter( FILE* file=0, bool compact = false, int depth = 0, EscapeAposCharsInAttributes aposInAttributes = ESCAPE_APOS_CHARS_IN_ATTRIBUTES );
     virtual ~XMLPrinter()	{}
 
     /** If streaming, write the BOM and declaration. */
