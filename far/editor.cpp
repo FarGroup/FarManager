@@ -324,10 +324,15 @@ void Editor::ShowEditor()
 	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
+	const auto LineNumColor = LineNumWidth > 0 ? colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS) : FarColor{};
+	const auto LineNumLeft = m_Where.left;
+	const auto LineNumRight = m_Where.left + LineNumWidth - 1;
+	const auto TextLeft = m_Where.left + LineNumWidth;
+
 	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
-		{
+	{
 		CurPtr->SetEditBeyondEnd(true);
-		CurPtr->SetPosition({ m_Where.left + LineNumWidth, Y, XX2, Y });
+		CurPtr->SetPosition({ TextLeft, Y, XX2, Y });
 		CurPtr->SetLeftPos(LeftPos);
 		CurPtr->SetTabCurPos(CurPos);
 		CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
@@ -335,11 +340,8 @@ void Editor::ShowEditor()
 		if (LineNumWidth > 0)
 		{
 			const auto LineNumStr = far::format(L"{:>{}}"sv, CurPtr.Number() + 1, LineNumWidth - 1);
-			const auto LineNumColor = colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS);
-			SetScreen({ m_Where.left, Y, m_Where.left + LineNumWidth - 1, Y }, L' ', LineNumColor);
-			SetColor(LineNumColor);
-			GotoXY(m_Where.left, Y);
-			Text(LineNumStr);
+			SetScreen({ LineNumLeft, Y, LineNumRight, Y }, L' ', LineNumColor);
+			Text({ LineNumLeft, Y }, LineNumColor, LineNumStr);
 		}
 
 		if(CurPtr==m_it_CurLine)
