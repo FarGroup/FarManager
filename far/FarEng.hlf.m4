@@ -4002,6 +4002,10 @@ Other tabs won't be converted.
  #Show a scrollbar#
  Show a scrollbar.
 
+ #Show line numbers#
+ Show line numbers to the left of editor text. This option can be toggled
+by pressing #Ctrl+F3# during editing.
+
 @=
  #Save file position#
  Save and restore positions in the recently edited files. This option also forces

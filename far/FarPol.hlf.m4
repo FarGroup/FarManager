@@ -4008,6 +4008,10 @@ Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
  #Pokaż pasek przewijania#
  Pokazuje pasek przewijania okna.
 
+ #Pokaż numery wierszy#
+ Pokazuje numery wierszy z lewej strony tekstu edytora. Opcja ta może być przełączana
+poprzez naciśnięcie #Ctrl+F3# podczas edycji.
+
 @=
  #Zapamiętaj pozycję kursora w pliku#
  Zapisuje i przywraca pozycję w ostatnio edytowanych plikach. Opcja wymusza także przywrócenie strony kodowej,

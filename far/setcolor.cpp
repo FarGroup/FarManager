@@ -502,6 +502,7 @@ void SetColors()
 		{ lng::MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT, {}, { COL_EDITORTEXT } },
 		{ lng::MSetColorEditorStatus,                 COL_EDITORSTATUS },
 		{ lng::MSetColorEditorScrollbar,              COL_EDITORSCROLLBAR },
+		{ lng::MSetColorEditorLineNumbers,            COL_EDITORLINENUMBERS },
 	},
 
 	HelpItems[]
