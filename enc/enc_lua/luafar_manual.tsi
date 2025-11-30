@@ -11432,14 +11432,12 @@ lv=1
 dt=Text
 nm=luautf8
 ctime=3776336119
-mtime=3887368054
+mtime=3973668632
 <article>
 #_<markdown>
 #_
 #_UTF-8 module for Lua 5.x
 #_========================
-#_[![Build Status](https://travis-ci.org/starwing/luautf8.svg?branch=master)](https://travis-ci.org/starwing/luautf8)
-#_[![Coverage Status](https://coveralls.io/repos/github/starwing/luautf8/badge.svg?branch=master)](https://coveralls.io/github/starwing/luautf8?branch=master)
 #_
 #_This module adds UTF-8 support to Lua.
 #_
