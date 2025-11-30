@@ -4035,6 +4035,10 @@ Other tabs won't be converted.
  #Show a scrollbar#
  Show a scrollbar.
 
+ #Zobrazovat čísla řádků#
+ Zobrazuje čísla řádků vlevo od textu editoru. Tuto možnost lze přepínat
+stisknutím #Ctrl+F3# během úprav.
+
 @=
  #Ukládat pozici v souboru#
  Uloží a potom obnoví pozici v nedávno upravených souborech. Toto nastavení také

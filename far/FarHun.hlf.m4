@@ -4097,6 +4097,10 @@ De a korábbi tabulátorokat nem konvertálja.
  #Gördítősáv mutatva#
  Az oldalsó gördítősáv megjelenítése a belső szerkesztőben.
 
+ #Sorokszámok megjelenítése#
+ Megjeleníti a sorok számát a szerkesztő szövegétől balra. Ez az opció
+kapcsolható a #Ctrl+F3# megnyomásával szerkesztés közben.
+
 @=
  #Fájlpozíció mentése#
  Elmenti és visszatölti a legutóbb szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel

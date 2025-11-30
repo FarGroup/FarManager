@@ -903,6 +903,7 @@ void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(lng::MEditConfigSelFound, EdOptRef.SearchSelFound);
 	Builder.AddCheckbox(lng::MEditConfigCursorAtEnd, EdOptRef.SearchCursorAtEnd);
 	Builder.AddCheckbox(lng::MEditConfigScrollbar, EdOptRef.ShowScrollBar);
+	Builder.AddCheckbox(lng::MEditConfigLineNumbers, EdOptRef.ShowLineNumbers);
 	Builder.EndColumns();
 
 	if (!Local)
@@ -1909,6 +1910,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchAllUseAltFileNameFormat"sv, EdOpt.SearchAllUseAltFileNameFormat, L"*.txt,*.log,*.md,*.csv,*.ini,*.cmd,*.map"sv},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchSelFound"sv,                EdOpt.SearchSelFound, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"SearchCursorAtEnd"sv,             EdOpt.SearchCursorAtEnd, false},
+		{FSSF_PRIVATE,           NKeyEditor,                 L"ShowLineNumbers"sv,               EdOpt.ShowLineNumbers, false },
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ShowKeyBar"sv,                    EdOpt.ShowKeyBar, true},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ShowScrollBar"sv,                 EdOpt.ShowScrollBar, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ShowTitleBar"sv,                  EdOpt.ShowTitleBar, true},

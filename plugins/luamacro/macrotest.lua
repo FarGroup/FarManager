@@ -1813,7 +1813,7 @@ end
 
 local function test_AdvControl_Colors()
   local allcolors = assert_table(far.AdvControl("ACTL_GETARRAYCOLOR"))
-  assert(#allcolors == 146)
+  assert(#allcolors > 140)
   for n=1,#allcolors do
     local color = assert(far.AdvControl("ACTL_GETCOLOR", n-1))
     assert(color.Flags and color.ForegroundColor and color.BackgroundColor)

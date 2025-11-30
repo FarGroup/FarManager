@@ -243,6 +243,11 @@ void Editor::ShowEditor()
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
+	// Calculate line number column width if needed
+	// Minimum width of 3 for "1", "10", "100", etc. plus 1 for spacing
+	const auto LineNumWidth = EdOpt.ShowLineNumbers ?
+		(std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
+
 	XX2 = m_Where.right - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
@@ -297,7 +302,7 @@ void Editor::ShowEditor()
 	//---
 	//для корректной отрисовки текста с табами у CurLine должна быть корректная LeftPos до начала отрисовки
 	//так же это позволяет возвращать корректную EditorInfo.LeftPos в EE_REDRAW
-	m_it_CurLine->SetHorizontalPosition(m_Where.left, XX2);
+	m_it_CurLine->SetHorizontalPosition(m_Where.left + LineNumWidth, XX2);
 	m_it_CurLine->FixLeftPos();
 	//---
 	if (!Pasting)
@@ -319,13 +324,23 @@ void Editor::ShowEditor()
 	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
+	const auto& LineNumColor = colors::PaletteColorToFarColor(COL_EDITORLINENUMBERS);
+	const auto LineNumLeft = m_Where.left;
+	const auto TextLeft = m_Where.left + LineNumWidth;
+
 	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
 	{
 		CurPtr->SetEditBeyondEnd(true);
-		CurPtr->SetPosition({ m_Where.left, Y, XX2, Y });
+		CurPtr->SetPosition({ TextLeft, Y, XX2, Y });
 		CurPtr->SetLeftPos(LeftPos);
 		CurPtr->SetTabCurPos(CurPos);
 		CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
+
+		if (LineNumWidth > 0)
+		{
+			const auto LineNumStr = far::format(L"{:>{}} "sv, CurPtr.Number() + 1, LineNumWidth - 1);
+			Text({ LineNumLeft, Y }, LineNumColor, LineNumStr);
+		}
 
 		if(CurPtr==m_it_CurLine)
 		{
@@ -355,16 +370,16 @@ void Editor::ShowEditor()
 			{
 				if (CurScreenLine >= m_it_AnyBlockStart.Number() && CurScreenLine < m_it_AnyBlockStart.Number() + VBlockSizeY)
 				{
-					int BlockX1 = VBlockX - LeftPos + m_Where.left;
-					int BlockX2 = VBlockX + VBlockSizeX - 1 - LeftPos + m_Where.left;
+					int BlockX1 = VBlockX - LeftPos + m_Where.left + LineNumWidth;
+					int BlockX2 = VBlockX + VBlockSizeX - 1 - LeftPos + m_Where.left + LineNumWidth;
 
-					if (BlockX1 < m_Where.left)
-						BlockX1 = m_Where.left;
+					if (BlockX1 < m_Where.left + LineNumWidth)
+						BlockX1 = m_Where.left + LineNumWidth;
 
 					if (BlockX2>XX2)
 						BlockX2=XX2;
 
-					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left)
+					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left + LineNumWidth)
 						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, SelColor);
 				}
 
@@ -1878,6 +1893,19 @@ bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::
 		{
 			DeleteString(m_it_CurLine, false);
 			Refresh = true;
+			return true;
+		}
+
+		case KEY_CTRLF3:
+		case KEY_RCTRLF3:
+		{
+			EdOpt.ShowLineNumbers = !EdOpt.ShowLineNumbers;
+			Refresh = true;
+			// Update keybar to reflect new state
+			if (const auto HostFileEditor = GetHostFileEditor())
+			{
+				HostFileEditor->InitKeyBar();
+			}
 			return true;
 		}
 

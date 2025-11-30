@@ -209,6 +209,7 @@ Init[]
 	{L"WarnDialog.DefaultButton.Selected"sv,           F_BLACK|B_LIGHTGRAY,    }, // COL_WARNDIALOGSELECTEDDEFAULTBUTTON,
 	{L"WarnDialog.DefaultButton.Highlight"sv,          F_YELLOW|B_RED,         }, // COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON,
 	{L"WarnDialog.DefaultButton.Highlight.Selected"sv, F_YELLOW|B_LIGHTGRAY,   }, // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
+	{L"Editor.LineNumbers"sv,                          F_LIGHTGRAY|B_BLUE,     }, // COL_EDITORLINENUMBERS,
 };
 
 static_assert(std::size(Init) == COL_LASTPALETTECOLOR);
