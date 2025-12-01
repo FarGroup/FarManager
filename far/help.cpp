@@ -270,25 +270,26 @@ void Help::init(string_view const Topic, string_view const Mask, unsigned long l
 	else
 		SetPosition({ 4, 2, ScrX - 4, ScrY - 2 });
 
-	if (!ReadHelp(StackData.strHelpMask) && (Flags&FHELP_USECONTENTS))
+	auto ReadResult = ReadHelp(StackData.strHelpMask);
+	if (!ReadResult && (Flags&FHELP_USECONTENTS))
 	{
 		StackData.strHelpTopic = Topic;
 
 		if (StackData.strHelpTopic.starts_with(HelpBeginLink))
 		{
 			const auto pos = StackData.strHelpTopic.rfind(HelpEndLink);
-
 			if (pos != string::npos)
+			{
 				StackData.strHelpTopic.resize(pos + 1);
-
-			append(StackData.strHelpTopic, HelpContents);
+				append(StackData.strHelpTopic, HelpContents);
+			}
 		}
 
 		StackData.strHelpPath.clear();
-		ReadHelp(StackData.strHelpMask);
+		ReadResult = ReadHelp(StackData.strHelpMask);
 	}
 
-	if (HelpList.empty())
+	if (!ReadResult || HelpList.empty())
 		throw far_known_exception(concat(msg(lng::MHelpTopicNotFound), L'\n', StackData.strHelpTopic));
 
 	InitKeyBar();
@@ -343,7 +344,7 @@ bool Help::ReadHelp(string_view const Mask)
 					msg(lng::MHelpTitle),
 					{
 						msg(lng::MCannotOpenHelp),
-						string(Mask)
+						path::join(strPath, Mask.empty()? L"*.hlf"sv : Mask) // BUGBUG
 					},
 					{ lng::MOk });
 			}
@@ -1540,17 +1541,15 @@ bool Help::JumpTopic()
 		const auto pos = StackData.strSelTopic.find(HelpEndLink, 2);
 		if (pos != string::npos)
 		{
-			const auto Path = string_view(StackData.strSelTopic).substr(1, pos - 1);
-			const auto EndSlash = path::is_separator(Path.back());
-			const auto FullPath = path::join(StackData.strHelpPath, Path);
-			auto Topic = string_view(StackData.strSelTopic).substr(StackData.strSelTopic.find(HelpEndLink, 2) + 1);
+			auto Path = string_view(StackData.strSelTopic).substr(1, pos - 1);
+			if (path::is_separator(Path.back()))
+				Path.remove_suffix(1);
 
-			const auto SetSelTopic = [&](const auto FormatString)
+			if (!IsAbsolutePath(Path))
 			{
-				StackData.strSelTopic = far::format(FormatString, ConvertNameToFull(FullPath), Topic);
-			};
-
-			EndSlash? SetSelTopic(HelpFormatLink) : SetSelTopic(HelpFormatLinkModule);
+				const auto FullPath = ConvertNameToFull(path::join(StackData.strHelpPath, Path));
+				StackData.strSelTopic.replace(1, Path.size(), FullPath);
+			}
 		}
 	}
 
@@ -1641,7 +1640,8 @@ bool Help::JumpTopic()
 	if (!(StackData.Flags&FHELP_CUSTOMFILE))
 		StackData.strHelpPath.clear();
 
-	if (!ReadHelp(StackData.strHelpMask))
+	auto ReadResult = ReadHelp(StackData.strHelpMask);
+	if (!ReadResult)
 	{
 		StackData.strHelpTopic = strNewTopic;
 
@@ -1656,12 +1656,12 @@ bool Help::JumpTopic()
 		}
 
 		StackData.strHelpPath.clear();
-		ReadHelp(StackData.strHelpMask);
+		ReadResult = ReadHelp(StackData.strHelpMask);
 	}
 
 	m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
-	if (HelpList.empty())
+	if (!ReadResult || HelpList.empty())
 	{
 		ErrorHelp = true;
 
