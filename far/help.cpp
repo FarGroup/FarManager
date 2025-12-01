@@ -128,9 +128,6 @@ public:
 
 static bool OpenURL(string_view URLPath);
 
-static const auto HelpFormatLink = FSTR(L"<{}\\>{}"sv);
-static const auto HelpFormatLinkModule = FSTR(L"<{}>{}"sv);
-
 struct StackHelpData
 {
 	string strHelpMask;           // значение маски
@@ -2227,7 +2224,7 @@ namespace help
 			return string(HelpTopic.substr(1));
 
 		auto Topic = pPlugin && HelpTopic.front() != HelpBeginLink?
-			far::format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
+			far::format(L"<{}>{}"sv, pPlugin->ModuleName(), HelpTopic) :
 			string(HelpTopic);
 
 		if (!Topic.starts_with(HelpBeginLink))

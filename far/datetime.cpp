@@ -82,7 +82,9 @@ static string st_time(const tm& Time, const locale_names& Names, bool const is_d
 			Time.tm_year + 1900);
 	}
 
-	const auto Format = [&](const auto FormatString)
+	using date_format_string = far::format_string<wchar_t, int, int, int>;
+
+	const auto Format = [&](date_format_string const& FormatString)
 	{
 		return far::format(FormatString, DateSeparator, Time.tm_mday, Time.tm_mon + 1, Time.tm_year + 1900);
 	};
@@ -90,9 +92,9 @@ static string st_time(const tm& Time, const locale_names& Names, bool const is_d
 	switch(locale.date_format())
 	{
 	default:
-	case date_type::ymd: return Format(FSTR(L"{3:4}{0}{2:02}{0}{1:02}"sv));
-	case date_type::dmy: return Format(FSTR(L"{1:02}{0}{2:02}{0}{3:4}"sv));
-	case date_type::mdy: return Format(FSTR(L"{2:02}{0}{1:02}{0}{3:4}"sv));
+	case date_type::ymd: return Format(L"{3:4}{0}{2:02}{0}{1:02}"sv);
+	case date_type::dmy: return Format(L"{1:02}{0}{2:02}{0}{3:4}"sv);
+	case date_type::mdy: return Format(L"{2:02}{0}{1:02}{0}{3:4}"sv);
 	}
 }
 
@@ -584,7 +586,9 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 
 	if (TextMonth)
 	{
-		const auto Format = [&](const auto FormatString)
+		using date_format_string = far::format_string<uint8_t, string, int>;
+
+		const auto Format = [&](date_format_string const& FormatString)
 		{
 			DateText = far::format(FormatString, LocalTime.Day, locale.LocalNames().Months[LocalTime.Month - 1].Short, Year);
 		};
@@ -592,9 +596,9 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 		switch (CurDateFormat)
 		{
 		default:
-		case date_type::ymd: Format(FSTR(L"{2:02} {1:3.3} {0:2}"sv)); break;
-		case date_type::dmy: Format(FSTR(L"{0:2} {1:3.3} {2:02}"sv)); break;
-		case date_type::mdy: Format(FSTR(L"{1:3.3} {0:2} {2:02}"sv)); break;
+		case date_type::ymd: Format(L"{2:02} {1:3.3} {0:2}"sv); break;
+		case date_type::dmy: Format(L"{0:2} {1:3.3} {2:02}"sv); break;
+		case date_type::mdy: Format(L"{1:3.3} {0:2} {2:02}"sv); break;
 		}
 	}
 	else
