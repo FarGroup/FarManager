@@ -498,7 +498,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 		return {};
 	}
 
-	const auto Default = [](unsigned const Value)
+	const auto Default = [](auto const Value)
 	{
 		// Everything else can
 		return Value == time_none? 0 : Value;
