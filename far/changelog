@@ -1,4 +1,17 @@
 --------------------------------------------------------------------------------
+drkns 2025-12-01 20:53:32+00:00 - build 6607
+
+1. Fix separator text in Message function.
+
+2. Fix time parsing in filters.
+
+3. Improve error handling in Help.
+
+4. Refactoring.
+
+5. Warning.
+
+--------------------------------------------------------------------------------
 zg 2025-12-01 22:05:24+02:00 - build 6606
 
 1. EOPT_SHOWLINENUMBERS and ESPT_SHOWLINENUMBERS are added to API.
