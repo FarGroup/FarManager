@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6585.0
+Plugin API for Far Manager 3.0.6606.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6585
+#define FARMANAGERVERSION_BUILD 6606
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -1755,6 +1755,7 @@ enum EDITOR_SETPARAMETER_TYPES
 	ESPT_GETWORDDIV                 = 9,
 	ESPT_SHOWWHITESPACE             = 10,
 	ESPT_SETBOM                     = 11,
+	ESPT_SHOWLINENUMBERS            = 12,
 };
 
 
@@ -1838,6 +1839,7 @@ enum EDITOR_OPTIONS
 	EOPT_SHOWTITLEBAR      = 0x00000800,
 	EOPT_SHOWKEYBAR        = 0x00001000,
 	EOPT_SHOWSCROLLBAR     = 0x00002000,
+	EOPT_SHOWLINENUMBERS   = 0x00004000,
 };
 
 
