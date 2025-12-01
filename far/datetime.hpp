@@ -48,22 +48,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-using time_component = unsigned int;
+using time_component = uint32_t;
 
 constexpr inline struct
 {
-	constexpr operator uint8_t() const { return static_cast<uint8_t>(time_none); }
-	constexpr operator uint16_t() const { return static_cast<uint16_t>(time_none); }
-	constexpr operator uint32_t() const { return time_none; }
-
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wunused-template")
-	constexpr bool operator==(std::integral auto const Component) const { return Component == static_cast<decltype(Component)>(time_none); }
+	template<std::unsigned_integral I> requires (sizeof(I) <= sizeof(time_component))
+	consteval operator I() const
+	{
+		return static_cast<I>(time_type::none);
+	}
+
+	constexpr bool operator==(std::unsigned_integral auto const Component) const
+	{
+		return Component == static_cast<decltype(Component)>(time_type::none);
+	}
 WARNING_POP()
 
 private:
-	enum { time_none = std::numeric_limits<time_component>::max() };
-
+	enum class time_type: time_component
+	{
+		none = std::numeric_limits<time_component>::max()
+	};
 }
 time_none;
 

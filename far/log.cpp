@@ -1203,6 +1203,22 @@ namespace logging
 	{
 		engine::restore();
 	}
+
+#if 0
+	static const thread_local struct thread_monitor
+	{
+		thread_monitor()
+		{
+			LOGTRACE(L"Thread started"sv);
+		}
+
+		~thread_monitor()
+		{
+			LOGTRACE(L"Thread ended"sv);
+		}
+	}
+	ThreadMonitor;
+#endif
 }
 
 NIFTY_DEFINE(logging::engine, log_engine);

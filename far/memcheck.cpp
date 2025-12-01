@@ -77,6 +77,7 @@ struct memory_block
 
 	// Initializers aren't really needed here, just to stop GCC from complaining about them.
 	void* Stack[10]{};
+	DWORD ThreadId{};
 
 	memory_block* prev{};
 	memory_block* next{};
@@ -371,6 +372,7 @@ private:
 				L"\nData: "sv, BlobToHexString(view_bytes(Data, std::min(Size, Width / 3)), L' '),
 				L"\nAnsi: "sv, printable_ansi_string(Data, std::min(Size, Width)),
 				L"\nWide: "sv, printable_wide_string(Data, std::min(Size, Width * sizeof(wchar_t))),
+				L"\nThread: "sv, str(i->ThreadId),
 				L"\nStack:\n"sv);
 
 			os::debug::stack_frame Stack[ARRAYSIZE(memory_block::Stack)];
@@ -424,6 +426,8 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 			// RtlCaptureStackBackTrace is invoked directly since we don't need to make debug builds Win2k compatible
 			if (const auto Captured = RtlCaptureStackBackTrace(FramesToSkip, static_cast<DWORD>(std::size(Block->Stack)), Block->Stack, {}); Captured < std::size(Block->Stack))
 				Block->Stack[Captured] = {};
+
+			Block->ThreadId = GetCurrentThreadId();
 
 			Block->end_marker() = EndMarker;
 
