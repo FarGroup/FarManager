@@ -325,6 +325,7 @@ static message_result MessageImpl(
 			if (!Str.empty() && any_of(Str.front(), L'\1', L'\2'))
 			{
 				Item.Flags |= (Str.front() == L'\2'? DIF_SEPARATOR2 : DIF_SEPARATOR);
+				Str.erase(0, 1);
 				if(Index == Strings.size() - 1)
 				{
 					StrSeparator=true;
@@ -339,9 +340,8 @@ static message_result MessageImpl(
 					Item.X1 = 5;
 					Item.X2 = Position.width() - 6;
 				}
-
-				Item.strData = std::move(Str);
 			}
+			Item.strData = std::move(Str);
 			MsgDlg.emplace_back(std::move(Item));
 		}
 
