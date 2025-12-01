@@ -5625,6 +5625,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					Info->Options|=EOPT_SHOWLINEBREAK;
 			}
 
+			if (GetShowLineNumbers())
+				Info->Options|=EOPT_SHOWLINENUMBERS;
+
 			if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()))
 				Info->Options |= EOPT_SHOWSCROLLBAR;
 
@@ -5949,6 +5952,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			case ESPT_SHOWWHITESPACE:
 				SetShowWhiteSpace(espar->iParam);
+				return true;
+
+			case ESPT_SHOWLINENUMBERS:
+				SetShowLineNumbers(espar->iParam);
 				return true;
 
 			default:
