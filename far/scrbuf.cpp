@@ -489,6 +489,38 @@ void ScreenBuf::Flush(flush_type FlushType)
 	if (!console.IsViewportVisible())
 		return;
 
+	if (flags::check_one(FlushType, flush_type::cursor))
+	{
+		// Example: a dialog with an edit control, dragged beyond the screen
+		const auto IsCursorInBuffer = is_visible(m_CurPos);
+
+		// Skip setting cursor position if it's not in the viewport to prevent Windows from repositioning the console window
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBuffer && console.IsPositionVisible(m_CurPos))
+		{
+			auto CorrectedPosition = m_CurPos;
+
+			if (m_CurPos.x > 0)
+			{
+				const auto& Cell = Buf.at(m_CurPos.y, m_CurPos.x);
+				const auto& PrevCell = Buf.at(m_CurPos.y, m_CurPos.x - 1);
+
+				if (is_valid_surrogate_pair(PrevCell.Char, Cell.Char) || (char_width::is_enabled() && Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
+				{
+					--CorrectedPosition.x;
+				}
+			}
+
+			console.SetCursorPosition(CorrectedPosition);
+			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
+		}
+
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
+		{
+			console.SetCursorInfo({ static_cast<DWORD>(CurSize), CurVisible && IsCursorInBuffer });
+			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
+		}
+	}
+
 	if (flags::check_one(FlushType, flush_type::screen))
 	{
 		ShowTime();
@@ -680,38 +712,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 			}
 
 			SBFlags.Set(SBFLAGS_FLUSHED);
-		}
-	}
-
-	if (flags::check_one(FlushType, flush_type::cursor))
-	{
-		// Example: a dialog with an edit control, dragged beyond the screen
-		const auto IsCursorInBuffer = is_visible(m_CurPos);
-
-		// Skip setting cursor position if it's not in the viewport to prevent Windows from repositioning the console window
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBuffer && console.IsPositionVisible(m_CurPos))
-		{
-			auto CorrectedPosition = m_CurPos;
-
-			if (m_CurPos.x > 0)
-			{
-				const auto& Cell = Buf.at(m_CurPos.y, m_CurPos.x);
-				const auto& PrevCell = Buf.at(m_CurPos.y, m_CurPos.x - 1);
-
-				if (is_valid_surrogate_pair(PrevCell.Char, Cell.Char) || (char_width::is_enabled() && Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
-				{
-					--CorrectedPosition.x;
-				}
-			}
-
-			console.SetCursorPosition(CorrectedPosition);
-			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
-		}
-
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
-		{
-			console.SetCursorInfo({ static_cast<DWORD>(CurSize), CurVisible && IsCursorInBuffer });
-			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 	}
 }
