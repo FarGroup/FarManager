@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 2025-12-02 21:38:32+00:00 - build 6608
+
+1. gh-1053: Flush cursor info before screen text.
+   For some unholy reason the order is now important.
+
+2. Fix editor line numbers background.
+
+3. Catch2 3.11.0.
+
+--------------------------------------------------------------------------------
 drkns 2025-12-01 20:53:32+00:00 - build 6607
 
 1. Fix separator text in Message function.
