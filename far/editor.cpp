@@ -355,7 +355,9 @@ void Editor::ShowEditor()
 
 	if (Y != m_Where.bottom + 1)
 	{
-		SetScreen({ m_Where.left, Y, XX2, m_Where.bottom }, L' ', Color); //Пустые строки после конца текста
+		// Empty space after the last line
+		SetScreen({ m_Where.left + LineNumWidth, Y, XX2, m_Where.bottom }, L' ', Color);
+		SetScreen({ m_Where.left, Y, LineNumWidth - 1, m_Where.bottom }, L' ', LineNumColor);
 	}
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
