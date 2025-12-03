@@ -66,10 +66,24 @@ bool is_far_eol_before(const wchar_t* const Begin, const wchar_t* const Iterator
 
 	// After \r, but not within \r\n or \r\r\n
 	string_view const Str(Iterator, End);
-	if (Iterator[-1] == L'\r' && !Str.starts_with(L"\n"sv) && !Str.starts_with(L"\r\n"))
+	return Iterator[-1] == L'\r' && !Str.starts_with(L"\n"sv) && !Str.starts_with(L"\r\n");
+}
+
+bool is_far_eol(const wchar_t* const Begin, const wchar_t* const Iterator, const wchar_t* const End)
+{
+	if (Iterator == End)
 		return true;
 
-	return false;
+	string_view const Str(Iterator, End);
+
+	// \n or \r\n, but not within \r\n or \r\r\n
+	if (*Iterator == L'\n' || Str.starts_with(L"\r\n"sv))
+		return Iterator == Begin || Iterator[-1] != L'\r';
+
+	if (Str.starts_with(L"\r\r\n"sv))
+		return true;
+
+	return *Iterator == L'\r';
 }
 
 string_view regex_exception::to_string(REError const Code)
@@ -1890,7 +1904,7 @@ bool RegExp::InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t*
 				}
 				case opLineEnd:
 				{
-					if (str == strend || is_far_eol_before(start, str + 1, strend))
+					if (str == strend || is_far_eol(start, str, strend))
 						continue;
 
 					break;
@@ -3922,30 +3936,46 @@ TEST_CASE("regex.multiline")
 
 	// We expect it to work correctly with all the EOLs we support - \r, \n, \r\n, \r\r\n
 
-	const auto Str = L"1\r2\n3\r\n4\r\r\n5\r\r6"sv;
-	//                 ^  ^  ^    ^      ^   ^^
-	//                 0 00 00 0 00 0 0 11 1 11
-	//                 0 12 34 5 67 8 9 01 2 34
+	const auto Str = L"1\r2\n3\r\n\n4\r\r\r\n5\r\r67\n8"sv;
+	//                 ^  ^  ^     ^^   ^    ^   ^^   ^
+	//                   $  $  $   $  $ $      $ $   $ $
+	//                 0 00 00 0 0 00 0 1 1 11 1 111 112
+	//                 0 12 34 5 6 78 9 0 1 23 4 567 890
 
-	int const ExpectedBegins[]
+	struct line
 	{
-		0, 2, 4, 7, 11, 13, 14
+		int begin;
+		int end;
+	}
+	const ExpectedLines[]
+	{
+		{  0,  1 },
+		{  2,  3 },
+		{  4,  5 },
+		{  7,  7 },
+		{  8,  9 },
+		{ 10, 10 },
+		{ 13, 14 },
+		{ 15, 15 },
+		{ 16, 18 },
+		{ 19, 20 },
 	};
 
 	regex_match Match;
 
 	for (size_t i = 0; i != Str.size(); ++i)
 	{
-		REQUIRE(reBegin.SearchEx(Str, i, Match));
-		const auto NextStartIterator = std::ranges::find_if(ExpectedBegins, [&](int const n){ return n >= static_cast<int>(i); });
-		const auto NextStart = *NextStartIterator;
-		REQUIRE(Match.Matches[0].start == NextStart);
-		REQUIRE(Match.Matches[0].end == NextStart);
+		const auto Line = *std::ranges::find_if(ExpectedLines, [&](line const& p) { return p.begin >= static_cast<int>(i); });
 
-		REQUIRE(reEnd.SearchEx(Str, NextStart, Match));
-		const auto NextEnd = NextStartIterator + 1 == std::end(ExpectedBegins)? static_cast<int>(Str.size()) : NextStartIterator[1] - 1;
-		REQUIRE(Match.Matches[0].start == NextEnd);
-		REQUIRE(Match.Matches[0].end == NextEnd);
+		REQUIRE(reBegin.SearchEx(Str, i, Match));
+		REQUIRE(Match.Matches.size() == 1uz);
+		REQUIRE(Match.Matches[0].start == Line.begin);
+		REQUIRE(Match.Matches[0].end == Line.begin);
+
+		REQUIRE(reEnd.SearchEx(Str, Line.begin, Match));
+		REQUIRE(Match.Matches.size() == 1uz);
+		REQUIRE(Match.Matches[0].start == Line.end);
+		REQUIRE(Match.Matches[0].end == Line.end);
 	}
 }
 #endif
