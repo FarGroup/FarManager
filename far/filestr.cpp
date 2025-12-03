@@ -193,8 +193,6 @@ bool enum_lines::GetTString(std::basic_string<T, Traits>& To, eol& Eol) const
 
 			case 2:
 				Eol = eol::mac;
-				m_EmitExtraCr = true;
-				m_CrSeen = 1;
 				return true;
 
 			default:
@@ -631,6 +629,21 @@ TEST_CASE("enum_lines.eol")
 		{ L"\r\n\r\n"sv, {
 			{ {}, eol::win },
 			{ {}, eol::win },
+		}},
+		{ L"\r\r\r\n"sv, {
+			{ {}, eol::mac },
+			{ {}, eol::bad_win },
+		}},
+		{ L"\r\r\r\r\n"sv, {
+			{ {}, eol::mac },
+			{ {}, eol::mac },
+			{ {}, eol::bad_win },
+		}},
+		{ L"\r\r\r\r\r\n"sv, {
+			{ {}, eol::mac },
+			{ {}, eol::mac },
+			{ {}, eol::mac },
+			{ {}, eol::bad_win },
 		}},
 		{ L"\r\r\n\r\r\n"sv, {
 			{ {}, eol::bad_win },
