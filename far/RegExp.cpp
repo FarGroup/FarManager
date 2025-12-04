@@ -80,9 +80,6 @@ bool is_far_eol(const wchar_t* const Begin, const wchar_t* const Iterator, const
 	if (*Iterator == L'\n' || Str.starts_with(L"\r\n"sv))
 		return Iterator == Begin || Iterator[-1] != L'\r';
 
-	if (Str.starts_with(L"\r\r\n"sv))
-		return true;
-
 	return *Iterator == L'\r';
 }
 
