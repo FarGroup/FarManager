@@ -220,11 +220,10 @@ int rx_find_match(lua_State *L, int Op, int is_function, int is_wide)
 	data.Length = len;
 	data.Position = luaL_optinteger(L, 3, 1);
 
-	if (data.Position > 0 && --data.Position > data.Length)
-		data.Position = data.Length;
-
-	if (data.Position < 0 && (data.Position += data.Length) < 0)
-		data.Position = 0;
+	if (data.Position > 0)
+		data.Position--;
+	else if (data.Position < 0)
+		data.Position += data.Length;
 
 	data.Count = RegExpControl(fr->hnd, RECTL_BRACKETSCOUNT, 0, 0);
 	data.Match = (struct RegExpMatch*)lua_newuserdata(L, data.Count*sizeof(struct RegExpMatch));

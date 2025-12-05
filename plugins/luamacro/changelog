@@ -1,3 +1,7 @@
+shmuel 2025-12-05 18:44:38+02:00 - build 909
+
+1. LuaFAR (regex): fix a corner case.
+
 shmuel 2025-11-23 12:04:52+02:00 - build 908
 
 1. Correct the previous commit.
