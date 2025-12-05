@@ -2127,10 +2127,8 @@ void Edit::ApplyColor(std::multiset<ColorItem> const& Colors, int XPos, int Focu
 				LastLast = CurItem.Flags & ECF_TABMARKFIRST? TabVisualFirst : TabVisualLast;
 		}
 
-		First -= FocusedLeftPos;
-		LastLast -= FocusedLeftPos;
-
-		LastLast = std::min(LastLast, Width - 1);
+		First = std::max(0, First - FocusedLeftPos);
+		LastLast = std::clamp(LastLast - FocusedLeftPos, 0, Width - 1);
 
 		Global->ScrBuf->ApplyColor({ m_Where.left + First, m_Where.top, m_Where.left + LastLast, m_Where.top }, CurItem.GetColor());
 	}

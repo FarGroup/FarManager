@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2025-12-05 19:23:22+00:00 - build 6612
+
+1. Fix another corner case with editor line numbers.
+
+--------------------------------------------------------------------------------
 drkns 2025-12-04 21:58:24+00:00 - build 6611
 
 1. Reduce the number of pointless messages when deleting in "Skip all" mode.
