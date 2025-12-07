@@ -638,7 +638,7 @@ namespace os::fs
 	bool is_directory_symbolic_link(const find_data& Data);
 
 	[[nodiscard]]
-	bool can_create_file(string_view Name);
+	bool can_create_file_in(string_view DirectoryName);
 
 
 	[[nodiscard]]

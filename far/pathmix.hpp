@@ -98,6 +98,9 @@ namespace path
 
 	string normalize_separators(string Path);
 	string normalize_separators(string_view Path);
+
+	string parent_path(string&& Path);
+	string_view parent_path(string_view Path);
 }
 
 string nt_path(string_view Path);

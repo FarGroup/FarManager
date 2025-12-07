@@ -224,6 +224,16 @@ namespace os
 		SetErrorMode(SetErrorMode(0) & ~Mask);
 	}
 
+	void set_preferred_error_mode()
+	{
+		set_error_mode(
+			SEM_FAILCRITICALERRORS |
+			SEM_NOOPENFILEERRORBOX |
+			SEM_NOALIGNMENTFAULTEXCEPT |
+			SEM_NOGPFAULTERRORBOX
+		);
+	}
+
 constexpr struct
 {
 	size_t

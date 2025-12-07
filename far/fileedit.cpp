@@ -1950,16 +1950,9 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 	}
 }
 
-static auto parent_directory(string_view const FileName)
-{
-	auto Path = FileName;
-	CutToParent(Path);
-	return Path;
-}
-
 bool FileEditor::SaveAction(bool const SaveAsIntention)
 {
-	const auto ParentDirectory = parent_directory(strFullFileName);
+	const auto ParentDirectory = path::parent_path(strFullFileName);
 
 	const auto SaveAs =
 		SaveAsIntention ||

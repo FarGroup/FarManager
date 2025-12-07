@@ -127,6 +127,18 @@ string path::normalize_separators(string_view Path)
 	return normalize_separators(string(Path));
 }
 
+string path::parent_path(string&& Path)
+{
+	CutToParent(Path);
+	return Path;
+}
+
+string_view path::parent_path(string_view Path)
+{
+	CutToParent(Path);
+	return Path;
+}
+
 string nt_path(string Path)
 {
 	if (Path.empty())

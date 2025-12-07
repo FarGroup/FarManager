@@ -1980,9 +1980,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									// The user could potentially save the temporary file to a different location
 									string Dummy;
 									ShellEditor->GetTypeAndName(Dummy, strFileName);
-									string_view ParentDirectory = strFileName;
-									CutToParent(ParentDirectory);
-									if (!equal_icase(ParentDirectory, TemporaryDirectory))
+									if (!equal_icase(path::parent_path(strFileName), TemporaryDirectory))
 										DeleteTemporaryFile = false;
 								}
 

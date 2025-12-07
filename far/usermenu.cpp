@@ -388,10 +388,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName)
 		else
 		{
 			m_MenuMode = menu_mode::custom;
-
-			auto ParentDir = MenuFileName;
-			CutToParent(ParentDir);
-			strMenuFilePath = ParentDir;
+			strMenuFilePath = path::parent_path(MenuFileName);
 		}
 	}
 

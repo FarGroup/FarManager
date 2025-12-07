@@ -2570,9 +2570,9 @@ WARNING_POP()
 		return is_directory_reparse_point(Data.Attributes) && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
 	}
 
-	bool can_create_file(string_view const Name)
+	bool can_create_file_in(string_view const DirectoryName)
 	{
-		return file(Name, GENERIC_WRITE, file_share_all, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
+		return create_file(DirectoryName, FILE_ADD_FILE, file_share_all, nullptr, OPEN_EXISTING)? true : false;
 	}
 
 	bool CreateSymbolicLinkInternal(string_view const Object, string_view const Target, DWORD Flags)

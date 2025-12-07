@@ -266,37 +266,28 @@ static bool EraseFileData(string_view const Name, progress Files, delete_progres
 	return true;
 }
 
-static bool EraseFile(string_view const Name, progress Files, delete_progress const& Progress)
+static bool EraseFile(string_view const FullName, progress Files, delete_progress const& Progress)
 {
-	if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL))
+	if (!os::fs::set_file_attributes(FullName, FILE_ATTRIBUTE_NORMAL))
 		return false;
 
-	if (!EraseFileData(Name, Files, Progress))
+	if (!EraseFileData(FullName, Files, Progress))
 		return false;
 
-	const auto strTempName = MakeTemp({}, false);
+	const auto strTempName = MakeTemp({}, false, path::parent_path(FullName));
 
-	if (!os::fs::move_file(Name, strTempName))
+	if (!os::fs::move_file(FullName, strTempName))
 		return false;
 
 	return os::fs::delete_file(strTempName);
 }
 
-static bool EraseDirectory(string_view const Name)
+static bool EraseDirectory(string_view const FullName)
 {
-	auto Path = Name;
+	const auto strTempName = MakeTemp({}, false, path::parent_path(FullName));
 
-	if (!CutToParent(Path))
-	{
-		Path = {};
-	}
-
-	const auto strTempName = MakeTemp({}, false, Path);
-
-	if (!os::fs::move_file(Name, strTempName))
-	{
+	if (!os::fs::move_file(FullName, strTempName))
 		return false;
-	}
 
 	return os::fs::remove_directory(strTempName);
 }
@@ -571,13 +562,13 @@ void ShellDelete::process_item(
 		}
 	}
 
+	const auto strSelFullName = IsAbsolutePath(strSelName)?
+		strSelName :
+		path::join(SrcPanel->GetCurDir(), strSelName);
+
 	if (!DirSymLink && m_DeleteType != delete_type::recycle)
 	{
 		ScanTree ScTree(true, true, FALSE);
-
-		const auto strSelFullName = IsAbsolutePath(strSelName)?
-			strSelName :
-			path::join(SrcPanel->GetCurDir(), strSelName);
 
 		ScTree.SetFindPath(strSelFullName, L"*"sv);
 
@@ -685,7 +676,7 @@ void ShellDelete::process_item(
 	bool RetryRecycleAsRemove = false;
 
 	if (ERemoveDirectory(
-		strSelName,
+		strSelFullName,
 		m_DeleteType == delete_type::recycle && DirSymLink && !IsWindowsVistaOrGreater()?
 		delete_type::remove :
 		m_DeleteType,

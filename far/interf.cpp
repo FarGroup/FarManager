@@ -906,11 +906,16 @@ static void string_to_cells_full_width_aware(string_view Str, size_t& CharsConsu
 	}
 }
 
+static void string_to_cells(string_view Str, size_t& CharsConsumed, cells& Cells, size_t const CellsAvailable)
+{
+	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
+}
+
 void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
 {
 	cells Cells;
 	const auto& CellsToBeConsumed = Cells.emplace<0>();
-	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
+	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
 	CellsConsumed = CellsToBeConsumed;
 
 #ifdef _DEBUG
@@ -929,7 +934,7 @@ size_t Text(string_view Str, size_t const CellsAvailable)
 
 	size_t CharsConsumed = 0;
 
-	(char_width::is_enabled()? string_to_cells_full_width_aware : string_to_cells_simple)(Str, CharsConsumed, Cells, CellsAvailable);
+	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());
@@ -997,7 +1002,6 @@ enum class hi_string_state
 
 static void HiTextBase(string_view const Str, function_ref<void(string_view, hi_string_state)> const TextHandler)
 {
-	bool Unescape = false;
 	for (size_t Offset = 0;;)
 	{
 		const auto AmpBegin = Str.find(L'&', Offset);
@@ -1026,12 +1030,11 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, hi_
 		if (!((AmpEnd - AmpBegin) & 1))
 		{
 			Offset = AmpEnd;
-			Unescape = true;
 			continue;
 		}
 
 		if (AmpBegin)
-			TextHandler(Str.substr(0, AmpBegin), Unescape? hi_string_state::needs_unescape : hi_string_state::ready);
+			TextHandler(Str.substr(0, AmpBegin), Offset? hi_string_state::needs_unescape : hi_string_state::ready);
 
 		auto CurPos = AmpBegin + 1;
 
@@ -1039,7 +1042,7 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, hi_
 			return;
 
 		// We can only use single characters as hotkeys now
-		if (const auto IsSurogate = CurPos + 1 != Str.size() && is_valid_surrogate_pair(Str[CurPos], Str[CurPos + 1]); !IsSurogate)
+		if (const auto IsSurrogate = CurPos + 1 != Str.size() && is_valid_surrogate_pair(Str[CurPos], Str[CurPos + 1]); !IsSurrogate)
 		{
 			TextHandler(Str.substr(CurPos, 1), hi_string_state::highlight);
 			++CurPos;
@@ -1048,7 +1051,7 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, hi_
 		if (CurPos == Str.size())
 			return;
 
-		const auto HiAmpCollapse = Str[AmpBegin + 1] == L'&' && Str[AmpBegin + 2] == L'&';
+		const auto HiAmpCollapse = Str.substr(AmpBegin).starts_with(L"&&&"sv);
 		const auto Tail = Str.substr(CurPos + (HiAmpCollapse? 1 : 0));
 		TextHandler(Tail, Tail.find(L'&') == Tail.npos? hi_string_state::ready : hi_string_state::needs_unescape);
 
@@ -1881,6 +1884,9 @@ TEST_CASE("interf.highlight")
 		{ L"1&&&2"sv,        L"1&2"sv,       L'&',   1, {  0,  0 }, },
 		{ L"&1&&&2"sv,       L"1&2"sv,       L'1',   0, {  0,  1 }, },
 		{ L"&1&2&3&"sv,      L"123"sv,       L'1',   0, {  2,  5 }, },
+		{ L"&&1&2&"sv,       L"&12"sv,       L'2',   2, {  2,  4 }, },
+		{ L"123&&"sv,        L"123&"sv,      0,     np, {  3,  4 }, },
+		{ L"1&&&"sv,         L"1&"sv,        L'&',   1, {  1,  2 }, },
 	};
 
 	for (const auto& i: Tests)

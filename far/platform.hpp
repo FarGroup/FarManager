@@ -229,6 +229,7 @@ namespace os
 
 	void set_error_mode(unsigned Mask);
 	void unset_error_mode(unsigned Mask);
+	void set_preferred_error_mode();
 
 	[[nodiscard]]
 	NTSTATUS get_last_nt_status(void const* Teb);

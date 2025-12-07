@@ -597,16 +597,11 @@ namespace os::debug::symbols
 
 		if (const auto FarPath = fs::get_current_process_file_name(); !FarPath.empty() && FarPath != Module)
 		{
-			string_view FarPathView = FarPath;
-			CutToParent(FarPathView);
-			append_to_search_path(Path, FarPathView);
+			append_to_search_path(Path, path::parent_path(FarPath));
 		}
 
 		if (!Module.empty())
-		{
-			CutToParent(Module);
-			append_to_search_path(Path, Module);
-		}
+			append_to_search_path(Path, path::parent_path(Module));
 
 		for (const auto& Var: { L"_NT_SYMBOL_PATH"sv, L"_NT_ALTERNATE_SYMBOL_PATH"sv })
 		{
