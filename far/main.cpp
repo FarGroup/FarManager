@@ -214,7 +214,12 @@ static int MainProcess(
 
 			const auto SetupPanel = [&](bool active)
 			{
-				string strPath(path::parent_path(active? apanel : ppanel));
+				string strPath = active? apanel : ppanel;
+				if (active? IsFileA : IsFileP)
+				{
+					CutToParent(strPath);
+				}
+
 				bool Root = false;
 				const auto Type = ParsePath(strPath, nullptr, &Root);
 				if(Root && (Type == root_type::drive_letter || Type == root_type::win32nt_drive_letter || Type == root_type::volume))
