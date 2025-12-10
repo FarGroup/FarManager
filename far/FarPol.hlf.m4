@@ -5177,13 +5177,13 @@ dużej ilości danych.
         ^<wrap>Łańcuchy zawierające "nazwa=", ale nie zawierające "wartosc", są przetwarzane
 (w rzeczywistości - omijane) szybciej.
 
- #\NN#  - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów. NN jest liczbą całkowitą dodatnią.
+ #\N#   - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów. N jest numer.
 Wszystkie nawiasy oprócz (?:wzorzec), (?=wzorzec), (?!wzorzec), (?<=wzorzec) i (?<!wzorzec)
 posiadają numer (w kolejności występowania).
         Przykład:
         "(['"])witaj\1" pasuje do "witaj" lub 'witaj'.
 
- #\p{nazwa}# - ^<wrap>wewnętrzne odwołanie regexp do jego sparsowanego nawiasu o podanej #nazwie#.
+ #\p{nazwa}# - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów o podanej #nazwie#.
 
  #Przykłady:#
 
