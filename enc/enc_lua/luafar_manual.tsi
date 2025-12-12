@@ -6756,7 +6756,7 @@ lv=2
 dt=Text
 nm=far.FindPlugin
 ctime=3536863835
-mtime=3536864018
+mtime=3974736527
 <article>
 #_plugin_handle = far.FindPlugin (Param1, Param2)
 #_
@@ -6766,6 +6766,10 @@ mtime=3536864018
 #_
 #_**Returns:**
 #_  plugin_handle:  userdata, or nil
+#_
+#_  **plugin_handle:rawhandle()**
+#_    returns the original value of handle received from Far Manager
+#_    that is suitable for using with LuaJIT FFI and as a table key.
 #_
 #_**Far API used:**
 #_  PluginsControl
@@ -6781,7 +6785,7 @@ lv=2
 dt=Text
 nm=far.ForcedLoadPlugin
 ctime=3536781579
-mtime=3536863890
+mtime=3974736579
 <article>
 #_plugin_handle = far.ForcedLoadPlugin (Param1, Param2)
 #_
@@ -6791,6 +6795,10 @@ mtime=3536863890
 #_
 #_**Returns:**
 #_  plugin_handle:  userdata, or nil
+#_
+#_  **plugin_handle:rawhandle()**
+#_    returns the original value of handle received from Far Manager
+#_    that is suitable for using with LuaJIT FFI and as a table key.
 #_
 #_**Far API used:**
 #_  PluginsControl
@@ -6900,7 +6908,7 @@ lv=2
 dt=Text
 nm=far.LoadPlugin
 ctime=3536781563
-mtime=3536863897
+mtime=3974736628
 <article>
 #_plugin_handle = far.LoadPlugin (Param1, Param2)
 #_
@@ -6910,6 +6918,10 @@ mtime=3536863897
 #_
 #_**Returns:**
 #_  plugin_handle:  userdata, or nil
+#_
+#_  **plugin_handle:rawhandle()**
+#_    returns the original value of handle received from Far Manager
+#_    that is suitable for using with LuaJIT FFI and as a table key.
 #_
 #_**Far API used:**
 #_  PluginsControl
