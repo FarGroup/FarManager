@@ -5243,7 +5243,7 @@ further match fails it captures more.
 
  #Special characters#
 
- Non-letter and non-digit character can be prepended by ‘#\#’ in most cases,
+ Non-letter and non-digit characters can be prepended by ‘#\#’ in most cases,
 but in case of letters and digits this must be done with care because this is
 the way the special characters are written:
 
