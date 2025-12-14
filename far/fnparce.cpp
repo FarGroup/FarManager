@@ -876,6 +876,20 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		}
 	}
 
+	try
+	{
+		strTmpStr = ProcessMetasymbols(strTmpStr, SubstData);
+	}
+	catch (std::exception const& e)
+	{
+		Message(MSG_WARNING, e,
+			msg(lng::MError),
+			{
+			},
+			{ lng::MOk });
+		return false;
+	}
+
 	strStr = os::env::expand(strTmpStr);
 	return true;
 }
