@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool is_far_eol_before(const wchar_t* const Begin, const wchar_t* const Iterator, const wchar_t* const End)
+static bool is_far_eol_before(const wchar_t* const Begin, const wchar_t* const Iterator, const wchar_t* const End)
 {
 	if (Iterator == Begin)
 		return true;
@@ -69,7 +69,7 @@ bool is_far_eol_before(const wchar_t* const Begin, const wchar_t* const Iterator
 	return Iterator[-1] == L'\r' && !Str.starts_with(L"\n"sv) && !Str.starts_with(L"\r\n");
 }
 
-bool is_far_eol(const wchar_t* const Begin, const wchar_t* const Iterator, const wchar_t* const End)
+static bool is_far_eol(const wchar_t* const Begin, const wchar_t* const Iterator, const wchar_t* const End)
 {
 	if (Iterator == End)
 		return true;
