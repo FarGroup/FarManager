@@ -158,12 +158,49 @@ namespace tests
 	}
 
 	[[noreturn]]
-	static void cpp_unknown()
+	static void cpp_unknown_int()
+	{
+		throw 42;
+	}
+
+	[[noreturn]]
+	static void cpp_unknown_uint()
 	{
 		throw 42u;
 	}
 
-	static void cpp_unknown_nested()
+	[[noreturn]]
+	static void cpp_unknown_long()
+	{
+		throw 42l;
+	}
+
+	[[noreturn]]
+	static void cpp_unknown_ulong()
+	{
+		throw 42ul;
+	}
+
+	[[noreturn]]
+	static void cpp_unknown_char()
+	{
+		throw "error";
+	}
+
+	[[noreturn]]
+	static void cpp_unknown_wchar_t()
+	{
+		throw L"error";
+	}
+
+	[[noreturn]]
+	static void cpp_unknown_other()
+	{
+		struct custom_exception{};
+		throw custom_exception{};
+	}
+
+	static void cpp_unknown_int_nested()
 	{
 		std::exception_ptr Ptr;
 
@@ -654,8 +691,14 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_std_nested_thread,        L"nested std::exception (thread)"sv },
 		{ tests::cpp_std_bad_alloc,            L"std::bad_alloc"sv },
 		{ tests::cpp_bad_malloc,               L"malloc failure"sv },
-		{ tests::cpp_unknown,                  L"unknown exception"sv },
-		{ tests::cpp_unknown_nested,           L"unknown exception (nested)"sv },
+		{ tests::cpp_unknown_int,              L"unknown exception (int)"sv },
+		{ tests::cpp_unknown_uint,             L"unknown exception (uint)"sv },
+		{ tests::cpp_unknown_long,             L"unknown exception (long)"sv },
+		{ tests::cpp_unknown_ulong,            L"unknown exception (ulong)"sv },
+		{ tests::cpp_unknown_char,             L"unknown exception (char*)"sv },
+		{ tests::cpp_unknown_wchar_t,          L"unknown exception (wchar_t*)"sv },
+		{ tests::cpp_unknown_other,            L"unknown exception (other)"sv },
+		{ tests::cpp_unknown_int_nested,       L"unknown exception (int, nested)"sv },
 		{ tests::cpp_abort,                    L"abort"sv },
 		{ tests::cpp_terminate,                L"terminate"sv },
 		{ tests::cpp_terminate_unwind,         L"terminate unwind"sv },

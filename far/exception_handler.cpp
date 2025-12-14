@@ -1276,7 +1276,14 @@ static bool is_fake_cpp_exception(const EXCEPTION_RECORD& Record)
 	return Record.ExceptionCode == static_cast<DWORD>(EH_EXCEPTION_NUMBER) && !Record.NumberParameters;
 }
 
-class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_objects, char const*>
+struct catchable_type_info
+{
+	char const* type_name;
+	void const* object_ptr;
+	size_t object_size;
+};
+
+class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_objects, catchable_type_info>
 {
 	IMPLEMENTS_ENUMERATOR(enum_catchable_objects);
 
@@ -1286,6 +1293,7 @@ public:
 		if (!is_cpp_exception(Record))
 			return;
 
+		m_ThrownObjectPtr = Record.NumberParameters >= 2? Record.ExceptionInformation[1] : 0;
 		m_BaseAddress = Record.NumberParameters >= 4? Record.ExceptionInformation[3] : 0;
 		const auto& ThrowInfoRef = view_as<detail::ThrowInfo>(Record.ExceptionInformation[2]);
 		const auto& CatchableTypeArrayRef = view_as<detail::CatchableTypeArray>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
@@ -1294,7 +1302,7 @@ public:
 
 private:
 	[[nodiscard, maybe_unused]]
-	bool get(bool const Reset, char const*& Name) const
+	bool get(bool const Reset, catchable_type_info& Info) const
 	{
 		if (Reset)
 			m_Index = 0;
@@ -1305,25 +1313,65 @@ private:
 		const auto& CatchableTypeRef = view_as<detail::CatchableType>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
 		const auto& TypeInfoRef = view_as<std::type_info>(m_BaseAddress + CatchableTypeRef.pType);
 
-		Name = TypeInfoRef.name();
+		Info.type_name = TypeInfoRef.name();
+		Info.object_size = CatchableTypeRef.sizeOrOffset;
+		Info.object_ptr = std::bit_cast<void const*>(m_ThrownObjectPtr + CatchableTypeRef.thisDisplacement.mdisp);
+
 		return true;
 	}
 
 	std::span<int const> m_CatchableTypesRVAs;
 	size_t mutable m_Index{};
 	uintptr_t m_BaseAddress{};
+	uintptr_t m_ThrownObjectPtr{};
 };
 
-static string ExtractObjectType(EXCEPTION_RECORD const& xr)
+static auto extract_object_value(string_view const TypeName, void const* Data, size_t const DataSize)
+{
+	static_assert(sizeof(int) == sizeof(long));
+
+	if (DataSize == sizeof(unsigned int) && (
+		TypeName == L"int"sv ||
+		TypeName == L"unsigned int"sv ||
+		TypeName == L"long"sv ||
+		TypeName == L"unsigned long"sv
+	))
+	{
+		const auto Value = *static_cast<unsigned int const*>(Data);
+		return os::format_error(Value);
+	}
+
+	if (TypeName == L"char * __ptr64"sv || TypeName == L"char *"sv)
+	{
+		const auto Value = *static_cast<char const* const*>(Data);
+		return encoding::utf8_or_ansi::get_chars(Value);
+	}
+
+	if (TypeName == L"wchar_t * __ptr64"sv || TypeName == L"wchar_t *"sv)
+	{
+		const auto Value = *static_cast<wchar_t const* const*>(Data);
+		return string(Value);
+	}
+
+	return far::format(L"[{} bytes]"sv, DataSize);
+}
+
+static std::pair<string, string> extract_object_type_and_value(EXCEPTION_RECORD const& xr)
 {
 	enum_catchable_objects const CatchableTypesEnumerator(xr);
 	const auto Iterator = CatchableTypesEnumerator.cbegin();
 	if (Iterator != CatchableTypesEnumerator.cend())
-		return encoding::utf8::get_chars(*Iterator);
+	{
+		const auto TypeName = encoding::utf8::get_chars(Iterator->type_name);
+		return { TypeName, extract_object_value(TypeName, Iterator->object_ptr, Iterator->object_size) };
+	}
 
 #if !IS_MICROSOFT_SDK()
 	if (const auto TypeInfo = abi::__cxa_current_exception_type(); TypeInfo)
-		return os::debug::demangle(TypeInfo->name());
+	{
+		const auto TypeName = os::debug::demangle(TypeInfo->name());
+		return { TypeName, {} };
+	}
 #endif
 
 	return {};
@@ -1376,30 +1424,27 @@ static string_view exception_name(NTSTATUS const Code)
 	}
 }
 
-static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
+static std::pair<string, string> exception_name_and_value(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type, string_view const Message)
 {
 	const auto AppendType = [](string& Str, string_view const ExceptionType)
 	{
 		append(Str, L" ("sv, ExceptionType, ')');
 	};
 
-	const auto WithType = [&](string&& Str)
+	auto ExceptionFullName = far::format(L"0x{:0>8X} - {}"sv, ExceptionRecord.ExceptionCode, exception_name(ExceptionRecord.ExceptionCode));
+	string ExceptionValue(Message);
+
+	if (!Type.empty())
 	{
-		if (!Type.empty())
-		{
-			AppendType(Str, Type);
-			return std::move(Str);
-		}
+		AppendType(ExceptionFullName, Type);
+	}
+	else if (const auto [ObjectType, ObjectValue] = extract_object_type_and_value(ExceptionRecord); !ObjectType.empty())
+	{
+		AppendType(ExceptionFullName, ObjectType);
+		ExceptionValue = ObjectValue;
+	}
 
-		if (const auto TypeStr = ExtractObjectType(ExceptionRecord); !TypeStr.empty())
-		{
-			AppendType(Str, TypeStr);
-		}
-		return std::move(Str);
-	};
-
-	const auto Name = exception_name(ExceptionRecord.ExceptionCode);
-	return WithType(far::format(L"0x{:0>8X} - {}"sv, ExceptionRecord.ExceptionCode, Name));
+	return { ExceptionFullName, ExceptionValue };
 }
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message, string& ExtraDetails)
@@ -1570,10 +1615,10 @@ static string collect_information(
 		append(Strings, Line, Eol);
 	};
 
-	const auto Exception = exception_name(Context.exception_record(), Type);
+	const auto [Exception, ExceptionValue] = exception_name_and_value(Context.exception_record(), Type, Message);
 
 	string ExtraDetails;
-	const auto Details = exception_details(ModuleName, Context.exception_record(), Message, ExtraDetails);
+	const auto Details = exception_details(ModuleName, Context.exception_record(), ExceptionValue, ExtraDetails);
 
 	string Address, Name, Source;
 	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
@@ -1782,6 +1827,23 @@ static string collect_information(
 	return Strings;
 }
 
+static auto plugin_info(Plugin const* const PluginModule)
+{
+	if (!PluginModule)
+		return L""s;
+
+	// If we don't even have the title, something must have gone terribly wrong during plugin loading, no point in looking further
+	if (PluginModule->Title().empty())
+		return PluginModule->ModuleName();
+
+	return far::format(L"{} {} ({}, {})"sv,
+		PluginModule->Title(),
+		version_to_string(PluginModule->version()),
+		PluginModule->Description(),
+		PluginModule->Author()
+	);
+}
+
 static handler_result handle_generic_exception(
 	exception_context const& Context,
 	source_location const& Location,
@@ -1814,14 +1876,7 @@ static handler_result handle_generic_exception(
 
 	LOGERROR(L"Unhandled exception, see {} for details"sv, ReportLocation);
 
-	const auto PluginInfo = PluginModule?
-	far::format(L"{} {} ({}, {})"sv,
-		PluginModule->Title(),
-		version_to_string(PluginModule->version()),
-		PluginModule->Description(),
-		PluginModule->Author()
-	) :
-	L""s;
+	const auto PluginInfo = plugin_info(PluginModule);
 
 	constexpr auto MinidumpFlags = static_cast<MINIDUMP_TYPE>(
 		MiniDumpNormal |
@@ -1925,10 +1980,8 @@ void rethrow_if(std::exception_ptr& Ptr)
 
 static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD const& Record, const std::exception& Exception, bool Top = true)
 {
-	std::pair<string, string> Result;
+	auto Result = extract_object_type_and_value(Record);
 	auto& [ObjectType, What] = Result;
-
-	ObjectType = ExtractObjectType(Record);
 
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
@@ -1957,12 +2010,16 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	}
 	catch (...)
 	{
-		auto NestedObjectType = ExtractObjectType(*os::debug::exception_information().ExceptionRecord);
+		auto [NestedObjectType, NestedObjectValue] = extract_object_type_and_value(*os::debug::exception_information().ExceptionRecord);
+
 		if (NestedObjectType.empty())
 			NestedObjectType = L"Unknown"sv;
 
+		if (NestedObjectValue.empty())
+			NestedObjectValue = L"?"sv;
+
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
-		What = concat(L"?"sv, L" -> "sv, What);
+		What = concat(NestedObjectValue, L" -> "sv, What);
 	}
 
 	return Result;
@@ -2073,7 +2130,7 @@ static handler_result handle_seh_exception(
 
 	for (const auto& i : enum_catchable_objects(Record))
 	{
-		if (std::strstr(i, "std::exception"))
+		if (std::strstr(i.type_name, "std::exception"))
 			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), PluginModule, Location)?
 				handler_result::execute_handler :
 				handler_result::continue_search;
