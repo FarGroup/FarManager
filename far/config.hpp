@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;
+class Dialog;
 class DialogBuilder;
 struct PanelViewSettings;
 struct column;
@@ -175,7 +176,8 @@ public:
 	virtual bool IsDefault(const variant& Default) const = 0;
 	virtual void SetDefault(const variant& Default) = 0;
 	[[nodiscard]]
-	virtual bool Edit(DialogBuilder& Builder, int Param) = 0;
+	virtual bool Edit(DialogBuilder& Builder, std::any& Param) = 0;
+	virtual intptr_t EditProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2, std::any& Context);
 	virtual void Export(FarSettingsItem& To) const = 0;
 
 	[[nodiscard]]
@@ -332,9 +334,9 @@ public:
 	[[nodiscard]]
 	bool TryParse(string_view value) override;
 	[[nodiscard]]
-	string_view GetType() const override { return L"boolean"sv; }
+	string_view GetType() const override;
 	[[nodiscard]]
-	bool Edit(DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, std::any& Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -352,9 +354,9 @@ public:
 	[[nodiscard]]
 	bool TryParse(string_view value) override;
 	[[nodiscard]]
-	string_view GetType() const override { return L"3-state"sv; }
+	string_view GetType() const override;
 	[[nodiscard]]
-	bool Edit(DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, std::any& Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -374,9 +376,10 @@ public:
 	[[nodiscard]]
 	string ExInfo() const override;
 	[[nodiscard]]
-	string_view GetType() const override { return L"integer"sv; }
+	string_view GetType() const override;
 	[[nodiscard]]
-	bool Edit(DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, std::any& Param) override;
+	intptr_t EditProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2, std::any& Context) override;
 	void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
@@ -401,9 +404,9 @@ public:
 	[[nodiscard]]
 	bool TryParse(string_view value) override { Set(string(value)); return true; }
 	[[nodiscard]]
-	string_view GetType() const override { return L"string"sv; }
+	string_view GetType() const override;
 	[[nodiscard]]
-	bool Edit(DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, std::any& Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}

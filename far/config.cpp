@@ -95,6 +95,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
@@ -1442,12 +1443,17 @@ struct FARConfigItem
 		return Item;
 	}
 
-	bool Edit(int Mode) const
+	bool Edit() const
 	{
-		DialogBuilder Builder;
-		Builder.AddText(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L"):"sv));
+		std::any Context;
+
+		DialogBuilder Builder(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L")"sv), {}, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2) -> intptr_t
+		{
+			return Value->EditProc(Dlg, Msg, Param1, Param2, Context);
+		});
+
 		int Result = 0;
-		if (!Value->Edit(Builder, Mode))
+		if (!Value->Edit(Builder, Context))
 		{
 			Builder.AddSeparator();
 			Builder.AddButtons({{ lng::MOk, lng::MReset, lng::MCancel }});
@@ -1508,8 +1514,6 @@ static bool ParseIntValue(string_view const sValue, long long& iValue)
 enum class edit_mode
 {
 	normal,
-	hex,
-	bin,
 	reset
 };
 
@@ -1530,6 +1534,12 @@ void detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, 
 }
 
 
+intptr_t Option::EditProc(Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2, std::any& Context)
+{
+	return Dlg->DefProc(Msg, Param1, Param2);
+}
+
+
 bool BoolOption::TryParse(const string_view value)
 {
 	long long iValue;
@@ -1540,7 +1550,12 @@ bool BoolOption::TryParse(const string_view value)
 	return true;
 }
 
-bool BoolOption::Edit(DialogBuilder&, int)
+string_view BoolOption::GetType() const
+{
+	return msg(lng::MConfigEditorBoolean);
+}
+
+bool BoolOption::Edit(DialogBuilder&, std::any&)
 {
 	Set(!Get());
 	return true;
@@ -1563,7 +1578,12 @@ bool Bool3Option::TryParse(const string_view value)
 	return true;
 }
 
-bool Bool3Option::Edit(DialogBuilder&, int)
+string_view Bool3Option::GetType() const
+{
+	return msg(lng::MConfigEditorTriState);
+}
+
+bool Bool3Option::Edit(DialogBuilder&, std::any&)
 {
 	Set((Get() + 1) % 3);
 	return true;
@@ -1591,44 +1611,106 @@ bool IntOption::TryParse(const string_view value)
 	return true;
 }
 
-bool IntOption::Edit(DialogBuilder& Builder, int const Param)
+struct int_edit_context
 {
-	switch (static_cast<edit_mode>(Param))
+	intptr_t
+		SignedItem,
+		UnsignedItem,
+		HexItem,
+		BinaryItem;
+
+	bool Updating{};
+};
+
+bool IntOption::Edit(DialogBuilder& Builder, std::any& Param)
+{
+	auto& Context = Param.emplace<int_edit_context>();
+
+	Builder.AddText(lng::MConfigEditorIntegerSigned);
+	Builder.AddIntEditField(*this, 21);
+	Context.SignedItem = Builder.GetLastID();
+
+	Builder.AddText(lng::MConfigEditorIntegerUnsigned);
+	Builder.AddIntEditField(*this, 21, true);
+	Context.UnsignedItem = Builder.GetLastID();
+
+	Builder.AddText(lng::MConfigEditorIntegerHexadecimal);
+	Builder.AddHexEditField(*this, 2 + 16);
+	Context.HexItem = Builder.GetLastID();
+
+	Builder.AddText(lng::MConfigEditorIntegerBinary);
+	Builder.AddBinaryEditField(*this, 64);
+	Context.BinaryItem = Builder.GetLastID();
+
+	string High, Low;
+	const auto BitCount = 64;
+
+	High.reserve(BitCount);
+	Low.reserve(BitCount);
+
+	for (const auto i: std::views::iota(0, BitCount))
 	{
-	case edit_mode::normal:
-		Builder.AddIntEditField(*this, 20);
-		break;
-
-	case edit_mode::hex:
-		Builder.AddHexEditField(*this, 16 + 2);
-		break;
-
-	case edit_mode::bin:
-		{
-			Builder.AddBinaryEditField(*this, 64);
-			string High, Low;
-			const auto BitCount = 64;
-
-			High.reserve(BitCount);
-			Low.reserve(BitCount);
-
-			for (const auto i: std::views::iota(0, BitCount))
-			{
-				const auto Num = BitCount - 1 - i;
-				High.push_back(static_cast<wchar_t>(L'0' + Num / 10));
-				Low.push_back(static_cast<wchar_t>(L'0' + Num % 10));
-			}
-
-			Builder.AddText(High).Flags |= DIF_DISABLE;
-			Builder.AddText(Low).Flags |= DIF_DISABLE;
-		}
-		break;
-
-	default:
-		std::unreachable();
+		const auto Num = BitCount - 1 - i;
+		High.push_back(static_cast<wchar_t>(L'0' + Num / 10));
+		Low.push_back(static_cast<wchar_t>(L'0' + Num % 10));
 	}
 
+	Builder.AddText(High).Flags |= DIF_DISABLE;
+	Builder.AddText(Low).Flags |= DIF_DISABLE;
+
+	Param = Context;
+
 	return false;
+}
+
+intptr_t IntOption::EditProc(Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2, std::any& Context)
+{
+	switch (Msg)
+	{
+	case DN_EDITCHANGE:
+		{
+			auto& Ctx = std::any_cast<int_edit_context&>(Context);
+			const auto& Item = *static_cast<const FarDialogItem*>(Param2);
+
+			if (Ctx.Updating)
+				return TRUE;
+
+			Ctx.Updating = true;
+			SCOPE_EXIT{ Ctx.Updating = false; };
+
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+			const auto set = [&](intptr_t const Id, string const& Value)
+			{
+				Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(Value));
+			};
+
+			const auto update = [&](unsigned long long Value)
+			{
+				if (Param1 != Ctx.SignedItem)
+					set(Ctx.SignedItem, str(as_signed(Value)));
+				if (Param1 != Ctx.UnsignedItem)
+					set(Ctx.UnsignedItem, str(as_unsigned(Value)));
+				if (Param1 != Ctx.HexItem)
+					set(Ctx.HexItem, far::format(L"0x{:016X}"sv, as_unsigned(Value)));
+				if (Param1 != Ctx.BinaryItem)
+					set(Ctx.BinaryItem, far::format(L"{0:064b}"sv, as_unsigned(Value)));
+			};
+
+			if (Param1 == Ctx.SignedItem)
+				update(try_from_string<long long>(Item.Data).value_or(0));
+			else if (Param1 == Ctx.UnsignedItem)
+				update(try_from_string<unsigned long long>(Item.Data).value_or(0));
+			else if (Param1 == Ctx.HexItem)
+				update(try_from_string<unsigned long long>(Item.Data, {}, 16).value_or(0));
+			else if (Param1 == Ctx.BinaryItem)
+				update(try_from_string<unsigned long long>(Item.Data, {}, 2).value_or(0));
+		}
+		return TRUE;
+
+	default:
+		return OptionImpl::EditProc(Dlg, Msg, Param1, Param2, Context);
+	}
 }
 
 void IntOption::Export(FarSettingsItem& To) const
@@ -1643,8 +1725,18 @@ string IntOption::ExInfo() const
 	return far::format(L" = 0x{:X}"sv, as_unsigned(Get()));
 }
 
+string_view IntOption::GetType() const
+{
+	return msg(lng::MConfigEditorInteger);
+}
 
-bool StringOption::Edit(DialogBuilder& Builder, int)
+
+string_view StringOption::GetType() const
+{
+	return msg(lng::MConfigEditorString);
+}
+
+bool StringOption::Edit(DialogBuilder& Builder, std::any&)
 {
 	Builder.AddEditField(*this, 40);
 	return false;
@@ -2552,7 +2644,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			break;
 
 		default:
-			if (!CurrentItem->Edit(static_cast<int>(EditMode)))
+			if (!CurrentItem->Edit())
 				return;
 			break;
 		}
@@ -2575,7 +2667,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 			FarListTitles Titles{ sizeof(Titles) };
 
-			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_ALTF4, KEY_DEL, KEY_CTRLH);
+			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_DEL, KEY_CTRLH);
 			Titles.Title = msg(lng::MConfigEditor).c_str();
 			Titles.Bottom = BottomTitle.c_str();
 			Dlg->SendMessage(DM_LISTSETTITLES, ac_item_listbox, &Titles);
@@ -2619,14 +2711,6 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 				case KEY_F4:
 					EditItem(edit_mode::normal);
-					break;
-
-				case KEY_SHIFTF4:
-					EditItem(edit_mode::hex);
-					break;
-
-				case KEY_ALTF4:
-					EditItem(edit_mode::bin);
 					break;
 
 				case KEY_DEL:

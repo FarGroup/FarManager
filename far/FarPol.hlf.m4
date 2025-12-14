@@ -5746,12 +5746,6 @@ Jeżeli bieżąca wartość opcji jest inna niż domyślna, opcja jest oznaczona
  #Enter# lub #F4#
  Przełącza lub edytuje wartość.
 
- #Shift+F4#
- Edytuje wartość całkowitą jako wartość szesnastkową. Dla innych typów działa jak #F4#.
-
- #Alt+F4#
- Edytuje wartość całkowitą jak liczbę binarną. Dla innych typów działa jak #F4#.
-
  #Del#
  Przywraca domyślną wartość opcji.
 

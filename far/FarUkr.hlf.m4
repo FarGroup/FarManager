@@ -5817,12 +5817,6 @@ If current value of an option is other than the default, the option is marked wi
  #Enter# or #F4#
  Toggle or edit the value.
 
- #Shift+F4#
- Edit the integer value as a hexadecimal number. For other types works as #F4#.
-
- #Alt+F4#
- Edit the integer value as a binary number. For other types works as #F4#.
-
  #Del#
  Reset the option to its default value.
 

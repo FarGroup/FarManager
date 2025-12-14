@@ -106,6 +106,11 @@ public:
 		return &value();
 	}
 
+	T value_or(T&& DefaultValue)
+	{
+		return has_value()? **this : FWD(DefaultValue);
+	}
+
 	E const& error() const
 	{
 		if (!has_value())

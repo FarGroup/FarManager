@@ -142,7 +142,7 @@ public:
 	DialogItemEx& AddTextBefore(DialogItemEx& RelativeTo, lng_string Text);
 	DialogItemEx& AddTextAfter(DialogItemEx const& RelativeTo, lng_string Text, int skip = 1);
 	DialogItemEx& AddButtonAfter(DialogItemEx const& RelativeTo, lng_string Text);
-	DialogItemEx& AddIntEditField(IntOption& Value, int Width);
+	DialogItemEx& AddIntEditField(IntOption& Value, int Width, bool Unsigned = false);
 	DialogItemEx& AddHexEditField(IntOption& Value, int Width);
 	DialogItemEx& AddBinaryEditField(IntOption& Value, int Width);
 	DialogItemEx& AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = DIF_NONE);

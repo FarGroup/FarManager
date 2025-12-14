@@ -85,13 +85,20 @@ private:
 class EditFieldIntBinding final: public DialogItemBinding
 {
 public:
-	EditFieldIntBinding(IntOption* IntValue, int Width):
-		m_IntValue(IntValue)
+	EditFieldIntBinding(IntOption* IntValue, int Width, bool const Unsigned):
+		m_IntValue(IntValue),
+		m_Unsigned(Unsigned)
 	{
-		m_Mask[0] = L'#';
-		const auto MaskWidth = std::min(static_cast<int>(std::size(m_Mask) - 1), Width);
+		m_Mask[0] = Unsigned? L'9' : L'#';
+		const auto MaskWidth = std::min(static_cast<int>(std::size(m_Mask) - 1), std::min(Width, 20));
 		std::fill(m_Mask + 1, m_Mask + MaskWidth, L'9');
 		m_Mask[MaskWidth] = {};
+	}
+
+	auto data() const
+	{
+		const auto Value = m_IntValue->Get();
+		return m_Unsigned? str(as_unsigned(Value)) : str(Value);
 	}
 
 	void SaveValue(DialogItemEx const& Item, int const RadioGroupIndex) override
@@ -125,6 +132,7 @@ public:
 private:
 	IntOption* m_IntValue;
 	wchar_t m_Mask[32];
+	bool m_Unsigned;
 };
 
 class EditFieldHexBinding final: public DialogItemBinding
@@ -137,6 +145,11 @@ public:
 		m_Mask[1] = L'x';
 		std::fill(std::begin(m_Mask) + 2, std::end(m_Mask) - 1, L'H');
 		*(std::end(m_Mask) - 1) = {};
+	}
+
+	auto data() const
+	{
+		return far::format(L"0x{:016X}"sv, as_unsigned(m_IntValue->Get()));
 	}
 
 	void SaveValue(DialogItemEx const& Item, int const RadioGroupIndex) override
@@ -169,6 +182,11 @@ public:
 	{
 		std::fill(std::begin(m_Mask), std::end(m_Mask) - 1, L'\1');
 		*(std::end(m_Mask) - 1) = {};
+	}
+
+	auto data() const
+	{
+		return far::format(L"{0:064b}", as_unsigned(m_IntValue->Get()));
 	}
 
 	void SaveValue(DialogItemEx const& Item, int const RadioGroupIndex) override
@@ -338,14 +356,14 @@ static intptr_t ItemWidth(const DialogItemEx& Item)
 	return 0;
 }
 
+constexpr size_t SupportedSize = 128;
+
 DialogBuilder::DialogBuilder(lng_string const Title, const string_view HelpTopic, Dialog::dialog_handler handler):
 	m_HelpTopic(HelpTopic),
 	m_handler(std::move(handler))
 {
-	constexpr size_t MinSize = 128;
-
-	m_DialogItems.reserve(MinSize);
-	m_Bindings.reserve(MinSize);
+	m_DialogItems.reserve(SupportedSize);
+	m_Bindings.reserve(SupportedSize);
 
 	AddBorder(Title.c_str());
 }
@@ -425,14 +443,14 @@ DialogItemEx& DialogBuilder::AddButtonAfter(DialogItemEx const& RelativeTo, lng_
 	return Item;
 }
 
-DialogItemEx& DialogBuilder::AddIntEditField(IntOption& Value, int Width)
+DialogItemEx& DialogBuilder::AddIntEditField(IntOption& Value, int Width, bool const Unsigned)
 {
 	auto& Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item.strData = str(Value.Get());
 	SetNextY(Item);
 	Item.X2 = Item.X1 + Width - 1;
 
-	auto Binding = std::make_unique<EditFieldIntBinding>(&Value, Width);
+	auto Binding = std::make_unique<EditFieldIntBinding>(&Value, Width, Unsigned);
+	Item.strData = Binding->data();
 	Item.Flags |= DIF_MASKEDIT;
 	Item.strMask = Binding->GetMask();
 	SetLastItemBinding(std::move(Binding));
@@ -442,11 +460,11 @@ DialogItemEx& DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx& DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	auto& Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item.strData = far::format(L"{:016X}"sv, as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item.X2 = Item.X1 + Width - 1;
 
 	auto Binding = std::make_unique<EditFieldHexBinding>(&Value);
+	Item.strData = Binding->data();
 	Item.Flags |= DIF_MASKEDIT;
 	Item.strMask = Binding->GetMask();
 	SetLastItemBinding(std::move(Binding));
@@ -456,11 +474,11 @@ DialogItemEx& DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 DialogItemEx& DialogBuilder::AddBinaryEditField(IntOption& Value, int Width)
 {
 	auto& Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item.strData = far::format(L"{0:064b}", as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item.X2 = Item.X1 + Width - 1;
 
 	auto Binding = std::make_unique<EditFieldBinaryBinding>(&Value);
+	Item.strData = Binding->data();
 	Item.Flags |= DIF_MASKEDIT;
 	Item.strMask = Binding->GetMask();
 	SetLastItemBinding(std::move(Binding));
@@ -814,6 +832,8 @@ bool DialogBuilder::ShowDialog()
 
 DialogItemEx& DialogBuilder::AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t* Text)
 {
+	assert(m_DialogItems.size() < SupportedSize);
+
 	auto& Item = m_DialogItems.emplace_back();
 	Item.Type = Type;
 	Item.strData = Text;

@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2025-12-14 00:12:57+00:00 - build 6615
+
+1. Improve integer editing in far:config.
+   Remove all the nonsense with separate dialogs for hex and binary,
+   make all the forms available in a single dialog.
+
+--------------------------------------------------------------------------------
 drkns 2025-12-08 08:26:49+00:00 - build 6614
 
 1. Correction of 6614.
