@@ -655,13 +655,13 @@ protected:
 				if (const auto Pos = Response.find(TokenSuffix, *FirstTokenPrefixPos + TokenPrefix.size()); Pos != Response.npos)
 				{
 					FirstTokenSuffixPos = Pos;
-					DA_ResponseSize = Pos + TokenSuffix.size();
+					DA_ResponseSize = Pos + TokenSuffix.size() - *FirstTokenPrefixPos;
 				}
 
 			if (DA_ResponseSize && Response.size() >= DA_ResponseSize * 2)
 			{
 				const auto FirstTokenEnd = *FirstTokenPrefixPos + DA_ResponseSize;
-				const auto DA_Response = string_view(Response).substr(*FirstTokenPrefixPos, FirstTokenEnd);
+				const auto DA_Response = string_view(Response).substr(*FirstTokenPrefixPos, DA_ResponseSize);
 				const auto SecondTokenPos = Response.find(DA_Response, FirstTokenEnd);
 
 				if (SecondTokenPos != Response.npos)
