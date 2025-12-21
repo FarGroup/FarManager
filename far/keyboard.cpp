@@ -406,7 +406,7 @@ int SetFLockState(unsigned const vkKey, int const State)
 	return oldState;
 }
 
-static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = {});
+static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey);
 
 unsigned int InputRecordToKey(const INPUT_RECORD* Rec)
 {
@@ -890,7 +890,7 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 	return false;
 }
 
-static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = {});
+static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey);
 
 static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
@@ -906,11 +906,9 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 	}
 
-	auto NotMacros = false;
-
 	const auto ProcessMacroEvent = [&]
 	{
-		if (NotMacros || ExcludeMacro)
+		if (ExcludeMacro)
 			return CalcKey;
 
 		const FAR_INPUT_RECORD irec{ CalcKey, *rec };
@@ -925,8 +923,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	{
 		CalcKey=KeyQueue().front();
 		KeyQueue().pop_front();
-		NotMacros = (CalcKey & 0x80000000) != 0;
-		CalcKey &= ~0x80000000;
 		return ProcessMacroEvent();
 	}
 
@@ -1066,7 +1062,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	}
 
 	IntKeyState.ReturnAltValue = false;
-	CalcKey=CalcKeyCode(rec, true, &NotMacros);
+	CalcKey=CalcKeyCode(rec, true);
 
 	if (IntKeyState.ReturnAltValue)
 	{
@@ -1831,11 +1827,11 @@ bool IsCharKey(unsigned int Key)
 	return Key < 0x10000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
-static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey)
 {
 	const auto SavedIntKeyState = IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	IntKeyState = {};
-	const auto Ret = CalcKeyCode(rec, RealKey, NotMacros);
+	const auto Ret = CalcKeyCode(rec, RealKey);
 	IntKeyState = SavedIntKeyState;
 	return Ret;
 }
@@ -2036,15 +2032,12 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	return 0;
 }
 
-static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey)
 {
 	const auto CtrlState = rec->EventType==MOUSE_EVENT? rec->Event.MouseEvent.dwControlKeyState : rec->Event.KeyEvent.dwControlKeyState;
 	const auto ScanCode = rec->Event.KeyEvent.wVirtualScanCode;
 	const auto KeyCode = rec->Event.KeyEvent.wVirtualKeyCode;
 	const auto Char = rec->Event.KeyEvent.uChar.UnicodeChar;
-
-	if (NotMacros)
-		*NotMacros = (CtrlState&0x80000000) != 0;
 
 	if (!(rec->EventType==KEY_EVENT || rec->EventType == MOUSE_EVENT))
 		return KEY_NONE;
