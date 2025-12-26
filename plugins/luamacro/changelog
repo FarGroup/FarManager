@@ -1,3 +1,9 @@
+shmuel 2025-12-26 21:33:02+02:00 - build 910
+
+1. LuaFAR (DM_ENABLEREDRAW, DM_REDRAW):
+   - change the default value of the setting parameter from 0 to -1
+   - the setting parameter can be either integer or boolean
+
 shmuel 2025-12-05 18:44:38+02:00 - build 909
 
 1. LuaFAR (regex): fix a corner case.
