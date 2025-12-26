@@ -3679,7 +3679,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 						Pasting--;
 					}
 
-					bool Skip=false, ZeroLength=false;
+					bool Skip=false;
 
 					// Отступим на четверть и проверим на перекрытие диалогом замены
 					int FromTop=(ScrY-2)/4;
@@ -3710,9 +3710,6 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					}
 					else
 					{
-						if (!SearchLength && strReplaceStrCurrent.empty())
-							ZeroLength = true;
-
 						auto MsgCode = message_result::first_button;
 
 						if (!IsReplaceAll)
@@ -3867,13 +3864,15 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					}
 
 					CurPos = m_it_CurLine->GetCurPos();
-					if ((Skip || ZeroLength) && !Backward)
+					if (!Backward)
 					{
-						CurPos++;
+						if (Skip || !SearchLength)
+							CurPos++;
 					}
-					if (!(Skip || ZeroLength) && Backward)
+					else
 					{
-						(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
+						if (!Skip || !SearchLength)
+							(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
 					}
 				}
 			}
