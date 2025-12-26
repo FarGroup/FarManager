@@ -3755,7 +3755,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 							}
 						}
 
-						if (IsReplaceAll)
+						if (IsReplaceAll && !UndoBlock)
 							UndoBlock.emplace(this);
 
 						if (MsgCode == message_result::first_button || MsgCode == message_result::second_button)
