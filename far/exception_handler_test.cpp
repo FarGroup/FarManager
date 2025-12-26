@@ -689,8 +689,6 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_std_lib,                  L"std::exception from stdlib"sv },
 		{ tests::cpp_std_nested,               L"nested std::exception"sv },
 		{ tests::cpp_std_nested_thread,        L"nested std::exception (thread)"sv },
-		{ tests::cpp_std_bad_alloc,            L"std::bad_alloc"sv },
-		{ tests::cpp_bad_malloc,               L"malloc failure"sv },
 		{ tests::cpp_unknown_int,              L"unknown exception (int)"sv },
 		{ tests::cpp_unknown_uint,             L"unknown exception (uint)"sv },
 		{ tests::cpp_unknown_long,             L"unknown exception (long)"sv },
@@ -699,6 +697,9 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_unknown_wchar_t,          L"unknown exception (wchar_t*)"sv },
 		{ tests::cpp_unknown_other,            L"unknown exception (other)"sv },
 		{ tests::cpp_unknown_int_nested,       L"unknown exception (int, nested)"sv },
+
+		{ tests::cpp_std_bad_alloc,            L"std::bad_alloc"sv },
+		{ tests::cpp_bad_malloc,               L"malloc failure"sv },
 		{ tests::cpp_abort,                    L"abort"sv },
 		{ tests::cpp_terminate,                L"terminate"sv },
 		{ tests::cpp_terminate_unwind,         L"terminate unwind"sv },
@@ -706,9 +707,9 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_dtor_throw,               L"dtor throw"sv },
 		{ tests::cpp_reach_unreachable,        L"reach unreachable"sv },
 		{ tests::cpp_pure_virtual_call,        L"pure virtual call"sv },
-		{ tests::cpp_memory_leak,              L"memory leak"sv },
 		{ tests::cpp_invalid_parameter,        L"invalid parameter"sv },
 		{ tests::cpp_assertion_failure,        L"assertion failure"sv },
+		{ tests::cpp_memory_leak,              L"memory leak"sv },
 	};
 
 	static constexpr test_entry SehTests[]
