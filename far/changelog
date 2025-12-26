@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2025-12-26 10:40:12+00:00 - build 6619
+
+1. Fix block undo in Editor.
+
+2. Fix empty string replace in Editor.
+   Expetimental. Also M2467.
+
+--------------------------------------------------------------------------------
 shmuel 2025-12-21 21:59:27+02:00 - build 6618
 
 1. Remove some old and unused code.
