@@ -1240,7 +1240,7 @@ bool SearchAndReplaceString(
 	if (options.Regex)
 	{
 		// Empty Haystack is ok for regex search, e.g. ^$
-		if ((Position || HaystackSize) && Position >= HaystackSize)
+		if (Position > HaystackSize)
 			return false;
 
 		return SearchStringRegex(Haystack, re, Match, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
