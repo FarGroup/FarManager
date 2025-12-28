@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "encoding.hpp"
 #include "exception.hpp"
+#include "fileattr.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -503,7 +504,7 @@ void FileEditor::Init(
 	m_editor = std::make_unique<Editor>(shared_from_this());
 
 	m_codepage = codepage;
-	*AttrStr=0;
+	m_FileAttributesStr.clear();
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
 	SetTitle(Title);
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
@@ -2269,7 +2270,7 @@ void FileEditor::ShowStatus() const
 	//предварительный расчет
 	const auto SizeLineStr = far::format(L"{}/{}"sv, m_editor->Lines.size(), m_editor->Lines.size()).size();
 	const auto strLineStr = far::format(L"{}/{}"sv, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
-	const auto strAttr = *AttrStr? L"│"s + AttrStr : L""s;
+	const auto strAttr = m_FileAttributesStr.empty()? L""s : L"│"s + m_FileAttributesStr;
 	auto StatusLine = far::format(L"│{}{}│{:5.5}│{:.3} {:>{}}│{:.3} {:<3}│{:.3} {:<3}{}│{}"sv,
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? L'-' : m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)? L'"' : L' ',
@@ -2304,18 +2305,25 @@ void FileEditor::ShowStatus() const
 os::fs::attributes FileEditor::EditorGetFileAttributes(string_view const Name)
 {
 	m_FileAttributes = os::fs::get_file_attributes(Name);
-	int ind=0;
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES)
 	{
-		if (m_FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]=L'R';
+		constexpr os::fs::attributes VisibleAttributes =
+			FILE_ATTRIBUTE_READONLY |
+			FILE_ATTRIBUTE_HIDDEN |
+			FILE_ATTRIBUTE_SYSTEM;
 
-		if (m_FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]=L'S';
+		constexpr size_t VisibleAttributesSize = std::popcount(VisibleAttributes);
 
-		if (m_FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]=L'H';
+		enum_attributes([&](os::fs::attributes const Attribute, wchar_t const Character)
+		{
+			if (m_FileAttributes & VisibleAttributes & Attribute)
+				m_FileAttributesStr.push_back(Character);
+
+			return m_FileAttributesStr.size() < VisibleAttributesSize;
+		});
 	}
 
-	AttrStr[ind]=0;
 	return m_FileAttributes;
 }
 
