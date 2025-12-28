@@ -67,4 +67,4 @@ bool SubstFileName(
 	bool EscapeAmpersands = false
 );
 
-#endif // FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229
+#endif // FNPARSE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229
