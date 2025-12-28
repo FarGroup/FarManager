@@ -599,7 +599,7 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 				EjectVolume(item.Path);
 				return true;
 			}
-			catch (std::exception const& e)
+			catch (std::exception const& e1)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != panel_mode::PLUGIN_PANEL)
@@ -608,7 +608,7 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(TmpCDir, false);
 
-				if (EjectFailed(e, item.Path) != operation::retry)
+				if (EjectFailed(e1, item.Path) != operation::retry)
 					return false;
 			}
 		}

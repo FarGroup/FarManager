@@ -3443,7 +3443,7 @@ namespace
 	class find_all_list
 	{
 	public:
-		find_all_list(const size_t MaxLinesCount)
+		explicit find_all_list(const size_t MaxLinesCount)
 			: m_LineNumColumnMaxWidth{ radix10_formatted_width(MaxLinesCount) }
 		{}
 

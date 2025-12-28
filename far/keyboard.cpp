@@ -1461,7 +1461,7 @@ static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_s
 	auto strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
 	// Ugh, ranges are awesome.
-	if (const auto FKeys1Iterator = std::ranges::find_if(FKeys1, [&](TFKey const& Key){ return Key == FKey; }); FKeys1Iterator != std::cend(FKeys1))
+	if (const auto FKeys1Iterator = std::ranges::find_if(FKeys1, [&](TFKey const& k){ return k == FKey; }); FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
 		append(strKeyText, ToText(*FKeys1Iterator));

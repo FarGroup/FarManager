@@ -217,7 +217,7 @@ public:
 	size_t GetPluginInformation(Plugin* pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	bool CallPlugin(const UUID& SysID, int OpenFrom, void *Data) const;
-	void* CallPluginFromMacro(const UUID& SysID, OpenMacroInfo *Data) const;
+	void* CallPluginFromMacro(const UUID& SysID, OpenMacroInfo* Info) const;
 	bool CallPluginItem(const UUID& Uuid, CallPluginInfo* Data) const;
 	void RefreshPluginsList();
 	const auto& Factories() const { return PluginFactories; }
@@ -240,7 +240,7 @@ private:
 	void UndoRemove(Plugin* plugin);
 	bool UpdateId(Plugin* pPlugin, const UUID& Id);
 	void LoadPluginsFromCache();
-	bool ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, const bool fe_close) const;
+	bool ProcessPluginPanel(std::unique_ptr<plugin_panel>&& hNewPlugin, bool fe_close) const;
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
 	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;

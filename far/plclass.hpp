@@ -319,7 +319,7 @@ protected:
 			m_Location = Location;
 		}
 
-		static constexpr inline auto export_id = Export;
+		static constexpr auto export_id = Export;
 		using type = typename export_type<Export, Native>::type;
 
 		using detail::ExecuteStruct::operator=;

@@ -230,8 +230,6 @@ public:
 	void set_size(unsigned long long Size) const;
 };
 
-struct error_state_ex;
-
 void error_lookup(error_state_ex const& ErrorState);
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

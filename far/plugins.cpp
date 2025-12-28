@@ -2100,7 +2100,7 @@ bool PluginManager::ProcessCommandLine(const string_view Command, function_ref<v
 }
 
 
-void* PluginManager::CallPluginFromMacro(const UUID& SysID, OpenMacroInfo *Info) const
+void* PluginManager::CallPluginFromMacro(const UUID& SysID, OpenMacroInfo* Info) const
 {
 	if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 	{
