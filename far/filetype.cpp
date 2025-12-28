@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "execute.hpp"
-#include "fnparce.hpp"
+#include "fnparse.hpp"
 #include "configdb.hpp"
 #include "lang.hpp"
 #include "uuids.far.dialogs.hpp"

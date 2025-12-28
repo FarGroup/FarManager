@@ -1,5 +1,5 @@
 ﻿/*
-fnparce.cpp
+fnparse.cpp
 
 Парсер файловых ассоциаций
 */
@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.headers.hpp"
 
 // Self:
-#include "fnparce.hpp"
+#include "fnparse.hpp"
 
 // Internal:
 #include "panel.hpp"

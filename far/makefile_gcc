@@ -84,7 +84,7 @@ SRCS = \
 	fileview.cpp \
 	findfile.cpp \
 	flink.cpp \
-	fnparce.cpp \
+	fnparse.cpp \
 	foldtree.cpp \
 	format.cpp \
 	global.cpp \

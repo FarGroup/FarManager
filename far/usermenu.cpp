@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "message.hpp"
-#include "fnparce.hpp"
+#include "fnparse.hpp"
 #include "pathmix.hpp"
 #include "exitcode.hpp"
 #include "panelmix.hpp"

@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "filetype.hpp"
 #include "execute.hpp"
-#include "fnparce.hpp"
+#include "fnparse.hpp"
 #include "datetime.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"

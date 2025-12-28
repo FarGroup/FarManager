@@ -218,7 +218,7 @@
     <ClCompile Include="flink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fnparce.cpp">
+    <ClCompile Include="fnparse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="foldtree.cpp">
@@ -847,7 +847,7 @@
     <ClInclude Include="flink.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fnparce.hpp">
+    <ClInclude Include="fnparse.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="foldtree.hpp">

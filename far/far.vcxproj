@@ -122,7 +122,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="fileview.cpp" />
     <ClCompile Include="findfile.cpp" />
     <ClCompile Include="flink.cpp" />
-    <ClCompile Include="fnparce.cpp" />
+    <ClCompile Include="fnparse.cpp" />
     <ClCompile Include="foldtree.cpp" />
     <ClCompile Include="format.cpp" />
     <ClCompile Include="global.cpp" />
@@ -348,7 +348,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="fileview.hpp" />
     <ClInclude Include="findfile.hpp" />
     <ClInclude Include="flink.hpp" />
-    <ClInclude Include="fnparce.hpp" />
+    <ClInclude Include="fnparse.hpp" />
     <ClInclude Include="foldtree.hpp" />
     <ClInclude Include="format.hpp" />
     <ClInclude Include="global.hpp" />
