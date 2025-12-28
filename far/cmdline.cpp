@@ -1270,7 +1270,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		{
 			// Theoretically, in cmd "cls" and "cls blablabla" are the same things.
 			// But, if the user passed some parameters to cls it's quite probably
-			// some chained command rather than parameters, e. g. "cls & dir".
+			// some chained command rather than parameters, e.g. "cls & dir".
 			// We have more complex logic in execute::PartCmdLine, but using it here isn't worth the effort.
 			return false;
 		}

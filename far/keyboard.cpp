@@ -2130,7 +2130,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey)
 					// bKeyDown=FALSE,  wRepeatCount=1, wVirtualKeyCode=NULL, UnicodeChar=1099,    dwControlKeyState=0
 
 					// wVirtualKeyCode might or might not be NULL depending on your keyboard layout *facepalm*
-					// This means that it no longer conflicts with Alt-Numpad and we don't need this hack (but still need for the classic console)
+					// This means that it no longer conflicts with Alt-Numpad, and we don't need this hack (but still need for the classic console)
 
 					if (!::console.IsVtSupported() && rec->Event.KeyEvent.uChar.UnicodeChar && !TimeCheck)
 					{

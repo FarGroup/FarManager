@@ -318,7 +318,7 @@ void Viewer::ChangeHexModeBytesPerLine(int const Amount)
 
 			if (Amount > 0) return NextGridPoint;
 
-			// Do the math in the inverted space X' = NextGridPoint - X, then return to the original space.
+			// Do the math in the inverted space: X' = NextGridPoint - X, then return to the original space.
 			return NextGridPoint - GetNextGridPoint(NextGridPoint - m_HexModeBytesPerLine);
 		}();
 

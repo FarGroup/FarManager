@@ -178,7 +178,7 @@ static bool CASHook(const Manager::Key& key)
 
 	// AltGr is a legit way to enter certain characters (é, ó, ú etc.).
 	// AltGr + Shift is a legit way to enter the same characters in upper case (É, Ú, Ó etc.).
-	// AltGr is implemented as LeftCtrl + RightAlt and we don't want to trigger this witchcraft on AltGr+Shift.
+	// AltGr is implemented as LeftCtrl + RightAlt, and we don't want to trigger this witchcraft on AltGr+Shift.
 	// The second check is to allow RCtrl+AltGr+Shift (i.e. RCtrl+LCtrl+RAlt+Shift) to still be used for this.
 	if (flags::check_all(state, LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED) && !flags::check_one(state, RIGHT_CTRL_PRESSED))
 		return false;
@@ -546,7 +546,7 @@ void Manager::SwitchWindow(direction Direction)
 		}
 	};
 	process();
-	// For now we don't want to switch to the desktop window with Ctrl-[Shift-]Tab
+	// For now, we don't want to switch to the desktop window with Ctrl-[Shift-]Tab
 	if (std::dynamic_pointer_cast<desktop>(*pos))
 		process();
 	ActivateWindow(*pos);
@@ -955,7 +955,7 @@ void Manager::DeleteCommit(const window_ptr& Param)
 			if (CurrentWindow == Param)
 			{
 				// ActivateCommit accepts a reference,
-				// so when it alter m_windows reference to m_windows.back() will be invalidated.
+				// so when it alters m_windows reference to m_windows.back() will be invalidated.
 				// PtrCopy will keep the window alive as much as needed.
 				const auto PtrCopy = m_windows.back();
 				DoActivation(CurrentWindow, PtrCopy);

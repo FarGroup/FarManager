@@ -63,7 +63,7 @@ void CachedRead::AdjustAlignment()
 
 
 #if 1
-	// 1) for now windows can works only with 512 and 4K BytesPerPhysicalSector
+	// 1) for now windows can work only with 512 and 4K BytesPerPhysicalSector
 	// 2) IOCTL_STORAGE_QUERY_PROPERTY (may) doesn't work for dynamic volumes
 	// 3) in most cases even 512 granularity works fine for 4K drives (512e mode)
 	// 4) Note: maybe there is better candidate

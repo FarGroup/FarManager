@@ -282,7 +282,7 @@ void ScanTree::SkipDir()
 			os::fs::is_directory_symbolic_link(*Current.Iterator)
 			)
 		{
-			// The current item is a directory link but we don't treat it as a directory so it's nothing to skip
+			// The current item is a directory link, but we don't treat it as a directory so it's nothing to skip
 			// (perhaps it could have been better to add a special flag for this case rather than the quite complex condition above,
 			// but these flags is already a mess).
 			return;

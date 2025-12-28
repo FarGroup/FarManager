@@ -262,7 +262,7 @@ namespace Utf8
 {
 	// Returns the number of decoded chars, 1 or 2. Moves StrIterator forward
 	// When there is not enough data to decode the whole character:
-	// - First will have the the first raw byte embedded
+	// - First will have the first raw byte embedded
 	// - StrIterator will be advanced by one
 	// - Diagnostics will be set accordingly
 	// You might want to drop the result or continue decoding the tail as embedded raw bytes

@@ -983,7 +983,7 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 
 	// '\hh' custom color index
 	// Note: even though we support 256 and true colors now,
-	// this notation SHALL NOT not be extended due to backward compatibility.
+	// this notation SHALL NOT be extended due to backward compatibility.
 	// Use ([[T]FFFFFFFF][:[T]BBBBBBBB]) to utilise extended colors.
 		if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
 	{

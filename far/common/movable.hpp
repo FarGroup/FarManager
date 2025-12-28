@@ -6,7 +6,7 @@
 movable.hpp
 
 Helper class to set variable to default value after move,
-e. g. to use default move ctor/operator=, but skip any custom logic in dtor dependent on this variable
+e.g. to use default move ctor/operator=, but skip any custom logic in dtor dependent on this variable
 
 */
 /*

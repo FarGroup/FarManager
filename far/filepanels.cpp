@@ -307,7 +307,7 @@ panel_ptr FilePanels::CreatePanel(panel_type Type)
 	}
 }
 
-int FilePanels::SetAnhoterPanelFocus()
+int FilePanels::SetAnotherPanelFocus()
 {
 	bool Result = false;
 
@@ -414,7 +414,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_TAB:
 		{
-			SetAnhoterPanelFocus();
+			SetAnotherPanelFocus();
 			break;
 		}
 		case KEY_CTRLF1:

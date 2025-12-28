@@ -69,7 +69,7 @@ private:
 	// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
 	// If the buffer overflows, ReadDirectoryChangesW will still return true, but the entire contents
 	// of the buffer are discarded and the BytesReturned parameter will be zero, which indicates
-	// that your buffer was too small to hold all of the changes that occurred.
+	// that your buffer was too small to hold all the changes that occurred.
 	// We don't care about individual changes, so the buffer is intentionally small.
 	mutable FILE_NOTIFY_INFORMATION Buffer;
 	mutable OVERLAPPED m_Overlapped{};

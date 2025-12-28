@@ -86,7 +86,7 @@ enum REError
 enum
 {
 	OP_NONE         = 0,
-	//! Match in a case insensitive manner
+	//! Match in a case-insensitive manner
 	OP_IGNORECASE   = 0x0001,
 	//! Single line mode, dot meta-character will match newline symbol
 	OP_SINGLELINE   = 0x0002,
@@ -143,7 +143,7 @@ private:
 
 /*! Regular expressions support class.
 
-Expressions must be Compile'ed first,
+Expressions must be Compile-d first,
 and then Match string or Search for matching fragment.
 */
 class RegExp

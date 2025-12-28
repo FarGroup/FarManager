@@ -110,7 +110,7 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const 
 	{
 	// IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK buffers are filled differently:
 	// different order of print and substitute names and additional zero bytes in IO_REPARSE_TAG_MOUNT_POINT.
-	// No particular reason to do that, but Windows for some reason does and we just mimic its approach to make
+	// No particular reason to do that, but Windows for some reason does, and we just mimic its approach to make
 	// reparse points created by Far indistinguishable from created by, say, mklink.
 
 	case IO_REPARSE_TAG_MOUNT_POINT:

@@ -559,7 +559,7 @@ int Shortcuts::Configure()
 
 		const auto EditSubmenu = [&]
 		{
-			// We don't care about the result here, just letting the user to edit the submenu
+			// We don't care about the result here, just letting the user edit the submenu
 			AllShortcuts[Pos].Select(true, Pos);
 			UpdateItem();
 		};
@@ -570,7 +570,7 @@ int Shortcuts::Configure()
 		{
 		case KEY_NUMPAD0:
 		case KEY_INS:
-			// Direct insertion only allowed if the list is empty. Otherwise do it in a submenu.
+			// Direct insertion only allowed if the list is empty. Otherwise, do it in a submenu.
 			if (CurrentList.m_Items.empty())
 			{
 				if (Accept())
@@ -590,7 +590,7 @@ int Shortcuts::Configure()
 		case KEY_DEL:
 			if (!CurrentList.m_Items.empty())
 			{
-				// Direct deletion only allowed if there's exactly one item in the list. Otherwise do it in a submenu.
+				// Direct deletion only allowed if there's exactly one item in the list. Otherwise, do it in a submenu.
 				if (CurrentList.m_Items.size() == 1)
 				{
 					CurrentList.m_Items.pop_front();
@@ -607,7 +607,7 @@ int Shortcuts::Configure()
 		case KEY_F4:
 			if (!CurrentList.m_Items.empty())
 			{
-				// Direct editing only allowed if there's exactly one item in the list. Otherwise do it in a submenu.
+				// Direct editing only allowed if there's exactly one item in the list. Otherwise, do it in a submenu.
 				if (CurrentList.m_Items.size() == 1)
 				{
 					if (EditListItem(AllShortcuts[Pos].m_Items, *FolderList, CurrentList.m_Items.front(), true))

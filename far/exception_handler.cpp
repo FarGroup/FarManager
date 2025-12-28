@@ -1231,7 +1231,7 @@ namespace detail
 		UINT64 uiRuntimeDescriptionLength;
 		LPCWSTR pwRuntimeDescription;
 
-		// A translation of the description string to something more user friendly, not localized
+		// A translation of the description string to something more user-friendly, not localized
 		UINT64 uiRuntimeShortMessageLength;
 		LPCWSTR pwRuntimeShortMessage;
 
@@ -1743,7 +1743,7 @@ static string collect_information(
 	make_subheader(RegistersTitle, append_line);
 	read_registers(Strings, Context.context_record(), Eol);
 
-	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
+	// Read disassembly before modules - it will load dbgeng.dll, and we might want to see it too just in case
 	make_subheader(DisassemblyTitle, append_line);
 	debug_client DebugClient(Strings);
 	DebugClient.disassembly(ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);

@@ -77,7 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4625) // 'derived class' : copy constructor could not be generated because a base class copy constructor is inaccessible
 #pragma warning(disable: 4626) // 'derived class' : assignment operator could not be generated because a base class assignment operator is inaccessible
 #pragma warning(disable: 4640) // 'instance' : construction of local static object is not thread-safe
-#pragma warning(disable: 4670) // identifier' : this base class is inaccessible
+#pragma warning(disable: 4670) // 'identifier' : this base class is inaccessible
 #pragma warning(disable: 4673) // throwing 'identifier' the following types will not be considered at the catch site
 #pragma warning(disable: 4710) // 'function' : function not inlined
 #pragma warning(disable: 4711) // function 'function' selected for inline expansion

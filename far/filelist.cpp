@@ -8048,8 +8048,8 @@ void FileList::ShowFileList(bool Fast)
 		&& !m_ListData.empty()
 		&& (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES)
 		// Network plugin sets OPIF_REALNAMES when showing list of shares as they are real FS objects (see M#650).
-		// However, \\server itself is not a real FS directory in any way and it is not possible to set it on a real panel.
-		// We can't simply remove the code below, as other plugins rely on this feature (e. g. Ctrl+PgUp in TmpPanel
+		// However, \\server itself is not a real FS directory in any way, and it is not possible to set it on a real panel.
+		// We can't simply remove the code below, as other plugins rely on this feature (e.g. Ctrl+PgUp in TmpPanel
 		// "exits" to the CurDir, dynamically set by the plugin), so disabling it for the Network plugin only for now.
 		// Yes, it is ugly, I know. It probably would be better to set CurDir in the Network plugin dynamically in this case
 		// as \\server\current_share_under_cursor, but the plugin doesn't keep that information currently.
@@ -9211,7 +9211,7 @@ void FileList::MoveSelection(direction Direction)
 
 	if (ShiftSelection==-1)
 	{
-		// .. is never selected
+		// ".." is never selected
 		if (m_CurFile < static_cast<int>(m_ListData.size() - 1) && IsParentDirectory(*CurPtr))
 			ShiftSelection = !m_ListData[m_CurFile+1].Selected;
 		else

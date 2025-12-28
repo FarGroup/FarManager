@@ -784,7 +784,7 @@ namespace os::debug::symbols
 		Buffer.info.MaxNameLen = Buffer.max_name_size;
 		DWORD64 Displacement;
 
-		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fall back to A.
 		if (!imports.SymFromInlineContextW(Process, Frame.Address, Frame.InlineContext, &Displacement, &Buffer.info))
 			return {};
 
@@ -795,7 +795,7 @@ namespace os::debug::symbols
 	{
 		DWORD Displacement;
 		IMAGEHLP_LINEW64 Buffer{ sizeof(Buffer) };
-		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fall back to A.
 		if (!imports.SymGetLineFromInlineContextW(Process, Frame.Address, Frame.InlineContext, BaseAddress, &Displacement, &Buffer))
 			return {};
 

@@ -1038,7 +1038,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 									return Callable(UNSAFE_CSTR(path), {}, {}, 3, edit_as<BYTE**>(&ptr_setter(DfsInfo))) == NERR_Success;
 								};
 
-								// Client first - it should be faster and we want to see the activity flag, which is a client thing
+								// Client first - it should be faster, and we want to see the activity flag, which is a client thing
 								if (get_dfs_info(imports.NetDfsGetClientInfo) || get_dfs_info(imports.NetDfsGetInfo))
 								{
 									KnownReparseTag = true;

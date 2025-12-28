@@ -4554,7 +4554,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 				return -1;
 
 			auto& TableSet = edit_as<oldfar::CharTableSet>(Buffer);
-			//Preset. Also if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
+			//Preset. Also, if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
 			strcpy(TableSet.TableName,"<failed>");
 
 			for (const auto i: std::views::iota(0u, 256u))

@@ -845,12 +845,12 @@ static void string_to_cells_full_width_aware(string_view Str, size_t& CharsConsu
 
 			if (Char[1])
 			{
-				// It's wide and it already occupies two cells - awesome
+				// It's wide, and it already occupies two cells - awesome
 				push_back(Char[1]);
 			}
 			else
 			{
-				// It's wide and we need to add a bogus cell
+				// It's wide, and we need to add a bogus cell
 				std::visit(overload
 				{
 					[&](size_t& Size){ ++Size; },

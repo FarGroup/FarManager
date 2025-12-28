@@ -279,8 +279,8 @@ bool DizList::Erase(const string_view Name, const string_view ShortName)
 
 	m_OrderForWrite.erase(std::ranges::find(m_OrderForWrite, std::to_address(Iterator)));
 
-	// Sometimes client can keep the pointer after erasure and use it,
-	// e. g. if a description has been deleted during file moving and filelist decided to redraw in the process.
+	// Sometimes a client can keep the pointer after erasure and use it,
+	// e.g. if a description has been deleted during file moving and filelist decided to redraw in the process.
 	// Zeroing the pointer via some callback could be quite complex, so we just keep the data alive for a while:
 	m_RemovedEntries.emplace_back(std::move(Iterator->second));
 	m_DizData.erase(Iterator);

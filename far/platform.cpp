@@ -94,7 +94,7 @@ namespace os
 				{
 					// Why such a condition?
 					// Usually API functions return string length (without \0) on success and
-					// required buffer size (i. e. string length + \0) on failure.
+					// required buffer size (i.e. string length + \0) on failure.
 					// Some of them, however, always return buffer size.
 					// It's Callable's responsibility to handle and fix that.
 					return ReturnedSize >= AllocatedSize;
@@ -978,14 +978,14 @@ bool is_interactive_user_session()
 	if (!WindowStation)
 	{
 		LOGWARNING(L"GetProcessWindowStation(): {}"sv, last_error());
-		return false; // assume the worse
+		return false; // assume the worst
 	}
 
 	USEROBJECTFLAGS Flags;
 	if (!GetUserObjectInformation(WindowStation, UOI_FLAGS, &Flags, sizeof(Flags), {}))
 	{
 		LOGWARNING(L"GetUserObjectInformation(): {}"sv, last_error());
-		return false; // assume the worse
+		return false; // assume the worst
 	}
 
 	// An invisible window station suggests that we aren't interactive.

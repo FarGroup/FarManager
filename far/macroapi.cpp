@@ -3171,8 +3171,8 @@ Replace=="" - return Str (с удалением всех подстрок Find)
 Str=="" return ""
 
 Mode:
-      0 - case insensitive
-      1 - case sensitive
+      0 - case-insensitive
+      1 - case-sensitive
 
 */
 

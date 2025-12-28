@@ -113,7 +113,7 @@ private:
 
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;
-	int SetAnhoterPanelFocus();
+	int SetAnotherPanelFocus();
 	int SwapPanels();
 
 	std::unique_ptr<CommandLine> CmdLine;

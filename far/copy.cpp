@@ -1698,7 +1698,7 @@ void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_
 
 				auto SubCopyCode = COPY_SUCCESS;
 
-				// If it's a directory and IsDirSearchDone() is true - it's the second time and we don't need to do anything with it,
+				// If it's a directory and IsDirSearchDone() is true - it's the second time, and we don't need to do anything with it,
 				// except removing, if it's move.
 				if (!IsDirectory || !ScTree.IsDirSearchDone())
 				{

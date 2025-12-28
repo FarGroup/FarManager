@@ -604,7 +604,7 @@ protected:
 
 		// To make sure that we do not deadlock ourselves here we prepend & append
 		// this dummy DA command that always works (since it was in the initial WT release),
-		// so that the response is always non-empty and we know exactly where it starts and ends.
+		// so that the response is always non-empty, and we know exactly where it starts and ends.
 		// In other words:
 		// - <attributes>[the response we are actually after]<attributes>: yay.
 		// - <attributes><attributes>: nay, the request is unsupported.
@@ -1585,7 +1585,7 @@ protected:
 			append(Str, Is > Was? i.On : i.Off, L';');
 		}
 
-		// We should only enter this function if the style has changed and it should add or remove at least something,
+		// We should only enter this function if the style has changed, and it should add or remove at least something,
 		// so no need to check before pop:
 		Str.pop_back();
 	}
@@ -1919,7 +1919,7 @@ protected:
 				ViewportSize = { WindowRect.width(), WindowRect.height() };
 			}
 
-			// If SubRect is too tall (e.g. when we flushing the old content of console resize), the rest will be dropped.
+			// If SubRect is too tall (e.g. when we're flushing the old content of console resize), the rest will be dropped.
 			// VT is a bloody joke.
 			for (int SubrectOffset = 0; SubrectOffset < SubRect.height(); SubrectOffset += ViewportSize.y)
 			{
@@ -2533,7 +2533,7 @@ protected:
 		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](std::span<wchar_t> Buffer)
 		{
 			// This API design is mental:
-			// - If everything is ok, it return the string size, including the terminating \0
+			// - If everything is ok, it returns the string size, including the terminating \0
 			// - If the buffer size is too small, it returns the input buffer size and sets last error to ERROR_INSUFFICIENT_BUFFER
 			// - It can also return 0 in case of other errors
 			// This means that if the string size is exactly (BufferSize - 1), the only way to understand whether it succeeded or not
@@ -2644,7 +2644,7 @@ protected:
 		// As of 15 Jul 2024 GetLargestConsoleWindowSize is broken in WT.
 		// It takes the current screen size in pixels and divides it by an inadequate font size, e.g. 1x16 or 1x1.
 
-		// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
+		// It is unlikely that it is ever going to be fixed, so we do a few very basic checks here to filter out obvious rubbish.
 
 		if (Size.x <= 0 || Size.y <= 0)
 			return false;

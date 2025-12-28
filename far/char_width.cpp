@@ -546,7 +546,7 @@ namespace char_width
 	{
 		// As of 23 Jun 2022 conhost and WT render half-width surrogates as half-width,
 		// but advance the cursor position as if they were full-width.
-		// We can workaround it by moving the cursor backwards each time.
+		// We can work around it by moving the cursor backwards each time.
 		// They might fix it eventually, so it's better to detect it dynamically.
 
 		// Mathematical Bold Fraktur Small A, U+1D586, half-width

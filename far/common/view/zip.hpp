@@ -175,7 +175,7 @@ namespace detail
 		[[nodiscard]]
 		bool operator==(zip_sentinel<sentinels...> const& rhs) const { return traits<args...>::binary_any_of(std::equal_to{}, m_Tuple, rhs.m_Tuple); }
 
-		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on the shortest one
+		// tuple's operators == and < are inappropriate as ranges might be of different length, and we want to stop on the shortest one
 		[[nodiscard]]
 		bool operator==(const zip_iterator& rhs) const { return traits<args...>::binary_any_of(std::equal_to{}, m_Tuple, rhs.m_Tuple); }
 

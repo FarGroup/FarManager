@@ -110,7 +110,7 @@ static bool FindObject(string_view const Command, string& strDest)
 		// Try "as is".
 		// Even though it could be the best possible match, picking a name without extension
 		// is rather unexpected on the current target platform, it's better to disable it for good.
-		// This comment is kept for historic purposes and to stop trying this again in future.
+		// This comment is kept for historic purposes and to stop trying this again in the future.
 		// If you really want to look for files w/o extension - add ";;" to the %PATHEXT%.
 		// return Predicate(Name);
 
@@ -274,7 +274,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 	// VC implementation has limited complexity and throws regex_error on long strings.
 	// gcc implementation is total rubbish - it just causes a stack overflow. Shame on them.
 
-	// If anything goes wrong, e. g. pattern is incorrect or search failed - default condition (checking for presence of <>|& characters outside the quotes) will be used.
+	// If anything goes wrong, e.g. pattern is incorrect or search failed - default condition (checking for presence of <>|& characters outside the quotes) will be used.
 	const auto Condition = os::env::expand(Global->Opt->Exec.ComspecCondition);
 	if (!Condition.empty())
 	{

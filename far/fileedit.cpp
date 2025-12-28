@@ -835,7 +835,7 @@ void FileEditor::InitKeyBar()
 
 	Keybar[KBL_MAIN][F8] = f8cps.NextCPname(m_codepage);
 
-	// Update Ctrl+F3 label based on line numbers state
+	// Update Ctrl+F3 label based on the line numbers state
 	Keybar[KBL_CTRL][F3] = msg(m_editor->GetShowLineNumbers() ? lng::MEditCtrlF3Hide : lng::MEditCtrlF3);
 
 	Keybar.SetCustomLabels(KBA_EDITOR);
