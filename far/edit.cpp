@@ -929,6 +929,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_BS:
 		{
+			if (m_Flags.Check(FEDITLINE_READONLY | FEDITLINE_DROPDOWNBOX))
+				return true;
+
 			if (m_CurPos<=0)
 				return false;
 
