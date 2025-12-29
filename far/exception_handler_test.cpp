@@ -184,13 +184,13 @@ namespace tests
 	[[noreturn]]
 	static void cpp_unknown_char()
 	{
-		throw "error";
+		throw "oops";
 	}
 
 	[[noreturn]]
 	static void cpp_unknown_wchar_t()
 	{
-		throw L"error";
+		throw L"oops";
 	}
 
 	[[noreturn]]

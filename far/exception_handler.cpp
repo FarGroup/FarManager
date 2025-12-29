@@ -1326,11 +1326,11 @@ private:
 	uintptr_t m_ThrownObjectPtr{};
 };
 
-static auto extract_object_value(string_view const TypeName, void const* Data, size_t const DataSize)
+static auto extract_object_value(string_view const TypeName, void const* Data, std::optional<size_t> const DataSize)
 {
 	static_assert(sizeof(int) == sizeof(long));
 
-	if (DataSize == sizeof(unsigned int) && (
+	if ((!DataSize || *DataSize == sizeof(unsigned int)) && (
 		TypeName == L"int"sv ||
 		TypeName == L"unsigned int"sv ||
 		TypeName == L"long"sv ||
@@ -1341,19 +1341,29 @@ static auto extract_object_value(string_view const TypeName, void const* Data, s
 		return os::format_error(Value);
 	}
 
-	if (TypeName == L"char * __ptr64"sv || TypeName == L"char *"sv)
+	if (
+		TypeName == L"char * __ptr64"sv ||       // MSVC 64
+		TypeName == L"char *"sv ||               // MSVC 32
+		TypeName == L"char const*"sv             // GCC
+	)
 	{
 		const auto Value = *static_cast<char const* const*>(Data);
 		return encoding::utf8_or_ansi::get_chars(Value);
 	}
 
-	if (TypeName == L"wchar_t * __ptr64"sv || TypeName == L"wchar_t *"sv)
+	if (
+		TypeName == L"wchar_t * __ptr64"sv ||    // MSVC 64
+		TypeName == L"wchar_t *"sv ||            // MSVC 32
+		TypeName == L"wchar_t const*"sv          // GCC
+	)
 	{
 		const auto Value = *static_cast<wchar_t const* const*>(Data);
 		return string(Value);
 	}
 
-	return far::format(L"[{} bytes]"sv, DataSize);
+	return DataSize?
+		far::format(L"[{} bytes]"sv, *DataSize) :
+		L""s;
 }
 
 static std::pair<string, string> extract_object_type_and_value(EXCEPTION_RECORD const& xr)
@@ -1369,8 +1379,10 @@ static std::pair<string, string> extract_object_type_and_value(EXCEPTION_RECORD 
 #if !IS_MICROSOFT_SDK()
 	if (const auto TypeInfo = abi::__cxa_current_exception_type(); TypeInfo)
 	{
+		const auto ExceptionPtr = std::current_exception();
+		const auto Data = *std::bit_cast<void const* const*>(&ExceptionPtr);
 		const auto TypeName = os::debug::demangle(TypeInfo->name());
-		return { TypeName, {} };
+		return { TypeName, extract_object_value(TypeName, Data, {}) };
 	}
 #endif
 
