@@ -50,9 +50,9 @@ class array_ptr
 public:
 	NONCOPYABLE(array_ptr);
 
-	array_ptr() noexcept
+	array_ptr() noexcept:
+		m_Buffer(std::in_place_type<static_type>)
 	{
-		m_Buffer.template emplace<static_type>();
 	}
 
 	explicit array_ptr(size_t const Size, bool Init = false):
@@ -78,13 +78,15 @@ public:
 	{
 		if (Size > StaticSize)
 		{
-			auto& DynamicBuffer = m_Buffer.template emplace<dynamic_type>();
+			auto& DynamicBuffer = std::holds_alternative<dynamic_type>(m_Buffer)?
+				std::get<dynamic_type>(m_Buffer) :
+				m_Buffer.template emplace<dynamic_type>();
 
 			// We don't need a strong guarantee here, so it's better to reduce memory usage
 			DynamicBuffer.reset();
 			DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
 		}
-		else
+		else if (!std::holds_alternative<static_type>(m_Buffer))
 		{
 			m_Buffer.template emplace<static_type>();
 		}
