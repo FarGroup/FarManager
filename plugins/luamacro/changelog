@@ -1,3 +1,7 @@
+shmuel 2025-12-31 00:30:52+02:00 - build 911
+
+1. far.Show: CtrlC and CtrlIns copy the selected line to clipboard and close the menu.
+
 shmuel 2025-12-26 21:33:02+02:00 - build 910
 
 1. LuaFAR (DM_ENABLEREDRAW, DM_ENABLE):

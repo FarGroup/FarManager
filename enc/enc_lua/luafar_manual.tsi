@@ -8951,7 +8951,7 @@ lv=2
 dt=Text
 nm=far.Show
 ctime=3476617735
-mtime=3599756101
+mtime=3976301768
 <article>
 #_Item, Position = far.Show (...)
 #_
@@ -8971,6 +8971,8 @@ mtime=3599756101
 #_
 #_  Due to using `far.MakeMenuItems` the returned *Item* table contains
 #_  the value of the corresponding original argument under the field 'arg'.
+#_
+#_  *Ctrl+C* and *Ctrl+Ins* copy the selected line to clipboard and close the menu.
 #_
 #_@@@
 #_[far.Menu]: 64.html
