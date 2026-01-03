@@ -3703,6 +3703,8 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
 						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
 
+					const auto CurLineCopy = m_it_CurLine;
+
 					if (!IsReplaceMode)
 					{
 						CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
@@ -3866,7 +3868,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					CurPos = m_it_CurLine->GetCurPos();
 					if (!Backward)
 					{
-						if (Skip || !SearchLength)
+						if ((Skip || !SearchLength) && m_it_CurLine == CurLineCopy)
 							CurPos++;
 					}
 					else
