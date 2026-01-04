@@ -1946,6 +1946,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyCmdline,                L"PromptFormat"sv,                  CmdLine.strPromptFormat, L"$p$g"sv},
 		{FSSF_PRIVATE,           NKeyCmdline,                L"UsePromptFormat"sv,               CmdLine.UsePromptFormat, false},
 		{FSSF_PRIVATE,           NKeyCodePages,              L"CPMenuMode"sv,                    CPMenuMode, false},
+		{FSSF_PRIVATE,           NKeyCodePages,              L"NoAutoDetectCJK"sv,               NoAutoDetectCJK, true},
 		{FSSF_PRIVATE,           NKeyCodePages,              L"NoAutoDetectCP"sv,                strNoAutoDetectCP, L""sv},
 		{FSSF_PRIVATE,           NKeyConfirmations,          L"AllowReedit"sv,                   Confirm.AllowReedit, true},
 		{FSSF_CONFIRMATIONS,     NKeyConfirmations,          L"Copy"sv,                          Confirm.Copy, true},

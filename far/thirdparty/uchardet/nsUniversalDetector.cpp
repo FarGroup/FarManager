@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+﻿/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -200,7 +200,8 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
         }
 
         //start multibyte and singlebyte charset prober
-        if (nsnull == mCharSetProbers[0])
+        if (nsnull == mCharSetProbers[0] &&
+            (mLanguageFilter & NS_FILTER_CJK))
         {
           mCharSetProbers[0] = new nsMBCSGroupProber(mLanguageFilter);
           if (nsnull == mCharSetProbers[0])

@@ -1012,6 +1012,7 @@ public:
 	InfoPanelOptions InfoPanel;
 
 	BoolOption CPMenuMode;
+	BoolOption NoAutoDetectCJK;
 	StringOption strNoAutoDetectCP;
 	// Перечисленные здесь кодовые страницы будут исключены из детектирования nsUniversalDetectorEx.
 	// Автодетект юникодных страниц от этого не зависит, поэтому UTF-8 будет определяться даже если

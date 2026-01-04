@@ -434,7 +434,11 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	std::span const Scores(Info, InfoCount);
 	std::ranges::sort(Scores, [](DetectEncodingInfo const& a, DetectEncodingInfo const& b) { return a.nDocPercent > b.nDocPercent; });
 
-	const auto It = std::ranges::find_if(Scores, [&](DetectEncodingInfo const& i) { return i.nLangID != 0xffffffff && IsCodepageAcceptable(i.nCodePage); });
+	const auto no_cjk = !Global || Global->Opt->NoAutoDetectCJK; // Global == nullptr in TEST_CASE("GetCpUsingML_M4000")
+	const auto is_cp_acceptable = [no_cjk, IsCodepageAcceptable](const UINT cp) {
+		return (cp != 0xffffffff) && !(no_cjk && cp >= 932 && cp <= 950) && IsCodepageAcceptable(cp);
+	};
+	const auto It = std::ranges::find_if(Scores, [&](DetectEncodingInfo const& i) { return is_cp_acceptable(i.nLangID); });
 	if (It == Scores.end())
 		return false;
 
@@ -465,9 +469,6 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 		if (IsNotCodepage(Cp))
 			return false;
 
-		if (!Global->Opt->CPMenuMode)
-			return true;
-
 		if (IsStandardCodePage(Cp))
 			return true;
 
@@ -476,7 +477,7 @@ static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintp
 	};
 
 	const auto IsCodepageAcceptable =
-		Global->Opt->strNoAutoDetectCP == L"-1"sv?
+		Global->Opt->strNoAutoDetectCP == L"-2"sv || (Global->Opt->strNoAutoDetectCP == L"-1"sv && Global->Opt->CPMenuMode) ?
 			function_ref(IsCodepageWhitelisted) :
 			function_ref(IsCodepageNotBlacklisted);
 

@@ -1,4 +1,4 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+﻿/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -67,7 +67,7 @@ nsMBCSGroupProber::nsMBCSGroupProber(PRUint32 aLanguageFilter)
     codePointBufferIdx[i]  = 0;
   }
 
-  mProbers[0] = new nsUTF8Prober();
+  //mProbers[0] = new nsUTF8Prober(); // windows detector does that detection better
   if (aLanguageFilter & NS_FILTER_JAPANESE) 
   {
     mProbers[1] = new nsSJISProber(aLanguageFilter == NS_FILTER_JAPANESE);
@@ -88,7 +88,7 @@ nsMBCSGroupProber::nsMBCSGroupProber(PRUint32 aLanguageFilter)
 
   for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++)
   {
-    if (mProbers[i]->DecodeToUnicode())
+    if (mProbers[i] && mProbers[i]->DecodeToUnicode())
     {
       int j = 0;
 

@@ -39,7 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "components.hpp"
+#include "config.hpp"
 #include "encoding.hpp"
+#include "global.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -90,14 +92,14 @@ WARNING_DISABLE_CLANG("-Wold-style-cast")
 #include "thirdparty/uchardet/nsHebrewProber.cpp"
 #include "thirdparty/uchardet/nsJohabProber.cpp"
 #include "thirdparty/uchardet/nsLanguageDetector.cpp"
-#include "thirdparty/uchardet/nsLatin1Prober.cpp"
+//#include "thirdparty/uchardet/nsLatin1Prober.cpp"
 #include "thirdparty/uchardet/nsMBCSGroupProber.cpp"
 #include "thirdparty/uchardet/nsMBCSSM.cpp"
 #include "thirdparty/uchardet/nsSBCharSetProber.cpp"
 #include "thirdparty/uchardet/nsSBCSGroupProber.cpp"
 #include "thirdparty/uchardet/nsSJISProber.cpp"
 #include "thirdparty/uchardet/nsUniversalDetector.cpp"
-#include "thirdparty/uchardet/nsUTF8Prober.cpp"
+//#include "thirdparty/uchardet/nsUTF8Prober.cpp"
 
 #define UCHARDET_LANGUAGE Arabic
 #include "uchardet_model.hpp"
@@ -256,7 +258,7 @@ class UniversalDetector final: public uchardet::nsUniversalDetector
 {
 public:
 	explicit UniversalDetector(function_ref<bool(uintptr_t)> const IsCodepageAcceptable):
-		nsUniversalDetector(NS_FILTER_ALL),
+		nsUniversalDetector(Global->Opt->NoAutoDetectCJK ? NS_FILTER_NON_CJK : NS_FILTER_ALL),
 		m_IsCodepageAcceptable(IsCodepageAcceptable)
 	{
 	}
