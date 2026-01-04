@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2026-01-04 16:30:34+00:00 - build 6624
+
+1. Set SHELLEXECUTEINFO.hwnd properly.
+   According to rumors, it should help in certain corner cases.
+
+--------------------------------------------------------------------------------
 drkns 2026-01-03 19:05:39+00:00 - build 6623
 
 1. Correction of 6619.2.

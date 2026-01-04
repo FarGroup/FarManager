@@ -1469,10 +1469,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!os::is_interactive_user_session())
 					return true;
 
-				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
-				seInfo.nShow = SW_SHOW;
-				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-
 				string strFullName;
 
 				if (DriveLetter)
@@ -1489,10 +1485,19 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						AddEndSlash(strFullName);
 				}
 
-				seInfo.lpFile = strFullName.c_str();
-				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::get_current_directory();
-				seInfo.lpDirectory=strCurDir.c_str();
+
+				SHELLEXECUTEINFO seInfo
+				{
+					.cbSize = sizeof(seInfo),
+					.fMask = SEE_MASK_INVOKEIDLIST,
+					.hwnd = console.GetWindow(),
+					.lpVerb = L"properties",
+					.lpFile = strFullName.c_str(),
+					.lpDirectory = strCurDir.c_str(),
+					.nShow = SW_SHOWNORMAL,
+				};
+
 				ShellExecuteEx(&seInfo);
 			}
 			return false;

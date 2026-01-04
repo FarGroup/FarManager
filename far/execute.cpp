@@ -643,13 +643,17 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 
 static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, execute_info::source_mode const SourceMode, bool const RunAs, bool const Wait, HANDLE& Process)
 {
-	SHELLEXECUTEINFO Info{ sizeof(Info) };
-	Info.lpFile = Command.c_str();
-	Info.lpParameters = EmptyToNull(Parameters);
-	Info.lpDirectory = Directory.c_str();
-	Info.nShow = SW_SHOWNORMAL;
-	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
-	Info.lpVerb = RunAs? L"runas" : nullptr;
+	SHELLEXECUTEINFO Info
+	{
+		.cbSize = sizeof(Info),
+		.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0ul),
+		.hwnd = console.GetWindow(),
+		.lpVerb = RunAs? L"runas" : nullptr,
+		.lpFile = Command.c_str(),
+		.lpParameters = EmptyToNull(Parameters),
+		.lpDirectory = Directory.c_str(),
+		.nShow = SW_SHOWNORMAL,
+	};
 
 	if (any_of(SourceMode, execute_info::source_mode::known, execute_info::source_mode::known_executable))
 	{

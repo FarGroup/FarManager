@@ -422,13 +422,14 @@ static os::handle create_elevated_process(const string& Parameters)
 {
 	SHELLEXECUTEINFO info
 	{
-		sizeof(info),
-		SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
-		nullptr,
-		L"runas",
-		Global->g_strFarModuleName.c_str(),
-		Parameters.c_str(),
-		Global->g_strFarPath.c_str(),
+		.cbSize = sizeof(info),
+		.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
+		.hwnd = console.GetWindow(),
+		.lpVerb = L"runas",
+		.lpFile = Global->g_strFarModuleName.c_str(),
+		.lpParameters = Parameters.c_str(),
+		.lpDirectory = Global->g_strFarPath.c_str(),
+		.nShow = SW_HIDE,
 	};
 
 	if (!ShellExecuteEx(&info))
