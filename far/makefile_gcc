@@ -198,7 +198,7 @@ TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 ADDINCLUDE=-I$(BOOTSTRAPDIR)..
 FORCEINCLUDE=$(patsubst %, -include %, headers.hpp $(FORCEINCLUDELIST_NO_PCH))
 
-CPPFLAGS += $(ADDINCLUDE) -D FAR_USE_INTERNALS
+CPPFLAGS += $(ADDINCLUDE) -D FAR_USE_INTERNALS -D _wassert=far_assert
 
 CPPFLAGS += \
 	-fvisibility=hidden \

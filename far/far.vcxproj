@@ -33,7 +33,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>%(ForcedIncludeFiles);headers.hpp;memcheck.hpp</ForcedIncludeFiles>
-      <PreprocessorDefinitions>FAR_USE_INTERNALS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FAR_USE_INTERNALS;_wassert=far_assert;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
 

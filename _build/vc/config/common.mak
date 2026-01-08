@@ -54,6 +54,7 @@ CFLAGS = $(CFLAGS)\
 	/volatile:iso\
 	/Wall\
 	/we4013\
+	/we4715\
 	/wd4464\
 	/wd4668\
 	/utf-8\

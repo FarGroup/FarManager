@@ -103,6 +103,15 @@ private:
 	_invalid_parameter_handler m_PreviousHandler;
 };
 
+class crt_report_hook
+{
+public:
+	NONCOPYABLE(crt_report_hook);
+
+	crt_report_hook();
+	~crt_report_hook();
+};
+
 class vectored_exception_handler
 {
 public:

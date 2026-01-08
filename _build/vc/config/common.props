@@ -134,7 +134,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
-      <TreatSpecificWarningsAsErrors>4013</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4013;4715</TreatSpecificWarningsAsErrors>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificDiagnostics>869,3280,4668</DisableSpecificDiagnostics>

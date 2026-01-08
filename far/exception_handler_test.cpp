@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
+#include <crtdbg.h>
+
 //----------------------------------------------------------------------------
 
 namespace tests
@@ -361,6 +363,12 @@ namespace tests
 	{
 		if ([[maybe_unused]] volatile auto Value = true)
 			assert(!Value);
+	}
+
+	static void cpp_crt_assertion_failure()
+	{
+		if ([[maybe_unused]] volatile auto Value = true)
+			_ASSERTE(!Value);
 	}
 
 	static void seh_access_violation_read()
@@ -709,6 +717,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_pure_virtual_call,        L"pure virtual call"sv },
 		{ tests::cpp_invalid_parameter,        L"invalid parameter"sv },
 		{ tests::cpp_assertion_failure,        L"assertion failure"sv },
+		{ tests::cpp_crt_assertion_failure,    L"CRT assertion failure"sv },
 		{ tests::cpp_memory_leak,              L"memory leak"sv },
 	};
 

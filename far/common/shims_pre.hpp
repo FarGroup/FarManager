@@ -52,6 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if COMPILER(GCC)
 
+// Disable incompatible _wassert in assert.h and redeclare, so that we can override it
+#define __ASSERT_H_
+extern "C" void _wassert(wchar_t const* Message, wchar_t const* File, unsigned Line);
+
 // Current implementation of wcschr etc. in gcc removes const from the returned pointer. The issue has been opened since 2007.
 // These semi-magical defines and appropriate inline overloads in shims_post.hpp are intended to fix this madness.
 
