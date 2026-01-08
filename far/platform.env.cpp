@@ -36,9 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 // Internal:
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.hpp"
+#include "platform.fs.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -172,6 +174,9 @@ namespace os::env
 			if (Failure)
 				Result = Str;
 		}
+
+		replace_icase(Result, L"%CD%"sv, fs::get_current_directory());
+
 		return Result;
 	}
 
