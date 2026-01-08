@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-01-08 23:31:21+00:00 - build 6626
+
+1. Experimental: support CD environment variable.
+
+2. Exception handling improvements.
+
+--------------------------------------------------------------------------------
 w17 2026-01-04 21:12:17+03:00 - build 6625
 
 1. Experimental -- far:config CodePages.NoAutoDetectCJK = true
