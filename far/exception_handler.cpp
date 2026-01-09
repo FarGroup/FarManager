@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <crtdbg.h>
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 #include <cxxabi.h>
 #endif
 
@@ -1378,7 +1378,7 @@ static std::pair<string, string> extract_object_type_and_value(EXCEPTION_RECORD 
 		return { TypeName, extract_object_value(TypeName, Iterator->object_ptr, Iterator->object_size) };
 	}
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 	if (const auto TypeInfo = abi::__cxa_current_exception_type(); TypeInfo)
 	{
 		const auto ExceptionPtr = std::current_exception();
@@ -2223,7 +2223,7 @@ unhandled_exception_filter::~unhandled_exception_filter()
 }
 
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 // For GCC. For some reason the default one works in Debug, but not in Release.
 #ifndef _DEBUG
 extern "C"
@@ -2264,23 +2264,10 @@ signal_handler::~signal_handler()
 		std::signal(SIGABRT, m_PreviousHandler);
 }
 
-#if IS_MICROSOFT_SDK() && !defined _DEBUG // 🤦
-extern "C" void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t);
-#endif
-
-[[noreturn]]
-static void default_invalid_parameter_handler(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
-{
-#if IS_MICROSOFT_SDK()
-	_invalid_parameter(Expression, Function, File, Line, Reserved);
-#endif
-	os::process::terminate(STATUS_INVALID_CRUNTIME_PARAMETER);
-}
-
-static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
+static handler_result invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line)
 {
 	if (!HandleCppExceptions)
-		std::abort();
+		return handler_result::continue_search;
 
 	static auto InsideHandler = false;
 	if (InsideHandler)
@@ -2293,27 +2280,33 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 	constexpr auto Location = source_location::current();
 
-	switch (handle_generic_exception(
+	return handle_generic_exception(
 		Context,
 		Function && File?
-			source_location(encoding::utf8::get_bytes(Function).c_str(), encoding::utf8::get_bytes(File).c_str(), Line) :
-			Location,
+		source_location(encoding::utf8::get_bytes(Function).c_str(), encoding::utf8::get_bytes(File).c_str(), Line) :
+		Location,
 		{},
 		{},
 		NullToEmpty(Expression),
 		LastError
-	))
+	);
+}
+
+static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
+{
+	if (invalid_parameter_handler_impl(Expression, Function, File, Line) == handler_result::continue_search)
 	{
-	case handler_result::execute_handler:
-		break;
-
-	case handler_result::continue_execution:
-		return;
-
-	case handler_result::continue_search:
 		restore_system_exception_handler();
 		_set_invalid_parameter_handler({});
-		default_invalid_parameter_handler(Expression, Function, File, Line, Reserved);
+#ifdef _UCRT
+#ifdef _DEBUG
+		_invalid_parameter(Expression, Function, File, Line, Reserved);
+#else
+		_invalid_parameter_noinfo();
+#endif
+#else
+		os::process::terminate(STATUS_INVALID_CRUNTIME_PARAMETER);
+#endif
 	}
 }
 
@@ -2348,7 +2341,7 @@ static handler_result assert_handler_impl(string_view const Message, source_loca
 }
 
 #ifdef _DEBUG
-#if IS_MICROSOFT_SDK()
+#ifdef _UCRT
 static int crt_report_hook_impl(int const ReportType, wchar_t* const Message, int*)
 {
 	const auto MessageStr = trim_right(string_view{ Message });
@@ -2387,7 +2380,7 @@ static int crt_report_hook_impl(int const ReportType, wchar_t* const Message, in
 crt_report_hook::crt_report_hook()
 {
 #ifdef _DEBUG
-#if IS_MICROSOFT_SDK()
+#ifdef _UCRT
 	_CrtSetReportHookW2(_CRT_RPTHOOK_INSTALL, crt_report_hook_impl);
 #endif
 #endif
@@ -2396,7 +2389,7 @@ crt_report_hook::crt_report_hook()
 crt_report_hook::~crt_report_hook()
 {
 #ifdef _DEBUG
-#if IS_MICROSOFT_SDK()
+#ifdef _UCRT
 	_CrtSetReportHookW2(_CRT_RPTHOOK_REMOVE, crt_report_hook_impl);
 #endif
 #endif

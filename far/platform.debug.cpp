@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <crtdbg.h>
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 #include <cxxabi.h>
 #endif
 
@@ -144,7 +144,7 @@ namespace os::debug
 		return &DummyContextPtr;
 	}
 
-#if IS_MICROSOFT_SDK()
+#if LIBRARY(MSVC)
 	extern "C" void** __current_exception();
 	extern "C" void** __current_exception_context();
 #else
@@ -321,7 +321,7 @@ namespace os::debug
 		return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
 	}
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 	static bool demangle_abi(const char* const SymbolName, string& Dest)
 	{
 		auto Status = -1;
@@ -366,7 +366,7 @@ namespace os::debug
 
 		// Empty or the same or failed to demangle
 		// For non-MSVC builds try to demangle it using ABI
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 		return demangle_abi(SymbolName, Dest);
 #else
 		return false;
@@ -403,7 +403,7 @@ namespace os::debug
 
 		// Empty or the same or failed to demangle
 		// For non-MSVC builds try to demangle it using ABI
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 		demangle_abi(encoding::ansi::get_bytes(SymbolName).c_str(), SymbolName);
 #endif
 	}

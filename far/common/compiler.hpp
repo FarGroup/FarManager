@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // both Intel and Clang preserve this macro.
 
 // Use #if COMPILER(%NAME%) to check for a specific compiler.
-// Use IS_MICROSOFT_SDK() to check for Microsoft standard library / Windows SDK
-// Use _MSC_VER only to find out its specific version.
 
 
 // Known compilers
@@ -64,12 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #define COMPILER(Name) (DETAIL_COMPILER_CURRENT() == DETAIL_COMPILER_##Name())
-
-#ifdef _MSC_VER
-#define IS_MICROSOFT_SDK() 1
-#else
-#define IS_MICROSOFT_SDK() 0
-#endif
 
 #if COMPILER(CL) || COMPILER(INTEL)
 #define STR_PRAGMA(...) __pragma(__VA_ARGS__)

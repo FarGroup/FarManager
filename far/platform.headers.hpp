@@ -35,11 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/compiler.hpp"
+#include "common/library.hpp"
 
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
 
-#if !IS_MICROSOFT_SDK()
+#if !LIBRARY(MSVC)
 #include <w32api.h>
 
 #if (100*(__W32API_MAJOR_VERSION) + (__W32API_MINOR_VERSION)) < 314
@@ -101,7 +102,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define _NTSCSI_USER_MODE_
 
-#if IS_MICROSOFT_SDK()
+#if LIBRARY(MSVC)
 #include <scsi.h>
 #else
 #include <ntdef.h>

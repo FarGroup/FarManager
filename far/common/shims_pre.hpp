@@ -37,8 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "compiler.hpp"
-
-#include <version>
+#include "library.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -52,18 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if COMPILER(GCC)
 
-// Disable incompatible _wassert in assert.h and redeclare, so that we can override it
-#define __ASSERT_H_
-extern "C" void _wassert(wchar_t const* Message, wchar_t const* File, unsigned Line);
 
-// Current implementation of wcschr etc. in gcc removes const from the returned pointer. The issue has been opened since 2007.
-// These semi-magical defines and appropriate inline overloads in shims_post.hpp are intended to fix this madness.
-
-// Force C version to return const
-#undef _CONST_RETURN
-#define _CONST_RETURN const
-// Disable broken inline overloads
-#define __CORRECT_ISO_CPP_WCHAR_H_PROTO
 
 #endif
 
@@ -76,6 +64,63 @@ WARNING_DISABLE_CLANG("-Wbuiltin-macro-redefined")
 // Seems to be broken in v20 or incompatible with libstdc++ headers
 #undef __cpp_explicit_this_parameter
 WARNING_POP()
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(MSVC)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(GNU)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(LLVM)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(GNU) || LIBRARY(LLVM)
+
+// Disable _wassert (redefined to far_assert) in cassert
+#define __ASSERT_H_
+void far_assert(wchar_t const* Message, wchar_t const* File, unsigned Line);
+
+// Declared without extern "C" in corecrt.h 🤦
+#ifdef _DEBUG
+#define _invalid_parameter _invalid_parameter_wrong_signature
+#endif
+#define _invalid_parameter_noinfo _invalid_parameter_noinfo_wrong_signature
+#include <corecrt.h>
+#ifdef _DEBUG
+#undef _invalid_parameter
+extern "C" _CRTIMP void _invalid_parameter(wchar_t const*, wchar_t const*, wchar_t const*, unsigned int, uintptr_t);
+#endif
+#undef _invalid_parameter_noinfo
+extern "C" _CRTIMP void _invalid_parameter_noinfo();
+
+
+// Current implementation of wcschr etc. in gcc removes const from the returned pointer. The issue has been opened since 2007.
+// These semi-magical defines and appropriate inline overloads in shims_post.hpp are intended to fix this madness.
+
+// Force C version to return const
+#undef _CONST_RETURN
+#define _CONST_RETURN const
+// Disable broken inline overloads
+#define __CORRECT_ISO_CPP_WCHAR_H_PROTO
 
 #endif
 

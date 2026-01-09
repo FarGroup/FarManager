@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/library.hpp"
 
 // External:
 
@@ -49,7 +50,7 @@ WARNING_DISABLE_CLANG("-Wenum-constexpr-conversion")
 
 #include "platform.sdk/sdk_common.h"
 
-#if IS_MICROSOFT_SDK()
+#if LIBRARY(MSVC)
 #include "platform.sdk/sdk_vc.h"
 #else
 #include "platform.sdk/sdk_gcc.h"

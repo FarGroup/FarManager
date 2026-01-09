@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static new_handler* NewHandler;
 
 #if SET_CRT_NEW_HANDLER
-#if IS_MICROSOFT_SDK()
+#if LIBRARY(MSVC)
 // New.h pollutes global namespace and causes name conflicts
 extern "C"
 {

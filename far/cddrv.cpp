@@ -195,7 +195,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 {
 	auto Spt = InitSCSIPassThrough();
 
-#if !IS_MICROSOFT_SDK()
+#if LIBRARY(GNU)
 	// Old GCC headers incorrectly reserve only one bit for RequestType
 	static_assert(decltype(CDB::GET_CONFIGURATION){.RequestType = 0b11 }.RequestType == 0b11);
 #endif

@@ -52,7 +52,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if COMPILER(GCC)
 
-// These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if COMPILER(CLANG)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(MSVC)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(GNU)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(LLVM)
+
+
+
+#endif
+
+//----------------------------------------------------------------------------
+
+#if LIBRARY(GNU) || LIBRARY(LLVM)
+
+// These inline implementations in cwchar are wrong and non-compilable if _CONST_RETURN is defined.
 namespace std
 {
 	inline wchar_t* wcschr(wchar_t* p, wchar_t c)
@@ -86,14 +126,6 @@ using std::wcspbrk;
 using std::wcsrchr;
 using std::wcsstr;
 using std::wmemchr;
-
-#endif
-
-//----------------------------------------------------------------------------
-
-#if COMPILER(CLANG)
-
-
 
 #endif
 

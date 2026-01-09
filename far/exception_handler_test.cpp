@@ -353,8 +353,8 @@ namespace tests
 
 	static void cpp_invalid_parameter()
 	{
-#if IS_MICROSOFT_SDK()
-		const auto Func = printf;
+#ifdef _UCRT
+		const auto Func = _atoi64;
 		Func({});
 #endif
 	}
