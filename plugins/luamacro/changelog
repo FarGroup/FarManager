@@ -1,3 +1,7 @@
+shmuel 2026-01-10 10:42:46+02:00 - build 912
+
+1. far.Message, 1-st param: replace nulls with spaces
+
 shmuel 2025-12-31 00:30:52+02:00 - build 911
 
 1. far.Show: CtrlC and CtrlIns copy the selected line to clipboard and close the menu.

@@ -2170,25 +2170,30 @@ void LF_Error(lua_State *L, const wchar_t* aMsg)
 // Return: -1 if escape pressed, else - button number chosen (1 based).
 static int far_Message(lua_State *L)
 {
-	int ret;
-	const wchar_t *Msg, *Title, *Buttons, *HelpTopic;
-	const char *Flags;
-	const GUID *Id;
+	const wchar_t *Msg;
 	luaL_checkany(L,1);
 	lua_settop(L,6);
-	Msg = NULL;
 
-	global_tolstring(L, 1, NULL);
+	size_t MsgLen;
+	const char *str = global_tolstring(L, 1, &MsgLen);
+	char *copy = malloc(MsgLen);
+	for (size_t i=0; i < MsgLen; i++) {
+		copy[i] = str[i] ? str[i] : ' ';  // replace '\0' with a space
+	}
+	lua_pop(L, 1);
+	lua_pushlstring(L, copy, MsgLen);
+	free(copy);
+
 	Msg = check_utf8_string(L, -1, NULL);
 	lua_replace(L,1);
 
-	Title   = opt_utf8_string(L, 2, L"Message");
-	Buttons = opt_utf8_string(L, 3, L";OK");
-	Flags   = luaL_optstring(L, 4, "");
-	HelpTopic = opt_utf8_string(L, 5, NULL);
-	Id = (lua_type(L,6)==LUA_TSTRING && lua_objlen(L,6)==sizeof(GUID)) ?
+	const wchar_t *Title     = opt_utf8_string(L, 2, L"Message");
+	const wchar_t *Buttons   = opt_utf8_string(L, 3, L";OK");
+	const char *Flags        = luaL_optstring(L, 4, "");
+	const wchar_t *HelpTopic = opt_utf8_string(L, 5, NULL);
+	const GUID *Id = (lua_type(L,6)==LUA_TSTRING && lua_objlen(L,6)==sizeof(GUID)) ?
 	     (const GUID*)lua_tostring(L,6) : NULL;
-	ret = LF_Message(L, Msg, Title, Buttons, Flags, HelpTopic, Id);
+	int ret = LF_Message(L, Msg, Title, Buttons, Flags, HelpTopic, Id);
 	lua_pushinteger(L, ret<0 ? ret : ret+1);
 	return 1;
 }
