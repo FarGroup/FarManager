@@ -242,14 +242,18 @@ static message_result MessageImpl(
 		append(strClipText, Eol);
 
 		if (!Strings.empty())
+		{
 			Strings.emplace_back(L"\x1"sv);
+			StringLengths.emplace_back(1);
+		}
 
 		const auto add_wrapped = [&](string_view const Str)
 		{
 			for (const auto& i : wrapped_text(Str, MAX_MESSAGE_WIDTH))
 			{
 				Strings.emplace_back(i);
-				MaxLength = std::max(MaxLength, visual_string_length(i));
+				StringLengths.emplace_back(visual_string_length(i));
+				MaxLength = std::max(MaxLength, StringLengths.back());
 			}
 		};
 
@@ -387,6 +391,7 @@ static message_result MessageImpl(
 		MsgDlg[MsgDlg.size() - ButtonsCount].Flags |= DIF_DEFAULTBUTTON | DIF_FOCUS;
 
 		clear_and_shrink(Strings);
+		clear_and_shrink(StringLengths);
 		clear_and_shrink(Buttons);
 
 		const auto Dlg = Dialog::create(MsgDlg, std::bind_front(&message_context::DlgProc, &Context), &strClipText);
