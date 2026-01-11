@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
-#include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 #include "lang.hpp"
 #include "stddlg.hpp"
@@ -198,7 +197,10 @@ static message_result MessageImpl(
 		}
 	}
 
-	auto MaxLength = !Strings.empty()? std::ranges::fold_left(Strings, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); }) : 0;
+	std::vector<size_t> StringLengths;
+	std::ranges::transform(Strings, std::back_inserter(StringLengths), visual_string_length);
+
+	auto MaxLength = StringLengths.empty()? 0 : std::ranges::max(StringLengths);
 
 	string strClipText;
 
@@ -206,7 +208,7 @@ static message_result MessageImpl(
 
 	if (!Title.empty())
 	{
-		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
+		MaxLength = std::max(MaxLength, visual_string_length(Title) + 2); // 2 for surrounding spaces
 		append(strClipText, Title, Eol, Eol);
 	}
 
@@ -247,7 +249,7 @@ static message_result MessageImpl(
 			for (const auto& i : wrapped_text(Str, MAX_MESSAGE_WIDTH))
 			{
 				Strings.emplace_back(i);
-				MaxLength = std::max(MaxLength, i.size());
+				MaxLength = std::max(MaxLength, visual_string_length(i));
 			}
 		};
 
@@ -333,7 +335,7 @@ static message_result MessageImpl(
 			}
 			else
 			{
-				if (Str.size() + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
+				if (StringLengths[Index] + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
 				{
 					Item.Type = DI_EDIT;
 					Item.Flags |= DIF_READONLY | DIF_BTNNOCLOSE | DIF_SELECTONENTRY;
@@ -441,7 +443,7 @@ static message_result MessageImpl(
 	{
 		const auto strTempTitle = cut_right(Title, MaxLength);
 
-		GotoXY(Position.left + (Position.width() - 2 - static_cast<int>(strTempTitle.size())) / 2, Position.top + 1);
+		GotoXY(Position.left + (Position.width() - 2 - static_cast<int>(visual_string_length(strTempTitle))) / 2, Position.top + 1);
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
@@ -469,9 +471,10 @@ static message_result MessageImpl(
 						SeparatorText.push_back(L' ');
 				}
 
-				if (SeparatorText.size() < static_cast<size_t>(Length))
+				const auto SeparatorTextVisualLength = visual_string_length(SeparatorText);
+				if (SeparatorTextVisualLength < static_cast<size_t>(Length))
 				{
-					GotoXY(Position.left + 3 + static_cast<int>(Length - SeparatorText.size()) / 2, Position.top + static_cast<int>(i)+2);
+					GotoXY(Position.left + 3 + static_cast<int>(Length - SeparatorTextVisualLength) / 2, Position.top + static_cast<int>(i)+2);
 					Text(SeparatorText);
 				}
 

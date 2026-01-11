@@ -115,13 +115,15 @@ public:
 	explicit wrapped_text(auto&& Str, size_t const Width):
 		m_Str(FWD(Str)),
 		m_Tail(m_Str),
-		m_Width(Width? Width : m_Tail.size())
+		m_Width(Width? Width : width())
 	{
 	}
 
 private:
 	[[nodiscard]]
 	bool get(bool Reset, string_view& Value) const;
+
+	size_t width() const;
 
 	string_copyref m_Str;
 	string_view mutable m_Tail;

@@ -853,52 +853,51 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 
 	const auto advance = [&](size_t TokenEnd, size_t SeparatorSize)
 	{
+		if (TokenEnd == string::npos)
+			TokenEnd = visual_pos_to_string_pos(m_Tail, m_Width, 1);
+
 		Value = m_Tail.substr(0, TokenEnd);
 		m_Tail.remove_prefix(TokenEnd + SeparatorSize);
 		return true;
 	};
 
 	// Try to take a line, drop line breaks
-	auto ChopSize = m_Tail.find_first_of(LineBreaks);
+	auto Piece = m_Tail.substr(0, m_Tail.find_first_of(LineBreaks));
 	auto BreaksSize = 1;
 
-	if (ChopSize == m_Tail.npos)
-	{
-		ChopSize = m_Tail.size();
+	if (Piece.size() == m_Tail.size())
 		BreaksSize = 0;
-	}
 
-	if (ChopSize <= m_Width)
-		return advance(ChopSize, BreaksSize);
+	if (visual_string_length(Piece) <= m_Width)
+		return advance(Piece.size(), BreaksSize);
 
 	// Try to take some words, drop spaces
-	ChopSize = m_Tail.find_last_of(WordSpaceBreaks, m_Width);
+	Piece = m_Tail.substr(0 ,m_Tail.find_last_of(WordSpaceBreaks, m_Width));
 	BreaksSize = 1;
 
-	if (ChopSize == m_Tail.npos)
-	{
-		ChopSize = m_Tail.size();
+	if (Piece.size() == m_Tail.size())
 		BreaksSize = 0;
-	}
 
-	if (ChopSize <= m_Width)
-		return advance(ChopSize, BreaksSize);
+	if (visual_string_length(Piece) <= m_Width)
+		return advance(Piece.size(), BreaksSize);
 
 	// Try to take some words, keep separators
-	ChopSize = m_Tail.find_last_of(WordOtherBreaks, m_Width);
+	Piece = m_Tail.substr(0, m_Tail.find_last_of(WordOtherBreaks, m_Width));
 	BreaksSize = 1;
 
-	if (ChopSize == m_Tail.npos)
-	{
-		ChopSize = m_Tail.size();
+	if (Piece.size() == m_Tail.size())
 		BreaksSize = 0;
-	}
 
-	if (ChopSize + BreaksSize <= m_Width)
-		return advance(ChopSize + BreaksSize, 0);
+	if (visual_string_length(Piece) + BreaksSize <= m_Width)
+		return advance(Piece.size() + BreaksSize, 0);
 
 	// Take a part of the word
-	return advance(m_Width, 0);
+	return advance(string::npos, 0);
+}
+
+size_t wrapped_text::width() const
+{
+	return visual_string_length(m_Tail);
 }
 
 bool FindWordInString(string_view const Str, size_t CurPos, size_t& Begin, size_t& End, string_view const WordDiv0)
