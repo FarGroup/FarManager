@@ -41,7 +41,8 @@ template<typename... tuple_types>
 class split_duration: public std::tuple<tuple_types...>
 {
 public:
-	constexpr explicit split_duration(auto Duration)
+	template<class Rep, class Period>
+	constexpr explicit split_duration(std::chrono::duration<Rep, Period> Duration)
 	{
 		(..., (set_and_chop<tuple_types>(Duration)));
 	}

@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <concepts>
 
+#include <cassert>
+
 //----------------------------------------------------------------------------
 
 template<typename type>

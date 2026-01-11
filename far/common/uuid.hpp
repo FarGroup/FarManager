@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 
 #include <optional>
-#include <stdexcept>
 #include <string_view>
 
 #include <rpc.h>
@@ -62,7 +61,6 @@ namespace uuid
 			if (L'A' <= c && c <= L'F')
 				return c - L'A' + 10;
 
-			using namespace std::string_view_literals;
 			throw_exception("Invalid character"sv);
 		}
 
@@ -95,10 +93,7 @@ namespace uuid
 		constexpr auto& operator+=(std::random_access_iterator auto& Iterator, separator_t)
 		{
 			if (*Iterator != L'-')
-			{
-				using namespace std::string_view_literals;
 				throw_exception("Invalid character"sv);
-			}
 
 			return ++Iterator;
 		}
@@ -126,10 +121,10 @@ namespace uuid
 
 		template<size_t Digit>
 		[[nodiscard]]
-		constexpr char int_to_hex(unsigned Value)
+		constexpr wchar_t int_to_hex(unsigned Value)
 		{
 			const auto i = (Value & (0xFu << 4 * Digit)) >> 4 * Digit;
-			return i < 10? i + '0' : i - 10 + 'A';
+			return i < 10? i + L'0' : i - 10 + L'A';
 		}
 
 		template<size_t... I>
@@ -153,10 +148,7 @@ namespace uuid
 		constexpr auto parse(std::basic_string_view<char_type> const Str)
 		{
 			if (!(Str.size() == uuid_length || (Str.size() == uuid_length + 2 && Str.front() == L'{' && Str.back() == L'}')))
-			{
-				using namespace std::string_view_literals;
 				throw_exception("Incorrect format"sv);
-			}
 
 			return detail::parse(Str.data() + (Str.size() != uuid_length));
 		}
@@ -209,7 +201,7 @@ namespace uuid
 		std::wstring Result;
 		Result.reserve(detail::uuid_length);
 
-		const auto put = [&](char const c)
+		const auto put = [&](wchar_t const c)
 		{
 			Result.push_back(c);
 		};
@@ -219,7 +211,7 @@ namespace uuid
 			detail::serialise(i, put);
 		};
 
-		constexpr auto Separator = '-';
+		constexpr auto Separator = L'-';
 
 		serialise(Uuid.Data1);
 		put(Separator);

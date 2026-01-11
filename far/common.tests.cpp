@@ -468,12 +468,20 @@ TEST_CASE("bytes")
 {
 	uint32_t Value = 0;
 	const auto BytesRef = edit_bytes(Value);
+
 	std::fill(BytesRef.begin(), BytesRef.end(), std::byte{0x42});
 	REQUIRE(Value == 0x42424242);
+
 	const auto View = view_bytes(Value);
 	REQUIRE(View == "\x42\x42\x42\x42"_bv);
+
 	bytes Copy(View);
 	REQUIRE(Copy == View);
+
+	uint32_t NewValue = 0;
+	REQUIRE(!deserialise(View.substr(0, sizeof(NewValue) - 1), NewValue));
+	REQUIRE(deserialise(View, NewValue));
+	REQUIRE(NewValue == Value);
 
 	const auto Str = "BANANA"sv;
 	const auto Bytes = view_bytes(Str);
@@ -739,7 +747,10 @@ TEST_CASE("from_string")
 	REQUIRE_THROWS_MATCHES(from_string<int>({}), far_exception, InvalidArgumentMatcher);
 	REQUIRE_THROWS_MATCHES(from_string<int>(L" 42"sv), far_exception, InvalidArgumentMatcher);
 	REQUIRE_THROWS_MATCHES(from_string<int>(L" +42"sv), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L"+42"sv), far_exception, InvalidArgumentMatcher);
 	REQUIRE_THROWS_MATCHES(from_string<double>(L"1"sv, {}, 3), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L"-"sv), far_exception, InvalidArgumentMatcher);
+	REQUIRE_THROWS_MATCHES(from_string<int>(L"+"sv), far_exception, InvalidArgumentMatcher);
 
 	{
 		int Value;
@@ -940,6 +951,10 @@ TEST_CASE("lazy")
 
 TEST_CASE("monitored")
 {
+	monitored<int> def;
+	REQUIRE(def.value() == 0);
+	REQUIRE(!def.touched());
+
 	monitored a(42);
 	REQUIRE(!a.touched());
 	a = 33;
@@ -948,6 +963,24 @@ TEST_CASE("monitored")
 	a.forget();
 	REQUIRE(!a.touched());
 	REQUIRE(a == 33);
+
+	monitored b(a);
+	REQUIRE(b.value() == 33);
+	REQUIRE(!b.touched());
+
+	monitored c(10);
+	REQUIRE(!c.touched());
+	c = b;
+	REQUIRE(c.value() == 33);
+	REQUIRE(c.touched());
+
+	monitored d(monitored(std::make_unique<int>(100)));
+	REQUIRE(*d.value().get() == 100);
+	REQUIRE(!d.touched());
+
+	monitored f(123);
+	int Raw = f;
+	REQUIRE(Raw == 123);
 }
 
 //----------------------------------------------------------------------------
@@ -1429,6 +1462,10 @@ TEST_CASE("singleton")
 	class c: public singleton<c>
 	{
 		IMPLEMENTS_SINGLETON;
+
+	private:
+		c() = default;
+		~c() = default;
 	};
 
 	const auto& Ref1 = c::instance();
@@ -1505,6 +1542,14 @@ TEST_CASE("smart_ptr.block_ptr")
 //----------------------------------------------------------------------------
 
 #include "common/string_utils.hpp"
+
+TEST_CASE("string_utils.copy_string")
+{
+	const auto Str = L"Kiełbasa"sv;
+	std::vector<wchar_t> Buffer(Str.size() + 1);
+	const auto It = copy_string(Str, Buffer.begin());
+	REQUIRE(std::ranges::equal(Str, std::span{Buffer.begin(), It}));
+}
 
 TEST_CASE("string_utils.trim")
 {
@@ -1599,6 +1644,8 @@ TEST_CASE("string_utils.quotes")
 		{ LR"("12" 345")"sv,   L"12 345"sv,   LR"("12" 345")"sv,  LR"(""12" 345"")"sv,  LR"("12 345")"sv,  LR"("12" 345")"sv,  },
 	};
 
+	string Buffer;
+
 	for (const auto& i: Tests)
 	{
 		REQUIRE(unquote(i.Src) == i.ResultUnquote);
@@ -1606,6 +1653,10 @@ TEST_CASE("string_utils.quotes")
 		REQUIRE(quote_unconditional(i.Src) == i.ResultQuoteUnconditional);
 		REQUIRE(quote_normalise(i.Src) == i.ResultQuoteNormalise);
 		REQUIRE(quote_space(i.Src) == i.ResultQuoteSpace);
+
+		Buffer.clear();
+		copy::unquote(i.Src, std::back_inserter(Buffer));
+		REQUIRE(Buffer == i.ResultUnquote);
 	}
 }
 

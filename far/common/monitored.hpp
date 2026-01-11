@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "preprocessor.hpp"
 
-#include <iterator>
+#include <utility>
 
 //----------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ template<class T>
 class monitored
 {
 public:
-	MOVABLE(monitored);
+	MOVE_CONSTRUCTIBLE(monitored);
 
 	monitored(): m_Value(), m_Touched() {}
 	explicit(false) monitored(const T& Value): m_Value(Value), m_Touched() {}
@@ -56,13 +56,7 @@ public:
 	auto& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
 
 	[[nodiscard]]
-	auto& value() noexcept { return m_Value; }
-
-	[[nodiscard]]
 	const auto& value() const noexcept { return m_Value; }
-
-	[[nodiscard]]
-	explicit(false) operator T&() noexcept { return m_Value; }
 
 	[[nodiscard]]
 	explicit(false) operator const T&() const noexcept { return m_Value; }

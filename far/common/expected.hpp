@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "preprocessor.hpp"
 
-#include <stdexcept>
 #include <variant>
 
 //----------------------------------------------------------------------------
