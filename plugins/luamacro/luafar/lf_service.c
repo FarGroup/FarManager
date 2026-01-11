@@ -1981,29 +1981,26 @@ static int far_Menu(lua_State *L)
 }
 
 // Return:   -1 if escape pressed, else - button number chosen (0 based).
-int LF_Message(lua_State *L,
-               const wchar_t* aMsg,      // if multiline, then lines must be separated by '\n'
-               const wchar_t* aTitle,
-               const wchar_t* aButtons,  // if multiple, then captions must be separated by ';'
-               const char*    aFlags,
-               const wchar_t* aHelpTopic,
-               const GUID*    aMessageGuid)
+int LF_Message(lua_State* L,
+	const wchar_t* aMsg,      // if multiline, then lines must be separated by '\n'
+	const wchar_t* aTitle,
+	const wchar_t* aButtons,  // if multiple, then captions must be separated by ';'
+	const char*    aFlags,
+	const wchar_t* aHelpTopic,
+	const GUID*    aMessageGuid)
 {
-	const wchar_t **items, **pItems;
-	wchar_t** allocLines;
-	int nAlloc;
-	wchar_t *lastDelim, *MsgCopy, *start, *pos;
 	TPluginData *pd = GetPluginData(L);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	HANDLE hnd = GetStdHandle(STD_OUTPUT_HANDLE);
-	int ret = GetConsoleScreenBufferInfo(hnd, &csbi);
-	const int max_len   = ret ? csbi.srWindow.Right - csbi.srWindow.Left+1-14 : 66;
-	const int max_lines = ret ? csbi.srWindow.Bottom - csbi.srWindow.Top+1-5 : 20;
+	SMALL_RECT sr;
+	int ret = pd->Info->AdvControl(pd->PluginId, ACTL_GETFARRECT, 0, &sr);
+	const int max_len = ret ? sr.Right - sr.Left + 1 - 14 : 66;
+	const int max_lines = ret ? sr.Bottom - sr.Top + 1 - 5 : 20;
+
 	int num_lines = 0, num_buttons = 0;
-	UINT64 Flags = 0;
+
 	// Buttons
-	wchar_t *BtnCopy = NULL, *ptr = NULL;
+	wchar_t *BtnCopy = NULL;
 	int wrap = !(aFlags && strchr(aFlags, 'n'));
+	uint64_t Flags = 0;
 
 	if (*aButtons == L';')
 	{
@@ -2018,11 +2015,12 @@ int LF_Message(lua_State *L,
 		else
 			while(*aButtons == L';') aButtons++;
 	}
+
 	if (Flags == 0)
 	{
 		// Buttons: 1-st pass, determining number of buttons
 		BtnCopy = _wcsdup(aButtons);
-		ptr = BtnCopy;
+		wchar_t *ptr = BtnCopy;
 
 		while(*ptr && (num_buttons < 64))
 		{
@@ -2039,16 +2037,18 @@ int LF_Message(lua_State *L,
 		}
 	}
 
-	items = (const wchar_t**) malloc((1+max_lines+num_buttons) * sizeof(wchar_t*));
-	allocLines = (wchar_t**) malloc(max_lines * sizeof(wchar_t*)); // array of pointers to allocated lines
-	nAlloc = 0;                                                    // number of allocated lines
-	pItems = items;
+	const wchar_t **items = (const wchar_t**) malloc((1+max_lines+num_buttons) * sizeof(wchar_t*));
+	wchar_t **allocLines = (wchar_t**) malloc(max_lines * sizeof(wchar_t*)); // array of pointers to allocated lines
+	int nAlloc = 0; // number of allocated lines
+
 	// Title
+	const wchar_t **pItems = items;
 	*pItems++ = aTitle;
+
 	// Message lines
-	lastDelim = NULL;
-	MsgCopy = _wcsdup(aMsg);
-	start = pos = MsgCopy;
+	wchar_t *lastDelim = NULL;
+	wchar_t *MsgCopy = _wcsdup(aMsg);
+	wchar_t *start = MsgCopy, *pos = MsgCopy;
 
 	while(num_lines < max_lines)
 	{
@@ -2075,11 +2075,9 @@ int LF_Message(lua_State *L,
 		}
 		else if (wrap)                          // the 1-st character beyond the line
 		{
-			size_t len;
-			wchar_t **q;
 			pos = lastDelim ? lastDelim+1 : pos;
-			len = pos - start;
-			q = &allocLines[nAlloc++]; // line allocation is needed
+			size_t len = pos - start;
+			wchar_t **q = &allocLines[nAlloc++]; // line allocation is needed
 			*pItems++ = *q = (wchar_t*) malloc((len+1)*sizeof(wchar_t));
 			wcsncpy(*q, start, len);
 			(*q)[len] = L'\0';
@@ -2094,10 +2092,9 @@ int LF_Message(lua_State *L,
 	if (*aButtons != L';')
 	{
 		// Buttons: 2-nd pass.
-		int i;
-		ptr = BtnCopy;
+		wchar_t *ptr = BtnCopy;
 
-		for(i=0; i < num_buttons; i++)
+		for(int i=0; i < num_buttons; i++)
 		{
 			while(*ptr == L';')
 				++ptr;
@@ -2120,11 +2117,8 @@ int LF_Message(lua_State *L,
 	if (aFlags)
 	{
 		if (strchr(aFlags, 'w')) Flags |= FMSG_WARNING;
-
 		if (strchr(aFlags, 'e')) Flags |= FMSG_ERRORTYPE;
-
 		if (strchr(aFlags, 'k')) Flags |= FMSG_KEEPBACKGROUND;
-
 		if (strchr(aFlags, 'l')) Flags |= FMSG_LEFTALIGN;
 	}
 
@@ -2134,12 +2128,13 @@ int LF_Message(lua_State *L,
 	ret = (int)pd->Info->Message(pd->PluginId, aMessageGuid, Flags, aHelpTopic,
 	                             items, 1+num_lines+num_buttons, num_buttons);
 	free(BtnCopy);
-
-	while(nAlloc) free(allocLines[--nAlloc]);
-
+	while (nAlloc) {
+		free(allocLines[--nAlloc]);
+	}
 	free(allocLines);
 	free(MsgCopy);
-	free(CAST(void*, items));
+	free(items);
+
 	return ret;
 }
 

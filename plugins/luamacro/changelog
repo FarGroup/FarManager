@@ -1,3 +1,7 @@
+shmuel 2026-01-11 01:58:38+02:00 - build 913
+
+1. far.Message: fix for multi-width chars (from far2m).
+
 shmuel 2026-01-10 10:42:46+02:00 - build 912
 
 1. far.Message, 1-st param: replace nulls with spaces
