@@ -223,7 +223,7 @@ void CommandLine::DrawFakeCommand(string_view const FakeCommand)
 	console.start_command();
 	SetColor(COL_COMMANDLINE);
 	// TODO: wrap & scroll if too long
-	Text(FakeCommand);
+	Text(FakeCommand, ScrX + 1 - WhereX());
 	Global->ScrBuf->Flush();
 
 	std::wcout << std::endl;

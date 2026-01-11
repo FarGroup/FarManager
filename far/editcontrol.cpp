@@ -110,6 +110,8 @@ void EditControl::Show()
 
 void EditControl::Changed(bool DelBlock)
 {
+	Edit::Changed(DelBlock);
+
 	m_Flags.Clear(FEDITLINE_CLEARFLAG);
 
 	if(m_Callback.Active && !m_CallbackSuppressionsCount)
