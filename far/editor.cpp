@@ -243,12 +243,9 @@ void Editor::ShowEditor()
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
-	// Calculate line number column width if needed
-	// Minimum width of 3 for "1", "10", "100", etc. plus 1 for spacing
-	const auto LineNumWidth = EdOpt.ShowLineNumbers ?
-		(std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
+	const auto LineNumWidth = LineNumbersWidth();
 
-	XX2 = m_Where.right - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
+	XX2 = m_Where.right - ScrollbalWidth();
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
 	  Если на экране есть свободное место, и есть текст сверху,
@@ -5578,9 +5575,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 		case ECTL_GETINFO:
 		{
-			const auto Info = static_cast<EditorInfo*>(Param2);
-			if (!CheckStructSize(Info))
+			const auto InfoV1 = static_cast<EditorInfoV1*>(Param2);
+			if (!CheckStructSize(InfoV1))
 				return false;
+			const auto Info = static_cast<EditorInfo*>(Param2);
 
 			Info->EditorID = EditorID;
 			Info->WindowSizeX=ObjWidth();
@@ -5646,6 +5644,12 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->CurState |= m_Flags.Check(FEDITOR_MODIFIED)? 0 : ECSTATE_SAVED;
 			Info->CodePage = GetCodePage();
 
+			if (Info->StructSize > offsetof(EditorInfo, ClientArea))
+			{
+				Info->ClientArea = GetPosition().as<RECT>();
+				Info->ClientArea.left += LineNumbersWidth();
+				Info->ClientArea.right -= ScrollbalWidth();
+			}
 			return true;
 		}
 
@@ -7142,6 +7146,18 @@ void Editor::AutoDeleteColors()
 	}
 
 	m_AutoDeletedColors.clear();
+}
+
+int Editor::LineNumbersWidth() const
+{
+	// Calculate line number column width if needed
+	// Minimum width of 3 for "1", "10", "100", etc. plus 1 for spacing
+	return EdOpt.ShowLineNumbers ? (std::max(3, static_cast<int>(std::log10(static_cast<double>(Lines.size()))) + 1) + 1) : 0;
+}
+
+int Editor::ScrollbalWidth() const
+{
+	return EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0;
 }
 
 #ifdef ENABLE_TESTS

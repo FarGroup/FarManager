@@ -94,6 +94,13 @@ struct rectangle_t
 	{
 		return in_closed_range(left, Point.x, right) && in_closed_range(top, Point.y, bottom);
 	}
+
+	template<typename Y>
+	[[nodiscard]]
+	Y const as() const
+	{
+		return Y{left,top,right,bottom};
+	}
 };
 
 using small_rectangle = rectangle_t<short>;

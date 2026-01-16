@@ -2646,7 +2646,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->Options|=EOPT_SHOWTITLEBAR;
 		if (Global->Opt->EdOpt.ShowKeyBar)
 			Info->Options|=EOPT_SHOWKEYBAR;
-
+		if (Info->StructSize > offsetof(EditorInfo, WindowArea))
+			Info->WindowArea = GetPosition().as<RECT>();
 	}
 	return result;
 }

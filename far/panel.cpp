@@ -576,11 +576,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				break;
 			}
 
-			const auto Rect = GetPosition();
-			Info->PanelRect.left = Rect.left;
-			Info->PanelRect.top = Rect.top;
-			Info->PanelRect.right = Rect.right;
-			Info->PanelRect.bottom = Rect.bottom;
+			Info->PanelRect = GetPosition().as<RECT>();
 			Info->ViewMode=GetViewMode();
 			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>(internal_sort_mode_to_plugin(GetSortMode()));
 

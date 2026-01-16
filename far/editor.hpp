@@ -139,6 +139,8 @@ public:
 	bool IsLastLine(const Edit* Line) const;
 	void AutoDeleteColors();
 	int GetId() const { return EditorID; }
+	int LineNumbersWidth() const;
+	int ScrollbalWidth() const;
 
 	static eol GetDefaultEOL();
 
