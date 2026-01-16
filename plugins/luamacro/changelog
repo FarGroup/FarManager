@@ -1,3 +1,7 @@
+zg 2026-01-16 16:29:31+02:00 - build 914
+
+1. adaptation to far 3.0.6632.
+
 shmuel 2026-01-11 01:58:38+02:00 - build 913
 
 1. far.Message: fix for multi-width chars (from far2m).
