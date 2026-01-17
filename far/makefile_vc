@@ -250,6 +250,10 @@ RFLAGS = $(RFLAGS) $(ADDINCLUDE)
 CPPFLAGS = $(CPPFLAGS) /D "ENABLE_TESTS"
 !endif
 
+!ifdef DEBUG
+LNKFLAGS=$(LNKFLAGS) /ignore:4286
+!endif
+
 ALL: AllDirs lng depfile include docs $(TEST_OBJS)
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
 

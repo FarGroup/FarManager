@@ -48,6 +48,12 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">
+    <Link>
+      <AdditionalOptions>/ignore:4286</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+
   <ItemGroup>
     <CustomBuild Include="api_test.c">
       <Command>echo testing C plugin API
