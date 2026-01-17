@@ -541,6 +541,8 @@ using fkey_to_pos_map = std::array<int, 24>;
 // заполнение меню
 static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, fkey_to_pos_map& FuncPos, const subst_context& SubstContext)
 {
+	SCOPED_ACTION(Dialog::suppress_redraw)(&FarUserMenu);
+
 	FarUserMenu.clear();
 	FuncPos.fill(-1);
 	int NumLines = -1;
@@ -672,6 +674,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (CurrentMenuItem)
 					{
 						DeleteMenuRecord(Menu, *CurrentMenuItem);
+						// BUGBUG update dynamically instead of full refill
 						FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					}
 					break;
@@ -686,6 +689,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, IsNew);
+					// BUGBUG update dynamically instead of full refill
 					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					break;
 				}
@@ -718,7 +722,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						++MenuPos;
 					}
 					node_swap(Menu, *CurrentMenuItem, Other);
-
+					// BUGBUG update dynamically instead of full refill
 					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 				}
 				break;

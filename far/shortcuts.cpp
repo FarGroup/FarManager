@@ -223,6 +223,8 @@ static string MakeName(const Shortcuts::shortcut& Item)
 
 static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool const raw_mode)
 {
+	SCOPED_ACTION(Dialog::suppress_redraw)(&Menu);
+
 	// Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
 	static_assert(!std::is_const_v<std::remove_reference_t<decltype(List)>>);
 
@@ -425,7 +427,8 @@ std::variant<std::list<Shortcuts::shortcut>::const_iterator, size_t> Shortcuts::
 			if (Iterator && *Iterator != m_Items.begin())
 			{
 				m_Items.splice(std::prev(*Iterator), m_Items, *Iterator);
-				FillMenu(*FolderList, m_Items, Raw);
+				using std::ranges::swap;
+				swap(FolderList->at(ItemPos), FolderList->at(ItemPos - 1));
 				FolderList->SetSelectPos(ItemPos - 1);
 				m_Changed = true;
 			}
@@ -436,7 +439,8 @@ std::variant<std::list<Shortcuts::shortcut>::const_iterator, size_t> Shortcuts::
 			if (Iterator && std::next(*Iterator) != m_Items.end())
 			{
 				m_Items.splice(*Iterator, m_Items, std::next(*Iterator));
-				FillMenu(*FolderList, m_Items, Raw);
+				using std::ranges::swap;
+				swap(FolderList->at(ItemPos), FolderList->at(ItemPos + 1));
 				FolderList->SetSelectPos(ItemPos + 1);
 				m_Changed = true;
 			}
