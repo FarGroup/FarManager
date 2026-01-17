@@ -4772,7 +4772,7 @@ void Editor::AddUndoData(undo_type Type, string_view const Str, eol Eol, int Str
 		case undo_type::edit:
 			{
 				if (!m_Flags.Check(FEDITOR_NEWUNDO) && PrevUndo->m_Type == undo_type::edit && StrNum == PrevUndo->m_StrNum &&
-					m_WithinUndoBlock || (std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
+					(m_WithinUndoBlock || std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
 				{
 					LastChangeStrPos=StrPos;
 					return;
