@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+drkns 2026-01-17 23:11:32+00:00 - build 6633
+
+1. Correction of 6626.2.
+
+2. Remove redundant menu redraws on CtrlUp/Down.
+
+3. Optimize block Undo in Editor.
+
+4. Refactoring.
+   Make checking struct sizes easier.
+
+--------------------------------------------------------------------------------
 zg 2026-01-16 15:52:07+02:00 - build 6632
 
 1. new fields in EditorInfo: WindowArea and ClientArea.
