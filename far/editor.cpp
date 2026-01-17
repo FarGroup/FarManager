@@ -3757,13 +3757,14 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 						if (MsgCode == message_result::first_button || MsgCode == message_result::second_button)
 						{
 							Pasting++;
-							AddUndoData(undo_type::begin);
 
 							// If Replace string doesn't contain control symbols (tab and return),
 							// processed with fast method, otherwise use improved old one.
 							//
 							if (strReplaceStrCurrent.find_first_of(L"\t\r"sv) != string::npos)
 							{
+								SCOPED_ACTION(undo_block)(this);
+
 								int SaveOvertypeMode=m_Flags.Check(FEDITOR_OVERTYPE);
 								m_Flags.Set(FEDITOR_OVERTYPE);
 								m_it_CurLine->SetOvertypeMode(true);
@@ -3857,7 +3858,6 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 								TextChanged(true);
 							}
 
-							AddUndoData(undo_type::end);
 							Pasting--;
 						}
 					}
@@ -4724,6 +4724,21 @@ void Editor::AddUndoData(undo_type Type, string_view const Str, eol Eol, int Str
 	}
 	UndoData.erase(Begin, UndoData.end());
 
+	switch (Type)
+	{
+	case undo_type::begin:
+		++m_WithinUndoBlock;
+		break;
+
+	case undo_type::end:
+		assert(m_WithinUndoBlock);
+		--m_WithinUndoBlock;
+		break;
+
+	default:
+		break;
+	}
+
 	auto PrevUndo=UndoData.end();
 	if(!UndoData.empty())
 	{
@@ -4757,7 +4772,7 @@ void Editor::AddUndoData(undo_type Type, string_view const Str, eol Eol, int Str
 		case undo_type::edit:
 			{
 				if (!m_Flags.Check(FEDITOR_NEWUNDO) && PrevUndo->m_Type == undo_type::edit && StrNum == PrevUndo->m_StrNum &&
-						(std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
+					m_WithinUndoBlock || (std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
 				{
 					LastChangeStrPos=StrPos;
 					return;

@@ -351,6 +351,7 @@ private:
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos{ UndoData.end() };
 	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };
+	size_t m_WithinUndoBlock{};
 	int UndoSkipLevel{};
 	int LastChangeStrPos{};
 	eol GlobalEOL;
