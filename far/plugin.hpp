@@ -1976,31 +1976,6 @@ enum EDITOR_CURRENTSTATE
 	ECSTATE_LOCKED         = 0x00000004,
 };
 
-#ifdef FAR_USE_INTERNALS
-struct EditorInfoV1
-{
-	size_t StructSize;
-	intptr_t EditorID;
-	intptr_t WindowSizeX;
-	intptr_t WindowSizeY;
-	intptr_t TotalLines;
-	intptr_t CurLine;
-	intptr_t CurPos;
-	intptr_t CurTabPos;
-	intptr_t TopScreenLine;
-	intptr_t LeftPos;
-	intptr_t Overtype;
-	intptr_t BlockType;
-	intptr_t BlockStartLine;
-	uintptr_t Options;
-	intptr_t TabSize;
-	size_t BookmarkCount;
-	size_t SessionBookmarkCount;
-	uintptr_t CurState;
-	uintptr_t CodePage;
-};
-#endif // END FAR_USE_INTERNALS
-
 struct EditorInfo
 {
 	size_t StructSize;

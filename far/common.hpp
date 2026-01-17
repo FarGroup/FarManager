@@ -42,9 +42,10 @@ bool CheckStructSize(const auto* s)
 	return s && (s->StructSize >= sizeof(*s));
 }
 
-bool CheckNullOrStructSize(const auto* s)
+template<typename T, typename U>
+bool CheckStructSize(T const* const s, U T::* const Member)
 {
-	return !s || CheckStructSize(s);
+	return s && s->StructSize >= std::bit_cast<size_t>(&(s->*Member)) + sizeof(U) - std::bit_cast<size_t>(s);
 }
 
 template<class T>

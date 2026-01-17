@@ -56,18 +56,32 @@ TEST_CASE("common.CheckStructSize")
 	struct s
 	{
 		size_t StructSize;
+
+		int OldField;
+		int NewField1;
+		int NewField2;
 	}
-	const S1{ 1 }, S2{ sizeof(s) }, S3{ sizeof(s) + 1 };
+	const
+		S1{ 1 },
+		S2{ sizeof(s) },
+		S3{ sizeof(s) + 1 },
+		SLegacy1{ offsetof(s, NewField1) },
+		SLegacy2{ offsetof(s, NewField2) };
 
 	REQUIRE(!CheckStructSize(static_cast<s const*>(nullptr)));
 	REQUIRE(!CheckStructSize(&S1));
 	REQUIRE(CheckStructSize(&S2));
 	REQUIRE(CheckStructSize(&S3));
+	REQUIRE(!CheckStructSize(&SLegacy1));
+	REQUIRE(!CheckStructSize(&SLegacy2));
 
-	REQUIRE(CheckNullOrStructSize(static_cast<s const*>(nullptr)));
-	REQUIRE(!CheckNullOrStructSize(&S1));
-	REQUIRE(CheckNullOrStructSize(&S2));
-	REQUIRE(CheckNullOrStructSize(&S3));
+	REQUIRE(!CheckStructSize(&S1, &s::OldField));
+	REQUIRE(CheckStructSize(&S2, &s::NewField2));
+	REQUIRE(CheckStructSize(&S3, &s::NewField2));
+	REQUIRE(!CheckStructSize(&SLegacy1, &s::NewField1));
+	REQUIRE(!CheckStructSize(&SLegacy1, &s::NewField2));
+	REQUIRE(CheckStructSize(&SLegacy2, &s::NewField1));
+	REQUIRE(!CheckStructSize(&SLegacy2, &s::NewField2));
 }
 
 TEST_CASE("common.NullToEmpty")

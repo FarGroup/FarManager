@@ -5590,10 +5590,9 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 		case ECTL_GETINFO:
 		{
-			const auto InfoV1 = static_cast<EditorInfoV1*>(Param2);
-			if (!CheckStructSize(InfoV1))
-				return false;
 			const auto Info = static_cast<EditorInfo*>(Param2);
+			if (!CheckStructSize(Info, &EditorInfo::CodePage))
+				return false;
 
 			Info->EditorID = EditorID;
 			Info->WindowSizeX=ObjWidth();
@@ -5659,7 +5658,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->CurState |= m_Flags.Check(FEDITOR_MODIFIED)? 0 : ECSTATE_SAVED;
 			Info->CodePage = GetCodePage();
 
-			if (Info->StructSize > offsetof(EditorInfo, ClientArea))
+			if (CheckStructSize(Info, &EditorInfo::ClientArea))
 			{
 				Info->ClientArea = GetPosition().as<RECT>();
 				Info->ClientArea.left += LineNumbersWidth();

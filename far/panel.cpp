@@ -752,27 +752,31 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 
 		case FCTL_GETPANELITEM:
-		{
-			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
-				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
-			break;
-		}
-
 		case FCTL_GETSELECTEDPANELITEM:
-		{
-			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
-				Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetSelectedPanelItem(Param1, static_cast<FarGetPluginPanelItem*>(Param2)));
-			break;
-		}
-
 		case FCTL_GETCURRENTPANELITEM:
 		{
-			if (GetType() == panel_type::FILE_PANEL && CheckNullOrStructSize(static_cast<FarGetPluginPanelItem*>(Param2)))
+			if (GetType() == panel_type::FILE_PANEL)
 			{
-				PanelInfo Info{ sizeof(Info) };
-				const auto DestPanel = static_cast<FileList*>(this);
-				DestPanel->PluginGetPanelInfo(Info);
-				Result = static_cast<int>(DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem), static_cast<FarGetPluginPanelItem*>(Param2)));
+				if (const auto gppi = static_cast<FarGetPluginPanelItem*>(Param2); !gppi || CheckStructSize(gppi))
+				{
+					switch (Command)
+					{
+					case FCTL_GETCURRENTPANELITEM:
+						{
+							PanelInfo Info{ sizeof(Info) };
+							static_cast<FileList*>(this)->PluginGetPanelInfo(Info);
+							Param1 = static_cast<int>(Info.CurrentItem);
+						}
+						[[fallthrough]];
+					case FCTL_GETPANELITEM:
+						Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetPanelItem(Param1, gppi));
+						break;
+
+					case FCTL_GETSELECTEDPANELITEM:
+						Result = static_cast<int>(static_cast<FileList*>(this)->PluginGetSelectedPanelItem(Param1, gppi));
+						break;
+					}
+				}
 			}
 			break;
 		}

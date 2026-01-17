@@ -4848,13 +4848,16 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
 						{
 							const auto ListItems = static_cast<const FarListDelete*>(Param2);
-							if(CheckNullOrStructSize(ListItems))
+							if (!ListItems)
 							{
-								int Count;
-								if (!ListItems || (Count=ListItems->Count) <= 0)
+								ListBox->clear();
+							}
+							else if (CheckStructSize(ListItems))
+							{
+								if (ListItems->Count <= 0)
 									ListBox->clear();
 								else
-									ListBox->DeleteItem(ListItems->StartIndex,Count);
+									ListBox->DeleteItem(ListItems->StartIndex, ListItems->Count);
 							}
 							else return FALSE;
 
@@ -5731,7 +5734,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_GETDLGITEM:
 		{
 			const auto Item = static_cast<FarGetDialogItem*>(Param2);
-			return (CheckNullOrStructSize(Item))? static_cast<intptr_t>(ConvertItemEx2(CurItem, Item, true)) : 0;
+			return !Item || CheckStructSize(Item)? static_cast<intptr_t>(ConvertItemEx2(CurItem, Item, true)) : 0;
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:

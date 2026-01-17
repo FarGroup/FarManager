@@ -2411,7 +2411,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_GETBOOKMARKS:
 		{
 			const auto ebm = static_cast<EditorBookmarks*>(Param2);
-			if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
+			if (!m_Flags.Check(FFILEEDIT_OPENFAILED) && (!ebm || CheckStructSize(ebm)))
 			{
 				size_t size;
 				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->m_SavePos.size(), size))
@@ -2466,8 +2466,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return CheckNullOrStructSize(static_cast<const EditorBookmarks*>(Param2))?
-				m_editor->GetSessionBookmarksForPlugin(static_cast<EditorBookmarks*>(Param2)) : 0;
+			const auto ebm = static_cast<EditorBookmarks*>(Param2);
+			return !ebm || CheckStructSize(ebm)? m_editor->GetSessionBookmarksForPlugin(ebm) : 0;
 		}
 		case ECTL_GETTITLE:
 		{
@@ -2646,7 +2646,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->Options|=EOPT_SHOWTITLEBAR;
 		if (Global->Opt->EdOpt.ShowKeyBar)
 			Info->Options|=EOPT_SHOWKEYBAR;
-		if (Info->StructSize > offsetof(EditorInfo, WindowArea))
+		if (CheckStructSize(Info, &EditorInfo::WindowArea))
 			Info->WindowArea = GetPosition().as<RECT>();
 	}
 	return result;
