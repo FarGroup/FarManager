@@ -4263,7 +4263,7 @@ id=29
 lv=2
 dt=Text
 nm=editor.GetInfo
-mtime=3602447116
+mtime=3977814290
 <article>
 #_Info = editor.GetInfo (EditorId)
 #_
@@ -4292,6 +4292,8 @@ mtime=3602447116
 #_      SessionBookmarkCount:  integer
 #_      CurState:              integer
 #_      CodePage:              integer
+#_      WindowArea:            table (fields: left, top, right, bottom)
+#_      ClientArea:            table (fields: left, top, right, bottom)
 #_
 #_**Far API used:**
 #_  EditorControl, ECTL_GETINFO
