@@ -354,7 +354,7 @@ void Editor::ShowEditor()
 	{
 		// Empty space after the last line
 		SetScreen({ m_Where.left + LineNumWidth, Y, XX2, m_Where.bottom }, L' ', Color);
-		SetScreen({ m_Where.left, Y, LineNumWidth - 1, m_Where.bottom }, L' ', LineNumColor);
+		SetScreen({ m_Where.left, Y, m_Where.left + LineNumWidth - 1, m_Where.bottom }, L' ', LineNumColor);
 	}
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
