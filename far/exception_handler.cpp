@@ -2404,7 +2404,6 @@ constexpr auto real_wassert = _wassert;
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4273) // 'function': inconsistent dll linkage
 void far_assert(wchar_t const* const Message, wchar_t const* const File, unsigned const Line)
-WARNING_POP()
 {
 	switch (assert_handler_impl(Message, { encoding::utf8::get_bytes(File).c_str(), "assert", Line }))
 	{
@@ -2419,6 +2418,7 @@ WARNING_POP()
 		break;
 	}
 }
+WARNING_POP()
 
 static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Pointers)
 {
