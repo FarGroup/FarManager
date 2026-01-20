@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/matrix.hpp"
 #include "common/2d/rectangle.hpp"
 #include "common/function_ref.hpp"
+#include "common/segment.hpp"
 #include "common/singleton.hpp"
 
 // External:
@@ -176,6 +177,26 @@ bool is_valid_surrogate_pair(string_view Str);
 bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
 
 void Text(point Where, const FarColor& Color, string_view Str);
+
+// This function is handy when one needs to write a long string, only part of which
+// is visible within a viewport, and the string must be written by adjacent slices,
+// for example each slice in a different color. To accomplish this task, the caller
+// should set CurX somewhere to the left of ClippingSegment.end() and call this function
+// repeatedly for each slice passing the same ClippingSegment every time. When the function
+// returns true, the caller should stop calling it. More formally, the function:
+// - Lays out Str starting at CurX and writes the part visible within ClippingSegment.
+// - Returns true if CurX reached ClippingSegment.end(), i.e., the entire
+//   ClippingSegment was written over, a.k.a. all cells were consumed.
+// - Advances CurX accordingly even if Str is entirely to the left of ClippingSegment.
+// - Never advances CurX beyond ClippingSegment.end() This is an optimization
+//   to avoid scanning the part of the string clipped by ClippingSegment.end().
+//   Supposedly after the function returned true, the caller should not care about CurX.
+// - If a wide character straddles ClippingSegment.start(), writes one padding whitespace
+//   at the trailing cell of this character, i.e., at ClippingSegment.start().
+// - If a wide character straddles ClippingSegment.end(), writes one padding whitespace
+//   at the leading cell of this character, i.e., at ClippingSegment.end() - 1.
+bool ClippedText(string_view Str, const segment ClippingSegment, bool& AllCharsConsumed);
+bool ClippedText(string_view Str, const segment ClippingSegment);
 
 size_t Text(string_view Str, size_t CellsAvailable);
 size_t Text(string_view Str);

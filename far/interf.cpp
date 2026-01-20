@@ -914,32 +914,88 @@ static void string_to_cells(string_view Str, size_t& CharsConsumed, cells& Cells
 void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
 {
 	cells Cells;
-	const auto& CellsToBeConsumed = Cells.emplace<0>();
+	const auto& CellsToBeConsumed = Cells.emplace<size_t>();
 	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
 	CellsConsumed = CellsToBeConsumed;
 
-#ifdef _DEBUG
-	if (CharsConsumed == Str.size())
-		assert(CellsConsumed == visual_string_length(Str));
-#endif
+	assert(CharsConsumed < Str.size() || CellsConsumed == visual_string_length(Str));
 }
 
-size_t Text(string_view Str, size_t const CellsAvailable)
+// Does not advance CurX
+static void write_text(string_view Str, size_t& CharsConsumed, size_t const CellsAvailable, size_t& CellsConsumed)
 {
-	if (Str.empty())
-		return 0;
+	CharsConsumed = 0;
+	CellsConsumed = 0;
+
+	if (Str.empty()) return;
 
 	cells Cells;
-	const auto& Buffer = Cells.emplace<1>();
-
-	size_t CharsConsumed = 0;
+	const auto& Buffer = Cells.emplace<real_cells>();
 
 	string_to_cells(Str, CharsConsumed, Cells, CellsAvailable);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
-	CurX += static_cast<int>(Buffer.size());
 
-	return Buffer.size();
+	CellsConsumed = Buffer.size();
+}
+
+bool ClippedText(string_view Str, const segment ClippingSegment, bool& AllCharsConsumed)
+{
+	AllCharsConsumed = false;
+	if (ClippingSegment.empty()) return false;
+	if (CurX >= ClippingSegment.end()) return true;
+
+	// if a wide codepoint straddles across the EndX position, the codepoint is consumed and a whitespace
+	// padding is added at the leading or trailing cell per PadTrailingCell. CurX is advanced accordingly.
+	// The padding is written even if we are in skip mode. It is caller's responsibility to ensure that
+	// the trailing cell (the one beyond EndX) may be written at.
+	const auto WriteOrSkip{ [&Str](const auto EndX, const auto Operation, const bool PadTrailingCell)
+	{
+		if (Str.empty() || CurX >= EndX) return;
+
+		size_t CharsConsumed{};
+		size_t CellsConsumed{};
+		Operation(Str, CharsConsumed, EndX - CurX, CellsConsumed);
+		Str.remove_prefix(CharsConsumed);
+		CurX += static_cast<int>(CellsConsumed);
+
+		if (Str.empty() || CurX >= EndX) return;
+
+		// Neither end of string nor end of screen area were exhausted.
+		// It must be a wide codepoint when only one cell is remaining.
+		assert(char_width::is_wide(encoding::utf16::extract_codepoint(Str)));
+		encoding::utf16::remove_first_codepoint(Str);
+
+		// Add padding whitespace either at the leading or trailing cell as specified by the caller.
+		assert(CurX == EndX - 1);
+		if (PadTrailingCell) CurX++;
+		write_text(L" ", CharsConsumed, 1, CellsConsumed); // Does not advance CurX
+		assert(CellsConsumed == 1); // Do we need this insane sanity?
+		CurX++;
+	} };
+
+	WriteOrSkip(ClippingSegment.start(), chars_to_cells, true);
+	WriteOrSkip(ClippingSegment.end(), write_text, false);
+
+	AllCharsConsumed = Str.empty();
+
+	assert(CurX <= ClippingSegment.end());
+	return CurX >= ClippingSegment.end();
+}
+
+bool ClippedText(string_view Str, const segment Bounds)
+{
+	bool AllCharsConsumed{};
+	return ClippedText(Str, Bounds, AllCharsConsumed);
+}
+
+size_t Text(string_view Str, size_t const CellsAvailable)
+{
+	size_t CharsConsumed{};
+	size_t CellsConsumed{};
+	write_text(Str, CharsConsumed, CellsAvailable, CellsConsumed);
+	CurX += static_cast<int>(CellsConsumed);
+	return CellsConsumed;
 }
 
 size_t Text(string_view Str)
