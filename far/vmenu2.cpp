@@ -187,20 +187,10 @@ int VMenu2::Call(int Msg, void *param)
 	++InsideCall;
 	const auto r = mfn(Msg, param);
 
-	bool Visible;
-	size_t Size;
-
-	GetCursorType(Visible, Size);
-	const auto CursorPos = GetCursorPos();
-
 	--InsideCall;
 
 	if(NeedResize)
 		Resize();
-
-
-	SetCursorType(Visible, Size);
-	MoveCursor(CursorPos);
 
 	if(InsideCall==0 && ListBox().UpdateRequired())
 		SendMessage(DM_REDRAW, 0, nullptr);
