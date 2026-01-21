@@ -478,16 +478,16 @@ WARNING_POP()
 
 		const auto MaxMarkSize = 4;
 
-		const auto
-			MarkAmpFix = visual_string_length(Mark) - HiStrlen(Mark),
-			NameAmpFix = visual_string_length(Name) - HiStrlen(Name);
+		const auto MarkAmpFix = visual_string_length(Mark) - HiStrlen(Mark);
+		const auto AlignedMark = fit_to_left(Mark, MaxMarkSize + MarkAmpFix);
 
-		return far::format(L"{1:{2}.{2}} {0} {3:{4}.{4}} {0} {5} {6} {0} {7}"sv,
+		const auto NameAmpFix = visual_string_length(Name) - HiStrlen(Name);
+		const auto AlignedName = fit_to_left(string(Name), MaxNameSize + NameAmpFix);
+
+		return far::format(L"{1} {0} {2} {0} {3} {4} {0} {5}"sv,
 			BoxSymbols[BS_V1],
-			Mark,
-			MaxMarkSize + MarkAmpFix,
-			Name,
-			MaxNameSize + NameAmpFix,
+			AlignedMark,
+			AlignedName,
 			AttrStr,
 			OtherFlags,
 			Mask
@@ -495,13 +495,13 @@ WARNING_POP()
 	}
 
 	const auto HotkeyStr = Hotkey? far::format(L"&{}. "sv, Hotkey) : bPanelType? L"   "s : L""s;
-	const auto AmpFix = Hotkey? 1 : visual_string_length(Name) - HiStrlen(Name);
+	const auto NameAmpFix = Hotkey? 1 : visual_string_length(Name) - HiStrlen(Name);
+	const auto AlignedName = fit_to_left(string(Name), MaxNameSize + NameAmpFix);
 
-	return far::format(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"sv,
+	return far::format(L"{1}{2} {0} {3} {4} {0} {5}"sv,
 			BoxSymbols[BS_V1],
 			HotkeyStr,
-			Name,
-			MaxNameSize + AmpFix - HotkeyStr.size(),
+			AlignedName,
 			AttrStr,
 			OtherFlags,
 			Mask

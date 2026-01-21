@@ -221,7 +221,7 @@ void inplace::pad_right(std::wstring& Str, size_t const CellsAvailable, wchar_t 
 
 void inplace::fit_to_left(std::wstring& Str, size_t const CellsAvailable)
 {
-	cut_right(Str, CellsAvailable);
+	truncate_right(Str, CellsAvailable);
 	pad_right(Str, CellsAvailable);
 }
 
@@ -238,13 +238,13 @@ void inplace::fit_to_center(std::wstring& Str, size_t const CellsAvailable)
 	}
 	else
 	{
-		cut_right(Str, CellsAvailable);
+		truncate_right(Str, CellsAvailable);
 	}
 }
 
 void inplace::fit_to_right(std::wstring& Str, size_t const CellsAvailable)
 {
-	cut_right(Str, CellsAvailable);
+	truncate_right(Str, CellsAvailable);
 	pad_left(Str, CellsAvailable);
 }
 
@@ -2039,8 +2039,8 @@ TEST_CASE("strmix.fit")
 		{ L"1"sv,      2,   L"1 "sv,        L"1 "sv,        L" 1"sv,      },
 
 		{ L"12345"sv,  0,   {},             {},             {},           },
-		{ L"12345"sv,  1,   L"1"sv,         L"1"sv,         L"1"sv,       },
-		{ L"12345"sv,  3,   L"123"sv,       L"123"sv,       L"123"sv,     },
+		{ L"12345"sv,  1,   L"…"sv,         L"…"sv,         L"…"sv,       },
+		{ L"12345"sv,  3,   L"12…"sv,       L"12…"sv,       L"12…"sv,     },
 		{ L"12345"sv,  5,   L"12345"sv,     L"12345"sv,     L"12345"sv,   },
 		{ L"12345"sv,  7,   L"12345  "sv,   L" 12345 "sv,   L"  12345"sv, },
 	};

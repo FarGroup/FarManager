@@ -175,6 +175,8 @@ void chars_to_cells(string_view Str, size_t& CharsConsumed, size_t CellsAvailabl
 bool is_valid_surrogate_pair(string_view Str);
 bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
 
+std::vector<FAR_CHAR_INFO> text_to_char_info(string_view Str, size_t CellsAvailable);
+
 void Text(point Where, const FarColor& Color, string_view Str);
 
 size_t Text(string_view Str, size_t CellsAvailable);

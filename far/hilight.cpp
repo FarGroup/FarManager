@@ -647,9 +647,21 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 
 		if (!Colors.Mark.Mark.empty() && !Colors.Mark.Inherit)
 		{
-			Iterator->Char = Colors.Mark.Mark.front();
-			Iterator->Attributes = BakedColors[ColorIndex].MarkColor;
-			++Iterator;
+			for (const auto& Cell: text_to_char_info(Colors.Mark.Mark, Row.size() - 2))
+			{
+				const auto Reserved0 = Cell.Reserved0;
+				const auto Reserved1 = Cell.Reserved1;
+				const auto RawAttributes = Cell.Attributes.Flags & FCF_RAWATTR_MASK;
+
+				Iterator->Char = Cell.Char;
+				Iterator->Attributes = BakedColors[ColorIndex].MarkColor;
+
+				Iterator->Reserved0 = Reserved0;
+				Iterator->Reserved1 = Reserved1;
+				Iterator->Attributes.Flags |= RawAttributes;
+
+				++Iterator;
+			}
 		}
 
 		const std::span FileArea(Iterator, Row.end() - 1);

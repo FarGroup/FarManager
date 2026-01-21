@@ -480,6 +480,14 @@ namespace
 
 		return codepoint_width::wide;
 	}
+
+	[[nodiscard]]
+	bool is_legacy_rendering()
+	{
+		DWORD Mode;
+		static const auto IsRedirected = !console.GetMode(console.GetOutputHandle(), Mode);
+		return !IsRedirected && !console.IsVtActive();
+	}
 }
 
 namespace char_width
@@ -487,6 +495,9 @@ namespace char_width
 	[[nodiscard]]
 	size_t get(codepoint const Codepoint)
 	{
+		if (!is_bmp(Codepoint) && is_legacy_rendering())
+			return 2; // Classic grid mode, nothing we can do :(
+
 		switch (s_FullWidthState)
 		{
 		default:
