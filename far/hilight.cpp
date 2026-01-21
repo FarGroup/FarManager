@@ -515,6 +515,8 @@ int highlight::configuration::GetGroup(const FileListItem& Object, const FileLis
 
 void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos) const
 {
+	SCOPED_ACTION(Dialog::suppress_redraw)(HiMenu);
+
 	HiMenu->clear();
 
 	const struct
@@ -693,7 +695,6 @@ void highlight::configuration::HiEdit(int MenuPos)
 		{
 			const auto Key=RawKey();
 			auto SelectPos = HiMenu->GetSelectPos();
-			NeedUpdate = false;
 
 			int KeyProcessed = 1;
 
@@ -762,6 +763,8 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && RealSelectPos < static_cast<int>(HiData.size()) && FileFilterConfig(HiData[RealSelectPos], true))
 					{
+						SCOPED_ACTION(Dialog::suppress_redraw)(HiMenu.get());
+
 						HiMenu->DeleteItem(SelectPos);
 						HiMenu->AddItem(menu_item_ex{ MenuString(&HiData[RealSelectPos], true) }, SelectPos);
 						HiMenu->SetSelectPos(SelectPos, 1);
@@ -894,6 +897,8 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 				if (Global->Opt->AutoSaveSetup)
 					Save(false);
+
+				NeedUpdate = false;
 			}
 			return KeyProcessed;
 		});
