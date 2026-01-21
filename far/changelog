@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-01-21 21:55:16+00:00 - build 6637
+
+1. gh-1066: Remove messing with cursor state from VMenu2.
+
+2. Reduce highlight menu flickering.
+
+--------------------------------------------------------------------------------
 drkns 2026-01-21 00:46:34+00:00 - build 6636
 
 1. gh-1065: Continue fullwidth-aware rendering.
