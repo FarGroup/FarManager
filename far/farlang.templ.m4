@@ -8893,21 +8893,6 @@ MEditCtrlF12
 ""
 ""
 
-MEditCtrlF3Hide
-"СкрСтр"
-"HideNum"
-"SkrýtČ"
-"VerstNr"
-"ElrejtS"
-"UkrWier"
-"OcultN"
-"SkryťČ"
-"NascRig"
-"СховРяд"
-"СхавНум"
-"SlėptEil"
-"OcultN"
-
 MEditAltShiftF1
 l:
 l:// Editor: AltShift
@@ -9652,6 +9637,22 @@ l:// This is another text for F8
 "OEM"
 "OEM"
 "OEM"
+
+MEditCtrlF3Hide
+l:// This is another text for CtrlF3
+"СкрСтр"
+"HideNum"
+"SkrýtČ"
+"VerstNr"
+"ElrejtS"
+"UkrWier"
+"OcultN"
+"SkryťČ"
+"NascRig"
+"СховРяд"
+"СхавНум"
+"SlėptEil"
+"OcultN"
 
 MEditSaveAs
 l:
