@@ -2706,19 +2706,21 @@ void VMenu::DrawTitles() const
 
 	if (!strTitle.empty() || bFilterEnabled)
 	{
-		string strDisplayTitle = strTitle;
+		string strDisplayTitle;
+		string_view DisplayTitle;
 
 		if (bFilterEnabled)
 		{
-			if (bFilterLocked)
-				strDisplayTitle += L' ';
-			else
-				strDisplayTitle.clear();
+			strDisplayTitle = bFilterLocked?
+				far::format(L"{}{}<{}>"sv, strTitle, strTitle.empty()? L""sv : L" "sv, strFilter) :
+				far::format(L"[{}]"sv, strFilter);
 
-			append(strDisplayTitle, bFilterLocked? L'<' : L'[', strFilter, bFilterLocked? L'>' : L']');
+			DisplayTitle = strDisplayTitle;
 		}
+		else
+			DisplayTitle = strTitle;
 
-		auto WidthTitle = static_cast<int>(visual_string_length(strDisplayTitle));
+		auto WidthTitle = static_cast<int>(visual_string_length(DisplayTitle));
 
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
@@ -2727,7 +2729,7 @@ void VMenu::DrawTitles() const
 		set_color(Colors, color_indices::Title);
 
 		Text(L' ');
-		Text(strDisplayTitle, MaxTitleLength - 1);
+		Text(DisplayTitle, MaxTitleLength - 1);
 		Text(L' ');
 	}
 
