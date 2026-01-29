@@ -1904,6 +1904,7 @@ TEST_CASE("wide_chars")
 		std::initializer_list<std::pair<size_t, int>>
 			StringToVisual,
 			VisualToString;
+		bool VtRequired;
 	}
 	Tests[]
 	{
@@ -1931,11 +1932,13 @@ TEST_CASE("wide_chars")
 			L"𐀀"sv, // Surrogate, half width
 			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -1 }, { 4, -1 }, },
 			{ { 0, +0 }, { 1, +1 }, { 2, +1 }, { 3, +1 }, { 4, +1 }, },
+			true,
 		},
 		{
 			L"𐀀𐀀"sv, // Surrogate, half width
 			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -2 }, { 4, -2 }, },
 			{ { 0, +0 }, { 1, +1 }, { 2, +2 }, { 3, +2 }, { 4, +2 }, },
+			true,
 		},
 		{
 			L"𠲖"sv, // Surrogate, full width
@@ -1950,14 +1953,20 @@ TEST_CASE("wide_chars")
 		{
 			L"残酷な天使のように少年よ神話になれ"sv,
 			{ {17, +17}, },
-			{ {34, -17} } },
+			{ {34, -17} },
+		},
 
 	};
+
+	const auto IsVtActive = console.IsVtActive();
 
 	char_width::enable(1);
 
 	for (const auto& i: Tests)
 	{
+		if (i.VtRequired && !IsVtActive)
+			continue;
+
 		position_parser_state State[2];
 
 		for (const auto& [StringPos, VisualShift]: i.StringToVisual)
