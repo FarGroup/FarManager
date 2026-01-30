@@ -2702,50 +2702,43 @@ void VMenu::DrawTitles() const
 {
 	if (CheckFlags(VMENU_SHOWNOBOX)) return;
 
-	const auto MaxTitleLength = m_Where.width() - 3;
+	const auto MaxTitleLength = m_Where.width() - 4;
 
-	if (!strTitle.empty() || bFilterEnabled)
+	const auto draw_title = [&](string_view const Str, int const YPos)
 	{
-		string strDisplayTitle;
-		string_view DisplayTitle;
-
-		if (bFilterEnabled)
-		{
-			strDisplayTitle = bFilterLocked?
-				far::format(L"{}{}<{}>"sv, strTitle, strTitle.empty()? L""sv : L" "sv, strFilter) :
-				far::format(L"[{}]"sv, strFilter);
-
-			DisplayTitle = strDisplayTitle;
-		}
-		else
-			DisplayTitle = strTitle;
-
-		auto WidthTitle = static_cast<int>(visual_string_length(DisplayTitle));
+		auto WidthTitle = static_cast<int>(visual_string_length(Str));
 
 		if (WidthTitle > MaxTitleLength)
-			WidthTitle = MaxTitleLength - 1;
+			WidthTitle = MaxTitleLength;
 
-		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.top);
+		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, YPos);
 		set_color(Colors, color_indices::Title);
 
 		Text(L' ');
-		Text(DisplayTitle, MaxTitleLength - 1);
+		Text(Str, MaxTitleLength);
 		Text(L' ');
+	};
+
+	if (bFilterEnabled)
+	{
+		const auto MaxFilterLength = MaxTitleLength - 2uz; // 2 for filter brackets
+		const auto TruncatedFilter = truncate_left(strFilter, MaxFilterLength);
+		const auto TruncatedFilterLength = static_cast<int>(visual_string_length(TruncatedFilter));
+		const auto TruncatedTitle = truncate_right(strTitle, std::max(0, MaxTitleLength - 1 - 2 - TruncatedFilterLength)); // 1 for space between title and filter, 2 for filter brackets
+
+		const auto Brackets = bFilterLocked? L"<>"sv : L"[]"sv;
+		const auto DisplayTitle = concat(TruncatedTitle, TruncatedTitle.empty()? L""sv : L" "sv, Brackets[0], TruncatedFilter, Brackets[1]);
+
+		draw_title(DisplayTitle, m_Where.top);
+	}
+	else if (!strTitle.empty())
+	{
+		draw_title(strTitle, m_Where.top);
 	}
 
 	if (!strBottomTitle.empty())
 	{
-		auto WidthTitle = static_cast<int>(visual_string_length(strBottomTitle));
-
-		if (WidthTitle > MaxTitleLength)
-			WidthTitle = MaxTitleLength - 1;
-
-		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.bottom);
-		set_color(Colors, color_indices::Title);
-
-		Text(L' ');
-		Text(strBottomTitle, MaxTitleLength - 1);
-		Text(L' ');
+		draw_title(strBottomTitle, m_Where.bottom);
 	}
 
 	if constexpr ((false))
