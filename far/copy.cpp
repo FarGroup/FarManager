@@ -1982,6 +1982,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
 				{
+					// The destination directory already exists.
+					// When "Preserve all timestamps" is enabled we still want to restore
+					// the source directory timestamps after the copy is finished.
+					//
+					// Setting timestamps here would be pointless: the subsequent copy of
+					// files into the directory will update its times again.
+					if (Global->Opt->CMOpt.PreserveTimestamps)
+						m_CreatedFolders.emplace_back(strDestPath, SrcData);
+					
 					auto SetAttr = SrcData.Attributes;
 
 					if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
