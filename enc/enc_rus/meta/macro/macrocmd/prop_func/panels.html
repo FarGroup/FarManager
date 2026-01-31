@@ -1,11 +1,11 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>Свойства и функции для работы с панелями - Макросы</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
-<script language="javascript" async src="../../../links.js" type="text/javascript"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../../../links.js"></script>
 </head>
 <body>
 
@@ -161,7 +161,7 @@
     <a name="PPanel.DriveType">PPanel.DriveType</a></td>
     <td>Number</td>
     <td>содержит тип привода на панели:
-      <table class="cont2 params lite tiny">
+      <table class="cont2 params lite tiny ralign">
         <col class="value">
         <col>
         <tr>
@@ -433,7 +433,7 @@
       <pre class="codesample"><code>%d=Panel.Item(0,0,16);
 %i=1;
 $while (%i&lt;=<a href="#APanel.ItemCount">APanel.ItemCount</a>)
-  $If (panel.item(0,%i,16) > %d)
+  $If (panel.item(0,%i,16) &gt; %d)
     <a href="#panel.select">panel.select</a>(0,1,1,%i)
   $End
   %i=%i+1;

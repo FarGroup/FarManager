@@ -1,26 +1,27 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FarStandardFunctions</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>FarStandardFunctions</h1>
 
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>FarStandardFunctions</code> содержит указатели на <a href="../fsf/index.html">стандартные функции</a>, используемые в Far.exe
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarStandardFunctions
 {
   size_t StructSize;
@@ -78,15 +79,16 @@ struct FarStandardFunctions
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>FarStandardFunctions</code>. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>FarStandardFunctions</code>. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
+</div>
 
 <h3>Замечания</h3>
 
-<div class=descr>
+<div class="descr">
 <p>Сохраните содержимое структуры в локальное пространство плагина:</p>
-<pre class=code>static struct PluginStartupInfo Info;
+<pre class="code">static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 
 void WINAPI SetStartupInfoW(struct PluginStartupInfo *psInfo)
@@ -98,8 +100,8 @@ void WINAPI SetStartupInfoW(struct PluginStartupInfo *psInfo)
 } </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../fsf/index.html">Стандартные функции<a>,
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../fsf/index.html">Стандартные функции</a>,
 <a href="pluginstartupinfo.html">PluginStartupInfo</a>
 </div>
 
