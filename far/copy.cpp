@@ -1990,7 +1990,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					// files into the directory will update its times again.
 					if (Global->Opt->CMOpt.PreserveTimestamps)
 						m_CreatedFolders.emplace_back(strDestPath, SrcData);
-					
+
 					auto SetAttr = SrcData.Attributes;
 
 					if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
