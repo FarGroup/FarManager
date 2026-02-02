@@ -807,10 +807,9 @@ protected:
 		if (Size.x < MinimalSaneWidth || Size.y < MinimalSaneHeight)
 		{
 			LOGNOTICE(L"Console size [{}x{}] is too small, make it bigger"sv, Size.x, Size.y);
-			Size.x = std::max(Size.x, 20);
-			Size.y = std::max(Size.y, 10);
+			Size.x = std::max(Size.x, MinimalSaneWidth);
+			Size.y = std::max(Size.y, MinimalSaneHeight);
 		}
-
 	}
 
 	bool console::GetSize(point& Size, bool const Sanitize) const

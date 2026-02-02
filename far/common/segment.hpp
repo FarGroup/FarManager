@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <limits>
 #include <ranges>
 
+#include "2d/rectangle.hpp"
+
 //----------------------------------------------------------------------------
 
 template<typename T>
@@ -92,6 +94,20 @@ public:
 			: segment_t{ InitialPoint, length_tag{ domain_max() } };
 	}
 
+	template<typename U>
+	[[nodiscard]]
+	static constexpr segment_t horizontal_extent(const rectangle_t<U>& rect) noexcept
+	{
+		return { rect.left, length_tag{ rect.width() } };
+	}
+
+	template<typename U>
+	[[nodiscard]]
+	static constexpr segment_t vertical_extent(const rectangle_t<U>& rect) noexcept
+	{
+		return { rect.top, length_tag{ rect.height() } };
+	}
+
 private:
 	constexpr segment_t(T const Start, T const End) noexcept
 		: m_Start{ Start }
@@ -104,6 +120,21 @@ private:
 	T m_Start{};
 	T m_End{}; // One past last
 };
+
+template<typename TA, typename TB, typename TC = std::common_type_t<TA, TB>>
+segment_t<TC> intersect(segment_t<TA> const A, segment_t<TB> const B)
+{
+	if (A.empty() || B.empty())
+		return {};
+
+	if (B.start() < A.start())
+		return intersect(B, A);
+
+	if (A.end() <= B.start())
+		return {};
+
+	return { static_cast<TC>(B.start()), typename segment_t<TC>::sentinel_tag{ std::min(static_cast<TC>(A.end()), static_cast<TC>(B.end())) } };
+}
 
 using small_segment = segment_t<short>;
 using segment = segment_t<int>;

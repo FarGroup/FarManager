@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+MZK 2026-02-01 18:10:42-05:00 - build 6641
+
+1. Fullwidth-aware VMenu rendering and other improvements.
+
+--------------------------------------------------------------------------------
 birdie-github 2026-01-31 16:27:32+00:00 - build 6640
 
 1. gh-1059: Preserve timestamps for existing destination directories.
