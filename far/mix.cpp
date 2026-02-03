@@ -79,6 +79,23 @@ unsigned int ToPercent(unsigned long long const Value, unsigned long long const 
 	return Result == Max? Max - 1 : Result;
 }
 
+unsigned int ToPercentRounded(unsigned long long Numerator, unsigned long long Denominator)
+{
+	static_assert(sizeof(unsigned long long) == 8);
+
+	if (!Numerator || !Denominator)
+		return 0;
+
+	if ((Numerator | Denominator) & 0xFF00'0000'0000'0000)
+	{
+		// Because who cares
+		Numerator >>= 8;
+		Denominator >>= 8;
+	}
+
+	return (Numerator * 100 + Denominator / 2) / Denominator;
+}
+
 unsigned long long FromPercent(unsigned int const Percent, unsigned long long const Base)
 {
 	if (!Percent || !Base)
@@ -430,41 +447,80 @@ TEST_CASE("to_percent")
 
 	static const struct
 	{
-		unsigned long long Value, Base, Result;
+		unsigned long long Value, Base, Result, RoundedResult;
 	}
 	Tests[]
 	{
-		{ 0,                     0,                      0   },
-		{ 1,                     0,                      0   },
-		{ 1,                     1,                      100 },
-		{ 0,                     1,                      0   },
-		{ 1,                     2,                      50  },
-		{ 2,                     1,                      200 },
-		{ 3,                     4,                      75  },
-		{ 0,                     Max,                    0   },
-		{ 1,                     Max,                    0   },
-		{ Max,                   0,                      0   },
-		{ Max,                   Max,                    100 },
-		{ 50_bit - 2,            50_bit - 1,             99  },
-		{ 51_bit - 2,            51_bit - 1,             99  },
-		{ 52_bit - 2,            52_bit - 1,             99  },
-		{ 53_bit - 2,            53_bit - 1,             99  },
-		{ 54_bit - 2,            54_bit - 1,             99  },
-		{ Max - 1,               Max,                    99  },
-		{ (50_bit - 2) / 2,      50_bit - 1,             49  },
-		{ (51_bit - 2) / 2,      51_bit - 1,             49  },
-		{ (52_bit - 2) / 2,      52_bit - 1,             49  },
-		{ (53_bit - 2) / 2,      53_bit - 1,             49  },
-		{ (54_bit - 2) / 2,      54_bit - 1,             50  },
-		{ (Max - 2) / 2,         Max,                    50  },
-		{ 850536266682995018u,   3335436339933313800u,   25  },
-		{ 3552239702028979196u,  10006309019799941400u,  35  },
-		{ 1680850982666015624u,  2384185791015625000u,   70  },
+		{ 0,                     0,                      0,     0   },
+		{ 1,                     0,                      0,     0   },
+		{ 1,                     1,                      100,   100 },
+		{ 0,                     1,                      0,     0   },
+		{ 1,                     2,                      50,    50  },
+		{ 2,                     1,                      200,   200 },
+		{ 3,                     4,                      75,    75  },
+		{ 0,                     Max,                    0,     0   },
+		{ 1,                     Max,                    0,     0   },
+		{ Max,                   0,                      0,     0   },
+		{ Max,                   Max,                    100,   100 },
+		{ 50_bit - 2,            50_bit - 1,             99,    100 },
+		{ 51_bit - 2,            51_bit - 1,             99,    100 },
+		{ 52_bit - 2,            52_bit - 1,             99,    100 },
+		{ 53_bit - 2,            53_bit - 1,             99,    100 },
+		{ 54_bit - 2,            54_bit - 1,             99,    100 },
+		{ 60_bit - 2,            60_bit - 1,             99,    100 },
+		{ 61_bit - 2,            61_bit - 1,             99,    100 },
+		{ 62_bit - 2,            62_bit - 1,             99,    100 },
+		{ 63_bit - 2,            63_bit - 1,             99,    100 },
+		{ 60_bit + 2,            60_bit + 1,             99,    100 },
+		{ 61_bit + 2,            61_bit + 1,             99,    100 },
+		{ 62_bit + 2,            62_bit + 1,             99,    100 },
+		{ 63_bit + 2,            63_bit + 1,             99,    100 },
+		{ Max - 1,               Max,                    99,    100 },
+		{ (50_bit - 2) / 2,      50_bit - 1,             49,    50  },
+		{ (51_bit - 2) / 2,      51_bit - 1,             49,    50  },
+		{ (52_bit - 2) / 2,      52_bit - 1,             49,    50  },
+		{ (53_bit - 2) / 2,      53_bit - 1,             49,    50  },
+		{ (54_bit - 2) / 2,      54_bit - 1,             50,    50  },
+		{ (60_bit - 2) / 2,      60_bit - 1,             50,    50  },
+		{ (61_bit - 2) / 2,      61_bit - 1,             50,    50  },
+		{ (62_bit - 2) / 2,      62_bit - 1,             50,    50  },
+		{ (63_bit - 2) / 2,      63_bit - 1,             50,    50  },
+		{ (60_bit + 2) / 2,      60_bit + 1,             50,    50  },
+		{ (61_bit + 2) / 2,      61_bit + 1,             50,    50  },
+		{ (62_bit + 2) / 2,      62_bit + 1,             50,    50  },
+		{ (63_bit + 2) / 2,      63_bit + 1,             50,    50  },
+		{ (Max - 2) / 2,         Max,                    50,    50  },
+		{ 850536266682995018u,   3335436339933313800u,   25,    25  },
+		{ 3552239702028979196u,  10006309019799941400u,  35,    35  },
+		{ 1680850982666015624u,  2384185791015625000u,   70,    70  },
+		{ 0u,                    1000u,                   0,     0  },
+		{ 05u,                   1000u,                   0,     1  },
+		{ 10u,                   1000u,                   1,     1  },
+		{ 15u,                   1000u,                   1,     2  },
+		{ 20u,                   1000u,                   2,     2  },
+		{ 25u,                   1000u,                   2,     3  },
+		{ 30u,                   1000u,                   3,     3  },
+		{ 35u,                   1000u,                   3,     4  },
+		{ 40u,                   1000u,                   4,     4  },
+		{ 45u,                   1000u,                   4,     5  },
+		{ 50u,                   1000u,                   5,     5  },
+		{ 55u,                   1000u,                   5,     6  },
+		{ 60u,                   1000u,                   6,     6  },
+		{ 65u,                   1000u,                   6,     7  },
+		{ 70u,                   1000u,                   7,     7  },
+		{ 75u,                   1000u,                   7,     8  },
+		{ 80u,                   1000u,                   8,     8  },
+		{ 85u,                   1000u,                   8,     9  },
+		{ 90u,                   1000u,                   9,     9  },
+		{ 95u,                   1000u,                   9,     10 },
+		{ 100u,                  1000u,                  10,     10 },
+		{ 105u,                  1000u,                  10,     11 },
 	};
 
 	for (const auto& i: Tests)
 	{
 		REQUIRE(ToPercent(i.Value, i.Base) == i.Result);
+		REQUIRE(ToPercentRounded(i.Value, i.Base) == i.RoundedResult);
 	}
 }
 
