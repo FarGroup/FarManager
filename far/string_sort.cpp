@@ -443,7 +443,7 @@ TEST_CASE("strings.sorting")
 		{ L"a1"sv,     L"A2"sv,           gt, lt, },
 	};
 
-	const auto invert = [](std::strong_ordering const Result)
+	const auto invert = [&](std::strong_ordering const Result)
 	{
 		return Result == lt? gt : Result == gt? lt : eq;
 	};
