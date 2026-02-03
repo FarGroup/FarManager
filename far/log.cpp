@@ -601,7 +601,7 @@ namespace
 	class async_impl
 	{
 	protected:
-		explicit async_impl(std::function<void(message&&)> Out, bool const IsDiscardable, string_view const Name):
+		explicit async_impl(std::function<void(message const&)> Out, bool const IsDiscardable, string_view const Name):
 			m_Out(std::move(Out)),
 			m_IsDiscardable(IsDiscardable),
 			m_Thread(&async_impl::poll, this, Name)
@@ -649,7 +649,7 @@ namespace
 							if (m_IsDiscardable && m_FinishEvent.is_signaled())
 								return;
 
-							m_Out(std::move(Messages.front()));
+							m_Out(Messages.front());
 						}
 					}
 				},
@@ -662,7 +662,7 @@ namespace
 		os::synced_queue<message> m_Messages;
 		os::event m_MessageEvent { os::event::type::automatic, os::event::state::nonsignaled };
 		os::event m_FinishEvent { os::event::type::manual, os::event::state::nonsignaled };
-		std::function<void(message&&)> m_Out;
+		std::function<void(message const&)> m_Out;
 		bool m_IsDiscardable;
 		os::thread m_Thread;
 	};
@@ -680,7 +680,7 @@ namespace
 		static constexpr auto mode = sink_mode::async;
 
 		explicit async(bool const IsDiscardable):
-			synchronized_impl([&](message const& Message){ sink_boilerplate<sink_type>::handle_impl(Message); }, IsDiscardable, sink_type::name)
+			synchronized_impl([this](message const& Message){ this->sink_boilerplate<sink_type>::handle_impl(Message); }, IsDiscardable, sink_type::name)
 		{
 		}
 

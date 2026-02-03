@@ -262,30 +262,19 @@ namespace os::concurrency
 
 	void event::set() const
 	{
-		check_valid();
 		if (!SetEvent(get()))
 			throw far_fatal_exception(L"SetEvent failed"sv);
 	}
 
 	void event::reset() const
 	{
-		check_valid();
 		if (!ResetEvent(get()))
 			throw far_fatal_exception(L"ResetEvent failed"sv);
 	}
 
 	void event::associate(OVERLAPPED& o) const
 	{
-		check_valid();
 		o.hEvent = get();
-	}
-
-	void event::check_valid() const
-	{
-		if (!*this)
-		{
-			throw far_fatal_exception(L"Event is not initialized properly"sv);
-		}
 	}
 
 	static void CALLBACK wrapper(void* const Parameter, BOOLEAN)
@@ -400,14 +389,6 @@ TEST_CASE("platform.concurrency.event")
 
 		Event.reset();
 		REQUIRE(!Event.is_signaled());
-	}
-
-	{
-		os::event const Event;
-		OVERLAPPED o;
-		REQUIRE_THROWS_AS(Event.associate(o), far_fatal_exception);
-		REQUIRE_THROWS_AS(Event.set(), far_fatal_exception);
-		REQUIRE_THROWS_AS(Event.reset(), far_fatal_exception);
 	}
 }
 

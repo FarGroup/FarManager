@@ -179,12 +179,11 @@ namespace os::concurrency
 	{
 	public:
 		NONCOPYABLE(event);
-		MOVABLE(event);
+		MOVE_CONSTRUCTIBLE(event);
 
 		enum class type { automatic, manual };
 		enum class state { nonsignaled, signaled };
 
-		event() = default;
 		event(type Type, state InitialState, string_view Name = {});
 
 		[[nodiscard]]
@@ -193,9 +192,6 @@ namespace os::concurrency
 		void set() const;
 		void reset() const;
 		void associate(OVERLAPPED& o) const;
-
-	private:
-		void check_valid() const;
 	};
 
 	class timer

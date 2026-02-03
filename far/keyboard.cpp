@@ -641,13 +641,13 @@ public:
 	static auto& ref()
 	{
 		if (!s_WakeEvent)
-			s_WakeEvent = os::concurrency::event(os::event::type::automatic, os::event::state::nonsignaled);
+			s_WakeEvent.emplace(os::event::type::automatic, os::event::state::nonsignaled);
 
-		return s_WakeEvent;
+		return *s_WakeEvent;
 	}
 
 private:
-	static inline os::concurrency::event s_WakeEvent;
+	static inline std::optional<os::concurrency::event> s_WakeEvent;
 };
 
 void main_loop_process_messages()

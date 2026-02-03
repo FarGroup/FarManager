@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "imports.hpp"
 #include "notification.hpp"
-#include "global.hpp"
 #include "exception_handler.hpp"
 #include "log.hpp"
 
@@ -64,10 +63,6 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 	{
 		switch (Msg)
 		{
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
-
 		case WM_DEVICECHANGE:
 			{
 				switch (wParam)
@@ -167,8 +162,10 @@ void wm_listener::enable_power_notifications()
 	if (!imports.RegisterPowerSettingNotification)
 		return;
 
-	m_PowerNotify.reset(imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
+	if (!m_Hwnd)
+		return;
 
+	m_PowerNotify.reset(imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
 	if (!m_PowerNotify)
 		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, os::last_error());
 }
@@ -196,9 +193,7 @@ wm_listener::wm_listener()
 wm_listener::~wm_listener()
 {
 	if(m_Hwnd)
-	{
-		SendMessage(m_Hwnd, WM_CLOSE, 0, 0);
-	}
+		PostMessage(m_Hwnd, WM_QUIT, 0, 0);
 }
 
 void wm_listener::Check()
@@ -214,9 +209,6 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
 
-	if (UnregisterClass(wc.lpszClassName, nullptr))
-		LOGWARNING(L"Class {} was already registered"sv, wc.lpszClassName);
-
 	if (!RegisterClassEx(&wc))
 	{
 		LOGERROR(L"RegisterClassEx(): {}"sv, os::last_error());
@@ -230,6 +222,8 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 			LOGWARNING(L"UnregisterClass(): {}"sv, os::last_error());
 	};
 
+	WndProcExceptionPtr = &m_ExceptionPtr;
+
 	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
 	if (!m_Hwnd)
 	{
@@ -239,7 +233,6 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 	}
 
 	MSG Msg;
-	WndProcExceptionPtr = &m_ExceptionPtr;
 
 	ReadyEvent.set();
 
@@ -247,15 +240,20 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 	{
 		const auto Result = GetMessage(&Msg, nullptr, 0, 0);
 		if (!Result)
-			return;
+			break;
 
 		if (Result < 0)
 		{
 			LOGERROR(L"GetMessage(): {}"sv, os::last_error());
-			return;
+			break;
 		}
 
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
+
+	if (!DestroyWindow(m_Hwnd))
+		LOGWARNING(L"DestroyWindow(): {}"sv, os::last_error());
+
+	m_Hwnd = {};
 }

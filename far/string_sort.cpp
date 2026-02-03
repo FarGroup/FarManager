@@ -205,7 +205,10 @@ static const auto& create_alt_sort_table()
 		return a < b;
 	});
 
-	int u_beg = 0, u_end = 0xffff;
+	int
+		u_beg = std::numeric_limits<wchar_t>::min(),
+		u_end = std::numeric_limits<wchar_t>::max();
+
 	for (const auto ic: std::views::iota(0, TableSize))
 	{
 		if (chars[ic] == L'a')
@@ -216,7 +219,7 @@ static const auto& create_alt_sort_table()
 		alt_sort_table[chars[ic]] = static_cast<wchar_t>(ic);
 	}
 
-	for (int ic=0xffff; ic > u_beg; --ic)
+	for (int ic = u_end; ic > u_beg; --ic)
 	{
 		if (is_upper(chars[ic]))
 		{
@@ -225,7 +228,7 @@ static const auto& create_alt_sort_table()
 		}
 		alt_sort_table[chars[ic]] = static_cast<wchar_t>(ic);
 	}
-	assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
+	assert(u_beg > std::numeric_limits<wchar_t>::min() && u_beg < u_end && u_end < std::numeric_limits<wchar_t>::max());
 
 	int cc = u_beg;
 	for (const auto ic: std::views::iota(u_beg, u_end + 1)) // uppercase first
@@ -268,7 +271,7 @@ struct invariant_comparer_icase
 
 static auto compare_invariant(const string_view Str1, const string_view Str2)
 {
-	return per_char_compare(Str1, Str2, [&](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
+	return per_char_compare(Str1, Str2, [](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
 	{
 		return invariant_comparer{}(*It1++, *It2++);
 	});
@@ -276,7 +279,7 @@ static auto compare_invariant(const string_view Str1, const string_view Str2)
 
 static auto compare_invariant_icase(const string_view Str1, const string_view Str2)
 {
-	return per_char_compare(Str1, Str2, [&](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
+	return per_char_compare(Str1, Str2, [](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
 	{
 		return invariant_comparer{}(upper(*It1++), upper(*It2++));
 	});
@@ -321,7 +324,7 @@ static auto compare_natural_base(const string_view Str1, const string_view Str2,
 	if (const auto Result = CompareString(LOCALE_USER_DEFAULT, Flags, Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size())))
 		return windows_to_std(Result);
 
-	static const decltype(&string_sort::compare) FallbackComparers[2][2]
+	static constexpr decltype(&string_sort::compare) FallbackComparers[2][2]
 	{
 		{ compare_invariant_icase,         compare_invariant },
 		{ compare_invariant_numeric_icase, compare_invariant_numeric },
@@ -375,9 +378,9 @@ void string_sort::adjust_comparer(size_t const Collation, bool const CaseSensiti
 		},
 	};
 
-	const auto CollationIdex = std::clamp(0uz, Collation, std::size(Comparers) - 1uz);
+	const auto CollationIndex = std::clamp(Collation, 0uz, std::size(Comparers) - 1uz);
 
-	DefaultComparer = Comparers[CollationIdex][DigitsAsNumbers][CaseSensitive];
+	DefaultComparer = Comparers[CollationIndex][DigitsAsNumbers][CaseSensitive];
 }
 
 bool string_sort::less_icase_t::operator()(string_view Str1, string_view Str2) const
@@ -440,7 +443,7 @@ TEST_CASE("strings.sorting")
 		{ L"a1"sv,     L"A2"sv,           gt, lt, },
 	};
 
-	const auto invert = [&](std::strong_ordering const Result)
+	const auto invert = [](std::strong_ordering const Result)
 	{
 		return Result == lt? gt : Result == gt? lt : eq;
 	};

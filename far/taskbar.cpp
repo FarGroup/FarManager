@@ -61,6 +61,9 @@ class taskbar_impl : public singleton<taskbar_impl>
 public:
 	void set_state(TBPFLAG const State)
 	{
+		if (!m_ComThread)
+			return;
+
 		if (m_State == State)
 			return;
 
@@ -73,6 +76,9 @@ public:
 
 	void set_value(unsigned long long const Completed, unsigned long long const Total)
 	{
+		if (!m_ComThread)
+			return;
+
 		const auto NewState = any_of(m_State, TBPF_NOPROGRESS, TBPF_INDETERMINATE)? TBPF_NORMAL : m_State.load();
 
 		if (m_State == NewState && m_Completed == Completed && m_Total == Total)
@@ -115,12 +121,6 @@ private:
 			return;
 		}
 
-		if (!TaskbarList)
-		{
-			LOGWARNING(L"!TaskbarList"sv);
-			return;
-		}
-
 		for (;;)
 		{
 			switch (os::handle::wait_any(m_ExitEvent, m_StateEvent, m_ValueEvent))
@@ -129,11 +129,13 @@ private:
 				return;
 
 			case 1:
-				TaskbarList->SetProgressState(console.GetWindow(), m_State);
+				if (const auto Result = TaskbarList->SetProgressState(console.GetWindow(), m_State); FAILED(Result))
+					LOGWARNING(L"SetProgressState(): {}"sv, os::format_error(Result));
 				break;
 
 			case 2:
-				TaskbarList->SetProgressValue(console.GetWindow(), m_Completed, m_Total);
+				if (const auto Result = TaskbarList->SetProgressValue(console.GetWindow(), m_Completed, m_Total); FAILED(Result))
+					LOGWARNING(L"SetProgressValue(): {}"sv, os::format_error(Result));
 				break;
 			}
 		}
