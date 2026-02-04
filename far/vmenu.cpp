@@ -1583,13 +1583,23 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_F_MENU_GETEXTENDEDDATA:
 		{
-			if (m_ExtendedDataProvider)
+			if (m_ExtendedDataGetter)
 			{
 				const auto ItemPos{ GetItemPosition(iParam) };
 				if (ItemPos == -1) return -1;
 
-				*static_cast<extended_item_data*>(vParam) = m_ExtendedDataProvider(Items[ItemPos]);
-				return 1;
+				return m_ExtendedDataGetter(Items[ItemPos], *static_cast<extended_item_data*>(vParam)) ? 1 : 0;
+			}
+			return -1;
+		}
+		case MCODE_F_MENU_SETEXTENDEDDATA:
+		{
+			if (m_ExtendedDataSetter)
+			{
+				const auto ItemPos{ GetItemPosition(iParam) };
+				if (ItemPos == -1) return -1;
+
+				return m_ExtendedDataSetter(Items[ItemPos], *static_cast<extended_item_data*>(vParam)) ? 1 : 0;
 			}
 			return -1;
 		}
@@ -3423,9 +3433,10 @@ std::any* VMenu::GetComplexUserData(int Position)
 	return &Items[ItemPos].ComplexUserData;
 }
 
-void VMenu::RegisterExtendedDataProvider(extended_item_data_provider&& ExtendedDataProvider)
+void VMenu::RegisterExtendedDataProvider(extended_item_data_getter&& ExtendedDataGetter, extended_item_data_setter&& ExtendedDataSetter)
 {
-	m_ExtendedDataProvider = std::move(ExtendedDataProvider);
+	m_ExtendedDataGetter = std::move(ExtendedDataGetter);
+	m_ExtendedDataSetter = std::move(ExtendedDataSetter);
 }
 
 FarListItem *VMenu::MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem)
