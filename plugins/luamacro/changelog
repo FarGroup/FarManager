@@ -1,3 +1,7 @@
+shmuel 2026-02-06 18:39:22+02:00 - build 915
+
+1. LuaMacro: fix ShiftF9 handling in Plugins/Disks menus.
+
 zg 2026-01-16 16:29:31+02:00 - build 914
 
 1. adaptation to far 3.0.6632.
