@@ -3752,6 +3752,8 @@ of this information.
 
  #Ctrl+H# shows unmapped volumes.
 
+ #Shift+F6# allows to change the volume label.
+
  #Ctrl+R# дозволяє обновити меню вибору диска.
 
  If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to

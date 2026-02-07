@@ -665,6 +665,42 @@ static string GetShellName(string_view const RootDirectory)
 		L""s;
 }
 
+static bool rename_volume(string_view const Path)
+{
+	string Label;
+	if (!os::fs::GetVolumeInformation(Path, &Label, {}, {}, {}, {}))
+	{
+		const auto ErrorState = os::last_error();
+		Message(MSG_WARNING, ErrorState,
+			msg(lng::MError),
+			{
+			},
+			{ lng::MOk });
+
+		return false;
+	}
+
+	DialogBuilder Builder(lng::MChangeDriveVolumeLabel);
+	Builder.AddEditField(Label, 32);
+	Builder.AddOKCancel();
+
+	if (!Builder.ShowDialog())
+		return false;
+
+	if (os::fs::set_volume_label(Path, Label))
+		return true;
+
+	const auto ErrorState = os::last_error();
+
+	Message(MSG_WARNING, ErrorState,
+		msg(lng::MError),
+		{
+		},
+		{ lng::MOk });
+
+	return false;
+}
+
 static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 {
 	const auto PanelRect = Owner->GetPosition();
@@ -1038,7 +1074,6 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					break;
 
 				std::visit(overload{[&](disk_item const& item)
-
 				{
 					bool Cancelled = false;
 					if (DisconnectDrive(Owner, item, *ChDisk, Cancelled))
@@ -1252,6 +1287,18 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			case KEY_CTRLR:
 			case KEY_RCTRLR:
 				RetCode = SelPos;
+				break;
+
+			case KEY_SHIFTF6:
+				if (!MenuItem)
+					break;
+
+				std::visit(overload{[&](disk_item const& item)
+				{
+					if (rename_volume(item.Path))
+						RetCode = SelPos;
+				},
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			default:

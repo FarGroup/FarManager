@@ -510,6 +510,9 @@ namespace os::fs
 
 		[[nodiscard]]
 		bool move_to_recycle_bin(string_view Object);
+
+		[[nodiscard]]
+		bool set_volume_label(const wchar_t* Object, const wchar_t* Label);
 	}
 
 	[[nodiscard]]
@@ -606,6 +609,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool move_to_recycle_bin(string_view Object);
+
+	[[nodiscard]]
+	bool set_volume_label(string_view Object, string const& Label);
 
 	[[nodiscard]]
 	bool get_disk_size(string_view Path, unsigned long long* UserTotal, unsigned long long* TotalFree, unsigned long long* UserFree);

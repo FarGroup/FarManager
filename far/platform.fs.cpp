@@ -1870,6 +1870,11 @@ WARNING_POP()
 			SetLastError(Result);
 			return Result == ERROR_SUCCESS && !fop.fAnyOperationsAborted;
 		}
+
+		bool set_volume_label(const wchar_t* Object, const wchar_t* Label)
+		{
+			return SetVolumeLabel(Object, Label) != FALSE;
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -2424,6 +2429,19 @@ WARNING_POP()
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // ShellAPI doesn't set LastNtStatus
 			return elevation::instance().fMoveToRecycleBin(Object);
+
+		return false;
+	}
+
+	bool set_volume_label(string_view const Object, string const& Label)
+	{
+		const auto NtObject = nt_path(Object);
+
+		if (low::set_volume_label(NtObject.c_str(), Label.c_str()))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().set_volume_label(NtObject, Label);
 
 		return false;
 	}

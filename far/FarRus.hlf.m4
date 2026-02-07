@@ -3747,6 +3747,8 @@ $ #Меню выбора диска#
 
  #Ctrl+H# shows unmapped volumes.
 
+ #Shift+F6# allows to change the volume label.
+
  #Ctrl+R# позволяет обновить меню выбора диска.
 
  Если включён показ параметров компакт-дисков (#Ctrl+8#), то Far будет

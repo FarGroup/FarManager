@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2026-02-07 19:42:24+00:00 - build 6643
+
+1. Shift+F6 in Disk Menu changes the volume label (also gh-1072).
+
+--------------------------------------------------------------------------------
 drkns 2026-02-04 20:37:59+00:00 - build 6642
 
 1. gh-1070: Build 6613 considers profile directory read-only under certain conditions.

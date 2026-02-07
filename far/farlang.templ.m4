@@ -17478,6 +17478,21 @@ upd:"Detect virtual disks"
 upd:"Detect virtual disks"
 upd:"Detect virtual disks"
 
+MChangeDriveVolumeLabel
+"Метка тома"
+"Volume label"
+"Popisek svazku"
+"Volume Label"
+"Kötetcímke"
+"Etykieta"
+"Etiqueta de volumen"
+"Označenie zväzku"
+"Etichetta volume"
+"Позначка тому"
+"Метка тома"
+"Tomo etiketė"
+"Etiqueta do volume"
+
 MSearchFileTitle
 l:
 "Поиск"
@@ -32051,6 +32066,21 @@ upd:"to decrypt this object:"
 "для адчынення тайнапісу гэтага аб'екту:"
 upd:"to decrypt this object:"
 upd:"to decrypt this object:"
+
+MElevationRequiredSetVolumeLabel
+upd:"to set volume label:"
+"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
+upd:"to set volume label:"
 
 MElevationDoForAll
 "Выполнить это действие для &всех текущих объектов"

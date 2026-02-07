@@ -3787,6 +3787,8 @@ pluginnel emulált fájlrendszereknél nem).
 
  #Ctrl+H# shows unmapped volumes.
 
+ #Shift+F6# allows to change the volume label.
+
  A #Ctrl+R# frissíti a Meghajtók menü tartalmát.
 
  Ha a #CD meghajtó típusa# mód engedélyezve van (#Ctrl+8#), a Far

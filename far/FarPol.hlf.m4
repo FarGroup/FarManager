@@ -3699,6 +3699,8 @@ główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
  #Ctrl+H# pokazuje odłączone (odmapowane) wolumeny.
 
+ #Shift+F6# allows to change the volume label.
+
  #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
  Jeżeli tryb #Parametry dysku optycznego# jest włączony (#Ctrl+8#), Far próbuje

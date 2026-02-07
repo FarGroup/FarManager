@@ -76,19 +76,17 @@ public:
 	os::fs::attributes get_file_attributes(const string& Object);
 	bool set_file_attributes(const string& Object, os::fs::attributes FileAttributes);
 	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);
-
 	bool fCreateSymbolicLink(string_view Object, string_view Target, DWORD Flags);
 	bool fMoveToRecycleBin(string_view Object);
 	bool fSetOwner(const string& Computer, const string& Object, const string& Owner);
-
 	HANDLE create_file(const string& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
 	bool set_file_encryption(const string& Object, bool Encrypt);
 	bool detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	bool get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
-
 	os::security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation);
 	bool set_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation, os::security::descriptor const& Descriptor);
 	bool reset_file_security(string const& Object);
+	bool set_volume_label(const string& Object, const string& Label);
 
 	class suppress
 	{

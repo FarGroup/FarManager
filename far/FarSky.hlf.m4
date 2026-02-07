@@ -3690,6 +3690,8 @@ plugins).
 
  #Ctrl+H# shows unmapped volumes.
 
+ #Shift+F6# allows to change the volume label.
+
  #Ctrl+R# allows to refresh the disk selection menu.
 
  If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to
