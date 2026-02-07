@@ -975,7 +975,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     }
     if (lstrcmpA(szVerb, "rename")==0)
     {
-      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"Keys'F6'"};
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"Keys'ShiftF6'"};
       MacroControl({}, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
     }
