@@ -2,7 +2,7 @@ function makeLink(a) {
   if (a.className.indexOf("msdocs") === -1) {
     return;
   }
-  a.href = "https://learn.microsoft.com/search/?terms=" + a.text;
+  a.href = "https://learn.microsoft.com/search/?terms=" + a.innerText;
   if (a.className.indexOf("archive") > -1) {
     a.href = a.href + "&dataSource=previousVersions";
   }
