@@ -122,15 +122,20 @@ namespace os
 		{
 			switch (const auto Result = WaitForSingleObject(Handle, Timeout? *Timeout / 1ms : INFINITE))
 			{
+			case WAIT_ABANDONED:
+				LOGWARNING(L"WaitForSingleObject(): WAIT_ABANDONED for handle {}"sv, Handle);
+				[[fallthrough]];
 			case WAIT_OBJECT_0:
 				return true;
 
 			case WAIT_TIMEOUT:
 				return false;
 
+			case WAIT_FAILED:
+				throw far_fatal_exception(far::format(L"WaitForSingleobject failed: {}"sv, last_error()));
+
 			default:
-				// Abandoned or error
-				throw far_fatal_exception(far::format(L"WaitForSingleobject returned {}"sv, Result));
+				std::unreachable();
 			}
 		}
 
@@ -143,18 +148,22 @@ namespace os
 			const auto Result = WaitForMultipleObjects(static_cast<DWORD>(Handles.size()), Handles.data(), WaitAll, Timeout? *Timeout / 1ms : INFINITE);
 
 			if (in_closed_range<size_t>(WAIT_OBJECT_0, Result, WAIT_OBJECT_0 + Handles.size() - 1))
-			{
 				return Result - WAIT_OBJECT_0;
-			}
-			else if (Result == WAIT_TIMEOUT)
-			{
+
+			if (Result == WAIT_TIMEOUT)
 				return {};
-			}
-			else
+
+			if (in_closed_range<size_t>(WAIT_ABANDONED, Result, WAIT_ABANDONED + Handles.size() - 1))
 			{
-				// Abandoned or error
-				throw far_fatal_exception(far::format(L"WaitForMultipleObjects returned {}"sv, Result));
+				const auto HandleIndex = Result - WAIT_ABANDONED;
+				LOGWARNING(L"WaitForMultipleObjects(): WAIT_ABANDONED for handle {} ({}/{})"sv, Handles[HandleIndex], HandleIndex, Handles.size());
+				return HandleIndex;
 			}
+
+			if (Result == WAIT_FAILED)
+				throw far_fatal_exception(far::format(L"WaitForMultipleObjects failed: {}"sv, last_error()));
+
+			std::unreachable();
 		}
 
 		void handle_implementation::wait(HANDLE const Handle)
