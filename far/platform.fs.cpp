@@ -2155,6 +2155,12 @@ WARNING_POP()
 			return false;
 		}
 
+		if (LastError.NtError == STATUS_INVALID_PARAMETER)
+		{
+			SetLastError(ERROR_INVALID_PARAMETER);
+			return false;
+		}
+
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 			return elevation::instance().copy_file(strFrom, strTo, RoutinePtr, DataPtr, Cancel, CopyFlags);
 

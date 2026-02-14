@@ -2154,6 +2154,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"CmdHistoryRule"sv,                CmdHistoryRule, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ConsoleDetachKey"sv,              ConsoleDetachKey, L"CtrlShiftTab"sv},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyBufferSize"sv,                CMOpt.BufferSize, 0},
+		{FSSF_PRIVATE,           NKeySystem,                 L"SystemCopyNoBufferingMinSize"sv,  CMOpt.SystemCopyNoBufferingMinSize, 1048576},
 		{FSSF_SYSTEM,            NKeySystem,                 L"CopyOpened"sv,                    CMOpt.CopyOpened, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyTimeRule"sv,                  CMOpt.CopyTimeRule, 3},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopySecurityOptions"sv,           CMOpt.CopySecurityOptions, 0},

@@ -170,6 +170,7 @@ private:
 	std::unique_ptr<copy_progress> CP;
 	std::unique_ptr<multifilter> m_Filter;
 	DWORD Flags;
+	DWORD SystemCopyNoBufferingMinSize;
 	panel_ptr SrcPanel, DestPanel;
 	panel_mode SrcPanelMode, DestPanelMode;
 	int SrcDriveType{}, DestDriveType{};
@@ -238,6 +239,7 @@ enum COPY_FLAGS
 	FCOPY_USESYSTEMCOPY           = 10_bit, // использовать системную функцию копирования
 	FCOPY_COPYLASTTIME            = 11_bit, // При копировании в несколько каталогов устанавливается для последнего.
 	FCOPY_UPDATEPPANEL            = 12_bit, // необходимо обновить пассивную панель
+	FCOPY_COPY_FILE_NO_BUFFERING  = 13_bit, // дополнение для системной функции копирования больших файлов
 };
 
 static bool set_file_time(const os::fs::file& File, const auto& Times, bool const All)
@@ -295,6 +297,9 @@ enum enumShellCopy
 	IS_SC_PRESERVETIMESTAMPS,
 	ID_SC_COPYSYMLINK,
 	ID_SC_MULTITARGET,
+	ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING,
+	ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE,
+	ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE_TITLE,
 	ID_SC_SEPARATOR3,
 	ID_SC_USEFILTER,
 	ID_SC_SEPARATOR4,
@@ -646,9 +651,11 @@ ShellCopy::ShellCopy(
 	// ***********************************************************************
 	// *** Prepare Dialog Controls
 	// ***********************************************************************
-	int DlgW = 76, DlgH = 17;
+	int DlgW = 76, DlgH = 17 + 1;
 
 	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_HIDDEN|DIF_DISABLE : 0;
+
+	int posFix = (int)(msg(lng::MCopySystemCopyNoBuffering).length() + 9);
 
 	auto CopyDlg = MakeDialogItems<ID_SC_COUNT>(
 	{
@@ -666,13 +673,18 @@ ShellCopy::ShellCopy(
 		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopyPreserveAllTimestamps), },
 		{ DI_CHECKBOX,     {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MCopySymLinkContents), },
 		{ DI_CHECKBOX,     {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MCopyMultiActions), },
-		{ DI_TEXT,         {{-1, 11}, {0,  11}}, DIF_SEPARATOR, },
-		{ DI_CHECKBOX,     {{5,  12}, {0,  12}}, DIF_AUTOMATION, msg(lng::MCopyUseFilter), },
-		{ DI_TEXT,         {{-1, 13}, {0,  13}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyDlgCopy), },
-		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
-		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
-		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
+
+		{ DI_CHECKBOX,     {{5,  11}, {0,  11}}, DIF_AUTOMATION, msg(lng::MCopySystemCopyNoBuffering), },
+		{ DI_FIXEDIT,      {{posFix, 11}, {posFix + 3, 11}}, DIF_MASKEDIT | DIF_AUTOMATION | DIF_DISABLE, L""},
+		{ DI_TEXT,         {{posFix + 5, 11}, {0,  11}}, DIF_NONE, L"MB", },
+
+		{ DI_TEXT,         {{-1, 12}, {0,  12}}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,     {{5,  13}, {0,  13}}, DIF_AUTOMATION, msg(lng::MCopyUseFilter), },
+		{ DI_TEXT,         {{-1, 14}, {0,  14}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,       {{0,  15}, {0,  15}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyDlgCopy), },
+		{ DI_BUTTON,       {{0,  15}, {0,  15}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
+		{ DI_BUTTON,       {{0,  15}, {0,  15}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
+		{ DI_BUTTON,       {{0,  15}, {0,  15}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
 	});
 
 	CopyDlg[ID_SC_TARGETEDIT].strHistory = L"Copy"sv;
@@ -694,6 +706,18 @@ ShellCopy::ShellCopy(
 			CopyDlg[ID_SC_SECURITY_INHERIT].X1 = CopyDlg[ID_SC_SECURITY_COPY].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
 		}
 	}
+
+	CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING].Selected = 0;
+
+	if (!Global->Opt->CMOpt.UseSystemCopy)
+	{
+		CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING].Flags |= DIF_DISABLE;
+		CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE_TITLE].Flags |= DIF_DISABLE;
+	}
+
+	SystemCopyNoBufferingMinSize = Global->Opt->CMOpt.SystemCopyNoBufferingMinSize.Get();
+	// for Dlg size in MB
+	CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE].strData = str(SystemCopyNoBufferingMinSize / 1048576UL);
 
 	if (Link)
 	{
@@ -976,7 +1000,8 @@ ShellCopy::ShellCopy(
 		Dlg->SetId(Link?HardSymLinkId:(Move?(CurrentOnly?MoveCurrentOnlyFileId:MoveFilesId):(CurrentOnly?CopyCurrentOnlyFileId:CopyFilesId)));
 		Dlg->SetPosition({ -1, -1, DlgW, DlgH });
 		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-//    Dlg->Show();
+		Dlg->SetAutomation(ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING, ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE, DIF_DISABLE, DIF_NONE, DIF_NONE, DIF_DISABLE);
+		//    Dlg->Show();
 		// $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
 		int DlgExitCode;
 
@@ -1000,6 +1025,16 @@ ShellCopy::ShellCopy(
 					strCopyDlgValue = os::env::expand(strCopyDlgValue);
 
 				Global->Opt->CMOpt.PreserveTimestamps = CopyDlg[IS_SC_PRESERVETIMESTAMPS].Selected == BSTATE_CHECKED;
+
+				if (CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING].Selected == BSTATE_CHECKED)
+				{
+					if (Global->Opt->CMOpt.SystemCopyNoBufferingMinSize.TryParse(CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING_MIN_SIZE].strData))
+					{
+						// from Dlg size in MB
+						SystemCopyNoBufferingMinSize = Global->Opt->CMOpt.SystemCopyNoBufferingMinSize.Get() * 1048576UL;
+						Global->Opt->CMOpt.SystemCopyNoBufferingMinSize.Set(SystemCopyNoBufferingMinSize);
+					}
+				}
 
 				if(!Move)
 				{
@@ -1145,6 +1180,7 @@ ShellCopy::ShellCopy(
 	}
 
 	Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected? FCOPY_COPYSYMLINKCONTENTS : FCOPY_NONE;
+	Flags|= CopyDlg[ID_SC_SYSTEM_COPY_FILE_NO_BUFFERING].Selected? FCOPY_COPY_FILE_NO_BUFFERING : FCOPY_NONE;
 
 	if (DestPlugin && CopyDlg[ID_SC_TARGETEDIT].strData == strInitDestDir)
 	{
@@ -3389,7 +3425,14 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 
 	const auto sd = GetSecurity(SrcName);
 
-	if (!os::fs::copy_file(SrcName, DestName, callback, {}, Flags & FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
+	auto copyFlags = Flags & FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0;
+	
+	if (Flags & FCOPY_COPY_FILE_NO_BUFFERING && SrcData.FileSize >= SystemCopyNoBufferingMinSize)
+	{
+		copyFlags |= COPY_FILE_NO_BUFFERING;
+	}
+
+	if (!os::fs::copy_file(SrcName, DestName, callback, {}, copyFlags))
 	{
 		rethrow_if(ExceptionPtr);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
