@@ -201,6 +201,22 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, s
 			}
 			break;
 
+		case FMVT_NEXT:
+			if (pos >= 1 && pos <= top - 1 && lua_istable(L, pos))
+			{
+				if (lua_next(L, pos))
+				{
+					ConvertLuaValue(L, -2, &Val[0]); // key
+					ConvertLuaValue(L, -1, &Val[1]); // value
+				}
+				else
+				{
+					Val[0].Type = FMVT_NIL; // No more elements
+					Val[1].Type = FMVT_NIL;
+				}
+			}
+			break;
+
 		case FMVT_STACKPOP:
 			if (param > 0 && (top - param) >= cbdata->start_stack)
 				lua_pop(L, param);

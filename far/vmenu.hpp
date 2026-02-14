@@ -232,7 +232,7 @@ public:
 	std::any* GetComplexUserData(int Position = -1);
 	const std::any* GetComplexUserData(int Position = -1) const
 	{
-		return const_cast<VMenu*>(this)->GetComplexUserData();
+		return const_cast<VMenu*>(this)->GetComplexUserData(Position);
 	}
 	template<class T>
 	T* GetComplexUserDataPtr(int Position = -1)
@@ -247,8 +247,9 @@ public:
 	void SetComplexUserData(const std::any& Data, int Position = -1);
 
 	using extended_item_data = std::vector<std::pair<FarMacroValue, FarMacroValue>>;
-	using extended_item_data_provider = std::function<extended_item_data(const menu_item_ex&)>;
-	void RegisterExtendedDataProvider(extended_item_data_provider&& ExtendedDataProvider);
+	using extended_item_data_getter = std::function<bool(const menu_item_ex&, extended_item_data&)>;
+	using extended_item_data_setter = std::function<bool(menu_item_ex&, const extended_item_data&)>;
+	void RegisterExtendedDataProvider(extended_item_data_getter&& ExtendedDataGetter, extended_item_data_setter&& ExtendedDataSetter);
 
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
@@ -362,7 +363,8 @@ private:
 	std::unique_ptr<vmenu_horizontal_tracker> m_HorizontalTracker;
 	std::vector<vmenu_fixed_column_t> m_FixedColumns;
 	segment m_ItemTextSegment{ segment::ray() };
-	extended_item_data_provider m_ExtendedDataProvider;
+	extended_item_data_getter m_ExtendedDataGetter;
+	extended_item_data_setter m_ExtendedDataSetter;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};
