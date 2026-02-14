@@ -11,7 +11,7 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 
 # contents tree for HHC is generated from /html/index.html following links one level down.
 # links in each file are followed only between <!-- HHC --> comments, for each "<h3>" a new "folder" is created,
-# for each "<a href=>" a new topic with some additional logic that prevents following unwanted links (only width=40% links are followed under h3 sections)
+# for each "<a href=>" a new topic (<a> must be in the very beginning of <td> content)
 # also,  for "<h3>",  text for the title is taken upto to the first comma
 
 
@@ -66,8 +66,10 @@ def make_chm_lang(lang):
 
   log("-- translating meta into html")
 
-  header_match = '<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">'
-  header_replace = '<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">'
+  header_match = '<meta charset="utf-8">'
+  header_replace ="""
+<meta charset="Windows-1251">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">"""
 
   for root, dirs, files in walk(chm_meta_dir):
     for f in files:
@@ -90,7 +92,7 @@ def make_chm_lang(lang):
   contents_filename = join(chm_lang_dir, "plugins%s.hhc" % lang[0])
   match_h3 = re.compile("<h3>(?P<title>.*?)(</h3>|,)", re.I)
   match_link_no_h3 = re.compile(r'<a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
-  match_link_after_h3 = re.compile(r'.?width\=\"40\%\".?<a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
+  match_link_after_h3 = re.compile(r'<td><a.+?href\s*=\s*(?P<quote>[\'\"])(.+?)(?P=quote).*?>(.+?)</a>', re.I)
 
   cntnts = open(contents_filename, "w", encoding="windows-1251")
   cntnts.write(
@@ -127,7 +129,7 @@ def make_chm_lang(lang):
       <param name="Name" value="%s">
       <param name="Local" value="html/%s">
       </OBJECT>
-""" % (rl[2], rl[1]))
+""" % (rl[2].replace('"', "&quot;"), rl[1]))
       link_dir = rl[1]
       link_dir = link_dir[:link_dir.find("/")]
       in_hhc2 = 0
@@ -158,7 +160,7 @@ def make_chm_lang(lang):
           <param name="Name" value="%s">
           </OBJECT>
           <UL>
-""" % (rh[0]))
+""" % (rh[0].replace('"', "&quot;")))
           log("    Open section: %s" % rh[0])
 
         match_link = (match_link_no_h3, match_link_after_h3)[in_h3 == 1]
@@ -172,7 +174,7 @@ def make_chm_lang(lang):
                 <param name="Name" value="%s">
                 <param name="Local" value="html/%s/%s">
                 </OBJECT>
-""" % (rl[2], link_dir, rl[1]))
+""" % (rl[2].replace('"', "&quot;"), link_dir, rl[1]))
           log("      New topic: %s" % rl[2])
 
       if (in_h3 == 1):
@@ -271,7 +273,7 @@ def make_chm_lang(lang):
     <param name="Name" value="%s">
     <param name="Local" value="%s">
     </OBJECT>
-""" % (title[1], title[0]))
+""" % (title[1].replace('"', "&quot;"), title[0]))
 
   idx.write(
 """</UL>

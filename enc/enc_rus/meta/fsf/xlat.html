@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.XLat</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>XLat</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.XLat</code> используется для конвертирования части строки из одного набора символов (например, Русский) в другой (например, Латиница).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 wchar_t* WINAPI XLat(
   wchar_t *Line,
   intptr_t StartPos,
@@ -28,38 +29,39 @@ wchar_t* WINAPI XLat(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Line</div>
-    <div class=dfndescr>Указатель на строку, часть которой будет перекодирована.</div>
-  <div class=dfn>StartPos</div>
-    <div class=dfndescr>Начальная позиция в строке <code>Line</code>.</div>
-  <div class=dfn>EndPos</div>
-    <div class=dfndescr>Конечная позиция в строке <code>Line</code>.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
+<div class="descr">
+  <div class="dfn">Line</div>
+    <div class="dfndescr">Указатель на строку, часть которой будет перекодирована.</div>
+  <div class="dfn">StartPos</div>
+    <div class="dfndescr">Начальная позиция в строке <code>Line</code>.</div>
+  <div class="dfn">EndPos</div>
+    <div class="dfndescr">Конечная позиция в строке <code>Line</code>.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Может быть комбинацией следующих значений (тип <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_SWITCHKEYBLAYOUT">XLAT_SWITCHKEYBLAYOUT</a></td>
-    <td class="cont" width="60%">Переключает раскладку клавиатуры после обработки строки.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_SWITCHKEYBBEEP">XLAT_SWITCHKEYBBEEP</a></td>
-    <td class="cont" width="60%">Выдать звуковой сигнал после переключения раскладки (работает если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_USEKEYBLAYOUTNAME">XLAT_USEKEYBLAYOUTNAME</a></td>
-    <td class="cont" width="60%">Использовать предопределенные именованные правила для "двойных" клавиш. Параметр в базе настроек c именем раскладки, например:<br>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="XLAT_SWITCHKEYBLAYOUT">XLAT_SWITCHKEYBLAYOUT</a></td>
+    <td>Переключает раскладку клавиатуры после обработки строки.</td></tr>
+    <tr><td><a name="XLAT_SWITCHKEYBBEEP">XLAT_SWITCHKEYBBEEP</a></td>
+    <td>Выдать звуковой сигнал после переключения раскладки (работает если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>).</td></tr>
+    <tr><td><a name="XLAT_USEKEYBLAYOUTNAME">XLAT_USEKEYBLAYOUTNAME</a></td>
+    <td><p>Использовать предопределенные именованные правила для "двойных" клавиш.</p>
+    <p>Параметр в базе настроек c именем раскладки, например:</p>
     "XLat/00000409:reg_sz" обозначает "набирали по-русски в английской раскладке"<br>
     "XLat/00000419:reg_sz" обозначает "набирали по-английски в русской раскладке"<br>
     и т.п.<br>
-    Также, если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>, то переключение раскладок происходит только по списку значений, перечисленных в
-    "XLat/Layouts:reg_sz" (перечисление через ';'), независимо от количества установленных в системе раскладок (больше 2).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_CONVERTALLCMDLINE">XLAT_CONVERTALLCMDLINE</a></td>
-    <td class="cont" width="60%">Конвертировать всю командную строку при отсутствии выделенного блока.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_NONE">XLAT_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <p>Также, если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>, то переключение раскладок происходит только по списку значений, перечисленных в
+    "XLat/Layouts:reg_sz" (перечисление через ';'), независимо от количества установленных в системе раскладок (больше 2).</p></td></tr>
+    <tr><td><a name="XLAT_CONVERTALLCMDLINE">XLAT_CONVERTALLCMDLINE</a></td>
+    <td>Конвертировать всю командную строку при отсутствии выделенного блока.</td></tr>
+    <tr><td><a name="XLAT_NONE">XLAT_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Эта функция возвращает указатель на преобразованную строку.
 </div>
 

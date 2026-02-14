@@ -1,50 +1,53 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DN_INITDIALOG</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DN_INITDIALOG</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Событие <code>DN_INITDIALOG</code> посылается процедуре обработки диалога после того, как были проинициализированы все управляющие элементы диалога, но до того, как они стали видимы.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента, который получит фокус ввода по умолчанию.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Специфические данные, переданные в функции <a href="../../service_functions/dialoginit.html">DialogInit</a> - параметр Param.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
-<code>TRUE</code> -  если процедура обработки диалога изменила данные.<br>
-<code>FALSE</code> - изменений не было.
+<div class="descr">
+<ul class="nomarker">
+  <li><code>TRUE</code> -  если процедура обработки диалога изменила данные.</li>
+  <li><code>FALSE</code> - изменений не было.</li>
+</ul>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
-В ответ на данное событие процедура обработки диалога инициализирует каждый элемент в некоторое корректное начальное состояние. Например,
-она может заполнить блок списка элементами, которые потом просмотрит пользователь...<br>
-Если изменения были и обработчик диалога вернул системе значение <code>FALSE</code>, то изменённые данные не будут восприняты.
+<div class="descr">
+<p>В ответ на данное событие процедура обработки диалога инициализирует каждый элемент в некоторое корректное начальное состояние. Например,
+она может заполнить блок списка элементами, которые потом просмотрит пользователь...</p>
+<p>Если изменения были и обработчик диалога вернул системе значение <code>FALSE</code>, то изменённые данные не будут восприняты.</p>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 case DN_INITDIALOG:
   struct FarDialogItem DialogItem;
 
@@ -57,8 +60,8 @@ case DN_INITDIALOG:
 </div>
 
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
