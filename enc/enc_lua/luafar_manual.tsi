@@ -7309,14 +7309,14 @@ lv=2
 dt=Text
 nm=far.CmpName
 ctime=3909321696
-mtime=3909321862
+mtime=3980616823
 <article>
 #_Result = far.CmpName (Mask, Name, Flags)
 #_
 #_**Parameters:**
 #_  Mask:  string
 #_  Name:  string
-#_  Flags: flags  (combination of PN_SKIPPATH, PN_CASEINSENSITIVE
+#_  Flags: flags  (combination of PN_SKIPPATH
 #_                 and PN_SHOWERRORMESSAGE; default=0)
 #_
 #_**Returns:**
@@ -7335,14 +7335,14 @@ lv=2
 dt=Text
 nm=far.CmpNameList
 ctime=3909321707
-mtime=3909321923
+mtime=3980616835
 <article>
 #_Result = far.CmpNameList (Mask, Name, Flags)
 #_
 #_**Parameters:**
 #_  Mask:  string
 #_  Name:  string
-#_  Flags: flags  (combination of PN_SKIPPATH, PN_CASEINSENSITIVE
+#_  Flags: flags  (combination of PN_SKIPPATH
 #_                 and PN_SHOWERRORMESSAGE; default=0)
 #_
 #_**Returns:**
