@@ -2148,24 +2148,26 @@ protected:
 			return true;
 		}
 
-		static bool GetPaletteVT(std::array<COLORREF, 256>& Palette)
+		static size_t GetPaletteVT_partial(std::array<COLORREF, 256>& Palette, size_t const Offset, size_t const Count)
 		{
 			try
 			{
-				LOGDEBUG(L"Reading VT palette - here be dragons"sv);
-
 				const auto
 					OSCPrefix = ESC L"]4"sv,
 					OSCSuffix = ST L""sv;
 
+				const auto Begin = static_cast<int>(Offset), End = static_cast<int>(Offset + Count);
+				const auto Under100 = std::max(0, 100 - Begin) - std::max(0, 100 - End);
+				const auto Under10 = std::max(0, 10 - Begin) - std::max(0, 10 - End);
+
 				string Request;
-				Request.reserve(OSCPrefix.size() + L";255;?"sv.size() * Palette.size() - 100 - 10 + OSCSuffix.size());
+				Request.reserve(OSCPrefix.size() + L";255;?"sv.size() * Count - Under100 - Under10 + OSCSuffix.size());
 
 				// A single OSC for the whole thing.
 				// Querying the palette was introduced after the terse syntax, so it's fine.
 				Request = OSCPrefix;
 
-				for (const auto i: std::views::iota(0uz, Palette.size()))
+				for (const auto i: std::views::iota(Offset, Offset + Count))
 					far::format_to(Request, L";{};?"sv, vt_color_index(static_cast<uint8_t>(i)));
 
 				Request += OSCSuffix;
@@ -2174,7 +2176,7 @@ protected:
 				if (ResponseData.empty())
 				{
 					LOGWARNING(L"OSC 4 query is not supported"sv, Request);
-					return false;
+					return 0;
 				}
 
 				const auto make_exception = [&](source_location const& Location = source_location::current())
@@ -2216,7 +2218,11 @@ protected:
 					if (VtIndex >= Palette.size())
 						throw make_exception();
 
-					auto& PaletteColor = Palette[vt_color_index(VtIndex)];
+					const auto NtIndex = vt_color_index(VtIndex);
+					if (NtIndex != Offset + ColorsSet)
+						throw make_exception();
+
+					auto& PaletteColor = Palette[NtIndex];
 
 					auto ColorStr = *SubIterator;
 					if (!ColorStr.starts_with(RGBPrefix))
@@ -2227,9 +2233,9 @@ protected:
 					if (ColorStr.size() != L"0000"sv.size() * 3 + 2)
 						throw make_exception();
 
-					const auto color = [&](size_t const Offset)
+					const auto color = [&](size_t const RGBOffset)
 					{
-						const auto Value = from_string<unsigned>(ColorStr.substr(Offset * L"0000/"sv.size(), 4), {}, 16);
+						const auto Value = from_string<unsigned>(ColorStr.substr(RGBOffset * L"0000/"sv.size(), 4), {}, 16);
 						if (Value > 0xffff)
 							throw make_exception();
 
@@ -2240,17 +2246,49 @@ protected:
 					++ColorsSet;
 				}
 
-				if (ColorsSet != Palette.size())
-					throw make_exception();
-
-				LOGDEBUG(L"VT palette read successfuly"sv);
-				return true;
+				return ColorsSet;
 			}
 			catch (std::exception const& e)
 			{
 				LOGERROR(L"{}"sv, e);
-				return false;
+				return 0;
 			}
+		}
+
+		static bool GetPaletteVT(std::array<COLORREF, 256>& Palette)
+		{
+			LOGDEBUG(L"Reading VT palette - here be dragons"sv);
+
+			static auto BatchSize = Palette.size();
+			static bool BatchSizeAdjusted = false;
+
+			for (size_t Offset = 0; Offset < Palette.size();)
+			{
+				const auto ColorsSet = GetPaletteVT_partial(Palette, Offset, std::min(BatchSize, Palette.size() - Offset));
+				if (ColorsSet == 0)
+					return false;
+
+				if (ColorsSet == Palette.size())
+					break; // Full palette read successfully, no need to continue
+
+				// Some terminals (e.g. wezterm/wezterm#6124) fail to return the whole response in one go,
+				// so we do multiple queries with increasing offsets.
+				// This is silly, but better than nothing.
+				LOGDEBUG(L"VT palette [{} - {}] read"sv, Offset, Offset + ColorsSet - 1);
+
+				// Skip already read
+				Offset += ColorsSet;
+
+				// No point in trying to read more than it can return
+				if (!BatchSizeAdjusted)
+				{
+					BatchSize = ColorsSet;
+					BatchSizeAdjusted = true;
+				}
+			}
+
+			LOGDEBUG(L"VT palette read successfuly"sv);
+			return true;
 		}
 
 		static bool GetPaletteNT(std::array<COLORREF, 256>& Palette)
