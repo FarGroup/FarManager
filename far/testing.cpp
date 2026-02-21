@@ -90,10 +90,18 @@ static bool is_ui_test_run(std::span<wchar_t const* const> const Args)
 	return false;
 }
 
+static bool s_IsTestRun;
+
+static int run_tests(std::span<wchar_t const* const> const Args)
+{
+	s_IsTestRun = true;
+	return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
+}
+
 std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 {
 	if (is_ui_test_run(Args.subspan(1)))
-		return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
+		return run_tests(Args);
 
 	const auto ServiceTestIterator = std::ranges::find(Args, L"/service:test"sv);
 	const auto IsBuildStep = ServiceTestIterator != Args.end();
@@ -138,7 +146,12 @@ std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
 
 	locale = invariant_locale();
 
-	return Catch::Session().run(static_cast<int>(NewArgs.size()), NewArgs.data());
+	return run_tests(NewArgs);
+}
+
+bool is_test_run()
+{
+	return s_IsTestRun;
 }
 
 namespace

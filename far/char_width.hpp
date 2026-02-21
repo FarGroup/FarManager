@@ -54,7 +54,7 @@ namespace char_width
 	[[nodiscard]]
 	bool is_wide(codepoint Codepoint);
 
-	void enable(int Value);
+	void enable(bool Value);
 
 	[[nodiscard]]
 	bool is_enabled();

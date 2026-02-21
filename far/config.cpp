@@ -1867,9 +1867,9 @@ Options::Options():
 		console.EnableVirtualTerminal(Value);
 	}));
 
-	FullWidthAwareRendering.SetCallback(option::notifier([](long long const Value)
+	FullWidthAwareRendering.SetCallback(option::notifier([](bool const Value)
 	{
-		char_width::enable(static_cast<int>(Value));
+		char_width::enable(Value);
 	}));
 
 	Clock.SetCallback(option::notifier([](bool const Value)

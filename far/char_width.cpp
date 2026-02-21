@@ -48,18 +48,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
+#ifdef ENABLE_TESTS
+#include "testing.hpp"
+#endif
+
 //----------------------------------------------------------------------------
 
 namespace
 {
-	enum class full_width
-	{
-		off,
-		on,
-		automatic
-	};
-
-	auto s_FullWidthState = full_width::off;
+	auto s_FullWidthEnabled = false;
 
 	enum class codepoint_width: signed char
 	{
@@ -457,8 +454,14 @@ namespace
 	}
 
 	[[nodiscard]]
-	auto is_fullwidth_needed()
+	auto is_fullwidth_supported()
 	{
+#ifdef ENABLE_TESTS
+		if (is_test_run())
+			return true;
+#endif
+
+		// FW works in VT (Win10+) and in classic grid mode with CJK locales (LVB)
 		return console.IsVtSupported() || locale.is_cjk();
 	}
 
@@ -484,9 +487,12 @@ namespace
 	[[nodiscard]]
 	bool is_legacy_rendering()
 	{
-		DWORD Mode;
-		static const auto IsRedirected = !console.GetMode(console.GetOutputHandle(), Mode);
-		return !IsRedirected && !console.IsVtActive();
+#ifdef ENABLE_TESTS
+		if (is_test_run())
+			return false;
+#endif
+
+		return !console.IsVtActive();
 	}
 }
 
@@ -498,21 +504,10 @@ namespace char_width
 		if (!is_bmp(Codepoint) && is_legacy_rendering())
 			return 2; // Classic grid mode, nothing we can do :(
 
-		switch (s_FullWidthState)
-		{
-		default:
-		case full_width::off:
+		if (!s_FullWidthEnabled || !is_fullwidth_supported())
 			return 1;
 
-		case full_width::automatic:
-			if (!is_fullwidth_needed())
-				return 1;
-
-			[[fallthrough]];
-
-		case full_width::on:
-			return static_cast<size_t>(get_width(Codepoint));
-		}
+		return static_cast<size_t>(get_width(Codepoint));
 	}
 
 	[[nodiscard]]
@@ -521,29 +516,15 @@ namespace char_width
 		return get(Codepoint) > 1;
 	}
 
-	void enable(int const Value)
+	void enable(bool const Value)
 	{
-		switch (Value)
-		{
-		case BSTATE_UNCHECKED:
-			invalidate();
-			s_FullWidthState = full_width::off;
-			break;
-
-		case BSTATE_CHECKED:
-			s_FullWidthState = full_width::on;
-			break;
-
-		case BSTATE_3STATE:
-			s_FullWidthState = full_width::automatic;
-			break;
-		}
+		s_FullWidthEnabled = Value;
 	}
 
 	[[nodiscard]]
 	bool is_enabled()
 	{
-		return s_FullWidthState != full_width::off;
+		return s_FullWidthEnabled;
 	}
 
 	void invalidate()

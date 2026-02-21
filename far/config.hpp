@@ -982,7 +982,7 @@ public:
 
 	BoolOption VirtualTerminalRendering;
 	Bool3Option ClearType;
-	Bool3Option FullWidthAwareRendering;
+	BoolOption FullWidthAwareRendering;
 
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;

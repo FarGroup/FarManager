@@ -1960,7 +1960,7 @@ TEST_CASE("wide_chars")
 
 	const auto IsVtActive = console.IsVtActive();
 
-	char_width::enable(1);
+	char_width::enable(true);
 
 	for (const auto& i: Tests)
 	{
@@ -1980,7 +1980,7 @@ TEST_CASE("wide_chars")
 		}
 	}
 
-	char_width::enable(0);
+	char_width::enable(false);
 }
 
 TEST_CASE("tabs")

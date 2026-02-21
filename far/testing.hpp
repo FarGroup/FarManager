@@ -97,6 +97,7 @@ private:
 #endif
 
 std::optional<int> testing_main(std::span<wchar_t const* const> Args);
+bool is_test_run();
 
 #endif
 
