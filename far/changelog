@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2026-03-01 14:50:19-05:00 - build 6652
+
+1. Fixed drawing empty manu items.
+   Reported on bugtracker. Fallout of 6651.
+
+--------------------------------------------------------------------------------
 MZK 2026-02-28 10:54:01-05:00 - build 6651
 
 1. Fullwidth-aware VMenu rendering and other improvements.
