@@ -2956,15 +2956,6 @@ bool VMenu::DrawItemText(
 {
 	const segment Bounds{ TextArea.start(), segment::sentinel_tag{ TextArea.end() } };
 
-	if (const auto Indent{ std::max(Item.HorizontalPosition, 0) }; Indent > 0)
-	{
-		GotoXY(Bounds.start(), Y);
-		set_color(Colors, ColorIndices.Normal);
-		bool AllCharsConsumed{};
-		if (ClippedText(BlankLine.substr(0, Indent), Bounds, AllCharsConsumed)) return true;
-		assert(WhereX() == Bounds.start() + Indent);
-	}
-
 	const auto [ItemText, HighlightPos]{ [&]{
 		const auto RawItemText_{ GetItemText(Item) };
 		auto HotkeyPos_{ string::npos };
@@ -2978,31 +2969,43 @@ bool VMenu::DrawItemText(
 		return std::tuple{ ItemText_, HighlightPos_ };
 	}() };
 
+	GotoXY(Bounds.start(), Y);
+	set_color(Colors, ColorIndices.Normal);
+
+	if (ItemText.empty())
+	{
+		ClippedText(BlankLine, Bounds);
+		return false;
+	}
+
+	if (const auto Indent{ std::max(Item.HorizontalPosition, 0) }; Indent > 0)
+	{
+		if (ClippedText(BlankLine.substr(0, Indent), Bounds)) return true;
+		assert(WhereX() == Bounds.start() + Indent);
+	}
+
 	bool NeedRightHScroll{};
 
-	if (!ItemText.empty())
+	const segment TextSegment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } };
+	markup_slice_boundaries(TextSegment, Item.Annotations, HighlightPos, HighlightMarkup);
+
+	GotoXY(Bounds.start() + Item.HorizontalPosition, Y);
+
+	auto CurColorIndex{ ColorIndices.Normal };
+	auto AltColorIndex{ ColorIndices.Highlighted };
+	int CurTextPos{};
+
+	for (const auto SliceEnd : HighlightMarkup)
 	{
-		const segment TextSegment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } };
-		markup_slice_boundaries(TextSegment, Item.Annotations, HighlightPos, HighlightMarkup);
-
-		GotoXY(Bounds.start() + Item.HorizontalPosition, Y);
-
-		auto CurColorIndex{ ColorIndices.Normal };
-		auto AltColorIndex{ ColorIndices.Highlighted };
-		int CurTextPos{};
-
-		for (const auto SliceEnd : HighlightMarkup)
+		set_color(Colors, CurColorIndex);
+		bool AllCharsConsumed{};
+		if (ClippedText(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos), Bounds, AllCharsConsumed))
 		{
-			set_color(Colors, CurColorIndex);
-			bool AllCharsConsumed{};
-			if (ClippedText(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos), Bounds, AllCharsConsumed))
-			{
-				NeedRightHScroll = !AllCharsConsumed || SliceEnd < static_cast<int>(ItemText.size());
-				break;
-			}
-			std::ranges::swap(CurColorIndex, AltColorIndex);
-			CurTextPos = SliceEnd;
+			NeedRightHScroll = !AllCharsConsumed || SliceEnd < static_cast<int>(ItemText.size());
+			break;
 		}
+		std::ranges::swap(CurColorIndex, AltColorIndex);
+		CurTextPos = SliceEnd;
 	}
 
 	if (WhereX() < Bounds.end())
