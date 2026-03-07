@@ -124,7 +124,7 @@ static void SetAttribute(tinyxml::XMLElement& Element, const char* Name, T const
 	{
 		std::string_view const StrValue = Value;
 
-		if (std::ranges::find_first_of(StrValue, "\r\n"sv) != StrValue.end())
+		if (std::ranges::any_of(StrValue, [](const unsigned char Char) { return Char < 0x20; }))
 		{
 			Element.SetAttribute(Name, base64::encode(view_bytes(StrValue)).c_str());
 			Element.SetAttribute(base64_tag(Name).c_str(), 1);
