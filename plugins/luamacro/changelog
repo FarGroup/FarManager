@@ -1,3 +1,7 @@
+shmuel 2026-03-08 19:13:10+02:00 - build 916
+
+1. LuaFAR: add win.GetEnvironmentStrings function.
+
 shmuel 2026-02-06 18:39:22+02:00 - build 915
 
 1. LuaMacro: fix ShiftF9 handling in Plugins/Disks menus.

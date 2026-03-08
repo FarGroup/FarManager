@@ -153,7 +153,7 @@ static int win_GetRegKey(lua_State *L)
 {
 	HKEY hKey;
 	DWORD datatype, datasize;
-	char *data;
+	void *data;
 	LONG ret;
 	HKEY hRoot = CheckHKey(L, 1);
 	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
@@ -169,7 +169,7 @@ static int win_GetRegKey(lua_State *L)
 	}
 
 	RegQueryValueExW(hKey, ValueName, NULL, &datatype, NULL, &datasize);
-	data = (char*) malloc(datasize);
+	data = malloc(datasize);
 	ret = RegQueryValueExW(hKey, ValueName, NULL, &datatype, (BYTE*)data, &datasize);
 	RegCloseKey(hKey);
 
@@ -183,7 +183,7 @@ static int win_GetRegKey(lua_State *L)
 		switch(datatype)
 		{
 			case REG_BINARY:
-				lua_pushlstring(L, data, datasize);
+				lua_pushlstring(L, (char*)data, datasize);
 				lua_pushstring(L, "binary");
 				break;
 			case REG_DWORD:
@@ -1014,6 +1014,27 @@ static int win_JoinPath(lua_State *L)
 	return 1;
 }
 
+static int win_GetEnvironmentStrings(lua_State *L)
+{
+	wchar_t *buf = GetEnvironmentStringsW();
+	lua_newtable(L);
+	for (wchar_t *ptr=buf; ;) {
+		size_t len = wcslen(ptr);
+		if (len) {
+			wchar_t *eq = wcschr(ptr, L'=');
+			if (eq && eq != ptr) {
+				push_utf8_string(L, ptr, eq - ptr);
+				push_utf8_string(L, eq + 1, -1);
+				lua_rawset(L, -3);
+			}
+			ptr += len + 1;
+		}
+		else break;
+	}
+	FreeEnvironmentStringsW(buf);
+	return 1;
+}
+
 #define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
 
 const luaL_Reg win_funcs[] =
@@ -1032,6 +1053,7 @@ const luaL_Reg win_funcs[] =
 	PAIR( win, FileTimeToSystemTime),
 	PAIR( win, GetConsoleScreenBufferInfo),
 	PAIR( win, GetEnv),
+	PAIR( win, GetEnvironmentStrings),
 	PAIR( win, GetFileInfo),
 	PAIR( win, GetFileTimes),
 	PAIR( win, GetLocalTime),

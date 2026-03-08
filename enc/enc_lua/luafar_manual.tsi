@@ -11138,6 +11138,32 @@ nm=win.GetEnv
 </article>
 </node>
 <node>
+id=599
+lv=3
+dt=Text
+nm=win.GetEnvironmentStrings
+ctime=3982158263
+mtime=3982158716
+<article>
+#_result = win.GetEnvironmentStrings()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result:  table
+#_
+#_**Description:**
+#_  Returns a table.
+#_  All keys and values in the table are strings.
+#_  E.g.: for the "SystemDrive" key, the value is "C:".
+#_
+#_**Windows API used:**
+#_  GetEnvironmentStringsW
+#_
+</article>
+</node>
+<node>
 id=522
 lv=3
 dt=Text
