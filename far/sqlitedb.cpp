@@ -305,7 +305,7 @@ void SQLiteDb::SQLiteStmt::BindImpl(string_view const Value) const
 	invoke(db(), [&]
 	{
 		const auto ValueUtf8 = encoding::utf8::get_bytes(Value);
-		return sqlite::sqlite3_bind_text(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_text64(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor, SQLITE_UTF8_ZT) == SQLITE_OK;
 	},
 	sql());
 }
