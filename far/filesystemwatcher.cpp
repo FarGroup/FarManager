@@ -211,21 +211,13 @@ static os::handle open(const string_view Directory)
 FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_view Directory, const bool WatchSubtree):
 	m_EventId(EventId),
 	m_Directory(nt_path(Directory)),
-	m_WatchSubtree(WatchSubtree),
-	m_DirectoryHandle(open(m_Directory))
+	m_WatchSubtree(WatchSubtree)
 {
-	if (!m_DirectoryHandle)
-	{
-		LOGWARNING(L"Skip monitoring of {}"sv, Directory);
-		return;
-	}
-
 	m_Overlapped.hEvent = m_Event.native_handle();
-
 	background_watcher::instance().add(this);
 
-	LOGDEBUG(L"Start monitoring {} {}"sv, m_Directory, WatchSubtree? L"tree"sv : L"directory"sv);
-	read_async();
+	if (open_directory())
+		read_async();
 }
 
 FileSystemWatcher::~FileSystemWatcher()
@@ -265,9 +257,28 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 }
 
+void FileSystemWatcher::restart_if_needed()
+{
+	SCOPED_ACTION(std::scoped_lock)(m_CS);
+
+	if (m_DirectoryHandle)
+		return;
+
+	LOGINFO(L"Attempting to restart monitoring of {}"sv, m_Directory);
+
+	if (open_directory())
+		read_async();
+}
+
+bool FileSystemWatcher::open_directory()
+{
+	m_DirectoryHandle = open(m_Directory);
+	return m_DirectoryHandle != nullptr;
+}
+
 void FileSystemWatcher::read_async()
 {
-	m_Event.reset();
+	LOGDEBUG(L"Start monitoring {} {}"sv, m_Directory, m_WatchSubtree? L"tree"sv : L"directory"sv);
 
 	if (!ReadDirectoryChangesW(
 		m_DirectoryHandle.native_handle(),
@@ -327,13 +338,18 @@ bool FileSystemWatcher::get_result() const
 
 void FileSystemWatcher::callback_notify()
 {
-	if (!m_DirectoryHandle)
-		return;
-
-	if (!get_result())
 	{
-		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
-		return;
+		SCOPE_EXIT{ m_Event.reset(); };
+
+		if (!m_DirectoryHandle)
+			return;
+
+		if (!get_result())
+		{
+			LOGWARNING(L"Stop monitoring {}"sv, m_Directory);
+			m_DirectoryHandle = {};
+			return;
+		}
 	}
 
 	LOGDEBUG(L"Change event in {}"sv, m_Directory);

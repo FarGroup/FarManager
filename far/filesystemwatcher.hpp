@@ -54,9 +54,12 @@ public:
 	FileSystemWatcher(string_view EventId, string_view Directory, bool WatchSubtree);
 	~FileSystemWatcher();
 
+	void restart_if_needed();
+
 private:
 	friend class background_watcher;
 
+	bool open_directory();
 	void read_async();
 	bool get_result() const;
 	void callback_notify();

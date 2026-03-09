@@ -1669,6 +1669,10 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Redraw();
 				}
 			}
+
+			if (FSWatcher)
+				FSWatcher->restart_if_needed();
+
 			break;
 		}
 
