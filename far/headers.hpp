@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <atomic>
 #include <bit>
 #include <bitset>
+#include <charconv>
 #include <chrono>
 #include <compare>
 #include <concepts>

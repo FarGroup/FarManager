@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common.hpp"
 #include "common/base64.hpp"
 #include "common/bytes_view.hpp"
 #include "common/function_ref.hpp"
@@ -136,16 +135,51 @@ static void SetAttribute(tinyxml::XMLElement& Element, const char* Name, T const
 		Element.SetAttribute(Name, Value);
 }
 
-static std::optional<std::string> GetAttribute(tinyxml::XMLElement const& Element, const char* Name)
+class attribute_value
+{
+public:
+	explicit(false) attribute_value(const char* Value):
+		m_Value(Value)
+	{
+	}
+
+	explicit(false) attribute_value(bytes const& Value):
+		m_Value(std::string{ to_string_view(Value) })
+	{
+	}
+
+	explicit operator bool() const
+	{
+		return std::visit(overload{
+			[&](const char* const Value){ return Value != nullptr; },
+			[&](std::string const&){ return true; }
+		}, m_Value);
+	}
+
+	std::string_view get() const
+	{
+		return std::visit(overload{
+			[&](const char* const Value){ return Value? std::string_view{ Value } : std::string_view{}; },
+			[&](std::string const& Value){ return std::string_view{ Value }; }
+		}, m_Value);
+	}
+
+	explicit(false) operator std::string_view() const
+	{
+		return get();
+	}
+
+private:
+	std::variant<const char*, std::string> m_Value;
+};
+
+static attribute_value GetAttribute(tinyxml::XMLElement const& Element, const char* Name)
 {
 	const auto Value = Element.Attribute(Name);
-	if (!Value)
-		return {};
-
-	if (!Element.IntAttribute(base64_tag(Name).c_str()))
+	if (!Value || !Element.IntAttribute(base64_tag(Name).c_str()))
 		return Value;
 
-	return std::string{ to_string_view(base64::decode(Value)) };
+	return base64::decode(Value);
 }
 
 class representation_destination
@@ -233,33 +267,37 @@ void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
 	SetAttribute(e, "value", base64::encode(Value));
 }
 
-bool deserialise_value(std::string_view const Type, std::optional<std::string> const& Value, auto const& Setter)
+bool deserialise_value(std::string_view const Type, attribute_value const& Value, auto const& Setter)
 {
 	if (Type == "qword"sv)
 	{
 		if (Value)
-			Setter(strtoull(Value->c_str(), nullptr, 16));
+		{
+			const auto StrValue = Value.get();
+			if (unsigned long long Result; std::from_chars(StrValue.data(), StrValue.data() + StrValue.size(), Result, 16).ec == std::errc())
+				Setter(Result);
+		}
 		return true;
 	}
 
 	if (Type == "text"sv)
 	{
 		if (Value)
-			Setter(encoding::utf8::get_chars(*Value));
+			Setter(encoding::utf8::get_chars(Value));
 		return true;
 	}
 
 	if (Type == "base64"sv)
 	{
 		if (Value)
-			Setter(base64::decode(*Value));
+			Setter(base64::decode(Value));
 		return true;
 	}
 
 	if (Type == "hex"sv)
 	{
 		if (Value)
-			Setter(HexStringToBlob(encoding::utf8::get_chars(*Value)));
+			Setter(HexStringToBlob(encoding::utf8::get_chars(Value)));
 		return true;
 	}
 
@@ -436,9 +474,9 @@ private:
 			if (!value)
 				continue;
 
-			const auto Key = encoding::utf8::get_chars(*key);
-			const auto Name = encoding::utf8::get_chars(*name);
-			deserialise_value(*type, value, [&](auto const& Value){ SetValue(Key, Name, Value); });
+			const auto Key = encoding::utf8::get_chars(key);
+			const auto Name = encoding::utf8::get_chars(name);
+			deserialise_value(type, value, [&](auto const& Value){ SetValue(Key, Name, Value); });
 		}
 	}
 
@@ -776,10 +814,10 @@ private:
 		if (!KeyName)
 			return;
 
-		const auto Key = CreateKey(root, encoding::utf8::get_chars(*KeyName));
+		const auto Key = CreateKey(root, encoding::utf8::get_chars(KeyName));
 
 		if (const auto KeyDescription = GetAttribute(key, "description"))
-			SetKeyDescription(Key, encoding::utf8::get_chars(*KeyDescription));
+			SetKeyDescription(Key, encoding::utf8::get_chars(KeyDescription));
 
 		for (const auto& e: xml_enum(key, "value"))
 		{
@@ -793,14 +831,12 @@ private:
 
 			const auto value = GetAttribute(e, "value");
 
-			const auto Name = encoding::utf8::get_chars(*name);
+			const auto Name = encoding::utf8::get_chars(name);
 
-			if (!deserialise_value(*type, value, [&](auto const& Value){ SetValue(Key, Name, Value); }))
+			if (!deserialise_value(type, value, [&](auto const& Value){ SetValue(Key, Name, Value); }))
 			{
-				const auto Value = value? std::optional<std::string_view>{ *value } : std::nullopt;
-
 				// custom types, value is optional
-				SetValue(Key, Name, DeserializeBlob(*type, Value, e));
+				SetValue(Key, Name, DeserializeBlob(type, value, e));
 			}
 		}
 
@@ -875,16 +911,13 @@ void color_to_xml(bytes_view const Blob, tinyxml::XMLElement& e)
 
 }
 
-FarColor deserialize_color(function_ref<std::optional<std::string> (char const* Name)> const Getter, FarColor const& Default)
+FarColor deserialize_color(function_ref<char const* (char const* Name)> const Getter, FarColor const& Default)
 {
 	const auto process_color = [&](char const* const Name, COLORREF& Color)
 	{
 		if (const auto Value = Getter(Name))
 		{
-			const auto StrValue = Value->c_str();
-
-			char* EndPtr;
-			if (const auto Result = std::strtoul(StrValue, &EndPtr, 16); EndPtr != StrValue)
+			if (unsigned long Result; std::from_chars(Value, Value + std::strlen(Value), Result, 16).ec == std::errc())
 				Color = Result;
 		}
 	};
@@ -897,7 +930,7 @@ FarColor deserialize_color(function_ref<std::optional<std::string> (char const* 
 
 	if (const auto flags = Getter("flags"))
 	{
-		const auto FlagsStr = encoding::utf8::get_chars(*flags);
+		const auto FlagsStr = encoding::utf8::get_chars(flags);
 		Color.Flags = colors::ColorStringToFlags(FlagsStr) | StringToFlags(FlagsStr, LegacyColorFlagNames);
 	}
 
@@ -909,7 +942,13 @@ namespace
 
 FarColor color_from_xml(tinyxml::XMLElement const& e)
 {
-	return deserialize_color([&](char const* const AttributeName){ return GetAttribute(e, AttributeName); }, {});
+	std::optional<attribute_value> Value;
+
+	return deserialize_color([&](char const* const AttributeName)
+	{
+		Value = GetAttribute(e, AttributeName);
+		return Value->get().data();
+	}, {});
 }
 
 class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb
@@ -1019,7 +1058,7 @@ private:
 			if (!name)
 				continue;
 
-			const auto Name = encoding::utf8::get_chars(*name);
+			const auto Name = encoding::utf8::get_chars(name);
 
 			if (const auto Color = color_from_xml(e); Color != FarColor{})
 			{
@@ -1246,15 +1285,10 @@ private:
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
 			const auto mask = GetAttribute(e, "mask");
-			const auto description = GetAttribute(e, "description");
-
 			if (!mask)
 				continue;
 
-			const auto Mask = encoding::utf8::get_chars(*mask);
-			const auto Description = description? encoding::utf8::get_chars(*description) : string{};
-
-			id = AddType(id, Mask, Description);
+			id = AddType(id, encoding::utf8::get_chars(mask), encoding::utf8::get_chars(GetAttribute(e, "description")));
 
 			for (const auto& se: xml_enum(e, "command"))
 			{
@@ -1270,7 +1304,7 @@ private:
 				if (se.QueryIntAttribute("enabled", &enabled) != tinyxml::XML_SUCCESS)
 					continue;
 
-				SetCommand(id, type, encoding::utf8::get_chars(*command), enabled != 0);
+				SetCommand(id, type, encoding::utf8::get_chars(command), enabled != 0);
 			}
 
 		}
@@ -1736,7 +1770,7 @@ private:
 			if (!key)
 				continue;
 
-			const auto Key = encoding::utf8::get_chars(*key);
+			const auto Key = encoding::utf8::get_chars(key);
 
 			for (const auto& se: xml_enum(e, "hotkey"))
 			{
@@ -1748,7 +1782,7 @@ private:
 				if (!UuidStr)
 					continue;
 
-				const auto Uuid = uuid::try_parse(encoding::utf8::get_chars(*UuidStr));
+				const auto Uuid = uuid::try_parse(encoding::utf8::get_chars(UuidStr));
 				if (!Uuid)
 					continue;
 
@@ -1756,13 +1790,13 @@ private:
 
 				const auto ProcessHotkey = [&](hotkey_type const Type)
 				{
-					if (hotkey && !hotkey->empty())
-						SetHotkey(Key, *Uuid, Type, encoding::utf8::get_chars(*hotkey));
+					if (hotkey && !hotkey.get().empty())
+						SetHotkey(Key, *Uuid, Type, encoding::utf8::get_chars(hotkey));
 					else
 						DelHotkey(Key, *Uuid, Type);
 				};
 
-				std::string_view const TypeStr(*stype);
+				std::string_view const TypeStr(stype);
 
 				if (TypeStr == "drive"sv)
 					ProcessHotkey(hotkey_type::drive_menu);
@@ -2350,14 +2384,14 @@ private:
 
 			AddInternal(
 				kind,
-				encoding::utf8::get_chars(*key),
+				encoding::utf8::get_chars(key),
 				type,
 				lock != 0,
-				encoding::utf8::get_chars(*name),
+				encoding::utf8::get_chars(name),
 				os::chrono::nt_clock::from_hectonanoseconds(time),
-				guid? encoding::utf8::get_chars(*guid) : L""sv,
-				file? encoding::utf8::get_chars(*file) : L""sv,
-				data? encoding::utf8::get_chars(*data) : L""sv
+				guid? encoding::utf8::get_chars(guid) : L""sv,
+				file? encoding::utf8::get_chars(file) : L""sv,
+				data? encoding::utf8::get_chars(data) : L""sv
 			);
 		}
 
@@ -2374,7 +2408,7 @@ private:
 			const auto leftpos = e.IntAttribute("leftpos");
 			const auto codepage = e.IntAttribute("codepage");
 
-			ExecuteStatement(stmtSetEditorPos, encoding::utf8::get_chars(*name), time, line, linepos, screenline, leftpos, codepage);
+			ExecuteStatement(stmtSetEditorPos, encoding::utf8::get_chars(name), time, line, linepos, screenline, leftpos, codepage);
 		}
 
 		const auto stmtGetEditorPositionId = create_stmt("SELECT id FROM editorposition_history WHERE name=?1;"sv);
@@ -2405,7 +2439,7 @@ private:
 			if (e.QueryIntAttribute("leftpos", &leftpos) != tinyxml::XML_SUCCESS)
 				continue;
 
-			if (auto_statement const Stmt(&stmtGetEditorPositionId); Stmt->Bind(encoding::utf8::get_chars(*name)).Step())
+			if (auto_statement const Stmt(&stmtGetEditorPositionId); Stmt->Bind(encoding::utf8::get_chars(name)).Step())
 				ExecuteStatement(stmtSetEditorBookmark, Stmt->GetColInt64(0), num, line, linepos, screenline, leftpos);
 		}
 
@@ -2421,7 +2455,7 @@ private:
 			const auto hex = e.IntAttribute("hex");
 			const auto codepage = e.IntAttribute("codepage");
 
-			ExecuteStatement(stmtSetViewerPos, encoding::utf8::get_chars(*name), time, filepos, leftpos, hex, codepage);
+			ExecuteStatement(stmtSetViewerPos, encoding::utf8::get_chars(name), time, filepos, leftpos, hex, codepage);
 		}
 
 		const auto stmtGetViewerPositionId = create_stmt("SELECT id FROM viewerposition_history WHERE name=?1;"sv);
@@ -2444,7 +2478,7 @@ private:
 			if (e.QueryInt64Attribute("leftpos", &leftpos) != tinyxml::XML_SUCCESS)
 				continue;
 
-			if (auto_statement const Stmt(&stmtGetViewerPositionId); Stmt->Bind(encoding::utf8::get_chars(*name)).Step())
+			if (auto_statement const Stmt(&stmtGetViewerPositionId); Stmt->Bind(encoding::utf8::get_chars(name)).Step())
 				ExecuteStatement(stmtSetViewerBookmark, Stmt->GetColInt64(0), num, filepos, leftpos);
 		}
 	}
@@ -2613,7 +2647,7 @@ void config_provider::TryImportDatabase(representable& p, const char* NodeName, 
 			for (const auto& i: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 			{
 				const auto Uuid = GetAttribute(i, "guid");
-				if (Uuid && *Uuid == NodeName)
+				if (Uuid && Uuid.get() == NodeName)
 				{
 					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(i));
 					p.Import(*m_TemplateSource);
@@ -2912,7 +2946,7 @@ void config_provider::Import(string_view const File)
 			if (!UuidStr)
 				continue;
 
-			if (const auto Uuid = encoding::utf8::get_chars(*UuidStr); is_uuid(Uuid))
+			if (const auto Uuid = encoding::utf8::get_chars(UuidStr); is_uuid(Uuid))
 			{
 				Representation.SetRoot(&const_cast<tinyxml::XMLElement&>(plugin));
 				CreatePluginsConfig(Uuid, Config.IsLocal)->Import(Representation);
@@ -2961,3 +2995,33 @@ int HierarchicalConfig::ToSettingsType(int Type)
 		return FST_UNKNOWN;
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("configdb.attribute_value")
+{
+	{
+		attribute_value Value(nullptr);
+		REQUIRE(!Value);
+		REQUIRE(Value.get() == ""sv);
+		REQUIRE(!Value.get().data());
+	}
+
+	{
+		const auto Data = "banana";
+		attribute_value Value(Data);
+		REQUIRE(Value);
+		REQUIRE(Value.get().data() == Data);
+	}
+
+	{
+		const auto Data = "blob"_b;
+		attribute_value Value(Data);
+		REQUIRE(Value);
+		REQUIRE(Value.get() == "blob"sv);
+		REQUIRE(Value.get().data() != to_string_view(Data).data());
+	}
+}
+#endif
