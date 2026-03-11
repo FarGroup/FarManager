@@ -92,8 +92,8 @@ static HKEY CheckHKey(lua_State *L, int pos)
 static int win_SetRegKey(lua_State *L)
 {
 	HKEY hRoot           = CheckHKey(L, 1);
-	wchar_t* Key         = (wchar_t*)check_utf8_string(L, 2, NULL);
-	wchar_t* ValueName   = (wchar_t*)check_utf8_string(L, 3, NULL);
+	wchar_t* Key         = check_utf8_string(L, 2, NULL);
+	wchar_t* ValueName   = check_utf8_string(L, 3, NULL);
 	const char* DataType = luaL_checkstring(L, 4);
 	REGSAM samDesired    = (REGSAM) OptFlags(L, 6, 0);
 	size_t len;
@@ -101,7 +101,7 @@ static int win_SetRegKey(lua_State *L)
 
 	if (!strcmp("string", DataType))
 	{
-		result=SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL), samDesired);
+		result=SetRegKeyStr(hRoot, Key, ValueName, check_utf8_string(L, 5, NULL), samDesired);
 	}
 	else if (!strcmp("dword", DataType))
 	{
@@ -156,7 +156,7 @@ static int win_GetRegKey(lua_State *L)
 	void *data;
 	LONG ret;
 	HKEY hRoot = CheckHKey(L, 1);
-	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
+	wchar_t* Key = check_utf8_string(L, 2, NULL);
 	const wchar_t* ValueName = check_utf8_string(L, 3, NULL);
 	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0);
 	hKey = OpenRegKey(hRoot, Key, samDesired);
@@ -265,7 +265,7 @@ static int win_EnumRegKey(lua_State *L)
 	HKEY hKey;
 	LONG ret;
 	HKEY hRoot = CheckHKey(L, 1);
-	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
+	wchar_t* Key = check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
 	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0) | KEY_ENUMERATE_SUB_KEYS;
 	wchar_t Name[512];
@@ -311,7 +311,7 @@ static int win_EnumRegValue(lua_State *L)
 	HKEY hKey;
 	LONG ret;
 	HKEY hRoot = CheckHKey(L, 1);
-	wchar_t* Key = (wchar_t*)check_utf8_string(L, 2, NULL);
+	wchar_t* Key = check_utf8_string(L, 2, NULL);
 	DWORD dwIndex = (DWORD)luaL_checkinteger(L, 3);
 	REGSAM samDesired = (REGSAM) OptFlags(L, 4, 0) | KEY_QUERY_VALUE;
 	wchar_t Name[512];

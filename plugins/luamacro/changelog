@@ -1,3 +1,7 @@
+shmuel 2026-03-11 22:53:47+02:00 - build 917
+
+1. LuaFAR: refactoring.
+
 shmuel 2026-03-08 19:13:10+02:00 - build 916
 
 1. LuaFAR: add win.GetEnvironmentStrings function.

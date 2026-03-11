@@ -45,7 +45,6 @@ local function write_target  (trg_keys, trg_vals)
   end
   print("};\n")
 
-  --print "const unsigned __int64 Vals[] = {"
   print "const unsigned __int64 Vals[] = {"
   for k,v in ipairs(trg_vals) do
     print(string.format('  %s,', v))
@@ -99,7 +98,6 @@ void push_flags_table (lua_State *L)
 ]]
 
 local function write_common_flags_file (fname)
-  assert (fname, "input file not specified")
   local fp = assert (io.open (fname, "rb"))
   local src = fp:read ("*all")
   fp:close()
@@ -118,5 +116,5 @@ local function write_common_flags_file (fname)
   print(file_bottom)
 end
 
-local fname = assert((...))
+local fname = assert((...), "input file not specified")
 write_common_flags_file(fname)
