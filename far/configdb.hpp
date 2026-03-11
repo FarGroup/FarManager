@@ -589,6 +589,6 @@ private:
 [[nodiscard]]
 config_provider& ConfigProvider();
 
-FarColor deserialize_color(function_ref<char const*(char const* Name)> Getter, FarColor const& Default);
+FarColor deserialize_color(function_ref<std::optional<std::string> (char const* Name)> Getter, FarColor const& Default);
 
 #endif // CONFIGDB_HPP_552309E5_DEA6_42FD_BD7B_0F59C839FE62
