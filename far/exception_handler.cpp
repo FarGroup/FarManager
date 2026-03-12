@@ -1607,6 +1607,37 @@ static thread_status get_thread_status(HANDLE const Thread)
 	};
 }
 
+static auto format_thread_id(DWORD const ThreadId, string_view const Prefix = L"Thread"sv)
+{
+	return far::format(L"{0} {1} / 0x{1:X}"sv, Prefix, ThreadId);
+}
+
+static void format_thread_name(string& To, HANDLE const ThreadHandle)
+{
+	if (const auto ThreadName = os::debug::get_thread_name(ThreadHandle); !ThreadName.empty())
+		far::format_to(To, L" ({})"sv, ThreadName);
+}
+
+static auto get_thread_name(HANDLE const ThreadHandle, DWORD const ThreadId, string_view const Prefix = L"Thread"sv)
+{
+	auto Result = format_thread_id(ThreadId, Prefix);
+	format_thread_name(Result, ThreadHandle);
+	return Result;
+}
+
+static std::pair<os::handle, string> open_thread_and_get_name(DWORD const ThreadId, string_view const Prefix = L"Thread"sv)
+{
+	os::handle Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, ThreadId));
+	if (!Thread)
+	{
+		auto Result = format_thread_id(ThreadId);
+		far::format_to(Result, L" - Error opening thread: {}"sv, ThreadId, os::last_error());
+		return { {}, Result };
+	}
+
+	return { std::move(Thread), get_thread_name(Thread.native_handle(), ThreadId, Prefix) };
+}
+
 static string collect_information(
 	exception_context const& Context,
 	source_location const& Location,
@@ -1615,6 +1646,7 @@ static string collect_information(
 	string_view const Type,
 	string_view const Message,
 	error_state_ex const& ErrorState,
+	HANDLE const ExceptionThread,
 	std::span<os::debug::stack_frame const> const NestedStack
 )
 {
@@ -1738,7 +1770,16 @@ static string collect_information(
 		DisassemblyTitle = L"Disassembly"sv,
 		RegistersTitle = L"Registers"sv;
 
-	make_header(L"Exception"sv, append_line);
+	if (const auto ExceptionInThreadMessage = L"Exception in thread"sv; ExceptionThread)
+	{
+		const auto [Thread, ThreadTitle] = open_thread_and_get_name(GetThreadId(ExceptionThread), ExceptionInThreadMessage);
+		make_header(ThreadTitle, append_line);
+	}
+	else
+	{
+		const auto ThreadTitle = get_thread_name(Context.thread_handle(), Context.thread_id(), ExceptionInThreadMessage);
+		make_header(ThreadTitle, append_line);
+	}
 
 	if (!ExtraDetails.empty())
 	{
@@ -1750,7 +1791,9 @@ static string collect_information(
 	if (!NestedStack.empty())
 	{
 		tracer.get_symbols(ModuleName, NestedStack, append_line);
-		make_subheader(L"Rethrow stack"sv, append_line);
+
+		const auto ThreadTitle = get_thread_name(Context.thread_handle(), Context.thread_id(), L"Rethrow in thread"sv);
+		make_subheader(ThreadTitle, append_line);
 	}
 	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
 	tracer.get_symbols(ModuleName, Stack, append_line);
@@ -1763,7 +1806,12 @@ static string collect_information(
 	debug_client DebugClient(Strings);
 	DebugClient.disassembly(ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);
 
-	make_header(L"Exception handler thread"sv, append_line);
+	const auto CurrentThreadId = GetCurrentThreadId();
+
+	{
+		const auto [Thread, ThreadTitle] = open_thread_and_get_name(CurrentThreadId, L"Exception handler thread"sv);
+		make_header(ThreadTitle, append_line);
+	}
 
 	make_subheader(StackTitle, append_line);
 	tracer.current_stacktrace(ModuleName, append_line);
@@ -1771,7 +1819,6 @@ static string collect_information(
 	{
 		os::process::enum_processes const Enum;
 		const auto CurrentPid = GetCurrentProcessId();
-		const auto CurrentThreadId = GetCurrentThreadId();
 		const auto CurrentEntry = std::ranges::find(Enum, CurrentPid, &os::process::enum_process_entry::Pid);
 		if (CurrentEntry != Enum.cend())
 		{
@@ -1781,23 +1828,15 @@ static string collect_information(
 				if (Tid == CurrentThreadId)
 					continue;
 
-				auto ThreadTitle = far::format(L"Thread {0} / 0x{0:X}"sv, Tid);
+				const auto [Thread, ThreadTitle] = open_thread_and_get_name(Tid);
 
-				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
+				make_header(ThreadTitle, append_line);
+
 				if (!Thread)
-				{
-					make_header(ThreadTitle, append_line);
-					append_line(far::format(L"Error opening thread {}: {}"sv, Tid, os::last_error()));
 					continue;
-				}
 
 				SuspendThread(Thread.native_handle());
 				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
-
-				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
-					append(ThreadTitle, L" ("sv, ThreadName, L')');
-
-				make_header(ThreadTitle, append_line);
 
 				std::visit(overload
 				{
@@ -1866,6 +1905,7 @@ static handler_result handle_generic_exception(
 	string_view const Type,
 	string_view const Message,
 	error_state_ex const& ErrorState,
+	HANDLE const ExceptionThread = {},
 	std::span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
@@ -1910,7 +1950,7 @@ static handler_result handle_generic_exception(
 
 	const auto MinidumpNormal = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
-	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
+	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, ExceptionThread, NestedStack);
 	const auto ReportOnDisk = !s_ReportToStdErr && write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !s_ReportToStdErr && !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = !s_ReportToStdErr && write_readme(path::join(ReportLocation, L"README.txt"sv));
@@ -1963,6 +2003,7 @@ public:
 	}
 
 	std::span<os::debug::stack_frame const> get_stack() const noexcept { return m_Stack; }
+	auto get_thread_handle() const noexcept { return m_ThreadHandle->native_handle(); }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
@@ -2048,13 +2089,10 @@ static bool handle_std_exception(
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
-		const auto NestedStack = [&]
-		{
-			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper? Wrapper->get_stack() : std::span<os::debug::stack_frame const>{};
-		}();
+		const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
+		const auto [ExceptionThread, NestedStack] = Wrapper? std::pair{ Wrapper->get_thread_handle(), Wrapper->get_stack() } : std::pair<HANDLE, std::span<os::debug::stack_frame const>>{};
 
-		return handle_generic_exception(Context, FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;
+		return handle_generic_exception(Context, FarException->location(), Module, Type, What, *FarException, ExceptionThread, NestedStack) == handler_result::execute_handler;
 	}
 
 	return handle_generic_exception(Context, Location, Module, Type, What, LastError) == handler_result::execute_handler;
