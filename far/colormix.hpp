@@ -119,7 +119,7 @@ namespace colors
 
 	size_t color_hash(const FarColor& Value);
 
-	FarColor merge(FarColor Bottom, FarColor Top);
+	FarColor merge(FarColor const& Bottom, FarColor const& Top);
 
 	using palette_t = std::array<COLORREF, 256>;
 	palette_t const& default_palette();

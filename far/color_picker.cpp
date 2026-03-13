@@ -130,6 +130,7 @@ static std::optional<COLORREF> parse_color(string_view const Str, bool const IsI
 
 // BUGBUG
 static bool IgnoreEditChange = false;
+static bool IgnoreUpdateColorCode = false;
 static bool IgnoreColorIndexClick = false;
 
 constexpr auto
@@ -434,6 +435,9 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 			if (TransparencyEnabled && colors::is_transparent(CurColor.Value))
 			{
+				IgnoreUpdateColorCode = true;
+				SCOPE_EXIT{ IgnoreUpdateColorCode = false; };
+
 				Dlg->SendMessage(DM_SETCHECK, Offset + cb::color_active_checkbox, ToPtr(BSTATE_UNCHECKED));
 				Dlg->SendMessage(DN_BTNCLICK, Offset + cb::color_active_checkbox, ToPtr(BSTATE_UNCHECKED));
 			}
@@ -442,6 +446,9 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 	case DM_UPDATECOLORCODE:
 		{
+			if (IgnoreUpdateColorCode)
+				return false;
+
 			IgnoreEditChange = true;
 			SCOPE_EXIT{ IgnoreEditChange = false; };
 

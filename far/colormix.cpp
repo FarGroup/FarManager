@@ -292,7 +292,7 @@ namespace colors
 			Value.UnderlineColor);
 	}
 
-	FarColor merge(FarColor Bottom, FarColor Top)
+	FarColor merge(FarColor const& Bottom, FarColor const& Top)
 	{
 		static FarColor LastResult, LastBottom, LastTop;
 
@@ -304,7 +304,7 @@ namespace colors
 
 		auto Result = Bottom;
 
-		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
+		const auto merge_part = [&Result, &Top](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopValue = std::invoke(ColorAccessor, Top);
 
@@ -325,11 +325,9 @@ namespace colors
 			}
 
 			// Alpha blending
-			const auto BottomValue = std::invoke(ColorAccessor, Bottom);
-
 			if (
 				TopValue == std::invoke(ColorAccessor, LastTop) && (Top.Flags & Flag) == (LastTop.Flags & Flag) &&
-				BottomValue == std::invoke(ColorAccessor, LastBottom) && (Bottom.Flags & Flag) == (LastBottom.Flags & Flag)
+				ResultValue == std::invoke(ColorAccessor, LastBottom) && (Result.Flags & Flag) == (LastBottom.Flags & Flag)
 			)
 			{
 				ResultValue = std::invoke(ColorAccessor, LastResult);
@@ -343,11 +341,11 @@ namespace colors
 			};
 
 			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);
-			const auto BottomRGBA = to_rgba(BottomValue, (Bottom.Flags & Flag) != 0);
+			const auto ResultRGBA = to_rgba(ResultValue, (Result.Flags & Flag) != 0);
 
 			const auto calc_channel = [&](unsigned char rgba::*Accessor)
 			{
-				return static_cast<unsigned char>((std::invoke(Accessor, TopRGBA) * TopRGBA.a + (0xFF - TopRGBA.a) * std::invoke(Accessor, BottomRGBA)) / 0xFF);
+				return static_cast<unsigned char>((std::invoke(Accessor, TopRGBA) * TopRGBA.a + (0xFF - TopRGBA.a) * std::invoke(Accessor, ResultRGBA)) / 0xFF);
 			};
 
 			rgba const MergedRGBA
@@ -355,7 +353,7 @@ namespace colors
 				calc_channel(&rgba::r),
 				calc_channel(&rgba::g),
 				calc_channel(&rgba::b),
-				static_cast<unsigned char>(BottomRGBA.a | ((0xFF - BottomRGBA.a) * TopRGBA.a / 0xFF))
+				static_cast<unsigned char>(ResultRGBA.a | ((0xFF - ResultRGBA.a) * TopRGBA.a / 0xFF))
 			};
 
 			ResultValue = to_color(MergedRGBA);
@@ -365,10 +363,11 @@ namespace colors
 		merge_part(&FarColor::BackgroundColor, FCF_BG_INDEX);
 		merge_part(&FarColor::ForegroundColor, FCF_FG_INDEX);
 
-		if (colors::is_transparent(Bottom.UnderlineColor))
+		if (is_transparent(Result.UnderlineColor) && !is_transparent(Top.UnderlineColor) && !is_opaque(Top.UnderlineColor))
 		{
-			Bottom.SetUnderlineIndex(Bottom.IsFgIndex());
-			Bottom.UnderlineColor = Bottom.ForegroundColor;
+			// We need something to work with if the bottom underline is not set and the top is translucent to any extent
+			Result.SetUnderlineIndex(Result.IsFgIndex());
+			Result.UnderlineColor = Result.ForegroundColor;
 		}
 
 		merge_part(&FarColor::UnderlineColor, FCF_FG_UNDERLINE_INDEX);
