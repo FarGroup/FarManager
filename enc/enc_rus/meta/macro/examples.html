@@ -1,10 +1,11 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>Примеры - Макросы</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src="../links.js" type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
@@ -266,8 +267,8 @@ mmode(1,2)
 
 
 <h2>Пример использования <a href="macrocmd/prop_func/general.html#eval">eval()</a>:</h2>
-<p>Требуется по <kbd>F10</kbd> запускать окно проводника для папки на активной панели, содержимое командной строки должно сохраняться.<br>
-В области <code>Vars</code> задаём 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:</p>
+<p>Требуется по <kbd>F10</kbd> запускать окно проводника для папки на активной панели, содержимое командной строки должно сохраняться.</p>
+<p>В области <code>Vars</code> задаём 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:</p>
 <pre class="codesample">
 <code>%%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
           %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
@@ -277,7 +278,7 @@ mmode(1,2)
           %Flg_Cmd=0; %Num=%CmdCurPos;
           $While (%Num!=0) %Num=%Num-1; CtrlS $End $End
 </code></pre>
-далее на <kbd>F10</kbd> вешаем макрос:
+<p>далее на <kbd>F10</kbd> вешаем макрос:</p>
 <pre class="codesample">
 <code>$If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel.OPIFlags &amp; 0x20))))
   Eval(%%CmdSave)

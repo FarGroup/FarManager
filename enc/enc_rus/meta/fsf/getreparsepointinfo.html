@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.GetReparsePointInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>GetReparsePointInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.GetReparsePointInfo</code> позволяет для указанной символической ссылки или связи каталогов получить информацию об источнике -  путь к исходному файлу/каталогу.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI GetReparsePointInfo(
   const wchar_t *Src,
   wchar_t *Dest,
@@ -27,26 +28,26 @@ size_t WINAPI GetReparsePointInfo(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Src</div>
-    <div class=dfndescr>Источник данных. Строка должна содержать полное имя к символической ссылке и заканчиваться слешем (<code>'\'</code>).</div>
-  <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на буфер, куда будет помещен путь. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Размер строки назначения <code>Dest</code> в символах с завершающим нулем.</div>
+<div class="descr">
+  <div class="dfn">Src</div>
+    <div class="dfndescr">Источник данных. Строка должна содержать полное имя к символической ссылке и заканчиваться слешем (<code>'\'</code>).</div>
+  <div class="dfn">Dest</div>
+    <div class="dfndescr">Указатель на буфер, куда будет помещен путь. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Размер строки назначения <code>Dest</code> в символах с завершающим нулем.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
-<p>Функция возвращает необходимый размер буфера в символах.
-<p>0 - в случае ошибки:
+<div class="descr">
+<p>Функция возвращает необходимый размер буфера в символах.</p>
+<p>0 - в случае ошибки:</p>
 <ul>
 <li>неверный путь (выставляется системный номер ошибки <code>ERROR_PATH_NOT_FOUND</code>)
 </ul>
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Адреса Src и Dest могут совпадать.
 <li>Возвращаемое функцией значение не несёт никакой практической пользы для сетевых дисков.
@@ -55,7 +56,7 @@ size_t WINAPI GetReparsePointInfo(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 </body>
