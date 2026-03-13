@@ -101,7 +101,7 @@ enum MODIF_PRESSED_LAST
 	MODIF_CTRL  = 3_bit,
 	MODIF_RCTRL = 4_bit,
 };
-static TBitFlags<size_t> PressedLast;
+static bool LastWasDown, LastWasAltGr;
 
 static std::chrono::steady_clock::time_point KeyPressedLastTime;
 
@@ -742,7 +742,7 @@ static DWORD ProcessFocusEvent(bool Got)
 
 	/* $ 28.04.2001 VVM
 	+ Не только обработаем сами смену фокуса, но и передадим дальше */
-	PressedLast.ClearAll();
+	LastWasDown = false;
 
 	UpdateIntKeyState(0);
 
@@ -1112,6 +1112,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	{
 		const auto CtrlState = rec->Event.KeyEvent.dwControlKeyState;
 		const auto KeyCode = rec->Event.KeyEvent.wVirtualKeyCode;
+		const auto KeyDown = rec->Event.KeyEvent.bKeyDown;
 
 		UpdateIntKeyState(CtrlState);
 
@@ -1123,37 +1124,12 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			true :
 			(CtrlState & SHIFT_PRESSED) != 0;
 
-		struct KeysData
-		{
-			size_t FarKey;
-			size_t VkKey;
-			size_t Modif;
-			bool Enhanced;
-		}
-		const Keys[]
-		{
-			{ KEY_SHIFT,     VK_SHIFT,       MODIF_SHIFT,      false,    },
-			{ KEY_ALT,       VK_MENU,        MODIF_ALT,        false,    },
-			{ KEY_RALT,      VK_MENU,        MODIF_RALT,       true,     },
-			{ KEY_CTRL,      VK_CONTROL,     MODIF_CTRL,       false,    },
-			{ KEY_RCTRL,     VK_CONTROL,     MODIF_RCTRL,      true,     },
-		};
-
-		if (std::ranges::any_of(Keys, [&CalcKey](const KeysData& A){ return CalcKey == A.FarKey && !PressedLast.Check(A.Modif); }))
+		if (!KeyDown && CalcKey != KEY_NONE
+			&& (!LastWasDown || LastWasAltGr && KeyCode == VK_CONTROL && !(CtrlState & ENHANCED_KEY)))
 			CalcKey = KEY_NONE;
-
-		const size_t AllModif = KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT;
-		if ((CalcKey&AllModif) && !(CalcKey&~AllModif) && !PressedLast.Check(MODIF_SHIFT | MODIF_ALT | MODIF_RALT | MODIF_CTRL | MODIF_RCTRL)) CalcKey=KEY_NONE;
-		PressedLast.ClearAll();
-
-		if (rec->Event.KeyEvent.bKeyDown)
-		{
-			for (const auto& A: Keys)
-			{
-				if (KeyCode == A.VkKey && (!A.Enhanced || CtrlState & ENHANCED_KEY))
-					PressedLast.Set(A.Modif);
-			}
-		}
+		else
+			LastWasDown = CalcKey == KEY_NONE && KeyDown;
+		LastWasAltGr = KeyDown && KeyCode == VK_MENU && ENHANCED_KEY == (CtrlState & (ENHANCED_KEY | LEFT_CTRL_PRESSED));
 
 		Panel::EndDrag();
 	}
