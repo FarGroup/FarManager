@@ -104,11 +104,11 @@ enum export_index
 
 enum PLUGINWORKFLAGS
 {
-	PIWF_LOADED        = 0_bit, // DLL загружена
+	PIWF_LOADED        = 0_bit, // Fully and properly loaded. SetStartupInfoW was called, unloading will trigger ExitFARW
 	PIWF_CACHED        = 1_bit, // кешируется
 	PIWF_PRELOADED     = 2_bit, //
 	PIWF_DONTLOADAGAIN = 3_bit, // не загружать плагин снова, ставится в результате проверки требуемой версии фара
-	PIWF_DATALOADED    = 4_bit, // LoadData успешно выполнилась
+	PIWF_DATALOADED    = 4_bit, // Partially loaded, GetGlobalInfoW was called, but SetStartupInfoW wasn't. Unloading will not trigger ExitFARW
 };
 
 class i_plugin_module
@@ -295,7 +295,7 @@ public:
 
 	bool Load();
 	void NotifyExit();
-	bool Unload(bool bExitFAR);
+	bool Unload();
 	bool LoadData();
 	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();

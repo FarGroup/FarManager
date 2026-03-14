@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "platform.process.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
@@ -594,7 +593,7 @@ bool Plugin::LoadData()
 
 		bool ok = false;
 
-		if (Info.Guid != FarUuid)
+		if (CheckMinFarVersion() && Info.Guid != FarUuid)
 		{
 			if (m_Uuid != FarUuid && m_Uuid != Info.Guid)
 			{
@@ -614,7 +613,7 @@ bool Plugin::LoadData()
 			return true;
 		}
 	}
-	Unload(false);
+	Unload();
 	//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 	WorkFlags.Set(PIWF_DONTLOADAGAIN);
 	return false;
@@ -622,32 +621,27 @@ bool Plugin::LoadData()
 
 bool Plugin::Load()
 {
+	if (WorkFlags.Check(PIWF_LOADED))
+		return true;
+
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
 
 	if (!WorkFlags.Check(PIWF_DATALOADED)&&!LoadData())
 		return false;
 
-	if (WorkFlags.Check(PIWF_LOADED))
-		return true;
-
+	// Must be set before calling SetStartupInfo: it can cause recursive loading
 	WorkFlags.Set(PIWF_LOADED);
 
-	bool Inited = false;
+	PluginStartupInfo info;
+	FarStandardFunctions fsf;
+	CreatePluginStartupInfo(this, &info, &fsf);
 
-	if (CheckMinFarVersion())
-	{
-		PluginStartupInfo info;
-		FarStandardFunctions fsf;
-		CreatePluginStartupInfo(this, &info, &fsf);
-		Inited = SetStartupInfo(&info);
-	}
-
-	if (!Inited)
+	if (!SetStartupInfo(&info))
 	{
 		if (!bPendingRemove)
 		{
-			Unload(false);
+			Unload();
 		}
 
 		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
@@ -714,26 +708,26 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 	return true;
 }
 
-bool Plugin::Unload(bool bExitFAR)
+bool Plugin::Unload()
 {
-	if (!WorkFlags.Check(PIWF_LOADED))
-		return true;
-
-	if (bExitFAR)
-		NotifyExit();
+	NotifyExit();
 
 	bool Result = true;
 
 	if (!WorkFlags.Check(PIWF_CACHED))
 	{
 		Result = m_Factory->Destroy(m_Instance);
-		LOGDEBUG(L"Unloaded {}"sv, ModuleName());
+
 		ClearExports();
+		WorkFlags.Clear(PIWF_DATALOADED);
+
+		if (Result)
+			LOGDEBUG(L"Unloaded {}"sv, ModuleName());
+		else
+			LOGWARNING(L"Failed to unload {}"sv, ModuleName());
 	}
 
 	m_Instance = nullptr;
-	WorkFlags.Clear(PIWF_LOADED);
-	WorkFlags.Clear(PIWF_DATALOADED);
 	bPendingRemove = true;
 
 	return Result;
@@ -741,11 +735,12 @@ bool Plugin::Unload(bool bExitFAR)
 
 void Plugin::NotifyExit()
 {
-	if (WorkFlags.Check(PIWF_LOADED))
-	{
-		ExitInfo Info{sizeof(Info)};
-		ExitFAR(&Info);
-	}
+	if (!WorkFlags.Check(PIWF_LOADED))
+		return;
+
+	ExitInfo Info{sizeof(Info)};
+	ExitFAR(&Info);
+	WorkFlags.Clear(PIWF_LOADED);
 }
 
 void Plugin::ClearExports()

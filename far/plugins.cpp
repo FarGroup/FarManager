@@ -143,7 +143,10 @@ PluginManager::PluginManager():
 void PluginManager::NotifyExitLuaMacro() const
 {
 	if (const auto LuaMacro = m_Plugins.find(Global->Opt->KnownIDs.Luamacro.Id); LuaMacro != m_Plugins.cend())
+	{
 		LuaMacro->second->NotifyExit();
+		LuaMacro->second->WorkFlags.Set(PIWF_DONTLOADAGAIN);
+	}
 }
 
 void PluginManager::UnloadPlugins()
@@ -158,18 +161,22 @@ void PluginManager::UnloadPlugins()
 		}
 		else
 		{
-			i->Unload(true);
+			i->Unload();
+			// Just to make sure other plugins' ExitFAR won't bring it back from the dead somehow
+			i->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 		}
 	}
 
 	if (Luamacro)
 	{
-		Luamacro->Unload(false);
+		Luamacro->Unload();
 	}
 
 	// some plugins might still have dialogs (if DialogFree wasn't called)
 	// better to delete them explicitly while manager is still alive
 	m_Plugins.clear();
+	SortedPlugins.clear();
+	UnloadedPlugins.clear();
 }
 
 Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
@@ -178,7 +185,7 @@ Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 	if (!IsEmplaced)
 	{
 		LOGWARNING(L"Plugin \"{}\" is already loaded from {}, ignoring {}"sv, Iterator->second->Title(), Iterator->second->ModuleName(), pPlugin->ModuleName());
-		pPlugin->Unload(true);
+		pPlugin->Unload();
 		return nullptr;
 	}
 	Iterator->second = std::move(pPlugin);
@@ -261,7 +268,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_dat
 
 	if (bDataLoaded && !PluginPtr->Load())
 	{
-		PluginPtr->Unload(true);
+		PluginPtr->Unload();
 		RemovePlugin(PluginPtr);
 		return nullptr;
 	}
@@ -314,7 +321,7 @@ bool PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 
 		const auto IsPanelPlugin = pPlugin->IsPanelPlugin();
 
-		Result = pPlugin->Unload(true);
+		Result = pPlugin->Unload();
 
 		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
@@ -353,7 +360,7 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 	}
 
 	UnloadedPlugins.erase(pPlugin);
-	const auto Result = pPlugin->Unload(true);
+	const auto Result = pPlugin->Unload();
 	RemovePlugin(pPlugin);
 	return Result;
 }
@@ -2460,7 +2467,7 @@ void PluginManager::RefreshPluginsList()
 		if (i->Active())
 			return false;
 
-		i->Unload(true);
+		i->Unload();
 		RemovePlugin(i);
 		return true;
 	});
