@@ -1283,6 +1283,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				console.start_prompt();
 				console.start_command();
 				console.start_output();
+				console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 			}
 			else
 				Global->WindowManager->Desktop()->ConsoleSession().snap(!Param1);

@@ -1091,6 +1091,7 @@ void CommandLine::ExecString(execute_info& Info)
 			AddNewLine);
 
 		console.start_output();
+		console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		if (NoWait)
 			Global->WindowManager->Desktop()->ConsoleSession().deactivate(AddNewLine);
