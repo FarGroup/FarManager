@@ -634,7 +634,11 @@ void CommandLine::InsertString(string_view const Str)
 
 bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X == m_Where.right + 1)
+	if (
+		MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED &&
+		MouseEvent->dwMousePosition.X == m_Where.right + 1 &&
+		in_closed_range(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom)
+	)
 	{
 		return ProcessKey(Manager::Key(KEY_ALTF8));
 	}
