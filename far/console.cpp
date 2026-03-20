@@ -75,6 +75,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
+static auto sDefaultVtColor = colors::default_color();
+static wchar_t sDefaultVtColorStr[256] = CSI "m";
+
 constexpr auto bad_char_replacement = L' ';
 
 wchar_t ReplaceControlCharacter(wchar_t const Char)
@@ -867,7 +870,7 @@ protected:
 			if (WindowCoord.x > csbi.dwSize.X)
 			{
 				// windows sometimes uses existing colors to init right region of screen buffer
-				ClearExtraRegions(colors::default_color(), CR_RIGHT);
+				ClearExtraRegions(sDefaultVtColor, CR_RIGHT);
 			}
 		}
 
@@ -1907,7 +1910,7 @@ protected:
 			if (const auto Area = SubRect.width() * SubRect.height(); Area > 4)
 				Str.reserve(std::max(1024, Area * 2));
 
-			auto LastColor = colors::default_color();
+			auto LastColor = sDefaultVtColor;
 
 			point ViewportSize;
 			{
@@ -1949,12 +1952,13 @@ protected:
 							ANSISYSRC // Restore cursor position
 							CSI L"1B" // Move cursor down
 							ANSISYSSC // Save again
+							L""sv;
 
-							// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
-							// Explicitly reset them here for consistency across implementations.
-							CSI L"m"sv;
+						// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
+						// Explicitly reset them here for consistency across implementations.
+						Str += sDefaultVtColorStr;
 
-						LastColor = colors::default_color();
+						LastColor = sDefaultVtColor;
 					}
 
 					const auto BlockRow = Buffer[i].subspan(SubRect.left, SubRect.width());
@@ -1983,7 +1987,7 @@ protected:
 				Str.clear();
 			}
 
-			return ::console.Write(CSI L"m"sv);
+			return ::console.Write(sDefaultVtColorStr);
 		}
 
 		class cursor_suppressor: hide_cursor
@@ -2128,11 +2132,14 @@ protected:
 
 		static bool SetTextAttributesVT(const FarColor& Attributes)
 		{
-			// For fallback
-			SetTextAttributesNT(Attributes);
-
 			string Str;
 			make_vt_attributes(Attributes, Str, {});
+
+			// Make sure it sticks like in NT mode
+			sDefaultVtColor = Attributes;
+			assert(Str.size() < std::size(sDefaultVtColorStr));
+			*std::ranges::copy(Str, sDefaultVtColorStr).out = L'\0';
+
 			return ::console.Write(Str);
 		}
 
