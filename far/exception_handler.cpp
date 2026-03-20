@@ -1647,6 +1647,7 @@ static string collect_information(
 	string_view const Message,
 	error_state_ex const& ErrorState,
 	HANDLE const ExceptionThread,
+	DWORD const ExceptionThreadId,
 	std::span<os::debug::stack_frame const> const NestedStack
 )
 {
@@ -1772,7 +1773,7 @@ static string collect_information(
 
 	if (const auto ExceptionInThreadMessage = L"Exception in thread"sv; ExceptionThread)
 	{
-		const auto [Thread, ThreadTitle] = open_thread_and_get_name(GetThreadId(ExceptionThread), ExceptionInThreadMessage);
+		const auto [Thread, ThreadTitle] = open_thread_and_get_name(ExceptionThreadId, ExceptionInThreadMessage);
 		make_header(ThreadTitle, append_line);
 	}
 	else
@@ -1906,6 +1907,7 @@ static handler_result handle_generic_exception(
 	string_view const Message,
 	error_state_ex const& ErrorState,
 	HANDLE const ExceptionThread = {},
+	DWORD const ExceptionThreadId = {},
 	std::span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
@@ -1950,7 +1952,7 @@ static handler_result handle_generic_exception(
 
 	const auto MinidumpNormal = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = !s_ReportToStdErr && write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
-	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, ExceptionThread, NestedStack);
+	const auto BugReport = collect_information(Context, Location, PluginInfo, ModuleName, Type, Message, ErrorState, ExceptionThread, ExceptionThreadId, NestedStack);
 	const auto ReportOnDisk = !s_ReportToStdErr && write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !s_ReportToStdErr && !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = !s_ReportToStdErr && write_readme(path::join(ReportLocation, L"README.txt"sv));
@@ -1996,18 +1998,18 @@ class far_wrapper_exception final: public far_exception, public std::nested_exce
 {
 public:
 	explicit far_wrapper_exception(source_location const& Location):
-		far_exception(L"exception_ptr"sv, true, Location),
-		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-		m_Stack(tracer.exception_stacktrace({}))
+		far_exception(L"exception_ptr"sv, true, Location)
 	{
 	}
 
 	std::span<os::debug::stack_frame const> get_stack() const noexcept { return m_Stack; }
 	auto get_thread_handle() const noexcept { return m_ThreadHandle->native_handle(); }
+	auto get_thread_id() const noexcept { return m_ThreadId; }
 
 private:
-	std::shared_ptr<os::handle> m_ThreadHandle;
-	std::vector<os::debug::stack_frame> m_Stack;
+	std::shared_ptr<os::handle> m_ThreadHandle{ std::make_shared<os::handle>(os::OpenCurrentThread()) };
+	DWORD m_ThreadId{ GetCurrentThreadId() };
+	std::vector<os::debug::stack_frame> m_Stack{ tracer.exception_stacktrace({}) };
 };
 
 static_assert(std::derived_from<far_wrapper_exception, std::nested_exception>);
@@ -2090,9 +2092,9 @@ static bool handle_std_exception(
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
 		const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-		const auto [ExceptionThread, NestedStack] = Wrapper? std::pair{ Wrapper->get_thread_handle(), Wrapper->get_stack() } : std::pair<HANDLE, std::span<os::debug::stack_frame const>>{};
+		const auto [ExceptionThread, ExceptionThreadId, NestedStack] = Wrapper? std::tuple{ Wrapper->get_thread_handle(), Wrapper->get_thread_id(), Wrapper->get_stack() } : std::tuple<HANDLE, DWORD, std::span<os::debug::stack_frame const>>{};
 
-		return handle_generic_exception(Context, FarException->location(), Module, Type, What, *FarException, ExceptionThread, NestedStack) == handler_result::execute_handler;
+		return handle_generic_exception(Context, FarException->location(), Module, Type, What, *FarException, ExceptionThread, ExceptionThreadId, NestedStack) == handler_result::execute_handler;
 	}
 
 	return handle_generic_exception(Context, Location, Module, Type, What, LastError) == handler_result::execute_handler;
