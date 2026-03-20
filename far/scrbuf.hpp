@@ -101,8 +101,7 @@ private:
 	void debug_flush();
 
 	os::critical_section CS;
-	FAR_CHAR_INFO MacroChar{};
-	FAR_CHAR_INFO ElevationChar{};
+	std::optional<FAR_CHAR_INFO> MacroChar, ElevationChar;
 	matrix<FAR_CHAR_INFO> Buf;
 	matrix<FAR_CHAR_INFO> Shadow;
 	string m_Title;
@@ -111,8 +110,6 @@ private:
 	int m_ClearTypeFix{};
 	size_t CurSize{};
 	point m_CurPos{};
-	bool MacroCharUsed{};
-	bool ElevationCharUsed{};
 	bool CurVisible{};
 };
 

@@ -525,6 +525,9 @@ void ScreenBuf::Flush(flush_type FlushType)
 	{
 		ShowTime();
 
+		MacroChar.reset();
+		ElevationChar.reset();
+
 		if (!Global->SuppressIndicators || Global->WindowManager->GetCurrentWindowType() != windowtype_desktop)
 		{
 			const auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
@@ -541,7 +544,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 			{
 				auto& Where = Buf[0][0];
 				MacroChar = Where;
-				MacroCharUsed = true;
 
 				Global->CtrlObject->Macro.IsRecording() ?
 					SetMacroChar(Where, L'R', B_LIGHTRED | F_WHITE) :
@@ -552,7 +554,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 			{
 				auto& Where = Buf.back().back();
 				ElevationChar = Where;
-				ElevationCharUsed = true;
 
 				SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
 			}
@@ -701,15 +702,11 @@ void ScreenBuf::Flush(flush_type FlushType)
 				console.Commit();
 			}
 
-			if (MacroCharUsed)
-			{
-				Buf[0][0] = MacroChar;
-			}
+			if (MacroChar)
+				Buf[0][0] = *MacroChar;
 
-			if (ElevationCharUsed)
-			{
-				Buf.back().back() = ElevationChar;
-			}
+			if (ElevationChar)
+				Buf.back().back() = *ElevationChar;
 
 			SBFlags.Set(SBFLAGS_FLUSHED);
 		}
@@ -786,19 +783,19 @@ void ScreenBuf::SetTitle(string_view const Title)
 
 void ScreenBuf::RestoreMacroChar()
 {
-	if(MacroCharUsed)
+	if(MacroChar)
 	{
-		SBFlags.Clear(SBFLAGS_FLUSHED);
-		MacroCharUsed=false;
+		Write(0, 0, { &*MacroChar, 1 });
+		MacroChar.reset();
 	}
 }
 
 void ScreenBuf::RestoreElevationChar()
 {
-	if(ElevationCharUsed)
+	if(ElevationChar)
 	{
-		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), { &ElevationChar, 1 });
-		ElevationCharUsed=false;
+		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), { &*ElevationChar, 1 });
+		ElevationChar.reset();
 	}
 }
 
