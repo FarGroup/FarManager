@@ -1910,7 +1910,7 @@ protected:
 			if (const auto Area = SubRect.width() * SubRect.height(); Area > 4)
 				Str.reserve(std::max(1024, Area * 2));
 
-			auto LastColor = sDefaultVtColor;
+			auto LastColor = colors::default_color();
 
 			point ViewportSize;
 			{
@@ -1940,7 +1940,7 @@ protected:
 				// Words cannot describe how much I despise VT.
 
 				// Save cursor position
-				Str = ANSISYSSC L""sv;
+				Str = CSI "m" ANSISYSSC L""sv;
 
 				foreign_blocks_list ForeignBlocksList;
 
@@ -1952,13 +1952,12 @@ protected:
 							ANSISYSRC // Restore cursor position
 							CSI L"1B" // Move cursor down
 							ANSISYSSC // Save again
-							L""sv;
 
-						// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
-						// Explicitly reset them here for consistency across implementations.
-						Str += sDefaultVtColorStr;
+							// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
+							// Explicitly reset them here for consistency across implementations.
+							CSI L"m"sv;
 
-						LastColor = sDefaultVtColor;
+						LastColor = colors::default_color();
 					}
 
 					const auto BlockRow = Buffer[i].subspan(SubRect.left, SubRect.width());
