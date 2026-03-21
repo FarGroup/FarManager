@@ -170,6 +170,11 @@ jobs:
         exclude:
           - sys: clang64
             compiler: gcc
+          - sys: mingw32
+            compiler: clang
+          - sys: mingw32
+            compiler: gcc
+            build_type: Debug
 
     name: build-msys2_${{ matrix.sys }}_${{ matrix.compiler }}_${{ matrix.build_type }}
 
