@@ -103,26 +103,6 @@ string GroupDigitsInvariant(unsigned long long Value)
 	return GroupDigitsImpl(Value, invariant_locale());
 }
 
-static wchar_t* legacy_InsertQuotes(wchar_t *Str)
-{
-	const auto QuoteChar = L'"';
-	size_t l = std::wcslen(Str);
-
-	if (*Str != QuoteChar)
-	{
-		std::copy_n(Str, ++l, Str + 1);
-		*Str=QuoteChar;
-	}
-
-	if (l==1 || Str[l-1] != QuoteChar)
-	{
-		Str[l++] = QuoteChar;
-		Str[l] = 0;
-	}
-
-	return Str;
-}
-
 string InsertRegexpQuote(string strStr)
 {
 	//выражение вида /regexp/i не дополняем слешами
@@ -137,8 +117,29 @@ string InsertRegexpQuote(string strStr)
 
 wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 {
-	if (contains(Str, L' '))
-		legacy_InsertQuotes(Str);
+	if (!contains(Str, L' '))
+		return Str;
+
+	const auto QuoteChar = L'"';
+
+	const auto
+		Begin = Str,
+		End = Str + std::wcslen(Str);
+
+	const auto StartsWithQuote = *Begin == QuoteChar;
+
+	if (!StartsWithQuote)
+	{
+		std::copy_backward(Begin, End + 1, End + 2);
+		*Begin = QuoteChar;
+	}
+
+	const auto NewEnd = End + !StartsWithQuote;
+	if (*(NewEnd - 1) != QuoteChar)
+	{
+		*NewEnd = QuoteChar;
+		*(NewEnd + 1) = L'\0';
+	}
 
 	return Str;
 }
@@ -1418,6 +1419,10 @@ string HexMask(size_t ByteCount)
 template<typename T>
 static void xncpy(T* dest, const T* src, size_t DestSize)
 {
+	assert(src);
+	assert(dest);
+	assert(DestSize);
+
 	while (DestSize > 1 && (*dest++ = *src++) != 0)
 	{
 		DestSize--;
@@ -1462,6 +1467,38 @@ TEST_CASE("InsertRegexpQuote")
 	}
 }
 
+TEST_CASE("QuoteSpaceOnly")
+{
+	static const struct
+	{
+		string_view Str, Result;
+	}
+	Tests[]
+	{
+		{},
+		{ L"!"sv,         L"!"sv },
+		{ L" ["sv,        L"\" [\""sv },
+		{ L"] "sv,        L"\"] \""sv },
+		{ L"[ ]"sv,       L"\"[ ]\""sv },
+		{ L" | "sv,       L"\" | \""sv },
+		{ L"\""sv,        L"\""sv },
+		{ L"\"<"sv,       L"\"<"sv },
+		{ L"\"< "sv,      L"\"< \""sv },
+		{ L">\""sv,       L">\""sv },
+		{ L" >\""sv,      L"\" >\""sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		wchar_t Buffer[256];
+		assert(i.Str.size() < std::size(Buffer));
+
+		*std::ranges::copy(i.Str, Buffer).out = L'\0';
+		REQUIRE(legacy::QuoteSpaceOnly(Buffer) == i.Result);
+	}
+}
+
+
 TEST_CASE("ConvertFileSizeString")
 {
 	constexpr auto
@@ -1494,8 +1531,8 @@ TEST_CASE("ConvertFileSizeString")
 		{ L"2G"sv,      2 * G },
 		{ L"3T"sv,      3 * T },
 		{ L"42P"sv,    42 * P },
-		{ L"12E"sv,    12 * E },
 		{ L"0E"sv,      0 * E },
+		{ L"18E"sv,    18 * E },
 	};
 
 	for (const auto& i: Tests)
@@ -1519,6 +1556,7 @@ TEST_CASE("ReplaceBrackets")
 		{ L"dorime"sv },
 		{ L"meow"sv, L"${a }$cat$"sv, {}, {}, {}, L"Invalid group name"sv },
 		{ L"Ni!"sv, L"$0$0$0"sv, L"Ni!Ni!Ni!"sv, { { 0, 3 } } },
+		{ L"pe"sv, L"$$$0$0$$"sv, L"$pepe$"sv, { { 0, 2} } },
 		{ L"Fus Ro Dah"sv, L"$3-${first}-$2-$1-${oops$"sv, L"Dah-Fus-Ro-Fus-${oops$"sv, { { 0, 10 }, { 0, 3 }, { 4, 6 }, { 7, 10 } }, { { L"first"sv, 1 } } },
 		{ L"foobar"sv, L"${name2}-${name1}"sv, L"-foo"sv, { { 0, 3 }, { 0, 3 }, { 3, 3 } }, { { L"name1"sv, 1 }, { L"name2"sv, 2 } } },
 	};
@@ -2241,7 +2279,7 @@ TEST_CASE("xwcsncpy")
 
 	const auto MaxBufferSize = std::ranges::fold_left(Tests, 0uz, [](size_t const Value, auto const& Item){ return std::max(Value, Item.Src.size()); }) + 1;
 
-	for (const auto BufferSize: std::views::iota(0uz, MaxBufferSize + 1))
+	for (const auto BufferSize: std::views::iota(1uz, MaxBufferSize + 1))
 	{
 		for (const auto& i: Tests)
 		{

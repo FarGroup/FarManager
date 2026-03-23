@@ -1533,7 +1533,7 @@ string KeyToLocalizedText(unsigned int const Key)
 
 string KeysListToLocalizedText(std::span<unsigned int const> const Keys)
 {
-	return join(L" "sv, Keys | std::views::transform([](unsigned int const Key){ return KeyToLocalizedText(Key); }));
+	return join(L" "sv, Keys | std::views::transform(&KeyToLocalizedText));
 }
 
 static int key_to_vk(unsigned int const Key)

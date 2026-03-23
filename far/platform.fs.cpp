@@ -203,11 +203,6 @@ namespace os::fs
 			return { Letter, L':' };
 		}
 
-		string get_device_path(size_t const Number)
-		{
-			return { get_letter(Number), L':' };
-		}
-
 		string get_win32nt_device_path(wchar_t Letter)
 		{
 			return { L'\\', L'\\', L'?', L'\\', Letter, L':' };
@@ -2638,17 +2633,16 @@ TEST_CASE("drives")
 	{
 		wchar_t DriveLetter;
 		string_view DriveDevicePath, Win32NtDriveDevicePath, DriveRootDirectory, Win32NtDriveRootDirectory;
-		bool Standard;
-		size_t Number;
+		std::optional<size_t> Number;
 	}
 	Tests[]
 	{
-		{ L'A', L"A:"sv, L"\\\\?\\A:"sv, L"A:\\"sv, L"\\\\?\\A:\\"sv, true,  0,  },
-		{ L'B', L"B:"sv, L"\\\\?\\B:"sv, L"B:\\"sv, L"\\\\?\\B:\\"sv, true,  1,  },
-		{ L'C', L"C:"sv, L"\\\\?\\C:"sv, L"C:\\"sv, L"\\\\?\\C:\\"sv, true,  2,  },
-		{ L'Z', L"Z:"sv, L"\\\\?\\Z:"sv, L"Z:\\"sv, L"\\\\?\\Z:\\"sv, true,  25, },
-		{ L'1', L"1:"sv, L"\\\\?\\1:"sv, L"1:\\"sv, L"\\\\?\\1:\\"sv, false, 42, },
-		{ L'λ', L"λ:"sv, L"\\\\?\\λ:"sv, L"λ:\\"sv, L"\\\\?\\λ:\\"sv, false, 42, },
+		{ L'A', L"A:"sv, L"\\\\?\\A:"sv, L"A:\\"sv, L"\\\\?\\A:\\"sv, 0,  },
+		{ L'B', L"B:"sv, L"\\\\?\\B:"sv, L"B:\\"sv, L"\\\\?\\B:\\"sv, 1,  },
+		{ L'C', L"C:"sv, L"\\\\?\\C:"sv, L"C:\\"sv, L"\\\\?\\C:\\"sv, 2,  },
+		{ L'Z', L"Z:"sv, L"\\\\?\\Z:"sv, L"Z:\\"sv, L"\\\\?\\Z:\\"sv, 25, },
+		{ L'1', L"1:"sv, L"\\\\?\\1:"sv, L"1:\\"sv, L"\\\\?\\1:\\"sv, {}, },
+		{ L'λ', L"λ:"sv, L"\\\\?\\λ:"sv, L"λ:\\"sv, L"\\\\?\\λ:\\"sv, {}, },
 	};
 
 	for (const auto& i: Tests)
@@ -2659,13 +2653,12 @@ TEST_CASE("drives")
 		REQUIRE(osd::get_win32nt_device_path(i.DriveLetter) == i.Win32NtDriveDevicePath);
 		REQUIRE(osd::get_root_directory(i.DriveLetter) == i.DriveRootDirectory);
 		REQUIRE(osd::get_win32nt_root_directory(i.DriveLetter) == i.Win32NtDriveRootDirectory);
-		REQUIRE(osd::is_standard_letter(i.DriveLetter) == i.Standard);
+		REQUIRE(osd::is_standard_letter(i.DriveLetter) == i.Number.has_value());
 
-		if (i.Standard)
+		if (i.Number)
 		{
 			REQUIRE(osd::get_number(i.DriveLetter) == i.Number);
-			REQUIRE(osd::get_letter(i.Number) == i.DriveLetter);
-			REQUIRE(osd::get_device_path(i.Number) == i.DriveDevicePath);
+			REQUIRE(osd::get_letter(*i.Number) == i.DriveLetter);
 		}
 	}
 }

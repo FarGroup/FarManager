@@ -402,7 +402,7 @@ void CloseConsole()
 	MoveRealCursor(0, ScrY);
 	console.SetCursorInfo(InitialCursorInfo);
 
-	SetRealColor(colors::default_color());
+	console.SetTextAttributes(colors::default_color());
 
 	if (InitialConsoleMode)
 	{
@@ -1331,11 +1331,6 @@ void SetColor(PaletteColors Color)
 void SetColor(const FarColor& Color)
 {
 	CurColor=Color;
-}
-
-void SetRealColor(const FarColor& Color)
-{
-	console.SetTextAttributes(Color);
 }
 
 const FarColor& GetColor()

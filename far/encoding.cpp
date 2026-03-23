@@ -621,7 +621,7 @@ string encoding::utf8_or_ansi::get_chars(std::string_view const Str, diagnostics
 
 string encoding::ascii::get_chars(std::string_view const Str)
 {
-	assert(std::ranges::all_of(Str, [](char const Char) { return Char < 128; }));
+	assert(std::ranges::all_of(Str, [](unsigned char const Char) { return Char < 128; }));
 
 	return { ALL_CONST_RANGE(Str) };
 }

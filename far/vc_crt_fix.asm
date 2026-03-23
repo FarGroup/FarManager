@@ -44,7 +44,11 @@ else
 endif
 
 	WRAPPER proto stdcall DARGS
+ifdef X64
 	IMP dq WRAPPER
+else
+	IMP dd WRAPPER
+endif
 	public IMP
 ENDM
 

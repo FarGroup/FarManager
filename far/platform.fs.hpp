@@ -122,9 +122,6 @@ namespace os::fs
 		string get_device_path(wchar_t Letter);
 
 		[[nodiscard]]
-		string get_device_path(size_t Number);
-
-		[[nodiscard]]
 		string get_win32nt_device_path(wchar_t Letter);
 
 		[[nodiscard]]

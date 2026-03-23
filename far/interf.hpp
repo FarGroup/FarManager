@@ -229,7 +229,6 @@ void DropShadow(rectangle Where);
 void SetColor(int Color);
 void SetColor(PaletteColors Color);
 void SetColor(const FarColor& Color);
-void SetRealColor(const FarColor& Color);
 const FarColor& GetColor();
 
 void Box(rectangle Where, const FarColor& Color,int Type);

@@ -2155,6 +2155,8 @@ protected:
 
 		static size_t GetPaletteVT_partial(std::array<COLORREF, 256>& Palette, size_t const Offset, size_t const Count)
 		{
+			assert(Offset + Count <= Palette.size());
+
 			try
 			{
 				const auto
@@ -3315,39 +3317,97 @@ NIFTY_DEFINE(console_detail::console, console);
 
 TEST_CASE("console.vt_color")
 {
-	const auto I = FCF_INDEXMASK;
+	constexpr auto idx = [](COLORREF const Color) { return colors::single_color{Color, true}; };
+	constexpr auto rgb = [](COLORREF const Color) { return colors::single_color{Color, false}; };
 
-	static const struct
+	static constexpr struct
 	{
-		FarColor Color;
-		string_view Fg, Bg;
+		colors::single_color Color;
+		string_view Strings[3];
 	}
 	Tests[]
 	{
-		{ { I, { 0x0      }, { 0x0      } }, L"30"sv,               L"40"sv,               },
-		{ { I, { 0x1      }, { 0x1      } }, L"34"sv,               L"44"sv,               },
-		{ { I, { 0x7      }, { 0x7      } }, L"37"sv,               L"47"sv,               },
-		{ { I, { 0x8      }, { 0x8      } }, L"90"sv,               L"100"sv,              },
-		{ { I, { 0x9      }, { 0x9      } }, L"94"sv,               L"104"sv,              },
-		{ { I, { 0xF      }, { 0xF      } }, L"97"sv,               L"107"sv,              },
-		{ { I, { 0x10     }, { 0x10     } }, L"38;5;16"sv,          L"48;5;16"sv,          },
-		{ { I, { 0xC0     }, { 0xC0     } }, L"38;5;192"sv,         L"48;5;192"sv,         },
-		{ { I, { 0xFF     }, { 0xFF     } }, L"38;5;255"sv,         L"48;5;255"sv,         },
-		{ { 0, { 0x000000 }, { 0x000000 } }, L"38;2;0;0;0"sv,       L"48;2;0;0;0"sv,       },
-		{ { 0, { 0x123456 }, { 0x654321 } }, L"38;2;86;52;18"sv,    L"48;2;33;67;101"sv,   },
-		{ { 0, { 0x00D5FF }, { 0xBB5B00 } }, L"38;2;255;213;0"sv,   L"48;2;0;91;187"sv,    },
-		{ { 0, { 0xABCDEF }, { 0xFEDCBA } }, L"38;2;239;205;171"sv, L"48;2;186;220;254"sv, },
-		{ { 0, { 0xFFFFFF }, { 0xFFFFFF } }, L"38;2;255;255;255"sv, L"48;2;255;255;255"sv, },
+		{ idx(0x0),      { L"30"sv,               L"40"sv,               L"58:5:0"sv            }, },
+		{ idx(0x1),      { L"34"sv,               L"44"sv,               L"58:5:4"sv            }, },
+		{ idx(0x2),      { L"32"sv,               L"42"sv,               L"58:5:2"sv            }, },
+		{ idx(0x3),      { L"36"sv,               L"46"sv,               L"58:5:6"sv            }, },
+		{ idx(0x4),      { L"31"sv,               L"41"sv,               L"58:5:1"sv            }, },
+		{ idx(0x5),      { L"35"sv,               L"45"sv,               L"58:5:5"sv            }, },
+		{ idx(0x6),      { L"33"sv,               L"43"sv,               L"58:5:3"sv            }, },
+		{ idx(0x7),      { L"37"sv,               L"47"sv,               L"58:5:7"sv            }, },
+		{ idx(0x8),      { L"90"sv,               L"100"sv,              L"58:5:8"sv            }, },
+		{ idx(0x9),      { L"94"sv,               L"104"sv,              L"58:5:12"sv           }, },
+		{ idx(0xA),      { L"92"sv,               L"102"sv,              L"58:5:10"sv           }, },
+		{ idx(0xB),      { L"96"sv,               L"106"sv,              L"58:5:14"sv           }, },
+		{ idx(0xC),      { L"91"sv,               L"101"sv,              L"58:5:9"sv            }, },
+		{ idx(0xD),      { L"95"sv,               L"105"sv,              L"58:5:13"sv           }, },
+		{ idx(0xE),      { L"93"sv,               L"103"sv,              L"58:5:11"sv           }, },
+		{ idx(0xF),      { L"97"sv,               L"107"sv,              L"58:5:15"sv           }, },
+		{ idx(0x10),     { L"38;5;16"sv,          L"48;5;16"sv,          L"58:5:16"sv           }, },
+		{ idx(0xC0),     { L"38;5;192"sv,         L"48;5;192"sv,         L"58:5:192"sv          }, },
+		{ idx(0xFF),     { L"38;5;255"sv,         L"48;5;255"sv,         L"58:5:255"sv          }, },
+		{ rgb(0x000000), { L"38;2;0;0;0"sv,       L"48;2;0;0;0"sv,       L"58:2::0:0:0"sv       }, },
+		{ rgb(0x010203), { L"38;2;3;2;1"sv,       L"48;2;3;2;1"sv,       L"58:2::3:2:1"sv       }, },
+		{ rgb(0x123456), { L"38;2;86;52;18"sv,    L"48;2;86;52;18"sv,    L"58:2::86:52:18"sv    }, },
+		{ rgb(0x654321), { L"38;2;33;67;101"sv,   L"48;2;33;67;101"sv,   L"58:2::33:67:101"sv   }, },
+		{ rgb(0x00D5FF), { L"38;2;255;213;0"sv,   L"48;2;255;213;0"sv,   L"58:2::255:213:0"sv   }, },
+		{ rgb(0xBB5B00), { L"38;2;0;91;187"sv,    L"48;2;0;91;187"sv,    L"58:2::0:91:187"sv    }, },
+		{ rgb(0xABCDEF), { L"38;2;239;205;171"sv, L"48;2;239;205;171"sv, L"58:2::239:205:171"sv }, },
+		{ rgb(0xFEDCBA), { L"38;2;186;220;254"sv, L"48;2;186;220;254"sv, L"58:2::186:220:254"sv }, },
+		{ rgb(0xFFFFFF), { L"38;2;255;255;255"sv, L"48;2;255;255;255"sv, L"58:2::255:255:255"sv }, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		string Str[2];
-		console_detail::make_vt_color(colors::single_color::foreground(i.Color), console_detail::colors_mapping_type::foreground, Str[0]);
-		console_detail::make_vt_color(colors::single_color::background(i.Color), console_detail::colors_mapping_type::background, Str[1]);
-		REQUIRE(Str[0] == i.Fg);
-		REQUIRE(Str[1] == i.Bg);
+		for (const auto& Str: i.Strings)
+		{
+			string Result;
+			console_detail::make_vt_color(i.Color, static_cast<console_detail::colors_mapping_type>(&Str - i.Strings), Result);
+			REQUIRE(Str == Result);
+		}
 	}
+}
+
+TEST_CASE("console.vt_style")
+{
+	static constexpr struct tests
+	{
+		FARCOLORFLAGS Style;
+		string_view On, Off;
+	}
+	Tests[]
+	{
+		{ FCF_FG_BOLD,      L"1"sv,  L"22"sv },
+		{ FCF_FG_ITALIC,    L"3"sv,  L"23"sv },
+		{ FCF_FG_OVERLINE,  L"53"sv, L"55"sv },
+		{ FCF_FG_STRIKEOUT, L"9"sv,  L"29"sv },
+		{ FCF_FG_FAINT,     L"2"sv,  L"22"sv },
+		{ FCF_FG_BLINK,     L"5"sv,  L"25"sv },
+		{ FCF_INVERSE,      L"7"sv,  L"27"sv },
+		{ FCF_FG_INVISIBLE, L"8"sv,  L"28"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		string On, Off;
+		console_detail::make_vt_style(i.Style, On, 0);
+		console_detail::make_vt_style(0, Off, i.Style);
+		REQUIRE(i.On == On);
+		REQUIRE(i.Off == Off);
+	}
+
+	const auto AllStyles = static_cast<FARCOLORFLAGS>(-1);
+
+	const auto
+		AllOn  = join(L";"sv, Tests | std::views::transform(&tests::On)),
+		AllOff = join(L";"sv, Tests | std::views::transform(&tests::Off));
+
+	string On, Off;
+	console_detail::make_vt_style(AllStyles, On, 0);
+	console_detail::make_vt_style(0, Off, AllStyles);
+
+	REQUIRE(AllOn == On);
+	REQUIRE(AllOff == Off);
 }
 
 TEST_CASE("console.vt_sequence")
