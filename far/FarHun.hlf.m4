@@ -1852,6 +1852,9 @@ tartományon túli része a szöveget, oda nem terjed ki a keresés.
  - #P# - petabájt;
  - #E# - exabájt.
 
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
+
  #Column types# - Allows to specify search results output format.
 Column types are encoded with one or more characters delimited with commas.
 The following column types are supported:
@@ -2022,6 +2025,9 @@ maszkok elemzése ki van kapcsolva, a fájl nevét a Far nem veszi figyelembe.
  - #T# - terabájt;
  - #P# - petabájt;
  - #E# - exabájt.
+
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
 
  A szűrőfeltételek akkor teljesülnek, ha a
 fájlméretelemzés be van kapcsolva és a fájl mérete a tartományon belül esik.

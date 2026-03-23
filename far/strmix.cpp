@@ -979,16 +979,29 @@ unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 
 	const auto n = from_string<unsigned long long>(FileSizeStr);
 
+	// We are aware that this mess exists:
 	// https://en.wikipedia.org/wiki/Binary_prefix
 	// https://en.wikipedia.org/wiki/SI_prefix
-	switch (upper(FileSizeStr.back()))
+
+	// We use uppercase for binary prefixes and lowercase for decimal.
+	// It may be technically incorrect, but at least it's consistent.
+
+	switch (FileSizeStr.back())
 	{
-		case L'K': return n << 10; // Ki kibi 1024^1 - ~kilo ~10^3
-		case L'M': return n << 20; // Mi mebi 1024^2 - ~mega ~10^6
-		case L'G': return n << 30; // Gi gibi 1024^3 - ~giga ~10^9
-		case L'T': return n << 40; // Ti tebi 1024^4 - ~tera ~10^12
-		case L'P': return n << 50; // Pi pebi 1024^5 - ~peta ~10^15
-		case L'E': return n << 60; // Ei exbi 1024^6 - ~exa  ~10^18
+		case L'K': return n * binary::K;   // Ki kibi 1024^1
+		case L'M': return n * binary::M;   // Mi mebi 1024^2
+		case L'G': return n * binary::G;   // Gi gibi 1024^3
+		case L'T': return n * binary::T;   // Ti tebi 1024^4
+		case L'P': return n * binary::P;   // Pi pebi 1024^5
+		case L'E': return n * binary::E;   // Ei exbi 1024^6
+
+		case L'k': return n * decimal::K;  // k kilo 10^3
+		case L'm': return n * decimal::M;  // M mega 10^6
+		case L'g': return n * decimal::G;  // G giga 10^9
+		case L't': return n * decimal::T;  // T tera 10^12
+		case L'p': return n * decimal::P;  // P peta 10^15
+		case L'e': return n * decimal::E;  // E exa  10^18
+
 		default:   return n;
 	}
 }
@@ -1501,14 +1514,20 @@ TEST_CASE("QuoteSpaceOnly")
 
 TEST_CASE("ConvertFileSizeString")
 {
-	constexpr auto
-		B =  0_bit,
-		K = 10_bit,
-		M = 20_bit,
-		G = 30_bit,
-		T = 40_bit,
-		P = 50_bit,
-		E = 60_bit;
+	constexpr uint64_t
+		Ki = binary::K,
+		Mi = binary::M,
+		Gi = binary::G,
+		Ti = binary::T,
+		Pi = binary::P,
+		Ei = binary::E,
+
+		K = decimal::K,
+		M = decimal::M,
+		G = decimal::G,
+		T = decimal::T,
+		P = decimal::P,
+		E = decimal::E;
 
 	static const struct
 	{
@@ -1517,22 +1536,30 @@ TEST_CASE("ConvertFileSizeString")
 	}
 	Tests[]
 	{
-		{ {},           0     },
-		{ L"Beep"sv,    0     },
-		{ L"0"sv,       0 * B },
-		{ L"1"sv,       1 * B },
-		{ L"32K"sv,    32 * K },
-		{ L"32k"sv,    32 * K },
-		{ L"a32K"sv,    0     },
-		{ L"32K+"sv,    0     },
-		{ L"640K"sv,  640 * K },
-		{ L"1M"sv,      1 * M },
-		{ L"345M"sv,  345 * M },
-		{ L"2G"sv,      2 * G },
-		{ L"3T"sv,      3 * T },
-		{ L"42P"sv,    42 * P },
-		{ L"0E"sv,      0 * E },
-		{ L"18E"sv,    18 * E },
+		{ {},           0      },
+		{ L"Beep"sv,    0      },
+		{ L"a32K"sv,    0      },
+		{ L"32K+"sv,    0      },
+		{ L"0"sv,       0      },
+		{ L"1"sv,       1      },
+		{ L"32K"sv,    32 * Ki },
+		{ L"32k"sv,    32 * K  },
+		{ L"640K"sv,  640 * Ki },
+		{ L"640k"sv,  640 * K  },
+		{ L"1M"sv,      1 * Mi },
+		{ L"1m"sv,      1 * M  },
+		{ L"345M"sv,  345 * Mi },
+		{ L"345m"sv,  345 * M  },
+		{ L"2G"sv,      2 * Gi },
+		{ L"2g"sv,      2 * G  },
+		{ L"3T"sv,      3 * Ti },
+		{ L"3t"sv,      3 * T  },
+		{ L"42P"sv,    42 * Pi },
+		{ L"42p"sv,    42 * P  },
+		{ L"1E"sv,      1 * Ei },
+		{ L"1e"sv,      1 * E  },
+		{ L"18E"sv,    18 * Ei },
+		{ L"18e"sv,    18 * E  },
 	};
 
 	for (const auto& i: Tests)

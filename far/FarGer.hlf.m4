@@ -1852,6 +1852,9 @@ is ignored even if the searched for sequence exists there.
  - #P# for petabytes;
  - #E# for exabytes.
 
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
+
  #Column types# - Allows to specify search results output format.
 Column types are encoded with one or more characters delimited with commas.
 The following column types are supported:
@@ -2026,6 +2029,9 @@ masks. If mask analysis is off, file name is ignored.
  - #T# for terabytes;
  - #P# for petabytes;
  - #E# for exabytes.
+
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
 
  Filter conditions are met if file size analysis is on, and it is inside the given range.
 If nothing is specified (empty line) for one or both range boundaries then file size for that

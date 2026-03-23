@@ -1793,6 +1793,9 @@ znajdować.
  - #P# dla petabajtów;
  - #E# dla eksabajtów.
 
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
+
  #Typy kolumn# - pozwala na sformatowanie wyników wyszukiwania.
 Typy kolumn są kodowane jednym lub więcej znakami rozdzielanymi przecinkami.
 Obsługiwane są następujące typy kolumn:
@@ -1965,6 +1968,9 @@ podane warunki. Jeżeli analiza jest wyłączona, nazwa pliku jest ignorowana.
  - #T# dla terabajtów;
  - #P# dla petabajtów;
  - #E# dla eksabajtów.
+
+ These units are binary rather than decimal, e.g. 1K is 1024 bytes, not 1000.
+ To specify decimal units, use lowercase letters, e.g. 1k.
 
  Warunki filtru zostaną spełnione, jeżeli analiza wielkości pliku jest włączona i znajduje się
 w podanym zakresie. Jeżeli nic nie podano (pusta linia) w jednej lub obu granicach zakresu
