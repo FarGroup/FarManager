@@ -201,8 +201,31 @@ bool far_sqlite_exception::is_constraint_unique() const
 	return m_ErrorCode == SQLITE_CONSTRAINT_UNIQUE;
 }
 
+static void check_version()
+{
+	const auto
+		MinMajor = 3,
+		MinMinor = 52,
+		MinPatch = 0;
+
+	const auto MinVersion = MinMajor * 1000000 + MinMinor * 1000 + MinPatch;
+
+	static_assert(SQLITE_VERSION_NUMBER >= MinVersion);
+
+	if (sqlite::sqlite3_libversion_number() < MinVersion)
+	{
+		throw far_known_exception(far::format(
+			L"SQLite library version {} is too old, at least {}.{}.{} is required"sv,
+			encoding::utf8::get_chars(sqlite::sqlite3_libversion()),
+			MinMajor, MinMinor, MinPatch
+		));
+	}
+}
+
 void SQLiteDb::library_load()
 {
+	check_version();
+
 	sqlite::sqlite3_config(SQLITE_CONFIG_LOG, sqlite_log, nullptr);
 
 	if (const auto Result = sqlite::sqlite3_initialize(); Result != SQLITE_OK)
@@ -430,7 +453,7 @@ public:
 	{
 		database_ptr Db;
 
-		int Retires = 0;
+		int Attempts = 0;
 
 		for (;;)
 		{
@@ -438,7 +461,7 @@ public:
 			if (Result == SQLITE_OK)
 				break;
 
-			if (Result == SQLITE_BUSY && BusyHandler.first && BusyHandler.first(BusyHandler.second, Retires++))
+			if (Result == SQLITE_BUSY && BusyHandler.first && BusyHandler.first(BusyHandler.second, Attempts++))
 				continue;
 
 			if (Db)
@@ -569,7 +592,7 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Per
 	// that is the number of bytes in the input string *including* the nul-terminator.
 
 	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
-	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
+	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == '\0';
 
 	invoke(m_Db.get(), [&]
 	{
