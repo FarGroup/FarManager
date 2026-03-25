@@ -2611,83 +2611,523 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3975946037
+mtime=3983599714
+<article>
+</article>
+</node>
+<node>
+id=600
+lv=3
+dt=Text
+nm=Messages
+ctime=3983596088
+mtime=3983596088
+<article>
+</article>
+</node>
+<node>
+id=601
+lv=4
+dt=Text
+nm=DM_ADDHISTORY
+ctime=3983596118
+mtime=3983596118
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
 #_Result = hDlg:send (Msg, Param1, Param2)
 #_
-#_**Parameters:**
-#_  hDlg:   userdata
-#_  Msg:    flags
-#_  Param1: integer (1-based where it is element index, 0-based otherwise)
-#_  Param2: *(depends on Msg)*
 #_
-#_**Returns:**
-#_  Result: *(depends on Msg)*
+#_DM_ADDHISTORY
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  string
+#_    Result:  integer
 #_
-#_**Details:**
+#_@@@
+#_{dm_addhistory}: $(ENC_URL)/dialogapi/dmsg/dm_addhistory.html
 #_
-#_DM_CLOSE,
-#_DM_EDITUNCHANGEDFLAG,
-#_DM_GETCHECK,
-#_DM_GETCURSORSIZE,
-#_DM_GETDROPDOWNOPENED,
-#_DM_GETFOCUS,
-#_DM_GETITEMDATA,
-#_DM_LISTGETDATASIZE,
-#_DM_LISTSORT,
-#_DM_REDRAW,
-#_DM_SET3STATE,
-#_DM_SETCURSORSIZE,
-#_DM_SETDROPDOWNOPENED,
-#_DM_SETFOCUS,
-#_DM_SETINPUTNOTIFY,
-#_DM_SETITEMDATA,
-#_DM_SETMAXTEXTLENGTH,
-#_DM_SETMOUSEEVENTNOTIFY,
-#_DM_SHOWDIALOG,
-#_DM_SHOWITEM,
-#_DM_USER:
+</article>
+</node>
+<node>
+id=602
+lv=4
+dt=Text
+nm=DM_CLOSE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_CLOSE
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  integer
 #_    Result:  integer
 #_
-#_DM_ENABLE:
+#_@@@
+#_{dm_close}: $(ENC_URL)/dialogapi/dmsg/dm_close.html
+#_
+</article>
+</node>
+<node>
+id=603
+lv=4
+dt=Text
+nm=DM_EDITUNCHANGEDFLAG
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_EDITUNCHANGEDFLAG
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_editunchangedflag}: $(ENC_URL)/dialogapi/dmsg/dm_editunchangedflag.html
+#_
+</article>
+</node>
+<node>
+id=604
+lv=4
+dt=Text
+nm=DM_ENABLE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_ENABLE
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  boolean or integer (default = -1)
 #_    Result:  integer
 #_
-#_DM_ENABLEREDRAW:
+#_@@@
+#_{dm_enable}: $(ENC_URL)/dialogapi/dmsg/dm_enable.html
+#_
+</article>
+</node>
+<node>
+id=605
+lv=4
+dt=Text
+nm=DM_ENABLEREDRAW
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_ENABLEREDRAW
 #_    Param1:  boolean or integer (default = -1)
 #_    Param2:  ignored
 #_    Result:  integer
 #_
-#_DM_ADDHISTORY,
-#_DM_LISTADDSTR,
-#_DM_SETHISTORY,
-#_DM_SETTEXT,
-#_DM_SETTEXTPTR:
-#_    Param2:  string
+#_@@@
+#_{dm_enableredraw}: $(ENC_URL)/dialogapi/dmsg/dm_enableredraw.html
+#_
+</article>
+</node>
+<node>
+id=606
+lv=4
+dt=Text
+nm=DM_GETCHECK
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETCHECK
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
 #_    Result:  integer
 #_
-#_DM_GETCURSORPOS,
-#_DM_GETDIALOGINFO,
-#_DM_GETDLGRECT,
-#_DM_GETEDITPOSITION,
-#_DM_GETITEMPOSITION,
-#_DM_GETSELECTION,
-#_DM_LISTGETCURPOS,
-#_DM_LISTGETTITLES,
-#_DM_LISTINFO:
-#_    Param2:  none
-#_    Result:  table, or nil
+#_@@@
+#_{dm_getcheck}: $(ENC_URL)/dialogapi/dmsg/dm_getcheck.html
 #_
-#_DM_GETDIALOGTITLE,
-#_DM_GETTEXT,
-#_DM_GETCONSTTEXTPTR:
+</article>
+</node>
+<node>
+id=607
+lv=4
+dt=Text
+nm=DM_GETCONSTTEXTPTR
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETCONSTTEXTPTR
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  none
 #_    Result:  string
 #_
-#_DM_KEY:
+#_@@@
+#_{dm_getconsttextptr}: $(ENC_URL)/dialogapi/dmsg/dm_getconsttextptr.html
+#_
+</article>
+</node>
+<node>
+id=608
+lv=4
+dt=Text
+nm=DM_GETCURSORPOS
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETCURSORPOS
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_getcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorpos.html
+#_
+</article>
+</node>
+<node>
+id=609
+lv=4
+dt=Text
+nm=DM_GETCURSORSIZE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETCURSORSIZE
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_getcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorsize.html
+#_
+</article>
+</node>
+<node>
+id=610
+lv=4
+dt=Text
+nm=DM_GETDIALOGINFO
+ctime=3983596118
+mtime=3983596964
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDIALOGINFO
+#_    Param1:  integer (optional)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_getdialoginfo}: $(ENC_URL)/dialogapi/dmsg/dm_getdialoginfo.html
+#_
+</article>
+</node>
+<node>
+id=611
+lv=4
+dt=Text
+nm=DM_GETDIALOGTITLE
+ctime=3983596118
+mtime=3983596978
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDIALOGTITLE
+#_    Param1:  integer (optional)
+#_    Param2:  none
+#_    Result:  string
+#_
+#_@@@
+#_{dm_getdialogtitle}: $(ENC_URL)/dialogapi/dmsg/dm_getdialogtitle.html
+#_
+</article>
+</node>
+<node>
+id=612
+lv=4
+dt=Text
+nm=DM_GETDLGDATA
+ctime=3983596118
+mtime=3983597036
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDLGDATA
+#_    Param1:  ignored
+#_    Param2:  ignored
+#_    Result: the dialog data (can be any Lua value)
+#_
+#_@@@
+#_{dm_getdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgdata.html
+#_
+</article>
+</node>
+<node>
+id=613
+lv=4
+dt=Text
+nm=DM_GETDLGITEM
+ctime=3983596118
+mtime=3983599483
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDLGITEM
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table, or nil
+#_    Result:  table, or nil
+#_    *Note:*
+#_      res = far.SendDlgMessage(hDlg, "DM_GETDLGITEM", numitem, item)
+#_          *is equivalent to*
+#_      res = `far.GetDlgItem`(hDlg, numitem, item)
+#_
+#_@@@
+#_[far.GetDlgItem]: 54.html
+#_
+#_{dm_getdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgitem.html
+#_
+</article>
+</node>
+<node>
+id=614
+lv=4
+dt=Text
+nm=DM_GETDLGRECT
+ctime=3983596118
+mtime=3983597099
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDLGRECT
+#_    Param1:  integer (optional)
+#_    Param2:  ignored
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_getdlgrect}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgrect.html
+#_
+</article>
+</node>
+<node>
+id=615
+lv=4
+dt=Text
+nm=DM_GETDROPDOWNOPENED
+ctime=3983596118
+mtime=3983597249
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETDROPDOWNOPENED
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_getdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_getdropdownopened.html
+#_
+</article>
+</node>
+<node>
+id=616
+lv=4
+dt=Text
+nm=DM_GETEDITPOSITION
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETEDITPOSITION
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_geteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_geteditposition.html
+#_
+</article>
+</node>
+<node>
+id=617
+lv=4
+dt=Text
+nm=DM_GETFOCUS
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETFOCUS
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_getfocus}: $(ENC_URL)/dialogapi/dmsg/dm_getfocus.html
+#_
+</article>
+</node>
+<node>
+id=618
+lv=4
+dt=Text
+nm=DM_GETITEMDATA
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETITEMDATA
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_getitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_getitemdata.html
+#_
+</article>
+</node>
+<node>
+id=619
+lv=4
+dt=Text
+nm=DM_GETITEMPOSITION
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETITEMPOSITION
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_getitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_getitemposition.html
+#_
+</article>
+</node>
+<node>
+id=620
+lv=4
+dt=Text
+nm=DM_GETSELECTION
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETSELECTION
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_getselection}: $(ENC_URL)/dialogapi/dmsg/dm_getselection.html
+#_
+</article>
+</node>
+<node>
+id=621
+lv=4
+dt=Text
+nm=DM_GETTEXT
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_GETTEXT
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  string
+#_
+#_@@@
+#_{dm_gettext}: $(ENC_URL)/dialogapi/dmsg/dm_gettext.html
+#_
+</article>
+</node>
+<node>
+id=622
+lv=4
+dt=Text
+nm=DM_KEY
+ctime=3983596118
+mtime=3983599512
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_KEY
 #_    Param1:  ignored, specify *nil* for clarity.
 #_    Param2:  table (array), or string
 #_             - If it is an array then each array element should be a `tInputRecord`.
@@ -2696,8 +3136,28 @@ mtime=3975946037
 #_               the same as in Far Manager macros.
 #_    Result:  integer
 #_
-#_DM_LISTADD,
-#_DM_LISTSET:
+#_@@@
+#_[tInputRecord]: 187.html
+#_
+#_{dm_key}: $(ENC_URL)/dialogapi/dmsg/dm_key.html
+#_
+</article>
+</node>
+<node>
+id=623
+lv=4
+dt=Text
+nm=DM_LISTADD
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTADD
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table (array of tables)
 #_    Result:  integer
 #_    *Example:*
@@ -2705,39 +3165,295 @@ mtime=3975946037
 #_        { { Text="added line 1" },
 #_          { Text="added line 2", Flags="LIF_CHECKED" } })
 #_
-#_DM_LISTDELETE:
+#_@@@
+#_{dm_listadd}: $(ENC_URL)/dialogapi/dmsg/dm_listadd.html
+#_
+</article>
+</node>
+<node>
+id=624
+lv=4
+dt=Text
+nm=DM_LISTADDSTR
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTADDSTR
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  string
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_listaddstr}: $(ENC_URL)/dialogapi/dmsg/dm_listaddstr.html
+#_
+</article>
+</node>
+<node>
+id=625
+lv=4
+dt=Text
+nm=DM_LISTDELETE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTDELETE
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table, or nil
 #_    Result:  integer
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTDELETE", id,
 #_        { StartIndex=1, Count=2 })
 #_
-#_DM_LISTFINDSTRING:
+#_@@@
+#_{dm_listdelete}: $(ENC_URL)/dialogapi/dmsg/dm_listdelete.html
+#_
+</article>
+</node>
+<node>
+id=626
+lv=4
+dt=Text
+nm=DM_LISTFINDSTRING
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTFINDSTRING
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  integer, or nil
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_FINDSTRING", id,
 #_        { StartIndex=1, Pattern="File??.txt" })
 #_
-#_DM_LISTGETITEM:
+#_@@@
+#_{dm_listfindstring}: $(ENC_URL)/dialogapi/dmsg/dm_listfindstring.html
+#_
+</article>
+</node>
+<node>
+id=627
+lv=4
+dt=Text
+nm=DM_LISTGETCURPOS
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTGETCURPOS
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_listgetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listgetcurpos.html
+#_
+</article>
+</node>
+<node>
+id=628
+lv=4
+dt=Text
+nm=DM_LISTGETDATA
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTGETDATA
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer (1-based list index)
+#_    Result:  either of
+#_               - nil - if Far returned 0
+#_               - light userdata (raw data pointer) - if alien data detected
+#_               - value passed by the last DM_LISTSETDATA call
+#_
+#_@@@
+#_{dm_listgetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdata.html
+#_
+</article>
+</node>
+<node>
+id=629
+lv=4
+dt=Text
+nm=DM_LISTGETDATASIZE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTGETDATASIZE
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_listgetdatasize}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdatasize.html
+#_
+</article>
+</node>
+<node>
+id=630
+lv=4
+dt=Text
+nm=DM_LISTGETITEM
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTGETITEM
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  integer (ItemIndex)
 #_    Result:  table, or nil
 #_
-#_DM_LISTINSERT,
+#_@@@
+#_{dm_listgetitem}: $(ENC_URL)/dialogapi/dmsg/dm_listgetitem.html
+#_
+</article>
+</node>
+<node>
+id=631
+lv=4
+dt=Text
+nm=DM_LISTGETTITLES
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTGETTITLES
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_listgettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listgettitles.html
+#_
+</article>
+</node>
+<node>
+id=632
+lv=4
+dt=Text
+nm=DM_LISTINFO
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTINFO
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  none
+#_    Result:  table, or nil
+#_
+#_@@@
+#_{dm_listinfo}: $(ENC_URL)/dialogapi/dmsg/dm_listinfo.html
+#_
+</article>
+</node>
+<node>
+id=633
+lv=4
+dt=Text
+nm=DM_LISTINSERT
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTINSERT
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  integer, or nil
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTINSERT", id,
 #_        { Index=2, Text="Hello World", Flags="LIF_CHECKED" })
 #_
-#_DM_LISTUPDATE:
-#_    Param2:  table
-#_    Result:  boolean
-#_    *Example:*
-#_      res = far.SendDlgMessage(hDlg, "DM_LISTUPDATE", id,
-#_        { Index=2, Text="Hello World", Flags="LIF_CHECKED" })
+#_@@@
+#_{dm_listinsert}: $(ENC_URL)/dialogapi/dmsg/dm_listinsert.html
 #_
-#_DM_LISTSETCURPOS:
+</article>
+</node>
+<node>
+id=634
+lv=4
+dt=Text
+nm=DM_LISTSET
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTSET
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table (array of tables)
+#_    Result:  integer
+#_    *Example:*
+#_      res = far.SendDlgMessage(hDlg, "DM_LISTADD", id,
+#_        { { Text="added line 1" },
+#_          { Text="added line 2", Flags="LIF_CHECKED" } })
+#_
+#_@@@
+#_{dm_listset}: $(ENC_URL)/dialogapi/dmsg/dm_listset.html
+#_
+</article>
+</node>
+<node>
+id=635
+lv=4
+dt=Text
+nm=DM_LISTSETCURPOS
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTSETCURPOS
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  integer
 #_    *Example:*
@@ -2746,35 +3462,335 @@ mtime=3975946037
 #_    *Note:*
 #_      Elements numbering is 1-based.
 #_
-#_DM_LISTSETTITLES:
+#_@@@
+#_{dm_listsetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listsetcurpos.html
+#_
+</article>
+</node>
+<node>
+id=636
+lv=4
+dt=Text
+nm=DM_LISTSETDATA
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTSETDATA
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table
+#_               ["Index"] - integer (1-based list index)
+#_               ["Data"]  - any Lua value except nil
+#_    Result:  integer (returned from Far)
+#_
+#_@@@
+#_{dm_listsetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listsetdata.html
+#_
+</article>
+</node>
+<node>
+id=637
+lv=4
+dt=Text
+nm=DM_LISTSETTITLES
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTSETTITLES
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  integer
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTSETTITLES", id,
 #_        { Title="hello", Bottom="goodbye" })
 #_
-#_DM_LISTGETDATA:
-#_    Param2:  integer (1-based list index)
-#_    Result:  either of
-#_               - nil - if Far returned 0
-#_               - light userdata (raw data pointer) - if alien data detected
-#_               - value passed by the last DM_LISTSETDATA call
+#_@@@
+#_{dm_listsettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listsettitles.html
 #_
-#_DM_LISTSETDATA:
+</article>
+</node>
+<node>
+id=638
+lv=4
+dt=Text
+nm=DM_LISTSORT
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTSORT
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_listsort}: $(ENC_URL)/dialogapi/dmsg/dm_listsort.html
+#_
+</article>
+</node>
+<node>
+id=639
+lv=4
+dt=Text
+nm=DM_LISTUPDATE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_LISTUPDATE
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
-#_               ["Index"] - integer (1-based list index)
-#_               ["Data"]  - any Lua value except nil
-#_    Result:  integer (returned from Far)
+#_    Result:  boolean
+#_    *Example:*
+#_      res = far.SendDlgMessage(hDlg, "DM_LISTUPDATE", id,
+#_        { Index=2, Text="Hello World", Flags="LIF_CHECKED" })
 #_
-#_DM_GETDLGITEM:
-#_    Param2:  table, or nil
-#_    Result:  table, or nil
-#_    *Note:*
-#_      res = far.SendDlgMessage(hDlg, "DM_GETDLGITEM", numitem, item)
-#_          *is equivalent to*
-#_      res = `far.GetDlgItem`(hDlg, numitem, item)
+#_@@@
+#_{dm_listupdate}: $(ENC_URL)/dialogapi/dmsg/dm_listupdate.html
 #_
-#_DM_SETDLGITEM:
+</article>
+</node>
+<node>
+id=640
+lv=4
+dt=Text
+nm=DM_MOVEDIALOG
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_MOVEDIALOG
+#_    Param1:  integer (0=relative, otherwise absolute coordinates)
+#_    Param2:  table
+#_    Result:  table
+#_    *Example:*
+#_      res = far.SendDlgMessage(hDlg, "DM_MOVEDIALOG", 0, { X=5, Y=-2 })
+#_
+#_@@@
+#_{dm_movedialog}: $(ENC_URL)/dialogapi/dmsg/dm_movedialog.html
+#_
+</article>
+</node>
+<node>
+id=641
+lv=4
+dt=Text
+nm=DM_REDRAW
+ctime=3983596118
+mtime=3983597423
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_REDRAW
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_redraw}: $(ENC_URL)/dialogapi/dmsg/dm_redraw.html
+#_
+</article>
+</node>
+<node>
+id=642
+lv=4
+dt=Text
+nm=DM_RESIZEDIALOG
+ctime=3983596118
+mtime=3983597458
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_RESIZEDIALOG
+#_    Param1:  integer (optional)
+#_    Param2:  table
+#_    Result:  table
+#_
+#_@@@
+#_{dm_resizedialog}: $(ENC_URL)/dialogapi/dmsg/dm_resizedialog.html
+#_
+</article>
+</node>
+<node>
+id=643
+lv=4
+dt=Text
+nm=DM_SET3STATE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SET3STATE
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_set3state}: $(ENC_URL)/dialogapi/dmsg/dm_set3state.html
+#_
+</article>
+</node>
+<node>
+id=644
+lv=4
+dt=Text
+nm=DM_SETCHECK
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETCHECK
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  flag or boolean
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setcheck}: $(ENC_URL)/dialogapi/dmsg/dm_setcheck.html
+#_
+</article>
+</node>
+<node>
+id=645
+lv=4
+dt=Text
+nm=DM_SETCOMBOBOXEVENT
+ctime=3983596118
+mtime=3983597617
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETCOMBOBOXEVENT
+#_    Param1:  ignored
+#_    Param2:  flags
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setcomboboxevent}: $(ENC_URL)/dialogapi/dmsg/dm_setcomboboxevent.html
+#_
+</article>
+</node>
+<node>
+id=646
+lv=4
+dt=Text
+nm=DM_SETCURSORPOS
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETCURSORPOS
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorpos.html
+#_
+</article>
+</node>
+<node>
+id=647
+lv=4
+dt=Text
+nm=DM_SETCURSORSIZE
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETCURSORSIZE
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorsize.html
+#_
+</article>
+</node>
+<node>
+id=648
+lv=4
+dt=Text
+nm=DM_SETDLGDATA
+ctime=3983596118
+mtime=3983597998
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETDLGDATA
+#_    Param1: any Lua value
+#_    Param2: ignored
+#_    Result: any Lua value (the previous data)
+#_
+#_@@@
+#_{dm_setdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgdata.html
+#_
+</article>
+</node>
+<node>
+id=649
+lv=4
+dt=Text
+nm=DM_SETDLGITEM
+ctime=3983596118
+mtime=3983599526
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETDLGITEM
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  boolean
 #_    *Note:*
@@ -2782,147 +3798,364 @@ mtime=3975946037
 #_          *is equivalent to*
 #_      res = `far.SetDlgItem`(hDlg, numitem, item)
 #_
-#_DM_MOVEDIALOG:
-#_    Param1:  integer (0=relative, otherwise absolute coordinates)
-#_    Param2:  table
-#_    Result:  table
-#_    *Example:*
-#_      res = far.SendDlgMessage(hDlg, "DM_MOVEDIALOG", 0, { X=5, Y=-2 })
+#_@@@
+#_[far.SetDlgItem]: 72.html
 #_
-#_DM_RESIZEDIALOG:
-#_    Param2:  table
-#_    Result:  table
+#_{dm_setdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgitem.html
 #_
-#_DM_SETCHECK:
-#_    Param2:  flag or boolean
+</article>
+</node>
+<node>
+id=650
+lv=4
+dt=Text
+nm=DM_SETDROPDOWNOPENED
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETDROPDOWNOPENED
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
 #_    Result:  integer
 #_
-#_DM_SETCURSORPOS:
-#_    Param2:  table
-#_    Result:  integer
+#_@@@
+#_{dm_setdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_setdropdownopened.html
 #_
-#_DM_SETITEMPOSITION:
-#_    Param2:  table
-#_    Result:  integer
-#_    *Example:*
-#_      res = far.SendDlgMessage(hDlg, "DM_SETITEMPOSITION", id,
-#_        { Left=3, Top=3, Right=20, Bottom=5 })
+</article>
+</node>
+<node>
+id=651
+lv=4
+dt=Text
+nm=DM_SETEDITPOSITION
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
 #_
-#_DM_SETSELECTION:
-#_    Param2:  table
-#_    Result:  integer
-#_    *Note:* this function has much in common with `editor.Select`
 #_
-#_DM_SETCOMBOBOXEVENT:
-#_    Param2:  flags
-#_    Result:  integer
-#_
-#_DM_SETEDITPOSITION:
+#_DM_SETEDITPOSITION
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  table
 #_    Result:  integer
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_SETEDITPOSITION", id,
 #_        { CurPos=3, Overtype=0 })
 #_
-#_DN_BTNCLICK,
-#_DN_DRAGGED,
-#_DN_DRAWDIALOG,
-#_DN_DRAWDIALOGDONE,
-#_DN_DROPDOWNOPENED:
+#_@@@
+#_{dm_seteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_seteditposition.html
+#_
+</article>
+</node>
+<node>
+id=652
+lv=4
+dt=Text
+nm=DM_SETFOCUS
+ctime=3983596118
+mtime=3983598134
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETFOCUS
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setfocus}: $(ENC_URL)/dialogapi/dmsg/dm_setfocus.html
+#_
+</article>
+</node>
+<node>
+id=653
+lv=4
+dt=Text
+nm=DM_SETHISTORY
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETHISTORY
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  string
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_sethistory}: $(ENC_URL)/dialogapi/dmsg/dm_sethistory.html
+#_
+</article>
+</node>
+<node>
+id=654
+lv=4
+dt=Text
+nm=DM_SETINPUTNOTIFY
+ctime=3983596118
+mtime=3983598288
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETINPUTNOTIFY
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setinputnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
+#_
+</article>
+</node>
+<node>
+id=655
+lv=4
+dt=Text
+nm=DM_SETITEMDATA
+ctime=3983596118
+mtime=3983598356
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETITEMDATA
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_setitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_setitemdata.html
+#_
+</article>
+</node>
+<node>
+id=656
+lv=4
+dt=Text
+nm=DM_SETITEMPOSITION
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETITEMPOSITION
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table
+#_    Result:  integer
+#_    *Example:*
+#_      res = far.SendDlgMessage(hDlg, "DM_SETITEMPOSITION", id,
+#_        { Left=3, Top=3, Right=20, Bottom=5 })
+#_
+#_@@@
+#_{dm_setitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_setitemposition.html
+#_
+</article>
+</node>
+<node>
+id=657
+lv=4
+dt=Text
+nm=DM_SETMAXTEXTLENGTH
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETMAXTEXTLENGTH
+#_    Param1:  integer (ID of dialog item)
 #_    Param2:  integer
 #_    Result:  integer
 #_
-#_DN_CONTROLINPUT:
-#_    Param2:  `tInputRecord` or string
+#_@@@
+#_{dm_setmaxtextlength}: $(ENC_URL)/dialogapi/dmsg/dm_setmaxtextlength.html
+#_
+</article>
+</node>
+<node>
+id=658
+lv=4
+dt=Text
+nm=DM_SETMOUSEEVENTNOTIFY
+ctime=3983596118
+mtime=3983598768
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETMOUSEEVENTNOTIFY
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
 #_    Result:  integer
 #_
-#_DM_GETDLGDATA:
-#_    Result: the dialog data (can be any Lua value)
+#_@@@
+#_{dm_setmouseeventnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
 #_
-#_DM_SETDLGDATA:
-#_    Param1: any Lua value
-#_    Result: any Lua value (the previous data)
+</article>
+</node>
+<node>
+id=659
+lv=4
+dt=Text
+nm=DM_SETSELECTION
+ctime=3983596118
+mtime=3983599541
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
 #_
-#_**Far API used:**
-#_  SendDlgMessage
+#_
+#_DM_SETSELECTION
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  table
+#_    Result:  integer
+#_    *Note:* this function has much in common with `editor.Select`
 #_
 #_@@@
-#_[far.GetDlgItem]: 54.html
-#_[far.SetDlgItem]: 72.html
 #_[editor.Select]: 42.html
-#_[tInputRecord]: 187.html
 #_
-#_{dm_addhistory}: $(ENC_URL)/dialogapi/dmsg/dm_addhistory.html
-#_{dm_close}: $(ENC_URL)/dialogapi/dmsg/dm_close.html
-#_{dm_editunchangedflag}: $(ENC_URL)/dialogapi/dmsg/dm_editunchangedflag.html
-#_{dm_enableredraw}: $(ENC_URL)/dialogapi/dmsg/dm_enableredraw.html
-#_{dm_enable}: $(ENC_URL)/dialogapi/dmsg/dm_enable.html
-#_{dm_getcheck}: $(ENC_URL)/dialogapi/dmsg/dm_getcheck.html
-#_{dm_getconsttextptr}: $(ENC_URL)/dialogapi/dmsg/dm_getconsttextptr.html
-#_{dm_getcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorpos.html
-#_{dm_getcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_getcursorsize.html
-#_{dm_getdialoginfo}: $(ENC_URL)/dialogapi/dmsg/dm_getdialoginfo.html
-#_{dm_getdialogtitle}: $(ENC_URL)/dialogapi/dmsg/dm_getdialogtitle.html
-#_{dm_getdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgdata.html
-#_{dm_getdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgitem.html
-#_{dm_getdlgrect}: $(ENC_URL)/dialogapi/dmsg/dm_getdlgrect.html
-#_{dm_getdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_getdropdownopened.html
-#_{dm_geteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_geteditposition.html
-#_{dm_getfocus}: $(ENC_URL)/dialogapi/dmsg/dm_getfocus.html
-#_{dm_getitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_getitemdata.html
-#_{dm_getitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_getitemposition.html
-#_{dm_getselection}: $(ENC_URL)/dialogapi/dmsg/dm_getselection.html
-#_{dm_gettext}: $(ENC_URL)/dialogapi/dmsg/dm_gettext.html
-#_{dm_key}: $(ENC_URL)/dialogapi/dmsg/dm_key.html
-#_{dm_listaddstr}: $(ENC_URL)/dialogapi/dmsg/dm_listaddstr.html
-#_{dm_listadd}: $(ENC_URL)/dialogapi/dmsg/dm_listadd.html
-#_{dm_listdelete}: $(ENC_URL)/dialogapi/dmsg/dm_listdelete.html
-#_{dm_listfindstring}: $(ENC_URL)/dialogapi/dmsg/dm_listfindstring.html
-#_{dm_listgetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listgetcurpos.html
-#_{dm_listgetdatasize}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdatasize.html
-#_{dm_listgetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listgetdata.html
-#_{dm_listgetitem}: $(ENC_URL)/dialogapi/dmsg/dm_listgetitem.html
-#_{dm_listgettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listgettitles.html
-#_{dm_listinfo}: $(ENC_URL)/dialogapi/dmsg/dm_listinfo.html
-#_{dm_listinsert}: $(ENC_URL)/dialogapi/dmsg/dm_listinsert.html
-#_{dm_listsetcurpos}: $(ENC_URL)/dialogapi/dmsg/dm_listsetcurpos.html
-#_{dm_listsetdata}: $(ENC_URL)/dialogapi/dmsg/dm_listsetdata.html
-#_{dm_listsettitles}: $(ENC_URL)/dialogapi/dmsg/dm_listsettitles.html
-#_{dm_listset}: $(ENC_URL)/dialogapi/dmsg/dm_listset.html
-#_{dm_listsort}: $(ENC_URL)/dialogapi/dmsg/dm_listsort.html
-#_{dm_listupdate}: $(ENC_URL)/dialogapi/dmsg/dm_listupdate.html
-#_{dm_movedialog}: $(ENC_URL)/dialogapi/dmsg/dm_movedialog.html
-#_{dm_redraw}: $(ENC_URL)/dialogapi/dmsg/dm_redraw.html
-#_{dm_resizedialog}: $(ENC_URL)/dialogapi/dmsg/dm_resizedialog.html
-#_{dm_set3state}: $(ENC_URL)/dialogapi/dmsg/dm_set3state.html
-#_{dm_setcheck}: $(ENC_URL)/dialogapi/dmsg/dm_setcheck.html
-#_{dm_setcomboboxevent}: $(ENC_URL)/dialogapi/dmsg/dm_setcomboboxevent.html
-#_{dm_setcursorpos}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorpos.html
-#_{dm_setcursorsize}: $(ENC_URL)/dialogapi/dmsg/dm_setcursorsize.html
-#_{dm_setdlgdata}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgdata.html
-#_{dm_setdlgitem}: $(ENC_URL)/dialogapi/dmsg/dm_setdlgitem.html
-#_{dm_setdropdownopened}: $(ENC_URL)/dialogapi/dmsg/dm_setdropdownopened.html
-#_{dm_seteditposition}: $(ENC_URL)/dialogapi/dmsg/dm_seteditposition.html
-#_{dm_setfocus}: $(ENC_URL)/dialogapi/dmsg/dm_setfocus.html
-#_{dm_sethistory}: $(ENC_URL)/dialogapi/dmsg/dm_sethistory.html
-#_{dm_setitemdata}: $(ENC_URL)/dialogapi/dmsg/dm_setitemdata.html
-#_{dm_setitemposition}: $(ENC_URL)/dialogapi/dmsg/dm_setitemposition.html
-#_{dm_setmaxtextlength}: $(ENC_URL)/dialogapi/dmsg/dm_setmaxtextlength.html
-#_{dm_setinputnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
-#_{dm_setmouseeventnotify}: $(ENC_URL)/dialogapi/dmsg/dm_setmouseeventnotify.html
 #_{dm_setselection}: $(ENC_URL)/dialogapi/dmsg/dm_setselection.html
-#_{dm_settextptr}: $(ENC_URL)/dialogapi/dmsg/dm_settextptr.html
+#_
+</article>
+</node>
+<node>
+id=660
+lv=4
+dt=Text
+nm=DM_SETTEXT
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETTEXT
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  string
+#_    Result:  integer
+#_
+#_@@@
 #_{dm_settext}: $(ENC_URL)/dialogapi/dmsg/dm_settext.html
+#_
+</article>
+</node>
+<node>
+id=661
+lv=4
+dt=Text
+nm=DM_SETTEXTPTR
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SETTEXTPTR
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  string
+#_    Result:  integer
+#_
+#_@@@
+#_{dm_settextptr}: $(ENC_URL)/dialogapi/dmsg/dm_settextptr.html
+#_
+</article>
+</node>
+<node>
+id=662
+lv=4
+dt=Text
+nm=DM_SHOWDIALOG
+ctime=3983596118
+mtime=3983598850
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SHOWDIALOG
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
 #_{dm_showdialog}: $(ENC_URL)/dialogapi/dmsg/dm_showdialog.html
+#_
+</article>
+</node>
+<node>
+id=663
+lv=4
+dt=Text
+nm=DM_SHOWITEM
+ctime=3983596118
+mtime=3983596118
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_SHOWITEM
+#_    Param1:  integer (ID of dialog item)
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_@@@
 #_{dm_showitem}: $(ENC_URL)/dialogapi/dmsg/dm_showitem.html
+#_
+</article>
+</node>
+<node>
+id=664
+lv=4
+dt=Text
+nm=DM_USER
+ctime=3983596118
+mtime=3983598908
+<article>
+#_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
+#_    or
+#_Result = hDlg:send (Msg, Param1, Param2)
+#_
+#_
+#_DM_USER
+#_    Param1:  integer (optional)
+#_    Param2:  integer (optional)
+#_    Result:  integer
+#_
+#_@@@
 #_{dm_user}: $(ENC_URL)/dialogapi/dmsg/dm_user.html
-#_{senddlgmessage}: $(ENC_URL)/service_functions/senddlgmessage.html
-#_{dn_btnclick}: $(ENC_URL)/dialogapi/dmsg/dn_btnclick.html
-#_{dn_dragged}: $(ENC_URL)/dialogapi/dmsg/dn_dragged.html
-#_{dn_drawdialog}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialog.html
-#_{dn_drawdialogdone}: $(ENC_URL)/dialogapi/dmsg/dn_drawdialogdone.html
-#_{dn_dropdownopened}: $(ENC_URL)/dialogapi/dmsg/dn_dropdownopened.html
-#_{dn_controlinput}: $(ENC_URL)/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
 </node>
