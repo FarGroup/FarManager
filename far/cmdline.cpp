@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
+#include "keyboard.hpp"
 #include "string_utils.hpp"
 #include "farversion.hpp"
 #include "global.hpp"
@@ -931,6 +932,125 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
+static void pager(function_ref<void(function_ref<void(string_view)>)> const Handler)
+{
+	try
+	{
+		const auto Height = ScrY + 1;
+		const auto EpilogueSize = Global->Opt->ShowKeyBar? 2 : 1;
+
+		auto
+			LinesAvailable = Height - 1,
+			LinesUsed = EpilogueSize;
+
+		const auto Pause = [&]
+		{
+			std::wcout.flush();
+
+			switch (WaitKey())
+			{
+			case KEY_ESC:
+			case KEY_BREAK:
+			case KEY_CTRLC:
+			case KEY_RCTRLC:
+				cancel_operation();
+
+			case KEY_SPACE:
+			case KEY_PGDN:
+				LinesUsed = EpilogueSize;
+				break;
+
+			case KEY_END:
+				LinesAvailable = std::numeric_limits<decltype(LinesAvailable)>::max();
+				break;
+
+			default:
+				--LinesUsed;
+			}
+		};
+
+		const auto PrintLine = [&](string_view const Str)
+		{
+			const auto Length = visual_string_length(Str);
+			const auto Width = ScrX + 1z;
+			const auto LinesNeeded = std::max(1, static_cast<int>((Length + Width - 1) / Width));
+
+			if (LinesUsed + LinesNeeded > LinesAvailable)
+				Pause();
+
+			std::wcout << Str << L'\n';
+			LinesUsed += LinesNeeded;
+		};
+
+		Handler(PrintLine);
+		std::wcout.flush();
+	}
+	catch (operation_cancelled const&){}
+}
+
+static void about()
+{
+	pager([](function_ref<void(string_view)> const PrintLine)
+	{
+		PrintLine({});
+		PrintLine(build::version_string());
+		PrintLine(build::copyright());
+
+		if (const auto Revision = build::scm_revision(); !Revision.empty())
+		{
+			PrintLine({});
+			PrintLine(L"SCM revision:"sv);
+			PrintLine(Revision);
+		}
+
+		PrintLine({});
+		PrintLine(L"Compiler:"sv);
+		PrintLine(build::compiler());
+
+		PrintLine({});
+		PrintLine(L"Standard library:"sv);
+		PrintLine(build::library());
+
+		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
+		{
+			PrintLine({});
+			PrintLine(L"Third party libraries:"sv);
+
+			for (const auto& [Name, Version]: ComponentsInfo)
+			{
+				Version.empty()?
+					PrintLine(Name) :
+					PrintLine(far::format(L"{}, version {}"sv, Name, Version));
+			}
+		}
+
+		if (const auto& Factories = Global->CtrlObject->Plugins->Factories(); std::ranges::any_of(Factories, [](const auto& i) { return i->IsExternal(); }))
+		{
+			PrintLine({});
+			PrintLine(L"Plugin adapters:"sv);
+
+			for (const auto& i: Factories)
+			{
+				if (!i->IsExternal())
+					continue;
+
+				PrintLine(far::format(L"{}, version {}"sv, i->Title(), version_to_string(i->version())));
+			}
+		}
+
+		if (Global->CtrlObject->Plugins->size())
+		{
+			PrintLine({});
+			PrintLine(L"Plugins:"sv);
+
+			for (const auto& i: *Global->CtrlObject->Plugins)
+			{
+				PrintLine(far::format(L"{}, version {}"sv, i->Title(), version_to_string(i->version())));
+			}
+		}
+	});
+}
+
 static bool ProcessFarCommands(string_view Command, function_ref<void(bool NoWait)> const Activator)
 {
 	const auto ConsoleActivator = [&Activator](bool const NoWait = false)
@@ -955,54 +1075,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool NoWai
 	if (equal_icase(Command, L"about"sv))
 	{
 		ConsoleActivator();
-
-		std::wcout << L'\n' << build::version_string() << L'\n' << build::copyright() << L'\n';
-
-		if (const auto Revision = build::scm_revision(); !Revision.empty())
-		{
-			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
-		}
-
-		std::wcout << L"\nCompiler:\n"sv << build::compiler() << L'\n';
-		std::wcout << L"\nStandard library:\n"sv << build::library() << L'\n';
-
-		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
-		{
-			std::wcout << L"\nThird party libraries:\n"sv;
-
-			for (const auto& [Name, Version]: ComponentsInfo)
-			{
-				std::wcout << Name;
-				if (!Version.empty())
-				{
-					std::wcout << L", version "sv << Version;
-				}
-				std::wcout << L'\n';
-			}
-		}
-
-		if (const auto& Factories = Global->CtrlObject->Plugins->Factories(); std::ranges::any_of(Factories, [](const auto& i) { return i->IsExternal(); }))
-		{
-			std::wcout << L"\nPlugin adapters:\n"sv;
-			for (const auto& i: Factories)
-			{
-				if (i->IsExternal())
-					std::wcout << i->Title() << L", version "sv << version_to_string(i->version()) << L'\n';
-			}
-		}
-
-		if (Global->CtrlObject->Plugins->size())
-		{
-			std::wcout << L"\nPlugins:\n"sv;
-
-			for (const auto& i: *Global->CtrlObject->Plugins)
-			{
-				std::wcout << i->Title() << L", version "sv << version_to_string(i->version()) << L'\n';
-			}
-		}
-
-		std::wcout << std::flush;
-
+		about();
 		return true;
 	}
 
@@ -1239,15 +1312,15 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 			ConsoleActivator();
 
-			const os::env::provider::strings EnvStrings;
-			for (const auto& i: enum_substrings(EnvStrings.data()))
+			pager([&](function_ref<void(string_view)> const PrintLine)
 			{
-				if (starts_with_icase(i, SetParams))
+				os::env::provider::strings const EnvStrings;
+				for (const auto& i: enum_substrings(EnvStrings.data()))
 				{
-					std::wcout << i << L'\n';
+					if (starts_with_icase(i, SetParams))
+						PrintLine(i);
 				}
-			}
-			std::wcout << std::flush;
+			});
 
 			return true;
 		}
