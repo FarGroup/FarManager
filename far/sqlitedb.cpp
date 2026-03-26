@@ -175,9 +175,43 @@ namespace
 		}
 	}
 
+	struct sqlite_version
+	{
+		constexpr explicit(false) sqlite_version(int const VersionNumber):
+			major(VersionNumber / 1000000),
+			minor(VersionNumber / 1000 % 1000),
+			patch(VersionNumber % 1000)
+		{
+		}
+
+		constexpr sqlite_version(unsigned const Major, unsigned const Minor, unsigned const Patch):
+			major(Major),
+			minor(Minor),
+			patch(Patch)
+		{
+		}
+
+		constexpr explicit(false) operator int() const
+		{
+			return major * 1000000 + minor * 1000 + patch;
+		}
+
+		unsigned major;
+		unsigned minor;
+		unsigned patch;
+	};
+
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::info{ L"SQLite"sv, far::format(L"{} (API) / {} (library)"sv, WIDE_S(SQLITE_VERSION), encoding::utf8::get_chars(sqlite::sqlite3_libversion())) };
+		sqlite_version const
+			ApiVersion{ SQLITE_VERSION_NUMBER },
+			LibVersion{ sqlite::sqlite3_libversion_number() };
+
+		return components::info{ L"SQLite"sv, far::format(
+			L"{}.{}.{} (API) / {}.{}.{} (library)"sv,
+			ApiVersion.major, ApiVersion.minor, ApiVersion.patch,
+			LibVersion.major, LibVersion.minor, LibVersion.patch
+		)};
 	});
 }
 
@@ -203,23 +237,34 @@ bool far_sqlite_exception::is_constraint_unique() const
 
 static void check_version()
 {
-	const auto
-		MinMajor = 3,
-		MinMinor = 52,
-		MinPatch = 0;
+	sqlite_version constexpr
+		ApiVersion { SQLITE_VERSION_NUMBER },
+		MinVersion
+		{
+			3,
+			52,
+			0
+		};
 
-	const auto MinVersion = MinMajor * 1000000 + MinMinor * 1000 + MinPatch;
+	static_assert(ApiVersion >= MinVersion);
 
-	static_assert(SQLITE_VERSION_NUMBER >= MinVersion);
+	sqlite_version const LibVersion{ sqlite::sqlite3_libversion_number() };
 
-	if (sqlite::sqlite3_libversion_number() < MinVersion)
+	if (LibVersion < MinVersion)
 	{
 		throw far_known_exception(far::format(
-			L"SQLite library version {} is too old, at least {}.{}.{} is required"sv,
-			encoding::utf8::get_chars(sqlite::sqlite3_libversion()),
-			MinMajor, MinMinor, MinPatch
+			L""
+			"SQLite library is too old\n\n"
+			"Loaded version:   {}.{}.{}\n"
+			"Minimum version:  {}.{}.{}\n"
+			"Expected version: {}.{}.{}"sv,
+			LibVersion.major, LibVersion.minor, LibVersion.patch,
+			MinVersion.major, MinVersion.minor, MinVersion.patch,
+			ApiVersion.major, ApiVersion.minor, ApiVersion.patch
 		));
 	}
+
+	LOGINFO(L"SQLite {}.{}.{} loaded"sv, LibVersion.major, LibVersion.minor, LibVersion.patch);
 }
 
 void SQLiteDb::library_load()
