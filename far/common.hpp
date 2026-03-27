@@ -37,17 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: clean up & split
 
-bool CheckStructSize(const auto* s)
-{
-	return s && (s->StructSize >= sizeof(*s));
-}
-
-template<typename T, typename U>
-bool CheckStructSize(T const* const s, U T::* const Member)
-{
-	return s && s->StructSize >= std::bit_cast<size_t>(&(s->*Member)) + sizeof(U) - std::bit_cast<size_t>(s);
-}
-
 template<class T>
 auto NullToEmpty(const T* Str)
 {

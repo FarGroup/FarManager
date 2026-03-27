@@ -52,6 +52,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+bool CheckStructSize(size_t Actual, size_t Expected);
+
+bool CheckStructSize(const auto* s)
+{
+	return s && CheckStructSize(s->StructSize, sizeof(*s));
+}
+
+template<typename T, typename U>
+bool CheckStructSize(T const* const s, U T::* const Member)
+{
+	return s && CheckStructSize(s->StructSize, std::bit_cast<size_t>(&(s->*Member)) + sizeof(U) - std::bit_cast<size_t>(s));
+}
+
 class SaveScreen;
 class FileEditor;
 class Viewer;

@@ -88,6 +88,34 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+bool CheckStructSize(size_t const Actual, size_t const Expected)
+{
+	if (Actual == Expected)
+		return true;
+
+	if (Actual < Expected)
+		return false;
+
+	// Here be dragons
+	// Some plugins do not bother to even initialize the size, so it can contain random rubbish,
+	// which might happen to be larger than the actual size of the structure.
+	// If we trust it and write into the struct, the whole thing will crash and burn.
+	// Hence, if the size is too large, then it's likely rubbish.
+	// Now, what is "too large"?
+	// How larger an API struct can get with time?
+	// Let's say we added 100 pointer-like fields, which is already a stretch.
+	// On x64, it's 800 bytes.
+	// Let's be generous and round it up to 1K.
+	// Let's be luxurious and round it up to 64K total.
+	// No one in their right mind would have structs with 8000 fields, right?
+	const size_t MaximumReasonalbleStructSize = 65536;
+	if (Actual <= MaximumReasonalbleStructSize)
+		return true;
+
+	LOGERROR(L"Plugin API struct size is unreasonably large ({}, {} expected). Have you initialized it properly?"sv, Actual, Expected);
+	return false;
+}
+
 static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {
 	/*
@@ -2500,3 +2528,48 @@ void plugin_panel::delayed_delete(const string& Name)
 	}
 	m_DelayedDeleter->add(Name);
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("plugins.CheckStructSize")
+{
+	struct s
+	{
+		size_t StructSize;
+
+		int OldField;
+		int NewField1;
+		int NewField2;
+	}
+	const
+		S1{ 1 },
+		S2{ sizeof(s) },
+		S3{ sizeof(s) + 1 },
+		SLegacy1{ offsetof(s, NewField1) },
+		SLegacy2{ offsetof(s, NewField2) };
+
+	REQUIRE(!CheckStructSize(static_cast<s const*>(nullptr)));
+	REQUIRE(!CheckStructSize(&S1));
+	REQUIRE(CheckStructSize(&S2));
+	REQUIRE(CheckStructSize(&S3));
+	REQUIRE(!CheckStructSize(&SLegacy1));
+	REQUIRE(!CheckStructSize(&SLegacy2));
+
+	REQUIRE(!CheckStructSize(&S1, &s::OldField));
+	REQUIRE(CheckStructSize(&S2, &s::NewField2));
+	REQUIRE(CheckStructSize(&S3, &s::NewField2));
+	REQUIRE(!CheckStructSize(&SLegacy1, &s::NewField1));
+	REQUIRE(!CheckStructSize(&SLegacy1, &s::NewField2));
+	REQUIRE(CheckStructSize(&SLegacy2, &s::NewField1));
+	REQUIRE(!CheckStructSize(&SLegacy2, &s::NewField2));
+
+	// Sanity checks
+	REQUIRE(!CheckStructSize(32, 64));
+	REQUIRE(CheckStructSize(64, 64));
+	REQUIRE(CheckStructSize(65536, 64));
+	REQUIRE(!CheckStructSize(65537, 64));
+}
+
+#endif

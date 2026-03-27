@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2026-03-27 20:33:11+00:00 - build 6669
+
+1. Add upper limit to API stuct size checks to detect uninitialized memory.
+   This means that some buggy plugins might suddenly stop working. C'est la vie.
+
+--------------------------------------------------------------------------------
 drkns 2026-03-26 20:31:07+00:00 - build 6668
 
 1. Continue 6667.
