@@ -25,7 +25,7 @@ local function fputs_indent(s, fp_out, indent)
   fp_out:write(s)
 end
 
-local function writeProjectHeader (fp_out, ProjectName, Title, DefaultTopic, codepage, language)
+local function writeProjectHeader (fp_out, ProjectName, Title, DefaultTopic, language)
   local WindowName = "MyDefaultWindow"
   fprintf(fp_out, "[OPTIONS]\n")
   fprintf(fp_out, "Compatibility=1.1 or later\n")
@@ -84,7 +84,7 @@ local function writeTopicHeader(fp_out, Title, fp_template, codepage)
       if "<!--Body-->" == line:sub(1,11) then return end
       local cp1, cp2 = line:find("<!--Title-->", 1, true)
       if not cp1 then
-          if "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-%s\">" == line then
+          if line:find("charset=windows%-%%s") then
               fprintf(fp_out, line, codepage)
               fp_out:write("\n")
           else
@@ -219,7 +219,7 @@ local function generateFPT (NodeIterator, ProjectName, fp_template, codepage, la
     fCurrent:close()
 
     if not ProjectHeaderReady then
-      writeProjectHeader(fProj, ProjectName, node.name, filename, codepage, language)
+      writeProjectHeader(fProj, ProjectName, node.name, filename, language)
       ProjectHeaderReady = true
     end
 
@@ -284,7 +284,6 @@ do
   if not language then
     syntax(); return
   end
-  assert(lib=="hjt" or lib=="tsi", "library not supported")
   lib = require(lib)
   local fp_template = tem and assert(io.open(tem))
   local project_name = datafile:match("[^/\\]+$"):gsub("%.[^.]+$", "")

@@ -1,4 +1,5 @@
 @echo off
+set LUA_INIT=
 cd "%~dp0" || exit 1
 if exist ..\build\lua rd ..\build\lua || exit 1
 mkdir ..\build
