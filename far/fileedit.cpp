@@ -2646,7 +2646,16 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			Info->Options|=EOPT_SHOWTITLEBAR;
 		if (Global->Opt->EdOpt.ShowKeyBar)
 			Info->Options|=EOPT_SHOWKEYBAR;
-		if (CheckStructSize(Info, &EditorInfo::WindowArea))
+		/* It looks like the ConEmu plugin (latest version 230724, from 2023) calls `ECTL_GETINFO`
+		   with un-initialized EditorInfo. Which means that `StructSize` is not initialized,
+		   and it is often (a lot) bigger than `sizeof(StructSize)`.
+		   I means that a simple `CheckStructSize(Info)` will pass, because it tests for `>=`.
+		   And 2000091480960 is >= 184 :-) (that is a real value seen on a running FAR + ConEmu)
+		   The structure is invalid, so it is dangerous to update `WindowArea` (FAR crashes).
+		   Testing for `==` is not 100% safe, there is a tiny chance to just happen.
+		   But that's one chance out of 2^32 or 2^64 (max-value of `size_t`, architecture dependent).
+		 */
+		if (Info && Info->StructSize == sizeof(*Info) && CheckStructSize(Info, &EditorInfo::WindowArea))
 			Info->WindowArea = GetPosition().as<RECT>();
 	}
 	return result;
