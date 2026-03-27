@@ -108,8 +108,8 @@ bool CheckStructSize(size_t const Actual, size_t const Expected)
 	// Let's be generous and round it up to 1K.
 	// Let's be luxurious and round it up to 64K total.
 	// No one in their right mind would have structs with 8000 fields, right?
-	const size_t MaximumReasonalbleStructSize = 65536;
-	if (Actual <= MaximumReasonalbleStructSize)
+	const size_t MaximumReasonableStructSize = 65536;
+	if (Actual <= MaximumReasonableStructSize)
 		return true;
 
 	LOGERROR(L"Plugin API struct size is unreasonably large ({}, {} expected). Have you initialized it properly?"sv, Actual, Expected);
