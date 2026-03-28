@@ -965,7 +965,8 @@ static void break_links_for_old_os(string_view const Name)
 bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip)
 {
 	RetryRecycleAsRemove = false;
-	const auto strFullName = ConvertNameToFull(Name);
+	const auto strFullName = ConvertNameToReal(Name); // Real: Subst-диск заменен на оригинальный
+    // ConvertNameToFull(Name) оставляет subst (если был) и удаление будет безвозвратным
 
 	break_links_for_old_os(strFullName);
 
