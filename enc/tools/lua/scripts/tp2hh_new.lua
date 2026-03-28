@@ -21,7 +21,7 @@ local function HTML_puts(s, fp_out)
 end
 
 local function fputs_indent(s, fp_out, indent)
-  for i=1,indent do fp_out:write '\t' end
+  for _=1,indent do fp_out:write '\t' end
   fp_out:write(s)
 end
 
@@ -113,9 +113,10 @@ local searchPattern = rex.new( [[
   (\w+(?:\.\w+)*)
 ]], "ix")
 
-local function postprocess_article (part1, part2, is_markdown)
+local function postprocess_article (part1, part2, is_markdown, LocalLinks)
+  local links, links2 = {}, {}
+
   if part2 then
-    local links, links2 = {}, {}
     for line in part2:gmatch("[^\n]+") do
       local name, url
       if not is_markdown then
@@ -128,22 +129,24 @@ local function postprocess_article (part1, part2, is_markdown)
         if name then links2[name] = url end
       end
     end
+  end
 
-    if not is_markdown then
-      part1 = part1:gsub("`([^`\n]+)`",
-        function(c)
-          return links[c] and ('<a href="%s">%s</a>'):format(links[c], c)
-        end)
-    end
-
-    part1 = rex.gsub(part1, searchPattern,
+  if not is_markdown then
+    part1 = part1:gsub("`([^`\n]+)`",
       function(c)
-        if c then
-          local url = links2[c:lower()]
-          if url then return '<a href="'..url..'">'..c..'</a>' end
-        end
+        local url = links[c] or LocalLinks[c]
+        return url and ('<a href="%s">%s</a>'):format(url, c)
       end)
   end
+
+  part1 = rex.gsub(part1, searchPattern,
+    function(c)
+      if c then
+        local url = links2[c:lower()]
+        if url then return '<a href="'..url..'">'..c..'</a>' end
+      end
+    end)
+
   return is_markdown and part1 or "\n<pre>"..part1.."</pre>\n"
 end
 
@@ -162,7 +165,7 @@ end
 -- very beginning of each such article, to let this program know that these
 -- articles should go to the output "as they are" (with no added header, no
 -- added footer and no conversion).
-local function process_article (article)
+local function process_article (article, LocalLinks)
   local line, start = article:match "^([^\n]*)\n()"
   if line == "<!--HTML-->" then
     return article, true
@@ -176,7 +179,7 @@ local function process_article (article)
         return lxsh.highlighters.lua(c,
           { formatter=lxsh.formatters.html,
             external=false,
-            colors=lxsh.colors.earendel })
+            colors=lxsh.colors.earendel }) .. "\n"
       end
     )
     part1 = discount(part1)
@@ -189,43 +192,65 @@ local function process_article (article)
                c3                                      -- literal asterisks
       end, nil, "x")
   end
-  return postprocess_article(part1, part2, is_markdown), false
+  return postprocess_article(part1, part2, is_markdown, LocalLinks), false
+end
+
+local function path_join(path1, path2)
+  if path1:find("[/\\]$") then return path1..path2; end
+  return path1.."\\"..path2
 end
 
 -- generate: files, project, TOC and FileIndex
-local function generateFPT (NodeIterator, ProjectName, fp_template, codepage, language)
+local function generateFPT (lib, DataFile, ProjectName, fp_template, codepage, language, out_dir)
+  local MakeFileName = function(id) return ("%d.html"):format(id) end
+
+  local path_project_name = path_join(out_dir, ProjectName)
   -- create a FileIndex, a project file and a TOC file
-  local fIndex = io.open(ProjectName..".htm", "wt")
+  local fIndex = assert( io.open(path_project_name..".htm", "wt") )
   fIndex:write("<HTML><HEAD><TITLE>\nFile Locator\n</TITLE></HEAD>\n<BODY>\n")
 
-  local fProj = io.open(ProjectName..".hhp", "wt")
-  local fToc  = io.open(ProjectName..".hhc", "wt")
+  local fProj = assert( io.open(path_project_name..".hhp", "wt") )
+  local fToc  = assert( io.open(path_project_name..".hhc", "wt") )
   writeTocHeader(fToc)
 
-  local ProjectHeaderReady
   local nodeLevel = -1
   local ProjectFiles = {}
-  for node, nodenumber in NodeIterator do
-    local filename = ("%d.html"):format(node.id)
-    local fCurrent = assert(io.open(filename, "wt"))
-    local article, ready = process_article(node.article)
+  local tNodes, tArticles = assert( lib.ReadFile(DataFile) )
+
+  writeProjectHeader(fProj, ProjectName, tNodes[1].name, MakeFileName(tNodes[1].art), language)
+
+  local LocalLinks = {}
+  for _, art in ipairs(tArticles) do
+    if art.datatype ~= "Text" then
+      error(art.name .. ": article must be pure text type")
+    end
+    LocalLinks[art.name] = MakeFileName(art.id)
+  end
+
+  for _, art in ipairs(tArticles) do
+    local filename = MakeFileName(art.id)
+    local fCurrent = assert( io.open(path_join(out_dir,filename), "wt") )
+    local article, ready = process_article(art.content, LocalLinks)
     if ready then
       fCurrent:write(article)
     else
-      writeTopicHeader(fCurrent, node.name, fp_template, codepage)
+      writeTopicHeader(fCurrent, art.name, fp_template, codepage)
       fCurrent:write(article)
       writeTopicFooter(fCurrent, fp_template)
     end
     fCurrent:close()
 
-    if not ProjectHeaderReady then
-      writeProjectHeader(fProj, ProjectName, node.name, filename, language)
-      ProjectHeaderReady = true
-    end
-
     -- include file name into the project file;
     -- do not write directly - put in a table for sorting (work around a conjectural compiler bug)
     table.insert(ProjectFiles, filename)
+  end
+
+  table.sort(ProjectFiles)
+  for _,nm in ipairs(ProjectFiles) do fProj:write(nm, "\n") end
+  fProj:close()
+
+  for _, node in ipairs(tNodes) do
+    local filename = MakeFileName(node.art)
 
     -- get node level
     -- put node info into the TOC and the FileIndex
@@ -258,36 +283,24 @@ local function generateFPT (NodeIterator, ProjectName, fp_template, codepage, la
     nodeLevel = newLevel
   end
 
-  table.sort(ProjectFiles)
-  for _,nm in ipairs(ProjectFiles) do fProj:write(nm, "\n") end
-  fProj:close()
-
   for i = nodeLevel, 0, -1 do
     fputs_indent("</UL>\n", fToc, i)
     fputs_indent("</UL>\n", fIndex, i)
   end
+
   fToc:write("</BODY></HTML>\n")
   fIndex:write("</BODY></HTML>\n")
+
   fToc:close()
   fIndex:close()
 end
 
-local function syntax()
-  io.stderr:write[[
-TP2HH: Treepad to HTML Help Conversion Utility
-  Syntax: TP2HH <input file> <library> <language> [<template file>] [<codepage>]
-]]
-end
-
 do
-  local datafile, lib, language, tem, codepage = ...
-  if not language then
-    syntax(); return
-  end
+  local datafile, lib, language, tem, codepage, outdir = ...
+  assert(codepage, "some parameter is missing")
   lib = require(lib)
-  local fp_template = tem and assert(io.open(tem))
+  local fp_template = (tem~="-") and assert(io.open(tem))
   local project_name = datafile:match("[^/\\]+$"):gsub("%.[^.]+$", "")
-  generateFPT(lib.Nodes(datafile), project_name, fp_template, codepage, language)
+  generateFPT(lib, datafile, project_name, fp_template, codepage, language, outdir or ".")
   if fp_template then fp_template:close() end
 end
-

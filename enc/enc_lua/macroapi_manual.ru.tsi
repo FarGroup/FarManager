@@ -1,15 +1,84 @@
-﻿<header>
-tag=SMZ1
-ver=2.7
-</header>
-<node>
-id=1
-lv=0
-dt=Text
-nm=Справка по системе макросов Far Manager
-ctime=3551829092
-mtime=3661282519
-<article>
+﻿<TreeSpice version 4.0>
+
+node lv=0 id=1 art=1 nm=Справка по системе макросов Far Manager
+node lv=1 id=94 art=94 nm=Загрузка макрофайлов
+node lv=1 id=67 art=67 nm=Формат макросов и обработчиков событий
+node lv=2 id=75 art=75 nm=Стационарные макросы
+node lv=2 id=76 art=76 nm=Клавиатурные макросы
+node lv=2 id=78 art=78 nm=Обработчики событий
+node lv=2 id=90 art=90 nm=Добавление пунктов в меню плагинов
+node lv=2 id=96 art=96 nm=Добавление префиксов командной строки
+node lv=2 id=98 art=98 nm=Добавление панельных модулей
+node lv=3 id=99 art=99 nm=Пример применения
+node lv=2 id=102 art=102 nm=Контент-колонки
+node lv=3 id=103 art=103 nm=Пример применения
+node lv=2 id=77 art=77 nm=Внешние модули
+node lv=1 id=7 art=7 nm=Плагин LuaMacro
+node lv=2 id=92 art=92 nm=Работа из командной строки
+node lv=2 id=93 art=93 nm=Файл luamacro.ini
+node lv=2 id=97 art=97 nm=Файл luafar_init.lua
+node lv=1 id=42 art=42 nm=Библиотеки функций макроязыка
+node lv=2 id=38 art=38 nm=Изменения API в сравнении с макроязыком
+node lv=2 id=20 art=20 nm=Глобальные свойства и функции
+node lv=3 id=61 art=61 nm=exit
+node lv=3 id=4 art=4 nm=Keys
+node lv=2 id=44 art=44 nm=mf
+node lv=3 id=91 art=91 nm=acall
+node lv=3 id=100 art=100 nm=AddExitHandler
+node lv=3 id=104 art=104 nm=deserialize
+node lv=3 id=106 art=106 nm=EnumScripts
+node lv=3 id=79 art=79 nm=eval
+node lv=3 id=72 art=72 nm=GetMacroCopy
+node lv=3 id=111 art=111 nm=mainmenu
+node lv=3 id=15 art=15 nm=mdelete
+node lv=3 id=13 art=13 nm=mload
+node lv=3 id=12 art=12 nm=msave
+node lv=3 id=85 art=85 nm=postmacro
+node lv=3 id=101 art=101 nm=printconsole
+node lv=3 id=105 art=105 nm=serialize
+node lv=3 id=69 art=69 nm=usermenu
+node lv=2 id=36 art=36 nm=Area
+node lv=2 id=46 art=46 nm=APanel, PPanel
+node lv=2 id=57 art=57 nm=Panel
+node lv=3 id=82 art=82 nm=CustomSortMenu
+node lv=3 id=80 art=80 nm=LoadCustomSortMode
+node lv=3 id=81 art=81 nm=SetCustomSortMode
+node lv=2 id=58 art=58 nm=BM
+node lv=2 id=47 art=47 nm=CmdLine
+node lv=2 id=51 art=51 nm=Dlg
+node lv=2 id=48 art=48 nm=Drv
+node lv=2 id=52 art=52 nm=Editor
+node lv=2 id=54 art=54 nm=Far
+node lv=3 id=95 art=95 nm=GetConfig
+node lv=2 id=49 art=49 nm=Help
+node lv=2 id=53 art=53 nm=Menu
+node lv=2 id=59 art=59 nm=Mouse
+node lv=2 id=45 art=45 nm=Object
+node lv=2 id=56 art=56 nm=Plugin
+node lv=3 id=65 art=65 nm=Call
+node lv=3 id=83 art=83 nm=SyncCall
+node lv=2 id=50 art=50 nm=Viewer
+node lv=1 id=5 art=5 nm=Разное
+node lv=2 id=2 art=2 nm=Макросы, начинающиеся с @
+node lv=2 id=14 art=14 nm=Переменные
+node lv=2 id=62 art=62 nm=Ограничения в использовании некоторых функций
+node lv=2 id=63 art=63 nm=Интроспекция
+node lv=2 id=84 art=84 nm=editor.SubscribeChangeEvent
+node lv=2 id=73 art=73 nm=package.nounload
+node lv=1 id=29 art=29 nm=Примеры
+node lv=2 id=39 art=39 nm=Выделить слово под курсором
+node lv=2 id=40 art=40 nm=Переход в меню выбора дисков
+node lv=2 id=30 art=30 nm=Выделить файлы новее текущего
+node lv=2 id=41 art=41 nm=Создание папки с именем = текущей дате
+node lv=2 id=74 art=74 nm=Запуск скрипта из редактора
+node lv=1 id=86 art=86 nm=Используемые программные продукты
+node lv=2 id=87 art=87 nm=Lua
+node lv=2 id=89 art=89 nm=LPeg
+node lv=2 id=88 art=88 nm=MoonScript
+node lv=1 id=70 art=70 nm=Статьи
+node lv=2 id=71 art=71 nm=FAR Manager. Macros and whatnot.
+
+article id=1 dt=Text ctime=3551829092 mtime=3661282519 nm=Справка по системе макросов Far Manager
 #_<markdown>
 #_
 #_Начиная с 30.09.2012 (Far 3.0.2851), в Far Manager вместо встроенного макроязыка
@@ -40,566 +109,63 @@ mtime=3661282519
 #_@@@
 #_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
 #_
-</article>
-</node>
-<node>
-id=94
-lv=1
-dt=Text
-nm=Загрузка макрофайлов
-ctime=3618591871
-mtime=3735335890
-<article>
+
+article id=2 dt=Text ctime=3551901528 mtime=3607959329 nm=Макросы, начинающиеся с @
 #_<markdown>
+#_Если макропоследовательность начинается с символа `@`, то последующая её часть интерпретируется как имя файла, содержащего Lua-скрипт.
 #_
-#_* [Стационарные макросы](75.html) и [обработчики событий](78.html) загружаются из Lua-файлов (расширение `*.lua`) и/или MoonScript-файлов (расширение `*.moon`). В дальнейшем будем называть эти файлы *макрофайлами*. Загрузка макросов происходит при исполнении макрофайлов [плагином LuaMacro][LuaMacro].
+#_* Переменные окружения в заданном имени файла автоматически расширяются.
+#_* Глобальная (в пределах окружения скрипта) переменная `_filename` содержит имя файла.
+#_* Такие скрипты легче отлаживать и модифицировать, так как не требуется их предварительная перезагрузка.
 #_
-#_* Макрофайлы грузятся из последовательности папок (рекурсивно, с подпапками),
-#_  определямой одним из следующих способов (в порядке приоритетов):
-#_  1. Последовательность папок, указанная явно (в команде или аргументе функции)
-#_  1. Значение переменной `MacroPath` в файле [`luamacro.ini`](93.html)
-#_  1. Папка `%FARPROFILE%\Macros\scripts`<br><br>
+#_**Пример 1:**
+#_        lua: @%FARHOME%\test\test.lua 123, "hello"
 #_
-#_* Far Manager никогда не вносит никаких изменений в вышеуказанные папки. Набор и содержимое файлов в них определяется исключительно пользователем.
+#_**Пример 2:**<br>
+#_[запуск скрипта из редактора][example].
 #_
-#_* Один макрофайл может содержать произвольное количество макросов и обработчиков событий.
+#_[example]: 74.html
 #_
-#_* При исполнении макрофайла ему передаётся 2 параметра:
-#_  (1) полный путь к данному макрофайлу и
-#_  (2) счётчик количества исполнений.
-#_  Если в начале макрофайла определить 2 переменные, например:<br>
-#_  `local MacroFileName, ExeCounter = ...`<br>
-#_   то эти переменные будут доступны всем макросам и обработчикам событий в данном файле.
+
+article id=4 dt=Text ctime=3551902602 mtime=3717267113 nm=Keys
+#_Keys (...)
 #_
-#_* Если макрофайлы грузятся из последовательности деревьев `root1;root2;...`,
-#_  то это значит, что:
-#_  - Дерево `root2` начнёт грузиться только после загрузки `root1`
-#_  - Для каждого дерева `rootN` первым всегда исполняется макрофайл<br>
-#_    `rootN\_macroinit.lua`, если такой файл существует. Порядок исполнения прочих
-#_    макрофайлов в данном дереве не определён.<br><br>
+#_**Параметры:**
+#_  Один или больше аргументов типа string.
+#_  Каждый аргумент может содержать несколько ключей, разделённых пробельными символами.
+#_  Аргументы регистронезависимы.
 #_
-#_[LuaMacro]: 7.html
+#_**Возвращает:**
+#_  ничего
 #_
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=67
-lv=1
-dt=Text
-nm=Формат макросов и обработчиков событий
-ctime=3568746613
-mtime=3580152284
-<article>
-#_@@@
-#_На этапе загрузки макросов все файлы стационарных и клавиатурных макросов запускаются по очереди на исполнение.
-#_
-</article>
-</node>
-<node>
-id=75
-lv=2
-dt=Text
-nm=Стационарные макросы
-ctime=3580139016
-mtime=3915184059
-<article>
-#_<markdown>
-#_
-#_Загрузка макроса происходит при вызове глобальной функции `Macro`, которой передаётся один аргумент - таблица с параметрами макроса. При успешной загрузке функция возвращает `true`.
-#_
-#_```
-#_  Macro {
-#_    area         = "Shell Info Tree";                             -- string
-#_    key          = "CtrlF11 ShiftHome";                           -- string (опциональное поле)
-#_    description  = "Macro example";                               -- string (опциональное поле)
-#_    flags        = "NoPluginPanels EmptyCommandLine";             -- string (опциональное поле)
-#_    filemask     = "*.txt,*.cpp";                                 -- string (опциональное поле)
-#_    priority     = 50;                                            -- number (опциональное поле)
-#_    sortpriority = 50;                                            -- number (опциональное поле)
-#_    selected     = true;                                          -- boolean (опциональное поле)
-#_    condition    = function(key,data) return Far.Height>30 end;   -- function (опциональное поле)
-#_    action       = function(data) msgbox("","Macro example") end; -- function (опциональное поле)
-#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (опциональное поле)
-#_  }
-#_```
-#_
-#_1. Поле `area` должно содержать имена одной или нескольких областей, разделённых пробелами.
-#_
-#_1. Поле `key` может содержать имена одного или нескольких ключей, разделённых пробелами.<br>
-#_   Ключи могут содержать модификаторы: `Ctrl,LCtrl,RCtrl,Alt,RAlt,LAlt,Shift`.<br>
-#_   `Ctrl` означает "любой из `LCtrl,RCtrl`", аналогично для `Alt`.
-#_   Порядок указания модификаторов - произвольный.<br><br>
-#_   Альтернативно, поле `key` может быть задано как регулярное выражение, обрамлённое
-#_   слешами (`/`).
-#_   * В этом случае `/Ctrl/` не сработает при нажатии `RCtrl`, надо явно обозначать
-#_     `/[LR]Ctrl/` и т.п.
-#_   * Также в этом случае необходимо соблюдать порядок в последовательности
-#_     `Ctrl`,`Alt`,`Shift`, например `/[LR]Alt[LR]CtrlF1/` никогда не сработает.<br><br>
-#_
-#_1. Опциональное поле `flags` может содержать набор [флагов][flags], разделённых пробелами.
-#_   Изменения в названиях или интерпретации флагов описаны [здесь][api changes].
-#_
-#_1. Опциональное поле `priority` (приоритет) - число от 0 до 100. Значение по умолчанию = 50.<br>
-#_   Макросы, добавляемые посредством `MCTL_ADDMACRO`, имеют приоритет = 50.
-#_
-#_1. Опциональное поле `sortpriority` (приоритет для сортировки) - число от 0 до 100. Значение по умолчанию = 50.<br>
-#_   Значение данного поля учитывается при определении порядка расположения макросов в меню выбора макроса.
-#_
-#_1. Опциональное поле `selected` - булевая величина.<br>
-#_   Это поле указывает, что данный макрос должен быть изначально выбран в меню выбора макроса.
-#_
-#_1. Опциональное поле `filemask` - строка.<br>
-#_   Применимо только для областей `Editor` и `Viewer`. Обрабатывается по правилам,
-#_   аналогичным тем, которые Фар применяет для масок файлов при поиске из панелей и т.д.
-#_   Если имя файла, открытого в редакторе или просмотрщике, не соответствует заданной маске,
-#_   макрос выполняться не будет.
-#_
-#_1. Опциональное поле `condition` - функция.
-#_   * Вызывается с 2-мя аргументами:
-#_     1. Имя нажатого ключа (`nil` для автостартующих макросов)
-#_     2. Копия таблицы-аргумента функции Macro.
-#_        Одна и та же таблица-копия используется вплоть до перезагрузки макросов.
-#_   * Если возвращает `false`/`nil`/ничего, то макрос не исполняется.
-#_   * Если возвращает число, то это число используется вместо `priority`.
-#_   * При других значениях возврата (например, `true`) используется `priority`.<br><br>
-#_
-#_1. Опциональное поле `action` - функция.<br>
-#_   * Если макрос успешно прошёл все предварительные проверки (область действия, флаги,
-#_     маска файла, приоритет), то вызывается функция `action`.
-#_   * Вызывается с одним аргументом: копией таблицы-аргумента функции Macro.
-#_     Это та же самая таблица, которая передаётся вторым аргуметом в функцию `condition`.<br><br>
-#_
-#_1. Допустимо более одного макроса на сочетание (`key`,`area`). В этом случае выполняется макрос с наибольшим приоритетом. Если есть более одного макроса с одинаковым наибольшим приоритетом - выводится меню выбора макроса.<br>
-#_   Автостартующие макросы выполняются все, независимо от приоритета. Очерёдность их исполнения не определена.
-#_
-#_[flags]: $(ENC_URL)/macro/techinfo.html#register
-#_[api changes]: 38.html
-#_
-#_@@@
-#_{far.height}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Height
-#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
-#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
-#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
-#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
-#_
-</article>
-</node>
-<node>
-id=76
-lv=2
-dt=Text
-nm=Клавиатурные макросы
-ctime=3580139029
-mtime=3607111008
-<article>
-#_<markdown>
-#_
-#_* Клавиатурные макросы обычно используются для быстрой записи и воспроизведения
-#_  последовательности нажатий клавиш клавиатуры. Они имеют меньше возможностей,
-#_  чем стационарные макросы, и для использования на постоянной основе стационарные
-#_  макросы предпочтительнее.
-#_
-#_* Клавиатурные макросы загружаются из Lua-файлов (расширение `*.lua`), находящихся
-#_  в папке `%FARPROFILE%\Macros\internal`.
-#_
-#_* Far Manager самостоятельно создаёт, модифицирует и удаляет файлы в данной папке
-#_  в соответствии с выполняемыми над макросами операциями. Не рекомендуется редактировать
-#_  эти файлы вручную, за исключением удаления.
-#_
-#_* Изменения в клавиатурных макросах становятся постоянными либо при выполнении операции
-#_  `MacroControl(MCTL_SAVEALL)`, либо автоматически (при включенной опции "Auto save setup").
-#_
-#_* Поле "area" может содержать только одну область действия.
-#_
-#_* Поле "key" может содержать имя только одного ключа.<br>
-#_  В ключах применяются только модификаторы `Ctrl,Alt,Shift` и не применяются
-#_  модификаторы `LCtrl,RCtrl,LAlt,RAlt`. Регулярные выражения не поддерживаются.
-#_
-#_* Не допустимо более одного макроса на сочетание (`key`,`area`).
-#_
-#_* Клавиатурные макросы имеют более высокий приоритет, чем все прочие макросы.
-#_  Это сделано для того, чтобы не надо было заниматься разрешением конфликтов
-#_  при временном создании клавиатурных макросов (типичный сценарий их использования).
-#_
-#_@@@
-#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
-#_{mctl_saveall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SAVEALL
-#_
-#_
-</article>
-</node>
-<node>
-id=78
-lv=2
-dt=Text
-nm=Обработчики событий
-ctime=3580139337
-mtime=3777006554
-<article>
-#_<markdown>
-#_
-#_Как и [стационарные макросы][1], обработчики событий загружаются из макрофайлов (расширения `*.lua` и `*.moon`), находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках. Каждый макрофайл может содержать вместе и макросы, и обработчики событий.
-#_
-#_Загрузка обработчика происходит при вызове глобальной функции `Event`, которой передаётся один аргумент - таблица с параметрами обработчика. При успешной загрузке функция возвращает `true`.
-#_
-#_```
-#_Event {
-#_  group       = "EditorEvent";                          -- string
-#_  description = "Event example";                        -- string (опциональное поле)
-#_  filemask    = "*.txt,*.cpp";                          -- string (опциональное поле)
-#_  priority    = 50;                                     -- number (опциональное поле)
-#_  condition   = function() ...... end;                  -- function (опциональное поле)
-#_  action      = function() ...... end;                  -- function
-#_  id          = "F0109446-AA63-4873-AEC3-17AEE993AA53"; -- string (опциональное поле)
-#_}
-#_```
-#_
-#_Поле `group` может иметь одно из следующих значений:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
-#_Данные имена являются производными от имён соответствующих функций, экспортируемых плагином, например:<br>
-#_        export.ProcessDialogEvent -> DialogEvent
-#_Функции `condition` и `action` обработчика вызываются с теми же параметрами, с которыми вызывается соответствующая экспортируемая функция (см. мануал LuaFAR).
-#_
-#_При наличии нескольких обработчиков одного и того же события (т.е. обработчиков с одинаковым полем `group`), эти обработчики будут вызваны по очереди: обработчик с более высоким приоритетом вызывается раньше. Приоритет определяется динамически с учётом функции `condition`, если таковая имеется, как и для макросов.
-#_
-#_Событие `"ExitFAR"` вызывается в следующих случаях: (a) выход из Far Manager,
-#_(b) выгрузка плагина LuaMacro, \(c) выгрузка либо перезагрузка макросов. Обработчик события получает один аргумент булевого типа: `false` для случаев (a) и (b); `true` для случая \(c).
-#_
-#_[1]: 75.html
-#_
-#_@@@
-#_
-#_
-</article>
-</node>
-<node>
-id=90
-lv=2
-dt=Text
-nm=Добавление пунктов в меню плагинов
-ctime=3613734965
-mtime=3641412815
-<article>
-#_<markdown>
-#_
-#_Как и [стационарные макросы][1], добавочные пункты меню загружаются из Lua- и MoonScript-файлов,  находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках.
-#_
-#_Загрузка пункта меню происходит при вызове глобальной функции `MenuItem`, которой передаётся один аргумент - таблица с параметрами. При успешной загрузке функция возвращает `true`.
-#_
-#_```
-#_MenuItem {
-#_  description = "Menu item";                        -- string (опциональное поле)
-#_  menu   = "Plugins Disks Config";                  -- string
-#_  area   = "Shell Editor Viewer Dialog Menu";       -- string (опциональное поле)
-#_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817";  -- string
-#_  text   = function(menu,area) return "Hello!" end; -- string или function
-#_  action = function(OpenFrom,Item) ...... end;      -- function
-#_}
-#_```
-#_Поля `description` и `area` - опциональные. Их значения по умолчанию - пустая строка. Остальные поля - обязательные.
-#_
-#_* Поле `menu` содержит перечисление меню Far Manager, в которые нужно добавить данный пункт меню. Допустимые значения элементов: `"Plugins"`, `"Disks"` и `"Config"` - обозначают соответственно меню плагинов, меню дисков и меню конфигурации плагинов.
-#_
-#_* Поле `area` содержит перечисление областей, при вызове из которых **меню плагинов** нужно добавить данный пункт меню. Это поле используется только если поле `menu` содержит элемент `Plugins`. Допустимые значения элементов совпадают с названиями макрообластей.
-#_
-#_* Поле `guid` содержит уникальный идентификатор (GUID) данного пункта меню.
-#_
-#_* Поле `text` - если тип данного поля - строка, то она используется непосредственно как текст пункта меню.<br>
-#_  Если тип данного поля - функция, то пункт меню будет добавлен только в случае, если эта функция возвратит строку.<br>
-#_  Функция получает 2 аргумента:
-#_  1. *menu* - тип меню (`"Plugins"` или `"Disks"` или `"Config"`)
-#_  2. *area* - имя текущей макрообласти<br><br>
-#_
-#_* Поле `action` - функция, вызываемая при активации добавленного пункта меню. Получает те же аргументы, что и функция `export.Open` (см. `luafar_manual.chm`), за исключением `Guid`. При вызове из меню конфигурации, значения обоих аргументов - `nil`. Возвращаемое значение игнорируется.
-#_
-#_[1]: 75.html
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=96
-lv=2
-dt=Text
-nm=Добавление префиксов командной строки
-ctime=3636460188
-mtime=3636460943
-<article>
-#_<markdown>
-#_
-#_Как и [стационарные макросы][1], добавочные префиксы командной строки загружаются из Lua- и MoonScript-файлов,  находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках.
-#_
-#_Префиксы загружаются глобальной функцией `CommandLine`, которой передаётся один аргумент - таблица с параметрами. Функция возвращает количество успешно загруженных префиксов.
-#_
-#_```
-#_CommandLine {
-#_  description = "Adding prefixes";                  -- string (опциональное поле)
-#_  prefixes = "abc:def:1234";                        -- string
-#_  action = function(prefix,text) ...... end;        -- function
-#_}
-#_```
-#_* Поле `prefixes` содержит список префиксов, разделённых двоеточиями. Пробелы не допускаются.
-#_
-#_* Поле `action` - функция, вызываемая при активации командной строки одним из зарегистрированных префиксов.
-#_Функция получает 2 аргумента: `prefix` - реальный префикс в нижнем регистре; `text` - оставшаяся часть командной строки без начальных и конечных пробелов.
-#_
-#_[1]: 75.html
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=98
-lv=2
-dt=Text
-nm=Добавление панельных модулей
-ctime=3730113290
-mtime=3732088491
-<article>
-#_<markdown>
-#_
-#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружается функцией `PanelModule`.
-#_
-#_- Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
-#_- Список экспортируемых функций модуля, поддерживаемых плагином:<br>
-#_`Analyse`, `ClosePanel`, `Compare`, `DeleteFiles`, `GetFiles`, `GetFindData`, `GetOpenPanelInfo`, `MakeDirectory`, `Open`, `ProcessHostFile`, `ProcessPanelEvent`, `ProcessPanelInput`, `PutFiles`, `SetDirectory`, `SetFindList`.
-#_- Каждый панельный модуль должен содержать таблицу `Info` с обязательным полем `Guid`. Прочие поля - опциональны.
-#_
-#_```
-#_-- Создадим панельный модуль
-#_local mod  = {}
-#_mod.Info = {
-#_  Guid        = win.Uuid("FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"); -- обязательное поле
-#_  Version     = "";
-#_  Title       = "";
-#_  Description = "";
-#_  Author      = "";
-#_}
-#_
-#_-- Добавим только те "экспортируемые" функции, которые нужны для работы этого модуля
-#_mod.Analyse     = function(...) ...... end
-#_mod.Open        = function(...) ...... end
-#_mod.GetFindData = function(...) ...... end
-#_......
-#_
-#_-- Загрузим модуль
-#_PanelModule(mod)
-#_```
+#_**Описание:**
+#_  Послать один или более ключей Far Manager'у.
 #_
 #_**Примечания:**
 #_
-#_1. Для создания панели из командной строки или меню плагинов, должны использоваться существующие функции [`CommandLine`](96.html) и [`MenuItem`](90.html). Их функция `action()` должна вернуть 2 величины: (1) таблицу панельного модуля и (2) объект панели (любое не ложное значение Lua).
-#_1. Функция `mod.Open` вызывается плагином только со следующими значениями параметра `OpenFrom`:<br> `OPEN_ANALYSE`, `OPEN_FINDLIST` и `OPEN_SHORTCUT`.
+#_  1. Специальные ключи:
+#_     *"AKey"*    - послать Far Manager'у клавишу, вызвавшую данный макрос.
+#_     *"SelWord"* - выделить слово под курсором.
+#_     *"XLat"*    - преобразовать слово под курсором.
+#_     *"EnOut"*   - разрешить вывод на экран (то же, что *mmode(1,0)*)
+#_     *"DisOut"*  - запретить вывод на экран (то же, что *mmode(1,1)*)
 #_
-#_См. также: [Пример применения](99.html)
+#_  2. Перед каждым ключом может быть указан множитель, например "3*Down" эквивалентно "Down Down Down".
 #_
-</article>
-</node>
-<node>
-id=99
-lv=3
-dt=Text
-nm=Пример применения
-ctime=3730118337
-mtime=3732100030
-<article>
-#_<markdown>
-#_```
-#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5171 then return end
+#_**Пример:**
+#_  mykeys = "CtrlF5 Esc"
+#_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
 #_
-#_local F = far.Flags
-#_local Title ="Demo panel in LuaMacro"
-#_local mod = {}
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
 #_
-#_mod.Info = {
-#_  Guid = win.Uuid("715E5E90-DEB9-470A-84CE-7CF8D92A7B05")
-#_}
+#_@@@
+#_[Ограничения в использовании некоторых функций]: 62.html
 #_
-#_local function FileToObject(FileName)
-#_  FileName = far.ConvertPath(FileName, "CPM_FULL")
-#_  local fp = io.open(FileName)
-#_  if fp then
-#_    local obj = { HostFile=FileName; List={} }
-#_    for line in fp:lines() do
-#_      table.insert(obj.List, {FileName=line})
-#_    end
-#_    fp:close()
-#_    return obj
-#_  end
-#_end
-#_
-#_function mod.Analyse(Data)
-#_  return Data.FileName and Data.FileName:sub(-5):lower() == ".abcd"
-#_end
-#_
-#_function mod.Open(OpenFrom, Guid, Item)
-#_  if OpenFrom == F.OPEN_ANALYSE then
-#_    return FileToObject(Item.FileName)
-#_  elseif OpenFrom == F.OPEN_SHORTCUT then
-#_    return FileToObject(Item.HostFile)
-#_  elseif OpenFrom == F.OPEN_FINDLIST then
-#_    -- If we uncomment the line "return {}", then this module will be
-#_    -- used instead of TmpPanel for displaying search results.
-#_    ---- return {}
-#_  end
-#_end
-#_
-#_function mod.GetFindData(object, handle, OpMode)
-#_  return object.List
-#_end
-#_
-#_function mod.GetOpenPanelInfo(object, handle)
-#_  return {
-#_    HostFile = object.HostFile;
-#_    PanelTitle = Title;
-#_    StartSortMode = F.SM_UNSORTED;
-#_    StartSortOrder = 0;
-#_    ShortcutData = "";
-#_    Flags = bit64.bor(F.OPIF_SHORTCUT, F.OPIF_ADDDOTS);
-#_  }
-#_end
-#_
-#_function mod.SetFindList (object, handle, Items)
-#_  object.List = Items
-#_  return true
-#_end
-#_
-#_MenuItem {
-#_  description = Title;
-#_  menu   = "Plugins";
-#_  area   = "Shell";
-#_  guid   = "5E1ECBD6-F6E1-4A02-AC90-DB49DB6E350C";
-#_  text   = Title;
-#_  action = function(OpenFrom, Item)
-#_    return mod, FileToObject(APanel.Current)
-#_  end;
-#_}
-#_
-#_CommandLine {
-#_  description = Title;
-#_  prefixes = "abcd";
-#_  action = function(prefix,text)
-#_    if text then return mod, FileToObject(text); end
-#_  end;
-#_}
-#_
-#_PanelModule(mod)
-#_```
-#_
-</article>
-</node>
-<node>
-id=102
-lv=2
-dt=Text
-nm=Контент-колонки
-ctime=3774015828
-mtime=3833535011
-<article>
-#_<markdown>
-#_
-#_Для поддержки контент-колонок используется функция `ContentColumns`.
-#_Она получает один аргумент - таблицу:
-#_
-#_```
-#_ContentColumns {
-#_  description      = "Content column example";                -- string (опциональное поле)
-#_  filemask         = "*.txt";                                 -- string (опциональное поле)
-#_  GetContentFields = function(colnames) ...... end;           -- function
-#_  GetContentData   = function(filename, colnames) ...... end; -- function
-#_}
-#_```
-#_
-#_**Примечания:**
-#_
-#_- Опциональное поле `filemask` определяет, какие файлы будут обработаны.
-#_Его умолчательное значение - `"*"` (все файлы).
-#_- Значения полей `GetContentFields` и `GetContentData` совпадают
-#_с экспортируемыми функциями `export.GetContentFields` и `export.GetContentData`
-#_(см. их описание в мануале LuaFAR).
-#_
-#_
-</article>
-</node>
-<node>
-id=103
-lv=3
-dt=Text
-nm=Пример применения
-ctime=3774015850
-mtime=3797419034
-<article>
-#_<markdown>
-#_```
-#_-- A content columns example.
-#_-- For this example to work a file panel mode should have a column type
-#_-- named either <text> or <c0>.
-#_
-#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5442 then return end
-#_
-#_local col_set = { -- lower case keys
-#_  text=1, c0=1
-#_}
-#_
-#_ContentColumns {
-#_  filemask = "*.txt,*.lua,*.c,*.h,*.cpp";
-#_
-#_  GetContentFields = function(colnames)
-#_    for _,v in ipairs(colnames) do
-#_      if col_set[v:lower()] then return true end
-#_    end
-#_  end;
-#_
-#_  -- display text at the file beginning
-#_  GetContentData = function(filename, colnames)
-#_    local fp = io.open(filename)
-#_    if fp then
-#_      local s = fp:read(512)
-#_      fp:close()
-#_      if s then
-#_        local out = {}
-#_        s = string.gsub(s, "%s+", " ")
-#_        for k,v in ipairs(colnames) do
-#_          if col_set[v:lower()] then out[k]=s end
-#_        end
-#_        return out
-#_      end
-#_    end
-#_  end;
-#_}
-#_```
-#_
-</article>
-</node>
-<node>
-id=77
-lv=2
-dt=Text
-nm=Внешние модули
-ctime=3580139041
-mtime=3710685784
-<article>
-#_<markdown>
-#_
-#_Lua-модули могут быть помещены в папку `%FARPROFILE%\Macros\modules` и её подпапки, так как<br>
-#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`<br>
-#_автоматически добавляется в `package.path`.
-#_
-#_Бинарные модули (DLL) могут быть помещены в папки `%FARPROFILE%\Macros\lib32` или `%FARPROFILE%\Macros\lib64` и их подпапки, так как эти пути автоматически добавляются в `package.cpath`.
-#_
-</article>
-</node>
-<node>
-id=7
-lv=1
-dt=Text
-nm=Плагин LuaMacro
-ctime=3551991405
-mtime=3617996565
-<article>
+
+article id=5 dt=Text ctime=3551990771 mtime=3602512460 nm=Разное
+
+article id=7 dt=Text ctime=3551991405 mtime=3617996565 nm=Плагин LuaMacro
 #_<markdown>
 #_Данный плагин необходим для работы макросов, поэтому должен быть установлен. То же касается и рантайма (*lua51.dll*, *luafar3.dll* и *lpeg.dll*), необходимого для работы плагина.
 #_
@@ -608,133 +174,243 @@ mtime=3617996565
 #_@@@
 #_{exitfarw}: $(ENC_URL)/exported_functions/exitfarw.html
 #_
-</article>
-</node>
-<node>
-id=92
-lv=2
-dt=Text
-nm=Работа из командной строки
-ctime=3617996372
-mtime=3925879937
-<article>
+
+article id=12 dt=Text ctime=3551993205 mtime=3754051042 nm=msave
+#_ret = mf.msave (key, name, value [, location])
+#_
+#_**Параметры:**
+#_  key:       string
+#_  name:      string
+#_  value:     nil, boolean, number, string, table, int64
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_
+#_**Возвращает:**
+#_  ret:       boolean
+#_
+#_**Описание:**
+#_  Функция *msave* сохраняет переданное значение в базу данных.
+#_
+#_  При сохранении таблиц будут сохраняться:
+#_     ключи типов:     number, string, boolean, table
+#_     значения типов:  number, string, boolean, table, int64
+#_
+#_  Сохраняются вложенные таблицы, при этом рекурсивные вложения корректно обрабатываются.
+#_
+#_  Сохраняется связь таблицы с её метатаблицей.
+#_
+#_**Примечание**
+#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
+#_
+
+article id=13 dt=Text ctime=3551993209 mtime=3754161081 nm=mload
+#_value, errmsg = mf.mload (key, name [, location])
+#_
+#_**Параметры:**
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_
+#_**Возвращает:**
+#_  value:     number, string, boolean, table, int64 or nil.
+#_  errmsg:    nil в случае успеха, string в случае неудачи.
+#_
+#_**Описание:**
+#_  Функция *mload* читает значение из базы данных.
+#_  Если 2-е возвращаемое значение nil, то 1-е возвращаемое значение валидно.
+#_
+#_**Примечание**
+#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
+#_
+
+article id=14 dt=Text ctime=3552028510 mtime=3564676943 nm=Переменные
 #_<markdown>
-#_* `macro: load [path]`<br>
-#_   (Пере)загрузить макрофайлы. Опциональный параметр `path` имеет тот же смысл,
-#_   что поле `Path` в структуре `FarMacroLoad`.
-#_* `macro: save`<br>
-#_   Сохранить созданные или модифицированные [клавиатурные][1] макросы.
-#_* `macro: unload`<br>
-#_   Выгрузить макросы (кроме созданных операцией `MCTL_ADDMACRO`) и обработчики событий.
-#_* `macro: about`<br>
-#_   Показать версии плагина и используемых плагином библиотек.
-#_* `macro: browser`<br>
-#_   Открыть макро-браузер.
-#_* `macro: test`<br>
-#_   Запустить тесты и завершить работу Far (код возврата 0 = успех)
-#_* `lua: [=] <code>`
-#_* `moon: [=] <code>`<br>
-#_   Исполнить код `<code>`, написанный соответственно на Lua или MoonScript.<br>
-#_   Если `<code>` следует за символом `=`, то вызывается `far.Show()`, например:<br>
-#_   `lua:=5+2,6,"foo"` эквивалентно `lua:far.Show(5+2,6,"foo")`.
-#_* `lua: [=] @<filename> [<args>]`
-#_* `moon: [=] @<filename> [<args>]`<br>
-#_   Исполнить скрипт `<filename>`, написанный соответственно на Lua или MoonScript.<br>
-#_   - Если нужно передать скрипту аргументы, их следует указать после имени файла через пробел.
-#_   - Аргументы являются списком выражений, разделённых запятыми.
-#_   - Выражения должны использовать тот же язык программирования, что и скрипт.
-#_   - Глобальная (в пределах окружения скрипта) переменная `_filename` содержит имя файла.
+#_### Окружение
+#_Макросы, загружаемые из одного файла, имеют общее окружение (environment).
+#_Переменные, объявляемые без ключевого слова *local*, принадлежат этому окружению.
 #_
-#_**Примечание 1:**<br>
-#_Вместо префикса `macro:` может использоваться эквивалентный ему префикс `lm:`.
+#_      Пример: var = 15
 #_
-#_**Примечание 2:**<br>
-#_Вместо префиксов `lua:` и `moon:` могут использоваться соответственно префиксы `luas:` и `moons:`.
-#_В этом случае макрос не создаётся, а производится немедленное ("синхронное") исполнение кода.
-#_Если код завершается нормально, то величина `CmdLine.Result` содержит таблицу с массивом возвращённых
-#_величин, а поле `n` этой таблицы - количество этих величин. В случае прерывания кода по ошибке,
-#_значение `CmdLine.Result` равно `nil`.
+#_Переменные окружения макрофайла сохраняют свои значения между вызовами макросов. Их значения сбрасываются в исходные при выполнении любой операции загрузки макросов: старт Far Manager, `macro:load`, `lm:load`, `far.MacroLoadAll`, `MacroControl(MCTL_LOADALL)`.
 #_
-#_**Примечание 3:**<br>
-#_[Дополнительные][2] префиксы командной строки могут быть определены и загружены из макрофайлов.
+#_### Глобальные переменные
+#_Для установки глобальных переменных, значения которых будут сохраняться в течение всей сессии Far Manager и будут доступны всем скриптам, нужно использовать таблицу `_G`.
 #_
-#_[1]: 76.html
-#_[2]: 96.html
+#_      Пример: _G.var = 15
+#_
+#_Глобальные переменные не меняют своего значения даже при операциях перезагрузки макросов, за исключением рестарта Far Manager или перезагрузки плагина LuaMacro.
+#_
+#_При чтении несуществующей переменной окружения, прочтётся одноимённая глобальная переменная (наследование в некотором смысле).
+#_
+#_      Пример:
+#_        var = 5
+#_        _G.var = 10
+#_        far.Message(var) --> 5
+#_        var = nil
+#_        far.Message(var) --> 10
+#_
+#_### Upvalues
+#_Локальные переменные, доступные из функций одного или нескольких макросов (upvalues), являются общими для этих функций и сохраняют свои значения между вызовами макросов. Их значения сбрасываются в исходные при выполнении любой операции загрузки макросов.
+#_
+#_      Пример:
+#_        local var = 15
+#_        function inc_var() var = var+1 end
+#_        function dec_var() var = var-1 end
 #_
 #_@@@
-#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
 #_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
-#_{farmacroload}: $(ENC_URL)/structures/farmacroload.html
 #_
-</article>
-</node>
-<node>
-id=93
-lv=2
-dt=Text
-nm=Файл luamacro.ini
-ctime=3617997289
-mtime=3960807025
-<article>
+
+article id=15 dt=Text ctime=3552066075 mtime=3754137327 nm=mdelete
+#_ret = mf.mdelete (key, name [, location])
+#_
+#_**Параметры:**
+#_  key:       string
+#_  name:      string
+#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
+#_
+#_**Возвращает:**
+#_  ret:       boolean
+#_
+#_**Описание:**
+#_  Функция *mdelete* удаляет значение или ключ из базы данных.
+#_  Для удаления ключа следует указать параметр *name* == "`*`" (звёздочку).
+#_
+#_
+
+article id=20 dt=Text ctime=3552221109 mtime=3659608671 nm=Глобальные свойства и функции
+#_**Свойства:** нет.
+#_
+#_**Функции:**
+#_
+#_  akey
+#_  band, bnot, bor, bxor, lshift, rshift
+#_  eval
+#_  `exit`
+#_  `Keys`
+#_  mmode
+#_  msgbox
+#_  print
+#_  prompt
+#_
+#_**Примечания:**
+#_
+#_1. Функции *band*, *bnot*, *bor*, *bxor*, *lshift* и *rshift* (операции с битами)
+#_   - это глобальные ссылки на одноимённые функции из библиотеки *bit64*
+#_   (см. LuaFAR manual).
+#_
+#_2. Функции *akey* и *mmode*, будучи вызваны из функции *condition* макроса, возвращают *false*.
+#_
+#_3. Для единообразия, все данные функции, кроме битовых, продублированы в таблице `mf`,
+#_   например: *eval* и *mf.eval* - это одна и та же функция.
+#_
+#_@@@
+#_[exit]: 61.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
+#_
+#_{akey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#akey
+#_{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
+#_{mmode}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mmode
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
+#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
+#_{prompt}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#prompt
+#_
+
+article id=29 dt=Text ctime=3552222267 mtime=3552222267 nm=Примеры
+
+article id=30 dt=Text ctime=3552222560 mtime=3607111666 nm=Выделить файлы новее текущего
 #_<markdown>
-#_Файл `luamacro.ini` содержит некоторые настройки плагина. Если файла нет, или в нём отсуствует определённая настройка, плагин использует умолчательное значение для данной настройки.
+#_```
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API плагинов (LuaFAR).
+#_Macro {
+#_  description="Выделить в активной панели все файлы/папки новее текущего";
+#_  area="Shell"; key="CtrlM";
+#_  action=function()
+#_    local info = panel.GetPanelInfo(nil,1)
+#_    local curItem = panel.GetCurrentPanelItem(nil,1)
+#_    for i=1,info.ItemsNumber do
+#_      local item = panel.GetPanelItem(nil,1,i)
+#_      if item.LastWriteTime > curItem.LastWriteTime then
+#_        panel.SetSelection(nil,1,i,true)
+#_      end
+#_    end
+#_    panel.RedrawPanel(nil,1)
+#_  end;
+#_}
+#_```
 #_
-#_### `[General]`
+#_```
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API макросов (LuaFAR + LuaMacro).
+#_Macro {
+#_  description="Выделить в активной панели все файлы/папки новее текущего";
+#_  area="Shell"; key="CtrlM";
+#_  action=function()
+#_    d = Panel.Item(0,0,17)
+#_    for i=1,APanel.ItemCount do
+#_      if Panel.Item(0,i,17) > d then
+#_        Panel.Select(0,1,1,i)
+#_      end
+#_    end
+#_  end;
+#_}
+#_```
 #_
-#_* `MacroPath`<br>
-#_  Определяет пути, с которых будут грузиться макрофайлы.<br>
-#_  Представляет собой последовательность из 0 или более путей, разделённых
-#_  точками с запятой.<br>
-#_  Значение по умолчанию: `%FARPROFILE%\Macros\scripts`.
+#_@@@
+#_{apanel.itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
+#_{panel.item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
+#_{panel.select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
 #_
-</article>
-</node>
-<node>
-id=97
-lv=2
-dt=Text
-nm=Файл luafar_init.lua
-ctime=3639831642
-mtime=3639833657
-<article>
-#_<markdown>
-#_Плагин LuaMacro исполняет файл `%FARPROFILE%\luafar_init.lua` (если этот файл существует) перед загрузкой своего стартового скрипта.
-#_См. описание этой особенности в мануале LuaFAR.
+
+article id=36 dt=Text ctime=3552736839 mtime=3607091200 nm=Area
+#_**Area** - таблица со следующими полями:
 #_
-</article>
-</node>
-<node>
-id=42
-lv=1
-dt=Text
-nm=Библиотеки функций макроязыка
-ctime=3553243413
-mtime=3717182379
-<article>
-#_<markdown>
-#_Описание API в данном документе не является самодостаточным, оно является *дополняющим и уточняющим* к описанию свойств и функций объектов Фара в разделе [Макроязык][макроязык] Энциклопедии Фара.
+#_**Свойства:**
 #_
-#_В идеале, API должен совпадать с оригинальным API макроязыка, за исключением случаев, перечисленных в статье [Изменения API в сравнении с макроязыком][APIchanges].
+#_  Current:               string
+#_  Other:                 boolean
+#_  Shell:                 boolean
+#_  Viewer:                boolean
+#_  Editor:                boolean
+#_  Dialog:                boolean
+#_  Search:                boolean
+#_  Disks:                 boolean
+#_  MainMenu:              boolean
+#_  Menu:                  boolean
+#_  Help:                  boolean
+#_  Info:                  boolean
+#_  QView:                 boolean
+#_  Tree:                  boolean
+#_  FindFolder:            boolean
+#_  UserMenu:              boolean
+#_  ShellAutoCompletion:   boolean
+#_  DialogAutoCompletion:  boolean
 #_
-#_[APIchanges]: 38.html
-#_[макроязык]: $(ENC_URL)/macro/macrocmd/index.html
+#_**Функции:**
 #_
-#_**См. также:**<br>
-#_[Ограничения в использовании некоторых функций](62.html)
+#_  Нет.
 #_
+#_@@@
+#_{dialog}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Dialog
+#_{disks}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Disks
+#_{editor}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Editor
+#_{findfolder}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#FindFolder
+#_{help}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Help
+#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
+#_{mainmenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MainMenu
+#_{menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu
+#_{other}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Other
+#_{qview}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#QView
+#_{search}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Search
+#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
+#_{usermenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#UserMenu
+#_{viewer}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Viewer
 #_
-#_
-#_
-</article>
-</node>
-<node>
-id=38
-lv=2
-dt=Text
-nm=Изменения API в сравнении с макроязыком
-ctime=3553185939
-mtime=3720944750
-<article>
+
+article id=38 dt=Text ctime=3553185939 mtime=3720944750 nm=Изменения API в сравнении с макроязыком
 #_<markdown>
 #_
 #_1. Все идентификаторы чувствительны к регистру символов.
@@ -832,134 +508,84 @@ mtime=3720944750
 #_{rcounter}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#RCounter
 #_{window.scroll}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
-</article>
-</node>
-<node>
-id=20
-lv=2
-dt=Text
-nm=Глобальные свойства и функции
-ctime=3552221109
-mtime=3659608671
-<article>
-#_**Свойства:** нет.
+
+article id=39 dt=Text ctime=3553195063 mtime=3607111506 nm=Выделить слово под курсором
+#_<markdown>
+#_```
+#_Macro {
+#_  description="Выделить/снять выделение слова под курсором";
+#_  area="Editor"; key="CtrlM";
+#_  action=function()
+#_    Keys"RCtrl9 CtrlRight CtrlLeft"
+#_    Keys(Object.Selected and "CtrlU" or "CtrlShiftRight")
+#_    Keys"Ctrl9"
+#_  end;
+#_}
+#_```
 #_
-#_**Функции:**
-#_
-#_  akey
-#_  band, bnot, bor, bxor, lshift, rshift
-#_  eval
-#_  `exit`
-#_  `Keys`
-#_  mmode
-#_  msgbox
-#_  print
-#_  prompt
-#_
-#_**Примечания:**
-#_
-#_1. Функции *band*, *bnot*, *bor*, *bxor*, *lshift* и *rshift* (операции с битами)
-#_   - это глобальные ссылки на одноимённые функции из библиотеки *bit64*
-#_   (см. LuaFAR manual).
-#_
-#_2. Функции *akey* и *mmode*, будучи вызваны из функции *condition* макроса, возвращают *false*.
-#_
-#_3. Для единообразия, все данные функции, кроме битовых, продублированы в таблице `mf`,
-#_   например: *eval* и *mf.eval* - это одна и та же функция.
-#_
-#_@@@
-#_[exit]: 61.html
-#_[mf]: 44.html
-#_[Keys]: 4.html
-#_
-#_{akey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#akey
-#_{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
-#_{mmode}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#mmode
-#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
-#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
-#_{prompt}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#prompt
-#_
-</article>
-</node>
-<node>
-id=61
-lv=3
-dt=Text
-nm=exit
-ctime=3555411121
-mtime=3717267072
-<article>
-#_exit ()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Завершить работу макроса.
-#_
-#_**См. также:**
-#_`Ограничения в использовании некоторых функций`
+
+article id=40 dt=Text ctime=3553195940 mtime=3607111577 nm=Переход в меню выбора дисков
+#_<markdown>
+#_```
+#_-- Переход в меню выбора дисков на противоположной панели,
+#_-- включение видимости панели, в которой будет происходить
+#_-- смена диска, если её не было.
+#_Macro {
+#_  description="Переход в меню выбора дисков на противоположной панели";
+#_  area="Disks"; key="CtrlM";
+#_  action=function()
+#_    Keys"Esc"
+#_    if not PPanel.Visible then
+#_      Keys(APanel.Left and "CtrlF2" or "CtrlF1")
+#_    end
+#_    Keys"Tab F9 Enter End Enter"
+#_  end;
+#_}
+#_```
 #_
 #_@@@
-#_[Ограничения в использовании некоторых функций]: 62.html
+#_{apanel.left}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Left
+#_{ppanel.visible}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#PPanel.Visible
 #_
-</article>
-</node>
-<node>
-id=4
-lv=3
-dt=Text
-nm=Keys
-ctime=3551902602
-mtime=3717267113
-<article>
-#_Keys (...)
-#_
-#_**Параметры:**
-#_  Один или больше аргументов типа string.
-#_  Каждый аргумент может содержать несколько ключей, разделённых пробельными символами.
-#_  Аргументы регистронезависимы.
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Послать один или более ключей Far Manager'у.
-#_
-#_**Примечания:**
-#_
-#_  1. Специальные ключи:
-#_     *"AKey"*    - послать Far Manager'у клавишу, вызвавшую данный макрос.
-#_     *"SelWord"* - выделить слово под курсором.
-#_     *"XLat"*    - преобразовать слово под курсором.
-#_     *"EnOut"*   - разрешить вывод на экран (то же, что *mmode(1,0)*)
-#_     *"DisOut"*  - запретить вывод на экран (то же, что *mmode(1,1)*)
-#_
-#_  2. Перед каждым ключом может быть указан множитель, например "3*Down" эквивалентно "Down Down Down".
-#_
-#_**Пример:**
-#_  mykeys = "CtrlF5 Esc"
-#_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
-#_
-#_**См. также:**
-#_`Ограничения в использовании некоторых функций`
+
+article id=41 dt=Text ctime=3553206604 mtime=3607111753 nm=Создание папки с именем = текущей дате
+#_<markdown>
+#_```
+#_Macro {
+#_  description="создание папки с именем = текущей дате";
+#_  area="Shell"; key="CtrlShiftF7"; flags="NoPluginPanels";
+#_  action=function()
+#_    folder = mf.date("%d.%m0.%Y")
+#_    if Panel.FExist(0,folder)==0 then
+#_      Keys"F7 CtrlY"
+#_      print(folder)
+#_      Keys"Enter"
+#_    end
+#_  end;
+#_}
+#_```
 #_
 #_@@@
-#_[Ограничения в использовании некоторых функций]: 62.html
+#_{panel.fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
 #_
-</article>
-</node>
-<node>
-id=44
-lv=2
-dt=Text
-nm=mf
-ctime=3553243522
-mtime=3923469735
-<article>
+
+article id=42 dt=Text ctime=3553243413 mtime=3717182379 nm=Библиотеки функций макроязыка
+#_<markdown>
+#_Описание API в данном документе не является самодостаточным, оно является *дополняющим и уточняющим* к описанию свойств и функций объектов Фара в разделе [Макроязык][макроязык] Энциклопедии Фара.
+#_
+#_В идеале, API должен совпадать с оригинальным API макроязыка, за исключением случаев, перечисленных в статье [Изменения API в сравнении с макроязыком][APIchanges].
+#_
+#_[APIchanges]: 38.html
+#_[макроязык]: $(ENC_URL)/macro/macrocmd/index.html
+#_
+#_**См. также:**<br>
+#_[Ограничения в использовании некоторых функций](62.html)
+#_
+#_
+#_
+#_
+
+article id=44 dt=Text ctime=3553243522 mtime=3923469735 nm=mf
 #_**Свойства:**
 #_  нет
 #_
@@ -1084,550 +710,43 @@ mtime=3923469735
 #_{waitkey}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#waitkey
 #_{xlat}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#xlat
 #_
-</article>
-</node>
-<node>
-id=91
-lv=3
-dt=Text
-nm=acall
-ctime=3614681129
-mtime=3717267179
-<article>
-#_... = mf.acall (func, ...)
-#_
-#_**Параметры:**
-#_  func:    function
-#_  ...:     0 или более Lua-величин
-#_
-#_**Возвращает:**
-#_  ...:     0 или более Lua-величин
-#_
-#_**Описание:**
-#_  Данная функция вызывает "асинхронно" функцию *func*, передавая ей все последующие
-#_  аргументы.
-#_
-#_  *mf.acall* является как бы специализацией `Plugin.Call` для плагина `LuaMacro`,
-#_  но, в отличие от Plugin.Call, она позволяет выполнять код в контексте вызывающей
-#_  функции, а также передавать и возвращать любые Lua-величины.
-#_
-#_  Как и Plugin.Call, *mf.acall* является "асинхронной": при выводе функцией *func*
-#_  диалога или меню на экран, *mf.acall* сразу завершает работу и возвращает *true*.
-#_
-#_  Если функция *func* не выводит диалог или меню на экран, то имеет место "синхронный"
-#_  режим работы: в этом случае *mf.acall* возвращает все величины, возвращённые
-#_  функцией *func*.
-#_
-#_**См. также:**
-#_`Ограничения в использовании некоторых функций`
-#_
-#_@@@
-#_[Ограничения в использовании некоторых функций]: 62.html
-#_[Plugin.Call]: 65.html
-#_[LuaMacro]: 7.html
-#_
-</article>
-</node>
-<node>
-id=100
-lv=3
-dt=Text
-nm=AddExitHandler
-ctime=3732329181
-mtime=3770399603
-<article>
-#_mf.AddExitHandler (handler [, ...])
-#_
-#_**Параметры:**
-#_  handler:  function
-#_  ...    :  произвольное количество дополнительных величин
-#_
-#_**Возвращает:**
-#_  значения, переданные в ... (если есть)
-#_
-#_**Описание:**
-#_  1. Данная функция добавляет обработчик, который будет вызван по окончанию
-#_     исполнения макроса. Обработчику будут переданы все значения, указанные
-#_     в ... (если есть).
-#_  2. Обработчик будет вызван как при нормальном завершении макроса, так и
-#_     в случае, если макрос был завершён по ошибке.
-#_  3. Если в процессе исполнения макроса было добавлено несколько обработчиков,
-#_     то они будут вызваны в порядке, обратном порядку их добавления.
-#_
-#_**Пример применения:**
-#_  local fp = mf.AddExitHandler(
-#_      function(p) if p then p:close() end; end,
-#_      io.open("some file.txt") )
-#_  -- *use fp; return from multiple places; do not care about closing fp*
-#_
-#_**См. также:**
-#_`Ограничения в использовании некоторых функций`
-#_
-#_@@@
-#_[Ограничения в использовании некоторых функций]: 62.html
-#_
-</article>
-</node>
-<node>
-id=104
-lv=3
-dt=Text
-nm=deserialize
-ctime=3778309316
-mtime=3778309996
-<article>
-#_value, errmsg = mf.deserialize (str)
-#_
-#_**Параметры:**
-#_  str:       string
-#_
-#_**Возвращает:**
-#_  value:     number, string, boolean, table, int64 or nil.
-#_  errmsg:    nil в случае успеха, string в случае неудачи.
-#_
-#_**Описание:**
-#_  Функция *deserialize* восстанавливает ранее сериализованное значение.
-#_  Если 2-е возвращаемое значение nil, то 1-е возвращаемое значение валидно.
-#_
-#_**Примечание**
-#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
-#_
-#_**См. также:**
-#_`serialize`
-#_
-#_@@@
-#_[serialize]: 105.html
-#_
-</article>
-</node>
-<node>
-id=106
-lv=3
-dt=Text
-nm=EnumScripts
-ctime=3833367907
-mtime=3833370231
-<article>
-#_next_script = mf.EnumScripts (ScriptType)
-#_
-#_**Параметры:**
-#_  ScriptType:  string
-#_
-#_**Возвращает:**
-#_  next_script:  function
-#_
-#_**Описание:**
-#_  Функция *EnumScripts* возвращает функцию-итератор *next_script*, позволяющую
-#_  перебирать все скрипты заданного *ScriptType* типа, где *ScriptType* - одно из значений:
-#_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
-#_  (по имени функции-загрузчика), а также "CustomSortModes".
-#_
-#_script, index = next_script()
-#_
-#_  Каждый последующий вызов *next_script* возвращает копию таблицы следующего
-#_  из загруженных скриптов, или nil, если все скрипты уже перебраны.
-#_  Таким образом для удобного перебора можно использовать конструкцию:
-#_
-#_  for script,index in mf.EnumScripts(ScriptType) do *действия* end
-#_
-#_**Примечания:**
-#_- Вторым значением *next_script* возвращает индекс скрипта в соответствующем внутреннем массиве.
-#_- Поведение *next_script* неопределено, если во время просмотра происходит дальнейшая загрузка скриптов.
-#_
-#_**См. также:**
-#_`GetMacroCopy` - работает только с "Macro" и "Event".
-#_
-#_@@@
-#_[GetMacroCopy]: 72.html
-#_
-</article>
-</node>
-<node>
-id=79
-lv=3
-dt=Text
-nm=eval
-ctime=3581755102
-mtime=3633295284
-<article>
-#_<markdown>
-#_`ret = eval(S[,Mode[,Lang]])`
-#_
-#_Данная функция соответствует [описанию][1] в Энциклопедии Far Manager,
-#_со следующими расширениями:
-#_
-#_### 1. `eval` может исполнять как Lua-код, так и MoonScript-код
-#_
-#_Добавлен опциональный 3-й параметр `Lang`, указывающий язык кода параметра `S`
-#_в режимах 0, 1, 3. Допустимые значения: `"lua"` и `"moonscript"`. Значение по умолчанию - `"lua"`.
-#_
-#_### 2. Параметр `S` может обозначать скрипт-файл
-#_
-#_В режимах 0, 1, 3 параметр `S` может обозначать скрипт-файл, если этот параметр
-#_начинается с символа `@`. В этом случае параметр `S` должен иметь следующий формат:
-#_
-#_        @<имя файла-скрипта> [<параметры скрипта>]
-#_
-#_- В имени файла допустимо использование переменных окружения.
-#_- Опциональные параметры скрипта представляют список выражений, разделённых запятыми.
-#_- Выражения должны использовать тот же язык программирования, что и файл-скрипт.
-#_
-#_#### Пример:
-#_```
-#_    eval("@%MyFarScripts%\\calc.moon 'factorial', 3+5", 0, "moonscript")
-#_```
-#_
-#_### 3. Новые коды, возвращаемые `eval(S, 2)`
-#_
-#_* `0` (нормальный возврат) : дополняется значениями, возвращаемыми "запускаемым" макросом.
-#_* `-3` : если было выведено меню выбора макроса, и пользователь его отменил.
-#_* `-4` : если "запускаемый" макрос был прерван в результате ошибки времени исполнения.
-#_
-#_[1]: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
-#_
-#_@@@
-#_--{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
-#_
-</article>
-</node>
-<node>
-id=72
-lv=3
-dt=Text
-nm=GetMacroCopy
-ctime=3578176338
-mtime=3833369950
-<article>
-#_macro = mf.GetMacroCopy (index)
-#_
-#_**Параметры:**
-#_  index:  integer
-#_
-#_**Возвращает:**
-#_  macro:  table или nil
-#_
-#_**Описание:**
-#_  Функция *GetMacroCopy* возвращает копию таблицы загруженного макроса или обработчика
-#_  события по его индексу во внутреннем  массиве (начиная от 1). Если индекс превышает
-#_  размер массива, возвращается nil - таким образом можно определить конец массива.
-#_
-#_**Примечания:**
-#_  * Неактивные (выгруженные или удалённые) элементы имеют поле "disabled" == true.
-#_  * Отличить таблицу макроса от таблицы события можно по полю "area" типа string,
-#_    которое присутствует только у макросов.
-#_
-#_**См. также:**
-#_`EnumScripts` - позволяет работать и с другими типами скриптов
-#_
-#_@@@
-#_[EnumScripts]: 106.html
-</article>
-</node>
-<node>
-id=111
-lv=3
-dt=Text
-nm=mainmenu
-ctime=3923469402
-mtime=3948699083
-<article>
-#_mf.mainmenu (Param)
-#_
-#_**Параметры:**
-#_  Param:  string
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Значения Param:**
-#_  "fileassociations" : вызвать меню "File associations"
-#_  "filehighlight"    : вызвать меню "Files highlighting and sort groups"
-#_  "filemaskgroups"   : вызвать меню "Groups of file masks"
-#_  "filepanelmodes"   : вызвать меню "File panel modes"
-#_  "foldershortcuts"  : вызвать меню "Folder shortcuts"
-#_
-#_**Примечание:**
-#_  Данная функция является асинхронной и после открытия меню
-#_  немедленно возвращается.
-#_
-</article>
-</node>
-<node>
-id=15
-lv=3
-dt=Text
-nm=mdelete
-ctime=3552066075
-mtime=3754137327
-<article>
-#_ret = mf.mdelete (key, name [, location])
-#_
-#_**Параметры:**
-#_  key:       string
-#_  name:      string
-#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
-#_
-#_**Возвращает:**
-#_  ret:       boolean
-#_
-#_**Описание:**
-#_  Функция *mdelete* удаляет значение или ключ из базы данных.
-#_  Для удаления ключа следует указать параметр *name* == "`*`" (звёздочку).
-#_
-#_
-</article>
-</node>
-<node>
-id=13
-lv=3
-dt=Text
-nm=mload
-ctime=3551993209
-mtime=3754161081
-<article>
-#_value, errmsg = mf.mload (key, name [, location])
-#_
-#_**Параметры:**
-#_  key:       string
-#_  name:      string
-#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
-#_
-#_**Возвращает:**
-#_  value:     number, string, boolean, table, int64 or nil.
-#_  errmsg:    nil в случае успеха, string в случае неудачи.
-#_
-#_**Описание:**
-#_  Функция *mload* читает значение из базы данных.
-#_  Если 2-е возвращаемое значение nil, то 1-е возвращаемое значение валидно.
-#_
-#_**Примечание**
-#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
-#_
-</article>
-</node>
-<node>
-id=12
-lv=3
-dt=Text
-nm=msave
-ctime=3551993205
-mtime=3754051042
-<article>
-#_ret = mf.msave (key, name, value [, location])
-#_
-#_**Параметры:**
-#_  key:       string
-#_  name:      string
-#_  value:     nil, boolean, number, string, table, int64
-#_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
-#_
-#_**Возвращает:**
-#_  ret:       boolean
-#_
-#_**Описание:**
-#_  Функция *msave* сохраняет переданное значение в базу данных.
-#_
-#_  При сохранении таблиц будут сохраняться:
-#_     ключи типов:     number, string, boolean, table
-#_     значения типов:  number, string, boolean, table, int64
-#_
-#_  Сохраняются вложенные таблицы, при этом рекурсивные вложения корректно обрабатываются.
-#_
-#_  Сохраняется связь таблицы с её метатаблицей.
-#_
-#_**Примечание**
-#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
-#_
-</article>
-</node>
-<node>
-id=85
-lv=3
-dt=Text
-nm=postmacro
-ctime=3599211970
-mtime=3599212421
-<article>
-#_result = mf.postmacro (func, ...)
-#_
-#_**Параметры:**
-#_  func:    function
-#_  ...:     0 или более Lua-величин
-#_
-#_**Возвращает:**
-#_  result:  boolean
-#_
-#_**Описание:**
-#_  Функция помещает новый макрос в очередь для исполнения. При исполнении макроса
-#_  будет вызвана функция *func*, которой будут переданы аргументы *...*
-#_
-</article>
-</node>
-<node>
-id=101
-lv=3
-dt=Text
-nm=printconsole
-ctime=3773253769
-mtime=3773253988
-<article>
-#_mf.printconsole (...)
-#_
-#_**Параметры:**
-#_  ...:     0 или более величин Lua
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  - Функция выводит ("печатает") свои аргументы в консоль.
-#_  - Она вставляет символ табуляции между аргументами.
-#_  - Нет необходимости вызывать *panel.GetUserScreen()* / *panel.SetUserScreen()*,
-#_    так как функция делает это сама.
-#_
-</article>
-</node>
-<node>
-id=105
-lv=3
-dt=Text
-nm=serialize
-ctime=3778309329
-mtime=3778310038
-<article>
-#_ret = mf.serialize (value)
-#_
-#_**Параметры:**
-#_  value:     nil, boolean, number, string, table, int64
-#_
-#_**Возвращает:**
-#_  ret:       string
-#_
-#_**Описание:**
-#_  Функция *serialize* преобразует переданное значение в строку.
-#_
-#_  При сохранении таблиц будут сохраняться:
-#_     ключи типов:     number, string, boolean, table
-#_     значения типов:  number, string, boolean, table, int64
-#_
-#_  Сохраняются вложенные таблицы, при этом рекурсивные вложения корректно обрабатываются.
-#_
-#_  Сохраняется связь таблицы с её метатаблицей.
-#_
-#_**Примечание**
-#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
-#_
-#_**См. также:**
-#_`deserialize`
-#_
-#_@@@
-#_[deserialize]: 104.html
-#_
-</article>
-</node>
-<node>
-id=69
-lv=3
-dt=Text
-nm=usermenu
-ctime=3571243204
-mtime=3717267205
-<article>
-#_mf.usermenu (mode, filename)
-#_
-#_**Параметры:**
-#_  mode:     number (0 по умолчанию)
-#_  filename: string или nil
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Открывает или создаёт пользовательское меню.
-#_
-#_  - *mode* может содержать бит 0x100, в этом случае функция возвращается
-#_    только по закрытии пользовательского меню (синхронный вызов). Если
-#_    данный бит равен нулю, то функция возвращается немедленно по открытии
-#_    меню (асинхронный вызов).
-#_
-#_  Поведение функции в зависимости от величины младшего байта *mode*:
-#_
-#_    0: равносильно нажатию F2 в панелях; *filename* игнорируется.
-#_    1: выводится диалог выбора пользовательского меню; *filename* игнорируется.
-#_    2: файл открывается "как есть", т.е. по заданному *filename*.
-#_    3: файл *filename* открывается в %farprofile%\Menus (папка создаётся
-#_       автоматически).
-#_
-#_**См. также:**
-#_`Ограничения в использовании некоторых функций`
-#_
-#_@@@
-#_[Ограничения в использовании некоторых функций]: 62.html
-#_
-</article>
-</node>
-<node>
-id=36
-lv=2
-dt=Text
-nm=Area
-ctime=3552736839
-mtime=3607091200
-<article>
-#_**Area** - таблица со следующими полями:
+
+article id=45 dt=Text ctime=3553245384 mtime=3607109929 nm=Object
+#_**Свойства, зависящие от контекста исполнения.**
+#_
+#_**Object**: таблица со следующими полями:
 #_
 #_**Свойства:**
 #_
-#_  Current:               string
-#_  Other:                 boolean
-#_  Shell:                 boolean
-#_  Viewer:                boolean
-#_  Editor:                boolean
-#_  Dialog:                boolean
-#_  Search:                boolean
-#_  Disks:                 boolean
-#_  MainMenu:              boolean
-#_  Menu:                  boolean
-#_  Help:                  boolean
-#_  Info:                  boolean
-#_  QView:                 boolean
-#_  Tree:                  boolean
-#_  FindFolder:            boolean
-#_  UserMenu:              boolean
-#_  ShellAutoCompletion:   boolean
-#_  DialogAutoCompletion:  boolean
+#_  Bof:         boolean
+#_  CurPos:      number
+#_  Empty:       boolean
+#_  Eof:         boolean
+#_  Height:      number
+#_  ItemCount:   number
+#_  Selected:    boolean
+#_  Title:       string
+#_  Width:       number
 #_
 #_**Функции:**
 #_
-#_  Нет.
+#_  CheckHotkey
+#_  GetHotkey
 #_
 #_@@@
-#_{dialog}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Dialog
-#_{disks}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Disks
-#_{editor}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Editor
-#_{findfolder}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#FindFolder
-#_{help}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Help
-#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
-#_{mainmenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MainMenu
-#_{menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu
-#_{other}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Other
-#_{qview}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#QView
-#_{search}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Search
-#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
-#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
-#_{usermenu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#UserMenu
-#_{viewer}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Viewer
+#_{bof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#bof
+#_{checkhotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#checkhotkey
+#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#CurPos
+#_{empty}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#empty
+#_{eof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#eof
+#_{gethotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#gethotkey
+#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#ItemCount
+#_{selected}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#selected
+#_{title}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Title
 #_
-</article>
-</node>
-<node>
-id=46
-lv=2
-dt=Text
-nm=APanel, PPanel
-ctime=3553252677
-mtime=3607094310
-<article>
+#_
+
+article id=46 dt=Text ctime=3553252677 mtime=3607094310 nm=APanel, PPanel
 #_**APanel**, **PPanel** - таблицы со следующими полями:
 #_
 #_**Свойства:**
@@ -1695,280 +814,8 @@ mtime=3607094310
 #_{visible}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Visible
 #_{width}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Width
 #_
-</article>
-</node>
-<node>
-id=57
-lv=2
-dt=Text
-nm=Panel
-ctime=3553252776
-mtime=3607096939
-<article>
-#_**Panel** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  Нет.
-#_
-#_**Функции:**
-#_
-#_  FAttr
-#_  FExist
-#_  Item
-#_  Select
-#_  SetPath
-#_  SetPos
-#_  SetPosIdx
-#_  `CustomSortMenu`
-#_  `LoadCustomSortMode`
-#_  `SetCustomSortMode`
-#_
-#_**Примечание:**
-#_  Функции `CustomSortMenu`, `LoadCustomSortMode` и `SetCustomSortMode` присутствуют только
-#_  если в качестве движка Lua используется LuaJIT 2.
-#_
-#_@@@
-#_[CustomSortMenu]: 82.html
-#_[SetCustomSortMode]: 81.html
-#_[LoadCustomSortMode]: 80.html
-#_
-#_{fattr}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fattr
-#_{fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
-#_{item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
-#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
-#_{setpath}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpath
-#_{setpos}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpos
-#_{setposidx}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setposidx
-#_
-</article>
-</node>
-<node>
-id=82
-lv=3
-dt=Text
-nm=CustomSortMenu
-ctime=3585577926
-mtime=3676119203
-<article>
-#_Panel.CustomSortMenu ()
-#_
-#_**Параметры:**
-#_  Нет
-#_
-#_**Возвращает:**
-#_  Ничего
-#_
-#_**Описание:**
-#_  Функция выводит меню со списком загруженных пользовательских сортировок.
-#_  Нажатие **Enter** устанавливает выбранный режим сортировки на активной панели,
-#_  нажатие **CtrlEnter** - на пассивной, **CtrlShiftEnter** - на обеих.
-#_
-#_  Клавиши **Add** и **Subtract** работают так же, как в меню выбора режима сортировки Far.
-#_  При этом также поддерживаются модификаторы **Ctrl** и **CtrlShift**, определяющие выбор панелей
-#_  для установки режима сортировки.
-</article>
-</node>
-<node>
-id=80
-lv=3
-dt=Text
-nm=LoadCustomSortMode
-ctime=3585324926
-mtime=3807114127
-<article>
-#_Panel.LoadCustomSortMode (Mode, Settings)
-#_
-#_**Параметры:**
-#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
-#_  Settings:     таблица, содержит следующие поля:
-#_                  *Condition*:
-#_                     Функция. Если задана, то будет вызвана с одним аргументом - режим сортировки.
-#_                     Если возвращаемое значение ложно, то сортировка отменяется.
-#_                     Следует отметить, что данная функция может перезагрузить все параметры сортировки,
-#_                     снова вызвав Panel.LoadCustomSortMode().
-#_                  *Compare*:
-#_                     Функция, см. её описание ниже.
-#_                  *DirectoriesFirst, SelectedFirst, RevertSorting, SortGroups:*
-#_                     Данные опциональные поля задают соответствующие опции сортировки:
-#_                     0 - опция выключена, 1 - опция включена, любое другое значение
-#_                     или отсутствие данного поля означают "использовать текущую
-#_                     установку Far Manager".
-#_                  *InvertByDefault:*
-#_                     Включать ли по умолчанию обратную сортировку.
-#_                  *Indicator:*
-#_                     Индикация режима сортировки на панели, строка из двух символов
-#_                     (первый - для прямой, второй - для обратной сортировки).
-#_                  *NoSortEqualsByName:*
-#_                     По умолчанию, равные с точки зрения алгоритма сортировки элементы
-#_                     сортируются по имени. Если это нежелательно, установите данное поле
-#_                     в true.
-#_                  *Description:*
-#_                     Текстовое описание режима сортировки. Если данное поле задано,
-#_                     оно используется в меню (см. `Panel.CustomSortMenu`).
-#_                  *SortFunction:*
-#_                     Опция выбора функции сортировки из двух встроенных.
-#_                     Задаётся строкой: "shellsort" (значение по умолчанию) или "qsort".
-#_                  *InitSort:*
-#_                     Функция. Если задана, то вызывается перед началом сортировки.
-#_                     Получает один параметр: таблицу *FarOptions* (см. ниже одноимённый
-#_                     параметр функции *Compare*).
-#_                  *EndSort:*
-#_                     Функция. Если задана, то вызывается после окончания сортировки.
-#_
-#_                Если значение *Settings* равно nil или false, это означает выгрузку
-#_                (удаление) данного режима сортировки.
-#_
-#_**Возвращает:**
-#_  Ничего
-#_
-#_**Описание:**
-#_  Функция загружает (или выгружает) пользовательский режим сортировки для панелей.
-#_  Если режим загружен, он может быть установлен в панели посредством вызова функции
-#_  `Panel.SetCustomSortMode`.
-#_
-#_**Функция Compare**
-#_  result = Compare (Pi1, Pi2, FarOptions)
-#_
-#_  **Параметры:**
-#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа `SortingPanelItem`.
-#_    FarOptions - таблица, содержащая текущие опции сортировки панели в Far Manager
-#_                 (все значения - булевые): *DirectoriesFirst, SelectedFirst,*
-#_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
-#_
-#_  **Возвращает:**
-#_    result     - если 1-й элемент должен оказаться после прямой сортировки выше 2-го,
-#_                 нужно возвратить отрицательное число, если ниже - положительное,
-#_                 а если элементы по критерию сортировки равны - ноль.
-#_
-#_**Примечание 1:**
-#_  Пользовательская сортировка использует библиотеку FFI от LuaJIT 2. Программирование
-#_  с использованием LuaJIT FFI требует предварительного освоения `документации`.
-#_
-#_**Примечание 2:**
-#_  Пользовательские режимы сортировок панелей восстанавливаются при перезапуске Far,
-#_  если текущая конфигурация была сохранена, при условии, что соответствующие вызовы
-#_  Panel.LoadCustomSortMode() производятся в процессе загрузки макросов.
-#_  Восстановление происходит после окончания загрузки макросов, до начала исполнения
-#_  автостартующих макросов.
-#_
-#_**Примечание 3:**
-#_  Пользовательские режимы сортировки принудительно выгружаются при выгрузке макросов.
-#_
-#_
-#_**Пример:**
-#_  *-- Загрузить сортировку по длине имени файла.*
-#_  local ffi = require "ffi"
-#_  local C = ffi.C
-#_  Panel.LoadCustomSortMode (SM_USER+10,
-#_    {
-#_      Compare = function(p1, p2, opt)
-#_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
-#_        return l1<l2 and -1 or l1>l2 and 1 or 0
-#_      end;
-#_      Indicator = "bB";
-#_    })
-#_
-#_@@@
-#_[Panel.CustomSortMenu]: 82.html
-#_[SortingPanelItem]: $(ENC_URL)/structures/sortingpanelitem.html
-#_[Panel.SetCustomSortMode]: 81.html
-#_[документации]: http://luajit.org/ext_ffi.html
-#_
-</article>
-</node>
-<node>
-id=81
-lv=3
-dt=Text
-nm=SetCustomSortMode
-ctime=3585499487
-mtime=3807114155
-<article>
-#_Panel.SetCustomSortMode (Mode, whatpanel [, order])
-#_
-#_**Параметры:**
-#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
-#_  whatpanel:    0=активная панель, 1=пассивная панель
-#_  order:        "auto"    - стандартный выбор направления сортировки (значение по умолчанию)
-#_                "current" - сохранить текущее направление сортировки в панели
-#_                "direct"  - установить прямую сортировку
-#_                "reverse" - установить обратную сортировку
-#_
-#_**Возвращает:**
-#_  Ничего
-#_
-#_**Описание:**
-#_  Если заданный режим сортировки загружен (см. `Panel.LoadCustomSortMode`),
-#_  то будет произведена установка этого режима сортировки в заданной панели.
-#_  Иначе не будет произведено никаких действий.
-#_
-#_**Пример:**
-#_  *-- Установить заданную пользовательскую сортировку в активной панели.*
-#_  Macro {
-#_    description="Sort files by their name length";
-#_    area="Shell"; key="CtrlShiftF1";
-#_    action=function() Panel.SetCustomSortMode(SM_USER+10,0) end;
-#_  }
-#_
-#_@@@
-#_[PluginPanelItem]: $(ENC_URL)/structures/pluginpanelitem.html
-#_[Panel.LoadCustomSortMode]: 80.html
-#_[документации]: http://luajit.org/ext_ffi.html
-#_
-</article>
-</node>
-<node>
-id=58
-lv=2
-dt=Text
-nm=BM
-ctime=3553686730
-mtime=3607097496
-<article>
-#_**BM** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  Нет.
-#_
-#_**Функции:**
-#_
-#_  Add
-#_  Back
-#_  Clear
-#_  Del
-#_  Get
-#_  Goto
-#_  Next
-#_  Pop
-#_  Prev
-#_  Push
-#_  Stat
-#_
-#_@@@
-#_{add}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.add
-#_{back}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.back
-#_{clear}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.clear
-#_{del}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.del
-#_{get}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.get
-#_{goto}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.goto
-#_{next}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.next
-#_{pop}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.pop
-#_{prev}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.prev
-#_{push}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.push
-#_{stat}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.stat
-#_
-</article>
-</node>
-<node>
-id=47
-lv=2
-dt=Text
-nm=CmdLine
-ctime=3553252699
-mtime=3637527697
-<article>
+
+article id=47 dt=Text ctime=3553252699 mtime=3637527697 nm=CmdLine
 #_**CmdLine** - таблица со следующими полями:
 #_
 #_**Свойства:**
@@ -1996,16 +843,63 @@ mtime=3637527697
 #_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.ItemCount
 #_{value}: $(ENC_URL)/macro/macrocmd/prop_func/cmdline.html#CmdLine.Value
 #_
-</article>
-</node>
-<node>
-id=51
-lv=2
-dt=Text
-nm=Dlg
-ctime=3553252729
-mtime=3607098940
-<article>
+
+article id=48 dt=Text ctime=3553252704 mtime=3607099165 nm=Drv
+#_**Drv** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  ShowMode:  number
+#_  ShowPos:   number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_@@@
+#_{showmode}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
+#_{showpos}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
+#_
+
+article id=49 dt=Text ctime=3553252714 mtime=3607108730 nm=Help
+#_**Help** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  SelTopic:  string
+#_  Topic:     string
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_@@@
+#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.FileName
+#_{seltopic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.SelTopic
+#_{topic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.Topic
+#_
+#_
+
+article id=50 dt=Text ctime=3553252718 mtime=3607110556 nm=Viewer
+#_**Viewer** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  State:     number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_@@@
+#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
+#_{state}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.State
+#_
+#_
+
+article id=51 dt=Text ctime=3553252729 mtime=3607098940 nm=Dlg
 #_**Dlg** - таблица со следующими полями:
 #_
 #_**Свойства:**
@@ -2033,41 +927,8 @@ mtime=3607098940
 #_{setfocus}: $(ENC_URL)/macro/macrocmd/prop_func/dialog.html#Dlg.SetFocus
 #_
 #_
-</article>
-</node>
-<node>
-id=48
-lv=2
-dt=Text
-nm=Drv
-ctime=3553252704
-mtime=3607099165
-<article>
-#_**Drv** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  ShowMode:  number
-#_  ShowPos:   number
-#_
-#_**Функции:**
-#_
-#_  Нет.
-#_
-#_@@@
-#_{showmode}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowMode
-#_{showpos}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Drv.ShowPos
-#_
-</article>
-</node>
-<node>
-id=52
-lv=2
-dt=Text
-nm=Editor
-ctime=3553252733
-mtime=3607106411
-<article>
+
+article id=52 dt=Text ctime=3553252733 mtime=3607106411 nm=Editor
 #_**Editor** - таблица со следующими полями:
 #_
 #_**Свойства:**
@@ -2112,16 +973,41 @@ mtime=3607106411
 #_{settitle}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.settitle
 #_{undo}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#editor.undo
 #_
-</article>
-</node>
-<node>
-id=54
-lv=2
-dt=Text
-nm=Far
-ctime=3553252749
-mtime=3618906507
-<article>
+
+article id=53 dt=Text ctime=3553252746 mtime=3607109106 nm=Menu
+#_**Menu** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  HorizontalAlignment:    number
+#_  Id:                     string (GUID)
+#_  Value:                  string
+#_
+#_**Функции:**
+#_
+#_  Filter
+#_  FilterStr
+#_  GetValue
+#_  ItemStatus
+#_  Select
+#_  Show
+#_  GetItemExtendedData
+#_
+#_@@@
+#_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
+#_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Filter
+#_{getitemextendeddata}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetItemExtendedData
+#_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetValue
+#_{horizontalalignment}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
+#_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{itemstatus}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
+#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Select
+#_{show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu.Show
+#_{value}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Value
+#_
+#_
+
+article id=54 dt=Text ctime=3553252749 mtime=3618906507 nm=Far
 #_**Far** - таблица со следующими полями:
 #_
 #_**Свойства:**
@@ -2160,200 +1046,8 @@ mtime=3618906507
 #_{window_scroll}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_
 #_
-</article>
-</node>
-<node>
-id=95
-lv=3
-dt=Text
-nm=GetConfig
-ctime=3618868388
-mtime=3618922284
-<article>
-#_val, tp = Far.GetConfig (keyname)
-#_
-#_**Параметры:**
-#_  keyname: string
-#_
-#_**Возвращает:**
-#_  val:     boolean, string, number, or int64
-#_             Это значение запрашиваемой величины.
-#_             Преобразование типов между Far Manager и Lua осуществляются следующим образом:
-#_               boolean -> boolean
-#_               3-state -> 0,1,2 преобразуются соответственно в false,true,"other"
-#_               string  -> string
-#_               integer -> number (если возможно преобразование без потери точности) или
-#_                          userdata (int64) - величина, создаваемая библиотекой bit64.
-#_
-#_  tp:      string ("boolean", "3-state", "string", "integer")
-#_             Это тип оригинальной величины в Far Manager.
-#_
-#_**Примечание:**
-#_  В случае ошибки (некорректный аргумент, или Far Manager не нашёл указанной опции)
-#_  данная функция прерывает исполнение (вызывает error()).
-#_
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=49
-lv=2
-dt=Text
-nm=Help
-ctime=3553252714
-mtime=3607108730
-<article>
-#_**Help** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  FileName:  string
-#_  SelTopic:  string
-#_  Topic:     string
-#_
-#_**Функции:**
-#_
-#_  Нет.
-#_
-#_@@@
-#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.FileName
-#_{seltopic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.SelTopic
-#_{topic}: $(ENC_URL)/macro/macrocmd/prop_func/help.html#Help.Topic
-#_
-#_
-</article>
-</node>
-<node>
-id=53
-lv=2
-dt=Text
-nm=Menu
-ctime=3553252746
-mtime=3607109106
-<article>
-#_**Menu** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  HorizontalAlignment:    number
-#_  Id:                     string (GUID)
-#_  Value:                  string
-#_
-#_**Функции:**
-#_
-#_  Filter
-#_  FilterStr
-#_  GetValue
-#_  ItemStatus
-#_  Select
-#_  Show
-#_  GetItemExtendedData
-#_
-#_@@@
-#_{filterstr}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.FilterStr
-#_{filter}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Filter
-#_{getitemextendeddata}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetItemExtendedData
-#_{getvalue}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.GetValue
-#_{horizontalalignment}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.HorizontalAlignment
-#_{id}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
-#_{itemstatus}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.ItemStatus
-#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Select
-#_{show}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Menu.Show
-#_{value}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#Menu.Value
-#_
-#_
-</article>
-</node>
-<node>
-id=59
-lv=2
-dt=Text
-nm=Mouse
-ctime=3553790262
-mtime=3607109438
-<article>
-#_**Mouse** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  X:              number
-#_  Y:              number
-#_  Button:         number
-#_  CtrlState:      number
-#_  EventFlags:     number
-#_  LastCtrlState:  number
-#_
-#_**Функции:**
-#_
-#_  Нет.
-#_
-#_**Примечание:**
-#_
-#_  *Mouse.LastCtrlState* отличается от *Mouse.CtrlState* тем, что обновляется
-#_  как по событиям от мыши, так и по клавиатурным событиям.
-#_
-#_@@@
-#_{button}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsButton
-#_{ctrlstate}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsCtrlState
-#_{eventflags}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsEventFlags
-#_{x}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsX
-#_{y}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsY
-#_
-#_
-</article>
-</node>
-<node>
-id=45
-lv=2
-dt=Text
-nm=Object
-ctime=3553245384
-mtime=3607109929
-<article>
-#_**Свойства, зависящие от контекста исполнения.**
-#_
-#_**Object**: таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  Bof:         boolean
-#_  CurPos:      number
-#_  Empty:       boolean
-#_  Eof:         boolean
-#_  Height:      number
-#_  ItemCount:   number
-#_  Selected:    boolean
-#_  Title:       string
-#_  Width:       number
-#_
-#_**Функции:**
-#_
-#_  CheckHotkey
-#_  GetHotkey
-#_
-#_@@@
-#_{bof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#bof
-#_{checkhotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#checkhotkey
-#_{curpos}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#CurPos
-#_{empty}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#empty
-#_{eof}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#eof
-#_{gethotkey}: $(ENC_URL)/macro/macrocmd/prop_func/menus.html#gethotkey
-#_{itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#ItemCount
-#_{selected}: $(ENC_URL)/macro/macrocmd/prop_func/context_dep.html#selected
-#_{title}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Title
-#_
-#_
-</article>
-</node>
-<node>
-id=56
-lv=2
-dt=Text
-nm=Plugin
-ctime=3553252766
-mtime=3717182328
-<article>
+
+article id=56 dt=Text ctime=3553252766 mtime=3717182328 nm=Plugin
 #_**Plugin** - таблица со следующими полями:
 #_
 #_**Свойства:**
@@ -2383,16 +1077,193 @@ mtime=3717182328
 #_{unload}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Plugin.Unload
 #_
 #_
-</article>
-</node>
-<node>
-id=65
-lv=3
-dt=Text
-nm=Call
-ctime=3560706460
-mtime=3970573080
-<article>
+
+article id=57 dt=Text ctime=3553252776 mtime=3607096939 nm=Panel
+#_**Panel** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  FAttr
+#_  FExist
+#_  Item
+#_  Select
+#_  SetPath
+#_  SetPos
+#_  SetPosIdx
+#_  `CustomSortMenu`
+#_  `LoadCustomSortMode`
+#_  `SetCustomSortMode`
+#_
+#_**Примечание:**
+#_  Функции `CustomSortMenu`, `LoadCustomSortMode` и `SetCustomSortMode` присутствуют только
+#_  если в качестве движка Lua используется LuaJIT 2.
+#_
+#_@@@
+#_[CustomSortMenu]: 82.html
+#_[SetCustomSortMode]: 81.html
+#_[LoadCustomSortMode]: 80.html
+#_
+#_{fattr}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fattr
+#_{fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
+#_{item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
+#_{select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
+#_{setpath}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpath
+#_{setpos}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setpos
+#_{setposidx}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.setposidx
+#_
+
+article id=58 dt=Text ctime=3553686730 mtime=3607097496 nm=BM
+#_**BM** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  Add
+#_  Back
+#_  Clear
+#_  Del
+#_  Get
+#_  Goto
+#_  Next
+#_  Pop
+#_  Prev
+#_  Push
+#_  Stat
+#_
+#_@@@
+#_{add}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.add
+#_{back}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.back
+#_{clear}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.clear
+#_{del}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.del
+#_{get}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.get
+#_{goto}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.goto
+#_{next}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.next
+#_{pop}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.pop
+#_{prev}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.prev
+#_{push}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.push
+#_{stat}: $(ENC_URL)/macro/macrocmd/prop_func/editor.html#bm.stat
+#_
+
+article id=59 dt=Text ctime=3553790262 mtime=3607109438 nm=Mouse
+#_**Mouse** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  X:              number
+#_  Y:              number
+#_  Button:         number
+#_  CtrlState:      number
+#_  EventFlags:     number
+#_  LastCtrlState:  number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_**Примечание:**
+#_
+#_  *Mouse.LastCtrlState* отличается от *Mouse.CtrlState* тем, что обновляется
+#_  как по событиям от мыши, так и по клавиатурным событиям.
+#_
+#_@@@
+#_{button}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsButton
+#_{ctrlstate}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsCtrlState
+#_{eventflags}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsEventFlags
+#_{x}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsX
+#_{y}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#MsY
+#_
+#_
+
+article id=61 dt=Text ctime=3555411121 mtime=3717267072 nm=exit
+#_exit ()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Завершить работу макроса.
+#_
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
+#_
+#_@@@
+#_[Ограничения в использовании некоторых функций]: 62.html
+#_
+
+article id=62 dt=Text ctime=3557323094 mtime=3926597287 nm=Ограничения в использовании некоторых функций
+#_<markdown>
+#_Следующие функции имеют особенности реализации, которые накладывают определённые ограничения на их использование в макросах:
+#_
+#_* [`exit`][exit]
+#_* [`mf.acall`][acall]
+#_* [`mf.AddExitHandler`][AddExitHandler]
+#_* [`mf.mainmenu`][mainmenu]
+#_* [`mf.usermenu`][usermenu] (в "асинхронном" режиме вызова)
+#_* [`Keys`][keys]
+#_* [`Plugin.Call`][plugincall]
+#_* `Plugin.Command`
+#_* `Plugin.Config`
+#_* `Plugin.Menu`
+#_* `print`
+#_
+#_1. Если макрос создаёт корутины с помощью `coroutine.wrap(f)`, то вышеперечисленные функции не будут работать, будучи вызванными из тела функции `f`.<br>
+#_Данного ограничения нет, если корутины создаются с помощью `coroutine.create(f)`.
+#_
+#_1. Вышеперечисленные функции, будучи вызванными прямо или косвенно посредством функции `pcall`, приведут к немедленному возврату `pcall` с результатом `false`.<br>
+#_Данного ограничения нет при использовании LuaJIT 2.x.
+#_
+#_1. Вышеперечисленные функции работают только, будучи вызванными из **тела макроса** (обычно это функция `action`).
+#_Это значит, что данные функции не будут работать, будучи вызванными из:
+#_     - диалоговых процедур
+#_     - функции *condition* макроса
+#_     - [обработчиков событий][event]
+#_     - и т.д. и т.п.
+#_
+#_Ограничения пункта 3 не имеют места, если вышеперечисленные функции вызываются не напрямую,
+#_а посредством [`mf.postmacro`][postmacro] или `far.MacroPost`.
+#_
+#_[acall]: 91.html
+#_[usermenu]: 69.html
+#_[postmacro]: 85.html
+#_[event]: 78.html
+#_[plugincall]: 65.html
+#_[exit]: 61.html
+#_[keys]: 4.html
+#_[AddExitHandler]: 100.html
+#_[mainmenu]: 111.html
+#_
+#_@@@
+#_{plugin.command}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.command
+#_{plugin.config}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.config
+#_{plugin.menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.menu
+#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
+#_
+
+article id=63 dt=Text ctime=3558901787 mtime=3607111396 nm=Интроспекция
+#_<markdown>
+#_Содержимое глобальных таблиц API макроязыка можно просмотреть с помощью
+#_функции `pairs`, отдельно для функций и "свойств" таблицы.
+#_
+#_На примере таблицы `Editor`:
+#_
+#_        for k,v in pairs(Editor) do .... end -- для функций
+#_
+#_        for k,v in pairs(Editor.properties) do .... end -- для свойств
+#_
+#_@@@
+#_
+
+article id=65 dt=Text ctime=3560706460 mtime=3970573080 nm=Call
 #_... = Plugin.Call (PluginId, ...)
 #_
 #_**Параметры:**
@@ -2456,571 +1327,48 @@ mtime=3970573080
 #_{plugin.call}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.call
 #_
 #_
-</article>
-</node>
-<node>
-id=83
-lv=3
-dt=Text
-nm=SyncCall
-ctime=3588708461
-mtime=3588709114
-<article>
-#_... = Plugin.SyncCall (PluginId, ...)
+
+article id=67 dt=Text ctime=3568746613 mtime=3580152284 nm=Формат макросов и обработчиков событий
+#_@@@
+#_На этапе загрузки макросов все файлы стационарных и клавиатурных макросов запускаются по очереди на исполнение.
 #_
-#_Данная функция работает идентично `Plugin.Call`, за исключением того, что:
+
+article id=69 dt=Text ctime=3571243204 mtime=3717267205 nm=usermenu
+#_mf.usermenu (mode, filename)
 #_
-#_1. Её вызов - всегда синхронный, то-есть возврат управления макросу происходит
-#_   только после возврата функции *OpenW* плагина.
-#_2. Данная функция не имеет `ограничений` в использовании, которые есть у `Plugin.Call`.
+#_**Параметры:**
+#_  mode:     number (0 по умолчанию)
+#_  filename: string или nil
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Открывает или создаёт пользовательское меню.
+#_
+#_  - *mode* может содержать бит 0x100, в этом случае функция возвращается
+#_    только по закрытии пользовательского меню (синхронный вызов). Если
+#_    данный бит равен нулю, то функция возвращается немедленно по открытии
+#_    меню (асинхронный вызов).
+#_
+#_  Поведение функции в зависимости от величины младшего байта *mode*:
+#_
+#_    0: равносильно нажатию F2 в панелях; *filename* игнорируется.
+#_    1: выводится диалог выбора пользовательского меню; *filename* игнорируется.
+#_    2: файл открывается "как есть", т.е. по заданному *filename*.
+#_    3: файл *filename* открывается в %farprofile%\Menus (папка создаётся
+#_       автоматически).
+#_
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
 #_
 #_@@@
-#_[ограничений]: 62.html
-#_[Plugin.Call]: 65.html
-#_
-#_{openw}: $(ENC_URL)/exported_functions/openw.html
-#_
-</article>
-</node>
-<node>
-id=50
-lv=2
-dt=Text
-nm=Viewer
-ctime=3553252718
-mtime=3607110556
-<article>
-#_**Viewer** - таблица со следующими полями:
-#_
-#_**Свойства:**
-#_
-#_  FileName:  string
-#_  State:     number
-#_
-#_**Функции:**
-#_
-#_  Нет.
-#_
-#_@@@
-#_{filename}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.FileName
-#_{state}: $(ENC_URL)/macro/macrocmd/prop_func/viewer.html#Viewer.State
-#_
-#_
-</article>
-</node>
-<node>
-id=5
-lv=1
-dt=Text
-nm=Разное
-ctime=3551990771
-mtime=3602512460
-<article>
-</article>
-</node>
-<node>
-id=2
-lv=2
-dt=Text
-nm=Макросы, начинающиеся с @
-ctime=3551901528
-mtime=3607959329
-<article>
-#_<markdown>
-#_Если макропоследовательность начинается с символа `@`, то последующая её часть интерпретируется как имя файла, содержащего Lua-скрипт.
-#_
-#_* Переменные окружения в заданном имени файла автоматически расширяются.
-#_* Глобальная (в пределах окружения скрипта) переменная `_filename` содержит имя файла.
-#_* Такие скрипты легче отлаживать и модифицировать, так как не требуется их предварительная перезагрузка.
-#_
-#_**Пример 1:**
-#_        lua: @%FARHOME%\test\test.lua 123, "hello"
-#_
-#_**Пример 2:**<br>
-#_[запуск скрипта из редактора][example].
-#_
-#_[example]: 74.html
-#_
-</article>
-</node>
-<node>
-id=14
-lv=2
-dt=Text
-nm=Переменные
-ctime=3552028510
-mtime=3564676943
-<article>
-#_<markdown>
-#_### Окружение
-#_Макросы, загружаемые из одного файла, имеют общее окружение (environment).
-#_Переменные, объявляемые без ключевого слова *local*, принадлежат этому окружению.
-#_
-#_      Пример: var = 15
-#_
-#_Переменные окружения макрофайла сохраняют свои значения между вызовами макросов. Их значения сбрасываются в исходные при выполнении любой операции загрузки макросов: старт Far Manager, `macro:load`, `lm:load`, `far.MacroLoadAll`, `MacroControl(MCTL_LOADALL)`.
-#_
-#_### Глобальные переменные
-#_Для установки глобальных переменных, значения которых будут сохраняться в течение всей сессии Far Manager и будут доступны всем скриптам, нужно использовать таблицу `_G`.
-#_
-#_      Пример: _G.var = 15
-#_
-#_Глобальные переменные не меняют своего значения даже при операциях перезагрузки макросов, за исключением рестарта Far Manager или перезагрузки плагина LuaMacro.
-#_
-#_При чтении несуществующей переменной окружения, прочтётся одноимённая глобальная переменная (наследование в некотором смысле).
-#_
-#_      Пример:
-#_        var = 5
-#_        _G.var = 10
-#_        far.Message(var) --> 5
-#_        var = nil
-#_        far.Message(var) --> 10
-#_
-#_### Upvalues
-#_Локальные переменные, доступные из функций одного или нескольких макросов (upvalues), являются общими для этих функций и сохраняют свои значения между вызовами макросов. Их значения сбрасываются в исходные при выполнении любой операции загрузки макросов.
-#_
-#_      Пример:
-#_        local var = 15
-#_        function inc_var() var = var+1 end
-#_        function dec_var() var = var-1 end
-#_
-#_@@@
-#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
-#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
-#_
-</article>
-</node>
-<node>
-id=62
-lv=2
-dt=Text
-nm=Ограничения в использовании некоторых функций
-ctime=3557323094
-mtime=3926597287
-<article>
-#_<markdown>
-#_Следующие функции имеют особенности реализации, которые накладывают определённые ограничения на их использование в макросах:
-#_
-#_* [`exit`][exit]
-#_* [`mf.acall`][acall]
-#_* [`mf.AddExitHandler`][AddExitHandler]
-#_* [`mf.mainmenu`][mainmenu]
-#_* [`mf.usermenu`][usermenu] (в "асинхронном" режиме вызова)
-#_* [`Keys`][keys]
-#_* [`Plugin.Call`][plugincall]
-#_* `Plugin.Command`
-#_* `Plugin.Config`
-#_* `Plugin.Menu`
-#_* `print`
-#_
-#_1. Если макрос создаёт корутины с помощью `coroutine.wrap(f)`, то вышеперечисленные функции не будут работать, будучи вызванными из тела функции `f`.<br>
-#_Данного ограничения нет, если корутины создаются с помощью `coroutine.create(f)`.
-#_
-#_1. Вышеперечисленные функции, будучи вызванными прямо или косвенно посредством функции `pcall`, приведут к немедленному возврату `pcall` с результатом `false`.<br>
-#_Данного ограничения нет при использовании LuaJIT 2.x.
-#_
-#_1. Вышеперечисленные функции работают только, будучи вызванными из **тела макроса** (обычно это функция `action`).
-#_Это значит, что данные функции не будут работать, будучи вызванными из:
-#_     - диалоговых процедур
-#_     - функции *condition* макроса
-#_     - [обработчиков событий][event]
-#_     - и т.д. и т.п.
-#_
-#_Ограничения пункта 3 не имеют места, если вышеперечисленные функции вызываются не напрямую,
-#_а посредством [`mf.postmacro`][postmacro] или `far.MacroPost`.
-#_
-#_[acall]: 91.html
-#_[usermenu]: 69.html
-#_[postmacro]: 85.html
-#_[event]: 78.html
-#_[plugincall]: 65.html
-#_[exit]: 61.html
-#_[keys]: 4.html
-#_[AddExitHandler]: 100.html
-#_[mainmenu]: 111.html
-#_
-#_@@@
-#_{plugin.command}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.command
-#_{plugin.config}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.config
-#_{plugin.menu}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#plugin.menu
-#_{print}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#print
-#_
-</article>
-</node>
-<node>
-id=63
-lv=2
-dt=Text
-nm=Интроспекция
-ctime=3558901787
-mtime=3607111396
-<article>
-#_<markdown>
-#_Содержимое глобальных таблиц API макроязыка можно просмотреть с помощью
-#_функции `pairs`, отдельно для функций и "свойств" таблицы.
-#_
-#_На примере таблицы `Editor`:
-#_
-#_        for k,v in pairs(Editor) do .... end -- для функций
-#_
-#_        for k,v in pairs(Editor.properties) do .... end -- для свойств
-#_
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=84
-lv=2
-dt=Text
-nm=editor.SubscribeChangeEvent
-ctime=3589525063
-mtime=3589531649
-<article>
-#_<markdown>
-#_Библиотека LuaFAR содержит функцию `editor.SubscribeChangeEvent`. Для макросов-[обработчиков событий][events] эта функция переопределена [плагином LuaMacro][LuaMacro]:
-#_
-#_* Вызов оригинальной функции происходит только при переходе внутреннего *счётчика подписок* из 0 в 1 (если аргумент `Subscribe==true`), либо из 1 в 0 (если аргумент `Subscribe==false`). Поэтому нужно, чтобы в каждом обработчике, делающем вызов `Subscribe==true`, был и парный вызов `Subscribe==false`.
-#_
-#_* В отличие от плагинов, событие `EE_CHANGE` может приходить независимо от того, вызывал ли данный обработчик функцию `editor.SubscribeChangeEvent` или не вызывал.
-#_
-#_* Счётчики подписок отдельные для каждой сессии редактора.
-#_
-#_[LuaMacro]: 7.html
-#_[events]: 78.html
-#_
-#_@@@
-#_{ee_change}: $(ENC_URL)/structures/processeditoreventinfo.html#EE_CHANGE
-#_
-</article>
-</node>
-<node>
-id=73
-lv=2
-dt=Text
-nm=package.nounload
-ctime=3578403115
-mtime=3673450781
-<article>
-#_<markdown>
-#_
-#_`package.nounload` - это таблица, ключи которой являются именами модулей, не удаляемых из `package.loaded` при выгрузке или перезагрузке макросов (операции `MCTL_LOADALL`, `lm:load`, `lm:unload`).
-#_
-#_* Таблица создаётся автоматически плагином LuaMacro.
-#_* Обычно в эту таблицу заносятся имена модулей, использующих LuaJIT FFI и вызывающих `ffi.cdef`.
-#_
-#_Например, если исполнить
-#_
-#_        package.nounload.mylib = true
-#_
-#_то модуль `mylib` не будет удалён из `package.loaded` при операциях выгрузки или перезагрузки
-#_макросов.
-#_
-#_@@@
-#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
-#_
-</article>
-</node>
-<node>
-id=29
-lv=1
-dt=Text
-nm=Примеры
-ctime=3552222267
-mtime=3552222267
-<article>
-</article>
-</node>
-<node>
-id=39
-lv=2
-dt=Text
-nm=Выделить слово под курсором
-ctime=3553195063
-mtime=3607111506
-<article>
-#_<markdown>
-#_```
-#_Macro {
-#_  description="Выделить/снять выделение слова под курсором";
-#_  area="Editor"; key="CtrlM";
-#_  action=function()
-#_    Keys"RCtrl9 CtrlRight CtrlLeft"
-#_    Keys(Object.Selected and "CtrlU" or "CtrlShiftRight")
-#_    Keys"Ctrl9"
-#_  end;
-#_}
-#_```
-#_
-</article>
-</node>
-<node>
-id=40
-lv=2
-dt=Text
-nm=Переход в меню выбора дисков
-ctime=3553195940
-mtime=3607111577
-<article>
-#_<markdown>
-#_```
-#_-- Переход в меню выбора дисков на противоположной панели,
-#_-- включение видимости панели, в которой будет происходить
-#_-- смена диска, если её не было.
-#_Macro {
-#_  description="Переход в меню выбора дисков на противоположной панели";
-#_  area="Disks"; key="CtrlM";
-#_  action=function()
-#_    Keys"Esc"
-#_    if not PPanel.Visible then
-#_      Keys(APanel.Left and "CtrlF2" or "CtrlF1")
-#_    end
-#_    Keys"Tab F9 Enter End Enter"
-#_  end;
-#_}
-#_```
-#_
-#_@@@
-#_{apanel.left}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.Left
-#_{ppanel.visible}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#PPanel.Visible
-#_
-</article>
-</node>
-<node>
-id=30
-lv=2
-dt=Text
-nm=Выделить файлы новее текущего
-ctime=3552222560
-mtime=3607111666
-<article>
-#_<markdown>
-#_```
-#_-- Выделить в активной панели все файлы/папки новее текущего,
-#_-- используя API плагинов (LuaFAR).
-#_Macro {
-#_  description="Выделить в активной панели все файлы/папки новее текущего";
-#_  area="Shell"; key="CtrlM";
-#_  action=function()
-#_    local info = panel.GetPanelInfo(nil,1)
-#_    local curItem = panel.GetCurrentPanelItem(nil,1)
-#_    for i=1,info.ItemsNumber do
-#_      local item = panel.GetPanelItem(nil,1,i)
-#_      if item.LastWriteTime > curItem.LastWriteTime then
-#_        panel.SetSelection(nil,1,i,true)
-#_      end
-#_    end
-#_    panel.RedrawPanel(nil,1)
-#_  end;
-#_}
-#_```
-#_
-#_```
-#_-- Выделить в активной панели все файлы/папки новее текущего,
-#_-- используя API макросов (LuaFAR + LuaMacro).
-#_Macro {
-#_  description="Выделить в активной панели все файлы/папки новее текущего";
-#_  area="Shell"; key="CtrlM";
-#_  action=function()
-#_    d = Panel.Item(0,0,17)
-#_    for i=1,APanel.ItemCount do
-#_      if Panel.Item(0,i,17) > d then
-#_        Panel.Select(0,1,1,i)
-#_      end
-#_    end
-#_  end;
-#_}
-#_```
-#_
-#_@@@
-#_{apanel.itemcount}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#APanel.ItemCount
-#_{panel.item}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.item
-#_{panel.select}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.select
-#_
-</article>
-</node>
-<node>
-id=41
-lv=2
-dt=Text
-nm=Создание папки с именем = текущей дате
-ctime=3553206604
-mtime=3607111753
-<article>
-#_<markdown>
-#_```
-#_Macro {
-#_  description="создание папки с именем = текущей дате";
-#_  area="Shell"; key="CtrlShiftF7"; flags="NoPluginPanels";
-#_  action=function()
-#_    folder = mf.date("%d.%m0.%Y")
-#_    if Panel.FExist(0,folder)==0 then
-#_      Keys"F7 CtrlY"
-#_      print(folder)
-#_      Keys"Enter"
-#_    end
-#_  end;
-#_}
-#_```
-#_
-#_@@@
-#_{panel.fexist}: $(ENC_URL)/macro/macrocmd/prop_func/panels.html#panel.fexist
-#_
-</article>
-</node>
-<node>
-id=74
-lv=2
-dt=Text
-nm=Запуск скрипта из редактора
-ctime=3578455778
-mtime=3622533917
-<article>
-#_<markdown>
-#_```
-#_-- Данный макрос сначала сохраняет содержимое редактора (если оно не было сохранено),
-#_-- затем исполняет редактируемый файл как Lua-скрипт.
-#_Macro {
-#_  description="Save and run script from editor";
-#_  area="Editor"; key="CtrlF10";
-#_  action=function()
-#_    for k=1,2 do
-#_      local info=editor.GetInfo()
-#_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
-#_        local Flags = info.FileName:sub(-5):lower()==".moon"
-#_          and "KMFLAGS_MOONSCRIPT" or "KMFLAGS_LUA"
-#_        far.MacroPost('@"' .. info.FileName .. '"', Flags)
-#_        break
-#_      end
-#_      if k==1 then editor.SaveFile(); end
-#_    end
-#_  end;
-#_}
-#_```
-#_
-</article>
-</node>
-<node>
-id=86
-lv=1
-dt=Text
-nm=Используемые программные продукты
-ctime=3607436110
-mtime=3607436110
-<article>
-</article>
-</node>
-<node>
-id=87
-lv=2
-dt=Text
-nm=Lua
-ctime=3607436121
-mtime=3607436161
-<article>
-#_<markdown>
-#_Lua is licensed under the terms of the MIT license reproduced below.
-#_This means that Lua is free software and can be used for both academic
-#_and commercial purposes at absolutely no cost.
-#_
-#_For details and rationale, see http://www.lua.org/license.html .
-#_
-#_<HR>
-#_
-#_Copyright (C) 1994-2008 Lua.org, PUC-Rio.
-#_
-#_Permission is hereby granted, free of charge, to any person obtaining a copy
-#_of this software and associated documentation files (the "Software"), to deal
-#_in the Software without restriction, including without limitation the rights
-#_to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#_copies of the Software, and to permit persons to whom the Software is
-#_furnished to do so, subject to the following conditions:
-#_
-#_The above copyright notice and this permission notice shall be included in
-#_all copies or substantial portions of the Software.
-#_
-#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#_IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#_FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-#_AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-#_THE SOFTWARE.
-#_
-</article>
-</node>
-<node>
-id=89
-lv=2
-dt=Text
-nm=LPeg
-ctime=3607436892
-mtime=3607436897
-<article>
-#_<markdown>
-#_## License
-#_
-#_Copyright © 2008 Lua.org, PUC-Rio.
-#_
-#_Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-#_
-#_The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#_
-#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#_
-</article>
-</node>
-<node>
-id=88
-lv=2
-dt=Text
-nm=MoonScript
-ctime=3607436124
-mtime=3607436187
-<article>
-#_<markdown>
-#_## License (MIT)
-#_
-#_Copyright (C) 2013 by Leaf Corcoran
-#_
-#_Permission is hereby granted, free of charge, to any person obtaining a copy
-#_of this software and associated documentation files (the "Software"), to deal
-#_in the Software without restriction, including without limitation the rights
-#_to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#_copies of the Software, and to permit persons to whom the Software is
-#_furnished to do so, subject to the following conditions:
-#_
-#_The above copyright notice and this permission notice shall be included in
-#_all copies or substantial portions of the Software.
-#_
-#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#_IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#_FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#_AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-#_THE SOFTWARE.
-#_
-</article>
-</node>
-<node>
-id=70
-lv=1
-dt=Text
-nm=Статьи
-ctime=3576179916
-mtime=3578043315
-<article>
-</article>
-</node>
-<node>
-id=71
-lv=2
-dt=Text
-nm=FAR Manager. Macros and whatnot.
-ctime=3578043305
-mtime=3607111902
-<article>
+#_[Ограничения в использовании некоторых функций]: 62.html
+#_
+
+article id=70 dt=Text ctime=3576179916 mtime=3578043315 nm=Статьи
+
+article id=71 dt=Text ctime=3578043305 mtime=3607111902 nm=FAR Manager. Macros and whatnot.
 #_<markdown>
 #_<font face="Tahoma">
 #_
@@ -3293,5 +1641,1117 @@ mtime=3607111902
 #_[thread]: http://forum.farmanager.com/viewtopic.php?f=60&t=7521
 #_
 #_
-</article>
-</node>
+
+article id=72 dt=Text ctime=3578176338 mtime=3833369950 nm=GetMacroCopy
+#_macro = mf.GetMacroCopy (index)
+#_
+#_**Параметры:**
+#_  index:  integer
+#_
+#_**Возвращает:**
+#_  macro:  table или nil
+#_
+#_**Описание:**
+#_  Функция *GetMacroCopy* возвращает копию таблицы загруженного макроса или обработчика
+#_  события по его индексу во внутреннем  массиве (начиная от 1). Если индекс превышает
+#_  размер массива, возвращается nil - таким образом можно определить конец массива.
+#_
+#_**Примечания:**
+#_  * Неактивные (выгруженные или удалённые) элементы имеют поле "disabled" == true.
+#_  * Отличить таблицу макроса от таблицы события можно по полю "area" типа string,
+#_    которое присутствует только у макросов.
+#_
+#_**См. также:**
+#_`EnumScripts` - позволяет работать и с другими типами скриптов
+#_
+#_@@@
+#_[EnumScripts]: 106.html
+
+article id=73 dt=Text ctime=3578403115 mtime=3673450781 nm=package.nounload
+#_<markdown>
+#_
+#_`package.nounload` - это таблица, ключи которой являются именами модулей, не удаляемых из `package.loaded` при выгрузке или перезагрузке макросов (операции `MCTL_LOADALL`, `lm:load`, `lm:unload`).
+#_
+#_* Таблица создаётся автоматически плагином LuaMacro.
+#_* Обычно в эту таблицу заносятся имена модулей, использующих LuaJIT FFI и вызывающих `ffi.cdef`.
+#_
+#_Например, если исполнить
+#_
+#_        package.nounload.mylib = true
+#_
+#_то модуль `mylib` не будет удалён из `package.loaded` при операциях выгрузки или перезагрузки
+#_макросов.
+#_
+#_@@@
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
+#_
+
+article id=74 dt=Text ctime=3578455778 mtime=3622533917 nm=Запуск скрипта из редактора
+#_<markdown>
+#_```
+#_-- Данный макрос сначала сохраняет содержимое редактора (если оно не было сохранено),
+#_-- затем исполняет редактируемый файл как Lua-скрипт.
+#_Macro {
+#_  description="Save and run script from editor";
+#_  area="Editor"; key="CtrlF10";
+#_  action=function()
+#_    for k=1,2 do
+#_      local info=editor.GetInfo()
+#_      if bit64.band(info.CurState, far.Flags.ECSTATE_SAVED)~=0 then
+#_        local Flags = info.FileName:sub(-5):lower()==".moon"
+#_          and "KMFLAGS_MOONSCRIPT" or "KMFLAGS_LUA"
+#_        far.MacroPost('@"' .. info.FileName .. '"', Flags)
+#_        break
+#_      end
+#_      if k==1 then editor.SaveFile(); end
+#_    end
+#_  end;
+#_}
+#_```
+#_
+
+article id=75 dt=Text ctime=3580139016 mtime=3915184059 nm=Стационарные макросы
+#_<markdown>
+#_
+#_Загрузка макроса происходит при вызове глобальной функции `Macro`, которой передаётся один аргумент - таблица с параметрами макроса. При успешной загрузке функция возвращает `true`.
+#_
+#_```
+#_  Macro {
+#_    area         = "Shell Info Tree";                             -- string
+#_    key          = "CtrlF11 ShiftHome";                           -- string (опциональное поле)
+#_    description  = "Macro example";                               -- string (опциональное поле)
+#_    flags        = "NoPluginPanels EmptyCommandLine";             -- string (опциональное поле)
+#_    filemask     = "*.txt,*.cpp";                                 -- string (опциональное поле)
+#_    priority     = 50;                                            -- number (опциональное поле)
+#_    sortpriority = 50;                                            -- number (опциональное поле)
+#_    selected     = true;                                          -- boolean (опциональное поле)
+#_    condition    = function(key,data) return Far.Height>30 end;   -- function (опциональное поле)
+#_    action       = function(data) msgbox("","Macro example") end; -- function (опциональное поле)
+#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (опциональное поле)
+#_  }
+#_```
+#_
+#_1. Поле `area` должно содержать имена одной или нескольких областей, разделённых пробелами.
+#_
+#_1. Поле `key` может содержать имена одного или нескольких ключей, разделённых пробелами.<br>
+#_   Ключи могут содержать модификаторы: `Ctrl,LCtrl,RCtrl,Alt,RAlt,LAlt,Shift`.<br>
+#_   `Ctrl` означает "любой из `LCtrl,RCtrl`", аналогично для `Alt`.
+#_   Порядок указания модификаторов - произвольный.<br><br>
+#_   Альтернативно, поле `key` может быть задано как регулярное выражение, обрамлённое
+#_   слешами (`/`).
+#_   * В этом случае `/Ctrl/` не сработает при нажатии `RCtrl`, надо явно обозначать
+#_     `/[LR]Ctrl/` и т.п.
+#_   * Также в этом случае необходимо соблюдать порядок в последовательности
+#_     `Ctrl`,`Alt`,`Shift`, например `/[LR]Alt[LR]CtrlF1/` никогда не сработает.<br><br>
+#_
+#_1. Опциональное поле `flags` может содержать набор [флагов][flags], разделённых пробелами.
+#_   Изменения в названиях или интерпретации флагов описаны [здесь][api changes].
+#_
+#_1. Опциональное поле `priority` (приоритет) - число от 0 до 100. Значение по умолчанию = 50.<br>
+#_   Макросы, добавляемые посредством `MCTL_ADDMACRO`, имеют приоритет = 50.
+#_
+#_1. Опциональное поле `sortpriority` (приоритет для сортировки) - число от 0 до 100. Значение по умолчанию = 50.<br>
+#_   Значение данного поля учитывается при определении порядка расположения макросов в меню выбора макроса.
+#_
+#_1. Опциональное поле `selected` - булевая величина.<br>
+#_   Это поле указывает, что данный макрос должен быть изначально выбран в меню выбора макроса.
+#_
+#_1. Опциональное поле `filemask` - строка.<br>
+#_   Применимо только для областей `Editor` и `Viewer`. Обрабатывается по правилам,
+#_   аналогичным тем, которые Фар применяет для масок файлов при поиске из панелей и т.д.
+#_   Если имя файла, открытого в редакторе или просмотрщике, не соответствует заданной маске,
+#_   макрос выполняться не будет.
+#_
+#_1. Опциональное поле `condition` - функция.
+#_   * Вызывается с 2-мя аргументами:
+#_     1. Имя нажатого ключа (`nil` для автостартующих макросов)
+#_     2. Копия таблицы-аргумента функции Macro.
+#_        Одна и та же таблица-копия используется вплоть до перезагрузки макросов.
+#_   * Если возвращает `false`/`nil`/ничего, то макрос не исполняется.
+#_   * Если возвращает число, то это число используется вместо `priority`.
+#_   * При других значениях возврата (например, `true`) используется `priority`.<br><br>
+#_
+#_1. Опциональное поле `action` - функция.<br>
+#_   * Если макрос успешно прошёл все предварительные проверки (область действия, флаги,
+#_     маска файла, приоритет), то вызывается функция `action`.
+#_   * Вызывается с одним аргументом: копией таблицы-аргумента функции Macro.
+#_     Это та же самая таблица, которая передаётся вторым аргуметом в функцию `condition`.<br><br>
+#_
+#_1. Допустимо более одного макроса на сочетание (`key`,`area`). В этом случае выполняется макрос с наибольшим приоритетом. Если есть более одного макроса с одинаковым наибольшим приоритетом - выводится меню выбора макроса.<br>
+#_   Автостартующие макросы выполняются все, независимо от приоритета. Очерёдность их исполнения не определена.
+#_
+#_[flags]: $(ENC_URL)/macro/techinfo.html#register
+#_[api changes]: 38.html
+#_
+#_@@@
+#_{far.height}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Far.Height
+#_{info}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Info
+#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#msgbox
+#_{shell}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#Tree
+#_
+
+article id=76 dt=Text ctime=3580139029 mtime=3607111008 nm=Клавиатурные макросы
+#_<markdown>
+#_
+#_* Клавиатурные макросы обычно используются для быстрой записи и воспроизведения
+#_  последовательности нажатий клавиш клавиатуры. Они имеют меньше возможностей,
+#_  чем стационарные макросы, и для использования на постоянной основе стационарные
+#_  макросы предпочтительнее.
+#_
+#_* Клавиатурные макросы загружаются из Lua-файлов (расширение `*.lua`), находящихся
+#_  в папке `%FARPROFILE%\Macros\internal`.
+#_
+#_* Far Manager самостоятельно создаёт, модифицирует и удаляет файлы в данной папке
+#_  в соответствии с выполняемыми над макросами операциями. Не рекомендуется редактировать
+#_  эти файлы вручную, за исключением удаления.
+#_
+#_* Изменения в клавиатурных макросах становятся постоянными либо при выполнении операции
+#_  `MacroControl(MCTL_SAVEALL)`, либо автоматически (при включенной опции "Auto save setup").
+#_
+#_* Поле "area" может содержать только одну область действия.
+#_
+#_* Поле "key" может содержать имя только одного ключа.<br>
+#_  В ключах применяются только модификаторы `Ctrl,Alt,Shift` и не применяются
+#_  модификаторы `LCtrl,RCtrl,LAlt,RAlt`. Регулярные выражения не поддерживаются.
+#_
+#_* Не допустимо более одного макроса на сочетание (`key`,`area`).
+#_
+#_* Клавиатурные макросы имеют более высокий приоритет, чем все прочие макросы.
+#_  Это сделано для того, чтобы не надо было заниматься разрешением конфликтов
+#_  при временном создании клавиатурных макросов (типичный сценарий их использования).
+#_
+#_@@@
+#_{macrocontrol}: $(ENC_URL)/service_functions/macrocontrol.html
+#_{mctl_saveall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_
+#_
+
+article id=77 dt=Text ctime=3580139041 mtime=3710685784 nm=Внешние модули
+#_<markdown>
+#_
+#_Lua-модули могут быть помещены в папку `%FARPROFILE%\Macros\modules` и её подпапки, так как<br>
+#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`<br>
+#_автоматически добавляется в `package.path`.
+#_
+#_Бинарные модули (DLL) могут быть помещены в папки `%FARPROFILE%\Macros\lib32` или `%FARPROFILE%\Macros\lib64` и их подпапки, так как эти пути автоматически добавляются в `package.cpath`.
+#_
+
+article id=78 dt=Text ctime=3580139337 mtime=3777006554 nm=Обработчики событий
+#_<markdown>
+#_
+#_Как и [стационарные макросы][1], обработчики событий загружаются из макрофайлов (расширения `*.lua` и `*.moon`), находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках. Каждый макрофайл может содержать вместе и макросы, и обработчики событий.
+#_
+#_Загрузка обработчика происходит при вызове глобальной функции `Event`, которой передаётся один аргумент - таблица с параметрами обработчика. При успешной загрузке функция возвращает `true`.
+#_
+#_```
+#_Event {
+#_  group       = "EditorEvent";                          -- string
+#_  description = "Event example";                        -- string (опциональное поле)
+#_  filemask    = "*.txt,*.cpp";                          -- string (опциональное поле)
+#_  priority    = 50;                                     -- number (опциональное поле)
+#_  condition   = function() ...... end;                  -- function (опциональное поле)
+#_  action      = function() ...... end;                  -- function
+#_  id          = "F0109446-AA63-4873-AEC3-17AEE993AA53"; -- string (опциональное поле)
+#_}
+#_```
+#_
+#_Поле `group` может иметь одно из следующих значений:<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
+#_Данные имена являются производными от имён соответствующих функций, экспортируемых плагином, например:<br>
+#_        export.ProcessDialogEvent -> DialogEvent
+#_Функции `condition` и `action` обработчика вызываются с теми же параметрами, с которыми вызывается соответствующая экспортируемая функция (см. мануал LuaFAR).
+#_
+#_При наличии нескольких обработчиков одного и того же события (т.е. обработчиков с одинаковым полем `group`), эти обработчики будут вызваны по очереди: обработчик с более высоким приоритетом вызывается раньше. Приоритет определяется динамически с учётом функции `condition`, если таковая имеется, как и для макросов.
+#_
+#_Событие `"ExitFAR"` вызывается в следующих случаях: (a) выход из Far Manager,
+#_(b) выгрузка плагина LuaMacro, \(c) выгрузка либо перезагрузка макросов. Обработчик события получает один аргумент булевого типа: `false` для случаев (a) и (b); `true` для случая \(c).
+#_
+#_[1]: 75.html
+#_
+#_@@@
+#_
+#_
+
+article id=79 dt=Text ctime=3581755102 mtime=3633295284 nm=eval
+#_<markdown>
+#_`ret = eval(S[,Mode[,Lang]])`
+#_
+#_Данная функция соответствует [описанию][1] в Энциклопедии Far Manager,
+#_со следующими расширениями:
+#_
+#_### 1. `eval` может исполнять как Lua-код, так и MoonScript-код
+#_
+#_Добавлен опциональный 3-й параметр `Lang`, указывающий язык кода параметра `S`
+#_в режимах 0, 1, 3. Допустимые значения: `"lua"` и `"moonscript"`. Значение по умолчанию - `"lua"`.
+#_
+#_### 2. Параметр `S` может обозначать скрипт-файл
+#_
+#_В режимах 0, 1, 3 параметр `S` может обозначать скрипт-файл, если этот параметр
+#_начинается с символа `@`. В этом случае параметр `S` должен иметь следующий формат:
+#_
+#_        @<имя файла-скрипта> [<параметры скрипта>]
+#_
+#_- В имени файла допустимо использование переменных окружения.
+#_- Опциональные параметры скрипта представляют список выражений, разделённых запятыми.
+#_- Выражения должны использовать тот же язык программирования, что и файл-скрипт.
+#_
+#_#### Пример:
+#_```
+#_    eval("@%MyFarScripts%\\calc.moon 'factorial', 3+5", 0, "moonscript")
+#_```
+#_
+#_### 3. Новые коды, возвращаемые `eval(S, 2)`
+#_
+#_* `0` (нормальный возврат) : дополняется значениями, возвращаемыми "запускаемым" макросом.
+#_* `-3` : если было выведено меню выбора макроса, и пользователь его отменил.
+#_* `-4` : если "запускаемый" макрос был прерван в результате ошибки времени исполнения.
+#_
+#_[1]: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
+#_
+#_@@@
+#_--{eval}: $(ENC_URL)/macro/macrocmd/prop_func/general.html#eval
+#_
+
+article id=80 dt=Text ctime=3585324926 mtime=3807114127 nm=LoadCustomSortMode
+#_Panel.LoadCustomSortMode (Mode, Settings)
+#_
+#_**Параметры:**
+#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
+#_  Settings:     таблица, содержит следующие поля:
+#_                  *Condition*:
+#_                     Функция. Если задана, то будет вызвана с одним аргументом - режим сортировки.
+#_                     Если возвращаемое значение ложно, то сортировка отменяется.
+#_                     Следует отметить, что данная функция может перезагрузить все параметры сортировки,
+#_                     снова вызвав Panel.LoadCustomSortMode().
+#_                  *Compare*:
+#_                     Функция, см. её описание ниже.
+#_                  *DirectoriesFirst, SelectedFirst, RevertSorting, SortGroups:*
+#_                     Данные опциональные поля задают соответствующие опции сортировки:
+#_                     0 - опция выключена, 1 - опция включена, любое другое значение
+#_                     или отсутствие данного поля означают "использовать текущую
+#_                     установку Far Manager".
+#_                  *InvertByDefault:*
+#_                     Включать ли по умолчанию обратную сортировку.
+#_                  *Indicator:*
+#_                     Индикация режима сортировки на панели, строка из двух символов
+#_                     (первый - для прямой, второй - для обратной сортировки).
+#_                  *NoSortEqualsByName:*
+#_                     По умолчанию, равные с точки зрения алгоритма сортировки элементы
+#_                     сортируются по имени. Если это нежелательно, установите данное поле
+#_                     в true.
+#_                  *Description:*
+#_                     Текстовое описание режима сортировки. Если данное поле задано,
+#_                     оно используется в меню (см. `Panel.CustomSortMenu`).
+#_                  *SortFunction:*
+#_                     Опция выбора функции сортировки из двух встроенных.
+#_                     Задаётся строкой: "shellsort" (значение по умолчанию) или "qsort".
+#_                  *InitSort:*
+#_                     Функция. Если задана, то вызывается перед началом сортировки.
+#_                     Получает один параметр: таблицу *FarOptions* (см. ниже одноимённый
+#_                     параметр функции *Compare*).
+#_                  *EndSort:*
+#_                     Функция. Если задана, то вызывается после окончания сортировки.
+#_
+#_                Если значение *Settings* равно nil или false, это означает выгрузку
+#_                (удаление) данного режима сортировки.
+#_
+#_**Возвращает:**
+#_  Ничего
+#_
+#_**Описание:**
+#_  Функция загружает (или выгружает) пользовательский режим сортировки для панелей.
+#_  Если режим загружен, он может быть установлен в панели посредством вызова функции
+#_  `Panel.SetCustomSortMode`.
+#_
+#_**Функция Compare**
+#_  result = Compare (Pi1, Pi2, FarOptions)
+#_
+#_  **Параметры:**
+#_    Pi1 и Pi2  - сравниваемые элементы панели, структуры типа `SortingPanelItem`.
+#_    FarOptions - таблица, содержащая текущие опции сортировки панели в Far Manager
+#_                 (все значения - булевые): *DirectoriesFirst, SelectedFirst,*
+#_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
+#_
+#_  **Возвращает:**
+#_    result     - если 1-й элемент должен оказаться после прямой сортировки выше 2-го,
+#_                 нужно возвратить отрицательное число, если ниже - положительное,
+#_                 а если элементы по критерию сортировки равны - ноль.
+#_
+#_**Примечание 1:**
+#_  Пользовательская сортировка использует библиотеку FFI от LuaJIT 2. Программирование
+#_  с использованием LuaJIT FFI требует предварительного освоения `документации`.
+#_
+#_**Примечание 2:**
+#_  Пользовательские режимы сортировок панелей восстанавливаются при перезапуске Far,
+#_  если текущая конфигурация была сохранена, при условии, что соответствующие вызовы
+#_  Panel.LoadCustomSortMode() производятся в процессе загрузки макросов.
+#_  Восстановление происходит после окончания загрузки макросов, до начала исполнения
+#_  автостартующих макросов.
+#_
+#_**Примечание 3:**
+#_  Пользовательские режимы сортировки принудительно выгружаются при выгрузке макросов.
+#_
+#_
+#_**Пример:**
+#_  *-- Загрузить сортировку по длине имени файла.*
+#_  local ffi = require "ffi"
+#_  local C = ffi.C
+#_  Panel.LoadCustomSortMode (SM_USER+10,
+#_    {
+#_      Compare = function(p1, p2, opt)
+#_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
+#_        return l1<l2 and -1 or l1>l2 and 1 or 0
+#_      end;
+#_      Indicator = "bB";
+#_    })
+#_
+#_@@@
+#_[Panel.CustomSortMenu]: 82.html
+#_[SortingPanelItem]: $(ENC_URL)/structures/sortingpanelitem.html
+#_[Panel.SetCustomSortMode]: 81.html
+#_[документации]: http://luajit.org/ext_ffi.html
+#_
+
+article id=81 dt=Text ctime=3585499487 mtime=3807114155 nm=SetCustomSortMode
+#_Panel.SetCustomSortMode (Mode, whatpanel [, order])
+#_
+#_**Параметры:**
+#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
+#_  whatpanel:    0=активная панель, 1=пассивная панель
+#_  order:        "auto"    - стандартный выбор направления сортировки (значение по умолчанию)
+#_                "current" - сохранить текущее направление сортировки в панели
+#_                "direct"  - установить прямую сортировку
+#_                "reverse" - установить обратную сортировку
+#_
+#_**Возвращает:**
+#_  Ничего
+#_
+#_**Описание:**
+#_  Если заданный режим сортировки загружен (см. `Panel.LoadCustomSortMode`),
+#_  то будет произведена установка этого режима сортировки в заданной панели.
+#_  Иначе не будет произведено никаких действий.
+#_
+#_**Пример:**
+#_  *-- Установить заданную пользовательскую сортировку в активной панели.*
+#_  Macro {
+#_    description="Sort files by their name length";
+#_    area="Shell"; key="CtrlShiftF1";
+#_    action=function() Panel.SetCustomSortMode(SM_USER+10,0) end;
+#_  }
+#_
+#_@@@
+#_[PluginPanelItem]: $(ENC_URL)/structures/pluginpanelitem.html
+#_[Panel.LoadCustomSortMode]: 80.html
+#_[документации]: http://luajit.org/ext_ffi.html
+#_
+
+article id=82 dt=Text ctime=3585577926 mtime=3676119203 nm=CustomSortMenu
+#_Panel.CustomSortMenu ()
+#_
+#_**Параметры:**
+#_  Нет
+#_
+#_**Возвращает:**
+#_  Ничего
+#_
+#_**Описание:**
+#_  Функция выводит меню со списком загруженных пользовательских сортировок.
+#_  Нажатие **Enter** устанавливает выбранный режим сортировки на активной панели,
+#_  нажатие **CtrlEnter** - на пассивной, **CtrlShiftEnter** - на обеих.
+#_
+#_  Клавиши **Add** и **Subtract** работают так же, как в меню выбора режима сортировки Far.
+#_  При этом также поддерживаются модификаторы **Ctrl** и **CtrlShift**, определяющие выбор панелей
+#_  для установки режима сортировки.
+
+article id=83 dt=Text ctime=3588708461 mtime=3588709114 nm=SyncCall
+#_... = Plugin.SyncCall (PluginId, ...)
+#_
+#_Данная функция работает идентично `Plugin.Call`, за исключением того, что:
+#_
+#_1. Её вызов - всегда синхронный, то-есть возврат управления макросу происходит
+#_   только после возврата функции *OpenW* плагина.
+#_2. Данная функция не имеет `ограничений` в использовании, которые есть у `Plugin.Call`.
+#_
+#_@@@
+#_[ограничений]: 62.html
+#_[Plugin.Call]: 65.html
+#_
+#_{openw}: $(ENC_URL)/exported_functions/openw.html
+#_
+
+article id=84 dt=Text ctime=3589525063 mtime=3589531649 nm=editor.SubscribeChangeEvent
+#_<markdown>
+#_Библиотека LuaFAR содержит функцию `editor.SubscribeChangeEvent`. Для макросов-[обработчиков событий][events] эта функция переопределена [плагином LuaMacro][LuaMacro]:
+#_
+#_* Вызов оригинальной функции происходит только при переходе внутреннего *счётчика подписок* из 0 в 1 (если аргумент `Subscribe==true`), либо из 1 в 0 (если аргумент `Subscribe==false`). Поэтому нужно, чтобы в каждом обработчике, делающем вызов `Subscribe==true`, был и парный вызов `Subscribe==false`.
+#_
+#_* В отличие от плагинов, событие `EE_CHANGE` может приходить независимо от того, вызывал ли данный обработчик функцию `editor.SubscribeChangeEvent` или не вызывал.
+#_
+#_* Счётчики подписок отдельные для каждой сессии редактора.
+#_
+#_[LuaMacro]: 7.html
+#_[events]: 78.html
+#_
+#_@@@
+#_{ee_change}: $(ENC_URL)/structures/processeditoreventinfo.html#EE_CHANGE
+#_
+
+article id=85 dt=Text ctime=3599211970 mtime=3599212421 nm=postmacro
+#_result = mf.postmacro (func, ...)
+#_
+#_**Параметры:**
+#_  func:    function
+#_  ...:     0 или более Lua-величин
+#_
+#_**Возвращает:**
+#_  result:  boolean
+#_
+#_**Описание:**
+#_  Функция помещает новый макрос в очередь для исполнения. При исполнении макроса
+#_  будет вызвана функция *func*, которой будут переданы аргументы *...*
+#_
+
+article id=86 dt=Text ctime=3607436110 mtime=3607436110 nm=Используемые программные продукты
+
+article id=87 dt=Text ctime=3607436121 mtime=3607436161 nm=Lua
+#_<markdown>
+#_Lua is licensed under the terms of the MIT license reproduced below.
+#_This means that Lua is free software and can be used for both academic
+#_and commercial purposes at absolutely no cost.
+#_
+#_For details and rationale, see http://www.lua.org/license.html .
+#_
+#_<HR>
+#_
+#_Copyright (C) 1994-2008 Lua.org, PUC-Rio.
+#_
+#_Permission is hereby granted, free of charge, to any person obtaining a copy
+#_of this software and associated documentation files (the "Software"), to deal
+#_in the Software without restriction, including without limitation the rights
+#_to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#_copies of the Software, and to permit persons to whom the Software is
+#_furnished to do so, subject to the following conditions:
+#_
+#_The above copyright notice and this permission notice shall be included in
+#_all copies or substantial portions of the Software.
+#_
+#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#_IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#_FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+#_AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#_THE SOFTWARE.
+#_
+
+article id=88 dt=Text ctime=3607436124 mtime=3607436187 nm=MoonScript
+#_<markdown>
+#_## License (MIT)
+#_
+#_Copyright (C) 2013 by Leaf Corcoran
+#_
+#_Permission is hereby granted, free of charge, to any person obtaining a copy
+#_of this software and associated documentation files (the "Software"), to deal
+#_in the Software without restriction, including without limitation the rights
+#_to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#_copies of the Software, and to permit persons to whom the Software is
+#_furnished to do so, subject to the following conditions:
+#_
+#_The above copyright notice and this permission notice shall be included in
+#_all copies or substantial portions of the Software.
+#_
+#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#_IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#_FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#_AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#_THE SOFTWARE.
+#_
+
+article id=89 dt=Text ctime=3607436892 mtime=3607436897 nm=LPeg
+#_<markdown>
+#_## License
+#_
+#_Copyright © 2008 Lua.org, PUC-Rio.
+#_
+#_Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#_
+#_The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#_
+#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#_
+
+article id=90 dt=Text ctime=3613734965 mtime=3641412815 nm=Добавление пунктов в меню плагинов
+#_<markdown>
+#_
+#_Как и [стационарные макросы][1], добавочные пункты меню загружаются из Lua- и MoonScript-файлов,  находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках.
+#_
+#_Загрузка пункта меню происходит при вызове глобальной функции `MenuItem`, которой передаётся один аргумент - таблица с параметрами. При успешной загрузке функция возвращает `true`.
+#_
+#_```
+#_MenuItem {
+#_  description = "Menu item";                        -- string (опциональное поле)
+#_  menu   = "Plugins Disks Config";                  -- string
+#_  area   = "Shell Editor Viewer Dialog Menu";       -- string (опциональное поле)
+#_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817";  -- string
+#_  text   = function(menu,area) return "Hello!" end; -- string или function
+#_  action = function(OpenFrom,Item) ...... end;      -- function
+#_}
+#_```
+#_Поля `description` и `area` - опциональные. Их значения по умолчанию - пустая строка. Остальные поля - обязательные.
+#_
+#_* Поле `menu` содержит перечисление меню Far Manager, в которые нужно добавить данный пункт меню. Допустимые значения элементов: `"Plugins"`, `"Disks"` и `"Config"` - обозначают соответственно меню плагинов, меню дисков и меню конфигурации плагинов.
+#_
+#_* Поле `area` содержит перечисление областей, при вызове из которых **меню плагинов** нужно добавить данный пункт меню. Это поле используется только если поле `menu` содержит элемент `Plugins`. Допустимые значения элементов совпадают с названиями макрообластей.
+#_
+#_* Поле `guid` содержит уникальный идентификатор (GUID) данного пункта меню.
+#_
+#_* Поле `text` - если тип данного поля - строка, то она используется непосредственно как текст пункта меню.<br>
+#_  Если тип данного поля - функция, то пункт меню будет добавлен только в случае, если эта функция возвратит строку.<br>
+#_  Функция получает 2 аргумента:
+#_  1. *menu* - тип меню (`"Plugins"` или `"Disks"` или `"Config"`)
+#_  2. *area* - имя текущей макрообласти<br><br>
+#_
+#_* Поле `action` - функция, вызываемая при активации добавленного пункта меню. Получает те же аргументы, что и функция `export.Open` (см. `luafar_manual.chm`), за исключением `Guid`. При вызове из меню конфигурации, значения обоих аргументов - `nil`. Возвращаемое значение игнорируется.
+#_
+#_[1]: 75.html
+#_@@@
+#_
+
+article id=91 dt=Text ctime=3614681129 mtime=3717267179 nm=acall
+#_... = mf.acall (func, ...)
+#_
+#_**Параметры:**
+#_  func:    function
+#_  ...:     0 или более Lua-величин
+#_
+#_**Возвращает:**
+#_  ...:     0 или более Lua-величин
+#_
+#_**Описание:**
+#_  Данная функция вызывает "асинхронно" функцию *func*, передавая ей все последующие
+#_  аргументы.
+#_
+#_  *mf.acall* является как бы специализацией `Plugin.Call` для плагина `LuaMacro`,
+#_  но, в отличие от Plugin.Call, она позволяет выполнять код в контексте вызывающей
+#_  функции, а также передавать и возвращать любые Lua-величины.
+#_
+#_  Как и Plugin.Call, *mf.acall* является "асинхронной": при выводе функцией *func*
+#_  диалога или меню на экран, *mf.acall* сразу завершает работу и возвращает *true*.
+#_
+#_  Если функция *func* не выводит диалог или меню на экран, то имеет место "синхронный"
+#_  режим работы: в этом случае *mf.acall* возвращает все величины, возвращённые
+#_  функцией *func*.
+#_
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
+#_
+#_@@@
+#_[Ограничения в использовании некоторых функций]: 62.html
+#_[Plugin.Call]: 65.html
+#_[LuaMacro]: 7.html
+#_
+
+article id=92 dt=Text ctime=3617996372 mtime=3925879937 nm=Работа из командной строки
+#_<markdown>
+#_* `macro: load [path]`<br>
+#_   (Пере)загрузить макрофайлы. Опциональный параметр `path` имеет тот же смысл,
+#_   что поле `Path` в структуре `FarMacroLoad`.
+#_* `macro: save`<br>
+#_   Сохранить созданные или модифицированные [клавиатурные][1] макросы.
+#_* `macro: unload`<br>
+#_   Выгрузить макросы (кроме созданных операцией `MCTL_ADDMACRO`) и обработчики событий.
+#_* `macro: about`<br>
+#_   Показать версии плагина и используемых плагином библиотек.
+#_* `macro: browser`<br>
+#_   Открыть макро-браузер.
+#_* `macro: test`<br>
+#_   Запустить тесты и завершить работу Far (код возврата 0 = успех)
+#_* `lua: [=] <code>`
+#_* `moon: [=] <code>`<br>
+#_   Исполнить код `<code>`, написанный соответственно на Lua или MoonScript.<br>
+#_   Если `<code>` следует за символом `=`, то вызывается `far.Show()`, например:<br>
+#_   `lua:=5+2,6,"foo"` эквивалентно `lua:far.Show(5+2,6,"foo")`.
+#_* `lua: [=] @<filename> [<args>]`
+#_* `moon: [=] @<filename> [<args>]`<br>
+#_   Исполнить скрипт `<filename>`, написанный соответственно на Lua или MoonScript.<br>
+#_   - Если нужно передать скрипту аргументы, их следует указать после имени файла через пробел.
+#_   - Аргументы являются списком выражений, разделённых запятыми.
+#_   - Выражения должны использовать тот же язык программирования, что и скрипт.
+#_   - Глобальная (в пределах окружения скрипта) переменная `_filename` содержит имя файла.
+#_
+#_**Примечание 1:**<br>
+#_Вместо префикса `macro:` может использоваться эквивалентный ему префикс `lm:`.
+#_
+#_**Примечание 2:**<br>
+#_Вместо префиксов `lua:` и `moon:` могут использоваться соответственно префиксы `luas:` и `moons:`.
+#_В этом случае макрос не создаётся, а производится немедленное ("синхронное") исполнение кода.
+#_Если код завершается нормально, то величина `CmdLine.Result` содержит таблицу с массивом возвращённых
+#_величин, а поле `n` этой таблицы - количество этих величин. В случае прерывания кода по ошибке,
+#_значение `CmdLine.Result` равно `nil`.
+#_
+#_**Примечание 3:**<br>
+#_[Дополнительные][2] префиксы командной строки могут быть определены и загружены из макрофайлов.
+#_
+#_[1]: 76.html
+#_[2]: 96.html
+#_
+#_@@@
+#_{mctl_addmacro}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{mctl_loadall}: $(ENC_URL)/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{farmacroload}: $(ENC_URL)/structures/farmacroload.html
+#_
+
+article id=93 dt=Text ctime=3617997289 mtime=3960807025 nm=Файл luamacro.ini
+#_<markdown>
+#_Файл `luamacro.ini` содержит некоторые настройки плагина. Если файла нет, или в нём отсуствует определённая настройка, плагин использует умолчательное значение для данной настройки.
+#_
+#_### `[General]`
+#_
+#_* `MacroPath`<br>
+#_  Определяет пути, с которых будут грузиться макрофайлы.<br>
+#_  Представляет собой последовательность из 0 или более путей, разделённых
+#_  точками с запятой.<br>
+#_  Значение по умолчанию: `%FARPROFILE%\Macros\scripts`.
+#_
+
+article id=94 dt=Text ctime=3618591871 mtime=3735335890 nm=Загрузка макрофайлов
+#_<markdown>
+#_
+#_* [Стационарные макросы](75.html) и [обработчики событий](78.html) загружаются из Lua-файлов (расширение `*.lua`) и/или MoonScript-файлов (расширение `*.moon`). В дальнейшем будем называть эти файлы *макрофайлами*. Загрузка макросов происходит при исполнении макрофайлов [плагином LuaMacro][LuaMacro].
+#_
+#_* Макрофайлы грузятся из последовательности папок (рекурсивно, с подпапками),
+#_  определямой одним из следующих способов (в порядке приоритетов):
+#_  1. Последовательность папок, указанная явно (в команде или аргументе функции)
+#_  1. Значение переменной `MacroPath` в файле [`luamacro.ini`](93.html)
+#_  1. Папка `%FARPROFILE%\Macros\scripts`<br><br>
+#_
+#_* Far Manager никогда не вносит никаких изменений в вышеуказанные папки. Набор и содержимое файлов в них определяется исключительно пользователем.
+#_
+#_* Один макрофайл может содержать произвольное количество макросов и обработчиков событий.
+#_
+#_* При исполнении макрофайла ему передаётся 2 параметра:
+#_  (1) полный путь к данному макрофайлу и
+#_  (2) счётчик количества исполнений.
+#_  Если в начале макрофайла определить 2 переменные, например:<br>
+#_  `local MacroFileName, ExeCounter = ...`<br>
+#_   то эти переменные будут доступны всем макросам и обработчикам событий в данном файле.
+#_
+#_* Если макрофайлы грузятся из последовательности деревьев `root1;root2;...`,
+#_  то это значит, что:
+#_  - Дерево `root2` начнёт грузиться только после загрузки `root1`
+#_  - Для каждого дерева `rootN` первым всегда исполняется макрофайл<br>
+#_    `rootN\_macroinit.lua`, если такой файл существует. Порядок исполнения прочих
+#_    макрофайлов в данном дереве не определён.<br><br>
+#_
+#_[LuaMacro]: 7.html
+#_
+#_@@@
+#_
+
+article id=95 dt=Text ctime=3618868388 mtime=3618922284 nm=GetConfig
+#_val, tp = Far.GetConfig (keyname)
+#_
+#_**Параметры:**
+#_  keyname: string
+#_
+#_**Возвращает:**
+#_  val:     boolean, string, number, or int64
+#_             Это значение запрашиваемой величины.
+#_             Преобразование типов между Far Manager и Lua осуществляются следующим образом:
+#_               boolean -> boolean
+#_               3-state -> 0,1,2 преобразуются соответственно в false,true,"other"
+#_               string  -> string
+#_               integer -> number (если возможно преобразование без потери точности) или
+#_                          userdata (int64) - величина, создаваемая библиотекой bit64.
+#_
+#_  tp:      string ("boolean", "3-state", "string", "integer")
+#_             Это тип оригинальной величины в Far Manager.
+#_
+#_**Примечание:**
+#_  В случае ошибки (некорректный аргумент, или Far Manager не нашёл указанной опции)
+#_  данная функция прерывает исполнение (вызывает error()).
+#_
+#_@@@
+#_
+
+article id=96 dt=Text ctime=3636460188 mtime=3636460943 nm=Добавление префиксов командной строки
+#_<markdown>
+#_
+#_Как и [стационарные макросы][1], добавочные префиксы командной строки загружаются из Lua- и MoonScript-файлов,  находящихся в папке `%FARPROFILE%\Macros\scripts` и её подпапках.
+#_
+#_Префиксы загружаются глобальной функцией `CommandLine`, которой передаётся один аргумент - таблица с параметрами. Функция возвращает количество успешно загруженных префиксов.
+#_
+#_```
+#_CommandLine {
+#_  description = "Adding prefixes";                  -- string (опциональное поле)
+#_  prefixes = "abc:def:1234";                        -- string
+#_  action = function(prefix,text) ...... end;        -- function
+#_}
+#_```
+#_* Поле `prefixes` содержит список префиксов, разделённых двоеточиями. Пробелы не допускаются.
+#_
+#_* Поле `action` - функция, вызываемая при активации командной строки одним из зарегистрированных префиксов.
+#_Функция получает 2 аргумента: `prefix` - реальный префикс в нижнем регистре; `text` - оставшаяся часть командной строки без начальных и конечных пробелов.
+#_
+#_[1]: 75.html
+#_@@@
+#_
+
+article id=97 dt=Text ctime=3639831642 mtime=3639833657 nm=Файл luafar_init.lua
+#_<markdown>
+#_Плагин LuaMacro исполняет файл `%FARPROFILE%\luafar_init.lua` (если этот файл существует) перед загрузкой своего стартового скрипта.
+#_См. описание этой особенности в мануале LuaFAR.
+#_
+
+article id=98 dt=Text ctime=3730113290 mtime=3732088491 nm=Добавление панельных модулей
+#_<markdown>
+#_
+#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружается функцией `PanelModule`.
+#_
+#_- Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_- Список экспортируемых функций модуля, поддерживаемых плагином:<br>
+#_`Analyse`, `ClosePanel`, `Compare`, `DeleteFiles`, `GetFiles`, `GetFindData`, `GetOpenPanelInfo`, `MakeDirectory`, `Open`, `ProcessHostFile`, `ProcessPanelEvent`, `ProcessPanelInput`, `PutFiles`, `SetDirectory`, `SetFindList`.
+#_- Каждый панельный модуль должен содержать таблицу `Info` с обязательным полем `Guid`. Прочие поля - опциональны.
+#_
+#_```
+#_-- Создадим панельный модуль
+#_local mod  = {}
+#_mod.Info = {
+#_  Guid        = win.Uuid("FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"); -- обязательное поле
+#_  Version     = "";
+#_  Title       = "";
+#_  Description = "";
+#_  Author      = "";
+#_}
+#_
+#_-- Добавим только те "экспортируемые" функции, которые нужны для работы этого модуля
+#_mod.Analyse     = function(...) ...... end
+#_mod.Open        = function(...) ...... end
+#_mod.GetFindData = function(...) ...... end
+#_......
+#_
+#_-- Загрузим модуль
+#_PanelModule(mod)
+#_```
+#_
+#_**Примечания:**
+#_
+#_1. Для создания панели из командной строки или меню плагинов, должны использоваться существующие функции [`CommandLine`](96.html) и [`MenuItem`](90.html). Их функция `action()` должна вернуть 2 величины: (1) таблицу панельного модуля и (2) объект панели (любое не ложное значение Lua).
+#_1. Функция `mod.Open` вызывается плагином только со следующими значениями параметра `OpenFrom`:<br> `OPEN_ANALYSE`, `OPEN_FINDLIST` и `OPEN_SHORTCUT`.
+#_
+#_См. также: [Пример применения](99.html)
+#_
+
+article id=99 dt=Text ctime=3730118337 mtime=3732100030 nm=Пример применения
+#_<markdown>
+#_```
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5171 then return end
+#_
+#_local F = far.Flags
+#_local Title ="Demo panel in LuaMacro"
+#_local mod = {}
+#_
+#_mod.Info = {
+#_  Guid = win.Uuid("715E5E90-DEB9-470A-84CE-7CF8D92A7B05")
+#_}
+#_
+#_local function FileToObject(FileName)
+#_  FileName = far.ConvertPath(FileName, "CPM_FULL")
+#_  local fp = io.open(FileName)
+#_  if fp then
+#_    local obj = { HostFile=FileName; List={} }
+#_    for line in fp:lines() do
+#_      table.insert(obj.List, {FileName=line})
+#_    end
+#_    fp:close()
+#_    return obj
+#_  end
+#_end
+#_
+#_function mod.Analyse(Data)
+#_  return Data.FileName and Data.FileName:sub(-5):lower() == ".abcd"
+#_end
+#_
+#_function mod.Open(OpenFrom, Guid, Item)
+#_  if OpenFrom == F.OPEN_ANALYSE then
+#_    return FileToObject(Item.FileName)
+#_  elseif OpenFrom == F.OPEN_SHORTCUT then
+#_    return FileToObject(Item.HostFile)
+#_  elseif OpenFrom == F.OPEN_FINDLIST then
+#_    -- If we uncomment the line "return {}", then this module will be
+#_    -- used instead of TmpPanel for displaying search results.
+#_    ---- return {}
+#_  end
+#_end
+#_
+#_function mod.GetFindData(object, handle, OpMode)
+#_  return object.List
+#_end
+#_
+#_function mod.GetOpenPanelInfo(object, handle)
+#_  return {
+#_    HostFile = object.HostFile;
+#_    PanelTitle = Title;
+#_    StartSortMode = F.SM_UNSORTED;
+#_    StartSortOrder = 0;
+#_    ShortcutData = "";
+#_    Flags = bit64.bor(F.OPIF_SHORTCUT, F.OPIF_ADDDOTS);
+#_  }
+#_end
+#_
+#_function mod.SetFindList (object, handle, Items)
+#_  object.List = Items
+#_  return true
+#_end
+#_
+#_MenuItem {
+#_  description = Title;
+#_  menu   = "Plugins";
+#_  area   = "Shell";
+#_  guid   = "5E1ECBD6-F6E1-4A02-AC90-DB49DB6E350C";
+#_  text   = Title;
+#_  action = function(OpenFrom, Item)
+#_    return mod, FileToObject(APanel.Current)
+#_  end;
+#_}
+#_
+#_CommandLine {
+#_  description = Title;
+#_  prefixes = "abcd";
+#_  action = function(prefix,text)
+#_    if text then return mod, FileToObject(text); end
+#_  end;
+#_}
+#_
+#_PanelModule(mod)
+#_```
+#_
+
+article id=100 dt=Text ctime=3732329181 mtime=3770399603 nm=AddExitHandler
+#_mf.AddExitHandler (handler [, ...])
+#_
+#_**Параметры:**
+#_  handler:  function
+#_  ...    :  произвольное количество дополнительных величин
+#_
+#_**Возвращает:**
+#_  значения, переданные в ... (если есть)
+#_
+#_**Описание:**
+#_  1. Данная функция добавляет обработчик, который будет вызван по окончанию
+#_     исполнения макроса. Обработчику будут переданы все значения, указанные
+#_     в ... (если есть).
+#_  2. Обработчик будет вызван как при нормальном завершении макроса, так и
+#_     в случае, если макрос был завершён по ошибке.
+#_  3. Если в процессе исполнения макроса было добавлено несколько обработчиков,
+#_     то они будут вызваны в порядке, обратном порядку их добавления.
+#_
+#_**Пример применения:**
+#_  local fp = mf.AddExitHandler(
+#_      function(p) if p then p:close() end; end,
+#_      io.open("some file.txt") )
+#_  -- *use fp; return from multiple places; do not care about closing fp*
+#_
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
+#_
+#_@@@
+#_[Ограничения в использовании некоторых функций]: 62.html
+#_
+
+article id=101 dt=Text ctime=3773253769 mtime=3773253988 nm=printconsole
+#_mf.printconsole (...)
+#_
+#_**Параметры:**
+#_  ...:     0 или более величин Lua
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  - Функция выводит ("печатает") свои аргументы в консоль.
+#_  - Она вставляет символ табуляции между аргументами.
+#_  - Нет необходимости вызывать *panel.GetUserScreen()* / *panel.SetUserScreen()*,
+#_    так как функция делает это сама.
+#_
+
+article id=102 dt=Text ctime=3774015828 mtime=3833535011 nm=Контент-колонки
+#_<markdown>
+#_
+#_Для поддержки контент-колонок используется функция `ContentColumns`.
+#_Она получает один аргумент - таблицу:
+#_
+#_```
+#_ContentColumns {
+#_  description      = "Content column example";                -- string (опциональное поле)
+#_  filemask         = "*.txt";                                 -- string (опциональное поле)
+#_  GetContentFields = function(colnames) ...... end;           -- function
+#_  GetContentData   = function(filename, colnames) ...... end; -- function
+#_}
+#_```
+#_
+#_**Примечания:**
+#_
+#_- Опциональное поле `filemask` определяет, какие файлы будут обработаны.
+#_Его умолчательное значение - `"*"` (все файлы).
+#_- Значения полей `GetContentFields` и `GetContentData` совпадают
+#_с экспортируемыми функциями `export.GetContentFields` и `export.GetContentData`
+#_(см. их описание в мануале LuaFAR).
+#_
+#_
+
+article id=103 dt=Text ctime=3774015850 mtime=3797419034 nm=Пример применения
+#_<markdown>
+#_```
+#_-- A content columns example.
+#_-- For this example to work a file panel mode should have a column type
+#_-- named either <text> or <c0>.
+#_
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5442 then return end
+#_
+#_local col_set = { -- lower case keys
+#_  text=1, c0=1
+#_}
+#_
+#_ContentColumns {
+#_  filemask = "*.txt,*.lua,*.c,*.h,*.cpp";
+#_
+#_  GetContentFields = function(colnames)
+#_    for _,v in ipairs(colnames) do
+#_      if col_set[v:lower()] then return true end
+#_    end
+#_  end;
+#_
+#_  -- display text at the file beginning
+#_  GetContentData = function(filename, colnames)
+#_    local fp = io.open(filename)
+#_    if fp then
+#_      local s = fp:read(512)
+#_      fp:close()
+#_      if s then
+#_        local out = {}
+#_        s = string.gsub(s, "%s+", " ")
+#_        for k,v in ipairs(colnames) do
+#_          if col_set[v:lower()] then out[k]=s end
+#_        end
+#_        return out
+#_      end
+#_    end
+#_  end;
+#_}
+#_```
+#_
+
+article id=104 dt=Text ctime=3778309316 mtime=3778309996 nm=deserialize
+#_value, errmsg = mf.deserialize (str)
+#_
+#_**Параметры:**
+#_  str:       string
+#_
+#_**Возвращает:**
+#_  value:     number, string, boolean, table, int64 or nil.
+#_  errmsg:    nil в случае успеха, string в случае неудачи.
+#_
+#_**Описание:**
+#_  Функция *deserialize* восстанавливает ранее сериализованное значение.
+#_  Если 2-е возвращаемое значение nil, то 1-е возвращаемое значение валидно.
+#_
+#_**Примечание**
+#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
+#_
+#_**См. также:**
+#_`serialize`
+#_
+#_@@@
+#_[serialize]: 105.html
+#_
+
+article id=105 dt=Text ctime=3778309329 mtime=3778310038 nm=serialize
+#_ret = mf.serialize (value)
+#_
+#_**Параметры:**
+#_  value:     nil, boolean, number, string, table, int64
+#_
+#_**Возвращает:**
+#_  ret:       string
+#_
+#_**Описание:**
+#_  Функция *serialize* преобразует переданное значение в строку.
+#_
+#_  При сохранении таблиц будут сохраняться:
+#_     ключи типов:     number, string, boolean, table
+#_     значения типов:  number, string, boolean, table, int64
+#_
+#_  Сохраняются вложенные таблицы, при этом рекурсивные вложения корректно обрабатываются.
+#_
+#_  Сохраняется связь таблицы с её метатаблицей.
+#_
+#_**Примечание**
+#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
+#_
+#_**См. также:**
+#_`deserialize`
+#_
+#_@@@
+#_[deserialize]: 104.html
+#_
+
+article id=106 dt=Text ctime=3833367907 mtime=3833370231 nm=EnumScripts
+#_next_script = mf.EnumScripts (ScriptType)
+#_
+#_**Параметры:**
+#_  ScriptType:  string
+#_
+#_**Возвращает:**
+#_  next_script:  function
+#_
+#_**Описание:**
+#_  Функция *EnumScripts* возвращает функцию-итератор *next_script*, позволяющую
+#_  перебирать все скрипты заданного *ScriptType* типа, где *ScriptType* - одно из значений:
+#_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
+#_  (по имени функции-загрузчика), а также "CustomSortModes".
+#_
+#_script, index = next_script()
+#_
+#_  Каждый последующий вызов *next_script* возвращает копию таблицы следующего
+#_  из загруженных скриптов, или nil, если все скрипты уже перебраны.
+#_  Таким образом для удобного перебора можно использовать конструкцию:
+#_
+#_  for script,index in mf.EnumScripts(ScriptType) do *действия* end
+#_
+#_**Примечания:**
+#_- Вторым значением *next_script* возвращает индекс скрипта в соответствующем внутреннем массиве.
+#_- Поведение *next_script* неопределено, если во время просмотра происходит дальнейшая загрузка скриптов.
+#_
+#_**См. также:**
+#_`GetMacroCopy` - работает только с "Macro" и "Event".
+#_
+#_@@@
+#_[GetMacroCopy]: 72.html
+#_
+
+article id=111 dt=Text ctime=3923469402 mtime=3948699083 nm=mainmenu
+#_mf.mainmenu (Param)
+#_
+#_**Параметры:**
+#_  Param:  string
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Значения Param:**
+#_  "fileassociations" : вызвать меню "File associations"
+#_  "filehighlight"    : вызвать меню "Files highlighting and sort groups"
+#_  "filemaskgroups"   : вызвать меню "Groups of file masks"
+#_  "filepanelmodes"   : вызвать меню "File panel modes"
+#_  "foldershortcuts"  : вызвать меню "Folder shortcuts"
+#_
+#_**Примечание:**
+#_  Данная функция является асинхронной и после открытия меню
+#_  немедленно возвращается.
+#_
+
