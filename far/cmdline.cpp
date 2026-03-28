@@ -972,7 +972,7 @@ static void pager(function_ref<void(function_ref<void(string_view)>)> const Hand
 		const auto PrintLine = [&](string_view const Str)
 		{
 			const auto Length = visual_string_length(Str);
-			const auto Width = ScrX + 1z;
+			const auto Width = ScrX + 1;
 			const auto LinesNeeded = std::max(1, static_cast<int>((Length + Width - 1) / Width));
 
 			if (LinesUsed + LinesNeeded > LinesAvailable)
