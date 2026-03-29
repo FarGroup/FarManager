@@ -1004,6 +1004,15 @@ static void about()
 		}
 
 		PrintLine({});
+		PrintLine(L"Build date:"sv);
+		{
+			auto PeTimestamp = pe_timestamp();
+			if (const auto MsSuffix = L".000"sv; PeTimestamp.ends_with(MsSuffix))
+				PeTimestamp.resize(PeTimestamp.size() - MsSuffix.size());
+			PrintLine(PeTimestamp);
+		}
+
+		PrintLine({});
 		PrintLine(L"Compiler:"sv);
 		PrintLine(build::compiler());
 

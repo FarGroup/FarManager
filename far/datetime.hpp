@@ -119,6 +119,9 @@ private:
 
 // { "YYYY-MM-DD", "hh:mm:ss.sss" }, ISO 8601-like
 std::pair<string, string> format_datetime(os::chrono::time Time);
+string timestamp(os::chrono::time Time);
+string timestamp(os::chrono::time_point Point);
+string pe_timestamp();
 
 std::chrono::milliseconds till_next_second();
 std::chrono::milliseconds till_next_minute();

@@ -493,32 +493,6 @@ static string self_version()
 	return ScmRevision.empty()? Version : Version + far::format(L" ({:.7})"sv, ScmRevision);
 }
 
-static string timestamp(os::chrono::time const SystemTime)
-{
-	const auto [Date, Time] = format_datetime(SystemTime);
-	return concat(Date, L' ', Time);
-}
-
-static string timestamp(os::chrono::time_point const Point)
-{
-	os::chrono::utc_time UtcTime;
-	if (!timepoint_to_utc_time(Point, UtcTime))
-	{
-		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
-		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
-	}
-
-	return timestamp(UtcTime);
-}
-
-static string pe_timestamp()
-{
-	const auto FarModule = GetModuleHandle({});
-	const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER>(FarModule, 0);
-	const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
-	return timestamp(os::chrono::nt_clock::from_time_t(FarNtHeaders.FileHeader.TimeDateStamp));
-}
-
 static string file_timestamp()
 {
 	os::fs::find_data Data;

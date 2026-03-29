@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "global.hpp"
 #include "locale.hpp"
+#include "log.hpp"
 #include "strmix.hpp"
 
 // Platform:
@@ -792,6 +793,34 @@ std::pair<string, string> format_datetime(os::chrono::time const Time)
 			Time.milliseconds()
 		)
 	};
+}
+
+string timestamp(os::chrono::time const Time)
+{
+	const auto [DatePart, TimePart] = format_datetime(Time);
+	return concat(DatePart, L' ', TimePart);
+}
+
+string timestamp(os::chrono::time_point const Point)
+{
+	os::chrono::utc_time UtcTime;
+	if (!timepoint_to_utc_time(Point, UtcTime))
+	{
+		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
+		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
+	}
+
+	return timestamp(UtcTime);
+}
+
+string pe_timestamp()
+{
+	const auto FarModule = GetModuleHandle({});
+	const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER>(FarModule, 0);
+	const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
+	// TimeDateStamp is the low 32 bits of the time stamp of the image.
+	// This will work till 2106-02-07 06:28:15, which is good enough for now.
+	return timestamp(os::chrono::nt_clock::from_time_t(FarNtHeaders.FileHeader.TimeDateStamp));
 }
 
 template<typename T>
