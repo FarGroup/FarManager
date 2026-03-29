@@ -593,8 +593,11 @@ static bool construct_time(
 	string_view const OSrcTime)
 {
 	os::chrono::local_time OriginalLocalTime;
+	// OriginalLocalTime is only needed for inheriting, i.e. when the user leaves some fields empty.
+	// If we can't obtain it for some reason, e.g. the timestamp is invalid, just use 0.
+	// This will allow to set the timestamp to something reasonable at least.
 	if (!utc_to_local(OriginalFileTime, OriginalLocalTime))
-		return false;
+		OriginalLocalTime = {};
 
 	os::chrono::local_time LocalTime{ parse_time(OSrcDate, OSrcTime, static_cast<int>(locale.date_format())) };
 
