@@ -1,3 +1,7 @@
+drkns 2026-03-29 23:52:56+01:00 - build 69
+
+1. Remove constant polling from OleThread.
+
 drkns 2026-02-07 19:37:59+00:00 - build 68
 
 1. Send Shift+F6 instead of F6 for "rename" verb.

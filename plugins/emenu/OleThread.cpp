@@ -8,9 +8,8 @@
 
 namespace OleThread
 {
-  static CHandle *hNeedInvoke{};
+  static CHandle *hThreadReady{};
   static CHandle *hInvokeDone{};
-  static CHandle *hStop{};
   static CHandle *hShowMenu{};
   static CHandle *hMenuDone{};
   static CThreadTerminator *hTerminator;
@@ -31,6 +30,8 @@ namespace OleThread
     static int Res;
   }
 
+  static const auto WM_EMENU_INVOKE = WM_APP + 0x10;
+
   static DWORD WINAPI ThreadProc(LPVOID)
   {
     //HRESULT hr=CoInitializeEx(0, COINIT_MULTITHREADED);//! COINIT_APARTMENTTHREADED
@@ -38,32 +39,40 @@ namespace OleThread
     {
       assert(0);
     }
-    DWORD nWaitTime=100;
+
+    {
+      // Force the system to create the message queue
+      // see https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew#remarks
+      MSG msg;
+      PeekMessage(&msg, {}, WM_USER, WM_USER, PM_NOREMOVE);
+    }
+
+    if (!SetEvent(*hThreadReady))
+    {
+      assert(0);
+    }
+
     for(;;)
     {
-      HANDLE phEvents[2]={*hStop, *hNeedInvoke};
-      DWORD nRes=WaitForMultipleObjects(2, phEvents, FALSE, nWaitTime);
-      if (WAIT_OBJECT_0==nRes) break;
-      if (WAIT_OBJECT_0+1==nRes)
+      MSG msg;
+      if (!GetMessage(&msg, {}, 0, 0))
+        break;
+
+      if (msg.message == WM_EMENU_INVOKE)
       {
         OpenPluginArgs::enRes=thePlug->OpenPluginBkg(OpenPluginArgs::nOpenFrom, OpenPluginArgs::nItem);
         if (!SetEvent(*hInvokeDone))
         {
           assert(0);
         }
-//break;//!
       }
-
+      else
       // * Объясняю зачем  здесь ловить собщения *
       // Если в Build950, OSR2 или в ME скопировать/вырезать файл
       // в буфер. а потом не выходя из FARа попробовать вызвать
       // контекстное меню для какой-нибудь папки в эксплорере
       // , то FARу бедет послано сообщение и до тех пор пока оно
       // не обработается меню не покажется.
-      MSG msg;
-      if (PeekMessage(&msg, {}, 0, 0, PM_NOREMOVE))
-      {
-        GetMessage(&msg, {}, 0, 0);
         if (msg.message>=WM_USER)
         {
           DispatchMessage(&msg);
@@ -72,12 +81,6 @@ namespace OleThread
         {
           ReplyMessage(0);
         }
-        nWaitTime=0;
-      }
-      else
-      {
-        if (nWaitTime<100) nWaitTime+=1;
-      }
     }
 //    В Build950 вызывает падение
 //    OleUninitialize();
@@ -85,15 +88,15 @@ namespace OleThread
   }
 
   static HANDLE hThread{};
+  static DWORD nId;
 
   static bool EnsureThreadStarted()
   {
-    if (!*hNeedInvoke) *hNeedInvoke=CreateEvent({}, FALSE, FALSE, {});
+    if (!*hThreadReady) *hThreadReady=CreateEvent({}, FALSE, FALSE, {});
     if (!*hInvokeDone) *hInvokeDone=CreateEvent({}, FALSE, FALSE, {});
-    if (!*hStop) *hStop=CreateEvent({}, FALSE, FALSE, {});
     if (!*hShowMenu) *hShowMenu=CreateEvent({}, FALSE, FALSE, {});
     if (!*hMenuDone) *hMenuDone=CreateEvent({}, FALSE, FALSE, {});
-    if (!*hNeedInvoke || !*hInvokeDone || !*hStop || !*hShowMenu || !*hMenuDone)
+    if (!*hThreadReady || !*hInvokeDone || !*hShowMenu || !*hMenuDone)
     {
       assert(0);
       return false;
@@ -103,9 +106,20 @@ namespace OleThread
     {
       if (STILL_ACTIVE==nStatus) return true;
     }
-    DWORD nId;
     hThread=CreateThread({}, 0, ThreadProc, {}, 0, &nId);
-    return (hThread != nullptr);
+    if (!hThread)
+    {
+      assert(0);
+      return false;
+    }
+
+    if (WaitForSingleObject(*hThreadReady, INFINITE) != WAIT_OBJECT_0)
+    {
+      assert(0);
+      return false;
+    }
+
+    return true;
   }
 
   CPlugin::EDoMenu OpenPlugin(int nOpenFrom, INT_PTR nItem)
@@ -117,7 +131,7 @@ namespace OleThread
       assert(0);
       return CPlugin::DOMNU_ERR_SHOW;
     }
-    if (!SetEvent(*hNeedInvoke))
+    if (!PostThreadMessage(nId, WM_EMENU_INVOKE, {}, {}))
     {
       assert(0);
       return CPlugin::DOMNU_ERR_SHOW;
@@ -161,7 +175,7 @@ namespace OleThread
   void Stop()
   {
     if (!hThread) return;
-    if (!SetEvent(*hStop))
+    if (!PostThreadMessage(nId, WM_QUIT, {}, {}))
     {
       assert(0);
     }
@@ -169,9 +183,8 @@ namespace OleThread
 
   void Startup()
   {
-    hNeedInvoke = new CHandle;
+    hThreadReady = new CHandle;
     hInvokeDone = new CHandle;
-    hStop = new CHandle;
     hShowMenu = new CHandle;
     hMenuDone = new CHandle;
     hTerminator = new OleThread::CThreadTerminator;
@@ -182,9 +195,8 @@ namespace OleThread
     delete hTerminator;
     delete hMenuDone;
     delete hShowMenu;
-    delete hStop;
     delete hInvokeDone;
-    delete hNeedInvoke;
+    delete hThreadReady;
   }
 
 
