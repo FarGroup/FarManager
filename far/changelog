@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2026-03-29 20:19:23+01:00 - build 6670
+
+1. Show build date in far:about.
+
+2. Fix setting date/time in corner cases.
+
+3. Make plugins sorting more predictable.
+
+--------------------------------------------------------------------------------
 drkns 2026-03-27 20:33:11+00:00 - build 6669
 
 1. Add upper limit to API stuct size checks to detect uninitialized memory.
