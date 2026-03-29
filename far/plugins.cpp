@@ -142,9 +142,18 @@ static wchar_t GetPluginHotKey(const Plugin* pPlugin, const UUID& Uuid, hotkey_t
 	return strHotKey.empty()? L'\0' : strHotKey.front();
 }
 
+class plugins_sort_accessor
+{
+public:
+	static auto compare_ordinal_icase(string_view const Str1, string_view const Str2)
+	{
+		return string_sort::keyhole::compare_ordinal_icase(Str1, Str2);
+	}
+};
+
 bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin* b) const
 {
-	return string_sort::less(PointToName(a->ModuleName()), PointToName(b->ModuleName()));
+	return std::is_lt(plugins_sort_accessor::compare_ordinal_icase(PointToName(a->ModuleName()), PointToName(b->ModuleName())));
 }
 
 static void EnsureLuaCpuCompatibility()

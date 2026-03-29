@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 class SQLiteDb;
+class plugins_sort_accessor;
 class pluginapi_sort_accessor;
 
 namespace string_sort
@@ -79,6 +80,7 @@ namespace string_sort
 	class keyhole
 	{
 		friend SQLiteDb;
+		friend plugins_sort_accessor;
 		friend pluginapi_sort_accessor;
 		static std::strong_ordering compare_ordinal_icase(string_view Str1, string_view Str2);
 		static std::strong_ordering compare_ordinal_numeric(string_view Str1, string_view Str2);
