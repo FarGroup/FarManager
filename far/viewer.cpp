@@ -610,26 +610,20 @@ void Viewer::AdjustWidth()
 bool Viewer::CheckChanged()
 {
 	os::fs::find_data NewViewFindData;
-	if (!os::fs::get_find_data(strFullFileName, NewViewFindData))
+
+	if (!ViewFile.GetTime({}, {}, &NewViewFindData.LastWriteTime, {}))
 		return true;
 
-	// Smart file change check -- thanks Dzirt2005
-	//
-	bool changed = ViewFindData.LastWriteTime != NewViewFindData.LastWriteTime || ViewFindData.FileSize != NewViewFindData.FileSize;
-	if (changed)
-	{
-		ViewFindData = NewViewFindData;
-	}
-	else
-	{
-		if (!ViewFile.GetSize(NewViewFindData.FileSize) || FileSize == static_cast<long long>(NewViewFindData.FileSize))
-			return true;
+	if (!ViewFile.GetSize(NewViewFindData.FileSize))
+		return true;
 
-		changed = FileSize > static_cast<long long>(NewViewFindData.FileSize); // true if file shrank
-	}
+	if (ViewFindData.LastWriteTime == NewViewFindData.LastWriteTime && ViewFindData.FileSize == NewViewFindData.FileSize)
+		return false;
 
-	SetFileSize();
-	if (changed) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
+	const auto Shrunk = NewViewFindData.FileSize < ViewFindData.FileSize;
+	ViewFindData = NewViewFindData;
+
+	if (Shrunk) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
 	{
 		Reader.Clear(); // иначе зачем вся эта возня?
 		ViewFile.FlushBuffers();
@@ -637,7 +631,7 @@ bool Viewer::CheckChanged()
 		lcache_ready = false; // reset start-lines cache
 	}
 
-	return changed;
+	return true;
 }
 
 void Viewer::ShowPage(int nMode)
@@ -1644,7 +1638,8 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			if (ViewFile)
 			{
-				CheckChanged();
+				if (!CheckChanged())
+					return true;
 
 				if (FilePos > FileSize)
 				{
