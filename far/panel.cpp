@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 
 // Internal:
+#include "console.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
@@ -345,6 +346,7 @@ bool Panel::SetCurPath()
 		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !string_comparer_icase{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
 		{
 			set_drive_env_curdir(AnotherPanel->m_CurDir);
+			console.propagate_cd(AnotherPanel->m_CurDir);
 		}
 	}
 

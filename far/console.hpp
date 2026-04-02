@@ -214,6 +214,8 @@ namespace console_detail
 		void command_finished(int ExitCode) const;
 		void command_not_found(string_view Command) const;
 
+		void propagate_cd(string_view CurDir) const;
+
 		[[nodiscard]]
 		std::optional<bool> is_grapheme_clusters_on() const;
 

@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 
 // Internal:
+#include "console.hpp"
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
@@ -112,6 +113,7 @@ bool FarChDir(string_view const NewDir)
 	if (os::fs::set_current_directory(Directory))
 	{
 		set_drive_env_curdir(Directory);
+		console.propagate_cd(Directory);
 		return true;
 	}
 
@@ -134,6 +136,7 @@ bool FarChDir(string_view const NewDir)
 	if (os::fs::set_current_directory(Directory))
 	{
 		set_drive_env_curdir(Directory);
+		console.propagate_cd(Directory);
 		return true;
 	}
 

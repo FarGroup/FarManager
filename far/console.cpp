@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "palette.hpp"
+#include "pathmix.hpp"
 #include "encoding.hpp"
 #include "char_width.hpp"
 #include "log.hpp"
@@ -3264,6 +3265,43 @@ protected:
 	void console::command_not_found(string_view const Command) const
 	{
 		send_vt_command(far::format(OSC("9001;CmdNotFound;{}"), Command));
+	}
+
+	static auto osc7(string_view const CurDir)
+	{
+		// OSC 7 is supposed to contain a proper file URI with forward slashes, percent-encoded reserved characters etc.,
+		// but it seems that implementations accept paths as is as long as they are properly prefixed.
+		// Good enough for now.
+
+		// Skip parsing if it's a boring local path, which is the vast majority of cases.
+		if (path::is_separator(CurDir.front()))
+		{
+			switch (const auto Type = ParsePath(CurDir))
+			{
+			case root_type::remote:
+			case root_type::unc_remote:
+				return far::format(OSC("7;file://"), CurDir.substr(Type == root_type::remote? L"\\\\"sv.size() : L"\\\\?\\UNC\\"sv.size()));
+
+			case root_type::win32nt_drive_letter:
+				return far::format(OSC("7;file:///"), CurDir.substr(L"\\\\?\\"sv.size()));
+
+			default:
+				// No point in converting other funny paths.
+				// They likely won't be recognized by the terminal anyway,
+				// so just send them as local and hope for the best
+				break;
+			}
+		}
+
+		return far::format(OSC("7;file:///{}"), CurDir);
+	}
+
+	void console::propagate_cd(string_view const CurDir) const
+	{
+		send_vt_command(osc7(CurDir));
+
+		// Alternative method, should work better with Windows paths
+		send_vt_command(far::format(OSC(L"9;9;{}"), CurDir));
 	}
 
 	std::optional<bool> console::is_grapheme_clusters_on() const
