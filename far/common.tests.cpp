@@ -2335,4 +2335,145 @@ TEST_CASE("view.zip.dynamic")
 		REQUIRE(Index == 3);
 	}
 }
+
+//----------------------------------------------------------------------------
+
+#include "panel.hpp"
+#include "panelmix.hpp"
+
+TEST_CASE("panelmix.StatusViewSettings")
+{
+	const auto CheckNameEmptySize = [](string_view const Widths)
+	{
+		const auto Lines = deserialize_status_line_settings(L"N||S"sv, Widths);
+
+		REQUIRE(Lines.size() == 3uz);
+		REQUIRE(Lines[0].size() == 1uz);
+		REQUIRE(Lines[0][0].type == column_type::name);
+		REQUIRE(Lines[0][0].width == 10);
+
+		REQUIRE(Lines[1].empty());
+
+		REQUIRE(Lines[2].size() == 1uz);
+		REQUIRE(Lines[2][0].type == column_type::size);
+		REQUIRE(Lines[2][0].width == 5);
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles == L"N||S"sv);
+		REQUIRE(ColumnWidths == L"10||5"sv);
+	};
+
+	CheckNameEmptySize(L"10,5"sv);
+	CheckNameEmptySize(L"10|5"sv);
+	CheckNameEmptySize(L"10||5"sv);
+
+	{
+		const auto Lines = deserialize_status_line_settings(L"<foo|bar>||N"sv, L"7,8"sv);
+
+		REQUIRE(Lines.size() == 3uz);
+		REQUIRE(Lines[0].size() == 1uz);
+		REQUIRE(Lines[0][0].type == column_type::custom_0);
+		REQUIRE(Lines[0][0].title == L"foo|bar"sv);
+		REQUIRE(Lines[0][0].width == 7);
+		REQUIRE(Lines[1].empty());
+		REQUIRE(Lines[2].size() == 1uz);
+		REQUIRE(Lines[2][0].type == column_type::name);
+		REQUIRE(Lines[2][0].width == 8);
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles == L"<foo|bar>||N"sv);
+		REQUIRE(ColumnWidths == L"7||8"sv);
+	}
+
+	{
+		const auto Lines = deserialize_status_line_settings(L"||"sv, L"10,5"sv);
+		REQUIRE(Lines.size() == 3uz);
+		REQUIRE(std::ranges::all_of(Lines, std::mem_fn(&status_line::empty)));
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles == L"||"sv);
+		REQUIRE(ColumnWidths == L"||"sv);
+	}
+
+	{
+		const auto Lines = deserialize_status_line_settings(L"N|S"sv, L"10%,5,7"sv);
+		REQUIRE(Lines.size() == 2uz);
+		REQUIRE(Lines[0].size() == 1uz);
+		REQUIRE(Lines[0][0].width == 10);
+		REQUIRE(Lines[0][0].width_type == col_width::percent);
+		REQUIRE(Lines[1].size() == 1uz);
+		REQUIRE(Lines[1][0].width == 5);
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles == L"N|S"sv);
+		REQUIRE(ColumnWidths == L"10%|5"sv);
+	}
+
+	{
+		const auto Lines = deserialize_status_line_settings(L"N|S"sv, L"10"sv);
+		REQUIRE(Lines.size() == 2uz);
+		REQUIRE(Lines[0][0].width == 10);
+		REQUIRE(Lines[1][0].width == 0);
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles == L"N|S"sv);
+		REQUIRE(ColumnWidths == L"10|0"sv);
+	}
+
+	{
+		const auto Lines = deserialize_status_line_settings(L""sv, L""sv);
+		REQUIRE(Lines.size() == 1uz);
+		REQUIRE(Lines.front().empty());
+
+		const auto [ColumnTitles, ColumnWidths] = serialize_status_line_settings(Lines);
+		REQUIRE(ColumnTitles.empty());
+		REQUIRE(ColumnWidths.empty());
+	}
+}
+
+TEST_CASE("panel.PanelViewSettingsClone")
+{
+	{
+		PanelViewSettings Settings;
+		Settings.PanelColumns =
+		{
+			{ column_type::name, COLFLAGS_NONE, 42, },
+		};
+		Settings.Name = L"test"sv;
+		Settings.Flags = PVS_FULLSCREEN;
+
+		const auto Clone = Settings.clone();
+
+		REQUIRE(Clone.PanelColumns.size() == 1uz);
+		REQUIRE(Clone.PanelColumns[0].type == column_type::name);
+		REQUIRE(Clone.StatusLines.empty());
+		REQUIRE(Clone.Name == L"test"sv);
+		REQUIRE(Clone.Flags == PVS_FULLSCREEN);
+	}
+
+	{
+		PanelViewSettings Settings;
+		Settings.StatusLines =
+		{
+			{
+				{ column_type::name, COLFLAGS_RIGHTALIGN, 10, },
+			},
+			{
+				{ column_type::size, COLFLAGS_NONE, 5, },
+			},
+		};
+
+		const auto Clone = Settings.clone();
+
+		REQUIRE(Clone.StatusLines.size() == 2uz);
+		REQUIRE(Clone.StatusLines[0].size() == 1uz);
+		REQUIRE(Clone.StatusLines[0][0].type == column_type::name);
+		REQUIRE(Clone.StatusLines[0][0].type_flags == COLFLAGS_RIGHTALIGN);
+		REQUIRE(Clone.StatusLines[0][0].width == 10);
+		REQUIRE(Clone.StatusLines[1].size() == 1uz);
+		REQUIRE(Clone.StatusLines[1][0].type == column_type::size);
+		REQUIRE(Clone.StatusLines[1][0].type_flags == COLFLAGS_NONE);
+		REQUIRE(Clone.StatusLines[1][0].width == 5);
+	}
+}
 #endif
