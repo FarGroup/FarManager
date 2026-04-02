@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 2026-04-02 20:06:51+01:00 - build 6671
+
+1. Correction of 1.70.1748 and 3.0.4859.
+
+2. Propagate current directory to the terminal.
+
+3. Refactoring.
+
+4. Do not refresh viewer if there are no changes.
+
+--------------------------------------------------------------------------------
 drkns 2026-03-29 20:19:23+01:00 - build 6670
 
 1. Show build date in far:about.
@@ -10,7 +21,7 @@ drkns 2026-03-29 20:19:23+01:00 - build 6670
 --------------------------------------------------------------------------------
 drkns 2026-03-27 20:33:11+00:00 - build 6669
 
-1. Add upper limit to API stuct size checks to detect uninitialized memory.
+1. Add upper limit to API struct size checks to detect uninitialized memory.
    This means that some buggy plugins might suddenly stop working. C'est la vie.
 
 --------------------------------------------------------------------------------
