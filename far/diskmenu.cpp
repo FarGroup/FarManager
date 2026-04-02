@@ -1493,4 +1493,9 @@ void ChangeDisk(panel_ptr Owner)
 		Pos = ChangeDiskMenu(Owner, Pos, FirstCall);
 		FirstCall = false;
 	}
+
+	// Changing the disk might affect the current directory.
+	// For the active panel it's natural, but for the passive it's not, so we need to set it back.
+	if (!Owner->IsFocused())
+		Owner->Parent()->ActivePanel()->SetCurPath();
 }

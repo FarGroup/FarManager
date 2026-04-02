@@ -613,32 +613,17 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 			break;
 		}
-		/* $ 08.04.2002 IS
-		   При смене диска установим принудительно текущий каталог на активной
-		   панели, т.к. система не знает ничего о том, что у Фара две панели, и
-		   текущим для системы после смены диска может быть каталог и на пассивной
-		   панели
-		*/
+
 		case KEY_ALTF1:
 		case KEY_RALTF1:
-		{
 			ChangeDisk(LeftPanel());
-
-			if (!IsLeftActive())
-				ActivePanel()->SetCurPath();
-
 			break;
-		}
+
 		case KEY_ALTF2:
 		case KEY_RALTF2:
-		{
 			ChangeDisk(RightPanel());
-
-			if (!IsRightActive())
-				ActivePanel()->SetCurPath();
-
 			break;
-		}
+
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
@@ -1176,8 +1161,6 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (!PassivePanel()->ProcessMouse(MouseEvent))
 			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 				CmdLine->ProcessMouse(MouseEvent);
-
-		ActivePanel()->SetCurPath();
 	}
 
 	return true;
