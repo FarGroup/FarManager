@@ -69,7 +69,6 @@ namespace console_detail
 		NONCOPYABLE(console);
 
 		console();
-		~console();
 
 		bool Allocate() const;
 		bool Free() const;
@@ -258,6 +257,9 @@ namespace console_detail
 		os::handle m_WidthTestScreen;
 
 		KEY_EVENT_RECORD mutable m_QueuedKeys{};
+
+		class external_console;
+		std::unique_ptr<external_console> m_ExternalConsole;
 	};
 }
 

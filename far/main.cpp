@@ -1,5 +1,4 @@
-﻿// validator: no-self-include
-/*
+﻿/*
 main.cpp
 
 Функция main.
@@ -34,6 +33,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // BUGBUG
 #include "platform.headers.hpp"
+
+// Self:
+#include "main.hpp"
 
 // Internal:
 #include "keys.hpp"
@@ -78,7 +80,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
-#include "platform.process.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -448,7 +449,7 @@ static void ShowVersion(bool const Direct)
 		std::endl;
 }
 
-static std::optional<int> ProcessServiceModes(std::span<const wchar_t* const> const Args)
+static run_mode get_run_mode_impl(std::span<const wchar_t* const> const Args)
 {
 	const auto isArg = [&](string_view const Name)
 	{
@@ -456,43 +457,95 @@ static std::optional<int> ProcessServiceModes(std::span<const wchar_t* const> co
 	};
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {UUID} PID UsePrivileges
-	{
-		return ElevationMain(Args[1], from_string<DWORD>(Args[2]), *Args[3] == L'1');
-	}
+		return run_mode::elevation;
 
 	if (in_closed_range(2u, Args.size(), 5u) && (isArg(L"export"sv) || isArg(L"import"sv)))
-	{
-		const auto Export = isArg(L"export"sv);
-		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
-		InitTemplateProfile(strTemplatePath);
-		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->m_ConfigProvider = std::make_unique<config_provider>(Export? config_provider::mode::m_export : config_provider::mode::m_import);
-		ConfigProvider().ServiceMode(Args[1]);
-		return EXIT_SUCCESS;
-	}
+		return isArg(L"export"sv)? run_mode::config_export : run_mode::config_import;
 
 	if (in_closed_range(1u, Args.size(), 3u) && isArg(L"clearcache"sv))
-	{
-		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
-		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
-		InitProfile(strProfilePath, strLocalProfilePath);
-		(void)config_provider{config_provider::clear_cache{}};
-		return EXIT_SUCCESS;
-	}
+		return run_mode::clear_cache;
 
 	if (Args.size() == 2 && logging::is_log_argument(Args[0]))
-	{
-		return logging::main(Args[1]);
-	}
+		return run_mode::logger;
 
 	if (Args.size() == 1 && (isArg(L"?") || isArg(L"h")))
+		return run_mode::help;
+
+	return run_mode::interactive;
+}
+
+static run_mode s_RunMode = run_mode::unknown;
+
+static run_mode get_run_mode(std::span<const wchar_t* const> const Args)
+{
+	if (s_RunMode == run_mode::unknown)
+		s_RunMode = get_run_mode_impl(Args);
+
+	return s_RunMode;
+}
+
+run_mode get_run_mode()
+{
+	if (s_RunMode == run_mode::unknown)
 	{
+		int Argc = 0;
+		os::memory::local::ptr<wchar_t const* const> const Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		std::span const AllArgs(Argv.get(), Argc), Args(AllArgs.subspan(1));
+
+		s_RunMode = get_run_mode_impl(Args);
+	}
+
+	return s_RunMode;
+}
+
+#ifdef ENABLE_TESTS
+void set_test_mode()
+{
+	s_RunMode = run_mode::tests;
+}
+#endif
+
+static std::optional<int> ProcessServiceModes(run_mode const RunMode, std::span<const wchar_t* const> const Args)
+{
+	switch (RunMode)
+	{
+	case run_mode::interactive:
+		return {};
+
+	case run_mode::elevation:
+		return ElevationMain(Args[1], from_string<DWORD>(Args[2]), *Args[3] == L'1'); // /service:elevation {UUID} PID UsePrivileges
+
+	case run_mode::config_import:
+	case run_mode::config_export:
+		{
+			string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
+			InitTemplateProfile(strTemplatePath);
+			InitProfile(strProfilePath, strLocalProfilePath);
+			Global->m_ConfigProvider = std::make_unique<config_provider>(RunMode == run_mode::config_export? config_provider::mode::m_export : config_provider::mode::m_import);
+			ConfigProvider().ServiceMode(Args[1]);
+			return EXIT_SUCCESS;
+		}
+
+	case run_mode::clear_cache:
+		{
+			string strProfilePath(Args.size() > 1? Args[1] : L""sv);
+			string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
+			InitProfile(strProfilePath, strLocalProfilePath);
+			(void)config_provider{config_provider::clear_cache{}};
+			return EXIT_SUCCESS;
+		}
+
+	case run_mode::logger:
+		return logging::main(Args[1]);
+
+	case run_mode::help:
 		ShowVersion(true);
 		show_help();
 		return EXIT_SUCCESS;
-	}
 
-	return {};
+	default:
+		std::unreachable();
+	}
 }
 
 #ifdef _M_IX86
@@ -811,6 +864,8 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
 
+	const auto RunMode = get_run_mode(Args);
+
 	if (FarColor InitAttributes; console.GetTextAttributes(InitAttributes))
 		colors::store_default_color(InitAttributes);
 
@@ -847,7 +902,7 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 	else
 		os::env::del(FarAdminMode);
 
-	if (const auto Result = ProcessServiceModes(Args))
+	if (const auto Result = ProcessServiceModes(RunMode, Args))
 		return *Result;
 
 	SCOPED_ACTION(listener)(update_environment, [] { if (Global->Opt->UpdateEnvironment) ReloadEnvironment(); });

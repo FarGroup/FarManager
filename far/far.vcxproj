@@ -380,6 +380,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="macroapi.hpp" />
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="macrovalues.hpp" />
+    <ClInclude Include="main.hpp" />
     <ClInclude Include="manager.hpp" />
     <ClInclude Include="map_file.hpp" />
     <ClInclude Include="memcheck.hpp" />

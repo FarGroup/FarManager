@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "locale.hpp"
 #include "log.hpp"
+#include "main.hpp"
 
 // Platform:
 
@@ -95,6 +96,7 @@ static bool s_IsTestRun;
 static int run_tests(std::span<wchar_t const* const> const Args)
 {
 	s_IsTestRun = true;
+	set_test_mode();
 	return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
 }
 

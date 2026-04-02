@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
+#include "main.hpp"
 #include "palette.hpp"
 #include "pathmix.hpp"
 #include "pipe.hpp"
@@ -230,12 +231,6 @@ namespace
 		}
 	};
 
-	template<bool Value>
-	struct discardable
-	{
-		static constexpr auto is_discardable = Value;
-	};
-
 	struct no_config
 	{
 		static void configure_impl(string_view)
@@ -243,7 +238,7 @@ namespace
 		}
 	};
 
-	class sink_null: public no_config, public discardable<true>
+	class sink_null: public no_config
 	{
 	public:
 		static void handle_impl(message const&)
@@ -253,7 +248,7 @@ namespace
 		static constexpr auto name = L"null"sv;
 	};
 
-	class sink_debug: public no_config, public discardable<false>
+	class sink_debug: public no_config
 	{
 	public:
 		void handle_impl(message const& Message) const
@@ -274,12 +269,21 @@ namespace
 		static constexpr auto name = L"debug"sv;
 	};
 
-	class sink_console: public discardable<true>
+	class sink_console
 	{
 	public:
 		sink_console()
 		{
 			initialize_ui();
+		}
+
+		~sink_console()
+		{
+			if (get_run_mode() != run_mode::interactive)
+			{
+				// Borrowed handle, can't close it
+				m_Buffer.release();
+			}
 		}
 
 		static void process(HANDLE Buffer, message const& Message)
@@ -392,6 +396,13 @@ namespace
 	private:
 		void initialize_ui()
 		{
+			if (get_run_mode() != run_mode::interactive)
+			{
+				// No UI, we can use stdout
+				m_Buffer.reset(console.GetOutputHandle());
+				return;
+			}
+
 			m_Buffer.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, CONSOLE_TEXTMODE_BUFFER, {}));
 			if (!m_Buffer)
 				return;
@@ -406,7 +417,7 @@ namespace
 		os::handle m_Buffer;
 	};
 
-	class sink_stdout: public no_config, public discardable<true>
+	class sink_stdout: public no_config
 	{
 	public:
 		void handle_impl(message const& Message)
@@ -424,7 +435,7 @@ namespace
 		static constexpr auto name = L"stdout"sv;
 	};
 
-	class sink_file: public no_config, public discardable<false>
+	class sink_file: public no_config
 	{
 	public:
 		explicit sink_file():
@@ -502,7 +513,7 @@ namespace
 		string_view m_Eol{ eol::win.str() };
 	};
 
-	class sink_pipe: public no_config, public discardable<true>
+	class sink_pipe: public no_config
 	{
 	public:
 		void handle_impl(message const& Message)
@@ -601,9 +612,8 @@ namespace
 	class async_impl
 	{
 	protected:
-		explicit async_impl(std::function<void(message const&)> Out, bool const IsDiscardable, string_view const Name):
+		explicit async_impl(std::function<void(message const&)> Out, string_view const Name):
 			m_Out(std::move(Out)),
-			m_IsDiscardable(IsDiscardable),
 			m_Thread(&async_impl::poll, this, Name)
 		{
 		}
@@ -645,12 +655,7 @@ namespace
 							return;
 
 						for (auto Messages = m_Messages.pop_all(); !Messages.empty(); Messages.pop())
-						{
-							if (m_IsDiscardable && m_FinishEvent.is_signaled())
-								return;
-
 							m_Out(Messages.front());
-						}
 					}
 				},
 				[](DWORD const ExceptionCode)
@@ -663,7 +668,6 @@ namespace
 		os::event m_MessageEvent { os::event::type::automatic, os::event::state::nonsignaled };
 		os::event m_FinishEvent { os::event::type::manual, os::event::state::nonsignaled };
 		std::function<void(message const&)> m_Out;
-		bool m_IsDiscardable;
 		os::thread m_Thread;
 	};
 
@@ -679,8 +683,8 @@ namespace
 	public:
 		static constexpr auto mode = sink_mode::async;
 
-		explicit async(bool const IsDiscardable):
-			synchronized_impl([this](message const& Message){ this->sink_boilerplate<sink_type>::handle_impl(Message); }, IsDiscardable, sink_type::name)
+		explicit async():
+			synchronized_impl([this](message const& Message){ this->sink_boilerplate<sink_type>::handle_impl(Message); }, sink_type::name)
 		{
 		}
 
@@ -711,7 +715,7 @@ namespace
 
 	std::unique_ptr<sink> create_sink(string_view SinkName, sink_mode Mode);
 
-	class sink_composite: public discardable<false>
+	class sink_composite
 	{
 	public:
 		sink_composite()
@@ -774,7 +778,7 @@ namespace
 		if (Mode == sink_mode::sync)
 			return std::make_unique<sync<T>>();
 		else
-			return std::make_unique<async<T>>(T::is_discardable);
+			return std::make_unique<async<T>>();
 	}
 
 	template<typename... args>
@@ -818,7 +822,10 @@ namespace logging
 
 		~engine()
 		{
-			LOGINFO(L"Logger exit"sv);
+			// If it's still incomplete, we haven't logged anything in this session,
+			// so no need to construct the whole thing now just to log the exit.
+			if (m_Status != engine_status::incomplete)
+				LOGINFO(L"Logger exit"sv);
 
 			if (m_VectoredHandler && imports.RemoveVectoredExceptionHandler)
 				imports.RemoveVectoredExceptionHandler(m_VectoredHandler);
