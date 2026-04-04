@@ -1620,7 +1620,7 @@ bool Help::JumpTopic()
 		}
 	}
 
-	if (StackData.strSelTopic.front() != L':' && !is_generated_topic(StackData.strSelTopic))
+	if (StackData.strSelTopic.front() != L':' && is_generated_topic(StackData.strSelTopic))
 	{
 		if (!(StackData.Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
 		{
