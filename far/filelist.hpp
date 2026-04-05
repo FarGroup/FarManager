@@ -267,7 +267,7 @@ private:
 	void Scroll(int offset);
 	void CorrectPosition();
 	void ShowFileList(bool Fast = true);
-	void ShowList(int ShowStatus, int StartColumn);
+	void render_file_list();
 	void SetShowColor(int Position, bool FileColor = true) const;
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
@@ -320,6 +320,15 @@ private:
 	void MoveSelection(direction Direction);
 
 	static void FillParentPoint(FileListItem& Item);
+
+	int visible_status_line_count() const;
+	int status_footer_height() const;
+	int status_separator_y() const;
+	int status_text_top_y() const;
+
+	void render_column(const FileListItem& Item, const column& Column, int ColumnWidth,
+	                   os::chrono::time_point CurrentTime, int& MaxLeftPos, int& MinLeftPos) const;
+	void render_status_lines(const FileListItem& Item, os::chrono::time_point CurrentTime, int& MaxLeftPos, int& MinLeftPos) const;
 
 	std::unique_ptr<multifilter> m_Filter;
 	DizList Diz;

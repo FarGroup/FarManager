@@ -97,6 +97,218 @@ ColumnInfo[]
 
 static_assert(std::size(ColumnInfo) == static_cast<size_t>(column_type::count));
 
+std::vector<string_view> split_status_lines(string_view const ColumnTitles)
+{
+	std::vector<string_view> Columns;
+	bool InCustomColumn{};
+	size_t Start{};
+
+	for (size_t i = 0; i != ColumnTitles.size(); ++i)
+	{
+		switch (ColumnTitles[i])
+		{
+		case L'<':
+			InCustomColumn = true;
+			break;
+
+		case L'>':
+			InCustomColumn = false;
+			break;
+
+		case L'|':
+			if (!InCustomColumn)
+			{
+				Columns.emplace_back(ColumnTitles.substr(Start, i - Start));
+				Start = i + 1;
+			}
+
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	Columns.emplace_back(ColumnTitles.substr(Start));
+
+	return Columns;
+}
+
+std::vector<string_view> extract_status_widths(string_view const ColumnWidths)
+{
+	std::vector<string_view> Widths;
+
+	for (const auto& Line: enum_tokens(ColumnWidths, L"|"sv))
+	{
+		if (Line.empty())
+			continue;
+
+		for (const auto& Token: enum_tokens(Line, L","sv))
+		{
+			Widths.emplace_back(Token);
+		}
+	}
+
+	return Widths;
+}
+
+void deserialize_column_widths(std::vector<column>& Columns, std::span<const string_view> const WidthTokens, size_t* WidthsConsumed = nullptr)
+{
+	size_t WidthIndex{};
+
+	for (auto& i: Columns)
+	{
+		const auto Width = WidthIndex != WidthTokens.size()? WidthTokens[WidthIndex++] : L""sv;
+
+		if (!Width.empty() && !from_string(Width, i.width))
+		{
+			LOGWARNING(L"Incorrect column width {}"sv, Width);
+		}
+
+		i.width_type = fixed;
+
+		if (Width.size() > 1)
+		{
+			switch (Width.back())
+			{
+			case L'%':
+				i.width_type = percent;
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	if (WidthsConsumed)
+		*WidthsConsumed = WidthIndex;
+}
+
+std::vector<column> deserialize_columns(string_view const ColumnTitles)
+{
+	std::vector<column> Columns;
+
+	for (const auto& Type: enum_tokens(ColumnTitles, L","sv))
+	{
+		if (Type.empty())
+			continue;
+
+		column NewColumn{};
+
+		if (Type.front() == L'N')
+		{
+			NewColumn.type = column_type::name;
+
+			for (const auto& i: Type.substr(1))
+			{
+				switch (i)
+				{
+				case L'M': NewColumn.type_flags |= COLFLAGS_MARK;               break;
+				case L'D': NewColumn.type_flags |= COLFLAGS_MARK_DYNAMIC;       break;
+				case L'O': NewColumn.type_flags |= COLFLAGS_NAMEONLY;           break;
+				case L'R': NewColumn.type_flags |= COLFLAGS_RIGHTALIGN;         break;
+				case L'F': NewColumn.type_flags |= COLFLAGS_RIGHTALIGNFORCE;    break;
+				case L'N': NewColumn.type_flags |= COLFLAGS_NOEXTENSION;        break;
+				}
+			}
+		}
+		else if (Type.front() == L'S' || Type.front() == L'P' || Type.front() == L'G')
+		{
+			NewColumn.type = Type.front() == L'S'?
+				column_type::size :
+				Type.front() == L'P'?
+					column_type::size_compressed :
+					column_type::streams_size;
+
+			for (const auto& i: Type.substr(1))
+			{
+				switch (i)
+				{
+				case L'C': NewColumn.type_flags |= COLFLAGS_GROUPDIGITS;    break;
+				case L'E': NewColumn.type_flags |= COLFLAGS_ECONOMIC;       break;
+				case L'F': NewColumn.type_flags |= COLFLAGS_FLOATSIZE;      break;
+				case L'T': NewColumn.type_flags |= COLFLAGS_THOUSAND;       break;
+				}
+			}
+		}
+		else if (
+			Type.starts_with(L"DM"sv) ||
+			Type.starts_with(L"DC"sv) ||
+			Type.starts_with(L"DA"sv) ||
+			Type.starts_with(L"DE"sv))
+		{
+			switch (Type[1])
+			{
+			case L'M': NewColumn.type = column_type::date_write;      break;
+			case L'C': NewColumn.type = column_type::date_creation;   break;
+			case L'A': NewColumn.type = column_type::date_access;     break;
+			case L'E': NewColumn.type = column_type::date_change;     break;
+			}
+
+			for (const auto& i: Type.substr(2))
+			{
+				switch (i)
+				{
+				case L'B': NewColumn.type_flags |= COLFLAGS_BRIEF;    break;
+				case L'M': NewColumn.type_flags |= COLFLAGS_MONTH;    break;
+				}
+			}
+		}
+		else if (Type.front() == L'O')
+		{
+			NewColumn.type = column_type::owner;
+
+			if (Type.size() > 1 && Type[1] == L'L')
+				NewColumn.type_flags |= COLFLAGS_FULLOWNER;
+		}
+		else if (Type.front() == L'X')
+		{
+			NewColumn.type = column_type::extension;
+
+			if (Type.size() > 1 && Type[1] == L'R')
+				NewColumn.type_flags |= COLFLAGS_RIGHTALIGN;
+		}
+		else if (Type.size() > 2 && Type.front() == L'<' && Type.back() == L'>')
+		{
+			NewColumn.title = Type.substr(1, Type.size() - 2);
+			NewColumn.type = column_type::custom_0;
+		}
+		else
+		{
+			const auto ItemIterator = std::ranges::find(ColumnInfo, Type, &column_info::String);
+			if (ItemIterator != std::cend(ColumnInfo))
+				NewColumn.type = ItemIterator->Type;
+			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
+			{
+				size_t Index;
+				if (from_string(Type.substr(1), Index))
+					NewColumn.type = static_cast<column_type>(static_cast<size_t>(column_type::custom_0) + Index);
+				else
+				{
+					LOGWARNING(L"Incorrect custom column {}"sv, Type);
+					// TODO: error message?
+				}
+			}
+			else
+			{
+				LOGWARNING(L"Unknown column type {}"sv, Type);
+				// TODO: error message?
+				continue;
+			}
+		}
+
+		Columns.emplace_back(NewColumn);
+	}
+
+	if (Columns.empty())
+	{
+		Columns.emplace_back();
+	}
+
+	return Columns;
+}
+
 void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir)
 {
 	if (!SrcPanel)
@@ -313,162 +525,49 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, string_view const ColumnWidths)
 {
 	// BUGBUG, add error checking
+	auto Columns = deserialize_columns(ColumnTitles);
 
-	std::vector<column> Columns;
+	std::vector<string_view> WidthTokens;
 
-	for (const auto& Type: enum_tokens(ColumnTitles, L","sv))
+	for (const auto& Token: enum_tokens(ColumnWidths, L","sv))
 	{
-		if (Type.empty())
-			continue;
-
-		column NewColumn{};
-
-		if (Type.front() == L'N')
-		{
-			NewColumn.type = column_type::name;
-
-			for (const auto& i: Type.substr(1))
-			{
-				switch (i)
-				{
-				case L'M': NewColumn.type_flags |= COLFLAGS_MARK;               break;
-				case L'D': NewColumn.type_flags |= COLFLAGS_MARK_DYNAMIC;       break;
-				case L'O': NewColumn.type_flags |= COLFLAGS_NAMEONLY;           break;
-				case L'R': NewColumn.type_flags |= COLFLAGS_RIGHTALIGN;         break;
-				case L'F': NewColumn.type_flags |= COLFLAGS_RIGHTALIGNFORCE;    break;
-				case L'N': NewColumn.type_flags |= COLFLAGS_NOEXTENSION;        break;
-				}
-			}
-		}
-		else if (Type.front() == L'S' || Type.front() == L'P' || Type.front() == L'G')
-		{
-			NewColumn.type = Type.front() == L'S'?
-				column_type::size :
-				Type.front() == L'P'?
-					column_type::size_compressed :
-					column_type::streams_size;
-
-			for (const auto& i: Type.substr(1))
-			{
-				switch (i)
-				{
-				case L'C': NewColumn.type_flags |= COLFLAGS_GROUPDIGITS;    break;
-				case L'E': NewColumn.type_flags |= COLFLAGS_ECONOMIC;       break;
-				case L'F': NewColumn.type_flags |= COLFLAGS_FLOATSIZE;      break;
-				case L'T': NewColumn.type_flags |= COLFLAGS_THOUSAND;       break;
-				}
-			}
-		}
-		else if (
-			Type.starts_with(L"DM"sv) ||
-			Type.starts_with(L"DC"sv) ||
-			Type.starts_with(L"DA"sv) ||
-			Type.starts_with(L"DE"sv))
-		{
-			switch (Type[1])
-			{
-			case L'M': NewColumn.type = column_type::date_write;      break;
-			case L'C': NewColumn.type = column_type::date_creation;   break;
-			case L'A': NewColumn.type = column_type::date_access;     break;
-			case L'E': NewColumn.type = column_type::date_change;     break;
-			}
-
-			for (const auto& i: Type.substr(2))
-			{
-				switch (i)
-				{
-				case L'B': NewColumn.type_flags |= COLFLAGS_BRIEF;    break;
-				case L'M': NewColumn.type_flags |= COLFLAGS_MONTH;    break;
-				}
-			}
-		}
-		else if (Type.front() == L'O')
-		{
-			NewColumn.type = column_type::owner;
-
-			if (Type.size() > 1 && Type[1] == L'L')
-				NewColumn.type_flags |= COLFLAGS_FULLOWNER;
-		}
-		else if (Type.front() == L'X')
-		{
-			NewColumn.type = column_type::extension;
-
-			if (Type.size() > 1 && Type[1] == L'R')
-				NewColumn.type_flags |= COLFLAGS_RIGHTALIGN;
-		}
-		else if (Type.size() > 2 && Type.front() == L'<' && Type.back() == L'>')
-		{
-			NewColumn.title = Type.substr(1, Type.size() - 2);
-			NewColumn.type = column_type::custom_0;
-		}
-		else
-		{
-			const auto ItemIterator = std::ranges::find(ColumnInfo, Type, &column_info::String);
-			if (ItemIterator != std::cend(ColumnInfo))
-				NewColumn.type = ItemIterator->Type;
-			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
-			{
-				size_t Index;
-				if (from_string(Type.substr(1), Index))
-					NewColumn.type = static_cast<column_type>(static_cast<size_t>(column_type::custom_0) + Index);
-				else
-				{
-					LOGWARNING(L"Incorrect custom column {}"sv, Type);
-					// TODO: error message?
-				}
-			}
-			else
-			{
-				LOGWARNING(L"Unknown column type {}"sv, Type);
-				// TODO: error message?
-				continue;
-			}
-		}
-
-		Columns.emplace_back(NewColumn);
+		WidthTokens.emplace_back(Token);
 	}
 
-	enum_tokens const EnumWidths(ColumnWidths, L","sv);
-	std::ranges::subrange EnumWidthsRange(EnumWidths);
-
-	for (auto& i: Columns)
-	{
-		auto Width = L""sv;
-
-		if (!EnumWidthsRange.empty())
-		{
-			Width = *EnumWidthsRange.begin();
-			EnumWidthsRange.advance(1);
-		}
-
-		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
-		// if "column sizes" ends earlier or if user entered two commas we just use default size.
-		if (!Width.empty() && !from_string(Width, i.width))
-		{
-			LOGWARNING(L"Incorrect column width {}"sv, Width);
-		}
-
-		i.width_type = col_width::fixed;
-
-		if (Width.size()>1)
-		{
-			switch (Width.back())
-			{
-				case L'%':
-					i.width_type = col_width::percent;
-					break;
-			}
-		}
-	}
-
-	if (Columns.empty())
-	{
-		Columns.emplace_back();
-	}
+	deserialize_column_widths(Columns, WidthTokens);
 
 	return Columns;
 }
 
+std::vector<std::vector<column>> deserialize_status_line_settings(string_view const ColumnTitles, string_view const ColumnWidths)
+{
+	std::vector<std::vector<column>> Lines;
+
+	const auto Widths = extract_status_widths(ColumnWidths);
+
+	size_t WidthIndex{};
+
+	for (const auto& Line: split_status_lines(ColumnTitles))
+	{
+		if (Line.empty())
+		{
+			Lines.emplace_back();
+			continue;
+		}
+
+		auto Columns = deserialize_columns(Line);
+
+		size_t WidthsConsumed{};
+
+		deserialize_column_widths(Columns, std::span(Widths).subspan(WidthIndex), &WidthsConsumed);
+
+		WidthIndex += WidthsConsumed;
+
+		Lines.emplace_back(std::move(Columns));
+	}
+
+	return Lines;
+}
 
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns)
 {
@@ -583,6 +682,28 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		strColumnTitles.pop_back();
 	if (!strColumnWidths.empty())
 		strColumnWidths.pop_back();
+
+	return Result;
+}
+
+std::pair<string, string> serialize_status_line_settings(const std::vector<std::vector<column>>& Lines)
+{
+	std::pair<string, string> Result;
+	auto& [ColumnTitles, ColumnWidths] = Result;
+
+	for (size_t Index = 0; Index != Lines.size(); ++Index)
+	{
+		if (Index)
+		{
+			ColumnTitles += L'|';
+			ColumnWidths += L'|';
+		}
+
+		const auto [LineTitles, LineWidths] = SerialiseViewSettings(Lines[Index]);
+
+		ColumnTitles += LineTitles;
+		ColumnWidths += LineWidths;
+	}
 
 	return Result;
 }
