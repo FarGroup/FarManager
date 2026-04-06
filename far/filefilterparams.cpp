@@ -541,6 +541,7 @@ enum enumFileFilterConfig
 	ID_FF_TIMEAFTEREDIT,
 	ID_FF_CURRENT,
 	ID_FF_BLANK,
+	ID_FF_UTC,
 
 	ID_FF_SEPARATOR3,
 	ID_FF_SEPARATOR4,
@@ -658,7 +659,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
 				const auto& [Date, Time] = Param1==ID_FF_CURRENT?
-					time_point_to_localtime_string(os::chrono::nt_clock::now(), 16, 2) :
+					static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, ID_FF_UTC, {})) == BSTATE_CHECKED?
+						time_point_to_utc_string(os::chrono::nt_clock::now(), 16, 2) :
+						time_point_to_localtime_string(os::chrono::nt_clock::now(), 16, 2) :
 					std::tuple<string, string>{};
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -678,6 +681,43 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				COORD r{};
 				Dlg->SendMessage(DM_SETCURSORPOS,db,&r);
 				break;
+			}
+			else if (Param1 == ID_FF_UTC)
+			{
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+				if (Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr) == BSTATE_CHECKED)
+					break; // Relative dates don't have UTC/local distinction
+
+				const auto ToUTC = static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
+
+				const auto Update = [&](int const DateId, int const TimeId)
+				{
+					string_view const
+						Date = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, DateId, {})),
+						Time = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, TimeId, {}));
+
+					const auto MergedTime = merge_time({}, parse_time(Date, Time, static_cast<int>(locale.date_format())));
+
+					os::chrono::time_point TimePoint;
+
+					ToUTC?
+						os::chrono::localtime_to_timepoint(os::chrono::local_time{ MergedTime }, TimePoint) :
+						os::chrono::utc_to_timepoint(os::chrono::utc_time{ MergedTime }, TimePoint);
+
+					if (TimePoint == os::chrono::time_point{})
+						return;
+
+					const auto [NewDate, NewTime] = ToUTC?
+						time_point_to_utc_string(TimePoint, 16, 2) :
+						time_point_to_localtime_string(TimePoint, 16, 2);
+
+					Dlg->SendMessage(DM_SETTEXTPTR, DateId, UNSAFE_CSTR(NewDate));
+					Dlg->SendMessage(DM_SETTEXTPTR, TimeId, UNSAFE_CSTR(NewTime));
+				};
+
+				Update(ID_FF_DATEBEFOREEDIT, ID_FF_TIMEBEFOREEDIT);
+				Update(ID_FF_DATEAFTEREDIT, ID_FF_TIMEAFTEREDIT);
 			}
 			else if (Param1==ID_FF_RESET)
 			{
@@ -885,7 +925,8 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		{ DI_FIXEDIT,     {{47, 8 }, {57, 8 }}, DIF_MASKEDIT, },
 		{ DI_FIXEDIT,     {{59, 8 }, {74, 8 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{0,  6 }, {0,  6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterCurrent), },
-		{ DI_BUTTON,      {{0,  6 }, {74, 6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterBlank), },
+		{ DI_BUTTON,      {{0,  6 }, {66, 6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterBlank), },
+		{ DI_CHECKBOX,    {{68, 6 }, {74, 6 }}, DIF_NONE, L"UTC"sv, },
 		{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
 		{ DI_VTEXT,       {{22, 5 }, {22, 9 }}, DIF_SEPARATORUSER, },
 		{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_AUTOMATION, msg(lng::MFileFilterAttr)},
@@ -1130,7 +1171,9 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 				const auto MergedTime = merge_time({}, parse_time(FilterDlg[DateId].strData, FilterDlg[TimeId].strData, static_cast<int>(DateFormat)));
 
 				os::chrono::time_point TimePoint;
-				(void)os::chrono::localtime_to_timepoint(os::chrono::local_time{ MergedTime }, TimePoint);
+				static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, ID_FF_UTC, {})) == BSTATE_CHECKED?
+					os::chrono::utc_to_timepoint(os::chrono::utc_time{ MergedTime }, TimePoint) :
+					os::chrono::localtime_to_timepoint(os::chrono::local_time{ MergedTime }, TimePoint);
 				return TimePoint;
 			};
 

@@ -111,6 +111,7 @@ enum SETATTRDLG
 	SA_TEXT_DATETIME,
 	SA_TEXT_TITLEDATE,
 	SA_TEXT_TITLETIME,
+	SA_CHECKBOX_UTC,
 	SA_TEXT_LASTWRITE,
 	SA_EDIT_WDATE,
 	SA_EDIT_WTIME,
@@ -253,6 +254,7 @@ struct SetAttrDlgParam
 
 	struct
 	{
+		os::chrono::time_point InitialValue;
 		struct
 		{
 			string InitialValue;
@@ -273,6 +275,11 @@ struct SetAttrDlgParam
 static auto setattr_time_point_to_localtime_string(os::chrono::time_point const TimePoint)
 {
 	return time_point_to_localtime_string(TimePoint, 16, 2);
+}
+
+static auto setattr_time_point_to_utc_string(os::chrono::time_point const TimePoint)
+{
+	return time_point_to_utc_string(TimePoint, 16, 2);
 }
 
 static os::chrono::time construct_time(
@@ -303,6 +310,26 @@ static std::optional<os::chrono::time_point> construct_time_from_localtime(
 	return {};
 }
 
+static std::optional<os::chrono::time_point> construct_time_from_utc(
+	os::chrono::time_point const OriginalTimePoint,
+	string_view const Date,
+	string_view const Time)
+{
+	os::chrono::utc_time OriginalDateTime;
+	// OriginalDateTime is only needed for inheriting, i.e. when the user leaves some fields empty.
+	// If we can't obtain it for some reason, e.g. the timestamp is invalid, just use 0.
+	// This will allow to set the timestamp to something reasonable at least.
+	if (!os::chrono::timepoint_to_utc(OriginalTimePoint, OriginalDateTime))
+		OriginalDateTime = {};
+
+	const auto DateTime = os::chrono::utc_time{ construct_time(OriginalDateTime, Date, Time) };
+
+	if (os::chrono::time_point Result; os::chrono::utc_to_timepoint(DateTime, Result))
+		return Result;
+
+	return {};
+}
+
 static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
 {
 	Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(Value));
@@ -312,11 +339,15 @@ static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Valu
 
 static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry, std::optional<os::chrono::time_point> const TimePoint)
 {
+	const auto IsUTC = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_UTC, {})) == BSTATE_CHECKED;
+
 	string Date, Time;
 
 	if (TimePoint)
 	{
-		std::tie(Date, Time) = setattr_time_point_to_localtime_string(*TimePoint);
+		std::tie(Date, Time) = IsUTC?
+			setattr_time_point_to_utc_string(*TimePoint) :
+			setattr_time_point_to_localtime_string(*TimePoint);
 	}
 
 	set_date_or_time(Dlg, TimeMapEntry.DateId, Date, false);
@@ -393,6 +424,56 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 		{
 			AdvancedAttributesDialog(DlgParam);
 			return true;
+		}
+		else if (Param1 == SA_CHECKBOX_UTC)
+		{
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+			const auto ToUTC = static_cast<FARCHECKEDSTATE>(std::bit_cast<intptr_t>(Param2)) == BSTATE_CHECKED;
+
+			for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
+			{
+				const auto set_original = [&]
+				{
+					if (ToUTC)
+					{
+						const auto [Date, Time] = setattr_time_point_to_utc_string(State.InitialValue);
+						set_date_or_time(Dlg, i.DateId, Date, true);
+						set_date_or_time(Dlg, i.TimeId, Time, true);
+					}
+					else
+					{
+						set_date_or_time(Dlg, i.DateId, State.Date.InitialValue, true);
+						set_date_or_time(Dlg, i.TimeId, State.Time.InitialValue, true);
+					}
+					State.Date.ChangedManually = false;
+					State.Time.ChangedManually = false;
+				};
+
+				if (!State.Date.ChangedManually && !State.Time.ChangedManually)
+					set_original(); // Not touched, we can use initial UTC strings
+				else
+				{
+					string_view const
+						Date = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i.DateId, {})),
+						Time = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i.TimeId, {}));
+
+					const auto Result = (ToUTC? construct_time_from_localtime : construct_time_from_utc)(State.InitialValue, Date, Time);
+
+					if (!Result)
+						// The user entered some rubbish, just keep whatever is there without converting
+						LOGWARNING(L"Error constructing time from {{{}}} {{{}}}: {}"sv, Date, Time, os::last_error());
+					else if (Result == State.InitialValue)
+						// Touched, but resulted in the same time, we can still use initial UTC strings
+						set_original();
+					else
+					{
+						const auto& [UtcDate, UtcTime] = (ToUTC? setattr_time_point_to_utc_string : setattr_time_point_to_localtime_string)(*Result);
+						set_date_or_time(Dlg, i.DateId, UtcDate, false);
+						set_date_or_time(Dlg, i.TimeId, UtcTime, false);
+					}
+				}
+			}
 		}
 		else if (Param1 == SA_CHECKBOX_SUBFOLDERS)
 		{
@@ -627,6 +708,7 @@ static bool process_single_file(
 	state const& Current,
 	state const& New,
 	function_ref<const string&(int)> const DateTimeAccessor,
+	bool const IsUTC,
 	bool& SkipErrors)
 {
 	if (!New.Owner.empty() && !equal_icase(Current.Owner, New.Owner))
@@ -664,7 +746,7 @@ static bool process_single_file(
 		for (const auto& [i, Time]: zip(TimeMap, Times))
 		{
 			const auto OriginalTime = std::invoke(i.Accessor, Current.FindData);
-			if (const auto Result = construct_time_from_localtime(OriginalTime, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId)); Result && *Result != OriginalTime)
+			if (const auto Result = (IsUTC? construct_time_from_utc : construct_time_from_localtime)(OriginalTime, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId)); Result && *Result != OriginalTime)
 				Time = *Result;
 		}
 
@@ -747,6 +829,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		{ DI_TEXT,      {{C2,      TB+0  }, {0,       TB+0  }}, DIF_NONE, msg(lng::MSetAttrDate), },
 		{ DI_TEXT,      {{DlgX-33, TB+0  }, {0,       TB+0  }}, DIF_NONE, },
 		{ DI_TEXT,      {{DlgX-21, TB+0  }, {0,       TB+0  }}, DIF_NONE, },
+        { DI_CHECKBOX,  {{DlgX-12, TB+0  }, {DlgX-6,  TB+0  }}, DIF_NONE, L"UTC"sv, },
 		{ DI_TEXT,      {{C2,      TB+1  }, {0,       TB+1  }}, DIF_NONE, msg(lng::MSetAttrWrite), },
 		{ DI_FIXEDIT,   {{DlgX-33, TB+1  }, {DlgX-23, TB+1  }}, DIF_MASKEDIT, },
 		{ DI_FIXEDIT,   {{DlgX-21, TB+1  }, {DlgX-6,  TB+1  }}, DIF_MASKEDIT, },
@@ -945,7 +1028,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 				{
-					std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(std::invoke(i.Accessor, SingleSelFindData));
+					State.InitialValue = std::invoke(i.Accessor, SingleSelFindData);
+					std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(State.InitialValue);
 
 					AttrDlg[i.DateId].strData = State.Date.InitialValue;
 					AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1269,7 +1353,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!Time)
 					continue;
 
-				std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(*Time);
+				State.InitialValue = *Time;
+				std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(State.InitialValue);
 
 				AttrDlg[i.DateId].strData = State.Date.InitialValue;
 				AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1351,6 +1436,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					}
 				}
 
+				const auto IsUTC = static_cast<FARCHECKEDSTATE>(Dlg->SendMessage(DM_GETCHECK, SA_CHECKBOX_UTC, {})) == BSTATE_CHECKED;
+
 				for (const auto& i: TimeMap)
 				{
 					AttrDlg[i.TimeId].strData[8] = locale.time_separator();
@@ -1379,7 +1466,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						Current{ DlgParam.Owner.InitialValue, SingleSelFindData },
 						New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-					if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
+					if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, IsUTC, SkipErrors))
 					{
 						return false;
 					}
@@ -1419,7 +1506,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 								Current{ AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? Empty : DlgParam.Owner.InitialValue, SingleSelFindData},
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-							if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
+							if (!process_single_file(ComputerName, SingleSelFileName, Current, New, AttrDlgAccessor, IsUTC, SkipErrors))
 							{
 								return false;
 							}
@@ -1453,7 +1540,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 									Current{ Empty, SingleSelFindData }, // BUGBUG, should we read the owner?
 									New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-								if (!process_single_file(ComputerName, strFullName, Current, New, AttrDlgAccessor, SkipErrors))
+								if (!process_single_file(ComputerName, strFullName, Current, New, AttrDlgAccessor, IsUTC, SkipErrors))
 								{
 									return false;
 								}

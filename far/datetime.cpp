@@ -648,6 +648,15 @@ std::tuple<string, string> time_point_to_localtime_string(os::chrono::time_point
 	return time_to_string(LocalTime, TimeLength, FullYear, Brief, is_recent_date(Point, CurrentTime), TextMonth);
 }
 
+std::tuple<string, string> time_point_to_utc_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth, os::chrono::time_point const CurrentTime)
+{
+	os::chrono::utc_time UtcTime;
+	if (!os::chrono::timepoint_to_utc(Point, UtcTime))
+		return {};
+
+	return time_to_string(UtcTime, TimeLength, FullYear, Brief, is_recent_date(Point, CurrentTime), TextMonth);
+}
+
 template<typename T> requires (T::period::num < T::period::den && T::period::num == 1 && T::period::den % 10 == 0)
 static constexpr auto decimal_duration_width()
 {

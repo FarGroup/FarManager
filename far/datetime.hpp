@@ -89,6 +89,7 @@ FullYear:
 */
 // (date, time)
 std::tuple<string, string> time_point_to_localtime_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false, os::chrono::time_point CurrentTime = {});
+std::tuple<string, string> time_point_to_utc_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false, os::chrono::time_point CurrentTime = {});
 
 // (days, time)
 std::tuple<string, string> duration_to_string(os::chrono::duration Duration);
