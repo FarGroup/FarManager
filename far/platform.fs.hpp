@@ -263,9 +263,19 @@ namespace os::fs
 		bool SetEnd();
 
 		[[nodiscard]]
-		bool GetTime(chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime) const;
+		bool GetTime(
+			chrono::time_point* CreationTime,
+			chrono::time_point* LastAccessTime,
+			chrono::time_point* LastWriteTime,
+			chrono::time_point* ChangeTime
+		) const;
 
-		bool SetTime(const chrono::time_point* CreationTime, const chrono::time_point* LastAccessTime, const chrono::time_point* LastWriteTime, const chrono::time_point* ChangeTime) const;
+		bool SetTime(
+			chrono::time_point CreationTime,
+			chrono::time_point LastAccessTime,
+			chrono::time_point LastWriteTime,
+			chrono::time_point ChangeTime
+		) const;
 
 		[[nodiscard]]
 		bool GetSize(unsigned long long& Size) const;

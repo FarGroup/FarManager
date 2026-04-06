@@ -292,14 +292,14 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					}
 				}
 
-				if (os::chrono::local_time SavedTime; utc_to_local(i.Time, SavedTime) && (LastDay != SavedTime.Day || LastMonth != SavedTime.Month || LastYear != SavedTime.Year))
+				if (os::chrono::local_time SavedTime; os::chrono::timepoint_to_localtime(i.Time, SavedTime) && (LastDay != SavedTime.Day || LastMonth != SavedTime.Month || LastYear != SavedTime.Year))
 				{
 					LastDay = SavedTime.Day;
 					LastMonth = SavedTime.Month;
 					LastYear = SavedTime.Year;
 					menu_item_ex Separator{ LIF_SEPARATOR };
 					string Time;
-					std::tie(Separator.Name, Time) = time_point_to_string(i.Time, 8, 1);
+					std::tie(Separator.Name, Time) = time_point_to_localtime_string(i.Time, 8, 1);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;

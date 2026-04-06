@@ -491,34 +491,25 @@ os::chrono::time parse_time(string_view Date, string_view Time, int DateFormat)
 	};
 }
 
-os::chrono::time_point ParseTimePoint(string_view const Date, string_view const Time, int const DateFormat)
+os::chrono::time merge_time(os::chrono::time const Default, os::chrono::time const New)
 {
-	const auto ParsedTime = parse_time(Date, Time, DateFormat);
+	auto Result = New;
 
-	if (ParsedTime.Year == time_none || ParsedTime.Month == time_none || ParsedTime.Day == time_none)
+	const auto inherit = [&](auto const Getter)
 	{
-		// Year / Month / Day can't have reasonable defaults
-		return {};
-	}
-
-	const auto Default = [](auto const Value)
-	{
-		// Everything else can
-		return Value == time_none? 0 : Value;
+		if (auto& Value = std::invoke(Getter, Result); Value == time_none)
+			Value = std::invoke(Getter, Default);
 	};
 
-	os::chrono::local_time LocalTime{ ParsedTime };
+	inherit(&os::chrono::time::Year);
+	inherit(&os::chrono::time::Month);
+	inherit(&os::chrono::time::Day);
+	inherit(&os::chrono::time::Hours);
+	inherit(&os::chrono::time::Minutes);
+	inherit(&os::chrono::time::Seconds);
+	inherit(&os::chrono::time::Hectonanoseconds);
 
-	LocalTime.Hours            = Default(ParsedTime.Hours);
-	LocalTime.Minutes          = Default(ParsedTime.Minutes);
-	LocalTime.Seconds          = Default(ParsedTime.Seconds);
-	LocalTime.Hectonanoseconds = Default(ParsedTime.Hectonanoseconds);
-
-	os::chrono::time_point TimePoint;
-	if (!local_to_utc(LocalTime, TimePoint))
-		return {};
-
-	return TimePoint;
+	return Result;
 }
 
 os::chrono::duration ParseDuration(string_view const Date, string_view const Time)
@@ -535,13 +526,8 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
 
-std::tuple<string, string> time_point_to_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth, os::chrono::time_point const CurrentTime)
+static std::tuple<string, string> time_to_string(os::chrono::time Time, int const TimeLength, int const FullYear, bool const Brief, bool const IsRecent, bool const TextMonth)
 {
-	if (Point == os::chrono::time_point{})
-	{
-		return {};
-	}
-
 	const auto DateFormat = locale.date_format();
 	const auto DateSeparator = locale.date_separator();
 	const auto TimeSeparator = locale.time_separator();
@@ -549,39 +535,35 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 
 	const auto CurDateFormat = Brief && DateFormat == date_type::ymd? date_type::mdy : DateFormat;
 
-	os::chrono::local_time LocalTime;
-	if (!utc_to_local(Point, LocalTime))
-		return {};
-
 	auto Letter = L""sv;
 
 	if (TimeLength == 6)
 	{
-		Letter = LocalTime.Hours < 12 ? L"a"sv : L"p"sv;
+		Letter = Time.Hours < 12 ? L"a"sv : L"p"sv;
 
-		if (LocalTime.Hours > 12)
-			LocalTime.Hours -= 12;
+		if (Time.Hours > 12)
+			Time.Hours -= 12;
 
-		if (!LocalTime.Hours)
-			LocalTime.Hours = 12;
+		if (!Time.Hours)
+			Time.Hours = 12;
 	}
 
 	auto TimeText = TimeLength < 7?
-		far::format(L"{:02}{}{:02}{}"sv, LocalTime.Hours, TimeSeparator, LocalTime.Minutes, Letter) :
+		far::format(L"{:02}{}{:02}{}"sv, Time.Hours, TimeSeparator, Time.Minutes, Letter) :
 		cut_right(
 			far::format(
 				L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"sv,
-				LocalTime.Hours,
+				Time.Hours,
 				TimeSeparator,
-				LocalTime.Minutes,
-				LocalTime.Seconds,
+				Time.Minutes,
+				Time.Seconds,
 				DecimalSeparator,
-				LocalTime.Hectonanoseconds
+				Time.Hectonanoseconds
 			),
 			TimeLength
 		);
 
-	const auto Year = FullYear? LocalTime.Year : LocalTime.Year % 100;
+	const auto Year = FullYear? Time.Year : Time.Year % 100;
 
 	string DateText;
 
@@ -591,7 +573,7 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 
 		const auto Format = [&](date_format_string const& FormatString)
 		{
-			DateText = far::format(FormatString, LocalTime.Day, locale.LocalNames().Months[LocalTime.Month - 1].Short, Year);
+			DateText = far::format(FormatString, Time.Day, locale.LocalNames().Months[Time.Month - 1].Short, Year);
 		};
 
 		switch (CurDateFormat)
@@ -615,19 +597,19 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 			p1 = Year;
 			w1 = FullYear == 2? 5 : 2;
 			std::ranges::swap(f1, f3);
-			p2 = LocalTime.Month;
-			p3 = LocalTime.Day;
+			p2 = Time.Month;
+			p3 = Time.Day;
 			break;
 
 		case date_type::dmy:
-			p1 = LocalTime.Day;
-			p2 = LocalTime.Month;
+			p1 = Time.Day;
+			p2 = Time.Month;
 			p3 = Year;
 			break;
 
 		case date_type::mdy:
-			p1 = LocalTime.Month;
-			p2 = LocalTime.Day;
+			p1 = Time.Month;
+			p2 = Time.Day;
 			p3 = Year;
 			break;
 		}
@@ -643,15 +625,27 @@ std::tuple<string, string> time_point_to_string(os::chrono::time_point const Poi
 	{
 		DateText.resize(TextMonth? 6 : 5);
 
-		const auto IsRecent =
-			CurrentTime >= Point &&
-			CurrentTime - Point < std::chrono::months{ 6 };
-
 		if (!IsRecent)
-			TimeText = far::format(L"{:5}"sv, LocalTime.Year);
+			TimeText = far::format(L"{:5}"sv, Time.Year);
 	}
 
 	return { std::move(DateText), std::move(TimeText) };
+}
+
+static bool is_recent_date(os::chrono::time_point const Point, os::chrono::time_point const CurrentTime)
+{
+	return
+		CurrentTime >= Point &&
+		CurrentTime - Point < std::chrono::months{ 6 };
+}
+
+std::tuple<string, string> time_point_to_localtime_string(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth, os::chrono::time_point const CurrentTime)
+{
+	os::chrono::local_time LocalTime;
+	if (!os::chrono::timepoint_to_localtime(Point, LocalTime))
+		return {};
+
+	return time_to_string(LocalTime, TimeLength, FullYear, Brief, is_recent_date(Point, CurrentTime), TextMonth);
 }
 
 template<typename T> requires (T::period::num < T::period::den && T::period::num == 1 && T::period::den % 10 == 0)
@@ -804,7 +798,7 @@ string timestamp(os::chrono::time const Time)
 string timestamp(os::chrono::time_point const Point)
 {
 	os::chrono::utc_time UtcTime;
-	if (!timepoint_to_utc_time(Point, UtcTime))
+	if (!timepoint_to_utc(Point, UtcTime))
 	{
 		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
 		return far::format(L"{:16X}"sv, Point.time_since_epoch().count());
@@ -921,6 +915,43 @@ TEST_CASE("datetime.parse.timepoint")
 	for (const auto& i: Tests)
 	{
 		REQUIRE(i.TimePoint == parse_time(i.Date, i.Time, i.DateFormat));
+	}
+}
+
+TEST_CASE("datetime.merge_time")
+{
+	constexpr auto tn = time_none;
+
+	static constexpr struct
+	{
+		os::chrono::time
+			Time,
+			Result;
+	}
+	Tests[]
+	{
+		{ {  2026,  4,  6, 12, 34, 56, 1234567 }, {  2026,  4,  6, 12, 34, 56, 1234567 } },
+		{ {    tn,  4,  6, 12, 34, 56, 1234567 }, {  1996,  4,  6, 12, 34, 56, 1234567 } },
+		{ {    tn, tn,  6, 12, 34, 56, 1234567 }, {  1996,  9,  6, 12, 34, 56, 1234567 } },
+		{ {    tn, tn, tn, 12, 34, 56, 1234567 }, {  1996,  9, 10, 12, 34, 56, 1234567 } },
+		{ {    tn, tn, tn, tn, 34, 56, 1234567 }, {  1996,  9, 10, 22, 34, 56, 1234567 } },
+		{ {    tn, tn, tn, tn, tn, 56, 1234567 }, {  1996,  9, 10, 22, 38, 56, 1234567 } },
+		{ {    tn, tn, tn, tn, tn, tn, 1234567 }, {  1996,  9, 10, 22, 38, 56, 1234567 } },
+		{ {    tn, tn, tn, tn, tn, tn,      tn }, {  1996,  9, 10, 22, 38, 56, 7890123 } },
+		{ { 58008, tn, tn, tn, tn, tn,      tn }, { 58008,  9, 10, 22, 38, 56, 7890123 } },
+		{ { 58008, 13, tn, tn, tn, tn,      tn }, { 58008, 13, 10, 22, 38, 56, 7890123 } },
+		{ { 58008, 13, 37, tn, tn, tn,      tn }, { 58008, 13, 37, 22, 38, 56, 7890123 } },
+		{ { 58008, 13, 37, 53, tn, tn,      tn }, { 58008, 13, 37, 53, 38, 56, 7890123 } },
+		{ { 58008, 13, 37, 53, 17, tn,      tn }, { 58008, 13, 37, 53, 17, 56, 7890123 } },
+		{ { 58008, 13, 37, 53, 17, 71,      tn }, { 58008, 13, 37, 53, 17, 71, 7890123 } },
+		{ { 58008, 13, 37, 53, 17, 71, 8771441 }, { 58008, 13, 37, 53, 17, 71, 8771441 } },
+	};
+
+	os::chrono::time constexpr Time{ 1996, 9, 10, 22, 38, 56, 7890123 };
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Result == merge_time(Time, i.Time));
 	}
 }
 

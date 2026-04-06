@@ -135,7 +135,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 		{
 			if (os::chrono::time_point CreationTime; os::fs::GetFileTimeSimple(FileName, &CreationTime, {}, {}, {}))
 			{
-				OutFile.SetTime(&CreationTime, {}, {}, {});
+				OutFile.SetTime(CreationTime, {}, {}, {});
 			}
 		}
 	}

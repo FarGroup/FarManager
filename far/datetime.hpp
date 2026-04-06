@@ -75,7 +75,7 @@ private:
 time_none;
 
 os::chrono::time parse_time(string_view Date, string_view Time, int DateFormat);
-os::chrono::time_point ParseTimePoint(string_view Date, string_view Time, int DateFormat);
+os::chrono::time merge_time(os::chrono::time Default, os::chrono::time New);
 os::chrono::duration ParseDuration(string_view Date, string_view Time);
 
 /*
@@ -88,7 +88,7 @@ FullYear:
    Windows supports years 1601 through 30827.
 */
 // (date, time)
-std::tuple<string, string> time_point_to_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false, os::chrono::time_point CurrentTime = {});
+std::tuple<string, string> time_point_to_localtime_string(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false, os::chrono::time_point CurrentTime = {});
 
 // (days, time)
 std::tuple<string, string> duration_to_string(os::chrono::duration Duration);

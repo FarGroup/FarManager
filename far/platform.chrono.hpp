@@ -127,10 +127,11 @@ namespace os::chrono
 	utc_time now_utc();
 	local_time now_local();
 
-	bool timepoint_to_utc_time(time_point TimePoint, utc_time& UtcTime);
+	bool timepoint_to_utc(time_point TimePoint, utc_time& UtcTime);
+	bool utc_to_timepoint(utc_time UtcTime, time_point& TimePoint);
 
-	bool utc_to_local(time_point UtcTime, local_time& LocalTime);
-	bool local_to_utc(local_time LocalTime, time_point& UtcTime);
+	bool timepoint_to_localtime(time_point TimePoint, local_time& LocalTime);
+	bool localtime_to_timepoint(local_time LocalTime, time_point& TimePoint);
 
 	// Q: WTF is this, it's in the standard!
 	// A: MSVC implemented it in terms of sleep_until, which is mental

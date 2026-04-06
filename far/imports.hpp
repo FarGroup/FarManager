@@ -163,6 +163,8 @@ public: \
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes); // Vista SP1
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // 7
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    SystemTimeToTzSpecificLocalTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* UniversalTime, LPSYSTEMTIME LocalTime); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // 7
 	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime); // 8
 	DEFINE_IMPORT_FUNCTION(kernel32, le, hr,      WINAPI,  HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription); // 10
 	DEFINE_IMPORT_FUNCTION(kernel32, le, hr,      WINAPI,  HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10

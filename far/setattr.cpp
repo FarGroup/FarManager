@@ -270,28 +270,57 @@ struct SetAttrDlgParam
 	Owner;
 };
 
-static auto time_point_to_string(os::chrono::time_point const TimePoint)
+static auto setattr_time_point_to_localtime_string(os::chrono::time_point const TimePoint)
 {
-	return time_point_to_string(TimePoint, 16, 2);
+	return time_point_to_localtime_string(TimePoint, 16, 2);
+}
+
+static os::chrono::time construct_time(
+	os::chrono::time const OriginalDateTime,
+	string_view const Date,
+	string_view const Time)
+{
+	return merge_time(OriginalDateTime, parse_time(Date, Time, static_cast<int>(locale.date_format())));
+}
+
+static std::optional<os::chrono::time_point> construct_time_from_localtime(
+	os::chrono::time_point const OriginalTimePoint,
+	string_view const Date,
+	string_view const Time)
+{
+	os::chrono::local_time OriginalDateTime;
+	// OriginalDateTime is only needed for inheriting, i.e. when the user leaves some fields empty.
+	// If we can't obtain it for some reason, e.g. the timestamp is invalid, just use 0.
+	// This will allow to set the timestamp to something reasonable at least.
+	if (!timepoint_to_localtime(OriginalTimePoint, OriginalDateTime))
+		OriginalDateTime = {};
+
+	const auto DateTime = os::chrono::local_time{ construct_time(OriginalDateTime, Date, Time) };
+
+	if (os::chrono::time_point Result; os::chrono::localtime_to_timepoint(DateTime, Result))
+		return Result;
+
+	return {};
 }
 
 static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
 {
 	Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(Value));
-	Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, Id, ToPtr(MakeUnchanged));
+	if (MakeUnchanged)
+		Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, Id, ToPtr(MakeUnchanged));
 }
 
-static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry, std::optional<os::chrono::time_point> const TimePoint, bool const MakeUnchanged)
+static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry, std::optional<os::chrono::time_point> const TimePoint)
 {
 	string Date, Time;
 
 	if (TimePoint)
 	{
-		std::tie(Date, Time) = time_point_to_string(*TimePoint);
+		std::tie(Date, Time) = setattr_time_point_to_localtime_string(*TimePoint);
 	}
 
-	set_date_or_time(Dlg, TimeMapEntry.DateId, Date, MakeUnchanged);
-	set_date_or_time(Dlg, TimeMapEntry.TimeId, Time, MakeUnchanged);
+	set_date_or_time(Dlg, TimeMapEntry.DateId, Date, false);
+	set_date_or_time(Dlg, TimeMapEntry.TimeId, Time, false);
 }
 
 static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
@@ -455,7 +484,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			for (const auto& i: TimeMap)
 			{
-				set_dates_and_times(Dlg, i, Time, false);
+				set_dates_and_times(Dlg, i, Time);
 			}
 
 			Dlg->SendMessage(DM_SETFOCUS, SA_EDIT_WDATE, nullptr);
@@ -476,7 +505,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
 			if (Record.Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
-				set_dates_and_times(Dlg, TimeMap[label_to_time_map_index(Param1)], os::chrono::nt_clock::now(), false);
+				set_dates_and_times(Dlg, TimeMap[label_to_time_map_index(Param1)], os::chrono::nt_clock::now());
 			else
 				Dlg->SendMessage(DM_SETFOCUS, Param1 + 1, nullptr);
 		}
@@ -586,38 +615,6 @@ public:
 	}
 };
 
-static bool construct_time(
-	os::chrono::time_point const OriginalFileTime,
-	os::chrono::time_point& FileTime,
-	string_view const OSrcDate,
-	string_view const OSrcTime)
-{
-	os::chrono::local_time OriginalLocalTime;
-	// OriginalLocalTime is only needed for inheriting, i.e. when the user leaves some fields empty.
-	// If we can't obtain it for some reason, e.g. the timestamp is invalid, just use 0.
-	// This will allow to set the timestamp to something reasonable at least.
-	if (!utc_to_local(OriginalFileTime, OriginalLocalTime))
-		OriginalLocalTime = {};
-
-	os::chrono::local_time LocalTime{ parse_time(OSrcDate, OSrcTime, static_cast<int>(locale.date_format())) };
-
-	const auto inherit = [&](auto Getter)
-	{
-		if (auto& Value = std::invoke(Getter, LocalTime); Value == time_none)
-			 Value = std::invoke(Getter, OriginalLocalTime);
-	};
-
-	inherit(&os::chrono::local_time::Year);
-	inherit(&os::chrono::local_time::Month);
-	inherit(&os::chrono::local_time::Day);
-	inherit(&os::chrono::local_time::Hours);
-	inherit(&os::chrono::local_time::Minutes);
-	inherit(&os::chrono::local_time::Seconds);
-	inherit(&os::chrono::local_time::Hectonanoseconds);
-
-	return local_to_utc(LocalTime, FileTime);
-}
-
 struct state
 {
 	string const& Owner;
@@ -663,20 +660,22 @@ static bool process_single_file(
 	}
 
 	{
-		os::chrono::time_point WriteTime, CreationTime, AccessTime, ChangeTime;
-		std::array TimePointers{ &WriteTime, &CreationTime, &AccessTime, &ChangeTime };
-
-		for (const auto& [i, TimePointer] : zip(TimeMap, TimePointers))
+		os::chrono::time_point Times[4]{};
+		for (const auto& [i, Time]: zip(TimeMap, Times))
 		{
 			const auto OriginalTime = std::invoke(i.Accessor, Current.FindData);
-			if (!construct_time(OriginalTime, *TimePointer, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId))
-				|| *TimePointer == OriginalTime)
-			{
-				TimePointer = {};
-			}
+			if (const auto Result = construct_time_from_localtime(OriginalTime, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId)); Result && *Result != OriginalTime)
+				Time = *Result;
 		}
 
-		ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], SkipErrors);
+		ESetFileTime(
+			Name,
+			Times[label_to_time_map_index(SA_TEXT_LASTWRITE)],
+			Times[label_to_time_map_index(SA_TEXT_CREATION)],
+			Times[label_to_time_map_index(SA_TEXT_LASTACCESS)],
+			Times[label_to_time_map_index(SA_TEXT_CHANGE)],
+			SkipErrors
+		);
 	}
 
 	return true;
@@ -946,7 +945,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 				{
-					std::tie(State.Date.InitialValue, State.Time.InitialValue) = time_point_to_string(std::invoke(i.Accessor, SingleSelFindData));
+					std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(std::invoke(i.Accessor, SingleSelFindData));
 
 					AttrDlg[i.DateId].strData = State.Date.InitialValue;
 					AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1270,7 +1269,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!Time)
 					continue;
 
-				std::tie(State.Date.InitialValue, State.Time.InitialValue) = time_point_to_string(*Time);
+				std::tie(State.Date.InitialValue, State.Time.InitialValue) = setattr_time_point_to_localtime_string(*Time);
 
 				AttrDlg[i.DateId].strData = State.Date.InitialValue;
 				AttrDlg[i.TimeId].strData = State.Time.InitialValue;

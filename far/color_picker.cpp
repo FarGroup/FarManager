@@ -304,10 +304,6 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 
 	switch (Msg)
 	{
-	case DN_INITDIALOG:
-		Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, Offset + cb::colorcode_edit, {});
-		break;
-
 	case DN_CTLCOLORDLGITEM:
 		if (in_closed_range(cb::color_first_radio, as_signed(Param1 - Offset), cb::color_last_radio))
 		{

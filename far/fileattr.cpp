@@ -134,13 +134,18 @@ void ESetFileEncryption(string_view const Name, bool const State, os::fs::attrib
 
 void ESetFileTime(
 	string_view const Name,
-	os::chrono::time_point const* const LastWriteTime,
-	os::chrono::time_point const* const CreationTime,
-	os::chrono::time_point const* const LastAccessTime,
-	os::chrono::time_point const* const ChangeTime,
+	os::chrono::time_point const LastWriteTime,
+	os::chrono::time_point const CreationTime,
+	os::chrono::time_point const LastAccessTime,
+	os::chrono::time_point const ChangeTime,
 	bool& SkipErrors)
 {
-	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
+	if (constexpr os::chrono::time_point Empty{};
+		LastWriteTime == Empty &&
+		CreationTime == Empty &&
+		LastAccessTime == Empty &&
+		ChangeTime == Empty
+	)
 		return;
 
 	const auto Implementation = [&]

@@ -658,7 +658,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
 				const auto& [Date, Time] = Param1==ID_FF_CURRENT?
-					time_point_to_string(os::chrono::nt_clock::now(), 16, 2) :
+					time_point_to_localtime_string(os::chrono::nt_clock::now(), 16, 2) :
 					std::tuple<string, string>{};
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -668,14 +668,10 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				const auto da = relative? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 
 				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(Date));
-				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, da, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(Time));
-				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEAFTEREDIT, nullptr);
 
 				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(Date));
-				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, db, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(Time));
-				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEBEFOREEDIT, nullptr);
 
 				Dlg->SendMessage(DM_SETFOCUS, db, nullptr);
 
@@ -1017,7 +1013,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = time_point_to_string(Point, 16, 2);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = time_point_to_localtime_string(Point, 16, 2);
 	};
 
 	Dates.visit(overload
@@ -1129,6 +1125,15 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 			FilterDlg[ID_FF_TIMEBEFOREEDIT].strData[8] = TimeSeparator;
 			FilterDlg[ID_FF_TIMEAFTEREDIT].strData[8] = TimeSeparator;
 
+			const auto ParseTimePoint = [&](int const DateId, int const TimeId)
+			{
+				const auto MergedTime = merge_time({}, parse_time(FilterDlg[DateId].strData, FilterDlg[TimeId].strData, static_cast<int>(DateFormat)));
+
+				os::chrono::time_point TimePoint;
+				(void)os::chrono::localtime_to_timepoint(os::chrono::local_time{ MergedTime }, TimePoint);
+				return TimePoint;
+			};
+
 			const auto NewDates = IsRelative?
 				filter_dates
 				(
@@ -1137,8 +1142,8 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 				) :
 				filter_dates
 				(
-					ParseTimePoint(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, static_cast<int>(DateFormat)),
-					ParseTimePoint(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, static_cast<int>(DateFormat))
+					ParseTimePoint(ID_FF_DATEAFTEREDIT, ID_FF_TIMEAFTEREDIT),
+					ParseTimePoint(ID_FF_DATEBEFOREEDIT, ID_FF_TIMEBEFOREEDIT)
 				);
 
 			Filter.SetDate(FilterDlg[ID_FF_MATCHDATE].Selected != 0, static_cast<enumFDateType>(FilterDlg[ID_FF_DATETYPE].ListPos), NewDates);

@@ -289,7 +289,7 @@ namespace detail
 		if (m_IsInvariant)
 		{
 			m_IsCJK = false;
-			m_DateFormat = date_type::mdy;
+			m_DateFormat = date_type::ymd;
 			m_DigitsGrouping = 3;
 			m_DateSeparator = L'/';
 			m_TimeSeparator = L':';

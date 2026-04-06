@@ -909,12 +909,17 @@ namespace os::fs
 		return false;
 	}
 
-	bool file::GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const
+	bool file::GetTime(
+		chrono::time_point* const CreationTime,
+		chrono::time_point* const LastAccessTime,
+		chrono::time_point* const LastWriteTime,
+		chrono::time_point* const ChangeTime
+	) const
 	{
-		const auto convert_time = [](LARGE_INTEGER const& From, os::chrono::time_point* const To)
+		const auto convert_time = [](LARGE_INTEGER const& From, chrono::time_point* const To)
 		{
 			if (To)
-				*To = os::chrono::nt_clock::from_hectonanoseconds(From.QuadPart);
+				*To = chrono::nt_clock::from_hectonanoseconds(From.QuadPart);
 		};
 
 		FILE_BASIC_INFORMATION fbi;
@@ -930,12 +935,16 @@ namespace os::fs
 		return true;
 	}
 
-	bool file::SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const
+	bool file::SetTime(
+		chrono::time_point const CreationTime,
+		chrono::time_point const LastAccessTime,
+		chrono::time_point const LastWriteTime,
+		chrono::time_point const ChangeTime
+	) const
 	{
-		const auto convert_time = [](os::chrono::time_point const* const From, LARGE_INTEGER& To)
+		const auto convert_time = [](chrono::time_point const From, LARGE_INTEGER& To)
 		{
-			if (From)
-				To.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*From);
+			To.QuadPart = chrono::nt_clock::to_hectonanoseconds(From);
 		};
 
 		FILE_BASIC_INFORMATION fbi{};

@@ -244,13 +244,13 @@ static bool set_file_time(const os::fs::file& File, const auto& Times, bool cons
 {
 	const auto opt_time = [&](const os::chrono::time_point& Time)
 	{
-		return All? &Time : nullptr;
+		return All? Time : os::chrono::time_point{};
 	};
 
 	return File.SetTime(
 		opt_time(Times.CreationTime),
 		opt_time(Times.LastAccessTime),
-		&Times.LastWriteTime,
+		Times.LastWriteTime,
 		opt_time(Times.ChangeTime)
 	);
 }
@@ -3041,7 +3041,7 @@ bool ShellCopy::AskOverwrite(
 
 	const auto FormatLine = [&](const os::chrono::time_point TimePoint, lng Label, unsigned long long Size)
 	{
-		const auto [Date, Time] = time_point_to_string(TimePoint, 8, 1);
+		const auto [Date, Time] = time_point_to_localtime_string(TimePoint, 8, 1);
 		return far::format(L"{:26} {:20} {} {}"sv, msg(Label), Size, Date, Time);
 	};
 

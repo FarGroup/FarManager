@@ -516,7 +516,7 @@ static string system_timestamp()
 static string local_timestamp()
 {
 	os::chrono::local_time LocalTime;
-	if (!os::chrono::utc_to_local(os::chrono::nt_clock::now(), LocalTime))
+	if (!os::chrono::timepoint_to_localtime(os::chrono::nt_clock::now(), LocalTime))
 		return {};
 
 	return far::format(L"{} {}"sv, timestamp(LocalTime), MkStrFTime(L"%z, %Z"sv));

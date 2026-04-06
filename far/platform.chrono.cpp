@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "imports.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -46,6 +47,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 
 //----------------------------------------------------------------------------
+
+template<>
+struct formattable<SYSTEMTIME>
+{
+	static string to_string(SYSTEMTIME const& Time)
+	{
+		return far::format(L"{{{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}}}"sv,
+			Time.wYear,
+			Time.wMonth,
+			Time.wDay,
+			Time.wHour,
+			Time.wMinute,
+			Time.wSecond,
+			Time.wMilliseconds
+		);
+	}
+};
 
 namespace os::chrono
 {
@@ -139,7 +157,7 @@ namespace os::chrono
 	utc_time now_utc()
 	{
 		// hns precision
-		if (utc_time UtcTime; timepoint_to_utc_time(nt_clock::now(), UtcTime))
+		if (utc_time UtcTime; timepoint_to_utc(nt_clock::now(), UtcTime))
 			return UtcTime;
 
 		// ms precision
@@ -151,7 +169,7 @@ namespace os::chrono
 	local_time now_local()
 	{
 		// hns precision
-		if (local_time LocalTime; utc_to_local(nt_clock::now(), LocalTime))
+		if (local_time LocalTime; timepoint_to_localtime(nt_clock::now(), LocalTime))
 			return LocalTime;
 
 		// ms precision
@@ -166,13 +184,26 @@ namespace os::chrono
 		return FileTimeToSystemTime(&FileTime, &SystemTime);
 	}
 
+	static bool system_time_to_timepoint(SYSTEMTIME const& SystemTime, unsigned const Hectonanoseconds, time_point& TimePoint)
+	{
+		FILETIME FileTime;
+		if (!SystemTimeToFileTime(&SystemTime, &FileTime))
+		{
+			LOGWARNING(L"SystemTimeToFileTime({}): {}"sv, SystemTime, os::last_error());
+			return false;
+		}
+
+		TimePoint = nt_clock::from_filetime(FileTime) + hectonanoseconds{ Hectonanoseconds } % 1ms;
+		return true;
+	}
+
 	static void transfer_hns(time_point const TimePoint, time& Time)
 	{
 		assert(!(Time.Hectonanoseconds % (1ms / 1_hns)));
 		Time.Hectonanoseconds += TimePoint.time_since_epoch() % 1ms / 1_hns;
 	}
 
-	bool timepoint_to_utc_time(time_point const TimePoint, utc_time& UtcTime)
+	bool timepoint_to_utc(time_point const TimePoint, utc_time& UtcTime)
 	{
 		SYSTEMTIME SystemTime;
 		if (!timepoint_to_system_time(TimePoint, SystemTime))
@@ -185,89 +216,75 @@ namespace os::chrono
 		return true;
 	}
 
-	static bool utc_to_local_impl(SYSTEMTIME const& UtcTime, SYSTEMTIME& LocalTime)
+	bool utc_to_timepoint(utc_time const UtcTime, time_point& TimePoint)
 	{
-		return SystemTimeToTzSpecificLocalTime({}, &UtcTime, &LocalTime) != FALSE;
+		return system_time_to_timepoint(make_system_time(UtcTime), UtcTime.Hectonanoseconds, TimePoint);
 	}
 
-	bool utc_to_local(time_point UtcTime, local_time& LocalTime)
+	static SYSTEMTIME utc_to_local_impl(SYSTEMTIME const& UtcTime)
+	{
+		SYSTEMTIME LocalTime;
+
+		if (imports.SystemTimeToTzSpecificLocalTimeEx && imports.SystemTimeToTzSpecificLocalTimeEx({}, &UtcTime, &LocalTime))
+			return LocalTime;
+
+		if (SystemTimeToTzSpecificLocalTime({}, &UtcTime, &LocalTime))
+			return LocalTime;
+
+		if (FILETIME UtcFileTime, LocalFileTime;
+			SystemTimeToFileTime(&UtcTime, &UtcFileTime) &&
+			FileTimeToLocalFileTime(&UtcFileTime, &LocalFileTime) &&
+			FileTimeToSystemTime(&LocalFileTime, &LocalTime)
+		)
+			return LocalTime;
+
+		LOGWARNING(L"Failed to convert UTC {} to local time: {}"sv, UtcTime, os::last_error());
+
+		// Better than nothing
+		return UtcTime;
+	}
+
+	bool timepoint_to_localtime(time_point const TimePoint, local_time& LocalTime)
 	{
 		SYSTEMTIME SystemTime;
-		if (!timepoint_to_system_time(UtcTime, SystemTime))
+		if (!timepoint_to_system_time(TimePoint, SystemTime))
 			return false;
 
-		SYSTEMTIME LocalSystemTime;
-		if (!utc_to_local_impl(SystemTime, LocalSystemTime))
-			return false;
+		const auto LocalSystemTime = utc_to_local_impl(SystemTime);
 
 		LocalTime = local_time{ make_time(LocalSystemTime) };
 
-		transfer_hns(UtcTime, LocalTime);
+		transfer_hns(TimePoint, LocalTime);
 
 		return true;
 	}
 
-	static bool local_to_utc_impl(SYSTEMTIME const& LocalTime, SYSTEMTIME& UtcTime)
+	static SYSTEMTIME local_to_utc_impl(SYSTEMTIME const& LocalTime)
 	{
-		if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime(nullptr, &LocalTime, &UtcTime))
-			return true;
+		SYSTEMTIME UtcTime;
 
-		TIME_ZONE_INFORMATION Tz;
-		if (GetTimeZoneInformation(&Tz) != TIME_ZONE_ID_INVALID)
-		{
-			Tz.Bias = -Tz.Bias;
-			Tz.StandardBias = -Tz.StandardBias;
-			Tz.DaylightBias = -Tz.DaylightBias;
-			if (SystemTimeToTzSpecificLocalTime(&Tz, &LocalTime, &UtcTime))
-				return true;
-		}
+		if (imports.TzSpecificLocalTimeToSystemTimeEx && imports.TzSpecificLocalTimeToSystemTimeEx({}, &LocalTime, &UtcTime))
+			return UtcTime;
 
-		std::tm ltm
-		{
-			LocalTime.wSecond,
-			LocalTime.wMinute,
-			LocalTime.wHour,
-			LocalTime.wDay,
-			LocalTime.wMonth - 1,
-			LocalTime.wYear - 1900,
-			LocalTime.wDayOfWeek,
-			-1,
-			-1
-		};
+		if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime({}, &LocalTime, &UtcTime))
+			return UtcTime;
 
-		if (const auto gtim = std::mktime(&ltm); gtim != static_cast<time_t>(-1))
-		{
-			if (const auto ptm = std::gmtime(&gtim))
-			{
-				UtcTime.wYear = ptm->tm_year + 1900;
-				UtcTime.wMonth = ptm->tm_mon + 1;
-				UtcTime.wDay = ptm->tm_mday;
-				UtcTime.wHour = ptm->tm_hour;
-				UtcTime.wMinute = ptm->tm_min;
-				UtcTime.wSecond = ptm->tm_sec;
-				UtcTime.wDayOfWeek = ptm->tm_wday;
-				UtcTime.wMilliseconds = LocalTime.wMilliseconds;
-				return true;
-			}
-		}
+		if (FILETIME LocalFileTime, UtcFileTime;
+			SystemTimeToFileTime(&LocalTime, &LocalFileTime) &&
+			LocalFileTimeToFileTime(&LocalFileTime, &UtcFileTime) &&
+			FileTimeToSystemTime(&UtcFileTime, &UtcTime)
+		)
+			return UtcTime;
 
-		FILETIME LocalFileTime, UtcFileTime;
-		return SystemTimeToFileTime(&LocalTime, &LocalFileTime) && LocalFileTimeToFileTime(&LocalFileTime, &UtcFileTime) && FileTimeToSystemTime(&UtcFileTime, &UtcTime);
+		LOGWARNING(L"Failed to convert local time {} to UTC: {}"sv, LocalTime, os::last_error());
+
+		// Better than nothing
+		return LocalTime;
 	}
 
-	bool local_to_utc(local_time const LocalTime, time_point& UtcTime)
+	bool localtime_to_timepoint(local_time const LocalTime, time_point& TimePoint)
 	{
-		SYSTEMTIME SystemUtcTime;
-		if (!local_to_utc_impl(make_system_time(LocalTime), SystemUtcTime))
-			return false;
-
-		FILETIME FileUtcTime;
-		if (!SystemTimeToFileTime(&SystemUtcTime, &FileUtcTime))
-			return false;
-
-		UtcTime = nt_clock::from_filetime(FileUtcTime);
-		UtcTime += hectonanoseconds{ LocalTime.Hectonanoseconds } % 1ms;
-		return true;
+		return system_time_to_timepoint(local_to_utc_impl(make_system_time(LocalTime)), LocalTime.Hectonanoseconds, TimePoint);
 	}
 
 	void sleep_for(std::chrono::milliseconds const Duration)
@@ -288,7 +305,7 @@ namespace os::chrono
 	string wall_time(time_point const Time)
 	{
 		local_time LocalTime;
-		if (!utc_to_local(Time, LocalTime))
+		if (!timepoint_to_localtime(Time, LocalTime))
 		{
 			return {};
 		}
@@ -304,3 +321,83 @@ namespace os::chrono
 		return Value;
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("chrono.timepoint_conversions")
+{
+	enum direction
+	{
+		to_time   = 0_bit,
+		from_time = 1_bit,
+		both      = to_time | from_time,
+	};
+
+	static constexpr struct
+	{
+		std::optional<os::chrono::time> Time;
+		std::optional<os::chrono::duration> TimeSinceEpoch;
+		direction Direction = direction::both;
+	}
+	Tests[]
+	{
+		{ {{  1600,  1,  1,  0,  0,  0,       0 }}, {                        }          }, // Prehistoric
+		{ {{  1601,  1,  1,  0,  0,  0,       0 }}, { 0_hns,                 }          }, // Epoch
+		{ {{  1601,  1,  1,  0,  0,  0,       1 }}, { 1_hns,                 }          },
+		{ {{  2026,  4,  6, 13, 47,  4, 1234567 }}, { 134199568241234567_hns },         },
+		{ {{ 30827, 12, 31, 23, 59, 59, 9990000 }}, { 0x7fff35f4f06c58f0_hns },         }, // Latest possible SYSTEMTIME
+		{ {{ 30828,  9, 14,  2, 48,  5, 4775807 }}, { 0x7fffffffffffffff_hns }, to_time }, // Latest possible FILETIME
+		{ {{ 30828,  9, 14,  2, 48,  5, 4775808 }}, {                        },         }, // Post-apocalyptic
+		{ {{ 65535, 13, 32, 25, 60, 60, 9999999 }}, {                        },         }, // Rubbish
+	};
+
+	for (const auto& i: Tests)
+	{
+		if (i.Time)
+		{
+			if (i.TimeSinceEpoch)
+			{
+				if (i.Direction & direction::from_time)
+				{
+					os::chrono::time_point UtcResult;
+					REQUIRE(os::chrono::utc_to_timepoint(os::chrono::utc_time{ *i.Time }, UtcResult));
+					REQUIRE(i.TimeSinceEpoch == UtcResult.time_since_epoch());
+				}
+
+				if (i.Direction & direction::to_time)
+				{
+					os::chrono::utc_time UtcTimeResult;
+					REQUIRE(os::chrono::timepoint_to_utc(os::chrono::time_point{ *i.TimeSinceEpoch }, UtcTimeResult));
+					REQUIRE(*i.Time == UtcTimeResult);
+				}
+
+				if (i.Direction == direction::both)
+				{
+					os::chrono::local_time LocalTimeResult;
+					REQUIRE(os::chrono::timepoint_to_localtime(os::chrono::time_point{ *i.TimeSinceEpoch }, LocalTimeResult));
+					os::chrono::time_point TimePoint;
+					REQUIRE(os::chrono::localtime_to_timepoint(LocalTimeResult, TimePoint));
+					REQUIRE(i.TimeSinceEpoch == TimePoint.time_since_epoch());
+				}
+			}
+			else
+			{
+				os::chrono::time_point UtcResult;
+				REQUIRE(!os::chrono::utc_to_timepoint(os::chrono::utc_time{ *i.Time }, UtcResult));
+			}
+		}
+		else
+		{
+			if (i.TimeSinceEpoch)
+			{
+				os::chrono::utc_time UtcTimeResult;
+				REQUIRE(!os::chrono::timepoint_to_utc(os::chrono::time_point{ *i.TimeSinceEpoch }, UtcTimeResult));
+			}
+			else
+				assert(false);
+		}
+	}
+}
+#endif
