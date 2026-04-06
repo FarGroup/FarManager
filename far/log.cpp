@@ -165,6 +165,28 @@ namespace
 		return Colors[std::to_underlying(Level) / logging::detail::step];
 	}
 
+	auto run_mode_to_string()
+	{
+		switch (get_run_mode())
+		{
+#define STRMODE(x) case run_mode::x: return WIDE_SV_LITERAL(x)
+			STRMODE(unknown);
+			STRMODE(interactive);
+			STRMODE(elevation);
+			STRMODE(config_import);
+			STRMODE(config_export);
+			STRMODE(clear_cache);
+			STRMODE(logger);
+			STRMODE(help);
+#ifdef ENABLE_TESTS
+			STRMODE(tests);
+#endif
+#undef STRMODE
+		default:
+			std::unreachable();
+		}
+	}
+
 	auto get_thread_id()
 	{
 		if (const auto ThreadName = os::debug::get_thread_name(GetCurrentThread()); !ThreadName.empty())
@@ -279,7 +301,7 @@ namespace
 
 		~sink_console()
 		{
-			if (get_run_mode() != run_mode::interactive)
+			if (m_UsingDefaultBuffer)
 			{
 				// Borrowed handle, can't close it
 				m_Buffer.release();
@@ -396,10 +418,11 @@ namespace
 	private:
 		void initialize_ui()
 		{
-			if (get_run_mode() != run_mode::interactive)
+			if (using_default_buffer())
 			{
 				// No UI, we can use stdout
 				m_Buffer.reset(console.GetOutputHandle());
+				m_UsingDefaultBuffer = true;
 				return;
 			}
 
@@ -414,7 +437,23 @@ namespace
 			SetConsoleScreenBufferSize(m_Buffer.native_handle(), { Width, 9999 });
 		}
 
+		static bool using_default_buffer()
+		{
+			switch (get_run_mode())
+			{
+			case run_mode::interactive:
+				return false;
+
+			case run_mode::elevation:
+				return true;
+
+			default:
+				throw far_known_exception(far::format(L"{} sink is not supported in this mode"sv, name));
+			}
+		}
+
 		os::handle m_Buffer;
+		bool m_UsingDefaultBuffer{};
 	};
 
 	class sink_stdout: public no_config
@@ -740,6 +779,10 @@ namespace
 					else
 						LOGWARNING(L"Unknown sink {}"sv, i);
 				}
+				catch (far_known_exception const& e)
+				{
+					LOGWARNING(L"{}"sv, e.message());
+				}
 				catch (std::exception const& e)
 				{
 					LOGERROR(L"{}"sv, e);
@@ -960,7 +1003,14 @@ namespace logging
 			// The old one must be closed before creating a new one
 			m_Sink.reset();
 
-			m_Sink = create_sink(SinkName, SinkMode);
+			try
+			{
+				m_Sink = create_sink(SinkName, SinkMode);
+			}
+			catch (std::exception const&)
+			{
+				// In space no one can hear your scream
+			}
 
 			if (!m_Sink)
 				m_Level = level::off;
@@ -990,6 +1040,7 @@ namespace logging
 
 			LOGINFO(L"{}"sv, build::version_string());
 			LOGINFO(L"{}"sv, os::version::os_version());
+			LOGINFO(L"Run mode: {}"sv, run_mode_to_string());
 
 			configure_env();
 		}
