@@ -920,11 +920,17 @@ std::vector<HKL> get_keyboard_layout_list()
 {
 	auto Result = try_get_keyboard_list(get_keyboard_layout_list_registry_ctf);
 
-	if (Result.empty())
-		Result = try_get_keyboard_list(get_keyboard_layout_list_api);
+	for (const auto& i: try_get_keyboard_list(get_keyboard_layout_list_api))
+	{
+		if (std::ranges::find(Result, i) == Result.end())
+			Result.push_back(i);
+	}
 
-	if (Result.empty())
-		Result = try_get_keyboard_list(get_keyboard_layout_list_registry_base);
+	for (const auto& i: try_get_keyboard_list(get_keyboard_layout_list_registry_base))
+	{
+		if (std::ranges::find(Result, i) == Result.end())
+			Result.push_back(i);
+	}
 
 	// Only the CTF method returns layouts in the correct order.
 	// We want to prioritise the default layout, because InitKeysArray uses the first match strategy,
