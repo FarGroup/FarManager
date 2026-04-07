@@ -1149,3 +1149,55 @@ panel_sort plugin_sort_mode_to_internal(int const Mode)
 {
 	return panel_sort{ Mode < SM_USER? Mode - PluginSortModesOffset : Mode };
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("panel.PanelViewSettingsClone")
+{
+	{
+		PanelViewSettings Settings;
+		Settings.PanelColumns =
+		{
+			{ column_type::name, COLFLAGS_NONE, 42, },
+		};
+		Settings.Name = L"test"sv;
+		Settings.Flags = PVS_FULLSCREEN;
+
+		const auto Clone = Settings.clone();
+
+		REQUIRE(Clone.PanelColumns.size() == 1uz);
+		REQUIRE(Clone.PanelColumns[0].type == column_type::name);
+		REQUIRE(Clone.StatusLines.empty());
+		REQUIRE(Clone.Name == L"test"sv);
+		REQUIRE(Clone.Flags == PVS_FULLSCREEN);
+	}
+
+	{
+		PanelViewSettings Settings;
+		Settings.StatusLines =
+		{
+			{
+				{ column_type::name, COLFLAGS_RIGHTALIGN, 10, },
+			},
+			{
+				{ column_type::size, COLFLAGS_NONE, 5, },
+			},
+		};
+
+		const auto Clone = Settings.clone();
+
+		REQUIRE(Clone.StatusLines.size() == 2uz);
+		REQUIRE(Clone.StatusLines[0].size() == 1uz);
+		REQUIRE(Clone.StatusLines[0][0].type == column_type::name);
+		REQUIRE(Clone.StatusLines[0][0].type_flags == COLFLAGS_RIGHTALIGN);
+		REQUIRE(Clone.StatusLines[0][0].width == 10);
+		REQUIRE(Clone.StatusLines[1].size() == 1uz);
+		REQUIRE(Clone.StatusLines[1][0].type == column_type::size);
+		REQUIRE(Clone.StatusLines[1][0].type_flags == COLFLAGS_NONE);
+		REQUIRE(Clone.StatusLines[1][0].width == 5);
+	}
+}
+
+#endif
