@@ -235,9 +235,9 @@ static const auto& CpMap()
 
 		{ "TIS-620"sv,           874 },
 		{ "SHIFT_JIS"sv,         932 },
-		{ "UHC",                 949 },
+		{ "UHC"sv,               949 },
 		{ "BIG5"sv,              950 },
-		{ "Johab",               1361 },
+		{ "Johab"sv,             1361 },
 		{ "KOI8-R"sv,            20866 },
 		{ "VISCII"sv,            28591 }, // No direct mapping, the closest one
 		{ "HZ-GB-2312"sv,        52936 },

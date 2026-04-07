@@ -150,7 +150,7 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
 		const auto DisplayName = truncate_path(strCurFileName, std::max(0uz, m_Where.width() - 2 - msg(lng::MListFolder).size() - 5));
-		PrintText(far::format(LR"({} "{}")", msg(lng::MListFolder), DisplayName));
+		PrintText(far::format(LR"({} "{}")"sv, msg(lng::MListFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -196,7 +196,7 @@ void QuickView::DisplayObject()
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
 			PrintText(KnownReparseTag?
-				far::format(LR"({} "{}")", TypeName, Target) :
+				far::format(LR"({} "{}")"sv, TypeName, Target) :
 				msg(lng::MQuickViewUnknownReparsePoint)
 			);
 		}

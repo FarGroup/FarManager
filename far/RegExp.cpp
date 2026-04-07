@@ -3757,7 +3757,7 @@ TEST_CASE("regex.list.special")
 	}
 	Tests[]
 	{
-		{ L"[]]",     L"!"sv, L"]"sv, { { 0, 1 } } },
+		{ L"[]]"sv,   L"!"sv, L"]"sv, { { 0, 1 } } },
 		{ L"[^]]"sv,  L"]"sv, L"!"sv, { { 0, 1 } } },
 	};
 

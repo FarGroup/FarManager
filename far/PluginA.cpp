@@ -1776,8 +1776,8 @@ static char* WINAPI TruncStrA(char *Str, int MaxLength) noexcept
 			if (MaxLength > 3)
 			{
 				const auto MovePos = Str + Length - MaxLength + 3;
-				std::copy_n(MovePos, strlen(MovePos) + 1, Str + 3);
-				std::copy_n("...", 3, Str);
+				std::ranges::copy_n(MovePos, strlen(MovePos) + 1, Str + 3);
+				std::ranges::copy("..."sv, Str);
 			}
 
 			Str[MaxLength] = 0;
@@ -1813,8 +1813,8 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 				return TruncStrA(Str, MaxLength);
 
 			const auto lpInPos = Start + 3 + (nLength - MaxLength);
-			std::copy_n(lpInPos, strlen(lpInPos) + 1, Start + 3);
-			std::copy_n("...", 3, Start);
+			std::ranges::copy_n(lpInPos, strlen(lpInPos) + 1, Start + 3);
+			std::ranges::copy("..."sv, Start);
 		}
 		return Str;
 	});

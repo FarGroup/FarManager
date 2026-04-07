@@ -828,7 +828,7 @@ static auto get_keyboard_layout_list_registry_base()
 		}
 		catch (std::exception const& e)
 		{
-			LOGWARNING(L"{}", e);
+			LOGWARNING(L"{}"sv, e);
 		}
 	}
 
@@ -860,7 +860,7 @@ static auto keyboard_layout_list_hr(std::span<HKL const> const List)
 		{
 			for (const auto& Key: LayoutsKey->enum_keys())
 			{
-				const auto LayoutIdStr = reg::key::local_machine.get_string(concat(LayoutsPath, L"\\", Key), L"Layout Id"sv);
+				const auto LayoutIdStr = reg::key::local_machine.get_string(concat(LayoutsPath, L'\\', Key), L"Layout Id"sv);
 				if (!LayoutIdStr)
 					continue;
 
@@ -895,7 +895,7 @@ static auto keyboard_layout_list_hr(std::span<HKL const> const List)
 			if (!get_locale_value(Locale, LOCALE_SLOCALIZEDDISPLAYNAME, LanguageName)) // < Windows 7
 				LanguageName = far::format(L"{:08X}"sv, Locale);
 
-		const auto LayoutName = reg::key::local_machine.get_string(concat(LayoutsPath, L"\\", LayoutKey), L"Layout Text"sv);
+		const auto LayoutName = reg::key::local_machine.get_string(concat(LayoutsPath, L'\\', LayoutKey), L"Layout Text"sv);
 
 		far::format_to(Result, L"\n{:08X} {} / {}"sv, LayoutValue, LanguageName, LayoutName? *LayoutName : LayoutKey);
 	}
@@ -911,7 +911,7 @@ static std::vector<HKL> try_get_keyboard_list(function_ref<std::vector<HKL>()> C
 	}
 	catch (std::exception const& e)
 	{
-		LOGWARNING(L"{}", e);
+		LOGWARNING(L"{}"sv, e);
 		return {};
 	}
 }

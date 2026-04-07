@@ -186,7 +186,7 @@ public:
 
 	auto data() const
 	{
-		return far::format(L"{0:064b}", as_unsigned(m_IntValue->Get()));
+		return far::format(L"{0:064b}"sv, as_unsigned(m_IntValue->Get()));
 	}
 
 	void SaveValue(DialogItemEx const& Item, int const RadioGroupIndex) override

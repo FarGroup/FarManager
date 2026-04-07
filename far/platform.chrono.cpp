@@ -328,29 +328,35 @@ namespace os::chrono
 
 TEST_CASE("chrono.timepoint_conversions")
 {
-	enum direction
+	enum direction: unsigned
 	{
-		to_time   = 0_bit,
-		from_time = 1_bit,
-		both      = to_time | from_time,
+		to_utc     = 0_bit,
+		from_utc   = 1_bit,
+		to_local   = 2_bit,
+		from_local = 3_bit,
+		utc        = to_utc | from_utc,
+		local      = to_local | from_local,
+		to         = to_utc | to_local,
+		from       = from_utc | from_local,
+		all        = utc | local,
 	};
 
 	static constexpr struct
 	{
 		std::optional<os::chrono::time> Time;
 		std::optional<os::chrono::duration> TimeSinceEpoch;
-		direction Direction = direction::both;
+		unsigned Direction = direction::all;
 	}
 	Tests[]
 	{
-		{ {{  1600,  1,  1,  0,  0,  0,       0 }}, {                        }          }, // Prehistoric
-		{ {{  1601,  1,  1,  0,  0,  0,       0 }}, { 0_hns,                 }          }, // Epoch
-		{ {{  1601,  1,  1,  0,  0,  0,       1 }}, { 1_hns,                 }          },
-		{ {{  2026,  4,  6, 13, 47,  4, 1234567 }}, { 134199568241234567_hns },         },
-		{ {{ 30827, 12, 31, 23, 59, 59, 9990000 }}, { 0x7fff35f4f06c58f0_hns },         }, // Latest possible SYSTEMTIME
-		{ {{ 30828,  9, 14,  2, 48,  5, 4775807 }}, { 0x7fffffffffffffff_hns }, to_time }, // Latest possible FILETIME
-		{ {{ 30828,  9, 14,  2, 48,  5, 4775808 }}, {                        },         }, // Post-apocalyptic
-		{ {{ 65535, 13, 32, 25, 60, 60, 9999999 }}, {                        },         }, // Rubbish
+		{ {{  1600,  1,  1,  0,  0,  0,       0 }}, {                        },                }, // Prehistoric
+		{ {{  1601,  1,  1,  0,  0,  0,       0 }}, {                  0_hns }, utc            }, // Epoch. No localtime test because it might fail in the Western Hemisphere.
+		{ {{  1601,  1,  1,  0,  0,  0,       1 }}, {                  1_hns }, utc            }, // No localtime test because it might fail in the Western Hemisphere.
+		{ {{  2026,  4,  6, 13, 47,  4, 1234567 }}, { 134199568241234567_hns },                },
+		{ {{ 30827, 12, 31, 23, 59, 59, 9990000 }}, { 0x7fff35f4f06c58f0_hns }, utc | to_local }, // Latest possible SYSTEMTIME. No localtime test because it might resolve to 30828 in the Eastern Hemisphere.
+		{ {{ 30828,  9, 14,  2, 48,  5, 4775807 }}, { 0x7fffffffffffffff_hns }, to,            }, // Latest possible FILETIME
+		{ {{ 30828,  9, 14,  2, 48,  5, 4775808 }}, {                        },                }, // Post-apocalyptic
+		{ {{ 65535, 13, 32, 25, 60, 60, 9999999 }}, {                        },                }, // Rubbish
 	};
 
 	for (const auto& i: Tests)
@@ -359,27 +365,31 @@ TEST_CASE("chrono.timepoint_conversions")
 		{
 			if (i.TimeSinceEpoch)
 			{
-				if (i.Direction & direction::from_time)
+				if (i.Direction & direction::from_utc)
 				{
 					os::chrono::time_point UtcResult;
 					REQUIRE(os::chrono::utc_to_timepoint(os::chrono::utc_time{ *i.Time }, UtcResult));
 					REQUIRE(i.TimeSinceEpoch == UtcResult.time_since_epoch());
 				}
 
-				if (i.Direction & direction::to_time)
+				if (i.Direction & direction::to_utc)
 				{
 					os::chrono::utc_time UtcTimeResult;
 					REQUIRE(os::chrono::timepoint_to_utc(os::chrono::time_point{ *i.TimeSinceEpoch }, UtcTimeResult));
 					REQUIRE(*i.Time == UtcTimeResult);
 				}
 
-				if (i.Direction == direction::both)
+				if (i.Direction & direction::to_local)
 				{
 					os::chrono::local_time LocalTimeResult;
 					REQUIRE(os::chrono::timepoint_to_localtime(os::chrono::time_point{ *i.TimeSinceEpoch }, LocalTimeResult));
-					os::chrono::time_point TimePoint;
-					REQUIRE(os::chrono::localtime_to_timepoint(LocalTimeResult, TimePoint));
-					REQUIRE(i.TimeSinceEpoch == TimePoint.time_since_epoch());
+
+					if (i.Direction & direction::from_local)
+					{
+						os::chrono::time_point TimePoint;
+						REQUIRE(os::chrono::localtime_to_timepoint(LocalTimeResult, TimePoint));
+						REQUIRE(i.TimeSinceEpoch == TimePoint.time_since_epoch());
+					}
 				}
 			}
 			else
