@@ -595,45 +595,9 @@ void LF_CloseAnalyse(lua_State* L, const struct CloseAnalyseInfo *Info)
 }
 //---------------------------------------------------------------------------
 
-void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
+// the KeyBar table is on stack top
+static void OPI_FillInfoLines(lua_State *L, struct OpenPanelInfo *Info, int cpos)
 {
-	int cpos;
-	size_t dfn;
-	struct OpenPanelInfo *Info;
-
-	if (!GetExportFunction(L, "GetOpenPanelInfo"))     //+1
-		return;
-
-	PushPluginPair(L, aInfo->hPanel);                 //+3
-
-	if (pcall_msg(L, 2, 1) != 0)
-		return;
-
-	if (!lua_istable(L, -1))                            //+1: Info
-	{
-		lua_pop(L, 1);
-		return;
-	}
-
-	PushPluginTable(L, aInfo->hPanel);                 //+2: Info,Tbl
-	lua_newtable(L);                                   //+3: Info,Tbl,Coll
-	cpos = lua_gettop(L);       // collector stack position
-	lua_pushvalue(L,-1);                               //+4: Info,Tbl,Coll,Coll
-	lua_setfield(L, -3, COLLECTOR_OPI);                //+3: Info,Tbl,Coll
-	lua_pushvalue(L,-3);                               //+4: Info,Tbl,Coll,Info
-	//---------------------------------------------------------------------------
-	// First element in the collector; can be retrieved on later calls;
-	Info = (struct OpenPanelInfo*) AddBufToCollector(L, cpos, sizeof(struct OpenPanelInfo));
-	//---------------------------------------------------------------------------
-	Info->StructSize = sizeof(struct OpenPanelInfo);
-	Info->hPanel     = aInfo->hPanel;
-	Info->FreeSize   = CAST(unsigned __int64, GetOptNumFromTable(L, "FreeSize", 0));
-	Info->Flags      = GetFlagsFromTable(L, -1, "Flags");
-	Info->HostFile   = AddStringToCollectorField(L, cpos, "HostFile");
-	Info->CurDir     = AddStringToCollectorField(L, cpos, "CurDir");
-	Info->Format     = AddStringToCollectorField(L, cpos, "Format");
-	Info->PanelTitle = AddStringToCollectorField(L, cpos, "PanelTitle");
-	//---------------------------------------------------------------------------
 	lua_getfield(L, -1, "InfoLines");
 	lua_getfield(L, -2, "InfoLinesNumber");
 
@@ -644,13 +608,12 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 
 		if (InfoLinesNumber > 0)
 		{
-			int i;
 			struct InfoPanelLine *pl = (struct InfoPanelLine*)
 			                           AddBufToCollector(L, cpos, InfoLinesNumber * sizeof(struct InfoPanelLine));
 			Info->InfoLines = pl;
 			Info->InfoLinesNumber = InfoLinesNumber;
 
-			for(i=0; i<InfoLinesNumber; ++i,++pl,lua_pop(L,1))
+			for(int i=0; i<InfoLinesNumber; ++i,++pl,lua_pop(L,1))
 			{
 				lua_pushinteger(L, i+1);
 				lua_gettable(L, -2);
@@ -667,11 +630,11 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 		lua_pop(L,1);
 	}
 	else lua_pop(L, 2);
+}
 
-	//---------------------------------------------------------------------------
-	Info->DescrFiles = CreateStringsArray(L, cpos, "DescrFiles", &dfn);
-	Info->DescrFilesNumber = dfn;
-	//---------------------------------------------------------------------------
+// the KeyBar table is on stack top
+static void OPI_FillPanelModes(lua_State *L, struct OpenPanelInfo *Info, int cpos)
+{
 	lua_getfield(L, -1, "PanelModesArray");
 	lua_getfield(L, -2, "PanelModesNumber");
 
@@ -682,13 +645,12 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 
 		if (PanelModesNumber > 0)
 		{
-			int i;
 			struct PanelMode *pm = (struct PanelMode*)
 			                       AddBufToCollector(L, cpos, PanelModesNumber * sizeof(struct PanelMode));
 			Info->PanelModesArray = pm;
 			Info->PanelModesNumber = PanelModesNumber;
 
-			for(i=0; i<PanelModesNumber; ++i,++pm,lua_pop(L,1))
+			for(int i=0; i<PanelModesNumber; ++i,++pm,lua_pop(L,1))
 			{
 				lua_pushinteger(L, i+1);
 				lua_gettable(L, -2);
@@ -708,26 +670,22 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 		lua_pop(L,1);
 	}
 	else lua_pop(L, 2);
+}
 
-	//---------------------------------------------------------------------------
-	Info->StartPanelMode = GetOptIntFromTable(L, "StartPanelMode", 0);
-	Info->StartSortMode  = GetFlagsFromTable(L, -1, "StartSortMode");
-	Info->StartSortOrder = GetOptIntFromTable(L, "StartSortOrder", 0);
-	//---------------------------------------------------------------------------
+// the KeyBar table is on stack top
+static void OPI_FillKeyBarTitles(lua_State *L, struct OpenPanelInfo *Info, int cpos)
+{
 	lua_getfield(L, -1, "KeyBar");
 
 	if (lua_istable(L, -1))
 	{
-		size_t size;
-		int i;
 		struct KeyBarTitles *kbt = (struct KeyBarTitles*)AddBufToCollector(L, cpos, sizeof(struct KeyBarTitles));
 		Info->KeyBar = kbt;
 		kbt->CountLabels = lua_objlen(L, -1);
-		size = kbt->CountLabels * sizeof(struct KeyBarLabel);
+		size_t size = kbt->CountLabels * sizeof(struct KeyBarLabel);
 		kbt->Labels = (struct KeyBarLabel*)AddBufToCollector(L, cpos, size);
-		memset(kbt->Labels, 0, size);
 
-		for(i=0; i < (int)kbt->CountLabels; i++)
+		for(size_t i=0; i < kbt->CountLabels; i++)
 		{
 			lua_rawgeti(L, -1, i+1);
 
@@ -749,13 +707,64 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 	}
 
 	lua_pop(L, 1);
+}
+
+void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
+{
+	int stack_top = lua_gettop(L);
+
+	if (!GetExportFunction(L, "GetOpenPanelInfo"))     //+1
+		return;
+
+	PushPluginPair(L, aInfo->hPanel);                 //+3
+
+	if (pcall_msg(L, 2, 1) != 0)
+		return;
+
+	if (!lua_istable(L, -1))                            //+1: Info
+	{
+		lua_pop(L, 1);
+		return;
+	}
+
+	PushPluginTable(L, aInfo->hPanel);                 //+2: Info,Tbl
+	lua_newtable(L);                                   //+3: Info,Tbl,Coll
+	int cpos = lua_gettop(L);       // collector stack position
+	lua_pushvalue(L,-1);                               //+4: Info,Tbl,Coll,Coll
+	lua_setfield(L, -3, COLLECTOR_OPI);                //+3: Info,Tbl,Coll
+	lua_pushvalue(L,-3);                               //+4: Info,Tbl,Coll,Info
+	//---------------------------------------------------------------------------
+	// First element in the collector; can be retrieved on later calls;
+	struct OpenPanelInfo *Info =
+		(struct OpenPanelInfo*) AddBufToCollector(L, cpos, sizeof(struct OpenPanelInfo));
+	//---------------------------------------------------------------------------
+	Info->StructSize = sizeof(struct OpenPanelInfo);
+	Info->hPanel     = aInfo->hPanel;
+	Info->FreeSize   = CAST(unsigned __int64, GetOptNumFromTable(L, "FreeSize", 0));
+	Info->Flags      = GetFlagsFromTable(L, -1, "Flags");
+	Info->HostFile   = AddStringToCollectorField(L, cpos, "HostFile");
+	Info->CurDir     = AddStringToCollectorField(L, cpos, "CurDir");
+	Info->Format     = AddStringToCollectorField(L, cpos, "Format");
+	Info->PanelTitle = AddStringToCollectorField(L, cpos, "PanelTitle");
+	//---------------------------------------------------------------------------
+	OPI_FillInfoLines(L, Info, cpos);
+	OPI_FillPanelModes(L, Info, cpos);
+	OPI_FillKeyBarTitles(L, Info, cpos);
+	//---------------------------------------------------------------------------
+	size_t dfn;
+	Info->DescrFiles = CreateStringsArray(L, cpos, "DescrFiles", &dfn);
+	Info->DescrFilesNumber = dfn;
+	//---------------------------------------------------------------------------
+	Info->StartPanelMode = GetOptIntFromTable(L, "StartPanelMode", 0);
+	Info->StartSortMode  = GetFlagsFromTable(L, -1, "StartSortMode");
+	Info->StartSortOrder = GetOptIntFromTable(L, "StartSortOrder", 0);
 	//---------------------------------------------------------------------------
 	// _ModuleShortcutData is a non-standard field used with LuaMacro panel modules
 	Info->ShortcutData = AddStringToCollectorField(L, cpos, "_ModuleShortcutData");
 	if (Info->ShortcutData == NULL)
 		Info->ShortcutData = AddStringToCollectorField(L, cpos, "ShortcutData");
 	//---------------------------------------------------------------------------
-	lua_pop(L,4);
+	lua_settop(L, stack_top);
 	*aInfo = *Info;
 }
 //---------------------------------------------------------------------------
