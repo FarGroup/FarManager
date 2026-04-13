@@ -487,18 +487,27 @@ TEST_CASE("enum_substrings")
 
 #include "common/enum_tokens.hpp"
 
-template<typename T>
-void test_enum_tokens(const auto& Expected, string_view const Input, string_view const Separators)
+struct enum_tokens_test_helper
 {
-	auto Iterator = Expected.begin();
-
-	for (const auto& t: T(Input, Separators))
+	template<typename T>
+	static void test(const auto& Expected, string_view const Input, string_view const Separators)
 	{
-		REQUIRE(t == *Iterator++);
+		auto Iterator = Expected.begin();
+
+		for (const auto& t: T(Input, Separators))
+		{
+			REQUIRE(t == *Iterator++);
+		}
+
+		REQUIRE(Iterator == Expected.end());
 	}
 
-	REQUIRE(Iterator == Expected.end());
-}
+	template<typename T>
+	static void run(auto& Test)
+	{
+		Test.template operator()<T>();
+	}
+};
 
 TEST_CASE("enum_tokens")
 {
@@ -506,6 +515,7 @@ TEST_CASE("enum_tokens")
 	{
 		simple,
 		quotes,
+		q_keep,
 		trim
 	};
 
@@ -521,16 +531,25 @@ TEST_CASE("enum_tokens")
 		{ test_type::simple, { {}, {} }, L",", L","sv },
 		{ test_type::simple, { L"abc"sv, {}, L"def"sv, L" q "sv, L"123"sv, {} }, L"abc;,def; q ,123;"sv, L",;"sv },
 		{ test_type::quotes, { L"abc;"sv, L"de;,f"sv, L"123"sv, {}, {} }, L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv },
+		{ test_type::q_keep, { L"\"abc;\""sv, L"\"de;,f\""sv, L"123"sv, {}, {} }, L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv },
 		{ test_type::trim,   { L"abc"sv, L"def"sv, {}, {} }, L"  abc|   def  |  |"sv, L"|"sv },
 	};
 
+	using helper = enum_tokens_test_helper;
+
 	for (const auto& i: Tests)
 	{
+		const auto test = [&]<typename T>()
+		{
+			helper::test<T>(i.Expected, i.Input, i.Separators);
+		};
+
 		switch(i.TestType)
 		{
-		case test_type::simple: test_enum_tokens<enum_tokens>(i.Expected, i.Input, i.Separators); break;
-		case test_type::quotes: test_enum_tokens<enum_tokens_with_quotes>(i.Expected, i.Input, i.Separators); break;
-		case test_type::trim:   test_enum_tokens<enum_tokens_custom_t<with_trim>>(i.Expected, i.Input, i.Separators); break;
+		case test_type::simple: helper::run<enum_tokens>(test); break;
+		case test_type::quotes: helper::run<enum_tokens_with_quotes>(test); break;
+		case test_type::q_keep: helper::run<enum_tokens_custom_t<with_quotes_keep>>(test); break;
+		case test_type::trim:   helper::run<enum_tokens_custom_t<with_trim>>(test); break;
 		default:
 			std::unreachable();
 		}

@@ -118,13 +118,12 @@ WARNING_POP()
 		}
 	};
 
-	class quotes_overrider
+	class quotes_overrider_simple: private null_overrider
 	{
 	public:
 		void reset() noexcept
 		{
 			m_InQuotes = false;
-			m_MetQuote = false;
 		}
 
 		[[nodiscard]]
@@ -133,11 +132,33 @@ WARNING_POP()
 			if (i == L'"')
 			{
 				m_InQuotes = !m_InQuotes;
-				m_MetQuote = true;
 				return true;
 			}
 
 			return m_InQuotes;
+		}
+
+		using null_overrider::postprocess;
+
+		bool m_InQuotes{};
+	};
+
+	class quotes_overrider_unquote: private quotes_overrider_simple
+	{
+	public:
+		void reset() noexcept
+		{
+			m_MetQuote = false;
+		}
+
+		[[nodiscard]]
+		bool active(wchar_t i) noexcept
+		{
+			if (!quotes_overrider_simple::active(i))
+				return false;
+
+			m_MetQuote = true;
+			return true;
 		}
 
 		void postprocess(std::wstring_view& Value)
@@ -151,7 +172,6 @@ WARNING_POP()
 			Value = m_Cache;
 		}
 
-		bool m_InQuotes{};
 		bool m_MetQuote{};
 		std::wstring m_Cache;
 	};
@@ -257,14 +277,15 @@ private:
 
 using enum_tokens = enum_tokens_t<detail::simple_policy>;
 
-using with_quotes = detail::quotes_overrider;
+using with_quotes_keep = detail::quotes_overrider_simple;
+using with_quotes_remove = detail::quotes_overrider_unquote;
 using with_trim = detail::trimmer;
 
 template<typename... args>
 using enum_tokens_custom_t = enum_tokens_t<detail::custom_policy<args...>>;
 
 template<typename... args>
-using enum_tokens_with_quotes_t = enum_tokens_custom_t<with_quotes, args...>;
+using enum_tokens_with_quotes_t = enum_tokens_custom_t<with_quotes_remove, args...>;
 
 using enum_tokens_with_quotes = enum_tokens_with_quotes_t<>;
 
