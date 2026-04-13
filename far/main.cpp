@@ -860,6 +860,19 @@ static void parse_command_line(std::span<const wchar_t* const> const Args, std::
 	}
 }
 
+static void register_restart(bool const HasArgs)
+{
+	const auto Args = HasArgs? []
+	{
+		const auto CommandLine = GetCommandLine();
+		const auto ExecutableSize = enum_tokens_custom_t<with_quotes_keep>{ CommandLine, L" "sv }.begin()->size();
+		return CommandLine + ExecutableSize + 1;
+	}() : nullptr;
+
+	if (const auto Result = imports.RegisterApplicationRestart(Args, 0); FAILED(Result))
+		LOGWARNING(L"RegisterApplicationRestart(): {}"sv, os::format_error(Result));
+}
+
 static int mainImpl(std::span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
@@ -904,6 +917,10 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 
 	if (const auto Result = ProcessServiceModes(RunMode, Args))
 		return *Result;
+
+	assert(RunMode == run_mode::interactive);
+
+	register_restart(!Args.empty());
 
 	SCOPED_ACTION(listener)(update_environment, [] { if (Global->Opt->UpdateEnvironment) ReloadEnvironment(); });
 	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
