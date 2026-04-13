@@ -598,31 +598,33 @@ static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 {
 	SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-	if (Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr))
+	const auto switch_items = [&](bool const ToRelative)
 	{
-		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEBEFOREEDIT, nullptr);
-		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEAFTEREDIT, nullptr);
-		Dlg->SendMessage(DM_SHOWITEM, ID_FF_CURRENT, nullptr);
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,ToPtr(1));
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,ToPtr(1));
-	}
-	else
-	{
-		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSBEFOREEDIT, nullptr);
-		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSAFTEREDIT, nullptr);
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,ToPtr(1));
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_DATEAFTEREDIT,ToPtr(1));
-		Dlg->SendMessage(DM_SHOWITEM,ID_FF_CURRENT,ToPtr(1));
-	}
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEBEFOREEDIT, ToPtr(!ToRelative));
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSBEFOREEDIT, ToPtr(ToRelative));
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DATEAFTEREDIT, ToPtr(!ToRelative));
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_DAYSAFTEREDIT, ToPtr(ToRelative));
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_CURRENT, ToPtr(!ToRelative));
+		Dlg->SendMessage(DM_SHOWITEM, ID_FF_UTC, ToPtr(!ToRelative));
+	};
+
+	switch_items(Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, {}) == BSTATE_CHECKED);
 
 	if (bClear)
 	{
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,nullptr);
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,nullptr);
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,nullptr);
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,nullptr);
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,nullptr);
-		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,nullptr);
+		static constexpr enumFileFilterConfig ItemsToClear[]
+		{
+			ID_FF_DATEBEFOREEDIT,
+			ID_FF_DAYSBEFOREEDIT,
+			ID_FF_TIMEBEFOREEDIT,
+			ID_FF_DATEAFTERSIGN,
+			ID_FF_DATEAFTEREDIT,
+			ID_FF_DAYSAFTEREDIT,
+			ID_FF_TIMEAFTEREDIT,
+		};
+
+		for (const auto& i: ItemsToClear)
+			Dlg->SendMessage(DM_SETTEXTPTR, i, {});
 	}
 }
 
