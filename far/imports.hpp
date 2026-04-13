@@ -130,44 +130,44 @@ public: \
 	DEFINE_IMPORT_FUNCTION(ntdll, nop, nt,    NTAPI, NTSTATUS, NtWow64ReadVirtualMemory64, HANDLE Process, ULONG64 BaseAddress, LPVOID Buffer, ULONG64 Size, PULONG64 NumberOfBytesRead); // 2k3
 #endif
 
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetConsoleKeyboardLayoutNameW, LPWSTR Buffer); // NT4
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    SetConsoleKeyShortcuts, BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys); // NT4
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength); // 2k + KB816542
-	DEFINE_IMPORT_FUNCTION(kernel32, le, nullptr, WINAPI,  PVOID,   AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler); // XP
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  ULONG,   RemoveVectoredExceptionHandler, PVOID Handle); // XP
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // XP
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetModuleHandleExW, DWORD Flags, LPCWSTR ModuleName, HMODULE* Module); // XP
-	DEFINE_IMPORT_FUNCTION(kernel32, le, handle,  WINAPI,  HANDLE,  FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags); // 2k3
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData); // 2k3
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength); // 2k3
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetConsoleKeyboardLayoutNameW, LPWSTR Buffer); // NT4
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    SetConsoleKeyShortcuts, BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys); // NT4
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength); // 2k + KB816542
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  nullptr, WINAPI,  PVOID,   AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler); // XP
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  ULONG,   RemoveVectoredExceptionHandler, PVOID Handle); // XP
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // XP
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetModuleHandleExW, DWORD Flags, LPCWSTR ModuleName, HMODULE* Module); // XP
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  handle,  WINAPI,  HANDLE,  FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags); // 2k3
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData); // 2k3
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength); // 2k3
 #ifndef _WIN64
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    IsWow64Process, HANDLE Process, PBOOL Wow64Process); // 2k3
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    IsWow64Process, HANDLE Process, PBOOL Wow64Process); // 2k3
 #endif
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, handle,  WINAPI,  HANDLE,  FindFirstFileNameW, LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, zero,    WINAPI,  DWORD,   GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    CancelIoEx, HANDLE File, LPOVERLAPPED lpOverlapped); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    CancelSynchronousIo, HANDLE Thread); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    SetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    InitializeSRWLock, PSRWLOCK SRWLock); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    AcquireSRWLockExclusive, PSRWLOCK SRWLock); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    AcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    ReleaseSRWLockExclusive, PSRWLOCK SRWLock); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    ReleaseSRWLockShared, PSRWLOCK SRWLock); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, zero,    WINAPI,  int,     CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetProductInfo, DWORD OSMajorVersion, DWORD OSMinorVersion, DWORD SpMajorVersion, DWORD SpMinorVersion, PDWORD ReturnedProductType); // Vista
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes); // Vista SP1
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // 7
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // 7
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    SystemTimeToTzSpecificLocalTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* UniversalTime, LPSYSTEMTIME LocalTime); // 7
-	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // 7
-	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime); // 8
-	DEFINE_IMPORT_FUNCTION(kernel32, le, hr,      WINAPI,  HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription); // 10
-	DEFINE_IMPORT_FUNCTION(kernel32, le, hr,      WINAPI,  HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOLEAN, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  handle,  WINAPI,  HANDLE,  FindFirstFileNameW, LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  zero,    WINAPI,  DWORD,   GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    CancelIoEx, HANDLE File, LPOVERLAPPED lpOverlapped); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    CancelSynchronousIo, HANDLE Thread); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    SetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    InitializeSRWLock, PSRWLOCK SRWLock); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    AcquireSRWLockExclusive, PSRWLOCK SRWLock); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    AcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    ReleaseSRWLockExclusive, PSRWLOCK SRWLock); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    ReleaseSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  zero,    WINAPI,  int,     CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetProductInfo, DWORD OSMajorVersion, DWORD OSMinorVersion, DWORD SpMajorVersion, DWORD SpMinorVersion, PDWORD ReturnedProductType); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes); // Vista SP1
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    SystemTimeToTzSpecificLocalTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* UniversalTime, LPSYSTEMTIME LocalTime); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  false,   WINAPI,  BOOL,    TzSpecificLocalTimeToSystemTimeEx, const DYNAMIC_TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // 7
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  void,    WINAPI,  void,    GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime); // 8
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  hr,      WINAPI,  HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription); // 10
+	DEFINE_IMPORT_FUNCTION(kernel32, le,  hr,      WINAPI,  HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10
 
 	DEFINE_IMPORT_FUNCTION(shell32, nop, hr, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv); // Vista
 
