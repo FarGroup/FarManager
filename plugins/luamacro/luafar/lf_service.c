@@ -1841,13 +1841,13 @@ static int far_Menu(lua_State *L)
 	intptr_t *pBreakCode = NULL;
 	if (lua_type(L, POS_BKEYS) == LUA_TSTRING)
 	{
-		const char *q, *ptr = lua_tostring(L, POS_BKEYS);
+		const char *ptr = lua_tostring(L, POS_BKEYS);
 		lua_newtable(L);
 		while (*ptr)
 		{
 			while (isspace(*ptr)) ptr++;
 			if (*ptr == 0) break;
-			q = ptr++;
+			const char *q = ptr++;
 			while(*ptr && !isspace(*ptr)) ptr++;
 			lua_createtable(L,0,1);
 			lua_pushlstring(L,q,ptr-q);
@@ -1861,8 +1861,6 @@ static int far_Menu(lua_State *L)
 
 	if (NumBreakCodes)
 	{
-		char buf[32];
-		int ind;
 		struct FarKey* BreakKeys = (struct FarKey*)lua_newuserdata(L, (1+NumBreakCodes)*sizeof(struct FarKey));
 		// get virtualkeys table from the registry; push it on top
 		lua_pushstring(L, FAR_VIRTUALKEYS);
@@ -1870,16 +1868,9 @@ static int far_Menu(lua_State *L)
 		// push breakkeys table on top
 		lua_pushvalue(L, POS_BKEYS);        // vk=-2; bk=-1;
 
-		for(ind=0; ind < NumBreakCodes; ind++)
+		int ind_target = 0;
+		for (int ind=0; ind < NumBreakCodes; ind++)
 		{
-			DWORD mod = 0;
-			const char* s;
-			char* vk;  // virtual key
-			WORD VirtualKeyCode;
-
-			BreakKeys[ind].VirtualKeyCode = 0xFF; // preset to invalid value !=0, since 0 marks end-of-array for Far.
-			BreakKeys[ind].ControlKeyState = LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED;
-
 			// get next break key (optional modifier plus virtual key)
 			lua_pushinteger(L,ind+1);       // vk=-3; bk=-2;
 			lua_gettable(L,-2);             // vk=-3; bk=-2; bki=-1;
@@ -1897,8 +1888,9 @@ static int far_Menu(lua_State *L)
 				if (pd->FSF->FarNameToInputRecord((const wchar_t*)lua_touserdata(L,-1), &Rec)
 					&& Rec.EventType == KEY_EVENT)
 				{
-					BreakKeys[ind].VirtualKeyCode = Rec.Event.KeyEvent.wVirtualKeyCode;
-					BreakKeys[ind].ControlKeyState = Rec.Event.KeyEvent.dwControlKeyState;
+					BreakKeys[ind_target].VirtualKeyCode = Rec.Event.KeyEvent.wVirtualKeyCode;
+					BreakKeys[ind_target].ControlKeyState = Rec.Event.KeyEvent.dwControlKeyState;
+					ind_target++;
 					lua_pop(L, 2);
 					continue; // success
 				}
@@ -1908,13 +1900,15 @@ static int far_Menu(lua_State *L)
 			}
 
 			// separate modifier and virtual key strings
-			s = lua_tostring(L,-1);
+			const char* s = lua_tostring(L,-1);
 
+			char buf[32];
+			DWORD mod = 0;
 			if (strlen(s) >= sizeof(buf)) { lua_pop(L,2); continue; }
 
 			strcpy(buf, s);
 			_strupr(buf);
-			vk = strchr(buf, '+');  // virtual key
+			char* vk = strchr(buf, '+');  // virtual key
 
 			if (vk)
 			{
@@ -1935,16 +1929,17 @@ static int far_Menu(lua_State *L)
 
 			// get virtual key and break key values
 			lua_rawget(L,-4);               // vk=-4; bk=-3;
-			VirtualKeyCode = (WORD)lua_tointeger(L,-1);
+			WORD VirtualKeyCode = (WORD)lua_tointeger(L,-1);
 			if (VirtualKeyCode)
 			{
-				BreakKeys[ind].VirtualKeyCode = VirtualKeyCode;
-				BreakKeys[ind].ControlKeyState = mod;
+				BreakKeys[ind_target].VirtualKeyCode = VirtualKeyCode;
+				BreakKeys[ind_target].ControlKeyState = mod;
+				ind_target++;
 			}
 			lua_pop(L,2);                   // vk=-2; bk=-1;
 		}
 
-		BreakKeys[ind].VirtualKeyCode = 0; // required by FAR API
+		BreakKeys[ind_target].VirtualKeyCode = 0; // required by FAR API
 		pBreakKeys = BreakKeys;
 		pBreakCode = &BreakCode;
 	}
