@@ -3437,6 +3437,86 @@ namespace
 		return static_cast<short>(std::log10(num)) + 1;
 	}
 
+	VMenu::extended_item_data coord_to_extended_data(const FindCoord Coords)
+	{
+		return {
+			{ L"Line", Coords.Line + 1 },
+			{ L"Position", Coords.Pos + 1 },
+			{ L"Length", Coords.SearchLen },
+		};
+	}
+
+	std::optional<FindCoord> coord_from_extended_data(const VMenu::extended_item_data& ExtendedData, const long long LinesSize)
+	{
+		const auto AsString{
+			[](const FarMacroValue& Value) -> std::optional<string>
+			{
+				switch (Value.Type)
+				{
+				case FMVT_STRING:   return Value.String;
+				case FMVT_MBSTRING: return encoding::utf8_or_ansi::get_chars(Value.MBString);
+				default:            return std::nullopt;
+				}
+			}
+		};
+		const auto AsInt{
+			[](const FarMacroValue& Value, const long long LowerBound, const long long UpperBound) -> std::optional<int>
+			{
+				const auto IntOrNullopt
+				{
+					[LowerBound, UpperBound](long long Integer)
+					{
+						return in_closed_range(LowerBound, Integer, UpperBound) ? std::optional<int>{ Integer } : std::nullopt;
+					}
+				};
+				switch (Value.Type)
+				{
+				case FMVT_INTEGER:  return IntOrNullopt(Value.Integer);
+				case FMVT_DOUBLE:   return IntOrNullopt(Value.Double);
+				default:            return std::nullopt;
+				}
+			}
+		};
+
+		std::optional<int> MaybeLine;
+		std::optional<int> MaybePos;
+		std::optional<int> MaybeSearchLen;
+
+		for (const auto& [Key, Value] : ExtendedData)
+		{
+			const auto KeyStr{ AsString(Key) };
+			if (!KeyStr) return std::nullopt;
+
+			if (KeyStr == L"Line"sv)
+			{
+				MaybeLine = AsInt(Value, 1, LinesSize);
+				if (MaybeLine) continue;
+				return std::nullopt;
+			}
+			if (KeyStr == L"Position"sv)
+			{
+				MaybePos = AsInt(Value, 1, std::numeric_limits<int>::max());
+				if (MaybePos) continue;
+				return std::nullopt;
+			}
+			if (KeyStr == L"Length"sv)
+			{
+				MaybeSearchLen = AsInt(Value, 0, std::numeric_limits<int>::max());
+				if (MaybeSearchLen) continue;
+				return std::nullopt;
+			}
+		}
+
+		if (!(MaybeLine && MaybePos && MaybeSearchLen)) return std::nullopt;
+
+		return FindCoord
+		{
+			.Line = *MaybeLine - 1,
+			.Pos = *MaybePos - 1,
+			.SearchLen = *MaybeSearchLen
+		};
+	}
+
 	class find_all_list
 	{
 	public:
@@ -3463,7 +3543,7 @@ namespace
 			m_MaxFoundPos = std::max(m_MaxFoundPos, FoundCoords.Pos);
 		}
 
-		void make_ready()
+		void make_ready(const Editor& ParentEditor)
 		{
 			m_MenuY2 = std::min(ScrY, m_MenuY1 + std::min(static_cast<int>(m_Menu->size()), 10) + 2);
 
@@ -3494,16 +3574,27 @@ namespace
 				},
 				segment::ray(ItemTextStart)
 			);
-			m_Menu->ListBox().RegisterExtendedDataProvider([](const menu_item_ex& Item)
+			m_Menu->ListBox().RegisterExtendedDataProvider(
+				[](const menu_item_ex& Item, VMenu::extended_item_data& ExtendedData)
 				{
-					const auto Coord{ std::any_cast<FindCoord>(Item.ComplexUserData) };
+					if (const auto* Coord{ std::any_cast<FindCoord>(&Item.ComplexUserData) })
+					{
+						ExtendedData = coord_to_extended_data(*Coord);
+						return true;
+					}
 
-					return VMenu::extended_item_data{
-						{ L"Line", Coord.Line + 1 },
-						{ L"Position", Coord.Pos + 1 },
-						{ L"Length", Coord.SearchLen },
-					};
-				});
+					return false;
+				},
+				[&](menu_item_ex& Item, const VMenu::extended_item_data& ExtendedData)
+				{
+					if (const auto Coord{ coord_from_extended_data(ExtendedData, ParentEditor.GetSize()) })
+					{
+						Item.ComplexUserData = *Coord;
+						return true;
+					}
+					return false;
+				}
+			);
 		}
 
 		void toggle_zoom()
@@ -3903,7 +3994,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 	if(FindAllList && MatchFound)
 	{
-		FindAllList->make_ready();
+		FindAllList->make_ready(*this);
 		enum class save_to_new_editor { none, all, matching_filter };
 		auto SaveToNewEditor{ save_to_new_editor::none };
 

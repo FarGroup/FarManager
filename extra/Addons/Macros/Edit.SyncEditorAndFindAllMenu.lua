@@ -12,9 +12,15 @@
 -- The color used to highlight the pattern.
 local HighlightColor = 0x5f
 --
--- If true, after menu is opened, selects the menu item corresponding
--- to the first search pattern found below the cursor position.
+-- If true, after the menu is opened, selects the menu item corresponding
+-- to the first occurrence of the search pattern following the cursor position.
+-- If all occurrences of the search pattern precede the cursor position,
+-- wraps around and selects the first menu item.
 local PositionMenuOnStart = true
+--
+-- If true, and the cursor is not on a line containing an occurrence of the search pattern,
+-- after the menu is opened, inserts the current line as an "anchor" menu item.
+local InsertAnchorItem = true
 --
 -- If true, highlights the search patterns in the text while the user moves around the menu items.
 -- If false, highlights the search pattern on Ctrl+Enter.
@@ -46,17 +52,13 @@ local function LowerBound(N, Target, GetData, Less)
     end
   end
 
-  if Lo == N + 1 then
-    return 1 -- all keys < Target -- wrap around
-  else
-    return Lo
-  end
+  return Lo
+
 end
 
 local function CoordinatesLess(A, B)
   if A.Line ~= B.Line then return A.Line < B.Line end
-  if A.Position ~= B.Position then return A.Position < B.Position end
-  return A.Length < B.Length
+  return A.Position + A.Length < B.Position
 end
 
 local function AddColor()
@@ -105,14 +107,49 @@ local function HighlighText()
   editor.Redraw(EditorInfo.EditorID);
 end
 
+-- Will be removed when items do not contain found coordinates inline
+local function GetLineNumberFixedColumns(FarDialogEvent, LineNumber)
+  local ItemText = FarDialogEvent.hDlg:send(F.DM_LISTGETITEM, 1, 1).Text
+
+  local LineNumberColumnWidth = 0
+  if ItemText then
+    LineNumberColumnWidth = #(ItemText:match("^(%s*%d+)%s") or "")
+  end
+
+  return string.format("%" .. LineNumberColumnWidth .. "d          ", LineNumber)
+end
+
 local function SetupMenuAndEditor(FarDialogEvent)
   local SelectPos = 1
-  if PositionMenuOnStart then
-    SelectPos = LowerBound(FarDialogEvent.hDlg:send(F.DM_LISTINFO, 1).ItemsNumber,
+
+  if PositionMenuOnStart or InsertAnchorItem then
+    -- Find the item corresponding to the first occurrence
+    -- of the search pattern following the cursor position.
+    local ItemsNumber = FarDialogEvent.hDlg:send(F.DM_LISTINFO, 1).ItemsNumber
+    SelectPos = LowerBound(ItemsNumber,
                            { Line = EditorInfo.CurLine, Position = EditorInfo.CurPos, Length = 0 },
                            function(I) return Menu.GetItemExtendedData(FarDialogEvent.hDlg, I) end,
                            CoordinatesLess)
-    FarDialogEvent.hDlg:send(F.DM_LISTSETCURPOS, 1, { SelectPos = SelectPos })
+
+    if InsertAnchorItem then
+      if SelectPos == ItemsNumber + 1   -- All occurrences precede the cursor position
+                                        -- or the current editor line does not containing an occurrence
+      or Menu.GetItemExtendedData(FarDialogEvent.hDlg, SelectPos).Line ~= EditorInfo.CurLine then
+        FarDialogEvent.hDlg:send(F.DM_LISTINSERT,
+                                 1,
+                                 { Index = SelectPos, 
+                                   Text = GetLineNumberFixedColumns(FarDialogEvent, EditorInfo.CurLine) .. Editor.GetStr(EditorInfo.CurLine) })
+        Menu.SetItemExtendedData(FarDialogEvent.hDlg, SelectPos, { Line = EditorInfo.CurLine, Position = EditorInfo.CurPos, Length = 0 })
+        ItemsNumber = ItemsNumber + 1
+      end
+    end
+
+    if PositionMenuOnStart then
+      if SelectPos == ItemsNumber + 1 then  -- All occurrences precede the cursor position
+        SelectPos = 1;                      -- Wrap around to the first menu item
+      end
+      FarDialogEvent.hDlg:send(F.DM_LISTSETCURPOS, 1, { SelectPos = SelectPos })
+    end
   end
   LastSeenItemData = Menu.GetItemExtendedData(FarDialogEvent.hDlg, SelectPos)
   if TrackMenu then HighlighText() end
