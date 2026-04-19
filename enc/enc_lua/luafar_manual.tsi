@@ -10685,15 +10685,15 @@ article id=653 dt=Text ctime=3983596118 mtime=3983596118 nm=DM_SETHISTORY
 #_{dm_sethistory}: $(ENC_URL)/dialogapi/dmsg/dm_sethistory.html
 #_
 
-article id=654 dt=Text ctime=3983596118 mtime=3983598288 nm=DM_SETINPUTNOTIFY
+article id=654 dt=Text ctime=3983596118 mtime=3985799377 nm=DM_SETINPUTNOTIFY
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
 #_Result = hDlg:send (Msg, Param1, Param2)
 #_
 #_
 #_DM_SETINPUTNOTIFY
-#_    Param1:  integer (optional)
-#_    Param2:  integer (optional)
+#_    Param1:  boolean or integer (default = -1)
+#_    Param2:  ignored
 #_    Result:  integer
 #_
 #_@@@
@@ -10748,15 +10748,15 @@ article id=657 dt=Text ctime=3983596118 mtime=3983596118 nm=DM_SETMAXTEXTLENGTH
 #_{dm_setmaxtextlength}: $(ENC_URL)/dialogapi/dmsg/dm_setmaxtextlength.html
 #_
 
-article id=658 dt=Text ctime=3983596118 mtime=3983598768 nm=DM_SETMOUSEEVENTNOTIFY
+article id=658 dt=Text ctime=3983596118 mtime=3985799507 nm=DM_SETMOUSEEVENTNOTIFY
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
 #_Result = hDlg:send (Msg, Param1, Param2)
 #_
 #_
 #_DM_SETMOUSEEVENTNOTIFY
-#_    Param1:  integer (optional)
-#_    Param2:  integer (optional)
+#_    Param1:  boolean or integer (default = -1)
+#_    Param2:  ignored
 #_    Result:  integer
 #_
 #_@@@
@@ -10826,7 +10826,7 @@ article id=662 dt=Text ctime=3983596118 mtime=3983598850 nm=DM_SHOWDIALOG
 #_{dm_showdialog}: $(ENC_URL)/dialogapi/dmsg/dm_showdialog.html
 #_
 
-article id=663 dt=Text ctime=3983596118 mtime=3983596118 nm=DM_SHOWITEM
+article id=663 dt=Text ctime=3983596118 mtime=3985799307 nm=DM_SHOWITEM
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
 #_Result = hDlg:send (Msg, Param1, Param2)
@@ -10834,7 +10834,7 @@ article id=663 dt=Text ctime=3983596118 mtime=3983596118 nm=DM_SHOWITEM
 #_
 #_DM_SHOWITEM
 #_    Param1:  integer (ID of dialog item)
-#_    Param2:  integer
+#_    Param2:  boolean or integer (default = -1)
 #_    Result:  integer
 #_
 #_@@@

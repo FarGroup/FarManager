@@ -3126,6 +3126,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			break;
 
 		case DM_ENABLEREDRAW:
+		case DM_SETINPUTNOTIFY:
 			Param1 = GetEnableFromLua(L,pos3);
 			break;
 
@@ -3142,7 +3143,6 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		case DM_MOVEDIALOG:
 		case DM_REDRAW:
 		case DM_RESIZEDIALOG:
-		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
 		case DM_USER:
 		// DN_*
@@ -3195,7 +3195,6 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 		case DM_SETMAXTEXTLENGTH:     // alias: DM_SETTEXTLENGTH
 		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
-		case DM_SHOWITEM:
 		case DM_USER:
 		// DN_*
 		case DN_BTNCLICK:
@@ -3210,6 +3209,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 			break;
 
 		case DM_ENABLE:
+		case DM_SHOWITEM:
 			Param2 = (void*)GetEnableFromLua(L, pos4);
 			break;
 

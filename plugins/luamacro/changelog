@@ -1,3 +1,7 @@
+shmuel 2026-04-19 22:39:51+03:00 - build 922
+
+1. LuaFAR: refactoring.
+
 MZK 2026-04-18 10:27:01-04:00 - build 921
 
 1. gh-1006: Macro API to set menu item extended data: Menu.SetItemExtendedData.
