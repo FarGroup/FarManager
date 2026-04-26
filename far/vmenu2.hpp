@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct menu_item;
 struct menu_item_ex;
-struct vmenu_fixed_column_t;
 struct SortItemParam;
 
 class VMenu2 final: public Dialog
@@ -72,7 +71,6 @@ public:
 	void SetBottomTitle(const string& Title);
 	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags);
-	void SetFixedColumns(std::vector<vmenu_fixed_column_t>&& FixedColumns, segment ItemTextSegment);
 	void EnableAutoHighlight(bool Reverse = false);
 	void clear();
 	int DeleteItem(int ID,int Count=1);

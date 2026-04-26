@@ -107,18 +107,6 @@ local function HighlighText()
   editor.Redraw(EditorInfo.EditorID);
 end
 
--- Will be removed when items do not contain found coordinates inline
-local function GetLineNumberFixedColumns(FarDialogEvent, LineNumber)
-  local ItemText = FarDialogEvent.hDlg:send(F.DM_LISTGETITEM, 1, 1).Text
-
-  local LineNumberColumnWidth = 0
-  if ItemText then
-    LineNumberColumnWidth = #(ItemText:match("^(%s*%d+)%s") or "")
-  end
-
-  return string.format("%" .. LineNumberColumnWidth .. "d          ", LineNumber)
-end
-
 local function SetupMenuAndEditor(FarDialogEvent)
   local SelectPos = 1
 
@@ -135,10 +123,7 @@ local function SetupMenuAndEditor(FarDialogEvent)
       if SelectPos == ItemsNumber + 1   -- All occurrences precede the cursor position
                                         -- or the current editor line does not containing an occurrence
       or Menu.GetItemExtendedData(FarDialogEvent.hDlg, SelectPos).Line ~= EditorInfo.CurLine then
-        FarDialogEvent.hDlg:send(F.DM_LISTINSERT,
-                                 1,
-                                 { Index = SelectPos, 
-                                   Text = GetLineNumberFixedColumns(FarDialogEvent, EditorInfo.CurLine) .. Editor.GetStr(EditorInfo.CurLine) })
+        FarDialogEvent.hDlg:send(F.DM_LISTINSERT, 1, { Index = SelectPos, Text = Editor.GetStr(EditorInfo.CurLine) })
         Menu.SetItemExtendedData(FarDialogEvent.hDlg, SelectPos, { Line = EditorInfo.CurLine, Position = EditorInfo.CurPos, Length = 0 })
         ItemsNumber = ItemsNumber + 1
       end

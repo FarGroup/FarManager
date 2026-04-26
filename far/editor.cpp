@@ -3526,10 +3526,7 @@ namespace
 
 		void add_item(FindCoord FoundCoords, string_view ItemText)
 		{
-			menu_item_ex Item{ far::format(L"{:{}}{:{}}{}"sv,
-				FoundCoords.Line + 1, m_LineNumColumnMaxWidth,
-				FoundCoords.Pos + 1, m_FoundPosColumnMaxWidth,
-				ItemText) };
+			menu_item_ex Item{ string{ ItemText } };
 			Item.Annotations.emplace_back(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
 			Item.ComplexUserData = FoundCoords;
 			m_Menu->AddItem(Item);
@@ -3554,25 +3551,39 @@ namespace
 			m_Menu->SetHelp(L"FindAllMenu"sv);
 			m_Menu->SetId(EditorFindAllListId);
 
-			const short LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum + 1) };
-			const short FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos + 1) };
-			const short LineNumColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth - LineNumColumnWidth) };
-			const short FoundPosColumnStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth - FoundPosColumnWidth) };
-			const short ItemTextStart{ static_cast<short>(m_LineNumColumnMaxWidth + m_FoundPosColumnMaxWidth) };
-			m_Menu->SetFixedColumns(
+			const auto LineNumColumnWidth{ radix10_formatted_width(m_MaxLineNum + 1) };
+			const auto FoundPosColumnWidth{ radix10_formatted_width(m_MaxFoundPos + 1) };
+			m_Menu->ListBox().RegisterFixedColumnsProvider(
 				{
 					{
-						.TextSegment{ LineNumColumnStart, segment::length_tag{ LineNumColumnWidth } },
+						.MaxWidth = LineNumColumnWidth,
 						.CurrentWidth = LineNumColumnWidth,
-						.Separator = BoxSymbols[BS_V1]
+						.Separator = BoxSymbols[BS_V1],
+						.ColumnId = 0,
 					},
 					{
-						.TextSegment{ FoundPosColumnStart, segment::length_tag{ FoundPosColumnWidth } },
+						.MaxWidth = FoundPosColumnWidth,
 						.CurrentWidth = FoundPosColumnWidth,
-						.Separator = BoxSymbols[BS_V1]
+						.Separator = BoxSymbols[BS_V1],
+						.ColumnId = 1,
 					},
 				},
-				segment::ray(ItemTextStart)
+				[](const menu_item_ex& Item, const VMenu::fixed_column_t& Column)
+				{
+					if (const auto* Coord{ std::any_cast<FindCoord>(&Item.ComplexUserData) })
+					{
+						switch (Column.ColumnId)
+						{
+						case 0: // Line Number
+							return far::format(L"{:{}}"sv, Coord->Line + 1, Column.MaxWidth);
+
+						case 1: // Found Position
+							return far::format(L"{:{}}"sv, Coord->Pos + 1, Column.MaxWidth);
+						}
+					}
+
+					return string{};
+				}
 			);
 			m_Menu->ListBox().RegisterExtendedDataProvider(
 				[](const menu_item_ex& Item, VMenu::extended_item_data& ExtendedData)
@@ -4022,8 +4033,11 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 						if (SelectedPos == -1)
 							break;
 
-						SelectFoundPattern(*FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(SelectedPos));
-						Refresh();
+						if (const auto* Coord{ FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(SelectedPos) })
+						{
+							SelectFoundPattern(*Coord);
+							Refresh();
+						}
 					}
 					break;
 
@@ -4087,8 +4101,11 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 		if(ExitCode >= 0)
 		{
-			SelectFoundPattern(*FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(ExitCode));
-			Show();
+			if (const auto* Coord{ FindAllList->m_Menu->GetComplexUserDataPtr<FindCoord>(ExitCode) })
+			{
+				SelectFoundPattern(*Coord);
+				Show();
+			}
 		}
 	}
 
@@ -4138,26 +4155,29 @@ void Editor::SaveFoundItemsToNewEditor(const VMenu& ListBox, const bool Matching
 	{
 		if (Item.Flags & FilterFlags) continue;
 
-		const auto ThisEditorCoord{ std::any_cast<FindCoord>(Item.ComplexUserData) };
+		const auto* ThisEditorCoord{ std::any_cast<FindCoord>(&Item.ComplexUserData) };
+		if (!ThisEditorCoord) continue;
 
-		if (ThisEditorCoord.Line != ThisEditorLastLine)
+		if (ThisEditorCoord->Line != ThisEditorLastLine)
 		{
-			ThisEditorLastLine = ThisEditorCoord.Line;
+			ThisEditorLastLine = ThisEditorCoord->Line;
 
-			const auto CurString{ GetStringByNumber(ThisEditorCoord.Line) };
+			const auto CurString{ GetStringByNumber(ThisEditorCoord->Line) };
 			const auto NewEditorLine{ NewEditor.InsertString(CurString->GetString(), NewEditor.LastLine()) };
 			NewEditorLine->SetEOL(CurString->GetEOL());
 		}
 
 		if (static_cast<intptr_t>(Index) == ExitCode)
 		{
-			const auto CurrentFoundCoord{ *ListBox.GetComplexUserDataPtr<const FindCoord>(ExitCode) };
-			NewEditorFoundCoord =
+			if (const auto* CurrentFoundCoord{ ListBox.GetComplexUserDataPtr<const FindCoord>(ExitCode) })
 			{
-				.Line = std::prev(NewEditor.LastLine()).Number(),
-				.Pos = CurrentFoundCoord.Pos,
-				.SearchLen = CurrentFoundCoord.SearchLen
-			};
+				NewEditorFoundCoord =
+				{
+					.Line = std::prev(NewEditor.LastLine()).Number(),
+					.Pos = CurrentFoundCoord->Pos,
+					.SearchLen = CurrentFoundCoord->SearchLen
+				};
+			}
 		}
 	}
 
