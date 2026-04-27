@@ -201,8 +201,7 @@ void* AddBufToCollector(lua_State *L, int pos, size_t size)
 // -- a table is on stack top
 // -- its field 'field' is an array of strings
 // -- 'cpos' - collector stack position
-const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
-                                   size_t *numstrings)
+const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field, size_t *numstrings)
 {
 	const wchar_t **buf = NULL;
 	if (numstrings) *numstrings = 0;
@@ -217,10 +216,9 @@ const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
 
 		if (n > 0)
 		{
-			size_t i;
 			buf = (const wchar_t**)AddBufToCollector(L, cpos, (n+1) * sizeof(wchar_t*));
 
-			for(i=0; i < n; i++)
+			for(size_t i=0; i < n; i++)
 				buf[i] = AddStringToCollectorSlot(L, cpos, (int)i+1);
 
 			buf[n] = NULL;
@@ -381,12 +379,9 @@ void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 //---------------------------------------------------------------------------
 
 // PanelItem table should be on Lua stack top
-void UpdateFileSelection(lua_State* L, struct PluginPanelItem *PanelItem,
-                         size_t ItemsNumber)
+void UpdateFileSelection(lua_State* L, struct PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	int i;
-
-	for(i=0; i<(int)ItemsNumber; i++)
+	for (int i=0; i < (int)ItemsNumber; i++)
 	{
 		lua_rawgeti(L, -1, i+1);           //+1
 
@@ -448,12 +443,9 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
 {
 	int pos = lua_gettop(L);
-	int status = 1, i;
-	wchar_t *defscript;
-	FILE *fp = NULL;
+	int status = 1;
 	const char *name = "<boot";
 	const wchar_t *ModuleName = GetPluginData(L)->Info->ModuleName;
-	const wchar_t delims[] = L".-";
 
 	// First: try to load the default script embedded into the plugin.
 	lua_getglobal(L, "package");
@@ -474,10 +466,12 @@ BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
 
 	lua_pop(L, 3);
 	// Second: try to load the default script from a disk file
-	defscript = (wchar_t*)lua_newuserdata(L, sizeof(wchar_t)*(wcslen(ModuleName)+5));
+	wchar_t *defscript = (wchar_t*)lua_newuserdata(L, sizeof(wchar_t)*(wcslen(ModuleName)+5));
 	wcscpy(defscript, ModuleName);
 
-	for(i=0; delims[i]; i++)
+	FILE *fp = NULL;
+	const wchar_t delims[] = L".-";
+	for (int i=0; delims[i]; i++)
 	{
 		wchar_t *end = wcsrchr(defscript, delims[i]);
 
@@ -609,7 +603,7 @@ static void OPI_FillInfoLines(lua_State *L, struct OpenPanelInfo *Info, int cpos
 		if (InfoLinesNumber > 0)
 		{
 			struct InfoPanelLine *pl = (struct InfoPanelLine*)
-			                           AddBufToCollector(L, cpos, InfoLinesNumber * sizeof(struct InfoPanelLine));
+				AddBufToCollector(L, cpos, InfoLinesNumber * sizeof(struct InfoPanelLine));
 			Info->InfoLines = pl;
 			Info->InfoLinesNumber = InfoLinesNumber;
 
@@ -646,7 +640,7 @@ static void OPI_FillPanelModes(lua_State *L, struct OpenPanelInfo *Info, int cpo
 		if (PanelModesNumber > 0)
 		{
 			struct PanelMode *pm = (struct PanelMode*)
-			                       AddBufToCollector(L, cpos, PanelModesNumber * sizeof(struct PanelMode));
+				AddBufToCollector(L, cpos, PanelModesNumber * sizeof(struct PanelMode));
 			Info->PanelModesArray = pm;
 			Info->PanelModesNumber = PanelModesNumber;
 
@@ -657,10 +651,10 @@ static void OPI_FillPanelModes(lua_State *L, struct OpenPanelInfo *Info, int cpo
 
 				if (lua_istable(L, -1))                  //+6: Info,Tbl,Coll,Info,Modes,Mode
 				{
-					pm->ColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnTypes");
-					pm->ColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnWidths");
-					pm->StatusColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnTypes");
-					pm->StatusColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnWidths");
+					pm->ColumnTypes  = AddStringToCollectorField(L, cpos, "ColumnTypes");
+					pm->ColumnWidths = AddStringToCollectorField(L, cpos, "ColumnWidths");
+					pm->StatusColumnTypes  = AddStringToCollectorField(L, cpos, "StatusColumnTypes");
+					pm->StatusColumnWidths = AddStringToCollectorField(L, cpos, "StatusColumnWidths");
 					pm->ColumnTitles = (const wchar_t* const*)CreateStringsArray(L, cpos, "ColumnTitles", NULL);
 					pm->Flags = GetFlagsFromTable(L, -1, "Flags");
 				}
@@ -679,7 +673,8 @@ static void OPI_FillKeyBarTitles(lua_State *L, struct OpenPanelInfo *Info, int c
 
 	if (lua_istable(L, -1))
 	{
-		struct KeyBarTitles *kbt = (struct KeyBarTitles*)AddBufToCollector(L, cpos, sizeof(struct KeyBarTitles));
+		struct KeyBarTitles *kbt = (struct KeyBarTitles*)
+			AddBufToCollector(L, cpos, sizeof(struct KeyBarTitles));
 		Info->KeyBar = kbt;
 		kbt->CountLabels = lua_objlen(L, -1);
 		size_t size = kbt->CountLabels * sizeof(struct KeyBarLabel);
@@ -914,6 +909,11 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 	return (HANDLE)fmc;
 }
 
+static void push_guid(lua_State *L, const void *pGuid)
+{
+	lua_pushlstring(L, (const char*)pGuid, sizeof(GUID));
+}
+
 HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 {
 	FP_PROTECT();
@@ -925,7 +925,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 		return Open_Luamacro(L, Info);
 
 	lua_pushinteger(L, Info->OpenFrom); // 1-st argument
-	lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID)); // 2-nd argument
+	push_guid(L, Info->Guid); // 2-nd argument
 
 	// 3-rd argument
 
@@ -1054,7 +1054,7 @@ intptr_t LF_Configure(lua_State* L, const struct ConfigureInfo *Info)
 
 	if (GetExportFunction(L, "Configure"))    //+1: Func
 	{
-		lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
+		push_guid(L, Info->Guid);
 
 		if (0 == pcall_msg(L, 1, 1))          //+1
 		{
@@ -1298,8 +1298,6 @@ void getPluginMenuItems(lua_State* L, struct PluginMenuItem *pmi, const char* na
 
 void LF_GetPluginInfo(lua_State* L, struct PluginInfo *PI)
 {
-	int cpos;
-
 	if (!GetExportFunction(L, "GetPluginInfo"))     //+1
 		return;
 
@@ -1313,7 +1311,7 @@ void LF_GetPluginInfo(lua_State* L, struct PluginInfo *PI)
 	}
 
 	ReplacePluginInfoCollector(L, COLLECTOR_PI);       //+2: Info,Coll
-	cpos = lua_gettop(L);  // collector position
+	int cpos = lua_gettop(L);  // collector position
 	lua_pushvalue(L, -2);                              //+3: Info,Coll,Info
 	//--------------------------------------------------------------------------
 	PI->StructSize = sizeof(*PI);

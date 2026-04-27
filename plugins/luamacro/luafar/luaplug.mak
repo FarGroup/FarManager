@@ -47,5 +47,5 @@ vpath %.h $(PATH_LUAFAR)
 $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) -l$(LUADLLNAME) -l$(LUAFARDLLNAME)
 
-luaplug.o: luaplug.c luafar.h
+luaplug.o: luaplug.c lf_luafar.h
 # (end of Makefile)

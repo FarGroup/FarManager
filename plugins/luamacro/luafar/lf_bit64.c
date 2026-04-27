@@ -9,7 +9,7 @@
 #include "lf_bit64.h"
 
 #define MAX52 (1LL << 52)
-#define FIT52(v) ((v >= 0 && v < MAX52) || (v < 0 && v >= -MAX52))
+#define FIT52(v) (((v) >= 0 && (v) < MAX52) || ((v) < 0 && (v) >= -MAX52))
 
 static int f_new(lua_State *L); /* forward declaration */
 
