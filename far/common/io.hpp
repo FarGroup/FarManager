@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "bytes_view.hpp"
 #include "preprocessor.hpp"
 
 #include <bit>
@@ -86,6 +87,12 @@ namespace io
 			Stream.clear(Stream.eofbit);
 
 		return Stream.gcount();
+	}
+
+	[[nodiscard]]
+	bool read_object(std::istream& Stream, auto& Object)
+	{
+		return read(Stream, edit_bytes(Object)) == sizeof(Object);
 	}
 
 	namespace detail

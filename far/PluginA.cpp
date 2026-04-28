@@ -443,10 +443,10 @@ static void FreeUnicodeArrayMagic(const wchar_t* const* Array)
 
 	for (const auto& i: std::span(Array, Size))
 	{
-		delete[] i;
+		std::unique_ptr<wchar_t const[]>{i};
 	}
 
-	delete[] RealPtr;
+	std::unique_ptr<wchar_t const* const[]>{RealPtr};
 }
 
 static DWORD OldKeyToKey(DWORD dOldKey)
@@ -539,11 +539,11 @@ static void FreeUnicodeInfoPanelLines(std::span<const InfoPanelLine> const Lines
 {
 	for (const auto& i: Lines)
 	{
-		delete[] i.Text;
-		delete[] i.Data;
+		std::unique_ptr<wchar_t const[]>{i.Text};
+		std::unique_ptr<wchar_t const[]>{i.Data};
 	}
 
-	delete[] Lines.data();
+	std::unique_ptr<InfoPanelLine const[]>{Lines.data()};
 }
 
 static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& UnicodeMode)
@@ -581,13 +581,13 @@ static void FreeUnicodePanelModes(std::span<PanelMode const> const Modes)
 {
 	for (const auto& i: Modes)
 	{
-		delete[] i.ColumnTypes;
-		delete[] i.ColumnWidths;
+		std::unique_ptr<wchar_t const[]>{i.ColumnTypes};
+		std::unique_ptr<wchar_t const[]>{i.ColumnWidths};
 		FreeUnicodeArrayMagic(i.ColumnTitles);
-		delete[] i.StatusColumnTypes;
-		delete[] i.StatusColumnWidths;
+		std::unique_ptr<wchar_t const[]>{i.StatusColumnTypes};
+		std::unique_ptr<wchar_t const[]>{i.StatusColumnWidths};
 	}
-	delete[] Modes.data();
+	std::unique_ptr<PanelMode const[]>{Modes.data()};
 }
 
 static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles& kbtA, KeyBarTitles& kbtW, bool FullStruct = true)
@@ -663,15 +663,15 @@ static void FreeUnicodeKeyBarTitles(const KeyBarTitles& kbtW)
 {
 	for (const auto& Item: std::span(kbtW.Labels, kbtW.CountLabels))
 	{
-		delete[] Item.Text;
+		std::unique_ptr<wchar_t const[]>{Item.Text};
 	}
 
-	delete[] kbtW.Labels;
+	std::unique_ptr<KeyBarLabel[]>{kbtW.Labels};
 }
 
 static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo*)
 {
-	delete[] static_cast<char*>(UserData);
+	std::unique_ptr<char[]>{static_cast<char*>(UserData)};
 }
 
 static const std::array PluginPanelItemFlagsMap
@@ -792,25 +792,27 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	FreePluginPanelItemsData({ PanelItem, ItemsNumber });
 
-	delete[] PanelItem;
+	std::unique_ptr<PluginPanelItem[]>{PanelItem};
 }
 
 static void FreePanelItemA(std::span<const oldfar::PluginPanelItem> const PanelItem)
 {
 	for (const auto& Item: PanelItem)
 	{
-		delete[] Item.Description;
-		delete[] Item.Owner;
+		std::unique_ptr<char[]>{Item.Description};
+		std::unique_ptr<char[]>{Item.Owner};
 
-		DeleteRawArray(std::span(Item.CustomColumnData, Item.CustomColumnNumber));
+		for (auto& i: std::span(Item.CustomColumnData, Item.CustomColumnNumber))
+			std::unique_ptr<char[]>{i};
+		std::unique_ptr<char*[]>{Item.CustomColumnData};
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
-			delete[] std::bit_cast<char*>(Item.UserData);
+			std::unique_ptr<char[]>{std::bit_cast<char*>(Item.UserData)};
 		}
 	}
 
-	delete[] PanelItem.data();
+	std::unique_ptr<oldfar::PluginPanelItem const[]>{PanelItem.data()};
 }
 
 static char *InsertQuoteA(char *Str)
@@ -1138,9 +1140,9 @@ static void FreeUnicodeDialogItem(FarDialogItem const& di)
 	case DI_FIXEDIT:
 
 		if (di.Flags&DIF_HISTORY)
-			delete[] di.History;
+			std::unique_ptr<wchar_t const[]>{di.History};
 		else if (di.Flags&DIF_MASKEDIT)
-			delete[] di.Mask;
+			std::unique_ptr<wchar_t const[]>{di.Mask};
 		break;
 
 	case DI_LISTBOX:
@@ -1151,37 +1153,37 @@ static void FreeUnicodeDialogItem(FarDialogItem const& di)
 			{
 				for (const auto& i: std::span(di.ListItems->Items, di.ListItems->ItemsNumber))
 				{
-					delete[] i.Text;
+					std::unique_ptr<wchar_t const[]>{i.Text};
 				}
 
-				delete[] di.ListItems->Items;
+				std::unique_ptr<FarListItem[]>{di.ListItems->Items};
 				di.ListItems->Items = nullptr;
 			}
 		}
 		break;
 
 	case DI_USERCONTROL:
-		delete[] di.VBuf;
+		std::unique_ptr<FAR_CHAR_INFO[]>{di.VBuf};
 		break;
 
 	default:
 		break;
 	}
 
-	delete[] di.Data;
+	std::unique_ptr<wchar_t const[]>{di.Data};
 }
 
 static void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
 	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_FIXEDIT) && (diA.Flags&oldfar::DIF_HISTORY || diA.Flags&oldfar::DIF_MASKEDIT))
 	{
-		delete[] diA.History;
+		std::unique_ptr<char const[]>{diA.History};
 		diA.History = nullptr;
 	}
 
 	if ((diA.Type == oldfar::DI_EDIT || diA.Type == oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
 	{
-		delete[] diA.Ptr.PtrData;
+		std::unique_ptr<char[]>{diA.Ptr.PtrData};
 		diA.Ptr.PtrData = nullptr;
 	}
 }
@@ -1878,7 +1880,7 @@ static char* WINAPI PasteFromClipboardA() noexcept
 static void WINAPI DeleteBufferA(void* Buffer) noexcept
 {
 	// noexcept
-	delete[] static_cast<char*>(Buffer);
+	std::unique_ptr<char[]>{static_cast<char*>(Buffer)};
 }
 
 static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) noexcept
@@ -2390,7 +2392,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 		for (const auto& i: mi)
 		{
-			delete[] i.Text;
+			std::unique_ptr<wchar_t const[]>{i.Text};
 		}
 
 		return ret;
@@ -2824,7 +2826,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				for (const auto& i: Items)
 				{
-					delete[] i.Text;
+					std::unique_ptr<wchar_t const[]>{i.Text};
 				}
 
 				return ret;
@@ -2847,7 +2849,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				intptr_t ret = pluginapi::apiSendDlgMessage(hDlg, DM_LISTUPDATE, Param1, Param2? &newui : nullptr);
 
-				delete[] newui.Item.Text;
+				std::unique_ptr<wchar_t const[]>{newui.Item.Text};
 
 				return ret;
 			}
@@ -2864,7 +2866,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				intptr_t ret = pluginapi::apiSendDlgMessage(hDlg, DM_LISTINSERT, Param1, Param2? &newli : nullptr);
 
-				delete[] newli.Item.Text;
+				std::unique_ptr<wchar_t const[]>{newli.Item.Text};
 
 				return ret;
 			}
@@ -2883,7 +2885,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				intptr_t ret = pluginapi::apiSendDlgMessage(hDlg, DM_LISTFINDSTRING, Param1, Param2? &newlf : nullptr);
 
-				delete[] newlf.Pattern;
+				std::unique_ptr<wchar_t const[]>{newlf.Pattern};
 
 				return ret;
 			}
@@ -2999,7 +3001,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				else
 				{
 					FarDialogItem& di = CurrentDialogItem(hDlg,Param1);
-					delete[] di.History;
+					std::unique_ptr<wchar_t const[]>{di.History};
 					di.History = AnsiToUnicode(static_cast<const char*>(Param2));
 					return pluginapi::apiSendDlgMessage(hDlg, DM_SETHISTORY, Param1, const_cast<wchar_t*>(di.History));
 				}
@@ -3035,10 +3037,10 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				{
 					for (const auto& i: std::span(newlist.Items, newlist.ItemsNumber))
 					{
-						delete[] i.Text;
+						std::unique_ptr<wchar_t const[]>{i.Text};
 					}
 
-					delete[] newlist.Items;
+					std::unique_ptr<FarListItem[]>{newlist.Items};
 				}
 
 				return ret;
@@ -3746,7 +3748,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 								kmA->MacroResult.ErrMsg3 = "";
 								[[fallthrough]];
 							case MSSC_POST:
-								delete[] mtW.SequenceText;
+								std::unique_ptr<wchar_t const[]>{mtW.SequenceText};
 								break;
 						}
 					}
@@ -4275,8 +4277,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				const auto ret = static_cast<int>(pluginapi::apiEditorControl(-1, ECTL_SETSTRING, 0, Param? &newss : nullptr));
 
-				delete[] newss.StringText;
-				delete[] newss.StringEOL;
+				std::unique_ptr<wchar_t const[]>{newss.StringText};
+				std::unique_ptr<wchar_t const[]>{newss.StringEOL};
 
 				return ret;
 			}
@@ -5469,18 +5471,18 @@ WARNING_POP()
 		{
 			for (const auto& i: std::span(Item.Strings, Item.Count))
 			{
-				delete[] i;
+				std::unique_ptr<wchar_t const[]>{i};
 			}
 
-			delete[] Item.Guids;
-			delete[] Item.Strings;
+			std::unique_ptr<UUID const[]>{Item.Guids};
+			std::unique_ptr<wchar_t const* const[]>{Item.Strings};
 		};
 
 		DeleteItems(PI.DiskMenu);
 		DeleteItems(PI.PluginMenu);
 		DeleteItems(PI.PluginConfig);
 
-		delete[] PI.CommandPrefix;
+		std::unique_ptr<wchar_t const[]>{PI.CommandPrefix};
 
 		PI = {};
 	}
@@ -5538,19 +5540,23 @@ WARNING_POP()
 
 	void FreeOpenPanelInfo()
 	{
-		delete[] OPI.CurDir;
-		delete[] OPI.HostFile;
-		delete[] OPI.Format;
-		delete[] OPI.PanelTitle;
+		std::unique_ptr<wchar_t const[]>{OPI.CurDir};
+		std::unique_ptr<wchar_t const[]>{OPI.HostFile};
+		std::unique_ptr<wchar_t const[]>{OPI.Format};
+		std::unique_ptr<wchar_t const[]>{OPI.PanelTitle};
 		FreeUnicodeInfoPanelLines({ OPI.InfoLines, OPI.InfoLinesNumber });
-		DeleteRawArray(std::span(OPI.DescrFiles, OPI.DescrFilesNumber));
+
+		for (auto& i: std::span(OPI.DescrFiles, OPI.DescrFilesNumber))
+			std::unique_ptr<wchar_t const[]>{i};
+		std::unique_ptr<wchar_t const* const[]>{OPI.DescrFiles};
+
 		FreeUnicodePanelModes({ OPI.PanelModesArray, OPI.PanelModesNumber });
 		if (OPI.KeyBar)
 		{
 			FreeUnicodeKeyBarTitles(*OPI.KeyBar);
-			delete OPI.KeyBar;
+			std::unique_ptr<KeyBarTitles const>{OPI.KeyBar};
 		}
-		delete[] OPI.ShortcutData;
+		std::unique_ptr<wchar_t const[]>{OPI.ShortcutData};
 		OPI = {};
 	}
 

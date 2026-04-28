@@ -222,7 +222,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& Stream) const
 {
 	IMAGE_DOS_HEADER DosHeader;
-	if (io::read(Stream, edit_bytes(DosHeader)) != sizeof(DosHeader))
+	if (!io::read_object(Stream, DosHeader))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
@@ -237,7 +237,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	Stream.seekg(DosHeader.e_lfanew);
 
 	IMAGE_NT_HEADERS NtHeaders;
-	if (io::read(Stream, edit_bytes(NtHeaders)) != sizeof(NtHeaders))
+	if (!io::read_object(Stream, NtHeaders))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
@@ -283,7 +283,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 
 	for ([[maybe_unused]] const auto i: std::views::iota(0uz, NtHeaders.FileHeader.NumberOfSections))
 	{
-		if (io::read(Stream, edit_bytes(Section)) != sizeof(Section))
+		if (!io::read_object(Stream, Section))
 		{
 			LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 			return false;
@@ -313,7 +313,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	Stream.seekg(section_address_to_real(ExportDirectoryAddress));
 
 	IMAGE_EXPORT_DIRECTORY ExportDirectory;
-	if (io::read(Stream, edit_bytes(ExportDirectory)) != sizeof(ExportDirectory))
+	if (!io::read_object(Stream, ExportDirectory))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
@@ -325,7 +325,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 		Stream.seekg(section_address_to_real(ExportDirectory.AddressOfNames) + sizeof(DWORD) * i);
 
 		DWORD NameAddress;
-		if (io::read(Stream, edit_bytes(NameAddress)) != sizeof(NameAddress))
+		if (!io::read_object(Stream, NameAddress))
 		{
 			LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 			return false;
@@ -338,7 +338,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 		for (;;)
 		{
 			char Ch;
-			if (!io::read(Stream, edit_bytes(Ch)))
+			if (!io::read_object(Stream, Ch))
 			{
 				LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 				return false;

@@ -70,7 +70,7 @@ public:
 	bool create_directory(const string& TemplateObject, const string& Object, SECURITY_ATTRIBUTES* Attributes);
 	bool remove_directory(const string& Object);
 	bool delete_file(const string& Object);
-	bool copy_file(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD Flags);
+	bool copy_file(const string& From, const string& To, os::fs::low::progress_routine ProgressRoutine, void* Data, DWORD Flags);
 	bool move_file(const string& From, const string& To, DWORD Flags);
 	bool replace_file(const string& To, const string& From, const string& Backup, DWORD Flags);
 	os::fs::attributes get_file_attributes(const string& Object);
@@ -124,7 +124,7 @@ private:
 
 	auto execute(lng Why, string_view Object, auto Fallback, const auto& PrivilegedHander, const auto& ElevatedHandler);
 
-	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
+	void progress_routine(os::fs::low::progress_routine ProgressRoutine) const;
 
 	std::atomic_size_t m_Suppressions{};
 	std::atomic_size_t m_CompleteSuppressions{};

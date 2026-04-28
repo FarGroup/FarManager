@@ -56,13 +56,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static auto registry_path(wchar_t const DriveLetter)
+{
+	return concat(L"Network\\"sv, DriveLetter);
+}
+
 static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	if (const auto Value = os::reg::key::current_user.get_string(concat(L"Network\\"sv, Drive), L"UserName"sv))
+	if (const auto Value = os::reg::key::current_user.get_string(registry_path(Drive), L"UserName"sv))
 		return *Value;
 
 	return {};
+}
+
+bool is_persistent_connection(wchar_t const DriveLetter)
+{
+	return os::reg::key::current_user.open(registry_path(DriveLetter), KEY_QUERY_VALUE).has_value();
 }
 
 os::fs::drives_set GetSavedNetworkDrives()

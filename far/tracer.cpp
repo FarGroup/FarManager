@@ -159,7 +159,7 @@ std::vector<os::debug::stack_frame> tracer_detail::tracer::current_stacktrace(st
 	return os::debug::current_stacktrace(FramesToSkip, FramesToCapture);
 }
 
-std::vector<os::debug::stack_frame> tracer_detail::tracer::stacktrace(string_view const Module, CONTEXT const ContextRecord, HANDLE const ThreadHandle) const
+std::vector<os::debug::stack_frame> tracer_detail::tracer::stacktrace(string_view const Module, CONTEXT const& ContextRecord, HANDLE const ThreadHandle) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
@@ -180,7 +180,7 @@ void tracer_detail::tracer::current_stacktrace(string_view Module, function_ref<
 	return get_symbols(Module, os::debug::current_stacktrace(FramesToSkip + 1, FramesToCapture), Consumer);
 }
 
-void tracer_detail::tracer::stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer, CONTEXT const ContextRecord, HANDLE const ThreadHandle) const
+void tracer_detail::tracer::stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer, CONTEXT const& ContextRecord, HANDLE const ThreadHandle) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 

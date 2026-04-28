@@ -51,6 +51,19 @@ namespace os
 		struct find_data;
 
 		using attributes = DWORD;
+
+		namespace low
+		{
+			using progress_routine = DWORD(*)(
+				uint64_t TotalFileSize,
+				uint64_t TotalBytesTransferred,
+				uint64_t StreamSize,
+				uint64_t StreamBytesTransferred,
+				DWORD StreamNumber,
+				DWORD CallbackReason,
+				void* Data
+			);
+		}
 	}
 }
 

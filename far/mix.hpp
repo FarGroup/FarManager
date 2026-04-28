@@ -143,17 +143,6 @@ private:
 	std::vector<PluginPanelItem> m_Data;
 };
 
-template<class T>
-void DeleteRawArray(std::span<T> Data)
-{
-	for (const auto& i: Data)
-	{
-		delete[] i;
-	}
-
-	delete[] Data.data();
-}
-
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(int fType);
 
 class SetAutocomplete: noncopyable

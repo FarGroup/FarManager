@@ -3707,7 +3707,7 @@ TEST_CASE("find.nearest.selectable.item")
 
 TEST_CASE("markup.slice.boundaries")
 {
-	struct test_data
+	static const struct
 	{
 		struct test_segment: public segment
 		{
@@ -3718,9 +3718,8 @@ TEST_CASE("markup.slice.boundaries")
 		test_segment Segment;
 		std::initializer_list<test_segment> Slices;
 		std::initializer_list<int> Markup;
-	};
-
-	static const test_data TestDataPoints[] =
+	}
+	TestDataPoints[]
 	{
 		{ { 20, 50 }, { { 10, 15 } }, { 50 } },
 		{ { 20, 50 }, { { 10, 20 } }, { 50 } },
@@ -3740,7 +3739,7 @@ TEST_CASE("markup.slice.boundaries")
 		{ { 20, 70 }, { { 30, 40 }, { 40, 60 } }, { 30, 40, 40, 60, 70 } },
 		{ { 20, 70 }, { { 30, 50 }, { 40, 60 } }, { 30, 50, 50, 60, 70 } },
 		{ { 20, 70 }, { { 50, 60 }, { 30, 40 } }, { 50, 60, 70 } },
-		{ { 20, 50 }, { { 0, 0 } }, { 50 } },
+		{ { 20, 50 }, { {  0,  0 } }, { 50 } },
 	};
 
 	std::vector<int> Markup;
@@ -3757,20 +3756,19 @@ TEST_CASE("item.hpos.limits")
 {
 	using enum item_hscroll_policy;
 
-	struct test_data
+	static const struct
 	{
 		int ItemLength;
 		int TextAreaWidth;
 		// cling_to_edge, bound, bound_stick_to_left
 		std::initializer_list<std::pair<int, int>> Expected;
-	};
-
-	static const test_data TestDataPoints[] =
+	}
+	TestDataPoints[]
 	{
-		{ 1, 5, { { 0, 4 }, { 0, 4 }, { 0, 0 } } },
-		{ 3, 5, { { -2, 4 }, { 0, 2 }, { 0, 0 } } },
-		{ 5, 5, { { -4, 4 }, { 0, 0 }, { 0, 0 } } },
-		{ 7, 5, { { -6, 4 }, { -2, 0 }, { -2, 0 } } },
+		{  1, 5, { {  0, 4 }, {  0, 4 }, {  0, 0 } } },
+		{  3, 5, { { -2, 4 }, {  0, 2 }, {  0, 0 } } },
+		{  5, 5, { { -4, 4 }, {  0, 0 }, {  0, 0 } } },
+		{  7, 5, { { -6, 4 }, { -2, 0 }, { -2, 0 } } },
 		{ 10, 5, { { -9, 4 }, { -5, 0 }, { -5, 0 } } },
 	};
 
@@ -3792,14 +3790,13 @@ TEST_CASE("adjust.hpos.shift")
 	static constexpr int TextAreaWidth{ 10 };
 	static constexpr std::array Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10, -9, -7, -5, -3, -1, 0, 1, 3, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 20 };
 
-	struct test_data
+	static constexpr struct
 	{
 		int Left;
 		int Right;
 		std::array<int, Shifts.size()> Expected;
-	};
-
-	static constexpr test_data TestDataPoints[] =
+	}
+	TestDataPoints[]
 	{
 		//   Shifts{ -20, -19, -18, -17, -15, -14, -13, -11, -10,  -9,  -7,  -5, -3, -1, 0, 1, 3,  5,  7,  9, 10, 11, 13, 14, 15, 17, 18, 19, 20 }
 		{ -10, -5, {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0, 0, 6, 8, 10, 12, 14, 15, 16, 18, 19, 19, 19, 19, 19, 19 } },

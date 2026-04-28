@@ -63,11 +63,11 @@ namespace tracer_detail
 
 		// Same as os::debug::*, but with symbols initialized
 		std::vector<os::debug::stack_frame> current_stacktrace(string_view Module, size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max()) const;
-		std::vector<os::debug::stack_frame> stacktrace(string_view Module, CONTEXT ContextRecord, HANDLE ThreadHandle) const;
+		std::vector<os::debug::stack_frame> stacktrace(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle) const;
 		std::vector<os::debug::stack_frame> exception_stacktrace(string_view Module) const;
 
 		void current_stacktrace(string_view Module, function_ref<void(string&& Line)> Consumer, size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max()) const;
-		void stacktrace(string_view Module, function_ref<void(string&& Line)> Consumer, CONTEXT ContextRecord, HANDLE ThreadHandle) const;
+		void stacktrace(string_view Module, function_ref<void(string&& Line)> Consumer, CONTEXT const& ContextRecord, HANDLE ThreadHandle) const;
 		void exception_stacktrace(string_view Module, function_ref<void(string&& Line)> Consumer) const;
 
 		class with_symbols

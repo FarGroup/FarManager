@@ -575,12 +575,12 @@ void FileList::list_data::clear()
 		{
 			FreePluginPanelItemUserData(m_Plugin, i.UserData);
 			if (i.DeleteDiz)
-				delete[] i.DizText;
+				std::unique_ptr<wchar_t const[]>{i.DizText};
 		}
 
 		for (const auto& Column: i.CustomColumns)
 		{
-			delete[] Column;
+			std::unique_ptr<wchar_t const[]>{Column};
 		}
 
 		i.CustomColumns.clear();

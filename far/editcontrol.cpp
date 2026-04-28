@@ -332,28 +332,11 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 		}
 	}
 
-	const auto enum_app_paths = [&](os::reg::key const& RootKey, DWORD const Flags = 0)
+	os::reg::enum_app_paths([&](string_view const Name)
 	{
-		const auto SamDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | Flags;
-
-		const auto AppPathsKey = RootKey.open(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, SamDesired);
-		if (!AppPathsKey)
-			return;
-
-		for (const auto& SubkeyName: AppPathsKey->enum_keys())
-		{
-			if (const auto SubKey = AppPathsKey->open(SubkeyName, SamDesired); SubKey && SubKey->exits({}) && starts_with_icase(SubkeyName, Token))
-			{
-				ResultStrings.emplace(SubkeyName);
-			}
-		}
-	};
-
-	enum_app_paths(os::reg::key::current_user);
-	enum_app_paths(os::reg::key::local_machine);
-
-	if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
-		enum_app_paths(os::reg::key::local_machine, RedirectionFlag);
+		if (starts_with_icase(Name, Token))
+			ResultStrings.emplace(Name);
+	});
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, ResultStrings);
 }

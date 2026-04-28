@@ -207,7 +207,7 @@ namespace os::process
 	static auto get_process_subsystem_from_module_impl(std::istream& Stream)
 	{
 		IMAGE_DOS_HEADER DOSHeader;
-		if (io::read(Stream, edit_bytes(DOSHeader)) != sizeof(DOSHeader))
+		if (!io::read_object(Stream, DOSHeader))
 			return image_type::unknown;
 
 		if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
@@ -220,7 +220,7 @@ namespace os::process
 		static_assert(sizeof(IMAGE_OPTIONAL_HEADER64::Subsystem) == sizeof(IMAGE_OPTIONAL_HEADER32::Subsystem));
 
 		IMAGE_NT_HEADERS64 ImageHeader;
-		if (io::read(Stream, edit_bytes(ImageHeader)) != sizeof(ImageHeader))
+		if (!io::read_object(Stream, ImageHeader))
 			return image_type::unknown;
 
 		if (ImageHeader.Signature != IMAGE_NT_SIGNATURE)

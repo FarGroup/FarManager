@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.chrono.hpp"
+#include "platform.fwd.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -489,7 +490,7 @@ namespace os::fs
 		bool create_hard_link(const wchar_t* FileName, const wchar_t* ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
 
 		[[nodiscard]]
-		bool copy_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+		bool copy_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, progress_routine ProgressRoutine, void* Data, DWORD CopyFlags);
 
 		[[nodiscard]]
 		bool move_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, DWORD Flags);
@@ -550,18 +551,16 @@ namespace os::fs
 	bool delete_file(string_view FileName);
 
 	using progress_routine = function_ref<DWORD(
-		unsigned long long TotalFileSize,
-		unsigned long long TotalBytesTransferred,
-		unsigned long long StreamSize,
-		unsigned long long StreamBytesTransferred,
+		uint64_t TotalFileSize,
+		uint64_t TotalBytesTransferred,
+		uint64_t StreamSize,
+		uint64_t StreamBytesTransferred,
 		DWORD StreamNumber,
-		DWORD CallbackReason,
-		HANDLE SourceFile,
-		HANDLE DestinationFile
+		DWORD CallbackReason
 	)>;
 
 	[[nodiscard]]
-	bool copy_file(string_view ExistingFileName, string_view NewFileName, progress_routine ProgressRoutine, BOOL* Cancel, DWORD CopyFlags);
+	bool copy_file(string_view ExistingFileName, string_view NewFileName, progress_routine ProgressRoutine, DWORD CopyFlags);
 
 	[[nodiscard]]
 	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);

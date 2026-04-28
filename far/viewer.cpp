@@ -4201,13 +4201,12 @@ void Viewer::vgetc_cache::compact()
 
 TEST_CASE("viewer.hex_mode_bytes_area_width")
 {
-	struct test_data
+	static const struct
 	{
 		int Bytes;
 		int Width;
-	};
-
-	static const test_data TestDataPoints[] =
+	}
+	TestDataPoints[]
 	{
 		{  8,  24 }, // > 2D 2D 2D 2D 2D 2D 2D 2D<
 		{  9,  29 }, // > 2D 2D 2D 2D 2D 2D 2D 2D │ 2D<

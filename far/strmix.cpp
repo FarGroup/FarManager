@@ -64,7 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static auto GroupDigitsImpl(unsigned long long Value, detail::locale const& Locale)
 {
-	wchar_t DecimalSeparator[]{ Locale.decimal_separator(), L'\0' };
 	wchar_t ThousandSeparator[]{ Locale.thousand_separator(), L'\0' };
 
 	NUMBERFMT const Fmt
@@ -74,7 +73,8 @@ static auto GroupDigitsImpl(unsigned long long Value, detail::locale const& Loca
 		// Don't care - can't be decimal
 		.LeadingZero = 1,
 		.Grouping = Locale.digits_grouping(),
-		.lpDecimalSep = DecimalSeparator,
+		// Don't care - can't be decimal
+		.lpDecimalSep = ThousandSeparator,
 		.lpThousandSep = ThousandSeparator,
 		// Don't care - can't be negative
 		.NegativeOrder = 1,
@@ -96,11 +96,6 @@ static auto GroupDigitsImpl(unsigned long long Value, detail::locale const& Loca
 string GroupDigits(unsigned long long Value)
 {
 	return GroupDigitsImpl(Value, locale);
-}
-
-string GroupDigitsInvariant(unsigned long long Value)
-{
-	return GroupDigitsImpl(Value, invariant_locale());
 }
 
 string InsertRegexpQuote(string strStr)
@@ -1457,6 +1452,32 @@ void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+TEST_CASE("GroupDigits")
+{
+	static const struct
+	{
+		unsigned long long Value;
+		string_view Result;
+	}
+	Tests[]
+	{
+		{         1,         L"1"sv },
+		{        10,        L"10"sv },
+		{       100,       L"100"sv },
+		{     1'000,     L"1,000"sv },
+		{    10'000,    L"10,000"sv },
+		{   100'000,   L"100,000"sv },
+		{ 1'000'000, L"1,000,000"sv },
+	};
+
+	const auto& Locale = invariant_locale();
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(GroupDigitsImpl(i.Value, Locale) == i.Result);
+	}
+}
 
 TEST_CASE("InsertRegexpQuote")
 {

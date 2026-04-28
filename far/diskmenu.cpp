@@ -351,12 +351,8 @@ static int MessageRemoveConnection(string_view const Drive, int &UpdateProfile)
 		DCDlg[rc_text_3].strData = truncate_path(std::move(strMsgText), Len);
 	}
 
-	// проверяем - это было постоянное соединение или нет?
-	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
-	//   есть постоянное подключение.
-
-	bool IsPersistent = true;
-	if (os::reg::key::current_user.open(concat(L"Network\\"sv, Drive.front()), KEY_QUERY_VALUE))
+	const auto IsPersistent = is_persistent_connection(Drive.front());
+	if (IsPersistent)
 	{
 		DCDlg[rc_checkbox].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}
@@ -364,7 +360,6 @@ static int MessageRemoveConnection(string_view const Drive, int &UpdateProfile)
 	{
 		DCDlg[rc_checkbox].Flags |= DIF_DISABLE;
 		DCDlg[rc_checkbox].Selected = 0;
-		IsPersistent = false;
 	}
 
 	// скорректируем размеры диалога - для дизайнУ

@@ -205,7 +205,6 @@ private:
 	bool FilesPresent{};
 	bool AskRO{};
 	bool m_UseFilter{};
-	HANDLE m_FileHandleForStreamSizeFix{};
 	size_t m_NumberOfTargets{};
 	std::list<created_folders> m_CreatedFolders;
 };
@@ -3345,18 +3344,15 @@ void ShellCopy::ResetSecurity(const string_view FileName)
 
 bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view DestName, const os::fs::find_data &SrcData)
 {
-	m_FileHandleForStreamSizeFix = nullptr;
 	std::exception_ptr ExceptionPtr;
 
 	const auto callback = [&](
-		unsigned long long TotalFileSize,
-		unsigned long long TotalBytesTransferred,
-		unsigned long long StreamSize,
-		unsigned long long StreamBytesTransferred,
+		uint64_t TotalFileSize,
+		uint64_t TotalBytesTransferred,
+		uint64_t StreamSize,
+		uint64_t StreamBytesTransferred,
 		DWORD StreamNumber,
-		DWORD CallbackReason,
-		HANDLE SourceFile,
-		HANDLE DestinationFile
+		DWORD CallbackReason
 	)
 	{
 		return cpp_try(
@@ -3369,12 +3365,17 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 			}
 
 			CheckAndUpdateConsole();
-			//fix total size
-			if (StreamNumber == 1 && SourceFile != m_FileHandleForStreamSizeFix)
+
+			// When we estimate the total size of the operation, we take into account the size of the first stream only (since it's what the OS reports).
+			// But if the file has alternate streams, the total size can be greater.
+			// To avoid going over 100%, we need to update the total size accordingly:
+			if (
+				CallbackReason == CALLBACK_STREAM_SWITCH && StreamNumber == 1 && // it's enough to do it once
+				TotalFileSize > StreamSize // and only if needed
+			)
 			{
 				CP->add_total_bytes(TotalFileSize - StreamSize);
 				CP->set_current_total(TotalFileSize);
-				m_FileHandleForStreamSizeFix = SourceFile;
 			}
 
 			CP->set_current_copied(TotalBytesTransferred);
@@ -3389,7 +3390,7 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 
 	const auto sd = GetSecurity(SrcName);
 
-	if (!os::fs::copy_file(SrcName, DestName, callback, {}, Flags & FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
+	if (!os::fs::copy_file(SrcName, DestName, callback, Flags & FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
 		rethrow_if(ExceptionPtr);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;

@@ -41,9 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/expected.hpp"
 #include "common/enumerator.hpp"
+#include "common/function_ref.hpp"
 #include "common/noncopyable.hpp"
 #include "common/source_location.hpp"
-#include "common/type_traits.hpp"
 
 // External:
 
@@ -179,6 +179,8 @@ namespace os::reg
 		const key* m_KeyRef{};
 		mutable size_t m_Index{};
 	};
+
+	void enum_app_paths(function_ref<void(string_view)> Consumer);
 }
 
 #endif // PLATFORM_REG_HPP_A1C836DB_556E_41F8_B04C_AF159E265315

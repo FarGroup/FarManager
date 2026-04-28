@@ -142,7 +142,7 @@ namespace os::fs
 
 		void find_file_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			delete static_cast<i_find_file_handle_impl*>(Handle);
+			std::unique_ptr<i_find_file_handle_impl>{static_cast<i_find_file_handle_impl*>(Handle)};
 		}
 
 		void find_volume_handle_closer::operator()(HANDLE Handle) const noexcept
@@ -1085,18 +1085,14 @@ namespace os::fs
 		return 0;
 	}
 
-	static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+	static bool nt_path_to_win32_path(string& NtPath)
 	{
-		string NtPath;
-		if (!GetObjectName(hFile, NtPath))
-			return false;
-
 		const auto ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
 		{
 			if (!NtPath.starts_with(OldRoot))
 				return false;
 
-			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot);
+			NtPath.replace(0, OldRoot.size(), NewRoot);
 			return true;
 		};
 
@@ -1115,7 +1111,7 @@ namespace os::fs
 		if (const auto DfsPrefix = L"\\Device\\WinDfs\\"sv; NtPath.starts_with(DfsPrefix))
 		{
 			const auto ServerStart = NtPath.find(L'\\', DfsPrefix.size());
-			FinalFilePath = NtPath.replace(0, ServerStart, 1, L'\\');
+			NtPath.replace(0, ServerStart, 1, L'\\');
 			return true;
 		}
 
@@ -1124,7 +1120,7 @@ namespace os::fs
 		{
 			if (const auto Len = MatchNtPathRoot(NtPath, drive::get_win32nt_device_path(i)))
 			{
-				FinalFilePath = NtPath.replace(0, Len, drive::get_device_path(i));
+				NtPath.replace(0, Len, drive::get_device_path(i));
 				return true;
 			}
 		}
@@ -1134,12 +1130,17 @@ namespace os::fs
 		{
 			if (const auto Len = MatchNtPathRoot(NtPath, DeleteEndSlash(VolumeName)))
 			{
-				FinalFilePath = NtPath.replace(0, Len, VolumeName);
+				NtPath.replace(0, Len, VolumeName);
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+	{
+		return GetObjectName(hFile, FinalFilePath) && nt_path_to_win32_path(FinalFilePath);
 	}
 
 	bool file::GetFinalPathName(string& FinalFilePath) const
@@ -1698,9 +1699,35 @@ WARNING_POP()
 			return ::CreateHardLink(FileName, ExistingFileName, SecurityAttributes) != FALSE;
 		}
 
-		bool copy_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags)
+		using progress_callback = std::pair<progress_routine, void*>;
+
+		static DWORD WINAPI progress_routine_wrapper(
+			LARGE_INTEGER const TotalFileSize,
+			LARGE_INTEGER const TotalBytesTransferred,
+			LARGE_INTEGER const StreamSize,
+			LARGE_INTEGER const StreamBytesTransferred,
+			DWORD const StreamNumber,
+			DWORD const CallbackReason,
+			HANDLE,
+			HANDLE,
+			void* const Data)
 		{
-			return ::CopyFileEx(ExistingFileName, NewFileName, ProgressRoutine, Data, Cancel, CopyFlags) != FALSE;
+			const auto [CallbackRoutine, CallbackData] = view_as<progress_callback>(Data);
+			return CallbackRoutine(
+				TotalFileSize.QuadPart,
+				TotalBytesTransferred.QuadPart,
+				StreamSize.QuadPart,
+				StreamBytesTransferred.QuadPart,
+				StreamNumber,
+				CallbackReason,
+				CallbackData
+			);
+		}
+
+		bool copy_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, progress_routine const ProgressRoutine, void* Data, DWORD CopyFlags)
+		{
+			progress_callback Callback{ ProgressRoutine, Data };
+			return ::CopyFileEx(ExistingFileName, NewFileName, progress_routine_wrapper, &Callback, {}, CopyFlags) != FALSE;
 		}
 
 		bool move_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, DWORD Flags)
@@ -2105,31 +2132,27 @@ WARNING_POP()
 		return false;
 	}
 
-	static DWORD WINAPI progress_routine_wrapper(
-		LARGE_INTEGER const TotalFileSize,
-		LARGE_INTEGER const TotalBytesTransferred,
-		LARGE_INTEGER const StreamSize,
-		LARGE_INTEGER const StreamBytesTransferred,
+	static DWORD progress_routine_wrapper(
+		uint64_t const TotalFileSize,
+		uint64_t const TotalBytesTransferred,
+		uint64_t const StreamSize,
+		uint64_t const StreamBytesTransferred,
 		DWORD const StreamNumber,
 		DWORD const CallbackReason,
-		HANDLE const SourceFile,
-		HANDLE const DestinationFile,
 		void* const Data)
 	{
 		const auto Routine = view_as<progress_routine>(Data);
 		return Routine(
-			TotalFileSize.QuadPart,
-			TotalBytesTransferred.QuadPart,
-			StreamSize.QuadPart,
-			StreamBytesTransferred.QuadPart,
+			TotalFileSize,
+			TotalBytesTransferred,
+			StreamSize,
+			StreamBytesTransferred,
 			StreamNumber,
-			CallbackReason,
-			SourceFile,
-			DestinationFile
+			CallbackReason
 		);
 	}
 
-	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, progress_routine ProgressRoutine, BOOL* const Cancel, const DWORD CopyFlags)
+	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, progress_routine ProgressRoutine, const DWORD CopyFlags)
 	{
 		const auto strFrom = nt_path(ExistingFileName);
 		auto strTo = nt_path(NewFileName);
@@ -2142,7 +2165,7 @@ WARNING_POP()
 		const auto RoutinePtr = ProgressRoutine? &progress_routine_wrapper : nullptr;
 		const auto DataPtr = ProgressRoutine? &ProgressRoutine : nullptr;
 
-		if (low::copy_file(strFrom.c_str(), strTo.c_str(), RoutinePtr, DataPtr, Cancel, CopyFlags))
+		if (low::copy_file(strFrom.c_str(), strTo.c_str(), RoutinePtr, DataPtr, CopyFlags))
 			return true;
 
 		const auto LastError = last_error();
@@ -2160,7 +2183,7 @@ WARNING_POP()
 		}
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-			return elevation::instance().copy_file(strFrom, strTo, RoutinePtr, DataPtr, Cancel, CopyFlags);
+			return elevation::instance().copy_file(strFrom, strTo, RoutinePtr, DataPtr, CopyFlags);
 
 		return false;
 	}
@@ -2349,7 +2372,7 @@ WARNING_POP()
 
 	bool get_module_file_name(HANDLE hProcess, HMODULE hModule, string &strFileName)
 	{
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](std::span<wchar_t> Buffer)
+		if (!os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](std::span<wchar_t> Buffer)
 		{
 			if (!hProcess)
 			{
@@ -2366,13 +2389,19 @@ WARNING_POP()
 			if (imports.QueryFullProcessImageNameW && !hModule)
 			{
 				auto Size = static_cast<DWORD>(Buffer.size());
-				return imports.QueryFullProcessImageNameW(hProcess, 0, Buffer.data(), &Size)? Size : 0;
+				if (imports.QueryFullProcessImageNameW(hProcess, 0, Buffer.data(), &Size))
+					return Size;
 			}
-			else
-			{
-				return ::GetModuleFileNameEx(hProcess, hModule, Buffer.data(), static_cast<DWORD>(Buffer.size()));
-			}
-		});
+
+			return ::GetModuleFileNameEx(hProcess, hModule, Buffer.data(), static_cast<DWORD>(Buffer.size()));
+		}))
+			return false;
+
+		if (strFileName.starts_with(L'\\'))
+			// OS can return NT path (\Device\Whatever) in corner cases, try to resolve it to Win32 path
+			nt_path_to_win32_path(strFileName);
+
+		return true;
 	}
 
 	string get_current_process_file_name()

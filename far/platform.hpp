@@ -303,9 +303,6 @@ namespace os
 #endif
 
 	[[nodiscard]]
-	DWORD GetAppPathsRedirectionFlag();
-
-	[[nodiscard]]
 	bool GetDefaultPrinter(string& Printer);
 
 	[[nodiscard]]

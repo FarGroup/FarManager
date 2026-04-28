@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 
 // Internal:
+#include "exception.hpp"
 #include "interf.hpp"
 
 // Platform:
@@ -125,12 +126,12 @@ void inplace::lower(wchar_t* Str)
 
 void inplace::upper(string& Str, size_t Pos, size_t Count)
 {
-	upper({ &Str[Pos], Count == string::npos? Str.size() - Pos : Count });
+	upper({ Str.data() + Pos, Count == string::npos? Str.size() - Pos : Count });
 }
 
 void inplace::lower(string& Str, size_t Pos, size_t Count)
 {
-	lower({ &Str[Pos], Count == string::npos? Str.size() - Pos : Count });
+	lower({ Str.data() + Pos, Count == string::npos? Str.size() - Pos : Count });
 }
 
 static void fold(string_view const From, string& To, DWORD const Flags)
@@ -213,8 +214,11 @@ bool ends_with_icase(const string_view Str, const string_view Suffix)
 
 size_t find_icase(string_view const Str, string_view const What, size_t Pos)
 {
-	if (Pos >= Str.size())
+	if (Pos > Str.size())
 		return Str.npos;
+
+	if (What.empty())
+		return Pos;
 
 	const auto Where = Str.substr(Pos);
 	const auto Found = std::ranges::search(Where, What, string_comparer_icase{});
@@ -226,7 +230,7 @@ size_t find_icase(string_view const Str, wchar_t const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return string_comparer_icase{}(What, Char); });
+	const auto It = std::ranges::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char){ return string_comparer_icase{}(What, Char); });
 	return It == Str.cend() ? Str.npos : It - Str.cbegin();
 }
 
@@ -252,7 +256,9 @@ std::optional<std::pair<size_t, size_t>> exact_searcher::find_in(string_view con
 {
 	if (Reverse)
 	{
-		assert(m_ReverseSearcher);
+		if (!m_ReverseSearcher)
+			throw far_fatal_exception(L"Searcher does not support reverse search"sv);
+
 		const auto ReverseIterator = std::search(ALL_CONST_REVERSE_RANGE(Haystack), *m_ReverseSearcher);
 		const auto Offset = Haystack.crend() - ReverseIterator;
 		if (!Offset)
@@ -368,20 +374,30 @@ TEST_CASE("string.eols")
 
 TEST_CASE("string.traits")
 {
-	REQUIRE(is_alpha(L'A'));
-	REQUIRE(!is_alpha(L'1'));
+	static const struct
+	{
+		wchar_t Char;
+		bool
+			IsAlpha,
+			IsAlphanumeric,
+			IsUpper,
+			IsLower;
+	}
+	Tests[]
+	{
+		{L'A', true,  true,  true,  false, },
+		{L'a', true,  true,  false, true,  },
+		{L'1', false, true,  false, false, },
+		{L'?', false, false, false, false, },
+	};
 
-	REQUIRE(is_alphanumeric(L'0'));
-	REQUIRE(!is_alphanumeric(L'?'));
-
-	REQUIRE(is_upper(L'A'));
-	REQUIRE(!is_upper(L'a'));
-
-	REQUIRE(is_lower(L'a'));
-	REQUIRE(!is_lower(L'A'));
-
-	REQUIRE(!is_upper(L'1'));
-	REQUIRE(!is_lower(L'1'));
+	for (const auto& i: Tests)
+	{
+		REQUIRE(is_alpha(i.Char) == i.IsAlpha);
+		REQUIRE(is_alphanumeric(i.Char) == i.IsAlphanumeric);
+		REQUIRE(is_upper(i.Char) == i.IsUpper);
+		REQUIRE(is_lower(i.Char) == i.IsLower);
+	}
 }
 
 TEST_CASE("string.case")
@@ -399,13 +415,21 @@ TEST_CASE("string.case")
 	REQUIRE(lower(L"foo"sv) == L"foo"sv);
 }
 
-TEST_CASE("string.utils.hash_icase")
+TEST_CASE("string.utils.string_comparer_icase")
 {
-	const string_comparer_icase hash;
-	REQUIRE(hash(L'A') == hash(L'a'));
-	REQUIRE(hash(L'A') != hash(L'B'));
-	REQUIRE(hash(L"fooBAR"sv) == hash(L"FOObar"sv));
-	REQUIRE(hash(L"fooBAR"sv) != hash(L"Banana"sv));
+	const string_comparer_icase Comparer;
+
+	REQUIRE(Comparer(L'A', L'A'));
+	REQUIRE(Comparer(L'A', L'a'));
+	REQUIRE(!Comparer(L'A', L'B'));
+	REQUIRE(Comparer(L"foobar"sv, L"foobar"sv));
+	REQUIRE(Comparer(L"fooBAR"sv, L"FOObar"sv));
+	REQUIRE(!Comparer(L"fooBAR"sv, L"Banana"sv));
+
+	REQUIRE(Comparer(L'A') == Comparer(L'a'));
+	REQUIRE(Comparer(L'A') != Comparer(L'B'));
+	REQUIRE(Comparer(L"fooBAR"sv) == Comparer(L"FOObar"sv));
+	REQUIRE(Comparer(L"fooBAR"sv) != Comparer(L"Banana"sv));
 }
 
 TEST_CASE("string_utils.generic_lookup_icase")
@@ -417,6 +441,7 @@ TEST_CASE("string_utils.generic_lookup_icase")
 
 	REQUIRE(Map.find(L"AbC"sv) != Map.cend());
 	REQUIRE(Map.find(L"aBc") != Map.cend());
+	REQUIRE(Map.find(L"banana") == Map.cend());
 }
 
 TEST_CASE("string.utils.icase")
@@ -425,26 +450,95 @@ TEST_CASE("string.utils.icase")
 
 	static const struct
 	{
-		string_view Str, Token;
-		size_t Pos;
+		string_view Str;
+
+		std::initializer_list<std::pair<string_view, bool>> Prefix;
+		std::initializer_list<std::pair<string_view, bool>> Suffix;
+		std::initializer_list<std::tuple<string_view, size_t, size_t>> Token;
 	}
 	Tests[]
 	{
-		{ {},                    {},                npos, },
-		{ {},                    L"abc"sv,          npos, },
-		{ L"foobar"sv,           {},                0,    },
-		{ L"foobar"sv,           L"FOOBAR"sv,       0,    },
-		{ L"foobar"sv,           L"foobar1"sv,      npos, },
-		{ L"foobar"sv,           L"foo"sv,          0,    },
-		{ L"foobar"sv,           L"FOO"sv,          0,    },
-		{ L"foobar"sv,           L"OoB"sv,          1,    },
-		{ L"foobar"sv,           L"BaR"sv,          3,    },
+		{
+			{},
+			{
+				{ {},        true },
+				{ L"abc"sv,  false },
+			},
+			{
+				{ {},        true },
+				{ L"abc"sv,  false },
+			},
+			{
+				{ {},        0, 0 },
+				{ {},        1, npos },
+				{ L"abc"sv,  0, npos },
+				{ L"abc"sv,  1, npos },
+			},
+		},
+		{
+			L"foobar"sv,
+			{
+				{ {},       true },
+				{ L"foo"sv, true },
+				{ L"FOO"sv, true },
+				{ L"FoO"sv, true },
+				{ L"123"sv, false },
+			},
+			{
+				{ {},       true },
+				{ L"bar"sv, true },
+				{ L"BAR"sv, true },
+				{ L"BaR"sv, true },
+				{ L"123"sv, false },
+			},
+			{
+				{ {},           0, 0 },
+				{ {},           1, 1 },
+				{ {},           6, 6 },
+				{ {},           7, npos },
+				{ L"F"sv,       0, 0 },
+				{ L"F"sv,       1, npos },
+				{ L"foobar"sv,  0, 0 },
+				{ L"foobar"sv,  1, npos },
+				{ L"foobar1"sv, 0, npos },
+				{ L"FOOBAR"sv,  0, 0 },
+				{ L"foo"sv,     0, 0 },
+				{ L"FOO"sv,     0, 0 },
+				{ L"OOB"sv,     0, 1 },
+				{ L"BAr"sv,     0, 3 },
+			},
+		},
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(find_icase(i.Str, i.Token) == i.Pos);
-		REQUIRE(contains_icase(i.Str, i.Token) == (i.Pos != npos));
+		for (const auto [Prefix, HasPrefix]: i.Prefix)
+		{
+			REQUIRE(starts_with_icase(i.Str, Prefix) == HasPrefix);
+			REQUIRE(contains_icase(i.Str, Prefix) == HasPrefix);
+		}
+
+		for (const auto [Suffix, HasSuffix]: i.Suffix)
+		{
+			REQUIRE(ends_with_icase(i.Str, Suffix) == HasSuffix);
+			REQUIRE(contains_icase(i.Str, Suffix) == HasSuffix);
+		}
+
+		for (const auto [Token, StartPos, TokenPos]: i.Token)
+		{
+			if (Token.size() == 1)
+			{
+				const auto FoundPos = find_icase(i.Str, Token.front(), StartPos);
+				REQUIRE(FoundPos == TokenPos);
+				if (FoundPos != npos)
+					REQUIRE(contains_icase(i.Str, Token.front()));
+			}
+
+			const auto FoundPos = find_icase(i.Str, Token, StartPos);
+			REQUIRE(FoundPos == TokenPos);
+			if (FoundPos != npos)
+				REQUIRE(contains_icase(i.Str, Token));
+		}
 	}
 }
 
@@ -466,12 +560,26 @@ TEMPLATE_TEST_CASE("searcher.ascii", "", exact_searcher, icase_searcher, fuzzy_i
 
 	for (const auto& i: Tests)
 	{
-		TestType const Searcher(i.Needle);
+		TestType const
+			Searcher(i.Needle),
+			ForwardSearcher(i.Needle, false);
+
 		REQUIRE(Searcher.find_in(i.GoodHaystack, false) == i.FirstPos);
 		REQUIRE(Searcher.find_in(i.GoodHaystack, true) == i.LastPos);
 
 		REQUIRE(!Searcher.find_in(i.BadHaystack, false));
 		REQUIRE(!Searcher.find_in(i.BadHaystack, true));
+
+		generic_exception_matcher const Matcher([](std::any const& e)
+		{
+			return std::any_cast<far_fatal_exception const&>(e).message() == L"Searcher does not support reverse search"sv;
+		});
+
+		REQUIRE(ForwardSearcher.find_in(i.GoodHaystack, false) == i.FirstPos);
+		REQUIRE_THROWS_MATCHES(ForwardSearcher.find_in(i.GoodHaystack, true), far_fatal_exception, Matcher);
+
+		REQUIRE(!ForwardSearcher.find_in(i.BadHaystack, false));
+		REQUIRE_THROWS_MATCHES(ForwardSearcher.find_in(i.BadHaystack, true), far_fatal_exception, Matcher);
 	}
 }
 

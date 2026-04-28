@@ -300,6 +300,52 @@ namespace os::reg
 
 		return m_KeyRef->enum_values_impl(m_Index++, Value);
 	}
+
+	//-------------------------------------------------------------------------
+
+	static DWORD get_app_paths_redirection_flag()
+	{
+		static const auto RedirectionFlag = []
+		{
+			// App Paths key is shared in Windows 7 and above
+			if (!IsWindows7OrGreater())
+			{
+#ifdef _WIN64
+				return KEY_WOW64_32KEY;
+#else
+				if (IsWow64Process())
+				{
+					return KEY_WOW64_64KEY;
+				}
+#endif
+			}
+			return 0;
+		}();
+
+		return RedirectionFlag;
+	}
+
+	void enum_app_paths(function_ref<void(string_view)> const Consumer)
+	{
+		const auto enum_app_paths = [&](key const& RootKey, DWORD const Flags = 0)
+		{
+			const auto SamDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | Flags;
+
+			const auto AppPathsKey = RootKey.open(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, SamDesired);
+			if (!AppPathsKey)
+				return;
+
+			for (const auto& SubkeyName: AppPathsKey->enum_keys())
+				if (const auto SubKey = AppPathsKey->open(SubkeyName, SamDesired); SubKey && SubKey->exits({}))
+					Consumer(SubkeyName);
+		};
+
+		enum_app_paths(key::current_user);
+		enum_app_paths(key::local_machine);
+
+		if (const auto RedirectionFlag = get_app_paths_redirection_flag())
+			enum_app_paths(key::local_machine, RedirectionFlag);
+	}
 }
 
 #ifdef ENABLE_TESTS

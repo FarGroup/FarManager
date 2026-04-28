@@ -264,11 +264,14 @@ const wchar_t* PluginPanelItemHolderHeap::make_copy(string_view const Value)
 
 void FreePluginPanelItemData(const PluginPanelItem& Data)
 {
-	delete[] Data.FileName;
-	delete[] Data.AlternateFileName;
-	delete[] Data.Description;
-	delete[] Data.Owner;
-	DeleteRawArray(std::span(Data.CustomColumnData, Data.CustomColumnNumber));
+	std::unique_ptr<wchar_t const[]>{Data.FileName};
+	std::unique_ptr<wchar_t const[]>{Data.AlternateFileName};
+	std::unique_ptr<wchar_t const[]>{Data.Description};
+	std::unique_ptr<wchar_t const[]>{Data.Owner};
+
+	for (auto& i : std::span(Data.CustomColumnData, Data.CustomColumnNumber))
+		std::unique_ptr<wchar_t const[]>{i};
+	std::unique_ptr<wchar_t const* const[]>{Data.CustomColumnData};
 }
 
 void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)

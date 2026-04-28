@@ -531,7 +531,7 @@ public:
 		if (WAL && !os::fs::can_create_file_in(path::parent_path(Path))) // can't open db -- copy to %TEMP%
 		{
 			const auto TmpDbPath = concat(MakeTemp(), str(GetCurrentProcessId()), L'-', PointToName(Path));
-			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, 0))
+			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, 0))
 				throw_exception(Path, SQLITE_READONLY);
 
 			Deleter.add(TmpDbPath);

@@ -840,12 +840,30 @@ TEST_CASE("function_traits")
 TEST_CASE("io")
 {
 	std::stringstream Stream;
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
 	constexpr auto Str = "12345"sv;
 	REQUIRE_NOTHROW(io::write(Stream, Str));
 
 	std::byte Buffer[Str.size()];
 	REQUIRE(io::read(Stream, Buffer) == Str.size());
 	REQUIRE(!io::read(Stream, Buffer));
+
+
+	Stream.clear();
+
+	struct object
+	{
+		unsigned Foo, Bar;
+		bool operator==(object const&) const = default;
+	};
+
+	object Object{ 0xCAFEBABE, 0xFEEDFACE }, ObjectCopy{};
+	REQUIRE_NOTHROW(io::write(Stream, view_bytes(Object)));
+
+	REQUIRE(Object != ObjectCopy);
+	REQUIRE(io::read_object(Stream, ObjectCopy));
+	REQUIRE(Object == ObjectCopy);
 }
 
 //----------------------------------------------------------------------------
@@ -1247,23 +1265,32 @@ TEST_CASE("segment.constexpr")
 
 TEST_CASE("segment.iota")
 {
-	struct test_data
+	const auto segment_length = [](int const Start, int const Length)
+	{
+		return segment(Start, segment::length_tag{ Length });
+	};
+
+	const auto segment_sentinel = [](int const Start, int const End)
+	{
+		return segment(Start, segment::sentinel_tag{ End });
+	};
+
+	static const struct
 	{
 		segment Segment;
 		std::ptrdiff_t Take;
 		std::initializer_list<int> Expected;
-	};
-
-	static const test_data TestDataPoints[] =
+	}
+	TestDataPoints[]
 	{
-		{ {}, 100, {} },
-		{ { 0, segment::length_tag{ 0 } }, 100, {} },
-		{ { 42, segment::sentinel_tag{ 42 } }, 100, {} },
-		{ { 0, segment::length_tag{ 3 } }, 100, { 0, 1, 2 } },
-		{ { 42, segment::length_tag{ 3 } }, 100, { 42, 43, 44 } },
-		{ { -1, segment::length_tag{ 3 } }, 100, { -1, 0, 1 } },
-		{ segment::ray(), 3, { 0, 1, 2 } },
-		{ segment::ray(42), 3, { 42, 43, 44 }},
+		{ {},                         100, {} },
+		{ segment_length(0, 0),       100, {} },
+		{ segment_sentinel(42, 42),   100, {} },
+		{ segment_length(0, 3),       100, {  0,  1,  2 } },
+		{ segment_length(42, 3),      100, { 42, 43, 44 } },
+		{ segment_length(-1, 3),      100, { -1,  0,  1 } },
+		{ segment::ray(),               3, {  0,  1,  2 } },
+		{ segment::ray(42),             3, { 42, 43, 44 } },
 	};
 
 	for (const auto& TestDataPoint : TestDataPoints)
@@ -1276,7 +1303,7 @@ TEST_CASE("segment.iota")
 
 TEST_CASE("algorithm.intersect.segments")
 {
-	struct test_data
+	static const struct
 	{
 		struct test_segment: public segment
 		{
@@ -1285,13 +1312,13 @@ TEST_CASE("algorithm.intersect.segments")
 			{
 			}
 		};
-		test_segment A, B, Intersection;
-	};
 
-	static const test_data TestDataPoints[] =
+		test_segment A, B, Intersection;
+	}
+	TestDataPoints[]
 	{
-		{ { 10, 20 }, { -1, 5 }, { 0, 0 } },
-		{ { 10, 20 }, { -1, 10 }, { 0, 0 } },
+		{ { 10, 20 }, { -1,  5 }, {  0,  0 } },
+		{ { 10, 20 }, { -1, 10 }, {  0,  0 } },
 		{ { 10, 20 }, { -1, 15 }, { 10, 15 } },
 		{ { 10, 20 }, { -1, 20 }, { 10, 20 } },
 		{ { 10, 20 }, { -1, 25 }, { 10, 20 } },
@@ -1300,12 +1327,12 @@ TEST_CASE("algorithm.intersect.segments")
 		{ { 10, 20 }, { 10, 25 }, { 10, 20 } },
 		{ { 10, 20 }, { 15, 20 }, { 15, 20 } },
 		{ { 10, 20 }, { 15, 25 }, { 15, 20 } },
-		{ { 10, 20 }, { 20, 25 }, { 0, 0 } },
-		{ { 10, 20 }, { 25, 30 }, { 0, 0 } },
-		{ { 10, 20 }, { 0, 0 }, { 0, 0 } },
-		{ { 10, 20 }, { 15, 15 }, { 0, 0 } },
+		{ { 10, 20 }, { 20, 25 }, {  0,  0 } },
+		{ { 10, 20 }, { 25, 30 }, {  0,  0 } },
+		{ { 10, 20 }, {  0,  0 }, {  0,  0 } },
+		{ { 10, 20 }, { 15, 15 }, {  0,  0 } },
 		{ { 10, 20 }, { 20, 20 }, { 42, 42 } },
-		{ { 10, 20 }, { 30, 30 }, { 0, 0 } },
+		{ { 10, 20 }, { 30, 30 }, {  0,  0 } },
 	};
 
 	for (const auto& TestDataPoint : TestDataPoints)

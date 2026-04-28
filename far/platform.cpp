@@ -575,27 +575,6 @@ bool IsWow64Process()
 }
 #endif
 
-DWORD GetAppPathsRedirectionFlag()
-{
-	static const auto RedirectionFlag = []
-	{
-		// App Paths key is shared in Windows 7 and above
-		if (!IsWindows7OrGreater())
-		{
-#ifdef _WIN64
-			return KEY_WOW64_32KEY;
-#else
-			if (IsWow64Process())
-			{
-				return KEY_WOW64_64KEY;
-			}
-#endif
-		}
-		return 0;
-	}();
-	return RedirectionFlag;
-}
-
 bool GetDefaultPrinter(string& Printer)
 {
 	return detail::ApiDynamicStringReceiver(Printer, [&](std::span<wchar_t> Buffer)

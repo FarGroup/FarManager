@@ -2551,7 +2551,7 @@ static intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONT
 		}
 
 		case FFCTL_FREEFILEFILTER:
-			delete static_cast<multifilter*>(hHandle);
+			std::unique_ptr<multifilter>{static_cast<multifilter*>(hHandle)};
 			return true;
 
 		case FFCTL_OPENFILTERSMENU:
@@ -2609,7 +2609,7 @@ static intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMA
 			return true;
 
 		case RECTL_FREE:
-			delete static_cast<regex_handle const*>(hHandle);
+			std::unique_ptr<regex_handle>{static_cast<regex_handle*>(hHandle)};
 			return true;
 
 		case RECTL_COMPILE:
@@ -2745,7 +2745,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 		}
 
 		case SCTL_FREE:
-			delete static_cast<AbstractSettings const*>(hHandle);
+			std::unique_ptr<AbstractSettings>{static_cast<AbstractSettings*>(hHandle)};
 			return true;
 
 		case SCTL_SET:

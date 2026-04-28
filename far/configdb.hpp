@@ -280,7 +280,7 @@ public:
 	virtual void DelType(primary_key id) = 0;
 
 	[[nodiscard]]
-	auto MasksEnumerator()
+	auto MasksEnumerator() const
 	{
 		using value_type = std::pair<primary_key, string>;
 		return inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
@@ -294,7 +294,7 @@ public:
 	}
 
 	[[nodiscard]]
-	auto TypedMasksEnumerator(int Type)
+	auto TypedMasksEnumerator(int Type) const
 	{
 		using value_type = std::pair<primary_key, string>;
 		return inline_enumerator<value_type>([this, Type](const bool Reset, value_type& Value)
@@ -452,7 +452,7 @@ public:
 	};
 
 	[[nodiscard]]
-	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, std::optional<lvalue_string_view> const ItemName = {}, bool const Reverse = false)
+	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, std::optional<lvalue_string_view> const ItemName = {}, bool const Reverse = false) const
 	{
 		using value_type = enum_data;
 		return inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
@@ -466,7 +466,7 @@ public:
 	}
 
 	[[nodiscard]]
-	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
+	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries) const
 	{
 		using value_type = string;
 		return inline_enumerator<value_type>([this, HistoryType, MinimumEntries](const bool Reset, value_type& Value)
@@ -485,10 +485,10 @@ protected:
 private:
 	//command,view,edit,folder,dialog history
 	[[nodiscard]]
-	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, std::optional<string_view> ItemName, primary_key& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
+	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, std::optional<string_view> ItemName, primary_key& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) const = 0;
 	virtual void CloseEnum(bool Reverse) const = 0;
 	[[nodiscard]]
-	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
+	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) const = 0;
 	virtual void CloseEnumLargeHistories() const = 0;
 };
 
