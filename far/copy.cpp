@@ -3369,10 +3369,7 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 			// When we estimate the total size of the operation, we take into account the size of the first stream only (since it's what the OS reports).
 			// But if the file has alternate streams, the total size can be greater.
 			// To avoid going over 100%, we need to update the total size accordingly:
-			if (
-				CallbackReason == CALLBACK_STREAM_SWITCH && StreamNumber == 1 && // it's enough to do it once
-				TotalFileSize > StreamSize // and only if needed
-			)
+			if (CallbackReason == CALLBACK_STREAM_SWITCH && StreamNumber == 1)
 			{
 				CP->add_total_bytes(TotalFileSize - StreamSize);
 				CP->set_current_total(TotalFileSize);
