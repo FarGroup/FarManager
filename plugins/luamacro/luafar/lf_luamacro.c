@@ -32,26 +32,95 @@ static void InitMPR (lua_State* L, struct MacroPluginReturn *mpr, size_t nargs, 
 	if (nargs)
 	{
 		mpr->Values = (struct FarMacroValue*)lua_newuserdata(L, nargs*sizeof(struct FarMacroValue));
-		lua_setfield(L, -2, "MacroPluginReturn");
+		lua_setfield(L, -2, "MacroPluginReturn"); // protect from garbage collection
 	}
 	mpr->Count = nargs;
 	mpr->ReturnType = ReturnType;
 }
 
+static void FillMPR (lua_State* L, struct MacroPluginReturn* Ret, intptr_t ReturnType)
+{
+	lua_getfield(L,-1,"n");
+	int nargs = lua_type(L,-1)==LUA_TNUMBER ? (int)lua_tointeger(L,-1) : (int)lua_objlen(L,-2);
+	lua_pop(L,1);
+	if (nargs < 0) nargs = 0;
+
+	InitMPR(L, Ret, (size_t)nargs, ReturnType);
+
+	for(int idx=0; idx<nargs; idx++)
+	{
+		INT64 val64;
+		Ret->Values[idx].Type = FMVT_NIL;
+		lua_rawgeti(L,-1,idx+1);
+
+		switch (lua_type(L, -1))
+		{
+			case LUA_TNUMBER:
+				Ret->Values[idx].Type = FMVT_DOUBLE;
+				Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
+				lua_pop(L,1);
+				break;
+
+			case LUA_TSTRING:
+				Ret->Values[idx].Type = FMVT_STRING;
+				Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
+				lua_rawseti(L,-2,idx+1);
+				break;
+
+			case LUA_TBOOLEAN:
+				Ret->Values[idx].Type = FMVT_BOOLEAN;
+				Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
+				lua_pop(L,1);
+				break;
+
+			case LUA_TLIGHTUSERDATA:
+				Ret->Values[idx].Type = FMVT_POINTER;
+				Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
+				lua_rawseti(L,-2,idx+1);
+				break;
+
+			case LUA_TTABLE:
+				lua_getfield(L, -1, TKEY_BINARY);
+				if (lua_type(L, -1) == LUA_TSTRING)
+				{
+					Ret->Values[idx].Type = FMVT_BINARY;
+					Ret->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
+					Ret->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
+					lua_rawseti(L,-3,idx+1);
+				}
+				lua_pop(L,1);
+				break;
+
+			default:
+				if (bit64_getvalue(L, -1, &val64))
+				{
+					Ret->Values[idx].Type = FMVT_INTEGER;
+					Ret->Values[idx].Value.Integer = val64;
+					lua_pop(L,1);
+				}
+				else
+				{
+					Ret->Values[idx].Type = FMVT_NIL;
+					lua_pop(L,1);
+				}
+				break;
+		}
+	}
+}
+
 HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 {
-	struct OpenMacroPluginInfo* om_info = (struct OpenMacroPluginInfo*)Info->Data;
-	int calltype = om_info->CallType;
-	size_t argc = om_info->Data ? om_info->Data->Count : 0; // store Data->Count: 'Data' will be invalid after FL_PushParams()
-
 	if (!IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
 	{
 		lua_pop(L, 1);
 		return NULL;
 	}
 
+	struct OpenMacroPluginInfo* om_info = (struct OpenMacroPluginInfo*)Info->Data;
+	size_t argc = om_info->Data ? om_info->Data->Count : 0; // store Data->Count: 'Data' will be invalid after FL_PushParams()
+
 	lua_pushinteger(L, Info->OpenFrom);            //+2
-	lua_pushinteger(L, calltype);                  //+3
+	lua_pushinteger(L, om_info->CallType);         //+3
 	if (om_info->Data && !FL_PushParams(L, om_info->Data))
 	{
 		lua_pop(L, 3);
@@ -74,87 +143,14 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 			lua_pop(L,1);
 			lua_pushvalue(L,-1);
 		}
+
 		if (!lua_istable(L,-1))
-		{
 			InitMPR(L, &om_info->Ret, 0, ReturnType);
-			lua_pop(L,2);
-			return (HANDLE)1;
-		}
 		else
-		{
-			struct MacroPluginReturn* Ret = &om_info->Ret;
+			FillMPR(L, &om_info->Ret, ReturnType);
 
-			lua_getfield(L,-1,"n");
-			int nargs = lua_type(L,-1)==LUA_TNUMBER ? (int)lua_tointeger(L,-1) : (int)lua_objlen(L,-2);
-			lua_pop(L,1);
-			if (nargs < 0)
-				nargs = 0;
-
-			InitMPR(L, Ret, (size_t)nargs, ReturnType);
-
-			for(int idx=0; idx<nargs; idx++)
-			{
-				Ret->Values[idx].Type = FMVT_NIL;
-				lua_rawgeti(L,-1,idx+1);
-
-				switch (lua_type(L, -1))
-				{
-					case LUA_TNUMBER:
-						Ret->Values[idx].Type = FMVT_DOUBLE;
-						Ret->Values[idx].Value.Double = lua_tonumber(L, -1);
-						lua_pop(L,1);
-						break;
-
-					case LUA_TSTRING:
-						Ret->Values[idx].Type = FMVT_STRING;
-						Ret->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
-						lua_rawseti(L,-2,idx+1);
-						break;
-
-					case LUA_TBOOLEAN:
-						Ret->Values[idx].Type = FMVT_BOOLEAN;
-						Ret->Values[idx].Value.Boolean = lua_toboolean(L, -1);
-						lua_pop(L,1);
-						break;
-
-					case LUA_TLIGHTUSERDATA:
-						Ret->Values[idx].Type = FMVT_POINTER;
-						Ret->Values[idx].Value.Pointer = lua_touserdata(L, -1);
-						lua_rawseti(L,-2,idx+1);
-						break;
-
-					case LUA_TTABLE:
-						lua_getfield(L, -1, TKEY_BINARY);
-						if (lua_type(L, -1) == LUA_TSTRING)
-						{
-							Ret->Values[idx].Type = FMVT_BINARY;
-							Ret->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
-							Ret->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
-							lua_rawseti(L,-3,idx+1);
-						}
-						lua_pop(L,1);
-						break;
-
-					default:
-						INT64 val64;
-						if (bit64_getvalue(L, -1, &val64))
-						{
-							Ret->Values[idx].Type = FMVT_INTEGER;
-							Ret->Values[idx].Value.Integer = val64;
-							lua_pop(L,1);
-						}
-						else
-						{
-							Ret->Values[idx].Type = FMVT_NIL;
-							lua_pop(L,1);
-						}
-						break;
-				}
-			}
-
-			lua_pop(L,2);
-			return (HANDLE)1;
-		}
+		lua_pop(L,2);
+		return (HANDLE)1;
 	}
 
 	return NULL;
@@ -263,7 +259,7 @@ int far_MacroCallFar(lua_State *L)
 	fmc.Callback = MacroCallFarCallback;
 	fmc.CallbackData = &cbdata;
 
-	for(int idx=0; idx<(int)fmc.Count; idx++)
+	for(size_t idx=0; idx < fmc.Count; idx++)
 	{
 		ConvertLuaValue(L, idx+2, fmc.Values+idx);
 		if (fmc.Values[idx].Type == FMVT_UNKNOWN)
