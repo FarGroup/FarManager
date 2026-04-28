@@ -7,6 +7,13 @@ body:
     value: |
       Please make sure to [search for existing issues](https://github.com/FarGroup/FarManager/issues), [check the FAQ](https://forum.farmanager.com/viewtopic.php?t=5207) and [reporting guidelines](https://farmanager.com/problems.php?l=en) before filing a new one.
 
+- type: checkboxes
+  attributes:
+    label: Checklist
+    options:
+      - label: I have searched for existing issues and found nothing relevant
+        required: true
+
 - type: input
   attributes:
     label: Far Manager version
@@ -15,6 +22,15 @@ body:
       Run `far:about` to find out.
   validations:
     required: true
+
+- type: checkboxes
+  attributes:
+    label: Is this the latest available version?
+    description: |
+      #### Always try to update first. Your issue might be fixed already.
+    options:
+      - label: I confirm that this is the latest available version (including nightly builds)
+        required: true
 
 - type: input
   attributes:
