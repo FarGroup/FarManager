@@ -3527,7 +3527,7 @@ namespace
 		void add_item(FindCoord FoundCoords, string_view ItemText)
 		{
 			menu_item_ex Item{ string{ ItemText } };
-			Item.Annotations.emplace_back(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
+			Item.Annotation.emplace(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
 			Item.ComplexUserData = FoundCoords;
 			m_Menu->AddItem(Item);
 

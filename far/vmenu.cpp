@@ -142,9 +142,9 @@ struct menu_layout
 	small_rectangle ClientRect{};
 	std::optional<short> LeftBox;
 	std::optional<short> CheckMark;
-	std::optional<small_segment> FixedColumnsArea;
+	std::optional<segment> FixedColumnsArea;
 	std::optional<short> LeftHScroll;
-	std::optional<small_segment> TextArea;
+	std::optional<segment> TextArea;
 	std::optional<short> RightHScroll;
 	std::optional<short> SubMenu;
 	std::optional<short> Scrollbar;
@@ -160,7 +160,7 @@ struct menu_layout
 		if (const auto FixedColumnsWidth{ fixed_columns_width(Menu) };
 			FixedColumnsWidth && Left + FixedColumnsWidth <= Menu.m_Where.right)
 		{
-			FixedColumnsArea = { Left, small_segment::length_tag{ FixedColumnsWidth } };
+			FixedColumnsArea = { Left, segment::length_tag{ FixedColumnsWidth } };
 			Left += FixedColumnsWidth;
 		}
 		if (Left < Menu.m_Where.right && need_left_hscroll()) LeftHScroll = Left++;
@@ -176,7 +176,7 @@ struct menu_layout
 		if (Right > Menu.m_Where.left && need_right_hscroll()) RightHScroll = Right--;
 
 		if (Left <= Right)
-			TextArea = { Left, small_segment::sentinel_tag{ static_cast<short>(Right + 1) } };
+			TextArea = { Left, segment::sentinel_tag{ static_cast<short>(Right + 1) } };
 	}
 
 	[[nodiscard]] static bool need_box(const VMenu& Menu) noexcept
@@ -487,53 +487,19 @@ namespace
 				: FindPos(drop(Pos), take(Pos) | reverse));
 	}
 
-	void markup_slice_boundaries(segment Segment, std::ranges::input_range auto const& Slices, std::vector<int>& Markup)
+	std::array<string_view, 3> markup_highlight(const string_view Text, const segment Highlight)
 	{
-		assert(!Segment.empty());
-		Markup.clear();
+		const segment TextSegment{ 0, segment::length_tag{ static_cast<segment::domain_t>(Text.size()) } };
+		const auto ClampedHighlight{ intersect(TextSegment, Highlight) };
 
-		for (const auto& Slice : Slices)
+		if (ClampedHighlight.empty()) return { Text };
+
+		return std::array
 		{
-			const auto Intersection{ intersect(Segment, Slice) };
-			if (Intersection.empty()) continue;
-
-			Markup.emplace_back(Intersection.start());
-			Markup.emplace_back(Intersection.end());
-
-			if (Intersection.end() >= Segment.end()) return;
-			Segment = { Intersection.end(), segment::sentinel_tag{ Segment.end() } };
-		}
-
-		Markup.emplace_back(Segment.end());
-	}
-
-	void markup_slice_boundaries(
-		segment Segment,
-		const std::list<segment>& Annotations,
-		const std::optional<int> HotkeyPos,
-		std::vector<int>& Markup)
-	{
-		assert(!Segment.empty());
-
-		if (!Annotations.empty())
-		{
-			markup_slice_boundaries(
-				Segment,
-				Annotations,
-				Markup);
-			return;
-		}
-
-		if (HotkeyPos)
-		{
-			markup_slice_boundaries(
-				Segment,
-				std::views::single(segment{ *HotkeyPos, segment::length_tag{ 1 } }),
-				Markup);
-			return;
-		}
-
-		Markup.assign(1, Segment.end());
+			Text.substr(0, ClampedHighlight.start()),
+			Text.substr(ClampedHighlight.start(), ClampedHighlight.length()),
+			Text.substr(ClampedHighlight.end()),
+		};
 	}
 
 	bool item_flags_allow_focus(unsigned long long const Flags)
@@ -559,6 +525,11 @@ namespace
 	string_view get_item_text(const menu_item_ex& Item)
 	{
 		return Item.Name;
+	}
+
+	int safe_get_item_annotation(menu_item_ex const& Item)
+	{
+		return Item.Annotation.transform([](const auto Annotation) { return Annotation.start(); }).value_or(0);
 	}
 
 	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
@@ -978,7 +949,7 @@ int VMenu::AddItem(menu_item_ex&& NewItem,int PosAdd)
 
 	const auto ItemLength{ GetItemVisualLength(NewMenuItem) };
 	UpdateMaxLength(ItemLength);
-	m_HorizontalTracker->add_item(NewMenuItem.HorizontalPosition, ItemLength, NewMenuItem.SafeGetFirstAnnotation());
+	m_HorizontalTracker->add_item(NewMenuItem.HorizontalPosition, ItemLength, safe_get_item_annotation(NewMenuItem));
 
 	const auto NewFlags = NewMenuItem.Flags;
 	NewMenuItem.Flags = 0;
@@ -996,13 +967,13 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 	auto& Item = Items[NewItem->Index];
 	m_HorizontalTracker->remove_item(
-		Item.HorizontalPosition, GetItemVisualLength(Item), Item.SafeGetFirstAnnotation());
+		Item.HorizontalPosition, GetItemVisualLength(Item), safe_get_item_annotation(Item));
 
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
 		Item.ComplexUserData = {};
-		Item.Annotations.clear();
+		Item.Annotation.reset();
 	}
 
 	Item.Name = NullToEmpty(NewItem->Item.Text);
@@ -1011,7 +982,7 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 	const auto ItemLength{ GetItemVisualLength(Item) };
 	UpdateMaxLength(ItemLength);
-	m_HorizontalTracker->add_item(Item.HorizontalPosition, ItemLength, Item.SafeGetFirstAnnotation());
+	m_HorizontalTracker->add_item(Item.HorizontalPosition, ItemLength, safe_get_item_annotation(Item));
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -1042,7 +1013,7 @@ int VMenu::DeleteItem(int ID, int Count)
 			--ItemHiddenCount;
 
 		m_HorizontalTracker->remove_item(
-			I.HorizontalPosition, GetItemVisualLength(I), I.SafeGetFirstAnnotation());
+			I.HorizontalPosition, GetItemVisualLength(I), safe_get_item_annotation(I));
 	}
 
 	// а вот теперь перемещения
@@ -2392,7 +2363,7 @@ bool VMenu::SetItemHPos(menu_item_ex& Item, const auto& GetNewHPos)
 			return GetNewHPos(Item.HorizontalPosition, ItemLength);
 	}();
 
-	m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition, NewHPos, ItemLength, Item.SafeGetFirstAnnotation());
+	m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition, NewHPos, ItemLength, safe_get_item_annotation(Item));
 
 	if (Item.HorizontalPosition == NewHPos) return false;
 	Item.HorizontalPosition = NewHPos;
@@ -2486,7 +2457,7 @@ bool VMenu::AlignAnnotations()
 	return SetAllItemsHPos(
 		[&](const menu_item_ex& Item)
 		{
-			return AlignPos - static_cast<int>(visual_string_length(get_item_text(Item).substr(0, Item.SafeGetFirstAnnotation())));
+			return AlignPos - static_cast<int>(visual_string_length(get_item_text(Item).substr(0, safe_get_item_annotation(Item))));
 		});
 }
 
@@ -2693,7 +2664,6 @@ void VMenu::DrawMenu()
 	if (Layout.ClientRect.width() <= 0)
 		return;
 
-	std::vector<int> HighlightMarkup;
 	const string BlankLine(Layout.ClientRect.width(), L' ');
 
 	for (int Y = Layout.ClientRect.top, I = TopPos; Y <= Layout.ClientRect.bottom; ++Y, ++I)
@@ -2718,7 +2688,7 @@ void VMenu::DrawMenu()
 			continue;
 		}
 
-		DrawRegularItem(Items[I], Layout, Y, HighlightMarkup, BlankLine);
+		DrawRegularItem(Items[I], Layout, Y, BlankLine);
 	}
 
 	if (Layout.Scrollbar)
@@ -2892,7 +2862,7 @@ void VMenu::ApplySeparatorName(const menu_item_ex& Item, string& separator) cons
 	separator[NamePos + NameWidth] = L' ';
 }
 
-void VMenu::DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, const int Y, std::vector<int>& HighlightMarkup, const string_view BlankLine) const
+void VMenu::DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, const int Y, const string_view BlankLine) const
 {
 	const item_color_indices ColorIndices{ Item };
 
@@ -2901,7 +2871,7 @@ void VMenu::DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout,
 
 	const bool NeedRightHScroll{
 		Layout.TextArea
-		? DrawItemText(Item, *Layout.TextArea, Y, ColorIndices, HighlightMarkup, BlankLine)
+		? DrawItemText(Item, *Layout.TextArea, Y, ColorIndices, BlankLine)
 		: false
 	};
 
@@ -2927,7 +2897,7 @@ void VMenu::DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout,
 
 void VMenu::DrawFixedColumns(
 	const menu_item_ex& Item,
-	const small_segment FixedColumnsArea,
+	const segment FixedColumnsArea,
 	const int Y,
 	const item_color_indices& ColorIndices,
 	const string_view BlankLine) const
@@ -2953,77 +2923,66 @@ void VMenu::DrawFixedColumns(
 	assert(WhereX() == FixedColumnsArea.end());
 }
 
+std::tuple<string, segment> VMenu::GetItemTextWithHighlight(const menu_item_ex& Item) const
+{
+	const auto RawItemText{ get_item_text(Item) };
+	auto HotkeyPos{ string::npos };
+	auto ItemText{ CheckFlags(VMENU_SHOWAMPERSAND) ? string{ RawItemText } : HiText2Str(RawItemText, &HotkeyPos) };
+
+	std::ranges::replace(ItemText, L'\t', L' ');
+
+	const auto GetHighlight{
+		[&]
+		{
+			if (Item.Annotation) return *Item.Annotation;
+			if (HotkeyPos != string::npos) return segment{ static_cast<int>(HotkeyPos), segment::length_tag{ 1 } };
+			if (Item.AutoHotkey) return segment{ static_cast<int>(Item.AutoHotkeyPos), segment::length_tag{ 1 } };
+			return segment{};
+		}
+	};
+
+	return { ItemText, GetHighlight() };
+}
+
 bool VMenu::DrawItemText(
 	const menu_item_ex& Item,
-	const small_segment TextArea,
+	const segment TextArea,
 	const int Y,
 	const item_color_indices& ColorIndices,
-	std::vector<int>& HighlightMarkup,
 	string_view BlankLine) const
 {
-	const segment Bounds{ TextArea.start(), segment::sentinel_tag{ TextArea.end() } };
-
-	const auto [ItemText, HighlightPos]{ [&]{
-		const auto RawItemText_{ get_item_text(Item) };
-		auto HotkeyPos_{ string::npos };
-		auto ItemText_{ CheckFlags(VMENU_SHOWAMPERSAND) ? string{ RawItemText_ } : HiText2Str(RawItemText_, &HotkeyPos_) };
-		std::ranges::replace(ItemText_, L'\t', L' ');
-
-		std::optional<int> HighlightPos_;
-		if (HotkeyPos_ != string::npos) HighlightPos_ = static_cast<int>(HotkeyPos_);
-		if (!HighlightPos_ && Item.AutoHotkey) HighlightPos_ = static_cast<int>(Item.AutoHotkeyPos);
-
-		return std::tuple{ ItemText_, HighlightPos_ };
-	}() };
-
-	GotoXY(Bounds.start(), Y);
 	set_color(Colors, ColorIndices.Normal);
-
-	if (ItemText.empty())
-	{
-		ClippedText(BlankLine, Bounds);
-		return false;
-	}
 
 	if (const auto Indent{ std::max(Item.HorizontalPosition, 0) }; Indent > 0)
 	{
-		if (ClippedText(BlankLine.substr(0, Indent), Bounds)) return true;
-		assert(WhereX() == Bounds.start() + Indent);
+		GotoXY(TextArea.start(), Y);
+		if (ClippedText(BlankLine.substr(0, Indent), TextArea)) return true;
+		// Sanity check: one space (U+0020) occupies one screen cell
+		assert(WhereX() == TextArea.start() + Indent);
 	}
 
-	bool NeedRightHScroll{};
+	const auto [ItemText, Highlight] { GetItemTextWithHighlight(Item) };
+	const auto Markup{ markup_highlight(string_view{ ItemText }, Highlight) };
+	const std::array MarkupColors{ ColorIndices.Normal, ColorIndices.Highlighted, ColorIndices.Normal };
+	static_assert(Markup.size() == MarkupColors.size());
 
-	const segment TextSegment{ 0, segment::length_tag{ static_cast<segment::domain_t>(ItemText.size()) } };
-	markup_slice_boundaries(TextSegment, Item.Annotations, HighlightPos, HighlightMarkup);
+	GotoXY(TextArea.start() + Item.HorizontalPosition, Y);
 
-	GotoXY(Bounds.start() + Item.HorizontalPosition, Y);
-
-	auto CurColorIndex{ ColorIndices.Normal };
-	auto AltColorIndex{ ColorIndices.Highlighted };
-	int CurTextPos{};
-
-	for (const auto SliceEnd : HighlightMarkup)
+	for (const auto I : std::views::iota(0u, Markup.size()))
 	{
-		set_color(Colors, CurColorIndex);
 		bool AllCharsConsumed{};
-		if (ClippedText(string_view{ ItemText }.substr(CurTextPos, SliceEnd - CurTextPos), Bounds, AllCharsConsumed))
+		set_color(Colors, MarkupColors[I]);
+		if (ClippedText(Markup[I], TextArea, AllCharsConsumed))
 		{
-			NeedRightHScroll = !AllCharsConsumed || SliceEnd < static_cast<int>(ItemText.size());
-			break;
+			return !AllCharsConsumed
+				|| std::ranges::any_of(Markup | std::views::drop(I + 1), std::logical_not{}, &string_view::empty);
 		}
-		std::ranges::swap(CurColorIndex, AltColorIndex);
-		CurTextPos = SliceEnd;
 	}
 
-	if (WhereX() < Bounds.end())
-	{
-		GotoXY(std::max(WhereX(), Bounds.start()), Y);
-		set_color(Colors, ColorIndices.Normal);
-		ClippedText(BlankLine, Bounds);
-		assert(WhereX() == Bounds.end());
-	}
+	GotoXY(std::max(WhereX(), TextArea.start()), Y);
+	ClippedText(BlankLine, TextArea);
 
-	return NeedRightHScroll;
+	return false;
 }
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
@@ -3692,50 +3651,56 @@ TEST_CASE("find.nearest.selectable.item")
 	}
 }
 
-TEST_CASE("markup.slice.boundaries")
+TEST_CASE("markup.highlight")
 {
+	const auto Seg{
+		[](const int Start, const int Length) constexpr
+		{
+			return segment{ Start, segment::length_tag{ Length } };
+		} };
+
 	static const struct
 	{
-		struct test_segment: public segment
-		{
-			test_segment(int const Begin, int const End)
-				: segment{ Begin, segment::sentinel_tag{ End } }
-			{}
-		};
-		test_segment Segment;
-		std::initializer_list<test_segment> Slices;
-		std::initializer_list<int> Markup;
+		string_view Text;
+		segment Highlight;
+		std::array<segment, 3> Markup;
 	}
 	TestDataPoints[]
 	{
-		{ { 20, 50 }, { { 10, 15 } }, { 50 } },
-		{ { 20, 50 }, { { 10, 20 } }, { 50 } },
-		{ { 20, 50 }, { { 10, 30 } }, { 20, 30, 50 } },
-		{ { 20, 50 }, { { 10, 50 } }, { 20, 50 } },
-		{ { 20, 50 }, { { 10, 70 } }, { 20, 50 } },
-		{ { 20, 50 }, { { 20, 30 } }, { 20, 30, 50 } },
-		{ { 20, 50 }, { { 20, 50 } }, { 20, 50 } },
-		{ { 20, 50 }, { { 20, 70 } }, { 20, 50 } },
-		{ { 20, 50 }, { { 30, 40 } }, { 30, 40, 50 } },
-		{ { 20, 50 }, { { 30, 50 } }, { 30, 50 } },
-		{ { 20, 50 }, { { 30, 70 } }, { 30, 50 } },
-		{ { 20, 50 }, { { 50, 50 } }, { 50 } },
-		{ { 20, 50 }, { { 50, 70 } }, { 50 } },
-		{ { 20, 50 }, { { 60, 70 } }, { 50 } },
-		{ { 20, 70 }, { { 30, 40 }, { 50, 60 } }, { 30, 40, 50, 60, 70 } },
-		{ { 20, 70 }, { { 30, 40 }, { 40, 60 } }, { 30, 40, 40, 60, 70 } },
-		{ { 20, 70 }, { { 30, 50 }, { 40, 60 } }, { 30, 50, 50, 60, 70 } },
-		{ { 20, 70 }, { { 50, 60 }, { 30, 40 } }, { 50, 60, 70 } },
-		{ { 20, 50 }, { {  0,  0 } }, { 50 } },
+		{ L"0123456789"sv, Seg(3, 5), { Seg(0, 3), Seg(3, 5), Seg(8, 2) } },
+		{ L"0123456789"sv, Seg(0, 10), { segment{}, Seg(0, 10), segment{} } },
+		{ L"0123456789"sv, Seg(0, 4), { segment{}, Seg(0, 4), Seg(4, 6) } },
+		{ L"0123456789"sv, Seg(6, 4), { Seg(0, 6), Seg(6, 4), segment{} } },
+		{ L"0123456789"sv, Seg(-10, 5), { Seg(0, 10), segment{}, segment{} } },
+		{ L"0123456789"sv, Seg(-5, 5), { Seg(0, 10), segment{}, segment{} } },
+		{ L"0123456789"sv, Seg(-5, 12), { segment{}, Seg(0, 7), Seg(7, 3) } },
+		{ L"0123456789"sv, Seg(3, 10), { Seg(0, 3), Seg(3, 7), segment{} } },
+		{ L"0123456789"sv, Seg(10, 5), { Seg(0, 10), segment{}, segment{} } },
+		{ L"0123456789"sv, Seg(20, 5), { Seg(0, 10), segment{}, segment{} } },
+		{ L"0123456789"sv, Seg(-5, 20), { segment{}, Seg(0, 10), segment{} } },
+		{ L"0123456789"sv, {}, { Seg(0, 10), segment{}, segment{} } },
+		{ {}, Seg(0, 10), { segment{}, segment{}, segment{} } },
+		{ {}, {}, { segment{}, segment{}, segment{} } },
 	};
 
-	std::vector<int> Markup;
+	const auto Check{
+		[](const string_view Text, const string_view Actual, const segment Expected)
+		{
+			if (Expected.empty()) return Actual.empty();
+
+			return Actual.data() == Text.data() + Expected.start()
+				&& std::ranges::ssize(Actual) == Expected.length();
+		} };
 
 	for (const auto& TestDataPoint : TestDataPoints)
 	{
-		Markup.clear();
-		markup_slice_boundaries(TestDataPoint.Segment, TestDataPoint.Slices, Markup);
-		REQUIRE(std::ranges::equal(TestDataPoint.Markup, Markup));
+		const auto Markup{ markup_highlight(TestDataPoint.Text, TestDataPoint.Highlight) };
+		REQUIRE(Markup.size() == TestDataPoint.Markup.size());
+
+		for (const auto [Actual, Expected] : zip(Markup, TestDataPoint.Markup))
+		{
+			REQUIRE(Check(TestDataPoint.Text, Actual, Expected));
+		}
 	}
 }
 
