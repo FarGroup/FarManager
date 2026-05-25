@@ -10,14 +10,16 @@ Macro {
   action = function()
     Far.DisableHistory(0x0F)
     local f = assert(loadfile(far.PluginStartupInfo().ModuleDir.."macrotest.lua"))
-    setfenv(f, getfenv())().test_all()
+    local mod = setfenv(f, getfenv())()
+    mod.SetMacroKeys("CtrlShiftF12")
+    mod.test_all()
     far.Message("All tests OK", "LuaMacro")
   end;
 }
 --]]
 
 -- The keys that invoke the whole macrotest from a macro. Some tests depend on that.
-local MacroKey1, MacroKey2 = "CtrlShiftF12", "RCtrlShiftF12"
+local MacroKeys = {}
 
 local AF = "my assertion failed"
 local function assert_eq(a,b,m)    assert(a == b, m or AF)               return true; end
@@ -50,6 +52,10 @@ local band, bor, bnot = bit64.band, bit64.bor, bit64.bnot
 local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d"
 local hlfviewerId = "1AF0754D-5020-49CB-9474-1F82691C84C1"
 local TKEY_BINARY = "__binary"
+
+function MT.SetMacroKeys(...)
+  MacroKeys = { ... }
+end
 
 local function pack (...)
   return { n=select("#",...), ... }
@@ -118,8 +124,11 @@ end
 local function test_mf_akey()
   assert_eq(akey, mf.akey)
   local key,name = akey(0),akey(1)
-  assert(key==0x0501007B and name==MacroKey1 or
-         key==0x1401007B and name==MacroKey2)
+  local ok = false
+  for _,refkey in ipairs(MacroKeys) do
+    if type(key)=="number" and name==refkey then ok=true; break; end
+  end
+  assert_true(ok)
   -- (the 2nd parameter is tested in function test_mf_eval).
 end
 
@@ -213,7 +222,7 @@ local function test_mf_eval()
     assert(akey(1,1)=="CtrlA")
     foobar = (foobar or 0) + 1
     return foobar,false,5,nil,"foo"
-  ]]):format(MacroKey1, MacroKey2)
+  ]]):format(MacroKeys[1] or "", MacroKeys[2] or "")
   local Id = assert_udata(far.MacroAdd(nil,nil,"CtrlA",code))
   for k=1,3 do
     local ret1,a,b,c,d,e = eval("CtrlA",2)
