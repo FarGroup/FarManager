@@ -1,5 +1,10 @@
 #include "crt.hpp"
 
+#if _MSC_VER >= 1951
+ #pragma function(strncmp)
+ #pragma function(wcsncmp)
+#endif
+
 int __cdecl
 #ifndef UNICODE
             strncmp

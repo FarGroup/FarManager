@@ -1,5 +1,10 @@
 #include "crt.hpp"
 
+#if _MSC_VER >= 1951
+ #pragma function(strncpy)
+ #pragma function(wcsncpy)
+#endif
+
 TCHAR * __cdecl
 #ifndef UNICODE
                strncpy
