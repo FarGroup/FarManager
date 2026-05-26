@@ -101,17 +101,43 @@ static BOOL WINAPI sim_SleepConditionVariableSRW(PCONDITION_VARIABLE, PSRWLOCK, 
 }
 
 //----------------------------------------------------------------------------
-static BOOLEAN WINAPI sim__unimpl_1arg(PVOID)
+static BOOLEAN WINAPI sim__unimpl_arg1(PVOID)
 {
     SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
     return FALSE;
 }
 
 //----------------------------------------------------------------------------
+static VOID WINAPI sim_InitializeSRWLock(PSRWLOCK SRWLock)
+{
+    SRWLock->Ptr = NULL;
+}
+
+//----------------------------------------------------------------------------
+static VOID WINAPI sim_ReleaseSRWLock(PSRWLOCK SRWLock)
+{
+    InterlockedExchangePointer(&SRWLock->Ptr, NULL);
+}
+
+//----------------------------------------------------------------------------
+static BOOLEAN WINAPI sim_TryAcquireSRWLock(PSRWLOCK SRWLock)
+{
+    return InterlockedCompareExchangePointer(&SRWLock->Ptr, (PVOID)1, NULL) == NULL;
+}
+
+//----------------------------------------------------------------------------
+static VOID WINAPI sim_AcquireSRWLock(PSRWLOCK SRWLock)
+{
+    for(unsigned sc = 0; !sim_TryAcquireSRWLock(SRWLock); sc++)
+      if(sc < 10) YieldProcessor();
+      else Sleep(sc >= 20);
+}
+
+//----------------------------------------------------------------------------
 static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
                                        PDelayLoadInfo pdli)
 {
-    if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
+    if(   dliNotify == dliFailGetProc/*Address*/
        && pdli && pdli->cb == sizeof(*pdli)
        && pdli->dlp.fImportByName && pdli->dlp.szProcName)
     {
@@ -129,6 +155,8 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
         return (FARPROC)TlsGetValue;
       if(!lstrcmpA(pdli->dlp.szProcName, "FlsSetValue"))
         return (FARPROC)TlsSetValue;
+      if(!lstrcmpA(pdli->dlp.szProcName, "SetThreadStackGuarantee"))
+        return (FARPROC)sim__unimpl_arg1;
 #endif
       if(!lstrcmpA(pdli->dlp.szProcName, "InitializeCriticalSectionEx"))
         return (FARPROC)sim_InitializeCriticalSectionEx;
@@ -139,15 +167,15 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
       if(!lstrcmpA(pdli->dlp.szProcName, "SleepConditionVariableSRW"))
         return (FARPROC)sim_SleepConditionVariableSRW;
       if(!lstrcmpA(pdli->dlp.szProcName, "WakeAllConditionVariable"))
-        return (FARPROC)sim__unimpl_1arg;
+        return (FARPROC)sim__unimpl_arg1;
       if(!lstrcmpA(pdli->dlp.szProcName, "ReleaseSRWLockExclusive"))
-        return (FARPROC)sim__unimpl_1arg;
+        return (FARPROC)sim_ReleaseSRWLock;
       if(!lstrcmpA(pdli->dlp.szProcName, "AcquireSRWLockExclusive"))
-        return (FARPROC)sim__unimpl_1arg;
+        return (FARPROC)sim_AcquireSRWLock;
       if(!lstrcmpA(pdli->dlp.szProcName, "TryAcquireSRWLockExclusive"))
-        return (FARPROC)sim__unimpl_1arg;
+        return (FARPROC)sim_TryAcquireSRWLock;
       if(!lstrcmpA(pdli->dlp.szProcName, "InitializeSRWLock"))
-        return (FARPROC)sim__unimpl_1arg;
+        return (FARPROC)sim_InitializeSRWLock;
     }
     return nullptr;
 }
@@ -159,6 +187,7 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 #pragma comment(linker, "/delayload:kernel32.FlsFree")
 #pragma comment(linker, "/delayload:kernel32.FlsGetValue")
 #pragma comment(linker, "/delayload:kernel32.FlsSetValue")
+#pragma comment(linker, "/delayload:kerbel32.SetThreadStackGuarantee")
 #endif
 #pragma comment(linker, "/delayload:kernel32.CompareStringEx")
 #pragma comment(linker, "/delayload:kernel32.LCMapStringEx")
