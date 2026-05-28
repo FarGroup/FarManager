@@ -438,7 +438,7 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	const auto is_cp_acceptable = [no_cjk, IsCodepageAcceptable](const UINT cp) {
 		return (cp != 0xffffffff) && !(no_cjk && cp >= 932 && cp <= 950) && IsCodepageAcceptable(cp);
 	};
-	const auto It = std::ranges::find_if(Scores, [&](DetectEncodingInfo const& i) { return is_cp_acceptable(i.nLangID); });
+	const auto It = std::ranges::find_if(Scores, [&](DetectEncodingInfo const& i) { return is_cp_acceptable(i.nCodePage); });
 	if (It == Scores.end())
 		return false;
 
