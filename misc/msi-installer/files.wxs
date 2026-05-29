@@ -1340,8 +1340,14 @@
           <Component Id="NetBoxEng.lng" Guid="$(var.Guid.NetBoxEng.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxEng.lng" />
           </Component>
+          <Component Id="NetBox.en.hlf" Guid="$(var.Guid.NetBox.en.hlf)" Win64="$(var.Win64)">
+            <File Id="NetBox.en.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBox.en.hlf" />
+          </Component>
           <Component Id="NetBoxRus.lng" Guid="$(var.Guid.NetBoxRus.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxRus.lng" />
+          </Component>
+          <Component Id="NetBox.ru.hlf" Guid="$(var.Guid.NetBox.ru.hlf)" Win64="$(var.Win64)">
+            <File Id="NetBox.ru.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBox.ru.hlf" />
           </Component>
           <Component Id="NetBoxPol.lng" Guid="$(var.Guid.NetBoxPol.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxPol.lng" />
@@ -1349,20 +1355,20 @@
           <Component Id="NetBoxSpa.lng" Guid="$(var.Guid.NetBoxSpa.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxSpa.lng" />
           </Component>
+          <!-- No NetBoxFr.lng yet -->
           <Component Id="README.md" Guid="$(var.Guid.README.md)" Win64="$(var.Win64)">
             <File Id="README.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.md" />
           </Component>
+          <!--
           <Component Id="README.RU.md" Guid="$(var.Guid.README.RU.md)" Win64="$(var.Win64)">
             <File Id="README.RU.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.RU.md" />
           </Component>
           <Component Id="README.PL.md" Guid="$(var.Guid.README.PL.md)" Win64="$(var.Win64)">
             <File Id="README.PL.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.PL.md" />
           </Component>
+          -->
           <Component Id="LICENSE.txt" Guid="$(var.Guid.LICENSE.txt)" Win64="$(var.Win64)">
             <File Id="LICENSE.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\LICENSE.txt" />
-          </Component>
-          <Component Id="cacert.pem" Guid="$(var.Guid.cacert.pem)" Win64="$(var.Win64)">
-            <File Id="cacert.pem" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\cacert.pem" />
           </Component>
         </Directory>
         <Directory Id="HlfViewer" Name="HlfViewer">
