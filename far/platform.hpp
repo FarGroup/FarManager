@@ -267,6 +267,7 @@ namespace os
 		[[nodiscard]] string Win32ErrorStr() const;
 		[[nodiscard]] string NtErrorStr() const;
 
+		[[nodiscard]] string to_string_base() const;
 		[[nodiscard]] string to_string() const;
 	};
 

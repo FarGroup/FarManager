@@ -358,7 +358,7 @@ bool PluginSettings::Delete(const FarSettingsValue& Value)
 int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	//Don't allow illegal key names - empty names or with backslashes
-	if (Value.Root >= m_Keys.size() || !Value.Value || !*Value.Value || contains(Value.Value, '\\'))
+	if (Value.Root >= m_Keys.size() || !Value.Value || !*Value.Value || contains(Value.Value, L'\\'))
 		return 0;
 
 	const auto root = bCreate? PluginsCfg->CreateKey(m_Keys[Value.Root], Value.Value) : PluginsCfg->FindByName(m_Keys[Value.Root], Value.Value);

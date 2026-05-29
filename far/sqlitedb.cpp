@@ -196,6 +196,11 @@ namespace
 			return major * 1000000 + minor * 1000 + patch;
 		}
 
+		string to_string() const
+		{
+			return far::format(L"{}.{}.{}"sv, major, minor, patch);
+		}
+
 		unsigned major;
 		unsigned minor;
 		unsigned patch;
@@ -207,11 +212,14 @@ namespace
 			ApiVersion{ SQLITE_VERSION_NUMBER },
 			LibVersion{ sqlite::sqlite3_libversion_number() };
 
-		return components::info{ L"SQLite"sv, far::format(
-			L"{}.{}.{} (API) / {}.{}.{} (library)"sv,
-			ApiVersion.major, ApiVersion.minor, ApiVersion.patch,
-			LibVersion.major, LibVersion.minor, LibVersion.patch
-		)};
+		return components::info{ L"SQLite"sv,
+			far::format(L"{}{}"sv,
+				ApiVersion,
+				LibVersion == ApiVersion?
+					L""sv :
+					far::format(L" (API) / {} (library)"sv, LibVersion)
+			)
+		};
 	});
 }
 
@@ -255,16 +263,16 @@ static void check_version()
 		throw far_known_exception(far::format(
 			L""
 			"SQLite library is too old\n\n"
-			"Loaded version:   {}.{}.{}\n"
-			"Minimum version:  {}.{}.{}\n"
-			"Expected version: {}.{}.{}"sv,
-			LibVersion.major, LibVersion.minor, LibVersion.patch,
-			MinVersion.major, MinVersion.minor, MinVersion.patch,
-			ApiVersion.major, ApiVersion.minor, ApiVersion.patch
+			"Loaded version:   {}\n"
+			"Minimum version:  {}\n"
+			"Expected version: {}"sv,
+			LibVersion,
+			MinVersion,
+			ApiVersion
 		));
 	}
 
-	LOGINFO(L"SQLite {}.{}.{} loaded"sv, LibVersion.major, LibVersion.minor, LibVersion.patch);
+	LOGINFO(L"SQLite {} loaded"sv, LibVersion);
 }
 
 void SQLiteDb::library_load()

@@ -248,7 +248,6 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 			break;
 		}
 
-		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
 

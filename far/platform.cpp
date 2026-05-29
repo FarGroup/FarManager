@@ -349,7 +349,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		format_message_error_context const Context{ Nt, ErrorCode };
 		const auto ErrorStr = errors_to_string_impl(LastError.Win32Error, LastError.NtError, &Context);
 
-		LOGERROR(L"FormatMessage<{}>(0x{:08X}): {}"sv, Nt? L"NT"sv : L"Win32"sv, ErrorCode, ErrorStr);
+		LOGERROR(L"FormatMessage<{}>(0x{:08X}): Error: {{{}}} ({})"sv, Nt? L"NT"sv : L"Win32"sv, ErrorCode, ErrorStr, source_location_to_string(LastError.Location));
 		return {};
 	}
 
@@ -420,9 +420,14 @@ string error_state::NtErrorStr() const
 	return format_ntstatus(NtError);
 }
 
-string error_state::to_string() const
+string error_state::to_string_base() const
 {
 	return errors_to_string_impl(Win32Error, NtError);
+}
+
+string error_state::to_string() const
+{
+	return far::format(L"Error: {{{}}} ({})"sv, to_string_base(), source_location_to_string(Location));
 }
 
 error_state last_error(source_location const& Location)
@@ -1158,4 +1163,69 @@ TEST_CASE("platform.rtdl")
 	}
 }
 
+TEST_CASE("postprocess_error_string")
+{
+	static const struct
+	{
+		DWORD Error;
+		string_view Str, Expected;
+	}
+	Tests[]
+	{
+		{ 0, L""sv,           L"0x00000000 - Unknown error"sv },
+		{ 42, L"1\n2\n3  "sv, L"0x0000002A - 1 2 3"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(os::postprocess_error_string(i.Error, string(i.Str)) == i.Expected);
+	}
+}
+
+TEST_CASE("error_state")
+{
+	static const struct
+	{
+		DWORD Win32Error;
+		NTSTATUS NtError;
+	}
+	Tests[]
+	{
+		{ ERROR_SUCCESS, STATUS_SUCCESS },
+		{ ERROR_SUCCESS, STATUS_GUARD_PAGE_VIOLATION },
+		{ ERROR_ARENA_TRASHED, STATUS_SUCCESS },
+		{ ERROR_ARENA_TRASHED, STATUS_GUARD_PAGE_VIOLATION },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Location = source_location::current();
+		const auto ErrorState = os::error_state(i.Win32Error, i.NtError, Location);
+
+		const auto Any = i.Win32Error != ERROR_SUCCESS || i.NtError != STATUS_SUCCESS;
+
+		REQUIRE(ErrorState.any() == Any);
+		REQUIRE(ErrorState.Win32Error == i.Win32Error);
+		REQUIRE(ErrorState.NtError == i.NtError);
+		REQUIRE(ErrorState.Location.file_name() == Location.file_name());
+		REQUIRE(ErrorState.Location.function_name() == Location.function_name());
+		REQUIRE(ErrorState.Location.line() == Location.line());
+
+		const auto Win32ErrorStr = os::format_error(i.Win32Error);
+		REQUIRE(ErrorState.Win32ErrorStr() == Win32ErrorStr);
+
+		const auto NtErrorStr = os::format_ntstatus(i.NtError);
+		REQUIRE(ErrorState.NtErrorStr() == NtErrorStr);
+
+		string const ErrorStrings[]
+		{
+			i.Win32Error? far::format(L"LastError: {}"sv, Win32ErrorStr) : L""s,
+			i.NtError?    far::format(L"NTSTATUS: {}"sv, NtErrorStr) : L""s,
+		};
+
+		const auto FullStr = join(L", "sv, ErrorStrings | std::views::filter([](string const& Str) { return !Str.empty(); }));
+
+		REQUIRE(far::format(L"{}"sv, ErrorState) == far::format(L"Error: {{{}}} ({})"sv, FullStr, source_location_to_string(Location)));
+	}
+}
 #endif

@@ -505,7 +505,7 @@ static void log_process_exit_code(execute_info const& Info, os::handle const& Pr
 			ExitCode,
 			ExitCode == EXIT_FAILURE?
 				L""sv :
-				far::format(L", {}"sv, os::error_state{ExitCode, static_cast<NTSTATUS>(ExitCode)}.to_string())
+				far::format(L", {}"sv, os::error_state{ExitCode, static_cast<NTSTATUS>(ExitCode)})
 		);
 
 	console.command_finished(ExitCode);

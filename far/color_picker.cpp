@@ -609,15 +609,8 @@ static bool pick_color_single(colors::single_color& Color, std::array<COLORREF, 
 	if (!UndelineColorControlActivated)
 		ColorDlg[scd_item(cb::colorcode_edit)].Flags |= DIF_FOCUS;
 
-	if constexpr ((true))
-	{
-		ColorDlg[scd_item(cb::color_text)].Flags |= DIF_HIDDEN | DIF_DISABLE;
-		disable_if_needed(Color.Value, ColorDlg, scd::color_first);
-	}
-	else
-	{
-		ColorDlg[scd_item(cb::color_active_checkbox)].Flags |= DIF_HIDDEN | DIF_DISABLE;
-	}
+	ColorDlg[scd_item(cb::color_text)].Flags |= DIF_HIDDEN | DIF_DISABLE;
+	disable_if_needed(Color.Value, ColorDlg, scd::color_first);
 
 	const auto Dlg = Dialog::create(ColorDlg, std::bind_front(&single_color_state::GetSingleColorDlgProc, &ColorState));
 

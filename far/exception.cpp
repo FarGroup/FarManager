@@ -135,9 +135,9 @@ string error_state_ex::to_string() const
 {
 	if (any())
 	{
-		auto Str = error_state::to_string();
+		auto Str = to_string_base();
 		if (Errno)
-			Str = concat(ErrnoStr(), L", "sv, Str);
+			Str = concat(L"errno: "sv, ErrnoStr(), L", "sv, Str);
 
 		return far::format(L"Message: {}, Error: {{{}}} ({})"sv, What, Str, source_location_to_string(Location));
 	}
@@ -162,3 +162,90 @@ void throw_far_exception(std::string_view const Message, source_location const& 
 {
 	throw far_exception(encoding::utf8::get_chars(Message), true, Location);
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("error_state_ex")
+{
+	os::error_state const ErrorState{ ERROR_ARENA_TRASHED, STATUS_GUARD_PAGE_VIOLATION, source_location::current() };
+
+	static const struct
+	{
+		string_view What;
+		int Errno;
+	}
+	Tests[]
+	{
+		{ {}, {} },
+		{ {}, ENOMEM },
+		{ L"Whoopsie"sv, {} },
+		{ L"Whoopsie"sv, ENOMEM },
+	};
+
+	for (const auto& i: Tests)
+	{
+		error_state_ex const ErrorStateEx{ ErrorState, i.What, i.Errno };
+
+		REQUIRE(ErrorStateEx.any());
+		REQUIRE(ErrorStateEx.What == i.What);
+		REQUIRE(ErrorStateEx.Errno == i.Errno);
+		REQUIRE(ErrorStateEx.Win32Error == ErrorState.Win32Error);
+		REQUIRE(ErrorStateEx.NtError == ErrorState.NtError);
+		REQUIRE(ErrorStateEx.Location.file_name() == ErrorState.Location.file_name());
+		REQUIRE(ErrorStateEx.Location.function_name() == ErrorState.Location.function_name());
+		REQUIRE(ErrorStateEx.Location.line() == ErrorState.Location.line());
+
+		const auto ErrnoStr = os::format_errno(i.Errno);
+		REQUIRE(ErrorStateEx.ErrnoStr() == ErrnoStr);
+
+		string const ErrorStrings[]
+		{
+			i.Errno? far::format(L"errno: {}"sv, ErrnoStr) : L""s,
+			ErrorState.any()? ErrorState.to_string_base() : L""s,
+		};
+
+		const auto FullStr = join(L", "sv, ErrorStrings | std::views::filter([](string const& Str) { return !Str.empty(); }));
+
+		REQUIRE(far::format(L"{}"sv, ErrorStateEx) == far::format(
+			L"Message: {}, Error: {{{}}} ({})"sv,
+			i.What,
+			FullStr,
+			source_location_to_string(ErrorState.Location))
+		);
+	}
+}
+
+TEST_CASE("far_exception")
+{
+	const auto Message = L"Run away! Run away!"sv;
+	const auto Errno = ENOTRECOVERABLE;
+	const auto Win32Error = ERROR_ARENA_TRASHED;
+	const auto NtError = STATUS_GUARD_PAGE_VIOLATION;
+	const auto Location = source_location::current();
+
+	errno = Errno;
+	SetLastError(Win32Error);
+	os::set_last_nt_status(NtError);
+	far_exception e(Message, true, Location);
+
+	REQUIRE(e.What == Message);
+	REQUIRE(e.Errno == Errno);
+	REQUIRE(e.Win32Error == Win32Error);
+	REQUIRE(e.NtError == NtError);
+	REQUIRE(e.Location.file_name() == Location.file_name());
+	REQUIRE(e.Location.function_name() == Location.function_name());
+	REQUIRE(e.Location.line() == Location.line());
+	REQUIRE(e.message() == Message);
+
+	REQUIRE(far::format(L"{}"sv, e) == far::format(
+		L"far_base_exception: {{Message: {}, Error: {{errno: {}, LastError: {}, NTSTATUS: {}}} ({})}}"sv,
+		Message,
+		os::format_errno(Errno),
+		os::format_error(Win32Error),
+		os::format_ntstatus(NtError),
+		source_location_to_string(Location))
+	);
+}
+#endif
