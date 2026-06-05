@@ -77,7 +77,7 @@ namespace detail
 {
 	string far_base_exception::to_string() const
 	{
-		return with_exception_stacktrace(far::format(L"far_base_exception: {{{}}}"sv, error_state_ex::to_string()));
+		return with_exception_stacktrace(far::format(L"Exception: {{{}}}"sv, error_state_ex::to_string()));
 	}
 
 	far_base_exception::far_base_exception(error_state_ex ErrorState):
@@ -240,7 +240,7 @@ TEST_CASE("far_exception")
 	REQUIRE(e.message() == Message);
 
 	REQUIRE(far::format(L"{}"sv, e) == far::format(
-		L"far_base_exception: {{Message: {}, Error: {{errno: {}, LastError: {}, NTSTATUS: {}}} ({})}}"sv,
+		L"Exception: {{Message: {}, Error: {{errno: {}, LastError: {}, NTSTATUS: {}}} ({})}}"sv,
 		Message,
 		os::format_errno(Errno),
 		os::format_error(Win32Error),

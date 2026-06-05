@@ -427,7 +427,9 @@ string error_state::to_string_base() const
 
 string error_state::to_string() const
 {
-	return far::format(L"Error: {{{}}} ({})"sv, to_string_base(), source_location_to_string(Location));
+	return Location.file_name()?
+		far::format(L"Error: {{{}}} ({})"sv, to_string_base(), source_location_to_string(Location)) :
+		far::format(L"Error: {{{}}}"sv, to_string_base());
 }
 
 error_state last_error(source_location const& Location)
@@ -1188,28 +1190,28 @@ TEST_CASE("error_state")
 	{
 		DWORD Win32Error;
 		NTSTATUS NtError;
+		source_location Location;
 	}
 	Tests[]
 	{
-		{ ERROR_SUCCESS, STATUS_SUCCESS },
-		{ ERROR_SUCCESS, STATUS_GUARD_PAGE_VIOLATION },
-		{ ERROR_ARENA_TRASHED, STATUS_SUCCESS },
-		{ ERROR_ARENA_TRASHED, STATUS_GUARD_PAGE_VIOLATION },
+		{ ERROR_SUCCESS,          STATUS_SUCCESS,                 source_location::current() },
+		{ ERROR_SUCCESS,          STATUS_GUARD_PAGE_VIOLATION,    {}                         },
+		{ ERROR_ARENA_TRASHED,    STATUS_SUCCESS,                 source_location::current() },
+		{ ERROR_ARENA_TRASHED,    STATUS_GUARD_PAGE_VIOLATION,    {}                         },
 	};
 
 	for (const auto& i: Tests)
 	{
-		const auto Location = source_location::current();
-		const auto ErrorState = os::error_state(i.Win32Error, i.NtError, Location);
+		const auto ErrorState = os::error_state(i.Win32Error, i.NtError, i.Location);
 
 		const auto Any = i.Win32Error != ERROR_SUCCESS || i.NtError != STATUS_SUCCESS;
 
 		REQUIRE(ErrorState.any() == Any);
 		REQUIRE(ErrorState.Win32Error == i.Win32Error);
 		REQUIRE(ErrorState.NtError == i.NtError);
-		REQUIRE(ErrorState.Location.file_name() == Location.file_name());
-		REQUIRE(ErrorState.Location.function_name() == Location.function_name());
-		REQUIRE(ErrorState.Location.line() == Location.line());
+		REQUIRE(ErrorState.Location.file_name() == i.Location.file_name());
+		REQUIRE(ErrorState.Location.function_name() == i.Location.function_name());
+		REQUIRE(ErrorState.Location.line() == i.Location.line());
 
 		const auto Win32ErrorStr = os::format_error(i.Win32Error);
 		REQUIRE(ErrorState.Win32ErrorStr() == Win32ErrorStr);
@@ -1225,7 +1227,7 @@ TEST_CASE("error_state")
 
 		const auto FullStr = join(L", "sv, ErrorStrings | std::views::filter([](string const& Str) { return !Str.empty(); }));
 
-		REQUIRE(far::format(L"{}"sv, ErrorState) == far::format(L"Error: {{{}}} ({})"sv, FullStr, source_location_to_string(Location)));
+		REQUIRE(far::format(L"{}"sv, ErrorState) == far::format(L"Error: {{{}}}{}"sv, FullStr, i.Location.file_name()? far::format(L" ({})"sv, source_location_to_string(i.Location)) : L""s));
 	}
 }
 #endif
