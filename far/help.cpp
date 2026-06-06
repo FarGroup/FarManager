@@ -1557,7 +1557,10 @@ bool Help::JumpTopic()
 		if (ColonPos != 0 && ColonPos != string::npos &&
 			!(StackData.strSelTopic.starts_with(HelpBeginLink) && contains(StackData.strSelTopic, HelpEndLink))
 			&& OpenURL(StackData.strSelTopic))
+		{
+			Show(); // gh-1109
 			return false;
+		}
 	}
 	// а вот теперь попробуем...
 
@@ -2146,6 +2149,7 @@ static bool OpenURL(string_view const URLPath)
 	Info.DisplayCommand = FilteredURLPath;
 	Info.Command = std::move(FilteredURLPath);
 	Info.SourceMode = execute_info::source_mode::known_external; // skip plugin prefixes processing
+	Info.Echo = false;
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 	return true;
 }
