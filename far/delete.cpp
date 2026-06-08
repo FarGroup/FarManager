@@ -716,8 +716,14 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	if (!SrcPanel->get_first_selected(SingleSelData))
 		return;
 
-	if (m_DeleteType == delete_type::recycle && os::fs::drive::get_type(GetPathRoot(ConvertNameToFull(SingleSelData.FileName))) != DRIVE_FIXED)
-		m_DeleteType = delete_type::remove;
+	if (m_DeleteType == delete_type::recycle)
+	{
+		if (SHQUERYRBINFO Info{ sizeof(Info) }; FAILED(SHQueryRecycleBin(GetPathRoot(SrcPanel->GetCurDir()).c_str(), &Info)))
+		{
+			// If we can't query recycle bin for the given path, we likely won't be able to move into it, so update the action accordingly
+			m_DeleteType = delete_type::remove;
+		}
+	}
 
 	show_confirmation(SrcPanel, m_DeleteType, SelCount, SingleSelData);
 
