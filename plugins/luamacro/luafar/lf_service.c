@@ -6571,6 +6571,7 @@ static int luaopen_far(lua_State *L)
 	NewVirtualKeyTable(L, FALSE);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
+	PutStrToTable (L, "Flavor", "far3");
 
 	luaopen_far_host(L);
 	lua_setfield(L, -2, "Host");

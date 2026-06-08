@@ -76,6 +76,7 @@ node lv=4 id=587 art=587 nm=ACTL_SETPROGRESSVALUE
 node lv=4 id=579 art=579 nm=ACTL_SYNCHRO
 node lv=4 id=580 art=580 nm=ACTL_WAITKEY
 node lv=3 id=567 art=567 nm=actl namespace
+node lv=2 id=665 art=665 nm=far.Flavor
 node lv=2 id=546 art=546 nm=far.FreeScreen
 node lv=2 id=53 art=53 nm=far.GetDirList
 node lv=2 id=58 art=58 nm=far.GetMsg
@@ -10854,5 +10855,10 @@ article id=664 dt=Text ctime=3983596118 mtime=3983598908 nm=DM_USER
 #_
 #_@@@
 #_{dm_user}: $(ENC_URL)/dialogapi/dmsg/dm_user.html
+#_
+
+article id=665 dt=Text ctime=3990099408 mtime=3990099456 nm=far.Flavor
+#_far.Flavor is a string "far3".
+#_It is intended for use in scripts portable between far3/far2l/far2m.
 #_
 
