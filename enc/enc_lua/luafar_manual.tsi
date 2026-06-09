@@ -9484,11 +9484,11 @@ article id=580 dt=Text ctime=3936005270 mtime=3936018950 nm=ACTL_WAITKEY
 #_{actl_waitkey}: $(ENC_URL)/service_functions/advcontrol.html#ACTL_WAITKEY
 #_
 
-article id=581 dt=Text ctime=3936005286 mtime=3936009976 nm=ACTL_GETCOLOR
+article id=581 dt=Text ctime=3936005286 mtime=3990186848 nm=ACTL_GETCOLOR
 #_Result = far.AdvControl (ACTL_GETCOLOR, Param1)
 #_
 #_**Parameters:**
-#_  Param1:   integer
+#_  Param1:   flag
 #_  Param2:   N/A
 #_
 #_**Returns:**

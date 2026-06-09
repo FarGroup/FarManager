@@ -598,7 +598,6 @@ static const int sentinel_ = 0;
 static int ll_require(lua_State *L)
 {
 	const char *name = luaL_checkstring(L, 1);
-	int i;
 	lua_settop(L, 1);  /* _LOADED table will be at index 2 */
 	lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
 	lua_getfield(L, 2, name);
@@ -619,7 +618,7 @@ static int ll_require(lua_State *L)
 
 	lua_pushliteral(L, "");  /* error message accumulator */
 
-	for(i=1; ; i++)
+	for(int i=1; ; i++)
 	{
 		lua_rawgeti(L, -2, i);  /* get a loader */
 
@@ -686,9 +685,7 @@ static void setfenv(lua_State *L)
 
 static void dooptions(lua_State *L, int n)
 {
-	int i;
-
-	for(i = 2; i <= n; i++)
+	for(int i = 2; i <= n; i++)
 	{
 		lua_pushvalue(L, i);  /* get option (a function) */
 		lua_pushvalue(L, -2);  /* module */
@@ -820,7 +817,6 @@ static const lua_CFunction loaders[] =
 
 LUALIB_API int luaopen_upackage(lua_State *L)
 {
-	int i;
 	/* create new type _LOADLIB */
 	luaL_newmetatable(L, "_LOADLIB");
 	lua_pushcfunction(L, gctm);
@@ -837,7 +833,7 @@ LUALIB_API int luaopen_upackage(lua_State *L)
 	lua_createtable(L, sizeof(loaders)/sizeof(loaders[0]) - 1, 0);
 
 	/* fill it with pre-defined loaders */
-	for(i=0; loaders[i] != NULL; i++)
+	for(int i=0; loaders[i] != NULL; i++)
 	{
 		lua_pushcfunction(L, loaders[i]);
 		lua_rawseti(L, -2, i+1);

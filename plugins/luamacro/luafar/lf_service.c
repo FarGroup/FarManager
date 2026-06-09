@@ -228,6 +228,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 	int dummy;
 	const char *str;
 	INT64 ret = 0;
+	int top = lua_gettop(L);
 
 	if (success)
 		*success = TRUE;
@@ -248,11 +249,22 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 			str = lua_tostring(L, pos);
 			lua_getfield(L, LUA_REGISTRYINDEX, FAR_FLAGSTABLE);
 			lua_getfield(L, -1, str);
+
+			if (lua_isnil(L, -1)) // not found in far.Flags, look into far.Colors
+			{
+				if ((lua_getglobal(L, "far"), !lua_istable(L,-1))
+						|| (lua_getfield(L,-1,"Colors"), !lua_istable(L,-1)))
+				{
+					*success = FALSE;
+					break;
+				}
+				lua_getfield(L, -1, str);
+			}
+
 			if (lua_type(L, -1) == LUA_TNUMBER)
 				ret = (__int64)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
 			else if (!bit64_getvalue(L, -1, &ret))
 				*success = FALSE;
-			lua_pop(L, 2);
 			break;
 
 		default:
@@ -261,6 +273,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 			break;
 	}
 
+	lua_settop(L, top);
 	return ret;
 }
 
@@ -609,10 +622,9 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem, int No
 	/* not clear why custom columns are defined on per-file basis */
 	if (PanelItem->CustomColumnNumber > 0)
 	{
-		int j;
 		lua_createtable(L, (int)PanelItem->CustomColumnNumber, 0);
 
-		for(j=0; j < (int)PanelItem->CustomColumnNumber; j++)
+		for(int j=0; j < (int)PanelItem->CustomColumnNumber; j++)
 			PutWStrToArray(L, j+1, PanelItem->CustomColumnData[j], -1);
 
 		lua_setfield(L, -2, "CustomColumnData");
@@ -658,10 +670,9 @@ static void PutRECTToTable(lua_State *L, const char* key, RECT rect)
 
 void PushPanelItems(lua_State *L, const struct PluginPanelItem *PanelItems, size_t ItemsNumber, int NoUserData)
 {
-	int i;
 	lua_createtable(L, (int)ItemsNumber, 0); // "PanelItems"
 
-	for(i=0; i < (int)ItemsNumber; i++)
+	for(int i=0; i < (int)ItemsNumber; i++)
 	{
 		PushPanelItem(L, PanelItems + i, NoUserData);
 		lua_rawseti(L, -2, i+1);
@@ -671,15 +682,15 @@ void PushPanelItems(lua_State *L, const struct PluginPanelItem *PanelItems, size
 
 static int far_PluginStartupInfo(lua_State *L)
 {
-	const wchar_t *p;
 	intptr_t len=0;
 	TPluginData *pd = GetPluginData(L);
 	lua_createtable(L, 0, 4);
 	PutWStrToTable(L, "ModuleName", pd->Info->ModuleName, -1);
 
-	for(p=pd->Info->ModuleName; *p; p++)
+	for(const wchar_t *p = pd->Info->ModuleName; *p; p++)
 	{
-		if (*p==L'\\') len = p - pd->Info->ModuleName;
+		if (*p == L'\\')
+			len = p - pd->Info->ModuleName;
 	}
 
 	PutWStrToTable(L, "ModuleDir", pd->Info->ModuleName, len+1);
@@ -1001,18 +1012,16 @@ static int editor_UndoRedo(lua_State *L)
 
 static void FillKeyBarTitles(lua_State *L, int src_pos, struct KeyBarTitles *kbt)
 {
-	int store_pos, i;
-	size_t size;
 	lua_newtable(L);
-	store_pos = lua_gettop(L);
+	int store_pos = lua_gettop(L);
 	//-------------------------------------------------------------------------
 	memset(kbt, 0, sizeof(*kbt));
 	kbt->CountLabels = lua_objlen(L, src_pos);
-	size = kbt->CountLabels * sizeof(struct KeyBarLabel);
+	size_t size = kbt->CountLabels * sizeof(struct KeyBarLabel);
 	kbt->Labels = (struct KeyBarLabel*)lua_newuserdata(L, size);
 	memset(kbt->Labels, 0, size);
 
-	for(i=0; i < (int)kbt->CountLabels; i++)
+	for(int i=0; i < (int)kbt->CountLabels; i++)
 	{
 		lua_rawgeti(L, src_pos, i+1);
 
@@ -1175,9 +1184,8 @@ static int PushBookmarks(lua_State *L, int command)
 		ebm->Size = size;
 		if (GetPluginData(L)->Info->EditorControl(EditorId, command, 0, ebm))
 		{
-			int i;
 			lua_createtable(L, (int)ebm->Count, 0);
-			for(i=0; i < (int)ebm->Count; i++)
+			for(int i=0; i < (int)ebm->Count; i++)
 			{
 				lua_pushinteger(L, i+1);
 				lua_createtable(L, 0, 4);
@@ -2552,9 +2560,9 @@ static int ChangePanelSelection(lua_State *L, intptr_t command)
 		Info->PanelControl(handle, command, itemindex, (void*)state);
 	else
 	{
-		intptr_t i, len = lua_objlen(L,3);
+		intptr_t len = lua_objlen(L,3);
 
-		for(i=1; i<=len; i++)
+		for(intptr_t i=1; i<=len; i++)
 		{
 			lua_pushinteger(L, i);
 			lua_gettable(L,3);
@@ -2647,10 +2655,9 @@ static int far_GetDirList(lua_State *L)
 
 	if (Info->GetDirList(Dir, &PanelItems, &ItemsNumber))
 	{
-		int i;
 		lua_createtable(L, (int)ItemsNumber, 0); // "PanelItems"
 
-		for(i=0; i < (int)ItemsNumber; i++)
+		for(int i=0; i < (int)ItemsNumber; i++)
 		{
 			PushPanelItem(L, PanelItems + i, 0);
 			lua_rawseti(L, -2, i+1);
@@ -3381,7 +3388,7 @@ static int DoSendDlgMessage (lua_State *L, intptr_t Msg, int delta)
 					while(*p && !iswspace(*p)) p++;
 				}
 				arr = (INPUT_RECORD*)lua_newuserdata(L, count * sizeof(INPUT_RECORD));
-				for(i=0,p=str; i<count; i++)
+				for(i=0, p=str; i<count; i++)
 				{
 					while(iswspace(*p)) p++;
 					q = p;
@@ -3792,11 +3799,10 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_CTLCOLORDLGITEM:
 		case DN_CTLCOLORDLGLIST:
 		{
-			int i;
 			struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
 			lua_createtable(L, (int)fdic->ColorsCount, 1);
 			PutFlagsToTable(L, "Flags", fdic->Flags);
-			for(i=0; i < (int)fdic->ColorsCount; i++)
+			for(int i=0; i < (int)fdic->ColorsCount; i++)
 			{
 				PushFarColor(L, &fdic->Colors[i]);
 				lua_rawseti(L, -2, i+1);
@@ -3856,12 +3862,11 @@ intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2)
 			if ((ret = lua_istable(L,-1)) != 0)
 			{
 				struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
-				int i;
 				size_t len = lua_objlen(L, -1);
 
 				if (len > fdic->ColorsCount) len = fdic->ColorsCount;
 
-				for(i = 0; i < (int)len; i++)
+				for(int i = 0; i < (int)len; i++)
 				{
 					lua_rawgeti(L, -1, i+1);
 					GetFarColor(L, -1, &fdic->Colors[i]);
@@ -4822,7 +4827,7 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 		case ACTL_GETCOLOR:
 		{
 			struct FarColor fc;
-			Param1 = luaL_checkinteger(L, pos2);
+			Param1 = check_env_flag(L, pos2);
 
 			if (Info->AdvControl(PluginId, Command, Param1, &fc))
 				PushFarColor(L, &fc);
@@ -4869,12 +4874,12 @@ static int DoAdvControl (lua_State *L, int Command, int Delta)
 
 		case ACTL_GETARRAYCOLOR:
 		{
-			intptr_t len = Info->AdvControl(PluginId, Command, 0, NULL), i;
+			intptr_t len = Info->AdvControl(PluginId, Command, 0, NULL);
 			struct FarColor *arr = (struct FarColor*) lua_newuserdata(L, len*sizeof(struct FarColor));
 			Info->AdvControl(PluginId, Command, len, arr);
 			lua_createtable(L, (int)len, 0);
 
-			for(i=0; i < len; i++)
+			for(intptr_t i=0; i < len; i++)
 			{
 				PushFarColor(L, &arr[i]);
 				lua_rawseti(L, -2, (int)i+1);
@@ -5602,11 +5607,10 @@ static int far_GetPlugins(lua_State *L)
 
 	if (count > 0)
 	{
-		int i;
 		HANDLE *handles = lua_newuserdata(L, count*sizeof(HANDLE));
 		count = (int)Info->PluginsControl(INVALID_HANDLE_VALUE, PCTL_GETPLUGINS, count, handles);
 
-		for(i=0; i<count; i++)
+		for(int i=0; i<count; i++)
 		{
 			PushPluginHandle(L, handles[i]);
 			lua_rawseti(L, -3, i+1);
@@ -6851,9 +6855,7 @@ int LF_DoFile(lua_State *L, const wchar_t *fname, int argc, wchar_t* argv[])
 
 	if ((status = LF_LoadFile(L, fname)) == 0)
 	{
-		int i;
-
-		for(i=0; i < argc; i++)
+		for(int i=0; i < argc; i++)
 			push_utf8_string(L, argv[i], -1);
 
 		status = lua_pcall(L, argc, 0, 0);
