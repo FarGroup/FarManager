@@ -953,7 +953,7 @@ static void ResetViewModes(std::span<PanelViewSettings> const Modes, int const I
 {
 	static const struct
 	{
-		std::initializer_list<column> PanelColumns, StatusColumns;
+		std::initializer_list<column> PanelColumns, StatusLine;
 		unsigned long long Flags;
 	}
 	InitialModes[]
@@ -1113,7 +1113,7 @@ static void ResetViewModes(std::span<PanelViewSettings> const Modes, int const I
 	const auto InitMode = [](const auto& src, auto& dst)
 	{
 		dst.PanelColumns = src.PanelColumns;
-		dst.StatusColumns = src.StatusColumns;
+		dst.StatusLines = { src.StatusLine };
 		dst.Flags = src.Flags;
 		dst.Name.clear();
 	};
@@ -1348,7 +1348,7 @@ void Options::SetFilePanelModes()
 
 			ModeDlg[MD_EDITNAME].strData = CurrentSettings.Name;
 			std::tie(ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData) = SerialiseViewSettings(CurrentSettings.PanelColumns);
-			std::tie(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData) = SerialiseViewSettings(CurrentSettings.StatusColumns);
+			std::tie(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData) = serialize_status_line_settings(CurrentSettings.StatusLines);
 		}
 
 		int ExitCode;
@@ -1376,7 +1376,7 @@ void Options::SetFilePanelModes()
 
 				NewSettings.Name = ModeDlg[MD_EDITNAME].strData;
 				NewSettings.PanelColumns = DeserialiseViewSettings(ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData);
-				NewSettings.StatusColumns = DeserialiseViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData);
+				NewSettings.StatusLines = deserialize_status_line_settings(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 			}
 			else
 			{
@@ -2861,7 +2861,7 @@ void Options::ReadPanelModes()
 		if (!StatusColumnTitles.empty())
 		{
 			const auto StatusColumnWidths = cfg->GetValue<string>(Key, ModesStatusColumnWidthsName);
-			i.StatusColumns = DeserialiseViewSettings(StatusColumnTitles, StatusColumnWidths);
+			i.StatusLines = deserialize_status_line_settings(StatusColumnTitles, StatusColumnWidths);
 		}
 	};
 
@@ -2897,7 +2897,7 @@ void Options::SavePanelModes(bool always)
 	const auto SaveMode = [&](HierarchicalConfig::key const ModesKey, PanelViewSettings const& Item, size_t Index)
 	{
 		const auto [PanelTitles, PanelWidths] = SerialiseViewSettings(Item.PanelColumns);
-		const auto [StatusTitles, StatusWidths] = SerialiseViewSettings(Item.StatusColumns);
+		const auto [StatusTitles, StatusWidths] = serialize_status_line_settings(Item.StatusLines);
 
 		const auto Key = cfg->CreateKey(ModesKey, str(Index));
 

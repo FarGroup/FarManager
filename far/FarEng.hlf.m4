@@ -4274,53 +4274,53 @@ files will be listed on a single stripe.
 
  The following column types are supported:
 
- N[M[D],O,R[F],N] - file name, where:
-                    M - ^<wrap>show selection marks where:
-                        D - dynamic selection marks;
-                    O - ^<wrap>show names without paths (intended mostly for ~plugins~@Plugins@);
-                    R - ^<wrap>right align names that do not fit in column, where:
-                        F - right align all names;
-                    N - ^<wrap>do not show extensions in name column;
+ #N[M[D],O,R[F],N]# - file name, where:
+                    #M# - ^<wrap>show selection marks where:
+                        #D# - dynamic selection marks;
+                    #O# - ^<wrap>show names without paths (intended mostly for ~plugins~@Plugins@);
+                    #R# - ^<wrap>right align names that do not fit in column, where:
+                        #F# - right align all names;
+                    #N# - ^<wrap>do not show extensions in name column;
 
  These modifiers can be used in combination, for example NMR.
 
- X[R]       - file extension, where:
-              R - ^<wrap>right align file extension;
+ #X[R]#       - file extension, where:
+              #R# - ^<wrap>right align file extension;
 
- S[C,T,F,E] - file size
- P[C,T,F,E] - allocation file size
- G[C,T,F,E] - size of file streams, where:
-              C - ^<wrap>group digits using the character from Windows settings;
-              T - ^<wrap>use decimal units instead of binary,
+ #S[C,T,F,E]# - file size
+ #P[C,T,F,E]# - allocation file size
+ #G[C,T,F,E]# - size of file streams, where:
+              #C# - ^<wrap>group digits using the character from Windows settings;
+              #T# - ^<wrap>use decimal units instead of binary,
 i.e., to calculate kilobytes, the size will be divided by 1000 instead
 of by 1024; in this mode unit character is shown in lower case, e.g. #k#,
 #m#, #g# instead of #K#, #M#, #G#;
-              F - ^<wrap>show size as a decimal fraction with
+              #F# - ^<wrap>show size as a decimal fraction with
 no more than three digits before decimal point, e.g. 999 bytes will
 be shown as #999#, while 1024 bytes as #1.00 K#; note that the behavior
 depends on whether the #T# modifier is used;
-              E - ^<wrap>economic mode, no space between the
+              #E# - ^<wrap>economic mode, no space between the
 size and the unit character, e.g. #1.00k#;
 
- D          - file last write date;
- T          - file last write time;
+ #D#          - file last write date;
+ #T#          - file last write time;
 
- DM[B,M]    - file last write date and time;
- DC[B,M]    - file creation date and time;
- DA[B,M]    - file last access date and time;
- DE[B,M]    - file change date and time, where:
-              B - brief (Unix style) file time format;
-              M - use text month names;
+ #DM[B,M]#    - file last write date and time;
+ #DC[B,M]#    - file creation date and time;
+ #DA[B,M]#    - file last access date and time;
+ #DE[B,M]#    - file change date and time, where:
+              #B# - brief (Unix style) file time format;
+              #M# - use text month names;
 
- A          - file attributes;
- Z          - file descriptions;
+ #A#          - file attributes;
+ #Z#          - file descriptions;
 
- O[L]       - file owner, where:
-              L - show domain name;
+ #O[L]#       - file owner, where:
+              #L# - show domain name;
 
- LN         - number of hard links;
+ #LN#         - number of hard links;
 
- F          - number of streams.
+ #F#          - number of streams.
 
  If the column types description contains more than one file name column,
 the file panel will be displayed in multicolumn form.
@@ -4369,7 +4369,29 @@ to the display of seconds and milliseconds.
 slow down the directory reading.
 
  #Status line column types# and #Status line column widths# -
-similar to "Column types" and "Column widths", but for panel status line.
+similar to #Column types# and #Column widths#, but for panel status line.
+
+ Multiple status lines are supported. To define them, separate column type
+and width groups with the #|# (pipe) character. Each group describes one
+status line.
+
+ For example, #N,S|Z# in #Status line column types# and #0,10|0# in
+#Status line column widths# will display file name and size on the first
+status line, and file description on the second one.
+
+ Empty status lines are also allowed. For example, #N,S||Z# defines three
+status lines: file name and size on the first line, an empty second line,
+and file description on the third one.
+
+ Parsing of #Status line column widths# is relaxed. Widths are assigned
+according to the layout specified in #Status line column types#. Therefore,
+in addition to #|#, the #,# (comma) character can also be used between
+width groups, and omitted empty groups are inferred automatically.
+
+ For example, for #N,S|Z# it is allowed to specify #0,10,0# instead of
+#0,10|0#. For #N,S||Z# it is also allowed to specify #0,10,0# instead of
+#0,10||0#. In both cases the widths are distributed using the structure of
+#Status line column types#.
 
  #Fullscreen view# - force fullscreen view instead of half-screen.
 

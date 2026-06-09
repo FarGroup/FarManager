@@ -4404,6 +4404,28 @@ slow down the directory reading.
  #Typ sloupce stavového řádku# a #Šířka sloupce stavového řádku# -
 podobně jako "Typ sloupců" a "Šířka sloupců", ale pro panel stavové řádky.
 
+ Multiple status lines are supported. To define them, separate column type
+and width groups with the #|# (pipe) character. Each group describes one
+status line.
+
+ For example, #N,S|Z# in #Status line column types# and #0,10|0# in
+#Status line column widths# will display file name and size on the first
+status line, and file description on the second one.
+
+ Empty status lines are also allowed. For example, #N,S||Z# defines three
+status lines: file name and size on the first line, an empty second line,
+and file description on the third one.
+
+ Parsing of #Status line column widths# is relaxed. Widths are assigned
+according to the layout specified in #Status line column types#. Therefore,
+in addition to #|#, the #,# (comma) character can also be used between
+width groups, and omitted empty groups are inferred automatically.
+
+ For example, for #N,S|Z# it is allowed to specify #0,10,0# instead of
+#0,10|0#. For #N,S||Z# it is also allowed to specify #0,10,0# instead of
+#0,10||0#. In both cases the widths are distributed using the structure of
+#Status line column types#.
+
  #Celoobrazovkový režim# - nastaví celoobrazovkový pohled místo půlobrazového.
 
  #Zarovnat přípony souborů# - zobrazení přípon souborů zarovnaně.
