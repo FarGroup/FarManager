@@ -171,6 +171,7 @@ public: \
 	DEFINE_IMPORT_FUNCTION(kernel32, nop, hr,      WINAPI,  HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10
 
 	DEFINE_IMPORT_FUNCTION(shell32, nop, hr, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv); // Vista
+	DEFINE_IMPORT_FUNCTION(shell32, nop, hr, STDAPICALLTYPE, HRESULT, SHCreateItemFromParsingName, PCWSTR Path, IBindCtx* bc, REFIID riid, void** ppv); // Vista
 
 	DEFINE_IMPORT_FUNCTION(user32, le, nullptr, WINAPI, HPOWERNOTIFY, RegisterPowerSettingNotification, HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags); // Vista
 	DEFINE_IMPORT_FUNCTION(user32, le, false,   WINAPI, BOOL,         UnregisterPowerSettingNotification, HPOWERNOTIFY Handle); // Vista

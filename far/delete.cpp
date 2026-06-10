@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 #include "format.hpp"
+#include "platform.com.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -718,11 +719,21 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 
 	if (m_DeleteType == delete_type::recycle)
 	{
-		if (SHQUERYRBINFO Info{ sizeof(Info) }; FAILED(SHQueryRecycleBin(GetPathRoot(SrcPanel->GetCurDir()).c_str(), &Info)))
+		const auto TestItem = ConvertNameToFull(SingleSelData.FileName);
+
+		const auto CanRecycle = [&]
 		{
-			// If we can't query recycle bin for the given path, we likely won't be able to move into it, so update the action accordingly
+			// Clever method, should be more accurate (Vista+)
+			// You don't want to know how it works
+			if (const auto Result = os::com::can_recycle(TestItem))
+				return *Result;
+
+			// Legacy method
+			return os::fs::drive::get_type(SrcPanel->GetCurDir().c_str()) == DRIVE_FIXED;
+		}();
+
+		if (!CanRecycle)
 			m_DeleteType = delete_type::remove;
-		}
 	}
 
 	show_confirmation(SrcPanel, m_DeleteType, SelCount, SingleSelData);

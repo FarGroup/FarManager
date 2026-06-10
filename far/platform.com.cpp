@@ -258,4 +258,103 @@ namespace os::com
 			return {};
 		}
 	}
+
+	std::optional<bool> can_recycle(string_view const Object)
+	{
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
+		class FileOperationProgressSink final: public IFileOperationProgressSink
+		{
+		public:
+			explicit FileOperationProgressSink(std::optional<bool>& CanRecycle):
+				m_CanRecycle(&CanRecycle)
+			{
+			}
+
+			// IUnknown
+			IFACEMETHODIMP QueryInterface(REFIID InterfaceId, PVOID* Interface) override
+			{
+				if (InterfaceId == IID_IUnknown)
+					*Interface = static_cast<IUnknown*>(static_cast<IFileOperationProgressSink*>(this));
+				else if (InterfaceId == IID_IFileOperationProgressSink)
+					*Interface = static_cast<IFileOperationProgressSink*>(this);
+				else
+				{
+					*Interface = {};
+					return E_NOINTERFACE;
+				}
+
+				AddRef();
+				return S_OK;
+			}
+
+			IFACEMETHODIMP_(ULONG) AddRef() override { return 1; }
+			IFACEMETHODIMP_(ULONG) Release() override { return 1; }
+
+			// IFileOperationProgressSink
+			IFACEMETHODIMP StartOperations() override { return S_OK; }
+			IFACEMETHODIMP FinishOperations(HRESULT hrResult) override { return S_OK; }
+			IFACEMETHODIMP PreRenameItem(DWORD, IShellItem*, PCWSTR) override { return S_OK; }
+			IFACEMETHODIMP PostRenameItem(DWORD, IShellItem*, PCWSTR, HRESULT, IShellItem*) override { return S_OK; }
+			IFACEMETHODIMP PreMoveItem(DWORD, IShellItem*, IShellItem*, PCWSTR) override { return S_OK; }
+			IFACEMETHODIMP PostMoveItem(DWORD, IShellItem*, IShellItem*, PCWSTR, HRESULT, IShellItem*) override { return S_OK; }
+			IFACEMETHODIMP PreCopyItem(DWORD, IShellItem*, IShellItem*, PCWSTR) override { return S_OK; }
+			IFACEMETHODIMP PostCopyItem(DWORD, IShellItem*, IShellItem*, PCWSTR, HRESULT, IShellItem*) override { return S_OK; }
+
+			IFACEMETHODIMP PreDeleteItem(DWORD Flags, IShellItem*) override
+			{
+				*m_CanRecycle = flags::check_one(Flags, TSF_DELETE_RECYCLE_IF_POSSIBLE);
+				return E_ABORT;
+			}
+
+			IFACEMETHODIMP PostDeleteItem(DWORD, IShellItem*, HRESULT, IShellItem*) override { return S_OK; }
+			IFACEMETHODIMP PreNewItem(DWORD, IShellItem*, PCWSTR) override { return S_OK; }
+			IFACEMETHODIMP PostNewItem(DWORD, IShellItem*, PCWSTR, PCWSTR, DWORD, HRESULT, IShellItem*) override { return S_OK; }
+			IFACEMETHODIMP UpdateProgress(UINT, UINT) override { return S_OK; }
+			IFACEMETHODIMP ResetTimer() override { return S_OK; }
+			IFACEMETHODIMP PauseTimer() override { return S_OK; }
+			IFACEMETHODIMP ResumeTimer() override { return S_OK; }
+
+		private:
+			std::optional<bool>* m_CanRecycle;
+		};
+WARNING_POP()
+
+		// Unfortunately, there seems to be no way to just query if an item can be recycled (shame on you, Microsoft), so we have to get creative:
+		// IFileOperation has pre- and post-callbacks for all the actions it performs, including delete.
+		// The pre-delete callback receives a set of flags, one of which indicates whether the shell considers the item recyclable or not.
+		// So we call delete on the item in question, check the flag in the callback and then immediately abort the operation.
+		// This is ludicrous, but hey, as long as it works.
+
+		if (!imports.SHCreateItemFromParsingName)
+			return {};
+
+		SCOPED_ACTION(initialize)(mode::sta);
+
+		ptr<IFileOperation> FileOperation;
+		if (FAILED(CoCreateInstance(CLSID_FileOperation, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOperation, IID_PPV_ARGS_Helper(&ptr_setter(FileOperation)))))
+			return {};
+
+		if (FAILED(FileOperation->SetOperationFlags(
+			FOF_ALLOWUNDO |    // We want to know if the item can be recycled
+			FOF_NORECURSION |  // Since we're not actually deleting anything, probing only the top level item is fine (and way faster)
+			FOF_NO_UI          // Obviously, we don't want any UI
+		)))
+			return {};
+
+		ptr<IShellItem> Item;
+		if (FAILED(imports.SHCreateItemFromParsingName(null_terminated(Object).c_str(), nullptr, IID_IShellItem, IID_PPV_ARGS_Helper(&ptr_setter(Item)))))
+			return {};
+
+		std::optional<bool> CanRecycle;
+		FileOperationProgressSink Sink(CanRecycle);
+
+		if (FAILED(FileOperation->DeleteItem(Item.get(), &Sink)))
+			return {};
+
+		[[maybe_unused]] const auto Result = FileOperation->PerformOperations();
+		assert(Result == E_ABORT); // We should have aborted the operation in the callback, so it must fail
+
+		return CanRecycle;
+	}
 }
