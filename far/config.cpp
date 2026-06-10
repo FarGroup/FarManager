@@ -2159,7 +2159,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopySecurityOptions"sv,           CMOpt.CopySecurityOptions, 0},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyPreserveTimestamps"sv,        CMOpt.PreserveTimestamps, false},
 		{FSSF_SYSTEM,            NKeySystem,                 L"DeleteToRecycleBin"sv,            DeleteToRecycleBin, true},
-		{FSSF_PRIVATE,           NKeySystem,                 L"DriveDisconnectMode"sv,           ChangeDriveDisconnectMode, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"DriveMenuMode"sv,                 ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ElevationMode"sv,                 StoredElevationMode, -1},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ExcludeCmdHistory"sv,             ExcludeCmdHistory, 0},

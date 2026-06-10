@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "keyboard.hpp"
 #include "dirmix.hpp"
-#include "lockscrn.hpp"
 #include "string_sort.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
@@ -76,7 +75,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.fs.hpp"
-#include "platform.reg.hpp"
 
 // Common:
 #include "common/view/enumerate.hpp"
@@ -88,24 +86,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	// DRIVE_UNKNOWN            = 0,
-	// DRIVE_NO_ROOT_DIR        = 1,
-	// DRIVE_REMOVABLE          = 2,
-	// DRIVE_FIXED              = 3,
-	// DRIVE_REMOTE             = 4,
-	// DRIVE_CDROM              = 5,
-	// DRIVE_RAMDISK            = 6,
-
-	// BUGBUG ELIMINATE
-	DRIVE_SUBSTITUTE            = 100,
-	DRIVE_REMOTE_NOT_CONNECTED  = 101,
-	DRIVE_VIRTUAL               = 102,
+	DRIVE_FLAG_SUBSTITUTE            = 1_bit,
+	DRIVE_FLAG_REMOTE_DISCONNECTED   = 2_bit,
+	DRIVE_FLAG_VIRTUAL               = 3_bit,
+	DRIVE_FLAG_NOT_VIRTUAL           = 4_bit,
 };
 
 struct disk_item
 {
 	string Path;
-	int nDriveType;
+	unsigned DriveType;
+	unsigned Flags;
+	lng Operation;
 };
 
 struct plugin_item
@@ -138,13 +130,6 @@ static string_view dos_drive_root_directory(string_view const RootDirectory)
 		return RootDirectory.substr(L"\\\\?\\"sv.size(), L"C:\\"sv.size());
 
 	return RootDirectory;
-}
-
-[[nodiscard]]
-static auto EjectFailed(error_state_ex const& ErrorState, string_view const Path)
-{
-	// BUGBUG load uses the same error message
-	return OperationFailed(ErrorState, extract_root_device(Path), lng::MError, msg(lng::MChangeCouldNotEjectMedia), false);
 }
 
 static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
@@ -295,361 +280,171 @@ private:
 	wchar_t m_value{L' '};
 };
 
-static int MessageRemoveConnection(string_view const Drive, int &UpdateProfile)
+static bool MessageRemoveConnection(string_view const Drive, BoolOption& Reconnect)
 {
-	/*
-	          1         2         3         4         5
-	   345678901234567890123456789012345678901234567890
-	 1 ╔══════════ Disconnect network drive ══════════╗
-	 2 ║ Do you want to disconnect from the drive Z:? ║
-	 3 ║ The drive Z: is mapped to:                   ║
-	 4 ║ \\host\share                                 ║
-	 6 ╟──────────────────────────────────────────────╢
-	 7 ║ [ ] Reconnect at logon                       ║
-	 8 ╟──────────────────────────────────────────────╢
-	 9 ║              { Yes } [ Cancel ]              ║
-	10 ╚══════════════════════════════════════════════╝
-	*/
+	DialogBuilder Builder(lng::MChangeDriveDisconnectTitle, L"DisconnectDrive"sv);
 
-	enum
-	{
-		rc_doublebox,
-		rc_text_1,
-		rc_text_2,
-		rc_text_3,
-		rc_separator_1,
-		rc_checkbox,
-		rc_separator_2,
-		rc_button_yes,
-		rc_button_cancel,
+	Builder.SetId(DisconnectDriveId);
+	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 
-		rc_count
-	};
-
-	auto DCDlg = MakeDialogItems<rc_count>(
-	{
-		{ DI_DOUBLEBOX, {{3,  1}, {72, 9}}, DIF_NONE, msg(lng::MChangeDriveDisconnectTitle), },
-		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_SHOWAMPERSAND, },
-		{ DI_TEXT,      {{5,  3}, {0,  3}}, DIF_SHOWAMPERSAND, },
-		{ DI_TEXT,      {{5,  4}, {0,  4}}, DIF_SHOWAMPERSAND, },
-		{ DI_TEXT,      {{-1, 5}, {0,  5}}, DIF_SEPARATOR, },
-		{ DI_CHECKBOX,  {{5,  6}, {70, 6}}, DIF_FOCUS, msg(lng::MChangeDriveDisconnectReconnect), },
-		{ DI_TEXT,      {{-1, 7}, {0,  7}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MYes), },
-		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP, msg(lng::MCancel), },
-	});
-
-	DCDlg[rc_text_1].strData = far::vformat(msg(lng::MChangeDriveDisconnectQuestion), Drive);
-	DCDlg[rc_text_2].strData = msg(lng::MChangeDriveDisconnectMapped);
-
-	const auto Len = std::max({ DCDlg[rc_doublebox].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_checkbox].strData.size() });
+	Builder.AddText(far::vformat(msg(lng::MChangeDriveDisconnectQuestion), Drive));
+	Builder.AddText(lng::MChangeDriveDisconnectMapped);
 
 	{
 		string strMsgText;
 		// TODO: check result
 		DriveLocalToRemoteName(false, Drive, strMsgText);
-		DCDlg[rc_text_3].strData = truncate_path(std::move(strMsgText), Len);
+		Builder.AddText(strMsgText);
+		Builder.AddSeparator();
 	}
 
-	const auto IsPersistent = is_persistent_connection(Drive.front());
-	if (IsPersistent)
+	if (Reconnect)
 	{
-		DCDlg[rc_checkbox].Selected = Global->Opt->ChangeDriveDisconnectMode;
-	}
-	else
-	{
-		DCDlg[rc_checkbox].Flags |= DIF_DISABLE;
-		DCDlg[rc_checkbox].Selected = 0;
+		Builder.AddCheckbox(lng::MChangeDriveDisconnectReconnect, Reconnect);
+		Builder.AddSeparator();
 	}
 
-	// скорректируем размеры диалога - для дизайнУ
-	DCDlg[rc_doublebox].X2 = DCDlg[rc_doublebox].X1 + Len + 3;
-	int ExitCode = rc_button_yes;
+	Builder.AddButtons(span{ lng::MYes, lng::MNo });
 
-	if (Global->Opt->Confirm.RemoveConnection)
-	{
-		const auto Dlg = Dialog::create(DCDlg);
-		Dlg->SetPosition({ -1, -1, static_cast<int>(DCDlg[rc_doublebox].X2 + 4), 11 });
-		Dlg->SetHelp(L"DisconnectDrive"sv);
-		Dlg->SetId(DisconnectDriveId);
-		Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
-		Dlg->Process();
-		ExitCode = Dlg->GetExitCode();
-	}
-
-	UpdateProfile = DCDlg[rc_checkbox].Selected? 0 : CONNECT_UPDATE_PROFILE;
-
-	if (IsPersistent)
-		Global->Opt->ChangeDriveDisconnectMode = DCDlg[rc_checkbox].Selected == BSTATE_CHECKED;
-
-	return ExitCode == rc_button_yes;
+	return Builder.ShowDialog();
 }
 
-static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveType)
+static void remove_subst(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
 {
-	const auto DosDriveName = dos_drive_name(Path);
-
-	switch (DriveType)
+	if (FirstAttempt && Global->Opt->Confirm.RemoveSUBST)
 	{
-	case DRIVE_SUBSTITUTE:
+		string SubstitutedPath;
+		GetSubstName(Item.DriveType, DosDriveName, SubstitutedPath);
+
+		if (Message(MSG_WARNING,
+			msg(lng::MChangeSUBSTDisconnectDriveTitle),
+			{
+				far::vformat(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName),
+				msg(lng::MChangeDriveDisconnectMapped),
+				SubstitutedPath
+			},
+			{ lng::MYes, lng::MNo },
+			{}, &SUBSTDisconnectDriveId) != message_result::first_button)
 		{
-			if (Global->Opt->Confirm.RemoveSUBST)
-			{
-				const auto Question = far::vformat(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName);
-				string SubstitutedPath;
-				GetSubstName(DriveType, DosDriveName, SubstitutedPath);
-				if (Message(MSG_WARNING,
-					msg(lng::MChangeSUBSTDisconnectDriveTitle),
-					{
-						Question,
-						msg(lng::MChangeDriveDisconnectMapped),
-						SubstitutedPath
-					},
-					{ lng::MYes, lng::MNo },
-					{}, &SUBSTDisconnectDriveId) != message_result::first_button)
-				{
-					return false;
-				}
-			}
-
-			if (DelSubstDrive(DosDriveName))
-			{
-				return true;
-			}
-
-			const auto ErrorState = os::last_error();
-
-			const auto LastError = ErrorState.Win32Error;
-			const auto strMsgText = far::vformat(msg(lng::MChangeDriveCannotDelSubst), DosDriveName);
-			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
-			{
-				if (Message(MSG_WARNING, ErrorState,
-					msg(lng::MError),
-					{
-						strMsgText,
-						L"\x1"s,
-						msg(lng::MChangeDriveOpenFiles),
-						msg(lng::MChangeDriveAskDisconnect)
-					},
-					{ lng::MOk, lng::MCancel },
-					{}, &SUBSTDisconnectDriveError1Id) == message_result::first_button)
-				{
-					if (DelSubstDrive(DosDriveName))
-					{
-						return true;
-					}
-				}
-				else
-				{
-					return false;
-				}
-			}
-			Message(MSG_WARNING, ErrorState,
-				msg(lng::MError),
-				{
-					strMsgText
-				},
-				{ lng::MOk },
-				{}, &SUBSTDisconnectDriveError2Id);
-			return false;
+			return;
 		}
+	}
 
-	case DRIVE_REMOTE:
-	case DRIVE_REMOTE_NOT_CONNECTED:
+	if (!DefineDosDevice(DDD_REMOVE_DEFINITION, null_terminated(DosDriveName).c_str(), {}))
+		throw far_exception(L"DefineDosDevice"sv);
+}
+
+static void remove_virtual(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
+{
+	if (FirstAttempt && Global->Opt->Confirm.DetachVHD)
+	{
+		if (Message(MSG_WARNING,
+			msg(lng::MChangeVHDDisconnectDriveTitle),
+			{
+				far::vformat(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName)
+			},
+			{ lng::MYes, lng::MNo },
+			{}, &VHDDisconnectDriveId) != message_result::first_button)
 		{
-			int UpdateProfile = CONNECT_UPDATE_PROFILE;
-			if (!MessageRemoveConnection(DosDriveName, UpdateProfile))
-				return false;
-
-			{
-				// <КОСТЫЛЬ>
-				SCOPED_ACTION(LockScreen);
-				// если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-				// удалению
-				Owner->GoHome(DosDriveName);
-				Global->WindowManager->ResizeAllWindows();
-				Global->WindowManager->GetCurrentWindow()->Show();
-				// </КОСТЫЛЬ>
-			}
-
-			null_terminated const C_DosDriveName(DosDriveName);
-
-			if (WNetCancelConnection2(C_DosDriveName.c_str(), UpdateProfile, FALSE) == NO_ERROR)
-				return true;
-
-			const auto ErrorState = os::last_error();
-
-			const auto strMsgText = far::vformat(msg(lng::MChangeDriveCannotDisconnect), DosDriveName);
-			const auto LastError = ErrorState.Win32Error;
-			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
-			{
-				if (Message(MSG_WARNING, ErrorState,
-					msg(lng::MError),
-					{
-						strMsgText,
-						L"\x1"s,
-						msg(lng::MChangeDriveOpenFiles),
-						msg(lng::MChangeDriveAskDisconnect)
-					},
-					{ lng::MOk, lng::MCancel },
-					{}, &RemoteDisconnectDriveError1Id) == message_result::first_button)
-				{
-					if (WNetCancelConnection2(C_DosDriveName.c_str(), UpdateProfile, TRUE) == NO_ERROR)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					return false;
-				}
-			}
-
-			if (os::fs::drive::get_type(Path) == DRIVE_REMOTE)
-			{
-				Message(MSG_WARNING, ErrorState,
-					msg(lng::MError),
-					{
-						strMsgText
-					},
-					{ lng::MOk },
-					{}, &RemoteDisconnectDriveError2Id);
-			}
-			return false;
+			return;
 		}
+	}
 
-	case DRIVE_VIRTUAL:
+	if (auto Dummy = false; !detach_vhd(Item.Path, Dummy))
+		throw far_exception(L"detach_vhd"sv);
+}
+
+static void remove_remote(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
+{
+	BoolOption Reconnect;
+	// Disconnecting an already disconnecting drive only makes sense if we want to permanently remove the connection
+	Reconnect = Item.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED? false : is_persistent_connection(DosDriveName.front());
+
+	if (FirstAttempt && Global->Opt->Confirm.RemoveConnection && !MessageRemoveConnection(DosDriveName, Reconnect))
+		return;
+
+	null_terminated const C_DosDriveName(DosDriveName);
+
+	if (const auto Result = WNetCancelConnection2(C_DosDriveName.c_str(), Reconnect? 0 : CONNECT_UPDATE_PROFILE, FALSE); Result != NO_ERROR)
+		throw far_exception({{ static_cast<DWORD>(Result), STATUS_SUCCESS, source_location::current() }, L"WNetCancelConnection2"sv });
+}
+
+static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
+{
+	const auto DosDriveName = dos_drive_name(Item.Path);
+
+	if (Item.Flags & DRIVE_FLAG_SUBSTITUTE)
+	{
+		Item.Operation = lng::MChangeDriveCannotDelSubst;
+		return remove_subst(DosDriveName, Item, FirstAttempt);
+	}
+
+	if (Item.DriveType == DRIVE_REMOTE)
+	{
+		Item.Operation = lng::MChangeDriveCannotDisconnect;
+		return remove_remote(DosDriveName, Item, FirstAttempt);
+	}
+
+	if (Item.Flags & DRIVE_FLAG_VIRTUAL || (!(Item.Flags & DRIVE_FLAG_NOT_VIRTUAL) && DriveCanBeVirtual(Item.DriveType)))
+	{
+		if (string Str; GetVHDInfo(Item.Path, Str))
 		{
-			if (Global->Opt->Confirm.DetachVHD)
-			{
-				const auto Question = far::vformat(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName);
-				if (Message(MSG_WARNING,
-					msg(lng::MChangeVHDDisconnectDriveTitle),
-					{
-						Question
-					},
-					{ lng::MYes, lng::MNo },
-					{}, &VHDDisconnectDriveId) != message_result::first_button)
-				{
-					return false;
-				}
-			}
-
-			if (auto Dummy = false; detach_vhd(Path, Dummy))
-				return true;
-
-			const auto ErrorState = os::last_error();
-
-			Message(MSG_WARNING, ErrorState,
-				msg(lng::MError),
-				{
-					far::vformat(msg(lng::MChangeDriveCannotDetach), DosDriveName)
-				},
-				{ lng::MOk },
-				{}, &VHDDisconnectDriveErrorId);
-			return false;
+			Item.Flags |= DRIVE_FLAG_VIRTUAL;
+			Item.Operation = lng::MChangeDriveCannotDetach;
+			return remove_virtual(DosDriveName, Item, FirstAttempt);
 		}
+	}
 
-	default:
-		return false;
+	if (Item.DriveType == DRIVE_CDROM || (Item.DriveType == DRIVE_REMOVABLE && IsEjectableMedia(Item.Path)))
+	{
+		Item.Operation = lng::MChangeCouldNotEjectMedia;
+		return EjectVolume(Item.Path);
 	}
 }
 
-static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDisk, bool& Cancelled)
+static void disconnect_or_remove_device(panel_ptr Owner, disk_item& Item, function_ref<void(bool)> const Handler)
 {
-	if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
-		return ProcessDelDisk(Owner, item.Path, item.nDriveType);
+	const auto CMode = Owner->GetMode();
+	const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
+	const auto TmpCDir = Owner->GetCurDir();
+	const auto TmpADir = Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir();
 
-	if (item.nDriveType == DRIVE_REMOVABLE && !IsEjectableMedia(item.Path))
+	bool FirstAttempt = true;
+	bool NeedRestore = false;
+
+	for (;;)
 	{
-		Cancelled = true;
-		return false;
-	}
-
-	// первая попытка извлечь диск
-	try
-	{
-		EjectVolume(item.Path);
-		return true;
-	}
-	catch (std::exception const& e)
-	{
-		LOGERROR(L"{}"sv, e);
-
-		// запоминаем состояние панелей
-		const auto CMode = Owner->GetMode();
-		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
-		const auto TmpCDir = Owner->GetCurDir();
-		const auto TmpADir = Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir();
-
-		// "цикл до умопомрачения"
-		for (;;)
+		try
 		{
-			// "освободим диск" - перейдем при необходимости в домашний каталог
-			// TODO: А если домашний каталог - CD? ;-)
-			Owner->GoHome(dos_drive_name(item.Path));
-			// очередная попытка извлечения без вывода сообщения
-			try
+			Handler(FirstAttempt);
+			return;
+		}
+		catch (far_exception const& e)
+		{
+			LOGERROR(L"{}"sv, e);
+
+			if (FirstAttempt)
 			{
-				EjectVolume(item.Path);
-				return true;
+				FirstAttempt = false;
+				Owner->GoHome(dos_drive_name(Item.Path));
+				NeedRestore = true;
+				continue;
 			}
-			catch (std::exception const& e1)
+
+			if (NeedRestore)
 			{
-				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != panel_mode::PLUGIN_PANEL)
 					Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(TmpADir, false);
 
 				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(TmpCDir, false);
 
-				if (EjectFailed(e1, item.Path) != operation::retry)
-					return false;
+				NeedRestore = false;
 			}
+
+			if (OperationFailed(e, dos_drive_name(Item.Path), lng::MError, msg(Item.Operation), false) != operation::retry)
+				return;
 		}
-	}
-}
-
-static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &ChDisk)
-{
-	bool Cancelled = false;
-	if (RemoveHotplugDrive(item.Path, Global->Opt->Confirm.RemoveHotPlug, Cancelled) || Cancelled)
-		return;
-
-
-	// запоминаем состояние панелей
-	const auto CMode = Owner->GetMode();
-	const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
-	const auto TmpCDir = Owner->GetCurDir();
-	const auto TmpADir = Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir();
-
-	// "цикл до умопомрачения"
-	for (;;)
-	{
-		// "освободим диск" - перейдем при необходимости в домашний каталог
-		// TODO: А если домашний каталог - USB? ;-)
-		Owner->GoHome(dos_drive_name(item.Path));
-		// очередная попытка извлечения без вывода сообщения
-		if (RemoveHotplugDrive(item.Path, false, Cancelled) || Cancelled)
-			return;
-
-		const auto ErrorState = os::last_error();
-
-		// восстановим пути - это избавит нас от левых данных в панели.
-		if (AMode != panel_mode::PLUGIN_PANEL)
-			Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(TmpADir, false);
-
-		if (CMode != panel_mode::PLUGIN_PANEL)
-			Owner->SetCurDir(TmpCDir, false);
-
-		if (Message(MSG_WARNING, ErrorState,
-			msg(lng::MError),
-			{
-				far::vformat(msg(lng::MChangeCouldNotEjectHotPlugMedia), dos_drive_name(item.Path))
-			},
-			{ lng::MHRetry, lng::MHCancel },
-			{}, &EjectHotPlugMediaErrorId) != message_result::first_button)
-			return;
 	}
 }
 
@@ -731,7 +526,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			string FreeSize;
 			string AssociatedPath;
 
-			int DriveType;
+			unsigned DriveType;
+			unsigned Flags{};
 		};
 
 		std::vector<DiskMenuItem> Items;
@@ -754,22 +550,19 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			// as it affects the visibility of the other metrics
 			NewItem.DriveType = os::fs::drive::get_type(RootDirectory);
 
-			if (IsDisk && DisconnectedNetworkDrives[os::fs::drive::get_number(dos_drive_name(RootDirectory).front())])
+			if (IsDisk && NewItem.DriveType == DRIVE_NO_ROOT_DIR && DisconnectedNetworkDrives[os::fs::drive::get_number(dos_drive_name(RootDirectory).front())])
 			{
-				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
+				NewItem.DriveType = DRIVE_REMOTE;
+				NewItem.Flags |= DRIVE_FLAG_REMOTE_DISCONNECTED;
 			}
 
 			if (DriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_ASSOCIATED_PATH))
 			{
 				// These types don't affect other checks so we can retrieve them only if needed:
-				if (GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath))
-				{
-					NewItem.DriveType = DRIVE_SUBSTITUTE;
-				}
-				else if ((DriveMode & DRIVE_SHOW_VIRTUAL) && DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(RootDirectory, NewItem.AssociatedPath))
-				{
-					NewItem.DriveType = DRIVE_VIRTUAL;
-				}
+				if (IsDisk && GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath))
+					NewItem.Flags |= DRIVE_FLAG_SUBSTITUTE;
+				else if ((DriveMode & DRIVE_SHOW_VIRTUAL) && DriveCanBeVirtual(NewItem.DriveType))
+					NewItem.Flags |= GetVHDInfo(RootDirectory, NewItem.AssociatedPath)? DRIVE_FLAG_VIRTUAL : DRIVE_FLAG_NOT_VIRTUAL;
 
 				if (DriveMode & DRIVE_SHOW_TYPE)
 				{
@@ -781,20 +574,23 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					}
 					else
 					{
-						if (const auto TypeId = [](int const Type) -> std::optional<lng>
+						if (const auto TypeId = [&] -> std::optional<lng>
 							{
-								switch (Type)
+								if (NewItem.Flags & DRIVE_FLAG_SUBSTITUTE)
+									return lng::MChangeDriveSUBST;
+
+								if (NewItem.Flags & DRIVE_FLAG_VIRTUAL)
+									return lng::MChangeDriveVirtual;
+
+								switch (NewItem.DriveType)
 								{
 								case DRIVE_REMOVABLE:                 return lng::MChangeDriveRemovable;
 								case DRIVE_FIXED:                     return lng::MChangeDriveFixed;
-								case DRIVE_REMOTE:                    return lng::MChangeDriveNetwork;
-								case DRIVE_REMOTE_NOT_CONNECTED:      return lng::MChangeDriveDisconnectedNetwork;
+								case DRIVE_REMOTE:                    return NewItem.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED? lng::MChangeDriveDisconnectedNetwork : lng::MChangeDriveNetwork;
 								case DRIVE_RAMDISK:                   return lng::MChangeDriveRAM;
-								case DRIVE_SUBSTITUTE:                return lng::MChangeDriveSUBST;
-								case DRIVE_VIRTUAL:                   return lng::MChangeDriveVirtual;
 								default:                              return {};
 								}
-							}(NewItem.DriveType))
+							}())
 						{
 							NewItem.Type = msg(*TypeId);
 						}
@@ -804,8 +600,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			const auto ShowDiskInfo =
 				((DriveMode & DRIVE_SHOW_REMOVABLE) || NewItem.DriveType != DRIVE_REMOVABLE) &&
-				((DriveMode & DRIVE_SHOW_CDROM) || NewItem.DriveType != DRIVE_CDROM) &&
-				((DriveMode & DRIVE_SHOW_REMOTE) || !(NewItem.DriveType == DRIVE_REMOTE || NewItem.DriveType == DRIVE_REMOTE_NOT_CONNECTED));
+				((DriveMode & DRIVE_SHOW_CDROM)     || NewItem.DriveType != DRIVE_CDROM) &&
+				((DriveMode & DRIVE_SHOW_REMOTE)    || NewItem.DriveType != DRIVE_REMOTE);
 
 			if (ShowDiskInfo)
 			{
@@ -858,7 +654,6 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				switch (NewItem.DriveType)
 				{
 				case DRIVE_REMOTE:
-				case DRIVE_REMOTE_NOT_CONNECTED:
 					// TODO: check result
 					DriveLocalToRemoteName(false, RootDirectory, NewItem.AssociatedPath);
 					break;
@@ -956,7 +751,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				append(ItemName, Separator(), i.AssociatedPath);
 			}
 
-			disk_menu_item item{ disk_item{i.RootDirectory, i.DriveType} };
+			disk_menu_item item{ disk_item{i.RootDirectory, i.DriveType, i.Flags} };
 
 			inplace::escape_ampersands(ItemName);
 			ItemName.insert(0, 1, L'&');
@@ -1034,7 +829,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				std::visit(overload{[&](disk_item const& item)
 				{
-					if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
+					if (!(
+						item.DriveType == DRIVE_REMOVABLE ||
+						item.DriveType == DRIVE_CDROM ||
+						(item.DriveType == DRIVE_REMOTE && item.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED)
+					))
 						return;
 
 					for (;;)
@@ -1048,12 +847,16 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 						try
 						{
-							LoadVolume(item.Path);
+							if (item.DriveType == DRIVE_REMOTE)
+								ConnectToNetworkResource(dos_drive_root_directory(item.Path));
+							else
+								LoadVolume(item.Path);
 							break;
 						}
 						catch (std::exception const& e)
 						{
-							if (EjectFailed(e, item.Path) != operation::retry)
+							// BUGBUG Need a separate message for loading/connecting
+							if (OperationFailed(e, extract_root_device(item.Path), lng::MError, {}, false) != operation::retry)
 								break;
 						}
 					}
@@ -1068,15 +871,33 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				std::visit(overload{[&](disk_item const& item)
+				std::visit(overload{[&](disk_item& item)
 				{
-					bool Cancelled = false;
-					if (DisconnectDrive(Owner, item, *ChDisk, Cancelled))
+					disconnect_or_remove_device(Owner, item, [&](bool const FirstAttempt)
 					{
-						RetCode = SelPos;
-					}
+						DisconnectDrive(item, FirstAttempt);
+					});
+					RetCode = SelPos;
 				},
 				[](plugin_item const&){}}, *MenuItem);
+				break;
+
+			case KEY_SHIFTNUMDEL:
+			case KEY_SHIFTDECIMAL:
+			case KEY_SHIFTDEL:
+				if (!MenuItem)
+					break;
+
+				std::visit(overload{ [&](disk_item& item)
+				{
+					item.Operation = lng::MChangeCouldNotEjectHotPlugMedia;
+					disconnect_or_remove_device(Owner, item, [&](bool const FirstAttempt)
+					{
+						RemoveHotplugDrive(item.Path, FirstAttempt && Global->Opt->Confirm.RemoveHotPlug);
+					});
+					RetCode = SelPos;
+				},
+				[](plugin_item const&) {} }, *MenuItem);
 				break;
 
 			case KEY_F3:
@@ -1139,20 +960,6 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						},
 					};
 					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
-				},
-				[](plugin_item const&){}}, *MenuItem);
-				break;
-
-			case KEY_SHIFTNUMDEL:
-			case KEY_SHIFTDECIMAL:
-			case KEY_SHIFTDEL:
-				if (!MenuItem)
-					break;
-
-				std::visit(overload{[&](disk_item const& item)
-				{
-					RemoveHotplugDevice(Owner, item, *ChDisk);
-					RetCode = SelPos;
 				},
 				[](plugin_item const&){}}, *MenuItem);
 				break;
@@ -1336,7 +1143,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	{
 		std::visit(overload{[&](disk_item const& item)
 		{
-			if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
+			if (item.DriveType != DRIVE_REMOVABLE && item.DriveType != DRIVE_CDROM)
 				return;
 
 			if (os::fs::IsDiskInDrive(item.Path))

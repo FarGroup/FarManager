@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "exception.hpp"
 #include "pathmix.hpp"
-#include "flink.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -58,11 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 void EjectVolume(string_view const Path)
 {
-	// Ejecting VHD ISO is a bad idea.
-	// Currently OS ejects the medium but doesn't remove the device, which might be confusing
-	if (auto IsVhd = false; detach_vhd(Path, IsVhd) || IsVhd)
-		return;
-
 	const auto DeviceName = extract_root_device(Path);
 
 	bool ReadOnly;

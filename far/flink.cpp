@@ -543,13 +543,6 @@ bool EnumStreams(string_view const FileName, unsigned long long& StreamsSize, si
 	return Result;
 }
 
-bool DelSubstDrive(string_view const DeviceName)
-{
-	string strTargetPath;
-	return os::fs::QueryDosDevice(DeviceName, strTargetPath) &&
-		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, null_terminated(DeviceName).c_str(), strTargetPath.c_str()) != FALSE;
-}
-
 bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 {
 	/*

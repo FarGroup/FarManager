@@ -344,6 +344,13 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 
 	if (!Size)
 	{
+		// MS f-d it up: a bunch of errors are defined in SetupAPI.h as 0xE000XXXX with the usual ERROR_ prefix, but FormatMessage knows nothing about them.
+		// The same errors are also defined as HRESULT in winerror.h as 0x800FXXXX and FormatMessage knows about those.
+		// The code below basically turns errors like ERROR_INVALID_REG_PROPERTY into SPAPI_E_INVALID_REG_PROPERTY.
+		if (const auto SPAPI_E_Mask = APPLICATION_ERROR_MASK | ERROR_SEVERITY_ERROR; !Nt && flags::check_all(ErrorCode, SPAPI_E_Mask))
+			if (const auto Code = ErrorCode & ~SPAPI_E_Mask; Code <= 0xFFFF)
+				return format_error_impl(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SETUPAPI, Code), false);
+
 		// Do not use error_state::to_string here, it will call this function again and might cause a recursion
 		const auto LastError = last_error();
 		format_message_error_context const Context{ Nt, ErrorCode };

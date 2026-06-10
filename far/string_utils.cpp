@@ -509,19 +509,19 @@ TEST_CASE("string.utils.icase")
 
 	for (const auto& i: Tests)
 	{
-		for (const auto [Prefix, HasPrefix]: i.Prefix)
+		for (const auto& [Prefix, HasPrefix]: i.Prefix)
 		{
 			REQUIRE(starts_with_icase(i.Str, Prefix) == HasPrefix);
 			REQUIRE(contains_icase(i.Str, Prefix) == HasPrefix);
 		}
 
-		for (const auto [Suffix, HasSuffix]: i.Suffix)
+		for (const auto& [Suffix, HasSuffix]: i.Suffix)
 		{
 			REQUIRE(ends_with_icase(i.Str, Suffix) == HasSuffix);
 			REQUIRE(contains_icase(i.Str, Suffix) == HasSuffix);
 		}
 
-		for (const auto [Token, StartPos, TokenPos]: i.Token)
+		for (const auto& [Token, StartPos, TokenPos]: i.Token)
 		{
 			if (Token.size() == 1)
 			{

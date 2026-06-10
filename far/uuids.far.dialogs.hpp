@@ -113,12 +113,6 @@ namespace uuids::far::dialogs
 		DescribeFileId                   = "D8AF7A38-8357-44A5-A44B-A595CF707549"_uuid, // диалог ввода описаний (Ctrl+Z)
 		SelectDialogId                   = "29C03C36-9C50-4F78-AB99-F5DC1A9C67CD"_uuid, // диалог установки выделения файлов (Add)
 		UnSelectDialogId                 = "34614DDB-2A22-4EA9-BD4A-2DC075643F1B"_uuid, // диалог снятия выделения файлов (Subtract)
-		SUBSTDisconnectDriveError1Id     = "FF18299E-1881-42FA-AF7E-AC05D99F269C"_uuid, // диалог ошибки удаления SUBST-дисков
-		SUBSTDisconnectDriveError2Id     = "43B0FFC2-70BE-4289-91E6-FE9A3D54311B"_uuid, // диалог ошибки удаления SUBST-дисков
-		EjectHotPlugMediaErrorId         = "D6DC3621-877E-4BE2-80CC-BDB2864CE038"_uuid, // диалог ошибки извлечения HotPlug-устройств
-		RemoteDisconnectDriveError2Id    = "F06953B8-25AA-4FC0-9899-422FC1D49F7A"_uuid, // диалог ошибки отключения Net-дисков
-		RemoteDisconnectDriveError1Id    = "C9439386-9544-49BF-954B-6BEEDE7F1BD0"_uuid, // диалог ошибки отключения Net-дисков
-		VHDDisconnectDriveErrorId        = "B890E6B0-05A9-4ED8-A4C3-BBC4D29DA3BE"_uuid, // диалог ошибки отключения VHD-диска
 		ChangeDriveCannotReadDiskErrorId = "F3D46DC3-380B-4264-8BF8-10B05B897A5E"_uuid, // диалог ошибки смены диска
 		ApplyCommandId                   = "044EF83E-8146-41B2-97F0-404C2F4C7B69"_uuid, //
 		DeleteFileFolderId               = "6EF09401-6FE1-495A-8539-61B0F761408E"_uuid, // основной диалог удаления файлов/папок

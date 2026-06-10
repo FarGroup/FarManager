@@ -73,7 +73,6 @@ bool GetSubstName(int DriveType, string_view Path, string& strTargetPath);
 bool GetVHDInfo(string_view RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
 bool detach_vhd(string_view RootDirectory, bool& IsVhd);
 
-bool DelSubstDrive(string_view DeviceName);
 string GetPathRoot(string_view Path);
 
 // перечислятель для EnumNTFSStreams

@@ -60,8 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_substrings.hpp"
-#include "common/function_ref.hpp"
-#include "common/keep_alive.hpp"
 
 // External:
 #include "format.hpp"
@@ -77,6 +75,85 @@ A device is considered a HotPlug device if the following are TRUE:
 - does NOT have Capability CM_DEVCAP_SURPRISEREMOVALOK
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
 */
+
+[[nodiscard]]
+static DWORD cr_to_win32_error(int const Cr)
+{
+	switch (Cr)
+	{
+	case CR_SUCCESS:                          return ERROR_SUCCESS;                               // The operation completed successfully
+	case CR_DEFAULT:                          return ERROR_CALL_NOT_IMPLEMENTED;                  // The operation is not implemented for this request
+	case CR_OUT_OF_MEMORY:                    return ERROR_NOT_ENOUGH_MEMORY;                     // Not enough memory is available to process this command
+	case CR_INVALID_POINTER:                  return ERROR_INVALID_USER_BUFFER;                   // A required pointer parameter is invalid
+	case CR_INVALID_FLAG:                     return ERROR_INVALID_FLAGS;                         // The ulFlags parameter specified is invalid for this operation
+	case CR_INVALID_DEVNODE:                  return SPAPI_E_NO_SUCH_DEVINST;                     // The device instance handle parameter is not valid
+	case CR_INVALID_RES_DES:                  return ERROR_INVALID_PARAMETER;                     // The supplied resource descriptor parameter is invalid
+	case CR_INVALID_LOG_CONF:                 return ERROR_INVALID_PARAMETER;                     // The supplied logical configuration parameter is invalid
+	case CR_INVALID_ARBITRATOR:               return ERROR_INVALID_PARAMETER;                     // The arbitrator's registration identifier is invalid or there is already such a global arbitrator
+	case CR_INVALID_NODELIST:                 return ERROR_INVALID_PARAMETER;                     // The nodelist header is invalid
+	case CR_DEVNODE_HAS_REQS:                 return ERROR_ALREADY_EXISTS;                        // The device instance already has requirements
+	case CR_INVALID_RESOURCEID:               return ERROR_MRM_INVALID_RESOURCE_IDENTIFIER;       // The RESOURCEID parameter does not contain a valid RESOURCEID
+	case CR_DLVXD_NOT_FOUND:                  return ERROR_FILE_NOT_FOUND;                        // Dynamically loadable VxD was not found
+	case CR_NO_SUCH_DEVNODE:                  return SPAPI_E_NO_SUCH_DEVINST;                     // The specified device instance handle does not correspond to a present device
+	case CR_NO_MORE_LOG_CONF:                 return ERROR_NO_MORE_ITEMS;                         // There are no more logical configurations available
+	case CR_NO_MORE_RES_DES:                  return ERROR_NO_MORE_ITEMS;                         // There are no more resource descriptions available
+	case CR_ALREADY_SUCH_DEVNODE:             return SPAPI_E_DEVINST_ALREADY_EXISTS;              // This device instance already exists
+	case CR_INVALID_RANGE_LIST:               return ERROR_INVALID_PARAMETER;                     // The supplied range list parameter is invalid
+	case CR_INVALID_RANGE:                    return ERROR_INVALID_PARAMETER;                     // The supplied range parameter is invalid
+	case CR_FAILURE:                          return ERROR_GEN_FAILURE;                           // A general internal error occurred
+	case CR_NO_SUCH_LOGICAL_DEV:              return ERROR_NO_SUCH_DEVICE;                        // The logical device was not found in ISAPNP conversion
+	case CR_CREATE_BLOCKED:                   return ERROR_DEVICE_INSTALL_BLOCKED;                // The device is disabled for this configuration
+	case CR_NOT_SYSTEM_VM:                    return ERROR_INVALID_FUNCTION;                      // This routine must be called from the system VM
+	case CR_REMOVE_VETOED:                    return ERROR_DEVICE_IN_USE;                         // A service or application refused to allow removal of this device
+	case CR_APM_VETOED:                       return ERROR_SET_POWER_STATE_VETOED;                // The APM request has been vetoed
+	case CR_INVALID_LOAD_TYPE:                return ERROR_INVALID_PARAMETER;                     // The load type is invalid
+	case CR_BUFFER_SMALL:                     return ERROR_INSUFFICIENT_BUFFER;                   // An output parameter was too small to hold all the data available
+	case CR_NO_ARBITRATOR:                    return ERROR_INVALID_PARAMETER;                     // The resource has no arbitrator
+	case CR_NO_REGISTRY_HANDLE:               return ERROR_INVALID_HANDLE;                        // The operation does not produce registry entry
+	case CR_REGISTRY_ERROR:                   return SPAPI_E_PNP_REGISTRY_ERROR;                  // A required entry in the registry is missing or an attempt to write to the registry failed
+	case CR_INVALID_DEVICE_ID:                return SPAPI_E_INVALID_DEVINST_NAME;                // The specified Device ID is not a valid Device ID
+	case CR_INVALID_DATA:                     return ERROR_INVALID_DATA;                          // One or more parameters were invalid
+	case CR_INVALID_API:                      return ERROR_INVALID_FUNCTION;                      // This routine cannot be called from ring 3
+	case CR_DEVLOADER_NOT_READY:              return ERROR_NOT_READY;                             // The device loader is not ready
+	case CR_NEED_RESTART:                     return ERROR_SUCCESS_RESTART_REQUIRED;              // The system must be restarted for the operation to be completed
+	case CR_NO_MORE_HW_PROFILES:              return ERROR_NO_MORE_ITEMS;                         // There are no more hardware profiles available
+	case CR_DEVICE_NOT_THERE:                 return ERROR_DEVICE_NOT_CONNECTED;                  // The driver could not find the device
+	case CR_NO_SUCH_VALUE:                    return ERROR_NOT_FOUND;                             // The specified value does not exist in the registry
+	case CR_WRONG_TYPE:                       return ERROR_INVALID_PARAMETER;                     // The registry value has wrong type
+	case CR_INVALID_PRIORITY:                 return ERROR_INVALID_PARAMETER;                     // The specified priority is invalid for this operation
+	case CR_NOT_DISABLEABLE:                  return SPAPI_E_NOT_DISABLEABLE;                     // This device cannot be disabled
+	case CR_FREE_RESOURCES:                   return ERROR_INVALID_PARAMETER;                     // The resources have been freed
+	case CR_QUERY_VETOED:                     return ERROR_PLUGPLAY_QUERY_VETOED;                 // A service or application refused to query this device
+	case CR_CANT_SHARE_IRQ:                   return ERROR_IRQ_BUSY;                              // The IRQ cannot be shared
+	case CR_NO_DEPENDENT:                     return ERROR_CALL_NOT_IMPLEMENTED;                  // This routine is not implemented in this version of the operating system
+	case CR_SAME_RESOURCES:                   return ERROR_INVALID_PARAMETER;                     // The two resources represent the same resource
+	case CR_NO_SUCH_REGISTRY_KEY:             return SPAPI_E_KEY_DOES_NOT_EXIST;                  // The specified key does not exist in the registry
+	case CR_INVALID_MACHINENAME:              return SPAPI_E_INVALID_MACHINENAME;                 // The specified machine name does not meet the UNC naming conventions
+	case CR_REMOTE_COMM_FAILURE:              return SPAPI_E_REMOTE_COMM_FAILURE;                 // A general remote communication error occurred
+	case CR_MACHINE_UNAVAILABLE:              return SPAPI_E_MACHINE_UNAVAILABLE;                 // The machine selected for remote communication is not available at this time
+	case CR_NO_CM_SERVICES:                   return SPAPI_E_NO_CONFIGMGR_SERVICES;               // The Plug and Play service or another required service is not available
+	case CR_ACCESS_DENIED:                    return ERROR_ACCESS_DENIED;                         // Access denied
+	case CR_CALL_NOT_IMPLEMENTED:             return ERROR_CALL_NOT_IMPLEMENTED;                  // This routine is not implemented in this version of the operating system
+	case CR_INVALID_PROPERTY:                 return SPAPI_E_INVALID_REG_PROPERTY;                // The specified property type is invalid for this operation
+	case CR_DEVICE_INTERFACE_ACTIVE:          return SPAPI_E_DEVICE_INTERFACE_ACTIVE;             // Device interface is active
+	case CR_NO_SUCH_DEVICE_INTERFACE:         return SPAPI_E_NO_SUCH_DEVICE_INTERFACE;            // No such device interface
+	case CR_INVALID_REFERENCE_STRING:         return SPAPI_E_INVALID_REFERENCE_STRING;            // Invalid reference string
+	case CR_INVALID_CONFLICT_LIST:            return ERROR_INVALID_PARAMETER;                     // Invalid conflict list
+	case CR_INVALID_INDEX:                    return ERROR_INVALID_PARAMETER;                     // Invalid index
+	case CR_INVALID_STRUCTURE_SIZE:           return ERROR_INVALID_PARAMETER;                     // Invalid structure size
+	default:                                  return ERROR_GEN_FAILURE;
+	}
+
+#if NUM_CR_RESULTS > 0x0000003C
+	COMPILER_WARNING("Update the mapping");
+#endif
+}
+
+[[nodiscard]]
+static auto cr_error(int const Cr)
+{
+	return far::format(L"CR 0x{:0>8X} ({})"sv, Cr, os::format_error(cr_to_win32_error(Cr)));
+}
 
 namespace
 {
@@ -94,8 +171,12 @@ namespace
 		[[nodiscard, maybe_unused]]
 		bool get(bool Reset, DEVINST& Value) const
 		{
-			if ((Reset? CM_Get_Child(&m_Current, m_Root, 0) : CM_Get_Sibling(&m_Current, m_Current, 0)) != CR_SUCCESS)
+			if (const auto Result = Reset? CM_Get_Child(&m_Current, m_Root, 0) : CM_Get_Sibling(&m_Current, m_Current, 0); Result != CR_SUCCESS)
+			{
+				if (Result != CR_NO_SUCH_DEVINST)
+					LOGWARNING(L"{}: {}"sv, Reset? L"CM_Get_Child" : L"CM_Get_Sibling"sv, cr_error(Result));
 				return false;
+			}
 
 			Value = m_Current;
 			return true;
@@ -106,148 +187,69 @@ namespace
 	};
 }
 
-namespace detail
-{
-	struct devinfo_handle_closer
-	{
-		void operator()(HDEVINFO Handle) const noexcept
-		{
-			if (!SetupDiDestroyDeviceInfoList(Handle))
-				LOGWARNING(L"SetupDiDestroyDeviceInfoList(): {}"sv, os::last_error());
-		}
-	};
-}
-
-class [[nodiscard]] dev_info: noncopyable
-{
-	using devinfo_handle = os::detail::handle_t<detail::devinfo_handle_closer>;
-
-public:
-	explicit dev_info(DEVINST DevInst)
-	{
-		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-		if (CM_Get_Device_ID(DevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) != CR_SUCCESS)
-			return;
-
-		m_info.reset(SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, szDeviceID, nullptr, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT));
-		if (m_info)
-		{
-			m_id = szDeviceID;
-		}
-	}
-
-	[[nodiscard]]
-	explicit operator bool() const noexcept { return m_info != nullptr; }
-
-	[[nodiscard]]
-	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data) const
-	{
-		return SetupDiOpenDeviceInfo(m_info.native_handle(), m_id.c_str(), nullptr, 0, &info_data) != FALSE;
-	}
-
-	[[nodiscard]]
-	bool GetDeviceRegistryProperty(SP_DEVINFO_DATA& info_data, DWORD Property, PDWORD PropertyRegDataType, PBYTE PropertyBuffer, DWORD PropertyBufferSize, PDWORD RequiredSize) const
-	{
-		return SetupDiGetDeviceRegistryProperty(m_info.native_handle(), &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
-	}
-
-	[[nodiscard]]
-	bool EnumDeviceInterfaces(const UUID& InterfaceClassUuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
-	{
-		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassUuid, MemberIndex, &DeviceInterfaceData) != FALSE;
-	}
-
-	[[nodiscard]]
-	auto DeviceInterfacesEnumerator(UUID const& InterfaceClassUuid) const
-	{
-		using value_type = SP_DEVICE_INTERFACE_DATA;
-		return inline_enumerator<value_type>([this, InterfaceClassUuid = keep_alive(FWD(InterfaceClassUuid)), Index = 0uz](const bool Reset, value_type& Value) mutable
-		{
-			if (Reset)
-				Index = 0;
-
-			Value.cbSize = sizeof(Value);
-			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassUuid, static_cast<DWORD>(Index++), &Value) != FALSE;
-		});
-	}
-
-	[[nodiscard]]
-	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
-	{
-		string result;
-		DWORD RequiredSize = 0;
-		SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, nullptr, 0, &RequiredSize, nullptr);
-		if(RequiredSize)
-		{
-			const block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
-			DData->cbSize = sizeof(*DData);
-			if(SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, DData.data(), RequiredSize, nullptr, nullptr))
-			{
-				result = DData->DevicePath;
-			}
-		}
-		return result;
-	}
-
-private:
-	devinfo_handle m_info;
-	string m_id;
-};
-
-[[nodiscard]]
-static bool GetDevicePropertyImpl(DEVINST hDevInst, function_ref<bool(dev_info const&, SP_DEVINFO_DATA&)> const Receiver)
-{
-	dev_info const Info(hDevInst);
-	if (!Info)
-		return false;
-
-	SP_DEVINFO_DATA DeviceInfoData{ sizeof(DeviceInfoData) };
-	if (!Info.OpenDeviceInfo(DeviceInfoData))
-		return false;
-
-	return Receiver(Info, DeviceInfoData);
-}
-
 [[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, DWORD& Value)
 {
-	return GetDevicePropertyImpl(hDevInst, [&](const dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
+	ULONG Size = sizeof(Value);
+	if (const auto Result = CM_Get_DevNode_Registry_Property(hDevInst, Property, nullptr, &Value, &Size, 0); Result != CR_SUCCESS)
 	{
-		return Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, std::bit_cast<BYTE*>(&Value), sizeof(Value), nullptr);
-	});
+		if (Result != CR_NO_SUCH_VALUE)
+			LOGWARNING(L"CM_Get_DevNode_Registry_Property: {}"sv, cr_error(Result));
+		return false;
+	}
+
+	return true;
 }
 
 [[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& Value)
 {
-	return GetDevicePropertyImpl(hDevInst, [&](const dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
+	return os::detail::ApiDynamicStringReceiver(Value, [&](std::span<wchar_t> Buffer) -> size_t
 	{
-		return os::detail::ApiDynamicStringReceiver(Value, [&](std::span<wchar_t> Buffer)
-		{
-			DWORD RequiredSize = 0;
-			if (Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, std::bit_cast<BYTE*>(Buffer.data()), static_cast<DWORD>(Buffer.size()), &RequiredSize))
-				return RequiredSize / sizeof(wchar_t) - 1;
-			return RequiredSize / sizeof(wchar_t);
-		});
+		auto Size = static_cast<ULONG>(Buffer.size());
+		const auto Result = CM_Get_DevNode_Registry_Property(hDevInst, Property, nullptr, Buffer.data(), &Size, 0);
+		if (Result == CR_SUCCESS)
+			return Size / sizeof(wchar_t) - 1;
+		if (Result == CR_BUFFER_SMALL)
+			return Size / sizeof(wchar_t);
+
+		if (Result != CR_NO_SUCH_VALUE)
+			LOGWARNING(L"CM_Get_DevNode_Registry_Property: {}"sv, cr_error(Result));
+
+		return 0;
 	});
 }
 
 [[nodiscard]]
 static bool GetDevicePropertyRecursive(DEVINST hDevInst, DWORD Property, string& Value)
 {
+	if (GetDeviceProperty(hDevInst, Property, Value))
+		return true;
+
 	DEVINST hDevChild;
-	return GetDeviceProperty(hDevInst, Property, Value) || (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS && GetDeviceProperty(hDevChild, Property, Value));
+	if (const auto Result = CM_Get_Child(&hDevChild, hDevInst, 0); Result != CR_SUCCESS)
+	{
+		if (Result != CR_NO_SUCH_DEVINST)
+			LOGWARNING(L"CM_Get_Child: {}"sv, cr_error(Result));
+		return false;
+	}
+
+	return GetDeviceProperty(hDevChild, Property, Value);
 }
 
 [[nodiscard]]
 static bool IsChildDeviceHotplug(DEVINST hDevInst)
 {
 	DEVINST hDevChild;
-	if (CM_Get_Child(&hDevChild, hDevInst, 0) != CR_SUCCESS)
+	if (const auto Result = CM_Get_Child(&hDevChild, hDevInst, 0); Result != CR_SUCCESS)
+	{
+		if (Result != CR_NO_SUCH_DEVINST)
+			LOGWARNING(L"CM_Get_Child: {}"sv, cr_error(Result));
 		return false;
+	}
 
 	DWORD Capabilities = 0;
-	return GetDeviceProperty(hDevChild, SPDRP_CAPABILITIES, Capabilities) &&
+	return GetDeviceProperty(hDevChild, CM_DRP_CAPABILITIES, Capabilities) &&
 		!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK) &&
 		(Capabilities&CM_DEVCAP_UNIQUEID);
 }
@@ -256,12 +258,15 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 {
 	DWORD Capabilities = 0;
-	if (!GetDeviceProperty(hDevInst, SPDRP_CAPABILITIES, Capabilities))
+	if (!GetDeviceProperty(hDevInst, CM_DRP_CAPABILITIES, Capabilities))
 		return false;
 
 	ULONG Status = 0, Problem = 0;
-	if (CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0) != CR_SUCCESS)
+	if (const auto Result = CM_Get_DevNode_Status(&Status, &Problem, hDevInst, 0); Result != CR_SUCCESS)
+	{
+		LOGWARNING(L"CM_Get_DevNode_Status: {}"sv, cr_error(Result));
 		return false;
+	}
 
 	return (Problem != CM_PROB_DEVICE_NOT_THERE) &&
 	       (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
@@ -303,19 +308,46 @@ struct device_paths
 [[nodiscard]]
 static device_paths get_device_paths_impl(DEVINST hDevInst)
 {
-	dev_info const Info(hDevInst);
-	if (!Info)
+	wchar_t DeviceId[MAX_DEVICE_ID_LEN];
+	if (const auto Result = CM_Get_Device_ID(hDevInst, DeviceId, static_cast<ULONG>(std::size(DeviceId)), 0); Result != CR_SUCCESS)
+	{
+		LOGWARNING(L"CM_Get_Device_ID: {}"sv, cr_error(Result));
 		return {};
+	}
+
+	wchar_t_ptr_n<os::default_buffer_size> DeviceInterfaceList;
+
+	auto InterfaceId = GUID_DEVINTERFACE_VOLUME;
+
+	for (;;)
+	{
+		ULONG Size;
+
+		if (const auto Result = CM_Get_Device_Interface_List_Size(&Size, &InterfaceId, DeviceId, CM_GET_DEVICE_INTERFACE_LIST_PRESENT); Result != CR_SUCCESS)
+		{
+			LOGWARNING(L"CM_Get_Device_Interface_List_Size: {}"sv, cr_error(Result));
+			return {};
+		}
+
+		DeviceInterfaceList.reset(Size);
+		const auto Result = CM_Get_Device_Interface_List(&InterfaceId, DeviceId, DeviceInterfaceList.data(), Size, CM_GET_DEVICE_INTERFACE_LIST_PRESENT);
+		if (Result == CR_SUCCESS)
+			break;
+
+		if (Result == CR_BUFFER_SMALL)
+			continue;
+
+		LOGWARNING(L"CM_Get_Device_Interface_List: {}"sv, cr_error(Result));
+		return {};
+	}
 
 	device_paths DevicePaths;
 
-	for (auto& i: Info.DeviceInterfacesEnumerator(GUID_DEVINTERFACE_VOLUME))
+	for (const auto& i: enum_substrings(DeviceInterfaceList))
 	{
-		auto strMountPoint = Info.GetDevicePath(i);
-		if (strMountPoint.empty())
-			continue;
-
+		string strMountPoint(i);
 		AddEndSlash(strMountPoint);
+
 		string strVolumeName;
 		if (!os::fs::GetVolumeNameForVolumeMountPoint(strMountPoint, strVolumeName))
 			continue;
@@ -330,24 +362,49 @@ static device_paths get_device_paths_impl(DEVINST hDevInst)
 [[nodiscard]]
 static device_paths get_relation_device_paths(DEVINST hDevInst)
 {
-	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
-	if (CM_Get_Device_ID(hDevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) != CR_SUCCESS)
+	wchar_t DeviceId[MAX_DEVICE_ID_LEN];
+	if (const auto Result = CM_Get_Device_ID(hDevInst, DeviceId, static_cast<ULONG>(std::size(DeviceId)), 0); Result != CR_SUCCESS)
+	{
+		LOGWARNING(L"CM_Get_Device_ID: {}"sv, cr_error(Result));
 		return {};
+	}
 
-	DWORD dwSize = 0;
-	if (CM_Get_Device_ID_List_Size(&dwSize, szDeviceID, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS || !dwSize)
-		return {};
+	wchar_t_ptr_n<os::default_buffer_size> DeviceIdList;
 
-	const wchar_t_ptr_n<os::default_buffer_size> DeviceIdList(dwSize);
-	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.data(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
+	for (;;)
+	{
+		ULONG Size = 0;
+		if (const auto Result = CM_Get_Device_ID_List_Size(&Size, DeviceId, CM_GETIDLIST_FILTER_REMOVALRELATIONS); Result != CR_SUCCESS)
+		{
+			if (Result != CR_NO_SUCH_VALUE)
+				LOGWARNING(L"CM_Get_Device_ID_List_Size: {}"sv, cr_error(Result));
+			return {};
+		}
+
+		DeviceIdList.reset(Size);
+
+		const auto Result = CM_Get_Device_ID_List(DeviceId, DeviceIdList.data(), Size, CM_GETIDLIST_FILTER_REMOVALRELATIONS);
+		if (Result == CR_SUCCESS)
+			break;
+
+		if (Result == CR_BUFFER_SMALL)
+			continue;
+
+		LOGWARNING(L"CM_Get_Device_ID_List: {}"sv, cr_error(Result));
 		return {};
+	}
 
 	device_paths DevicePaths;
 	for (const auto& i: enum_substrings(DeviceIdList))
 	{
 		DEVINST hRelationDevInst;
-		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID>(i.data()), 0) == CR_SUCCESS)
-			DevicePaths.append(get_device_paths_impl(hRelationDevInst));
+		if (const auto Result = CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID>(i.data()), 0); Result != CR_SUCCESS)
+		{
+			LOGWARNING(L"CM_Locate_DevNode: {}"sv, cr_error(Result));
+			continue;
+		}
+
+		DevicePaths.append(get_device_paths_impl(hRelationDevInst));
 	}
 
 	return DevicePaths;
@@ -396,26 +453,27 @@ static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Inf
 [[nodiscard]]
 static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 {
-	std::vector<DeviceInfo> Result;
+	std::vector<DeviceInfo> Info;
 
 	DEVINST Root;
-	if (CM_Locate_DevNode(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
+	if (const auto Result = CM_Locate_DevNode(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL); Result != CR_SUCCESS)
 	{
-		GetHotplugDevicesInfo(Root, Result, IncludeSafeToRemove);
+		LOGWARNING(L"CM_Locate_DevNode: {}"sv, cr_error(Result));
+		return Info;
 	}
 
-	return Result;
+	GetHotplugDevicesInfo(Root, Info, IncludeSafeToRemove);
+	return Info;
 }
 
-[[nodiscard]]
-static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm, bool& Cancelled)
+static void RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm)
 {
 	string strFriendlyName;
-	if (GetDevicePropertyRecursive(Info.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName))
+	if (GetDevicePropertyRecursive(Info.DevInst, CM_DRP_FRIENDLYNAME, strFriendlyName))
 		inplace::trim(strFriendlyName);
 
 	string strDescription;
-	if (GetDevicePropertyRecursive(Info.DevInst, SPDRP_DEVICEDESC, strDescription))
+	if (GetDevicePropertyRecursive(Info.DevInst, CM_DRP_DEVICEDESC, strDescription))
 		inplace::trim(strDescription);
 
 	auto MessageResult = message_result::first_button;
@@ -448,19 +506,19 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 	}
 
 	if (MessageResult != message_result::first_button)
-	{
-		Cancelled = true;
-		return false;
-	}
+		return;
 
-	PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
+	auto VetoType = PNP_VetoTypeUnknown;
 	wchar_t VetoName[MAX_PATH];
-
-	const auto crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, static_cast<ULONG>(std::size(VetoName)), 0);
-	if (crResult != CR_SUCCESS || pvtVeto != PNP_VetoTypeUnknown)   //M$ баг, если есть VetoName, то даже при ошибке возвращается CR_SUCCESS
+	const auto Result = CM_Request_Device_Eject(Info.DevInst, &VetoType, VetoName, static_cast<ULONG>(std::size(VetoName)), 0);
+	if (Result != CR_SUCCESS || VetoType != PNP_VetoTypeUnknown)   //M$ баг, если есть VetoName, то даже при ошибке возвращается CR_SUCCESS
 	{
-		SetLastError(pvtVeto == PNP_VetoTypeUnknown? ERROR_UNABLE_TO_UNLOAD_MEDIA : ERROR_DRIVE_LOCKED);
-		return false;
+		LOGWARNING(L"CM_Request_Device_Eject: {}"sv, cr_error(Result));
+		throw far_exception(
+		{
+			{ Result == CR_SUCCESS? ERROR_DRIVE_LOCKED : cr_to_win32_error(Result), STATUS_SUCCESS, source_location::current() },
+			far::format(L"CM_Request_Device_Eject: 0x{:0>8X}"sv, Result)
+		});
 	}
 
 	Message(0,
@@ -472,31 +530,18 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 			msg(lng::MChangeHotPlugNotify2)
 		},
 		{ lng::MOk });
-
-	return true;
 }
 
-[[nodiscard]]
-bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancelled)
+void RemoveHotplugDrive(string_view const Path, bool const Confirm)
 {
 	// Removing VHD disk as hotplug is a very bad idea.
 	// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.
-	if (auto IsVhd = false; detach_vhd(Path, IsVhd))
-	{
-		return true;
-	}
-	else if (IsVhd)
-	{
-		Cancelled = true;
-		return false;
-	}
+	if (auto IsVhd = false; detach_vhd(Path, IsVhd) || IsVhd)
+		return;
 
 	const auto PathType = ParsePath(Path);
 	if (PathType != root_type::win32nt_drive_letter && PathType != root_type::volume)
-	{
-		Cancelled = true;
-		return false;
-	}
+		return;
 
 	// Some USB drives always have CM_DEVCAP_SURPRISEREMOVALOK flag set
 	const auto Info = GetHotplugDevicesInfo(true);
@@ -518,13 +563,8 @@ bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancel
 		});
 	}();
 
-	if (ItemIterator == Info.cend())
-	{
-		Cancelled = true;
-		return false;
-	}
-
-	return RemoveHotplugDriveDevice(*ItemIterator, Confirm, Cancelled);
+	if (ItemIterator != Info.cend())
+		RemoveHotplugDriveDevice(*ItemIterator, Confirm);
 }
 
 void ShowHotplugDevices()
@@ -544,14 +584,14 @@ void ShowHotplugDevices()
 		{
 			menu_item_ex ListItem;
 			string strDescription;
-			if (GetDevicePropertyRecursive(i.DevInst, SPDRP_DEVICEDESC, strDescription) && !strDescription.empty())
+			if (GetDevicePropertyRecursive(i.DevInst, CM_DRP_DEVICEDESC, strDescription) && !strDescription.empty())
 			{
 				inplace::trim(strDescription);
 				ListItem.Name = strDescription;
 			}
 
 			string strFriendlyName;
-			if (GetDevicePropertyRecursive(i.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName) && !strFriendlyName.empty())
+			if (GetDevicePropertyRecursive(i.DevInst, CM_DRP_FRIENDLYNAME, strFriendlyName) && !strFriendlyName.empty())
 			{
 				inplace::trim(strFriendlyName);
 
@@ -606,30 +646,29 @@ void ShowHotplugDevices()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				if (!HotPlugList->empty())
+				if (HotPlugList->empty())
+					break;
+
+				const auto I = HotPlugList->GetSelectPos();
+
+				try
 				{
-					const auto I = HotPlugList->GetSelectPos();
+					RemoveHotplugDriveDevice(Info[I], Global->Opt->Confirm.RemoveHotPlug);
+				}
+				catch (far_exception const& e)
+				{
+					Message(MSG_WARNING, e,
+						msg(lng::MError),
+						{
+							msg(lng::MChangeCouldNotEjectHotPlugMedia2),
+							HotPlugList->at(I).Name
+						},
+						{ lng::MOk });
 
-					bool Cancelled = false;
-					if (RemoveHotplugDriveDevice(Info[I], Global->Opt->Confirm.RemoveHotPlug, Cancelled))
-					{
-						FillMenu();
-					}
-					else if (!Cancelled)
-					{
-						SetLastError(ERROR_DRIVE_LOCKED); // ... "The disk is in use or locked by another process."
-						const auto ErrorState = os::last_error();
-
-						Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MChangeCouldNotEjectHotPlugMedia2),
-								HotPlugList->at(I).Name
-							},
-							{ lng::MOk });
-					}
+					break;
 				}
 
+				FillMenu();
 				break;
 			}
 
