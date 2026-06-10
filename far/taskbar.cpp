@@ -112,7 +112,7 @@ private:
 	{
 		os::debug::set_thread_name(L"Taskbar processor");
 
-		SCOPED_ACTION(os::com::initialize);
+		SCOPED_ACTION(os::com::initialize)(os::com::mode::sta);
 
 		os::com::ptr<ITaskbarList3> TaskbarList;
 		if (const auto Result = CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(TaskbarList))); FAILED(Result))

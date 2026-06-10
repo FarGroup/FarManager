@@ -406,7 +406,7 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 
 static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref<bool(uintptr_t)> const IsCodepageAcceptable)
 {
-	SCOPED_ACTION(os::com::initialize);
+	SCOPED_ACTION(os::com::initialize)(os::com::mode::sta);
 
 	os::com::ptr<IMultiLanguage2> ML;
 	if (const auto Result = CoCreateInstance(CLSID_CMultiLanguage, {}, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, IID_PPV_ARGS_Helper(&ptr_setter(ML))); FAILED(Result))

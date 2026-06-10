@@ -52,9 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::com
 {
-	static bool initialize_impl()
+	static bool initialize_impl(mode const Mode)
 	{
-		if (const auto Result = CoInitializeEx({}, COINIT_DISABLE_OLE1DDE | COINIT_MULTITHREADED); FAILED(Result))
+		if (const auto Result = CoInitializeEx({}, COINIT_DISABLE_OLE1DDE | (Mode == mode::sta? COINIT_APARTMENTTHREADED : COINIT_MULTITHREADED)); FAILED(Result))
 		{
 			LOG(Result == RPC_E_CHANGED_MODE? logging::level::warning : logging::level::error, L"CoInitializeEx(): {}"sv, format_error(Result));
 			return false;
@@ -63,8 +63,8 @@ namespace os::com
 		return true;
 	}
 
-	initialize::initialize():
-		m_Initialised(initialize_impl())
+	initialize::initialize(mode const Mode):
+		m_Initialised(initialize_impl(Mode))
 	{
 	}
 
@@ -97,7 +97,7 @@ namespace os::com
 
 		try
 		{
-			SCOPED_ACTION(initialize);
+			SCOPED_ACTION(initialize)(mode::sta);
 
 			ptr<IShellFolder> ShellFolder;
 			COM_INVOKE(SHGetDesktopFolder, (&ptr_setter(ShellFolder)));

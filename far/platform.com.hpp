@@ -48,12 +48,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::com
 {
+	enum class mode
+	{
+		sta,
+		mta,
+	};
+
 	class initialize
 	{
 	public:
 		NONCOPYABLE(initialize);
 
-		initialize();
+		explicit initialize(mode Mode);
 		~initialize();
 
 	private:

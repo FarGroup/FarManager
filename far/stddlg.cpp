@@ -790,7 +790,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 	{
 		const auto FullName = ConvertNameToFull(Object);
 
-		ComInitialiser.emplace();
+		ComInitialiser.emplace(os::com::mode::sta);
 		FileIsInUse = os::com::create_file_is_in_use(FullName);
 		if (FileIsInUse)
 		{
