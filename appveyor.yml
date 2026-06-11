@@ -151,7 +151,9 @@ after_build:
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
   - if not "%platform_name%" == "ARM64" Far.exe -service "macro:test"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
-  - set NAME_PREFIX="Far%NAME_ADD%.%platform_name%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
+  - set TIMESTAMP=%APPVEYOR_REPO_COMMIT_TIMESTAMP:~0,10%
+  - set TIMESTAMP=%TIMESTAMP:-=%
+  - set NAME_PREFIX="Far_%appveyor_build_version%_%platform_name%_%TIMESTAMP%_%APPVEYOR_REPO_COMMIT:~0,7%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
   #save artifacts only for release as we keep on reaching the appveyor limit
   #archive PDBs
