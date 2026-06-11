@@ -1070,6 +1070,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				auto ID_Msg = IsMountPoint? lng::MSetAttrVolMount : lng::MSetAttrSymlink;
 				DWORD ReparseTag = SingleSelFindData.ReparseTag;
 				bool KnownReparseTag = false;
+				bool IsEditableReparsePoint = false;
 
 				if (!DlgParam.Plugin)
 				{
@@ -1082,7 +1083,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					else
 					{
 						DWORD ReparseTagAlternative = 0;
-						KnownReparseTag = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative);
+						KnownReparseTag = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative, &IsEditableReparsePoint);
 						if (ReparseTagAlternative && !ReparseTag)
 						{
 							ReparseTag = ReparseTagAlternative;
@@ -1183,7 +1184,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						AttrDlg[SA_EDIT_REPARSE_POINT].strData = strLinkName;
 					}
 
-					if (IsMountPoint || none_of(ReparseTag, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK, IO_REPARSE_TAG_APPEXECLINK))
+					if (IsMountPoint || !IsEditableReparsePoint)
 						AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_READONLY;
 				}
 				else

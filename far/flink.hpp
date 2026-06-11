@@ -67,7 +67,7 @@ bool CreateReparsePoint(string_view Target, string_view Object, ReparsePointType
 bool DeleteReparsePoint(string_view Object);
 bool ModifyReparsePoint(string_view Object, string_view Target);
 
-bool GetReparsePointInfo(string_view Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
+bool GetReparsePointInfo(string_view Object, string& DestBuffer, DWORD* ReparseTag = {}, bool* IsEditable = {});
 
 bool GetSubstName(int DriveType, string_view Path, string& strTargetPath);
 bool GetVHDInfo(string_view RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
