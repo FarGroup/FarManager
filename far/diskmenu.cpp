@@ -94,7 +94,7 @@ enum
 
 struct disk_item
 {
-	string Path;
+	string RootDirectory;
 	unsigned DriveType;
 	unsigned Flags;
 	lng Operation;
@@ -350,7 +350,7 @@ static void remove_virtual(string_view const DosDriveName, disk_item& Item, bool
 		}
 	}
 
-	if (auto Dummy = false; !detach_vhd(Item.Path, Dummy))
+	if (auto Dummy = false; !detach_vhd(Item.RootDirectory, Dummy))
 		throw far_exception(L"detach_vhd"sv);
 }
 
@@ -371,7 +371,7 @@ static void remove_remote(string_view const DosDriveName, disk_item& Item, bool 
 
 static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 {
-	const auto DosDriveName = dos_drive_name(Item.Path);
+	const auto DosDriveName = dos_drive_name(Item.RootDirectory);
 
 	if (Item.Flags & DRIVE_FLAG_SUBSTITUTE)
 	{
@@ -387,7 +387,7 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 
 	if (Item.Flags & DRIVE_FLAG_VIRTUAL || (!(Item.Flags & DRIVE_FLAG_NOT_VIRTUAL) && DriveCanBeVirtual(Item.DriveType)))
 	{
-		if (string Str; GetVHDInfo(Item.Path, Str))
+		if (string Str; GetVHDInfo(Item.RootDirectory, Str))
 		{
 			Item.Flags |= DRIVE_FLAG_VIRTUAL;
 			Item.Operation = lng::MChangeDriveCannotDetach;
@@ -395,10 +395,10 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 		}
 	}
 
-	if (Item.DriveType == DRIVE_CDROM || (Item.DriveType == DRIVE_REMOVABLE && IsEjectableMedia(Item.Path)))
+	if (Item.DriveType == DRIVE_CDROM || (Item.DriveType == DRIVE_REMOVABLE && IsEjectableMedia(Item.RootDirectory)))
 	{
 		Item.Operation = lng::MChangeCouldNotEjectMedia;
-		return EjectVolume(Item.Path);
+		return EjectVolume(Item.RootDirectory);
 	}
 }
 
@@ -426,7 +426,7 @@ static void disconnect_or_remove_device(panel_ptr Owner, disk_item& Item, functi
 			if (FirstAttempt)
 			{
 				FirstAttempt = false;
-				Owner->GoHome(dos_drive_name(Item.Path));
+				Owner->GoHome(dos_drive_name(Item.RootDirectory));
 				NeedRestore = true;
 				continue;
 			}
@@ -442,7 +442,7 @@ static void disconnect_or_remove_device(panel_ptr Owner, disk_item& Item, functi
 				NeedRestore = false;
 			}
 
-			if (OperationFailed(e, dos_drive_name(Item.Path), lng::MError, msg(Item.Operation), false) != operation::retry)
+			if (OperationFailed(e, dos_drive_name(Item.RootDirectory), lng::MError, msg(Item.Operation), false) != operation::retry)
 				return;
 		}
 	}
@@ -807,7 +807,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				std::visit(overload{[&](disk_item const& item)
 				{
-					OpenFolderInShell(dos_drive_root_directory(item.Path));
+					OpenFolderInShell(dos_drive_root_directory(item.RootDirectory));
 				},
 				[](plugin_item const&){}}, *MenuItem);
 				break;
@@ -848,15 +848,15 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						try
 						{
 							if (item.DriveType == DRIVE_REMOTE)
-								ConnectToNetworkResource(dos_drive_root_directory(item.Path));
+								ConnectToNetworkResource(dos_drive_root_directory(item.RootDirectory));
 							else
-								LoadVolume(item.Path);
+								LoadVolume(item.RootDirectory);
 							break;
 						}
 						catch (std::exception const& e)
 						{
 							// BUGBUG Need a separate message for loading/connecting
-							if (OperationFailed(e, extract_root_device(item.Path), lng::MError, {}, false) != operation::retry)
+							if (OperationFailed(e, extract_root_device(item.RootDirectory), lng::MError, {}, false) != operation::retry)
 								break;
 						}
 					}
@@ -893,7 +893,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					item.Operation = lng::MChangeCouldNotEjectHotPlugMedia;
 					disconnect_or_remove_device(Owner, item, [&](bool const FirstAttempt)
 					{
-						RemoveHotplugDrive(item.Path, FirstAttempt && Global->Opt->Confirm.RemoveHotPlug);
+						RemoveHotplugDrive(item.RootDirectory, FirstAttempt && Global->Opt->Confirm.RemoveHotPlug);
 					});
 					RetCode = SelPos;
 				},
@@ -926,7 +926,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					},
 					[](disk_item const& item)
 					{
-						ShellSetFileAttributes(nullptr, &item.Path);
+						ShellSetFileAttributes(nullptr, &item.RootDirectory);
 					}
 				},
 				*MenuItem);
@@ -945,7 +945,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						return;
 
 					//вызовем EMenu если он есть
-					null_terminated const RootDirectory(dos_drive_root_directory(item.Path));
+					null_terminated const RootDirectory(dos_drive_root_directory(item.RootDirectory));
 					struct DiskMenuParam
 					{
 						const wchar_t* CmdLine; BOOL Apps; COORD MousePos;
@@ -1097,7 +1097,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				std::visit(overload{[&](disk_item const& item)
 				{
-					if (rename_volume(item.Path))
+					if (rename_volume(item.RootDirectory))
 						RetCode = SelPos;
 				},
 				[](plugin_item const&){}}, *MenuItem);
@@ -1146,7 +1146,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (item.DriveType != DRIVE_REMOVABLE && item.DriveType != DRIVE_CDROM)
 				return;
 
-			if (os::fs::IsDiskInDrive(item.Path))
+			if (os::fs::IsDiskInDrive(item.RootDirectory))
 				return;
 
 			Message(0,
@@ -1158,7 +1158,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			try
 			{
-				LoadVolume(item.Path);
+				LoadVolume(item.RootDirectory);
 			}
 			catch (std::exception const& e)
 			{
@@ -1183,9 +1183,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	{
 		auto& item = *DiskItemPtr;
 
-		const auto IsDisk = is_disk(item.Path);
+		const auto IsDisk = is_disk(item.RootDirectory);
 
-		while (!(FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(dos_drive_root_directory(item.Path)))))
+		while (!(FarChDir(dos_drive_name(item.RootDirectory)) || (IsDisk && FarChDir(dos_drive_root_directory(item.RootDirectory)))))
 		{
 			error_state_ex const ErrorState = os::last_error();
 
@@ -1194,14 +1194,14 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			string DriveLetter;
 			if (IsDisk)
 			{
-				DriveLetter = dos_drive_name(item.Path).front();
+				DriveLetter = dos_drive_name(item.RootDirectory).front();
 				auto& DriveLetterEdit = Builder.AddFixEditField(DriveLetter, 1);
 				Builder.AddTextBefore(DriveLetterEdit, lng::MChangeDriveCannotReadDisk);
 				Builder.AddTextAfter(DriveLetterEdit, L":", 0);
 			}
 			else
 			{
-				Builder.AddText(far::format(L"{} {}"sv, msg(lng::MChangeDriveCannotReadDisk), item.Path));
+				Builder.AddText(far::format(L"{} {}"sv, msg(lng::MChangeDriveCannotReadDisk), item.RootDirectory));
 			}
 
 			Builder.AddSeparator();
@@ -1219,7 +1219,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (Builder.ShowDialog())
 			{
 				if (IsDisk)
-					item.Path = os::fs::drive::get_win32nt_root_directory(upper(DriveLetter[0]));
+					item.RootDirectory = os::fs::drive::get_win32nt_root_directory(upper(DriveLetter[0]));
 			}
 			else
 			{
