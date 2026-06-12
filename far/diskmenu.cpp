@@ -86,15 +86,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	DRIVE_FLAG_SUBSTITUTE            = 1_bit,
-	DRIVE_FLAG_REMOTE_DISCONNECTED   = 2_bit,
-	DRIVE_FLAG_VIRTUAL               = 3_bit,
-	DRIVE_FLAG_NOT_VIRTUAL           = 4_bit,
+	DRIVE_FLAG_SUBSTITUTE            = 0_bit,
+	DRIVE_FLAG_NOT_SUBSTITUTE        = 1_bit,
+	DRIVE_FLAG_VIRTUAL               = 2_bit,
+	DRIVE_FLAG_NOT_VIRTUAL           = 3_bit,
+	DRIVE_FLAG_REMOTE_DISCONNECTED   = 4_bit,
 };
 
 struct disk_item
 {
 	string RootDirectory;
+	string AssociatedPath;
 	unsigned DriveType;
 	unsigned Flags;
 	lng Operation;
@@ -287,14 +289,14 @@ static bool MessageRemoveConnection(string_view const Drive, BoolOption& Reconne
 	Builder.SetId(DisconnectDriveId);
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 
-	Builder.AddText(far::vformat(msg(lng::MChangeDriveDisconnectQuestion), Drive));
-	Builder.AddText(lng::MChangeDriveDisconnectMapped);
+	Builder.AddText(far::vformat(msg(lng::MChangeDriveDisconnectQuestion), Drive)).Flags |= DIF_CENTERTEXT;
+	Builder.AddText(lng::MChangeDriveDisconnectMapped).Flags |= DIF_CENTERTEXT;
 
 	{
 		string strMsgText;
 		// TODO: check result
 		DriveLocalToRemoteName(false, Drive, strMsgText);
-		Builder.AddText(strMsgText);
+		Builder.AddText(strMsgText).Flags |= DIF_CENTERTEXT;
 		Builder.AddSeparator();
 	}
 
@@ -313,15 +315,12 @@ static void remove_subst(string_view const DosDriveName, disk_item& Item, bool c
 {
 	if (FirstAttempt && Global->Opt->Confirm.RemoveSUBST)
 	{
-		string SubstitutedPath;
-		GetSubstName(Item.DriveType, DosDriveName, SubstitutedPath);
-
 		if (Message(MSG_WARNING,
 			msg(lng::MChangeSUBSTDisconnectDriveTitle),
 			{
 				far::vformat(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DosDriveName),
 				msg(lng::MChangeDriveDisconnectMapped),
-				SubstitutedPath
+				Item.AssociatedPath
 			},
 			{ lng::MYes, lng::MNo },
 			{}, &SUBSTDisconnectDriveId) != message_result::first_button)
@@ -341,7 +340,9 @@ static void remove_virtual(string_view const DosDriveName, disk_item& Item, bool
 		if (Message(MSG_WARNING,
 			msg(lng::MChangeVHDDisconnectDriveTitle),
 			{
-				far::vformat(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName)
+				far::vformat(msg(lng::MChangeVHDDisconnectDriveQuestion), DosDriveName),
+				msg(lng::MChangeDriveDisconnectMapped),
+				Item.AssociatedPath
 			},
 			{ lng::MYes, lng::MNo },
 			{}, &VHDDisconnectDriveId) != message_result::first_button)
@@ -373,8 +374,9 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 {
 	const auto DosDriveName = dos_drive_name(Item.RootDirectory);
 
-	if (Item.Flags & DRIVE_FLAG_SUBSTITUTE)
+	if (Item.Flags & DRIVE_FLAG_SUBSTITUTE || (!(Item.Flags & DRIVE_FLAG_NOT_SUBSTITUTE) && GetSubstName(DosDriveName, Item.AssociatedPath)))
 	{
+		Item.Flags |= DRIVE_FLAG_SUBSTITUTE;
 		Item.Operation = lng::MChangeDriveCannotDelSubst;
 		return remove_subst(DosDriveName, Item, FirstAttempt);
 	}
@@ -387,7 +389,7 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 
 	if (Item.Flags & DRIVE_FLAG_VIRTUAL || (!(Item.Flags & DRIVE_FLAG_NOT_VIRTUAL) && DriveCanBeVirtual(Item.DriveType)))
 	{
-		if (string Str; GetVHDInfo(Item.RootDirectory, Str))
+		if (GetVHDInfo(Item.RootDirectory, Item.AssociatedPath))
 		{
 			Item.Flags |= DRIVE_FLAG_VIRTUAL;
 			Item.Operation = lng::MChangeDriveCannotDetach;
@@ -559,9 +561,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (DriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_ASSOCIATED_PATH))
 			{
 				// These types don't affect other checks so we can retrieve them only if needed:
-				if (IsDisk && GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath))
-					NewItem.Flags |= DRIVE_FLAG_SUBSTITUTE;
-				else if ((DriveMode & DRIVE_SHOW_VIRTUAL) && DriveCanBeVirtual(NewItem.DriveType))
+				if (IsDisk)
+					NewItem.Flags |= GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath)? DRIVE_FLAG_SUBSTITUTE : DRIVE_FLAG_NOT_SUBSTITUTE;
+
+				if ((DriveMode & DRIVE_SHOW_VIRTUAL) && !(NewItem.Flags & DRIVE_FLAG_SUBSTITUTE) && DriveCanBeVirtual(NewItem.DriveType))
 					NewItem.Flags |= GetVHDInfo(RootDirectory, NewItem.AssociatedPath)? DRIVE_FLAG_VIRTUAL : DRIVE_FLAG_NOT_VIRTUAL;
 
 				if (DriveMode & DRIVE_SHOW_TYPE)
@@ -751,7 +754,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				append(ItemName, Separator(), i.AssociatedPath);
 			}
 
-			disk_menu_item item{ disk_item{i.RootDirectory, i.DriveType, i.Flags} };
+			disk_menu_item item{ disk_item{i.RootDirectory, i.AssociatedPath, i.DriveType, i.Flags} };
 
 			inplace::escape_ampersands(ItemName);
 			ItemName.insert(0, 1, L'&');

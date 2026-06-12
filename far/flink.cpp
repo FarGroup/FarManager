@@ -565,6 +565,11 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 	if ((DriveRemovable && !CheckRemovable) || (!DriveRemovable && !CheckOther))
 		return false;
 
+	return GetSubstName(Path, strTargetPath);
+}
+
+bool GetSubstName(string_view const Path, string& TargetPath)
+{
 	const auto Type = ParsePath(Path);
 	if (Type != root_type::drive_letter)
 		return false;
@@ -575,15 +580,15 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 	if (!os::fs::QueryDosDevice(Drive, Device))
 		return false;
 
-	if (starts_with_icase(Device, L"\\??\\UNC\\"sv))
+	if (const auto Prefix = L"\\??\\UNC\\"sv; starts_with_icase(Device, Prefix))
 	{
-		strTargetPath = concat(L"\\\\"sv, string_view(Device).substr(8));
+		TargetPath = concat(L"\\\\"sv, string_view(Device).substr(Prefix.size()));
 		return true;
 	}
 
-	if (Device.starts_with(L"\\??\\"sv))
+	if (const auto Prefix = L"\\??\\"sv; starts_with_icase(Device, Prefix))
 	{
-		strTargetPath.assign(Device, 4);
+		TargetPath.assign(Device, Prefix.size());
 		return true;
 	}
 
