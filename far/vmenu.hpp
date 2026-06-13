@@ -137,7 +137,6 @@ struct menu_item_ex: menu_item
 		: menu_item{ std::forward<T>(Name), Flags }
 	{}
 
-	std::optional<segment> Annotation;
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
@@ -251,6 +250,9 @@ public:
 	using extended_item_data_setter = std::function<bool(menu_item_ex&, const extended_item_data&)>;
 	void RegisterExtendedDataProvider(extended_item_data_getter&& ExtendedDataGetter, extended_item_data_setter&& ExtendedDataSetter);
 
+	using item_annotation_provider = std::function<segment(const menu_item_ex&)>;
+	void RegisterItemAnnotationProvider(item_annotation_provider&& ItemAnnotationProvider);
+
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;
@@ -324,6 +326,7 @@ private:
 
 	[[nodiscard]] int CalculateTextAreaWidth() const;
 	[[nodiscard]] int GetItemVisualLength(const menu_item_ex& Item) const;
+	[[nodiscard]] int SafeGetItemAnnotationStart(const menu_item_ex& Item) const;
 
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
@@ -361,6 +364,7 @@ private:
 	fixed_column_provider m_FixedColumnProvider;
 	extended_item_data_getter m_ExtendedDataGetter;
 	extended_item_data_setter m_ExtendedDataSetter;
+	item_annotation_provider m_ItemAnnotationProvider;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};
 	size_t PrevCursorSize{};
