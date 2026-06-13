@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename T>
+template<std::integral T>
 class segment_t
 {
 	[[nodiscard]]
@@ -77,6 +77,14 @@ public:
 	[[nodiscard]]
 	constexpr T end() const noexcept { assert(!empty()); return m_End; }
 
+	template<std::convertible_to<T> U>
+	[[nodiscard]]
+	constexpr T start_or(U default_value) const noexcept { return empty() ? default_value : start(); }
+
+	template<std::convertible_to<T> U>
+	[[nodiscard]]
+	constexpr T end_or(U default_value) const noexcept { return empty() ? default_value : end(); }
+
 	[[nodiscard]]
 	constexpr auto iota() const noexcept { return empty() ? std::views::iota(T{}, T{}) : std::views::iota(start(), end()); }
 
@@ -94,14 +102,14 @@ public:
 			: segment_t{ InitialPoint, length_tag{ domain_max() } };
 	}
 
-	template<typename U>
+	template<std::convertible_to<T> U>
 	[[nodiscard]]
 	static constexpr segment_t horizontal_extent(const rectangle_t<U>& rect) noexcept
 	{
 		return { rect.left, length_tag{ rect.width() } };
 	}
 
-	template<typename U>
+	template<std::convertible_to<T> U>
 	[[nodiscard]]
 	static constexpr segment_t vertical_extent(const rectangle_t<U>& rect) noexcept
 	{
