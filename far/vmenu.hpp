@@ -137,15 +137,13 @@ struct menu_item_ex: menu_item
 		: menu_item{ std::forward<T>(Name), Flags }
 	{}
 
-	std::list<segment> Annotations;
+	std::optional<segment> Annotation;
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	int HorizontalPosition{}; // Relative to m_LeftColumnWidth. Positive: Indent; Negative: Hanging
+	int HorizontalPosition{}; // Positive: Indent; Negative: Hanging
 	wchar_t AutoHotkey{};
 	size_t AutoHotkeyPos{};
-
-	int SafeGetFirstAnnotation() const noexcept { return Annotations.empty() || Annotations.front().empty() ? 0 : Annotations.front().start(); }
 };
 
 struct item_color_indices;
@@ -308,20 +306,20 @@ private:
 	void DrawSeparator(size_t ItemIndex, int BoxType, int Y) const;
 	void ConnectSeparator(size_t ItemIndex, string& separator, int BoxType) const;
 	void ApplySeparatorName(const menu_item_ex& Item, string& separator) const;
-	void DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, int Y, std::vector<int>& HighlightMarkup, string_view BlankLine) const;
+	void DrawRegularItem(const menu_item_ex& Item, const menu_layout& Layout, int Y, string_view BlankLine) const;
 	void DrawFixedColumns(
 		const menu_item_ex& Item,
-		small_segment FixedColumnsArea,
+		segment FixedColumnsArea,
 		int Y,
 		const item_color_indices& ColorIndices,
 		string_view BlankLine) const;
+	std::tuple<string, segment> GetItemTextWithHighlight(const menu_item_ex& Item) const;
 	[[nodiscard]]
 	bool DrawItemText(
 		const menu_item_ex& Item,
-		small_segment TextArea,
+		segment TextArea,
 		int Y,
 		const item_color_indices& ColorIndices,
-		std::vector<int>& HighlightMarkup,
 		string_view BlankLine) const;
 
 	[[nodiscard]] int CalculateTextAreaWidth() const;
