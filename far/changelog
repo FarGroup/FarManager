@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2026-06-13 14:24:00-04:00 - build 6700
+
+1. Instead of storing Annotation in menu item,
+   retrieving it from the menu owner on demand.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 MZK 2026-06-13 09:43:10-04:00 - build 6699
 
 1. Simplified menu item annotations.
