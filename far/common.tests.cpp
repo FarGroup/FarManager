@@ -1258,6 +1258,10 @@ TEST_CASE("segment.constexpr")
 	STATIC_REQUIRE(segment{ 5, segment::sentinel_tag{ 7 } }.start() == 5);
 	STATIC_REQUIRE(segment{ 5, segment::sentinel_tag{ 7 } }.length() == 2);
 	STATIC_REQUIRE(segment{ 5, segment::length_tag{ 2 } }.end() == 7);
+	STATIC_REQUIRE(segment{ 5, segment::sentinel_tag{ 7 } }.start_or(42) == 5);
+	STATIC_REQUIRE(segment{ 5, segment::length_tag{ 2 } }.end_or(42) == 7);
+	STATIC_REQUIRE(segment{}.start_or(42) == 42);
+	STATIC_REQUIRE(segment{}.end_or(42) == 42);
 	STATIC_REQUIRE(segment{}.ray() == segment{ 0, segment::sentinel_tag{ std::numeric_limits<int>::max() } });
 	STATIC_REQUIRE(segment{}.ray(42) == segment{ 42, segment::sentinel_tag{ std::numeric_limits<int>::max() } });
 	STATIC_REQUIRE((segment{}.ray(42).iota() | std::views::drop(3) | std::views::take(3)).front() == 45);

@@ -3527,7 +3527,6 @@ namespace
 		void add_item(FindCoord FoundCoords, string_view ItemText)
 		{
 			menu_item_ex Item{ string{ ItemText } };
-			Item.Annotation.emplace(FoundCoords.Pos, segment::length_tag{ FoundCoords.SearchLen });
 			Item.ComplexUserData = FoundCoords;
 			m_Menu->AddItem(Item);
 
@@ -3604,6 +3603,16 @@ namespace
 						return true;
 					}
 					return false;
+				}
+			);
+			m_Menu->ListBox().RegisterItemAnnotationProvider(
+				[](const menu_item_ex& Item)
+				{
+					if (const auto* Coord{ std::any_cast<FindCoord>(&Item.ComplexUserData) })
+					{
+						return segment{ Coord->Pos, segment::length_tag{ Coord->SearchLen } };
+					}
+					return segment{};
 				}
 			);
 		}
