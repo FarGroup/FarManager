@@ -527,11 +527,6 @@ namespace
 		return Item.Name;
 	}
 
-	int safe_get_item_annotation(menu_item_ex const& Item)
-	{
-		return Item.Annotation.transform([](const auto Annotation) { return Annotation.start(); }).value_or(0);
-	}
-
 	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
 	{
 		using enum item_hscroll_policy;
@@ -949,7 +944,7 @@ int VMenu::AddItem(menu_item_ex&& NewItem,int PosAdd)
 
 	const auto ItemLength{ GetItemVisualLength(NewMenuItem) };
 	UpdateMaxLength(ItemLength);
-	m_HorizontalTracker->add_item(NewMenuItem.HorizontalPosition, ItemLength, safe_get_item_annotation(NewMenuItem));
+	m_HorizontalTracker->add_item(NewMenuItem.HorizontalPosition, ItemLength, SafeGetItemAnnotationStart(NewMenuItem));
 
 	const auto NewFlags = NewMenuItem.Flags;
 	NewMenuItem.Flags = 0;
@@ -967,13 +962,12 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 	auto& Item = Items[NewItem->Index];
 	m_HorizontalTracker->remove_item(
-		Item.HorizontalPosition, GetItemVisualLength(Item), safe_get_item_annotation(Item));
+		Item.HorizontalPosition, GetItemVisualLength(Item), SafeGetItemAnnotationStart(Item));
 
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
 		Item.ComplexUserData = {};
-		Item.Annotation.reset();
 	}
 
 	Item.Name = NullToEmpty(NewItem->Item.Text);
@@ -982,7 +976,7 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 
 	const auto ItemLength{ GetItemVisualLength(Item) };
 	UpdateMaxLength(ItemLength);
-	m_HorizontalTracker->add_item(Item.HorizontalPosition, ItemLength, safe_get_item_annotation(Item));
+	m_HorizontalTracker->add_item(Item.HorizontalPosition, ItemLength, SafeGetItemAnnotationStart(Item));
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -1013,7 +1007,7 @@ int VMenu::DeleteItem(int ID, int Count)
 			--ItemHiddenCount;
 
 		m_HorizontalTracker->remove_item(
-			I.HorizontalPosition, GetItemVisualLength(I), safe_get_item_annotation(I));
+			I.HorizontalPosition, GetItemVisualLength(I), SafeGetItemAnnotationStart(I));
 	}
 
 	// а вот теперь перемещения
@@ -2363,7 +2357,7 @@ bool VMenu::SetItemHPos(menu_item_ex& Item, const auto& GetNewHPos)
 			return GetNewHPos(Item.HorizontalPosition, ItemLength);
 	}();
 
-	m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition, NewHPos, ItemLength, safe_get_item_annotation(Item));
+	m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition, NewHPos, ItemLength, SafeGetItemAnnotationStart(Item));
 
 	if (Item.HorizontalPosition == NewHPos) return false;
 	Item.HorizontalPosition = NewHPos;
@@ -2457,7 +2451,7 @@ bool VMenu::AlignAnnotations()
 	return SetAllItemsHPos(
 		[&](const menu_item_ex& Item)
 		{
-			return AlignPos - static_cast<int>(visual_string_length(get_item_text(Item).substr(0, safe_get_item_annotation(Item))));
+			return AlignPos - static_cast<int>(visual_string_length(get_item_text(Item).substr(0, SafeGetItemAnnotationStart(Item))));
 		});
 }
 
@@ -2934,7 +2928,7 @@ std::tuple<string, segment> VMenu::GetItemTextWithHighlight(const menu_item_ex& 
 	const auto GetHighlight{
 		[&]
 		{
-			if (Item.Annotation) return *Item.Annotation;
+			if (m_ItemAnnotationProvider) return m_ItemAnnotationProvider(Item);
 			if (HotkeyPos != string::npos) return segment{ static_cast<int>(HotkeyPos), segment::length_tag{ 1 } };
 			if (Item.AutoHotkey) return segment{ static_cast<int>(Item.AutoHotkeyPos), segment::length_tag{ 1 } };
 			return segment{};
@@ -3427,6 +3421,11 @@ void VMenu::RegisterExtendedDataProvider(extended_item_data_getter&& ExtendedDat
 	m_ExtendedDataSetter = std::move(ExtendedDataSetter);
 }
 
+void VMenu::RegisterItemAnnotationProvider(item_annotation_provider&& ItemAnnotationProvider)
+{
+	m_ItemAnnotationProvider = std::move(ItemAnnotationProvider);
+}
+
 FarListItem *VMenu::MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem)
 {
 	if (FItem && MItem)
@@ -3587,6 +3586,13 @@ int VMenu::GetItemVisualLength(const menu_item_ex& Item) const
 {
 	const auto ItemText{ get_item_text(Item) };
 	return static_cast<int>(CheckFlags(VMENU_SHOWAMPERSAND) ? visual_string_length(ItemText) : HiStrlen(ItemText));
+}
+
+int VMenu::SafeGetItemAnnotationStart(const menu_item_ex& Item) const
+{
+	if (!m_ItemAnnotationProvider) return 0;
+	const auto Annotation{ m_ItemAnnotationProvider(Item) };
+	return Annotation.empty() ? 0 : Annotation.start();
 }
 
 #ifdef ENABLE_TESTS

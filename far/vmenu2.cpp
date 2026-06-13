@@ -446,7 +446,6 @@ int VMenu2::AddItem(const menu_item_ex& NewItem, int PosAdd)
 
 	auto& Item = at(PosAdd);
 	Item.AccelKey=NewItem.AccelKey;
-	Item.Annotation = NewItem.Annotation;
 
 	Resize();
 	return n;
