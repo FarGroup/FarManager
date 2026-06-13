@@ -3590,9 +3590,7 @@ int VMenu::GetItemVisualLength(const menu_item_ex& Item) const
 
 int VMenu::SafeGetItemAnnotationStart(const menu_item_ex& Item) const
 {
-	if (!m_ItemAnnotationProvider) return 0;
-	const auto Annotation{ m_ItemAnnotationProvider(Item) };
-	return Annotation.empty() ? 0 : Annotation.start();
+	return m_ItemAnnotationProvider ? m_ItemAnnotationProvider(Item).start_or(0) : 0;
 }
 
 #ifdef ENABLE_TESTS
