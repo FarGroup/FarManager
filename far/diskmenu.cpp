@@ -84,13 +84,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+enum class state
+{
+	unknown,
+	yes,
+	no
+};
+
+template<size_t N>
+class optional_bitset
+{
+public:
+	void assign(size_t const Bit, bool const Value)
+	{
+		m_Bits.set(Bit, Value);
+		m_Bits.set(N + Bit);
+	}
+
+	state check(size_t const Bit) const
+	{
+		if (!m_Bits[N + Bit])
+			return state::unknown;
+
+		return m_Bits[Bit] ? state::yes : state::no;
+	}
+
+private:
+	std::bitset<N * 2> m_Bits;
+};
+
 enum
 {
-	DRIVE_FLAG_SUBSTITUTE            = 0_bit,
-	DRIVE_FLAG_NOT_SUBSTITUTE        = 1_bit,
-	DRIVE_FLAG_VIRTUAL               = 2_bit,
-	DRIVE_FLAG_NOT_VIRTUAL           = 3_bit,
-	DRIVE_FLAG_REMOTE_DISCONNECTED   = 4_bit,
+	DRIVE_FLAG_SUBSTITUTE,
+	DRIVE_FLAG_VIRTUAL,
+	DRIVE_FLAG_REMOTE_DISCONNECTED,
+
+	DRIVE_FLAG_COUNT
 };
 
 struct disk_item
@@ -98,7 +127,7 @@ struct disk_item
 	string RootDirectory;
 	string AssociatedPath;
 	unsigned DriveType;
-	unsigned Flags;
+	optional_bitset<DRIVE_FLAG_COUNT> Flags;
 	lng Operation;
 };
 
@@ -311,7 +340,7 @@ static bool MessageRemoveConnection(string_view const Drive, BoolOption& Reconne
 	return Builder.ShowDialog();
 }
 
-static void remove_subst(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
+static void remove_subst(string_view const DosDriveName, disk_item const& Item, bool const FirstAttempt)
 {
 	if (FirstAttempt && Global->Opt->Confirm.RemoveSUBST)
 	{
@@ -333,7 +362,7 @@ static void remove_subst(string_view const DosDriveName, disk_item& Item, bool c
 		throw far_exception(L"DefineDosDevice"sv);
 }
 
-static void remove_virtual(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
+static void remove_virtual(string_view const DosDriveName, disk_item const& Item, bool const FirstAttempt)
 {
 	if (FirstAttempt && Global->Opt->Confirm.DetachVHD)
 	{
@@ -355,11 +384,11 @@ static void remove_virtual(string_view const DosDriveName, disk_item& Item, bool
 		throw far_exception(L"detach_vhd"sv);
 }
 
-static void remove_remote(string_view const DosDriveName, disk_item& Item, bool const FirstAttempt)
+static void remove_remote(string_view const DosDriveName, disk_item const& Item, bool const FirstAttempt)
 {
 	BoolOption Reconnect;
 	// Disconnecting an already disconnecting drive only makes sense if we want to permanently remove the connection
-	Reconnect = Item.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED? false : is_persistent_connection(DosDriveName.front());
+	Reconnect = Item.Flags.check(DRIVE_FLAG_REMOTE_DISCONNECTED) == state::yes? false : is_persistent_connection(DosDriveName.front());
 
 	if (FirstAttempt && Global->Opt->Confirm.RemoveConnection && !MessageRemoveConnection(DosDriveName, Reconnect))
 		return;
@@ -374,9 +403,9 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 {
 	const auto DosDriveName = dos_drive_name(Item.RootDirectory);
 
-	if (Item.Flags & DRIVE_FLAG_SUBSTITUTE || (!(Item.Flags & DRIVE_FLAG_NOT_SUBSTITUTE) && GetSubstName(DosDriveName, Item.AssociatedPath)))
+	if (const auto SubstState = Item.Flags.check(DRIVE_FLAG_SUBSTITUTE); SubstState == state::yes || (SubstState == state::unknown && GetSubstName(DosDriveName, Item.AssociatedPath)))
 	{
-		Item.Flags |= DRIVE_FLAG_SUBSTITUTE;
+		Item.Flags.assign(DRIVE_FLAG_SUBSTITUTE, true);
 		Item.Operation = lng::MChangeDriveCannotDelSubst;
 		return remove_subst(DosDriveName, Item, FirstAttempt);
 	}
@@ -387,11 +416,11 @@ static void DisconnectDrive(disk_item& Item, bool const FirstAttempt)
 		return remove_remote(DosDriveName, Item, FirstAttempt);
 	}
 
-	if (Item.Flags & DRIVE_FLAG_VIRTUAL || (!(Item.Flags & DRIVE_FLAG_NOT_VIRTUAL) && DriveCanBeVirtual(Item.DriveType)))
+	if (const auto VirtualState = Item.Flags.check(DRIVE_FLAG_VIRTUAL); VirtualState == state::yes || (VirtualState == state::unknown && DriveCanBeVirtual(Item.DriveType)))
 	{
 		if (GetVHDInfo(Item.RootDirectory, Item.AssociatedPath))
 		{
-			Item.Flags |= DRIVE_FLAG_VIRTUAL;
+			Item.Flags.assign(DRIVE_FLAG_VIRTUAL, true);
 			Item.Operation = lng::MChangeDriveCannotDetach;
 			return remove_virtual(DosDriveName, Item, FirstAttempt);
 		}
@@ -507,8 +536,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	const auto LogicalDrives = os::fs::get_logical_drives();
 	const auto SavedNetworkDrives = GetSavedNetworkDrives();
-	const auto DisconnectedNetworkDrives = SavedNetworkDrives & ~LogicalDrives;
-	const auto AllDrives = (LogicalDrives | DisconnectedNetworkDrives) & allowed_drives_mask();
+	const auto AllDrives = (LogicalDrives | SavedNetworkDrives) & allowed_drives_mask();
 
 	disk_menu_item Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
@@ -529,7 +557,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			string AssociatedPath;
 
 			unsigned DriveType;
-			unsigned Flags{};
+			optional_bitset<DRIVE_FLAG_COUNT> Flags{};
 		};
 
 		std::vector<DiskMenuItem> Items;
@@ -552,20 +580,21 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			// as it affects the visibility of the other metrics
 			NewItem.DriveType = os::fs::drive::get_type(RootDirectory);
 
-			if (IsDisk && NewItem.DriveType == DRIVE_NO_ROOT_DIR && DisconnectedNetworkDrives[os::fs::drive::get_number(dos_drive_name(RootDirectory).front())])
+			if (IsDisk && NewItem.DriveType == DRIVE_NO_ROOT_DIR && SavedNetworkDrives[os::fs::drive::get_number(dos_drive_name(RootDirectory).front())])
 			{
 				NewItem.DriveType = DRIVE_REMOTE;
-				NewItem.Flags |= DRIVE_FLAG_REMOTE_DISCONNECTED;
+				NewItem.Flags.assign(DRIVE_FLAG_REMOTE_DISCONNECTED, true);
 			}
+			else
+				NewItem.Flags.assign(DRIVE_FLAG_REMOTE_DISCONNECTED, false);
 
 			if (DriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_ASSOCIATED_PATH))
 			{
 				// These types don't affect other checks so we can retrieve them only if needed:
-				if (IsDisk)
-					NewItem.Flags |= GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath)? DRIVE_FLAG_SUBSTITUTE : DRIVE_FLAG_NOT_SUBSTITUTE;
+				NewItem.Flags.assign(DRIVE_FLAG_SUBSTITUTE, IsDisk && GetSubstName(NewItem.DriveType, dos_drive_name(RootDirectory), NewItem.AssociatedPath));
 
-				if ((DriveMode & DRIVE_SHOW_VIRTUAL) && !(NewItem.Flags & DRIVE_FLAG_SUBSTITUTE) && DriveCanBeVirtual(NewItem.DriveType))
-					NewItem.Flags |= GetVHDInfo(RootDirectory, NewItem.AssociatedPath)? DRIVE_FLAG_VIRTUAL : DRIVE_FLAG_NOT_VIRTUAL;
+				if (DriveMode & DRIVE_SHOW_VIRTUAL)
+					NewItem.Flags.assign(DRIVE_FLAG_VIRTUAL, NewItem.Flags.check(DRIVE_FLAG_SUBSTITUTE) != state::yes && DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(RootDirectory, NewItem.AssociatedPath));
 
 				if (DriveMode & DRIVE_SHOW_TYPE)
 				{
@@ -579,17 +608,17 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					{
 						if (const auto TypeId = [&] -> std::optional<lng>
 							{
-								if (NewItem.Flags & DRIVE_FLAG_SUBSTITUTE)
+								if (NewItem.Flags.check(DRIVE_FLAG_SUBSTITUTE) == state::yes)
 									return lng::MChangeDriveSUBST;
 
-								if (NewItem.Flags & DRIVE_FLAG_VIRTUAL)
+								if (NewItem.Flags.check(DRIVE_FLAG_VIRTUAL) == state::yes)
 									return lng::MChangeDriveVirtual;
 
 								switch (NewItem.DriveType)
 								{
 								case DRIVE_REMOVABLE:                 return lng::MChangeDriveRemovable;
 								case DRIVE_FIXED:                     return lng::MChangeDriveFixed;
-								case DRIVE_REMOTE:                    return NewItem.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED? lng::MChangeDriveDisconnectedNetwork : lng::MChangeDriveNetwork;
+								case DRIVE_REMOTE:                    return NewItem.Flags.check(DRIVE_FLAG_REMOTE_DISCONNECTED) == state::yes? lng::MChangeDriveDisconnectedNetwork : lng::MChangeDriveNetwork;
 								case DRIVE_RAMDISK:                   return lng::MChangeDriveRAM;
 								default:                              return {};
 								}
@@ -835,7 +864,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					if (!(
 						item.DriveType == DRIVE_REMOVABLE ||
 						item.DriveType == DRIVE_CDROM ||
-						(item.DriveType == DRIVE_REMOTE && item.Flags & DRIVE_FLAG_REMOTE_DISCONNECTED)
+						(item.DriveType == DRIVE_REMOTE && item.Flags.check(DRIVE_FLAG_REMOTE_DISCONNECTED) == state::yes)
 					))
 						return;
 
