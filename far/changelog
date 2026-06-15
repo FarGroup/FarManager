@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+MZK 2026-06-14 09:12:38-04:00 - build 6701
+
+1. Instead of storing Annotation in menu item,
+   retrieving it from the menu owner on demand.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2026-06-14 10:28:08+01:00 - build 6700
 
 1. Refactoring.
