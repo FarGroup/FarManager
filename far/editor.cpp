@@ -6065,7 +6065,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			case ESPT_CODEPAGE:
 			{
-				const uintptr_t cp = espar->iParam;
+				const uintptr_t cp = encoding::codepage::normalise(espar->iParam);
 				// BUGBUG
 				if (const auto HostFileEditor = GetHostFileEditor())
 				{

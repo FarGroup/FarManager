@@ -2537,7 +2537,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					Eol = eol::parse(esf->FileEOL);
 
 				if (esf->CodePage != CP_DEFAULT)
-					Codepage = esf->CodePage;
+					Codepage = encoding::codepage::normalise(esf->CodePage);
 			}
 
 			if (DoNotOverwrite(strName, PointToName(strName)))

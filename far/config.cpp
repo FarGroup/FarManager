@@ -1912,7 +1912,7 @@ Options::Options():
 		for (const auto& i: enum_tokens(Value, L",;"sv))
 		{
 			if (unsigned Codepage; from_string(i, Codepage, {}, 10))
-				NoAutoDetectCP.emplace(Codepage);
+				NoAutoDetectCP.emplace(encoding::codepage::normalise(Codepage));
 			else
 				LOGWARNING(L"Unsupported value in CodePages.NoAutoDetectCP: [{}]"sv, i);
 		}
