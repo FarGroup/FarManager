@@ -234,7 +234,7 @@ static void read_vc(std::istream& Stream, map_file::data& Data)
 
 	uintptr_t BaseAddress{};
 
-	for (const auto& i: enum_lines(Stream, encoding::codepage::ansi()))
+	for (const auto& i: enum_lines(Stream, encoding::codepage::real_ansi()))
 	{
 		if (i.Str.empty())
 			continue;

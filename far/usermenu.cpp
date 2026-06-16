@@ -258,14 +258,14 @@ static void ParseMenu(UserMenu::menu_container& Menu, std::ranges::subrange<enum
 
 static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& File, uintptr_t& Codepage)
 {
-	Codepage = GetFileCodepage(File, encoding::codepage::oem());
+	Codepage = GetFileCodepage(File, encoding::codepage::real_oem());
 
 	os::fs::filebuf StreamBuffer(File, std::ios::in);
 	std::istream Stream(&StreamBuffer);
 	Stream.exceptions(Stream.badbit | Stream.failbit);
 
 	enum_lines EnumFileLines(Stream, Codepage);
-	ParseMenu(Menu, EnumFileLines, Codepage == encoding::codepage::oem());
+	ParseMenu(Menu, EnumFileLines, Codepage == encoding::codepage::real_oem());
 
 	if (!IsUtfCodePage(Codepage))
 	{

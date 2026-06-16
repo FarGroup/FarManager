@@ -345,31 +345,13 @@ void codepages::AddCodePages(DWORD codePages)
 			return concat(SystemName, L" - "sv, Info->Name);
 		};
 
-		const auto AnsiCp = encoding::codepage::ansi();
+		AddSeparator(msg(lng::MGetCodePageSystem));
 
-		bool SeparatorAdded = false;
-		const auto AddSeparatorIfNeeded = [&]
-		{
-			if (SeparatorAdded)
-				return;
+		const auto AnsiCp = encoding::codepage::real_ansi();
+		AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp);
 
-			AddSeparator(msg(lng::MGetCodePageSystem));
-			SeparatorAdded = true;
-		};
-
-		// Windows 10-specific madness
-		if (AnsiCp != CP_UTF8)
-		{
-			AddSeparatorIfNeeded();
-			AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp);
-		}
-
-		const auto OemCp = encoding::codepage::oem();
-		if (OemCp != AnsiCp && OemCp != CP_UTF8)
-		{
-			AddSeparatorIfNeeded();
-			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp);
-		}
+		const auto OemCp = encoding::codepage::real_oem();
+		AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp);
 	}
 
 	// unicode codepages
@@ -922,9 +904,9 @@ F8CP::F8CP(bool viewer):
 
 			uintptr_t cp;
 			if (equal_icase(i, L"ansi"sv) || equal_icase(i, L"acp"sv) || equal_icase(i, L"win"sv))
-				cp = encoding::codepage::ansi();
+				cp = encoding::codepage::real_ansi();
 			else if (equal_icase(i, L"oem"sv) || equal_icase(i, L"oemcp"sv) || equal_icase(i, L"dos"sv))
-				cp = encoding::codepage::oem();
+				cp = encoding::codepage::real_oem();
 			else if (equal_icase(i, L"utf8"sv) || equal_icase(i, L"utf-8"sv))
 				cp = CP_UTF8;
 			else if (equal_icase(i, L"default"sv))
@@ -944,8 +926,8 @@ F8CP::F8CP(bool viewer):
 	}
 	if (m_F8CpOrder.empty())
 	{
-		const uintptr_t acp = encoding::codepage::ansi();
-		const uintptr_t oemcp = encoding::codepage::oem();
+		const auto acp = encoding::codepage::real_ansi();
+		const auto oemcp = encoding::codepage::real_oem();
 
 		if (cps != L"-1"sv)
 			defcp = acp;
@@ -966,10 +948,10 @@ uintptr_t F8CP::NextCP(uintptr_t cp) const
 string F8CP::NextCPname(uintptr_t cp) const
 {
 	const auto next_cp = NextCP(cp);
-	if (next_cp == encoding::codepage::ansi())
+	if (next_cp == encoding::codepage::real_ansi())
 		return m_AcpName;
 
-	if (next_cp == encoding::codepage::oem())
+	if (next_cp == encoding::codepage::real_oem())
 		return m_OemName;
 
 	if (next_cp == CP_UTF8)

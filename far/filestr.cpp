@@ -550,7 +550,7 @@ uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, b
 
 		Codepage =
 			(NotUTF8 && DefaultCodepage == CP_UTF8) || (NotUTF16 && IsUtf16CodePage(DefaultCodepage))?
-				encoding::codepage::ansi() :
+				encoding::codepage::real_ansi() :
 				DefaultCodepage;
 	}
 

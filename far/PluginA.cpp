@@ -1418,7 +1418,7 @@ static uintptr_t GetEditorCodePageA()
 	CPINFO cpi;
 
 	if (!GetCPInfo(static_cast<unsigned>(CodePage), &cpi) || cpi.MaxCharSize > 1)
-		CodePage = encoding::codepage::ansi();
+		CodePage = encoding::codepage::real_ansi();
 
 	return CodePage;
 }
@@ -1427,10 +1427,10 @@ static int GetEditorCodePageFavA()
 {
 	const auto CodePage = GetEditorCodePageA();
 
-	if (encoding::codepage::oem() == CodePage)
+	if (CodePage == encoding::codepage::real_oem())
 		return 0;
 
-	if (encoding::codepage::ansi() == CodePage)
+	if (CodePage == encoding::codepage::real_ansi())
 		return 1;
 
 	auto result = -(static_cast<int>(CodePage) + 2);
@@ -1474,11 +1474,11 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 		switch (Command)
 		{
 		case 0:
-			nCP = encoding::codepage::oem();
+			nCP = encoding::codepage::real_oem();
 			break;
 
 		case 1:
-			nCP = encoding::codepage::ansi();
+			nCP = encoding::codepage::real_ansi();
 			break;
 
 		default:
@@ -4065,8 +4065,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				const auto ect = static_cast<const oldfar::EditorConvertText*>(Param);
 				const auto CodePage = GetEditorCodePageA();
 				MultiByteRecode(
-					OldCommand == oldfar::ECTL_OEMTOEDITOR? encoding::codepage::oem() : CodePage,
-					OldCommand == oldfar::ECTL_OEMTOEDITOR? CodePage : encoding::codepage::oem(),
+					OldCommand == oldfar::ECTL_OEMTOEDITOR? encoding::codepage::real_oem() : CodePage,
+					OldCommand == oldfar::ECTL_OEMTOEDITOR? CodePage : encoding::codepage::real_oem(),
 					{ ect->Text, static_cast<size_t>(ect->TextLength) });
 				return TRUE;
 			}
@@ -4196,10 +4196,10 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							switch (oldsp->iParam)
 							{
 								case 1:
-									newsp.iParam = encoding::codepage::oem();
+									newsp.iParam = encoding::codepage::real_oem();
 									break;
 								case 2:
-									newsp.iParam = encoding::codepage::ansi();
+									newsp.iParam = encoding::codepage::real_ansi();
 									break;
 								default:
 									newsp.iParam=oldsp->iParam;
@@ -4456,7 +4456,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				viA->TabSize = viW.TabSize;
 				viA->CurMode.UseDecodeTable = 0;
 				viA->CurMode.TableNum       = 0;
-				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == encoding::codepage::ansi();
+				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == encoding::codepage::real_ansi();
 				viA->CurMode.Unicode        = IsUtf16CodePage(viW.CurMode.CodePage);
 				viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
 				viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
@@ -4585,8 +4585,8 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			inplace::upper({ us.get(), std::size(TableSet.DecodeTable) });
 			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { std::bit_cast<char*>(&TableSet.UpperTable), std::size(TableSet.DecodeTable) });
 
-			MultiByteRecode(nCP, encoding::codepage::oem(), { std::bit_cast<char*>(&TableSet.DecodeTable), std::size(TableSet.DecodeTable) });
-			MultiByteRecode(encoding::codepage::oem(), nCP, { std::bit_cast<char*>(&TableSet.EncodeTable), std::size(TableSet.EncodeTable) });
+			MultiByteRecode(nCP, encoding::codepage::real_oem(), { std::bit_cast<char*>(&TableSet.DecodeTable), std::size(TableSet.DecodeTable) });
+			MultiByteRecode(encoding::codepage::real_oem(), nCP, { std::bit_cast<char*>(&TableSet.EncodeTable), std::size(TableSet.EncodeTable) });
 			return Command;
 		}
 		return -1;

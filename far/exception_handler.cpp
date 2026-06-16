@@ -984,7 +984,7 @@ static string get_locale()
 
 	const auto LocaleId = GetUserDefaultLCID();
 	const auto LanguageId = LANGIDFROMLCID(LocaleId);
-	return far::format(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}"sv,
+	return far::format(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}{}"sv,
 		LocaleName,
 		LocaleId,
 		LanguageId,
@@ -992,8 +992,9 @@ static string get_locale()
 		SUBLANGID(LanguageId),
 		SORTIDFROMLCID(LocaleId),
 		SORTVERSIONFROMLCID(LocaleId),
-		encoding::codepage::ansi(),
-		encoding::codepage::oem()
+		encoding::codepage::real_ansi(),
+		encoding::codepage::real_oem(),
+		encoding::codepage::is_system_utf8()? L" UTF-8"sv : L""sv
 	);
 }
 

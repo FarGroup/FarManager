@@ -89,7 +89,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 
 		const time_check TimeCheck;
 
-		const auto CodePage = GetFileCodepage(DizFile, Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem(), nullptr, false);
+		const auto CodePage = GetFileCodepage(DizFile, Global->Opt->Diz.AnsiByDefault? encoding::codepage::real_ansi() : encoding::codepage::real_oem(), nullptr, false);
 
 		auto LastAdded = m_DizData.end();
 		string DizText;
@@ -355,8 +355,8 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 				Global->Opt->Diz.SaveInUTF?
 				CP_UTF8 :
 				Global->Opt->Diz.AnsiByDefault?
-					encoding::codepage::ansi() :
-					encoding::codepage::oem();
+					encoding::codepage::real_ansi() :
+					encoding::codepage::real_oem();
 		}
 
 		// Encoding could fail, so we need to prepare the data before touching the file

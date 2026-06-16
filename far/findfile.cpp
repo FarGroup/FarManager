@@ -530,20 +530,8 @@ void background_searcher::InitInFileSearch()
 			else
 			{
 				// system codepages
-
-				// Windows 10-specific madness
-				const auto AnsiCp = encoding::codepage::ansi();
-				if (AnsiCp != CP_UTF8)
-				{
-					m_CodePages.emplace_back(AnsiCp);
-				}
-
-				const auto OemCp = encoding::codepage::oem();
-				if (OemCp != AnsiCp && OemCp != CP_UTF8)
-				{
-					m_CodePages.emplace_back(OemCp);
-				}
-
+				m_CodePages.emplace_back(encoding::codepage::real_ansi());
+				m_CodePages.emplace_back(encoding::codepage::real_oem());
 				m_CodePages.emplace_back(CP_UTF8);
 				m_CodePages.emplace_back(CP_UTF16LE);
 				m_CodePages.emplace_back(CP_UTF16BE);
@@ -1023,7 +1011,7 @@ bool background_searcher::LookForString(string_view const FileName)
 
 	if (m_Autodetection)
 	{
-		m_CodePages.front().CodePage = GetFileCodepage(File, encoding::codepage::ansi());
+		m_CodePages.front().CodePage = GetFileCodepage(File, encoding::codepage::real_ansi());
 		m_CodePages.front().initialize();
 		m_MaxCharSize = m_CodePages.front().MaxCharSize;
 	}

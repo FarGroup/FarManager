@@ -610,7 +610,7 @@ size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str,
 string encoding::utf8_or_ansi::get_chars(std::string_view const Str, diagnostics* const Diagnostics)
 {
 	const auto Utf8 = codepage::utf8();
-	const auto Ansi = codepage::ansi();
+	const auto Ansi = codepage::real_ansi();
 
 	const auto Encoding = Utf8 == Ansi || is_valid_utf8(Str, false) == is_utf8::yes?
 		Utf8 :
@@ -1556,8 +1556,8 @@ TEST_CASE("encoding.basic")
 	std::array const Codepages
 	{
 		encoding::codepage::utf8(),
-		encoding::codepage::ansi(),
-		encoding::codepage::oem()
+		encoding::codepage::real_ansi(),
+		encoding::codepage::real_oem()
 	};
 
 	for (const auto& Codepage: Codepages)

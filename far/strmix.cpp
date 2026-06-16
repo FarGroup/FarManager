@@ -1393,7 +1393,7 @@ string ExtractHexString(string_view const HexString)
 
 string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex)
 {
-	const auto CompatibleCp = IsVirtualCodePage(Codepage)? encoding::codepage::ansi() : Codepage;
+	const auto CompatibleCp = IsVirtualCodePage(Codepage)? encoding::codepage::real_ansi() : Codepage;
 	if (FromHex)
 	{
 		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);
@@ -1408,7 +1408,7 @@ string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex
 
 string BytesToString(bytes_view const Bytes, uintptr_t const Codepage)
 {
-	return encoding::get_chars(IsVirtualCodePage(Codepage)? encoding::codepage::ansi() : Codepage, Bytes);
+	return encoding::get_chars(IsVirtualCodePage(Codepage)? encoding::codepage::real_ansi() : Codepage, Bytes);
 }
 
 string HexMask(size_t ByteCount)

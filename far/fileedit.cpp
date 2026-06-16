@@ -2760,7 +2760,7 @@ uintptr_t FileEditor::GetDefaultCodePage()
 {
 	const auto cp = encoding::codepage::normalise(Global->Opt->EdOpt.DefaultCodePage);
 	return cp == CP_DEFAULT || !IsCodePageSupported(cp)?
-		encoding::codepage::ansi() :
+		encoding::codepage::ansi() : // NOT real_ansi. If the user set the whole system to UTF-8, he probably wants it by default everywhere, including the editor.
 		cp;
 }
 

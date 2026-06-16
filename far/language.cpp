@@ -74,7 +74,7 @@ static lang_file open_impl(string_view const FileName, bool const IsHelp)
 	if (!Result.File.Open(FileName, FILE_READ_DATA, os::fs::file_share_read, nullptr, OPEN_EXISTING, IsHelp? FILE_FLAG_RANDOM_ACCESS : FILE_FLAG_SEQUENTIAL_SCAN))
 		return {};
 
-	Result.Codepage = GetFileCodepage(Result.File, encoding::codepage::oem(), nullptr, false);
+	Result.Codepage = GetFileCodepage(Result.File, encoding::codepage::real_oem(), nullptr, false);
 	Result.TryUtf8 = !IsUtfCodePage(Result.Codepage);
 
 	string Language;
@@ -337,7 +337,7 @@ static void LoadCustomStrings(string_view const FileName, unordered_string_map<s
 	if (!CustomFile)
 		return;
 
-	const auto CustomFileCodepage = GetFileCodepage(CustomFile, encoding::codepage::oem(), nullptr, false);
+	const auto CustomFileCodepage = GetFileCodepage(CustomFile, encoding::codepage::real_oem(), nullptr, false);
 	auto TryUtf8 = !IsUtfCodePage(CustomFileCodepage);
 
 	string SavedLabel;

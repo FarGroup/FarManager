@@ -522,6 +522,10 @@ string GetPrivateProfileString(string_view const AppName, string_view const KeyN
 	}))
 		return {};
 
+	// If the system is in UTF-8 mode it's either already good or broken beyond repair
+	if (encoding::codepage::is_system_utf8())
+		return Value;
+
 	// GetPrivateProfileStringW doesn't work with UTF-8 and interprets it as ANSI.
 	// We try to re-convert if possible.
 

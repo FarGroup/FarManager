@@ -56,12 +56,44 @@ uintptr_t encoding::codepage::detail::utf8::id()
 
 uintptr_t encoding::codepage::detail::ansi::id()
 {
-	return GetACP();
+	static const auto Result = GetACP();
+	return Result;
 }
 
 uintptr_t encoding::codepage::detail::oem::id()
 {
-	return GetOEMCP();
+	static const auto Result = GetOEMCP();
+	return Result;
+}
+
+uintptr_t encoding::codepage::is_system_utf8()
+{
+	static const auto Result = ansi() == utf8() && oem() == utf8();
+	return Result;
+}
+
+uintptr_t encoding::codepage::real_ansi()
+{
+	static const auto Result = []
+	{
+		if (is_system_utf8())
+			if (int Value; os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IUSEUTF8LEGACYACP, Value))
+				return static_cast<uintptr_t>(Value);
+		return ansi();
+	}();
+	return Result;
+}
+
+uintptr_t encoding::codepage::real_oem()
+{
+	static const auto Result = []
+	{
+		if (is_system_utf8())
+			if (int Value; os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IUSEUTF8LEGACYOEMCP, Value))
+				return static_cast<uintptr_t>(Value);
+		return oem();
+	}();
+	return Result;
 }
 
 uintptr_t encoding::codepage::normalise(uintptr_t const Codepage)
@@ -209,7 +241,7 @@ bool IsUtf16CodePage(uintptr_t cp)
 
 bool IsStandardCodePage(uintptr_t cp)
 {
-	return IsUtfCodePage(cp) || cp == encoding::codepage::ansi() || cp == encoding::codepage::oem();
+	return IsUtfCodePage(cp) || cp == encoding::codepage::real_ansi() || cp == encoding::codepage::real_oem();
 }
 
 bool IsUtfCodePage(uintptr_t cp)
@@ -226,8 +258,8 @@ string ShortReadableCodepageName(uintptr_t cp)
 	case CP_UTF16LE: return L"U16LE"s;
 	case CP_UTF16BE: return L"U16BE"s;
 	default: return
-		cp == encoding::codepage::ansi()? L"ANSI"s :
-		cp == encoding::codepage::oem()?  L"OEM"s :
+		cp == encoding::codepage::real_ansi()? L"ANSI"s :
+		cp == encoding::codepage::real_oem()?  L"OEM"s :
 		str(cp);
 	}
 }

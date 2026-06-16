@@ -4165,7 +4165,7 @@ uintptr_t Viewer::GetDefaultCodePage()
 {
 	const auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
 	return cp == CP_DEFAULT || !is_code_page_supported_in_viewer(cp)?
-		encoding::codepage::ansi() :
+		encoding::codepage::ansi() : // NOT real_ansi. If the user set the whole system to UTF-8, he probably wants it by default everywhere, including the viewer.
 		cp;
 }
 
