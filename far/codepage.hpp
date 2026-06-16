@@ -55,7 +55,7 @@ namespace encoding::codepage
 	[[nodiscard]] inline uintptr_t ansi() { return detail::ansi::id(); }
 	[[nodiscard]] inline uintptr_t oem()  { return detail::oem::id(); }
 
-	[[nodiscard]] inline uintptr_t is_system_utf8();
+	[[nodiscard]] uintptr_t is_system_utf8();
 
 	// Rule of thumb: everywhere a codepage is exposed to the user, use real_ansi() and real_oem() instead of ansi() and oem().
 	// Everywhere a codepage is used internally, e.g. for communication with the OS, plugins etc., use encoding::ansi::get_* and encoding::oem::get_* functions.
