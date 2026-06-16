@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2026-06-16 22:09:53+01:00 - build 6702
+
+1. Use 'real' OEM and ANSI codepages in UTF-8 systems where appropriate.
+
+2. Normalize code pages from external sources.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 MZK 2026-06-14 09:12:38-04:00 - build 6701
 
 1. Instead of storing Annotation in menu item,
