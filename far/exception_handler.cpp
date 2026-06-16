@@ -2423,6 +2423,7 @@ constexpr auto real_wassert = _wassert;
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4273) // 'function': inconsistent dll linkage
+WARNING_DISABLE_CLANG("-Wmissing-prototypes")
 void far_assert(wchar_t const* const Message, wchar_t const* const File, unsigned const Line)
 {
 	switch (assert_handler_impl(Message, { encoding::utf8::get_bytes(File).c_str(), "assert", Line }))

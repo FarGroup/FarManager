@@ -3634,7 +3634,6 @@ namespace
 
 	private:
 		const short m_LineNumColumnMaxWidth{};
-		static constexpr short m_FoundPosColumnMaxWidth{ 10 }; // Enough?
 		int m_MaxLineNum{};
 		int m_MaxFoundPos{};
 		int m_LastSeenLine{ -1 };

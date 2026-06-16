@@ -84,12 +84,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum class state
+namespace
 {
-	unknown,
-	yes,
-	no
-};
+	enum class state
+	{
+		unknown,
+		yes,
+		no
+	};
+}
 
 template<size_t N>
 class optional_bitset

@@ -3701,7 +3701,7 @@ TEST_CASE("markup.highlight")
 		const auto Markup{ markup_highlight(TestDataPoint.Text, TestDataPoint.Highlight) };
 		REQUIRE(Markup.size() == TestDataPoint.Markup.size());
 
-		for (const auto [Actual, Expected] : zip(Markup, TestDataPoint.Markup))
+		for (const auto& [Actual, Expected]: zip(Markup, TestDataPoint.Markup))
 		{
 			REQUIRE(Check(TestDataPoint.Text, Actual, Expected));
 		}

@@ -696,11 +696,14 @@ public:
 	}
 };
 
-struct state
+namespace
 {
-	string const& Owner;
-	os::fs::find_data const& FindData;
-};
+	struct state
+	{
+		string const& Owner;
+		os::fs::find_data const& FindData;
+	};
+}
 
 static bool process_single_file(
 	const string& Computer,
