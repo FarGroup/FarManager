@@ -426,7 +426,7 @@ namespace
 // 0123456789012345
 // ^  ^  ^  ^
 // 12 12 12 1234567
-static constexpr time_ranges TimeRanges{ { {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 7 } } };
+static constexpr time_ranges TimeRanges{{ { 0, 2 }, { 3, 2 }, { 6, 2 }, { 9, 7 } }};
 
 static date_ranges get_date_ranges(date_type const DateFormat)
 {
@@ -438,7 +438,7 @@ static date_ranges get_date_ranges(date_type const DateFormat)
 		// 01234567890
 		// ^     ^  ^
 		// 12345 12 12
-		return { { { 0, 5 }, { 6, 2 }, { 9, 2 } } };
+		return {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 
 	case date_type::dmy:
 	case date_type::mdy:
