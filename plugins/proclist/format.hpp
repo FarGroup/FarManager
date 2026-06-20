@@ -7,6 +7,7 @@
 WARNING_PUSH(3)
 
 WARNING_DISABLE_MSC(4267) // 'var' : conversion from 'size_t' to 'type', possible loss of data
+WARNING_DISABLE_MSC(4702) // unreachable code
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
@@ -34,7 +35,7 @@ namespace far
 	template <typename... args>
 	auto format(format_string<args...> const Format, args const&... Args)
 	{
-		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+		return fmt::vformat(Format.get(), fmt::make_wformat_args(Args...));
 	}
 
 	template<typename... args>

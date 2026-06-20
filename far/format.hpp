@@ -79,13 +79,13 @@ namespace far
 	template <typename... args>
 	auto format(format_string<args...> const Format, args const&... Args)
 	{
-		return fmt::vformat(fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+		return fmt::vformat(Format.get(), fmt::make_wformat_args(Args...));
 	}
 
 	template <typename... args>
 	auto format(char_format_string<args...> const Format, args const&... Args)
 	{
-		return fmt::vformat(fmt::string_view(Format), fmt::make_format_args(Args...));
+		return fmt::vformat(Format.get(), fmt::make_format_args(Args...));
 	}
 
 	auto vformat(string_view const Format, auto const&... Args)
@@ -96,13 +96,13 @@ namespace far
 	template<typename I, typename... args> requires std::output_iterator<I, wchar_t>
 	auto format_to(I const Iterator, format_string<args...> const Format, args const&... Args)
 	{
-		return fmt::vformat_to(Iterator, fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+		return fmt::vformat_to(Iterator, Format.get(), fmt::make_wformat_args(Args...));
 	}
 
 	template<typename... args>
 	auto format_to(string& Str, format_string<args...> const Format, args const&... Args)
 	{
-		return fmt::vformat_to(std::back_inserter(Str), fmt::wstring_view(Format), fmt::make_wformat_args(Args...));
+		return fmt::vformat_to(std::back_inserter(Str), Format.get(), fmt::make_wformat_args(Args...));
 	}
 }
 
