@@ -24,15 +24,12 @@ distribution.
 #ifndef TINYXML2_INCLUDED
 #define TINYXML2_INCLUDED
 
-#if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__)
+#if defined(ANDROID_NDK)
 #   include <ctype.h>
 #   include <limits.h>
 #   include <stdio.h>
 #   include <stdlib.h>
 #   include <string.h>
-#	if defined(__PS3__)
-#		include <stddef.h>
-#	endif
 #else
 #   include <cctype>
 #   include <climits>
@@ -41,14 +38,6 @@ distribution.
 #   include <cstring>
 #endif
 #include <stdint.h>
-
-/*
-	gcc:
-        g++ -Wall -DTINYXML2_DEBUG tinyxml2.cpp xmltest.cpp -o gccxmltest.exe
-
-    Formatting, Artistic Style:
-        AStyle.exe --style=1tbs --indent-switches --break-closing-brackets --indent-preprocessor tinyxml2.cpp tinyxml2.h
-*/
 
 #if defined( _DEBUG ) || defined (__DEBUG__)
 #   ifndef TINYXML2_DEBUG
@@ -93,12 +82,20 @@ distribution.
 #endif
 #endif
 
+#if defined(__cplusplus) && __cplusplus >= 201703L
+#define TINYXML2_CONSTANT inline constexpr
+#elif defined(__cplusplus) && __cplusplus >= 201103L
+#define TINYXML2_CONSTANT static constexpr
+#else 
+#define TINYXML2_CONSTANT static const
+#endif
+
 /* Versioning, past 1.0.14:
 	http://semver.org/
 */
-static const int TIXML2_MAJOR_VERSION = 11;
-static const int TIXML2_MINOR_VERSION = 0;
-static const int TIXML2_PATCH_VERSION = 0;
+TINYXML2_CONSTANT int TIXML2_MAJOR_VERSION = 11;
+TINYXML2_CONSTANT int TIXML2_MINOR_VERSION = 0;
+TINYXML2_CONSTANT int TIXML2_PATCH_VERSION = 0;
 
 #define TINYXML2_MAJOR_VERSION 11
 #define TINYXML2_MINOR_VERSION 0
@@ -109,7 +106,7 @@ static const int TIXML2_PATCH_VERSION = 0;
 // system, and the capacity of the stack. On the other hand, it's a trivial
 // attack that can result from ill, malicious, or even correctly formed XML,
 // so there needs to be a limit in place.
-static const int TINYXML2_MAX_ELEMENT_DEPTH = 500;
+TINYXML2_CONSTANT int TINYXML2_MAX_ELEMENT_DEPTH = 500;
 
 namespace tinyxml2
 {

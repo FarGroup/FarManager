@@ -24,7 +24,7 @@ distribution.
 #include "tinyxml2.h"
 
 #include <new>		// yes, this one new style header, is in the Android SDK.
-#if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__) || defined(__CC_ARM)
+#if defined(ANDROID_NDK)
 #   include <stddef.h>
 #   include <stdarg.h>
 #else
@@ -40,9 +40,7 @@ distribution.
 #  define __has_cpp_attribute(x) 0
 #endif
 
-#if defined(_MSC_VER)
-#   define TIXML_FALLTHROUGH (void(0))
-#elif (__cplusplus >= 201703L && __has_cpp_attribute(fallthrough))
+#if (__cplusplus >= 201703L && __has_cpp_attribute(fallthrough))
 #   define TIXML_FALLTHROUGH [[fallthrough]]
 #elif __has_cpp_attribute(clang::fallthrough)
 #   define TIXML_FALLTHROUGH [[clang::fallthrough]]
@@ -53,15 +51,8 @@ distribution.
 #endif
 
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
-	// Microsoft Visual Studio, version 2005 and higher. Not WinCE.
-	/*int _snprintf_s(
-	   char *buffer,
-	   size_t sizeOfBuffer,
-	   size_t count,
-	   const char *format [,
-		  argument] ...
-	);*/
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+	// Microsoft Visual Studio, version 2005 and higher.
 	static inline int TIXML_SNPRINTF( char* buffer, size_t size, const char* format, ... )
 	{
 		va_list va;
@@ -80,33 +71,11 @@ distribution.
 	#define TIXML_VSCPRINTF	_vscprintf
 	#define TIXML_SSCANF	sscanf_s
 #elif defined _MSC_VER
-	// Microsoft Visual Studio 2003 and earlier or WinCE
+	// Microsoft Visual Studio 2003 and earlier.
 	#define TIXML_SNPRINTF	_snprintf
 	#define TIXML_VSNPRINTF _vsnprintf
 	#define TIXML_SSCANF	sscanf
-	#if (_MSC_VER < 1400 ) && (!defined WINCE)
-		// Microsoft Visual Studio 2003 and not WinCE.
-		#define TIXML_VSCPRINTF   _vscprintf // VS2003's C runtime has this, but VC6 C runtime or WinCE SDK doesn't have.
-	#else
-		// Microsoft Visual Studio 2003 and earlier or WinCE.
-		static inline int TIXML_VSCPRINTF( const char* format, va_list va )
-		{
-			int len = 512;
-			for (;;) {
-				len = len*2;
-				char* str = new char[len]();
-				const int required = _vsnprintf(str, len, format, va);
-				delete[] str;
-				if ( required != -1 ) {
-					TIXMLASSERT( required >= 0 );
-					len = required;
-					break;
-				}
-			}
-			TIXMLASSERT( len >= 0 );
-			return len;
-		}
-	#endif
+	#define TIXML_VSCPRINTF	_vscprintf
 #else
 	// GCC version 3 and higher
 	//#warning( "Using sn* functions." )
@@ -114,6 +83,9 @@ distribution.
 	#define TIXML_VSNPRINTF	vsnprintf
 	static inline int TIXML_VSCPRINTF( const char* format, va_list va )
 	{
+	    if (!format) {
+	        return 0;
+	    }
 		int len = vsnprintf( 0, 0, format, va );
 		TIXMLASSERT( len >= 0 );
 		return len;
@@ -121,7 +93,7 @@ distribution.
 	#define TIXML_SSCANF   sscanf
 #endif
 
-#if defined(_WIN64)
+#if defined(_MSC_VER)
 	#define TIXML_FSEEK _fseeki64
 	#define TIXML_FTELL _ftelli64
 #elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__CYGWIN__)
@@ -549,12 +521,15 @@ const char* XMLUtil::GetCharacterRef(const char* p, char* value, int* length)
             TIXMLASSERT(digit < radix);
 
             const unsigned int digitScaled = mult * digit;
+            // Reject before adding: if digitScaled alone exceeds MAX_CODE_POINT,
+            // or if adding it to ucs would exceed it (checked without overflow by
+            // testing ucs > MAX_CODE_POINT - digitScaled, safe since digitScaled
+            // <= MAX_CODE_POINT at this point).
+            if (digitScaled > MAX_CODE_POINT || ucs > MAX_CODE_POINT - digitScaled) {
+                return 0;
+            }
             ucs += digitScaled;
-            mult *= radix;       
-            
-            // Security check: could a value exist that is out of range?
-            // Easily; limit to the MAX_CODE_POINT, which also allows for a
-            // bunch of leading zeroes.
+            mult *= radix;
             if (mult > MAX_CODE_POINT) {
                 mult = MAX_CODE_POINT;
             }
@@ -566,11 +541,11 @@ const char* XMLUtil::GetCharacterRef(const char* p, char* value, int* length)
         }
         // convert the UCS to UTF-8
         ConvertUTF32ToUTF8(ucs, value, length);
-		if (length == 0) {
-            // If length is 0, there was an error. (Security? Bad input?)
+        if (*length == 0) {
+            // If *length is 0, ConvertUTF32ToUTF8 rejected the code point.
             // Fail safely.
-			return 0;
-		}
+            return 0;
+        }
         return p + delta + 1;
     }
     return p + 1;
@@ -831,7 +806,17 @@ XMLNode::XMLNode( XMLDocument* doc ) :
 
 XMLNode::~XMLNode()
 {
-    DeleteChildren();
+    // Fast path: this node is dying, so maintaining _firstChild/_lastChild and
+    // sibling _prev/_next links is unnecessary. Only _parent must be zeroed to
+    // satisfy the MarkInUse assertion inside DeleteNode.
+    XMLNode *currentChild = _firstChild;
+    while (currentChild != NULL) {
+        XMLNode *next = currentChild->_next;
+        currentChild->_parent = 0;
+        DeleteNode(currentChild);
+        currentChild = next;
+    }
+
     if ( _parent ) {
         _parent->Unlink( this );
     }
@@ -2257,7 +2242,7 @@ void XMLDocument::Clear()
     delete [] _charBuffer;
     _charBuffer = 0;
 	_parsingDepth = 0;
-
+    
 #if 0
     _textPool.Trace( "text" );
     _elementPool.Trace( "element" );
@@ -2332,7 +2317,7 @@ static FILE* callfopen( const char* filepath, const char* mode )
 {
     TIXMLASSERT( filepath );
     TIXMLASSERT( mode );
-#if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
     FILE* fp = 0;
     const errno_t err = fopen_s( &fp, filepath, mode );
     if ( err ) {
@@ -2344,9 +2329,11 @@ static FILE* callfopen( const char* filepath, const char* mode )
     return fp;
 }
 
-void XMLDocument::DeleteNode( XMLNode* node )	{
-    TIXMLASSERT( node );
-    TIXMLASSERT(node->_document == this );
+void XMLDocument::DeleteNode( XMLNode* node )	{   
+    if(node == 0) {
+        return; // check for null pointer
+    }
+    TIXMLASSERT(node->_document == this);
     if (node->_parent) {
         node->_parent->DeleteChild( node );
     }
