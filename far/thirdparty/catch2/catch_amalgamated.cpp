@@ -6,8 +6,8 @@
 
 // SPDX-License-Identifier: BSL-1.0
 
-//  Catch v3.11.0
-//  Generated: 2025-12-02 14:57:19.095865
+//  Catch v3.15.1
+//  Generated: 2026-06-14 10:51:56.053498
 //  ----------------------------------------------------------
 //  This file is an amalgamation of multiple different files.
 //  You probably shouldn't edit it directly.
@@ -74,11 +74,11 @@ namespace Catch {
                         samples.data(), samples.data() + samples.size() );
 
                     auto wrap_estimate = [](Estimate<double> e) {
-                        return Estimate<FDuration> {
-                            FDuration(e.point),
-                                FDuration(e.lower_bound),
-                                FDuration(e.upper_bound),
-                                e.confidence_interval,
+                        return Estimate<FDuration>{
+                            FDuration( e.point ),
+                            FDuration( e.lower_bound ),
+                            FDuration( e.upper_bound ),
+                            e.confidence_interval,
                         };
                     };
                     std::vector<FDuration> samples2;
@@ -147,7 +147,7 @@ namespace Catch {
 namespace Catch {
     namespace Benchmark {
         namespace Detail {
-            struct optimized_away_error : std::exception {
+            struct optimized_away_error final : std::exception {
                 const char* what() const noexcept override;
             };
 
@@ -798,6 +798,10 @@ namespace Catch {
                lhs.customOptions == rhs.customOptions;
     }
 
+    bool operator==( PathFilter const& lhs, PathFilter const& rhs ) {
+        return lhs.type == rhs.type && lhs.filter == rhs.filter;
+    }
+
     Config::Config( ConfigData const& data ):
         m_data( data ) {
         // We need to trim filter specs to avoid trouble with superfluous
@@ -805,9 +809,6 @@ namespace Catch {
         // aligned with whitespace).
 
         for (auto& elem : m_data.testsOrTags) {
-            elem = trim(elem);
-        }
-        for (auto& elem : m_data.sectionsToRun) {
             elem = trim(elem);
         }
 
@@ -875,7 +876,8 @@ namespace Catch {
     bool Config::listListeners() const      { return m_data.listListeners; }
 
     std::vector<std::string> const& Config::getTestsOrTags() const { return m_data.testsOrTags; }
-    std::vector<std::string> const& Config::getSectionsToRun() const { return m_data.sectionsToRun; }
+    std::vector<PathFilter> const& Config::getPathFilters() const { return m_data.pathFilters; }
+    bool Config::useNewFilterBehaviour() const { return m_data.useNewPathFilteringBehaviour; }
 
     std::vector<ReporterSpec> const& Config::getReporterSpecs() const {
         return m_data.reporterSpecifications;
@@ -902,6 +904,9 @@ namespace Catch {
     }
     bool Config::warnAboutUnmatchedTestSpecs() const {
         return !!( m_data.warnings & WarnAbout::UnmatchedTestSpec );
+    }
+    bool Config::warnAboutInfiniteGenerators() const {
+        return !!( m_data.warnings & WarnAbout::InfiniteGenerator );
     }
     bool Config::zeroTestsCountAsSuccess() const       { return m_data.allowZeroTests; }
     ShowDurations Config::showDurations() const        { return m_data.showDurations; }
@@ -990,6 +995,7 @@ namespace Catch {
 
 
 
+
 #include <cassert>
 #include <stack>
 
@@ -1002,7 +1008,7 @@ namespace Catch {
         m_messageId( builder.m_info.sequence ) {
         MessageInfo info( CATCH_MOVE( builder.m_info ) );
         info.message = builder.m_stream.str();
-        IResultCapture::pushScopedMessage( CATCH_MOVE( info ) );
+        Detail::pushScopedMessage( CATCH_MOVE( info ) );
     }
 
     ScopedMessage::ScopedMessage( ScopedMessage&& old ) noexcept:
@@ -1011,14 +1017,16 @@ namespace Catch {
     }
 
     ScopedMessage::~ScopedMessage() {
-        if ( !m_moved ) { IResultCapture::popScopedMessage( m_messageId ); }
+        if ( !m_moved ) { Detail::popScopedMessage( m_messageId ); }
     }
 
 
     Capturer::Capturer( StringRef macroName,
                         SourceLineInfo const& lineInfo,
                         ResultWas::OfType resultType,
-                        StringRef names ) {
+                        StringRef names,
+                        bool isScoped):
+        m_isScoped(isScoped) {
         auto trimmed = [&] (size_t start, size_t end) {
             while (names[start] == ',' || isspace(static_cast<unsigned char>(names[start]))) {
                 ++start;
@@ -1079,15 +1087,21 @@ namespace Catch {
     }
     Capturer::~Capturer() {
         assert( m_captured == m_messages.size() );
-        for (auto const& message : m_messages) {
-            IResultCapture::popScopedMessage( message.sequence );
+        if ( m_isScoped ) {
+            for ( auto const& message : m_messages ) {
+                Detail::popScopedMessage( message.sequence );
+            }
         }
     }
 
     void Capturer::captureValue( size_t index, std::string const& value ) {
         assert( index < m_messages.size() );
         m_messages[index].message += value;
-        IResultCapture::pushScopedMessage( CATCH_MOVE( m_messages[index] ) );
+        if ( m_isScoped ) {
+            Detail::pushScopedMessage( CATCH_MOVE( m_messages[index] ) );
+        } else {
+            Detail::addUnscopedMessage( CATCH_MOVE( m_messages[index] ) );
+        }
         m_captured++;
     }
 
@@ -1147,9 +1161,6 @@ namespace Catch {
                 CATCH_INTERNAL_ERROR("Attempted to register active exception under CATCH_CONFIG_DISABLE_EXCEPTIONS!");
 #endif
             }
-            IMutableEnumValuesRegistry& getMutableEnumValuesRegistry() override {
-                return m_enumValuesRegistry;
-            }
 
         private:
             TestRegistry m_testCaseRegistry;
@@ -1157,7 +1168,6 @@ namespace Catch {
             ExceptionTranslatorRegistry m_exceptionTranslatorRegistry;
             TagAliasRegistry m_tagAliasRegistry;
             StartupExceptionRegistry m_exceptionRegistry;
-            Detail::EnumValuesRegistry m_enumValuesRegistry;
         };
     }
 
@@ -2384,7 +2394,7 @@ namespace Catch {
     }
 
     Version const& libraryVersion() {
-        static Version version( 3, 11, 0, "", 0 );
+        static Version version( 3, 15, 1, "", 0 );
         return version;
     }
 
@@ -2409,14 +2419,6 @@ namespace Catch {
     IGeneratorTracker::~IGeneratorTracker() = default;
 
 namespace Generators {
-
-namespace Detail {
-
-    [[noreturn]]
-    void throw_generator_exception(char const* msg) {
-        Catch::throw_exception(GeneratorException{ msg });
-    }
-} // end namespace Detail
 
     GeneratorUntypedBase::~GeneratorUntypedBase() = default;
 
@@ -2465,6 +2467,27 @@ namespace Catch {
             m_current_number = m_pimpl->dist( m_pimpl->rng );
             return true;
         }
+
+        bool RandomFloatingGenerator<long double>::isFinite() const {
+            return false;
+        }
+
+    } // namespace Generators
+} // namespace Catch
+
+
+
+
+namespace Catch {
+    namespace Generators {
+        namespace Detail {
+
+            [[noreturn]]
+            void throw_generator_exception( char const* msg ) {
+                Catch::throw_exception( GeneratorException{ msg } );
+            }
+
+        } // namespace Detail
     } // namespace Generators
 } // namespace Catch
 
@@ -2498,6 +2521,7 @@ namespace Catch {
 
 
 
+
 #include <string>
 
 namespace Catch {
@@ -2512,12 +2536,39 @@ namespace Catch {
             return ret;
         }
 
+        void GeneratorUntypedBase::skipToNthElementImpl( std::size_t n ) {
+            for ( size_t i = m_currentElementIndex; i < n; ++i ) {
+                bool isValid = next();
+                if ( !isValid ) {
+                    Detail::throw_generator_exception(
+                        "Coud not jump to Nth element: not enough elements" );
+                }
+            }
+        }
+
+        void GeneratorUntypedBase::skipToNthElement( std::size_t n ) {
+            if ( n < m_currentElementIndex ) {
+                Detail::throw_generator_exception(
+                    "Tried to jump generator backwards" );
+            }
+            if ( n == m_currentElementIndex ) { return; }
+
+            skipToNthElementImpl(n);
+            // Fixup tracking after moving the generator forward
+            //  * Ensure that the correct element index is set after skipping
+            //  * Invalidate cache
+            m_currentElementIndex = n;
+            m_stringReprCache.clear();
+        }
+
         StringRef GeneratorUntypedBase::currentElementAsString() const {
             if ( m_stringReprCache.empty() ) {
                 m_stringReprCache = stringifyImpl();
             }
             return m_stringReprCache;
         }
+
+        bool GeneratorUntypedBase::isFinite() const { return true; }
 
     } // namespace Generators
 } // namespace Catch
@@ -2632,13 +2683,17 @@ namespace Catch {
 
 namespace Catch {
 
+    void AssertionHandler::finishIncomplete() {
+        m_resultCapture.handleIncomplete( m_assertionInfo );
+    }
+
     AssertionHandler::AssertionHandler
         (   StringRef macroName,
             SourceLineInfo const& lineInfo,
             StringRef capturedExpression,
             ResultDisposition::Flags resultDisposition )
     :   m_assertionInfo{ macroName, lineInfo, capturedExpression, resultDisposition },
-        m_resultCapture( getResultCapture() )
+        m_resultCapture( static_cast<RunContext&>(getResultCapture()) )
     {
         m_resultCapture.notifyAssertionStarted( m_assertionInfo );
     }
@@ -3199,6 +3254,9 @@ namespace Catch {
             } else if ( warning == "UnmatchedTestSpec" ) {
                 config.warnings = static_cast<WarnAbout::What>(config.warnings | WarnAbout::UnmatchedTestSpec);
                 return ParserResult::ok( ParseResultType::Matched );
+            } else if ( warning == "InfiniteGenerators" ) {
+                config.warnings = static_cast<WarnAbout::What>(config.warnings | WarnAbout::InfiniteGenerator);
+                return ParserResult::ok( ParseResultType::Matched );
             }
 
             return ParserResult ::runtimeError(
@@ -3356,6 +3414,19 @@ namespace Catch {
             config.shardCount = *parsedCount;
             return ParserResult::ok( ParseResultType::Matched );
         };
+        auto const setBenchmarkSamples = [&]( std::string const& samples ) {
+            auto parsedSamples = parseUInt( samples );
+            if ( !parsedSamples ) {
+                return ParserResult::runtimeError(
+                    "Could not parse '" + samples + "' as benchmark samples" );
+            }
+            if ( *parsedSamples == 0 ) {
+                return ParserResult::runtimeError(
+                    "Benchmark samples must be greater than 0" );
+            }
+            config.benchmarkSamples = *parsedSamples;
+            return ParserResult::ok( ParseResultType::Matched );
+        };
 
         auto const setShardIndex = [&](std::string const& shardIndex) {
             auto parsedIndex = parseUInt( shardIndex );
@@ -3366,6 +3437,43 @@ namespace Catch {
             config.shardIndex = *parsedIndex;
             return ParserResult::ok( ParseResultType::Matched );
         };
+
+        auto const setSectionFilter = [&]( std::string const& sectionFilter ) {
+            config.pathFilters.emplace_back( PathFilter::For::Section, trim(sectionFilter) );
+            return ParserResult::ok( ParseResultType::Matched );
+        };
+        auto const setGeneratorFilter = [&]( std::string const& generatorFilter ) {
+            if (generatorFilter != "*") {
+                // TODO: avoid re-parsing the index?
+                auto parsedIndex = parseUInt( generatorFilter );
+                if ( !parsedIndex ) {
+                    return ParserResult::runtimeError( "Could not parse '" +
+                                                       generatorFilter +
+                                                       "' as generator index" );
+                }
+            }
+            config.useNewPathFilteringBehaviour = true;
+            config.pathFilters.emplace_back( PathFilter::For::Generator, trim(generatorFilter) );
+            return ParserResult::ok( ParseResultType::Matched );
+        };
+        // Copy-capturing other `setFoo` functions enables calling them later,
+        // as the config ref remains valid, but the local lambda vars won't.
+        auto const setPathFilter = [=, &config]( std::string const& pathFilter ) {
+            config.useNewPathFilteringBehaviour = true;
+            if ( pathFilter.size() < 3 ) {
+                return ParserResult::runtimeError(
+                    "Path filter '" + pathFilter + "' is too short" );
+            }
+            if ( startsWith( pathFilter, "g:" ) ) {
+                return setGeneratorFilter( pathFilter.substr( 2 ) );
+            }
+            if ( startsWith( pathFilter, "c:" ) ) {
+                return setSectionFilter( pathFilter.substr( 2 ) );
+            }
+            return ParserResult::runtimeError( "Path filter '" + pathFilter +
+                                               "' has unknown type prefix" );
+        };
+
 
         auto cli
             = ExeName( config.processName )
@@ -3412,9 +3520,15 @@ namespace Catch {
             | Opt( config.filenamesAsTags )
                 ["-#"]["--filenames-as-tags"]
                 ( "adds a tag for the filename" )
-            | Opt( config.sectionsToRun, "section name" )
+            | Opt( accept_many, setSectionFilter, "section name" )
                 ["-c"]["--section"]
                 ( "specify section to run" )
+            | Opt( accept_many, setGeneratorFilter, "index spec" )
+                ["-g"]["--generator-index"]
+                ( "specify generator elements to try" )
+            | Opt( accept_many, setPathFilter, "path filter spec" )
+                ["-p"]["--path-filter"]
+                ( "qualified path filter" )
             | Opt( setVerbosity, "quiet|normal|high" )
                 ["-v"]["--verbosity"]
                 ( "set output verbosity" )
@@ -3448,7 +3562,7 @@ namespace Catch {
             | Opt( config.skipBenchmarks)
                 ["--skip-benchmarks"]
                 ( "disable running benchmarks")
-            | Opt( config.benchmarkSamples, "samples" )
+            | Opt( setBenchmarkSamples, "samples"  )
                 ["--benchmark-samples"]
                 ( "number of samples to collect (default: 100)" )
             | Opt( config.benchmarkResamples, "resamples" )
@@ -3632,7 +3746,9 @@ namespace {
 #if defined( CATCH_PLATFORM_LINUX ) \
  || defined( CATCH_PLATFORM_MAC ) \
  || defined( __GLIBC__ ) \
- || defined( __FreeBSD__ ) \
+ || (defined( __FreeBSD__ ) \
+     /* PlayStation platform does not have `isatty()` */ \
+     && !defined(CATCH_PLATFORM_PLAYSTATION)) \
  || defined( CATCH_PLATFORM_QNX )
 #    define CATCH_INTERNAL_HAS_ISATTY
 #    include <unistd.h>
@@ -3973,11 +4089,10 @@ namespace Catch {
 
 
 
+
 #include <cassert>
 
 namespace Catch {
-
-    IMutableEnumValuesRegistry::~IMutableEnumValuesRegistry() = default;
 
     namespace Detail {
 
@@ -4004,9 +4119,7 @@ namespace Catch {
             return parsed;
         }
 
-        EnumInfo::~EnumInfo() = default;
-
-        StringRef EnumInfo::lookup( int value ) const {
+        StringRef EnumInfo::lookup( int64_t value ) const {
             for( auto const& valueToName : m_values ) {
                 if( valueToName.first == value )
                     return valueToName.second;
@@ -4014,23 +4127,18 @@ namespace Catch {
             return "{** unexpected enum value **}"_sr;
         }
 
-        Catch::Detail::unique_ptr<EnumInfo> makeEnumInfo( StringRef enumName, StringRef allValueNames, std::vector<int> const& values ) {
-            auto enumInfo = Catch::Detail::make_unique<EnumInfo>();
-            enumInfo->m_name = enumName;
-            enumInfo->m_values.reserve( values.size() );
+        EnumInfo makeEnumInfo( StringRef enumName, StringRef allValueNames, std::vector<int64_t> const& values ) {
+            EnumInfo enumInfo;
+            enumInfo.m_name = enumName;
+            enumInfo.m_values.reserve( values.size() );
 
             const auto valueNames = Catch::Detail::parseEnums( allValueNames );
             assert( valueNames.size() == values.size() );
-            std::size_t i = 0;
-            for( auto value : values )
-                enumInfo->m_values.emplace_back(value, valueNames[i++]);
+            for (size_t i = 0; i < values.size(); ++i) {
+                enumInfo.m_values.emplace_back( values[i], valueNames[i] );
+            }
 
             return enumInfo;
-        }
-
-        EnumInfo const& EnumValuesRegistry::registerEnum( StringRef enumName, StringRef allValueNames, std::vector<int> const& values ) {
-            m_enumInfos.push_back(makeEnumInfo(enumName, allValueNames, values));
-            return *m_enumInfos.back();
         }
 
     } // Detail
@@ -4957,7 +5065,7 @@ namespace Catch {
     namespace {
         //! A no-op implementation, used if no reporter wants output
         //! redirection.
-        class NoopRedirect : public OutputRedirect {
+        class NoopRedirect final : public OutputRedirect {
             void activateImpl() override {}
             void deactivateImpl() override {}
             std::string getStdout() override { return {}; }
@@ -4994,7 +5102,7 @@ namespace Catch {
          * Redirects the `std::cout`, `std::cerr`, `std::clog` streams,
          * but does not touch the actual `stdout`/`stderr` file descriptors.
          */
-        class StreamRedirect : public OutputRedirect {
+        class StreamRedirect final : public OutputRedirect {
             ReusableStringStream m_redirectedOut, m_redirectedErr;
             RedirectedStreamNew m_cout, m_cerr, m_clog;
 
@@ -5105,7 +5213,7 @@ namespace Catch {
          * Works by replacing the file descriptors numbered 1 and 2
          * with an open temporary file.
          */
-        class FileRedirect : public OutputRedirect {
+        class FileRedirect final : public OutputRedirect {
             TempFile m_outFile, m_errFile;
             int m_originalOut = -1;
             int m_originalErr = -1;
@@ -5750,12 +5858,51 @@ namespace Catch {
             struct GeneratorTracker final : TestCaseTracking::TrackerBase,
                                       IGeneratorTracker {
                 GeneratorBasePtr m_generator;
+                // Filtered generator has moved to specific index due to
+                // a filter, it needs special handling of `countedNext()`
+                bool m_isFiltered = false;
 
                 GeneratorTracker(
                     TestCaseTracking::NameAndLocation&& nameAndLocation,
                     TrackerContext& ctx,
-                    ITracker* parent ):
-                    TrackerBase( CATCH_MOVE( nameAndLocation ), ctx, parent ) {}
+                    ITracker* parent,
+                    GeneratorBasePtr&& generator ):
+                    TrackerBase( CATCH_MOVE( nameAndLocation ), ctx, parent ),
+                    m_generator( CATCH_MOVE( generator ) ) {
+                    assert( m_generator &&
+                            "Cannot create tracker without generator" );
+
+                    // Handle potential filter and move forward here...
+                    // Old style filters do not affect generators at all
+                    if (m_newStyleFilters && m_allTrackerDepth < m_filterRef->size()) {
+                        auto const& filter =
+                            ( *m_filterRef )[m_allTrackerDepth];
+                        // Generator cannot be un-entered the way a section
+                        // can be, so the tracker has to throw for a wrong
+                        // filter to stop the execution flow.
+                        if (filter.type == PathFilter::For::Section) {
+                            // We want the semantics of `SKIP()`, but we inline it
+                            // to avoid issues with conditionally prefixed macros
+                            INTERNAL_CATCH_MSG(
+                                "SKIP",
+                                Catch::ResultWas::ExplicitSkip,
+                                Catch::ResultDisposition::Normal,
+                                "" );
+                            Catch::Detail::Unreachable();
+                        }
+                        // '*' is the wildcard for "all elements in generator"
+                        // used for filtering sections below the generator, but
+                        // not the generator itself.
+                        if ( filter.filter != "*" ) {
+                            m_isFiltered = true;
+                            // TBD: We assume that the filter was validated as
+                            //      number during parsing. We should pass it
+                            //      as number from the CLI parser.
+                            size_t targetIndex = std::stoul( filter.filter );
+                            m_generator->skipToNthElement( targetIndex );
+                        }
+                    }
+                }
 
                 static GeneratorTracker*
                 acquire( TrackerContext& ctx,
@@ -5799,9 +5946,6 @@ namespace Catch {
 
                 // TrackerBase interface
                 bool isGeneratorTracker() const override { return true; }
-                auto hasGenerator() const -> bool override {
-                    return !!m_generator;
-                }
                 void close() override {
                     TrackerBase::close();
                     // If a generator has a child (it is followed by a section)
@@ -5830,25 +5974,24 @@ namespace Catch {
                         // _can_ start, and thus we should wait for them, or
                         // they cannot start (due to filters), and we shouldn't
                         // wait for them
-                        ITracker* parent = m_parent;
-                        // This is safe: there is always at least one section
-                        // tracker in a test case tracking tree
-                        while ( !parent->isSectionTracker() ) {
-                            parent = parent->parent();
+
+                        // No filters left -> no restrictions on running sections
+                        size_t childDepth = 1 + (m_newStyleFilters ? m_allTrackerDepth : m_sectionOnlyDepth);
+                        if ( childDepth >= m_filterRef->size() ) {
+                            return true;
                         }
-                        assert( parent &&
-                                "Missing root (test case) level section" );
 
-                        auto const& parentSection =
-                            static_cast<SectionTracker const&>( *parent );
-                        auto const& filters = parentSection.getFilters();
-                        // No filters -> no restrictions on running sections
-                        if ( filters.empty() ) { return true; }
-
+                        // If we are using the new style filters, we need to check
+                        // whether the successive filter is for section or a generator.
+                        if ( m_newStyleFilters
+                            && (*m_filterRef)[childDepth].type != PathFilter::For::Section ) {
+                            return false;
+                        }
+                        // Look for any child section that could match the remaining filters
                         for ( auto const& child : m_children ) {
                             if ( child->isSectionTracker() &&
                                  static_cast<SectionTracker const&>( *child )
-                                         .trimmedName() == filters[0] ) {
+                                         .trimmedName() == StringRef((*m_filterRef)[childDepth].filter) ) {
                                 return true;
                             }
                         }
@@ -5860,9 +6003,10 @@ namespace Catch {
                     // value, but we do not want to invoke the side-effect if
                     // this generator is still waiting for any child to start.
                     assert( m_generator && "Tracker without generator" );
-                    if ( should_wait_for_child ||
-                         ( m_runState == CompletedSuccessfully &&
-                           m_generator->countedNext() ) ) {
+                    if ( should_wait_for_child
+                        ||  ( m_runState == CompletedSuccessfully
+                            && !m_isFiltered // filtered generators cannot meaningfully move forward, as they would get past the filter
+                            && m_generator->countedNext() ) ) {
                         m_children.clear();
                         m_runState = Executing;
                     }
@@ -5871,9 +6015,6 @@ namespace Catch {
                 // IGeneratorTracker interface
                 auto getGenerator() const -> GeneratorBasePtr const& override {
                     return m_generator;
-                }
-                void setGenerator( GeneratorBasePtr&& generator ) override {
-                    m_generator = CATCH_MOVE( generator );
                 }
             };
         } // namespace
@@ -5912,20 +6053,100 @@ namespace Catch {
         // clear there for performance reasons.
         static CATCH_INTERNAL_THREAD_LOCAL bool g_clearMessageScopes = false;
 
+
+        // Holds the data for both scoped and unscoped messages together,
+        // to avoid issues where their lifetimes start in wrong order,
+        // and then are destroyed in wrong order.
+        class MessageHolder {
+            // The actual message vector passed to the reporters
+            std::vector<MessageInfo> messages;
+            // IDs of messages from UNSCOPED_X macros, which we have to
+            // remove manually.
+            std::vector<unsigned int> unscoped_ids;
+
+        public:
+            // We do not need to special-case the unscoped messages when
+            // we only keep around the raw msg ids.
+            ~MessageHolder() = default;
+
+            void addUnscopedMessage( MessageInfo&& info ) {
+                repairUnscopedMessageInvariant();
+                unscoped_ids.push_back( info.sequence );
+                messages.push_back( CATCH_MOVE( info ) );
+            }
+
+            void addUnscopedMessage(MessageBuilder&& builder) {
+                MessageInfo info( CATCH_MOVE( builder.m_info ) );
+                info.message = builder.m_stream.str();
+                addUnscopedMessage( CATCH_MOVE( info ) );
+            }
+
+            void addScopedMessage(MessageInfo&& info) {
+                messages.push_back( CATCH_MOVE( info ) );
+            }
+
+            std::vector<MessageInfo> const& getMessages() const {
+                return messages;
+            }
+
+            void removeMessage( unsigned int messageId ) {
+                // Note: On average, it would probably be better to look for
+                //       the message backwards. However, we do not expect to have
+                //       to  deal with more messages than low single digits, so
+                //       the improvement is tiny, and we would have to hand-write
+                //       the loop to avoid terrible codegen of reverse iterators
+                //       in debug mode.
+                auto iter =
+                    std::find_if( messages.begin(),
+                                  messages.end(),
+                                  [messageId]( MessageInfo const& msg ) {
+                                      return msg.sequence == messageId;
+                                  } );
+                assert( iter != messages.end() &&
+                        "Trying to remove non-existent message." );
+                messages.erase( iter );
+            }
+
+            void removeUnscopedMessages() {
+                for ( const auto messageId : unscoped_ids ) {
+                    removeMessage( messageId );
+                }
+                unscoped_ids.clear();
+                g_clearMessageScopes = false;
+            }
+
+            void repairUnscopedMessageInvariant() {
+                if ( g_clearMessageScopes ) { removeUnscopedMessages(); }
+                g_clearMessageScopes = false;
+            }
+        };
+
         CATCH_INTERNAL_START_WARNINGS_SUPPRESSION
         CATCH_INTERNAL_SUPPRESS_GLOBALS_WARNINGS
-        // Actual messages to be provided to the reporter
-        static std::vector<MessageInfo>& g_messages() {
-            static CATCH_INTERNAL_THREAD_LOCAL std::vector<MessageInfo> value;
-            return value;
-        }
-
-        // Owners for the UNSCOPED_X information macro
-        static std::vector<ScopedMessage>& g_messageScopes() {
-            static CATCH_INTERNAL_THREAD_LOCAL std::vector<ScopedMessage> value;
+        static MessageHolder& g_messageHolder() {
+            static CATCH_INTERNAL_THREAD_LOCAL MessageHolder value;
             return value;
         }
         CATCH_INTERNAL_STOP_WARNINGS_SUPPRESSION
+
+
+        void pushScopedMessage( MessageInfo&& message ) {
+            Detail::g_messageHolder().addScopedMessage(  CATCH_MOVE( message ) );
+        }
+
+        void popScopedMessage( unsigned int messageId ) {
+            Detail::g_messageHolder().removeMessage( messageId );
+        }
+
+        void emplaceUnscopedMessage( MessageBuilder&& builder ) {
+            Detail::g_messageHolder().addUnscopedMessage( CATCH_MOVE( builder ) );
+        }
+
+        void addUnscopedMessage( MessageInfo&& message ) {
+            Detail::g_messageHolder().addUnscopedMessage( CATCH_MOVE( message ) );
+        }
+
+        bool lastAssertionPassed() { return Detail::g_lastAssertionPassed; }
 
     } // namespace Detail
 
@@ -5967,7 +6188,8 @@ namespace Catch {
 
         ITracker& rootTracker = m_trackerContext.startRun();
         assert(rootTracker.isSectionTracker());
-        static_cast<SectionTracker&>(rootTracker).addInitialFilters(m_config->getSectionsToRun());
+        rootTracker.setFilters( &m_config->getPathFilters(),
+                                m_config->useNewFilterBehaviour() );
 
         // We intentionally only seed the internal RNG once per test case,
         // before it is first invoked. The reason for that is a complex
@@ -6059,32 +6281,29 @@ namespace Catch {
             Detail::g_lastAssertionPassed = true;
         } else if (!result.succeeded()) {
             Detail::g_lastAssertionPassed = false;
-            if (result.isOk()) {
-            }
-            else if( m_activeTestCase->getTestCaseInfo().okToFail() ) // Read from a shared state established before the threads could start, this is fine
+            if (result.isOk()) {}
+            else if( m_activeTestCase->getTestCaseInfo().okToFail() ) { // Read from a shared state established before the threads could start, this is fine
                 m_atomicAssertionCount.failedButOk++;
-            else
+            } else {
                 m_atomicAssertionCount.failed++;
-        }
-        else {
+            }
+        } else {
             Detail::g_lastAssertionPassed = true;
         }
 
-        if ( Detail::g_clearMessageScopes ) {
-            Detail::g_messageScopes().clear();
-            Detail::g_clearMessageScopes = false;
-        }
+        auto& msgHolder = Detail::g_messageHolder();
+        msgHolder.repairUnscopedMessageInvariant();
 
         // From here, we are touching shared state and need mutex.
         Detail::LockGuard lock( m_assertionMutex );
         {
             auto _ = scopedDeactivate( *m_outputRedirect );
             updateTotalsFromAtomics();
-            m_reporter->assertionEnded( AssertionStats( result, Detail::g_messages(), m_totals ) );
+            m_reporter->assertionEnded( AssertionStats( result, msgHolder.getMessages(), m_totals ) );
         }
 
         if ( result.getResultType() != ResultWas::Warning ) {
-            Detail::g_messageScopes().clear();
+            msgHolder.removeUnscopedMessages();
         }
 
         // Reset working state. assertion info will be reset after
@@ -6141,18 +6360,32 @@ namespace Catch {
         SourceLineInfo lineInfo,
         Generators::GeneratorBasePtr&& generator ) {
 
+        // TBD: Do we want to avoid the warning if the generator is filtered?
+        if ( m_config->warnAboutInfiniteGenerators() &&
+             !generator->isFinite() ) {
+            // We want the semantics of `FAIL()`, but we inline it
+            // to avoid issues with conditionally prefixed macros
+            INTERNAL_CATCH_MSG( "FAIL",
+                                Catch::ResultWas::ExplicitFailure,
+                                Catch::ResultDisposition::Normal,
+                                "GENERATE() would run infinitely" );
+        }
+
         auto nameAndLoc = TestCaseTracking::NameAndLocation( static_cast<std::string>( generatorName ), lineInfo );
         auto& currentTracker = m_trackerContext.currentTracker();
         assert(
             currentTracker.nameAndLocation() != nameAndLoc &&
             "Trying to create tracker for a generator that already has one" );
 
-        auto newTracker = Catch::Detail::make_unique<Generators::GeneratorTracker>(
-            CATCH_MOVE(nameAndLoc), m_trackerContext, &currentTracker );
+        auto newTracker =
+            Catch::Detail::make_unique<Generators::GeneratorTracker>(
+                CATCH_MOVE( nameAndLoc ),
+                m_trackerContext,
+                &currentTracker,
+                CATCH_MOVE( generator ) );
         auto ret = newTracker.get();
         currentTracker.addChild( CATCH_MOVE( newTracker ) );
 
-        ret->setGenerator( CATCH_MOVE( generator ) );
         ret->open();
         return ret;
     }
@@ -6236,7 +6469,7 @@ namespace Catch {
         //      and since IResultCapture::getLastResult is deprecated,
         //      we will leave it as is, until it is finally removed.
         Detail::LockGuard _( m_assertionMutex );
-        return &(*m_lastResult);
+        return &*m_lastResult;
     }
 
     void RunContext::exceptionEarlyReported() {
@@ -6310,10 +6543,6 @@ namespace Catch {
         m_reporter->testRunEnded(TestRunStats(m_runInfo, m_totals, false));
     }
 
-    bool RunContext::lastAssertionPassed() {
-        return Detail::g_lastAssertionPassed;
-    }
-
     void RunContext::assertionPassedFastPath(SourceLineInfo lineInfo) {
         // We want to save the line info for better experience with unexpected assertions
         Detail::g_lastKnownLineInfo = lineInfo;
@@ -6373,10 +6602,10 @@ namespace Catch {
 
         m_testCaseTracker->close();
         handleUnfinishedSections();
-        Detail::g_messageScopes().clear();
-        // TBD: At this point, m_messages should be empty. Do we want to
-        //      assert that this is true, or keep the defensive clear call?
-        Detail::g_messages().clear();
+        auto& msgHolder = Detail::g_messageHolder();
+        msgHolder.removeUnscopedMessages();
+        assert( msgHolder.getMessages().empty() &&
+                "There should be no leftover messages after the test ends" );
 
         SectionStats testCaseSectionStats(CATCH_MOVE(testCaseSection), assertions, duration, missingAssertions);
         m_reporter->sectionEnded(testCaseSectionStats);
@@ -6492,7 +6721,7 @@ namespace Catch {
     }
 
     void RunContext::populateReaction( AssertionReaction& reaction,
-                                       bool has_normal_disposition ) {
+                                       bool has_normal_disposition ) const {
         reaction.shouldDebugBreak = m_shouldDebugBreak;
         reaction.shouldThrow = aborting() || has_normal_disposition;
     }
@@ -6541,37 +6770,6 @@ namespace Catch {
             populateReaction(
                 reaction, info.resultDisposition & ResultDisposition::Normal );
         }
-    }
-
-    void IResultCapture::pushScopedMessage( MessageInfo&& message ) {
-        Detail::g_messages().push_back( CATCH_MOVE( message ) );
-    }
-
-    void IResultCapture::popScopedMessage( unsigned int messageId ) {
-        // Note: On average, it would probably be better to look for the message
-        //       backwards. However, we do not expect to have to deal with more
-        //       messages than low single digits, so the optimization is tiny,
-        //       and we would have to hand-write the loop to avoid terrible
-        //       codegen of reverse iterators in debug mode.
-        auto& messages = Detail::g_messages();
-        messages.erase( std::find_if( messages.begin(),
-                                      messages.end(),
-                                      [=]( MessageInfo const& msg ) {
-                                          return msg.sequence ==
-                                                 messageId;
-                                      } ) );
-    }
-
-    void IResultCapture::emplaceUnscopedMessage( MessageBuilder&& builder ) {
-        // Invalid unscoped messages are lazy cleared. If we have any,
-        // we have to get rid of them before adding new ones, or the
-        // delayed clear in assertion handling will erase the valid ones
-        // as well.
-        if ( Detail::g_clearMessageScopes ) {
-            Detail::g_messageScopes().clear();
-            Detail::g_clearMessageScopes = false;
-        }
-        Detail::g_messageScopes().emplace_back( CATCH_MOVE( builder ) );
     }
 
     void seedRng(IConfig const& config) {
@@ -6905,10 +7103,11 @@ namespace Catch {
 
     TagAlias const* TagAliasRegistry::find( std::string const& alias ) const {
         auto it = m_registry.find( alias );
-        if( it != m_registry.end() )
-            return &(it->second);
-        else
+        if ( it != m_registry.end() ) {
+            return &it->second;
+        } else {
             return nullptr;
+        }
     }
 
     std::string TagAliasRegistry::expandAliases( std::string const& unexpandedTestSpec ) const {
@@ -7132,6 +7331,17 @@ namespace TestCaseTracking {
         location( _location )
     {}
 
+    ITracker::ITracker( NameAndLocation&& nameAndLoc, ITracker* parent ):
+        m_nameAndLocation( CATCH_MOVE( nameAndLoc ) ), m_parent( parent ) {
+        if ( m_parent ) {
+            m_allTrackerDepth = m_parent->m_allTrackerDepth + 1;
+            // We leave section trackers to bump themselves up, as
+            // we cannot use `isSectionTracker` in constructor
+            m_sectionOnlyDepth = m_parent->m_sectionOnlyDepth;
+            m_filterRef = m_parent->m_filterRef;
+            m_newStyleFilters = m_parent->m_newStyleFilters;
+        }
+    }
 
     ITracker::~ITracker() = default;
 
@@ -7264,25 +7474,32 @@ namespace TestCaseTracking {
     :   TrackerBase( CATCH_MOVE(nameAndLocation), ctx, parent ),
         m_trimmed_name(trim(StringRef(ITracker::nameAndLocation().name)))
     {
-        if( parent ) {
-            while ( !parent->isSectionTracker() ) {
-                parent = parent->parent();
-            }
-
-            SectionTracker& parentSection = static_cast<SectionTracker&>( *parent );
-            addNextFilters( parentSection.m_filters );
+        if( m_parent ) {
+            ++m_sectionOnlyDepth;
         }
     }
 
     bool SectionTracker::isComplete() const {
-        bool complete = true;
-
-        if ( m_filters.empty()
-            || m_filters[0].empty()
-            || m_filters[0] == m_trimmed_name ) {
-            complete = TrackerBase::isComplete();
+        // If there are active filters AND we do not pass them,
+        // the section is always "completed"
+        const size_t filterIndex =
+            m_newStyleFilters ? m_allTrackerDepth : m_sectionOnlyDepth;
+        if ( filterIndex < m_filterRef->size() ) {
+            // There is active filter, check it
+            // 1) New style filter must explicitly target section
+            if ( m_newStyleFilters && ( *m_filterRef )[filterIndex].type !=
+                                          PathFilter::For::Section ) {
+                return true;
+            }
+            // 2) Both style filters must match the trimmed name exactly
+            if ( m_trimmed_name !=
+                 StringRef( ( *m_filterRef )[filterIndex].filter ) ) {
+                return true;
+            }
         }
-        return complete;
+
+        // Otherwise we delegate to the generic processing
+        return TrackerBase::isComplete();
     }
 
     bool SectionTracker::isSectionTracker() const { return true; }
@@ -7318,19 +7535,6 @@ namespace TestCaseTracking {
             open();
     }
 
-    void SectionTracker::addInitialFilters( std::vector<std::string> const& filters ) {
-        if( !filters.empty() ) {
-            m_filters.reserve( m_filters.size() + filters.size() + 2 );
-            m_filters.emplace_back(StringRef{}); // Root - should never be consulted
-            m_filters.emplace_back(StringRef{}); // Test Case - not a section filter
-            m_filters.insert( m_filters.end(), filters.begin(), filters.end() );
-        }
-    }
-    void SectionTracker::addNextFilters( std::vector<StringRef> const& filters ) {
-        if( filters.size() > 1 )
-            m_filters.insert( m_filters.end(), filters.begin()+1, filters.end() );
-    }
-
     StringRef SectionTracker::trimmedName() const {
         return m_trimmed_name;
     }
@@ -7350,7 +7554,7 @@ namespace Catch {
 
     void throw_test_failure_exception() {
 #if !defined( CATCH_CONFIG_DISABLE_EXCEPTIONS )
-        throw TestFailureException{};
+        throw TestFailureException{}; //NOLINT(bugprone-std-exception-baseclass)
 #else
         CATCH_ERROR( "Test failure requires aborting test!" );
 #endif
@@ -7358,7 +7562,7 @@ namespace Catch {
 
     void throw_test_skip_exception() {
 #if !defined( CATCH_CONFIG_DISABLE_EXCEPTIONS )
-        throw Catch::TestSkipException();
+        throw Catch::TestSkipException(); //NOLINT(bugprone-std-exception-baseclass)
 #else
         CATCH_ERROR( "Explicitly skipping tests during runtime requires exceptions" );
 #endif
@@ -7690,6 +7894,10 @@ namespace {
         return std::memchr( chars, c, sizeof( chars ) - 1 ) != nullptr;
     }
 
+    bool isUtf8ContinuationByte( char c ) {
+        return ( static_cast<unsigned char>( c ) & 0xC0 ) == 0x80;
+    }
+
 } // namespace
 
 namespace Catch {
@@ -7716,6 +7924,11 @@ namespace Catch {
                 if ( it != m_string.end() ) {
                     ++m_size;
                     ++it;
+                    // Skip UTF-8 continuation bytes
+                    while ( it != m_string.end() &&
+                            isUtf8ContinuationByte( *it ) ) {
+                        ++it;
+                    }
                 }
             }
         }
@@ -7778,6 +7991,11 @@ namespace Catch {
         void AnsiSkippingString::const_iterator::advance() {
             assert( m_it != m_string->end() );
             m_it++;
+            // Skip UTF-8 continuation bytes
+            while ( m_it != m_string->end() &&
+                    isUtf8ContinuationByte( *m_it ) ) {
+                m_it++;
+            }
             tryParseAnsiEscapes();
         }
 
@@ -7795,6 +8013,11 @@ namespace Catch {
                 // skipped over ansi sequences at the start of a string
                 assert( m_it != m_string->begin() );
                 assert( *m_it == '\033' );
+                m_it--;
+            }
+            // Skip back over UTF-8 continuation bytes to the leading byte
+            while ( m_it != m_string->begin() &&
+                    isUtf8ContinuationByte( *m_it ) ) {
                 m_it--;
             }
         }
@@ -8443,13 +8666,13 @@ namespace Catch {
 namespace Matchers {
 
     std::string MatcherUntypedBase::toString() const {
-        if (m_cachedToString.empty()) {
-            m_cachedToString = describe();
-        }
-        return m_cachedToString;
+        return describe();
     }
 
-    MatcherUntypedBase::~MatcherUntypedBase() = default;
+    std::string MatcherUntypedBase::describe() const {
+        using namespace std::string_literals;
+        return "Undescribed matcher"s;
+    }
 
 } // namespace Matchers
 } // namespace Catch
@@ -8468,14 +8691,6 @@ namespace Matchers {
         ReusableStringStream sstr;
         sstr << "has size == " << m_target_size;
         return sstr.str();
-    }
-
-    IsEmptyMatcher IsEmpty() {
-        return {};
-    }
-
-    HasSizeMatcher SizeIs(std::size_t sz) {
-        return HasSizeMatcher{ sz };
     }
 
 } // end namespace Matchers
@@ -8731,17 +8946,13 @@ std::string Catch::Matchers::Detail::finalizeDescription(const std::string& desc
 
 namespace Catch {
     namespace Matchers {
-        std::string AllTrueMatcher::describe() const { return "contains only true"; }
 
-        AllTrueMatcher AllTrue() { return AllTrueMatcher{}; }
+        std::string AllTrueMatcher::describe() const { return "contains only true"; }
 
         std::string NoneTrueMatcher::describe() const { return "contains no true"; }
 
-        NoneTrueMatcher NoneTrue() { return NoneTrueMatcher{}; }
-
         std::string AnyTrueMatcher::describe() const { return "contains at least one true"; }
 
-        AnyTrueMatcher AnyTrue() { return AnyTrueMatcher{}; }
     } // namespace Matchers
 } // namespace Catch
 
@@ -8854,7 +9065,11 @@ namespace Matchers {
 
 namespace Catch {
 namespace Matchers {
-    MatcherGenericBase::~MatcherGenericBase() = default;
+
+    std::string MatcherGenericBase::describe() const {
+        using namespace std::string_literals;
+        return "Undescribed generic matcher"s;
+    }
 
     namespace Detail {
 
@@ -8949,12 +9164,12 @@ namespace Catch {
 
     void ReporterBase::listReporters(
         std::vector<ReporterDescription> const& descriptions ) {
-        defaultListReporters(m_stream, descriptions, m_config->verbosity());
+        defaultListReporters( m_stream, descriptions, m_config->verbosity() );
     }
 
     void ReporterBase::listListeners(
         std::vector<ListenerDescription> const& descriptions ) {
-        defaultListListeners( m_stream, descriptions );
+        defaultListListeners( m_stream, descriptions, m_config->verbosity() );
     }
 
     void ReporterBase::listTests(std::vector<TestCaseHandle> const& tests) {
@@ -8966,7 +9181,7 @@ namespace Catch {
     }
 
     void ReporterBase::listTags(std::vector<TagInfo> const& tags) {
-        defaultListTags( m_stream, tags, m_config->hasTestFilters() );
+        defaultListTags( m_stream, tags, m_config->hasTestFilters(), m_config->verbosity() );
     }
 
 } // namespace Catch
@@ -9877,9 +10092,8 @@ namespace Catch {
             bool operator()(
                 Detail::unique_ptr<CumulativeReporterBase::SectionNode> const&
                     node ) const {
-                return (
-                    ( node->stats.sectionInfo.name == m_other.name ) &&
-                    ( node->stats.sectionInfo.lineInfo == m_other.lineInfo ) );
+                return node->stats.sectionInfo.name == m_other.name
+                    && node->stats.sectionInfo.lineInfo == m_other.lineInfo;
             }
             void operator=( BySectionInfo const& ) = delete;
 
@@ -10177,7 +10391,15 @@ namespace Catch {
     }
 
     void defaultListListeners( std::ostream& out,
-                               std::vector<ListenerDescription> const& descriptions ) {
+                               std::vector<ListenerDescription> const& descriptions,
+                               Verbosity verbosity ) {
+        if ( verbosity == Verbosity::Quiet ) {
+            for ( auto const& desc : descriptions ) {
+                out << desc.name << '\n';
+            }
+            return;
+        }
+
         out << "Registered listeners:\n";
 
         if(descriptions.empty()) {
@@ -10210,7 +10432,14 @@ namespace Catch {
 
     void defaultListTags( std::ostream& out,
                           std::vector<TagInfo> const& tags,
-                          bool isFiltered ) {
+                          bool isFiltered,
+                          Verbosity verbosity ) {
+        if (verbosity == Verbosity::Quiet) {
+            for (auto const& tagCount : tags) {
+                out << tagCount.all() << '\n';
+            }
+            return;
+        }
         if ( isFiltered ) {
             out << "Tags for matching test cases:\n";
         } else {
@@ -10218,7 +10447,7 @@ namespace Catch {
         }
 
         // minimum whitespace to pad tag counts, possibly overwritten below
-        size_t maxTagCountLen = 2;
+        int maxTagCountLen = 2;
 
         // determine necessary padding for tag count column
         if ( ! tags.empty() ) {
@@ -10229,11 +10458,11 @@ namespace Catch {
                                       return lhs.count < rhs.count;
                                   } )
                     ->count;
-            
+
             // more padding necessary for 3+ digits
             if (maxTagCount >= 100) {
                 auto numDigits = 1 + std::floor( std::log10( maxTagCount ) );
-                maxTagCountLen = static_cast<size_t>( numDigits );
+                maxTagCountLen = static_cast<int>( numDigits );
             }
         }
 
@@ -10986,70 +11215,77 @@ namespace Catch {
     void JunitReporter::writeAssertions( SectionNode const& sectionNode ) {
         for (auto const& assertionOrBenchmark : sectionNode.assertionsAndBenchmarks) {
             if (assertionOrBenchmark.isAssertion()) {
-                writeAssertion(assertionOrBenchmark.asAssertion());
+                // JUnit XML format supports only 1 error/failure/skip
+                // assertion elements per test case
+                if (writeAssertion(assertionOrBenchmark.asAssertion())) {
+                    break;
+                }
             }
         }
     }
 
-    void JunitReporter::writeAssertion( AssertionStats const& stats ) {
+    bool JunitReporter::writeAssertion( AssertionStats const& stats ) {
         AssertionResult const& result = stats.assertionResult;
-        if ( !result.isOk() ||
-             result.getResultType() == ResultWas::ExplicitSkip ) {
-            std::string elementName;
-            switch( result.getResultType() ) {
-                case ResultWas::ThrewException:
-                case ResultWas::FatalErrorCondition:
-                    elementName = "error";
-                    break;
-                case ResultWas::ExplicitFailure:
-                case ResultWas::ExpressionFailed:
-                case ResultWas::DidntThrowException:
-                    elementName = "failure";
-                    break;
-                case ResultWas::ExplicitSkip:
-                    elementName = "skipped";
-                    break;
-                // We should never see these here:
-                case ResultWas::Info:
-                case ResultWas::Warning:
-                case ResultWas::Ok:
-                case ResultWas::Unknown:
-                case ResultWas::FailureBit:
-                case ResultWas::Exception:
-                    elementName = "internalError";
-                    break;
-            }
-
-            XmlWriter::ScopedElement e = xml.scopedElement( elementName );
-
-            xml.writeAttribute( "message"_sr, result.getExpression() );
-            xml.writeAttribute( "type"_sr, result.getTestMacroName() );
-
-            ReusableStringStream rss;
-            if ( result.getResultType() == ResultWas::ExplicitSkip ) {
-                rss << "SKIPPED\n";
-            } else {
-                rss << "FAILED" << ":\n";
-                if (result.hasExpression()) {
-                    rss << "  ";
-                    rss << result.getExpressionInMacro();
-                    rss << '\n';
-                }
-                if (result.hasExpandedExpression()) {
-                    rss << "with expansion:\n";
-                    rss << TextFlow::Column(result.getExpandedExpression()).indent(2) << '\n';
-                }
-            }
-
-            if( result.hasMessage() )
-                rss << result.getMessage() << '\n';
-            for( auto const& msg : stats.infoMessages )
-                if( msg.type == ResultWas::Info )
-                    rss << msg.message << '\n';
-
-            rss << "at " << result.getSourceInfo();
-            xml.writeText( rss.str(), XmlFormatting::Newline );
+        if ( result.isOk() &&
+             result.getResultType() != ResultWas::ExplicitSkip ) {
+            return false;
         }
+        std::string elementName;
+        switch ( result.getResultType() ) {
+        case ResultWas::ThrewException:
+        case ResultWas::FatalErrorCondition:
+            elementName = "error";
+            break;
+        case ResultWas::ExplicitFailure:
+        case ResultWas::ExpressionFailed:
+        case ResultWas::DidntThrowException:
+            elementName = "failure";
+            break;
+        case ResultWas::ExplicitSkip:
+            elementName = "skipped";
+            break;
+        // We should never see these here:
+        case ResultWas::Info:
+        case ResultWas::Warning:
+        case ResultWas::Ok:
+        case ResultWas::Unknown:
+        case ResultWas::FailureBit:
+        case ResultWas::Exception:
+            elementName = "internalError";
+            break;
+        }
+
+        XmlWriter::ScopedElement e = xml.scopedElement( elementName );
+
+        xml.writeAttribute( "message"_sr, result.getExpression() );
+        xml.writeAttribute( "type"_sr, result.getTestMacroName() );
+
+        ReusableStringStream rss;
+        if ( result.getResultType() == ResultWas::ExplicitSkip ) {
+            rss << "SKIPPED\n";
+        } else {
+            rss << "FAILED:\n";
+            if ( result.hasExpression() ) {
+                rss << "  ";
+                rss << result.getExpressionInMacro();
+                rss << '\n';
+            }
+            if ( result.hasExpandedExpression() ) {
+                rss << "with expansion:\n";
+                rss << TextFlow::Column( result.getExpandedExpression() )
+                           .indent( 2 )
+                    << '\n';
+            }
+        }
+
+        if ( result.hasMessage() ) { rss << result.getMessage() << '\n'; }
+        for ( auto const& msg : stats.infoMessages ) {
+            if ( msg.type == ResultWas::Info ) { rss << msg.message << '\n'; }
+        }
+
+        rss << "at " << result.getSourceInfo();
+        xml.writeText( rss.str(), XmlFormatting::Newline );
+        return true;
     }
 
 } // end namespace Catch
