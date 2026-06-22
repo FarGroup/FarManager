@@ -73,5 +73,7 @@ string FormatStr_Size(long long Size, string_view strName,
 std::vector<column> DeserialiseViewSettings(string_view ColumnTitles, string_view ColumnWidths);
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns);
 int GetDefaultWidth(const column& Column);
+std::vector<std::vector<column>> deserialize_status_line_settings(string_view ColumnTitles, string_view ColumnWidths);
+std::pair<string, string> serialize_status_line_settings(const std::vector<std::vector<column>>& Lines);
 
 #endif // PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D

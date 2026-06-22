@@ -509,6 +509,37 @@ private:
 	FileList* m_Owner;
 };
 
+int FileList::visible_status_line_count() const
+{
+	if (!Global->Opt->ShowPanelStatus)
+		return 0;
+
+	const auto TotalStatusLineCount = static_cast<int>(m_ViewSettings.StatusLines.size());
+	if (!TotalStatusLineCount)
+		return 0;
+
+	const auto MaxVisibleStatusLineCount = m_Where.height() - 5;
+
+	return std::min(TotalStatusLineCount, std::max(1, MaxVisibleStatusLineCount));
+}
+
+int FileList::status_footer_height() const
+{
+	const auto VisibleStatusLineCount = visible_status_line_count();
+
+	return VisibleStatusLineCount ? 1 + VisibleStatusLineCount : 0;
+}
+
+int FileList::status_separator_y() const
+{
+	return m_Where.bottom - status_footer_height();
+}
+
+int FileList::status_text_top_y() const
+{
+	return m_Where.bottom - visible_status_line_count();
+}
+
 file_panel_ptr FileList::create(window_ptr Owner)
 {
 	return std::make_shared<FileList>(private_tag(), Owner);
@@ -3265,7 +3296,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (
 		MouseEvent->dwMousePosition.Y > m_Where.top + Global->Opt->ShowColumnTitles &&
-		MouseEvent->dwMousePosition.Y < m_Where.bottom - 2 * Global->Opt->ShowPanelStatus
+		MouseEvent->dwMousePosition.Y < m_Where.bottom - status_footer_height()
 		)
 	{
 		Parent()->SetActivePanel(shared_from_this());
@@ -3375,7 +3406,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y >= m_Where.bottom - 2)
+	if (MouseEvent->dwMousePosition.Y >= m_Where.bottom - status_footer_height())
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
@@ -3387,7 +3418,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while_mouse_button_pressed([&](DWORD)
 		{
-			if (IntKeyState.MousePos.y < m_Where.bottom - 2)
+			if (IntKeyState.MousePos.y < m_Where.bottom - status_footer_height())
 				return false;
 
 			MoveCursorAndShow(1);
@@ -7065,9 +7096,20 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 
 		unordered_string_set ColumnsSet;
 
-		for (const auto& ColumnsContainer: { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns })
+		for (const auto& Column: m_ViewSettings.PanelColumns)
 		{
-			for (const auto& Column: *ColumnsContainer)
+			if (Column.type == column_type::custom_0)
+			{
+				if (ColumnsSet.emplace(Column.title).second)
+				{
+					m_ContentNames.emplace_back(Column.title);
+				}
+			}
+		}
+
+		for (const auto& StatusLine: m_ViewSettings.StatusLines)
+		{
+			for (const auto& Column: StatusLine)
 			{
 				if (Column.type == column_type::custom_0)
 				{
@@ -7793,7 +7835,7 @@ void FileList::FillParentPoint(FileListItem& Item)
 
 void FileList::UpdateHeight()
 {
-	m_Height = m_Where.height() - 2 - (Global->Opt->ShowColumnTitles? 1 : 0) - (Global->Opt->ShowPanelStatus? 2 : 0);
+	m_Height = m_Where.height() - 2 - (Global->Opt->ShowColumnTitles? 1 : 0) - status_footer_height();
 }
 
 void FileList::DisplayObject()
@@ -7904,9 +7946,6 @@ void FileList::ShowFileList(bool Fast)
 
 		if (I == m_ViewSettings.PanelColumns.size() - 1)
 			break;
-
-		if (m_ViewSettings.PanelColumns[I + 1].width < 0)
-			continue;
 
 		SetColor(COL_PANELBOX);
 		ColumnPos += m_ViewSettings.PanelColumns[I].width;
@@ -8042,7 +8081,10 @@ void FileList::ShowFileList(bool Fast)
 
 	if (m_ListData.empty())
 	{
-		SetScreen({ m_Where.left + 1, m_Where.bottom - 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
+		for (const auto Y: std::views::iota(status_text_top_y(), m_Where.bottom))
+		{
+			SetScreen({ m_Where.left + 1, Y, m_Where.right - 1, Y }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
+		}
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//Text(string(X2 - X1 - 1, L' '));
@@ -8094,7 +8136,7 @@ void FileList::ShowFileList(bool Fast)
 		ShowTotalSize(m_CachedOpenPanelInfo);
 	}
 
-	ShowList(FALSE,0);
+	render_file_list();
 	ShowSelectedSize();
 
 	if (Global->Opt->ShowPanelScrollbar)
@@ -8188,14 +8230,14 @@ void FileList::ShowSelectedSize()
 	if (Global->Opt->ShowPanelStatus)
 	{
 		SetColor(COL_PANELBOX);
-		DrawSeparator(m_Where.bottom - 2);
+		DrawSeparator(status_separator_y());
 		for (size_t I = 0, ColumnPos = m_Where.left + 1; I < m_ViewSettings.PanelColumns.size() - 1; I++)
 		{
 			if (m_ViewSettings.PanelColumns[I].width < 0 || (I == m_ViewSettings.PanelColumns.size() - 2 && m_ViewSettings.PanelColumns[I+1].width < 0))
 				continue;
 
 			ColumnPos += m_ViewSettings.PanelColumns[I].width;
-			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom - 2);
+			GotoXY(static_cast<int>(ColumnPos), status_separator_y());
 
 			const auto DoubleLine = !((I + 1) % m_ColumnsInStripe);
 			Text(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
@@ -8218,7 +8260,7 @@ void FileList::ShowSelectedSize()
 				inplace::truncate_right(strSelStr, AvailableWidth);
 		}
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.bottom - 2 * Global->Opt->ShowPanelStatus);
+		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), Global->Opt->ShowPanelStatus? status_separator_y() : m_Where.bottom);
 		Text(L' ');
 		Text(strSelStr);
 		Text(L' ');
@@ -8391,24 +8433,24 @@ void FileList::PrepareViewSettings(int ViewMode)
 			if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes &&
 				m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths)
 			{
-				m_ViewSettings.StatusColumns = DeserialiseViewSettings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths);
+				m_ViewSettings.StatusLines = deserialize_status_line_settings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths);
 			}
 			else if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
 			{
-				m_ViewSettings.StatusColumns =
-				{
+				m_ViewSettings.StatusLines =
+				{{
 					{ column_type::name, COLFLAGS_RIGHTALIGN, 0, },
 					{ column_type::size, 0,                 8, },
 					{ column_type::date, 0,                 0, },
 					{ column_type::time, 0,                 5, },
-				};
+				}};
 			}
 			else
 			{
-				m_ViewSettings.StatusColumns =
-				{
+				m_ViewSettings.StatusLines =
+				{{
 					{ column_type::name, COLFLAGS_RIGHTALIGN, 0, },
-				};
+				}};
 			}
 
 			if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN)
@@ -8450,7 +8492,10 @@ void FileList::PrepareViewSettings(int ViewMode)
 
 void FileList::PreparePanelView()
 {
-	PrepareColumnWidths(m_ViewSettings.StatusColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
+	for (auto& StatusLine: m_ViewSettings.StatusLines)
+	{
+		PrepareColumnWidths(StatusLine, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
+	}
 	PrepareColumnWidths(m_ViewSettings.PanelColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
 	PrepareStripes(m_ViewSettings.PanelColumns);
 }
@@ -8458,6 +8503,9 @@ void FileList::PreparePanelView()
 
 void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen) const
 {
+	if (Columns.empty())
+		return;
+
 	int ZeroLengthCount = 0;
 	int EmptyColumns = 0;
 	int TotalPercentCount = 0;
@@ -8634,443 +8682,494 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 	}
 }
 
-void FileList::ShowList(int ShowStatus,int StartColumn)
+void FileList::render_column(const FileListItem& Item, const column& Column, int ColumnWidth,
+	os::chrono::time_point const CurrentTime, int& MaxLeftPos, int& MinLeftPos) const
 {
-	const auto DataLock = lock_data();
-	const auto& m_ListData = *DataLock;
-
-	int StatusShown=FALSE;
-	int MaxLeftPos=0,MinLeftPos=FALSE;
-	size_t ColumnCount=ShowStatus ? m_ViewSettings.StatusColumns.size() : m_ViewSettings.PanelColumns.size();
-	const auto& Columns = ShowStatus ? m_ViewSettings.StatusColumns : m_ViewSettings.PanelColumns;
-
-	const auto CurrentTime = os::chrono::nt_clock::now();
-
-	for (int I = m_Where.top + 1 + Global->Opt->ShowColumnTitles, J = m_CurTopFile; I < m_Where.bottom - 2 * Global->Opt->ShowPanelStatus; I++, J++)
+	const auto calculate_left_pos = [&](const int Length, const bool RightAlign = false)
 	{
-		int CurColumn=StartColumn;
+		if (Length <= ColumnWidth)
+			return 0;
 
-		if (ShowStatus)
+		int CurLeftPos = 0;
+
+		if (LeftPos > 0)
 		{
-			SetColor(COL_PANELTEXT);
-			GotoXY(m_Where.left + 1, m_Where.bottom - 1);
-		}
-		else
-		{
-			GotoXY(m_Where.left + 1, I);
-		}
-
-		int StatusLine=FALSE;
-		int Level = 1;
-
-		for (const auto K: std::views::iota(0uz, ColumnCount))
-		{
-			int ListPos=J+CurColumn*m_Height;
-
-			if (ShowStatus)
+			if (RightAlign)
 			{
-				if (m_CurFile!=ListPos)
-				{
-					CurColumn++;
-					continue;
-				}
-				else
-					StatusLine=TRUE;
+				CurLeftPos = Length - ColumnWidth;
 			}
 			else
 			{
-				SetShowColor(ListPos);
+				CurLeftPos = std::min(LeftPos, Length - ColumnWidth);
+				MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
 			}
 
-			int CurX=WhereX();
-			int CurY=WhereY();
-			int ShowDivider=TRUE;
-			const auto ColumnType = Columns[K].type;
-			int ColumnWidth=Columns[K].width;
+			return CurLeftPos;
+		}
 
-			if (ColumnWidth<0)
+		if (RightAlign)
+		{
+			CurLeftPos = Length - ColumnWidth + LeftPos;
+
+			if (CurLeftPos < 0)
 			{
-				if (!ShowStatus && K==ColumnCount-1)
-				{
-					SetColor(COL_PANELBOX);
-					GotoXY(CurX-1,CurY);
-					Text(CurX - 1 == m_Where.right? BoxSymbols[BS_V2] : L' ');
-				}
+				CurLeftPos = 0;
+				MinLeftPos = std::min(MinLeftPos, ColumnWidth - Length);
+			}
+			else
+				MinLeftPos = std::min(MinLeftPos, LeftPos);
+		}
 
+		return CurLeftPos;
+	};
+
+	const auto substr_from_utf16_boundary = [](const string_view Str, int CurLeftPos)
+	{
+		if (CurLeftPos <= 0)
+			return Str;
+
+		if (static_cast<size_t>(CurLeftPos) >= Str.size())
+			return string_view{};
+
+		if (is_valid_surrogate_pair(Str[CurLeftPos - 1], Str[CurLeftPos]))
+			++CurLeftPos;
+
+		return Str.substr(CurLeftPos);
+	};
+
+	const auto get_custom_column_data = [&]
+	{
+		const auto ColumnIndex = static_cast<size_t>(Column.type) - static_cast<size_t>(column_type::custom_0);
+
+		if (ColumnIndex < Item.CustomColumns.size())
+			if (const auto ColumnData = Item.CustomColumns[ColumnIndex])
+				return ColumnData;
+
+		const auto& ContentMapPtr = Item.ContentData(this);
+		if (!ContentMapPtr)
+			return L"";
+
+		const auto Iterator = ContentMapPtr->find(Column.title);
+
+		return Iterator != ContentMapPtr->cend() ? Iterator->second.c_str() : L"";
+	};
+
+	const auto ViewFlags = Column.type_flags;
+
+	switch (const auto ColumnType = Column.type)
+	{
+	case column_type::name:
+		{
+			if ((ViewFlags & COLFLAGS_MARK) && ColumnWidth > 2)
+			{
+				const auto SelectedMark = Item.Selected
+					? L"√ "sv
+					: (ViewFlags & COLFLAGS_MARK_DYNAMIC ? L""sv : L"  "sv);
+
+				Text(SelectedMark);
+
+				ColumnWidth -= static_cast<int>(SelectedMark.size());
+			}
+
+			if (Global->Opt->Highlight && Item.Colors && !Item.Colors->Mark.Mark.empty() && ColumnWidth > 1)
+			{
+				const int MarkLength = static_cast<int>(visual_string_length(Item.Colors->Mark.Mark));
+
+				if (ColumnWidth >= MarkLength)
+				{
+					ColumnWidth -= MarkLength;
+
+					Text(Item.Colors->Mark.Mark, MarkLength);
+				}
+			}
+
+			string_view Name = Item.AlternateOrNormal(m_ShowShortNames);
+
+			if (!(Item.Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION)
+				|| ViewFlags & COLFLAGS_NAMEONLY)
+			{
+				Name = name_ext(Name).first;
+			}
+
+			const auto Length = static_cast<int>(Name.size());
+			const auto CurLeftPos = calculate_left_pos(Length, ViewFlags & COLFLAGS_RIGHTALIGN);
+
+			const auto StrName = substr_from_utf16_boundary(Name, CurLeftPos);
+
+			Text((ViewFlags & COLFLAGS_RIGHTALIGNFORCE ? fit_to_right : fit_to_left)(string(StrName), ColumnWidth));
+			break;
+		}
+
+	case column_type::size:
+	case column_type::size_compressed:
+	case column_type::streams_size:
+		{
+			const auto SizeToDisplay =
+				ColumnType == column_type::size_compressed
+					? Item.AllocationSize(this)
+					: (ColumnType == column_type::streams_size ? Item.StreamsSize(this) : Item.FileSize);
+
+			Text(FormatStr_Size(static_cast<long long>(SizeToDisplay), Item.FileName, Item.Attributes,
+				folder_size_display_type(Item.SizeState), Item.ReparseTag, ColumnType, ViewFlags,
+				ColumnWidth, m_CurDir));
+			break;
+		}
+
+	case column_type::date:
+	case column_type::time:
+	case column_type::date_write:
+	case column_type::date_creation:
+	case column_type::date_access:
+	case column_type::date_change:
+		{
+			const auto FileTime = [&]() -> os::chrono::time_point
+			{
+				switch (ColumnType)
+				{
+				case column_type::date_creation: return Item.CreationTime;
+				case column_type::date_access: return Item.LastAccessTime;
+				case column_type::date_change: return Item.ChangeTime;
+				default: return Item.LastWriteTime;
+				}
+			}();
+
+			Text(FormatStr_DateTime(FileTime, ColumnType, ViewFlags, ColumnWidth, CurrentTime));
+			break;
+		}
+
+	case column_type::attributes:
+		Text(FormatStr_Attribute(Item.Attributes, ColumnWidth));
+		break;
+
+	case column_type::extension:
+		{
+			string_view ExtPtr;
+
+			if (!(Item.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				const auto& Name = Item.AlternateOrNormal(m_ShowShortNames);
+				ExtPtr = name_ext(Name).second;
+			}
+
+			if (!ExtPtr.empty())
+				ExtPtr.remove_prefix(1);
+
+			const auto Length = static_cast<int>(ExtPtr.size());
+			const auto CurLeftPos = calculate_left_pos(Length, ViewFlags & COLFLAGS_RIGHTALIGN);
+
+			const auto Ext = substr_from_utf16_boundary(ExtPtr, CurLeftPos);
+
+			Text((ViewFlags & COLFLAGS_RIGHTALIGN ? fit_to_right : fit_to_left)(string(Ext), ColumnWidth));
+			break;
+		}
+
+	case column_type::description:
+		{
+			const auto Length = static_cast<int>(std::wcslen(NullToEmpty(Item.DizText)));
+			const auto CurLeftPos = calculate_left_pos(Length);
+
+			auto DizText = Item.DizText ? substr_from_utf16_boundary(Item.DizText, CurLeftPos) : L""sv;
+
+			if (const auto Pos = DizText.find(L'\4'); Pos != string::npos)
+				DizText.remove_suffix(DizText.size() - Pos);
+
+			Text(fit_to_left(string(DizText), ColumnWidth));
+			break;
+		}
+
+	case column_type::owner:
+		{
+			const auto& Owner = Item.Owner(this);
+			size_t Offset = 0;
+
+			if (!(ViewFlags & COLFLAGS_FULLOWNER))
+			{
+				const auto SlashPos = FindSlash(Owner);
+
+				if (SlashPos != string::npos)
+					Offset = SlashPos + 1;
+			}
+			else if (!Owner.empty() && path::is_separator(Owner.front()))
+			{
+				Offset = 1;
+			}
+
+			const auto Length = static_cast<int>(Owner.size() - Offset);
+			const auto CurLeftPos = calculate_left_pos(Length);
+
+			Text(fit_to_left(string(substr_from_utf16_boundary(Owner, static_cast<int>(Offset) + CurLeftPos)),
+				ColumnWidth));
+			break;
+		}
+
+	case column_type::links_number:
+		{
+			const auto Value = Item.NumberOfLinks(this);
+
+			Text(fit_to_right(Value == FileListItem::values::unknown(Value) ? L"?"s : str(Value), ColumnWidth));
+			break;
+		}
+
+	case column_type::streams_number:
+		{
+			const auto Value = Item.NumberOfStreams(this);
+
+			Text(fit_to_right(Value == FileListItem::values::unknown(Value) ? L"?"s : str(Value), ColumnWidth));
+			break;
+		}
+
+	default:
+		if (ColumnType >= column_type::custom_0 && ColumnType <= column_type::custom_max)
+		{
+			const auto ColumnData = get_custom_column_data();
+
+			const auto Length = static_cast<int>(std::wcslen(ColumnData));
+			const auto CurLeftPos = calculate_left_pos(Length);
+
+			Text(fit_to_left(string(substr_from_utf16_boundary(ColumnData, CurLeftPos)), ColumnWidth));
+		}
+
+		break;
+	}
+}
+
+void FileList::render_status_lines(const FileListItem& Item, os::chrono::time_point const CurrentTime,
+	int& MaxLeftPos, int& MinLeftPos) const
+{
+	const auto& StatusLines = m_ViewSettings.StatusLines;
+	const int VisibleLineCount = visible_status_line_count();
+
+	if (!VisibleLineCount || StatusLines.empty())
+		return;
+
+	SetColor(COL_PANELTEXT);
+
+	const int StatusTopY = status_text_top_y();
+
+	for (auto LineIndex = 0; LineIndex != VisibleLineCount; ++LineIndex)
+	{
+		const auto& Columns = StatusLines[LineIndex];
+		const auto ColumnCount = Columns.size();
+
+		int CurX = m_Where.left + 1;
+
+		for (const auto ColumnIndex : std::views::iota(0uz, ColumnCount))
+		{
+			const int ColumnWidth = Columns[ColumnIndex].width;
+
+			if (ColumnWidth < 0)
 				continue;
-			}
 
-			if (ListPos < static_cast<int>(m_ListData.size()))
+			GotoXY(CurX, StatusTopY + LineIndex);
+
+			render_column(Item, Columns[ColumnIndex], ColumnWidth, CurrentTime, MaxLeftPos, MinLeftPos);
+
+			CurX += ColumnWidth + 1;
+		}
+
+		if (CurX < m_Where.right)
+		{
+			Text(string(m_Where.right - CurX, L' '));
+		}
+	}
+}
+
+void FileList::render_file_list()
+{
+	const auto DataLock = lock_data();
+	const auto& ListData = *DataLock;
+	const auto CurrentTime = os::chrono::nt_clock::now();
+
+	bool StatusShown = !Global->Opt->ShowPanelStatus;
+	int MaxLeftPos = 0, MinLeftPos = 0;
+
+	const auto ColumnCount = m_ViewSettings.PanelColumns.size();
+	const auto& Columns = m_ViewSettings.PanelColumns;
+
+	for (int CurY = m_Where.top + 1 + (Global->Opt->ShowColumnTitles ? 1 : 0), J = m_CurTopFile;
+		CurY < m_Where.bottom - status_footer_height(); CurY++, J++)
+	{
+		int CurColumn = 0;
+
+		int CurX = m_Where.left + 1;
+		int Level = 1;
+
+		for (const auto ColumnIndex: std::views::iota(0uz, ColumnCount))
+		{
+			const int ListPos = J + CurColumn * m_Height;
+			const int ColumnWidth = Columns[ColumnIndex].width;
+			bool ShowDivider = true;
+
+			if (ColumnWidth < 0)
+				continue;
+
+			GotoXY(CurX, CurY);
+
+			SetShowColor(ListPos);
+
+			if (static_cast<size_t>(ListPos) < ListData.size())
 			{
-				if (!ShowStatus && !StatusShown && m_CurFile==ListPos && Global->Opt->ShowPanelStatus)
+				if (!StatusShown && m_CurFile == ListPos)
 				{
-					ShowList(TRUE,CurColumn);
-					GotoXY(CurX,CurY);
-					StatusShown=TRUE;
+					render_status_lines(ListData[m_CurFile], CurrentTime, MaxLeftPos, MinLeftPos);
+
+					// Restore color for current item and position after status line rendering
 					SetShowColor(ListPos);
+
+					GotoXY(CurX, CurY);
+
+					StatusShown = true;
 				}
 
-				if (!ShowStatus)
-					SetShowColor(ListPos);
-
-				if (ColumnType >= column_type::custom_0 && ColumnType <= column_type::custom_max)
+				if (Columns[ColumnIndex].type == column_type::name)
 				{
-					size_t ColumnNumber = static_cast<size_t>(ColumnType) - static_cast<size_t>(column_type::custom_0);
-					const wchar_t *ColumnData = nullptr;
+					int Width = ColumnWidth;
 
-					if (ColumnNumber < m_ListData[ListPos].CustomColumns.size())
-						ColumnData = m_ListData[ListPos].CustomColumns[ColumnNumber];
+					const auto ViewFlags = Columns[ColumnIndex].type_flags;
 
-					if (!ColumnData)
+					if ((ViewFlags & COLFLAGS_MARK) && Width > 2)
 					{
-						const auto GetContentData = [&]
-						{
-							const auto& ContentMapPtr = m_ListData[ListPos].ContentData(this);
-							if (!ContentMapPtr)
-								return L"";
-							const auto Iterator = ContentMapPtr->find(Columns[K].title);
-							return Iterator != ContentMapPtr->cend()? Iterator->second.c_str() : L"";
-						};
+						const auto Mark = ListData[ListPos].Selected
+			                  ? L"√ "sv
+			                  : ViewFlags & COLFLAGS_MARK_DYNAMIC
+				                  ? L""sv
+				                  : L"  "sv;
 
-						ColumnData = GetContentData();
+						Text(Mark);
+
+						Width -= static_cast<int>(Mark.size());
 					}
 
-					int CurLeftPos=0;
-
-					if (!ShowStatus && LeftPos>0)
+					if (Global->Opt->Highlight && ListData[ListPos].Colors && !ListData[ListPos].Colors->Mark.Mark.empty() && Width > 1)
 					{
-						int Length = static_cast<int>(std::wcslen(ColumnData));
-						if (Length>ColumnWidth)
+						const int MarkLength = static_cast<int>(visual_string_length(ListData[ListPos].Colors->Mark.Mark));
+
+						if (Width >= MarkLength)
 						{
-							CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
-							MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
+							Width -= MarkLength;
+
+							const auto OldColor = GetColor();
+							SetShowColor(ListPos, false);
+
+							Text(ListData[ListPos].Colors->Mark.Mark, MarkLength);
+
+							SetColor(OldColor);
 						}
 					}
 
-					Text(fit_to_left(ColumnData + CurLeftPos, ColumnWidth));
+					string_view Name = ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
+
+					const auto NameCopy = Name;
+
+					if (!(ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION)
+						|| ViewFlags & COLFLAGS_NAMEONLY)
+					{
+						Name = name_ext(Name).first;
+					}
+
+					int CurLeftPos = 0;
+					auto RightAlign = ViewFlags & (COLFLAGS_RIGHTALIGN | COLFLAGS_RIGHTALIGNFORCE);
+					bool LeftBracket = false, RightBracket = false;
+
+					if (LeftPos)
+					{
+						const auto Length = static_cast<int>(visual_string_length(Name));
+
+						if (Length > Width)
+						{
+							if (LeftPos > 0)
+							{
+								if (!RightAlign)
+								{
+									CurLeftPos = std::min(LeftPos, Length - Width);
+
+									int ActualLeftPos = 0;
+
+									for (; ActualLeftPos != CurLeftPos && static_cast<int>(visual_string_length(Name)) > Width; ++ActualLeftPos)
+									{
+										encoding::utf16::remove_first_codepoint(Name);
+									}
+
+									MaxLeftPos = std::max(MaxLeftPos, ActualLeftPos);
+								}
+							}
+							else if (RightAlign)
+							{
+								int CurRightPos = LeftPos;
+
+								if (Length + CurRightPos < Width)
+								{
+									CurRightPos = Width - Length;
+								}
+								else
+								{
+									RightBracket = true;
+									LeftBracket = (ViewFlags & COLFLAGS_RIGHTALIGNFORCE) == COLFLAGS_RIGHTALIGNFORCE;
+								}
+
+								while (static_cast<int>(visual_string_length(Name)) > Width - CurRightPos)
+								{
+									encoding::utf16::remove_first_codepoint(Name);
+								}
+
+								MinLeftPos = std::min(MinLeftPos, CurRightPos);
+								RightAlign = false;
+							}
+						}
+					}
+
+					string StrName;
+					const auto TooLong = ConvertName(Name, StrName, Width, RightAlign, FALSE,
+						ListData[ListPos].Attributes);
+
+					if (CurLeftPos)
+						LeftBracket = true;
+
+					if (TooLong)
+					{
+						(RightAlign ? LeftBracket : RightBracket) = true;
+					}
+
+					if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
+						if (!(ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
+							inplace::lower(StrName);
+
+					if (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE &&
+						(ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
+						inplace::upper(StrName);
+
+					if (m_ViewSettings.Flags&PVS_FILELOWERCASE &&
+						!(ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
+						inplace::lower(StrName);
+
+					Text(StrName, Width);
+
+					if (LeftBracket)
+					{
+						if (Level == 1)
+							SetColor(COL_PANELBOX);
+						else
+							HighlightBorder(Level, ListPos);
+
+						GotoXY(CurX - 1, CurY);
+
+						Text(openBracket);
+					}
+
+					if (RightBracket)
+					{
+						HighlightBorder(Level, ListPos);
+
+						GotoXY(CurX + ColumnWidth, CurY);
+
+						Text(closeBracket);
+
+						ShowDivider = false;
+					}
 				}
 				else
 				{
-					switch (ColumnType)
-					{
-						case column_type::name:
-						{
-							int Width=ColumnWidth;
-							const auto ViewFlags = Columns[K].type_flags;
-
-							if ((ViewFlags & COLFLAGS_MARK) && Width>2)
-							{
-								const auto Mark = m_ListData[ListPos].Selected? L"√ "sv : ViewFlags & COLFLAGS_MARK_DYNAMIC ? L""sv : L"  "sv;
-								Text(Mark);
-								Width -= static_cast<int>(Mark.size());
-							}
-
-							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && !m_ListData[ListPos].Colors->Mark.Mark.empty() && Width>1)
-							{
-								const auto MarkLength = static_cast<int>(visual_string_length(m_ListData[ListPos].Colors->Mark.Mark));
-								if (Width >= MarkLength)
-								{
-									Width -= MarkLength;
-
-									const auto OldColor = GetColor();
-									if (!ShowStatus)
-										SetShowColor(ListPos, false);
-
-									Text(m_ListData[ListPos].Colors->Mark.Mark, MarkLength);
-									SetColor(OldColor);
-								}
-							}
-
-							string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
-
-							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION))
-							{
-								Name = name_ext(Name).first;
-							}
-
-							const auto NameCopy = Name;
-
-							if (ViewFlags & COLFLAGS_NAMEONLY)
-							{
-								//BUGBUG!!!
-								// !!! НЕ УВЕРЕН, но то, что отображается пустое
-								// пространство вместо названия - бага
-								Name = PointToFolderNameIfFolder(Name);
-							}
-
-							int CurLeftPos=0;
-							unsigned long long RightAlign=(ViewFlags & (COLFLAGS_RIGHTALIGN|COLFLAGS_RIGHTALIGNFORCE));
-							int LeftBracket=FALSE,RightBracket=FALSE;
-
-							if (!ShowStatus && LeftPos)
-							{
-								if (const auto Length = static_cast<int>(visual_string_length(Name)); Length > Width)
-								{
-									if (LeftPos>0)
-									{
-										if (!RightAlign)
-										{
-											CurLeftPos = std::min(LeftPos, Length-Width);
-
-											auto ActualLeftPos = 0;
-											for (; ActualLeftPos != CurLeftPos && static_cast<int>(visual_string_length(Name)) > Width; ++ActualLeftPos)
-											{
-												encoding::utf16::remove_first_codepoint(Name);
-											}
-
-											MaxLeftPos = std::max(MaxLeftPos, ActualLeftPos);
-										}
-									}
-									else if (RightAlign)
-									{
-										int CurRightPos=LeftPos;
-
-										if (Length+CurRightPos<Width)
-										{
-											CurRightPos=Width-Length;
-										}
-										else
-										{
-											RightBracket=TRUE;
-											LeftBracket=(ViewFlags & COLFLAGS_RIGHTALIGNFORCE)==COLFLAGS_RIGHTALIGNFORCE;
-										}
-
-										while (static_cast<int>(visual_string_length(Name)) > Width - CurRightPos)
-										{
-											encoding::utf16::remove_first_codepoint(Name);
-										}
-
-										MinLeftPos = std::min(MinLeftPos, CurRightPos);
-										RightAlign=FALSE;
-									}
-								}
-							}
-
-							string strName;
-							const auto TooLong = ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
-
-							if (CurLeftPos)
-								LeftBracket=TRUE;
-
-							if (TooLong)
-							{
-								(RightAlign? LeftBracket : RightBracket) = TRUE;
-							}
-
-							if (!ShowStatus)
-							{
-								if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
-									if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
-										inplace::lower(strName);
-
-								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-									inplace::upper(strName);
-
-								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-									inplace::lower(strName);
-							}
-
-							Text(strName, Width);
-
-
-							if (!ShowStatus)
-							{
-								int NameX=WhereX();
-
-								if (LeftBracket)
-								{
-									GotoXY(CurX-1,CurY);
-
-									if (Level == 1)
-										SetColor(COL_PANELBOX);
-
-									Text(openBracket);
-									SetShowColor(J);
-								}
-
-								if (RightBracket)
-								{
-									HighlightBorder(Level, ListPos);
-									GotoXY(NameX,CurY);
-									Text(closeBracket);
-									ShowDivider=FALSE;
-
-									if (Level == m_ColumnsInStripe)
-										SetColor(COL_PANELTEXT);
-									else
-										SetShowColor(J);
-								}
-							}
-						}
-						break;
-						case column_type::extension:
-						{
-							string_view ExtPtr;
-							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-							{
-								const auto& Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
-								ExtPtr = name_ext(Name).second;
-							}
-							if (!ExtPtr.empty())
-								ExtPtr.remove_prefix(1);
-
-							const auto ViewFlags = Columns[K].type_flags;
-							Text((ViewFlags & COLFLAGS_RIGHTALIGN? fit_to_right : fit_to_left)(string(ExtPtr), ColumnWidth));
-
-							if (!ShowStatus && static_cast<int>(ExtPtr.size()) > ColumnWidth)
-							{
-								int NameX=WhereX();
-
-								HighlightBorder(Level, ListPos);
-
-								GotoXY(NameX,CurY);
-								Text(closeBracket);
-								ShowDivider=FALSE;
-
-								if (Level == m_ColumnsInStripe)
-									SetColor(COL_PANELTEXT);
-								else
-									SetShowColor(J);
-							}
-
-							break;
-						}
-
-						case column_type::size:
-						case column_type::size_compressed:
-						case column_type::streams_size:
-						{
-							const auto SizeToDisplay = (ColumnType == column_type::size_compressed)
-								? m_ListData[ListPos].AllocationSize(this)
-								: (ColumnType == column_type::streams_size)
-									? m_ListData[ListPos].StreamsSize(this)
-									: m_ListData[ListPos].FileSize;
-
-							Text(FormatStr_Size(
-								SizeToDisplay,
-								m_ListData[ListPos].FileName,
-								m_ListData[ListPos].Attributes,
-								folder_size_display_type(m_ListData[ListPos].SizeState),
-								m_ListData[ListPos].ReparseTag,
-								ColumnType,
-								Columns[K].type_flags,
-								ColumnWidth,
-								m_CurDir));
-							break;
-						}
-
-						case column_type::date:
-						case column_type::time:
-						case column_type::date_write:
-						case column_type::date_creation:
-						case column_type::date_access:
-						case column_type::date_change:
-						{
-							os::chrono::time_point const FileListItem::* FileTime;
-
-							switch (ColumnType)
-							{
-							case column_type::date_creation:
-								FileTime = &FileListItem::CreationTime;
-								break;
-
-							case column_type::date_access:
-								FileTime = &FileListItem::LastAccessTime;
-								break;
-
-							case column_type::date_change:
-								FileTime = &FileListItem::ChangeTime;
-								break;
-
-							default:
-								FileTime = &FileListItem::LastWriteTime;
-								break;
-							}
-
-							Text(FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), ColumnType, Columns[K].type_flags, ColumnWidth, CurrentTime));
-							break;
-						}
-
-						case column_type::attributes:
-						{
-							Text(FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth));
-							break;
-						}
-
-						case column_type::description:
-						{
-							int CurLeftPos=0;
-
-							if (!ShowStatus && LeftPos>0)
-							{
-								int Length = static_cast<int>(std::wcslen(NullToEmpty(m_ListData[ListPos].DizText)));
-								if (Length>ColumnWidth)
-								{
-									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
-									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
-								}
-							}
-
-							auto DizText = m_ListData[ListPos].DizText? m_ListData[ListPos].DizText + CurLeftPos : L""sv;
-							const auto pos = DizText.find(L'\4');
-							if (pos != string::npos)
-								DizText.remove_suffix(DizText.size() - pos);
-
-							Text(fit_to_left(string(DizText), ColumnWidth));
-							break;
-						}
-
-						case column_type::owner:
-						{
-							const auto& Owner = m_ListData[ListPos].Owner(this);
-							size_t Offset = 0;
-
-							if (!(Columns[K].type_flags & COLFLAGS_FULLOWNER))
-							{
-								const auto SlashPos = FindSlash(Owner);
-								if (SlashPos != string::npos)
-								{
-									Offset = SlashPos + 1;
-								}
-							}
-							else if(!Owner.empty() && path::is_separator(Owner.front()))
-							{
-								Offset = 1;
-							}
-
-							int CurLeftPos=0;
-
-							if (!ShowStatus && LeftPos>0)
-							{
-								int Length = static_cast<int>(Owner.size() - Offset);
-								if (Length>ColumnWidth)
-								{
-									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
-									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
-								}
-							}
-
-							Text(fit_to_left(Owner.substr(Offset + CurLeftPos), ColumnWidth));
-							break;
-						}
-
-						case column_type::links_number:
-						{
-							const auto Value = m_ListData[ListPos].NumberOfLinks(this);
-							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
-							break;
-						}
-
-						case column_type::streams_number:
-						{
-							const auto Value = m_ListData[ListPos].NumberOfStreams(this);
-							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
-							break;
-						}
-
-						default:
-							break;
-					}
+					render_column(ListData[ListPos], Columns[ColumnIndex], ColumnWidth, CurrentTime, MaxLeftPos, MinLeftPos);
 				}
 			}
 			else
@@ -9078,64 +9177,36 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				Text(string(ColumnWidth, L' '));
 			}
 
-			if (ShowDivider==FALSE)
-				GotoXY(CurX+ColumnWidth+1,CurY);
-			else
+			if (ShowDivider)
 			{
-				if (!ShowStatus)
-				{
-					HighlightBorder(Level, ListPos);
-				}
+				HighlightBorder(Level, ListPos);
 
-				if (K == ColumnCount-1)
-					SetColor(COL_PANELBOX);
+				GotoXY(CurX + ColumnWidth, CurY);
 
-				GotoXY(CurX+ColumnWidth,CurY);
-
-				if (K==ColumnCount-1)
-					Text(CurX + ColumnWidth == m_Where.right? BoxSymbols[BS_V2] : L' ');
+				if (ColumnIndex != ColumnCount - 1)
+					Text(BoxSymbols[Level == m_ColumnsInStripe ? BS_V2 : BS_V1]);
 				else
-					Text(ShowStatus? L' ' : BoxSymbols[Level == m_ColumnsInStripe? BS_V2 : BS_V1]);
-
-				if (!ShowStatus)
-					SetColor(COL_PANELTEXT);
+					if (CurX + ColumnWidth == m_Where.right)
+						Text(BoxSymbols[BS_V2]);
 			}
 
-			if (!ShowStatus)
+			if (Level == m_ColumnsInStripe)
 			{
-				if (Level == m_ColumnsInStripe)
-				{
-					Level = 0;
-					CurColumn++;
-				}
-
-				Level++;
+				Level = 0;
+				CurColumn++;
 			}
-		}
 
-		if ((!ShowStatus || StatusLine) && WhereX() < m_Where.right)
-		{
-			SetColor(COL_PANELTEXT);
-			Text(string(m_Where.right - WhereX(), L' '));
+			Level++;
+
+			CurX += ColumnWidth + 1;
 		}
 	}
 
-	if (!ShowStatus && !StatusShown && Global->Opt->ShowPanelStatus)
-	{
-		SetScreen({ m_Where.left + 1, m_Where.bottom - 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
-		SetColor(COL_PANELTEXT); //???
-		//GotoXY(X1+1,Y2-1);
-		//Text(string(X2 - X1 - 1, L' '));
-	}
+	if (LeftPos < 0)
+		LeftPos = MinLeftPos;
 
-	if (!ShowStatus)
-	{
-		if (LeftPos<0)
-			LeftPos=MinLeftPos;
-
-		if (LeftPos>0)
-			LeftPos=MaxLeftPos;
-	}
+	if (LeftPos > 0)
+		LeftPos = MaxLeftPos;
 }
 
 bool FileList::IsModeFullScreen(int Mode)
@@ -9165,9 +9236,13 @@ bool FileList::IsDizDisplayed() const
 
 bool FileList::IsColumnDisplayed(function_ref<bool(const column&)> const Compare) const
 {
-	return
-		std::ranges::any_of(m_ViewSettings.PanelColumns, Compare) ||
-		std::ranges::any_of(m_ViewSettings.StatusColumns, Compare);
+	if (std::ranges::any_of(m_ViewSettings.PanelColumns, Compare))
+		return true;
+
+	return std::ranges::any_of(m_ViewSettings.StatusLines, [&](const status_line& Line)
+	{
+		return std::ranges::any_of(Line, Compare);
+	});
 }
 
 bool FileList::IsColumnDisplayed(column_type Type) const
