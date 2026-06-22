@@ -749,6 +749,26 @@ void Viewer::ShowPage(int nMode)
 				else
 					SelX1 = i.nSelStart - LeftPos;
 
+				//=========== new center screen ========================
+				if (!m_Wrap && AdjustSelPosition)
+				{
+					const int ComfortWidth = ObjWidth() - std::max(8, ObjWidth()/10); // 72 for 80x25 (margin 8 letters)
+
+					if (i.nSelStart + SelectSize <= ComfortWidth) // фрагмент в пределах ширины экрана (до 72 знака)
+					{
+						LeftPos = 0;
+					}
+					else // фрагмент за экраном -> центруем
+					{
+						LeftPos = std::max<long long>(i.nSelStart + SelectSize/2 - ObjWidth()/2, 0LL);
+					}
+
+					AdjustSelPosition = false;
+					Show();
+					return;
+				}
+				//========== end center screen ========================
+
 				if (!m_Wrap && (i.nSelEnd < LeftPos || i.nSelStart >= LeftPos + ScrollbarAdjustedWidth))
 				{
 					if (AdjustSelPosition)
