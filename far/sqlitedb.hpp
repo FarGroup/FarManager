@@ -235,7 +235,6 @@ private:
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
 
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
-	void Close();
 
 	void add_nocase_collation() const;
 	void add_numeric_collation() const;

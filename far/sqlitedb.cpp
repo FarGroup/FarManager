@@ -120,7 +120,7 @@ namespace
 	{
 		// These are errors that typically only the user can fix.
 		// No point in recording dumps, creating bug_report etc., just show them the message.
-		switch (ErrorCode)
+		switch (extract_integer<uint8_t, 0>(ErrorCode))
 		{
 		case SQLITE_PERM:        // Access permission denied
 		case SQLITE_NOMEM:       // A malloc() failed
@@ -279,20 +279,17 @@ void SQLiteDb::library_load()
 {
 	check_version();
 
-	sqlite::sqlite3_config(SQLITE_CONFIG_LOG, sqlite_log, nullptr);
+	if (const auto Result = sqlite::sqlite3_config(SQLITE_CONFIG_LOG, sqlite_log, nullptr); Result != SQLITE_OK)
+		LOGWARNING(L"sqlite3_config(SQLITE_CONFIG_LOG): {}"sv, GetErrorString(Result));
 
 	if (const auto Result = sqlite::sqlite3_initialize(); Result != SQLITE_OK)
-	{
 		LOGERROR(L"sqlite3_initialize(): {}"sv, GetErrorString(Result));
-	}
 }
 
 void SQLiteDb::library_free()
 {
 	if (const auto Result = sqlite::sqlite3_shutdown(); Result != SQLITE_OK)
-	{
 		LOGERROR(L"sqlite3_shutdown(): {}"sv, GetErrorString(Result));
-	}
 }
 
 void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object) const noexcept
@@ -381,7 +378,7 @@ void SQLiteDb::SQLiteStmt::BindImpl(string_view const Value) const
 	invoke(db(), [&]
 	{
 		const auto ValueUtf8 = encoding::utf8::get_bytes(Value);
-		return sqlite::sqlite3_bind_text64(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor, SQLITE_UTF8_ZT) == SQLITE_OK;
+		return sqlite::sqlite3_bind_text64(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), ValueUtf8.size(), sqlite::transient_destructor, SQLITE_UTF8_ZT) == SQLITE_OK;
 	},
 	sql());
 }
@@ -390,7 +387,7 @@ void SQLiteDb::SQLiteStmt::BindImpl(bytes_view const Value) const
 {
 	invoke(db(), [&]
 	{
-		return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK;
+		return sqlite::sqlite3_bind_blob64(m_Stmt.get(), ++m_Param, Value.data(), Value.size(), sqlite::transient_destructor) == SQLITE_OK;
 	},
 	sql());
 }
@@ -662,15 +659,6 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Per
 unsigned long long SQLiteDb::LastInsertRowID() const
 {
 	return sqlite::sqlite3_last_insert_rowid(m_Db.get());
-}
-
-void SQLiteDb::Close()
-{
-	// https://www.sqlite.org/c3ref/close.html
-	// If the database connection is associated with unfinalized prepared statements or unfinished sqlite3_backup objects
-	// then sqlite3_close() will leave the database connection open and return SQLITE_BUSY.
-	m_Statements.clear();
-	m_Db.reset();
 }
 
 void SQLiteDb::SetWALJournalingMode() const

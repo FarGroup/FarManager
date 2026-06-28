@@ -180,14 +180,17 @@ namespace os::version
 
 		const auto InfoPtr = std::bit_cast<OSVERSIONINFO*>(&Info);
 
+		// Reliable method
 		if (imports.RtlGetVersion && NT_SUCCESS(imports.RtlGetVersion(InfoPtr)))
 			return Info;
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpful. :(
 WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
-		if (GetVersionEx(InfoPtr))
-			return Info;
+		// Unreliable unless the executable is manifested for this or newer OS version.
+		// But at least it fills in the missing wSuiteMask and wProductType fields, not available from the PEB.
+		(void)GetVersionEx(InfoPtr);
+		// Continue to PEB to correctly fill Major, Minor etc.
 WARNING_POP()
 
 		struct peb_version
