@@ -518,38 +518,20 @@ static void after_process_creation(
 	execute_info const& Info,
 	os::handle Process,
 	execute_info::wait_mode const WaitMode,
-	os::handle Thread,
 	point const& ConsoleSize,
 	rectangle const& ConsoleWindowRect,
-	function_ref<void(bool NoWait)> const ConsoleActivator,
 	bool const UsingComspec
 )
 {
-	const auto resume_process = [&](bool const NoWait)
-	{
-		ConsoleActivator(NoWait);
-
-		if (Thread)
-		{
-			ResumeThread(Thread.native_handle());
-			Thread = {};
-		}
-	};
-
 	switch (WaitMode)
 	{
 	case execute_info::wait_mode::no_wait:
-		resume_process(true);
 		console.command_finished();
 		return;
 
 	case execute_info::wait_mode::if_needed:
 		{
-			const auto NeedWaiting = os::process::get_process_subsystem(Process.get()) != os::process::image_type::graphical;
-
-			resume_process(!NeedWaiting);
-
-			if (!NeedWaiting)
+			if (os::process::get_process_subsystem(Process.get()) == os::process::image_type::graphical)
 			{
 				console.command_finished();
 				return;
@@ -564,7 +546,6 @@ static void after_process_creation(
 		return;
 
 	case execute_info::wait_mode::wait_finish:
-		resume_process(false);
 		Process.wait();
 		log_process_exit_code(Info, Process, UsingComspec);
 		return;
@@ -627,7 +608,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 		{},
 		{},
 		false,
-		CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | (Wait? 0 : CREATE_NEW_CONSOLE),
+		CREATE_DEFAULT_ERROR_MODE | (Wait? 0 : CREATE_NEW_CONSOLE),
 		{},
 		Directory.c_str(),
 		&si,
@@ -748,19 +729,11 @@ static bool execute_impl(
 	rectangle ConsoleWindowRect;
 	point ConsoleSize;
 	std::optional<external_execution_context> Context;
-	auto ConsoleActivatorInvoked = false;
 
 	const auto ExtendedActivator = [&](bool NoWait)
 	{
-		if (Context)
-			return;
-
-		if (!ConsoleActivatorInvoked)
-		{
-			ConsoleActivator(NoWait);
-			ConsoleActivatorInvoked = true;
-		}
-
+		assert(!Context);
+		ConsoleActivator(NoWait);
 		console.GetWindowRect(ConsoleWindowRect);
 		console.GetSize(ConsoleSize);
 		Context.emplace();
@@ -809,9 +782,13 @@ static bool execute_impl(
 		if (!exec_with_short_names_fallback(exec, Command, CurrentDirectory))
 			return false;
 
-		after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, os::handle(pi.hThread), ConsoleSize, ConsoleWindowRect, ExtendedActivator, UsingComspec);
+		os::handle{ pi.hThread };
+		after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, ConsoleSize, ConsoleWindowRect, UsingComspec);
 		return true;
 	};
+
+	if (Info.SourceMode != execute_info::source_mode::known_external_folder)
+		ExtendedActivator(Info.WaitMode == execute_info::wait_mode::no_wait);
 
 	// Filter out the cases where the source is known, but is not a known executable (exe, com, bat, cmd, see IsExecutable in filelist.cpp)
 	// This should cover gh-449 and is usually pointless anyway.
@@ -823,15 +800,8 @@ static bool execute_impl(
 			return true;
 
 		if (os::last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
-		{
-			SCOPED_ACTION(os::last_error_guard);
-			ExtendedActivator(true);
 			return false;
-		}
 	}
-
-	if (Info.SourceMode != execute_info::source_mode::known_external_folder)
-		ExtendedActivator(Info.WaitMode == execute_info::wait_mode::no_wait);
 
 	const auto execute_shell = [&]
 	{
@@ -846,7 +816,7 @@ static bool execute_impl(
 			return false;
 
 		if (Process)
-			after_process_creation(Info, os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool){}, UsingComspec);
+			after_process_creation(Info, os::handle(Process), Info.WaitMode, ConsoleSize, ConsoleWindowRect, UsingComspec);
 
 		return true;
 	};
