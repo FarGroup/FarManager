@@ -79,12 +79,18 @@ namespace os::com
 		CoTaskMemFree(const_cast<void*>(Object));
 	}
 
-	HRESULT invoke(function_ref<HRESULT()> const Callable, string_view CallableName, source_location const& Location)
+	detail::check_result::check_result(string_view CallableName, source_location const& Location):
+		m_CallableName(CallableName),
+		m_Location(Location)
 	{
-		if (const auto Result = Callable(); FAILED(Result))
-			throw exception(Result, CallableName, Location);
-		else
-			return Result;
+	}
+
+	HRESULT detail::check_result::operator%(HRESULT const Result) const
+	{
+		if (FAILED(Result))
+			throw exception(Result, m_CallableName, m_Location);
+
+		return Result;
 	}
 
 	string get_shell_name(string_view Path)
@@ -100,14 +106,14 @@ namespace os::com
 			SCOPED_ACTION(initialize)(mode::sta);
 
 			ptr<IShellFolder> ShellFolder;
-			COM_INVOKE(SHGetDesktopFolder, (&ptr_setter(ShellFolder)));
+			COM_INVOKE(SHGetDesktopFolder)(&ptr_setter(ShellFolder));
 
 			memory<PIDLIST_RELATIVE> IdList;
 			null_terminated const C_Path(Path);
-			COM_INVOKE(ShellFolder->ParseDisplayName, ({}, {}, UNSAFE_CSTR(C_Path), {}, &ptr_setter(IdList), {}));
+			COM_INVOKE(ShellFolder->ParseDisplayName)({}, {}, UNSAFE_CSTR(C_Path), {}, &ptr_setter(IdList), {});
 
 			STRRET StrRet;
-			COM_INVOKE(ShellFolder->GetDisplayNameOf, (IdList.get(), SHGDN_FOREDITING, &StrRet));
+			COM_INVOKE(ShellFolder->GetDisplayNameOf)(IdList.get(), SHGDN_FOREDITING, &StrRet);
 
 			if (StrRet.uType != STRRET_WSTR)
 			{
@@ -141,10 +147,10 @@ namespace os::com
 			try
 			{
 				ptr<IApplicationAssociationRegistration> AAR;
-				COM_INVOKE(imports.SHCreateAssociationRegistration, (IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR))));
+				COM_INVOKE(imports.SHCreateAssociationRegistration)(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)));
 
 				memory<wchar_t*> Association;
-				COM_INVOKE(AAR->QueryCurrentDefault, (null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)));
+				COM_INVOKE(AAR->QueryCurrentDefault)(null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association));
 
 				return Association.get();
 			}
@@ -199,24 +205,24 @@ namespace os::com
 		try
 		{
 			ptr<IRunningObjectTable> RunningObjectTable;
-			COM_INVOKE(GetRunningObjectTable, (0, &ptr_setter(RunningObjectTable)));
+			COM_INVOKE(GetRunningObjectTable)(0, &ptr_setter(RunningObjectTable));
 
 			ptr<IMoniker> FileMoniker;
-			COM_INVOKE(CreateFileMoniker, (File.c_str(), &ptr_setter(FileMoniker)));
+			COM_INVOKE(CreateFileMoniker)(File.c_str(), &ptr_setter(FileMoniker));
 
 			ptr<IEnumMoniker> EnumMoniker;
-			COM_INVOKE(RunningObjectTable->EnumRunning, (&ptr_setter(EnumMoniker)));
+			COM_INVOKE(RunningObjectTable->EnumRunning)(&ptr_setter(EnumMoniker));
 
 			for (;;)
 			{
 				try
 				{
 					ptr<IMoniker> Moniker;
-					if (COM_INVOKE(EnumMoniker->Next, (1, &ptr_setter(Moniker), {})) == S_FALSE)
+					if (COM_INVOKE(EnumMoniker->Next)(1, &ptr_setter(Moniker), {}) == S_FALSE)
 						return {};
 
 					DWORD Type;
-					COM_INVOKE(Moniker->IsSystemMoniker, (&Type));
+					COM_INVOKE(Moniker->IsSystemMoniker)(&Type);
 
 					if (Type != MKSYS_FILEMONIKER)
 						continue;
@@ -233,15 +239,15 @@ namespace os::com
 						throw exception(Result, WIDE_SV_LITERAL(FileMoniker->CommonPrefixWith));
 					}
 
-					if (COM_INVOKE(FileMoniker->IsEqual, (PrefixMoniker.get())) == S_FALSE)
+					if (COM_INVOKE(FileMoniker->IsEqual)(PrefixMoniker.get()) == S_FALSE)
 						continue;
 
 					ptr<IUnknown> Unknown;
-					if (COM_INVOKE(RunningObjectTable->GetObject, (Moniker.get(), &ptr_setter(Unknown))) == S_FALSE)
+					if (COM_INVOKE(RunningObjectTable->GetObject)(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
 						continue;
 
 					ptr<IFileIsInUse> FileIsInUse;
-					COM_INVOKE(Unknown->QueryInterface, (IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse))));
+					COM_INVOKE(Unknown->QueryInterface)(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse)));
 
 					return FileIsInUse;
 				}
@@ -259,14 +265,14 @@ namespace os::com
 		}
 	}
 
-	std::optional<bool> can_recycle(string_view const Object)
+	static bool can_recycle_impl(string_view const Object)
 	{
 WARNING_PUSH()
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 		class FileOperationProgressSink final: public IFileOperationProgressSink
 		{
 		public:
-			explicit FileOperationProgressSink(std::optional<bool>& CanRecycle):
+			explicit FileOperationProgressSink(bool& CanRecycle):
 				m_CanRecycle(&CanRecycle)
 			{
 			}
@@ -316,7 +322,7 @@ WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 			IFACEMETHODIMP ResumeTimer() override { return S_OK; }
 
 		private:
-			std::optional<bool>* m_CanRecycle;
+			bool* m_CanRecycle;
 		};
 WARNING_POP()
 
@@ -326,35 +332,45 @@ WARNING_POP()
 		// So we call delete on the item in question, check the flag in the callback and then immediately abort the operation.
 		// This is ludicrous, but hey, as long as it works.
 
-		if (!imports.SHCreateItemFromParsingName)
-			return {};
-
 		SCOPED_ACTION(initialize)(mode::sta);
 
 		ptr<IFileOperation> FileOperation;
-		if (FAILED(CoCreateInstance(CLSID_FileOperation, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOperation, IID_PPV_ARGS_Helper(&ptr_setter(FileOperation)))))
-			return {};
+		COM_INVOKE(CoCreateInstance)(CLSID_FileOperation, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOperation, IID_PPV_ARGS_Helper(&ptr_setter(FileOperation)));
 
-		if (FAILED(FileOperation->SetOperationFlags(
+		COM_INVOKE(FileOperation->SetOperationFlags)(
 			FOF_ALLOWUNDO |    // We want to know if the item can be recycled
 			FOF_NORECURSION |  // Since we're not actually deleting anything, probing only the top level item is fine (and way faster)
 			FOF_NO_UI          // Obviously, we don't want any UI
-		)))
-			return {};
+		);
 
 		ptr<IShellItem> Item;
-		if (FAILED(imports.SHCreateItemFromParsingName(null_terminated(Object).c_str(), nullptr, IID_IShellItem, IID_PPV_ARGS_Helper(&ptr_setter(Item)))))
-			return {};
+		COM_INVOKE(imports.SHCreateItemFromParsingName)(null_terminated(Object).c_str(), nullptr, IID_IShellItem, IID_PPV_ARGS_Helper(&ptr_setter(Item)));
 
-		std::optional<bool> CanRecycle;
+		bool CanRecycle{};
 		FileOperationProgressSink Sink(CanRecycle);
 
-		if (FAILED(FileOperation->DeleteItem(Item.get(), &Sink)))
-			return {};
+		COM_INVOKE(FileOperation->DeleteItem)(Item.get(), &Sink);
 
-		[[maybe_unused]] const auto Result = FileOperation->PerformOperations();
-		assert(Result == E_ABORT); // We should have aborted the operation in the callback, so it must fail
+		if (const auto Result = FileOperation->PerformOperations(); Result != E_ABORT)
+			throw exception(Result, WIDE_SV_LITERAL(FileOperation->PerformOperations)); // We should have aborted the operation in the callback, so it must fail
 
 		return CanRecycle;
+	}
+
+	std::optional<bool> can_recycle(string_view const Object)
+	{
+		// Both SHCreateItemFromParsingName and IFileOperation are Vista+, no point in trying if it's not there.
+		if (!imports.SHCreateItemFromParsingName)
+			return {};
+
+		try
+		{
+			return can_recycle_impl(Object);
+		}
+		catch (exception const& e)
+		{
+			LOGWARNING(L"can_recycle: {}"sv, e);
+			return {};
+		}
 	}
 }

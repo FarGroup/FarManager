@@ -793,11 +793,11 @@ private:
 		if (!imports.DebugCreate)
 			return;
 
-		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient))));
+		COM_INVOKE(imports.DebugCreate)(IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient)));
 
-		COM_INVOKE(m_DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+		COM_INVOKE(m_DebugClient->AttachProcess)({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND);
 
-		COM_INVOKE(m_DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugControl))));
+		COM_INVOKE(m_DebugClient->QueryInterface)(IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugControl)));
 
 		if (const auto Result = m_DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
@@ -806,9 +806,9 @@ private:
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
 		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(m_DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
-			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&m_Callbacks));
+			COM_INVOKE(DebugClient5->SetOutputCallbacksWide)(&m_Callbacks);
 		else
-			COM_INVOKE(m_DebugClient->SetOutputCallbacks, (&m_Callbacks));
+			COM_INVOKE(m_DebugClient->SetOutputCallbacks)(&m_Callbacks);
 	}
 
 	string* m_To;
