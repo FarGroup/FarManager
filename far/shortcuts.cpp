@@ -232,21 +232,21 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 	FOR_RANGE(List, i)
 	{
 		menu_item_ex ListItem{ MakeName(*i) };
-		if (ListItem.Name.empty())
+		if (ListItem.GetName().empty())
 			continue;
 
 		ListItem.ComplexUserData = i;
 		if (!raw_mode && i->is_service())
 		{
-			if (ListItem.Name != SeparatorToken)
+			if (ListItem.GetName() != SeparatorToken)
 			{
 				if (Menu.empty())
-					Menu.SetTitle(ListItem.Name);
+					Menu.SetTitle(ListItem.GetName());
 
 				continue;
 			}
 
-			ListItem.Name.clear();
+			ListItem.SetName(string{});
 			ListItem.Flags = LIF_SEPARATOR;
 		}
 		Menu.AddItem(ListItem);
@@ -347,7 +347,7 @@ static bool EditItem(VMenu2& Menu, Shortcuts::shortcut& Item, bool raw)
 		return false;
 
 	auto& MenuItem = Menu.current();
-	MenuItem.Name = MakeName(Item);
+	MenuItem.SetName(MakeName(Item));
 	return true;
 }
 
@@ -506,7 +506,7 @@ bool Shortcuts::Get(size_t Index, data& Data)
 static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, menu_item_ex& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
-	MenuItem.Name = far::format(L"{}+&{} {} {}"sv, KeyToLocalizedText(KEY_RCTRL), Key, BoxSymbols[BS_V1], ItemName);
+	MenuItem.SetName(far::format(L"{}+&{} {} {}"sv, KeyToLocalizedText(KEY_RCTRL), Key, BoxSymbols[BS_V1], ItemName));
 	if (List.size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;

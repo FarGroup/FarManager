@@ -444,7 +444,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			{
 				for (const auto i: std::views::iota(0uz, pList->size()))
 				{
-					const auto& Text = pList->at(i).Name;
+					const auto& Text = pList->at(i).GetName();
 
 					if (!starts_with_icase(Text, Str))
 						continue;
@@ -486,7 +486,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		{
 			int SelStart = GetLength();
 
-			const auto& FirstItem = ComplMenu->at(0).Name;
+			const auto& FirstItem = ComplMenu->at(0).GetName();
 			const auto Data = ComplMenu->GetComplexUserDataPtr<cmp_user_data>(0);
 
 			// magic
@@ -516,7 +516,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 		};
 
-		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).Name)))
+		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).GetName())))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -555,7 +555,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						{
 							PrevPos=CurPos;
 							IsChanged = false;
-							SetString(CurPos? ComplMenu->at(CurPos).Name : CurrentInput);
+							SetString(CurPos? ComplMenu->at(CurPos).GetName() : CurrentInput);
 							Show();
 						}
 
@@ -604,7 +604,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 								Complete(*ComplMenu, CurrentInput);
 
-								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).Name)))
+								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).GetName())))
 								{
 									if(none_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL) && Global->Opt->AutoComplete.AppendCompletion)
 									{
@@ -757,7 +757,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu->at(ExitCode).Name);
+						SetString(ComplMenu->at(ExitCode).GetName());
 						Show();
 					}
 					else

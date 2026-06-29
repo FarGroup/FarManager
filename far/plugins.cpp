@@ -1351,9 +1351,9 @@ void PluginManager::Configure(int StartPos) const
 						ListItem.Flags=LIF_CHECKED|L'A';
 #endif // NO_WRAPPER
 					if (!HotKeysPresent)
-						ListItem.Name = strName;
+						ListItem.SetName(strName);
 					else
-						ListItem.Name = AddHotkey(strName, Hotkey);
+						ListItem.SetName(AddHotkey(strName, Hotkey));
 
 					PluginMenuItemData item{ i, Uuid };
 
@@ -1404,7 +1404,7 @@ void PluginManager::Configure(int StartPos) const
 					if (item)
 					{
 						const auto nOffset = HotKeysPresent? 3 : 0;
-						if (SetHotKeyDialog(item->pPlugin, item->Uuid, hotkey_type::config_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
+						if (SetHotKeyDialog(item->pPlugin, item->Uuid, hotkey_type::config_menu, trim(string_view{ PluginList->current().GetName() }.substr(nOffset))))
 						{
 							NeedUpdateItems = true;
 							StartPos = SelPos;
@@ -1517,9 +1517,9 @@ bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histo
 							ListItem.Flags=LIF_CHECKED|L'A';
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
-							ListItem.Name = strName;
+							ListItem.SetName(strName);
 						else
-							ListItem.Name = AddHotkey(strName, Hotkey);
+							ListItem.SetName(AddHotkey(strName, Hotkey));
 
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;
@@ -1564,7 +1564,7 @@ bool PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histo
 						if (ItemPtr)
 						{
 							const auto nOffset = HotKeysPresent? 3 : 0;
-							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Uuid, hotkey_type::plugins_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
+							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Uuid, hotkey_type::plugins_menu, trim(string_view{ PluginList->current().GetName() }.substr(nOffset))))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;

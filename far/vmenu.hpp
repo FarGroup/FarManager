@@ -88,9 +88,30 @@ enum VMENU_FLAGS
 
 struct menu_item
 {
+private:
 	string Name;
+public:
 	LISTITEMFLAGS Flags{};
 	DWORD AccelKey{};
+	mutable int VisualLength{ InvalidVisualLength };
+	static constexpr auto InvalidVisualLength{ std::numeric_limits<decltype(VisualLength)>::min() };
+
+	menu_item() = default;
+
+	menu_item(string Name_, LISTITEMFLAGS Flags_, DWORD AccelKey_ = {})
+		: Name{ std::move(Name_) }, Flags{ Flags_ }, AccelKey{ AccelKey_ }
+	{}
+
+	const string& GetName() const noexcept
+	{
+		return Name;
+	}
+
+	void SetName(string Name_) noexcept
+	{
+		Name = Name_;
+		VisualLength = InvalidVisualLength;
+	}
 
 	unsigned long long SetCheck()
 	{
@@ -128,13 +149,12 @@ struct menu_item_ex: menu_item
 		: menu_item{ Item }
 	{}
 
-	explicit menu_item_ex(LISTITEMFLAGS Flags)
-		: menu_item{ string{}, Flags }
+	explicit menu_item_ex(LISTITEMFLAGS Flags_)
+		: menu_item{ string{}, Flags_ }
 	{}
 
-	template<typename T> requires (std::is_constructible_v<menu_item, T, LISTITEMFLAGS>)
-	explicit menu_item_ex(T&& Name, LISTITEMFLAGS Flags = 0)
-		: menu_item{ std::forward<T>(Name), Flags }
+	explicit menu_item_ex(string Name_, LISTITEMFLAGS Flags_ = {})
+		: menu_item{ std::move(Name_), Flags_ }
 	{}
 
 	std::any ComplexUserData;

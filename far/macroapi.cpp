@@ -1971,7 +1971,7 @@ void FarMacroApi::menushowFunc() const
 
 		menu_item_ex NewItem{ strItems.substr(CurrentPos, SubstrLen) };
 
-		if (NewItem.Name != L"\n"sv)
+		if (NewItem.GetName() != L"\n"sv)
 		{
 			const auto CharToFlag = [](wchar_t c)
 			{
@@ -1985,22 +1985,21 @@ void FarMacroApi::menushowFunc() const
 				}
 			};
 
-			const auto NewBegin = std::ranges::find_if(NewItem.Name, [&](wchar_t i)
+			const auto NewBegin = std::ranges::find_if(NewItem.GetName(), [&](wchar_t i)
 			{
 				const auto Flag = CharToFlag(i);
 				NewItem.Flags |= Flag;
 				return !Flag;
 			});
-
-			NewItem.Name.erase(NewItem.Name.cbegin(), NewBegin);
+			NewItem.SetName(NewItem.GetName().substr(NewBegin - NewItem.GetName().cbegin()));
 		}
 		else
-			NewItem.Name.clear();
+			NewItem.SetName(string{});
 
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.Name = far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, NewItem.Name);
+			NewItem.SetName(far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, NewItem.GetName()));
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -2016,10 +2015,10 @@ void FarMacroApi::menushowFunc() const
 				return false;
 
 			const auto
-				strName1 = remove_highlight(a.Name),
-				strName2 = remove_highlight(b.Name);
+				strName1 = remove_highlight(a.GetName()),
+				strName2 = remove_highlight(b.GetName());
 
-			const auto Less = string_sort::less(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset));
+			const auto Less = string_sort::less(string_view{ strName1 }.substr(Param.Offset), string_view{ strName2 }.substr(Param.Offset));
 			return Param.Reverse? !Less : Less;
 		});
 	}
@@ -2035,7 +2034,7 @@ void FarMacroApi::menushowFunc() const
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.Name = far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, Item.Name);
+				Item.SetName(far::format(L"{:{}} - {}"sv, LineCount, nLeftShift - 3, Item.GetName()));
 			}
 		}
 	}
@@ -2151,7 +2150,7 @@ void FarMacroApi::menushowFunc() const
 					}
 					else
 					{
-						StrResult += string_view(Menu->at(i).Name).substr(nLeftShift);
+						StrResult += string_view{ Menu->at(i).GetName() }.substr(nLeftShift);
 					}
 
 					StrResult += L"\n"sv;
@@ -2170,12 +2169,12 @@ void FarMacroApi::menushowFunc() const
 					Result=temp;
 				}
 				else
-					Result = string_view(Menu->at(SelectedPos).Name).substr(nLeftShift);
+					Result = string_view{ Menu->at(SelectedPos).GetName() }.substr(nLeftShift);
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result = string_view(Menu->at(SelectedPos).Name).substr(nLeftShift);
+				Result = string_view{ Menu->at(SelectedPos).GetName() }.substr(nLeftShift);
 			else
 				Result=SelectedPos+1;
 	}

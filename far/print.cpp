@@ -91,7 +91,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, std::span<PRINTER_INFO_4 cons
 			Item.SetCheck();
 			Item.SetSelect(true);
 		}
-		Item.ComplexUserData = Item.Name;
+		Item.ComplexUserData = Item.GetName();
 		PrinterList->AddItem(Item);
 	}
 

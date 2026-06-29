@@ -791,7 +791,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			inplace::escape_ampersands(ItemName);
 			ItemName.insert(0, 1, L'&');
 
-			ChDiskItem.Name = std::move(ItemName);
+			ChDiskItem.SetName(std::move(ItemName));
 			ChDiskItem.ComplexUserData = item;
 			ChDisk->AddItem(ChDiskItem);
 
@@ -956,7 +956,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					[&](plugin_item const& item)
 					{
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Uuid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).Name).substr(3))))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Uuid, hotkey_type::drive_menu, trim(string_view{ ChDisk->at(SelPos).GetName() }.substr(3))))
 							RetCode = SelPos;
 					},
 					[](disk_item const& item)

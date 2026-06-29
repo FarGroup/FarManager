@@ -297,10 +297,9 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					LastDay = SavedTime.Day;
 					LastMonth = SavedTime.Month;
 					LastYear = SavedTime.Year;
-					menu_item_ex Separator{ LIF_SEPARATOR };
-					string Time;
-					std::tie(Separator.Name, Time) = time_point_to_localtime_string(i.Time, 8, 1);
-					HistoryMenu.AddItem(Separator);
+
+					auto [Date, Time] { time_point_to_localtime_string(i.Time, 8, 1) };
+					HistoryMenu.AddItem(menu_item_ex{ std::move(Date), LIF_SEPARATOR });
 				}
 				strRecord += i.Name;
 
