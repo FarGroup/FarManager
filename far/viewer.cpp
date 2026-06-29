@@ -622,6 +622,7 @@ bool Viewer::CheckChanged()
 
 	const auto Shrunk = NewViewFindData.FileSize < ViewFindData.FileSize;
 	ViewFindData = NewViewFindData;
+	FileSize = static_cast<long long>(ViewFindData.FileSize);
 
 	if (Shrunk) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
 	{

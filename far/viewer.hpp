@@ -217,7 +217,7 @@ private:
 
 	long long FilePos{};
 	long long SecondPos{};
-	long long FileSize{};
+	long long FileSize{}; // BUGBUG REMOVE THIS
 	long long LastSelectPos{}, LastSelectSize{-1};
 
 	long long LeftPos{}; // Left viewport edge relative to left content edge; must be non-negative
