@@ -1,25 +1,26 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>WindowInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>WindowInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>WindowInfo</code> содержит информацию о конкретном окне Far Manager. Плагин может получить информацию, используя команду <a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct WindowInfo
 {
   size_t StructSize;
@@ -35,59 +36,65 @@ struct WindowInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>WindowInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>Id</div>
-    <div class=dfndescr>Это поле содержит для диалога описатель, для программы просмотра и редактора - ID.</div>
-  <div class=dfn>TypeName</div>
-    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Имя окна. Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.<br>
-    Для панелей - имя текущего файлового объекта.<br>
-    Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
-    Для диалогов и меню - заголовок.<br></div>
-  <div class=dfn>TypeNameSize</div>
-    <div class=dfndescr>Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
-  <div class=dfn>NameSize</div>
-    <div class=dfndescr>Размер буфера <code>Name</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
-  <div class=dfn>Pos</div>
-    <div class=dfndescr>Номер окна, о котором нужно узнать информацию. Нумерация идёт с 0. <code>Pos = -1</code> вернёт информацию о текущем окне.</div>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>WindowInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">Id</div>
+    <div class="dfndescr">Это поле содержит для диалога описатель, для программы просмотра и редактора - ID.</div>
+  <div class="dfn">TypeName</div>
+    <div class="dfndescr">Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
+  <div class="dfn">Name</div>
+    <div class="dfndescr">Имя окна.
+   <ul class="nomarker">
+     <li>Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.</li>
+     <li>Для панелей - имя текущего файлового объекта.</li>
+     <li>Для окна помощи - полный путь к просматриваемому HLF-файлу.</li>
+     <li>Для диалогов и меню - заголовок.</li>
+   </ul>
+    </div>
+  <div class="dfn">TypeNameSize</div>
+    <div class="dfndescr">Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class="dfn">NameSize</div>
+    <div class="dfndescr">Размер буфера <code>Name</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class="dfn">Pos</div>
+    <div class="dfndescr"><p>Номер окна, о котором нужно узнать информацию.</p>
+      <p>Нумерация идёт с 0.</p>
+      <p><code>Pos = -1</code> вернёт информацию о текущем окне.</p></div>
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
-    <td class="cont" width="60%">файловые панели</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
-    <td class="cont" width="60%">окно встроенной программы просмотра</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
-    <td class="cont" width="60%">окно встроенного редактора</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
-    <td class="cont" width="60%">диалог</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
-    <td class="cont" width="60%">меню</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_HELP">WTYPE_HELP</a></td>
-    <td class="cont" width="60%">окно подсказки</td></tr>
+    <tr><th>Тип</th><th>Описание</th></tr>
+    <tr><td><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
+    <td>файловые панели</td></tr>
+    <tr><td><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
+    <td>окно встроенной программы просмотра</td></tr>
+    <tr><td><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
+    <td>окно встроенного редактора</td></tr>
+    <tr><td><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
+    <td>диалог</td></tr>
+    <tr><td><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
+    <td>меню</td></tr>
+    <tr><td><a name="WTYPE_HELP">WTYPE_HELP</a></td>
+    <td>окно подсказки</td></tr>
     </table>
     </div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Могут быть комбинацией следующих значений (тип <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Могут быть комбинацией следующих значений (тип <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODIFIED">WIF_MODIFIED</a></td>
-    <td class="cont" width="60%">признак модификации содержимого файла в окне, может быть только у <code>WTYPE_EDITOR</code></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WIF_CURRENT">WIF_CURRENT</a></td>
-    <td class="cont" width="60%">признак, является ли окно текущим</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODAL">WIF_MODAL</a></td>
-    <td class="cont" width="60%">признак, является ли окно модальным</td></tr>
+    <tr><th>Тип</th><th>Описание</th></tr>
+    <tr><td><a name="WIF_MODIFIED">WIF_MODIFIED</a></td>
+    <td>признак модификации содержимого файла в окне, может быть только у <code>WTYPE_EDITOR</code></td></tr>
+    <tr><td><a name="WIF_CURRENT">WIF_CURRENT</a></td>
+    <td>признак, является ли окно текущим</td></tr>
+    <tr><td><a name="WIF_MODAL">WIF_MODAL</a></td>
+    <td>признак, является ли окно модальным</td></tr>
     </table>
     </div>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 void GetFarWindowInfo()
 {
   WindowInfo WInfo={sizeof(WindowInfo)};
@@ -118,12 +125,12 @@ void GetFarWindowInfo()
 
     // запросили информацию
     Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
-    
+
     // распечатали её
     fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
                I,WInfo.Type,WInfo.TypeName,WInfo.Name,
                WInfo.Current,WInfo.Modified);
-    
+
     free(WInfo.TypeName);
     free(WInfo.Name);
 
@@ -136,8 +143,8 @@ void GetFarWindowInfo()
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>,
 <a href="../service_functions/advcontrol.html">AdvControl</a>
 </div>
