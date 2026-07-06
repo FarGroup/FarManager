@@ -783,7 +783,10 @@ static bool execute_impl(
 			return false;
 
 		os::handle{ pi.hThread };
-		after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, ConsoleSize, ConsoleWindowRect, UsingComspec);
+
+		if (pi.hProcess)
+			after_process_creation(Info, os::handle(pi.hProcess), Info.WaitMode, ConsoleSize, ConsoleWindowRect, UsingComspec);
+
 		return true;
 	};
 
