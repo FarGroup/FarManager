@@ -193,7 +193,7 @@ static void ReadPipe(const os::handle& Pipe, os::security::descriptor& Data)
 
 	Data.reset(static_cast<SECURITY_DESCRIPTOR*>(LocalAlloc(LMEM_FIXED, Size)));
 	if (!Data)
-		throw far_exception(far::format(L"LocalAlloc({}): {}"sv, Size, os::last_error()));
+		throw far_exception(far::format(L"LocalAlloc({})"sv, Size));
 
 	pipe::read(Pipe, Data.get(), Size);
 }

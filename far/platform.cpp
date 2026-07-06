@@ -123,7 +123,7 @@ namespace os
 			switch (WaitForSingleObject(Handle, Timeout? *Timeout / 1ms : INFINITE))
 			{
 			case WAIT_ABANDONED:
-				LOGWARNING(L"WaitForSingleObject(): WAIT_ABANDONED for handle {}"sv, Handle);
+				LOGWARNING(L"WaitForSingleObject({}): WAIT_ABANDONED"sv, Handle);
 				[[fallthrough]];
 			case WAIT_OBJECT_0:
 				return true;
@@ -132,7 +132,7 @@ namespace os
 				return false;
 
 			case WAIT_FAILED:
-				throw far_fatal_exception(far::format(L"WaitForSingleobject failed: {}"sv, last_error()));
+				throw far_fatal_exception(far::format(L"WaitForSingleobject({})"sv, Handle));
 
 			default:
 				std::unreachable();
@@ -156,12 +156,12 @@ namespace os
 			if (in_closed_range<size_t>(WAIT_ABANDONED, Result, WAIT_ABANDONED + Handles.size() - 1))
 			{
 				const auto HandleIndex = Result - WAIT_ABANDONED;
-				LOGWARNING(L"WaitForMultipleObjects(): WAIT_ABANDONED for handle {} ({}/{})"sv, Handles[HandleIndex], HandleIndex, Handles.size());
+				LOGWARNING(L"WaitForMultipleObjects({}): WAIT_ABANDONED ({}/{})"sv, Handles[HandleIndex], HandleIndex, Handles.size());
 				return HandleIndex;
 			}
 
 			if (Result == WAIT_FAILED)
-				throw far_fatal_exception(far::format(L"WaitForMultipleObjects failed: {}"sv, last_error()));
+				throw far_fatal_exception(far::format(L"WaitForMultipleObjects({})"sv, Handles.size()));
 
 			std::unreachable();
 		}
@@ -1050,7 +1050,7 @@ namespace rtdl
 			}
 
 			if (!*m_module && Mandatory)
-				throw far_fatal_exception(far::format(L"Error loading {}: {}"sv, m_name, last_error()));
+				throw far_fatal_exception(far::format(L"Error loading {}"sv, m_name));
 
 			return m_module->get();
 		}
@@ -1079,7 +1079,7 @@ namespace rtdl
 			if (const auto Pointer = *m_Pointer; Pointer || !Mandatory)
 				return Pointer;
 
-			throw far_fatal_exception(far::format(L"{}!{} is missing: {}"sv, m_Module->name(), encoding::ascii::get_chars(m_Name), last_error()));
+			throw far_fatal_exception(far::format(L"{}!{} is missing"sv, m_Module->name(), encoding::ascii::get_chars(m_Name)));
 		}
 	}
 

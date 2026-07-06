@@ -130,10 +130,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define COMPILER_VERSION_MINOR __clang_minor__
 #define COMPILER_VERSION_PATCH __clang_patchlevel__
 #else
-#define COMPILER_NAME "Unknown compiler"
-#define COMPILER_VERSION_MAJOR 0
-#define COMPILER_VERSION_MINOR 0
-#define COMPILER_VERSION_PATCH 0
+#error Unknown compiler
 #endif
 
 //----------------------------------------------------------------------------
@@ -169,7 +166,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REQUIRE_COMPILER(compiler, major, minor, patch, ...) \
 	static_assert( \
 		CHECK_COMPILER(compiler, major, minor, patch), \
-		COMPILER_NAME " " #major "." #minor "." #patch " (or higher) required" __VA_ARGS__ \
+		COMPILER_NAME " " #major "." #minor "." #patch __VA_ARGS__ " or higher required" \
 	)
 
 #endif // COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0

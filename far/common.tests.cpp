@@ -440,7 +440,7 @@ TEST_CASE("chrono")
 	const auto check_split_duration = [](const auto Duration, auto... Args)
 	{
 		auto Result = split_duration<decltype(Args)...>(Duration);
-		return (... && (Result.template get<decltype(Args)>() == Args));
+		return (... && (std::get<decltype(Args)>(Result) == Args));
 	};
 
 	constexpr auto Duration = 47h + 63min + 71s + 3117ms;

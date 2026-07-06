@@ -341,8 +341,8 @@ static string StrFTime(string_view const Format, const tm& Time)
 						return 0h / 1h;
 
 					using namespace std::chrono;
-					const auto Offset = split_duration<hours, minutes>(Tz->Offset);
-					return Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min;
+					const auto [Hours, Minutes] = split_duration<hours, minutes>(Tz->Offset);
+					return Hours / 1h * 100 + Minutes / 1min;
 				}();
 
 				far::format_to(Result, L"{:+05}"sv, HHMM);
@@ -673,16 +673,16 @@ std::tuple<string, string> duration_to_string(os::chrono::duration Duration)
 	using namespace std::chrono;
 	using namespace os::chrono;
 
-	const auto Parts = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
+	const auto [Days, Hours, Minutes, Seconds, Hectonanoseconds] = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
 
 	return
 	{
-		str(Parts.get<days>() / 1_d),
+		str(Days / 1_d),
 		far::format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:0{6}}"sv,
-			Parts.get<hours>() / 1h,
-			Parts.get<minutes>() / 1min,
-			Parts.get<seconds>() / 1s,
-			Parts.get<hectonanoseconds>() / 1_hns,
+			Hours / 1h,
+			Minutes / 1min,
+			Seconds / 1s,
+			Hectonanoseconds / 1_hns,
 			locale.time_separator(),
 			locale.decimal_separator(),
 			decimal_duration_width<hectonanoseconds>()
@@ -694,12 +694,12 @@ string duration_to_string_hms(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
 
-	const auto Parts = split_duration<hours, minutes, seconds>(Duration);
+	const auto [Hours, Minutes, Seconds] = split_duration<hours, minutes, seconds>(Duration);
 
 	return far::format(L"{0:02}{3}{1:02}{3}{2:02}"sv,
-		Parts.get<hours>() / 1h,
-		Parts.get<minutes>() / 1min,
-		Parts.get<seconds>() / 1s,
+		Hours / 1h,
+		Minutes / 1min,
+		Seconds / 1s,
 		locale.time_separator()
 	);
 }
@@ -709,13 +709,13 @@ string duration_to_string_hr(os::chrono::duration Duration)
 	using namespace std::chrono;
 	using namespace os::chrono;
 
-	const auto Parts = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
+	const auto [Days, Hours, Minutes, Seconds, Hectonanoseconds] = split_duration<days, hours, minutes, seconds, hectonanoseconds>(Duration);
 
 	const long long Values[]
 	{
-		Parts.get<days>() / 1_d,
-		Parts.get<hours>() / 1h,
-		Parts.get<minutes>() / 1min,
+		Days / 1_d,
+		Hours / 1h,
+		Minutes / 1min,
 	};
 
 	string Result;
@@ -726,15 +726,15 @@ string duration_to_string_hr(os::chrono::duration Duration)
 			far::format_to(Result, L"{}{} "sv, v, s);
 	}
 
-	const auto Seconds = Parts.get<seconds>() / 1s;
-	const auto Decimals = Parts.get<hectonanoseconds>() / 1_hns;
+	const auto SecondsInteger = Seconds / 1s;
+	const auto SecondsDecimal = Hectonanoseconds / 1_hns;
 
-	if (Seconds || Decimals || Result.empty())
+	if (SecondsInteger || SecondsDecimal || Result.empty())
 	{
-		far::format_to(Result, L"{}"sv, Seconds);
+		far::format_to(Result, L"{}"sv, SecondsInteger);
 
-		if (Decimals)
-			far::format_to(Result, L".{:0{}}"sv, Decimals, decimal_duration_width<hectonanoseconds>());
+		if (SecondsDecimal)
+			far::format_to(Result, L".{:0{}}"sv, SecondsDecimal, decimal_duration_width<hectonanoseconds>());
 
 		Result += L's';
 	}

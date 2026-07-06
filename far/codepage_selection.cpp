@@ -614,11 +614,11 @@ void codepages::EditCodePageName()
 	const auto Position = CodePagesMenu->GetSelectPos();
 	if (IsPositionStandard(Position))
 		return;
-	string CodePageName = CodePagesMenu->at(Position).Name;
+	string_view CodePageName = CodePagesMenu->at(Position).Name;
 	const auto BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
-	if (BoxPosition == string::npos)
+	if (BoxPosition == string_view::npos)
 		return;
-	CodePageName.erase(0, BoxPosition + 2);
+	CodePageName.remove_prefix(BoxPosition + 2);
 
 	auto EditDialog = MakeDialogItems<EDITCP_COUNT>(
 	{

@@ -37,39 +37,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename... tuple_types>
-class split_duration: public std::tuple<tuple_types...>
+namespace detail
 {
-public:
-	template<class Rep, class Period>
-	constexpr explicit split_duration(std::chrono::duration<Rep, Period> Duration)
+	template<typename CastType>
+	constexpr void set_and_chop(auto& Tuple, auto& Duration)
 	{
-		(..., (set_and_chop<tuple_types>(Duration)));
-	}
-
-	template<typename type>
-	[[nodiscard]]
-	constexpr type& get()
-	{
-		return std::get<type>(*this);
-	}
-
-	template<typename type>
-	[[nodiscard]]
-	constexpr const type& get() const
-	{
-		return std::get<type>(*this);
-	}
-
-private:
-	template<typename cast_type>
-	constexpr void set_and_chop(auto& Duration)
-	{
-		auto& Element = get<cast_type>();
-		Element = std::chrono::duration_cast<cast_type>(Duration);
+		auto& Element = std::get<CastType>(Tuple);
+		Element = std::chrono::duration_cast<CastType>(Duration);
 		Duration -= Element;
 	}
-};
+}
+
+template<typename... TupleTypes>
+constexpr auto split_duration(auto Duration)
+{
+	std::tuple<TupleTypes...> Result;
+	(..., (detail::set_and_chop<TupleTypes>(Result, Duration)));
+	return Result;
+}
 
 inline namespace literals
 {
