@@ -147,7 +147,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
   local fmt = ("%%s %%s │ %%-%ds │ %%s"):format(maxKeyLen)
-  for i,m in ipairs(macros) do
+  for _,m in ipairs(macros) do
     items[#items+1] = { text=fmt:format(m.active and "√" or " ", m.codedArea, m.codedKey, m.description), macro=m }
   end
 
@@ -156,7 +156,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     text=onlyactive and Msg.MBSepActiveMenuItems or Msg.MBSepMenuItems }
   fmt = ("%%s %%s │ %%s │ %%-%ds │ %%s"):format(maxTitleW)
   local NOAREA = string.rep(" ", 20)
-  for i,m in ipairs(menuitems) do
+  for _,m in ipairs(menuitems) do
     items[#items+1] = {
       text=fmt:format(m.active and "√" or " ", m.codedArea or NOAREA, m.codedMenu, m.shortTitle, m.description),
       macro=m
@@ -164,31 +164,31 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepPrefixes }
-  for i,m in ipairs(prefixes) do
+  for _,m in ipairs(prefixes) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.prefix, m.description), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepPanels }
-  for i,m in ipairs(panels) do
+  for _,m in ipairs(panels) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.title, m.Info.Description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepColumns }
-  for i,m in ipairs(columns) do
+  for _,m in ipairs(columns) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.filemask or "*", m.description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepSortModes }
-  for i,m in ipairs(sortmodes) do
+  for _,m in ipairs(sortmodes) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.mode, m.Description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepEvents }
-  for i,m in ipairs(events) do
+  for _,m in ipairs(events) do
     items[#items+1] = { text=("%-19s │ %s"):format(
                         m.group, m.description), macro=m, }
   end
@@ -431,7 +431,10 @@ end
 local function MenuLoop()
 --far.MacroLoadAll()
 
+  local windowInfo = far.AdvControl("ACTL_GETWINDOWINFO") -- get this before the menu is called
+  local onTopModal = windowInfo and bit64.band(windowInfo.Flags, F.WIF_MODAL) ~= 0
   local farRect = far.AdvControl("ACTL_GETFARRECT")
+
   local props = {
     Title = Title,
     Flags = {FMENU_SHOWAMPERSAND=1,FMENU_WRAPMODE=1,FMENU_CHANGECONSOLETITLE=1},
@@ -440,8 +443,14 @@ local function MenuLoop()
   }
 
   local bkeys = {
-    {BreakKey="F1"}, {BreakKey="F3"}, {BreakKey="F4"}, {BreakKey="A+F4"}, {BreakKey="C+H"},
-    {BreakKey="C+PRIOR"}, {BreakKey="C+R"}, {BreakKey="S+F4"}
+    { BreakKey="F1",      act="help",              },
+    { BreakKey="F3",      act="info",              },
+    { BreakKey="F4",      act="edit", modal=false, },
+    { BreakKey="A+F4",    act="edit", modal=true,  },
+    { BreakKey="S+F4",    act="edit", modal=true,  },
+    { BreakKey="C+H",     act="hide",              },
+    { BreakKey="C+PRIOR", act="goto",              },
+    { BreakKey="C+R",     act="reload",            },
   }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
@@ -543,17 +552,17 @@ local function MenuLoop()
       end
       props.SelectIndex = 1
     ----------------------------------------------------------------------------
-    elseif BrKey=="F1" then
+    elseif item.act == "help" then
       mf.postmacro(mf.acall, ShowHelp)
     ----------------------------------------------------------------------------
-    elseif BrKey=="F3" and items[pos] then
+    elseif item.act == "info" and items[pos] then
       mf.postmacro(mf.acall, ShowInfo, items[pos].macro)
     ----------------------------------------------------------------------------
-    elseif BrKey=="C+H" then -- hide inactive macros
+    elseif item.act == "hide" then -- hide inactive macros
       ShowOnlyActive = not ShowOnlyActive
       props.SelectIndex = nil
     ----------------------------------------------------------------------------
-    elseif (BrKey=="F4" or BrKey=="A+F4" or BrKey=="S+F4") and items[pos] then -- edit
+    elseif item.act == "edit" and items[pos] then -- edit
       local m = items[pos].macro
       if m.FileName then
         local isMoonScript = string.find(m.FileName, "[nN]", -1)
@@ -561,23 +570,17 @@ local function MenuLoop()
         if isMoonScript then
           startline = utils.GetMoonscriptLineNumber(m.FileName,startline) or startline
         end
-        if BrKey=="A+F4" or BrKey=="S+F4" then -- modal editor
-          editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
-        elseif BrKey=="F4" then -- non-modal editor
-          local a = far.MacroGetArea()
-          if a==F.MACROAREA_SHELL or a==F.MACROAREA_EDITOR or a==F.MACROAREA_VIEWER then
-            local flags = {EF_NONMODAL=1,EF_IMMEDIATERETURN=1}
-            editor.Editor(m.FileName,nil,nil,nil,nil,nil,flags,startline,nil,65001)
-            break
-          end
-        end
+        local flags = not (item.modal or onTopModal)
+            and {EF_NONMODAL=1, EF_IMMEDIATERETURN=1, EF_ENABLE_F6=1} or nil
+        editor.Editor(m.FileName,nil,nil,nil,nil,nil,flags,startline,nil,65001)
+        if flags then break end
       else
         if m.code then utils.EditUnsavedMacro(m.LoadedMacrosIndex)
         else mf.postmacro(mf.acall, Message, Msg.MBNoFileNameAvail)
         end
       end
     ----------------------------------------------------------------------------
-    elseif BrKey=="C+PRIOR" and items[pos] then -- CtrlPgUp - locate the file in active panel
+    elseif item.act == "goto" and items[pos] then -- CtrlPgUp - locate the file in active panel
       local m = items[pos].macro
       if m.FileName then
         if LocateFile(m.FileName) then
@@ -589,7 +592,7 @@ local function MenuLoop()
         Message(Msg.MBNoFileNameAvail)
       end
     ----------------------------------------------------------------------------
-    elseif BrKey=="C+R" then -- CtrlR - reload macros
+    elseif item.act == "reload" then -- CtrlR - reload macros
       far.Message(Msg.MReloadMacros,"","")
       far.MacroLoadAll()
       win.Sleep(400)
