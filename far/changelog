@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+MZK 2026-07-06 21:25:25-04:00 - build 6710
+
+1. Made `menu_item::Name` private and use cached `VisualLength` whenever possible.
+
+--------------------------------------------------------------------------------
 drkns 2026-07-06 17:41:31+01:00 - build 6709
 
 1. gh-1115: workaround for 'invalid handle' error.

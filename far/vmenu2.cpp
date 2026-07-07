@@ -351,7 +351,7 @@ vmenu2_ptr VMenu2::create(const string& Title, std::span<const menu_item> const 
 
 	std::vector<FarListItem> fli;
 	fli.reserve(Data.size());
-	std::ranges::transform(Data, std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.c_str() }; });
+	std::ranges::transform(Data, std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.GetName().c_str() }; });
 
 	FarList fl{ sizeof(fl), fli.size(), fli.data() };
 
@@ -438,7 +438,7 @@ int VMenu2::AddItem(const menu_item_ex& NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListInsert fli{ sizeof(fli), PosAdd, { NewItem.Flags, NewItem.Name.c_str(), NewItem.SimpleUserData } };
+	FarListInsert fli{ sizeof(fli), PosAdd, { NewItem.Flags, NewItem.GetName().c_str(), NewItem.SimpleUserData } };
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 

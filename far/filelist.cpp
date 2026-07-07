@@ -4715,7 +4715,7 @@ static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> cons
 	for (const auto& i: SortModes)
 	{
 		auto& Item = AvailableSortModesMenuItems[i.MenuPosition];
-		Item.Name = msg(i.Label);
+		Item.SetName(msg(i.Label));
 
 		if (std::ranges::any_of(SortLayers, [&](std::pair<panel_sort, sort_order> const& Layer) { return Layer.first == static_cast<panel_sort>(&i - SortModes); }))
 		{
@@ -4803,7 +4803,7 @@ static void edit_sort_layers(int MenuPos)
 				{
 					const auto NewSortModeIndex = std::ranges::find(SortModes, Result, &sort_mode::MenuPosition) - SortModes;
 					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
-					SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
+					SortLayersMenu->at(Pos).SetName(msg(SortModes[NewSortModeIndex].Label));
 					SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
 					SortLayers[Pos] = { static_cast<panel_sort>(NewSortModeIndex), Order };
 					SortLayersMenu->Redraw();
@@ -4885,11 +4885,11 @@ void FileList::SelectSortMode()
 	{
 		auto& Item = SortMenu[i.MenuPosition];
 
-		Item.Name = msg(i.Label);
+		Item.SetName(msg(i.Label));
 		Item.AccelKey = i.MenuKey;
 	}
 
-	static const menu_item MenuSeparator{ {}, LIF_SEPARATOR };
+	static const menu_item MenuSeparator{ string{}, LIF_SEPARATOR };
 
 	OpenMacroPluginInfo ompInfo{ MCT_GETCUSTOMSORTMODES };
 	MacroPluginReturn const* mpr{};
@@ -4907,7 +4907,7 @@ void FileList::SelectSortMode()
 				SortMenu.emplace_back(MenuSeparator);
 				for (size_t i=0; i < mpr->Count; i += 3)
 				{
-					SortMenu.emplace_back(menu_item{ mpr->Values[i + 2].String });
+					SortMenu.emplace_back(menu_item{ mpr->Values[i + 2].String, {} });
 				}
 			}
 			else

@@ -557,7 +557,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		if (MenuItem->strHotKey == L"--"sv)
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
-			FarUserMenuItem.Name = MenuItem->strLabel;
+			FarUserMenuItem.SetName(MenuItem->strLabel);
 
 			if (NumLines==MenuPos)
 			{
@@ -576,7 +576,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			const auto VisualSize = visual_string_length(strHotKey);
 			if (Offset > VisualSize)
 				strHotKey.append(Offset - VisualSize, L' ');
-			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel);
+			FarUserMenuItem.SetName(concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel));
 
 			if (MenuItem->Submenu)
 			{

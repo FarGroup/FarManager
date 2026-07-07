@@ -1162,13 +1162,13 @@ void Options::SetFilePanelModes()
 
 		for (const auto i: std::views::iota(0uz, ViewSettings.size()))
 		{
-			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
+			ModeListMenu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
 		}
 
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
-			if (ModeListMenu[i].Name.empty())
-				ModeListMenu[i].Name = msg(PredefinedNames[i]);
+			if (ModeListMenu[i].GetName().empty())
+				ModeListMenu[i].SetName(msg(PredefinedNames[i]));
 		}
 
 		if (MenuCount > predefined_panel_modes_count)
@@ -1301,7 +1301,7 @@ void Options::SetFilePanelModes()
 
 		auto ModeDlg = MakeDialogItems<MD_COUNT>(
 		{
-			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].Name, },
+			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].GetName(), },
 			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
 			{ DI_EDIT,      {{5,  3 }, {70, 3 }}, DIF_FOCUS, },
 			{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeTypes), },
@@ -3076,7 +3076,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
+				Menu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
 		}
 	};
 
@@ -3094,11 +3094,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuOwnersView), 0, KEY_CTRL8 },
 		{ msg(lng::MMenuLinksView), 0, KEY_CTRL9 },
 		{ msg(lng::MMenuAlternativeView), 0, KEY_CTRL0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuInfoPanel), 0, KEY_CTRLL },
 		{ msg(lng::MMenuTreePanel), no_tree, KEY_CTRLT },
 		{ msg(lng::MMenuQuickView), 0, KEY_CTRLQ },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR, {} },
 		{ msg(lng::MMenuSortModes), 0, KEY_CTRLF12 },
 		{ msg(lng::MMenuLongNames), 0, KEY_CTRLN },
 		{ msg(lng::MMenuTogglePanel), 0, KEY_CTRLF1 },
@@ -3118,15 +3118,15 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuCreateFolder), 0, KEY_F7 },
 		{ msg(lng::MMenuDelete), 0, KEY_F8 },
 		{ msg(lng::MMenuWipe), 0, KEY_ALTDEL },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuAdd), 0, KEY_SHIFTF1 },
 		{ msg(lng::MMenuExtract), 0, KEY_SHIFTF2 },
 		{ msg(lng::MMenuArchiveCommands), 0, KEY_SHIFTF3 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuAttributes), 0, KEY_CTRLA },
 		{ msg(lng::MMenuApplyCommand), 0, KEY_CTRLG },
 		{ msg(lng::MMenuDescribe), 0, KEY_CTRLZ },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuSelectGroup), 0, KEY_ADD },
 		{ msg(lng::MMenuUnselectGroup), 0, KEY_SUBTRACT },
 		{ msg(lng::MMenuInvertSelection), 0, KEY_MULTIPLY },
@@ -3142,16 +3142,16 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuFindFolder), no_tree, KEY_ALTF10 },
 		{ msg(lng::MMenuViewHistory), 0, KEY_ALTF11 },
 		{ msg(lng::MMenuFoldersHistory), 0, KEY_ALTF12 },
-		{ {}, LIF_SEPARATOR, 0 },
+		{ string{}, LIF_SEPARATOR, 0 },
 		{ msg(lng::MMenuSwapPanels), 0, KEY_CTRLU },
 		{ msg(lng::MMenuTogglePanels), 0, KEY_CTRLO },
 		{ msg(lng::MMenuCompareFolders), 0, 0 },
-		{ {}, LIF_SEPARATOR, 0 },
+		{ string{}, LIF_SEPARATOR, 0 },
 		{ msg(lng::MMenuUserMenu), 0, 0 },
 		{ msg(lng::MMenuFileAssociations), 0, 0 },
 		{ msg(lng::MMenuFolderShortcuts), 0, 0 },
 		{ msg(lng::MMenuFilter), 0, KEY_CTRLI },
-		{ {}, LIF_SEPARATOR, 0 },
+		{ string{}, LIF_SEPARATOR, 0 },
 		{ msg(lng::MMenuPluginCommands), 0, KEY_F11 },
 		{ msg(lng::MMenuWindowsList), 0, KEY_F12 },
 		{ msg(lng::MMenuProcessList), 0, KEY_CTRLW },
@@ -3174,19 +3174,19 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuAutoCompleteSettings), 0 },
 		{ msg(lng::MMenuInfoPanelSettings), 0 },
 		{ msg(lng::MMenuMaskGroups), 0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuConfirmation), 0 },
 		{ msg(lng::MMenuFilePanelModes), 0 },
 		{ msg(lng::MMenuFileDescriptions), 0 },
 		{ msg(lng::MMenuFolderInfoFiles), 0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuViewer), 0 },
 		{ msg(lng::MMenuEditor), 0 },
 		{ msg(lng::MMenuCodePages), 0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuColors), 0 },
 		{ msg(lng::MMenuFilesHighlighting), 0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuSaveSetup), 0, KEY_SHIFTF9 },
 	};
 	const auto OptionsMenuStrings = VMenu::AddHotkeys(OptionsMenu);
@@ -3203,11 +3203,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuOwnersView), 0, KEY_CTRL8 },
 		{ msg(lng::MMenuLinksView), 0, KEY_CTRL9 },
 		{ msg(lng::MMenuAlternativeView), 0, KEY_CTRL0 },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuInfoPanel), 0, KEY_CTRLL },
 		{ msg(lng::MMenuTreePanel), no_tree, KEY_CTRLT },
 		{ msg(lng::MMenuQuickView), 0, KEY_CTRLQ },
-		{ {}, LIF_SEPARATOR },
+		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuSortModes), 0, KEY_CTRLF12 },
 		{ msg(lng::MMenuLongNames), 0, KEY_CTRLN },
 		{ msg(lng::MMenuTogglePanelRight), 0, KEY_CTRLF2 },

@@ -702,7 +702,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		const int TitlePosition = 1;
 		const auto CpEnum = codepages::GetFavoritesEnumerator();
 		const auto Title = msg(std::ranges::any_of(CpEnum, [](auto const& i){ return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
-		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).Name = Title;
+		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).SetName(Title);
 		FarListPos Position{ sizeof(Position) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 		if (Position.SelectPos == TitlePosition)
