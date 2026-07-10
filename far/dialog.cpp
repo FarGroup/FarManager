@@ -5361,10 +5361,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Type == DI_CHECKBOX)
 			{
-				int Selected = CurItem.Selected;
+				const auto Selected = CurItem.Selected;
 				auto State = std::bit_cast<intptr_t>(Param2);
 				if (State == BSTATE_TOGGLE)
-					State=++Selected;
+					State = Selected + 1;
 
 				if (CurItem.Flags & DIF_3STATE)
 					State%=3;
