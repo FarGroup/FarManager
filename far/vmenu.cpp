@@ -1894,13 +1894,15 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_MSWHEEL_UP:
 		{
-			SetSelectPos(SelectPos - 1, -1, true);
+			FarListPos Pos{ sizeof(Pos), SelectPos - 1, TopPos - 1 };
+			SetSelectPos(&Pos);
 			DrawMenu();
 			break;
 		}
 		case KEY_MSWHEEL_DOWN:
 		{
-			SetSelectPos(SelectPos + 1, 1, true);
+			FarListPos Pos{ sizeof(Pos), SelectPos + 1, TopPos + 1 };
+			SetSelectPos(&Pos);
 			DrawMenu();
 			break;
 		}
