@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-07-11 17:38:45+01:00 - build 6713
+
+1. Improve OS version detection in logs & reports.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 2026-07-10 23:10:46+01:00 - build 6712
 
 1. From Shmuel: incorrect return value of DM_SETCHECK(BSTATE_TOGGLE).
