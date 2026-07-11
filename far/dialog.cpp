@@ -2467,29 +2467,16 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 	if (Items[m_FocusPos].Flags&DIF_HIDDEN)
 		return true;
 
-	// небольшая оптимизация
-	if (Items[m_FocusPos].Type==DI_CHECKBOX)
+	// BUGBUG do we need this?
+	if (Items[m_FocusPos].Type != DI_CHECKBOX)
 	{
-		if (!(Items[m_FocusPos].Flags&DIF_3STATE))
+		switch (LocalKey())
 		{
-			if (LocalKey() == KEY_MULTIPLY) // в CheckBox 2-state Gray* не работает!
-				LocalKey = KEY_NONE;
-
-			if ((LocalKey() == KEY_ADD      && !Items[m_FocusPos].Selected) ||
-			        (LocalKey() == KEY_SUBTRACT &&  Items[m_FocusPos].Selected))
-				LocalKey=KEY_SPACE;
+		case KEY_ADD:      LocalKey = '+'; break;
+		case KEY_SUBTRACT: LocalKey = '-'; break;
+		case KEY_MULTIPLY: LocalKey = '*'; break;
 		}
-
-		/*
-		  блок else не нужен, т.к. ниже клавиши будут обработаны...
-		*/
 	}
-	else if (LocalKey() == KEY_ADD)
-		LocalKey='+';
-	else if (LocalKey() == KEY_SUBTRACT)
-		LocalKey='-';
-	else if (LocalKey() == KEY_MULTIPLY)
-		LocalKey='*';
 
 	if (Items[m_FocusPos].Type==DI_BUTTON && LocalKey() == KEY_SPACE)
 		LocalKey=KEY_ENTER;
@@ -2693,24 +2680,29 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_ADD:
 		case KEY_SUBTRACT:
 		case KEY_MULTIPLY:
-
 			if (Items[m_FocusPos].Type==DI_CHECKBOX)
 			{
-				unsigned int CHKState=
-				    (LocalKey() == KEY_ADD?1:
-				     (LocalKey() == KEY_SUBTRACT?0:
-				      ((LocalKey() == KEY_MULTIPLY)?2:
-				       Items[m_FocusPos].Selected)));
-
-				if (Items[m_FocusPos].Selected != static_cast<int>(CHKState))
-					if (SendMessage(DN_BTNCLICK,m_FocusPos,ToPtr(CHKState)))
+				const auto NewState = [&]
+				{
+					switch (LocalKey())
 					{
-						Items[m_FocusPos].Selected=CHKState;
-						ShowDialog();
+					case KEY_ADD:      return BSTATE_CHECKED;
+					case KEY_SUBTRACT: return BSTATE_UNCHECKED;
+					case KEY_MULTIPLY: return BSTATE_3STATE;
+					default:           std::unreachable();
 					}
-			}
+				}();
 
+				if
+				(
+					Items[m_FocusPos].Selected != NewState && // Changed?
+					(Items[m_FocusPos].Flags & DIF_3STATE || NewState != BSTATE_3STATE) && // Supported?
+					SendMessage(DN_BTNCLICK, m_FocusPos, ToPtr(NewState)) // Accepted?
+				)
+					ShowDialog();
+			}
 			return true;
+
 		case KEY_LEFT:  case KEY_NUMPAD4: case KEY_MSWHEEL_LEFT:
 		case KEY_RIGHT: case KEY_NUMPAD6: case KEY_MSWHEEL_RIGHT:
 		{
@@ -3657,19 +3649,20 @@ bool Dialog::Do_ProcessTab(bool Next)
 	return true;
 }
 
+static auto toggle_checkbox_state(intptr_t& State, bool Is3State)
+{
+	// 2-state: 0, 1, 0, 1, ...
+	// 3-state: 0, 1, 2, 0, 1, 2, ...
+	State = (State + 1) % (Is3State? 3 : 2);
+}
+
 bool Dialog::Do_ProcessSpace()
 {
 	if (Items[m_FocusPos].Type==DI_CHECKBOX)
 	{
 		const auto OldSelected = Items[m_FocusPos].Selected;
 
-		if (Items[m_FocusPos].Flags&DIF_3STATE)
-		{
-			++Items[m_FocusPos].Selected;
-			Items[m_FocusPos].Selected %= 3;
-		}
-		else
-			Items[m_FocusPos].Selected = !Items[m_FocusPos].Selected;
+		toggle_checkbox_state(Items[m_FocusPos].Selected, flags::check_one(Items[m_FocusPos].Flags, DIF_3STATE));
 
 		const auto OldFocusPos = m_FocusPos;
 
@@ -4433,6 +4426,21 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 	}
 
 	return 0;
+}
+
+static void update_auto_flags(DialogItemEx const& Item)
+{
+	if (!(Item.Flags & DIF_AUTOMATION))
+		return;
+
+	for (const auto& i: Item.Auto)
+	{
+		assert(Item.Selected < std::size(i.Flags));
+
+		const auto AutoFlags = i.Flags[Item.Selected];
+		i.Owner->Flags = (i.Owner->Flags & ~AutoFlags[1]) | AutoFlags[0];
+		// State change events are deliberately not sent to the handler
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -5314,19 +5322,23 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DN_BTNCLICK:
 		{
-			intptr_t Ret=DlgProc(Msg,Param1,Param2);
+			const auto Ret = DlgProc(Msg, Param1, Param2);
+			if (!Ret)
+				return Ret;
 
-			if (Ret && (CurItem.Flags & DIF_AUTOMATION) && !CurItem.Auto.empty())
+			const auto NewState = std::bit_cast<intptr_t>(Param2);
+
+			const auto MaxState =
+				Type == DI_CHECKBOX? (CurItem.Flags & DIF_3STATE? 3 : 2) :
+				Type == DI_RADIOBUTTON? 1 :
+				0;
+
+			assert(NewState <= MaxState);
+
+			if (NewState <= MaxState)
 			{
-				const auto iParam = std::bit_cast<intptr_t>(Param2) % 3;
-
-				for (const auto& i: CurItem.Auto)
-				{
-					const auto NewFlags = i.Owner->Flags;
-					i.Owner->Flags = (NewFlags & (~i.Flags[iParam][1])) | i.Flags[iParam][0];
-					// здесь намеренно в обработчик не посылаются эвенты об изменении
-					// состояния...
-				}
+				CurItem.Selected = NewState;
+				update_auto_flags(CurItem);
 			}
 
 			return Ret;
@@ -5362,34 +5374,22 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (Type == DI_CHECKBOX)
 			{
 				const auto Selected = CurItem.Selected;
-				auto State = std::bit_cast<intptr_t>(Param2);
-				if (State == BSTATE_TOGGLE)
-					State = Selected + 1;
+				auto NewState = std::bit_cast<intptr_t>(Param2);
 
-				if (CurItem.Flags & DIF_3STATE)
-					State%=3;
-				else
-					State&=1;
+				assert(NewState <= BSTATE_TOGGLE);
+				if (NewState > BSTATE_TOGGLE)
+					return Selected;
 
-				CurItem.Selected = State;
+				if (NewState == BSTATE_TOGGLE)
+					toggle_checkbox_state(NewState, flags::check_one(CurItem.Flags, DIF_3STATE));
 
-				if (Selected != State && DialogMode.Check(DMODE_SHOW))
+				if (Selected != NewState)
 				{
-					// автоматизация
-					if ((CurItem.Flags & DIF_AUTOMATION) && !CurItem.Auto.empty())
-					{
-						State%=3;
-						for (const auto& i: CurItem.Auto)
-						{
-							const auto NewFlags = i.Owner->Flags;
-							i.Owner->Flags = (NewFlags & (~i.Flags[State][1])) | i.Flags[State][0];
-							// здесь намеренно в обработчик не посылаются эвенты об изменении
-							// состояния...
-						}
-						Param1=-1;
-					}
+					CurItem.Selected = NewState;
+					update_auto_flags(CurItem);
 
-					SendMessage(DM_REDRAW, 0, nullptr);
+					if (DialogMode.Check(DMODE_SHOW))
+						SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 				return Selected;
