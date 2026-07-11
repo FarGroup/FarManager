@@ -174,7 +174,7 @@ namespace os::version
 		return last_error().Win32ErrorStr();
 	}
 
-	static auto get_os_version()
+	static auto get_os_version(bool const ResistCompatibility)
 	{
 		OSVERSIONINFOEX Info{ sizeof(Info) };
 
@@ -182,7 +182,10 @@ namespace os::version
 
 		// Reliable method
 		if (imports.RtlGetVersion && NT_SUCCESS(imports.RtlGetVersion(InfoPtr)))
-			return Info;
+		{
+			if (!ResistCompatibility)
+				return Info;
+		}
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpful. :(
@@ -264,9 +267,9 @@ WARNING_POP()
 		return L""s;
 	}
 
-	static string os_version_from_api()
+	static string os_version_from_api(bool const ResistCompatibility)
 	{
-		const auto Info = get_os_version();
+		const auto Info = get_os_version(ResistCompatibility);
 
 		DWORD ProductType;
 		if (!imports.GetProductInfo || !imports.GetProductInfo(-1, -1, -1, -1, &ProductType))
@@ -285,7 +288,7 @@ WARNING_POP()
 	}
 
 	// Mental OS - mental methods *facepalm*
-	static string os_version_from_registry()
+	static string os_version_from_registry(bool const ResistCompatibility)
 	{
 		static const auto NativeKeyFlag = []
 		{
@@ -298,7 +301,8 @@ WARNING_POP()
 
 		try
 		{
-			const auto Key = reg::key::local_machine.open(L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
+			// Extra '\' is to fool the compatibility mode
+			const auto Key = reg::key::local_machine.open(far::format(L"SOFTWARE\\Microsoft\\Windows NT\\{}CurrentVersion"sv, ResistCompatibility ? L"\\" : L""), KEY_QUERY_VALUE | NativeKeyFlag);
 
 			const auto ProductName = Key->get_string(L"ProductName"sv);
 			const auto CurrentVersion = Key->get_string(L"CurrentVersion"sv);
@@ -326,6 +330,18 @@ WARNING_POP()
 
 	string os_version()
 	{
-		return os_version_from_api() + os_version_from_registry();
+		static const auto Version = []
+		{
+			const auto NaiveVersion = os_version_from_api(false) + os_version_from_registry(false);
+			const auto ActualVersion = os_version_from_api(true) + os_version_from_registry(true);
+			if (NaiveVersion == ActualVersion)
+				return NaiveVersion;
+
+			LOGWARNING(L"Compatibility mode detected"sv);
+
+			return far::format(L"{} (compatibility mode, actual version is {})"sv, NaiveVersion, ActualVersion);
+		}();
+
+		return Version;
 	}
 }
