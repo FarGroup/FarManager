@@ -531,7 +531,7 @@ namespace
 	{
 		using enum item_hscroll_policy;
 
-		assert(ItemLength > 0);
+		assert(ItemLength >= 0);
 		assert(TextAreaWidth > 0);
 
 		switch (Policy)
@@ -540,7 +540,9 @@ namespace
 			return{ std::numeric_limits<int>::min(), std::numeric_limits<int>::max()};
 
 		case cling_to_edge:
-			return{ 1 - ItemLength, TextAreaWidth - 1 };
+			return ItemLength > 0
+				? std::pair{ 1 - ItemLength, TextAreaWidth - 1 }
+				: std::pair{ 0, TextAreaWidth };
 
 		case bound:
 			return{ std::min(0, TextAreaWidth - ItemLength), std::max(0, TextAreaWidth - ItemLength) };
@@ -2344,12 +2346,7 @@ bool VMenu::SetItemHPos(menu_item_ex& Item, const auto& GetNewHPos)
 	if (Item.Flags & LIF_SEPARATOR) return false;
 
 	const auto ItemLength{ GetItemVisualLength(Item) };
-	if (ItemLength <= 0)
-	{
-		assert(Item.HorizontalPosition == 0);
-		m_HorizontalTracker->update_item_hpos(Item.HorizontalPosition, 0, 0, 0);
-		return false;
-	}
+	assert(ItemLength >= 0);
 
 	const auto NewHPos = [&]
 	{
@@ -2956,13 +2953,16 @@ bool VMenu::DrawItemText(
 	if (const auto Indent{ std::max(Item.HorizontalPosition, 0) }; Indent > 0)
 	{
 		GotoXY(TextArea.start(), Y);
-		if (ClippedText(BlankLine.substr(0, Indent), TextArea)) return true;
+		if (ClippedText(BlankLine.substr(0, Indent), TextArea))
+			return Indent > TextArea.length() || !get_item_text(Item).empty();
 		// Sanity check: one space (U+0020) occupies one screen cell
 		assert(WhereX() == TextArea.start() + Indent);
 	}
 
+	// If get_item_text(Item).empty(), the loop below still works correctly.
+	// Since it does not advance CurX, filling the right margin after the loop works as expected.
 	const auto [ItemText, Highlight] { GetItemTextWithHighlight(Item) };
-	const auto Markup{ markup_highlight(string_view{ ItemText }, Highlight) };
+	const auto Markup{ markup_highlight(ItemText, Highlight) };
 	const std::array MarkupColors{ ColorIndices.Normal, ColorIndices.Highlighted, ColorIndices.Normal };
 	static_assert(Markup.size() == MarkupColors.size());
 
@@ -3732,6 +3732,7 @@ TEST_CASE("item.hpos.limits")
 	}
 	TestDataPoints[]
 	{
+		{  0, 5, { {  0, 5 }, {  0, 5 }, {  0, 0 } } },
 		{  1, 5, { {  0, 4 }, {  0, 4 }, {  0, 0 } } },
 		{  3, 5, { { -2, 4 }, {  0, 2 }, {  0, 0 } } },
 		{  5, 5, { { -4, 4 }, {  0, 0 }, {  0, 0 } } },
