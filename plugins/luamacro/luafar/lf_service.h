@@ -3,10 +3,12 @@
 
 #define TKEY_BINARY "__binary"
 
-UINT64   OptFlags(lua_State* L, int pos, UINT64 dflt);
-UINT64   GetFlagCombination(lua_State *L, int pos, int *success);
-UINT64   GetFlagsFromTable(lua_State *L, int pos, const char* key);
-void     PutFlagsToTable(lua_State *L, const char* key, UINT64 flags);
+typedef int64_t flags_t;
+
+flags_t  OptFlags(lua_State* L, int pos, flags_t dflt);
+flags_t  GetFlagCombination(lua_State *L, int pos, int *success);
+flags_t  GetFlagsFromTable(lua_State *L, int pos, const char* key);
+void     PutFlagsToTable(lua_State *L, const char* key, flags_t flags);
 
 int      PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 int      PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
@@ -27,3 +29,4 @@ void     ConvertLuaValue(lua_State *L, int pos, struct FarMacroValue *target);
 extern const char* VirtualKeyStrings[256];
 
 #endif
+

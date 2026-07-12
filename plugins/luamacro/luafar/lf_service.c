@@ -223,11 +223,11 @@ static HANDLE OptHandle2(lua_State *L)
 	return lua_isnoneornil(L,1) ? (luaL_checkinteger(L,2) % 2 ? PANEL_ACTIVE:PANEL_PASSIVE) : OptHandle(L);
 }
 
-static UINT64 get_env_flag(lua_State *L, int pos, int *success)
+static flags_t get_env_flag(lua_State *L, int pos, int *success)
 {
 	int dummy;
 	const char *str;
-	INT64 ret = 0;
+	flags_t ret = 0;
 	int top = lua_gettop(L);
 
 	if (success)
@@ -242,7 +242,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 			break;
 
 		case LUA_TNUMBER:
-			ret = (__int64)lua_tonumber(L, pos); // IMPORTANT: cast to signed integer.
+			ret = (flags_t)lua_tonumber(L, pos); // IMPORTANT: cast to signed integer.
 			break;
 
 		case LUA_TSTRING:
@@ -262,7 +262,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 			}
 
 			if (lua_type(L, -1) == LUA_TNUMBER)
-				ret = (__int64)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
+				ret = (flags_t)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
 			else if (!bit64_getvalue(L, -1, &ret))
 				*success = FALSE;
 			break;
@@ -277,10 +277,10 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 	return ret;
 }
 
-static UINT64 check_env_flag(lua_State *L, int pos)
+static flags_t check_env_flag(lua_State *L, int pos)
 {
 	int success = FALSE;
-	UINT64 ret = lua_isnoneornil(L, pos) ? 0 : get_env_flag(L, pos, &success);
+	flags_t ret = lua_isnoneornil(L, pos) ? 0 : get_env_flag(L, pos, &success);
 
 	if (!success)
 	{
@@ -296,10 +296,9 @@ static UINT64 check_env_flag(lua_State *L, int pos)
 	return ret;
 }
 
-UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
+flags_t GetFlagCombination(lua_State *L, int pos, int *success)
 {
-	UINT64 ret = 0;
-	UINT64 flag;
+	flags_t ret = 0;
 	pos = abs_index(L, pos);
 	if (success)
 		*success = TRUE;
@@ -312,7 +311,7 @@ UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 		{
 			if (lua_type(L,-2)==LUA_TSTRING && lua_toboolean(L,-1))
 			{
-				flag = get_env_flag(L, -2, success);
+				flags_t flag = get_env_flag(L, -2, success);
 
 				if (success == NULL || *success)
 					ret |= flag;
@@ -333,7 +332,7 @@ UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 			if (*p == 0) break;
 			for (q=p+1; *q && !isspace(*q); ) q++;
 			lua_pushlstring(L, p, q-p);
-			flag = get_env_flag(L, -1, &ok);
+			flags_t flag = get_env_flag(L, -1, &ok);
 			lua_pop(L, 1);
 			if (ok)
 				ret |= flag;
@@ -347,10 +346,10 @@ UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 	return ret;
 }
 
-static UINT64 CheckFlags(lua_State* L, int pos)
+static flags_t CheckFlags(lua_State* L, int pos)
 {
 	int success = FALSE;
-	UINT64 Flags = lua_isnoneornil(L, pos) ? 0 : GetFlagCombination(L, pos, &success);
+	flags_t Flags = lua_isnoneornil(L, pos) ? 0 : GetFlagCombination(L, pos, &success);
 
 	if (!success)
 		luaL_error(L, "invalid flag combination");
@@ -358,14 +357,14 @@ static UINT64 CheckFlags(lua_State* L, int pos)
 	return Flags;
 }
 
-UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt)
+flags_t OptFlags(lua_State* L, int pos, flags_t dflt)
 {
 	return lua_isnoneornil(L, pos) ? dflt : CheckFlags(L, pos);
 }
 
-static UINT64 CheckFlagsFromTable(lua_State *L, int pos, const char* key)
+static flags_t CheckFlagsFromTable(lua_State *L, int pos, const char* key)
 {
-	UINT64 f = 0;
+	flags_t f = 0;
 	lua_getfield(L, pos, key);
 	if (!lua_isnil(L, -1))
 		f = CheckFlags(L, -1);
@@ -373,22 +372,21 @@ static UINT64 CheckFlagsFromTable(lua_State *L, int pos, const char* key)
 	return f;
 }
 
-UINT64 GetFlagsFromTable(lua_State *L, int pos, const char* key)
+flags_t GetFlagsFromTable(lua_State *L, int pos, const char* key)
 {
-	UINT64 f;
 	lua_getfield(L, pos, key);
-	f = GetFlagCombination(L, -1, NULL);
+	flags_t f = GetFlagCombination(L, -1, NULL);
 	lua_pop(L, 1);
 	return f;
 }
 
-void PutFlagsToTable(lua_State *L, const char* key, UINT64 flags)
+void PutFlagsToTable(lua_State *L, const char* key, flags_t flags)
 {
 	bit64_push(L, flags);
 	lua_setfield(L, -2, key);
 }
 
-void PutFlagsToArray(lua_State *L, int index, UINT64 flags)
+void PutFlagsToArray(lua_State *L, int index, flags_t flags)
 {
 	bit64_push(L, flags);
 	lua_rawseti(L, -2, index);
@@ -2757,7 +2755,7 @@ static UINT64 GetDialogItemType(lua_State* L, int key, int item)
 	int success;
 	lua_pushinteger(L, key);
 	lua_gettable(L, -2);
-	UINT64 iType = get_env_flag(L, -1, &success);
+	flags_t iType = get_env_flag(L, -1, &success);
 
 	if (!success)
 	{
@@ -2770,12 +2768,12 @@ static UINT64 GetDialogItemType(lua_State* L, int key, int item)
 }
 
 // the table is on lua stack top
-static UINT64 GetItemFlags(lua_State* L, int flag_index, int item_index)
+static flags_t GetItemFlags(lua_State* L, int flag_index, int item_index)
 {
 	int success;
 	lua_pushinteger(L, flag_index);
 	lua_gettable(L, -2);
-	UINT64 flags = GetFlagCombination(L, -1, &success);
+	flags_t flags = GetFlagCombination(L, -1, &success);
 
 	if (!success)
 		return luaL_error(L, "unsupported flag in dialog item %d", item_index);
@@ -4044,7 +4042,7 @@ static int far_DialogInit(lua_State *L)
 	}
 
 	// 8-th parameter (flags)
-	UINT64 Flags = OptFlags(L, 8, 0);
+	flags_t Flags = OptFlags(L, 8, 0);
 	TDialogData *dd = NewDialogData(L, pd->Info, INVALID_HANDLE_VALUE, TRUE);
 
 	// 9-th parameter (DlgProc function)
@@ -4182,7 +4180,7 @@ static int editor_Editor(lua_State *L)
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);
 	intptr_t Y2 = luaL_optinteger(L, 6, -1);
-	UINT64 Flags = OptFlags(L,7,0);
+	flags_t  Flags = OptFlags(L,7,0);
 	intptr_t StartLine = luaL_optinteger(L, 8, -1);
 	intptr_t StartChar = luaL_optinteger(L, 9, -1);
 	intptr_t CodePage  = luaL_optinteger(L, 10, CP_DEFAULT);
@@ -4201,7 +4199,7 @@ static int viewer_Viewer(lua_State *L)
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);
 	intptr_t Y2 = luaL_optinteger(L, 6, -1);
-	UINT64 Flags = OptFlags(L, 7, 0);
+	flags_t  Flags = OptFlags(L, 7, 0);
 	intptr_t CodePage = luaL_optinteger(L, 8, CP_DEFAULT);
 	intptr_t ret = Info->Viewer(FileName, Title, X1, Y1, X2, Y2, Flags, CodePage);
 	lua_pushboolean(L, ret != 0);
@@ -4233,15 +4231,15 @@ static int viewer_GetInfo(lua_State *L)
 
 		PutNumToTable(L,  "FileSize", (double) vi.FileSize);
 		PutNumToTable(L,  "FilePos", (double) vi.FilePos);
-		PutNumToTable(L,  "WindowSizeX", (double) vi.WindowSizeX);
-		PutNumToTable(L,  "WindowSizeY", (double) vi.WindowSizeY);
-		PutNumToTable(L,  "Options", (double) vi.Options);
-		PutNumToTable(L,  "TabSize", (double) vi.TabSize);
-		PutNumToTable(L,  "LeftPos", (double) vi.LeftPos + 1);
+		PutNumToTable(L,  "WindowSizeX", vi.WindowSizeX);
+		PutNumToTable(L,  "WindowSizeY", vi.WindowSizeY);
+		PutNumToTable(L,  "Options", vi.Options);
+		PutNumToTable(L,  "TabSize", vi.TabSize);
+		PutNumToTable(L,  "LeftPos", vi.LeftPos + 1);
 		lua_createtable(L, 0, 3);
-		PutNumToTable(L, "CodePage", (double) vi.CurMode.CodePage);
-		PutFlagsToTable(L, "Flags",    vi.CurMode.Flags);
-		PutNumToTable(L, "ViewMode", (double) vi.CurMode.ViewMode);
+		PutNumToTable(L, "CodePage", vi.CurMode.CodePage);
+		PutFlagsToTable(L, "Flags",  vi.CurMode.Flags);
+		PutNumToTable(L, "ViewMode", vi.CurMode.ViewMode);
 		lua_setfield(L, -2, "CurMode");
 	}
 	else
@@ -4338,7 +4336,7 @@ static int far_ShowHelp(lua_State *L)
 {
 	const wchar_t *ModuleName = (const wchar_t*)luaL_checkstring(L, 1);
 	const wchar_t *HelpTopic = opt_utf8_string(L,2,NULL);
-	UINT64 Flags = OptFlags(L,3,0);
+	flags_t Flags = OptFlags(L,3,0);
 	PSInfo *Info = GetPluginData(L)->Info;
 	if ((Flags & FHELP_GUID) == 0)
 		ModuleName = check_utf8_string(L,1,NULL);
@@ -4359,7 +4357,7 @@ static int far_InputBox(lua_State *L)
 	const wchar_t *SrcText     = opt_utf8_string(L, 5, L"");
 	intptr_t DestLength        = luaL_optinteger(L, 6, 1024);
 	const wchar_t *HelpTopic   = opt_utf8_string(L, 7, NULL);
-	UINT64 Flags = OptFlags(L, 8, FIB_ENABLEEMPTY|FIB_BUTTONS|FIB_NOAMPERSAND);
+	flags_t Flags = OptFlags(L, 8, FIB_ENABLEEMPTY|FIB_BUTTONS|FIB_NOAMPERSAND);
 
 	if (DestLength < 0) DestLength = 0;
 
@@ -4653,8 +4651,8 @@ static int far_MkLink(lua_State *L)
 {
 	const wchar_t* target = check_utf8_string(L, 1, NULL);
 	const wchar_t* linkname = check_utf8_string(L, 2, NULL);
-	UINT64 linktype = OptFlags(L, 3, LINK_SYMLINK);
-	UINT64 flags = OptFlags(L, 4, 0);
+	flags_t linktype = OptFlags(L, 3, LINK_SYMLINK);
+	flags_t flags = OptFlags(L, 4, 0);
 	lua_pushboolean(L, GetPluginData(L)->FSF->MkLink(target, linkname, linktype, flags));
 	return 1;
 }
@@ -4747,7 +4745,7 @@ static int far_RecursiveSearch(lua_State *L)
 		SetAttrWords(MaskEnd+2, &Data.attr_incl, &Data.attr_excl);
 	}
 
-	UINT64 Flags = OptFlags(L, 4, 0);
+	flags_t Flags = OptFlags(L, 4, 0);
 	if (lua_gettop(L) == 3)
 		lua_pushnil(L);
 
@@ -5659,7 +5657,7 @@ static int far_XLat(lua_State *L)
 	wchar_t *Line = check_utf8_string(L, 1, &size);
 	intptr_t StartPos = luaL_optinteger(L, 2, 1) - 1;
 	intptr_t EndPos = luaL_optinteger(L, 3, size);
-	UINT64 Flags = OptFlags(L, 4, 0);
+	flags_t Flags = OptFlags(L, 4, 0);
 	StartPos < 0 ? StartPos = 0 : StartPos > (intptr_t)size ? StartPos = size : 0;
 	EndPos < StartPos ? EndPos = StartPos : EndPos > (intptr_t)size ? EndPos = size : 0;
 	wchar_t *str = GetPluginData(L)->FSF->XLat(Line, StartPos, EndPos, Flags);
@@ -5675,7 +5673,7 @@ static int far_FormatFileSize(lua_State *L)
 	if (abs(Width) > 10000)
 		return luaL_error(L, "the 'Width' argument exceeds 10000");
 
-	UINT64 Flags = OptFlags(L, 3, 0) & ~FFFS_MINSIZEINDEX_MASK;
+	flags_t Flags = OptFlags(L, 3, 0) & ~FFFS_MINSIZEINDEX_MASK;
 	Flags |= luaL_optinteger(L, 4, 0) & FFFS_MINSIZEINDEX_MASK;
 
 	TPluginData *pd = GetPluginData(L);
@@ -6154,7 +6152,7 @@ static int far_ColorDialog(lua_State *L)
 		Color.Flags = FCF_4BITMASK;
 	}
 
-	UINT64 Flags = OptFlags(L, 2, 0);
+	flags_t Flags = OptFlags(L, 2, 0);
 
 	if (pd->Info->ColorDialog(pd->PluginId, Flags, &Color))
 		PushFarColor(L, &Color);
