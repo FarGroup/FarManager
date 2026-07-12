@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+MZK 2026-07-11 22:07:16-04:00 - build 6714
+
+1. Continuation of 6651. Clarified horizontal scrolling of empty menu items.
+
+--------------------------------------------------------------------------------
 drkns 2026-07-11 17:38:45+01:00 - build 6713
 
 1. Improve OS version detection in logs & reports.
