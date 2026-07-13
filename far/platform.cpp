@@ -65,6 +65,28 @@ namespace os
 {
 	namespace detail
 	{
+		UNICODE_STRING make_readonly_unicode_string(string_view const Str)
+		{
+			const auto Size = static_cast<USHORT>(Str.size() * sizeof(wchar_t));
+
+			return
+			{
+				Size,
+				Size,
+				const_cast<wchar_t*>(Str.data())
+			};
+		}
+
+		string_view make_string_view(UNICODE_STRING const Str)
+		{
+			return { Str.Buffer, Str.Length / sizeof(wchar_t) };
+		}
+
+		bool is_buffer_too_small(NTSTATUS const Status)
+		{
+			return any_of(Status, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL);
+		}
+
 		static bool ApiDynamicStringReceiverImpl(
 			string& Destination,
 			function_ref<size_t(std::span<wchar_t> WritableBuffer)> const Callable,

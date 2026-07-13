@@ -407,20 +407,19 @@ namespace os::process
 		const auto ReasonableSize = 1024;
 		block_ptr<FILE_PROCESS_IDS_USING_FILE_INFORMATION, ReasonableSize> Info(ReasonableSize);
 
-		auto Result = STATUS_UNSUCCESSFUL;
-
-		while (
-			!File.NtQueryInformationFile(Info.data(), Info.size(), FileProcessIdsUsingFileInformation, &Result) &&
-			any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL)
-		)
+		for (;;)
 		{
-			Info.reset(Info.size() * 2);
-		}
+			NTSTATUS Result;
+			if (File.NtQueryInformationFile(Info.data(), Info.size(), FileProcessIdsUsingFileInformation, &Result))
+				break;
 
-		if (!NT_SUCCESS(Result))
-		{
-			LOGWARNING(L"NtQueryInformationFile({}): {}"sv, Filename, format_ntstatus(Result));
-			return 0;
+			if (!os::detail::is_buffer_too_small(Result))
+			{
+				LOGWARNING(L"NtQueryInformationFile({}): {}"sv, Filename, format_ntstatus(Result));
+				return 0;
+			}
+
+			Info.reset(grow_exp(Info.size(), {}));
 		}
 
 		for (const auto& i: std::span(Info->ProcessIdList, Info->NumberOfProcessIdsInList))
@@ -451,16 +450,14 @@ namespace os::process
 			if (NT_SUCCESS(Result))
 				break;
 
-			if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
+			if (!os::detail::is_buffer_too_small(Result))
 			{
-				m_Info.reset(ReturnSize? ReturnSize : grow_exp(m_Info.size(), {}));
-				continue;
+				LOGWARNING(L"NtQuerySystemInformation(): {}"sv, format_ntstatus(Result));
+				m_Info.reset();
+				return;
 			}
 
-			LOGWARNING(L"NtQuerySystemInformation(): {}"sv, format_ntstatus(Result));
-
-			m_Info.reset();
-			return;
+			m_Info.reset(ReturnSize? ReturnSize : grow_exp(m_Info.size(), {}));
 		}
 	}
 
@@ -479,7 +476,7 @@ namespace os::process
 		const auto& Info = view_as<SYSTEM_PROCESS_INFORMATION>(m_Info.data(), m_Offset);
 
 		Value.Pid = static_cast<DWORD>(std::bit_cast<uintptr_t>(Info.UniqueProcessId));
-		Value.Name = { Info.ImageName.Buffer, Info.ImageName.Length / sizeof(wchar_t) };
+		Value.Name = os::detail::make_string_view(Info.ImageName);
 		Value.Threads = { view_as<SYSTEM_THREAD_INFORMATION const*>(&Info, sizeof(Info)), Info.NumberOfThreads };
 
 		if (Info.NextEntryOffset)

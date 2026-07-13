@@ -262,7 +262,7 @@ WARNING_POP()
 			return far::format(L" {} ({}.{})"sv, Info.szCSDVersion, Info.wServicePackMajor, Info.wServicePackMinor);
 
 		if (Info.wServicePackMajor)
-			return far::format(L" Service Pack {}.{}"sv, Info.wServicePackMajor, Info.wServicePackMinor);
+			return far::format(L" Service Pack {0} ({0}.{1})"sv, Info.wServicePackMajor, Info.wServicePackMinor);
 
 		return L""s;
 	}

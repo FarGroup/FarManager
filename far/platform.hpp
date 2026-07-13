@@ -65,6 +65,14 @@ namespace os
 
 	namespace detail
 	{
+		[[nodiscard]]
+		UNICODE_STRING make_readonly_unicode_string(string_view Str);
+		[[nodiscard]]
+		string_view make_string_view(UNICODE_STRING Str);
+
+		[[nodiscard]]
+		bool is_buffer_too_small(NTSTATUS Status);
+
 		template<typename buffer_type>
 		[[nodiscard]]
 		bool ApiDynamicReceiver(

@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/algorithm.hpp"
-#include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 
 // External:
@@ -616,24 +615,27 @@ namespace os::fs
 		if (!Handle->Object.Open(FileName, 0, file_share_all, nullptr, OPEN_EXISTING))
 			return nullptr;
 
-		// for network paths buffer size must be <= 64k
-		// we double it in a first loop, so starting value is 32k
-		size_t BufferSize = 32768;
-		auto Result = STATUS_UNSUCCESSFUL;
-		do
-		{
-			BufferSize *= 2;
-			Handle->BufferBase.reset(BufferSize);
-			// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-			auto& StreamInfo = edit_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data());
-			StreamInfo.StreamNameLength = 0;
-			// BUGBUG check result
-			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileStreamInformation, &Result);
-		}
-		while (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL));
+		const auto ReasonableSize = 1024;
+		Handle->BufferBase.reset(ReasonableSize);
 
-		if (!NT_SUCCESS(Result))
-			return nullptr;
+		for(;;)
+		{
+			// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
+			edit_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data()).StreamNameLength = 0;
+
+			NTSTATUS Result;
+			if (Handle->Object.NtQueryInformationFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileStreamInformation, &Result))
+				break;
+
+			if (!os::detail::is_buffer_too_small(Result))
+			{
+				LOGWARNING(L"NtQueryInformationFile(): {}"sv, format_ntstatus(Result));
+				Handle->BufferBase.reset();
+				return nullptr;
+			}
+
+			Handle->BufferBase.reset(grow_exp(Handle->BufferBase.size(), {}));
+		}
 
 		const auto& StreamInfo = view_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data());
 		Handle->NextOffset = StreamInfo.NextEntryOffset;
@@ -713,55 +715,43 @@ namespace os::fs
 
 	enum_devices::enum_devices(string_view const Object)
 	{
-		m_Object.Buffer = const_cast<wchar_t*>(Object.data());
-		m_Object.Length = m_Object.MaximumLength = static_cast<USHORT>(Object.size() * sizeof(wchar_t));
+		m_Object = os::detail::make_readonly_unicode_string(Object);
 
 		OBJECT_ATTRIBUTES Attributes;
 		InitializeObjectAttributes(&Attributes, &m_Object, 0, nullptr, nullptr)
 
-		if (!NT_SUCCESS(imports.NtOpenDirectoryObject(&ptr_setter(m_Handle), GENERIC_READ, &Attributes)))
+		if (const auto Result = imports.NtOpenDirectoryObject(&ptr_setter(m_Handle), GENERIC_READ, &Attributes); !NT_SUCCESS(Result))
+		{
+			LOGWARNING(L"NtOpenDirectoryObject({}): {}"sv, Object, format_ntstatus(Result));
 			return;
+		}
 
 		m_Buffer.reset(32 * 1024);
 	}
 
-	bool enum_devices::get(bool Reset, string_view& Value) const
+	bool enum_devices::get(bool const Reset, string_view& Value) const
 	{
 		if (!m_Handle)
 			return false;
 
-		if (Reset)
-			m_Index.reset();
-
-		auto RestartScan = Reset;
-
-		const auto fill = [&]
-		{
-			ULONG Size;
-			if (!NT_SUCCESS(imports.NtQueryDirectoryObject(m_Handle.native_handle(), m_Buffer.data(), static_cast<ULONG>(m_Buffer.size()), false, RestartScan, &m_Context, &Size)))
-				return false;
-
-			RestartScan = false;
-			m_Index = 0;
-			return true;
-		};
-
-		if (!m_Index)
-		{
-			if (!fill())
-				return false;
-		}
-
 		const auto Entries = std::bit_cast<OBJECT_DIRECTORY_INFORMATION const*>(m_Buffer.data());
 
-		if (!Entries[*m_Index].Name.Length)
+		if (Reset || !Entries[*m_Index].Name.Length)
 		{
 			m_Index.reset();
-			if (!fill())
+
+			if (const auto Result = imports.NtQueryDirectoryObject(m_Handle.native_handle(), m_Buffer.data(), static_cast<ULONG>(m_Buffer.size()), false, Reset, &m_Context, {}); !NT_SUCCESS(Result))
+			{
+				if (Result != STATUS_NO_MORE_ENTRIES)
+					LOGWARNING(L"NtQueryDirectoryObject(): {}"sv, format_ntstatus(Result));
+
 				return false;
+			}
+
+			m_Index = 0;
 		}
 
-		Value = { Entries[*m_Index].Name.Buffer, Entries[*m_Index].Name.Length / sizeof(wchar_t) };
+		Value = os::detail::make_string_view(Entries[*m_Index].Name);
 		++*m_Index;
 
 		return true;
@@ -1007,9 +997,7 @@ namespace os::fs
 		UNICODE_STRING NameString;
 		if (!FileName.empty())
 		{
-			NameString.Buffer = const_cast<wchar_t*>(FileName.data());
-			NameString.Length = static_cast<USHORT>(FileName.size() * sizeof(wchar_t));
-			NameString.MaximumLength = NameString.Length;
+			NameString = os::detail::make_readonly_unicode_string(FileName.data());
 			pNameString = &NameString;
 		}
 		const auto di = static_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
@@ -1033,9 +1021,8 @@ namespace os::fs
 		set_last_error_from_ntstatus(Result);
 
 		if (Status)
-		{
 			*Status = Result;
-		}
+
 		return NT_SUCCESS(Result);
 	}
 
@@ -1044,25 +1031,26 @@ namespace os::fs
 		// https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/ntifs/nf-ntifs-obquerynamestring
 		// A reasonable size for the buffer to accommodate most object names is 1024 bytes.
 		const auto ReasonableSize = 1024;
-		block_ptr<OBJECT_NAME_INFORMATION, ReasonableSize> oni(ReasonableSize);
-		ULONG ReturnLength;
+		block_ptr<OBJECT_NAME_INFORMATION, ReasonableSize> Buffer(ReasonableSize);
 
-		const auto QueryObject = [&]
+		for (;;)
 		{
-			return imports.NtQueryObject(hFile, ObjectNameInformation, oni.data(), static_cast<unsigned long>(oni.size()), &ReturnLength);
-		};
+			ULONG ReturnSize{};
+			const auto Result = imports.NtQueryObject(hFile, ObjectNameInformation, Buffer.data(), static_cast<unsigned long>(Buffer.size()), &ReturnSize);
+			if (NT_SUCCESS(Result))
+				break;
 
-		auto Result = QueryObject();
-		if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
-		{
-			oni.reset(ReturnLength);
-			Result = QueryObject();
+			if (!os::detail::is_buffer_too_small(Result))
+			{
+				LOGWARNING(L"NtQueryObject(): {}"sv, format_ntstatus(Result));
+				Buffer.reset();
+				return false;
+			}
+
+			Buffer.reset(ReturnSize? ReturnSize : grow_exp(Buffer.size(), {}));
 		}
 
-		if (!NT_SUCCESS(Result))
-			return false;
-
-		ObjectName.assign(oni->Name.Buffer, oni->Name.Length / sizeof(wchar_t));
+		ObjectName = os::detail::make_string_view(Buffer->Name);
 		return true;
 	}
 
@@ -1587,9 +1575,7 @@ WARNING_POP()
 
 		const auto KernelDevicePath = kernel_path(DevicePath);
 
-		UNICODE_STRING ObjName;
-		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(KernelDevicePath.size() * sizeof(wchar_t));
-		ObjName.Buffer = const_cast<wchar_t*>(KernelDevicePath.data());
+		auto ObjName = os::detail::make_readonly_unicode_string(KernelDevicePath);
 
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
@@ -1598,27 +1584,29 @@ WARNING_POP()
 		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(&ptr_setter(SymLink), GENERIC_READ, &ObjAttrs)))
 			return false;
 
-		wchar_t_ptr Buffer(1024);
+		const auto ReasonableSize = 1024;
+		wchar_t_ptr Buffer(ReasonableSize);
 		UNICODE_STRING LinkTarget;
-		ULONG ReturnLength;
 
-		const auto QuerySymbolicLinkObject = [&]
+		for (;;)
 		{
 			LinkTarget = { 0, static_cast<USHORT>(Buffer.size() * sizeof(wchar_t)), Buffer.data() };
-			return imports.NtQuerySymbolicLinkObject(SymLink.native_handle(), &LinkTarget, &ReturnLength);
-		};
+			ULONG ReturnSize{};
+			const auto Result = imports.NtQuerySymbolicLinkObject(SymLink.native_handle(), &LinkTarget, &ReturnSize);
+			if (NT_SUCCESS(Result))
+				break;
 
-		auto Result = QuerySymbolicLinkObject();
-		if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
-		{
-			Buffer.reset(ReturnLength / sizeof(wchar_t));
-			Result = QuerySymbolicLinkObject();
+			if (!os::detail::is_buffer_too_small(Result))
+			{
+				LOGWARNING(L"NtQuerySymbolicLinkObject(): {}"sv, format_ntstatus(Result));
+				Buffer.reset();
+				return false;
+			}
+
+			Buffer.reset(ReturnSize? ReturnSize / sizeof(wchar_t) : grow_exp(Buffer.size(), {}));
 		}
 
-		if (!NT_SUCCESS(Result))
-			return false;
-
-		TargetDevicePath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+		TargetDevicePath = os::detail::make_string_view(LinkTarget);
 		return true;
 	}
 
