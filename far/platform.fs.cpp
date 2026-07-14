@@ -997,7 +997,7 @@ namespace os::fs
 		UNICODE_STRING NameString;
 		if (!FileName.empty())
 		{
-			NameString = os::detail::make_readonly_unicode_string(FileName.data());
+			NameString = os::detail::make_readonly_unicode_string(FileName);
 			pNameString = &NameString;
 		}
 		const auto di = static_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
