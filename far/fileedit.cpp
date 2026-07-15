@@ -184,11 +184,18 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	return false;
 }
 
-static bool dlgBadEditorCodepage(uintptr_t& codepage, bytes_view const ErrorBytes)
+enum class badcp_action
+{
+	show,
+	proceed,
+	cancel
+};
+
+static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, std::variant<wchar_t, bytes> const& Data)
 {
 	DialogBuilder Builder(lng::MWarning);
 
-	const auto [UsupportedData, UsupportedDataMessage] = codepages::UnsupportedDataMessage(bytes{ ErrorBytes });
+	const auto [UsupportedData, UsupportedDataMessage] = codepages::UnsupportedDataMessage(Data);
 
 	string const Messages[]
 	{
@@ -219,15 +226,30 @@ static bool dlgBadEditorCodepage(uintptr_t& codepage, bytes_view const ErrorByte
 	add_line(Messages[2]);
 	add_line(Messages[3]);
 
-	Builder.AddOKCancel();
+	if (IsLoad)
+		Builder.AddOKCancel();
+	else
+	{
+		Builder.AddSeparator();
+		Builder.AddButtons({{ lng::MEditorSaveCPWarnShow, lng::MEditorSave, lng::MCancel }});
+	}
+
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 	Builder.SetId(BadEditorCodePageId);
 
-	if (!Builder.ShowDialog())
-		return false;
+	const auto Result = Builder.ShowDialogEx();
+	const auto CancelButtonId = IsLoad? 1 : 2;
 
-	codepage = cp_val;
-	return true;
+	if (Result < 0 || Result == CancelButtonId)
+		return badcp_action::cancel;
+
+	if (IsLoad || Result == 1)
+	{
+		codepage = cp_val;
+		return badcp_action::proceed;
+	}
+
+	return badcp_action::show;
 }
 
 enum enumSaveFileAs
@@ -1543,7 +1565,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 			{
 				BadConversion = true;
 				uintptr_t cp = m_codepage;
-				if (!dlgBadEditorCodepage(cp, ErrorBytes)) // cancel
+				if (BadCodepageDialog(true, cp, bytes{ ErrorBytes }) == badcp_action::cancel)
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1713,15 +1735,8 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	}
 }
 
-// Eol and Codepage are used ONLY if bSaveAs = true!
-int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t Codepage, bool AddSignature)
+int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t& Codepage, bool AddSignature)
 {
-	if (!bSaveAs)
-	{
-		Eol = eol::none;
-		Codepage=m_editor->GetCodePage();
-	}
-
 	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
 
@@ -1826,10 +1841,15 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 	// 2025-05-31 MZK  And the file is not ephemeral anymore
 	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE | FFILEEDIT_DELETEONLYFILEONCLOSE | FFILEEDIT_EPHEMERAL);
 
-	if (!IsUtfCodePage(Codepage))
+	for (;;)
 	{
+		if (IsUtfCodePage(Codepage))
+			break;
+
 		int LineNumber=-1;
 		encoding::diagnostics Diagnostics;
+
+		const auto CurrentCodepage = Codepage;
 
 		for(auto& Line: m_editor->Lines)
 		{
@@ -1844,24 +1864,12 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 
 			if (Diagnostics.ErrorPosition)
 			{
-				const auto [UsupportedData, UsupportedDataMessage] = codepages::UnsupportedDataMessage(SaveStr[*Diagnostics.ErrorPosition]);
+				const auto Result = BadCodepageDialog(false, Codepage, SaveStr[*Diagnostics.ErrorPosition]);
 
-				//SetMessageHelp(L"EditorDataLostWarning")
-				const auto Result = Message(MSG_WARNING,
-					msg(lng::MWarning),
-					{
-						msg(lng::MUnsupportedCodePageSelectedCodepage),
-						codepages::FormatName(Codepage),
-						far::vformat(msg(lng::MUnsupportedCodePageDoesNotSupport), msg(UsupportedDataMessage)),
-						UsupportedData,
-						msg(lng::MEditorSaveNotRecommended)
-					},
-					{ lng::MEditorSaveCPWarnShow, lng::MEditorSave, lng::MCancel });
-
-				if (Result == message_result::second_button)
+				if (Result == badcp_action::proceed)
 					break;
 
-				if(Result == message_result::first_button)
+				if(Result == badcp_action::show)
 				{
 					m_editor->GoToLine(LineNumber);
 					if(!ValidStr)
@@ -1877,6 +1885,9 @@ int FileEditor::SaveFile(const string_view Name, bool bSaveAs, error_state_ex& E
 				return SAVEFILE_CANCEL;
 			}
 		}
+
+		if (CurrentCodepage == Codepage)
+			break;
 	}
 
 	const string NameForPlugin(Name);
