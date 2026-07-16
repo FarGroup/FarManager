@@ -670,7 +670,7 @@ TEST_CASE("path.extract_root")
 {
 	static const struct
 	{
-		string_view Input, RootDevice, RootDirectory;
+		string_view Input, RootDevice;
 	}
 	Tests[]
 	{
@@ -796,19 +796,19 @@ TEST_CASE("path.PointToName")
 		{L"file"sv,                                                                L"file"sv},
 		{L"path\\"sv,                                                              {}},
 		{L"path\\file"sv,                                                          L"file"sv},
-		// {L"C:"sv,                                                                  {}},
+		{L"C:"sv,                                                                  L"C:"sv}, // !
 		{L"C:\\"sv,                                                                {}},
 		{L"C:\\file"sv,                                                            L"file"sv},
 		{L"C:\\path\\file"sv,                                                      L"file"sv},
-		// {L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 {}},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L"Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv}, // !
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               {}},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"file"sv},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"file"sv},
-		// {L"\\\\server\\share"sv,                                                   {}},
+		{L"\\\\server\\share"sv,                                                   L"share"sv}, // !
 		{L"\\\\server\\share\\"sv,                                                 {}},
 		{L"\\\\server\\share\\file"sv,                                             L"file"sv},
 		{L"\\\\server\\share\\path\\file"sv,                                       L"file"sv},
-		// {L"\\\\?\\UNC\\server\\share"sv,                                           {}},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           L"share"sv}, // !
 		{L"\\\\?\\UNC\\server\\share\\"sv,                                         {}},
 		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"file"sv},
 		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"file"sv},
@@ -946,6 +946,7 @@ TEST_CASE("path.PathStartsWith")
 		{ true,  {},                    {}                },
 		{ false, {},                    L"Q"sv            },
 		{ true,  L"\\"sv,               {}                },
+		{ true,  L"\\"sv,               L"\\"sv           },
 		{ false, L"C:\\path\\file"sv,   {}                },
 		{ true,  L"C:\\path\\file"sv,   L"C:\\path"sv     },
 		{ true,  L"C:\\path\\file"sv,   L"C:\\path\\"sv   },

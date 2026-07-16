@@ -147,7 +147,6 @@ private:
 	void Init(string_view Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
 	bool LoadFile(string_view Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
-	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 	int SaveFile(string_view Name, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t& Codepage, bool AddSignature);
 	bool SaveAction(bool SaveAsIntention);
 	void SetTitle(const string* Title);

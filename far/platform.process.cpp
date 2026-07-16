@@ -392,7 +392,6 @@ namespace os::process
 		}
 
 		return ProcessInfos.size();
-
 	}
 
 	size_t enumerate_locking_processes_nt(const string_view Filename, enumerate_callback const Handler)
