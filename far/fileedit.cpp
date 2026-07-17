@@ -216,7 +216,7 @@ static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, st
 	cp_val = codepage;
 
 	std::vector<DialogBuilderListItem> Items;
-	codepages::instance().FillCodePagesList(Items, true, false, true, false, false);
+	codepages::instance().FillCodePagesList(Items, IsLoad, false, IsLoad, false, false);
 
 	const auto MaxLength = std::ranges::fold_left(Messages, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); });
 
