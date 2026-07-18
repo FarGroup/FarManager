@@ -193,7 +193,22 @@ enum class badcp_action
 
 static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, std::variant<wchar_t, bytes> const& Data)
 {
-	DialogBuilder Builder(lng::MWarning);
+	size_t
+		ComboboxId,
+		ProceedButtonId;
+
+	DialogBuilder Builder(lng::MWarning, {}, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		switch (Msg)
+		{
+		case DN_EDITCHANGE:
+			if (!IsLoad && static_cast<size_t>(Param1) == ComboboxId)
+				Dlg->SendMessage(DM_SETFOCUS, ProceedButtonId, {});
+			break;
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	const auto [UsupportedData, UsupportedDataMessage] = codepages::UnsupportedDataMessage(Data);
 
@@ -221,6 +236,7 @@ static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, st
 	const auto MaxLength = std::ranges::fold_left(Messages, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); });
 
 	Builder.AddComboBox(cp_val, static_cast<int>(std::max(MaxLength, 46uz)), Items);
+	ComboboxId = Builder.GetLastID();
 
 	add_line(Messages[1]);
 	add_line(Messages[2]);
@@ -233,6 +249,8 @@ static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, st
 		Builder.AddSeparator();
 		Builder.AddButtons({{ lng::MEditorSaveCPWarnShow, lng::MEditorSave, lng::MCancel }});
 	}
+
+	ProceedButtonId = Builder.GetLastID() - 1;
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 	Builder.SetId(BadEditorCodePageId);
