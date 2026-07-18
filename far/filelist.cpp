@@ -2940,7 +2940,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		{
 			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
 			if (!IsPopPlugin)
-				InitFSWatcher(false);
+				InitFSWatcher();
 		}
 	};
 
@@ -3616,7 +3616,7 @@ void FileList::OnSortingChange()
 void FileList::InitCurDir(string_view CurDir)
 {
 	Panel::InitCurDir(CurDir);
-	InitFSWatcher(false);
+	InitFSWatcher();
 }
 
 bool FileList::GoToFile(long idxItem)
@@ -5379,8 +5379,6 @@ void FileList::CountDirSize(bool IsRealNames)
 	SortFileList(true);
 	ShowFileList();
 	Parent()->Redraw();
-
-	InitFSWatcher(true);
 }
 
 
@@ -7304,7 +7302,7 @@ void FileList::UpdateIfChanged(bool Changed)
 	Update(UPDATE_KEEP_SELECTION);
 }
 
-void FileList::InitFSWatcher(bool CheckTree)
+void FileList::InitFSWatcher()
 {
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		return;
@@ -7321,7 +7319,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == root_type::volume)
 	{
-		FSWatcher.emplace(m_BackgroundUpdater->event_id(), m_CurDir, CheckTree);
+		FSWatcher.emplace(m_BackgroundUpdater->event_id(), m_CurDir);
 	}
 }
 

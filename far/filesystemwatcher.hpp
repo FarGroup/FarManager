@@ -51,7 +51,7 @@ class FileSystemWatcher
 public:
 	NONCOPYABLE(FileSystemWatcher);
 
-	FileSystemWatcher(string_view EventId, string_view Directory, bool WatchSubtree);
+	FileSystemWatcher(string_view EventId, string_view Directory);
 	~FileSystemWatcher();
 
 	void restart_if_needed();
@@ -66,7 +66,6 @@ private:
 
 	string m_EventId;
 	string m_Directory;
-	bool m_WatchSubtree{};
 	os::critical_section m_CS;
 	os::event m_Event{ os::event::type::manual, os::event::state::nonsignaled };
 	// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw

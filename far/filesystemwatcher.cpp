@@ -208,10 +208,9 @@ static os::handle open(const string_view Directory)
 	return DirectoryHandle;
 }
 
-FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_view Directory, const bool WatchSubtree):
+FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_view Directory):
 	m_EventId(EventId),
-	m_Directory(nt_path(Directory)),
-	m_WatchSubtree(WatchSubtree)
+	m_Directory(nt_path(Directory))
 {
 	m_Overlapped.hEvent = m_Event.native_handle();
 	background_watcher::instance().add(this);
@@ -278,13 +277,13 @@ bool FileSystemWatcher::open_directory()
 
 void FileSystemWatcher::read_async()
 {
-	LOGDEBUG(L"Start monitoring {} {}"sv, m_Directory, m_WatchSubtree? L"tree"sv : L"directory"sv);
+	LOGDEBUG(L"Start monitoring {} directory"sv, m_Directory);
 
 	if (!ReadDirectoryChangesW(
 		m_DirectoryHandle.native_handle(),
 		&Buffer,
 		sizeof(Buffer),
-		m_WatchSubtree,
+		FALSE,
 		FILE_NOTIFY_CHANGE_FILE_NAME |
 		FILE_NOTIFY_CHANGE_DIR_NAME |
 		FILE_NOTIFY_CHANGE_ATTRIBUTES |

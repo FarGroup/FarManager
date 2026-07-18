@@ -310,7 +310,7 @@ private:
 	void ReadSortGroups(bool UpdateFilterCurrentTime = true);
 	int ProcessOneHostFile(const FileListItem* Item);
 	void HighlightBorder(int Level, int ListPos) const;
-	void InitFSWatcher(bool CheckTree);
+	void InitFSWatcher();
 	bool IsColumnDisplayed(function_ref<bool(const column&)> Compare) const;
 	void UpdateHeight();
 	enum direction
