@@ -522,9 +522,18 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_text(const menu_item_ex& Item)
+	string_view get_item_text(const menu_item& Item)
 	{
 		return Item.GetName();
+	}
+
+	int get_item_visual_length(const menu_item& Item, const bool ShowAmpersand)
+	{
+		if (Item.VisualLength != Item.InvalidVisualLength)
+			return Item.VisualLength;
+
+		const auto ItemText{ get_item_text(Item) };
+		return Item.VisualLength = static_cast<int>(ShowAmpersand ? visual_string_length(ItemText) : HiStrlen(ItemText));
 	}
 
 	std::pair<int, int> item_hpos_limits(const int ItemLength, const int TextAreaWidth, const item_hscroll_policy Policy) noexcept
@@ -3540,29 +3549,27 @@ const UUID& VMenu::Id() const
 	return MenuId;
 }
 
-std::vector<string> VMenu::AddHotkeys(std::span<menu_item> const MenuItems)
+void VMenu::DecorateItemsWithHotkeys(std::span<menu_item> const MenuItems, const bool ShowAmpersand)
 {
-	// Does this function properly account for wide characters?
-
-	std::vector<string> Result(MenuItems.size());
-
-	const size_t MaxLength = std::ranges::fold_left(MenuItems, 0uz, [](size_t Value, const auto& i)
+	const auto MaxVisualLength = std::ranges::fold_left(MenuItems, 0, [ShowAmpersand](const auto Acc, const auto& Item)
 	{
-		return std::max(Value, i.GetName().size());
+		return std::max(Acc, get_item_visual_length(Item, ShowAmpersand));
 	});
 
-	for (const auto& [Item, Str]: zip(MenuItems, Result))
+	for (auto& Item : MenuItems)
 	{
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
 			continue;
 
-		const auto Key = KeyToLocalizedText(Item.AccelKey);
-		const auto Hl = HiStrlen(Item.GetName()) != visual_string_length(Item.GetName());
-		Str = fit_to_left(Item.GetName(), MaxLength + (Hl? 2 : 1)) + Key;
-		Item.SetName(Str);
+		// `fit_to_left` always preserves ampersand which occupies exactly one screen cell. In other words,
+		// it accounts for the same number of screen cell as calculated by `visual_string_length`.
+		// If we show ampersand, an item occupies same number of screen cells as `fit_to_left` accounted for.
+		// If we do not show ampersand and an item actually has ampersand, it will occupy one screen cell less than
+		// `fit_to_left` accounted for, so we need to add an extra space to compensate for disappeared ampersand.
+		const auto Hl{ !ShowAmpersand
+			&& get_item_visual_length(Item, false) != static_cast<int>(visual_string_length(get_item_text(Item))) };
+		Item.SetName(fit_to_left(Item.GetName(), MaxVisualLength + (Hl? 2 : 1)) + KeyToLocalizedText(Item.AccelKey));
 	}
-
-	return Result;
 }
 
 int VMenu::GetNaturalMenuWidth() const
@@ -3592,11 +3599,7 @@ int VMenu::CalculateTextAreaWidth() const
 
 int VMenu::GetItemVisualLength(const menu_item_ex& Item) const
 {
-	if (Item.VisualLength != Item.InvalidVisualLength)
-		return Item.VisualLength;
-
-	const auto ItemText{ get_item_text(Item) };
-	return Item.VisualLength = static_cast<int>(CheckFlags(VMENU_SHOWAMPERSAND) ? visual_string_length(ItemText) : HiStrlen(ItemText));
+	return get_item_visual_length(Item, CheckFlags(VMENU_SHOWAMPERSAND));
 }
 
 int VMenu::SafeGetItemAnnotationStart(const menu_item_ex& Item) const
