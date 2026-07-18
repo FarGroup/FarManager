@@ -5775,7 +5775,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (const auto HostFileEditor = GetHostFileEditor())
 				Info->CurState |= HostFileEditor->WasFileSaved()? ECSTATE_MODIFIED : 0;
 			Info->CurState |= m_Flags.Check(FEDITOR_MODIFIED)? 0 : ECSTATE_SAVED;
-			Info->CodePage = GetCodePage();
 
 			if (CheckStructSize(Info, &EditorInfo::ClientArea))
 			{

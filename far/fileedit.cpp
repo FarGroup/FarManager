@@ -193,22 +193,7 @@ enum class badcp_action
 
 static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, std::variant<wchar_t, bytes> const& Data)
 {
-	size_t
-		ComboboxId,
-		ProceedButtonId;
-
-	DialogBuilder Builder(lng::MWarning, {}, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
-	{
-		switch (Msg)
-		{
-		case DN_EDITCHANGE:
-			if (!IsLoad && static_cast<size_t>(Param1) == ComboboxId)
-				Dlg->SendMessage(DM_SETFOCUS, ProceedButtonId, {});
-			break;
-		}
-
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
+	DialogBuilder Builder(lng::MWarning);
 
 	const auto [UsupportedData, UsupportedDataMessage] = codepages::UnsupportedDataMessage(Data);
 
@@ -236,7 +221,7 @@ static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, st
 	const auto MaxLength = std::ranges::fold_left(Messages, 0uz, [](size_t const Value, string const& i){ return std::max(Value, i.size()); });
 
 	Builder.AddComboBox(cp_val, static_cast<int>(std::max(MaxLength, 46uz)), Items);
-	ComboboxId = Builder.GetLastID();
+	const auto ComboboxId = Builder.GetLastID();
 
 	add_line(Messages[1]);
 	add_line(Messages[2]);
@@ -250,10 +235,23 @@ static badcp_action BadCodepageDialog(bool const IsLoad, uintptr_t& codepage, st
 		Builder.AddButtons({{ lng::MEditorSaveCPWarnShow, lng::MEditorSave, lng::MCancel }});
 	}
 
-	ProceedButtonId = Builder.GetLastID() - 1;
+	const auto ProceedButtonId = Builder.GetLastID() - 1;
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 	Builder.SetId(BadEditorCodePageId);
+
+	Builder.SetHandler([&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		switch (Msg)
+		{
+		case DN_EDITCHANGE:
+			if (!IsLoad && static_cast<size_t>(Param1) == ComboboxId)
+				Dlg->SendMessage(DM_SETFOCUS, ProceedButtonId, {});
+			break;
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	const auto Result = Builder.ShowDialogEx();
 	const auto CancelButtonId = IsLoad? 1 : 2;
@@ -2668,15 +2666,16 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 	const auto result = m_editor->EditorControl(Command, Param1, Param2);
 	if (result&&ECTL_GETINFO==Command)
 	{
-		const auto Info=static_cast<EditorInfo*>(Param2);
+		auto& Info = *static_cast<EditorInfo*>(Param2);
 		if (m_bAddSignature)
-			Info->Options|=EOPT_BOM;
+			Info.Options |= EOPT_BOM;
 		if (Global->Opt->EdOpt.ShowTitleBar)
-			Info->Options|=EOPT_SHOWTITLEBAR;
+			Info.Options |= EOPT_SHOWTITLEBAR;
 		if (Global->Opt->EdOpt.ShowKeyBar)
-			Info->Options|=EOPT_SHOWKEYBAR;
-		if (CheckStructSize(Info, &EditorInfo::WindowArea))
-			Info->WindowArea = GetPosition().as<RECT>();
+			Info.Options |= EOPT_SHOWKEYBAR;
+		Info.CodePage = m_codepage;
+		if (CheckStructSize(&Info, &EditorInfo::WindowArea))
+			Info.WindowArea = GetPosition().as<RECT>();
 	}
 	return result;
 }

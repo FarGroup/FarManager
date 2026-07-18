@@ -384,15 +384,7 @@ static void show_confirmation(
 
 	intptr_t FirstHighlighted = 0, LastHighlighted = 0;
 
-	DialogBuilder Builder(TitleId, {}, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
-	{
-		if (HighlightSelected && Msg == DN_CTLCOLORDLGITEM && in_closed_range(FirstHighlighted, Param1, LastHighlighted))
-		{
-			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
-			Colors.Colors[0] = Colors.Colors[1];
-		}
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
+	DialogBuilder Builder(TitleId);
 
 	const auto MaxWidth = ScrX + 1 - 6 * 2;
 
@@ -428,6 +420,16 @@ static void show_confirmation(
 
 	if (DeleteType != delete_type::recycle)
 		Builder.SetDialogMode(DMODE_WARNINGSTYLE);
+
+	Builder.SetHandler([&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (HighlightSelected && Msg == DN_CTLCOLORDLGITEM && in_closed_range(FirstHighlighted, Param1, LastHighlighted))
+		{
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
+			Colors.Colors[0] = Colors.Colors[1];
+		}
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	if (!Builder.ShowDialog())
 		cancel_operation();

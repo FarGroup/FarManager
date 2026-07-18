@@ -795,32 +795,7 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 	intptr_t save_pos = 0, save_cp = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
 
-	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings"sv, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
-	{
-		if (Msg == DN_INITDIALOG && save_pos)
-		{
-			Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(!ViOpt.SavePos));
-			if (ViOpt.SavePos)
-			{
-				ViOpt.SaveCodepage = true;
-			}
-		}
-		else if (Msg == DN_BTNCLICK && save_pos)
-		{
-			if (Param1 == save_pos)
-			{
-				inside = true;
-				Dlg->SendMessage(DM_SETCHECK, save_cp, ToPtr(Param2? true : prev_save_cp_value));
-				Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(!Param2));
-				inside = false;
-			}
-			else if (Param1 == save_cp && !inside)
-			{
-				prev_save_cp_value = (Param2 != nullptr);
-			}
-		}
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
+	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings"sv);
 
 	std::vector<DialogBuilderListItem> Items; //Must live until Dialog end
 
@@ -865,6 +840,40 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 	}
 
 	Builder.AddOKCancel();
+
+	Builder.SetHandler([&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		switch (Msg)
+		{
+		case DN_INITDIALOG:
+			if (save_pos)
+			{
+				Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(!ViOpt.SavePos));
+				if (ViOpt.SavePos)
+					ViOpt.SaveCodepage = true;
+			}
+			break;
+
+		case DN_BTNCLICK:
+			if (save_pos)
+			{
+				if (Param1 == save_pos)
+				{
+					inside = true;
+					Dlg->SendMessage(DM_SETCHECK, save_cp, ToPtr(Param2? true : prev_save_cp_value));
+					Dlg->SendMessage(DM_ENABLE, save_cp, ToPtr(!Param2));
+					inside = false;
+				}
+				else if (Param1 == save_cp && !inside)
+				{
+					prev_save_cp_value = (Param2 != nullptr);
+				}
+			}
+			break;
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	Builder.ShowDialog();
 }
@@ -1447,16 +1456,19 @@ struct FARConfigItem
 	{
 		std::any Context;
 
-		DialogBuilder Builder(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L")"sv), {}, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2) -> intptr_t
-		{
-			return Value->EditProc(Dlg, Msg, Param1, Param2, Context);
-		});
+		DialogBuilder Builder(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L")"sv));
 
 		int Result = 0;
 		if (!Value->Edit(Builder, Context))
 		{
 			Builder.AddSeparator();
 			Builder.AddButtons({{ lng::MOk, lng::MReset, lng::MCancel }});
+
+			Builder.SetHandler([&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+			{
+				return Value->EditProc(Dlg, Msg, Param1, Param2, Context);
+			});
+
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)

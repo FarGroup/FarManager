@@ -356,19 +356,7 @@ static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry,
 
 static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 {
-	DialogBuilder Builder(lng::MSetAttrTitle, {}, [](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
-	{
-		switch (Msg)
-		{
-		case DN_BTNCLICK:
-			// only remove or keep, not set
-			if (Param1 == SA_CHECKBOX_REPARSEPOINT && std::bit_cast<intptr_t>(Param2) == BSTATE_CHECKED)
-				return false;
-
-			break;
-		}
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
+	DialogBuilder Builder(lng::MSetAttrTitle);
 
 	int SavedState[advanced_attributes_count];
 	const auto Flag = DlgParam.Plugin? DIF_DISABLE : DIF_NONE;
@@ -382,6 +370,20 @@ static void AdvancedAttributesDialog(SetAttrDlgParam& DlgParam)
 	}
 
 	Builder.AddOKCancel();
+
+	Builder.SetHandler([](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2) -> intptr_t
+	{
+		switch (Msg)
+		{
+		case DN_BTNCLICK:
+			// only remove or keep, not set
+			if (Param1 == SA_CHECKBOX_REPARSEPOINT && std::bit_cast<intptr_t>(Param2) == BSTATE_CHECKED)
+				return false;
+
+			break;
+		}
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
 
 	if (!Builder.ShowDialog())
 		return;

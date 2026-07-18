@@ -131,7 +131,7 @@ class DialogBuilder
 public:
 	NONCOPYABLE(DialogBuilder);
 
-	explicit DialogBuilder(lng_string Title = L"", string_view HelpTopic = {}, Dialog::dialog_handler handler = {});
+	explicit DialogBuilder(lng_string Title = L"", string_view HelpTopic = {});
 	~DialogBuilder();
 
 	DialogItemEx& AddText(lng_string Text);
@@ -176,6 +176,7 @@ public:
 	void EndSingleBox();
 	void AddEmptyLine();
 	void AddSeparator(lng_string Text = L"");
+	void SetHandler(Dialog::dialog_handler handler);
 	intptr_t ShowDialogEx();
 	bool ShowDialog();
 

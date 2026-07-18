@@ -358,9 +358,8 @@ static intptr_t ItemWidth(const DialogItemEx& Item)
 
 constexpr size_t SupportedSize = 128;
 
-DialogBuilder::DialogBuilder(lng_string const Title, const string_view HelpTopic, Dialog::dialog_handler handler):
-	m_HelpTopic(HelpTopic),
-	m_handler(std::move(handler))
+DialogBuilder::DialogBuilder(lng_string const Title, const string_view HelpTopic):
+	m_HelpTopic(HelpTopic)
 {
 	m_DialogItems.reserve(SupportedSize);
 	m_Bindings.reserve(SupportedSize);
@@ -805,6 +804,11 @@ void DialogBuilder::AddSeparator(lng_string const Text)
 	Separator.Flags = DIF_SEPARATOR;
 	Separator.X1 = -1;
 	Separator.Y1 = Separator.Y2 = m_NextY++;
+}
+
+void DialogBuilder::SetHandler(Dialog::dialog_handler Handler)
+{
+	m_handler = std::move(Handler);
 }
 
 intptr_t DialogBuilder::ShowDialogEx()
