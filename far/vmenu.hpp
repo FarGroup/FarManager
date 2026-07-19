@@ -310,7 +310,7 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem);
-	static std::vector<string> AddHotkeys(std::span<menu_item> MenuItems);
+	static void DecorateItemsWithHotkeys(std::span<menu_item> MenuItems, bool ShowAmpersand = false);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
 	[[nodiscard]] int GetNaturalMenuWidth() const;

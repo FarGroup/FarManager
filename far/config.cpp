@@ -3118,7 +3118,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuChangeDrive), 0, KEY_ALTF1 },
 	};
 	ApplyViewModesNames(LeftMenu);
-	const auto LeftMenuStrings = VMenu::AddHotkeys(LeftMenu);
+	VMenu::DecorateItemsWithHotkeys(LeftMenu);
 
 	menu_item FilesMenu[]
 	{
@@ -3144,7 +3144,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuInvertSelection), 0, KEY_MULTIPLY },
 		{ msg(lng::MMenuRestoreSelection), 0, KEY_CTRLM },
 	};
-	const auto FilesMenuStrings = VMenu::AddHotkeys(FilesMenu);
+	VMenu::DecorateItemsWithHotkeys(FilesMenu);
 
 	menu_item CmdMenu[]
 	{
@@ -3169,7 +3169,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuProcessList), 0, KEY_CTRLW },
 		{ msg(lng::MMenuHotPlugList), 0, 0 },
 	};
-	const auto CmdMenuStrings = VMenu::AddHotkeys(CmdMenu);
+	VMenu::DecorateItemsWithHotkeys(CmdMenu);
 
 	menu_item OptionsMenu[]
 	{
@@ -3201,7 +3201,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ string{}, LIF_SEPARATOR },
 		{ msg(lng::MMenuSaveSetup), 0, KEY_SHIFTF9 },
 	};
-	const auto OptionsMenuStrings = VMenu::AddHotkeys(OptionsMenu);
+	VMenu::DecorateItemsWithHotkeys(OptionsMenu);
 
 	menu_item RightMenu[]
 	{
@@ -3227,7 +3227,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuChangeDriveRight), 0, KEY_ALTF2 },
 	};
 	ApplyViewModesNames(RightMenu);
-	const auto RightMenuStrings = VMenu::AddHotkeys(RightMenu);
+	VMenu::DecorateItemsWithHotkeys(RightMenu);
 
 
 	HMenuData MainMenu[]

@@ -4967,7 +4967,7 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
-		const auto MenuStrings = VMenu::AddHotkeys(SortMenu);
+		VMenu::DecorateItemsWithHotkeys(SortMenu);
 
 		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu);
 		SortModeMenu->SetHelp(L"PanelCmdSort"sv);
