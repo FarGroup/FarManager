@@ -8745,7 +8745,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						}
 					}
 
-					Text(fit_to_left(ColumnData + CurLeftPos, ColumnWidth));
+					Text(pad_right(ColumnData + CurLeftPos, ColumnWidth), ColumnWidth);
 				}
 				else
 				{
@@ -9014,7 +9014,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (pos != string::npos)
 								DizText.remove_suffix(DizText.size() - pos);
 
-							Text(fit_to_left(string(DizText), ColumnWidth));
+							Text(pad_right(string(DizText), ColumnWidth), ColumnWidth);
 							break;
 						}
 
@@ -9048,7 +9048,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							Text(fit_to_left(Owner.substr(Offset + CurLeftPos), ColumnWidth));
+							Text(pad_right(Owner.substr(Offset + CurLeftPos), ColumnWidth), ColumnWidth);
 							break;
 						}
 

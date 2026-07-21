@@ -132,7 +132,7 @@ void KeyBar::DisplayObject()
 			}
 		}
 
-		Text(fit_to_left(Label, LabelWidth));
+		Text(pad_right(Label, LabelWidth), LabelWidth);
 
 		if (i<KEY_COUNT-1)
 		{

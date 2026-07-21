@@ -533,7 +533,7 @@ void TreeList::DisplayTree(bool Fast)
 	if (!m_ListData.empty())
 	{
 		GotoXY(m_Where.left + 1, m_Where.bottom - 1);
-		Text(fit_to_left(m_ListData[m_CurFile].strName, m_Where.width() - 2));
+		Text(pad_right(m_ListData[m_CurFile].strName, m_Where.width() - 2), m_Where.width() - 2);
 	}
 
 	UpdateViewPanel();

@@ -135,7 +135,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(m_Where.bottom - 2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(m_Where.left + 1, m_Where.bottom - 1);
-	Text(fit_to_left(string(PointToName(strCurFileName)), m_Where.width() - 2));
+	Text(pad_right(string(PointToName(strCurFileName)), m_Where.width() - 2), m_Where.width() - 2);
 
 	if (!strCurFileType.empty())
 	{

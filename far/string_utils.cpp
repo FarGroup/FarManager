@@ -335,15 +335,22 @@ std::optional<std::pair<size_t, size_t>> detail::fuzzy_searcher_impl::find_in(co
 	size_t TransformedSize{};
 	std::optional<size_t> CorrectedOffset;
 
-	for (const auto i: std::views::iota(0uz, Haystack.size()))
+	for (size_t i = 0; i != Haystack.size(); ++i)
 	{
-		TransformedSize += normalize(Haystack.substr(i, 1)).size();
+		const auto Tail = Haystack.substr(i);
+		const auto IsSurrogate = is_valid_surrogate_pair(Tail);
+		const auto Chars =  IsSurrogate? 2 : 1;
+
+		TransformedSize += normalize(Tail.substr(0, Chars)).size();
 
 		if (!CorrectedOffset && TransformedSize > Result->first)
 			CorrectedOffset = i;
 
 		if (CorrectedOffset && TransformedSize >= Result->first + Result->second)
-			return { { *CorrectedOffset, i - *CorrectedOffset + 1 } };
+			return { { *CorrectedOffset, i - *CorrectedOffset + Chars } };
+
+		if (IsSurrogate)
+			++i;
 	}
 
 	return Result;

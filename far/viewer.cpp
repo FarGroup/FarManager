@@ -734,7 +734,7 @@ void Viewer::ShowPage(int nMode)
 
 			if (static_cast<long long>(i.Data.size()) > LeftPos)
 			{
-				Text(fit_to_left(i.Data.substr(LeftPos), ScrollbarAdjustedWidth));
+				Text(pad_right(i.Data.substr(LeftPos), ScrollbarAdjustedWidth), ScrollbarAdjustedWidth);
 			}
 			else
 			{
@@ -840,6 +840,7 @@ int Viewer::GetModeDependentLineSize() const
 	return m_DisplayMode == VMT_HEX? m_HexModeBytesPerLine : ScrollbarAdjustedWidth * get_char_size(m_Codepage);
 }
 
+// BUGBUG this is completely broken for full width, need to rework
 int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const
 {
 	OutStr.clear();
@@ -912,7 +913,8 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 	}
 
 	OutStr.resize(ClientWidth, L' ');
-	std::ranges::replace(OutStr, L'\0', ZeroChar);
+	if (ZeroChar)
+		std::ranges::replace(OutStr, L'\0', ZeroChar);
 
 	return tail;
 }
@@ -955,7 +957,7 @@ void Viewer::ShowDump()
 
 		tail = txt_dump({ line.data(), BytesRead }, ScrollbarAdjustedWidth, OutStr, ZeroChar(), tail);
 
-		Text(fit_to_left(OutStr, ObjWidth()));
+		Text(pad_right(OutStr, ObjWidth()), ObjWidth());
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos )
 		{
 			const int bsel = SelectPos > bpos? static_cast<int>(SelectPos - bpos) / CharSize : 0;
@@ -1075,7 +1077,7 @@ void Viewer::ShowHex()
 
 		if (static_cast<int>(OutStr.size()) > HexLeftPos)
 		{
-			Text(fit_to_left(OutStr.substr(HexLeftPos), ObjWidth()));
+			Text(pad_right(OutStr.substr(HexLeftPos), ObjWidth()), ObjWidth());
 		}
 		else
 		{

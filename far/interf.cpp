@@ -1395,7 +1395,10 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 		if (Str[State.StringIndex] == L'\t')
 		{
 			CharStringIncrement = 1;
-			CharVisualIncrement = TabSize - State.VisualIndex % TabSize;
+			// Tab can be rendered as:
+			// - a single character: '○', U+25CB, white circle (viewer dump mode). It can occupy more than one cell.
+			// - up to N spaces, where N is TabSize, adjusted according to the current tab stop. We *assume* that each space occupies exactly one cell.
+			CharVisualIncrement = std::max(CharWidthEnabled? char_width::get('\t') : 1, TabSize - State.VisualIndex % TabSize);
 		}
 		else if (CharWidthEnabled)
 		{

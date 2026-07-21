@@ -57,5 +57,5 @@ void MenuBar::DisplayObject()
 	const auto strMsg = remove_highlight(concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle)));
 	GotoXY(m_Where.left, m_Where.top);
 	SetColor(COL_HMENUTEXT);
-	Text(fit_to_left(strMsg, m_Where.width()));
+	Text(pad_right(strMsg, m_Where.width()), m_Where.width());
 }
