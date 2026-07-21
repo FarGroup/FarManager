@@ -78,43 +78,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/view/enumerate.hpp"
+#include "common/optional_bitset.hpp"
 
 // External:
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
 
-namespace
-{
-	enum class state
-	{
-		unknown,
-		yes,
-		no
-	};
-}
-
-template<size_t N>
-class optional_bitset
-{
-public:
-	void assign(size_t const Bit, bool const Value)
-	{
-		m_Bits.set(Bit, Value);
-		m_Bits.set(N + Bit);
-	}
-
-	state check(size_t const Bit) const
-	{
-		if (!m_Bits[N + Bit])
-			return state::unknown;
-
-		return m_Bits[Bit] ? state::yes : state::no;
-	}
-
-private:
-	std::bitset<N * 2> m_Bits;
-};
+using state = optional_bitset_state;
 
 enum
 {

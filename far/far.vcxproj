@@ -285,6 +285,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\nifty_counter.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
+    <ClInclude Include="common\optional_bitset.hpp" />
     <ClInclude Include="common\placement.hpp" />
     <ClInclude Include="common\polyfills.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
