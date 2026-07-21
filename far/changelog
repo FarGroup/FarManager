@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-07-21 19:57:24+01:00 - build 6723
+
+1. Continue fullwidth-aware rendering.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 MZK 2026-07-18 21:23:19-04:00 - build 6722
 
 1. Clarified `VMenu::AddHotkeys` and renamed it to `DecorateItemsWithHotkeys`
