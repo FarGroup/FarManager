@@ -1,3 +1,12 @@
+shmuel 2026-07-23 00:14:45+03:00 - build 932
+
+1. LuaFAR: added functions far.GetErrorMode and far.SetErrorMode.
+
+2. LuaFAR: added button "Mute" in LF_Error message box.
+
+3. LuaMacro: far.SetErrorMode(0) is called on reloading macros
+   (it enables event error messages if they were disabled).
+
 shmuel 2026-07-12 18:12:46+03:00 - build 931
 
 1. LuaFAR: refactoring.

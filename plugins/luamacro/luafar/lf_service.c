@@ -2130,8 +2130,11 @@ int LF_Message(lua_State* L,
 
 void LF_Error(lua_State *L, const wchar_t* aMsg)
 {
-	PSInfo *Info = GetPluginData(L)->Info;
+	TPluginData *pd = GetPluginData(L);
+	if (pd->Flags & PDF_MUTE_ERRORS_1)
+		return;
 
+	PSInfo *Info = pd->Info;
 	if (Info == NULL)
 		return;
 
@@ -2141,7 +2144,9 @@ void LF_Error(lua_State *L, const wchar_t* aMsg)
 	lua_pushlstring(L, (const char*)L":\n", 4);
 	LF_Gsub(L, aMsg, L"\n\t", L"\n   ");
 	lua_concat(L, 3);
-	LF_Message(L, (const wchar_t*)lua_tostring(L,-1), L"Error", L"OK", "wl", NULL, NULL);
+	if (1 == LF_Message(L, (const wchar_t*)lua_tostring(L,-1), L"Error", L"OK;Mute", "wl", NULL, NULL))
+		pd->Flags |= PDF_MUTE_ERRORS_1;
+
 	lua_pop(L, 1);
 }
 
@@ -6199,6 +6204,28 @@ static int far_GetPluginId(lua_State *L)
 	return 1;
 }
 
+static int far_GetErrorMode(lua_State *L)
+{
+	TPluginData *pd = GetPluginData(L);
+	lua_Integer Mode = (pd->Flags & PDF_MUTE_ERRORS_1) ? 0x01 : 0x00;
+	lua_pushinteger(L, Mode);
+	return 1;
+}
+
+static int far_SetErrorMode(lua_State *L)
+{
+	TPluginData *pd = GetPluginData(L);
+	lua_Integer PrevMode = (pd->Flags & PDF_MUTE_ERRORS_1) ? 0x01 : 0x00;
+	lua_Integer NewMode = luaL_checkinteger(L, 1);
+	if (NewMode & 0x01)
+		pd->Flags |= PDF_MUTE_ERRORS_1;
+	else
+		pd->Flags &= ~PDF_MUTE_ERRORS_1;
+
+	lua_pushinteger(L, PrevMode);
+	return 1;
+}
+
 #define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
 
 const luaL_Reg timer_methods[] =
@@ -6464,6 +6491,7 @@ const luaL_Reg far_funcs[] =
 	PAIR( far, GetCurrentDirectory),
 	PAIR( far, GetDirList),
 	PAIR( far, GetDlgItem),
+	PAIR( far, GetErrorMode),
 	PAIR( far, GetFileOwner),
 	PAIR( far, GetLuafarVersion),
 	PAIR( far, GetMsg),
@@ -6511,6 +6539,7 @@ const luaL_Reg far_funcs[] =
 	PAIR( far, SaveScreen),
 	PAIR( far, SendDlgMessage),
 	PAIR( far, SetDlgItem),
+	PAIR( far, SetErrorMode),
 	PAIR( far, Show),
 	PAIR( far, ShowHelp),
 	PAIR( far, SubscribeDialogDrawEvents),

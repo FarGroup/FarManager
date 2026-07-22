@@ -368,11 +368,13 @@ node lv=2 id=557 art=557 nm=far.Host.SetDirectory
 node lv=1 id=83 art=83 nm=Other functions
 node lv=2 id=185 art=185 nm=far.CPluginStartupInfo
 node lv=2 id=544 art=544 nm=far.FileTimeResolution
+node lv=2 id=666 art=666 nm=far.GetErrorMode
 node lv=2 id=549 art=549 nm=far.GetLuafarVersion
 node lv=2 id=597 art=597 nm=far.GetPluginId
 node lv=2 id=280 art=280 nm=far.MakeMenuItems
 node lv=2 id=68 art=68 nm=far.PluginStartupInfo
 node lv=2 id=527 art=527 nm=far.RunDefaultScript
+node lv=2 id=667 art=667 nm=far.SetErrorMode
 node lv=2 id=282 art=282 nm=far.Show
 node lv=2 id=346 art=346 nm=far.Timer
 node lv=3 id=352 art=352 nm=Properties
@@ -10860,5 +10862,33 @@ article id=664 dt=Text ctime=3983596118 mtime=3983598908 nm=DM_USER
 article id=665 dt=Text ctime=3990099408 mtime=3990099456 nm=far.Flavor
 #_far.Flavor is a string "far3".
 #_It is intended for use in scripts portable between far3/far2l/far2m.
+#_
+
+article id=666 dt=Text ctime=3993926414 mtime=3993927097 nm=far.GetErrorMode
+#_Mode = far.GetErrorMode()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  Mode: integer
+#_
+#_**See also:**
+#_  `far.SetErrorMode`
+#_
+
+article id=667 dt=Text ctime=3993926441 mtime=3993927212 nm=far.SetErrorMode
+#_PrevMode = far.SetErrorMode(Mode)
+#_
+#_**Parameters:**
+#_  Mode     : integer
+#_             bit0 = 0: enable event handlers error output
+#_             bit0 = 1: disable event handlers error output
+#_
+#_**Returns:**
+#_  PrevMode : integer, previous mode
+#_
+#_**See also:**
+#_  `far.GetErrorMode`
 #_
 
