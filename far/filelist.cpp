@@ -4168,7 +4168,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 	const auto DataLock = lock_data();
 	auto& m_ListData = *DataLock;
 
-	const auto& strCurName = m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames);
+	const auto& strCurName = PointToName(m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames));
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
@@ -4274,7 +4274,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 				Mode != SELECT_INVERT &&
 				Mode != SELECT_INVERTALL &&
 				Mode != SELECT_INVERTFILES &&
-				!(bUseFilter? Filter.FileInFilter(i) : FileMask.check(i.AlternateOrNormal(m_ShowShortNames)))
+				!(bUseFilter? Filter.FileInFilter(i) : FileMask.check(PointToName(i.AlternateOrNormal(m_ShowShortNames))))
 			)
 				continue;
 
