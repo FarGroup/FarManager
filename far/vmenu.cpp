@@ -3551,24 +3551,26 @@ const UUID& VMenu::Id() const
 
 void VMenu::DecorateItemsWithHotkeys(std::span<menu_item> const MenuItems, const bool ShowAmpersand)
 {
-	const auto MaxVisualLength = std::ranges::fold_left(MenuItems, 0, [ShowAmpersand](const auto Acc, const auto& Item)
-	{
-		return std::max(Acc, get_item_visual_length(Item, ShowAmpersand));
-	});
+	if (MenuItems.empty()) return;
 
-	for (auto& Item : MenuItems)
-	{
-		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
-			continue;
+	const auto VisualLengths{ MenuItems
+		| std::views::transform([ShowAmpersand](const auto& Item) {
+			return ShowAmpersand ? visual_string_length(Item.GetName()) : HiStrlen(Item.GetName()); })
+		| std::ranges::to<std::vector>()
+	};
 
-		// `fit_to_left` always preserves ampersand which occupies exactly one screen cell. In other words,
-		// it accounts for the same number of screen cell as calculated by `visual_string_length`.
-		// If we show ampersand, an item occupies same number of screen cells as `fit_to_left` accounted for.
-		// If we do not show ampersand and an item actually has ampersand, it will occupy one screen cell less than
-		// `fit_to_left` accounted for, so we need to add an extra space to compensate for disappeared ampersand.
-		const auto Hl{ !ShowAmpersand
-			&& get_item_visual_length(Item, false) != static_cast<int>(visual_string_length(get_item_text(Item))) };
-		Item.SetName(fit_to_left(Item.GetName(), MaxVisualLength + (Hl? 2 : 1)) + KeyToLocalizedText(Item.AccelKey));
+	const auto MaxVisualLength{ std::ranges::max(VisualLengths) };
+	const string Spaces(MaxVisualLength + 1, L' ');
+	const string_view Padding{ Spaces };
+
+	for (auto& [Item, VisualLength] : zip(MenuItems, VisualLengths))
+	{
+		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey) continue;
+
+		const auto AccelKeyText{ KeyToLocalizedText(Item.AccelKey) };
+		if (AccelKeyText.empty()) continue;
+
+		Item.SetName(concat(Item.GetName(), Padding.substr(0, Padding.size() - VisualLength), AccelKeyText));
 	}
 }
 
