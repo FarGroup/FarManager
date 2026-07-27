@@ -1171,13 +1171,13 @@ void Options::SetFilePanelModes()
 
 		for (const auto i: std::views::iota(0uz, ViewSettings.size()))
 		{
-			ModeListMenu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
-			if (ModeListMenu[i].GetName().empty())
-				ModeListMenu[i].SetName(msg(PredefinedNames[i]));
+			if (ModeListMenu[i].Name.empty())
+				ModeListMenu[i].Name = msg(PredefinedNames[i]);
 		}
 
 		if (MenuCount > predefined_panel_modes_count)
@@ -1190,7 +1190,7 @@ void Options::SetFilePanelModes()
 		bool AddNewMode = false;
 		bool DeleteMode = false;
 
-		ModeListMenu[CurMode].SetSelect(true);
+		ModeListMenu[CurMode].set_select(true);
 		{
 			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), ModeListMenu, ScrY - 4);
 			ModeList->SetPosition({ -1, -1, 0, 0 });
@@ -1310,7 +1310,7 @@ void Options::SetFilePanelModes()
 
 		auto ModeDlg = MakeDialogItems<MD_COUNT>(
 		{
-			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].GetName(), },
+			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].Name, },
 			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
 			{ DI_EDIT,      {{5,  3 }, {70, 3 }}, DIF_FOCUS, },
 			{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeTypes), },
@@ -3062,23 +3062,23 @@ static void SetLeftRightMenuChecks(menu_item_data* pMenu, bool bLeft)
 	switch (pPanel->GetType())
 	{
 	case panel_type::FILE_PANEL:
-		pMenu[RealModeToDisplay(pPanel->GetViewMode())].SetCheck();
+		pMenu[RealModeToDisplay(pPanel->GetViewMode())].set_check(true);
 		break;
 
 	case panel_type::INFO_PANEL:
-		pMenu[MENU_PANEL_INFOPANEL].SetCheck();
+		pMenu[MENU_PANEL_INFOPANEL].set_check(true);
 		break;
 
 	case panel_type::TREE_PANEL:
-		pMenu[MENU_PANEL_TREEPANEL].SetCheck();
+		pMenu[MENU_PANEL_TREEPANEL].set_check(true);
 		break;
 
 	case panel_type::QVIEW_PANEL:
-		pMenu[MENU_PANEL_QUICKVIEW].SetCheck();
+		pMenu[MENU_PANEL_QUICKVIEW].set_check(true);
 		break;
 	}
 
-	pPanel->GetShowShortNamesMode()? pMenu[MENU_PANEL_LONGNAMES].ClearCheck() : pMenu[MENU_PANEL_LONGNAMES].SetCheck();
+	pMenu[MENU_PANEL_LONGNAMES].set_check(!pPanel->GetShowShortNamesMode());
 }
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
@@ -3088,7 +3088,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
+				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 	};
 
@@ -3262,8 +3262,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 			MainMenu[0].Selected = false;
 			MainMenu[HItemToShow].Selected = true;
-			MainMenu[HItemToShow].SubMenu[0].SetSelect(false);
-			MainMenu[HItemToShow].SubMenu[LastVItem].SetSelect(true);
+			MainMenu[HItemToShow].SubMenu[0].set_select(false);
+			MainMenu[HItemToShow].SubMenu[LastVItem].set_select(true);
 			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu->ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else

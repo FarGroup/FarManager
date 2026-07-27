@@ -4714,7 +4714,7 @@ static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> cons
 	for (const auto& i: SortModes)
 	{
 		auto& Item = AvailableSortModesMenuItems[i.MenuPosition];
-		Item.SetName(msg(i.Label));
+		Item.Name = msg(i.Label);
 
 		if (std::ranges::any_of(SortLayers, [&](std::pair<panel_sort, sort_order> const& Layer) { return Layer.first == static_cast<panel_sort>(&i - SortModes); }))
 		{
@@ -4802,8 +4802,8 @@ static void edit_sort_layers(int MenuPos)
 				{
 					const auto NewSortModeIndex = std::ranges::find(SortModes, Result, &sort_mode::MenuPosition) - SortModes;
 					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
-					SortLayersMenu->at(Pos).SetName(msg(SortModes[NewSortModeIndex].Label));
-					SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
+					SortLayersMenu->at(Pos).set_name(msg(SortModes[NewSortModeIndex].Label));
+					SortLayersMenu->at(Pos).set_check(order_indicator(Order));
 					SortLayers[Pos] = { static_cast<panel_sort>(NewSortModeIndex), Order };
 					SortLayersMenu->Redraw();
 				}
@@ -4884,7 +4884,7 @@ void FileList::SelectSortMode()
 	{
 		auto& Item = SortMenu[i.MenuPosition];
 
-		Item.SetName(msg(i.Label));
+		Item.Name = msg(i.Label);
 		Item.AccelKey = i.MenuKey;
 	}
 
@@ -4917,8 +4917,8 @@ void FileList::SelectSortMode()
 	const auto SetCheckAndSelect = [&](size_t const Index)
 	{
 		auto& MenuItem = SortMenu[Index];
-		MenuItem.SetCustomCheck(order_indicator(m_ReverseSortOrder? sort_order::descend : sort_order::ascend));
-		MenuItem.SetSelect(true);
+		MenuItem.set_check(order_indicator(m_ReverseSortOrder? sort_order::descend : sort_order::ascend));
+		MenuItem.set_select(true);
 	};
 
 	if (m_SortMode < panel_sort::COUNT)

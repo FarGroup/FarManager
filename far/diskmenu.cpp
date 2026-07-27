@@ -218,7 +218,7 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 		if (Pos > DiskCount && !SetSelected && DiskCount + static_cast<int>(index) + 1 == Pos)
 		{
 			SetSelected = true;
-			MenuItem.SetSelect(true);
+			MenuItem.set_select(true);
 		}
 
 		ChDisk.AddItem(MenuItem);
@@ -714,7 +714,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					const auto DiskNumber = os::fs::drive::get_number(i.RootDirectory[L"\\\\?\\"sv.size()]);
 
-					ChDiskItem.SetSelect(static_cast<int>(DiskNumber) == Pos);
+					ChDiskItem.set_select(static_cast<int>(DiskNumber) == Pos);
 
 					if (!SetSelected)
 						SetSelected = (static_cast<int>(DiskNumber) == Pos);
@@ -724,7 +724,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (Pos < static_cast<int>(Items.size()))
 				{
-					ChDiskItem.SetSelect(MenuLine == Pos);
+					ChDiskItem.set_select(MenuLine == Pos);
 
 					if (!SetSelected)
 						SetSelected = (MenuLine == Pos);
@@ -762,7 +762,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			inplace::escape_ampersands(ItemName);
 			ItemName.insert(0, 1, L'&');
 
-			ChDiskItem.SetName(std::move(ItemName));
+			ChDiskItem.set_name(std::move(ItemName));
 			ChDiskItem.ComplexUserData = item;
 			ChDisk->AddItem(ChDiskItem);
 
@@ -927,7 +927,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					[&](plugin_item const& item)
 					{
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Uuid, hotkey_type::drive_menu, trim(string_view{ ChDisk->at(SelPos).GetName() }.substr(3))))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Uuid, hotkey_type::drive_menu, trim(string_view{ ChDisk->at(SelPos).get_name() }.substr(3))))
 							RetCode = SelPos;
 					},
 					[](disk_item const& item)

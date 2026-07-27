@@ -434,7 +434,7 @@ void codepages::SetFavorite(bool State)
 			DeleteFavorite(codePage);
 
 		// Создаём новый элемент меню
-		menu_item_ex newItem{ CodePagesMenu->current().GetName() };
+		menu_item_ex newItem{ CodePagesMenu->current().get_name() };
 		newItem.SimpleUserData = codePage;
 		// Сохраняем позицию курсора
 		size_t position = CodePagesMenu->GetSelectPos();
@@ -614,7 +614,7 @@ void codepages::EditCodePageName()
 	const auto Position = CodePagesMenu->GetSelectPos();
 	if (IsPositionStandard(Position))
 		return;
-	string_view CodePageName = CodePagesMenu->at(Position).GetName();
+	string_view CodePageName = CodePagesMenu->at(Position).get_name();
 	const auto BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
 	if (BoxPosition == string_view::npos)
 		return;

@@ -1729,9 +1729,9 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			const menu_item_data ModeListMenu[]
 			{
-				{ msg(lng::MViewF4Text), 0 },
-				{ msg(lng::MViewF4), 0 },
-				{ msg(lng::MViewF4Dump), 0},
+				{ msg(lng::MViewF4Text), {} },
+				{ msg(lng::MViewF4), {} },
+				{ msg(lng::MViewF4Dump), {} },
 			};
 			int MenuResult;
 			{

@@ -86,8 +86,64 @@ enum VMENU_FLAGS
 	VMENU_COMBOBOXEVENTMOUSE     = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
-struct menu_item_data
+namespace detail
 {
+	struct menu_item_functions
+	{
+	private:
+		void change_flags(this auto& Self, const bool Value, const LISTITEMFLAGS Bits) noexcept { flags::change(Self.Flags, Bits, Value); }
+
+	public:
+		void set_select(this auto& Self, const bool Value) noexcept { Self.change_flags(Value, LIF_SELECTED); }
+		void set_disable(this auto& Self, const bool Value) noexcept { Self.change_flags(Value, LIF_DISABLE); }
+		void set_grayed(this auto& Self, const bool Value) noexcept { Self.change_flags(Value, LIF_GRAYED); }
+		void set_check(this auto& Self, const bool Value) noexcept { Self.change_flags(false, 0xFFFF); Self.change_flags(Value, LIF_CHECKED); }
+		void set_check(this auto& Self, const wchar_t Char) noexcept { Self.change_flags(false, 0xFFFF); Self.change_flags(true, LIF_CHECKED | Char); }
+	};
+}
+
+struct menu_item_data : detail::menu_item_functions
+{
+	menu_item_data() = default;
+
+	menu_item_data(string Name_, LISTITEMFLAGS Flags_, DWORD AccelKey_ = {})
+		: Name{ std::move(Name_) }, Flags{ Flags_ }, AccelKey{ AccelKey_ }
+	{}
+
+	string Name;
+	LISTITEMFLAGS Flags{};
+	DWORD AccelKey{};
+};
+
+struct menu_item_ex : detail::menu_item_functions
+{
+	menu_item_ex() = default;
+	NONCOPYABLE(menu_item_ex);
+	MOVABLE(menu_item_ex);
+
+	explicit menu_item_ex(string Name_, LISTITEMFLAGS Flags_ = {}, DWORD AccelKey_ = {})
+		: Name{ std::move(Name_) }, Flags{ Flags_ }, AccelKey{ AccelKey_ }
+	{}
+
+	explicit menu_item_ex(const menu_item_data& Data)
+		: menu_item_ex{ Data.Name, Data.Flags, Data.AccelKey }
+	{}
+
+	explicit menu_item_ex(LISTITEMFLAGS Flags_)
+		: menu_item_ex{ string{}, Flags_ }
+	{}
+
+	const string& get_name() const noexcept
+	{
+		return Name;
+	}
+
+	void set_name(string Name_) noexcept
+	{
+		Name = Name_;
+		VisualLength = InvalidVisualLength;
+	}
+
 private:
 	string Name;
 public:
@@ -95,67 +151,6 @@ public:
 	DWORD AccelKey{};
 	mutable int VisualLength{ InvalidVisualLength };
 	static constexpr auto InvalidVisualLength{ std::numeric_limits<decltype(VisualLength)>::min() };
-
-	menu_item_data() = default;
-
-	menu_item_data(string Name_, LISTITEMFLAGS Flags_, DWORD AccelKey_ = {})
-		: Name{ std::move(Name_) }, Flags{ Flags_ }, AccelKey{ AccelKey_ }
-	{}
-
-	const string& GetName() const noexcept
-	{
-		return Name;
-	}
-
-	void SetName(string Name_) noexcept
-	{
-		Name = Name_;
-		VisualLength = InvalidVisualLength;
-	}
-
-	unsigned long long SetCheck()
-	{
-		Flags &= ~0xFFFF;
-		Flags |= LIF_CHECKED;
-		return Flags;
-	}
-
-	unsigned long long SetCustomCheck(wchar_t Char)
-	{
-		Flags &= ~0xFFFF;
-		Flags |= LIF_CHECKED | Char;
-		return Flags;
-	}
-
-	unsigned long long ClearCheck()
-	{
-		Flags &= ~0xFFFF;
-		Flags &= ~LIF_CHECKED;
-		return Flags;
-	}
-
-	LISTITEMFLAGS SetSelect(bool Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	LISTITEMFLAGS SetDisable(bool Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
-	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
-};
-
-struct menu_item_ex: menu_item_data
-{
-	menu_item_ex() = default;
-	NONCOPYABLE(menu_item_ex);
-	MOVABLE(menu_item_ex);
-
-	explicit menu_item_ex(const menu_item_data& Item)
-		: menu_item_data{ Item }
-	{}
-
-	explicit menu_item_ex(LISTITEMFLAGS Flags_)
-		: menu_item_data{ string{}, Flags_ }
-	{}
-
-	explicit menu_item_ex(string Name_, LISTITEMFLAGS Flags_ = {})
-		: menu_item_data{ std::move(Name_), Flags_ }
-	{}
 
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};

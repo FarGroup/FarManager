@@ -522,12 +522,12 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_text(const menu_item_data& Item)
+	string_view get_item_text(const menu_item_ex& Item)
 	{
-		return Item.GetName();
+		return Item.get_name();
 	}
 
-	int get_item_visual_length(const menu_item_data& Item, const bool ShowAmpersand)
+	int get_item_visual_length(const menu_item_ex& Item, const bool ShowAmpersand)
 	{
 		if (Item.VisualLength != Item.InvalidVisualLength)
 			return Item.VisualLength;
@@ -871,22 +871,22 @@ void VMenu::UpdateSelectPos()
 	{
 		if (!item_can_have_focus(Item))
 		{
-			Item.SetSelect(false);
+			Item.set_select(false);
 		}
 		else
 		{
 			if (SelectPos == -1)
 			{
-				Item.SetSelect(true);
+				Item.set_select(true);
 				SelectPos = static_cast<int>(Index);
 			}
 			else if (SelectPos != static_cast<int>(Index))
 			{
-				Item.SetSelect(false);
+				Item.set_select(false);
 			}
 			else
 			{
-				Item.SetSelect(true);
+				Item.set_select(true);
 			}
 		}
 	}
@@ -981,7 +981,7 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 		Item.ComplexUserData = {};
 	}
 
-	Item.SetName(NullToEmpty(NewItem->Item.Text));
+	Item.set_name(NullToEmpty(NewItem->Item.Text));
 	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
 	Item.SimpleUserData = NewItem->Item.UserData;
 
@@ -1089,7 +1089,7 @@ void VMenu::SetCheck(int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].SetCheck();
+	Items[ItemPos].set_check(true);
 }
 
 void VMenu::SetCustomCheck(wchar_t Char, int Position)
@@ -1098,7 +1098,7 @@ void VMenu::SetCustomCheck(wchar_t Char, int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].SetCustomCheck(Char);
+	Items[ItemPos].set_check(Char);
 }
 
 void VMenu::ClearCheck(int Position)
@@ -1107,7 +1107,7 @@ void VMenu::ClearCheck(int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].ClearCheck();
+	Items[ItemPos].set_check(false);
 }
 
 void VMenu::RestoreFilteredItems()
@@ -1396,7 +1396,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			const auto& menuEx = at(iParam);
 			if (OpCode == MCODE_F_MENU_GETVALUE)
 			{
-				*static_cast<string*>(vParam) = menuEx.GetName();
+				*static_cast<string*>(vParam) = menuEx.get_name();
 				return 1;
 			}
 			else
@@ -1433,7 +1433,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			if (!HasVisible())
 				return 0;
-			*static_cast<string*>(vParam) = at(SelectPos).GetName();
+			*static_cast<string*>(vParam) = at(SelectPos).get_name();
 			return 1;
 		}
 
@@ -2831,11 +2831,11 @@ void VMenu::ConnectSeparator(const size_t ItemIndex, string& separator, const in
 		const auto AnyPrev = ItemIndex > 0 && Items[ItemIndex - 1].HorizontalPosition == 0;
 		const auto AnyNext = ItemIndex < Items.size() - 1 && Items[ItemIndex + 1].HorizontalPosition == 0;
 
-		const auto PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[ItemIndex - 1].GetName(), I) - I : 0;
-		const auto NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[ItemIndex + 1].GetName(), I) - I : 0;
+		const auto PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[ItemIndex - 1].get_name(), I) - I : 0;
+		const auto NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[ItemIndex + 1].get_name(), I) - I : 0;
 
-		wchar_t PrevItem = (AnyPrev && Items[ItemIndex - 1].GetName().size() > I + PCorrection)? Items[ItemIndex - 1].GetName()[I + PCorrection] : 0;
-		wchar_t NextItem = (AnyNext && Items[ItemIndex + 1].GetName().size() > I + NCorrection)? Items[ItemIndex + 1].GetName()[I + NCorrection] : 0;
+		wchar_t PrevItem = (AnyPrev && Items[ItemIndex - 1].get_name().size() > I + PCorrection)? Items[ItemIndex - 1].get_name()[I + PCorrection] : 0;
+		wchar_t NextItem = (AnyNext && Items[ItemIndex + 1].get_name().size() > I + NCorrection)? Items[ItemIndex + 1].get_name()[I + NCorrection] : 0;
 
 		if (!PrevItem && !NextItem)
 			break;
@@ -2856,15 +2856,15 @@ void VMenu::ConnectSeparator(const size_t ItemIndex, string& separator, const in
 
 void VMenu::ApplySeparatorName(const menu_item_ex& Item, string& separator) const
 {
-	if (Item.GetName().empty() || separator.size() <= 3)
+	if (Item.get_name().empty() || separator.size() <= 3)
 		return;
 
 	// Bug! The code below does not account for wide characters
-	auto NameWidth{ std::min(Item.GetName().size(), separator.size() - 2) };
+	auto NameWidth{ std::min(Item.get_name().size(), separator.size() - 2) };
 	auto NamePos{ (separator.size() - NameWidth) / 2 };
 
 	separator[NamePos - 1] = L' ';
-	separator.replace(NamePos, NameWidth, fit_to_left(Item.GetName(), NameWidth));
+	separator.replace(NamePos, NameWidth, fit_to_left(Item.get_name(), NameWidth));
 	separator[NamePos + NameWidth] = L' ';
 }
 
@@ -3447,7 +3447,7 @@ FarListItem *VMenu::MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FIt
 	{
 		*FItem = {};
 		FItem->Flags = MItem->Flags;
-		FItem->Text = MItem->GetName().c_str();
+		FItem->Text = MItem->get_name().c_str();
 		FItem->UserData = MItem->SimpleUserData;
 		return FItem;
 	}
@@ -3527,7 +3527,7 @@ bool VMenu::Pack()
 			if (!(Items[FirstIndex].Flags & LIF_SEPARATOR) && !(Items[LastIndex].Flags & LIF_SEPARATOR))
 			{
 				// Not using get_item_text because... just in case
-				if (Items[FirstIndex].GetName() == Items[LastIndex].GetName())
+				if (Items[FirstIndex].get_name() == Items[LastIndex].get_name())
 				{
 					DeleteItem(static_cast<int>(LastIndex));
 				}
@@ -3555,7 +3555,7 @@ void VMenu::DecorateItemsWithHotkeys(std::span<menu_item_data> const Data, const
 
 	const auto VisualLengths{ Data
 		| std::views::transform([ShowAmpersand](const auto& Item) {
-			return ShowAmpersand ? visual_string_length(Item.GetName()) : HiStrlen(Item.GetName()); })
+			return ShowAmpersand ? visual_string_length(Item.Name) : HiStrlen(Item.Name); })
 		| std::ranges::to<std::vector>()
 	};
 
@@ -3570,7 +3570,7 @@ void VMenu::DecorateItemsWithHotkeys(std::span<menu_item_data> const Data, const
 		const auto AccelKeyText{ KeyToLocalizedText(Item.AccelKey) };
 		if (AccelKeyText.empty()) continue;
 
-		Item.SetName(concat(Item.GetName(), Padding.substr(0, Padding.size() - VisualLength), AccelKeyText));
+		append(Item.Name, Padding.substr(0, Padding.size() - VisualLength), AccelKeyText);
 	}
 }
 

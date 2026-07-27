@@ -214,7 +214,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 			size+=ListBoxSize*sizeof(FarListItem);
 			for (const auto i: std::views::iota(0uz, ListBoxSize))
 			{
-				size += (ListBox->at(i).GetName().size() + 1) * sizeof(wchar_t);
+				size += (ListBox->at(i).get_name().size() + 1) * sizeof(wchar_t);
 			}
 		}
 	}
@@ -246,7 +246,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 						auto& item = ListBox->at(ii);
 						listItems[ii].Flags = item.Flags;
 						listItems[ii].Text = text;
-						text += item.GetName().copy(text, item.GetName().npos);
+						text += item.get_name().copy(text, item.get_name().npos);
 						*text++ = {};
 						listItems[ii].UserData = item.SimpleUserData;
 						listItems[ii].Reserved = 0;
@@ -3894,11 +3894,11 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 
 		if (CurItem.Flags & DIF_LISTNOAMPERSAND)
 		{
-			strStr = remove_highlight(ItemPtr.GetName());
+			strStr = remove_highlight(ItemPtr.get_name());
 			EditLine.SetString(strStr);
 		}
 		else
-			EditLine.SetString(ItemPtr.GetName());
+			EditLine.SetString(ItemPtr.get_name());
 
 		EditLine.SetLeftPos(0);
 		Redraw();
@@ -4903,7 +4903,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								auto& Item = ListItems->Item;
 								Item = {};
 								Item.Flags=ListMenuItem.Flags;
-								Item.Text=ListMenuItem.GetName().c_str();
+								Item.Text=ListMenuItem.get_name().c_str();
 								Item.UserData = ListMenuItem.SimpleUserData;
 								Item.Reserved = 0;
 
@@ -5050,9 +5050,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
 							const auto Edit = static_cast<DlgEdit*>(CurItem.ObjPtr);
 							if (CurItem.Flags & DIF_LISTNOAMPERSAND)
-								Edit->SetHiString(ListMenuItem.GetName());
+								Edit->SetHiString(ListMenuItem.get_name());
 							else
-								Edit->SetString(ListMenuItem.GetName());
+								Edit->SetString(ListMenuItem.get_name());
 							Edit->RemoveSelection();
 						}
 					}
@@ -5529,8 +5529,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (CurItem.ListPtr->GetShowItemCount())
 						{
 							const auto& ListMenuItem = CurItem.ListPtr->current();
-							Ptr = ListMenuItem.GetName().data();
-							Len = ListMenuItem.GetName().size();
+							Ptr = ListMenuItem.get_name().data();
+							Len = ListMenuItem.get_name().size();
 						}
 						InitItemData();
 						break;
@@ -5579,7 +5579,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					Len=0;
 					if (CurItem.ListPtr->GetShowItemCount())
 					{
-						Len = CurItem.ListPtr->current().GetName().size();
+						Len = CurItem.ListPtr->current().get_name().size();
 					}
 					break;
 
