@@ -616,24 +616,24 @@ long long InfoList::VMProcess(int OpCode, void* vParam, long long iParam)
 
 void InfoList::SelectShowMode()
 {
-	menu_item ShowModeMenuItem[]
+	menu_item_data ShowModeMenuItem[]
 	{
 		{ msg(lng::MMenuInfoShowModeDisk), LIF_SELECTED },
-		{ msg(lng::MMenuInfoShowModeMemory), 0 },
-		{ msg(lng::MMenuInfoShowModeDirDiz), 0 },
-		{ msg(lng::MMenuInfoShowModePluginDiz), 0 },
-		{ msg(lng::MMenuInfoShowModePower), 0 },
+		{ msg(lng::MMenuInfoShowModeMemory) },
+		{ msg(lng::MMenuInfoShowModeDirDiz) },
+		{ msg(lng::MMenuInfoShowModePluginDiz) },
+		{ msg(lng::MMenuInfoShowModePower) },
 	};
 
 	for (const auto& [i, index]: enumerate(SectionState))
 	{
-		ShowModeMenuItem[index].SetCustomCheck(i.Show? L'+' : L'-');
+		set_check(ShowModeMenuItem[index], i.Show? L'+' : L'-');
 	}
 
 	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{
-		ShowModeMenuItem[ILSS_POWERSTATUS].SetDisable(true);
-		ShowModeMenuItem[ILSS_POWERSTATUS].SetCustomCheck(L' ');
+		set_disable(ShowModeMenuItem[ILSS_POWERSTATUS], true);
+		set_check(ShowModeMenuItem[ILSS_POWERSTATUS], L' ');
 	}
 
 	int ShowCode=-1;

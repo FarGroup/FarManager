@@ -169,7 +169,11 @@ multifilter::multifilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-static void ParseAndAddMasks(std::map<string, int, string_sort::ordinal::less_icase_t>& Extensions, string_view const FileName, os::fs::attributes const FileAttr, int const Check)
+static void ParseAndAddMasks(
+	std::map<string, wchar_t, string_sort::ordinal::less_icase_t>& Extensions,
+	string_view const FileName,
+	os::fs::attributes const FileAttr,
+	const wchar_t Check = {})
 {
 	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
 		return;
@@ -214,13 +218,13 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 	{
 		menu_item_ex ListItem{ MenuString(&i) };
 		if (const auto Check = GetCheck(Area, i))
-			ListItem.SetCustomCheck(Check);
+			set_check(ListItem, Check);
 		FilterList->AddItem(ListItem);
 	}
 
 	if (Area != filter_area::custom)
 	{
-		std::map<string, int, string_sort::ordinal::less_icase_t> Extensions;
+		std::map<string, wchar_t, string_sort::ordinal::less_icase_t> Extensions;
 
 		{
 			for (const auto& [Key, CurFilterData]: TempFilterData())
@@ -241,7 +245,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 			menu_item_ex ListItem{ MenuString(FoldersFilter, false, L'0') };
 
 			if (const auto Check = GetCheck(Area, *FoldersFilter))
-				ListItem.SetCustomCheck(Check);
+				set_check(ListItem, Check);
 
 			FilterList->AddItem(ListItem);
 		}
@@ -251,13 +255,13 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 			os::fs::attributes FileAttr;
 
 			for (int i = 0; HostPanel->GetFileName(strFileName, i, FileAttr); i++)
-				ParseAndAddMasks(Extensions, strFileName, FileAttr, 0);
+				ParseAndAddMasks(Extensions, strFileName, FileAttr);
 
 			if (const auto* FilteredExtensions = HostPanel->GetFilteredExtensions())
 			{
 				for (const auto& i: *FilteredExtensions)
 				{
-					ParseAndAddMasks(Extensions, i, 0, 0);
+					ParseAndAddMasks(Extensions, i, 0);
 				}
 			}
 		}
@@ -266,7 +270,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 		for (const auto& [Ext, Mark]: Extensions)
 		{
 			menu_item_ex ListItem{ MenuString({}, false, h, true, Ext, msg(lng::MPanelFileType)) };
-			Mark? ListItem.SetCustomCheck(Mark) : ListItem.ClearCheck();
+			Mark? set_check(ListItem, Mark) : set_check(ListItem, false);
 			ListItem.ComplexUserData = Ext;
 			FilterList->AddItem(ListItem);
 
@@ -346,7 +350,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 						menu_item_ex ListItem{ MenuString(&FilterData()[SelPos]) };
 
 						if (const auto Check = FilterList->GetCheck(SelPos))
-							ListItem.SetCustomCheck(Check);
+							set_check(ListItem, Check);
 
 						FilterList->DeleteItem(SelPos);
 						FilterList->AddItem(ListItem,SelPos);
