@@ -18,6 +18,8 @@ extern "C" {
 #  define DLLFUNC __declspec(dllimport)
 #endif
 
+typedef struct PluginStartupInfo PSInfo;
+
 typedef intptr_t PLUGINDATAFLAGS;
 static const PLUGINDATAFLAGS
 	PDF_DIALOGEVENTDRAWENABLE = 0x00000001,

@@ -7,6 +7,7 @@
 #include "lf_string.h"
 #include "lf_bit64.h"
 #include "lf_service.h"
+#include "lf_flags.h"
 
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 

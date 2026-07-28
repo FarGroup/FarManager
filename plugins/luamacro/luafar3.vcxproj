@@ -47,6 +47,8 @@
     <ClCompile Include="luafar\lf_usercontrol.c" />
     <ClCompile Include="luafar\lf_reg.c" />
     <ClCompile Include="luafar\lf_service.c" />
+    <ClCompile Include="luafar\lf_flags.c" />
+    <ClCompile Include="luafar\lf_editor.c" />
     <ClCompile Include="luafar\lf_slnunico.c">
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>

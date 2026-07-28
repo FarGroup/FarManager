@@ -3,12 +3,14 @@
 
 #define TKEY_BINARY "__binary"
 
-typedef int64_t flags_t;
+#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
 
-flags_t  OptFlags(lua_State* L, int pos, flags_t dflt);
-flags_t  GetFlagCombination(lua_State *L, int pos, int *success);
-flags_t  GetFlagsFromTable(lua_State *L, int pos, const char* key);
-void     PutFlagsToTable(lua_State *L, const char* key, flags_t flags);
+void     PutRECTToTable(lua_State *L, const char* key, RECT rect);
+int      SetKeyBar(lua_State *L, BOOL editor);
+void     GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source);
+void     PushEditorSetPosition(lua_State *L, const struct EditorSetPosition *esp);
+int      FillEditorSelect(lua_State *L, int pos_table, struct EditorSelect *es);
+void     FillEditorSetPosition(lua_State *L, struct EditorSetPosition *esp);
 
 int      PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 int      PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);

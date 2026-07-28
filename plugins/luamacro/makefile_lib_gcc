@@ -19,6 +19,8 @@ SRCS = \
 	luafar/lf_usercontrol.c \
 	luafar/lf_reg.c \
 	luafar/lf_service.c \
+	luafar/lf_flags.c \
+	luafar/lf_editor.c \
 	luafar/lf_slnunico.c \
 	luafar/lf_utf8lib.c \
 	luafar/lf_liolib51.c \
@@ -41,6 +43,7 @@ USERC = \
 	-Iluasdk/include \
 	-DBUILD_DLL \
 	-DLUADLL=\"lua51.dll\" \
+	-Wno-cast-align \
 	-Wno-cast-function-type \
 	-Wno-cast-qual \
 	-Wno-format-nonliteral \
