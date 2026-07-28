@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdlib.h>
 
 #include "lf_flags.h"
 #include "lf_luafar.h"
