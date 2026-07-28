@@ -7,9 +7,6 @@
 #include "lf_bit64.h"
 #include "lf_service.h"
 
-extern int pcall_msg(lua_State* L, int narg, int nret);
-extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
-
 static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77};
 
 static int FL_PushParams(lua_State* L, const struct FarMacroCall* Data)

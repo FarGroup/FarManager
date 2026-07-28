@@ -21,6 +21,7 @@ SRCS = \
 	luafar/lf_service.c \
 	luafar/lf_flags.c \
 	luafar/lf_editor.c \
+	luafar/lf_dialog.c \
 	luafar/lf_slnunico.c \
 	luafar/lf_utf8lib.c \
 	luafar/lf_liolib51.c \

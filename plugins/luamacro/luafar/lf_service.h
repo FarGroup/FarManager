@@ -11,6 +11,10 @@ void     GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source);
 void     PushEditorSetPosition(lua_State *L, const struct EditorSetPosition *esp);
 int      FillEditorSelect(lua_State *L, int pos_table, struct EditorSelect *es);
 void     FillEditorSetPosition(lua_State *L, struct EditorSetPosition *esp);
+void     OptInputRecord(lua_State* L, TPluginData *pd, int pos, INPUT_RECORD* ir);
+void     PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
+int      pcall_msg(lua_State* L, int narg, int nret);
+int      Dialog_getvalue(lua_State *L, int pos, HANDLE *target);
 
 int      PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 int      PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);
