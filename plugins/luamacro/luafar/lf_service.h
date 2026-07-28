@@ -15,6 +15,8 @@ void     OptInputRecord(lua_State* L, TPluginData *pd, int pos, INPUT_RECORD* ir
 void     PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 int      pcall_msg(lua_State* L, int narg, int nret);
 int      Dialog_getvalue(lua_State *L, int pos, HANDLE *target);
+void     PushPluginObject(lua_State* L, HANDLE hPlugin);
+void     PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 
 int      PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 int      PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2);

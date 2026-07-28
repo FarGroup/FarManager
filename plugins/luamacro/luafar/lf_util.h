@@ -81,6 +81,7 @@ void PushFarColor(lua_State *L, const struct FarColor* Color);
 HANDLE OptHandle(lua_State *L);
 void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
 size_t aligned_size(size_t Size, size_t Alignment);
+TSynchroData* CreateSynchroData(int type, int data, TTimerData *td);
 
 typedef struct
 {

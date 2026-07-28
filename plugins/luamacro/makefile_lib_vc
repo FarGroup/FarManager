@@ -30,6 +30,9 @@ $(INTDIR)\lf_service.obj \
 $(INTDIR)\lf_flags.obj \
 $(INTDIR)\lf_editor.obj \
 $(INTDIR)\lf_dialog.obj \
+$(INTDIR)\lf_panel.obj \
+$(INTDIR)\lf_advcontrol.obj \
+$(INTDIR)\lf_macro.obj \
 $(INTDIR)\lf_slnunico.obj \
 $(INTDIR)\lf_utf8lib.obj \
 $(INTDIR)\lf_liolib51.obj \

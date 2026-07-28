@@ -11,8 +11,6 @@
 
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 
-void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values); // forward declaration
-
 // "Collector" is a Lua table referenced from the Plugin Object table by name.
 // Collector contains an array of lightuserdata which are pointers to malloc'ed
 // memory regions.
@@ -811,18 +809,6 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 			lua_pushnil(L);
 			break;
 	}
-}
-
-void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values)
-{
-	lua_createtable(L, (int)Count, 1);
-	for(size_t i=0; i < Count; i++)
-	{
-		PushFarMacroValue(L, Values + i);
-		lua_rawseti(L, -2, (int)i+1);
-	}
-	lua_pushinteger(L, Count);
-	lua_setfield(L, -2, "n");
 }
 
 static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacroValue *Values, size_t Count)
