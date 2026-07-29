@@ -1,9 +1,8 @@
 ﻿/* lusercontrol.c */
 
+#include "lf_common.h"
 #include "lf_string.h"
 #include "lf_util.h"
-
-#define TYPE_USERCONTROL "far_usercontrol"
 
 TFarUserControl* CheckFarUserControl(lua_State* L, int pos)
 {

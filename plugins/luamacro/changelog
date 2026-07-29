@@ -1,3 +1,7 @@
+shmuel 2026-07-29 22:32:18+03:00 - build 938
+
+1. LuaFAR: refactoring.
+
 shmuel 2026-07-29 16:11:52+03:00 - build 937
 
 1. LuaFAR: refactoring (split lf_service.c).

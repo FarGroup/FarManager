@@ -7,18 +7,17 @@
 #include <lualib.h>
 
 #include "lf_bit64.h"
+#include "lf_common.h"
 
 #define MAX52 (1LL << 52)
 #define FIT52(v) (((v) >= 0 && (v) < MAX52) || ((v) < 0 && (v) >= -MAX52))
 
 static int f_new(lua_State *L); /* forward declaration */
 
-const char metatable_name[] = "64 bit integer";
-
 int bit64_pushuserdata(lua_State *L, INT64 v)
 {
 	*(INT64*)lua_newuserdata(L, sizeof(INT64)) = v;
-	luaL_getmetatable(L, metatable_name);
+	luaL_getmetatable(L, TYPE_BIT64);
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -39,7 +38,7 @@ int bit64_getvalue(lua_State *L, int pos, INT64 *target)
 	{
 		int equal;
 		lua_getmetatable(L, pos);
-		luaL_getmetatable(L, metatable_name);
+		luaL_getmetatable(L, TYPE_BIT64);
 		equal = lua_rawequal(L, -1, -2);
 		lua_pop(L, 2);
 
@@ -221,7 +220,7 @@ static int f_tostring(lua_State *L)
 
 static int f_type(lua_State *L)
 {
-	bit64_getvalue(L, 1, NULL) ? lua_pushstring(L, metatable_name):lua_pushnil(L);
+	bit64_getvalue(L, 1, NULL) ? lua_pushstring(L, TYPE_BIT64):lua_pushnil(L);
 	return 1;
 }
 
@@ -359,7 +358,7 @@ static const luaL_Reg metamethods[] =
 
 LUALIB_API int luaopen_bit64(lua_State *L)
 {
-	luaL_newmetatable(L, metatable_name);
+	luaL_newmetatable(L, TYPE_BIT64);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, metamethods);

@@ -1,9 +1,8 @@
 ﻿/* lregex.cpp */
 
+#include "lf_common.h"
 #include "lf_luafar.h"
 #include "lf_string.h"
-
-#define TYPE_REGEX "far_regex"
 
 enum { OP_FIND, OP_MATCH, OP_EXEC, OP_TFIND };
 
