@@ -53,6 +53,7 @@
     <ClCompile Include="luafar\lf_panel.c" />
     <ClCompile Include="luafar\lf_advcontrol.c" />
     <ClCompile Include="luafar\lf_macro.c" />
+    <ClCompile Include="luafar\lf_viewer.c" />
     <ClCompile Include="luafar\lf_slnunico.c">
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>

@@ -25,6 +25,7 @@ SRCS = \
 	luafar/lf_panel.c \
 	luafar/lf_advcontrol.c \
 	luafar/lf_macro.c \
+	luafar/lf_viewer.c \
 	luafar/lf_slnunico.c \
 	luafar/lf_utf8lib.c \
 	luafar/lf_liolib51.c \

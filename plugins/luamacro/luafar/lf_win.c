@@ -1036,8 +1036,6 @@ static int win_GetEnvironmentStrings(lua_State *L)
 	return 1;
 }
 
-#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
-
 const luaL_Reg win_funcs[] =
 {
 	PAIR( win, CompareString),

@@ -945,8 +945,6 @@ int ustring_GetKeyState (lua_State *L)
 	return 2;
 }
 
-#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
-
 const luaL_Reg ustring_funcs[] =
 {
 	PAIR( ustring, EnumSystemCodePages),

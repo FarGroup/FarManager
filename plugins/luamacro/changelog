@@ -1,3 +1,7 @@
+shmuel 2026-07-29 16:11:52+03:00 - build 937
+
+1. LuaFAR: refactoring (split lf_service.c).
+
 shmuel 2026-07-28 21:26:41+03:00 - build 936
 
 1. LuaFAR: add missing #includes.

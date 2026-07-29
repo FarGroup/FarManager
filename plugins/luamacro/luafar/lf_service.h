@@ -3,8 +3,6 @@
 
 #define TKEY_BINARY "__binary"
 
-#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
-
 void     PutRECTToTable(lua_State *L, const char* key, RECT rect);
 int      SetKeyBar(lua_State *L, BOOL editor);
 void     GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source);

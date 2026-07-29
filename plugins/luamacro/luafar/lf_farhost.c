@@ -264,8 +264,6 @@ static int far_host_SetDirectory(lua_State *L)
 	return 1;
 }
 
-#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
-
 const luaL_Reg far_host_funcs[] =
 {
 	PAIR( far_host, FreeUserData),

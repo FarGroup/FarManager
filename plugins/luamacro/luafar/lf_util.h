@@ -27,6 +27,8 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 #define SYNCHRO_TIMER_UNREF 0x2
 #define SYNCHRO_FUNCTION    0x4
 
+#define PAIR(prefix,txt) {#txt, prefix ## _ ## txt}
+
 typedef struct
 {
 	lua_State *L;
