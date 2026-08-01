@@ -38,7 +38,7 @@ VERSION_7Z=26.01
 curl -o arclite/7z/7z-${VERSION_7Z}.zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-${VERSION_7Z}.zip
 unzip arclite/7z/7z-${VERSION_7Z}.zip -d arclite/7z/${VERSION_7Z}
 
-VERSION_LUASDK=20250712
+VERSION_LUASDK=20260801
 curl -o luamacro/luasdk/LuaSDK-${VERSION_LUASDK}.zip https://raw.githubusercontent.com/FarGroup/thirdparty/master/LuaSDK-${VERSION_LUASDK}.zip
 unzip luamacro/luasdk/LuaSDK-${VERSION_LUASDK}.zip -d luamacro/luasdk/${VERSION_LUASDK}
 

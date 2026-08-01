@@ -1,5 +1,5 @@
 NAME = luamacro
-VERSION_LUASDK = 20250712
+VERSION_LUASDK = 20260801
 
 SRCS = \
 	luafar/luaplug.c \
