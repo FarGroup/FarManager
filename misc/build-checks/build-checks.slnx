@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="generate-constants.targets" />
+  </Folder>
+  <Project Path="ChangelogChecker/ChangelogChecker.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="HlfChecker/HlfChecker.csproj">
+    <Platform Project="x64" />
+  </Project>
+</Solution>

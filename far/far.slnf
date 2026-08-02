@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "..\\_build\\vc\\far.slnx",
+    "projects": [
+      "..\\..\\far\\common_test.vcxproj",
+      "..\\..\\far\\far.vcxproj",
+      "..\\..\\far\\sqlite.vcxproj"
+    ]
+  }
+}

@@ -119,7 +119,7 @@ jobs:
         working-directory: _build/vc
         run: |
           cl
-          msbuild -m /property:Configuration=${{ matrix.build_type }} /property:Platform=${{ matrix.platform_sln }} far.sln
+          msbuild -m /property:Configuration=${{ matrix.build_type }} /property:Platform=${{ matrix.platform_sln }} far.slnx
 
       - name: Run macro tests
         if: matrix.builder == 'msbuild' && matrix.platform_sln != 'ARM64'

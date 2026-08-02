@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "..\\..\\_build\\vc\\far.slnx",
+    "projects": [
+      "..\\..\\plugins\\multiarc\\MultiArc.vcxproj",
+      "..\\..\\plugins\\multiarc\\ace.vcxproj",
+      "..\\..\\plugins\\multiarc\\arc.vcxproj",
+      "..\\..\\plugins\\multiarc\\arj.vcxproj",
+      "..\\..\\plugins\\multiarc\\cab.vcxproj",
+      "..\\..\\plugins\\multiarc\\custom.vcxproj",
+      "..\\..\\plugins\\multiarc\\ha.vcxproj",
+      "..\\..\\plugins\\multiarc\\libpcre\\pcre.vcxproj",
+      "..\\..\\plugins\\multiarc\\lzh.vcxproj",
+      "..\\..\\plugins\\multiarc\\rar.vcxproj",
+      "..\\..\\plugins\\multiarc\\targz.vcxproj",
+      "..\\..\\plugins\\multiarc\\zip.vcxproj"
+    ]
+  }
+}
