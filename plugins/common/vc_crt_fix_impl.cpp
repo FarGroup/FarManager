@@ -315,7 +315,7 @@ static LCID locale_name_to_lcid(const wchar_t* LocaleName)
 	if (!*LocaleName)
 		return LOCALE_INVARIANT;
 
-	if (!lstrcmp(LocaleName, LOCALE_NAME_SYSTEM_DEFAULT))
+	if (!lstrcmpW(LocaleName, LOCALE_NAME_SYSTEM_DEFAULT))
 		return LOCALE_SYSTEM_DEFAULT;
 
 	return LOCALE_USER_DEFAULT;
