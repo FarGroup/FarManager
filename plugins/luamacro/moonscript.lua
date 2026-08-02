@@ -75,12 +75,20 @@ compile_file_text = function(text, opts)
   end
   if opts.show_parse_tree then
     local dump = require("moonscript.dump")
-    dump.tree(tree)
+    print(dump.tree(tree))
     return true
   end
   local compile_time
   if opts.benchmark then
     compile_time = gettime()
+  end
+  do
+    local mod = opts.transform_module
+    if mod then
+      local file = assert(loadfile(mod))
+      local fn = assert(file())
+      tree = assert(fn(tree))
+    end
   end
   local code, posmap_or_err, err_pos = compile.tree(tree)
   if not (code) then
@@ -192,89 +200,52 @@ return {
 }
 end
 
-package.preload["moonscript.data"] = function()
-local concat, remove, insert
-do
-  local _obj_0 = table
-  concat, remove, insert = _obj_0.concat, _obj_0.remove, _obj_0.insert
-end
-local Set
-Set = function(items)
-  local _tbl_0 = { }
-  for _index_0 = 1, #items do
-    local k = items[_index_0]
-    _tbl_0[k] = true
+package.preload["moonscript.dump"] = function()
+local flat_value
+flat_value = function(op, depth)
+  if depth == nil then
+    depth = 1
   end
-  return _tbl_0
-end
-local Stack
-do
-  local _class_0
-  local _base_0 = {
-    __tostring = function(self)
-      return "<Stack {" .. concat(self, ", ") .. "}>"
-    end,
-    pop = function(self)
-      return remove(self)
-    end,
-    push = function(self, value, ...)
-      insert(self, value)
-      if ... then
-        return self:push(...)
-      else
-        return value
-      end
-    end,
-    top = function(self)
-      return self[#self]
+  if type(op) == "string" then
+    return '"' .. op .. '"'
+  end
+  if type(op) ~= "table" then
+    return tostring(op)
+  end
+  local items
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #op do
+      local item = op[_index_0]
+      _accum_0[_len_0] = flat_value(item, depth + 1)
+      _len_0 = _len_0 + 1
     end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function(self, ...)
-      self:push(...)
-      return nil
-    end,
-    __base = _base_0,
-    __name = "Stack"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  Stack = _class_0
+    items = _accum_0
+  end
+  local pos = op[-1]
+  return "{" .. (pos and "[" .. pos .. "] " or "") .. table.concat(items, ", ") .. "}"
 end
-local lua_keywords = Set({
-  'and',
-  'break',
-  'do',
-  'else',
-  'elseif',
-  'end',
-  'false',
-  'for',
-  'function',
-  'if',
-  'in',
-  'local',
-  'nil',
-  'not',
-  'or',
-  'repeat',
-  'return',
-  'then',
-  'true',
-  'until',
-  'while'
-})
+local value
+value = function(op)
+  return flat_value(op)
+end
+local tree
+tree = function(block)
+  return table.concat((function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #block do
+      local value = block[_index_0]
+      _accum_0[_len_0] = flat_value(value)
+      _len_0 = _len_0 + 1
+    end
+    return _accum_0
+  end)(), "\n")
+end
 return {
-  Set = Set,
-  Stack = Stack,
-  lua_keywords = lua_keywords
+  value = value,
+  tree = tree
 }
 end
 
@@ -499,8 +470,10 @@ local Set
 Set = require("moonscript.data").Set
 local Block
 Block = require("moonscript.compile").Block
+local ntype
+ntype = require("moonscript.types").ntype
 local mtype
-mtype = require("moonscript.util").moon.type
+mtype = require("moonscript.util").mtype
 local default_whitelist = Set({
   '_G',
   '_VERSION',
@@ -545,15 +518,32 @@ local default_whitelist = Set({
   "true",
   "false"
 })
+local LINT_STAGES = {
+  "global_access",
+  "unused",
+  "constant_assign",
+  "import_overwrite"
+}
 local LinterBlock
 do
   local _class_0
   local _parent_0 = Block
   local _base_0 = {
+    lint_report = function(self, stage, msg, pos)
+      local root = self.root
+      if root.lint_stages and not root.lint_stages[stage] then
+        return
+      end
+      return insert(root.lint_errors, {
+        msg,
+        pos,
+        stage
+      })
+    end,
     lint_mark_used = function(self, name)
       if self.lint_unused_names and self.lint_unused_names[name] then
         self.lint_unused_names[name] = false
-        return 
+        return
       end
       if self.parent then
         return self.parent:lint_mark_used(name)
@@ -561,7 +551,7 @@ do
     end,
     lint_check_unused = function(self)
       if not (self.lint_unused_names and next(self.lint_unused_names)) then
-        return 
+        return
       end
       local names_by_position = { }
       for name, pos in pairs(self.lint_unused_names) do
@@ -571,7 +561,8 @@ do
             _continue_0 = true
             break
           end
-          names_by_position[pos] = names_by_position[pos] or { }
+          local _update_0 = pos
+          names_by_position[_update_0] = names_by_position[_update_0] or { }
           insert(names_by_position[pos], name)
           _continue_0 = true
         until true
@@ -599,19 +590,16 @@ do
         local _des_0 = tuples[_index_0]
         local pos, names
         pos, names = _des_0[1], _des_0[2]
-        insert(self:get_root_block().lint_errors, {
-          "assigned but unused " .. tostring(table.concat((function()
-            local _accum_0 = { }
-            local _len_0 = 1
-            for _index_1 = 1, #names do
-              local n = names[_index_1]
-              _accum_0[_len_0] = "`" .. tostring(n) .. "`"
-              _len_0 = _len_0 + 1
-            end
-            return _accum_0
-          end)(), ", ")),
-          pos
-        })
+        self.root:lint_report("unused", "assigned but unused " .. tostring(table.concat((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_1 = 1, #names do
+            local n = names[_index_1]
+            _accum_0[_len_0] = "`" .. tostring(n) .. "`"
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), ", ")), pos)
       end
     end,
     render = function(self, ...)
@@ -620,39 +608,68 @@ do
     end,
     block = function(self, ...)
       do
-        local _with_0 = _class_0.__parent.__base.block(self, ...)
-        _with_0.block = self.block
-        _with_0.render = self.render
-        _with_0.get_root_block = self.get_root_block
-        _with_0.lint_check_unused = self.lint_check_unused
-        _with_0.lint_mark_used = self.lint_mark_used
-        _with_0.value_compilers = self.value_compilers
-        _with_0.statement_compilers = self.statement_compilers
-        return _with_0
+        local child = _class_0.__parent.__base.block(self, ...)
+        child.block = self.block
+        child.render = self.render
+        child.lint_check_unused = self.lint_check_unused
+        child.lint_mark_used = self.lint_mark_used
+        child.value_compilers = self.value_compilers
+        child.statement_compilers = self.statement_compilers
+        child.lint_wrap_transform = self.lint_wrap_transform
+        self:lint_wrap_transform(child)
+        return child
       end
     end
   }
   _base_0.__index = _base_0
   setmetatable(_base_0, _parent_0.__base)
   _class_0 = setmetatable({
-    __init = function(self, whitelist_globals, ...)
+    __init = function(self, whitelist_globals, stages, ...)
       if whitelist_globals == nil then
         whitelist_globals = default_whitelist
       end
       _class_0.__parent.__init(self, ...)
-      self.get_root_block = function()
-        return self
-      end
       self.lint_errors = { }
+      if stages then
+        self.lint_stages = Set(stages)
+      end
+      self.lint_wrap_transform = function(self, block)
+        local inner = block.transform.statement
+        local checked_imports = setmetatable({ }, {
+          __mode = "k"
+        })
+        block.transform.statement = function(node, ...)
+          local import_node = node
+          while ntype(import_node) == "transform" do
+            import_node = import_node[2]
+          end
+          if ntype(import_node) == "import" and not checked_imports[import_node] then
+            checked_imports[import_node] = true
+            local _list_0 = import_node[2]
+            for _index_0 = 1, #_list_0 do
+              local name = _list_0[_index_0]
+              if ntype(name) == "colon" then
+                name = name[2]
+              end
+              local binding = block:binding_value(name)
+              if not (type(binding) == "table" and binding.const) then
+                if binding then
+                  block.root:lint_report("import_overwrite", "import overwrites existing binding `" .. tostring(name) .. "`", import_node[-1])
+                end
+              end
+            end
+          end
+          return inner(node, ...)
+        end
+        return block
+      end
+      self:lint_wrap_transform(self)
       local vc = self.value_compilers
       self.value_compilers = setmetatable({
         ref = function(block, val)
           local name = val[2]
           if not (block:has_name(name) or whitelist_globals[name] or name:match("%.")) then
-            insert(self.lint_errors, {
-              "accessing global `" .. tostring(name) .. "`",
-              val[-1]
-            })
+            self:lint_report("global_access", "accessing global `" .. tostring(name) .. "`", val[-1])
           end
           block:lint_mark_used(name)
           return vc.ref(block, val)
@@ -671,6 +688,18 @@ do
               if type(name) == "table" and name[1] == "temp_name" then
                 _continue_0 = true
                 break
+              end
+              local const_name
+              if type(name) == "string" then
+                const_name = name
+              elseif name[1] == "ref" then
+                const_name = name[2]
+              end
+              if const_name then
+                local binding = block:binding_value(const_name)
+                if type(binding) == "table" and binding.const then
+                  self:lint_report("constant_assign", "assigning to constant `" .. tostring(const_name) .. "`", type(name) == "table" and name[-1] or node[-1] or block.root.last_pos)
+                end
               end
               local real_name, is_local = block:extract_assign_name(name)
               if not (is_local or real_name and not block:has_name(real_name, true)) then
@@ -722,10 +751,41 @@ do
   end
   LinterBlock = _class_0
 end
+local format_lint_compact
+format_lint_compact = function(errors, code, header)
+  if not (next(errors)) then
+    return nil
+  end
+  local pos_to_line_col
+  pos_to_line_col = require("moonscript.util").pos_to_line_col
+  local formatted
+  do
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #errors do
+      local _des_0 = errors[_index_0]
+      local msg, pos, stage
+      msg, pos, stage = _des_0[1], _des_0[2], _des_0[3]
+      local location
+      if pos then
+        local line, col = pos_to_line_col(code, pos)
+        location = tostring(header) .. ":" .. tostring(line) .. ":" .. tostring(col)
+      else
+        location = header
+      end
+      local stage_suffix = stage and " [" .. tostring(stage) .. "]" or ""
+      local _value_0 = tostring(location) .. ": " .. tostring(msg) .. tostring(stage_suffix)
+      _accum_0[_len_0] = _value_0
+      _len_0 = _len_0 + 1
+    end
+    formatted = _accum_0
+  end
+  return table.concat(formatted, "\n")
+end
 local format_lint
 format_lint = function(errors, code, header)
   if not (next(errors)) then
-    return 
+    return
   end
   local pos_to_line, get_line
   do
@@ -789,8 +849,16 @@ do
     })
   end
 end
+local LINT_FORMATS = {
+  "default",
+  "compact"
+}
+local formatters = {
+  default = format_lint,
+  compact = format_lint_compact
+}
 local lint_code
-lint_code = function(code, name, whitelist_globals)
+lint_code = function(code, name, whitelist_globals, opts)
   if name == nil then
     name = "string input"
   end
@@ -799,22 +867,28 @@ lint_code = function(code, name, whitelist_globals)
   if not (tree) then
     return nil, err
   end
-  local scope = LinterBlock(whitelist_globals)
+  local scope = LinterBlock(whitelist_globals, opts and opts.stages)
   scope:stms(tree)
   scope:lint_check_unused()
-  return format_lint(scope.lint_errors, code, name)
+  local formatter = formatters[opts and opts.format or "default"]
+  if not (formatter) then
+    error("unknown lint format: " .. tostring(opts.format))
+  end
+  return formatter(scope.lint_errors, code, name)
 end
 local lint_file
-lint_file = function(fname)
+lint_file = function(fname, opts)
   local f, err = io.open(fname)
   if not (f) then
     return nil, err
   end
-  return lint_code(f:read("*a"), fname, whitelist_for_file(fname))
+  return lint_code(f:read("*a"), fname, whitelist_for_file(fname), opts)
 end
 return {
   lint_code = lint_code,
-  lint_file = lint_file
+  lint_file = lint_file,
+  LINT_STAGES = LINT_STAGES,
+  LINT_FORMATS = LINT_FORMATS
 }
 end
 
@@ -945,39 +1019,49 @@ concat = table.concat
 local unpack = unpack or table.unpack
 local type = type
 local moon = {
-  is_object = function(value)
-    return type(value) == "table" and value.__class
-  end,
-  is_a = function(thing, t)
-    if not (type(thing) == "table") then
-      return false
-    end
-    local cls = thing.__class
-    while cls do
-      if cls == t then
-        return true
-      end
-      cls = cls.__parent
+  is_class = function(value)
+    if type(value) == "table" and rawget(value, "__base") ~= nil then
+      local mt = getmetatable(value)
+      return mt and rawget(mt, "__call") ~= nil
     end
     return false
   end,
-  type = function(value)
-    local base_type = type(value)
-    if base_type == "table" then
-      local cls = value.__class
-      if cls then
-        return cls
-      end
+  is_instance = function(value)
+    if type(value) == "table" then
+      local mt = getmetatable(value)
+      return mt and rawget(mt, "__index") == mt and rawget(value, "__index") ~= value
     end
-    return base_type
+    return false
   end
 }
+local mtype
+mtype = function(value)
+  local base_type = type(value)
+  if base_type == "table" then
+    local cls = value.__class
+    if cls and rawget(value, "__class") == nil then
+      return cls
+    end
+  end
+  return base_type
+end
+local pos_to_line_col
+pos_to_line_col = function(str, pos)
+  local line = 1
+  local line_start = 1
+  while true do
+    local nl = str:find("\n", line_start, true)
+    if not (nl and nl < pos) then
+      break
+    end
+    line = line + 1
+    line_start = nl + 1
+  end
+  return line, pos - line_start + 1
+end
 local pos_to_line
 pos_to_line = function(str, pos)
-  local line = 1
-  for _ in str:sub(1, pos):gmatch("\n") do
-    line = line + 1
-  end
+  local line = pos_to_line_col(str, pos)
   return line
 end
 local trim
@@ -1044,7 +1128,11 @@ dump = function(what)
         lines = _accum_0
       end
       seen[what] = false
-      return "{\n" .. concat(lines) .. (" "):rep((depth - 1) * 4) .. "}\n"
+      local class_name
+      if type(what.__class) == "table" and type(what.__class.__name) == "string" then
+        class_name = "<" .. tostring(what.__class.__name) .. ">"
+      end
+      return (tostring(class_name or "") .. "{\n") .. concat(lines) .. (" "):rep((depth - 1) * 4) .. "}\n"
     else
       return tostring(what) .. "\n"
     end
@@ -1140,6 +1228,8 @@ safe_module = function(name, tbl)
 end
 return {
   moon = moon,
+  mtype = mtype,
+  pos_to_line_col = pos_to_line_col,
   pos_to_line = pos_to_line,
   get_closest_line = get_closest_line,
   get_line = get_line,
@@ -1205,10 +1295,10 @@ do
   local _obj_0 = require("moonscript.transform.names")
   NameProxy, LocalName, is_name_proxy = _obj_0.NameProxy, _obj_0.LocalName, _obj_0.is_name_proxy
 end
-local Run, transform_last_stm, implicitly_return, last_stm
+local Run, transform_last_stm, implicitly_return, last_stm, find_continues
 do
   local _obj_0 = require("moonscript.transform.statements")
-  Run, transform_last_stm, implicitly_return, last_stm = _obj_0.Run, _obj_0.transform_last_stm, _obj_0.implicitly_return, _obj_0.last_stm
+  Run, transform_last_stm, implicitly_return, last_stm, find_continues = _obj_0.Run, _obj_0.transform_last_stm, _obj_0.implicitly_return, _obj_0.last_stm, _obj_0.find_continues
 end
 local types = require("moonscript.types")
 local build, ntype, is_value, smart_node, value_is_singular, is_slice, NOOP
@@ -1220,77 +1310,67 @@ local construct_comprehension
 construct_comprehension = require("moonscript.transform.comprehension").construct_comprehension
 local unpack
 unpack = require("moonscript.util").unpack
-local with_continue_listener
-with_continue_listener = function(body)
-  local continue_name = nil
+local user_error
+user_error = require("moonscript.errors").user_error
+local apply_continue
+apply_continue = function(body)
+  local continues = find_continues(body)
+  if not (continues[1]) then
+    return body
+  end
+  local continue_name = NameProxy("continue")
+  for _index_0 = 1, #continues do
+    local node = continues[_index_0]
+    node[2] = continue_name
+  end
+  local last_type = ntype(last_stm(body))
+  local repeat_body
+  if types.terminating[last_type] or last_type == "continue" then
+    repeat_body = {
+      {
+        "do",
+        body
+      }
+    }
+  else
+    repeat_body = body
+  end
+  insert(repeat_body, {
+    "assign",
+    {
+      continue_name
+    },
+    {
+      "true"
+    }
+  })
   return {
-    Run(function(self)
-      return self:listen("continue", function()
-        if not (continue_name) then
-          continue_name = NameProxy("continue")
-          self:put_name(continue_name)
-        end
-        return continue_name
-      end)
-    end),
-    build.group(body),
-    Run(function(self)
-      if not (continue_name) then
-        return 
-      end
-      local last = last_stm(body)
-      local enclose_lines = types.terminating[last and ntype(last)]
-      self:put_name(continue_name, nil)
-      return self:splice(function(lines)
-        if enclose_lines then
-          lines = {
-            "do",
-            {
-              lines
-            }
-          }
-        end
-        return {
-          {
-            "assign",
-            {
-              continue_name
-            },
-            {
-              "false"
-            }
-          },
-          {
-            "repeat",
-            "true",
-            {
-              lines,
-              {
-                "assign",
-                {
-                  continue_name
-                },
-                {
-                  "true"
-                }
-              }
-            }
-          },
-          {
-            "if",
-            {
-              "not",
-              continue_name
-            },
-            {
-              {
-                "break"
-              }
-            }
-          }
+    {
+      "assign",
+      {
+        continue_name
+      },
+      {
+        "false"
+      }
+    },
+    {
+      "repeat",
+      "true",
+      repeat_body
+    },
+    {
+      "if",
+      {
+        "not",
+        continue_name
+      },
+      {
+        {
+          "break"
         }
-      end)
-    end)
+      }
+    }
   }
 end
 local extract_declarations
@@ -1315,7 +1395,7 @@ extract_declarations = function(self, body, start, out)
       stm = self.transform.statement(stm)
       body[i] = stm
       local _exp_0 = stm[1]
-      if "assign" == _exp_0 or "declare" == _exp_0 then
+      if "assign" == _exp_0 or "declare" == _exp_0 or "declare_constants" == _exp_0 then
         local _list_0 = stm[2]
         for _index_0 = 1, #_list_0 do
           local name = _list_0[_index_0]
@@ -1332,6 +1412,23 @@ extract_declarations = function(self, body, start, out)
     until true
     if not _continue_0 then
       break
+    end
+  end
+  return out
+end
+local extract_declare_names
+extract_declare_names = function(names)
+  local out = { }
+  for _index_0 = 1, #names do
+    local name = names[_index_0]
+    if ntype(name) == "table" then
+      local _list_0 = destructure.extract_assign_names(name)
+      for _index_1 = 1, #_list_0 do
+        local tuple = _list_0[_index_1]
+        insert(out, tuple[1])
+      end
+    else
+      insert(out, name)
     end
   end
   return out
@@ -1434,7 +1531,7 @@ return Transformer({
   assign = function(self, node)
     local names, values = unpack(node, 2)
     local num_values = #values
-    local num_names = #values
+    local num_names = #names
     if num_names == 1 and num_values == 1 then
       local first_value = values[1]
       local first_name = names[1]
@@ -1452,9 +1549,9 @@ return Transformer({
         return build.group({
           {
             "declare",
-            {
+            extract_declare_names({
               first_name
-            }
+            })
           },
           {
             "do",
@@ -1494,22 +1591,24 @@ return Transformer({
         transformed = build.group({
           {
             "declare",
-            names
+            extract_declare_names(names)
           },
           self.transform.statement(value, ret, node)
         })
       end
     end
-    node = transformed or node
+    if transformed then
+      return transformed
+    end
     if destructure.has_destructure(names) then
       return destructure.split_assign(self, node)
     end
     return node
   end,
   continue = function(self, node)
-    local continue_name = self:send("continue")
+    local continue_name = node[2]
     if not (continue_name) then
-      error("continue must be inside of a loop")
+      user_error("continue must be inside of a loop", node[-1])
     end
     return build.group({
       build.assign_one(continue_name, "true"),
@@ -1553,21 +1652,89 @@ return Transformer({
     if not op_final then
       error("Unknown op: " .. op)
     end
+    local lifted
+    if ntype(name) == "chain" then
+      lifted = { }
+      local new_chain
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 3, #name do
+          local part = name[_index_0]
+          if ntype(part) == "index" then
+            local proxy = NameProxy("update")
+            table.insert(lifted, {
+              proxy,
+              part[2]
+            })
+            _accum_0[_len_0] = {
+              "index",
+              proxy
+            }
+          else
+            _accum_0[_len_0] = part
+          end
+          _len_0 = _len_0 + 1
+        end
+        new_chain = _accum_0
+      end
+      if next(lifted) then
+        name = {
+          name[1],
+          name[2],
+          unpack(new_chain)
+        }
+      end
+    end
     if not (value_is_singular(exp)) then
       exp = {
         "parens",
         exp
       }
     end
-    return build.assign_one(name, {
+    local out = build.assign_one(name, {
       "exp",
       name,
       op_final,
       exp
     })
+    if lifted and next(lifted) then
+      local names
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #lifted do
+          local l = lifted[_index_0]
+          _accum_0[_len_0] = l[1]
+          _len_0 = _len_0 + 1
+        end
+        names = _accum_0
+      end
+      local values
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #lifted do
+          local l = lifted[_index_0]
+          _accum_0[_len_0] = l[2]
+          _len_0 = _len_0 + 1
+        end
+        values = _accum_0
+      end
+      out = build.group({
+        {
+          "assign",
+          names,
+          values
+        },
+        out
+      })
+    end
+    return out
   end,
   import = function(self, node)
     local names, source = unpack(node, 2)
+    local dest_names = { }
     local table_values
     do
       local _accum_0 = { }
@@ -1580,6 +1747,7 @@ return Transformer({
         else
           dest_name = name
         end
+        insert(dest_names, dest_name)
         local _value_0 = {
           {
             "key_literal",
@@ -1596,16 +1764,23 @@ return Transformer({
       "table",
       table_values
     }
-    return {
-      "assign",
+    return build.group({
       {
-        dest
+        "assign",
+        {
+          dest
+        },
+        {
+          source
+        },
+        [-1] = node[-1]
       },
       {
-        source
-      },
-      [-1] = node[-1]
-    }
+        "declare_constants",
+        dest_names,
+        [-1] = node[-1]
+      }
+    })
   end,
   comprehension = function(self, node, action)
     local exp, clauses = unpack(node, 2)
@@ -1667,7 +1842,7 @@ return Transformer({
           names = (function()
             local _accum_0 = { }
             local _len_0 = 1
-            local _list_0 = stm[2]
+            local _list_0 = extract_declare_names(stm[2])
             for _index_0 = 1, #_list_0 do
               local name = _list_0[_index_0]
               if ntype(name) == "ref" then
@@ -1907,15 +2082,15 @@ return Transformer({
         })
       })
     end
-    node.body = with_continue_listener(node.body)
+    node.body = apply_continue(node.body)
   end,
   ["while"] = function(self, node)
     smart_node(node)
-    node.body = with_continue_listener(node.body)
+    node.body = apply_continue(node.body)
   end,
   ["for"] = function(self, node)
     smart_node(node)
-    node.body = with_continue_listener(node.body)
+    node.body = apply_continue(node.body)
   end,
   switch = function(self, node, ret)
     local exp, conds = unpack(node, 2)
@@ -1981,262 +2156,22 @@ return Transformer({
 end
 
 package.preload["moonscript.version"] = function()
-local version = "0.5.0"
+local version = "0.7.0"
 return {
   version = version,
   print_version = function()
-    return print("MoonScript version " .. tostring(version))
+    do
+      local build = MOON_BUILD_INFO
+      if build then
+        print("MoonScript version " .. tostring(version) .. " (static build)")
+        print("Runtime: " .. tostring(jit and jit.version or build.lua))
+        print("Commit: " .. tostring(build.commit))
+        return print("Built: " .. tostring(build.time))
+      else
+        return print("MoonScript version " .. tostring(version))
+      end
+    end
   end
-}
-end
-
-package.preload["moonscript.compile.statement"] = function()
-local ntype
-ntype = require("moonscript.types").ntype
-local concat, insert
-do
-  local _obj_0 = table
-  concat, insert = _obj_0.concat, _obj_0.insert
-end
-local unpack
-unpack = require("moonscript.util").unpack
-return {
-  raw = function(self, node)
-    return self:add(node[2])
-  end,
-  lines = function(self, node)
-    local _list_0 = node[2]
-    for _index_0 = 1, #_list_0 do
-      local line = _list_0[_index_0]
-      self:add(line)
-    end
-  end,
-  declare = function(self, node)
-    local names = node[2]
-    local undeclared = self:declare(names)
-    if #undeclared > 0 then
-      do
-        local _with_0 = self:line("local ")
-        _with_0:append_list((function()
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #undeclared do
-            local name = undeclared[_index_0]
-            _accum_0[_len_0] = self:name(name)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        end)(), ", ")
-        return _with_0
-      end
-    end
-  end,
-  declare_with_shadows = function(self, node)
-    local names = node[2]
-    self:declare(names)
-    do
-      local _with_0 = self:line("local ")
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #names do
-          local name = names[_index_0]
-          _accum_0[_len_0] = self:name(name)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      return _with_0
-    end
-  end,
-  assign = function(self, node)
-    local names, values = unpack(node, 2)
-    local undeclared = self:declare(names)
-    local declare = "local " .. concat(undeclared, ", ")
-    local has_fndef = false
-    local i = 1
-    while i <= #values do
-      if ntype(values[i]) == "fndef" then
-        has_fndef = true
-      end
-      i = i + 1
-    end
-    do
-      local _with_0 = self:line()
-      if #undeclared == #names and not has_fndef then
-        _with_0:append(declare)
-      else
-        if #undeclared > 0 then
-          self:add(declare, node[-1])
-        end
-        _with_0:append_list((function()
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #names do
-            local name = names[_index_0]
-            _accum_0[_len_0] = self:value(name)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        end)(), ", ")
-      end
-      _with_0:append(" = ")
-      _with_0:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #values do
-          local v = values[_index_0]
-          _accum_0[_len_0] = self:value(v)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      return _with_0
-    end
-  end,
-  ["return"] = function(self, node)
-    return self:line("return ", (function()
-      if node[2] ~= "" then
-        return self:value(node[2])
-      end
-    end)())
-  end,
-  ["break"] = function(self, node)
-    return "break"
-  end,
-  ["if"] = function(self, node)
-    local cond, block = node[2], node[3]
-    local root
-    do
-      local _with_0 = self:block(self:line("if ", self:value(cond), " then"))
-      _with_0:stms(block)
-      root = _with_0
-    end
-    local current = root
-    local add_clause
-    add_clause = function(clause)
-      local type = clause[1]
-      local i = 2
-      local next
-      if type == "else" then
-        next = self:block("else")
-      else
-        i = i + 1
-        next = self:block(self:line("elseif ", self:value(clause[2]), " then"))
-      end
-      next:stms(clause[i])
-      current.next = next
-      current = next
-    end
-    for _index_0 = 4, #node do
-      local cond = node[_index_0]
-      add_clause(cond)
-    end
-    return root
-  end,
-  ["repeat"] = function(self, node)
-    local cond, block = unpack(node, 2)
-    do
-      local _with_0 = self:block("repeat", self:line("until ", self:value(cond)))
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  ["while"] = function(self, node)
-    local cond, block = unpack(node, 2)
-    do
-      local _with_0 = self:block(self:line("while ", self:value(cond), " do"))
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  ["for"] = function(self, node)
-    local name, bounds, block = unpack(node, 2)
-    local loop = self:line("for ", self:name(name), " = ", self:value({
-      "explist",
-      unpack(bounds)
-    }), " do")
-    do
-      local _with_0 = self:block(loop)
-      _with_0:declare({
-        name
-      })
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  foreach = function(self, node)
-    local names, exps, block = unpack(node, 2)
-    local loop
-    do
-      local _with_0 = self:line()
-      _with_0:append("for ")
-      loop = _with_0
-    end
-    do
-      local _with_0 = self:block(loop)
-      loop:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #names do
-          local name = names[_index_0]
-          _accum_0[_len_0] = _with_0:name(name, false)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ", ")
-      loop:append(" in ")
-      loop:append_list((function()
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #exps do
-          local exp = exps[_index_0]
-          _accum_0[_len_0] = self:value(exp)
-          _len_0 = _len_0 + 1
-        end
-        return _accum_0
-      end)(), ",")
-      loop:append(" do")
-      _with_0:declare(names)
-      _with_0:stms(block)
-      return _with_0
-    end
-  end,
-  export = function(self, node)
-    local names = unpack(node, 2)
-    if type(names) == "string" then
-      if names == "*" then
-        self.export_all = true
-      elseif names == "^" then
-        self.export_proper = true
-      end
-    else
-      self:declare(names)
-    end
-    return nil
-  end,
-  run = function(self, code)
-    code:call(self)
-    return nil
-  end,
-  group = function(self, node)
-    return self:stms(node[2])
-  end,
-  ["do"] = function(self, node)
-    do
-      local _with_0 = self:block()
-      _with_0:stms(node[2])
-      return _with_0
-    end
-  end,
-  noop = function(self) end
-}
-end
-
-package.preload["moonscript.transform"] = function()
-return {
-  Statement = require("moonscript.transform.statement"),
-  Value = require("moonscript.transform.value")
 }
 end
 
@@ -2250,18 +2185,65 @@ do
   local _obj_0 = require("moonscript.util")
   getfenv, setfenv, dump = _obj_0.getfenv, _obj_0.setfenv, _obj_0.dump
 end
-local p, is_object, type, debug, run_with_scope, bind_methods, defaultbl, extend, copy, mixin, mixin_object, mixin_table, fold
-p = function(...)
-  return print(dump(...))
+local p, is_object, is_class, is_instance, is_instance_of, is_subclass_of, type, debug, run_with_scope, bind_methods, defaultbl, extend, copy, mixin, mixin_object, mixin_table, fold
+p = function(o, ...)
+  print(dump(o))
+  if select("#", ...) > 0 then
+    return p(...)
+  end
 end
 is_object = function(value)
   return lua.type(value) == "table" and value.__class
 end
+is_class = function(value)
+  if lua.type(value) == "table" and rawget(value, "__base") ~= nil then
+    local mt = getmetatable(value)
+    return mt and rawget(mt, "__call") ~= nil
+  end
+  return false
+end
+is_instance = function(value)
+  if lua.type(value) == "table" then
+    local mt = getmetatable(value)
+    return mt and rawget(mt, "__index") == mt and rawget(value, "__index") ~= value
+  end
+  return false
+end
+is_instance_of = function(value, cls)
+  if not (is_instance(value)) then
+    error("is_instance_of: expected instance, got " .. tostring(lua.type(value)))
+  end
+  local mt = getmetatable(value)
+  local check = rawget(mt, "__class")
+  while check do
+    if check == cls then
+      return true
+    end
+    check = check.__parent
+  end
+  return false
+end
+is_subclass_of = function(cls, parent)
+  if not (is_class(cls)) then
+    error("is_subclass_of: expected class, got " .. tostring(lua.type(cls)))
+  end
+  local check = cls.__parent
+  while check do
+    if check == parent then
+      return true
+    end
+    check = check.__parent
+  end
+  return false
+end
 type = function(value)
   local base_type = lua.type(value)
   if base_type == "table" then
+    if is_class(value) then
+      return "class"
+    end
     local cls = value.__class
-    if cls then
+    if cls and rawget(value, "__class") == nil then
       return cls
     end
   end
@@ -2342,7 +2324,7 @@ extend = function(...)
     ...
   }
   if #tbls < 2 then
-    return 
+    return
   end
   for i = 1, #tbls - 1 do
     local a = tbls[i]
@@ -2404,6 +2386,10 @@ return {
   dump = dump,
   p = p,
   is_object = is_object,
+  is_class = is_class,
+  is_instance = is_instance,
+  is_instance_of = is_instance_of,
+  is_subclass_of = is_subclass_of,
   type = type,
   debug = debug,
   run_with_scope = run_with_scope,
@@ -2418,16 +2404,160 @@ return {
 }
 end
 
-package.preload["moon.all"] = function()
-local moon = require("moon")
-for k, v in pairs(moon) do
-  _G[k] = v
-end
-return moon
+package.preload["moonscript.transform"] = function()
+return {
+  Statement = require("moonscript.transform.statement"),
+  Value = require("moonscript.transform.value")
+}
 end
 
-package.preload["moon"] = function()
-return require "moon.init"
+package.preload["moonscript.cmd.coverage"] = function()
+local log
+log = function(str)
+  if str == nil then
+    str = ""
+  end
+  return io.stderr:write(str .. "\n")
+end
+local create_counter
+create_counter = function()
+  return setmetatable({ }, {
+    __index = function(self, name)
+      do
+        local tbl = setmetatable({ }, {
+          __index = function(self)
+            return 0
+          end
+        })
+        self[name] = tbl
+        return tbl
+      end
+    end
+  })
+end
+local position_to_lines
+position_to_lines = function(file_content, positions)
+  local lines = { }
+  local current_pos = 0
+  local line_no = 1
+  for char in file_content:gmatch(".") do
+    do
+      local count = rawget(positions, current_pos)
+      if count then
+        lines[line_no] = count
+      end
+    end
+    if char == "\n" then
+      line_no = line_no + 1
+    end
+    current_pos = current_pos + 1
+  end
+  return lines
+end
+local format_file
+format_file = function(fname, positions)
+  fname = fname:gsub("^@", "")
+  local file = assert(io.open(fname))
+  local content = file:read("*a")
+  file:close()
+  local lines = position_to_lines(content, positions)
+  log("------| @" .. tostring(fname))
+  local line_no = 1
+  for line in (content .. "\n"):gmatch("(.-)\n") do
+    local foramtted_no = ("% 5d"):format(line_no)
+    local sym = lines[line_no] and "*" or " "
+    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
+    line_no = line_no + 1
+  end
+  return log()
+end
+local CodeCoverage
+do
+  local _class_0
+  local _base_0 = {
+    reset = function(self)
+      self.line_counts = create_counter()
+    end,
+    start = function(self)
+      return debug.sethook((function()
+        local _base_1 = self
+        local _fn_0 = _base_1.process_line
+        return function(...)
+          return _fn_0(_base_1, ...)
+        end
+      end)(), "l")
+    end,
+    stop = function(self)
+      return debug.sethook()
+    end,
+    print_results = function(self)
+      return self:format_results()
+    end,
+    process_line = function(self, _, line_no)
+      local debug_data = debug.getinfo(2, "S")
+      local source = debug_data.source
+      local _update_0, _update_1 = source, line_no
+      self.line_counts[_update_0][_update_1] = self.line_counts[_update_0][_update_1] + 1
+    end,
+    format_results = function(self)
+      local line_table = require("moonscript.line_tables")
+      local positions = create_counter()
+      for file, lines in pairs(self.line_counts) do
+        local _continue_0 = false
+        repeat
+          local file_table = line_table[file]
+          if not (file_table) then
+            _continue_0 = true
+            break
+          end
+          for line, count in pairs(lines) do
+            local _continue_1 = false
+            repeat
+              local position = file_table[line]
+              if not (position) then
+                _continue_1 = true
+                break
+              end
+              local _update_0, _update_1 = file, position
+              positions[_update_0][_update_1] = positions[_update_0][_update_1] + count
+              _continue_1 = true
+            until true
+            if not _continue_1 then
+              break
+            end
+          end
+          _continue_0 = true
+        until true
+        if not _continue_0 then
+          break
+        end
+      end
+      for file, ps in pairs(positions) do
+        format_file(file, ps)
+      end
+    end
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self)
+      return self:reset()
+    end,
+    __base = _base_0,
+    __name = "CodeCoverage"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  CodeCoverage = _class_0
+end
+return {
+  CodeCoverage = CodeCoverage
+}
 end
 
 package.preload["moonscript.parse.env"] = function()
@@ -2503,272 +2633,12 @@ return {
 }
 end
 
-package.preload["moonscript.transform.value"] = function()
-local Transformer
-Transformer = require("moonscript.transform.transformer").Transformer
-local build, ntype, smart_node
-do
-  local _obj_0 = require("moonscript.types")
-  build, ntype, smart_node = _obj_0.build, _obj_0.ntype, _obj_0.smart_node
+package.preload["moon.all"] = function()
+local moon = require("moon")
+for k, v in pairs(moon) do
+  _G[k] = v
 end
-local NameProxy
-NameProxy = require("moonscript.transform.names").NameProxy
-local Accumulator, default_accumulator
-do
-  local _obj_0 = require("moonscript.transform.accumulator")
-  Accumulator, default_accumulator = _obj_0.Accumulator, _obj_0.default_accumulator
-end
-local lua_keywords
-lua_keywords = require("moonscript.data").lua_keywords
-local Run, transform_last_stm, implicitly_return, chain_is_stub
-do
-  local _obj_0 = require("moonscript.transform.statements")
-  Run, transform_last_stm, implicitly_return, chain_is_stub = _obj_0.Run, _obj_0.transform_last_stm, _obj_0.implicitly_return, _obj_0.chain_is_stub
-end
-local construct_comprehension
-construct_comprehension = require("moonscript.transform.comprehension").construct_comprehension
-local insert
-insert = table.insert
-local unpack
-unpack = require("moonscript.util").unpack
-return Transformer({
-  ["for"] = default_accumulator,
-  ["while"] = default_accumulator,
-  foreach = default_accumulator,
-  ["do"] = function(self, node)
-    return build.block_exp(node[2])
-  end,
-  decorated = function(self, node)
-    return self.transform.statement(node)
-  end,
-  class = function(self, node)
-    return build.block_exp({
-      node
-    })
-  end,
-  string = function(self, node)
-    local delim = node[2]
-    local convert_part
-    convert_part = function(part)
-      if type(part) == "string" or part == nil then
-        return {
-          "string",
-          delim,
-          part or ""
-        }
-      else
-        return build.chain({
-          base = "tostring",
-          {
-            "call",
-            {
-              part[2]
-            }
-          }
-        })
-      end
-    end
-    if #node <= 3 then
-      if type(node[3]) == "string" then
-        return node
-      else
-        return convert_part(node[3])
-      end
-    end
-    local e = {
-      "exp",
-      convert_part(node[3])
-    }
-    for i = 4, #node do
-      insert(e, "..")
-      insert(e, convert_part(node[i]))
-    end
-    return e
-  end,
-  comprehension = function(self, node)
-    local a = Accumulator()
-    node = self.transform.statement(node, function(exp)
-      return a:mutate_body({
-        exp
-      })
-    end)
-    return a:wrap(node)
-  end,
-  tblcomprehension = function(self, node)
-    local explist, clauses = unpack(node, 2)
-    local key_exp, value_exp = unpack(explist)
-    local accum = NameProxy("tbl")
-    local inner
-    if value_exp then
-      local dest = build.chain({
-        base = accum,
-        {
-          "index",
-          key_exp
-        }
-      })
-      inner = {
-        build.assign_one(dest, value_exp)
-      }
-    else
-      local key_name, val_name = NameProxy("key"), NameProxy("val")
-      local dest = build.chain({
-        base = accum,
-        {
-          "index",
-          key_name
-        }
-      })
-      inner = {
-        build.assign({
-          names = {
-            key_name,
-            val_name
-          },
-          values = {
-            key_exp
-          }
-        }),
-        build.assign_one(dest, val_name)
-      }
-    end
-    return build.block_exp({
-      build.assign_one(accum, build.table()),
-      construct_comprehension(inner, clauses),
-      accum
-    })
-  end,
-  fndef = function(self, node)
-    smart_node(node)
-    node.body = transform_last_stm(node.body, implicitly_return(self))
-    node.body = {
-      Run(function(self)
-        return self:listen("varargs", function() end)
-      end),
-      unpack(node.body)
-    }
-    return node
-  end,
-  ["if"] = function(self, node)
-    return build.block_exp({
-      node
-    })
-  end,
-  unless = function(self, node)
-    return build.block_exp({
-      node
-    })
-  end,
-  with = function(self, node)
-    return build.block_exp({
-      node
-    })
-  end,
-  switch = function(self, node)
-    return build.block_exp({
-      node
-    })
-  end,
-  chain = function(self, node)
-    for i = 2, #node do
-      local part = node[i]
-      if ntype(part) == "dot" and lua_keywords[part[2]] then
-        node[i] = {
-          "index",
-          {
-            "string",
-            '"',
-            part[2]
-          }
-        }
-      end
-    end
-    if ntype(node[2]) == "string" then
-      node[2] = {
-        "parens",
-        node[2]
-      }
-    end
-    if chain_is_stub(node) then
-      local base_name = NameProxy("base")
-      local fn_name = NameProxy("fn")
-      local colon = table.remove(node)
-      local is_super = ntype(node[2]) == "ref" and node[2][2] == "super"
-      return build.block_exp({
-        build.assign({
-          names = {
-            base_name
-          },
-          values = {
-            node
-          }
-        }),
-        build.assign({
-          names = {
-            fn_name
-          },
-          values = {
-            build.chain({
-              base = base_name,
-              {
-                "dot",
-                colon[2]
-              }
-            })
-          }
-        }),
-        build.fndef({
-          args = {
-            {
-              "..."
-            }
-          },
-          body = {
-            build.chain({
-              base = fn_name,
-              {
-                "call",
-                {
-                  is_super and "self" or base_name,
-                  "..."
-                }
-              }
-            })
-          }
-        })
-      })
-    end
-  end,
-  block_exp = function(self, node)
-    local body = unpack(node, 2)
-    local fn = nil
-    local arg_list = { }
-    fn = smart_node(build.fndef({
-      body = {
-        Run(function(self)
-          return self:listen("varargs", function()
-            insert(arg_list, "...")
-            insert(fn.args, {
-              "..."
-            })
-            return self:unlisten("varargs")
-          end)
-        end),
-        unpack(body)
-      }
-    }))
-    return build.chain({
-      base = {
-        "parens",
-        fn
-      },
-      {
-        "call",
-        arg_list
-      }
-    })
-  end
-})
+return moon
 end
 
 package.preload["moonscript.cmd.watchers"] = function()
@@ -2977,7 +2847,6 @@ do
               local file
               file = _des_0[1]
               local time = lfs.attributes(file, "modification")
-              print(file, time)
               if not (time) then
                 mod_time[file] = nil
                 _continue_0 = true
@@ -3043,869 +2912,209 @@ return {
 }
 end
 
-package.preload["moonscript.compile"] = function()
-local util = require("moonscript.util")
-local dump = require("moonscript.dump")
-local transform = require("moonscript.transform")
-local NameProxy, LocalName
-do
-  local _obj_0 = require("moonscript.transform.names")
-  NameProxy, LocalName = _obj_0.NameProxy, _obj_0.LocalName
-end
-local Set
-Set = require("moonscript.data").Set
-local ntype, value_can_be_statement
+package.preload["moonscript.transform.value"] = function()
+local Transformer
+Transformer = require("moonscript.transform.transformer").Transformer
+local build, ntype, smart_node
 do
   local _obj_0 = require("moonscript.types")
-  ntype, value_can_be_statement = _obj_0.ntype, _obj_0.value_can_be_statement
+  build, ntype, smart_node = _obj_0.build, _obj_0.ntype, _obj_0.smart_node
 end
-local statement_compilers = require("moonscript.compile.statement")
-local value_compilers = require("moonscript.compile.value")
-local concat, insert
+local NameProxy
+NameProxy = require("moonscript.transform.names").NameProxy
+local Accumulator, default_accumulator
 do
-  local _obj_0 = table
-  concat, insert = _obj_0.concat, _obj_0.insert
+  local _obj_0 = require("moonscript.transform.accumulator")
+  Accumulator, default_accumulator = _obj_0.Accumulator, _obj_0.default_accumulator
 end
-local pos_to_line, get_closest_line, trim, unpack
-pos_to_line, get_closest_line, trim, unpack = util.pos_to_line, util.get_closest_line, util.trim, util.unpack
-local mtype = util.moon.type
-local indent_char = "  "
-local Line, DelayedLine, Lines, Block, RootBlock
+local lua_keywords
+lua_keywords = require("moonscript.data").lua_keywords
+local user_error
+user_error = require("moonscript.errors").user_error
+local transform_last_stm, implicitly_return, chain_is_stub, has_varargs
 do
-  local _class_0
-  local _base_0 = {
-    mark_pos = function(self, pos, line)
-      if line == nil then
-        line = #self
-      end
-      if not (self.posmap[line]) then
-        self.posmap[line] = pos
-      end
-    end,
-    add = function(self, item)
-      local _exp_0 = mtype(item)
-      if Line == _exp_0 then
-        item:render(self)
-      elseif Block == _exp_0 then
-        item:render(self)
-      else
-        self[#self + 1] = item
-      end
-      return self
-    end,
-    flatten_posmap = function(self, line_no, out)
-      if line_no == nil then
-        line_no = 0
-      end
-      if out == nil then
-        out = { }
-      end
-      local posmap = self.posmap
-      for i, l in ipairs(self) do
-        local _exp_0 = mtype(l)
-        if "string" == _exp_0 or DelayedLine == _exp_0 then
-          line_no = line_no + 1
-          out[line_no] = posmap[i]
-          for _ in l:gmatch("\n") do
-            line_no = line_no + 1
-          end
-          out[line_no] = posmap[i]
-        elseif Lines == _exp_0 then
-          local _
-          _, line_no = l:flatten_posmap(line_no, out)
-        else
-          error("Unknown item in Lines: " .. tostring(l))
-        end
-      end
-      return out, line_no
-    end,
-    flatten = function(self, indent, buffer)
-      if indent == nil then
-        indent = nil
-      end
-      if buffer == nil then
-        buffer = { }
-      end
-      for i = 1, #self do
-        local l = self[i]
-        local t = mtype(l)
-        if t == DelayedLine then
-          l = l:render()
-          t = "string"
-        end
-        local _exp_0 = t
-        if "string" == _exp_0 then
-          if indent then
-            insert(buffer, indent)
-          end
-          insert(buffer, l)
-          if "string" == type(self[i + 1]) then
-            local lc = l:sub(-1)
-            if (lc == ")" or lc == "]") and self[i + 1]:sub(1, 1) == "(" then
-              insert(buffer, ";")
-            end
-          end
-          insert(buffer, "\n")
-        elseif Lines == _exp_0 then
-          l:flatten(indent and indent .. indent_char or indent_char, buffer)
-        else
-          error("Unknown item in Lines: " .. tostring(l))
-        end
-      end
-      return buffer
-    end,
-    __tostring = function(self)
-      local strip
-      strip = function(t)
-        if "table" == type(t) then
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #t do
-            local v = t[_index_0]
-            _accum_0[_len_0] = strip(v)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        else
-          return t
-        end
-      end
-      return "Lines<" .. tostring(util.dump(strip(self)):sub(1, -2)) .. ">"
-    end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function(self)
-      self.posmap = { }
-    end,
-    __base = _base_0,
-    __name = "Lines"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  Lines = _class_0
+  local _obj_0 = require("moonscript.transform.statements")
+  transform_last_stm, implicitly_return, chain_is_stub, has_varargs = _obj_0.transform_last_stm, _obj_0.implicitly_return, _obj_0.chain_is_stub, _obj_0.has_varargs
 end
-do
-  local _class_0
-  local _base_0 = {
-    pos = nil,
-    append_list = function(self, items, delim)
-      for i = 1, #items do
-        self:append(items[i])
-        if i < #items then
-          insert(self, delim)
-        end
-      end
-      return nil
-    end,
-    append = function(self, first, ...)
-      if Line == mtype(first) then
-        if not (self.pos) then
-          self.pos = first.pos
-        end
-        for _index_0 = 1, #first do
-          local value = first[_index_0]
-          self:append(value)
-        end
-      else
-        insert(self, first)
-      end
-      if ... then
-        return self:append(...)
-      end
-    end,
-    render = function(self, buffer)
-      local current = { }
-      local add_current
-      add_current = function()
-        buffer:add(concat(current))
-        return buffer:mark_pos(self.pos)
-      end
-      for _index_0 = 1, #self do
-        local chunk = self[_index_0]
-        local _exp_0 = mtype(chunk)
-        if Block == _exp_0 then
-          local _list_0 = chunk:render(Lines())
-          for _index_1 = 1, #_list_0 do
-            local block_chunk = _list_0[_index_1]
-            if "string" == type(block_chunk) then
-              insert(current, block_chunk)
-            else
-              add_current()
-              buffer:add(block_chunk)
-              current = { }
-            end
-          end
-        else
-          insert(current, chunk)
-        end
-      end
-      if current[1] then
-        add_current()
-      end
-      return buffer
-    end,
-    __tostring = function(self)
-      return "Line<" .. tostring(util.dump(self):sub(1, -2)) .. ">"
-    end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function() end,
-    __base = _base_0,
-    __name = "Line"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  Line = _class_0
-end
-do
-  local _class_0
-  local _base_0 = {
-    prepare = function() end,
-    render = function(self)
-      self:prepare()
-      return concat(self)
-    end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function(self, fn)
-      self.prepare = fn
-    end,
-    __base = _base_0,
-    __name = "DelayedLine"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  DelayedLine = _class_0
-end
-do
-  local _class_0
-  local _base_0 = {
-    header = "do",
-    footer = "end",
-    export_all = false,
-    export_proper = false,
-    value_compilers = value_compilers,
-    statement_compilers = statement_compilers,
-    __tostring = function(self)
-      local h
-      if "string" == type(self.header) then
-        h = self.header
-      else
-        h = unpack(self.header:render({ }))
-      end
-      return "Block<" .. tostring(h) .. "> <- " .. tostring(self.parent)
-    end,
-    set = function(self, name, value)
-      self._state[name] = value
-    end,
-    get = function(self, name)
-      return self._state[name]
-    end,
-    get_current = function(self, name)
-      return rawget(self._state, name)
-    end,
-    listen = function(self, name, fn)
-      self._listeners[name] = fn
-    end,
-    unlisten = function(self, name)
-      self._listeners[name] = nil
-    end,
-    send = function(self, name, ...)
-      do
-        local fn = self._listeners[name]
-        if fn then
-          return fn(self, ...)
-        end
-      end
-    end,
-    extract_assign_name = function(self, node)
-      local is_local = false
-      local real_name
-      local _exp_0 = mtype(node)
-      if LocalName == _exp_0 then
-        is_local = true
-        real_name = node:get_name(self)
-      elseif NameProxy == _exp_0 then
-        real_name = node:get_name(self)
-      elseif "table" == _exp_0 then
-        real_name = node[1] == "ref" and node[2]
-      elseif "string" == _exp_0 then
-        real_name = node
-      end
-      return real_name, is_local
-    end,
-    declare = function(self, names)
-      local undeclared
-      do
-        local _accum_0 = { }
-        local _len_0 = 1
-        for _index_0 = 1, #names do
-          local _continue_0 = false
-          repeat
-            local name = names[_index_0]
-            local real_name, is_local = self:extract_assign_name(name)
-            if not (is_local or real_name and not self:has_name(real_name, true)) then
-              _continue_0 = true
-              break
-            end
-            self:put_name(real_name)
-            if self:name_exported(real_name) then
-              _continue_0 = true
-              break
-            end
-            local _value_0 = real_name
-            _accum_0[_len_0] = _value_0
-            _len_0 = _len_0 + 1
-            _continue_0 = true
-          until true
-          if not _continue_0 then
-            break
-          end
-        end
-        undeclared = _accum_0
-      end
-      return undeclared
-    end,
-    whitelist_names = function(self, names)
-      self._name_whitelist = Set(names)
-    end,
-    name_exported = function(self, name)
-      if self.export_all then
-        return true
-      end
-      if self.export_proper and name:match("^%u") then
-        return true
-      end
-    end,
-    put_name = function(self, name, ...)
-      local value = ...
-      if select("#", ...) == 0 then
-        value = true
-      end
-      if NameProxy == mtype(name) then
-        name = name:get_name(self)
-      end
-      self._names[name] = value
-    end,
-    has_name = function(self, name, skip_exports)
-      if not skip_exports and self:name_exported(name) then
-        return true
-      end
-      local yes = self._names[name]
-      if yes == nil and self.parent then
-        if not self._name_whitelist or self._name_whitelist[name] then
-          return self.parent:has_name(name, true)
-        end
-      else
-        return yes
-      end
-    end,
-    is_local = function(self, node)
-      local t = mtype(node)
-      if t == "string" then
-        return self:has_name(node, false)
-      end
-      if t == NameProxy or t == LocalName then
-        return true
-      end
-      if t == "table" then
-        if node[1] == "ref" or (node[1] == "chain" and #node == 2) then
-          return self:is_local(node[2])
-        end
-      end
-      return false
-    end,
-    free_name = function(self, prefix, dont_put)
-      prefix = prefix or "moon"
-      local searching = true
-      local name, i = nil, 0
-      while searching do
-        name = concat({
-          "",
-          prefix,
-          i
-        }, "_")
-        i = i + 1
-        searching = self:has_name(name, true)
-      end
-      if not dont_put then
-        self:put_name(name)
-      end
-      return name
-    end,
-    init_free_var = function(self, prefix, value)
-      local name = self:free_name(prefix, true)
-      self:stm({
-        "assign",
-        {
-          name
-        },
-        {
-          value
+local construct_comprehension
+construct_comprehension = require("moonscript.transform.comprehension").construct_comprehension
+local destructure = require("moonscript.transform.destructure")
+local insert
+insert = table.insert
+local unpack
+unpack = require("moonscript.util").unpack
+return Transformer({
+  ["for"] = default_accumulator,
+  ["while"] = default_accumulator,
+  foreach = default_accumulator,
+  ["do"] = function(self, node)
+    return build.block_exp(node[2])
+  end,
+  decorated = function(self, node)
+    return self.transform.statement(node)
+  end,
+  class = function(self, node)
+    return build.block_exp({
+      node
+    })
+  end,
+  string = function(self, node)
+    local delim = node[2]
+    local convert_part
+    convert_part = function(part)
+      if type(part) == "string" or part == nil then
+        return {
+          "string",
+          delim,
+          part or ""
         }
-      })
-      return name
-    end,
-    add = function(self, item, pos)
-      do
-        local _with_0 = self._lines
-        _with_0:add(item)
-        if pos then
-          _with_0:mark_pos(pos)
-        end
-      end
-      return item
-    end,
-    render = function(self, buffer)
-      buffer:add(self.header)
-      buffer:mark_pos(self.pos)
-      if self.next then
-        buffer:add(self._lines)
-        self.next:render(buffer)
       else
-        if #self._lines == 0 and "string" == type(buffer[#buffer]) then
-          buffer[#buffer] = buffer[#buffer] .. (" " .. (unpack(Lines():add(self.footer))))
-        else
-          buffer:add(self._lines)
-          buffer:add(self.footer)
-          buffer:mark_pos(self.pos)
-        end
+        return build.chain({
+          base = "tostring",
+          {
+            "call",
+            {
+              part[2]
+            }
+          }
+        })
       end
-      return buffer
-    end,
-    block = function(self, header, footer)
-      return Block(self, header, footer)
-    end,
-    line = function(self, ...)
-      do
-        local _with_0 = Line()
-        _with_0:append(...)
-        return _with_0
-      end
-    end,
-    is_stm = function(self, node)
-      return self.statement_compilers[ntype(node)] ~= nil
-    end,
-    is_value = function(self, node)
-      local t = ntype(node)
-      return self.value_compilers[t] ~= nil or t == "value"
-    end,
-    name = function(self, node, ...)
-      if type(node) == "string" then
+    end
+    if #node <= 3 then
+      if type(node[3]) == "string" then
         return node
       else
-        return self:value(node, ...)
+        return convert_part(node[3])
       end
-    end,
-    value = function(self, node, ...)
-      node = self.transform.value(node)
-      local action
-      if type(node) ~= "table" then
-        action = "raw_value"
-      else
-        action = node[1]
-      end
-      local fn = self.value_compilers[action]
-      if not (fn) then
-        error({
-          "compile-error",
-          "Failed to find value compiler for: " .. dump.value(node),
-          node[-1]
-        })
-      end
-      local out = fn(self, node, ...)
-      if type(node) == "table" and node[-1] then
-        if type(out) == "string" then
-          do
-            local _with_0 = Line()
-            _with_0:append(out)
-            out = _with_0
-          end
-        end
-        out.pos = node[-1]
-      end
-      return out
-    end,
-    values = function(self, values, delim)
-      delim = delim or ', '
-      do
-        local _with_0 = Line()
-        _with_0:append_list((function()
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #values do
-            local v = values[_index_0]
-            _accum_0[_len_0] = self:value(v)
-            _len_0 = _len_0 + 1
-          end
-          return _accum_0
-        end)(), delim)
-        return _with_0
-      end
-    end,
-    stm = function(self, node, ...)
-      if not node then
-        return 
-      end
-      node = self.transform.statement(node)
-      local result
-      do
-        local fn = self.statement_compilers[ntype(node)]
-        if fn then
-          result = fn(self, node, ...)
-        else
-          if value_can_be_statement(node) then
-            result = self:value(node)
-          else
-            result = self:stm({
-              "assign",
-              {
-                "_"
-              },
-              {
-                node
-              }
-            })
-          end
-        end
-      end
-      if result then
-        if type(node) == "table" and type(result) == "table" and node[-1] then
-          result.pos = node[-1]
-        end
-        self:add(result)
-      end
-      return nil
-    end,
-    stms = function(self, stms, ret)
-      if ret then
-        error("deprecated stms call, use transformer")
-      end
-      local current_stms, current_stm_i
-      current_stms, current_stm_i = self.current_stms, self.current_stm_i
-      self.current_stms = stms
-      for i = 1, #stms do
-        self.current_stm_i = i
-        self:stm(stms[i])
-      end
-      self.current_stms = current_stms
-      self.current_stm_i = current_stm_i
-      return nil
-    end,
-    splice = function(self, fn)
-      local lines = {
-        "lines",
-        self._lines
-      }
-      self._lines = Lines()
-      return self:stms(fn(lines))
     end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function(self, parent, header, footer)
-      self.parent, self.header, self.footer = parent, header, footer
-      self._lines = Lines()
-      self._names = { }
-      self._state = { }
-      self._listeners = { }
-      do
-        self.transform = {
-          value = transform.Value:bind(self),
-          statement = transform.Statement:bind(self)
+    local e = {
+      "exp",
+      convert_part(node[3])
+    }
+    for i = 4, #node do
+      insert(e, "..")
+      insert(e, convert_part(node[i]))
+    end
+    return e
+  end,
+  comprehension = function(self, node)
+    local a = Accumulator()
+    node = self.transform.statement(node, function(exp)
+      return a:mutate_body({
+        exp
+      })
+    end)
+    return a:wrap(node)
+  end,
+  tblcomprehension = function(self, node)
+    local explist, clauses = unpack(node, 2)
+    local key_exp, value_exp = unpack(explist)
+    local accum = NameProxy("tbl")
+    local inner
+    if value_exp then
+      local dest = build.chain({
+        base = accum,
+        {
+          "index",
+          key_exp
         }
-      end
-      if self.parent then
-        self.root = self.parent.root
-        self.indent = self.parent.indent + 1
-        setmetatable(self._state, {
-          __index = self.parent._state
-        })
-        return setmetatable(self._listeners, {
-          __index = self.parent._listeners
-        })
-      else
-        self.indent = 0
-      end
-    end,
-    __base = _base_0,
-    __name = "Block"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  Block = _class_0
-end
-do
-  local _class_0
-  local _parent_0 = Block
-  local _base_0 = {
-    __tostring = function(self)
-      return "RootBlock<>"
-    end,
-    root_stms = function(self, stms)
-      if not (self.options.implicitly_return_root == false) then
-        stms = transform.Statement.transformers.root_stms(self, stms)
-      end
-      return self:stms(stms)
-    end,
-    render = function(self)
-      local buffer = self._lines:flatten()
-      if buffer[#buffer] == "\n" then
-        buffer[#buffer] = nil
-      end
-      return table.concat(buffer)
-    end
-  }
-  _base_0.__index = _base_0
-  setmetatable(_base_0, _parent_0.__base)
-  _class_0 = setmetatable({
-    __init = function(self, options)
-      self.options = options
-      self.root = self
-      return _class_0.__parent.__init(self)
-    end,
-    __base = _base_0,
-    __name = "RootBlock",
-    __parent = _parent_0
-  }, {
-    __index = function(cls, name)
-      local val = rawget(_base_0, name)
-      if val == nil then
-        local parent = rawget(cls, "__parent")
-        if parent then
-          return parent[name]
-        end
-      else
-        return val
-      end
-    end,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
-    end
-  })
-  _base_0.__class = _class_0
-  if _parent_0.__inherited then
-    _parent_0.__inherited(_parent_0, _class_0)
-  end
-  RootBlock = _class_0
-end
-local format_error
-format_error = function(msg, pos, file_str)
-  local line_message
-  if pos then
-    local line = pos_to_line(file_str, pos)
-    local line_str
-    line_str, line = get_closest_line(file_str, line)
-    line_str = line_str or ""
-    line_message = (" [%d] >>    %s"):format(line, trim(line_str))
-  end
-  return concat({
-    "Compile error: " .. msg,
-    line_message
-  }, "\n")
-end
-local value
-value = function(value)
-  local out = nil
-  do
-    local _with_0 = RootBlock()
-    _with_0:add(_with_0:value(value))
-    out = _with_0:render()
-  end
-  return out
-end
-local tree
-tree = function(tree, options)
-  if options == nil then
-    options = { }
-  end
-  assert(tree, "missing tree")
-  local scope = (options.scope or RootBlock)(options)
-  local runner = coroutine.create(function()
-    return scope:root_stms(tree)
-  end)
-  local success, err = coroutine.resume(runner)
-  if not (success) then
-    local error_msg, error_pos
-    if type(err) == "table" then
-      local _exp_0 = err[1]
-      if "user-error" == _exp_0 or "compile-error" == _exp_0 then
-        error_msg, error_pos = unpack(err, 2)
-      else
-        error_msg, error_pos = error("Unknown error thrown", util.dump(error_msg))
-      end
+      })
+      inner = {
+        build.assign_one(dest, value_exp)
+      }
     else
-      error_msg, error_pos = concat({
-        err,
-        debug.traceback(runner)
-      }, "\n")
+      local key_name, val_name = NameProxy("key"), NameProxy("val")
+      local dest = build.chain({
+        base = accum,
+        {
+          "index",
+          key_name
+        }
+      })
+      inner = {
+        build.assign({
+          names = {
+            key_name,
+            val_name
+          },
+          values = {
+            key_exp
+          }
+        }),
+        build.assign_one(dest, val_name)
+      }
     end
-    return nil, error_msg, error_pos or scope.last_pos
-  end
-  local lua_code = scope:render()
-  local posmap = scope._lines:flatten_posmap()
-  return lua_code, posmap
-end
-do
-  local data = require("moonscript.data")
-  for name, cls in pairs({
-    Line = Line,
-    Lines = Lines,
-    DelayedLine = DelayedLine
-  }) do
-    data[name] = cls
-  end
-end
-return {
-  tree = tree,
-  value = value,
-  format_error = format_error,
-  Block = Block,
-  RootBlock = RootBlock
-}
-end
-
-package.preload["moonscript.cmd.coverage"] = function()
-local log
-log = function(str)
-  if str == nil then
-    str = ""
-  end
-  return io.stderr:write(str .. "\n")
-end
-local create_counter
-create_counter = function()
-  return setmetatable({ }, {
-    __index = function(self, name)
-      do
-        local tbl = setmetatable({ }, {
-          __index = function(self)
-            return 0
+    return build.block_exp({
+      build.assign_one(accum, build.table()),
+      construct_comprehension(inner, clauses),
+      accum
+    })
+  end,
+  fndef = function(self, node)
+    smart_node(node)
+    node.body = transform_last_stm(node.body, implicitly_return(self))
+    local first_destructure
+    for i, arg in ipairs(node.args) do
+      if ntype(arg[1]) == "table" then
+        first_destructure = i
+        break
+      end
+    end
+    if first_destructure then
+      local bound_names = { }
+      if node.arrow == "fat" then
+        bound_names.self = true
+      end
+      local _list_0 = node.args
+      for _index_0 = 1, #_list_0 do
+        local arg = _list_0[_index_0]
+        local _exp_0 = ntype(arg[1])
+        if "self" == _exp_0 or "self_class" == _exp_0 then
+          bound_names[arg[1][2]] = true
+        elseif "table" == _exp_0 then
+          local _ = nil
+        else
+          if type(arg[1]) == "string" then
+            bound_names[arg[1]] = true
           end
-        })
-        self[name] = tbl
-        return tbl
-      end
-    end
-  })
-end
-local position_to_lines
-position_to_lines = function(file_content, positions)
-  local lines = { }
-  local current_pos = 0
-  local line_no = 1
-  for char in file_content:gmatch(".") do
-    do
-      local count = rawget(positions, current_pos)
-      if count then
-        lines[line_no] = count
-      end
-    end
-    if char == "\n" then
-      line_no = line_no + 1
-    end
-    current_pos = current_pos + 1
-  end
-  return lines
-end
-local format_file
-format_file = function(fname, positions)
-  fname = fname:gsub("^@", "")
-  local file = assert(io.open(fname))
-  local content = file:read("*a")
-  file:close()
-  local lines = position_to_lines(content, positions)
-  log("------| @" .. tostring(fname))
-  local line_no = 1
-  for line in (content .. "\n"):gmatch("(.-)\n") do
-    local foramtted_no = ("% 5d"):format(line_no)
-    local sym = lines[line_no] and "*" or " "
-    log(tostring(sym) .. tostring(foramtted_no) .. "| " .. tostring(line))
-    line_no = line_no + 1
-  end
-  return log()
-end
-local CodeCoverage
-do
-  local _class_0
-  local _base_0 = {
-    reset = function(self)
-      self.line_counts = create_counter()
-    end,
-    start = function(self)
-      return debug.sethook((function()
-        local _base_1 = self
-        local _fn_0 = _base_1.process_line
-        return function(...)
-          return _fn_0(_base_1, ...)
         end
-      end)(), "l")
-    end,
-    stop = function(self)
-      return debug.sethook()
-    end,
-    print_results = function(self)
-      return self:format_results()
-    end,
-    process_line = function(self, _, line_no)
-      local debug_data = debug.getinfo(2, "S")
-      local source = debug_data.source
-      self.line_counts[source][line_no] = self.line_counts[source][line_no] + 1
-    end,
-    format_results = function(self)
-      local line_table = require("moonscript.line_tables")
-      local positions = create_counter()
-      for file, lines in pairs(self.line_counts) do
+      end
+      local seen_targets = { }
+      local _list_1 = node.args
+      for _index_0 = 1, #_list_1 do
         local _continue_0 = false
         repeat
-          local file_table = line_table[file]
-          if not (file_table) then
+          local arg = _list_1[_index_0]
+          if not (ntype(arg[1]) == "table") then
             _continue_0 = true
             break
           end
-          for line, count in pairs(lines) do
-            local _continue_1 = false
-            repeat
-              local position = file_table[line]
-              if not (position) then
-                _continue_1 = true
-                break
+          local targets
+          do
+            local _accum_0 = { }
+            local _len_0 = 1
+            local _list_2 = destructure.extract_assign_names(arg[1])
+            for _index_1 = 1, #_list_2 do
+              local _des_0 = _list_2[_index_1]
+              local t
+              t = _des_0[1]
+              if ntype(t) == "ref" then
+                _accum_0[_len_0] = t
+                _len_0 = _len_0 + 1
               end
-              positions[file][position] = positions[file][position] + count
-              _continue_1 = true
-            until true
-            if not _continue_1 then
-              break
             end
+            targets = _accum_0
+          end
+          for _index_1 = 1, #targets do
+            local target = targets[_index_1]
+            local name = target[2]
+            if bound_names[name] or seen_targets[name] then
+              user_error("Can't destructure into '" .. tostring(name) .. "': name is bound by another parameter", target[-1])
+            end
+          end
+          for _index_1 = 1, #targets do
+            local target = targets[_index_1]
+            seen_targets[target[2]] = true
           end
           _continue_0 = true
         until true
@@ -3913,36 +3122,741 @@ do
           break
         end
       end
-      for file, ps in pairs(positions) do
-        format_file(file, ps)
+      local default_check
+      default_check = function(name, value)
+        return {
+          "if",
+          {
+            "exp",
+            name,
+            "==",
+            "nil"
+          },
+          {
+            {
+              "assign",
+              {
+                name
+              },
+              {
+                value
+              }
+            }
+          }
+        }
+      end
+      local prelude = { }
+      for i = first_destructure, #node.args do
+        local arg = node.args[i]
+        local name, default_value = arg[1], arg[2]
+        local _exp_0 = ntype(name)
+        if "table" == _exp_0 then
+          local proxy = NameProxy("arg")
+          if default_value then
+            insert(prelude, default_check(proxy, default_value))
+          end
+          insert(prelude, destructure.build_assign(self, name, proxy, {
+            shadow = true
+          }))
+          node.args[i] = {
+            proxy
+          }
+        elseif "self" == _exp_0 or "self_class" == _exp_0 then
+          local raw_name = name[2]
+          if default_value then
+            insert(prelude, default_check({
+              "ref",
+              raw_name
+            }, default_value))
+          end
+          insert(prelude, build.assign_one(name, {
+            "ref",
+            raw_name
+          }))
+          node.args[i] = {
+            raw_name
+          }
+        else
+          if default_value then
+            insert(prelude, default_check({
+              "ref",
+              name
+            }, default_value))
+            node.args[i] = {
+              name
+            }
+          end
+        end
+      end
+      insert(prelude, build.group(node.body))
+      node.body = prelude
+    end
+    return node
+  end,
+  ["if"] = function(self, node)
+    return build.block_exp({
+      node
+    })
+  end,
+  unless = function(self, node)
+    return build.block_exp({
+      node
+    })
+  end,
+  with = function(self, node)
+    return build.block_exp({
+      node
+    })
+  end,
+  switch = function(self, node)
+    return build.block_exp({
+      node
+    })
+  end,
+  chain = function(self, node)
+    for i = 2, #node do
+      local part = node[i]
+      if ntype(part) == "dot" and lua_keywords[part[2]] then
+        node[i] = {
+          "index",
+          {
+            "string",
+            '"',
+            part[2]
+          }
+        }
       end
     end
-  }
-  _base_0.__index = _base_0
-  _class_0 = setmetatable({
-    __init = function(self)
-      return self:reset()
-    end,
-    __base = _base_0,
-    __name = "CodeCoverage"
-  }, {
-    __index = _base_0,
-    __call = function(cls, ...)
-      local _self_0 = setmetatable({}, _base_0)
-      cls.__init(_self_0, ...)
-      return _self_0
+    if ntype(node[2]) == "string" then
+      node[2] = {
+        "parens",
+        node[2]
+      }
     end
-  })
-  _base_0.__class = _class_0
-  CodeCoverage = _class_0
+    if chain_is_stub(node) then
+      local base_name = NameProxy("base")
+      local fn_name = NameProxy("fn")
+      local colon = table.remove(node)
+      if not (node[2]) then
+        local scope_var = self:get("scope_var")
+        if not (scope_var) then
+          user_error("Short-colon syntax must be called within a with block", node[-1])
+        end
+        node[2] = scope_var
+      end
+      local is_super = ntype(node[2]) == "ref" and node[2][2] == "super"
+      return build.block_exp({
+        build.assign({
+          names = {
+            base_name
+          },
+          values = {
+            node
+          }
+        }),
+        build.assign({
+          names = {
+            fn_name
+          },
+          values = {
+            build.chain({
+              base = base_name,
+              {
+                "dot",
+                colon[2]
+              }
+            })
+          }
+        }),
+        build.fndef({
+          args = {
+            {
+              "..."
+            }
+          },
+          body = {
+            build.chain({
+              base = fn_name,
+              {
+                "call",
+                {
+                  is_super and "self" or base_name,
+                  "..."
+                }
+              }
+            })
+          }
+        })
+      })
+    end
+  end,
+  block_exp = function(self, node)
+    local body = unpack(node, 2)
+    local arg_list = { }
+    local fn = smart_node(build.fndef({
+      body = body
+    }))
+    if has_varargs(body) then
+      insert(arg_list, "...")
+      insert(fn.args, {
+        "..."
+      })
+    end
+    return build.chain({
+      base = {
+        "parens",
+        fn
+      },
+      {
+        "call",
+        arg_list
+      }
+    })
+  end
+})
+end
+
+package.preload["moonscript.parse.util"] = function()
+local unpack
+unpack = require("moonscript.util").unpack
+local P, C, S, Cp, Cmt, V
+do
+  local _obj_0 = require("lpeg")
+  P, C, S, Cp, Cmt, V = _obj_0.P, _obj_0.C, _obj_0.S, _obj_0.Cp, _obj_0.Cmt, _obj_0.V
+end
+local ntype, is_assignable
+do
+  local _obj_0 = require("moonscript.types")
+  ntype, is_assignable = _obj_0.ntype, _obj_0.is_assignable
+end
+local Space
+Space = require("moonscript.parse.literals").Space
+local Indent = C(S("\t ") ^ 0) / function(str)
+  do
+    local sum = 0
+    for v in str:gmatch("[\t ]") do
+      local _exp_0 = v
+      if " " == _exp_0 then
+        sum = sum + 1
+      elseif "\t" == _exp_0 then
+        sum = sum + 4
+      end
+    end
+    return sum
+  end
+end
+local Cut = P(function()
+  return false
+end)
+local ensure
+ensure = function(patt, finally)
+  return patt * finally + finally * Cut
+end
+local extract_line
+extract_line = function(str, start_pos)
+  str = str:sub(start_pos)
+  do
+    local m = str:match("^(.-)\n")
+    if m then
+      return m
+    end
+  end
+  return str:match("^.-$")
+end
+local show_line_position
+show_line_position = function(str, pos, context)
+  if context == nil then
+    context = true
+  end
+  local lines = {
+    { }
+  }
+  for c in str:gmatch(".") do
+    local _update_0 = #lines
+    lines[_update_0] = lines[_update_0] or { }
+    table.insert(lines[#lines], c)
+    if c == "\n" then
+      lines[#lines + 1] = { }
+    end
+  end
+  for i, line in ipairs(lines) do
+    lines[i] = table.concat(line)
+  end
+  local out
+  local remaining = pos - 1
+  for k, line in ipairs(lines) do
+    if remaining < #line then
+      local left = line:sub(1, remaining)
+      local right = line:sub(remaining + 1)
+      out = {
+        tostring(left) .. "◉" .. tostring(right)
+      }
+      if context then
+        do
+          local before = lines[k - 1]
+          if before then
+            table.insert(out, 1, before)
+          end
+        end
+        do
+          local after = lines[k + 1]
+          if after then
+            table.insert(out, after)
+          end
+        end
+      end
+      break
+    else
+      remaining = remaining - #line
+    end
+  end
+  if not (out) then
+    return "-"
+  end
+  out = table.concat(out)
+  return (out:gsub("\n*$", ""))
+end
+local mark
+mark = function(name)
+  return function(...)
+    return {
+      name,
+      ...
+    }
+  end
+end
+local pos
+pos = function(patt)
+  return (Cp() * patt) / function(pos, value)
+    if type(value) == "table" then
+      value[-1] = pos
+    end
+    return value
+  end
+end
+local got
+got = function(what, context)
+  if context == nil then
+    context = true
+  end
+  return Cmt("", function(str, pos)
+    print("++ got " .. tostring(what), "[" .. tostring(show_line_position(str, pos, context)) .. "]")
+    return true
+  end)
+end
+local flatten_or_mark
+flatten_or_mark = function(name)
+  return function(tbl)
+    if #tbl == 1 then
+      return tbl[1]
+    end
+    table.insert(tbl, 1, name)
+    return tbl
+  end
+end
+local check_assignable
+check_assignable = function(str, pos, value)
+  if is_assignable(value) then
+    return true, value
+  else
+    return false
+  end
+end
+local format_assign
+do
+  local flatten_explist = flatten_or_mark("explist")
+  format_assign = function(lhs_exps, assign)
+    if not (assign) then
+      return flatten_explist(lhs_exps)
+    end
+    for _index_0 = 1, #lhs_exps do
+      local assign_exp = lhs_exps[_index_0]
+      if not (is_assignable(assign_exp)) then
+        error({
+          assign_exp,
+          "left hand expression is not assignable"
+        })
+      end
+    end
+    local t = ntype(assign)
+    local _exp_0 = t
+    if "assign" == _exp_0 then
+      return {
+        "assign",
+        lhs_exps,
+        unpack(assign, 2)
+      }
+    elseif "update" == _exp_0 then
+      return {
+        "update",
+        lhs_exps[1],
+        unpack(assign, 2)
+      }
+    else
+      return error("unknown assign expression: " .. tostring(t))
+    end
+  end
+end
+local format_single_assign
+format_single_assign = function(lhs, assign)
+  if assign then
+    return format_assign({
+      lhs
+    }, assign)
+  else
+    return lhs
+  end
+end
+local sym
+sym = function(chars)
+  return Space * chars
+end
+local symx
+symx = function(chars)
+  return chars
+end
+local simple_string
+simple_string = function(delim, allow_interpolation)
+  local inner = P("\\" .. tostring(delim)) + "\\\\" + (1 - P(delim))
+  if allow_interpolation then
+    local interp = symx('#{') * V("Exp") * sym('}')
+    inner = (C((inner - symx('#{')) ^ 1) + interp / mark("interpolate")) ^ 0
+  else
+    inner = C(inner ^ 0)
+  end
+  return C(symx(delim)) * inner * sym(delim) / mark("string")
+end
+local wrap_func_arg
+wrap_func_arg = function(value)
+  return {
+    "call",
+    {
+      value
+    }
+  }
+end
+local join_chain
+join_chain = function(callee, args)
+  if #args == 0 then
+    return callee
+  end
+  args = {
+    "call",
+    args
+  }
+  if ntype(callee) == "chain" then
+    table.insert(callee, args)
+    return callee
+  end
+  return {
+    "chain",
+    callee,
+    args
+  }
+end
+local wrap_decorator
+wrap_decorator = function(stm, dec)
+  if not (dec) then
+    return stm
+  end
+  return {
+    "decorated",
+    stm,
+    dec
+  }
+end
+local check_lua_string
+check_lua_string = function(str, pos, right, left)
+  return #left == #right
+end
+local self_assign
+self_assign = function(name, pos)
+  return {
+    {
+      "key_literal",
+      name
+    },
+    {
+      "ref",
+      name,
+      [-1] = pos
+    }
+  }
 end
 return {
-  CodeCoverage = CodeCoverage
+  Indent = Indent,
+  Cut = Cut,
+  ensure = ensure,
+  extract_line = extract_line,
+  mark = mark,
+  pos = pos,
+  flatten_or_mark = flatten_or_mark,
+  is_assignable = is_assignable,
+  check_assignable = check_assignable,
+  format_assign = format_assign,
+  format_single_assign = format_single_assign,
+  sym = sym,
+  symx = symx,
+  simple_string = simple_string,
+  wrap_func_arg = wrap_func_arg,
+  join_chain = join_chain,
+  wrap_decorator = wrap_decorator,
+  check_lua_string = check_lua_string,
+  self_assign = self_assign,
+  got = got,
+  show_line_position = show_line_position
 }
 end
 
-package.preload["moonscript.line_tables"] = function()
-return { }
+package.preload["moonscript.compile.statement"] = function()
+local ntype
+ntype = require("moonscript.types").ntype
+local concat, insert
+do
+  local _obj_0 = table
+  concat, insert = _obj_0.concat, _obj_0.insert
+end
+local unpack
+unpack = require("moonscript.util").unpack
+return {
+  raw = function(self, node)
+    return self:add(node[2])
+  end,
+  declare_constants = function(self, node)
+    local _list_0 = node[2]
+    for _index_0 = 1, #_list_0 do
+      local name = _list_0[_index_0]
+      if ntype(name) == "ref" then
+        name = name[2]
+      end
+      self:put_name(name, {
+        const = true,
+        pos = node[-1]
+      })
+    end
+    return nil
+  end,
+  declare = function(self, node)
+    local names = node[2]
+    local undeclared = self:declare(names)
+    if #undeclared > 0 then
+      do
+        local _with_0 = self:line("local ")
+        _with_0:append_list((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #undeclared do
+            local name = undeclared[_index_0]
+            _accum_0[_len_0] = self:name(name)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), ", ")
+        return _with_0
+      end
+    end
+  end,
+  declare_with_shadows = function(self, node)
+    local names = node[2]
+    self:declare(names)
+    self:put_fresh_names(names)
+    do
+      local _with_0 = self:line("local ")
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #names do
+          local name = names[_index_0]
+          _accum_0[_len_0] = self:name(name)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      return _with_0
+    end
+  end,
+  assign = function(self, node)
+    local names, values = unpack(node, 2)
+    local undeclared = self:declare(names)
+    local declare = "local " .. concat(undeclared, ", ")
+    local has_fndef = false
+    local i = 1
+    while i <= #values do
+      if ntype(values[i]) == "fndef" then
+        has_fndef = true
+      end
+      i = i + 1
+    end
+    do
+      local _with_0 = self:line()
+      if #undeclared == #names and not has_fndef then
+        _with_0:append(declare)
+      else
+        if #undeclared > 0 then
+          self:add(declare, node[-1])
+        end
+        _with_0:append_list((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #names do
+            local name = names[_index_0]
+            _accum_0[_len_0] = self:value(name)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), ", ")
+      end
+      _with_0:append(" = ")
+      _with_0:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #values do
+          local v = values[_index_0]
+          _accum_0[_len_0] = self:value(v)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      return _with_0
+    end
+  end,
+  ["return"] = function(self, node)
+    return self:line("return ", (function()
+      if node[2] ~= "" then
+        return self:value(node[2])
+      end
+    end)())
+  end,
+  ["break"] = function(self, node)
+    return "break"
+  end,
+  ["if"] = function(self, node)
+    local cond, block = node[2], node[3]
+    local root
+    do
+      local _with_0 = self:block(self:line("if ", self:value(cond), " then"))
+      _with_0:stms(block)
+      root = _with_0
+    end
+    local current = root
+    local add_clause
+    add_clause = function(clause)
+      local type = clause[1]
+      local i = 2
+      local next
+      if type == "else" then
+        next = self:block("else")
+      else
+        i = i + 1
+        next = self:block(self:line("elseif ", self:value(clause[2]), " then"))
+      end
+      next:stms(clause[i])
+      current.next = next
+      current = next
+    end
+    for _index_0 = 4, #node do
+      local cond = node[_index_0]
+      add_clause(cond)
+    end
+    return root
+  end,
+  ["repeat"] = function(self, node)
+    local cond, block = unpack(node, 2)
+    do
+      local _with_0 = self:block("repeat", self:line("until ", self:value(cond)))
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  ["while"] = function(self, node)
+    local cond, block = unpack(node, 2)
+    do
+      local _with_0 = self:block(self:line("while ", self:value(cond), " do"))
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  ["for"] = function(self, node)
+    local name, bounds, block = unpack(node, 2)
+    local loop = self:line("for ", self:name(name), " = ", self:value({
+      "explist",
+      unpack(bounds)
+    }), " do")
+    do
+      local _with_0 = self:block(loop)
+      _with_0:put_fresh_names({
+        name
+      })
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  foreach = function(self, node)
+    local names, exps, block = unpack(node, 2)
+    local loop
+    do
+      local _with_0 = self:line()
+      _with_0:append("for ")
+      loop = _with_0
+    end
+    do
+      local _with_0 = self:block(loop)
+      loop:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #names do
+          local name = names[_index_0]
+          _accum_0[_len_0] = _with_0:name(name, false)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ", ")
+      loop:append(" in ")
+      loop:append_list((function()
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #exps do
+          local exp = exps[_index_0]
+          _accum_0[_len_0] = self:value(exp)
+          _len_0 = _len_0 + 1
+        end
+        return _accum_0
+      end)(), ",")
+      loop:append(" do")
+      _with_0:put_fresh_names(names)
+      _with_0:stms(block)
+      return _with_0
+    end
+  end,
+  export = function(self, node)
+    local names = unpack(node, 2)
+    if type(names) == "string" then
+      if names == "*" then
+        self.export_all = true
+      elseif names == "^" then
+        self.export_proper = true
+      end
+    else
+      self:declare(names)
+    end
+    return nil
+  end,
+  run = function(self, code)
+    code:call(self)
+    return nil
+  end,
+  group = function(self, node)
+    return self:stms(node[2])
+  end,
+  ["do"] = function(self, node)
+    do
+      local _with_0 = self:block()
+      _with_0:stms(node[2])
+      return _with_0
+    end
+  end,
+  noop = function(self) end
+}
 end
 
 package.preload["moonscript.transform.transformer"] = function()
@@ -4094,313 +4008,8 @@ return {
 }
 end
 
-package.preload["moonscript.parse.util"] = function()
-local unpack
-unpack = require("moonscript.util").unpack
-local P, C, S, Cp, Cmt, V
-do
-  local _obj_0 = require("lpeg")
-  P, C, S, Cp, Cmt, V = _obj_0.P, _obj_0.C, _obj_0.S, _obj_0.Cp, _obj_0.Cmt, _obj_0.V
-end
-local ntype
-ntype = require("moonscript.types").ntype
-local Space
-Space = require("moonscript.parse.literals").Space
-local Indent = C(S("\t ") ^ 0) / function(str)
-  do
-    local sum = 0
-    for v in str:gmatch("[\t ]") do
-      local _exp_0 = v
-      if " " == _exp_0 then
-        sum = sum + 1
-      elseif "\t" == _exp_0 then
-        sum = sum + 4
-      end
-    end
-    return sum
-  end
-end
-local Cut = P(function()
-  return false
-end)
-local ensure
-ensure = function(patt, finally)
-  return patt * finally + finally * Cut
-end
-local extract_line
-extract_line = function(str, start_pos)
-  str = str:sub(start_pos)
-  do
-    local m = str:match("^(.-)\n")
-    if m then
-      return m
-    end
-  end
-  return str:match("^.-$")
-end
-local show_line_position
-show_line_position = function(str, pos, context)
-  if context == nil then
-    context = true
-  end
-  local lines = {
-    { }
-  }
-  for c in str:gmatch(".") do
-    lines[#lines] = lines[#lines] or { }
-    table.insert(lines[#lines], c)
-    if c == "\n" then
-      lines[#lines + 1] = { }
-    end
-  end
-  for i, line in ipairs(lines) do
-    lines[i] = table.concat(line)
-  end
-  local out
-  local remaining = pos - 1
-  for k, line in ipairs(lines) do
-    if remaining < #line then
-      local left = line:sub(1, remaining)
-      local right = line:sub(remaining + 1)
-      out = {
-        tostring(left) .. "◉" .. tostring(right)
-      }
-      if context then
-        do
-          local before = lines[k - 1]
-          if before then
-            table.insert(out, 1, before)
-          end
-        end
-        do
-          local after = lines[k + 1]
-          if after then
-            table.insert(out, after)
-          end
-        end
-      end
-      break
-    else
-      remaining = remaining - #line
-    end
-  end
-  if not (out) then
-    return "-"
-  end
-  out = table.concat(out)
-  return (out:gsub("\n*$", ""))
-end
-local mark
-mark = function(name)
-  return function(...)
-    return {
-      name,
-      ...
-    }
-  end
-end
-local pos
-pos = function(patt)
-  return (Cp() * patt) / function(pos, value)
-    if type(value) == "table" then
-      value[-1] = pos
-    end
-    return value
-  end
-end
-local got
-got = function(what, context)
-  if context == nil then
-    context = true
-  end
-  return Cmt("", function(str, pos)
-    print("++ got " .. tostring(what), "[" .. tostring(show_line_position(str, pos, context)) .. "]")
-    return true
-  end)
-end
-local flatten_or_mark
-flatten_or_mark = function(name)
-  return function(tbl)
-    if #tbl == 1 then
-      return tbl[1]
-    end
-    table.insert(tbl, 1, name)
-    return tbl
-  end
-end
-local is_assignable
-do
-  local chain_assignable = {
-    index = true,
-    dot = true,
-    slice = true
-  }
-  is_assignable = function(node)
-    if node == "..." then
-      return false
-    end
-    local _exp_0 = ntype(node)
-    if "ref" == _exp_0 or "self" == _exp_0 or "value" == _exp_0 or "self_class" == _exp_0 or "table" == _exp_0 then
-      return true
-    elseif "chain" == _exp_0 then
-      return chain_assignable[ntype(node[#node])]
-    else
-      return false
-    end
-  end
-end
-local check_assignable
-check_assignable = function(str, pos, value)
-  if is_assignable(value) then
-    return true, value
-  else
-    return false
-  end
-end
-local format_assign
-do
-  local flatten_explist = flatten_or_mark("explist")
-  format_assign = function(lhs_exps, assign)
-    if not (assign) then
-      return flatten_explist(lhs_exps)
-    end
-    for _index_0 = 1, #lhs_exps do
-      local assign_exp = lhs_exps[_index_0]
-      if not (is_assignable(assign_exp)) then
-        error({
-          assign_exp,
-          "left hand expression is not assignable"
-        })
-      end
-    end
-    local t = ntype(assign)
-    local _exp_0 = t
-    if "assign" == _exp_0 then
-      return {
-        "assign",
-        lhs_exps,
-        unpack(assign, 2)
-      }
-    elseif "update" == _exp_0 then
-      return {
-        "update",
-        lhs_exps[1],
-        unpack(assign, 2)
-      }
-    else
-      return error("unknown assign expression: " .. tostring(t))
-    end
-  end
-end
-local format_single_assign
-format_single_assign = function(lhs, assign)
-  if assign then
-    return format_assign({
-      lhs
-    }, assign)
-  else
-    return lhs
-  end
-end
-local sym
-sym = function(chars)
-  return Space * chars
-end
-local symx
-symx = function(chars)
-  return chars
-end
-local simple_string
-simple_string = function(delim, allow_interpolation)
-  local inner = P("\\" .. tostring(delim)) + "\\\\" + (1 - P(delim))
-  if allow_interpolation then
-    local interp = symx('#{') * V("Exp") * sym('}')
-    inner = (C((inner - interp) ^ 1) + interp / mark("interpolate")) ^ 0
-  else
-    inner = C(inner ^ 0)
-  end
-  return C(symx(delim)) * inner * sym(delim) / mark("string")
-end
-local wrap_func_arg
-wrap_func_arg = function(value)
-  return {
-    "call",
-    {
-      value
-    }
-  }
-end
-local join_chain
-join_chain = function(callee, args)
-  if #args == 0 then
-    return callee
-  end
-  args = {
-    "call",
-    args
-  }
-  if ntype(callee) == "chain" then
-    table.insert(callee, args)
-    return callee
-  end
-  return {
-    "chain",
-    callee,
-    args
-  }
-end
-local wrap_decorator
-wrap_decorator = function(stm, dec)
-  if not (dec) then
-    return stm
-  end
-  return {
-    "decorated",
-    stm,
-    dec
-  }
-end
-local check_lua_string
-check_lua_string = function(str, pos, right, left)
-  return #left == #right
-end
-local self_assign
-self_assign = function(name, pos)
-  return {
-    {
-      "key_literal",
-      name
-    },
-    {
-      "ref",
-      name,
-      [-1] = pos
-    }
-  }
-end
-return {
-  Indent = Indent,
-  Cut = Cut,
-  ensure = ensure,
-  extract_line = extract_line,
-  mark = mark,
-  pos = pos,
-  flatten_or_mark = flatten_or_mark,
-  is_assignable = is_assignable,
-  check_assignable = check_assignable,
-  format_assign = format_assign,
-  format_single_assign = format_single_assign,
-  sym = sym,
-  symx = symx,
-  simple_string = simple_string,
-  wrap_func_arg = wrap_func_arg,
-  join_chain = join_chain,
-  wrap_decorator = wrap_decorator,
-  check_lua_string = check_lua_string,
-  self_assign = self_assign,
-  got = got,
-  show_line_position = show_line_position
-}
+package.preload["moonscript.line_tables"] = function()
+return { }
 end
 
 package.preload["moonscript.init"] = function()
@@ -4411,47 +4020,89 @@ do
 end
 end
 
-package.preload["moonscript.dump"] = function()
-local flat_value
-flat_value = function(op, depth)
-  if depth == nil then
-    depth = 1
+package.preload["moonscript.data"] = function()
+local concat, remove, insert
+do
+  local _obj_0 = table
+  concat, remove, insert = _obj_0.concat, _obj_0.remove, _obj_0.insert
+end
+local Set
+Set = function(items)
+  local _tbl_0 = { }
+  for _index_0 = 1, #items do
+    local k = items[_index_0]
+    _tbl_0[k] = true
   end
-  if type(op) == "string" then
-    return '"' .. op .. '"'
-  end
-  if type(op) ~= "table" then
-    return tostring(op)
-  end
-  local items
-  do
-    local _accum_0 = { }
-    local _len_0 = 1
-    for _index_0 = 1, #op do
-      local item = op[_index_0]
-      _accum_0[_len_0] = flat_value(item, depth + 1)
-      _len_0 = _len_0 + 1
+  return _tbl_0
+end
+local Stack
+do
+  local _class_0
+  local _base_0 = {
+    __tostring = function(self)
+      return "<Stack {" .. concat(self, ", ") .. "}>"
+    end,
+    pop = function(self)
+      return remove(self)
+    end,
+    push = function(self, value, ...)
+      insert(self, value)
+      if ... then
+        return self:push(...)
+      else
+        return value
+      end
+    end,
+    top = function(self)
+      return self[#self]
     end
-    items = _accum_0
-  end
-  local pos = op[-1]
-  return "{" .. (pos and "[" .. pos .. "] " or "") .. table.concat(items, ", ") .. "}"
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self, ...)
+      self:push(...)
+      return nil
+    end,
+    __base = _base_0,
+    __name = "Stack"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Stack = _class_0
 end
-local value
-value = function(op)
-  return flat_value(op)
-end
-local tree
-tree = function(block)
-  local _list_0 = block
-  for _index_0 = 1, #_list_0 do
-    local value = _list_0[_index_0]
-    print(flat_value(value))
-  end
-end
+local lua_keywords = Set({
+  'and',
+  'break',
+  'do',
+  'else',
+  'elseif',
+  'end',
+  'false',
+  'for',
+  'function',
+  'if',
+  'in',
+  'local',
+  'nil',
+  'not',
+  'or',
+  'repeat',
+  'return',
+  'then',
+  'true',
+  'until',
+  'while'
+})
 return {
-  value = value,
-  tree = tree
+  Set = Set,
+  Stack = Stack,
+  lua_keywords = lua_keywords
 }
 end
 
@@ -4461,6 +4112,8 @@ local ntype, mtype, is_value, NOOP
 ntype, mtype, is_value, NOOP = types.ntype, types.mtype, types.is_value, types.NOOP
 local comprehension_has_value
 comprehension_has_value = require("moonscript.transform.comprehension").comprehension_has_value
+local insert
+insert = table.insert
 local Run
 do
   local _class_0
@@ -4532,6 +4185,68 @@ chain_is_stub = function(chain)
   local stub = chain[#chain]
   return stub and ntype(stub) == "colon"
 end
+local continue_boundaries = {
+  fndef = true,
+  ["while"] = true,
+  ["for"] = true,
+  foreach = true,
+  comprehension = true,
+  tblcomprehension = true
+}
+local find_continues
+find_continues = function(tbl, out)
+  if out == nil then
+    out = { }
+  end
+  for _index_0 = 1, #tbl do
+    local item = tbl[_index_0]
+    if type(item) == "table" then
+      if item[1] == "continue" then
+        insert(out, item)
+      elseif not continue_boundaries[item[1]] then
+        find_continues(item, out)
+      end
+    end
+  end
+  return out
+end
+local has_varargs
+has_varargs = function(tbl)
+  for _index_0 = 1, #tbl do
+    local _continue_0 = false
+    repeat
+      local item = tbl[_index_0]
+      local _exp_0 = type(item)
+      if "string" == _exp_0 then
+        if item == "..." then
+          return true
+        end
+      elseif "table" == _exp_0 then
+        local _exp_1 = item[1]
+        if "fndef" == _exp_1 then
+          _continue_0 = true
+          break
+        elseif "string" == _exp_1 then
+          for i = 3, #item do
+            local part = item[i]
+            if type(part) == "table" and has_varargs(part) then
+              return true
+            end
+          end
+        else
+          if has_varargs(item) then
+            return true
+          end
+        end
+      end
+      _continue_0 = true
+    until true
+    if not _continue_0 then
+      break
+    end
+  end
+  return false
+end
 local implicitly_return
 implicitly_return = function(scope)
   local is_top = true
@@ -4569,7 +4284,9 @@ return {
   last_stm = last_stm,
   transform_last_stm = transform_last_stm,
   chain_is_stub = chain_is_stub,
-  implicitly_return = implicitly_return
+  implicitly_return = implicitly_return,
+  find_continues = find_continues,
+  has_varargs = has_varargs
 }
 end
 
@@ -4592,6 +4309,78 @@ local string_chars = {
   ["\r"] = "\\r",
   ["\n"] = "\\n"
 }
+local binary_op_prec
+do
+  local out = { }
+  for prec, ops in ipairs({
+    {
+      "or"
+    },
+    {
+      "and"
+    },
+    {
+      "<",
+      ">",
+      "<=",
+      ">=",
+      "~=",
+      "!=",
+      "=="
+    },
+    {
+      "|"
+    },
+    {
+      "&"
+    },
+    {
+      "<<",
+      ">>"
+    },
+    {
+      ".."
+    },
+    {
+      "+",
+      "-"
+    },
+    {
+      "*",
+      "/",
+      "//",
+      "%"
+    },
+    {
+      "^"
+    }
+  }) do
+    for _index_0 = 1, #ops do
+      local op = ops[_index_0]
+      out[op] = prec
+    end
+  end
+  binary_op_prec = out
+end
+local right_assoc_op = {
+  [".."] = true,
+  ["^"] = true
+}
+local exp_precedence
+exp_precedence = function(node)
+  local min_prec
+  for i = 3, #node, 2 do
+    do
+      local prec = binary_op_prec[node[i]]
+      if prec then
+        if not min_prec or prec < min_prec then
+          min_prec = prec
+        end
+      end
+    end
+  end
+  return min_prec
+end
 return {
   scoped = function(self, node)
     local _, before, value, after
@@ -4604,12 +4393,56 @@ return {
     end
   end,
   exp = function(self, node)
+    local needs_parens
+    needs_parens = function(value, i)
+      if not (type(value) == "table" and value[1] == "exp") then
+        return false
+      end
+      local inner = exp_precedence(value)
+      if not (inner) then
+        return false
+      end
+      if i > 2 then
+        do
+          local left = binary_op_prec[node[i - 1]]
+          if left then
+            if left > inner then
+              return true
+            end
+            if left == inner and not right_assoc_op[node[i - 1]] then
+              return true
+            end
+          end
+        end
+      end
+      if i < #node then
+        do
+          local right = binary_op_prec[node[i + 1]]
+          if right then
+            if right > inner then
+              return true
+            end
+            if right == inner and right_assoc_op[node[i + 1]] then
+              return true
+            end
+          end
+        end
+      end
+      return false
+    end
     local _comp
     _comp = function(i, value)
       if i % 2 == 1 and value == "!=" then
         value = "~="
       end
-      return self:value(value)
+      if type(value) == "table" then
+        value = self.transform.value(value)
+      end
+      if needs_parens(value, i) then
+        return self:line("(", self:value(value), ")")
+      else
+        return self:value(value)
+      end
     end
     do
       local _with_0 = self:line()
@@ -4661,7 +4494,7 @@ return {
     if callee_type == "dot" or callee_type == "colon" or callee_type == "index" then
       callee = self:get("scope_var")
       if not (callee) then
-        user_error("Short-dot syntax must be called within a with block")
+        user_error("Short-dot syntax must be called within a with block", node[-1])
       end
       item_offset = 2
     end
@@ -4684,8 +4517,6 @@ return {
         return ".", tostring(arg)
       elseif t == "colon" then
         return ":", tostring(arg)
-      elseif t == "colon_stub" then
-        return user_error("Uncalled colon stub")
       else
         return error("Unknown chain action: " .. tostring(t))
       end
@@ -4694,7 +4525,8 @@ return {
       callee[1] = callee_type .. "_colon"
     end
     local callee_value = self:value(callee)
-    if ntype(callee) == "exp" then
+    local _exp_0 = ntype(callee)
+    if "exp" == _exp_0 or "table" == _exp_0 then
       callee_value = self:line("(", callee_value, ")")
     end
     local actions
@@ -4712,6 +4544,7 @@ return {
     local args, whitelist, arrow, block = unpack(node, 2)
     local default_args = { }
     local self_args = { }
+    local fn_block = self:block()
     local arg_names
     do
       local _accum_0 = { }
@@ -4721,6 +4554,8 @@ return {
         local name, default_value = unpack(arg)
         if type(name) == "string" then
           name = name
+        elseif name[1] == "temp_name" then
+          name = name:get_name(fn_block, false)
         else
           if name[1] == "self" or name[1] == "self_class" then
             insert(self_args, name)
@@ -4740,7 +4575,8 @@ return {
       insert(arg_names, 1, "self")
     end
     do
-      local _with_0 = self:block()
+      local _with_0 = fn_block
+      _with_0.header = "function(" .. concat(arg_names, ", ") .. ")"
       if #whitelist > 0 then
         _with_0:whitelist_names(whitelist)
       end
@@ -4752,7 +4588,11 @@ return {
         local default = default_args[_index_0]
         local name, value = unpack(default)
         if type(name) == "table" then
-          name = name[2]
+          if name[1] == "temp_name" then
+            name = name:get_name(fn_block)
+          else
+            name = name[2]
+          end
         end
         _with_0:stm({
           'if',
@@ -4797,19 +4637,6 @@ return {
         })
       end
       _with_0:stms(block)
-      if #args > #arg_names then
-        do
-          local _accum_0 = { }
-          local _len_0 = 1
-          for _index_0 = 1, #args do
-            local arg = args[_index_0]
-            _accum_0[_len_0] = arg[1]
-            _len_0 = _len_0 + 1
-          end
-          arg_names = _accum_0
-        end
-      end
-      _with_0.header = "function(" .. concat(arg_names, ", ") .. ")"
       return _with_0
     end
   end,
@@ -4872,16 +4699,52 @@ return {
     return self:line("not ", self:value(node[2]))
   end,
   self = function(self, node)
-    return "self." .. self:name(node[2])
+    local field_name = self:name(node[2])
+    if data.lua_keywords[field_name] then
+      return self:value({
+        "chain",
+        "self",
+        {
+          "index",
+          {
+            "string",
+            '"',
+            field_name
+          }
+        }
+      })
+    else
+      return "self." .. tostring(field_name)
+    end
   end,
   self_class = function(self, node)
-    return "self.__class." .. self:name(node[2])
+    local field_name = self:name(node[2])
+    if data.lua_keywords[field_name] then
+      return self:value({
+        "chain",
+        "self",
+        {
+          "dot",
+          "__class"
+        },
+        {
+          "index",
+          {
+            "string",
+            '"',
+            field_name
+          }
+        }
+      })
+    else
+      return "self.__class." .. tostring(field_name)
+    end
   end,
   self_colon = function(self, node)
-    return "self:" .. self:name(node[2])
+    return "self:" .. tostring(self:name(node[2]))
   end,
   self_class_colon = function(self, node)
-    return "self.__class:" .. self:name(node[2])
+    return "self.__class:" .. tostring(self:name(node[2]))
   end,
   ref = function(self, value)
     do
@@ -4893,9 +4756,6 @@ return {
     return tostring(value[2])
   end,
   raw_value = function(self, value)
-    if value == "..." then
-      self:send("varargs")
-    end
     return tostring(value)
   end
 }
@@ -5022,10 +4882,10 @@ return {
 end
 
 package.preload["moonscript.transform.destructure"] = function()
-local ntype, mtype, build
+local ntype, mtype, build, is_assignable
 do
   local _obj_0 = require("moonscript.types")
-  ntype, mtype, build = _obj_0.ntype, _obj_0.mtype, _obj_0.build
+  ntype, mtype, build, is_assignable = _obj_0.ntype, _obj_0.mtype, _obj_0.build, _obj_0.is_assignable
 end
 local NameProxy
 NameProxy = require("moonscript.transform.names").NameProxy
@@ -5063,6 +4923,23 @@ has_destructure = function(names)
     end
   end
   return false
+end
+local is_multi_return
+is_multi_return = function(node)
+  if node == "..." then
+    return true
+  end
+  if not (type(node) == "table") then
+    return false
+  end
+  local _exp_0 = node[1]
+  if "chain" == _exp_0 then
+    return ntype(node[#node]) == "call"
+  elseif "explist" == _exp_0 then
+    return true
+  else
+    return false
+  end
 end
 local extract_assign_names
 extract_assign_names = function(name, accum, prefix)
@@ -5111,22 +4988,52 @@ extract_assign_names = function(name, accum, prefix)
     suffix = join(prefix, {
       suffix
     })
-    local _exp_0 = ntype(value)
-    if "value" == _exp_0 or "ref" == _exp_0 or "chain" == _exp_0 or "self" == _exp_0 then
+    if ntype(value) == "table" then
+      extract_assign_names(value, accum, suffix)
+    elseif is_assignable(value) then
       insert(accum, {
         value,
         suffix
       })
-    elseif "table" == _exp_0 then
-      extract_assign_names(value, accum, suffix)
     else
-      user_error("Can't destructure value of type: " .. tostring(ntype(value)))
+      local pos = type(value) == "table" and value[-1] or name[-1]
+      if value == "..." then
+        user_error("Can't destructure into '...'", pos)
+      elseif ntype(value) == "chain" then
+        user_error("Can't destructure into chain ending in " .. tostring(ntype(value[#value])), pos)
+      else
+        user_error("Can't destructure value of type: " .. tostring(ntype(value)), pos)
+      end
     end
   end
   return accum
 end
+local keyword_refs = {
+  ["nil"] = true,
+  ["true"] = true,
+  ["false"] = true
+}
+local chainable_receiver
+chainable_receiver = function(node)
+  local _exp_0 = type(node)
+  if "string" == _exp_0 then
+    return node ~= "..." and not keyword_refs[node]
+  elseif "table" == _exp_0 then
+    local _exp_1 = node[1]
+    if "ref" == _exp_1 then
+      return not keyword_refs[node[2]]
+    elseif "chain" == _exp_1 or "self" == _exp_1 or "self_class" == _exp_1 or "temp_name" == _exp_1 or "parens" == _exp_1 or "exp" == _exp_1 or "table" == _exp_1 or "string" == _exp_1 then
+      return true
+    else
+      return false
+    end
+  else
+    return false
+  end
+end
 local build_assign
-build_assign = function(scope, destruct_literal, receiver)
+build_assign = function(scope, destruct_literal, receiver, opts)
+  assert(receiver, "attempting to build destructure assign with no receiver")
   local extracted_names = extract_assign_names(destruct_literal)
   local names = { }
   local values = { }
@@ -5136,7 +5043,7 @@ build_assign = function(scope, destruct_literal, receiver)
     values
   }
   local obj
-  if scope:is_local(receiver) or #extracted_names == 1 then
+  if chainable_receiver(receiver) and (scope:is_local(receiver) or #extracted_names == 1) then
     obj = receiver
   else
     do
@@ -5163,13 +5070,35 @@ build_assign = function(scope, destruct_literal, receiver)
     end
     insert(values, chain)
   end
-  return build.group({
-    {
+  local group = { }
+  if opts and opts.shadow then
+    local shadow_names
+    do
+      local _accum_0 = { }
+      local _len_0 = 1
+      for _index_0 = 1, #names do
+        local name = names[_index_0]
+        if ntype(name) == "ref" or type(name) == "string" then
+          _accum_0[_len_0] = name
+          _len_0 = _len_0 + 1
+        end
+      end
+      shadow_names = _accum_0
+    end
+    if next(shadow_names) then
+      insert(group, {
+        "declare_with_shadows",
+        shadow_names
+      })
+    end
+  else
+    insert(group, {
       "declare",
       names
-    },
-    inner
-  })
+    })
+  end
+  insert(group, inner)
+  return build.group(group)
 end
 local split_assign
 split_assign = function(scope, assign)
@@ -5177,18 +5106,28 @@ split_assign = function(scope, assign)
   local g = { }
   local total_names = #names
   local total_values = #values
+  local suffix_start
+  if total_names > total_values and is_multi_return(values[total_values]) then
+    for i = total_values, total_names do
+      if ntype(names[i]) == "table" then
+        suffix_start = total_values
+        break
+      end
+    end
+  end
   local start = 1
-  for i, n in ipairs(names) do
+  local stop = suffix_start and suffix_start - 1 or total_names
+  for i = 1, stop do
+    local n = names[i]
     if ntype(n) == "table" then
       if i > start then
-        local stop = i - 1
         insert(g, {
           "assign",
           (function()
             local _accum_0 = { }
             local _len_0 = 1
-            for i = start, stop do
-              _accum_0[_len_0] = names[i]
+            for j = start, i - 1 do
+              _accum_0[_len_0] = names[j]
               _len_0 = _len_0 + 1
             end
             return _accum_0
@@ -5196,8 +5135,8 @@ split_assign = function(scope, assign)
           (function()
             local _accum_0 = { }
             local _len_0 = 1
-            for i = start, stop do
-              _accum_0[_len_0] = values[i]
+            for j = start, i - 1 do
+              _accum_0[_len_0] = values[j]
               _len_0 = _len_0 + 1
             end
             return _accum_0
@@ -5208,11 +5147,63 @@ split_assign = function(scope, assign)
       start = i + 1
     end
   end
-  if total_names >= start or total_values >= start then
+  if suffix_start then
+    if start <= stop then
+      insert(g, {
+        "assign",
+        (function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for j = start, stop do
+            _accum_0[_len_0] = names[j]
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(),
+        (function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for j = start, stop do
+            _accum_0[_len_0] = values[j]
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)()
+      })
+    end
+    local suffix_names = { }
+    local destructures = { }
+    for i = suffix_start, total_names do
+      local name = names[i]
+      if ntype(name) == "table" then
+        local proxy = NameProxy("destruct")
+        insert(suffix_names, proxy)
+        insert(destructures, {
+          name,
+          proxy
+        })
+      else
+        insert(suffix_names, name)
+      end
+    end
+    insert(g, {
+      "assign",
+      suffix_names,
+      {
+        values[total_values]
+      }
+    })
+    for _index_0 = 1, #destructures do
+      local _des_0 = destructures[_index_0]
+      local literal, proxy
+      literal, proxy = _des_0[1], _des_0[2]
+      insert(g, build_assign(scope, literal, proxy))
+    end
+  elseif total_names >= start or total_values >= start then
     local name_slice
     if total_names < start then
       name_slice = {
-        "_"
+        scope:discard_name()
       }
     else
       do
@@ -5384,11 +5375,17 @@ return function(self, node, ret, parent_assign)
   end
   local statements = { }
   local properties = { }
+  local hoisted_locals = { }
   for _index_0 = 1, #body do
     local item = body[_index_0]
     local _exp_0 = item[1]
     if "stm" == _exp_0 then
-      insert(statements, item[2])
+      local stm = item[2]
+      if ntype(stm) == "declare_with_shadows" then
+        insert(hoisted_locals, stm)
+      else
+        insert(statements, stm)
+      end
     elseif "props" == _exp_0 then
       for _index_1 = 2, #item do
         local tuple = item[_index_1]
@@ -5663,11 +5660,16 @@ return function(self, node, ret, parent_assign)
           cls_name
         }
       },
+      parent_val and build.assign_one(parent_cls_name, parent_val) or NOOP,
+      build.group((function()
+        if #hoisted_locals > 0 then
+          return hoisted_locals
+        end
+      end)()),
       {
         "declare_glob",
         "*"
       },
-      parent_val and build.assign_one(parent_cls_name, parent_val) or NOOP,
       build.assign_one(base_name, {
         "table",
         properties
@@ -5746,251 +5748,116 @@ return function(self, node, ret, parent_assign)
 end
 end
 
-package.preload["moonscript.parse"] = function()
-local debug_grammar = false
-local lpeg = require("lpeg")
-lpeg.setmaxstack(10000)
-local err_msg = "Failed to parse:%s\n [%d] >>    %s"
-local Stack
-Stack = require("moonscript.data").Stack
-local trim, pos_to_line, get_line
-do
-  local _obj_0 = require("moonscript.util")
-  trim, pos_to_line, get_line = _obj_0.trim, _obj_0.pos_to_line, _obj_0.get_line
-end
-local unpack
-unpack = require("moonscript.util").unpack
-local wrap_env
-wrap_env = require("moonscript.parse.env").wrap_env
-local R, S, V, P, C, Ct, Cmt, Cg, Cb, Cc
-R, S, V, P, C, Ct, Cmt, Cg, Cb, Cc = lpeg.R, lpeg.S, lpeg.V, lpeg.P, lpeg.C, lpeg.Ct, lpeg.Cmt, lpeg.Cg, lpeg.Cb, lpeg.Cc
-local White, Break, Stop, Comment, Space, SomeSpace, SpaceBreak, EmptyLine, AlphaNum, Num, Shebang, L, _Name
-do
-  local _obj_0 = require("moonscript.parse.literals")
-  White, Break, Stop, Comment, Space, SomeSpace, SpaceBreak, EmptyLine, AlphaNum, Num, Shebang, L, _Name = _obj_0.White, _obj_0.Break, _obj_0.Stop, _obj_0.Comment, _obj_0.Space, _obj_0.SomeSpace, _obj_0.SpaceBreak, _obj_0.EmptyLine, _obj_0.AlphaNum, _obj_0.Num, _obj_0.Shebang, _obj_0.L, _obj_0.Name
-end
-local SpaceName = Space * _Name
-Num = Space * (Num / function(v)
-  return {
-    "number",
-    v
-  }
-end)
-local Indent, Cut, ensure, extract_line, mark, pos, flatten_or_mark, is_assignable, check_assignable, format_assign, format_single_assign, sym, symx, simple_string, wrap_func_arg, join_chain, wrap_decorator, check_lua_string, self_assign, got
-do
-  local _obj_0 = require("moonscript.parse.util")
-  Indent, Cut, ensure, extract_line, mark, pos, flatten_or_mark, is_assignable, check_assignable, format_assign, format_single_assign, sym, symx, simple_string, wrap_func_arg, join_chain, wrap_decorator, check_lua_string, self_assign, got = _obj_0.Indent, _obj_0.Cut, _obj_0.ensure, _obj_0.extract_line, _obj_0.mark, _obj_0.pos, _obj_0.flatten_or_mark, _obj_0.is_assignable, _obj_0.check_assignable, _obj_0.format_assign, _obj_0.format_single_assign, _obj_0.sym, _obj_0.symx, _obj_0.simple_string, _obj_0.wrap_func_arg, _obj_0.join_chain, _obj_0.wrap_decorator, _obj_0.check_lua_string, _obj_0.self_assign, _obj_0.got
-end
-local build_grammar = wrap_env(debug_grammar, function(root)
-  local _indent = Stack(0)
-  local _do_stack = Stack(0)
-  local state = {
-    last_pos = 0
-  }
-  local check_indent
-  check_indent = function(str, pos, indent)
-    state.last_pos = pos
-    return _indent:top() == indent
-  end
-  local advance_indent
-  advance_indent = function(str, pos, indent)
-    local top = _indent:top()
-    if top ~= -1 and indent > top then
-      _indent:push(indent)
-      return true
-    end
-  end
-  local push_indent
-  push_indent = function(str, pos, indent)
-    _indent:push(indent)
-    return true
-  end
-  local pop_indent
-  pop_indent = function()
-    assert(_indent:pop(), "unexpected outdent")
-    return true
-  end
-  local check_do
-  check_do = function(str, pos, do_node)
-    local top = _do_stack:top()
-    if top == nil or top then
-      return true, do_node
-    end
+package.preload["moonscript.transform.accumulator"] = function()
+local types = require("moonscript.types")
+local build, ntype, NOOP
+build, ntype, NOOP = types.build, types.ntype, types.NOOP
+local NameProxy
+NameProxy = require("moonscript.transform.names").NameProxy
+local insert
+insert = table.insert
+local is_singular
+is_singular = function(body)
+  if #body ~= 1 then
     return false
   end
-  local disable_do
-  disable_do = function()
-    _do_stack:push(false)
-    return true
+  if "group" == ntype(body) then
+    return is_singular(body[2])
+  else
+    return body[1]
   end
-  local pop_do
-  pop_do = function()
-    assert(_do_stack:pop() ~= nil, "unexpected do pop")
-    return true
-  end
-  local DisableDo = Cmt("", disable_do)
-  local PopDo = Cmt("", pop_do)
-  local keywords = { }
-  local key
-  key = function(chars)
-    keywords[chars] = true
-    return Space * chars * -AlphaNum
-  end
-  local op
-  op = function(chars)
-    local patt = Space * C(chars)
-    if chars:match("^%w*$") then
-      keywords[chars] = true
-      patt = patt * -AlphaNum
-    end
-    return patt
-  end
-  local Name = Cmt(SpaceName, function(str, pos, name)
-    if keywords[name] then
-      return false
-    end
-    return true
-  end) / trim
-  local SelfName = Space * "@" * ("@" * (_Name / mark("self_class") + Cc("self.__class")) + _Name / mark("self") + Cc("self"))
-  local KeyName = SelfName + Space * _Name / mark("key_literal")
-  local VarArg = Space * P("...") / trim
-  local g = P({
-    root or File,
-    File = Shebang ^ -1 * (Block + Ct("")),
-    Block = Ct(Line * (Break ^ 1 * Line) ^ 0),
-    CheckIndent = Cmt(Indent, check_indent),
-    Line = (CheckIndent * Statement + Space * L(Stop)),
-    Statement = pos(Import + While + With + For + ForEach + Switch + Return + Local + Export + BreakLoop + Ct(ExpList) * (Update + Assign) ^ -1 / format_assign) * Space * ((key("if") * Exp * (key("else") * Exp) ^ -1 * Space / mark("if") + key("unless") * Exp / mark("unless") + CompInner / mark("comprehension")) * Space) ^ -1 / wrap_decorator,
-    Body = Space ^ -1 * Break * EmptyLine ^ 0 * InBlock + Ct(Statement),
-    Advance = L(Cmt(Indent, advance_indent)),
-    PushIndent = Cmt(Indent, push_indent),
-    PreventIndent = Cmt(Cc(-1), push_indent),
-    PopIndent = Cmt("", pop_indent),
-    InBlock = Advance * Block * PopIndent,
-    Local = key("local") * ((op("*") + op("^")) / mark("declare_glob") + Ct(NameList) / mark("declare_with_shadows")),
-    Import = key("import") * Ct(ImportNameList) * SpaceBreak ^ 0 * key("from") * Exp / mark("import"),
-    ImportName = (sym("\\") * Ct(Cc("colon") * Name) + Name),
-    ImportNameList = SpaceBreak ^ 0 * ImportName * ((SpaceBreak ^ 1 + sym(",") * SpaceBreak ^ 0) * ImportName) ^ 0,
-    BreakLoop = Ct(key("break") / trim) + Ct(key("continue") / trim),
-    Return = key("return") * (ExpListLow / mark("explist") + C("")) / mark("return"),
-    WithExp = Ct(ExpList) * Assign ^ -1 / format_assign,
-    With = key("with") * DisableDo * ensure(WithExp, PopDo) * key("do") ^ -1 * Body / mark("with"),
-    Switch = key("switch") * DisableDo * ensure(Exp, PopDo) * key("do") ^ -1 * Space ^ -1 * Break * SwitchBlock / mark("switch"),
-    SwitchBlock = EmptyLine ^ 0 * Advance * Ct(SwitchCase * (Break ^ 1 * SwitchCase) ^ 0 * (Break ^ 1 * SwitchElse) ^ -1) * PopIndent,
-    SwitchCase = key("when") * Ct(ExpList) * key("then") ^ -1 * Body / mark("case"),
-    SwitchElse = key("else") * Body / mark("else"),
-    IfCond = Exp * Assign ^ -1 / format_single_assign,
-    IfElse = (Break * EmptyLine ^ 0 * CheckIndent) ^ -1 * key("else") * Body / mark("else"),
-    IfElseIf = (Break * EmptyLine ^ 0 * CheckIndent) ^ -1 * key("elseif") * pos(IfCond) * key("then") ^ -1 * Body / mark("elseif"),
-    If = key("if") * IfCond * key("then") ^ -1 * Body * IfElseIf ^ 0 * IfElse ^ -1 / mark("if"),
-    Unless = key("unless") * IfCond * key("then") ^ -1 * Body * IfElseIf ^ 0 * IfElse ^ -1 / mark("unless"),
-    While = key("while") * DisableDo * ensure(Exp, PopDo) * key("do") ^ -1 * Body / mark("while"),
-    For = key("for") * DisableDo * ensure(Name * sym("=") * Ct(Exp * sym(",") * Exp * (sym(",") * Exp) ^ -1), PopDo) * key("do") ^ -1 * Body / mark("for"),
-    ForEach = key("for") * Ct(AssignableNameList) * key("in") * DisableDo * ensure(Ct(sym("*") * Exp / mark("unpack") + ExpList), PopDo) * key("do") ^ -1 * Body / mark("foreach"),
-    Do = key("do") * Body / mark("do"),
-    Comprehension = sym("[") * Exp * CompInner * sym("]") / mark("comprehension"),
-    TblComprehension = sym("{") * Ct(Exp * (sym(",") * Exp) ^ -1) * CompInner * sym("}") / mark("tblcomprehension"),
-    CompInner = Ct((CompForEach + CompFor) * CompClause ^ 0),
-    CompForEach = key("for") * Ct(AssignableNameList) * key("in") * (sym("*") * Exp / mark("unpack") + Exp) / mark("foreach"),
-    CompFor = key("for" * Name * sym("=") * Ct(Exp * sym(",") * Exp * (sym(",") * Exp) ^ -1) / mark("for")),
-    CompClause = CompFor + CompForEach + key("when") * Exp / mark("when"),
-    Assign = sym("=") * (Ct(With + If + Switch) + Ct(TableBlock + ExpListLow)) / mark("assign"),
-    Update = ((sym("..=") + sym("+=") + sym("-=") + sym("*=") + sym("/=") + sym("%=") + sym("or=") + sym("and=") + sym("&=") + sym("|=") + sym(">>=") + sym("<<=")) / trim) * Exp / mark("update"),
-    CharOperators = Space * C(S("+-*/%^><|&")),
-    WordOperators = op("or") + op("and") + op("<=") + op(">=") + op("~=") + op("!=") + op("==") + op("..") + op("<<") + op(">>") + op("//"),
-    BinaryOperator = (WordOperators + CharOperators) * SpaceBreak ^ 0,
-    Assignable = Cmt(Chain, check_assignable) + Name + SelfName,
-    Exp = Ct(Value * (BinaryOperator * Value) ^ 0) / flatten_or_mark("exp"),
-    SimpleValue = If + Unless + Switch + With + ClassDecl + ForEach + For + While + Cmt(Do, check_do) + sym("-") * -SomeSpace * Exp / mark("minus") + sym("#") * Exp / mark("length") + sym("~") * Exp / mark("bitnot") + key("not") * Exp / mark("not") + TblComprehension + TableLit + Comprehension + FunLit + Num,
-    ChainValue = (Chain + Callable) * Ct(InvokeArgs ^ -1) / join_chain,
-    Value = pos(SimpleValue + Ct(KeyValueList) / mark("table") + ChainValue + String),
-    SliceValue = Exp,
-    String = Space * DoubleString + Space * SingleString + LuaString,
-    SingleString = simple_string("'"),
-    DoubleString = simple_string('"', true),
-    LuaString = Cg(LuaStringOpen, "string_open") * Cb("string_open") * Break ^ -1 * C((1 - Cmt(C(LuaStringClose) * Cb("string_open"), check_lua_string)) ^ 0) * LuaStringClose / mark("string"),
-    LuaStringOpen = sym("[") * P("=") ^ 0 * "[" / trim,
-    LuaStringClose = "]" * P("=") ^ 0 * "]",
-    Callable = pos(Name / mark("ref")) + SelfName + VarArg + Parens / mark("parens"),
-    Parens = sym("(") * SpaceBreak ^ 0 * Exp * SpaceBreak ^ 0 * sym(")"),
-    FnArgs = symx("(") * SpaceBreak ^ 0 * Ct(FnArgsExpList ^ -1) * SpaceBreak ^ 0 * sym(")") + sym("!") * -P("=") * Ct(""),
-    FnArgsExpList = Exp * ((Break + sym(",")) * White * Exp) ^ 0,
-    Chain = (Callable + String + -S(".\\")) * ChainItems / mark("chain") + Space * (DotChainItem * ChainItems ^ -1 + ColonChain) / mark("chain"),
-    ChainItems = ChainItem ^ 1 * ColonChain ^ -1 + ColonChain,
-    ChainItem = Invoke + DotChainItem + Slice + symx("[") * Exp / mark("index") * sym("]"),
-    DotChainItem = symx(".") * _Name / mark("dot"),
-    ColonChainItem = symx("\\") * _Name / mark("colon"),
-    ColonChain = ColonChainItem * (Invoke * ChainItems ^ -1) ^ -1,
-    Slice = symx("[") * (SliceValue + Cc(1)) * sym(",") * (SliceValue + Cc("")) * (sym(",") * SliceValue) ^ -1 * sym("]") / mark("slice"),
-    Invoke = FnArgs / mark("call") + SingleString / wrap_func_arg + DoubleString / wrap_func_arg + L(P("[")) * LuaString / wrap_func_arg,
-    TableValue = KeyValue + Ct(Exp),
-    TableLit = sym("{") * Ct(TableValueList ^ -1 * sym(",") ^ -1 * (SpaceBreak * TableLitLine * (sym(",") ^ -1 * SpaceBreak * TableLitLine) ^ 0 * sym(",") ^ -1) ^ -1) * White * sym("}") / mark("table"),
-    TableValueList = TableValue * (sym(",") * TableValue) ^ 0,
-    TableLitLine = PushIndent * ((TableValueList * PopIndent) + (PopIndent * Cut)) + Space,
-    TableBlockInner = Ct(KeyValueLine * (SpaceBreak ^ 1 * KeyValueLine) ^ 0),
-    TableBlock = SpaceBreak ^ 1 * Advance * ensure(TableBlockInner, PopIndent) / mark("table"),
-    ClassDecl = key("class") * -P(":") * (Assignable + Cc(nil)) * (key("extends") * PreventIndent * ensure(Exp, PopIndent) + C("")) ^ -1 * (ClassBlock + Ct("")) / mark("class"),
-    ClassBlock = SpaceBreak ^ 1 * Advance * Ct(ClassLine * (SpaceBreak ^ 1 * ClassLine) ^ 0) * PopIndent,
-    ClassLine = CheckIndent * ((KeyValueList / mark("props") + Statement / mark("stm") + Exp / mark("stm")) * sym(",") ^ -1),
-    Export = key("export") * (Cc("class") * ClassDecl + op("*") + op("^") + Ct(NameList) * (sym("=") * Ct(ExpListLow)) ^ -1) / mark("export"),
-    KeyValue = (sym(":") * -SomeSpace * Name * lpeg.Cp()) / self_assign + Ct((KeyName + sym("[") * Exp * sym("]") + Space * DoubleString + Space * SingleString) * symx(":") * (Exp + TableBlock + SpaceBreak ^ 1 * Exp)),
-    KeyValueList = KeyValue * (sym(",") * KeyValue) ^ 0,
-    KeyValueLine = CheckIndent * KeyValueList * sym(",") ^ -1,
-    FnArgsDef = sym("(") * White * Ct(FnArgDefList ^ -1) * (key("using") * Ct(NameList + Space * "nil") + Ct("")) * White * sym(")") + Ct("") * Ct(""),
-    FnArgDefList = FnArgDef * ((sym(",") + Break) * White * FnArgDef) ^ 0 * ((sym(",") + Break) * White * Ct(VarArg)) ^ 0 + Ct(VarArg),
-    FnArgDef = Ct((Name + SelfName) * (sym("=") * Exp) ^ -1),
-    FunLit = FnArgsDef * (sym("->") * Cc("slim") + sym("=>") * Cc("fat")) * (Body + Ct("")) / mark("fndef"),
-    NameList = Name * (sym(",") * Name) ^ 0,
-    NameOrDestructure = Name + TableLit,
-    AssignableNameList = NameOrDestructure * (sym(",") * NameOrDestructure) ^ 0,
-    ExpList = Exp * (sym(",") * Exp) ^ 0,
-    ExpListLow = Exp * ((sym(",") + sym(";")) * Exp) ^ 0,
-    InvokeArgs = -P("-") * (ExpList * (sym(",") * (TableBlock + SpaceBreak * Advance * ArgBlock * TableBlock ^ -1) + TableBlock) ^ -1 + TableBlock),
-    ArgBlock = ArgLine * (sym(",") * SpaceBreak * ArgLine) ^ 0 * PopIndent,
-    ArgLine = CheckIndent * ExpList
-  })
-  return g, state
-end)
-local file_parser
-file_parser = function()
-  local g, state = build_grammar()
-  local file_grammar = White * g * White * -1
-  return {
-    match = function(self, str)
-      local tree
-      local _, err = xpcall((function()
-        tree = file_grammar:match(str)
-      end), function(err)
-        return debug.traceback(err, 2)
-      end)
-      if type(err) == "string" then
-        return nil, err
+end
+local transform_last_stm
+transform_last_stm = require("moonscript.transform.statements").transform_last_stm
+local Accumulator
+do
+  local _class_0
+  local _base_0 = {
+    body_idx = {
+      ["for"] = 4,
+      ["while"] = 3,
+      foreach = 4
+    },
+    convert = function(self, node)
+      local index = self.body_idx[ntype(node)]
+      node[index] = self:mutate_body(node[index])
+      return self:wrap(node)
+    end,
+    wrap = function(self, node, group_type)
+      if group_type == nil then
+        group_type = "block_exp"
       end
-      if not (tree) then
-        local msg
-        local err_pos = state.last_pos
-        if err then
-          local node
-          node, msg = unpack(err)
-          if msg then
-            msg = " " .. msg
+      return build[group_type]({
+        build.assign_one(self.accum_name, build.table()),
+        build.assign_one(self.len_name, 1),
+        node,
+        group_type == "block_exp" and self.accum_name or NOOP
+      })
+    end,
+    mutate_body = function(self, body)
+      local single_stm = is_singular(body)
+      local val
+      if single_stm and types.is_value(single_stm) then
+        body = { }
+        val = single_stm
+      else
+        body = transform_last_stm(body, function(n)
+          if types.is_value(n) then
+            return build.assign_one(self.value_name, n)
+          else
+            return build.group({
+              {
+                "declare",
+                {
+                  self.value_name
+                }
+              },
+              n
+            })
           end
-          err_pos = node[-1]
-        end
-        local line_no = pos_to_line(str, err_pos)
-        local line_str = get_line(str, line_no) or ""
-        return nil, err_msg:format(msg or "", line_no, trim(line_str))
+        end)
+        val = self.value_name
       end
-      return tree
+      local update = {
+        build.assign_one(NameProxy.index(self.accum_name, self.len_name), val),
+        {
+          "update",
+          self.len_name,
+          "+=",
+          1
+        }
+      }
+      insert(body, build.group(update))
+      return body
     end
   }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self, accum_name)
+      self.accum_name = NameProxy("accum")
+      self.value_name = NameProxy("value")
+      self.len_name = NameProxy("len")
+    end,
+    __base = _base_0,
+    __name = "Accumulator"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Accumulator = _class_0
+end
+local default_accumulator
+default_accumulator = function(self, node)
+  return Accumulator():convert(node)
 end
 return {
-  extract_line = extract_line,
-  build_grammar = build_grammar,
-  string = function(str)
-    return file_parser():match(str)
-  end
+  Accumulator = Accumulator,
+  default_accumulator = default_accumulator
 }
 end
 
@@ -6033,7 +5900,7 @@ ntype = function(node)
 end
 local mtype
 do
-  local moon_type = util.moon.type
+  local moon_type = util.mtype
   mtype = function(val)
     local mt = getmetatable(val)
     if mt and mt.smart_node then
@@ -6055,9 +5922,40 @@ is_value = function(stm)
   local transform = require("moonscript.transform")
   return compile.Block:is_value(stm) or transform.Value:can_transform(stm)
 end
+local is_assignable
+do
+  local chain_assignable = {
+    index = true,
+    dot = true,
+    slice = true
+  }
+  is_assignable = function(node)
+    if node == "..." then
+      return false
+    end
+    local _exp_0 = ntype(node)
+    if "ref" == _exp_0 or "self" == _exp_0 or "value" == _exp_0 or "self_class" == _exp_0 or "table" == _exp_0 then
+      return true
+    elseif "chain" == _exp_0 then
+      return chain_assignable[ntype(node[#node])]
+    else
+      return false
+    end
+  end
+end
 local value_is_singular
 value_is_singular = function(node)
-  return type(node) ~= "table" or node[1] ~= "exp" or #node == 2
+  if type(node) ~= "table" then
+    return true
+  end
+  local _exp_0 = node[1]
+  if "exp" == _exp_0 then
+    return #node == 2 and value_is_singular(node[2])
+  elseif "length" == _exp_0 or "minus" == _exp_0 or "not" == _exp_0 or "bitnot" == _exp_0 then
+    return value_is_singular(node[2])
+  else
+    return true
+  end
 end
 local is_slice
 is_slice = function(node)
@@ -6310,6 +6208,7 @@ return {
   build = build,
   is_value = is_value,
   is_slice = is_slice,
+  is_assignable = is_assignable,
   manual_return = manual_return,
   cascading = cascading,
   value_is_singular = value_is_singular,
@@ -6320,102 +6219,408 @@ return {
 }
 end
 
-package.preload["moonscript"] = function()
-return require "moonscript.init"
+package.preload["moonscript.parse"] = function()
+local debug_grammar = false
+local lpeg = require("lpeg")
+lpeg.setmaxstack(10000)
+local err_msg = "Failed to parse:%s\n [%d] >>    %s"
+local Stack
+Stack = require("moonscript.data").Stack
+local trim, pos_to_line, get_line
+do
+  local _obj_0 = require("moonscript.util")
+  trim, pos_to_line, get_line = _obj_0.trim, _obj_0.pos_to_line, _obj_0.get_line
 end
-
-package.preload["moonscript.transform.accumulator"] = function()
-local types = require("moonscript.types")
-local build, ntype, NOOP
-build, ntype, NOOP = types.build, types.ntype, types.NOOP
-local NameProxy
-NameProxy = require("moonscript.transform.names").NameProxy
-local insert
-insert = table.insert
-local is_singular
-is_singular = function(body)
-  if #body ~= 1 then
+local unpack
+unpack = require("moonscript.util").unpack
+local wrap_env
+wrap_env = require("moonscript.parse.env").wrap_env
+local R, S, V, P, C, Ct, Cmt, Cg, Cb, Cc
+R, S, V, P, C, Ct, Cmt, Cg, Cb, Cc = lpeg.R, lpeg.S, lpeg.V, lpeg.P, lpeg.C, lpeg.Ct, lpeg.Cmt, lpeg.Cg, lpeg.Cb, lpeg.Cc
+local White, Break, Stop, Comment, Space, SomeSpace, SpaceBreak, EmptyLine, AlphaNum, Num, Shebang, L, _Name
+do
+  local _obj_0 = require("moonscript.parse.literals")
+  White, Break, Stop, Comment, Space, SomeSpace, SpaceBreak, EmptyLine, AlphaNum, Num, Shebang, L, _Name = _obj_0.White, _obj_0.Break, _obj_0.Stop, _obj_0.Comment, _obj_0.Space, _obj_0.SomeSpace, _obj_0.SpaceBreak, _obj_0.EmptyLine, _obj_0.AlphaNum, _obj_0.Num, _obj_0.Shebang, _obj_0.L, _obj_0.Name
+end
+local SpaceName = Space * _Name
+Num = Space * (Num / function(v)
+  return {
+    "number",
+    v
+  }
+end)
+local Indent, Cut, ensure, extract_line, mark, pos, flatten_or_mark, is_assignable, check_assignable, format_assign, format_single_assign, sym, symx, simple_string, wrap_func_arg, join_chain, wrap_decorator, check_lua_string, self_assign, got
+do
+  local _obj_0 = require("moonscript.parse.util")
+  Indent, Cut, ensure, extract_line, mark, pos, flatten_or_mark, is_assignable, check_assignable, format_assign, format_single_assign, sym, symx, simple_string, wrap_func_arg, join_chain, wrap_decorator, check_lua_string, self_assign, got = _obj_0.Indent, _obj_0.Cut, _obj_0.ensure, _obj_0.extract_line, _obj_0.mark, _obj_0.pos, _obj_0.flatten_or_mark, _obj_0.is_assignable, _obj_0.check_assignable, _obj_0.format_assign, _obj_0.format_single_assign, _obj_0.sym, _obj_0.symx, _obj_0.simple_string, _obj_0.wrap_func_arg, _obj_0.join_chain, _obj_0.wrap_decorator, _obj_0.check_lua_string, _obj_0.self_assign, _obj_0.got
+end
+local build_grammar = wrap_env(debug_grammar, function(root)
+  local _indent = Stack(0)
+  local _do_stack = Stack(0)
+  local state = {
+    last_pos = 0
+  }
+  local check_indent
+  check_indent = function(str, pos, indent)
+    state.last_pos = pos
+    return _indent:top() == indent
+  end
+  local advance_indent
+  advance_indent = function(str, pos, indent)
+    local top = _indent:top()
+    if top ~= -1 and indent > top then
+      _indent:push(indent)
+      return true
+    end
+  end
+  local push_indent
+  push_indent = function(str, pos, indent)
+    _indent:push(indent)
+    return true
+  end
+  local pop_indent
+  pop_indent = function()
+    assert(_indent:pop(), "unexpected outdent")
+    return true
+  end
+  local check_do
+  check_do = function(str, pos, do_node)
+    local top = _do_stack:top()
+    if top == nil or top then
+      return true, do_node
+    end
     return false
   end
-  if "group" == ntype(body) then
-    return is_singular(body[2])
-  else
-    return body[1]
+  local disable_do
+  disable_do = function()
+    _do_stack:push(false)
+    return true
   end
+  local pop_do
+  pop_do = function()
+    assert(_do_stack:pop() ~= nil, "unexpected do pop")
+    return true
+  end
+  local DisableDo = Cmt("", disable_do)
+  local PopDo = Cmt("", pop_do)
+  local keywords = { }
+  local key
+  key = function(chars)
+    keywords[chars] = true
+    return Space * chars * -AlphaNum
+  end
+  local op
+  op = function(chars)
+    local patt = Space * C(chars)
+    if chars:match("^%w*$") then
+      keywords[chars] = true
+      patt = patt * -AlphaNum
+    end
+    return patt
+  end
+  local Name = Cmt(SpaceName, function(str, pos, name)
+    if keywords[name] then
+      return false
+    end
+    return true
+  end) / trim
+  local SelfName = Space * "@" * ("@" * (_Name / mark("self_class") + Cc("self.__class")) + _Name / mark("self") + Cc("self"))
+  local KeyName = SelfName + Space * _Name / mark("key_literal")
+  local VarArg = Space * P("...") / trim
+  local g = P({
+    root or File,
+    File = Shebang ^ -1 * (Block + Ct("")),
+    Block = Ct(Line * (Break ^ 1 * Line) ^ 0),
+    CheckIndent = Cmt(Indent, check_indent),
+    Line = (CheckIndent * Statement + Space * L(Stop)),
+    Statement = pos(Import + While + With + For + ForEach + Switch + Return + Local + Export + BreakLoop + Ct(ExpList) * (Update + Assign) ^ -1 / format_assign) * Space * ((key("if") * Exp * (key("else") * Exp) ^ -1 * Space / mark("if") + key("unless") * Exp / mark("unless") + CompInner / mark("comprehension")) * Space) ^ -1 / wrap_decorator,
+    Body = Space ^ -1 * Break * EmptyLine ^ 0 * InBlock + Ct(Statement),
+    Advance = L(Cmt(Indent, advance_indent)),
+    PushIndent = Cmt(Indent, push_indent),
+    PreventIndent = Cmt(Cc(-1), push_indent),
+    PopIndent = Cmt("", pop_indent),
+    InBlock = Advance * Block * PopIndent,
+    Local = key("local") * ((op("*") + op("^")) / mark("declare_glob") + Ct(NameList) / mark("declare_with_shadows")),
+    Import = key("import") * Ct(ImportNameList) * SpaceBreak ^ 0 * key("from") * Exp / mark("import"),
+    ImportName = (sym("\\") * Ct(Cc("colon") * Name) + Name),
+    ImportNameList = SpaceBreak ^ 0 * ImportName * ((SpaceBreak ^ 1 + sym(",") * SpaceBreak ^ 0) * ImportName) ^ 0,
+    BreakLoop = Ct(key("break") / trim) + Ct(key("continue") / trim),
+    Return = key("return") * (ExpListLow / mark("explist") + C("")) / mark("return"),
+    WithExp = Ct(ExpList) * Assign ^ -1 / format_assign,
+    With = key("with") * DisableDo * ensure(WithExp, PopDo) * key("do") ^ -1 * Body / mark("with"),
+    Switch = key("switch") * DisableDo * ensure(Exp, PopDo) * key("do") ^ -1 * Space ^ -1 * Break * SwitchBlock / mark("switch"),
+    SwitchBlock = EmptyLine ^ 0 * Advance * Ct(SwitchCase * (Break ^ 1 * SwitchCase) ^ 0 * (Break ^ 1 * SwitchElse) ^ -1) * PopIndent,
+    SwitchCase = key("when") * Ct(ExpList) * key("then") ^ -1 * Body / mark("case"),
+    SwitchElse = key("else") * Body / mark("else"),
+    IfCond = Exp * Assign ^ -1 / format_single_assign,
+    IfElse = (Break * EmptyLine ^ 0 * CheckIndent) ^ -1 * key("else") * Body / mark("else"),
+    IfElseIf = (Break * EmptyLine ^ 0 * CheckIndent) ^ -1 * key("elseif") * pos(IfCond) * key("then") ^ -1 * Body / mark("elseif"),
+    If = key("if") * IfCond * key("then") ^ -1 * Body * IfElseIf ^ 0 * IfElse ^ -1 / mark("if"),
+    Unless = key("unless") * IfCond * key("then") ^ -1 * Body * IfElseIf ^ 0 * IfElse ^ -1 / mark("unless"),
+    While = key("while") * DisableDo * ensure(Exp, PopDo) * key("do") ^ -1 * Body / mark("while"),
+    For = key("for") * DisableDo * ensure(Name * sym("=") * Ct(Exp * sym(",") * Exp * (sym(",") * Exp) ^ -1), PopDo) * key("do") ^ -1 * Body / mark("for"),
+    ForEach = key("for") * Ct(AssignableNameList) * key("in") * DisableDo * ensure(Ct(sym("*") * Exp / mark("unpack") + ExpList), PopDo) * key("do") ^ -1 * Body / mark("foreach"),
+    Do = key("do") * Body / mark("do"),
+    Comprehension = sym("[") * Exp * CompInner * sym("]") / mark("comprehension"),
+    TblComprehension = sym("{") * Ct(Exp * (sym(",") * Exp) ^ -1) * CompInner * sym("}") / mark("tblcomprehension"),
+    CompInner = Ct((CompForEach + CompFor) * CompClause ^ 0),
+    CompForEach = key("for") * Ct(AssignableNameList) * key("in") * (sym("*") * Exp / mark("unpack") + Exp) / mark("foreach"),
+    CompFor = key("for" * Name * sym("=") * Ct(Exp * sym(",") * Exp * (sym(",") * Exp) ^ -1) / mark("for")),
+    CompClause = CompFor + CompForEach + key("when") * Exp / mark("when"),
+    Assign = sym("=") * (Ct(With + If + Switch) + Ct(TableBlock + ExpListLow)) / mark("assign"),
+    Update = ((sym("..=") + sym("+=") + sym("-=") + sym("*=") + sym("/=") + sym("%=") + sym("or=") + sym("and=") + sym("&=") + sym("|=") + sym(">>=") + sym("<<=")) / trim) * Exp / mark("update"),
+    CharOperators = Space * C(S("+-*/%^><|&")),
+    WordOperators = op("or") + op("and") + op("<=") + op(">=") + op("~=") + op("!=") + op("==") + op("..") + op("<<") + op(">>") + op("//"),
+    BinaryOperator = (WordOperators + CharOperators) * SpaceBreak ^ 0,
+    Assignable = Cmt(Chain, check_assignable) + Name + SelfName,
+    Exp = Ct(Value * (BinaryOperator * Value) ^ 0) / flatten_or_mark("exp"),
+    SimpleValue = If + Unless + Switch + With + ClassDecl + ForEach + For + While + Cmt(Do, check_do) + sym("-") * -SomeSpace * Exp / mark("minus") + sym("#") * Exp / mark("length") + sym("~") * Exp / mark("bitnot") + key("not") * Exp / mark("not") + TblComprehension + TableLit + Comprehension + FunLit + Num,
+    ChainValue = (Chain + Callable) * Ct(InvokeArgs ^ -1) / join_chain,
+    Value = pos(SimpleValue + Ct(KeyValueList) / mark("table") + ChainValue + String),
+    SliceValue = Exp,
+    String = Space * DoubleString + Space * SingleString + LuaString,
+    SingleString = simple_string("'"),
+    DoubleString = simple_string('"', true),
+    LuaString = Cg(LuaStringOpen, "string_open") * Cb("string_open") * Break ^ -1 * C((1 - Cmt(C(LuaStringClose) * Cb("string_open"), check_lua_string)) ^ 0) * LuaStringClose / mark("string"),
+    LuaStringOpen = sym("[") * P("=") ^ 0 * "[" / trim,
+    LuaStringClose = "]" * P("=") ^ 0 * "]",
+    Callable = pos(Name / mark("ref")) + SelfName + VarArg + Parens / mark("parens"),
+    Parens = sym("(") * SpaceBreak ^ 0 * Exp * SpaceBreak ^ 0 * sym(")"),
+    FnArgs = symx("(") * SpaceBreak ^ 0 * Ct(FnArgsExpList ^ -1) * SpaceBreak ^ 0 * sym(")") + sym("!") * -P("=") * Ct(""),
+    FnArgsExpList = Exp * ((Break + sym(",")) * White * Exp) ^ 0,
+    Chain = (Callable + String + -S(".\\")) * ChainItems / mark("chain") + Space * (DotChainItem * ChainItems ^ -1 + ColonChain) / mark("chain"),
+    ChainItems = ChainItem ^ 1 * ColonChain ^ -1 + ColonChain,
+    ChainItem = Invoke + DotChainItem + Slice + symx("[") * Exp / mark("index") * sym("]"),
+    DotChainItem = symx(".") * _Name / mark("dot"),
+    ColonChainItem = symx("\\") * _Name / mark("colon"),
+    ColonChain = ColonChainItem * (Invoke * ChainItems ^ -1) ^ -1,
+    Slice = symx("[") * (SliceValue + Cc(1)) * sym(",") * (SliceValue + Cc("")) * (sym(",") * SliceValue) ^ -1 * sym("]") / mark("slice"),
+    Invoke = FnArgs / mark("call") + SingleString / wrap_func_arg + DoubleString / wrap_func_arg + L(P("[")) * LuaString / wrap_func_arg,
+    TableValue = KeyValue + Ct(Exp),
+    TableLit = sym("{") * Ct(TableValueList ^ -1 * sym(",") ^ -1 * (SpaceBreak * TableLitLine * (sym(",") ^ -1 * SpaceBreak * TableLitLine) ^ 0 * sym(",") ^ -1) ^ -1) * White * sym("}") / mark("table"),
+    TableValueList = TableValue * (sym(",") * TableValue) ^ 0,
+    TableLitLine = PushIndent * ((TableValueList * PopIndent) + (PopIndent * Cut)) + Space,
+    TableBlockInner = Ct(KeyValueLine * (SpaceBreak ^ 1 * KeyValueLine) ^ 0),
+    TableBlock = SpaceBreak ^ 1 * Advance * ensure(TableBlockInner, PopIndent) / mark("table"),
+    ClassDecl = key("class") * -P(":") * (Assignable + Cc(nil)) * (key("extends") * PreventIndent * ensure(Exp, PopIndent) + C("")) ^ -1 * (ClassBlock + Ct("")) / mark("class"),
+    ClassBlock = SpaceBreak ^ 1 * Advance * Ct(ClassLine * (SpaceBreak ^ 1 * ClassLine) ^ 0) * PopIndent,
+    ClassLine = CheckIndent * ((KeyValueList / mark("props") + Statement / mark("stm") + Exp / mark("stm")) * sym(",") ^ -1),
+    Export = key("export") * (Cc("class") * ClassDecl + op("*") + op("^") + Ct(NameList) * (sym("=") * Ct(ExpListLow)) ^ -1) / mark("export"),
+    KeyValue = (sym(":") * -SomeSpace * Name * lpeg.Cp()) / self_assign + Ct((KeyName + sym("[") * Exp * sym("]") + Space * DoubleString + Space * SingleString) * symx(":") * (Exp + TableBlock + SpaceBreak ^ 1 * Exp)),
+    KeyValueList = KeyValue * (sym(",") * KeyValue) ^ 0,
+    KeyValueLine = CheckIndent * KeyValueList * sym(",") ^ -1,
+    FnArgsDef = sym("(") * White * Ct(FnArgDefList ^ -1) * (key("using") * Ct(NameList + Space * "nil") + Ct("")) * White * sym(")") + Ct("") * Ct(""),
+    FnArgDefList = FnArgDef * ((sym(",") + Break) * White * FnArgDef) ^ 0 * ((sym(",") + Break) * White * Ct(VarArg)) ^ 0 + Ct(VarArg),
+    FnArgDef = Ct((Name + SelfName + TableLit) * (sym("=") * Exp) ^ -1),
+    FunLit = FnArgsDef * (sym("->") * Cc("slim") + sym("=>") * Cc("fat")) * (Body + Ct("")) / mark("fndef"),
+    NameList = Name * (sym(",") * Name) ^ 0,
+    NameOrDestructure = Name + TableLit,
+    AssignableNameList = NameOrDestructure * (sym(",") * NameOrDestructure) ^ 0,
+    ExpList = Exp * (sym(",") * Exp) ^ 0,
+    ExpListLow = Exp * ((sym(",") + sym(";")) * Exp) ^ 0,
+    InvokeArgs = -P("-") * (ExpList * (sym(",") * (TableBlock + SpaceBreak * Advance * ArgBlock * TableBlock ^ -1) + TableBlock) ^ -1 + TableBlock),
+    ArgBlock = ArgLine * (sym(",") * SpaceBreak * ArgLine) ^ 0 * PopIndent,
+    ArgLine = CheckIndent * ExpList
+  })
+  return g, state
+end)
+local file_parser
+file_parser = function()
+  local g, state = build_grammar()
+  local file_grammar = White * g * White * -1
+  return {
+    match = function(self, str)
+      local tree
+      local _, err = xpcall((function()
+        tree = file_grammar:match(str)
+      end), function(err)
+        return debug.traceback(err, 2)
+      end)
+      if type(err) == "string" then
+        return nil, err
+      end
+      if not (tree) then
+        local msg
+        local err_pos = state.last_pos
+        if err then
+          local node
+          node, msg = unpack(err)
+          if msg then
+            msg = " " .. msg
+          end
+          err_pos = node[-1]
+        end
+        local line_no = pos_to_line(str, err_pos)
+        local line_str = get_line(str, line_no) or ""
+        return nil, err_msg:format(msg or "", line_no, trim(line_str))
+      end
+      return tree
+    end
+  }
 end
-local transform_last_stm
-transform_last_stm = require("moonscript.transform.statements").transform_last_stm
-local Accumulator
+local native_parser
+local get_native_parser
+get_native_parser = function()
+  if native_parser == nil then
+    if os.getenv("MOONSCRIPT_PARSER") == "pgen" then
+      native_parser = require("moonscript_parser")
+    else
+      native_parser = false
+    end
+  end
+  return native_parser
+end
+return {
+  extract_line = extract_line,
+  build_grammar = build_grammar,
+  string = function(str)
+    do
+      local native = get_native_parser()
+      if native then
+        return native.string(str)
+      else
+        return file_parser():match(str)
+      end
+    end
+  end
+}
+end
+
+package.preload["moonscript.compile"] = function()
+local util = require("moonscript.util")
+local dump = require("moonscript.dump")
+local transform = require("moonscript.transform")
+local NameProxy, LocalName
+do
+  local _obj_0 = require("moonscript.transform.names")
+  NameProxy, LocalName = _obj_0.NameProxy, _obj_0.LocalName
+end
+local Set
+Set = require("moonscript.data").Set
+local ntype, value_can_be_statement
+do
+  local _obj_0 = require("moonscript.types")
+  ntype, value_can_be_statement = _obj_0.ntype, _obj_0.value_can_be_statement
+end
+local statement_compilers = require("moonscript.compile.statement")
+local value_compilers = require("moonscript.compile.value")
+local concat, insert
+do
+  local _obj_0 = table
+  concat, insert = _obj_0.concat, _obj_0.insert
+end
+local pos_to_line, get_closest_line, trim, unpack, mtype
+pos_to_line, get_closest_line, trim, unpack, mtype = util.pos_to_line, util.get_closest_line, util.trim, util.unpack, util.mtype
+local indent_char = "  "
+local Line, DelayedLine, Lines, Block, RootBlock
 do
   local _class_0
   local _base_0 = {
-    body_idx = {
-      ["for"] = 4,
-      ["while"] = 3,
-      foreach = 4
-    },
-    convert = function(self, node)
-      local index = self.body_idx[ntype(node)]
-      node[index] = self:mutate_body(node[index])
-      return self:wrap(node)
-    end,
-    wrap = function(self, node, group_type)
-      if group_type == nil then
-        group_type = "block_exp"
+    mark_pos = function(self, pos, line)
+      if line == nil then
+        line = #self
       end
-      return build[group_type]({
-        build.assign_one(self.accum_name, build.table()),
-        build.assign_one(self.len_name, 1),
-        node,
-        group_type == "block_exp" and self.accum_name or NOOP
-      })
+      if not (self.posmap[line]) then
+        self.posmap[line] = pos
+      end
     end,
-    mutate_body = function(self, body)
-      local single_stm = is_singular(body)
-      local val
-      if single_stm and types.is_value(single_stm) then
-        body = { }
-        val = single_stm
+    add = function(self, item)
+      local _exp_0 = mtype(item)
+      if Line == _exp_0 then
+        item:render(self)
+      elseif Block == _exp_0 then
+        item:render(self)
       else
-        body = transform_last_stm(body, function(n)
-          if types.is_value(n) then
-            return build.assign_one(self.value_name, n)
-          else
-            return build.group({
-              {
-                "declare",
-                {
-                  self.value_name
-                }
-              },
-              n
-            })
-          end
-        end)
-        val = self.value_name
+        self[#self + 1] = item
       end
-      local update = {
-        build.assign_one(NameProxy.index(self.accum_name, self.len_name), val),
-        {
-          "update",
-          self.len_name,
-          "+=",
-          1
-        }
-      }
-      insert(body, build.group(update))
-      return body
+      return self
+    end,
+    flatten_posmap = function(self, line_no, out)
+      if line_no == nil then
+        line_no = 0
+      end
+      if out == nil then
+        out = { }
+      end
+      local posmap = self.posmap
+      for i, l in ipairs(self) do
+        local _exp_0 = mtype(l)
+        if "string" == _exp_0 or DelayedLine == _exp_0 then
+          line_no = line_no + 1
+          out[line_no] = posmap[i]
+          for _ in l:gmatch("\n") do
+            line_no = line_no + 1
+          end
+          out[line_no] = posmap[i]
+        elseif Lines == _exp_0 then
+          local _
+          _, line_no = l:flatten_posmap(line_no, out)
+        else
+          error("Unknown item in Lines: " .. tostring(l))
+        end
+      end
+      return out, line_no
+    end,
+    flatten = function(self, indent, buffer)
+      if indent == nil then
+        indent = nil
+      end
+      if buffer == nil then
+        buffer = { }
+      end
+      for i = 1, #self do
+        local l = self[i]
+        local t = mtype(l)
+        if t == DelayedLine then
+          l = l:render()
+          t = "string"
+        end
+        local _exp_0 = t
+        if "string" == _exp_0 then
+          if indent then
+            insert(buffer, indent)
+          end
+          insert(buffer, l)
+          if "string" == type(self[i + 1]) then
+            if l:sub(-1) ~= ',' and l:sub(-3) ~= 'end' and self[i + 1]:sub(1, 1) == "(" then
+              insert(buffer, ";")
+            end
+          end
+          insert(buffer, "\n")
+        elseif Lines == _exp_0 then
+          l:flatten(indent and indent .. indent_char or indent_char, buffer)
+        else
+          error("Unknown item in Lines: " .. tostring(l))
+        end
+      end
+      return buffer
+    end,
+    __tostring = function(self)
+      local strip
+      strip = function(t)
+        if "table" == type(t) then
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #t do
+            local v = t[_index_0]
+            _accum_0[_len_0] = strip(v)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        else
+          return t
+        end
+      end
+      return "Lines<" .. tostring(util.dump(strip(self)):sub(1, -2)) .. ">"
     end
   }
   _base_0.__index = _base_0
   _class_0 = setmetatable({
-    __init = function(self, accum_name)
-      self.accum_name = NameProxy("accum")
-      self.value_name = NameProxy("value")
-      self.len_name = NameProxy("len")
+    __init = function(self)
+      self.posmap = { }
     end,
     __base = _base_0,
-    __name = "Accumulator"
+    __name = "Lines"
   }, {
     __index = _base_0,
     __call = function(cls, ...)
@@ -6425,16 +6630,613 @@ do
     end
   })
   _base_0.__class = _class_0
-  Accumulator = _class_0
+  Lines = _class_0
 end
-local default_accumulator
-default_accumulator = function(self, node)
-  return Accumulator():convert(node)
+do
+  local _class_0
+  local _base_0 = {
+    pos = nil,
+    append_list = function(self, items, delim)
+      for i = 1, #items do
+        self:append(items[i])
+        if i < #items then
+          insert(self, delim)
+        end
+      end
+      return nil
+    end,
+    append = function(self, first, ...)
+      if Line == mtype(first) then
+        if not (self.pos) then
+          self.pos = first.pos
+        end
+        for _index_0 = 1, #first do
+          local value = first[_index_0]
+          self:append(value)
+        end
+      else
+        insert(self, first)
+      end
+      if ... then
+        return self:append(...)
+      end
+    end,
+    render = function(self, buffer)
+      local current = { }
+      local add_current
+      add_current = function()
+        buffer:add(concat(current))
+        return buffer:mark_pos(self.pos)
+      end
+      for _index_0 = 1, #self do
+        local chunk = self[_index_0]
+        local _exp_0 = mtype(chunk)
+        if Block == _exp_0 then
+          local _list_0 = chunk:render(Lines())
+          for _index_1 = 1, #_list_0 do
+            local block_chunk = _list_0[_index_1]
+            if "string" == type(block_chunk) then
+              insert(current, block_chunk)
+            else
+              add_current()
+              buffer:add(block_chunk)
+              current = { }
+            end
+          end
+        else
+          insert(current, chunk)
+        end
+      end
+      if current[1] then
+        add_current()
+      end
+      return buffer
+    end,
+    __tostring = function(self)
+      return "Line<" .. tostring(util.dump(self):sub(1, -2)) .. ">"
+    end
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function() end,
+    __base = _base_0,
+    __name = "Line"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Line = _class_0
+end
+do
+  local _class_0
+  local _base_0 = {
+    prepare = function() end,
+    render = function(self)
+      self:prepare()
+      return concat(self)
+    end
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self, fn)
+      self.prepare = fn
+    end,
+    __base = _base_0,
+    __name = "DelayedLine"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  DelayedLine = _class_0
+end
+do
+  local _class_0
+  local _base_0 = {
+    header = "do",
+    footer = "end",
+    export_all = false,
+    export_proper = false,
+    value_compilers = value_compilers,
+    statement_compilers = statement_compilers,
+    __tostring = function(self)
+      local h
+      if "string" == type(self.header) then
+        h = self.header
+      else
+        h = unpack(self.header:render({ }))
+      end
+      return ("Block<" .. tostring(h) .. "> <- ") .. tostring(self.parent)
+    end,
+    set = function(self, name, value)
+      self._state[name] = value
+    end,
+    get = function(self, name)
+      return self._state[name]
+    end,
+    get_current = function(self, name)
+      return rawget(self._state, name)
+    end,
+    extract_assign_name = function(self, node)
+      local is_local = false
+      local real_name
+      local _exp_0 = mtype(node)
+      if LocalName == _exp_0 then
+        is_local = true
+        real_name = node:get_name(self)
+      elseif NameProxy == _exp_0 then
+        real_name = node:get_name(self)
+      elseif "table" == _exp_0 then
+        real_name = node[1] == "ref" and node[2]
+      elseif "string" == _exp_0 then
+        real_name = node
+      end
+      return real_name, is_local
+    end,
+    declare = function(self, names)
+      local undeclared
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        for _index_0 = 1, #names do
+          local _continue_0 = false
+          repeat
+            local name = names[_index_0]
+            local real_name, is_local = self:extract_assign_name(name)
+            if not (is_local or real_name and not self:has_name(real_name, true)) then
+              _continue_0 = true
+              break
+            end
+            self:put_name(real_name)
+            if self:name_exported(real_name) then
+              _continue_0 = true
+              break
+            end
+            local _value_0 = real_name
+            _accum_0[_len_0] = _value_0
+            _len_0 = _len_0 + 1
+            _continue_0 = true
+          until true
+          if not _continue_0 then
+            break
+          end
+        end
+        undeclared = _accum_0
+      end
+      return undeclared
+    end,
+    whitelist_names = function(self, names)
+      self._name_whitelist = Set(names)
+    end,
+    name_exported = function(self, name)
+      if self.export_all then
+        return true
+      end
+      if self.export_proper and name:match("^%u") then
+        return true
+      end
+    end,
+    put_name = function(self, name, ...)
+      local value = ...
+      if select("#", ...) == 0 then
+        value = true
+      end
+      if NameProxy == mtype(name) then
+        name = name:get_name(self)
+      end
+      self._names[name] = value
+    end,
+    put_fresh_names = function(self, names)
+      for _index_0 = 1, #names do
+        local name = names[_index_0]
+        local real_name = self:extract_assign_name(name)
+        if real_name then
+          self:put_name(real_name)
+        end
+      end
+    end,
+    binding_value = function(self, name)
+      local val = self._names[name]
+      if val == nil and self.parent then
+        if not self._name_whitelist or self._name_whitelist[name] then
+          return self.parent:binding_value(name)
+        end
+      end
+      return val
+    end,
+    has_name = function(self, name, skip_exports)
+      if not skip_exports and self:name_exported(name) then
+        return true
+      end
+      local yes = self._names[name]
+      if yes == nil and self.parent then
+        if not self._name_whitelist or self._name_whitelist[name] then
+          return self.parent:has_name(name, true)
+        end
+      else
+        return yes
+      end
+    end,
+    is_local = function(self, node)
+      local t = mtype(node)
+      if t == "string" then
+        return self:has_name(node, false)
+      end
+      if t == NameProxy or t == LocalName then
+        return true
+      end
+      if t == "table" then
+        if node[1] == "ref" or (node[1] == "chain" and #node == 2) then
+          return self:is_local(node[2])
+        end
+      end
+      return false
+    end,
+    free_name = function(self, prefix, dont_put)
+      prefix = prefix or "moon"
+      local searching = true
+      local name, i = nil, 0
+      while searching do
+        name = concat({
+          "",
+          prefix,
+          i
+        }, "_")
+        i = i + 1
+        searching = self:has_name(name, true)
+      end
+      if not dont_put then
+        self:put_name(name)
+      end
+      return name
+    end,
+    init_free_var = function(self, prefix, value)
+      local name = self:free_name(prefix, true)
+      self:stm({
+        "assign",
+        {
+          name
+        },
+        {
+          value
+        }
+      })
+      return name
+    end,
+    discard_name = function(self)
+      self._discard_name = self._discard_name or NameProxy("scrap")
+      return self._discard_name
+    end,
+    add = function(self, item, pos)
+      do
+        local _with_0 = self._lines
+        _with_0:add(item)
+        if pos then
+          _with_0:mark_pos(pos)
+        end
+      end
+      return item
+    end,
+    render = function(self, buffer)
+      buffer:add(self.header)
+      buffer:mark_pos(self.pos)
+      if self.next then
+        buffer:add(self._lines)
+        self.next:render(buffer)
+      else
+        if #self._lines == 0 and "string" == type(buffer[#buffer]) then
+          local _update_0 = #buffer
+          buffer[_update_0] = buffer[_update_0] .. (" " .. (unpack(Lines():add(self.footer))))
+        else
+          buffer:add(self._lines)
+          buffer:add(self.footer)
+          buffer:mark_pos(self.pos)
+        end
+      end
+      return buffer
+    end,
+    block = function(self, header, footer)
+      return Block(self, header, footer)
+    end,
+    line = function(self, ...)
+      do
+        local _with_0 = Line()
+        _with_0:append(...)
+        return _with_0
+      end
+    end,
+    is_stm = function(self, node)
+      return self.statement_compilers[ntype(node)] ~= nil
+    end,
+    is_value = function(self, node)
+      local t = ntype(node)
+      return self.value_compilers[t] ~= nil or t == "value"
+    end,
+    name = function(self, node, ...)
+      if type(node) == "string" then
+        return node
+      else
+        return self:value(node, ...)
+      end
+    end,
+    value = function(self, node, ...)
+      node = self.transform.value(node)
+      local action
+      if type(node) ~= "table" then
+        action = "raw_value"
+      else
+        action = node[1]
+      end
+      local fn = self.value_compilers[action]
+      if not (fn) then
+        error({
+          "compile-error",
+          "Failed to find value compiler for: " .. dump.value(node),
+          node[-1]
+        })
+      end
+      local out = fn(self, node, ...)
+      if type(node) == "table" and node[-1] then
+        if type(out) == "string" then
+          do
+            local _with_0 = Line()
+            _with_0:append(out)
+            out = _with_0
+          end
+        end
+        out.pos = node[-1]
+      end
+      return out
+    end,
+    values = function(self, values, delim)
+      delim = delim or ', '
+      do
+        local _with_0 = Line()
+        _with_0:append_list((function()
+          local _accum_0 = { }
+          local _len_0 = 1
+          for _index_0 = 1, #values do
+            local v = values[_index_0]
+            _accum_0[_len_0] = self:value(v)
+            _len_0 = _len_0 + 1
+          end
+          return _accum_0
+        end)(), delim)
+        return _with_0
+      end
+    end,
+    stm = function(self, node, ...)
+      if not node then
+        return
+      end
+      if type(node) == "table" and node[-1] then
+        self.root.last_pos = node[-1]
+      end
+      node = self.transform.statement(node)
+      local result
+      do
+        local fn = self.statement_compilers[ntype(node)]
+        if fn then
+          result = fn(self, node, ...)
+        else
+          if value_can_be_statement(node) then
+            result = self:value(node)
+          else
+            result = self:stm({
+              "assign",
+              {
+                self:discard_name()
+              },
+              {
+                node
+              }
+            })
+          end
+        end
+      end
+      if result then
+        if type(node) == "table" and type(result) == "table" and node[-1] then
+          result.pos = node[-1]
+        end
+        self:add(result)
+      end
+      return nil
+    end,
+    stms = function(self, stms, ret)
+      if ret then
+        error("deprecated stms call, use transformer")
+      end
+      local current_stms, current_stm_i
+      current_stms, current_stm_i = self.current_stms, self.current_stm_i
+      self.current_stms = stms
+      for i = 1, #stms do
+        self.current_stm_i = i
+        self:stm(stms[i])
+      end
+      self.current_stms = current_stms
+      self.current_stm_i = current_stm_i
+      return nil
+    end
+  }
+  _base_0.__index = _base_0
+  _class_0 = setmetatable({
+    __init = function(self, parent, header, footer)
+      self.parent, self.header, self.footer = parent, header, footer
+      self._lines = Lines()
+      self._names = { }
+      self._state = { }
+      do
+        self.transform = {
+          value = transform.Value:bind(self),
+          statement = transform.Statement:bind(self)
+        }
+      end
+      if self.parent then
+        self.root = self.parent.root
+        self.indent = self.parent.indent + 1
+        return setmetatable(self._state, {
+          __index = self.parent._state
+        })
+      else
+        self.root = self
+        self.indent = 0
+      end
+    end,
+    __base = _base_0,
+    __name = "Block"
+  }, {
+    __index = _base_0,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  Block = _class_0
+end
+do
+  local _class_0
+  local _parent_0 = Block
+  local _base_0 = {
+    __tostring = function(self)
+      return "RootBlock<>"
+    end,
+    root_stms = function(self, stms)
+      if not (self.options.implicitly_return_root == false) then
+        stms = transform.Statement.transformers.root_stms(self, stms)
+      end
+      return self:stms(stms)
+    end,
+    render = function(self)
+      local buffer = self._lines:flatten()
+      if buffer[#buffer] == "\n" then
+        buffer[#buffer] = nil
+      end
+      return table.concat(buffer)
+    end
+  }
+  _base_0.__index = _base_0
+  setmetatable(_base_0, _parent_0.__base)
+  _class_0 = setmetatable({
+    __init = function(self, options)
+      self.options = options
+      return _class_0.__parent.__init(self)
+    end,
+    __base = _base_0,
+    __name = "RootBlock",
+    __parent = _parent_0
+  }, {
+    __index = function(cls, name)
+      local val = rawget(_base_0, name)
+      if val == nil then
+        local parent = rawget(cls, "__parent")
+        if parent then
+          return parent[name]
+        end
+      else
+        return val
+      end
+    end,
+    __call = function(cls, ...)
+      local _self_0 = setmetatable({}, _base_0)
+      cls.__init(_self_0, ...)
+      return _self_0
+    end
+  })
+  _base_0.__class = _class_0
+  if _parent_0.__inherited then
+    _parent_0.__inherited(_parent_0, _class_0)
+  end
+  RootBlock = _class_0
+end
+local format_error
+format_error = function(msg, pos, file_str)
+  msg = tostring(msg)
+  local line_message
+  if pos then
+    local line = pos_to_line(file_str, pos)
+    local line_str
+    line_str, line = get_closest_line(file_str, line)
+    line_str = line_str or ""
+    line_message = (" [%d] >>    %s"):format(line, trim(line_str))
+  end
+  return concat({
+    "Compile error: " .. msg,
+    line_message
+  }, "\n")
+end
+local value
+value = function(value)
+  local out = nil
+  do
+    local _with_0 = RootBlock()
+    _with_0:add(_with_0:value(value))
+    out = _with_0:render()
+  end
+  return out
+end
+local tree
+tree = function(tree, options)
+  if options == nil then
+    options = { }
+  end
+  assert(tree, "missing tree")
+  local scope = (options.scope or RootBlock)(options)
+  local runner = coroutine.create(function()
+    return scope:root_stms(tree)
+  end)
+  local success, err = coroutine.resume(runner)
+  if not (success) then
+    local error_msg, error_pos
+    if type(err) == "table" then
+      local _exp_0 = err[1]
+      if "user-error" == _exp_0 or "compile-error" == _exp_0 then
+        error_msg, error_pos = unpack(err, 2)
+      else
+        error_msg, error_pos = concat({
+          "Unknown error thrown: " .. tostring(util.dump(err)),
+          debug.traceback(runner)
+        }, "\n")
+      end
+    else
+      error_msg, error_pos = concat({
+        err,
+        debug.traceback(runner)
+      }, "\n")
+    end
+    return nil, error_msg, error_pos or scope.last_pos
+  end
+  local lua_code = scope:render()
+  local posmap = scope._lines:flatten_posmap()
+  return lua_code, posmap
+end
+do
+  local data = require("moonscript.data")
+  for name, cls in pairs({
+    Line = Line,
+    Lines = Lines,
+    DelayedLine = DelayedLine
+  }) do
+    data[name] = cls
+  end
 end
 return {
-  Accumulator = Accumulator,
-  default_accumulator = default_accumulator
+  tree = tree,
+  value = value,
+  format_error = format_error,
+  Block = Block,
+  RootBlock = RootBlock
 }
 end
 
-return package.preload.moonscript("moonscript")
+return package.preload["moonscript.init"]()
