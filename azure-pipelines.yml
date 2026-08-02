@@ -16,7 +16,7 @@ pool:
   vmImage: 'windows-2022'
 
 variables:
-  solution: '_build/vc/far.sln'
+  solution: '_build/vc/far.slnx'
 
 strategy:
     matrix:
