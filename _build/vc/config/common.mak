@@ -1,11 +1,11 @@
 .SILENT:
 
 !if !defined(VC)
-!if "$(_NMAKE_VER)">="14.30"
-VC = 17
+!if "$(_NMAKE_VER)">="14.50"
+VC = 18
 !else
 #default
-VC = 16
+VC = 17
 !endif
 !endif
 
@@ -46,7 +46,7 @@ FARDIR=$(ROOTDIR)\far
 !endif
 
 # Main flags setup
-CFLAGS = $(CFLAGS)\
+COMMON_FLAGS = $(COMMON_FLAGS)\
 	/nologo\
 	/c\
 	/J\
@@ -73,24 +73,26 @@ CFLAGS = $(CFLAGS)\
 	/D "PSAPI_VERSION=1"\
 	/D "_CRT_SECURE_NO_WARNINGS"\
 
-!if "$(VC)">="17"
-CFLAGS = $(CFLAGS)\
-	/Zc:__STDC__,enumTypes,templateScope\
-
+!if "$(VC)">="18"
 !endif
 
 !ifndef ANSI
-CFLAGS = $(CFLAGS)\
+COMMON_FLAGS = $(COMMON_FLAGS)\
 	/D "UNICODE"\
 	/D "_UNICODE"\
 
 !endif
 
+CFLAGS = $(CFLAGS)\
+	$(COMMON_FLAGS)\
+	/std:clatest\
+	/Zc:__STDC__\
+
 CPPFLAGS = $(CPPFLAGS)\
-	$(CFLAGS)\
+	$(COMMON_FLAGS)\
 	/EHsc\
 	/std:c++latest\
-	/Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew\
+	/Zc:__cplusplus,enumTypes,externConstexpr,inline,preprocessor,templateScope,throwingNew\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1"\
@@ -125,18 +127,18 @@ ULINKFLAGS = $(ULINKFLAGS) -GM:_RDATA=.rdata
 # Configuration-specific flags
 !ifdef DEBUG
 # Debug mode
-CFLAGS = $(CFLAGS) /MTd /Od /D "_DEBUG"
+COMMON_FLAGS = $(COMMON_FLAGS) /MTd /Od /D "_DEBUG"
 RFLAGS = $(RFLAGS) /D "_DEBUG"
 LINKFLAGS = $(LINKFLAGS) /debug
 ULINKFLAGS = $(ULINKFLAGS) -v
 !else # DEBUG
 # Release mode
-CFLAGS = $(CFLAGS) /MT /O2 /D "NDEBUG"
+COMMON_FLAGS = $(COMMON_FLAGS) /MT /O2 /D "NDEBUG"
 RFLAGS = $(RFLAGS) /D "NDEBUG"
 LINKFLAGS = $(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF /pdbaltpath:%_PDB%
 
 !ifndef NO_RELEASE_LTCG
-CFLAGS = $(CFLAGS) /GL
+COMMON_FLAGS = $(COMMON_FLAGS) /GL
 LINKFLAGS = $(LINKFLAGS) /ltcg
 !ifdef LTCG_STATUS
 LINKFLAGS = $(LINKFLAGS) /ltcg:status
@@ -145,15 +147,15 @@ LINKFLAGS = $(LINKFLAGS) /ltcg:status
 !endif # DEBUG
 
 !ifdef USE_ANALYZE
-CFLAGS = $(CFLAGS) /analyze
+COMMON_FLAGS = $(COMMON_FLAGS) /analyze
 !endif
 # Configuration-specific flags end
 
 # Platform-specific flags
 !if "$(BUILD_PLATFORM)" == "X86"
-CFLAGS = $(CFLAGS) /arch:IA32
+COMMON_FLAGS = $(COMMON_FLAGS) /arch:IA32
 !ifndef DEBUG
-CFLAGS = $(CFLAGS) /Oy-
+COMMON_FLAGS = $(COMMON_FLAGS) /Oy-
 LINKFLAGS = $(LINKFLAGS) /safeseh
 ULINKFLAGS = $(ULINKFLAGS) -RS
 !endif # DEBUG
@@ -178,7 +180,7 @@ LINKFLAGS = $(LINKFLAGS) /machine:ARM64
 !ifdef CLANG
 CC = clang-cl
 CPP = clang-cl
-CFLAGS = $(CFLAGS)\
+COMMON_FLAGS = $(COMMON_FLAGS)\
 	-Qunused-arguments\
 	/clang:-fvisibility=hidden\
 	-Weverything\

@@ -68,7 +68,7 @@
     <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
     <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
     <TargetOsVersion Condition="'$(Platform)'=='ARM64'">6.2</TargetOsVersion>
-    <NewOptions Condition="'$(VisualStudioVersion)' &gt;= '17.0'">/Zc:__STDC__,enumTypes,templateScope</NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)' &gt;= '18.0'"></NewOptions>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -76,9 +76,8 @@
     <RootNamespace>$(ProjectName)</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <CharacterSet Condition="'$(CharacterSet)' == ''">Unicode</CharacterSet>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '17.0'">v143</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '18.0'">v145</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <OutDir>$(OutputsRoot)product\$(ConfigSpecificDirectoryName)\$(ProjectSpecificOutDirName)\</OutDir>
     <IntDir>$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\$(ProjectSpecificIntDirName)\</IntDir>
     <GenerateManifest>false</GenerateManifest>
@@ -111,7 +110,7 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew /volatile:iso /utf-8 /Gw $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J /Zc:__cplusplus,__STDC__,enumTypes,externConstexpr,inline,preprocessor,templateScope,throwingNew /volatile:iso /utf-8 /Gw $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;PSAPI_VERSION=1;_CRT_SECURE_NO_WARNINGS;_ENABLE_EXTENDED_ALIGNED_STORAGE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -125,7 +124,7 @@
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
       <UseFullPaths>false</UseFullPaths>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>

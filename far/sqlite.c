@@ -55,6 +55,7 @@ WARNING_DISABLE_MSC(4391) // 'signature' : incorrect return type for intrinsic f
 WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
 WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
 WARNING_DISABLE_MSC(4191) // 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
+WARNING_DISABLE_MSC(5262) // implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases
 
 WARNING_DISABLE_GCC("-Wpedantic")
 WARNING_DISABLE_GCC("-Wcast-align")
