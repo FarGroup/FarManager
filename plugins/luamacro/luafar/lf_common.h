@@ -10,7 +10,6 @@
 #define TYPE_BIT64         LUAFAR_PREFIX "Bit64"
 #define TYPE_DIALOG        LUAFAR_PREFIX "Dialog"
 #define TYPE_FILEFILTER    LUAFAR_PREFIX "FileFilter"
-#define TYPE_FILEHANDLE    LUAFAR_PREFIX "FileHandle"
 #define TYPE_PLUGINHANDLE  LUAFAR_PREFIX "PluginHandle"
 #define TYPE_REGEX         LUAFAR_PREFIX "Regex"
 #define TYPE_SAVEDSCREEN   LUAFAR_PREFIX "SavedScreen"

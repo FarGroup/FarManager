@@ -356,7 +356,8 @@ local function ShowAndPass(...) far.Show(...) return ... end
 local function ShowCmdLineHelp()
   local windir, fardir = win.GetEnv("WINDIR"), win.GetEnv("FARHOME")
   if windir and fardir then
-    local suffix = win.GetEnv("FARLANG")=="Russian" and "ru" or "en"
+    local lang = win.GetEnv("FARLANG")
+    local suffix = (lang=="Polish" and "pl") or (lang=="Russian" and "ru") or "en"
     local topic = JoinPath(fardir, "Encyclopedia", "macroapi_manual."..suffix..".chm::/92.html")
     win.ShellExecute(nil, nil, JoinPath(windir,"hh.exe"), topic)
   end
@@ -364,14 +365,20 @@ end
 
 local function Open_CommandLine (strCmdLine)
   local prefix, text = strCmdLine:match("^%s*([^:%s]+):%s*(.-)%s*$")
-  if not prefix then return end -- this can occur with Plugin.Command()
+  if not prefix then -- this can occur with Plugin.Command()
+    return
+  end
+  ----------------------------------------------------------------------------
   prefix = prefix:lower()
+  local Command = text:match("%S*")
+  local cmd = Command:lower()
+  ----------------------------------------------------------------------------
   if prefix == "lm" or prefix == "macro" then
-    if text == "" then
-      ShowCmdLineHelp(); return;
-    end
-    local cmd = text:match("%S*"):lower()
-    if cmd == "load" then
+    if cmd == "" then
+      ShowCmdLineHelp()
+    elseif cmd == "about" then
+      About()
+    elseif cmd == "load" then
       local paths = text:match("%S.*",5)
       paths = paths and paths:gsub([[^"(.+)"$]], "%1")
       far.MacroLoadAll(paths)
@@ -379,8 +386,6 @@ local function Open_CommandLine (strCmdLine)
       utils.WriteMacros()
     elseif cmd == "unload" then
       utils.UnloadMacros()
-    elseif cmd == "about" then
-      About()
     elseif cmd == "test" then
       far.MacroPost( [[
         local function errorhandler(err) win.OutputDebugString(debug.traceback(err)) end
@@ -397,9 +402,10 @@ local function Open_CommandLine (strCmdLine)
       ]], 0, "CtrlShiftF12")
     elseif cmd == "browser" then
       macrobrowser()
-    elseif cmd ~= "" then
-      ErrMsg(Msg.CL_UnsupportedCommand .. cmd)
+    else
+      ErrMsg(Msg.CL_UnsupportedCommand..prefix..":"..Command)
     end
+  ----------------------------------------------------------------------------
   elseif prefix == "lua" or prefix == "moon" or prefix == "luas" or prefix == "moons" then
     if text=="" then ShowCmdLineHelp(); return;  end
     local show = false
@@ -424,6 +430,7 @@ local function Open_CommandLine (strCmdLine)
     else
       ErrMsg(f2)
     end
+  ----------------------------------------------------------------------------
   else
     local item = utils.GetPrefixes()[prefix]
     if item then return item.action(prefix, text) end
