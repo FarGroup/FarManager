@@ -307,12 +307,12 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					inplace::escape_ampersands(strRecord);
 
 				menu_item_ex MenuItem{ std::move(strRecord) };
-				i.Lock? MenuItem.SetCheck() : MenuItem.ClearCheck();
+				set_check(MenuItem, i.Lock);
 				MenuItem.ComplexUserData = i.Id;
 
 				if (!SetUpMenuPos && m_CurrentItem == i.Id)
 				{
-					MenuItem.SetSelect(true);
+					set_select(MenuItem, true);
 					bSelected=true;
 				}
 

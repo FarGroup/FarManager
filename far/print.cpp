@@ -88,8 +88,8 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, std::span<PRINTER_INFO_4 cons
 		if (!bDefaultPrinterFound && printer.pPrinterName == strDefaultPrinter)
 		{
 			bDefaultPrinterFound = true;
-			Item.SetCheck();
-			Item.SetSelect(true);
+			set_check(Item, true);
+			set_select(Item, true);
 		}
 		Item.ComplexUserData = Item.GetName();
 		PrinterList->AddItem(Item);

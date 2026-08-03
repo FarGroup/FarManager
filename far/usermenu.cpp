@@ -583,7 +583,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 				FarUserMenuItem.Flags|=MIF_SUBMENU;
 			}
 
-			FarUserMenuItem.SetSelect(NumLines==MenuPos);
+			set_select(FarUserMenuItem, NumLines==MenuPos);
 		}
 
 		FarUserMenuItem.ComplexUserData = MenuItem;

@@ -522,12 +522,12 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_text(const menu_item& Item)
+	string_view get_item_text(const menu_item_ex& Item)
 	{
 		return Item.GetName();
 	}
 
-	int get_item_visual_length(const menu_item& Item, const bool ShowAmpersand)
+	int get_item_visual_length(const menu_item_ex& Item, const bool ShowAmpersand)
 	{
 		if (Item.VisualLength != Item.InvalidVisualLength)
 			return Item.VisualLength;
@@ -679,14 +679,14 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 {
 }
 
-vmenu_ptr VMenu::create(string Title, std::span<menu_item const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
+vmenu_ptr VMenu::create(string Title, std::span<menu_item_data const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), std::move(Title), MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, Flags);
 	return VmenuPtr;
 }
 
-void VMenu::init(std::span<menu_item const> const Data, DWORD Flags)
+void VMenu::init(std::span<menu_item_data const> const Data, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
@@ -871,22 +871,22 @@ void VMenu::UpdateSelectPos()
 	{
 		if (!item_can_have_focus(Item))
 		{
-			Item.SetSelect(false);
+			set_select(Item, false);
 		}
 		else
 		{
 			if (SelectPos == -1)
 			{
-				Item.SetSelect(true);
+				set_select(Item, true);
 				SelectPos = static_cast<int>(Index);
 			}
 			else if (SelectPos != static_cast<int>(Index))
 			{
-				Item.SetSelect(false);
+				set_select(Item, false);
 			}
 			else
 			{
-				Item.SetSelect(true);
+				set_select(Item, true);
 			}
 		}
 	}
@@ -1089,7 +1089,7 @@ void VMenu::SetCheck(int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].SetCheck();
+	set_check(Items[ItemPos], true);
 }
 
 void VMenu::SetCustomCheck(wchar_t Char, int Position)
@@ -1098,7 +1098,7 @@ void VMenu::SetCustomCheck(wchar_t Char, int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].SetCustomCheck(Char);
+	set_check(Items[ItemPos], Char);
 }
 
 void VMenu::ClearCheck(int Position)
@@ -1107,7 +1107,7 @@ void VMenu::ClearCheck(int Position)
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].ClearCheck();
+	set_check(Items[ItemPos], false);
 }
 
 void VMenu::RestoreFilteredItems()
@@ -3549,26 +3549,28 @@ const UUID& VMenu::Id() const
 	return MenuId;
 }
 
-void VMenu::DecorateItemsWithHotkeys(std::span<menu_item> const MenuItems, const bool ShowAmpersand)
+void VMenu::DecorateItemsWithHotkeys(std::span<menu_item_data> const Data, const bool ShowAmpersand)
 {
-	const auto MaxVisualLength = std::ranges::fold_left(MenuItems, 0, [ShowAmpersand](const auto Acc, const auto& Item)
-	{
-		return std::max(Acc, get_item_visual_length(Item, ShowAmpersand));
-	});
+	if (Data.empty()) return;
 
-	for (auto& Item : MenuItems)
-	{
-		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
-			continue;
+	const auto VisualLengths{ Data
+		| std::views::transform([ShowAmpersand](const auto& Item) {
+			return ShowAmpersand ? visual_string_length(Item.Name) : HiStrlen(Item.Name); })
+		| std::ranges::to<std::vector>()
+	};
 
-		// `fit_to_left` always preserves ampersand which occupies exactly one screen cell. In other words,
-		// it accounts for the same number of screen cell as calculated by `visual_string_length`.
-		// If we show ampersand, an item occupies same number of screen cells as `fit_to_left` accounted for.
-		// If we do not show ampersand and an item actually has ampersand, it will occupy one screen cell less than
-		// `fit_to_left` accounted for, so we need to add an extra space to compensate for disappeared ampersand.
-		const auto Hl{ !ShowAmpersand
-			&& get_item_visual_length(Item, false) != static_cast<int>(visual_string_length(get_item_text(Item))) };
-		Item.SetName(fit_to_left(Item.GetName(), MaxVisualLength + (Hl? 2 : 1)) + KeyToLocalizedText(Item.AccelKey));
+	const auto MaxVisualLength{ std::ranges::max(VisualLengths) };
+	const string Spaces(MaxVisualLength + 1, L' ');
+	const string_view Padding{ Spaces };
+
+	for (auto& [Item, VisualLength] : zip(Data, VisualLengths))
+	{
+		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey) continue;
+
+		const auto AccelKeyText{ KeyToLocalizedText(Item.AccelKey) };
+		if (AccelKeyText.empty()) continue;
+
+		append(Item.Name, Padding.substr(0, Padding.size() - VisualLength), AccelKeyText);
 	}
 }
 

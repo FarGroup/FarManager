@@ -51,7 +51,7 @@ struct HMenuData
 {
 	string_view Name;
 	string_view SubMenuHelp;
-	std::span<menu_item> SubMenu;
+	std::span<menu_item_data> SubMenu;
 	bool Selected;
 	int XPos;
 };
