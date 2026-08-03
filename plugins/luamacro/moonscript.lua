@@ -7239,4 +7239,6 @@ return {
 }
 end
 
-return package.preload["moonscript.init"]()
+package.preload.moon = package.preload["moon.init"]
+package.preload.moonscript = package.preload["moonscript.init"]
+return package.preload.moonscript()
