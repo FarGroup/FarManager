@@ -1,26 +1,27 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DN_KILLFOCUS</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DN_KILLFOCUS</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Событие <code>DN_KILLFOCUS</code> передаётся процедуре обработки диалога непосредственно перед потерей клавиатурного фокуса элементом диалога.
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 <ul>
 <li>ID элемента диалога, теряющего фокус ввода.</li>
 <li><code>-1</code> — если немодальный диалог теряет фокус. В этом случае возвращаемое значение игнорируется.</li>
@@ -28,35 +29,37 @@
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 0
 </div>
 
 <h3>Return</h3>
-<div class=descr>
-<code>-1</code> - "Согласен с потерей фокуса".<br>
-<code>>=0</code> - номер желаемого элемента, которому хотим передать фокус.
+<div class="descr">
+<ul class="nomarker">
+  <li><code>-1</code> - "Согласен с потерей фокуса".</li>
+  <li><code>&gt;=0</code> - номер желаемого элемента, которому хотим передать фокус.</li>
+</ul>
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">все элементы, которые могут иметь <a href="../../other/dict.html#keybfocus">клавиатурный фокус ввода</a>.</td></tr>
+<tr><th>Элемент</th><th>Описание</th></tr>
+<tr><td>Все</td>
+<td>все элементы, которые могут иметь <a href="../../other/dict.html#keybfocus">клавиатурный фокус ввода</a>.</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

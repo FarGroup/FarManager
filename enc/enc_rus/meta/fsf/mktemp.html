@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.MkTemp</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>MkTemp</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.MkTemp</code> создаёт имя временного файла на основе шаблона.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI MkTemp(
   wchar_t *Dest,
   size_t DestSize,
@@ -27,41 +28,43 @@ size_t WINAPI MkTemp(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на буфер, который получит полное имя временного файла в верхнем регистре. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
-  <div class=dfn>Prefix</div>
-    <div class=dfndescr>Указывает на оканчивающуюся нулём строку-префикс. Максимум первые три символа из этой строки будут использованы в качестве префикса имени файла.<br>
-    Если <code>Prefix = NULL</code> или пустой строке, то будет применён стандартный префикс <code>"FAR"</code></div>
+<div class="descr">
+  <div class="dfn">Dest</div>
+    <div class="dfndescr">Указатель на буфер, который получит полное имя временного файла в верхнем регистре. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
+  <div class="dfn">Prefix</div>
+    <div class="dfndescr">
+    <p>Указывает на оканчивающуюся нулём строку-префикс. Максимум первые три символа из этой строки будут использованы в качестве префикса имени файла.</p>
+    <p>Если <code>Prefix = NULL</code> или пустой строке, то будет применён стандартный префикс <code>"FAR"</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает необходимый размер буфера <code>Dest</code> в символах.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
-<li>Имя временного файла формируется объединением пути к временному каталогу (получаемого через вызов функции <a class="msdocs">GetTempPath</a>), переданного
-префикса, набора случайных шестнадцатеричных цифр. Формат:<p>
-<code>PrefXXXP.PTT</code><p>
+<li><p>Имя временного файла формируется объединением пути к временному каталогу (получаемого через вызов функции <a class="msdocs">GetTempPath</a>), переданного
+префикса, набора случайных шестнадцатеричных цифр.</p>
+<p>Формат <code>PrefXXXP.PTT</code>:</p>
 
-здесь<br>
-&nbsp;&nbsp;&nbsp;<b>Pref</b> - 4-х символьный префикс;<br>
-&nbsp;&nbsp;&nbsp;<b>XXX</b> - три 16-ричных цифры;<br>
-&nbsp;&nbsp;&nbsp;<b>PP</b> - две 16-ричных цифры PID (результат функции <a class="msdocs">GetCurrentProcessId</a>);<br>
-&nbsp;&nbsp;&nbsp;<b>TT</b> - две 16-ричных цифры TID (результат функции <a class="msdocs">GetCurrentThreadId</a>).<br>
+<ul>
+  <li><b>Pref</b> - 4-х символьный префикс;</li>
+  <li><b>XXX</b> - три 16-ричных цифры;</li>
+  <li><b>PP</b> - две 16-ричных цифры PID (результат функции <a class="msdocs">GetCurrentProcessId</a>);</li>
+  <li><b>TT</b> - две 16-ричных цифры TID (результат функции <a class="msdocs">GetCurrentThreadId</a>).</li>
+</ul>
 
 <li>Функция, физически не создаёт файл на диске, только формирует имя.
 </ol>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 wchar_t TempName[MAX_PATH];
 
 FSF.MkTemp(TempName,MAX_PATH,NULL);         -&gt; "FTMP000D.P50"
@@ -72,8 +75,8 @@ FSF.MkTemp(TempName,MAX_PATH,L"TstPlugin"); -&gt; "TSTP000D.P50"
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 </div>
 
 </body>

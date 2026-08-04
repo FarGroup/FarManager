@@ -1,25 +1,26 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>ProcessPanelInputInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>ProcessPanelInputInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ProcessPanelInputInfo</code> содержит информацию о последнем событии от клавиатуры и мыши, поступающем в функцию <a href="../exported_functions/processpanelinputw.html">ProcessPanelInputW</a>.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ProcessPanelInputInfo
 {
   size_t StructSize;
@@ -29,21 +30,21 @@ struct ProcessPanelInputInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessPanelInputInfo</code>.</div>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
-  <div class=dfn>Rec</div>
-    <div class=dfndescr>Структура <a href="../winapi/input_record.html">INPUT_RECORD</a>. Эта структура определена в Windows API и содержит информацию о последнем событии от клавиатуры и мыши.</div>
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле содержит размер структуры <code>ProcessPanelInputInfo</code>.</div>
+  <div class="dfn">hPanel</div>
+    <div class="dfndescr">Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class="dfn">Rec</div>
+    <div class="dfndescr">Структура <a href="../winapi/input_record.html">INPUT_RECORD</a>. Эта структура определена в Windows API и содержит информацию о последнем событии от клавиатуры и мыши.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>,
 <a href="../exported_functions/processpanelinputw.html">ProcessPanelInputW</a>

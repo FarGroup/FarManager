@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.FormatFileSize</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>FormatFileSize</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.FormatFileSize</code> форматирует число (размер файла) по заданным условиям.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI FormatFileSize(
   unsigned __int64 Size,
   intptr_t Width,
@@ -29,47 +30,47 @@ size_t WINAPI FormatFileSize(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Size</div>
-    <div class=dfndescr>Число для форматирования.</div>
-  <div class=dfn>Width</div>
-    <div class=dfndescr>Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
+<div class="descr">
+  <div class="dfn">Size</div>
+    <div class="dfndescr">Число для форматирования.</div>
+  <div class="dfn">Width</div>
+    <div class="dfndescr">Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_COMMAS">FFFS_COMMAS</a></td>
-    <td class="cont" width="60%">Вставлять разделитель между тысячами - "12 345".</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_FLOATSIZE">FFFS_FLOATSIZE</a></td>
-    <td class="cont" width="60%">Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_SHOWBYTESINDEX">FFFS_SHOWBYTESINDEX</a></td>
-    <td class="cont" width="60%">Добавлять суффикс B для байт.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_ECONOMIC">FFFS_ECONOMIC</a></td>
-    <td class="cont" width="60%">Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. "0.97K").</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_THOUSAND">FFFS_THOUSAND</a></td>
-    <td class="cont" width="60%">Использовать 1000 вместо 1024 в качестве делителя.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FFFS_MINSIZEINDEX">FFFS_MINSIZEINDEX</a></td>
-    <td class="cont" width="60%">Использовать минимально допустимый индекс при форматировании. Индекс указывается в младшем байте и может иметь значение от 0 до 5 (K,M,G,T,P,E),
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="FFFS_COMMAS">FFFS_COMMAS</a></td>
+    <td>Вставлять разделитель между тысячами - "12 345".</td></tr>
+    <tr><td><a name="FFFS_FLOATSIZE">FFFS_FLOATSIZE</a></td>
+    <td>Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.</td></tr>
+    <tr><td><a name="FFFS_SHOWBYTESINDEX">FFFS_SHOWBYTESINDEX</a></td>
+    <td>Добавлять суффикс B для байт.</td></tr>
+    <tr><td><a name="FFFS_ECONOMIC">FFFS_ECONOMIC</a></td>
+    <td>Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. "0.97K").</td></tr>
+    <tr><td><a name="FFFS_THOUSAND">FFFS_THOUSAND</a></td>
+    <td>Использовать 1000 вместо 1024 в качестве делителя.</td></tr>
+    <tr><td><a name="FFFS_MINSIZEINDEX">FFFS_MINSIZEINDEX</a></td>
+    <td>Использовать минимально допустимый индекс при форматировании. Индекс указывается в младшем байте и может иметь значение от 0 до 5 (K,M,G,T,P,E),
     например, <code>FFFS_MINSIZEINDEX|1</code> - "размер как минимум в мегабайтах".</td></tr>
     </table>
     </div>
-  <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на строку, куда будет помещён результат преобразования. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
-  <div class=dfn>DestSize</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
+  <div class="dfn">Dest</div>
+    <div class="dfndescr">Указатель на строку, куда будет помещён результат преобразования. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
+  <div class="dfn">DestSize</div>
+    <div class="dfndescr">Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Необходимый размер буфера <code>Dest</code> в символах.
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 </body>
