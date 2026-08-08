@@ -93,6 +93,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if LIBRARY(GNU) || LIBRARY(LLVM)
 
+#ifndef _CRT_CONST_CORRECT_OVERLOADS
 // These inline implementations in cwchar are wrong and non-compilable if _CONST_RETURN is defined.
 namespace std
 {
@@ -127,6 +128,7 @@ using std::wcspbrk;
 using std::wcsrchr;
 using std::wcsstr;
 using std::wmemchr;
+#endif
 
 #endif
 
