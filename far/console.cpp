@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 
 // Internal:
-#include "imports.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
@@ -50,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "main.hpp"
 
 // Platform:
+#include "platform.imports.hpp"
 #include "platform.version.hpp"
 
 // Common:
@@ -1020,7 +1020,7 @@ protected:
 			return Hkl;
 
 		wchar_t Buffer[KL_NAMELENGTH];
-		if (!imports.GetConsoleKeyboardLayoutNameW(Buffer))
+		if (!os::imports.GetConsoleKeyboardLayoutNameW(Buffer))
 		{
 			// This API is unsupported and looks like they broke it in Windows 10 entirely.
 			// Moreover, the error code is also broken (see microsoft/terminal#14479),
@@ -2309,11 +2309,11 @@ protected:
 
 		static bool GetPaletteNT(std::array<COLORREF, 256>& Palette)
 		{
-			if (!imports.GetConsoleScreenBufferInfoEx)
+			if (!os::imports.GetConsoleScreenBufferInfoEx)
 				return false;
 
 			CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
-			if (!imports.GetConsoleScreenBufferInfoEx(::console.GetOutputHandle(), &csbi))
+			if (!os::imports.GetConsoleScreenBufferInfoEx(::console.GetOutputHandle(), &csbi))
 			{
 				LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
 				return false;
@@ -2341,13 +2341,13 @@ protected:
 
 		static bool SetPaletteNT(std::array<COLORREF, 256> const& Palette)
 		{
-			if (!imports.GetConsoleScreenBufferInfoEx)
+			if (!os::imports.GetConsoleScreenBufferInfoEx)
 				return false;
 
 			const auto Output = ::console.GetOutputHandle();
 
 			CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
-			if (!imports.GetConsoleScreenBufferInfoEx(Output, &csbi))
+			if (!os::imports.GetConsoleScreenBufferInfoEx(Output, &csbi))
 			{
 				LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
 				return false;
@@ -2360,7 +2360,7 @@ protected:
 
 			std::ranges::copy(NtPalette, std::begin(csbi.ColorTable));
 
-			if (!imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
+			if (!os::imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
 			{
 				LOGERROR(L"SetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
 				return false;
@@ -2902,11 +2902,11 @@ protected:
 #ifdef _WIN64
 		return false;
 #else
-		if (!imports.GetConsoleScreenBufferInfoEx)
+		if (!os::imports.GetConsoleScreenBufferInfoEx)
 			return true;
 
 		CONSOLE_SCREEN_BUFFER_INFOEX csbiex{ sizeof(csbiex) };
-		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+		if (!os::imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
 		{
 			LOGWARNING(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
 			return true;

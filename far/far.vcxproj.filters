@@ -194,9 +194,6 @@
     <ClCompile Include="filemasks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fileowner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="filepanels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -252,9 +249,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hotplug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imports.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="infolist.cpp">
@@ -366,6 +360,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platform.fs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platform.imports.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platform.memory.cpp">
@@ -826,9 +823,6 @@
     <ClInclude Include="filemasks.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fileowner.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="filepanels.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -881,9 +875,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hotplug.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imports.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="infolist.hpp">
@@ -1025,6 +1016,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.headers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.imports.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.memory.hpp">

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "log.hpp"
 #include "dialog.hpp"
-#include "imports.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
@@ -55,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 // Platform:
+#include "platform.imports.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
@@ -795,12 +795,12 @@ static string character_name(wchar_t const Character)
 {
 	string NtName, IcuName;
 
-	if (imports.GetUName)
+	if (os::imports.GetUName)
 	{
 		// GetUName should write up to 256 characters, we allocate 512 to be safe.
 		wchar_t Buffer[512];
 		Buffer[0] = {};
-		const auto Size = imports.GetUName(Character, Buffer);
+		const auto Size = os::imports.GetUName(Character, Buffer);
 		// 2k returns some magic numbers from 0 to 5, the character type or something.
 		// XP and newer return the string length.
 		if (const auto ActualSize = Size <= 5? std::wcslen(Buffer) : Size)
@@ -809,7 +809,7 @@ static string character_name(wchar_t const Character)
 			LOGWARNING(L"GetUName({}): {}"sv, Character, os::last_error());
 	}
 
-	if (imports.u_charName)
+	if (os::imports.u_charName)
 	{
 		char_ptr_n<512> Buffer(512);
 
@@ -818,7 +818,7 @@ static string character_name(wchar_t const Character)
 		for (;;)
 		{
 			int ErrorCode{};
-			const size_t Size = imports.u_charName(INT_MAX, U_UNICODE_CHAR_NAME, Buffer.data(), static_cast<int32_t>(Buffer.size()), &ErrorCode);
+			const size_t Size = os::imports.u_charName(INT_MAX, U_UNICODE_CHAR_NAME, Buffer.data(), static_cast<int32_t>(Buffer.size()), &ErrorCode);
 
 			if (Size > Buffer.size())
 			{
@@ -828,7 +828,7 @@ static string character_name(wchar_t const Character)
 
 			if (ErrorCode > 0)
 			{
-				const auto ErrorStr = imports.u_errorName(ErrorCode);
+				const auto ErrorStr = os::imports.u_errorName(ErrorCode);
 				LOGWARNING(L"u_charName({}): 0x{:08X} - {}"sv, Character, ErrorCode, ErrorStr? encoding::ascii::get_chars(ErrorStr) : L"Unknown error"sv);
 				break;
 			}

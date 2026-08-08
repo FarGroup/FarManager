@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wm_listener.hpp"
 
 // Internal:
-#include "imports.hpp"
 #include "notification.hpp"
 #include "exception_handler.hpp"
 #include "log.hpp"
@@ -46,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 #include "common.hpp"
@@ -146,10 +146,10 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 void wm_listener::powernotify_deleter::operator()(HPOWERNOTIFY const Ptr) const
 {
-	if (!imports.UnregisterPowerSettingNotification)
+	if (!os::imports.UnregisterPowerSettingNotification)
 		return;
 
-	if (!imports.UnregisterPowerSettingNotification(Ptr))
+	if (!os::imports.UnregisterPowerSettingNotification(Ptr))
 		LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, os::last_error());
 }
 
@@ -159,13 +159,13 @@ void wm_listener::enable_power_notifications()
 	if (++m_PowerNotifyRefCount > 1)
 		return;
 
-	if (!imports.RegisterPowerSettingNotification)
+	if (!os::imports.RegisterPowerSettingNotification)
 		return;
 
 	if (!m_Hwnd)
 		return;
 
-	m_PowerNotify.reset(imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
+	m_PowerNotify.reset(os::imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE));
 	if (!m_PowerNotify)
 		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, os::last_error());
 }

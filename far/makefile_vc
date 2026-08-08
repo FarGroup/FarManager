@@ -124,7 +124,6 @@ LINK_OBJS = \
 	"$(INTDIR)\filefilterparams.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\filemasks.obj" \
-	"$(INTDIR)\fileowner.obj" \
 	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filesystemwatcher.obj" \
@@ -143,7 +142,6 @@ LINK_OBJS = \
 	"$(INTDIR)\history.obj" \
 	"$(INTDIR)\hmenu.obj" \
 	"$(INTDIR)\hotplug.obj" \
-	"$(INTDIR)\imports.obj"\
 	"$(INTDIR)\infolist.obj" \
 	"$(INTDIR)\initguid.obj" \
 	"$(INTDIR)\interf.obj" \
@@ -181,6 +179,7 @@ LINK_OBJS = \
 	"$(INTDIR)\platform.debug.obj" \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
+	"$(INTDIR)\platform.imports.obj"\
 	"$(INTDIR)\platform.memory.obj" \
 	"$(INTDIR)\platform.process.obj" \
 	"$(INTDIR)\platform.reg.obj" \

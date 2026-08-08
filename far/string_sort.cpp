@@ -37,9 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "string_utils.hpp"
-#include "imports.hpp"
 
 // Platform:
+#include "platform.imports.hpp"
 
 // Common:
 
@@ -149,9 +149,9 @@ static auto windows_to_std(int const Value)
 template<typename Comparer>
 static auto compare_ordinal_t(const string_view Str1, const string_view Str2)
 {
-	if (imports.CompareStringOrdinal)
+	if (os::imports.CompareStringOrdinal)
 	{
-		if (const auto Result = imports.CompareStringOrdinal(Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size()), Comparer::ignore_case))
+		if (const auto Result = os::imports.CompareStringOrdinal(Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size()), Comparer::ignore_case))
 			return windows_to_std(Result);
 	}
 

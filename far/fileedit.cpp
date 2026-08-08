@@ -1381,18 +1381,13 @@ static std::optional<bool> confirm_save()
 	if (Global->AllowCancelExit)
 		Buttons.emplace_back(lng::MHCancel);
 
-	auto Code = Message(MSG_WARNING,
+	switch (Message(MSG_WARNING,
 		msg(lng::MEditTitle),
 		{
 			msg(lng::MEditAskSave)
 		},
 		Buttons,
-		{}, &EditAskSaveId);
-
-	if (Code == message_result::cancelled && !Global->AllowCancelExit)
-		Code = message_result::second_button; // close == not save
-
-	switch (Code)
+		{}, &EditAskSaveId))
 	{
 	case message_result::first_button: // Save
 		return true;
@@ -1401,6 +1396,9 @@ static std::optional<bool> confirm_save()
 		return false;
 
 	default:
+		if (!Global->AllowCancelExit)
+			return false; // close == not save
+
 		return {};
 	}
 }

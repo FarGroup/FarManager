@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "viewer.hpp"
 #include "interf.hpp"
-#include "imports.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
@@ -61,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "log.hpp"
 #include "stddlg.hpp"
-
 
 // Platform:
 #include "platform.hpp"

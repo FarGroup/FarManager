@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-#include "imports.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "pathmix.hpp"
@@ -79,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
+#include "platform.imports.hpp"
 #include "platform.memory.hpp"
 #include "platform.security.hpp"
 
@@ -862,7 +862,7 @@ static void parse_command_line(std::span<const wchar_t* const> const Args, std::
 
 static void register_restart(bool const HasArgs)
 {
-	if (!imports.RegisterApplicationRestart)
+	if (!os::imports.RegisterApplicationRestart)
 		return;
 
 	const auto Args = HasArgs? []
@@ -876,7 +876,7 @@ static void register_restart(bool const HasArgs)
 		0 :
 		RESTART_NO_CRASH | RESTART_NO_HANG;
 
-	if (const auto Result = imports.RegisterApplicationRestart(Args, Flags); FAILED(Result))
+	if (const auto Result = os::imports.RegisterApplicationRestart(Args, Flags); FAILED(Result))
 		LOGWARNING(L"RegisterApplicationRestart(): {}"sv, os::format_error(Result));
 }
 
@@ -901,10 +901,10 @@ static int mainImpl(std::span<const wchar_t* const> const Args)
 	log_hook_wow64_status();
 #endif
 
-	if(!console.IsFullscreenSupported() && imports.SetConsoleKeyShortcuts)
+	if(!console.IsFullscreenSupported() && os::imports.SetConsoleKeyShortcuts)
 	{
 		const BYTE ReserveAltEnter = 0x8;
-		imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
+		os::imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	os::fs::InitCurrentDirectory();

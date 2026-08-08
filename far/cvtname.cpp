@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "network.hpp"
-#include "imports.hpp"
 #include "strmix.hpp"
 #include "elevation.hpp"
 #include "string_utils.hpp"
@@ -50,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 #include "common/enum_substrings.hpp"
@@ -216,7 +216,7 @@ std::optional<wchar_t> get_volume_drive(string_view const VolumePath)
 {
 	const auto SrcVolumeName = extract_root_directory(VolumePath);
 
-	if (imports.GetVolumePathNamesForVolumeNameW)
+	if (os::imports.GetVolumePathNamesForVolumeNameW)
 	{
 		string VolumePathNames;
 		if (os::fs::GetVolumePathNamesForVolumeName(SrcVolumeName, VolumePathNames))

@@ -508,15 +508,6 @@ namespace os::fs
 		bool set_file_encryption(const wchar_t* FileName, bool Encrypt);
 
 		[[nodiscard]]
-		security::descriptor get_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation);
-
-		[[nodiscard]]
-		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor);
-
-		[[nodiscard]]
-		bool reset_file_security(const wchar_t* Object);
-
-		[[nodiscard]]
 		bool move_to_recycle_bin(string_view Object);
 
 		[[nodiscard]]
@@ -608,7 +599,13 @@ namespace os::fs
 	security::descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
 
 	[[nodiscard]]
+	bool get_file_owner(string_view Object, string const& Computer, string& Owner);
+
+	[[nodiscard]]
 	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor);
+
+	[[nodiscard]]
+	bool set_file_owner(string_view Object, string const& Computer, string const& Owner);
 
 	[[nodiscard]]
 	bool reset_file_security(string_view Object);

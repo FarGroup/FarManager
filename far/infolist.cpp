@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "infolist.hpp"
 
 // Internal:
-#include "imports.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
 #include "farcolor.hpp"
@@ -69,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 #include "common.hpp"
@@ -470,7 +470,7 @@ void InfoList::DisplayObject()
 			PrintMetric(lng::MInfoMemoryAddressable, ms.ullTotalVirtual, ms.ullAvailVirtual);
 			PrintMetric(lng::MInfoMemoryPhysical, ms.ullTotalPhys, ms.ullAvailPhys);
 
-			if (ULONGLONG TotalMemoryInKilobytes; imports.GetPhysicallyInstalledSystemMemory && imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if (ULONGLONG TotalMemoryInKilobytes; os::imports.GetPhysicallyInstalledSystemMemory && os::imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_Where.left + 2, CurY++);
 				PrintMetricText(lng::MInfoMemoryPhysical, lng::MInfoMetricMemoryInstalled);

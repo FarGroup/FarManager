@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "flink.hpp"
 #include "lang.hpp"
-#include "fileowner.hpp"
 #include "stddlg.hpp"
 #include "log.hpp"
 
@@ -189,7 +188,7 @@ void ESetFileSparse(string_view const Name, bool const State, os::fs::attributes
 
 void ESetFileOwner(const string& Computer, string_view const Name, const string& Owner, bool& SkipErrors)
 {
-	retryable_ui_operation([&]{ return SetFileOwner(Computer, Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
+	retryable_ui_operation([&]{ return os::fs::set_file_owner(Name, Computer, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
 void EDeleteReparsePoint(string_view const Name, os::fs::attributes const CurrentAttributes, bool& SkipErrors)

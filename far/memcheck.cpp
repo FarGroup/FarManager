@@ -42,11 +42,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "console.hpp"
 #include "tracer.hpp"
-#include "imports.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 
@@ -330,7 +330,7 @@ private:
 
 		// Q: Why?
 		// A: The regular instances are already dead at this point, this voodoo will bring them back from the underworld:
-		SCOPED_ACTION(imports_nifty_objects::initialiser);
+		SCOPED_ACTION(os::imports_nifty_objects::initialiser);
 		SCOPED_ACTION(console_nifty_objects::initialiser);
 		SCOPED_ACTION(tracer_nifty_objects::initialiser);
 

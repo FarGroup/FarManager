@@ -1,5 +1,5 @@
 ﻿/*
-imports.cpp
+platform.imports.cpp
 
 импортируемые функции
 */
@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.headers.hpp"
 
 // Self:
-#include "imports.hpp"
+#include "platform.imports.hpp"
 
 // Internal:
 #include "log.hpp"
@@ -51,9 +51,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-namespace imports_detail
+namespace os::detail
 {
-	void* imports::get_pointer_impl(os::rtdl::module const& Module, const char* Name)
+	void* imports::get_pointer_impl(rtdl::module const& Module, const char* Name)
 	{
 		// imports is the lowest level. Everything else depends on it, including logging.
 		// Without a suppression we might fall into a recursive initialisation.
@@ -64,9 +64,9 @@ namespace imports_detail
 			nullptr;
 	}
 
-	void imports::log_missing_import(const os::rtdl::module& Module, std::string_view const Name)
+	void imports::log_missing_import(const rtdl::module& Module, std::string_view const Name)
 	{
-		static const os::rtdl::module* CurrentModule{};
+		static const rtdl::module* CurrentModule{};
 		static std::string_view CurrentName;
 
 		if (CurrentModule == &Module && CurrentName.data() == Name.data())
@@ -81,7 +81,7 @@ namespace imports_detail
 			CurrentName = {};
 		};
 
-		const auto LastError = os::last_error();
+		const auto LastError = last_error();
 		LOGWARNING(L"{}::{}: {}"sv, Module.name(), encoding::ascii::get_chars(Name), LastError);
 	}
 
@@ -104,4 +104,4 @@ namespace imports_detail
 	void           imports::ret_void()    {}
 }
 
-NIFTY_DEFINE(imports_detail::imports, imports);
+NIFTY_DEFINE(os::detail::imports, os::imports);

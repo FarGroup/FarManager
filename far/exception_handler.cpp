@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "mix.hpp"
-#include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
 #include "pathmix.hpp"
@@ -65,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 #include "platform.process.hpp"
 #include "platform.version.hpp"
 
@@ -340,7 +340,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 		return false;
 #endif
 
-	if (!imports.MiniDumpWriteDump)
+	if (!os::imports.MiniDumpWriteDump)
 		return false;
 
 	const os::fs::file DumpFile(FullPath, GENERIC_WRITE, os::fs::file_share_read, nullptr, CREATE_ALWAYS);
@@ -389,7 +389,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 
 		for (;;)
 		{
-			Result = imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), DegradedType, &Mei, {}, &Mci) != FALSE;
+			Result = os::imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), DegradedType, &Mei, {}, &Mci) != FALSE;
 			if (Result)
 			{
 				if (DegradedType != Type)
@@ -790,10 +790,10 @@ private:
 		if (m_DebugControl)
 			return;
 
-		if (!imports.DebugCreate)
+		if (!os::imports.DebugCreate)
 			return;
 
-		COM_INVOKE(imports.DebugCreate)(IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient)));
+		COM_INVOKE(os::imports.DebugCreate)(IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient)));
 
 		COM_INVOKE(m_DebugClient->AttachProcess)({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND);
 
@@ -1001,7 +1001,7 @@ static string get_locale()
 static expected<DWORD, os::error_state> get_console_host_pid_from_nt()
 {
 	ULONG_PTR ConsoleHostProcess;
-	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
+	if (const auto Status = os::imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
 		return os::error_state{ ERROR_SUCCESS, Status };
 
 	return static_cast<DWORD>(ConsoleHostProcess & ~0b11);
@@ -1075,7 +1075,7 @@ static auto parent_process_id(process_basic_information_t const& Info)
 static string get_parent_process()
 {
 	PROCESS_BASIC_INFORMATION ProcessInfo;
-	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}); !NT_SUCCESS(Status))
+	if (const auto Status = os::imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}); !NT_SUCCESS(Status))
 		return os::format_ntstatus(Status);
 
 	const auto ParentProcessId = parent_process_id(ProcessInfo);
@@ -1571,13 +1571,13 @@ using thread_status = std::variant<NTSTATUS, os::error_state>;
 
 static thread_status get_thread_status(HANDLE const Thread)
 {
-	if (!imports.NtQueryInformationThread)
+	if (!os::imports.NtQueryInformationThread)
 		return STATUS_NOT_IMPLEMENTED;
 
 	constexpr auto ThreadBasicInformation = static_cast<THREADINFOCLASS>(0);
 	detail::THREAD_BASIC_INFORMATION BasicInformation;
 
-	if (const auto Status = imports.NtQueryInformationThread(Thread, ThreadBasicInformation, &BasicInformation, sizeof(BasicInformation), {}); !NT_SUCCESS(Status))
+	if (const auto Status = os::imports.NtQueryInformationThread(Thread, ThreadBasicInformation, &BasicInformation, sizeof(BasicInformation), {}); !NT_SUCCESS(Status))
 		return Status;
 
 	return os::error_state
@@ -2453,14 +2453,14 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 }
 
 vectored_exception_handler::vectored_exception_handler():
-	m_Handler(imports.AddVectoredExceptionHandler? imports.AddVectoredExceptionHandler(false, vectored_exception_handler_impl) : nullptr)
+	m_Handler(os::imports.AddVectoredExceptionHandler? os::imports.AddVectoredExceptionHandler(false, vectored_exception_handler_impl) : nullptr)
 {
 }
 
 vectored_exception_handler::~vectored_exception_handler()
 {
-	if (m_Handler && imports.RemoveVectoredExceptionHandler)
-		imports.RemoveVectoredExceptionHandler(m_Handler);
+	if (m_Handler && os::imports.RemoveVectoredExceptionHandler)
+		os::imports.RemoveVectoredExceptionHandler(m_Handler);
 }
 
 namespace detail

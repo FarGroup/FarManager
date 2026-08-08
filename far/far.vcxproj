@@ -120,7 +120,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="filefilterparams.cpp" />
     <ClCompile Include="filelist.cpp" />
     <ClCompile Include="filemasks.cpp" />
-    <ClCompile Include="fileowner.cpp" />
     <ClCompile Include="filepanels.cpp" />
     <ClCompile Include="filestr.cpp" />
     <ClCompile Include="filesystemwatcher.cpp" />
@@ -144,7 +143,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="hotplug.cpp" />
-    <ClCompile Include="imports.cpp" />
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="initguid.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -185,6 +183,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="platform.debug.cpp" />
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
+    <ClCompile Include="platform.imports.cpp" />
     <ClCompile Include="platform.memory.cpp" />
     <ClCompile Include="platform.process.cpp" />
     <ClCompile Include="platform.reg.cpp" />
@@ -347,7 +346,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="filefilterparams.hpp" />
     <ClInclude Include="filelist.hpp" />
     <ClInclude Include="filemasks.hpp" />
-    <ClInclude Include="fileowner.hpp" />
     <ClInclude Include="filepanels.hpp" />
     <ClInclude Include="filestr.hpp" />
     <ClInclude Include="filesystemwatcher.hpp" />
@@ -366,7 +364,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="history.hpp" />
     <ClInclude Include="hmenu.hpp" />
     <ClInclude Include="hotplug.hpp" />
-    <ClInclude Include="imports.hpp" />
     <ClInclude Include="infolist.hpp" />
     <ClInclude Include="interf.hpp" />
     <ClInclude Include="keybar.hpp" />
@@ -411,6 +408,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.fwd.hpp" />
     <ClInclude Include="platform.hpp" />
     <ClInclude Include="platform.headers.hpp" />
+    <ClInclude Include="platform.imports.hpp" />
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.process.hpp" />
     <ClInclude Include="platform.reg.hpp" />

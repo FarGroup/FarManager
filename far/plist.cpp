@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "message.hpp"
 #include "interf.hpp"
-#include "imports.hpp"
 #include "exception_handler.hpp"
 #include "console.hpp"
 #include "keyboard.hpp"
@@ -53,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.imports.hpp"
 #include "platform.process.hpp"
 
 // Common:
@@ -84,11 +84,11 @@ struct ProcInfo
 
 static bool is_cloaked_window(HWND const Window)
 {
-	if (!imports.DwmGetWindowAttribute)
+	if (!os::imports.DwmGetWindowAttribute)
 		return false;
 
 	int Cloaked = 0;
-	if (const auto Result = imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)); FAILED(Result))
+	if (const auto Result = os::imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)); FAILED(Result))
 	{
 		LOGWARNING(L"DwmGetWindowAttribute"sv, os::format_error(Result));
 		return false;

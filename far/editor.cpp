@@ -3847,13 +3847,13 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 							DeleteColor(CurPtr, [&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
-							if (MsgCode == message_result::second_button)
+							if (MsgCode == message_result::first_button)
+								;
+							else if (MsgCode == message_result::second_button)
 								IsReplaceAll = true;
-
-							if (MsgCode == message_result::third_button)
+							else if (MsgCode == message_result::third_button)
 								Skip = true;
-
-							if (MsgCode == message_result::cancelled || MsgCode == message_result::fourth_button)
+							else
 							{
 								CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
 								UserBreak = true;

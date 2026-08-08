@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "filefilter.hpp"
-#include "fileowner.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
 #include "exitcode.hpp"
@@ -2147,7 +2146,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 	[&]
 	{
 		string strOwner;
-		if (!GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner))
+		if (!os::fs::get_file_owner(NullToEmpty(Name), NullToEmpty(Computer), strOwner))
 			return 0uz;
 
 		if (Owner && Size)

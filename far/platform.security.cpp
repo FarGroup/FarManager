@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Internal:
+#include "elevation.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -43,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -64,14 +66,197 @@ namespace
 
 		if (IsEmplaced)
 		{
-			LUID Luid;
-			if (LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
+			if (LUID Luid; LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
 				MapValue = Luid;
 			else
 				LOGWARNING(L"LookupPrivilegeValue({}): {}"sv, MapKey, os::last_error());
 		}
 
 		return MapValue;
+	}
+
+	class sid
+	{
+	public:
+		NONCOPYABLE(sid);
+		MOVE_CONSTRUCTIBLE(sid);
+
+		sid() noexcept = default;
+
+		explicit(false) sid(std::nullptr_t) noexcept
+		{
+		}
+
+		explicit sid(size_t Size)
+		{
+			reset(Size);
+		}
+
+		explicit sid(PSID rhs)
+		{
+			const auto Size = GetLengthSid(rhs);
+			reset(Size);
+			CopySid(Size, get(), rhs);
+		}
+
+		bool operator==(const sid& rhs) const
+		{
+			return *this == rhs.get();
+		}
+
+		bool operator==(const PSID rhs) const
+		{
+			return EqualSid(get(), rhs) != FALSE;
+		}
+
+		explicit operator bool() const
+		{
+			return m_Data.operator bool();
+		}
+
+		PSID get() const
+		{
+			return m_Data.data();
+		}
+
+		void reset(size_t Size)
+		{
+			m_Data.reset(Size);
+		}
+
+		auto size() const
+		{
+			return m_Data.size();
+		}
+
+		size_t get_hash() const
+		{
+			return get_hash(get(), size());
+		}
+
+		static size_t get_hash(const PSID Data, size_t Size)
+		{
+			const auto Begin = static_cast<const std::byte*>(Data);
+			return hash_range(std::span(Begin, Size));
+		}
+
+	private:
+		block_ptr<SID, os::default_buffer_size> m_Data;
+	};
+
+	string sid_to_name_impl(PSID Sid, const string& Computer)
+	{
+		auto AccountName = os::buffer<wchar_t>();
+		auto DomainName = os::buffer<wchar_t>();
+		auto AccountLength = static_cast<DWORD>(AccountName.size());
+		auto DomainLength = static_cast<DWORD>(DomainName.size());
+		SID_NAME_USE snu;
+
+		while (!LookupAccountSid(EmptyToNull(Computer), Sid, AccountName.data(), &AccountLength, DomainName.data(), &DomainLength, &snu))
+		{
+			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				AccountName.reset(AccountLength);
+				DomainName.reset(DomainLength);
+			}
+			else
+			{
+				SCOPED_ACTION(os::last_error_guard);
+
+				if (os::memory::local::ptr<wchar_t> StrSid; ConvertSidToStringSid(Sid, &ptr_setter(StrSid)))
+					return StrSid.get();
+
+				return {};
+			}
+		}
+
+		return DomainLength?
+			concat(string_view(DomainName.data(), DomainLength), L'\\', string_view(AccountName.data(), AccountLength)) :
+			string{ AccountName.data(), AccountLength };
+	}
+
+	bool sid_to_name(PSID Sid, const string& Computer, string& Name)
+	{
+		struct sid_hash_eq
+		{
+			using is_transparent = void;
+
+			size_t operator()(const sid& Sid) const { return Sid.get_hash(); }
+			size_t operator()(const PSID Sid) const { return sid::get_hash(Sid, GetLengthSid(Sid)); }
+
+			bool operator()(const sid& Sid1, const sid& Sid2) const { return Sid1 == Sid2; }
+			bool operator()(const sid& Sid1, const PSID Sid2) const { return Sid1 == Sid2; }
+			bool operator()(const PSID Sid1, const sid& Sid2) const { return Sid2 == Sid1; }
+		};
+
+		static std::unordered_map<sid, string, sid_hash_eq, sid_hash_eq> SIDCache;
+
+		if (const auto ItemIterator = SIDCache.find(Sid); ItemIterator != SIDCache.cend())
+		{
+			Name = ItemIterator->second;
+			return true;
+		}
+
+		if (Name = sid_to_name_impl(Sid, Computer); !Name.empty())
+		{
+			SIDCache.emplace(Sid, Name);
+			return true;
+		}
+
+		return false;
+	}
+
+	auto name_to_sid(const string& Name, const string& Computer)
+	{
+		sid Sid(os::default_buffer_size);
+		auto ReferencedDomainName = os::buffer<wchar_t>();
+		auto SidSize = static_cast<DWORD>(Sid.size());
+		auto ReferencedDomainNameSize = static_cast<DWORD>(ReferencedDomainName.size());
+		SID_NAME_USE Use;
+		while (!LookupAccountName(EmptyToNull(Computer), Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
+		{
+			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				Sid.reset(SidSize);
+				ReferencedDomainName.reset(ReferencedDomainNameSize);
+			}
+			else
+			{
+				SCOPED_ACTION(os::last_error_guard);
+				if (os::memory::local::ptr<void> SidFromString; ConvertStringSidToSid(Name.c_str(), &ptr_setter(SidFromString)))
+					return sid{ SidFromString.get() };
+
+				return sid{};
+			}
+		}
+
+		return Sid;
+	}
+
+	PSID descriptor_get_owner(SECURITY_DESCRIPTOR* SecurityDescriptor)
+	{
+		PSID Owner;
+		BOOL OwnerDefaulted;
+		if (!GetSecurityDescriptorOwner(SecurityDescriptor, &Owner, &OwnerDefaulted))
+			return {};
+
+		if (!IsValidSid(Owner))
+			return {};
+
+		return Owner;
+	}
+
+	bool is_owned(string const& Object, SE_OBJECT_TYPE const ObjectType, PSID const Owner)
+	{
+		const auto SecurityDescriptor = os::security::get_security(Object, ObjectType, OWNER_SECURITY_INFORMATION);
+		if (!SecurityDescriptor)
+			return false;
+
+		const auto OwnerSid = descriptor_get_owner(SecurityDescriptor.get());
+		if (!OwnerSid)
+			return false;
+
+		return EqualSid(OwnerSid, Owner);
 	}
 }
 
@@ -163,13 +348,13 @@ namespace os::security
 			NameIndices.emplace_back(&i - Names.data());
 		}
 
-		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
-		if (!Token)
+		m_Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+		if (!m_Token)
 			return;
 
 		DWORD ReturnLength;
 		m_SavedState.reset(NewState.size());
-		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
+		m_Changed = AdjustTokenPrivileges(m_Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
 		const auto LastError = last_error();
 		if (LastError.Win32Error == ERROR_SUCCESS)
 			return;
@@ -197,13 +382,9 @@ namespace os::security
 		if (!m_Changed)
 			return;
 
-		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
-		if (!Token)
-			return;
-
 		SCOPED_ACTION(os::last_error_guard);
 
-		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, {}, {});
+		AdjustTokenPrivileges(m_Token.native_handle(), FALSE, m_SavedState.data(), 0, {}, {});
 		if (const auto LastError = last_error(); LastError.Win32Error != ERROR_SUCCESS)
 			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, LastError);
 	}
@@ -235,5 +416,193 @@ namespace os::security
 		}
 
 		return Result != FALSE;
+	}
+
+	namespace low
+	{
+		descriptor get_security(const wchar_t* const Object, SE_OBJECT_TYPE const ObjectType, SECURITY_INFORMATION const RequestedInformation)
+		{
+			descriptor Descriptor;
+
+			if (const auto Result = GetNamedSecurityInfo(
+				Object,
+				ObjectType,
+				RequestedInformation,
+				{},
+				{},
+				{},
+				{},
+				std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor)
+				)
+			); Result != ERROR_SUCCESS)
+				SetLastError(Result);
+
+			return Descriptor;
+		}
+
+		bool set_security(const wchar_t* const Object, SE_OBJECT_TYPE const ObjectType, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* const SecurityDescriptor)
+		{
+			SECURITY_DESCRIPTOR_CONTROL Control;
+			DWORD Revision;
+			if (!GetSecurityDescriptorControl(SecurityDescriptor, &Control, &Revision))
+				return false;
+
+			BOOL Defaulted;
+
+			PSID Owner{};
+			if (!GetSecurityDescriptorOwner(SecurityDescriptor, &Owner, &Defaulted))
+				return false;
+
+			PSID Group{};
+			if (!GetSecurityDescriptorGroup(SecurityDescriptor, &Group, &Defaulted))
+				return false;
+
+			BOOL Present;
+
+			PACL Dacl{};
+			if (!GetSecurityDescriptorDacl(SecurityDescriptor, &Present, &Dacl, &Defaulted))
+				return false;
+
+			PACL Sacl{};
+			if (!GetSecurityDescriptorSacl(SecurityDescriptor, &Present, &Sacl, &Defaulted))
+				return false;
+
+			if (RequestedInformation & DACL_SECURITY_INFORMATION)
+			{
+				RequestedInformation |= Control & SE_DACL_PROTECTED?
+					PROTECTED_DACL_SECURITY_INFORMATION :
+					UNPROTECTED_DACL_SECURITY_INFORMATION;
+			}
+			if (RequestedInformation & SACL_SECURITY_INFORMATION)
+			{
+				RequestedInformation |= Control & SE_SACL_PROTECTED?
+					PROTECTED_SACL_SECURITY_INFORMATION :
+					UNPROTECTED_SACL_SECURITY_INFORMATION;
+			}
+
+			if (const auto Result = SetNamedSecurityInfo(
+				const_cast<wchar_t*>(Object),
+				ObjectType,
+				RequestedInformation,
+				Owner,
+				Group,
+				Dacl,
+				Sacl
+			); Result != ERROR_SUCCESS)
+			{
+				SetLastError(Result);
+				return false;
+			}
+
+			return true;
+		}
+
+		bool reset_security(const wchar_t* const Object, SE_OBJECT_TYPE const ObjectType)
+		{
+			ACL EmptyAcl{};
+			if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
+				return false;
+
+			if (const auto Result = SetNamedSecurityInfo(
+				const_cast<wchar_t*>(Object),
+				ObjectType,
+				DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+				{},
+				{},
+				&EmptyAcl,
+				{}
+			); Result != ERROR_SUCCESS)
+			{
+				SetLastError(Result);
+				return false;
+			}
+
+			return true;
+		}
+
+		bool set_owner(const wchar_t* const Object, SE_OBJECT_TYPE const ObjectType, string const& Computer, string const& Owner)
+		{
+			const auto Sid = name_to_sid(Owner, Computer);
+			if (!Sid)
+				return false;
+
+			if (is_owned(Object, ObjectType, Sid.get()))
+				return true;
+
+			SCOPED_ACTION(os::security::privilege) { SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
+
+			if (const auto Result = SetNamedSecurityInfo(
+				const_cast<wchar_t*>(Object),
+				ObjectType,
+				OWNER_SECURITY_INFORMATION,
+				Sid.get(),
+				{},
+				{},
+				{}
+				); Result != ERROR_SUCCESS)
+			{
+				SetLastError(Result);
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	descriptor get_security(string const& Object, SE_OBJECT_TYPE const ObjectType, SECURITY_INFORMATION RequestedInformation)
+	{
+		if (auto Result = low::get_security(Object.c_str(), ObjectType, RequestedInformation))
+			return Result;
+
+		if (ElevationRequired(ELEVATION_READ_REQUEST))
+			return elevation::instance().get_security(Object, ObjectType, RequestedInformation);
+
+		return {};
+	}
+
+	bool set_security(string const& Object, SE_OBJECT_TYPE const ObjectType, SECURITY_INFORMATION const RequestedInformation, descriptor const& SecurityDescriptor)
+	{
+		if (low::set_security(Object.c_str(), ObjectType, RequestedInformation, SecurityDescriptor.get()))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().set_security(Object, ObjectType, RequestedInformation, SecurityDescriptor);
+
+		return false;
+	}
+
+	bool reset_security(string const& Object, SE_OBJECT_TYPE const ObjectType)
+	{
+		if (low::reset_security(Object.c_str(), ObjectType))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().reset_security(Object, ObjectType);
+
+		return false;
+	}
+
+	bool get_owner(string const& Object, SE_OBJECT_TYPE const ObjectType, string const& Computer, string& Owner)
+	{
+		const auto SecurityDescriptor = get_security(Object, ObjectType, OWNER_SECURITY_INFORMATION);
+		if (!SecurityDescriptor)
+			return false;
+
+		const auto OwnerSid = descriptor_get_owner(SecurityDescriptor.get());
+		if (!OwnerSid)
+			return false;
+
+		return sid_to_name(OwnerSid, Computer, Owner);
+	}
+
+	bool set_owner(string const& Object, SE_OBJECT_TYPE const ObjectType, string const& Computer, string const& Owner)
+	{
+		if (low::set_owner(Object.c_str(), ObjectType, Computer, Owner))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().fSetOwner(Object, ObjectType, Computer, Owner);
+
+		return false;
 	}
 }

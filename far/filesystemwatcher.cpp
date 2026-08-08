@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "elevation.hpp"
 #include "exception_handler.hpp"
-#include "imports.hpp"
 #include "pathmix.hpp"
 #include "log.hpp"
 #include "notification.hpp"
@@ -49,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 #include "common/scope_exit.hpp"
@@ -233,7 +233,7 @@ FileSystemWatcher::~FileSystemWatcher()
 		LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 
 		// CancelIoEx isn't really necessary as we issue CancelIo from the background thread too, but why not.
-		if (const auto Handle = m_DirectoryHandle.native_handle(); imports.CancelIoEx? imports.CancelIoEx(Handle, &m_Overlapped) : CancelIo(Handle))
+		if (const auto Handle = m_DirectoryHandle.native_handle(); os::imports.CancelIoEx? os::imports.CancelIoEx(Handle, &m_Overlapped) : CancelIo(Handle))
 			(void)get_result();
 
 		m_DirectoryHandle = {};

@@ -76,7 +76,6 @@ SRCS = \
 	filefilterparams.cpp \
 	filelist.cpp \
 	filemasks.cpp \
-	fileowner.cpp \
 	filepanels.cpp \
 	filestr.cpp \
 	filesystemwatcher.cpp \
@@ -95,7 +94,6 @@ SRCS = \
 	history.cpp \
 	hmenu.cpp \
 	hotplug.cpp \
-	imports.cpp \
 	infolist.cpp \
 	interf.cpp \
 	initguid.cpp \
@@ -133,6 +131,7 @@ SRCS = \
 	platform.debug.cpp \
 	platform.env.cpp \
 	platform.fs.cpp \
+	platform.imports.cpp \
 	platform.memory.cpp \
 	platform.process.cpp \
 	platform.reg.cpp \

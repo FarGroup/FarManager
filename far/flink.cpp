@@ -38,13 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 
 // Internal:
-#include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "message.hpp"
 #include "lang.hpp"
 #include "dirmix.hpp"
-#include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
@@ -58,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -270,7 +269,7 @@ bool CreateReparsePoint(string_view const Target, string_view const Object, Repa
 
 	if (any_of(Type, RP_SYMLINKDIR, RP_SYMLINKFILE))
 	{
-		if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+		if (os::imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 			return os::fs::CreateSymbolicLink(Object, Target, Type == RP_SYMLINKDIR? SYMBOLIC_LINK_FLAG_DIRECTORY : 0);
 	}
 

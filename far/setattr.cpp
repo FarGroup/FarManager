@@ -52,11 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "network.hpp"
-#include "fileowner.hpp"
 #include "wakeful.hpp"
 #include "uuids.far.dialogs.hpp"
 #include "plugins.hpp"
-#include "imports.hpp"
 #include "lang.hpp"
 #include "locale.hpp"
 #include "string_utils.hpp"
@@ -72,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 
 // Common:
 #include "common/view/zip.hpp"
@@ -1131,7 +1130,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 								};
 
 								// Client first - it should be faster, and we want to see the activity flag, which is a client thing
-								if (get_dfs_info(imports.NetDfsGetClientInfo) || get_dfs_info(imports.NetDfsGetInfo))
+								if (get_dfs_info(os::imports.NetDfsGetClientInfo) || get_dfs_info(os::imports.NetDfsGetInfo))
 								{
 									KnownReparseTag = true;
 
@@ -1265,7 +1264,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					ConvertNameToFull(SingleSelFileName)
 				);
 
-				GetFileOwner(ComputerName, SingleSelFileName, DlgParam.Owner.InitialValue);
+				(void)os::fs::get_file_owner(SingleSelFileName, ComputerName, DlgParam.Owner.InitialValue);
 			}
 		}
 		else
@@ -1309,12 +1308,12 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if(CheckOwner)
 				{
 					string strCurOwner;
-					GetFileOwner(ComputerName, PanelItem.FileName, strCurOwner);
-					if(DlgParam.Owner.InitialValue.empty())
+					const auto OwnerRead = os::fs::get_file_owner(PanelItem.FileName, ComputerName, strCurOwner);
+					if (OwnerRead && DlgParam.Owner.InitialValue.empty())
 					{
 						DlgParam.Owner.InitialValue = strCurOwner;
 					}
-					else if(DlgParam.Owner.InitialValue != strCurOwner)
+					else if (!OwnerRead || DlgParam.Owner.InitialValue != strCurOwner)
 					{
 						DlgParam.Owner.InitialValue.clear();
 						CheckOwner=false;

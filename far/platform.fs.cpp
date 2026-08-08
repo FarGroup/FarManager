@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "elevation.hpp"
 #include "flink.hpp"
-#include "imports.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
 #include "strmix.hpp"
@@ -51,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.imports.hpp"
 #include "platform.reg.hpp"
 #include "platform.version.hpp"
 
@@ -1777,106 +1777,6 @@ WARNING_POP()
 			return (Encrypt? ::EncryptFile(FileName) : ::DecryptFile(FileName, 0)) != FALSE;
 		}
 
-		security::descriptor get_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation)
-		{
-			security::descriptor Descriptor;
-
-			if (const auto Result = GetNamedSecurityInfo(
-				Object,
-				SE_FILE_OBJECT,
-				RequestedInformation,
-				{},
-				{},
-				{},
-				{},
-				std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor)
-				)
-			); Result != ERROR_SUCCESS)
-				SetLastError(Result);
-
-			return Descriptor;
-		}
-
-		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor)
-		{
-			SECURITY_DESCRIPTOR_CONTROL Control;
-			DWORD Revision;
-			if (!GetSecurityDescriptorControl(SecurityDescriptor, &Control, &Revision))
-				return false;
-
-			BOOL Defaulted;
-
-			PSID Owner{};
-			if (!GetSecurityDescriptorOwner(SecurityDescriptor, &Owner, &Defaulted))
-				return false;
-
-			PSID Group{};
-			if (!GetSecurityDescriptorGroup(SecurityDescriptor, &Group, &Defaulted))
-				return false;
-
-			BOOL Present;
-
-			PACL Dacl{};
-			if (!GetSecurityDescriptorDacl(SecurityDescriptor, &Present, &Dacl, &Defaulted))
-				return false;
-
-			PACL Sacl{};
-			if (!GetSecurityDescriptorSacl(SecurityDescriptor, &Present, &Sacl, &Defaulted))
-				return false;
-
-			if (RequestedInformation & DACL_SECURITY_INFORMATION)
-			{
-				RequestedInformation |= Control & SE_DACL_PROTECTED?
-					PROTECTED_DACL_SECURITY_INFORMATION :
-					UNPROTECTED_DACL_SECURITY_INFORMATION;
-			}
-			if (RequestedInformation & SACL_SECURITY_INFORMATION)
-			{
-				RequestedInformation |= Control & SE_SACL_PROTECTED?
-					PROTECTED_SACL_SECURITY_INFORMATION :
-					UNPROTECTED_SACL_SECURITY_INFORMATION;
-			}
-
-			if (const auto Result = SetNamedSecurityInfo(
-				const_cast<wchar_t*>(Object),
-				SE_FILE_OBJECT,
-				RequestedInformation,
-				Owner,
-				Group,
-				Dacl,
-				Sacl
-			); Result != ERROR_SUCCESS)
-			{
-				SetLastError(Result);
-				return false;
-			}
-
-			return true;
-		}
-
-		bool reset_file_security(const wchar_t* Object)
-		{
-			ACL EmptyAcl{};
-			if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
-				return false;
-
-			if (const auto Result = SetNamedSecurityInfo(
-				const_cast<wchar_t*>(Object),
-				SE_FILE_OBJECT,
-				DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
-				{},
-				{},
-				&EmptyAcl,
-				{}
-			); Result != ERROR_SUCCESS)
-			{
-				SetLastError(Result);
-				return false;
-			}
-
-			return true;
-		}
-
 		bool move_to_recycle_bin(string_view const Object)
 		{
 			const auto ObjectsArray = Object + L"\0"sv;
@@ -2407,40 +2307,27 @@ WARNING_POP()
 
 	security::descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
 	{
-		const auto NtObject = nt_path(Object);
+		return security::get_security(nt_path(Object), SE_FILE_OBJECT, RequestedInformation);
+	}
 
-		if (auto Result = low::get_file_security(NtObject.c_str(), RequestedInformation))
-			return Result;
-
-		if (ElevationRequired(ELEVATION_READ_REQUEST))
-			return elevation::instance().get_file_security(NtObject, RequestedInformation);
-
-		return {};
+	bool get_file_owner(string_view const Object, string const& Computer, string& Owner)
+	{
+		return security::get_owner(nt_path(Object), SE_FILE_OBJECT, Computer, Owner);
 	}
 
 	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor)
 	{
-		const auto NtObject = nt_path(Object);
+		return security::set_security(nt_path(Object), SE_FILE_OBJECT, RequestedInformation, SecurityDescriptor);
+	}
 
-		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.get()))
-			return true;
-
-		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
-			return elevation::instance().set_file_security(NtObject, RequestedInformation, SecurityDescriptor);
-
-		return false;
+	bool set_file_owner(string_view const Object, string const& Computer, string const& Owner)
+	{
+		return security::set_owner(nt_path(Object), SE_FILE_OBJECT, Computer, Owner);
 	}
 
 	bool reset_file_security(string_view const Object)
 	{
-		const auto NtObject = nt_path(Object);
-		if (low::reset_file_security(NtObject.c_str()))
-			return true;
-
-		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
-			return elevation::instance().reset_file_security(NtObject);
-
-		return false;
+		return security::reset_security(nt_path(Object), SE_FILE_OBJECT);
 	}
 
 	bool move_to_recycle_bin(string_view const Object)

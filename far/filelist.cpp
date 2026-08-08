@@ -88,7 +88,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "taskbar.hpp"
-#include "fileowner.hpp"
 #include "colormix.hpp"
 #include "keybar.hpp"
 #include "panelctype.hpp"
@@ -436,7 +435,7 @@ const string& FileListItem::Owner(const FileList* Owner) const
 	{
 		SCOPED_ACTION(elevation::suppress);
 
-		if (!GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner))
+		if (!os::fs::get_file_owner(GetItemFullName(*this, Owner), Owner->GetComputerName(), m_Owner))
 		{
 			// One try is enough
 			m_Owner.clear();

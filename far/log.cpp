@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "exception_handler.hpp"
 #include "farversion.hpp"
-#include "imports.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "main.hpp"
@@ -60,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.imports.hpp"
 #include "platform.version.hpp"
 
 // Common:
@@ -870,8 +870,8 @@ namespace logging
 			if (m_Status != engine_status::incomplete)
 				LOGINFO(L"Logger exit"sv);
 
-			if (m_VectoredHandler && imports.RemoveVectoredExceptionHandler)
-				imports.RemoveVectoredExceptionHandler(m_VectoredHandler);
+			if (m_VectoredHandler && os::imports.RemoveVectoredExceptionHandler)
+				os::imports.RemoveVectoredExceptionHandler(m_VectoredHandler);
 
 			s_Destroyed = true;
 		}
@@ -1028,8 +1028,8 @@ namespace logging
 			m_Status = engine_status::in_progress;
 			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
 
-			m_VectoredHandler = imports.AddVectoredExceptionHandler?
-				imports.AddVectoredExceptionHandler(false, debug_log) :
+			m_VectoredHandler = os::imports.AddVectoredExceptionHandler?
+				os::imports.AddVectoredExceptionHandler(false, debug_log) :
 				nullptr;
 
 			SCOPED_ACTION(os::last_error_guard);
@@ -1131,7 +1131,7 @@ namespace logging
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		imports_nifty_objects::initialiser m_ImportsReference;
+		os::imports_nifty_objects::initialiser m_ImportsReference;
 		tracer_nifty_objects::initialiser m_TracerReference;
 		os::concurrency::critical_section m_CS;
 		os::concurrency::synced_queue<message> m_QueuedMessages;

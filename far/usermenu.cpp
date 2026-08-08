@@ -371,12 +371,8 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName)
 			strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
 			break;
 
-		case message_result::third_button:
-		case message_result::cancelled:
-			return;
-
 		default:
-			std::unreachable();
+			return;
 		}
 	}
 	else

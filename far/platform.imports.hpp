@@ -1,9 +1,9 @@
-﻿#ifndef IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
-#define IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
+﻿#ifndef PLATFORM_IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
+#define PLATFORM_IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
 #pragma once
 
 /*
-imports.hpp
+platform.imports.hpp
 
 импортируемые функции
 */
@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-namespace imports_detail
+namespace os::detail
 {
 
 class imports
@@ -55,7 +55,7 @@ class imports
 private:
 #define MODULE(MODULE) m_##MODULE{WIDE_SV(#MODULE)}
 
-	const os::rtdl::module
+	const rtdl::module
 		MODULE(ntdll),
 		MODULE(kernel32),
 		MODULE(shell32),
@@ -72,7 +72,7 @@ private:
 #undef MODULE
 
 
-	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
+	template<const rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
 	class unique_function_pointer
 	{
 		using function_type = decltype(StubFunction);
@@ -228,8 +228,8 @@ public: \
 
 #undef DEFINE_IMPORT_FUNCTION
 
-	static void* get_pointer_impl(const os::rtdl::module& Module, const char* Name);
-	static void log_missing_import(const os::rtdl::module& Module, std::string_view Name);
+	static void* get_pointer_impl(const rtdl::module& Module, const char* Name);
+	static void log_missing_import(const rtdl::module& Module, std::string_view Name);
 	static void log_usage(std::string_view Name);
 
 	static void do_le();
@@ -248,27 +248,30 @@ public: \
 
 }
 
-NIFTY_DECLARE(imports_detail::imports, imports);
-
-namespace imports_detail
+namespace os
 {
-	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
+	NIFTY_DECLARE(os::detail::imports, imports);
+}
+
+namespace os::detail
+{
+	template<const rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
 	auto imports::unique_function_pointer<ModuleAccessor, Name, StubFunction>::get_pointer() const
 	{
 		if (m_Pointer)
 			return m_Pointer;
 
-		if (const auto DynamicPointer = std::bit_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, ::imports), Name)))
+		if (const auto DynamicPointer = std::bit_cast<function_type>(get_pointer_impl(std::invoke(ModuleAccessor, os::imports), Name)))
 		{
 			m_Pointer = DynamicPointer;
 			return m_Pointer;
 		}
 
-		log_missing_import(std::invoke(ModuleAccessor, ::imports), Name);
+		log_missing_import(std::invoke(ModuleAccessor, os::imports), Name);
 
 		m_Pointer = StubFunction;
 		return m_Pointer;
 	}
 }
 
-#endif // IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280
+#endif // PLATFORM_IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280

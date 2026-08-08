@@ -92,10 +92,41 @@ namespace os::security
 
 	private:
 		block_ptr<TOKEN_PRIVILEGES> m_SavedState;
+		handle m_Token;
 		bool m_Changed{};
 	};
 
 	using descriptor = memory::local::ptr<SECURITY_DESCRIPTOR>;
+
+	namespace low
+	{
+		[[nodiscard]]
+		descriptor get_security(const wchar_t* Object, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION RequestedInformation);
+
+		[[nodiscard]]
+		bool set_security(const wchar_t* Object, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor);
+
+		[[nodiscard]]
+		bool reset_security(const wchar_t* Object, SE_OBJECT_TYPE ObjectType);
+
+		[[nodiscard]]
+		bool set_owner(const wchar_t* Object, SE_OBJECT_TYPE ObjectType, string const& Computer, string const& Owner);
+	}
+
+	[[nodiscard]]
+	descriptor get_security(string const& Object, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION RequestedInformation);
+
+	[[nodiscard]]
+	bool set_security(string const& Object, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION RequestedInformation, descriptor const& SecurityDescriptor);
+
+	[[nodiscard]]
+	bool reset_security(string const& Object, SE_OBJECT_TYPE ObjectType);
+
+	[[nodiscard]]
+	bool get_owner(string const& Object, SE_OBJECT_TYPE ObjectType, string const& Computer, string& Owner);
+
+	[[nodiscard]]
+	bool set_owner(string const& Object, SE_OBJECT_TYPE ObjectType, string const& Computer, string const& Owner);
 }
 
 #endif // PLATFORM_SECURITY_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C
