@@ -101,15 +101,20 @@ void console_session::activate(std::optional<string_view> const Command, bool co
 	// BUGBUG, implement better & safer way to do this
 	SCOPE_EXIT{ Global->ScrBuf->SetLockCount(LockCount); };
 
+	const auto UserScreenColor = colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN);
+	const auto YPos = ScrY - (Global->Opt->ShowKeyBar? 1 : 0);
+
+	Global->ScrBuf->FillRect({ 0, YPos, ScrX, ScrY }, { L' ', {}, {}, UserScreenColor });
+
 	SetInitialCursorType();
 
 	Global->ScrBuf->Flush();
 
-	console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+	console.SetTextAttributes(UserScreenColor);
 
 	scroll(margin(NewLine, true));
 
-	MoveRealCursor(0, ScrY - (Global->Opt->ShowKeyBar? 1 : 0));
+	MoveRealCursor(0, YPos);
 
 	command(Command);
 
