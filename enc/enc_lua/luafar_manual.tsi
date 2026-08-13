@@ -8431,55 +8431,54 @@ article id=536 dt=Text ctime=3774941226 mtime=3774941499 nm=panel.EndSelection
 #_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 
-article id=537 dt=Text ctime=3776336119 mtime=3973668632 nm=luautf8
+article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_<markdown>
 #_
-#_UTF-8 module for Lua 5.x
-#_========================
+#_# UTF-8 module for Lua 5.x
 #_
 #_This module adds UTF-8 support to Lua.
 #_
-#_It use data extracted from
+#_It uses data extracted from the
 #_[Unicode Character Database](http://www.unicode.org/reports/tr44/),
-#_and tested on Lua 5.2.3, Lua 5.3.0 and LuaJIT.
+#_and is tested on Lua 5.2.3, Lua 5.3.0, Lua 5.4.8 and LuaJIT.
 #_
-#_parseucd.lua is a pure Lua script generate unidata.h, to support convert
-#_characters and check characters' category.
+#_`parseucd.lua` is a pure Lua script that generates `unidata.h` to support
+#_character conversion and category checking.
 #_
-#_It mainly used to compatible with Lua's own string module, it passed all
-#_string and pattern matching test in lua test suite[2].
+#_It is compatible with Lua's own string module and passes all
+#_string and pattern matching tests in the Lua test suite[2].
 #_
-#_It also adds some useful routines against UTF-8 features, such as:
-#_- a convenient interface to escape Unicode sequence in string. 
-#_- string insert/remove, since UTF-8 substring extract may expensive.
-#_- calculate Unicode width, useful when implement e.g. console emulator.
-#_- a useful interface to translate Unicode offset and byte offset.
-#_- checking UTF-8 strings for validity and removing invalid byte sequences.
+#_It also adds some useful routines for UTF-8 features, such as:
+#_- A convenient interface to escape Unicode sequences in strings
+#_- String insert/remove operations, since UTF-8 substring extraction may be expensive
+#_- Unicode width calculation, useful when implementing e.g. console emulators
+#_- A useful interface to translate between Unicode character positions and byte offsets
+#_- Checking UTF-8 strings for validity and removing invalid byte sequences
+#_- Converting Unicode strings to Normal Form C
 #_
-#_Note that to avoid conflict with the Lua5.3's buitin library 'utf8',
-#_this library produce a file like lua-utf8.dll or lua-utf8.so. so use
+#_Note that to avoid conflict with Lua 5.3+'s built-in library `utf8`,
+#_this library produces a file like `lua-utf8.dll` or `lua-utf8.so`, so use
 #_it like this:
 #_
 #_```lua
 #_local utf8 = require 'lua-utf8'
 #_```
 #_
-#_in your codes :-(
+#_in your code :-(
 #_
 #_[2]: http://www.lua.org/tests/5.2/
 #_
 #_
-#_LuaRocks Installation
-#_---------------------
+#_## LuaRocks Installation
+#_
 #_`luarocks install luautf8`
 #_
-#_It's now full-compatible with Lua5.3's utf8 library, so replace this
-#_file (and headers) with lua5.3 source's lutf8lib.c is also okay.
+#_It's now fully-compatible with Lua 5.3's utf8 library, so replacing this
+#_file (and headers) with lutf8lib.c from the Lua 5.3 sources is also okay.
 #_
-#_Usage
-#_-----
+#_## Usage
 #_
-#_Many routines are same as Lua's string module:
+#_Many routines are the same as Lua's string module:
 #_- `utf8.byte`
 #_- `utf8.char`
 #_- `utf8.find`
@@ -8492,141 +8491,373 @@ article id=537 dt=Text ctime=3776336119 mtime=3973668632 nm=luautf8
 #_- `utf8.sub`
 #_- `utf8.upper`
 #_
-#_The document of these functions can be find in Lua manual[3].
+#_The documentation of these functions can be found in the Lua manual[3].
 #_
-#_[3]: http://www.lua.org/manual/5.2/manual.html#6.4
+#_[3]: https://www.lua.org/manual/5.4/manual.html#6.5
 #_
 #_
-#_Some routines in string module needn't support Unicode:
+#_Some routines in the string module don't need Unicode support:
 #_- `string.dump`
 #_- `string.format`
 #_- `string.rep`
 #_
-#_They are NOT in utf8 module.
+#_They are NOT in the `lua-utf8` module.
 #_
-#_Some routines are the compatible for Lua 5.3's basic UTF-8 support
-#_library:
+#_Some routines are for compatibility with Lua's basic UTF-8 support library:
 #_- `utf8.offset`
 #_- `utf8.codepoint`
 #_- `utf8.codes`
 #_
-#_See Lua5.3's manual to get usage.
+#_See the Lua manual[3] for usage.
 #_
-#_Some routines are new, with some Unicode-spec functions:
+#_Some routines are new, providing Unicode-specific functions:
 #_
-#_### utf8.escape(str) -> utf8 string
-#_escape a str to UTF-8 format string. It support several escape format:
+#_### `utf8.escape(s)`
 #_
-#_ * `%ddd` - which ddd is a decimal number at any length:
-#_   change Unicode code point to UTF-8 format.
-#_ * `%{ddd}` - same as `%nnn` but has bracket around.
-#_ * `%uddd` - same as `%ddd`, u stands Unicode
-#_ * `%u{ddd}` - same as `%{ddd}`
-#_ * `%xhhh` - hexadigit version of `%ddd`
-#_ * `%x{hhh}` same as `%xhhh`.
-#_ * `%?` - '?' stands for any other character: escape this character.
+#_Escapes string `s` to UTF-8 format. Supports several escape formats:
 #_
-#_#### Examples:
+#_- `%ddd` - decimal number of any length: converts Unicode code point to UTF-8 format
+#_- `%{ddd}` - same as `%ddd` but with brackets
+#_- `%uddd` - same as `%ddd`, 'u' stands for Unicode
+#_- `%u{ddd}` - same as `%{ddd}`
+#_- `%xhhh` - hexadecimal version of `%ddd`
+#_- `%x{hhh}` - same as `%xhhh`
+#_- `%?` - '?' stands for any other character: escapes this character
+#_
+#_Returns the escaped UTF-8 string.
+#_
+#_**Example:**
 #_```lua
 #_local u = utf8.escape
 #_print(u"%123%u123%{123}%u{123}%xABC%x{ABC}")
 #_print(u"%%123%?%d%%u")
 #_```
 #_
-#_### utf8.charpos(s[[, charpos], index]) -> charpos, code point
-#_convert UTF-8 position to byte offset.
-#_if only `index` is given, return byte offset of this UTF-8 char index.
-#_if both `charpos` and `index` is given, a new `charpos` will be
-#_calculated, by add/subtract UTF-8 char `index` to current `charpos`.
-#_in all cases, it returns a new char position, and code point (a
-#_number) at this position.
+#_### `utf8.charpos(s [[, i], n]) --> position, codepoint`
 #_
-#_### utf8.next(s[, charpos[, index]]) -> charpos, code point
-#_iterate though the UTF-8 string s.
-#_If only s is given, it can used as a iterator:
+#_Converts UTF-8 character position `n` to byte offset `position`. If only `n` is given, returns the byte position where the encoding of the `n`-th character of `s` starts (counting from position 1). If both `i` and `n` are given, returns the byte position where the encoding of the `n`-th character after byte position `i` starts. A negative `n` gets characters before position `i`.
+#_
+#_Also returns the code point at the resulting position.
+#_
+#_This function assumes that `s` is a valid UTF-8 string.
+#_
+#_**Example:**
+#_```lua
+#_local pos, code = utf8.charpos("??world", 3)
+#_-- pos=7 (byte position of 'w'), code=119 (code point of 'w')
+#_
+#_local pos, code = utf8.charpos("??world", 1, 2)
+#_-- pos=4 (2 characters after byte 1), code=22909 (code point of '?')
+#_```
+#_
+#_### `utf8.next(s [, i [, n]]) --> position, codepoint`
+#_
+#_Iterates through the UTF-8 string `s`. If only `s` is given, it can be used as an iterator:
 #_```lua
 #_for pos, code in utf8.next, "utf8-string" do
-#_   -- ...
+#_  -- ...
 #_end
 #_```
-#_if only `charpos` is given, return the next byte offset of in string.
-#_if `charpos` and `index` is given, a new `charpos` will be calculated, by
-#_add/subtract UTF-8 char offset to current charpos.
-#_in all case, it return a new char position (in bytes), and code point
-#_(a number) at this position.
 #_
-#_### utf8.insert(s[, idx], substring) -> new_string
-#_insert a substring to s. If idx is given, insert substring before char at
-#_this index, otherwise substring will concat to s. idx can be negative.
+#_If `s` and `i` are given, returns the byte position of the next UTF-8 character in the string after byte position `i`. If `i` and `n` are given, returns the byte position of the `n`-th UTF-8 character after byte position `i`. A negative `n` gets characters before position `i`.
+#_
+#_Also returns the code point at the resulting position.
+#_
+#_This function assumes that `s` is a valid UTF-8 string.
+#_
+#_**Example:**
+#_```lua
+#_local pos, code = utf8.next("??", 1)
+#_-- pos=4, code=22909 (next character after byte 1 is '?')
+#_
+#_local pos, code = utf8.next("??world", 1, 2)
+#_-- pos=7, code=119 (2nd character after byte 1 is 'w')
+#_```
+#_
+#_### `utf8.insert(s [, n], substring) --> result`
+#_
+#_Inserts `substring` into `s`. If `n` is given, inserts the substring before the `n`-th character of `s`; otherwise, `substring` will be appended to `s`. `n` can be negative.
+#_
+#_Returns the resulting string.
+#_
+#_**Example:**
+#_```lua
+#_local result = utf8.insert("??", "world")
+#_-- result = "??world"
+#_
+#_local result = utf8.insert("??", 2, "!")
+#_-- result = "?!?"
+#_```
+#_
+#_### `utf8.remove(s [, i [, j]]) --> result`
+#_
+#_Deletes a substring from `s`. If neither `i` nor `j` is given, deletes the last UTF-8 character in `s`. If only `i` is given, deletes characters from position `i` to the end of `s`. If `j` is given, deletes characters from position `i` to `j` (both inclusive). `i` and `j` can be negative.
+#_
+#_Returns the resulting string.
+#_
+#_**Example:**
+#_```lua
+#_local result = utf8.remove("??world")
+#_-- result = "??worl" (last character removed)
+#_
+#_local result = utf8.remove("??world", 2, 3)
+#_-- result = "?rld" (characters 2-3 removed: '?w')
+#_```
+#_
+#_### `utf8.width(s [, i [, j [, ambiwidth [, default]]]]) --> width`
+#_
+#_Calculates the display width of UTF-8 string `s` (or a substring from byte position `i` to `j`). The default for `i` is 1 and for `j` is `#s`. If `s` is a number, it is treated as a code point and the width of that code point is returned.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width (East Asian Ambiguous) will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_The width of fullwidth/doublewidth characters is 2, and the width of most other characters is 1.
+#_
+#_Returns the total display width in columns.
+#_
+#_**Example:**
+#_```lua
+#_utf8.width("hello")              -- 5
+#_utf8.width("??")                -- 4 (2 characters ? 2 width each)
+#_utf8.width("hello world", 1, 5)  -- 5 (substring "hello")
+#_utf8.width(0x4E2D)               -- 2 (code point for '?')
+#_```
+#_
+#_### `utf8.widthindex(s, width [, i [, j [, ambiwidth [, default]]]]) --> idx, offset, width`
+#_
+#_Returns the character index `idx` at a given display width `width` in string `s`, where `width` is in width units (columns). The default for `i` is 1 and for `j` is `#s`. This is the inverse operation of `utf8.width()`.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_If the requested `width` does not fall on a character boundary, `offset` will be greater than 1. Specifically, if the width is in the middle (second column) of a wide character, `offset` will be 2.
+#_
+#_Returns the character index `idx`, the offset `offset` within the character, and the width of the character at that index.
+#_
+#_**Example:**
+#_```lua
+#_local idx, offset, width = utf8.widthindex("??world", 3)
+#_-- idx=2 (second character '?'), offset=1, width=2
+#_
+#_local idx, offset, width = utf8.widthindex("??world", 4)
+#_-- idx=2, offset=2 (middle of '?'), width=2
+#_```
+#_
+#_### `utf8.widthlimit(s, limit [, i [, j [, ambiwidth [, default]]]]) --> position, remain`
+#_
+#_Finds the byte position `position` where truncation should occur to fit within a display width `limit`.
+#_
+#_If `limit` is positive, truncates from the front (keeps prefix) and returns the ending byte position where the width limit is reached.
+#_
+#_If `limit` is negative, truncates from the back (keeps suffix) and returns the starting byte position where the width limit (using absolute value) is reached.
+#_
+#_The default for `i` is 1 and for `j` is `#s`.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_Returns the byte position `position` and the remaining width `remain`.  The `remain` value indicates the remaining width left unused after truncation. For a perfect fit, `remain` is 0. If the limit cannot be fully utilized, `remain` will be positive (for positive limit) or negative (for negative limit).
+#_
+#_Notice that if even one byte can not put into `limit` space, this routine returns `i-1` for empty string (if `limit` is positive) or `j+1` (if `limit` is negative).
+#_
+#_**Example:**
+#_```lua
+#_-- Truncate from front (keep prefix)
+#_local pos, remain = utf8.widthlimit("hello world", 5)
+#_-- pos=5, remain=0 (perfectly fits "hello")
+#_
+#_-- Truncate from back (keep suffix)
+#_local pos, remain = utf8.widthlimit("/path/to/file.lua", -8)
+#_-- pos=10, remain=0 (starts at byte 10, "file.lua")
+#_
+#_-- Truncate with remaining space
+#_local pos, remain = utf8.widthlimit("world??", 6)
+#_-- pos=5, remain=1 ("world" fits in 5 columns, 1 column unused)
+#_
+#_-- Substring truncation
+#_local pos, remain = utf8.widthlimit("??world", 3, 1, 11)
+#_-- pos=4, remain=1 (first character '?' has width 2, leaving 1 column unused)
+#_```
+#_
+#_### `utf8.title(s) --> result`
+#_
+#_### `utf8.fold(s) --> result`
+#_
+#_Converts UTF-8 string `s` to title-case (for `utf8.title`), or folded case (for `utf8.fold`, used for case-insensitive comparison). If `s` is a number, it is treated as a code point and a converted code point (number) is returned.
+#_
+#_Returns the converted string (or code point).
+#_
+#_`utf8.lower` and `utf8.upper` have the same extension.
+#_
+#_**Example:**
+#_
+#_```lua
+#_utf8.title("hello world")  -- "Hello World"
+#_utf8.fold("Stra?e")        -- "strasse" (for comparison)
+#_utf8.upper(0x61)           -- 0x41 (code point 'a' -> 'A')
+#_```
+#_
+#_### `utf8.ncasecmp(a, b) --> result`
+#_
+#_Compares strings `a` and `b` without case. Returns -1 if `a < b`, 0 if `a == b`, and 1 if `a > b`.
+#_
+#_**Example:**
+#_```lua
+#_utf8.ncasecmp("Hello", "hello")  -- 0
+#_utf8.ncasecmp("abc", "DEF")      -- -1
+#_```
+#_
+#_### `utf8.isvalid(s) --> boolean`
+#_
+#_Checks whether `s` is a valid UTF-8 string. Returns `true` if valid, `false` otherwise.
+#_
+#_**Example:**
+#_```lua
+#_utf8.isvalid("??")       -- true
+#_utf8.isvalid("\xFF\xFE")  -- false (invalid UTF-8)
+#_```
+#_
+#_### `utf8.clean(s [, replacement]) --> result, was_valid`
+#_
+#_Replaces any invalid UTF-8 byte sequences in `s` with the replacement string `replacement`. If no replacement string is provided, the default is "?" (REPLACEMENT CHARACTER U+FFFD). Any number of consecutive invalid bytes will be replaced by a single copy of the replacement string.
+#_
+#_Returns the cleaned string `result` and a boolean `was_valid` indicating whether the original string was valid (`true` if no replacements were made).
+#_
+#_**Example:**
+#_```lua
+#_local clean, valid = utf8.clean("??\xFFworld")
+#_-- clean = "???world", valid = false
+#_
+#_local clean, valid = utf8.clean("??")
+#_-- clean = "??", valid = true
+#_```
+#_
+#_### `utf8.invalidoffset(s [, i]) --> position`
+#_
+#_Returns the byte position `position` within `s` of the first invalid UTF-8 byte sequence (1 is the first byte of the string). If `s` is a valid UTF-8 string, returns `nil`. The default for `i` is 1. The optional numeric argument `i` specifies where to start the search and can be negative.
+#_
+#_**Example:**
+#_
+#_```lua
+#_local pos = utf8.invalidoffset("??\xFFworld")
+#_-- pos = 7 (first invalid byte)
+#_
+#_local pos = utf8.invalidoffset("??")
+#_-- pos = nil (valid string)
+#_```
+#_
+#_### `utf8.isnfc(s) --> boolean`
+#_
+#_Checks whether `s` is in Normal Form C.
+#_
+#_**Normal Form C** means that whenever possible, combining marks are combined with a preceding codepoint. For example, instead of U+0041 (LATIN CAPITAL LETTER A) U+00B4 (ACUTE ACCENT), an NFC string will use U+00C1 (LATIN CAPITAL LETTER A WITH ACUTE). Also, some deprecated codepoints are converted to the recommended replacements.
+#_
+#_Since the same sequence of characters can be represented in more than one way in Unicode, it is better to ensure strings are in Normal Form before comparing them.
+#_
+#_Returns `true` if `s` is in NFC, `false` otherwise. An error may be raised if `s` is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```lua
+#_utf8.isnfc("caf?")   -- true (if already NFC)
+#_utf8.isnfc("cafe\u{0301}")  -- false (combining accent)
+#_```
+#_
+#_### `utf8.normalize_nfc(s) --> result, was_nfc`
+#_
+#_Converts `s` to Normal Form C.
+#_
+#_Returns the normalized string `result` and a boolean `was_nfc` indicating whether the original string was already in NFC (`true` if no modifications were made).
+#_
+#_An error will be raised if `s` is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```lua
+#_local normalized, was_nfc = utf8.normalize_nfc("cafe\u{0301}")
+#_-- normalized = "caf?", was_nfc = false
+#_```
+#_
+#_### `utf8.grapheme_indices(s [, i [, j]]) --> iterator`
+#_
+#_Returns an iterator which yields the starting byte index `from` and ending byte index `to` of each successive grapheme cluster in `s`. This range of bytes is inclusive of the endpoints, so the yielded values can be passed to `string.sub` to extract the grapheme cluster.
+#_
+#_The default for `i` is 1 and for `j` is `#s`. If you provide `i` and `j` byte indices, then the iterator will only cover the requested byte range. `i` and `j` should fall on character boundaries, since an error will be raised if the requested byte range is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```lua
+#_local count = 1
+#_for from, to in utf8.grapheme_indices(s) do
+#_  print("grapheme cluster "..count.." is from byte "..from.." to byte "..to)
+#_  count = count + 1
+#_end
+#_```
+#_
+#_## v0.2.0 BREAKING CHANGES
+#_
+#_### ?? API Changes
+#_
+#_**Parameter changes for existing functions:**
+#_
+#_- **`utf8.width()`**: 
+#_  - Old: `utf8.width(s[, ambi_is_double[, default_width]])`
+#_  - New: `utf8.width(s[, i[, j[, ambiwidth[, default_width]]]])`
+#_  - **Breaking**: `ambi_is_double` (boolean) replaced with `ambiwidth` (integer 1 or 2)
+#_  - **Breaking**: New optional byte range parameters `i, j` inserted before `ambiwidth`
+#_
+#_- **`utf8.widthindex()`**:
+#_  - Old: `utf8.widthindex(s, width[, ambi_is_double[, default_width]])`
+#_  - New: `utf8.widthindex(s, width[, i[, j[, ambiwidth[, default_width]]]])`
+#_  - **Breaking**: Same parameter changes as `utf8.width()`
+#_
+#_**New functions:**
+#_- `utf8.widthlimit(s, limit[, i[, j[, ambiwidth[, default]]]])` - Find truncation point within width limit
+#_
+#_### Migration Guide
+#_
+#_**Most common usage (unaffected):**
+#_```lua
+#_-- These still work:
+#_utf8.width("??")  -- No parameters changed
+#_utf8.widthindex("??", 3)  -- No parameters changed
+#_```
+#_
+#_**If you used `ambi_is_double` parameter:**
+#_```lua
+#_-- Old (v0.1.x):
+#_utf8.width(s, true, 1)      -- ambi_is_double=true means width 2
+#_utf8.width(s, false, 1)     -- ambi_is_double=false means width 1
+#_
+#_-- New (v0.2.x):
+#_utf8.width(s, 1, #s+1, 2, 1)  -- ambiwidth=2
+#_utf8.width(s, 1, #s+1, 1, 1)  -- ambiwidth=1
+#_```
+#_
+#_**Parameter mapping:**
+#_- `ambi_is_double = true` ? `ambiwidth = 2`
+#_- `ambi_is_double = false` or `nil` ? `ambiwidth = 1` or omit
+#_
+#_### Rationale
+#_
+#_- **Consistency**: All width functions now use `ambiwidth` (integer) instead of `ambi_is_double` (boolean)
+#_- **Flexibility**: Byte range parameters `(i, j)` enable substring width calculation
+#_- **Clarity**: Integer `ambiwidth` is more intuitive than boolean `ambi_is_double`
+#_
+#_### Impact Assessment
+#_
+#_Estimated affected users: < 5 out of 22 dependent packages (most don't pass `ambi_is_double`).
+#_
+#_## Improvements Needed
+#_
+#_- Add Lua 5.3 spec test-suite
+#_- More test cases
+#_- Grapheme-compose support, and its effect on `utf8.reverse` and `utf8.width`
 #_
 #_
-#_### utf8.remove(s[, start[, stop]]) -> new_string
-#_delete a substring in s. If neither start nor stop is given, delete the
-#_last UTF-8 char in s, otherwise delete char from start to end of s. if
-#_stop is given, delete char from start to stop (include start and stop).
-#_start and stop can be negative.
+#_## License
+#_It uses the same license as Lua: http://www.lua.org/license.html
 #_
-#_
-#_### utf8.width(s[, ambi_is_double[, default_width]]) -> width
-#_calculate the width of UTF-8 string s. if ambi_is_double is given, the
-#_ambiguous width character's width is 2, otherwise it's 1.
-#_fullwidth/doublewidth character's width is 2, and other character's width
-#_is 1.
-#_if default_width is given, it will be the width of unprintable character,
-#_used display a non-character mark for these characters.
-#_if s is a code point, return the width of this code point.
-#_
-#_
-#_### utf8.widthindex(s, location[, ambi_is_double[, default_width]]) -> idx, offset, width
-#_return the character index at given location in string s. this is a
-#_reverse operation of utf8.width().
-#_this function return a index of location, and a offset in in UTF-8
-#_encoding. e.g. if cursor is at the second column (middle) of the wide
-#_char, offset will be 2. the width of character at idx is returned, also.
-#_
-#_
-#_### utf8.title(s) -> new_string
-#_### utf8.fold(s) -> new_string
-#_convert UTF-8 string s to title-case, or folded case used to compare by
-#_ignore case.
-#_if s is a number, it's treat as a code point and return a convert code
-#_point (number). utf8.lower/utf8.upper has the same extension.
-#_
-#_
-#_### utf8.ncasecmp(a, b) -> [-1,0,1]
-#_compare a and b without case, -1 means a < b, 0 means a == b and 1 means a > b.
-#_
-#_
-#_### utf8.isvalid(s) -> boolean
-#_check whether s is a valid UTF-8 string or not.
-#_
-#_
-#_### utf8.clean(s[, replacement_string]) -> cleaned_string, was_valid
-#_replace any invalid UTF-8 byte sequences in s with the replacement string.
-#_if no replacement string is provided, the default is "?" (REPLACEMENT CHARACTER U+FFFD).
-#_note that *any* number of consecutive invalid bytes will be replaced by a single copy of the replacement string.
-#_the 2nd return value is true if the original string was already valid (meaning no replacements were made).
-#_
-#_
-#_### utf8.invalidoffset(s[, init]) -> offset
-#_return the byte offset within s of the first invalid UTF-8 byte sequence.
-#_(1 is the first byte of the string.)
-#_if s is a valid UTF-8 string, return nil.
-#_the optional numeric argument init specifies where to start the search; its default value is 1 and can be negative.
-#_
-#_
-#_Improvement needed
-#_------------------
-#_
-#_- add Lua 5.3 spec test-suite.
-#_- more test case.
-#_- grapheme-compose support, and affect in utf8.reverse and utf8.width
-#_- Unicode normalize algorithm implement.
-#_
-#_
-#_License
-#_-------
-#_It use same license with Lua: http://www.lua.org/license.html
 
 article id=538 dt=Text ctime=3776336382 mtime=3776336416 nm=luautf8
 #_MIT License
