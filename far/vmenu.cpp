@@ -522,12 +522,12 @@ namespace
 		return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 	}
 
-	string_view get_item_text(const menu_item& Item)
+	string_view get_item_text(const menu_item_data& Item)
 	{
 		return Item.GetName();
 	}
 
-	int get_item_visual_length(const menu_item& Item, const bool ShowAmpersand)
+	int get_item_visual_length(const menu_item_data& Item, const bool ShowAmpersand)
 	{
 		if (Item.VisualLength != Item.InvalidVisualLength)
 			return Item.VisualLength;
@@ -679,14 +679,14 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 {
 }
 
-vmenu_ptr VMenu::create(string Title, std::span<menu_item const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
+vmenu_ptr VMenu::create(string Title, std::span<menu_item_data const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), std::move(Title), MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, Flags);
 	return VmenuPtr;
 }
 
-void VMenu::init(std::span<menu_item const> const Data, DWORD Flags)
+void VMenu::init(std::span<menu_item_data const> const Data, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
@@ -3549,11 +3549,11 @@ const UUID& VMenu::Id() const
 	return MenuId;
 }
 
-void VMenu::DecorateItemsWithHotkeys(std::span<menu_item> const MenuItems, const bool ShowAmpersand)
+void VMenu::DecorateItemsWithHotkeys(std::span<menu_item_data> const Data, const bool ShowAmpersand)
 {
-	if (MenuItems.empty()) return;
+	if (Data.empty()) return;
 
-	const auto VisualLengths{ MenuItems
+	const auto VisualLengths{ Data
 		| std::views::transform([ShowAmpersand](const auto& Item) {
 			return ShowAmpersand ? visual_string_length(Item.GetName()) : HiStrlen(Item.GetName()); })
 		| std::ranges::to<std::vector>()
@@ -3563,7 +3563,7 @@ void VMenu::DecorateItemsWithHotkeys(std::span<menu_item> const MenuItems, const
 	const string Spaces(MaxVisualLength + 1, L' ');
 	const string_view Padding{ Spaces };
 
-	for (auto& [Item, VisualLength] : zip(MenuItems, VisualLengths))
+	for (auto& [Item, VisualLength] : zip(Data, VisualLengths))
 	{
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey) continue;
 

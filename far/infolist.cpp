@@ -616,7 +616,7 @@ long long InfoList::VMProcess(int OpCode, void* vParam, long long iParam)
 
 void InfoList::SelectShowMode()
 {
-	menu_item ShowModeMenuItem[]
+	menu_item_data ShowModeMenuItem[]
 	{
 		{ msg(lng::MMenuInfoShowModeDisk), LIF_SELECTED },
 		{ msg(lng::MMenuInfoShowModeMemory), 0 },

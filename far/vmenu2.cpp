@@ -337,7 +337,7 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 {
 }
 
-vmenu2_ptr VMenu2::create(const string& Title, std::span<const menu_item> const Data, int MaxHeight, DWORD Flags)
+vmenu2_ptr VMenu2::create(const string& Title, std::span<const menu_item_data> const Data, int MaxHeight, DWORD Flags)
 {
 	auto VMenu2Ptr = std::make_shared<VMenu2>(private_tag(), MaxHeight);
 

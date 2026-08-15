@@ -4708,7 +4708,7 @@ void FileList::EditFilter()
 
 static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> const& SortLayers)
 {
-	std::vector<menu_item> AvailableSortModesMenuItems(static_cast<size_t>(panel_sort::COUNT));
+	std::vector<menu_item_data> AvailableSortModesMenuItems(static_cast<size_t>(panel_sort::COUNT));
 	auto VisibleCount = AvailableSortModesMenuItems.size();
 
 	for (const auto& i: SortModes)
@@ -4745,11 +4745,11 @@ static void edit_sort_layers(int MenuPos)
 
 	auto& SortLayers = Global->Opt->PanelSortLayers[SortMode];
 
-	std::vector<menu_item> SortLayersMenuItems;
+	std::vector<menu_item_data> SortLayersMenuItems;
 	SortLayersMenuItems.reserve(SortLayers.size());
 	std::ranges::transform(SortLayers, std::back_inserter(SortLayersMenuItems), [](std::pair<panel_sort, sort_order> const& Layer)
 	{
-		return menu_item{ msg(SortModes[static_cast<size_t>(Layer.first)].Label), LIF_CHECKED | order_indicator(Layer.second) };
+		return menu_item_data{ msg(SortModes[static_cast<size_t>(Layer.first)].Label), LIF_CHECKED | order_indicator(Layer.second) };
 	});
 
 	SortLayersMenuItems.front().Flags |= LIF_DISABLE;
@@ -4879,7 +4879,7 @@ static void edit_sort_layers(int MenuPos)
 
 void FileList::SelectSortMode()
 {
-	std::vector<menu_item> SortMenu(std::size(SortModes));
+	std::vector<menu_item_data> SortMenu(std::size(SortModes));
 	for (const auto& i: SortModes)
 	{
 		auto& Item = SortMenu[i.MenuPosition];
@@ -4888,7 +4888,7 @@ void FileList::SelectSortMode()
 		Item.AccelKey = i.MenuKey;
 	}
 
-	static const menu_item MenuSeparator{ string{}, LIF_SEPARATOR };
+	static const menu_item_data MenuSeparator{ string{}, LIF_SEPARATOR };
 
 	OpenMacroPluginInfo ompInfo{ MCT_GETCUSTOMSORTMODES };
 	MacroPluginReturn const* mpr{};
@@ -4906,7 +4906,7 @@ void FileList::SelectSortMode()
 				SortMenu.emplace_back(MenuSeparator);
 				for (size_t i=0; i < mpr->Count; i += 3)
 				{
-					SortMenu.emplace_back(menu_item{ mpr->Values[i + 2].String, {} });
+					SortMenu.emplace_back(menu_item_data{ mpr->Values[i + 2].String, {} });
 				}
 			}
 			else
@@ -4949,7 +4949,7 @@ void FileList::SelectSortMode()
 
 		SortOptCount
 	};
-	const menu_item InitSortMenuOptions[]
+	const menu_item_data InitSortMenuOptions[]
 	{
 		{ msg(lng::MMenuSortUseGroups), GetSortGroups()? MIF_CHECKED : 0, KEY_SHIFTF11 },
 		{ msg(lng::MMenuSortSelectedFirst), SelectedFirst? MIF_CHECKED : 0, KEY_SHIFTF12 },

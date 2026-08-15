@@ -86,7 +86,7 @@ enum VMENU_FLAGS
 	VMENU_COMBOBOXEVENTMOUSE     = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
-struct menu_item
+struct menu_item_data
 {
 private:
 	string Name;
@@ -96,9 +96,9 @@ public:
 	mutable int VisualLength{ InvalidVisualLength };
 	static constexpr auto InvalidVisualLength{ std::numeric_limits<decltype(VisualLength)>::min() };
 
-	menu_item() = default;
+	menu_item_data() = default;
 
-	menu_item(string Name_, LISTITEMFLAGS Flags_, DWORD AccelKey_ = {})
+	menu_item_data(string Name_, LISTITEMFLAGS Flags_, DWORD AccelKey_ = {})
 		: Name{ std::move(Name_) }, Flags{ Flags_ }, AccelKey{ AccelKey_ }
 	{}
 
@@ -139,22 +139,22 @@ public:
 	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
 };
 
-struct menu_item_ex: menu_item
+struct menu_item_ex: menu_item_data
 {
 	menu_item_ex() = default;
 	NONCOPYABLE(menu_item_ex);
 	MOVABLE(menu_item_ex);
 
-	explicit menu_item_ex(const menu_item& Item)
-		: menu_item{ Item }
+	explicit menu_item_ex(const menu_item_data& Item)
+		: menu_item_data{ Item }
 	{}
 
 	explicit menu_item_ex(LISTITEMFLAGS Flags_)
-		: menu_item{ string{}, Flags_ }
+		: menu_item_data{ string{}, Flags_ }
 	{}
 
 	explicit menu_item_ex(string Name_, LISTITEMFLAGS Flags_ = {})
-		: menu_item{ std::move(Name_), Flags_ }
+		: menu_item_data{ std::move(Name_), Flags_ }
 	{}
 
 	std::any ComplexUserData;
@@ -180,7 +180,7 @@ class VMenu final: public Modal
 	struct private_tag { explicit private_tag() = default; };
 
 public:
-	static vmenu_ptr create(string Title, std::span<menu_item const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, std::span<menu_item_data const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
 	~VMenu() override;
@@ -310,7 +310,7 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const menu_item_ex *MItem, FarListItem *FItem);
-	static void DecorateItemsWithHotkeys(std::span<menu_item> MenuItems, bool ShowAmpersand = false);
+	static void DecorateItemsWithHotkeys(std::span<menu_item_data> Data, bool ShowAmpersand = false);
 	static bool ClickHandler(window* Menu, int MenuClick);
 
 	[[nodiscard]] int GetNaturalMenuWidth() const;
@@ -318,7 +318,7 @@ public:
 private:
 	friend struct menu_layout;
 
-	void init(std::span<menu_item const> Data, DWORD Flags);
+	void init(std::span<menu_item_data const> Data, DWORD Flags);
 
 	void DisplayObject() override;
 	void DrawMenu();

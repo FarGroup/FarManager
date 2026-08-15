@@ -1167,7 +1167,7 @@ void Options::SetFilePanelModes()
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
-		std::vector<menu_item> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
+		std::vector<menu_item_data> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
 		for (const auto i: std::views::iota(0uz, ViewSettings.size()))
 		{
@@ -3055,7 +3055,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_SAVESETUP
 };
 
-static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
+static void SetLeftRightMenuChecks(menu_item_data* pMenu, bool bLeft)
 {
 	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
@@ -3083,7 +3083,7 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	const auto ApplyViewModesNames = [this](menu_item* Menu)
+	const auto ApplyViewModesNames = [this](menu_item_data* Menu)
 	{
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
@@ -3094,7 +3094,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	const auto no_tree = Tree.TurnOffCompletely? LIF_HIDDEN : LIF_NONE;
 
-	menu_item LeftMenu[]
+	menu_item_data LeftMenu[]
 	{
 		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
 		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },
@@ -3120,7 +3120,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	ApplyViewModesNames(LeftMenu);
 	VMenu::DecorateItemsWithHotkeys(LeftMenu);
 
-	menu_item FilesMenu[]
+	menu_item_data FilesMenu[]
 	{
 		{ msg(lng::MMenuView), LIF_SELECTED, KEY_F3 },
 		{ msg(lng::MMenuEdit), 0, KEY_F4 },
@@ -3146,7 +3146,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(FilesMenu);
 
-	menu_item CmdMenu[]
+	menu_item_data CmdMenu[]
 	{
 		{ msg(lng::MMenuFindFile), LIF_SELECTED, KEY_ALTF7 },
 		{ msg(lng::MMenuHistory), 0, KEY_ALTF8 },
@@ -3171,7 +3171,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(CmdMenu);
 
-	menu_item OptionsMenu[]
+	menu_item_data OptionsMenu[]
 	{
 		{ msg(lng::MMenuSystemSettings), LIF_SELECTED },
 		{ msg(lng::MMenuPanelSettings), 0 },
@@ -3203,7 +3203,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(OptionsMenu);
 
-	menu_item RightMenu[]
+	menu_item_data RightMenu[]
 	{
 		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
 		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },

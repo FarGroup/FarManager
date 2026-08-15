@@ -1727,7 +1727,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_SHIFTF4:
 		{
-			const menu_item ModeListMenu[]
+			const menu_item_data ModeListMenu[]
 			{
 				{ msg(lng::MViewF4Text), 0 },
 				{ msg(lng::MViewF4), 0 },
