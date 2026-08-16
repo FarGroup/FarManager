@@ -46,9 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class VMenu2;
-struct menu_item_ex;
-
 class Shortcuts
 {
 public:

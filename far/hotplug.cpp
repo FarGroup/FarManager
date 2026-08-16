@@ -587,7 +587,7 @@ void ShowHotplugDevices()
 			if (GetDevicePropertyRecursive(i.DevInst, CM_DRP_DEVICEDESC, strDescription) && !strDescription.empty())
 			{
 				inplace::trim(strDescription);
-				ListItem.SetName(strDescription);
+				ListItem.set_name(strDescription);
 			}
 
 			string strFriendlyName;
@@ -599,18 +599,18 @@ void ShowHotplugDevices()
 				{
 					if (!equal_icase(strDescription, strFriendlyName))
 					{
-						ListItem.SetName(concat(ListItem.GetName(), L" \""sv, strFriendlyName, L"\""sv));
+						ListItem.set_name(concat(ListItem.get_name(), L" \""sv, strFriendlyName, L"\""sv));
 					}
 				}
 				else
 				{
-					ListItem.SetName(strFriendlyName);
+					ListItem.set_name(strFriendlyName);
 				}
 			}
 
-			if (ListItem.GetName().empty())
+			if (ListItem.get_name().empty())
 			{
-				ListItem.SetName(L"UNKNOWN"s);
+				ListItem.set_name(L"UNKNOWN"s);
 			}
 			HotPlugList->AddItem(ListItem);
 		}
@@ -661,7 +661,7 @@ void ShowHotplugDevices()
 						msg(lng::MError),
 						{
 							msg(lng::MChangeCouldNotEjectHotPlugMedia2),
-							HotPlugList->at(I).GetName()
+							HotPlugList->at(I).get_name()
 						},
 						{ lng::MOk });
 

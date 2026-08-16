@@ -195,7 +195,7 @@ static string SelectLanguage(bool HelpLanguage, string_view const Current)
 	{
 		menu_item_ex LangMenuItem{ far::format(L"{0:{1}} {2} {3}"sv, Name, MaxNameLength, BoxSymbols[BS_V1], Description) };
 
-		LangMenuItem.SetSelect(Current == Name);
+		LangMenuItem.set_select(Current == Name);
 		LangMenuItem.ComplexUserData = Name;
 		LangMenu->AddItem(LangMenuItem);
 	}

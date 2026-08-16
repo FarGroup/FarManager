@@ -468,7 +468,7 @@ window_ptr Manager::WindowMenu()
 				Name
 			) };
 			ModalMenuItem.ComplexUserData = Window.get();
-			ModalMenuItem.SetSelect(Window == GetBottomWindow());
+			ModalMenuItem.set_select(Window == GetBottomWindow());
 			ModalMenu->AddItem(ModalMenuItem);
 		}
 

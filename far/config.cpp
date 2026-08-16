@@ -1167,17 +1167,17 @@ void Options::SetFilePanelModes()
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
-		std::vector<menu_item> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
+		std::vector<menu_item_data> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
 		for (const auto i: std::views::iota(0uz, ViewSettings.size()))
 		{
-			ModeListMenu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
-			if (ModeListMenu[i].GetName().empty())
-				ModeListMenu[i].SetName(msg(PredefinedNames[i]));
+			if (ModeListMenu[i].Name.empty())
+				ModeListMenu[i].Name = msg(PredefinedNames[i]);
 		}
 
 		if (MenuCount > predefined_panel_modes_count)
@@ -1190,7 +1190,7 @@ void Options::SetFilePanelModes()
 		bool AddNewMode = false;
 		bool DeleteMode = false;
 
-		ModeListMenu[CurMode].SetSelect(true);
+		ModeListMenu[CurMode].set_select(true);
 		{
 			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), ModeListMenu, ScrY - 4);
 			ModeList->SetPosition({ -1, -1, 0, 0 });
@@ -1310,7 +1310,7 @@ void Options::SetFilePanelModes()
 
 		auto ModeDlg = MakeDialogItems<MD_COUNT>(
 		{
-			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].GetName(), },
+			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].Name, },
 			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
 			{ DI_EDIT,      {{5,  3 }, {70, 3 }}, DIF_FOCUS, },
 			{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeTypes), },
@@ -3055,46 +3055,46 @@ enum enumOptionsMenu
 	MENU_OPTIONS_SAVESETUP
 };
 
-static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
+static void SetLeftRightMenuChecks(menu_item_data* pMenu, bool bLeft)
 {
 	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
 	switch (pPanel->GetType())
 	{
 	case panel_type::FILE_PANEL:
-		pMenu[RealModeToDisplay(pPanel->GetViewMode())].SetCheck();
+		pMenu[RealModeToDisplay(pPanel->GetViewMode())].set_check(true);
 		break;
 
 	case panel_type::INFO_PANEL:
-		pMenu[MENU_PANEL_INFOPANEL].SetCheck();
+		pMenu[MENU_PANEL_INFOPANEL].set_check(true);
 		break;
 
 	case panel_type::TREE_PANEL:
-		pMenu[MENU_PANEL_TREEPANEL].SetCheck();
+		pMenu[MENU_PANEL_TREEPANEL].set_check(true);
 		break;
 
 	case panel_type::QVIEW_PANEL:
-		pMenu[MENU_PANEL_QUICKVIEW].SetCheck();
+		pMenu[MENU_PANEL_QUICKVIEW].set_check(true);
 		break;
 	}
 
-	pPanel->GetShowShortNamesMode()? pMenu[MENU_PANEL_LONGNAMES].ClearCheck() : pMenu[MENU_PANEL_LONGNAMES].SetCheck();
+	pMenu[MENU_PANEL_LONGNAMES].set_check(!pPanel->GetShowShortNamesMode());
 }
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	const auto ApplyViewModesNames = [this](menu_item* Menu)
+	const auto ApplyViewModesNames = [this](menu_item_data* Menu)
 	{
 		for (const auto i: std::views::iota(0uz, predefined_panel_modes_count))
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[RealModeToDisplay(i)].SetName(ViewSettings[i].Name);
+				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 	};
 
 	const auto no_tree = Tree.TurnOffCompletely? LIF_HIDDEN : LIF_NONE;
 
-	menu_item LeftMenu[]
+	menu_item_data LeftMenu[]
 	{
 		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
 		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },
@@ -3120,7 +3120,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	ApplyViewModesNames(LeftMenu);
 	VMenu::DecorateItemsWithHotkeys(LeftMenu);
 
-	menu_item FilesMenu[]
+	menu_item_data FilesMenu[]
 	{
 		{ msg(lng::MMenuView), LIF_SELECTED, KEY_F3 },
 		{ msg(lng::MMenuEdit), 0, KEY_F4 },
@@ -3146,7 +3146,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(FilesMenu);
 
-	menu_item CmdMenu[]
+	menu_item_data CmdMenu[]
 	{
 		{ msg(lng::MMenuFindFile), LIF_SELECTED, KEY_ALTF7 },
 		{ msg(lng::MMenuHistory), 0, KEY_ALTF8 },
@@ -3171,7 +3171,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(CmdMenu);
 
-	menu_item OptionsMenu[]
+	menu_item_data OptionsMenu[]
 	{
 		{ msg(lng::MMenuSystemSettings), LIF_SELECTED },
 		{ msg(lng::MMenuPanelSettings), 0 },
@@ -3203,7 +3203,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	};
 	VMenu::DecorateItemsWithHotkeys(OptionsMenu);
 
-	menu_item RightMenu[]
+	menu_item_data RightMenu[]
 	{
 		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
 		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },
@@ -3262,8 +3262,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 			MainMenu[0].Selected = false;
 			MainMenu[HItemToShow].Selected = true;
-			MainMenu[HItemToShow].SubMenu[0].SetSelect(false);
-			MainMenu[HItemToShow].SubMenu[LastVItem].SetSelect(true);
+			MainMenu[HItemToShow].SubMenu[0].set_select(false);
+			MainMenu[HItemToShow].SubMenu[LastVItem].set_select(true);
 			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu->ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else
