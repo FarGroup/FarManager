@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+MZK 2026-08-15 21:09:46-04:00 - build 6728
+
+1. Clarify `DecorateItemsWithHotkeys`
+
+2. Bump GCC version to 14 and Clang version to 19
+
+3. Refactoring
+
+--------------------------------------------------------------------------------
 drkns 2026-08-11 21:39:09+01:00 - build 6727
 
 1. Fix user screen color in corner cases.
