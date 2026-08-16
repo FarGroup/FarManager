@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.PasteFromClipboard</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>PasteFromClipboard</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.PasteFromClipboard</code> используется для получения данных из буфера обмена Windows.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 size_t WINAPI PasteFromClipboard(
   enum FARCLIPBOARD_TYPE Type,
   wchar_t *Data,
@@ -27,36 +28,36 @@ size_t WINAPI PasteFromClipboard(
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Type</div>
-    <div class=dfndescr>Указывает на тип блока возвращаемый из буфера обмена. Может быть следующим (перечисление <a name="FARCLIPBOARD_TYPE">FARCLIPBOARD_TYPE</a>):
+<div class="descr">
+  <div class="dfn">Type</div>
+    <div class="dfndescr">Указывает на тип блока возвращаемый из буфера обмена. Может быть следующим (перечисление <a name="FARCLIPBOARD_TYPE">FARCLIPBOARD_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCT_ANY">FCT_ANY</a></td>
-    <td class="cont" width="60%">любой</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCT_STREAM">FCT_STREAM</a></td>
-    <td class="cont" width="60%">потоковый</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCT_COLUMN">FCT_COLUMN</a></td>
-    <td class="cont" width="60%">вертикальный</td></tr>
+    <tr><th>Тип</th><th>Описание</th></tr>
+    <tr><td><a name="FCT_ANY">FCT_ANY</a></td>
+    <td>любой</td></tr>
+    <tr><td><a name="FCT_STREAM">FCT_STREAM</a></td>
+    <td>потоковый</td></tr>
+    <tr><td><a name="FCT_COLUMN">FCT_COLUMN</a></td>
+    <td>вертикальный</td></tr>
     </table>
     </div>
-  <div class=dfn>Data</div>
-    <div class=dfndescr>Указатель на строку, в которую нужно поместить данные из буфера обмена. Установите <code>Data = NULL</code> для того, чтобы узнать необходмый размер буфера.</div>
-  <div class=dfn>Size</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Data</code>, с заключительным нулём.</div>
+  <div class="dfn">Data</div>
+    <div class="dfndescr">Указатель на строку, в которую нужно поместить данные из буфера обмена. Установите <code>Data = NULL</code> для того, чтобы узнать необходмый размер буфера.</div>
+  <div class="dfn">Size</div>
+    <div class="dfndescr">Максимальное количество символов, которое можно поместить в <code>Data</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Функция возвращает необходимый размер буфера <code>Data</code>, или <code>0</code>, если указанного типа блока нет в буфере обмена.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 </div>
 
 </body>
