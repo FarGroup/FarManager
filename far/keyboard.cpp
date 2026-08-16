@@ -1741,7 +1741,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 						KEY_NUMLOCK
 					};
 
-					if (contains(ExtKey, FKey) || VirtKey==VK_RCONTROL || VirtKey==VK_RMENU)
+					if (std::ranges::contains(ExtKey, FKey) || VirtKey==VK_RCONTROL || VirtKey==VK_RMENU)
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
 				break;

@@ -971,7 +971,7 @@ private:
 			"MarkCharSelectedCursorColor"sv,
 		};
 
-		if (contains(ColorKeys, Name))
+		if (std::ranges::contains(ColorKeys, Name))
 		{
 			SetAttribute(e, "type", "color"sv);
 			color_to_xml(Blob, e);

@@ -262,10 +262,11 @@ void filemasks::clear()
 
 bool filemasks::check(const string_view Name, regex_matches const* const Matches) const
 {
-	if (contains(Exclude, Name))
+	// Ugh, ranges are "awesome".
+	if (std::ranges::find_if(Exclude, [&](masks const& Masks){ return Masks == Name; }) != Exclude.cend())
 		return false;
 
-	// Ugh, ranges are awesome.
+	// Ugh, ranges are "awesome".
 	const auto MaskIterator = std::ranges::find_if(Include, [&](masks const& Masks){ return Masks == Name; });
 	if (MaskIterator == Include.cend())
 		return false;
@@ -366,7 +367,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 			{
 				MasksData.emplace_back(L"*"sv);
 			}
-			else if (contains(Mask, L"**"sv))
+			else if (Mask.contains(L"**"sv))
 			{
 				string NewMask(Mask);
 				remove_duplicates(NewMask, L'*');

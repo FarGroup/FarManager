@@ -89,7 +89,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -174,7 +173,7 @@ size_t CommandLine::DrawPrompt()
 	size_t CurLength = 0;
 	GotoXY(m_Where.left, m_Where.top);
 
-	for (const auto& [i, l]: zip(PromptList, Sizes))
+	for (const auto& [i, l]: std::views::zip(PromptList, Sizes))
 	{
 		auto str = i.Text;
 		auto VisualLength = l;
@@ -577,7 +576,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				if (contains(UnmarkKeys, LocalKey()))
+				if (std::ranges::contains(UnmarkKeys, LocalKey()))
 				{
 					CmdStr.RemoveSelection();
 				}

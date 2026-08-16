@@ -163,7 +163,7 @@ namespace
 			{
 				SCOPED_ACTION(os::last_error_guard);
 
-				if (os::memory::local::ptr<wchar_t> StrSid; ConvertSidToStringSid(Sid, &ptr_setter(StrSid)))
+				if (os::memory::local::ptr<wchar_t> StrSid; ConvertSidToStringSid(Sid, std::out_ptr(StrSid)))
 					return StrSid.get();
 
 				return {};
@@ -223,7 +223,7 @@ namespace
 			else
 			{
 				SCOPED_ACTION(os::last_error_guard);
-				if (os::memory::local::ptr<void> SidFromString; ConvertStringSidToSid(Name.c_str(), &ptr_setter(SidFromString)))
+				if (os::memory::local::ptr<void> SidFromString; ConvertStringSidToSid(Name.c_str(), std::out_ptr(SidFromString)))
 					return sid{ SidFromString.get() };
 
 				return sid{};
@@ -432,8 +432,7 @@ namespace os::security
 				{},
 				{},
 				{},
-				std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor)
-				)
+				std::bit_cast<PSECURITY_DESCRIPTOR*>(&std::out_ptr(Descriptor))
 			); Result != ERROR_SUCCESS)
 				SetLastError(Result);
 

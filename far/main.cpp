@@ -1272,7 +1272,7 @@ TEST_CASE("Args")
 			{
 				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, Args.end(), Context), far_known_exception, generic_exception_matcher([Validator](std::any const& e)
 				{
-					return !Validator.empty() && contains(std::any_cast<far_known_exception const&>(e).message(), Validator);
+					return !Validator.empty() && std::any_cast<far_known_exception const&>(e).message().contains(Validator);
 				}));
 			}
 		}, i.Validator);

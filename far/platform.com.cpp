@@ -106,11 +106,11 @@ namespace os::com
 			SCOPED_ACTION(initialize)(mode::sta);
 
 			ptr<IShellFolder> ShellFolder;
-			COM_INVOKE(SHGetDesktopFolder)(&ptr_setter(ShellFolder));
+			COM_INVOKE(SHGetDesktopFolder)(std::out_ptr(ShellFolder));
 
 			memory<PIDLIST_RELATIVE> IdList;
 			null_terminated const C_Path(Path);
-			COM_INVOKE(ShellFolder->ParseDisplayName)({}, {}, UNSAFE_CSTR(C_Path), {}, &ptr_setter(IdList), {});
+			COM_INVOKE(ShellFolder->ParseDisplayName)({}, {}, UNSAFE_CSTR(C_Path), {}, std::out_ptr(IdList), {});
 
 			STRRET StrRet;
 			COM_INVOKE(ShellFolder->GetDisplayNameOf)(IdList.get(), SHGDN_FOREDITING, &StrRet);
@@ -147,10 +147,10 @@ namespace os::com
 			try
 			{
 				ptr<IApplicationAssociationRegistration> AAR;
-				COM_INVOKE(imports.SHCreateAssociationRegistration)(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)));
+				COM_INVOKE(imports.SHCreateAssociationRegistration)(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&std::out_ptr(AAR)));
 
 				memory<wchar_t*> Association;
-				COM_INVOKE(AAR->QueryCurrentDefault)(null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association));
+				COM_INVOKE(AAR->QueryCurrentDefault)(null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, std::out_ptr(Association));
 
 				return Association.get();
 			}
@@ -205,20 +205,20 @@ namespace os::com
 		try
 		{
 			ptr<IRunningObjectTable> RunningObjectTable;
-			COM_INVOKE(GetRunningObjectTable)(0, &ptr_setter(RunningObjectTable));
+			COM_INVOKE(GetRunningObjectTable)(0, std::out_ptr(RunningObjectTable));
 
 			ptr<IMoniker> FileMoniker;
-			COM_INVOKE(CreateFileMoniker)(File.c_str(), &ptr_setter(FileMoniker));
+			COM_INVOKE(CreateFileMoniker)(File.c_str(), std::out_ptr(FileMoniker));
 
 			ptr<IEnumMoniker> EnumMoniker;
-			COM_INVOKE(RunningObjectTable->EnumRunning)(&ptr_setter(EnumMoniker));
+			COM_INVOKE(RunningObjectTable->EnumRunning)(std::out_ptr(EnumMoniker));
 
 			for (;;)
 			{
 				try
 				{
 					ptr<IMoniker> Moniker;
-					if (COM_INVOKE(EnumMoniker->Next)(1, &ptr_setter(Moniker), {}) == S_FALSE)
+					if (COM_INVOKE(EnumMoniker->Next)(1, std::out_ptr(Moniker), {}) == S_FALSE)
 						return {};
 
 					DWORD Type;
@@ -228,7 +228,7 @@ namespace os::com
 						continue;
 
 					ptr<IMoniker> PrefixMoniker;
-					if (const auto Result = FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker)); FAILED(Result))
+					if (const auto Result = FileMoniker->CommonPrefixWith(Moniker.get(), std::out_ptr(PrefixMoniker)); FAILED(Result))
 					{
 						// MSDN mentions MK_S_NOPREFIX, but there's no such thing.
 						// Actually it's MK_E_NOPREFIX, and it's the most common case,
@@ -243,11 +243,11 @@ namespace os::com
 						continue;
 
 					ptr<IUnknown> Unknown;
-					if (COM_INVOKE(RunningObjectTable->GetObject)(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
+					if (COM_INVOKE(RunningObjectTable->GetObject)(Moniker.get(), std::out_ptr(Unknown)) == S_FALSE)
 						continue;
 
 					ptr<IFileIsInUse> FileIsInUse;
-					COM_INVOKE(Unknown->QueryInterface)(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse)));
+					COM_INVOKE(Unknown->QueryInterface)(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&std::out_ptr(FileIsInUse)));
 
 					return FileIsInUse;
 				}
@@ -335,7 +335,7 @@ WARNING_POP()
 		SCOPED_ACTION(initialize)(mode::sta);
 
 		ptr<IFileOperation> FileOperation;
-		COM_INVOKE(CoCreateInstance)(CLSID_FileOperation, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOperation, IID_PPV_ARGS_Helper(&ptr_setter(FileOperation)));
+		COM_INVOKE(CoCreateInstance)(CLSID_FileOperation, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOperation, IID_PPV_ARGS_Helper(&std::out_ptr(FileOperation)));
 
 		COM_INVOKE(FileOperation->SetOperationFlags)(
 			FOF_ALLOWUNDO |    // We want to know if the item can be recycled
@@ -344,7 +344,7 @@ WARNING_POP()
 		);
 
 		ptr<IShellItem> Item;
-		COM_INVOKE(imports.SHCreateItemFromParsingName)(null_terminated(Object).c_str(), nullptr, IID_IShellItem, IID_PPV_ARGS_Helper(&ptr_setter(Item)));
+		COM_INVOKE(imports.SHCreateItemFromParsingName)(null_terminated(Object).c_str(), nullptr, IID_IShellItem, IID_PPV_ARGS_Helper(&std::out_ptr(Item)));
 
 		bool CanRecycle{};
 		FileOperationProgressSink Sink(CanRecycle);

@@ -76,7 +76,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/singleton.hpp"
 #include "common/uuid.hpp"
 #include "common/utility.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -280,7 +279,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 
 void ItemsToItemsEx(std::span<const FarDialogItem> const Items, std::span<DialogItemEx> const ItemsEx, bool const Short)
 {
-	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
+	for (const auto& [Item, ItemEx]: std::views::zip(Items, ItemsEx))
 	{
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
@@ -311,7 +310,7 @@ std::vector<DialogItemEx> MakeDialogItems(std::span<const InitDialogItem> Items)
 {
 	std::vector<DialogItemEx> ItemsEx(Items.size());
 
-	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
+	for (const auto& [Item, ItemEx]: std::views::zip(Items, ItemsEx))
 	{
 		ItemEx.Type = Item.Type;
 		ItemEx.X1 = Item.Position.TopLeft.x;
@@ -379,9 +378,9 @@ void Dialog::Construct(std::span<DialogItemEx> const SrcItems)
 	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for (const auto& [Item, SrcItem]: zip(Items, SrcItems))
+	for (const auto& [Item, SrcItem]: std::views::zip(Items, SrcItems))
 	{
-		for (const auto& [ItemAuto, SrcItemAuto]: zip(Item.Auto, SrcItem.Auto))
+		for (const auto& [ItemAuto, SrcItemAuto]: std::views::zip(Item.Auto, SrcItem.Auto))
 		{
 			const auto SrcItemIterator = std::ranges::find_if(SrcItems, [&](const DialogItemEx& i)
 			{

@@ -221,22 +221,14 @@ namespace detail
 
 using file_ptr = std::unique_ptr<FILE, detail::file_closer>;
 
-template<typename T>
-class ptr_setter
+template<typename SmartPtr, typename Ptr, typename... args>
+auto operator &(std::out_ptr_t<SmartPtr, Ptr, args...>&& OutPtr)
 {
-public:
-	NONCOPYABLE(ptr_setter);
-
-	explicit ptr_setter(T& Ptr): m_Ptr(&Ptr) {}
-	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
-
-	[[nodiscard]]
-	auto operator&() && { return &m_RawPtr; }
-
-private:
-	T* m_Ptr;
-	typename T::pointer m_RawPtr{};
-};
+	// I wonder, do the clowns that standardize this crap even test it?
+	// E.g. with templates or with casts? Where their implicit operator doesn't work at all?
+	// "a camel is a horse designed by a committee"
+	return OutPtr.operator Ptr*();
+}
 
 template<auto acquire, auto release, typename owner>
 [[nodiscard]]

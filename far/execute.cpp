@@ -319,7 +319,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 			continue;
 		}
 
-		if (!InQuotes && UseDefaultCondition && contains(L"<>|&"sv, *i))
+		if (!InQuotes && UseDefaultCondition && L"<>|&"sv.contains(*i))
 		{
 			return false;
 		}

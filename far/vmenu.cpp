@@ -73,7 +73,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -3563,7 +3562,7 @@ void VMenu::DecorateItemsWithHotkeys(std::span<menu_item_data> const Data, const
 	const string Spaces(MaxVisualLength + 1, L' ');
 	const string_view Padding{ Spaces };
 
-	for (auto& [Item, VisualLength] : zip(Data, VisualLengths))
+	for (const auto& [Item, VisualLength]: std::views::zip(Data, VisualLengths))
 	{
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey) continue;
 
@@ -3717,7 +3716,7 @@ TEST_CASE("markup.highlight")
 		const auto Markup{ markup_highlight(TestDataPoint.Text, TestDataPoint.Highlight) };
 		REQUIRE(Markup.size() == TestDataPoint.Markup.size());
 
-		for (const auto& [Actual, Expected]: zip(Markup, TestDataPoint.Markup))
+		for (const auto& [Actual, Expected]: std::views::zip(Markup, TestDataPoint.Markup))
 		{
 			REQUIRE(Check(TestDataPoint.Text, Actual, Expected));
 		}

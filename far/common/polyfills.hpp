@@ -55,43 +55,6 @@ namespace std::this_thread
 
 //----------------------------------------------------------------------------
 
-#ifndef __cpp_lib_ranges_fold
-#include <algorithm>
-#if !defined _LIBCPP___ALGORITHM_FOLD_H && !defined _LIBCPP___ALGORITHM_RANGES_FOLD_H // as of March 2025 libc++ doesn't define __cpp_lib_ranges_fold
-#include <functional>
-#include <iterator>
-#include <ranges>
-#include <type_traits>
-#include <utility>
-
-namespace std::ranges
-{
-	struct fold_left_fn
-	{
-		template<std::input_iterator I, std::sentinel_for<I> S, typename T, typename F>
-		constexpr auto operator()(I first, S last, T init, F f) const
-		{
-			using U = std::decay_t<std::invoke_result_t<F&, T, std::iter_reference_t<I>>>;
-			if (first == last)
-				return U(std::move(init));
-			U accum = std::invoke(f, std::move(init), *first);
-			for (++first; first != last; ++first)
-				accum = std::invoke(f, std::move(accum), *first);
-			return std::move(accum);
-		}
-
-		template<ranges::input_range R, typename T, typename F>
-		constexpr auto operator()(R&& r, T init, F f) const
-		{
-			return (*this)(ranges::begin(r), ranges::end(r), std::move(init), std::ref(f));
-		}
-	};
-
-	inline constexpr fold_left_fn fold_left;
-}
-#endif
-#endif
-
 #ifndef __cpp_size_t_suffix
 
 WARNING_PUSH()

@@ -62,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -248,7 +247,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	if (NewItem.CustomColumnNumber>0)
 	{
 		auto CustomColumnData = std::make_unique<wchar_t*[]>(NewItem.CustomColumnNumber);
-		for (const auto& [Column, ColData]: zip(std::span(CurPanelItem->CustomColumnData, NewItem.CustomColumnNumber), std::span(CustomColumnData.get(), NewItem.CustomColumnNumber)))
+		for (const auto& [Column, ColData]: std::views::zip(std::span(CurPanelItem->CustomColumnData, NewItem.CustomColumnNumber), std::span(CustomColumnData.get(), NewItem.CustomColumnNumber)))
 		{
 			if (Column)
 				ColData = MakeCopy(Column);

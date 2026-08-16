@@ -82,7 +82,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -1889,7 +1888,7 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 
 			const auto CopyData = [](const PluginMenuItem& Item, menu_items& Items)
 			{
-				for (const auto& [Str, Guid]: zip(std::span(Item.Strings, Item.Count), std::span(Item.Guids, Item.Count)))
+				for (const auto& [Str, Guid]: std::views::zip(std::span(Item.Strings, Item.Count), std::span(Item.Guids, Item.Count)))
 				{
 					Items.first.emplace_back(Str);
 					Items.second.emplace_back(Guid);
@@ -2327,7 +2326,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 			}
 			else
 			{
-				if (contains(std::span(MenuItems->Guids, MenuItems->Count), *Data->ItemUuid))
+				if (std::ranges::contains(std::span(MenuItems->Guids, MenuItems->Count), *Data->ItemUuid))
 				{
 					Data->FoundUuid = *Data->ItemUuid;
 					Data->ItemUuid = &Data->FoundUuid;
@@ -2469,7 +2468,7 @@ void PluginManager::GetContentData(
 		if (!i->GetContentData(&GetInfo) || !GetInfo.Values)
 			continue;
 
-		for (const auto& [ColName, Value]: zip(ColNames, std::span(GetInfo.Values, Count)))
+		for (const auto& [ColName, Value]: std::views::zip(ColNames, std::span(GetInfo.Values, Count)))
 		{
 			if (Value)
 				ContentData[ColName] += Value;

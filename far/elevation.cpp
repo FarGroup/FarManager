@@ -328,7 +328,7 @@ static auto make_explicit_admin_access(os::security::sid_ptr const& AdminSid)
 static auto make_acl(PACL const OldAcl, EXPLICIT_ACCESS& Access)
 {
 	os::memory::local::ptr<ACL> Acl;
-	if (const auto Result = SetEntriesInAcl(1, &Access, OldAcl, &ptr_setter(Acl)); Result != ERROR_SUCCESS)
+	if (const auto Result = SetEntriesInAcl(1, &Access, OldAcl, std::out_ptr(Acl)); Result != ERROR_SUCCESS)
 	{
 		LOGWARNING(L"SetEntriesInAcl: {}"sv, os::format_error(Result));
 	}
@@ -365,7 +365,7 @@ static bool grant_duplicate_handle()
 {
 	PACL Acl;
 	os::security::descriptor Descriptor;
-	if (const auto Result = GetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, &Acl, {}, std::bit_cast<PSECURITY_DESCRIPTOR*>(&ptr_setter(Descriptor))); Result != ERROR_SUCCESS)
+	if (const auto Result = GetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, &Acl, {}, std::bit_cast<PSECURITY_DESCRIPTOR*>(&std::out_ptr(Descriptor))); Result != ERROR_SUCCESS)
 	{
 		LOGWARNING(L"GetSecurityInfo: {}"sv, os::format_error(Result));
 		return false;

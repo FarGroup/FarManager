@@ -115,7 +115,7 @@ private:
 		SCOPED_ACTION(os::com::initialize)(os::com::mode::sta);
 
 		os::com::ptr<ITaskbarList3> TaskbarList;
-		if (const auto Result = CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(TaskbarList))); FAILED(Result))
+		if (const auto Result = CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&std::out_ptr(TaskbarList))); FAILED(Result))
 		{
 			LOGWARNING(L"CoCreateInstance(CLSID_TaskbarList): {}"sv, os::format_error(Result));
 			return;

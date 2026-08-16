@@ -70,7 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/bytes_view.hpp"
 #include "common/string_utils.hpp"
 #include "common/view/enumerate.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -349,7 +348,7 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	for (const auto& [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
+	for (const auto& [SrcItem, DstItem]: std::views::zip(SrcColors.Color, DestColors.Color))
 	{
 		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
 		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
@@ -497,7 +496,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	}
 
 	// Called from FileList::GetShowColor dynamically instead
-	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
+	//for (const auto& i: std::views::zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (item.Mark.Inherit)
@@ -637,7 +636,7 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 
 void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorExample, const highlight::element &Colors)
 {
-	for (const auto& [Index, Row]: zip(std::views::iota(0, highlight::color::count), VBufColorExample))
+	for (const auto& [Row, Index]: enumerate(VBufColorExample))
 	{
 		auto BakedColors = Colors.Color;
 		const auto ColorIndex = static_cast<highlight::color::index>(Index);
@@ -669,7 +668,7 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 		const std::span FileArea(Iterator, Row.end() - 1);
 		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
 
-		for (const auto& [Cell, Char]: zip(FileArea, Str))
+		for (const auto& [Cell, Char]: std::views::zip(FileArea, Str))
 		{
 			Cell = { Char, {}, {}, BakedColors[ColorIndex].FileColor};
 		}

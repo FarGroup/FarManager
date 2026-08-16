@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/preprocessor.hpp"
 #include "common/string_utils.hpp"
 #include "common/utility.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -313,7 +312,7 @@ string_view detail::fuzzy_searcher_impl::normalize(string_view const Str)
 		return m_Result;
 	}
 
-	zip const Zip(m_Result, m_Types);
+	const auto Zip = std::views::zip(m_Result, m_Types);
 	const auto Removed = std::ranges::remove_if(Zip, [](const auto& i)
 	{
 		return

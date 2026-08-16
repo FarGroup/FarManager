@@ -682,15 +682,15 @@ ShellCopy::ShellCopy(
 	{
 		{
 			const auto& Str = msg(lng::MCopySecurity);
-			CopyDlg[ID_SC_SECURITY_DEFAULT].X1 = CopyDlg[ID_SC_SECURITY_TITLE].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 1;
+			CopyDlg[ID_SC_SECURITY_DEFAULT].X1 = CopyDlg[ID_SC_SECURITY_TITLE].X1 + Str.size() - (Str.contains(L'&')? 1 : 0) + 1;
 		}
 		{
 			const auto& Str = msg(lng::MCopySecurityDefault);
-			CopyDlg[ID_SC_SECURITY_COPY].X1 = CopyDlg[ID_SC_SECURITY_DEFAULT].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
+			CopyDlg[ID_SC_SECURITY_COPY].X1 = CopyDlg[ID_SC_SECURITY_DEFAULT].X1 + Str.size() - (Str.contains(L'&')? 1 : 0) + 5;
 		}
 		{
 			const auto& Str = msg(lng::MCopySecurityCopy);
-			CopyDlg[ID_SC_SECURITY_INHERIT].X1 = CopyDlg[ID_SC_SECURITY_COPY].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
+			CopyDlg[ID_SC_SECURITY_INHERIT].X1 = CopyDlg[ID_SC_SECURITY_COPY].X1 + Str.size() - (Str.contains(L'&')? 1 : 0) + 5;
 		}
 	}
 

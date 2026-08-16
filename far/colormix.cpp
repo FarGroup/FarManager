@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
 #include "common/function_ref.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -776,7 +775,7 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 
 	std::array<string_view, 5> Parts;
 
-	for (const auto& [t, p]: zip(enum_tokens(Token, L":"sv), Parts))
+	for (const auto& [t, p]: std::views::zip(enum_tokens(Token, L":"sv), Parts))
 	{
 		if (&p == &Parts.back())
 			return Str;

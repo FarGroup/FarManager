@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/enum_substrings.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -247,7 +246,7 @@ void PluginPanelItemHolderHeap::set_columns(std::span<const wchar_t* const> cons
 {
 	auto Columns = std::make_unique<const wchar_t*[]>(Values.size());
 
-	for (const auto& [Column, Value]: zip(std::span(Columns.get(), Values.size()), Values))
+	for (const auto& [Column, Value]: std::views::zip(std::span(Columns.get(), Values.size()), Values))
 	{
 		Column = Value? make_copy(Value) : nullptr;
 	}

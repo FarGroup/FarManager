@@ -409,7 +409,7 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	SCOPED_ACTION(os::com::initialize)(os::com::mode::sta);
 
 	os::com::ptr<IMultiLanguage2> ML;
-	if (const auto Result = CoCreateInstance(CLSID_CMultiLanguage, {}, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, IID_PPV_ARGS_Helper(&ptr_setter(ML))); FAILED(Result))
+	if (const auto Result = CoCreateInstance(CLSID_CMultiLanguage, {}, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, IID_PPV_ARGS_Helper(&std::out_ptr(ML))); FAILED(Result))
 	{
 		LOGWARNING(L"CoCreateInstance(CLSID_CMultiLanguage): {}"sv, os::format_error(Result));
 		return false;

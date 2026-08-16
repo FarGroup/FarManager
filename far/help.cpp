@@ -1555,7 +1555,7 @@ bool Help::JumpTopic()
 	{
 		const auto ColonPos = StackData.strSelTopic.find(L':');
 		if (ColonPos != 0 && ColonPos != string::npos &&
-			!(StackData.strSelTopic.starts_with(HelpBeginLink) && contains(StackData.strSelTopic, HelpEndLink))
+			!(StackData.strSelTopic.starts_with(HelpBeginLink) && StackData.strSelTopic.contains(HelpEndLink))
 			&& OpenURL(StackData.strSelTopic))
 		{
 			Show(); // gh-1109
@@ -1625,7 +1625,7 @@ bool Help::JumpTopic()
 
 	if (StackData.strSelTopic.front() != L':' && is_generated_topic(StackData.strSelTopic))
 	{
-		if (!(StackData.Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
+		if (!(StackData.Flags&FHELP_CUSTOMFILE) && strNewTopic.contains(HelpEndLink))
 		{
 			StackData.strHelpMask.clear();
 		}
@@ -1866,7 +1866,7 @@ bool Help::IsReferencePresent()
 		return false;
 	}
 
-	return contains(HelpList[StrPos].HelpStr, L"~@"sv);
+	return HelpList[StrPos].HelpStr.contains(L"~@"sv);
 }
 
 void Help::MoveToReference(int Forward,int CurScreen)
@@ -1989,7 +1989,7 @@ void Help::Search(lang_file& HelpFile)
 
 		if (Str.starts_with(L'@') &&
 		    !(Str.size() > 1 && any_of(Str[1], L'+', L'-')) &&
-		    !contains(Str, L'='))// && !TopicFound)
+		    !Str.contains(L'='))// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();

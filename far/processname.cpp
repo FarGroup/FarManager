@@ -305,7 +305,6 @@ string exclude_sets(string_view const Str)
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
-#include "common/view/zip.hpp"
 
 static const string_view Masks[]
 {
@@ -457,7 +456,7 @@ TEST_CASE("ConvertWildcards")
 
 	static_assert(std::size(Tests) == std::size(Masks));
 
-	for (const auto& [Mask, Group]: zip(Masks, Tests))
+	for (const auto& [Mask, Group]: std::views::zip(Masks, Tests))
 	{
 		for (const auto& Test: Group)
 		{
@@ -654,7 +653,7 @@ TEST_CASE("CmpName")
 
 	static_assert(std::size(Tests) == std::size(Masks));
 
-	for (const auto& [Mask, Group]: zip(Masks, Tests))
+	for (const auto& [Mask, Group]: std::views::zip(Masks, Tests))
 	{
 		for (const auto& Test: Group)
 		{

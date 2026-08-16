@@ -1376,7 +1376,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 	const auto CharWidthEnabled = char_width::is_enabled();
 	if (!CharWidthEnabled)
 	{
-		if (TabSize == 1 || !contains(Str, L'\t'))
+		if (TabSize == 1 || !Str.contains(L'\t'))
 			return StringPos;
 	}
 
@@ -1435,7 +1435,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 	const auto CharWidthEnabled = char_width::is_enabled();
 	if (!CharWidthEnabled)
 	{
-		if (TabSize == 1 || !contains(Str, L'\t'))
+		if (TabSize == 1 || !Str.contains(L'\t'))
 			return VisualPos;
 	}
 

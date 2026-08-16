@@ -125,22 +125,22 @@ TEST_CASE("2d.matrix")
 	STATIC_REQUIRE(detail::is_const<decltype(*Matrix.data())>);
 	STATIC_REQUIRE(detail::is_const<decltype(*Matrix[0].data())>);
 	STATIC_REQUIRE(detail::is_const<decltype(*Matrix.front().data())>);
-	STATIC_REQUIRE(detail::is_const<decltype(Matrix.at(0, 0))>);
+	STATIC_REQUIRE(detail::is_const<decltype(Matrix[0, 0])>);
 
 	STATIC_REQUIRE(!detail::is_const<decltype(*Copy.data())>);
 	STATIC_REQUIRE(!detail::is_const<decltype(*Copy[0].data())>);
 	STATIC_REQUIRE(!detail::is_const<decltype(*Copy.front().data())>);
-	STATIC_REQUIRE(!detail::is_const<decltype(Copy.at(0, 0))>);
+	STATIC_REQUIRE(!detail::is_const<decltype(Copy[0, 0])>);
 
 	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy).data())>);
 	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy)[0].data())>);
 	STATIC_REQUIRE(!detail::is_const<decltype(*std::as_const(Copy).front().data())>);
-	STATIC_REQUIRE(!detail::is_const<decltype(std::as_const(Copy).at(0, 0))>);
+	STATIC_REQUIRE(!detail::is_const<decltype(std::as_const(Copy)[0, 0])>);
 
 	STATIC_REQUIRE(detail::is_const<decltype(*ConstView.data())>);
 	STATIC_REQUIRE(detail::is_const<decltype(*ConstView[0].data())>);
 	STATIC_REQUIRE(detail::is_const<decltype(*ConstView.front().data())>);
-	STATIC_REQUIRE(detail::is_const<decltype(ConstView.at(0, 0))>);
+	STATIC_REQUIRE(detail::is_const<decltype(ConstView[0, 0])>);
 
 	size_t Counter = 0;
 	size_t RowNumber = 0;
@@ -250,27 +250,6 @@ TEST_CASE("algorithm.emplace")
 		std::set<int> Data;
 		emplace(Data, 42);
 		REQUIRE(*Data.begin() == 42);
-	}
-}
-
-TEST_CASE("algorithm.contains")
-{
-	{
-		constexpr std::array Data{ 1, 2, 3 };
-
-		STATIC_REQUIRE(contains(Data, 1));
-		STATIC_REQUIRE(contains(Data, 2));
-		STATIC_REQUIRE(contains(Data, 3));
-		STATIC_REQUIRE(!contains(Data, 4));
-	}
-
-	{
-		std::set const Data{ 1, 2, 3 };
-
-		REQUIRE(contains(Data, 1));
-		REQUIRE(contains(Data, 2));
-		REQUIRE(contains(Data, 3));
-		REQUIRE(!contains(Data, 4));
 	}
 }
 
@@ -644,7 +623,7 @@ TEST_CASE("from_string")
 	{
 		return generic_exception_matcher{[Message](std::any const& e)
 		{
-			return contains(std::any_cast<far_exception const&>(e).message(), Message);
+			return std::any_cast<far_exception const&>(e).message().contains(Message);
 		}};
 	};
 
@@ -1634,7 +1613,22 @@ TEST_CASE("string_utils.contains")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(contains(i.Src, i.Pattern) == i.Contains);
+		REQUIRE(i.Src.contains(i.Pattern) == i.Contains);
+	}
+
+	{
+		const auto Data = L"Grzegorz";
+		REQUIRE(contains(Data, L"Grze"));
+		REQUIRE(contains(Data, L'G'));
+		REQUIRE(!contains(Data, L"Hans"));
+		REQUIRE(!contains(Data, L'H'));
+	}
+	{
+		const auto Data = "Grzegorz";
+		REQUIRE(contains(Data, "Grze"));
+		REQUIRE(contains(Data, 'G'));
+		REQUIRE(!contains(Data, "Hans"));
+		REQUIRE(!contains(Data, 'H'));
 	}
 }
 
@@ -2330,59 +2324,5 @@ TEST_CASE("view.enumerate")
 	}
 
 	REQUIRE(Index == 3u);
-}
-
-//----------------------------------------------------------------------------
-
-#include "common/view/zip.hpp"
-
-TEST_CASE("view.zip.static")
-{
-	using test_range = decltype(zip(std::declval<std::span<int>&>(), std::declval<std::span<int>&>()));
-
-	STATIC_REQUIRE(std::ranges::range<test_range>);
-	STATIC_REQUIRE(std::ranges::bidirectional_range<test_range>);
-	STATIC_REQUIRE(std::ranges::sized_range<test_range>);
-
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::begin(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cbegin(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::rbegin(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::crbegin(Range); });
-
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::end(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::cend(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::rend(Range); });
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::crend(Range); });
-
-	STATIC_REQUIRE(requires(test_range Range) { std::ranges::find(Range, *Range.begin()); });
-}
-
-TEST_CASE("view.zip.dynamic")
-{
-	{
-		const std::array Source      { 1, 2, 3 };
-		      std::array Destination { 9, 8, 7, 6, 5 };
-		const std::array Baseline    { 1, 2, 3, 6, 5 };
-
-		for (const auto& [Src, Dst] : zip(Source, Destination))
-		{
-			Dst = Src;
-		}
-
-		REQUIRE(Destination == Baseline);
-	}
-
-	{
-		int Index = 0;
-		for (const auto& [i, l, b]: zip(std::vector{ 1, 2, 3 }, std::list{ 'A', 'B', 'C' }, std::vector{true, true, true}))
-		{
-			REQUIRE(i == 1 + Index);
-			REQUIRE(l == 'A' + Index);
-			REQUIRE(b);
-			++Index;
-		}
-
-		REQUIRE(Index == 3);
-	}
 }
 #endif

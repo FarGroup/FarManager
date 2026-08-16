@@ -159,7 +159,7 @@ bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, string_view const SelName)
 		auto strFullName = ConvertNameToFull(SelName);
 		AddEndSlash(strFullName);
 
-		if (contains(strAnotherCurDir, strFullName))
+		if (strAnotherCurDir.contains(strFullName))
 		{
 			AnotherPanel->StopFSWatcher();
 			return true;

@@ -286,11 +286,11 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 	return caps;
 }
 
-static auto product_id_to_capatibilities(const char* const ProductId)
+static auto product_id_to_capatibilities(std::string_view const ProductId)
 {
 	string ProductIdFiltered;
-	const auto Iterator = null_iterator(ProductId);
-	std::copy_if(Iterator, Iterator.end(), std::back_inserter(ProductIdFiltered), isalpha);
+	ProductIdFiltered.reserve(ProductId.size());
+	std::ranges::copy_if(ProductId, std::back_inserter(ProductIdFiltered), isalpha);
 
 	static const struct
 	{

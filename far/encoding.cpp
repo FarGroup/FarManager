@@ -1678,7 +1678,7 @@ ut labore et dolore magna aliqua.
 		{
 			// Lossy
 			if (i.IsUtf8 == is_utf8::no)
-				REQUIRE(contains(Str, encoding::replace_char));
+				REQUIRE(Str.contains(encoding::replace_char));
 		}
 	}
 }

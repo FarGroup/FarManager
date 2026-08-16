@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -941,7 +940,7 @@ DialogItemBinding& DialogBuilder::FindBinding(DialogItemEx const& Item) const
 void DialogBuilder::SaveValues()
 {
 	int RadioGroupIndex = 0;
-	for (const auto& [Item, Binding]: zip(m_DialogItems, m_Bindings))
+	for (const auto& [Item, Binding]: std::views::zip(m_DialogItems, m_Bindings))
 	{
 		if (Item.Flags & DIF_GROUP)
 			RadioGroupIndex = 0;

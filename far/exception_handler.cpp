@@ -147,7 +147,7 @@ void set_report_location(string_view Directory)
 {
 	if (Directory.size() < std::size(s_ReportLocation))
 	{
-		*std::copy(ALL_CONST_RANGE(Directory), s_ReportLocation) = L'\0';
+		*std::ranges::copy(Directory, s_ReportLocation).out = L'\0';
 	}
 }
 
@@ -793,11 +793,11 @@ private:
 		if (!os::imports.DebugCreate)
 			return;
 
-		COM_INVOKE(os::imports.DebugCreate)(IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient)));
+		COM_INVOKE(os::imports.DebugCreate)(IID_IDebugClient, IID_PPV_ARGS_Helper(&std::out_ptr(m_DebugClient)));
 
 		COM_INVOKE(m_DebugClient->AttachProcess)({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND);
 
-		COM_INVOKE(m_DebugClient->QueryInterface)(IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugControl)));
+		COM_INVOKE(m_DebugClient->QueryInterface)(IID_IDebugControl, IID_PPV_ARGS_Helper(&std::out_ptr(m_DebugControl)));
 
 		if (const auto Result = m_DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
@@ -805,7 +805,7 @@ private:
 		if (const auto Result = m_DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
-		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(m_DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
+		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(m_DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&std::out_ptr(DebugClient5)))))
 			COM_INVOKE(DebugClient5->SetOutputCallbacksWide)(&m_Callbacks);
 		else
 			COM_INVOKE(m_DebugClient->SetOutputCallbacks)(&m_Callbacks);
@@ -1069,7 +1069,7 @@ static auto parent_process_id(process_basic_information_t const& Info)
 	else if constexpr (requires { Info.Reserved3; })
 		return static_cast<DWORD>(std::bit_cast<uintptr_t>(Info.Reserved3));
 	else
-		static_assert(!sizeof(Info));
+		static_assert(false);
 }
 
 static string get_parent_process()
@@ -2161,7 +2161,7 @@ static handler_result handle_seh_exception(
 
 	for (const auto& i : enum_catchable_objects(Record))
 	{
-		if (std::strstr(i.type_name, "std::exception"))
+		if (contains(i.type_name, "std::exception"))
 			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), PluginModule, Location)?
 				handler_result::execute_handler :
 				handler_result::continue_search;

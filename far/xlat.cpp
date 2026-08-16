@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -238,7 +237,7 @@ void xlat_observe_tables(function_ref<void(wchar_t, wchar_t)> const Observer)
 {
 	const auto& XLat = Global->Opt->XLat;
 
-	for (const auto& [Local, English]: zip(XLat.Table[0].Get(), XLat.Table[1].Get()))
+	for (const auto& [Local, English]: std::views::zip(XLat.Table[0].Get(), XLat.Table[1].Get()))
 	{
 		Observer(Local, English);
 	}

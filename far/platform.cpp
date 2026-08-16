@@ -360,7 +360,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		(Nt? GetModuleHandle(L"ntdll.dll") : nullptr),
 		ErrorCode,
 		0,
-		std::bit_cast<wchar_t*>(&ptr_setter(Buffer)),
+		std::bit_cast<wchar_t*>(&std::out_ptr(Buffer)),
 		0,
 		nullptr);
 

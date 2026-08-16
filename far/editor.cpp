@@ -817,7 +817,7 @@ static bool is_clear_selection_key(unsigned const Key, bool Persistent)
 		KEY_ENTER,     KEY_NUMENTER,
 	};
 
-	return Edit::is_clear_selection_key(Key) || contains(Keys, Key) || (Persistent && contains(KeysP, Key));
+	return Edit::is_clear_selection_key(Key) || std::ranges::contains(Keys, Key) || (Persistent && std::ranges::contains(KeysP, Key));
 }
 
 bool Editor::ProcessKeyInternal(unsigned const KeyCode, bool& Refresh, Manager::Key const* const RealKey)

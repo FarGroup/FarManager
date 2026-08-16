@@ -64,8 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/io.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
-#include "common/view/zip.hpp"
-
 
 // External:
 #include "format.hpp"
@@ -489,7 +487,7 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto& [Name, Export]: std::views::zip(m_Factory->ExportsNames(), Exports))
 	{
 		PlCache->SetExportState(id, Name.UName, Export != nullptr);
 	}
@@ -499,7 +497,7 @@ bool Plugin::SaveToCache()
 
 void Plugin::InitExports()
 {
-	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto& [Name, Export]: std::views::zip(m_Factory->ExportsNames(), Exports))
 	{
 		Export = m_Factory->Function(m_Instance, Name);
 	}
@@ -697,7 +695,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 	strDescription = PlCache->GetDescription(id);
 	strAuthor = PlCache->GetAuthor(id);
 
-	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto& [Name, Export]: std::views::zip(m_Factory->ExportsNames(), Exports))
 	{
 		if (PlCache->GetExportState(id, Name.UName))
 			Export = ToPtr(true); // Fake, will be overwritten with the real address later

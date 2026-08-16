@@ -2380,7 +2380,7 @@ bool Edit::is_clear_selection_key(unsigned const Key)
 		KEY_CTRLS,     KEY_RCTRLS,
 	};
 
-	return contains(Keys, Key);
+	return std::ranges::contains(Keys, Key);
 }
 
 #ifdef ENABLE_TESTS

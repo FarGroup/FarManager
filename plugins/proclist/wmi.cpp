@@ -108,7 +108,7 @@ static HRESULT get_return_value(com_ptr<IWbemClassObject> const& OutParams)
 std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> WMIConnection::GetProcessOwner(DWORD const Pid) const
 {
 	com_ptr<IWbemClassObject> OutParams;
-	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwner"), 0, {}, {}, &ptr_setter(OutParams), {}); FAILED(Result))
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwner"), 0, {}, {}, std::out_ptr(OutParams), {}); FAILED(Result))
 		return { Result, Result };
 
 	std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> Pair;
@@ -151,7 +151,7 @@ std::pair<wmi_result<std::wstring>, wmi_result<std::wstring>> WMIConnection::Get
 wmi_result<std::wstring> WMIConnection::GetProcessUserSid(DWORD Pid) const
 {
 	com_ptr<IWbemClassObject> OutParams;
-	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwnerSid"), 0, {}, {}, &ptr_setter(OutParams), {}); FAILED(Result))
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(L"GetOwnerSid"), 0, {}, {}, std::out_ptr(OutParams), {}); FAILED(Result))
 		return Result;
 
 	VARIANT Variant;
@@ -182,20 +182,20 @@ wmi_result<DWORD> WMIConnection::GetProcessSessionId(DWORD const Pid) const
 HRESULT WMIConnection::ExecMethod(DWORD const Pid, const wchar_t* wsMethod, const wchar_t* wsParamName, DWORD dwParam) const
 {
 	com_ptr<IWbemClassObject> Object;
-	if (const auto Result = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, &ptr_setter(Object), {}); FAILED(Result))
+	if (const auto Result = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, std::out_ptr(Object), {}); FAILED(Result))
 		return Result;
 
 	com_ptr<IWbemClassObject> InSignature;
 	if (wsParamName)
 	{
-		if (const auto Result = Object->GetMethod(wsMethod, 0, &ptr_setter(InSignature), {}); FAILED(Result))
+		if (const auto Result = Object->GetMethod(wsMethod, 0, std::out_ptr(InSignature), {}); FAILED(Result))
 			return Result;
 	}
 
 	com_ptr<IWbemClassObject> InParams;
 	if (InSignature)
 	{
-		if (const auto Result = InSignature->SpawnInstance(0, &ptr_setter(InParams)); FAILED(Result))
+		if (const auto Result = InSignature->SpawnInstance(0, std::out_ptr(InParams)); FAILED(Result))
 			return Result;
 	}
 
@@ -211,7 +211,7 @@ HRESULT WMIConnection::ExecMethod(DWORD const Pid, const wchar_t* wsMethod, cons
 	}
 
 	com_ptr<IWbemClassObject> OutParams;
-	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(wsMethod), 0, {}, InParams.get(), &ptr_setter(OutParams), {}); FAILED(Result))
+	if (const auto Result = pIWbemServices->ExecMethod(ProcessPath(Pid), bstr(wsMethod), 0, {}, InParams.get(), std::out_ptr(OutParams), {}); FAILED(Result))
 		return Result;
 
 	return get_return_value(OutParams);
@@ -220,7 +220,7 @@ HRESULT WMIConnection::ExecMethod(DWORD const Pid, const wchar_t* wsMethod, cons
 HRESULT WMIConnection::GetProcessProperty(DWORD const Pid, const wchar_t* const Name, const std::function<void(const VARIANT&)>& Getter) const
 {
 	com_ptr<IWbemClassObject> Object;
-	if (const auto Result = pIWbemServices->GetObject(ProcessPath(Pid), 0, {}, &ptr_setter(Object), {}); FAILED(Result))
+	if (const auto Result = pIWbemServices->GetObject(ProcessPath(Pid), 0, {}, std::out_ptr(Object), {}); FAILED(Result))
 		return Result;
 
 	VARIANT Variant;
@@ -278,7 +278,7 @@ HRESULT WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser
 		pUser = pPassword = {}; // Empty username means default security
 
 	com_ptr<IWbemLocator> IWbemLocator;
-	if (const auto Result = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&ptr_setter(IWbemLocator))); FAILED(Result))
+	if (const auto Result = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&std::out_ptr(IWbemLocator))); FAILED(Result))
 		return Result;
 
 	if (!pMachineName || !*pMachineName)

@@ -66,7 +66,7 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 			return false;
 
 		// ReplaceFileW doesn't work with streams
-		if (contains(PointToName(FileName), L':'))
+		if (PointToName(FileName).contains(L':'))
 			return false;
 
 		// ReplaceFileW doesn't work with symlinks

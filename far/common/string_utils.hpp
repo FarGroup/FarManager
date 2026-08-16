@@ -196,7 +196,7 @@ namespace detail
 
 template<detail::supported_type raw_string_type>
 [[nodiscard]]
-bool contains(raw_string_type const& Str, raw_string_type const& What)
+bool contains(raw_string_type const Str, raw_string_type const What)
 {
 	if constexpr (std::same_as<detail::char_type<raw_string_type>, wchar_t>)
 		return std::wcsstr(Str, What) != nullptr;
@@ -206,7 +206,7 @@ bool contains(raw_string_type const& Str, raw_string_type const& What)
 
 template<detail::supported_type raw_string_type>
 [[nodiscard]]
-bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> const What)
+bool contains(raw_string_type const Str, detail::char_type<raw_string_type> const What)
 {
 	if constexpr (std::same_as<detail::char_type<raw_string_type>, wchar_t>)
 		return std::wcschr(Str, What) != nullptr;

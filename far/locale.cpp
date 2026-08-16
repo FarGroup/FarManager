@@ -234,7 +234,7 @@ static auto get_month_day_names(int const Language)
 #undef MONTHNAME
 	};
 
-	for (const auto& [Init, Dest]: zip(MonthInit, Names.Months))
+	for (const auto& [Init, Dest]: std::views::zip(MonthInit, Names.Months))
 	{
 		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{
@@ -263,7 +263,7 @@ static auto get_month_day_names(int const Language)
 #undef DAYNAME
 	};
 
-	for (const auto& [Init, Dest]: zip(DayInit, Names.Weekdays))
+	for (const auto& [Init, Dest]: std::views::zip(DayInit, Names.Weekdays))
 	{
 		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{

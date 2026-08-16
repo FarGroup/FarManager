@@ -384,7 +384,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 {
 	const auto append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
 	{
-		append(Destination, EscapeAmpersands && contains(Str, L"&"sv)? escape_ampersands(Str) : Str);
+		append(Destination, EscapeAmpersands && Str.contains(L'&')? escape_ampersands(Str) : Str);
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::passive_panel))

@@ -444,7 +444,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 	string EscapedMask;
 
-	if (contains(Mask, L"&"sv))
+	if (Mask.contains(L'&'))
 	{
 		EscapedMask = escape_ampersands(Mask);
 		Mask = EscapedMask;
@@ -985,7 +985,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 
 	const auto AmpFixup = [&](size_t Index)
 	{
-		return contains(FilterDlg[Index].strData, L'&')? 1 : 0;
+		return FilterDlg[Index].strData.contains(L'&')? 1 : 0;
 	};
 
 	const auto GetPosAfter = [&](int const Id)

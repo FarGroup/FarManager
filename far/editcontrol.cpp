@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 
@@ -176,7 +175,7 @@ static bool ParseStringWithQuotes(string_view const Str, string& Start, string& 
 	{
 		auto WordDiv = GetBlanks() + Global->Opt->strWordDiv.Get();
 		static const auto NoQuote = L"\":\\/%.?-"sv;
-		std::erase_if(WordDiv, [&](wchar_t i){ return contains(NoQuote, i); });
+		std::erase_if(WordDiv, [&](wchar_t i){ return NoQuote.contains(i); });
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
 		{
@@ -188,7 +187,7 @@ static bool ParseStringWithQuotes(string_view const Str, string& Start, string& 
 					Pos--;
 				}
 			}
-			else if (contains(WordDiv, Str[Pos]))
+			else if (WordDiv.contains(Str[Pos]))
 			{
 				Pos++;
 				break;
@@ -808,7 +807,7 @@ bool EditControl::ProcessKey(const Manager::Key& Key)
 		KEY_RCTRLNUMPAD0
 	};
 	const auto Result = Edit::ProcessKey(Key);
-	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG) && !contains(NonClearKeys, Key()))
+	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG) && !std::ranges::contains(NonClearKeys, Key()))
 	{
 		m_Flags.Clear(FEDITLINE_CLEARFLAG);
 		Show();
@@ -963,7 +962,7 @@ void EditControl::RefreshStrByMask(int InitMode)
 	m_Str.resize(Mask.size(), L' ');
 	MaxLength = m_Str.size();
 
-	for (const auto& [Str, Msk]: zip(m_Str, Mask))
+	for (const auto& [Str, Msk]: std::views::zip(m_Str, Mask))
 	{
 		if (InitMode)
 			Str = MaskDefaultChar(Msk);

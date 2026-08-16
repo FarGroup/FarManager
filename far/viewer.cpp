@@ -587,11 +587,11 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUtf16CodePage(cp))
 	{
-		return contains(std::span(std::bit_cast<const wchar_t*>(&Buffer), BytesRead / sizeof(wchar_t)), L'\0');
+		return std::ranges::contains(std::span(std::bit_cast<const wchar_t*>(&Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
-		return contains(std::span(Buffer, BytesRead), '\0');
+		return std::ranges::contains(std::span(Buffer, BytesRead), '\0');
 	}
 }
 
@@ -1146,7 +1146,7 @@ void Viewer::SetStatusMode(int Mode)
 
 static bool is_word_div(const wchar_t ch, const string& word_div)
 {
-	return !ch || std::iswspace(ch) || contains(word_div, ch);
+	return !ch || std::iswspace(ch) || word_div.contains(ch);
 }
 
 static string get_word_div()
@@ -1161,7 +1161,7 @@ static string get_word_div()
 void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 {
 	const auto& WordDiv{ Global->Opt->strWordDiv.Get() };
-	auto CanWrapLineAt{ [&WordDiv](wchar_t ch) { return IsBlankOrEos(ch) || contains(WordDiv, ch); } };
+	auto CanWrapLineAt{ [&WordDiv](wchar_t ch) { return IsBlankOrEos(ch) || WordDiv.contains(ch); } };
 
 	AdjustWidth();
 

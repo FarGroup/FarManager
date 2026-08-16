@@ -175,7 +175,7 @@ void PrintFiles(FileList* SrcPanel)
 
 		os::printer_handle Printer;
 
-		if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
+		if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), std::out_ptr(Printer), nullptr))
 			throw far_exception(msg(lng::MCannotOpenPrinter));
 
 		SCOPED_ACTION(SaveScreen);

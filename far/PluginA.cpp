@@ -79,7 +79,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -571,7 +570,7 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 
 static void ConvertPanelModesToUnicode(std::span<const oldfar::PanelMode> const Modes, std::span<PanelMode> const UnicodeModes)
 {
-	for (const auto& [m, u]: zip(Modes, UnicodeModes))
+	for (const auto& [m, u]: std::views::zip(Modes, UnicodeModes))
 	{
 		ConvertPanelModeToUnicode(m, u);
 	}
@@ -685,7 +684,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(std::span<const oldfar::P
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	const std::span DstSpan(Result.get(), PanelItemA.size());
-	for(const auto& [Src, Dst]: zip(PanelItemA, DstSpan))
+	for(const auto& [Src, Dst]: std::views::zip(PanelItemA, DstSpan))
 	{
 		// Plugin can keep its own flags in the low word
 		Dst.Flags = extract_integer<WORD, 0>(Src.Flags);
@@ -780,7 +779,7 @@ static std::span<oldfar::PluginPanelItem> ConvertPanelItemsArrayToAnsi(std::span
 {
 	auto Result = std::make_unique<oldfar::PluginPanelItem[]>(Items.size());
 
-	for (const auto& [Item, AnsiItem]: zip(Items, std::span(Result.get(), Items.size())))
+	for (const auto& [Item, AnsiItem]: std::views::zip(Items, std::span(Result.get(), Items.size())))
 	{
 		ConvertPanelItemToAnsi(Item, AnsiItem);
 	}
@@ -903,7 +902,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	if (!VBuf || !VBufA)
 		return;
 
-	for (const auto& [Src, Dst]: zip(std::span(VBufA, Size), std::span(VBuf, Size)))
+	for (const auto& [Src, Dst]: std::views::zip(std::span(VBufA, Size), std::span(VBuf, Size)))
 	{
 		if (NoCvt)
 		{
@@ -1089,7 +1088,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 		if (diA.ListItems && os::memory::is_pointer(diA.ListItems))
 		{
 			auto Items = std::make_unique<FarListItem[]>(diA.ListItems->ItemsNumber);
-			for (const auto& [Item, AnsiItem]: zip(std::span(Items.get(), diA.ListItems->ItemsNumber), std::span(diA.ListItems->Items, diA.ListItems->ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: std::views::zip(std::span(Items.get(), diA.ListItems->ItemsNumber), std::span(diA.ListItems->Items, diA.ListItems->ItemsNumber)))
 			{
 				AnsiListItemToUnicode(AnsiItem, Item);
 			}
@@ -2303,7 +2302,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 				OLDFAR_TO_FAR_MAP(MIF_HIDDEN),
 			};
 
-			for (const auto& [Item, AnsiItem]: zip(mi, std::span(std::bit_cast<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: std::views::zip(mi, std::span(std::bit_cast<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
 			{
 				Item.Flags = MIF_NONE;
 				FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, ItemFlagsMap);
@@ -2319,7 +2318,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		}
 		else
 		{
-			for (const auto& [Item, AnsiItem]: zip(mi, std::span(Items, ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: std::views::zip(mi, std::span(Items, ItemsNumber)))
 			{
 				Item.Flags = 0;
 
@@ -2648,7 +2647,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				std::vector<INPUT_RECORD> Keys(Param1);
 
-				for (const auto& [Key, AnsiKey]: zip(Keys, std::span(static_cast<const DWORD*>(Param2), Param1)))
+				for (const auto& [Key, AnsiKey]: std::views::zip(Keys, std::span(static_cast<const DWORD*>(Param2), Param1)))
 				{
 					KeyToInputRecord(OldKeyToKey(AnsiKey), &Key);
 				}
@@ -2813,7 +2812,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (newlist.ItemsNumber)
 					{
 						Items.resize(newlist.ItemsNumber);
-						for (const auto& [Item, AnsiItem] : zip(Items, std::span(oldlist->Items, oldlist->ItemsNumber)))
+						for (const auto& [Item, AnsiItem]: std::views::zip(Items, std::span(oldlist->Items, oldlist->ItemsNumber)))
 						{
 							AnsiListItemToUnicode(AnsiItem, Item);
 						}
@@ -3023,7 +3022,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (newlist.ItemsNumber)
 					{
 						auto Items = std::make_unique<FarListItem[]>(newlist.ItemsNumber);
-						for (const auto& [Item, AnsiItem]: zip(std::span(Items.get(), newlist.ItemsNumber), std::span(oldlist->Items, oldlist->ItemsNumber)))
+						for (const auto& [Item, AnsiItem]: std::views::zip(std::span(Items.get(), newlist.ItemsNumber), std::span(oldlist->Items, oldlist->ItemsNumber)))
 						{
 							AnsiListItemToUnicode(AnsiItem, Item);
 						}
@@ -3136,7 +3135,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<oldfar::FarDialogItem> diA(ItemsSpan.size());
 
 		// to save DIF_SETCOLOR state
-		for (const auto& [a, w]: zip(diA, ItemsSpan))
+		for (const auto& [a, w]: std::views::zip(diA, ItemsSpan))
 		{
 			a.Flags = w.Flags;
 		}
@@ -3144,7 +3143,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<FarDialogItem> di(ItemsSpan.size());
 		std::vector<FarList> l(di.size());
 
-		for (const auto& i: zip(ItemsSpan, di, l))
+		for (const auto& i: std::views::zip(ItemsSpan, di, l))
 		{
 			std::apply(AnsiDialogItemToUnicode, i);
 		}
@@ -3562,7 +3561,7 @@ static int GetDirListGeneric(oldfar::PluginPanelItem*& PanelItems, int& ItemsSiz
 		auto AnsiItems = std::make_unique<oldfar::PluginPanelItem[]>(Size + 1);
 		AnsiItems[0].Reserved[0] = Size;
 
-		for (const auto& [Item, AnsiItem]: zip(std::span(Items, Size), std::span(AnsiItems.get() + 1, Size)))
+		for (const auto& [Item, AnsiItem]: std::views::zip(std::span(Items, Size), std::span(AnsiItems.get() + 1, Size)))
 		{
 			ConvertPanelItemToAnsi(Item, AnsiItem, PathOffset);
 		}
@@ -4698,7 +4697,7 @@ static void* TranslateResult(void* hResult)
 
 static void UpdatePluginPanelItemFlags(const oldfar::PluginPanelItem* From, PluginPanelItem* To, size_t Size)
 {
-	for (const auto& [AnsiItem, Item]: zip(std::span(From, Size), std::span(To, Size)))
+	for (const auto& [AnsiItem, Item]: std::views::zip(std::span(From, Size), std::span(To, Size)))
 	{
 		FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, PluginPanelItemFlagsMap);
 	}

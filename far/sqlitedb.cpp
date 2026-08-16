@@ -507,7 +507,7 @@ public:
 
 		for (;;)
 		{
-			const auto Result = sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), Writable? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE : SQLITE_OPEN_READONLY, nullptr);
+			const auto Result = sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), std::out_ptr(Db), Writable? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE : SQLITE_OPEN_READONLY, nullptr);
 			if (Result == SQLITE_OK)
 				break;
 

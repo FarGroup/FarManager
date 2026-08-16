@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/chrono.hpp"
 #include "common/from_string.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -720,7 +719,7 @@ string duration_to_string_hr(os::chrono::duration Duration)
 
 	string Result;
 
-	for (const auto& [v, s]: zip(Values, L"dhm"sv))
+	for (const auto& [v, s]: std::views::zip(Values, L"dhm"sv))
 	{
 		if (v)
 			far::format_to(Result, L"{}{} "sv, v, s);

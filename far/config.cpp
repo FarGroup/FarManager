@@ -98,7 +98,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -1129,7 +1128,7 @@ static void ResetViewModes(std::span<PanelViewSettings> const Modes, int const I
 
 	if (Index < 0)
 	{
-		for (const auto& [Src, Dst]: zip(InitialModes, Modes))
+		for (const auto& [Src, Dst]: std::views::zip(InitialModes, Modes))
 			InitMode(Src, Dst);
 	}
 	else
@@ -2392,7 +2391,7 @@ static auto deserialise_sort_layers(string_view const LayersStr)
 
 	for (const auto& Str: enum_tokens(LayersStr, L" "sv))
 	{
-		if (const auto Layer = deserialise_sort_layer(Str); Layer && !contains(Layers, *Layer))
+		if (const auto Layer = deserialise_sort_layer(Str); Layer && !std::ranges::contains(Layers, *Layer))
 			Layers.emplace_back(*Layer);
 	}
 
@@ -2413,7 +2412,7 @@ void Options::ReadSortLayers()
 {
 	PanelSortLayers.resize(static_cast<size_t>(panel_sort::COUNT));
 
-	for (auto& [Layers, i]: enumerate(PanelSortLayers))
+	for (const auto& [Layers, i]: enumerate(PanelSortLayers))
 	{
 		string LayersStr;
 		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), LayersStr) && !LayersStr.empty())
@@ -2806,7 +2805,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	std::vector<FarListItem> items;
 	items.reserve(CurrentConfig.size());
 	std::vector<string> Strings(CurrentConfig.size());
-	std::ranges::transform(zip(CurrentConfig, Strings), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
+	std::ranges::transform(std::views::zip(CurrentConfig, Strings), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
 	FarList Items{ sizeof(Items), items.size(), items.data() };
 
@@ -2876,7 +2875,7 @@ void Options::ReadPanelModes()
 		}
 	};
 
-	for (auto& [Item, Index]: enumerate(std::span(m_ViewSettings).subspan(0, predefined_panel_modes_count)))
+	for (const auto& [Item, Index]: enumerate(std::span(m_ViewSettings).subspan(0, predefined_panel_modes_count)))
 	{
 		if (const auto Key = cfg->FindByName(cfg->root_key, str(Index)))
 			ReadMode(Key, Item);

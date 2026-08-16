@@ -163,7 +163,7 @@ namespace detail
 		}
 		else
 		{
-			static_assert(!sizeof(T), "The type is not serialisable");
+			static_assert(false, "The type is not serialisable");
 		}
 	}
 }

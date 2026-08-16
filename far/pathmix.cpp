@@ -80,7 +80,7 @@ path::detail::append_arg::append_arg(string_view const Str):
 }
 
 path::detail::append_arg::append_arg(const wchar_t& Char):
-	string_view(&Char, ::contains(separators, Char)? 0 : 1)
+	string_view(&Char, separators.contains(Char)? 0 : 1)
 {
 }
 

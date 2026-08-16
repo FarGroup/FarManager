@@ -18,18 +18,17 @@ Temporary panel plugin class implementation
 #include <scope_exit.hpp>
 #include <smart_ptr.hpp>
 #include <string_utils.hpp>
-#include <view/zip.hpp>
 
 constexpr auto REMOVE_FLAG = 1;
 
 static bool IsLinksDisplayed(const string_view ColumnTypes)
 {
-	return contains(enum_tokens(ColumnTypes, L","), L"LN"sv);
+	return std::ranges::contains(enum_tokens(ColumnTypes, L","), L"LN"sv);
 }
 
 static bool IsOwnersDisplayed(const string_view ColumnTypes)
 {
-	return contains(enum_tokens(ColumnTypes, L","), L"O"sv);
+	return std::ranges::contains(enum_tokens(ColumnTypes, L","), L"O"sv);
 }
 
 static const wchar_t* NullToEmpty(const wchar_t* Str)
@@ -399,8 +398,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 		{
 			for (auto Next = CurItem + 1; Next != end; ++Next)
 			{
-				const string_view NextName = Next->FileName;
-				if (NextName.starts_with(Dir) && !contains(NextName.substr(Dir.size()), L'\\'))
+				if (const string_view NextName = Next->FileName; NextName.starts_with(Dir) && !NextName.substr(Dir.size()).contains(L'\\'))
 					SameFolderItemsNumber++;
 				else
 					break;
@@ -458,7 +456,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 
 	if (ShowOwners || ShowLinks)
 	{
-		for (const auto& [CurItem, OwnerData]: zip(m_Panel->Items, m_Panel->OwnerData))
+		for (const auto& [CurItem, OwnerData]: std::views::zip(m_Panel->Items, m_Panel->OwnerData))
 		{
 			if (ShowOwners)
 			{

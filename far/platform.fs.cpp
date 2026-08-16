@@ -720,7 +720,7 @@ namespace os::fs
 		OBJECT_ATTRIBUTES Attributes;
 		InitializeObjectAttributes(&Attributes, &m_Object, 0, nullptr, nullptr)
 
-		if (const auto Result = imports.NtOpenDirectoryObject(&ptr_setter(m_Handle), GENERIC_READ, &Attributes); !NT_SUCCESS(Result))
+		if (const auto Result = imports.NtOpenDirectoryObject(std::out_ptr(m_Handle), GENERIC_READ, &Attributes); !NT_SUCCESS(Result))
 		{
 			LOGWARNING(L"NtOpenDirectoryObject({}): {}"sv, Object, format_ntstatus(Result));
 			return;
@@ -1581,7 +1581,7 @@ WARNING_POP()
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
 
 		nt_handle SymLink;
-		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(&ptr_setter(SymLink), GENERIC_READ, &ObjAttrs)))
+		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(std::out_ptr(SymLink), GENERIC_READ, &ObjAttrs)))
 			return false;
 
 		const auto ReasonableSize = 1024;
@@ -1735,7 +1735,7 @@ WARNING_POP()
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 		{
 			handle Handle;
-			DWORD Result = imports.OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
+			DWORD Result = imports.OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, std::out_ptr(Handle));
 			if (Result != ERROR_SUCCESS)
 			{
 				SetLastError(Result);

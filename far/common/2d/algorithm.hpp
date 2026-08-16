@@ -48,9 +48,9 @@ void for_submatrix(auto& Matrix, rectangle Rect, P Predicate)
 		for (auto j = Rect.left; j <= Rect.right; ++j)
 		{
 			if constexpr (function_traits<P>::arity == 2)
-				Predicate(Matrix[i][j], point{ j - Rect.left, i - Rect.top });
+				Predicate(Matrix[i, j], point{ j - Rect.left, i - Rect.top });
 			else
-				Predicate(Matrix[i][j]);
+				Predicate(Matrix[i, j]);
 		}
 	}
 }

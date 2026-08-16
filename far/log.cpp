@@ -1035,7 +1035,7 @@ namespace logging
 			SCOPED_ACTION(os::last_error_guard);
 
 			// No recursion if it's the helper process
-			if (contains(string_view{ GetCommandLine() }, log_argument))
+			if (string_view{ GetCommandLine() }.contains(log_argument))
 				return;
 
 			LOGINFO(L"{}"sv, build::version_string());

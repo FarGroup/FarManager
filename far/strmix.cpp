@@ -964,7 +964,7 @@ bool CheckFileSizeStringFormat(string_view const FileSizeStr)
 	if (Iterator + 1 != FileSizeStr.cend())
 		return false;
 
-	return contains(L"BbKkMmGgTtPpEe"sv, *Iterator);
+	return L"BbKkMmGgTtPpEe"sv.contains(*Iterator);
 }
 
 unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
@@ -1100,7 +1100,7 @@ namespace
 
 		const auto SpaceOrWordDiv = [&WordDiv](wchar_t Ch)
 		{
-			return std::iswspace(Ch) || contains(WordDiv, Ch);
+			return std::iswspace(Ch) || WordDiv.contains(Ch);
 		};
 
 		if (Offset && !SpaceOrWordDiv(Haystack[Offset - 1]))

@@ -110,7 +110,7 @@ namespace os::debug
 			return {};
 
 		memory::local::ptr<wchar_t> Name;
-		if (FAILED(imports.GetThreadDescription(ThreadHandle, &ptr_setter(Name))))
+		if (FAILED(imports.GetThreadDescription(ThreadHandle, std::out_ptr(Name))))
 			return {};
 
 		return Name.get();

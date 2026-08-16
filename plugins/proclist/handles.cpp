@@ -248,7 +248,7 @@ static const auto& GetUserAccountID()
 			return {};
 
 		local_ptr<wchar_t> StrSid;
-		if (!ConvertSidToStringSid(Sid.get(), &ptr_setter(StrSid)))
+		if (!ConvertSidToStringSid(Sid.get(), std::out_ptr(StrSid)))
 			return {};
 
 		return StrSid.get();
@@ -281,7 +281,7 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 			if (DWORD dwId = 0; GetThreadId(handle, dwId))
 				ThreadName = far::format(L"TID: {}"sv, dwId);
 
-			if (local_ptr<wchar_t> Buffer; SUCCEEDED(pGetThreadDescription(handle, &ptr_setter(Buffer))))
+			if (local_ptr<wchar_t> Buffer; SUCCEEDED(pGetThreadDescription(handle, std::out_ptr(Buffer))))
 			{
 				if (*Buffer)
 					append(ThreadName, L", "sv, Buffer.get());
@@ -365,7 +365,7 @@ static handle duplicate_handle(HANDLE h, DWORD dwPID)
 		return {};
 
 	handle DuplicatedHandle;
-	if (!DuplicateHandle(RemoteProcess.get(), h, GetCurrentProcess(), &ptr_setter(DuplicatedHandle), 0, 0, DUPLICATE_SAME_ACCESS))
+	if (!DuplicateHandle(RemoteProcess.get(), h, GetCurrentProcess(), std::out_ptr(DuplicatedHandle), 0, 0, DUPLICATE_SAME_ACCESS))
 		return {};
 
 	return DuplicatedHandle;

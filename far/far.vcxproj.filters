@@ -565,9 +565,6 @@
     <ClInclude Include="common\view\enumerate.hpp">
       <Filter>Header Files\common\view</Filter>
     </ClInclude>
-    <ClInclude Include="common\view\zip.hpp">
-      <Filter>Header Files\common\view</Filter>
-    </ClInclude>
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

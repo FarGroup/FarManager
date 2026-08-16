@@ -111,7 +111,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 #include "common/utility.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -997,7 +996,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 						continue;
 
 					const auto NameToFind = IsRegularPanel? PointToName(i) : i;
-					const auto PartialCompare = IsRegularPanel || !contains(i, path::separator);
+					const auto PartialCompare = IsRegularPanel || !i.contains(path::separator);
 					const auto Pos = FindFile(NameToFind, PartialCompare);
 					if (Pos == -1)
 						continue;
@@ -3779,7 +3778,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 
 	for (int I = m_CurFile + (Next ? Direct : 0); I >= 0 && static_cast<size_t>(I) < m_ListData.size(); I += Direct)
 	{
-		if (GetPlainString(Dest,I, CurrentTime) && contains(upper(Dest), strMask))
+		if (GetPlainString(Dest,I, CurrentTime) && contains_icase(Dest, strMask))
 		//if (CmpName(strMask,ListData[I].FileName,true,I==CurFile))
 		{
 			if (!IsParentDirectory(m_ListData[I]))
@@ -3799,7 +3798,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	{
 		if (
 			!GetPlainString(Dest, I, CurrentTime) ||
-			!contains(upper(Dest), strMask) ||
+			!contains_icase(Dest, strMask) ||
 			IsParentDirectory(m_ListData[I]) ||
 			(DirFind && !(m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		)
@@ -5978,7 +5977,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		}
 
 		size_t ColumnOffset = ColumnsDataOffset;
-		for (const auto& [Column, Data]: zip(fi.CustomColumns, std::span(const_cast<const wchar_t**>(gpi->Item->CustomColumnData), fi.CustomColumns.size())))
+		for (const auto& [Column, Data]: std::views::zip(fi.CustomColumns, std::span(const_cast<const wchar_t**>(gpi->Item->CustomColumnData), fi.CustomColumns.size())))
 		{
 			if (!Column)
 			{
@@ -8327,7 +8326,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const siz
 	          ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_FOLDERALIGNEXTENSIONS))) &&
 	        SrcLength <= MaxLength &&
 	        (Extension = name_ext(SrcName).second).size() > 1 && Extension.size() != SrcName.size() &&
-	        (SrcName.size() > 2 || SrcName[0] != L'.') && !contains(Extension, L' '))
+	        (SrcName.size() > 2 || SrcName[0] != L'.') && !Extension.contains(L' '))
 	{
 		Extension.remove_prefix(1);
 		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());

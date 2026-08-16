@@ -93,22 +93,6 @@ void emplace(auto& Container, auto&&... Args)
 		Container.emplace(Container.end(), FWD(Args)...);
 }
 
-// uniform "contains"
-[[nodiscard]]
-constexpr bool contains(std::ranges::range auto const& Range, const auto& Element)
-{
-	if constexpr (requires { Range.contains(*Range.begin()); })
-	{
-		return Range.contains(Element);
-	}
-	else
-	{
-		// everything else
-		const auto End = std::cend(Range);
-		return std::find(std::cbegin(Range), End, Element) != End;
-	}
-}
-
 constexpr bool in_closed_range(auto const& Min, auto const& Value, auto const& Max)
 {
 	return Min <= Value && Value <= Max;

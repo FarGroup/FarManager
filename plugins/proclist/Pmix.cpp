@@ -47,7 +47,7 @@ int WinError(const wchar_t* pSourceModule)
 		pSourceModule? GetModuleHandle(pSourceModule) : nullptr,
 		LastError,
 		0,
-		reinterpret_cast<wchar_t*>(&ptr_setter(SysBuffer)), 0, {}))
+		reinterpret_cast<wchar_t*>(&std::out_ptr(SysBuffer)), 0, {}))
 	{
 		Buffer = { SysBuffer.get(), Size };
 	}

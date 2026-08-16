@@ -318,7 +318,7 @@ struct [[nodiscard]] overload: args...
 
 	consteval void operator()(auto a) const
 	{
-		static_assert(!sizeof(a), "Unsupported type");
+		static_assert(false, "Unsupported type");
 	}
 };
 
@@ -378,7 +378,7 @@ constexpr decltype(auto) view_as(detail::buffer_type auto const* const BaseAddre
 template<typename T>
 constexpr decltype(auto) view_as(unsigned long long const Address)
 {
-	return view_as<T>(static_cast<void const*>(nullptr), Address);
+	return detail::cast_as<T>(std::bit_cast<void const*>(static_cast<uintptr_t>(Address)), 0);
 }
 
 template<typename T>
@@ -390,7 +390,7 @@ constexpr decltype(auto) edit_as(detail::writable_buffer_type auto* const BaseAd
 template<typename T>
 constexpr decltype(auto) edit_as(unsigned long long const Address)
 {
-	return edit_as<T>(static_cast<void*>(nullptr), Address);
+	return detail::cast_as<T>(std::bit_cast<void*>(static_cast<uintptr_t>(Address)), 0);
 }
 
 template<typename T> requires std::is_trivially_copyable_v<T>

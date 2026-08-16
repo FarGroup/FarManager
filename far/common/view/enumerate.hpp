@@ -32,8 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "zip.hpp"
-
 #include <ranges>
 
 //----------------------------------------------------------------------------
@@ -43,7 +41,7 @@ auto enumerate(auto&& Container)
 	// 0u instead of 0uz below because iota's iterator is considered "input_iterator" only when its difference_type is "integral",
 	// and for iota(size_t) on x64 it is __int128, which is not considered "integral" on MSVC.
 	// This is as retarded as it gets.
-	return zip(FWD(Container), std::views::iota(0u));
+	return std::views::zip(FWD(Container), std::views::iota(0u));
 }
 
 #endif // ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C
