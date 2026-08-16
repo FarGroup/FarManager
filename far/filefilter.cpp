@@ -192,7 +192,7 @@ static wchar_t GetCheck(filter_area const Type, const FileFilterParams& FFP)
 	if (Flags & FFF_EXCLUDE)
 		return Flags & FFF_STRONG? L'X' : L'-';
 
-	return 0;
+	return {};
 }
 
 static void ProcessSelection(VMenu2* FilterList, filter_area Area);

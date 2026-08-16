@@ -48,7 +48,7 @@ public:
 	{
 	}
 
-	T& operator*()
+	T const& operator*() const
 	{
 		if (auto* compute = std::get_if<initializer_type>(&m_Data))
 			m_Data = (*compute)();
@@ -56,9 +56,9 @@ public:
 		return std::get<T>(m_Data);
 	}
 
-	T const& operator*() const
+	T& operator*()
 	{
-		return *const_cast<lazy&>(*this);
+		return const_cast<T&>(*std::as_const(*this));
 	}
 
 	T const* operator->() const

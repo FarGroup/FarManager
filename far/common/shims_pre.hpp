@@ -59,11 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if COMPILER(CLANG)
 
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wbuiltin-macro-redefined")
-// Seems to be broken in v20 or incompatible with libstdc++ headers
-#undef __cpp_explicit_this_parameter
-WARNING_POP()
+
 
 #endif
 

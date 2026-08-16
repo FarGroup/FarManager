@@ -246,12 +246,16 @@ DizList::desc_map::iterator DizList::Find(const string_view Name, const string_v
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (Iterator == m_DizData.end() && m_CodePage && !IsUtfCodePage(*m_CodePage))
 	{
-		const auto strRecoded = encoding::get_chars(*m_CodePage, encoding::get_bytes(*m_CodePage, Name));
-		if (strRecoded == Name)
+		const auto try_recoded = [&](string_view const Str)
 		{
-			return Iterator;
-		}
-		return m_DizData.find(strRecoded);
+			if (const auto Recoded = encoding::get_chars(*m_CodePage, encoding::get_bytes(*m_CodePage, Str)); Recoded != Str)
+				Iterator = m_DizData.find(Recoded);
+		};
+
+		try_recoded(Name);
+
+		if (Iterator == m_DizData.end())
+			try_recoded(ShortName);
 	}
 
 	return Iterator;

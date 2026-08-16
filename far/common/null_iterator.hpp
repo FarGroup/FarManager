@@ -54,16 +54,10 @@ public:
 	POSTFIX_INCREMENT()
 
 	[[nodiscard]]
-	auto& operator*() noexcept { return *m_Data; }
+	auto& operator*(this auto&& Self) noexcept { return *Self.m_Data; }
 
 	[[nodiscard]]
-	auto operator->() noexcept { return m_Data; }
-
-	[[nodiscard]]
-	auto& operator*() const noexcept { return *m_Data; }
-
-	[[nodiscard]]
-	auto operator->() const noexcept { return m_Data; }
+	auto operator->(this auto&& Self) noexcept { return Self.m_Data; }
 
 	[[nodiscard]]
 	static const auto& end() noexcept { static T Empty{}; static const null_iterator Iter(&Empty); return Iter; }

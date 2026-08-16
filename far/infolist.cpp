@@ -633,7 +633,7 @@ void InfoList::SelectShowMode()
 	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{
 		ShowModeMenuItem[ILSS_POWERSTATUS].set_disable(true);
-		ShowModeMenuItem[ILSS_POWERSTATUS].set_check(L' ');
+		ShowModeMenuItem[ILSS_POWERSTATUS].set_check(false);
 	}
 
 	int ShowCode=-1;

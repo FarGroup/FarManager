@@ -500,7 +500,7 @@ namespace os::clipboard
 		And most users don't know and don't expect this street magic at all.
 
 		So it's a double-edged sword and there is no win-win scenario.
-		~15 years of observation show that users are generally expect the pasted text to be the same as copied, but...
+		~15 years of observation show that users generally expect the pasted text to be the same as copied, but...
 		there is no way to even properly choose between CF_TEXT and CF_UNICODETEXT.
 
 		The MSDN verse above claims that clipboard formats are ordered by their descriptiveness, but that's wishful thinking:
@@ -549,7 +549,7 @@ namespace os::clipboard
 		- If it is not, it must be one of them smartasses who put it there manually in a wrong order and our job here is done.
 
 		We use starts_with instead of == here because our encoding method, unlike the OS, tries to yield as many
-		Unicode characters as possible, even if they're invalid. For these purposes such conversion is still lossless.
+		Unicode characters as possible, even if they're invalid. For these purposes such a conversion is still lossless.
 		*/
 		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !UnicodeData.starts_with(Data))
 			return;

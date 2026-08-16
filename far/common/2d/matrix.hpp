@@ -81,16 +81,10 @@ namespace detail
 		}
 
 		[[nodiscard]]
-		decltype(auto) operator*() { return matrix_row(m_Data, m_Width); }
+		decltype(auto) operator*(this auto&& Self) { return matrix_row(Self.m_Data, Self.m_Width); }
 
 		[[nodiscard]]
-		decltype(auto) operator*() const { return matrix_row(m_Data, m_Width); }
-
-		[[nodiscard]]
-		auto operator->() { return &**this; }
-
-		[[nodiscard]]
-		auto operator->() const { return &**this; }
+		auto operator->(this auto&& Self) { return &*Self; }
 
 		auto& operator++() { m_Data += m_Width; return *this; }
 		auto& operator--() { m_Data -= m_Width; return *this; }

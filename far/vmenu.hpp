@@ -140,7 +140,7 @@ struct menu_item_ex : detail::menu_item_functions
 
 	void set_name(string Name_) noexcept
 	{
-		Name = Name_;
+		Name = std::move(Name_);
 		VisualLength = InvalidVisualLength;
 	}
 
@@ -233,10 +233,10 @@ public:
 
 	intptr_t GetSimpleUserData(int Position = -1) const;
 
-	std::any* GetComplexUserData(int Position = -1);
-	const std::any* GetComplexUserData(int Position = -1) const
+	const std::any* GetComplexUserData(int Position = -1) const;
+	std::any* GetComplexUserData(int Position = -1)
 	{
-		return const_cast<VMenu*>(this)->GetComplexUserData(Position);
+		return const_cast<std::any*>(std::as_const(*this).GetComplexUserData(Position));
 	}
 	template<class T>
 	T* GetComplexUserDataPtr(int Position = -1)

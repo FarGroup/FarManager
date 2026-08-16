@@ -3411,7 +3411,7 @@ void VMenu::SetComplexUserData(const std::any& Data, int Position)
 }
 
 // Получить данные
-std::any* VMenu::GetComplexUserData(int Position)
+const std::any* VMenu::GetComplexUserData(int Position) const
 {
 	const auto ItemPos = GetItemPosition(Position);
 	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
