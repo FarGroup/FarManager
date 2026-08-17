@@ -29,6 +29,16 @@ extern "C" FTPPluginInterface* WINAPI FTPQueryInterface(FTPInterface* Info)
  *******************************************************************/
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 {
+	if(reason == DLL_PROCESS_ATTACH)
+	{
+		// Pin the module in memory: the static CRT registers an FLS callback
+		// pointing into this image, and a thread exiting after FreeLibrary
+		// would invoke it in unmapped memory (AV in LdrShutdownThread).
+		HMODULE self;
+		GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN | GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+		                   (LPCSTR)hinst, &self);
+	}
+
 	BOOL rc = FTP_PluginStartup(reason);
 
 	if(reason == DLL_PROCESS_DETACH)
