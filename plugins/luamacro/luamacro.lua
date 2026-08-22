@@ -335,7 +335,13 @@ local function About()
   local text = ("%s %d.%d.%d build %d"):format(GInfo.Title, unpack(GInfo.Version))
 
   -- Lua/LuaJIT
-  text = text.."\n"..(jit and jit.version or _VERSION)
+  if jit then
+    local str = jit.version:match(("%d"):rep(10))
+    str = str and os.date(" (%Y-%m-%d)", str) or ""
+    text = text.."\n"..jit.version..str
+  else
+    text = text.."\n".._VERSION
+  end
 
   -- MoonScript and LPeg
   local ok,lib = pcall(require, "moonscript.version")

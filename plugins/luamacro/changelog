@@ -1,3 +1,9 @@
+shmuel 2026-08-22 13:31:33+03:00 - build 943
+
+1. Extend macro:about / lm:about.
+
+2. Add tests.
+
 shmuel 2026-08-13 17:28:38+03:00 - build 942
 
 1. LuaFAR: update luautf8 library to release 0.2.0.

@@ -72,7 +72,7 @@ local function pack (...)
   return { n=select("#",...), ... }
 end
 
-local TmpFileName = win.JoinPath(assert(win.GetEnv"tmp" or win.GetEnv"temp"), "tmp.tmp")
+local TmpFileName = win.JoinPath(assert(win.GetEnv"TEMP" or win.GetEnv"TMP"), "tmp.tmp")
 
 local function WriteTmpFile(...)
   local fp = assert(io.open(TmpFileName,"w"))
@@ -512,7 +512,7 @@ local function test_mf_msave()
     mf.msave("key1", "name1", 100)
     mf.msave("key2", "name2", 200, "roaming")
     mf.msave("key1", "name1", 300, "local")
-    for k=1,2 do
+    for _ = 1,2 do
       asrt.eq(mf.mload("key1", "name1"), 100)
       asrt.eq(mf.mload("key1", "name1", "roaming"), 100)
       asrt.eq(mf.mload("key2", "name2"), 200)
@@ -1167,7 +1167,60 @@ local function test_CheckAndGetHotKey()
   Keys("Esc")
 end
 
+--[[------------------------------------------------------------------------------------------------
+0002554: При фильтрации видны элементы меню скрытые с помощью MIF_HIDDEN
+
+Description:
+Если активировать фильтр меню (RAlt), и начать фильтровать список, то подходящие под фильтр элементы
+(с флагом MIF_HIDDEN) также будут видны.
+
+Даже если ни один из скрытых элементов не подходит, то при отмене фильтра все они появятся.
+--]]------------------------------------------------------------------------------------------------
+local function test_mantis_2554()
+  local Items = {
+    {text="hidden", hidden=true}, {text="visible"},
+  }
+
+  local AssertInvariant = function()
+    asrt.eq(0x20, Menu.ItemStatus(1)) -- Если флаг установлен, то пункт меню не выводится на экран.
+    asrt.eq(0x01, Menu.ItemStatus(2)) -- Признак активности. Только один пункт может быть активным.
+  end
+  local AssertFilterIsOff = function() asrt.eq(0, Menu.Filter(0,-1)) end
+  local AssertFilterIsOn  = function() asrt.eq(1, Menu.Filter(0,-1)) end
+
+  -- open the menu
+  asrt.istrue(Area.Shell)
+  mf.acall(far.Menu,{},Items)
+  asrt.istrue(Area.Menu)
+  AssertFilterIsOff()
+  AssertInvariant()
+
+  -- turn the menu filter on
+  Keys("CtrlAltF")
+  AssertFilterIsOn()
+  AssertInvariant()
+
+  -- input something into the filter
+  Keys("I")
+  AssertInvariant()
+  Keys("BS")
+  AssertInvariant()
+  AssertFilterIsOn()
+
+  -- turn the menu filter off
+  Keys("CtrlAltF")
+  AssertFilterIsOff()
+  AssertInvariant()
+
+  -- close the menu
+  asrt.istrue(Area.Menu)
+  Keys("Esc")
+  asrt.istrue(Area.Shell)
+end
+
 function MT.test_Menu()
+  test_mantis_2554()
+
   Keys("F11")
   asrt.str(Menu.Value)
   asrt.eq(Menu.Id, far.Guids.PluginsMenuId)
@@ -1679,7 +1732,7 @@ local function test_RegexControl()
   assert(str=="ITEM;ITEMaITEM;ITEM" and nfound==4 and nrep==4)
 
   -- Mantis 3336 (https://bugs.farmanager.com/view.php?id=3336)
-  local fr,to,c1,c2,c3
+  local c1,c2,c3
   fr,to,c1 = regex.find("{}", "\\{(.)?\\}")
   assert(fr==1 and to==2 and c1==false)
   fr,to,c1,c2,c3 = regex.find("bbb", "(b)?b(b)?(b)?b")
@@ -1874,7 +1927,7 @@ local function test_AdvControl_Synchro()
     end
   far.AdvControl("ACTL_SYNCHRO", 123)
   far.AdvControl("ACTL_SYNCHRO", -456)
-  for k=1,2 do
+  for _ = 1,2 do
     mf.acall(far.Show); Keys"Esc"
   end
   export.ProcessSynchroEvent = oldProcessSynchroEvent
@@ -1937,7 +1990,7 @@ local function test_far_FarClock()
   -- check granularity
   local OK = false
   temp = far.FarClock() % 10
-  for k=1,10 do
+  for _ = 1,10 do
     win.Sleep(20)
     if temp ~= far.FarClock() % 10 then OK=true; break; end
   end
@@ -2574,6 +2627,84 @@ local function test_Editor_Misc()
   editor.Quit()
 end
 
+local function test_Editor_mantis_2571()
+  local flags = "EF_NONMODAL EF_IMMEDIATERETURN EF_DISABLEHISTORY"
+  local fname = asrt.str(far.MkTemp())
+
+  -- open the editor
+  editor.Editor(fname,nil,nil,nil,nil,nil,flags)
+  asrt.istrue(Area.Editor)
+
+  local EI = asrt.table(editor.GetInfo())
+  asrt.eq(1, EI.TotalLines)
+
+  -- input some text
+  for k = 1,8 do
+    editor.InsertString()
+    editor.SetString(nil, k, "12345678")
+  end
+  for _ = 1,4 do editor.InsertString() end
+
+  EI = asrt.table(editor.GetInfo())
+  asrt.eq(13, EI.TotalLines)
+
+  -- insert a vertical block
+  Keys("CtrlHome 3*AltRight 7*AltDown CtrlC CtrlU CtrlV")
+  EI = asrt.table(editor.GetInfo())
+  asrt.eq(15, EI.TotalLines)
+
+  -- undo
+  Keys("CtrlZ")
+  EI = asrt.table(editor.GetInfo())
+  asrt.eq(13, EI.TotalLines)
+
+  -- check
+  for k = 1,EI.TotalLines do
+    local T = asrt.table(editor.GetString(nil, k))
+    asrt.eq(T.StringText, k <= 8 and "12345678" or "")
+  end
+
+  -- clean
+  Keys("F2 Esc")
+  asrt.istrue(Area.Shell)
+  asrt.istrue(win.DeleteFile(fname))
+end
+
+local function test_Editor_mantis_3367()
+  local flags = "EF_NONMODAL EF_IMMEDIATERETURN EF_DISABLEHISTORY"
+  local fname = asrt.str(far.MkTemp())
+
+  -- open the editor
+  editor.Editor(fname,nil,nil,nil,nil,nil,flags)
+  asrt.istrue(Area.Editor)
+
+  -- set ESPT_CURSORBEYONDEOL option to true
+  local EI = asrt.table(editor.GetInfo())
+  asrt.eq(1, EI.TotalLines)
+  asrt.neq(0, band(EI.CurState, F.ECSTATE_SAVED))
+  local BeyondEOL = band(EI.Options, F.EOPT_CURSORBEYONDEOL) ~= 0
+  asrt.istrue(editor.SetParam(nil, "ESPT_CURSORBEYONDEOL", true))
+
+  -- move right and input some characters
+  Keys("8*Right a b c")
+  EI = asrt.table(editor.GetInfo())
+  asrt.eq(0, band(EI.CurState, F.ECSTATE_SAVED))
+  local T = asrt.table(editor.GetString(nil, 1))
+  asrt.eq(T.StringText, "        abc")
+
+  -- undo the input characters
+  Keys("CtrlZ")
+  EI = asrt.table(editor.GetInfo())
+  asrt.neq(0, band(EI.CurState, F.ECSTATE_SAVED))
+  T = asrt.table(editor.GetString(nil, 1))
+  asrt.eq(T.StringText, "")
+
+  -- restore BeyondEOL and clean
+  asrt.istrue(editor.SetParam(nil, "ESPT_CURSORBEYONDEOL", BeyondEOL))
+  Keys("Esc")
+  asrt.istrue(Area.Shell)
+end
+
 function MT.test_Editor()
   local args = {
     ("123456789-"):rep(4),     -- plain ASCII
@@ -2587,6 +2718,8 @@ function MT.test_Editor()
   test_Editor_Sel_Dialog(args)
   test_Editor_Sel_Editor(args)
   test_Editor_Misc()
+  test_Editor_mantis_2571()
+  test_Editor_mantis_3367()
 end
 
 function MT.test_all()
