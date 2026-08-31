@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+olegfedko 2026-08-31 19:00:00+03:00
+
+1. User menu items can be filtered by file masks. Use Ctrl+H in the menu editor to show or hide filtered items.
+
+2. User menu: keep selection on the item when moving it with Ctrl+Up/Ctrl+Down.
+
+--------------------------------------------------------------------------------
 drkns 2026-08-28 01:58:45+01:00 - build 6731
 
 1. Refactoring.

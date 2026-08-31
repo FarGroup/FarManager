@@ -1565,8 +1565,8 @@ témakör részletezi a funkciót.
 
  #Felhasználói menü#    Fő vagy helyi ~felhasználói menüt~@UserMenu@
  #szerkesztése#         szerkeszthetünk. Az #Ins# billentyű beszúrja,
-                      a #Del# törli, az #F4# pedig szerkeszti a menü
-                      elemeit.
+                      a #Del# törli, a #Ctrl+H# megmutatja a szűrt
+                      elemeket, az #F4# pedig szerkeszti a menü elemeit.
 
  #Fájltársítások#       ^<wrap>Megjeleníti a ~fájltársításokat~@FileAssoc@.
 Az #Ins# billentyűvel beszúrhatjuk, a #Del#-lel törölhetjük, az #F4#-gyel
@@ -2292,12 +2292,15 @@ gyorsbillentyű segítségével.
  Az #Ins# billentyűvel új menüelemeket, almenüket hozhatunk létre, az #F4#
 bilentyűvel szerkeszthetjük a jellemzőiket, a #Del#-lel pedig törölhetjük a
 menü elemeit. #Alt+F4#-gyel a menüket szövegfájl formátumban szerkeszthetjük.
+ A #Ctrl+H# megmutatja a ~fájlmaszk~@FileMasks@ miatt elrejtett menüpontokat.
 
  A felhasználói menü elemeinek gyorsbillentyűjeként megadhatunk számokat,
 betűket vagy funkcióbillentyűket (#F1#…#F24#), utóbbiakat csak beírás útján
 fogadja el. Ha az #F1# vagy #F4# eredetileg más művelethez volt rendelve,
 a felhasználói menü felülbírálja eredeti funkcióikat, bár a #Shift+F4#-gyel
 ezután is szerkeszthetjük a menüt.
+
+ Az opcionális ~fájlmaszk~@FileMasks@ lehetővé teszi az aktuális fájlhoz nem illő menüpont elrejtését.
 
  Ha a szerkesztett menüelemünk parancs, meg kell adnunk a gyorsbillentyűjét,
 a nevét (ami majd a menüben jelenik meg) és a végrehajtandó parancs sorát.

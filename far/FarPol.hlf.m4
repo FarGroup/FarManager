@@ -1521,8 +1521,8 @@ $ #Menu: menu polecenia#
                       Więcej informacji: ~Porównaj foldery~@CompFolders@.
 
  #Edytuj menu#          Pozwala na edycję głównego lub lokalnego ~menu użytkownika~@UserMenu@.
- #użytkownika#          Można wcisnąć #Ins# aby wstawić, #Del# aby usunąć
-                      i #F4# aby edytować pozycję.
+ #użytkownika#          Można wcisnąć #Ins# aby wstawić, #Del# aby usunąć,
+                      #Ctrl+H# aby pokazać odfiltrowane pozycje i #F4# aby edytować pozycję.
 
  #Przypisania plików#   Wyświetla listę ~powiązań plików~@FileAssoc@.
                       Można wcisnąć #Ins# aby wstawić, #Del# aby usunąć
@@ -2216,10 +2216,13 @@ menu.
 podmenu lub pozycję menu za pomocą klawisza #Ins# lub edytować istniejące
 podmenu lub pozycję menu za pomocą klawisza #F4#. Należy wcisnąć klawisze #Alt+F4#,
 aby edytować menu w formie pliku tekstowego.
+ Naciśnij #Ctrl+H#, aby pokazać pozycje menu ukryte przez ~maski plików~@FileMasks@.
 
  Do klawiszy skrótu można użyć cyfr, liter i klawiszy funkcyjnych (#F1#…#F24#).
 Jeżeli użyto klawiszy #F1# lub #F4# - to zamieniona zostanie oryginalna funkcja
 tych klawiszy. Mimo to, skrót #Shift+F4# nadal może być użyty do edycji menu.
+
+ Opcjonalna ~maska pliku~@FileMasks@ pozwala ukryć pozycję menu niepasującą do bieżącego pliku.
 
  Podczas edycji lub tworzenia nowej pozycji menu, można (a nawet powinno) dodać
 klawisz skrótu dla szybszego dostępu, tytuł który będzie wyświetlany w menu

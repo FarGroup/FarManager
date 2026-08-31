@@ -1528,8 +1528,8 @@ $ #Menus: commands menu#
                       detailed description.
 
  #Edit user menu#       Allows to edit main or local ~user menu~@UserMenu@.
-                      You can press #Ins# to insert, #Del# to delete
-                      and #F4# to edit menu records.
+                      You can press #Ins# to insert, #Del# to delete,
+                      #Ctrl+H# to show filtered items and #F4# to edit menu records.
 
  #File associations#    Displays the list of ~file associations~@FileAssoc@.
                       You can press #Ins# to insert, #Del# to delete
@@ -2215,10 +2215,13 @@ You can also press the hot key assigned to the required menu item.
  You can delete a submenu or menu item with the #Del# key, insert new
 submenu or menu item with the #Ins# key or edit an existing submenu or menu
 item with the #F4# key. Press #Alt+F4# to edit the menu in text file form.
+ Press #Ctrl+H# to show menu items hidden by ~file masks~@FileMasks@.
 
  It is possible to use digits, letters and function keys (#F1#…#F24#) as
 hot keys in user menu. If #F1# or #F4# is used, its original function in user
 menu is overridden. However, you still can use #Shift+F4# to edit the menu.
+
+ An optional ~file mask~@FileMasks@ allows you to hide menu item that is inapplicable to the current file.
 
  When you edit or create a menu item, you should enter the hot key for fast
 item access, the item title which will be displayed in the menu and the command
