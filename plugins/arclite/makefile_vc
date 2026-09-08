@@ -53,8 +53,9 @@ depfile:
 
 $(7ZDLL):
 	@echo Downloading 7-Zip binaries
-	powershell -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(VERSION_7Z).zip' -OutFile '7z\7z-$(VERSION_7Z).zip'; Expand-Archive 7z\7z-$(VERSION_7Z).zip -DestinationPath 7z\$(VERSION_7Z)"
-
+	md "7z\$(VERSION_7Z)"
+	curl -s --retry 3 -o "7z\7z-$(VERSION_7Z).zip" "https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(VERSION_7Z).zip"
+	tar -xf "7z\7z-$(VERSION_7Z).zip" -C "7z\$(VERSION_7Z)"
 
 clean:
 	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) clean BUILD=1

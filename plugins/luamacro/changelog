@@ -1,3 +1,7 @@
+MZK 2026-09-08 22:20:59-04:00 - build
+
+1. Use `curl` and `tar` instead of Powershell cmdlets
+
 shmuel 2026-08-22 13:31:33+03:00 - build 943
 
 1. Extend macro:about / lm:about.
