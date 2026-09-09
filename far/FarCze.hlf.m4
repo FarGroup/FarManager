@@ -1555,7 +1555,8 @@ $ #Menu Příkazy#
  #Upr. menu uživatele#  Umožňuje upravit hlavní nebo lokání
                       ~uživatelské menu~@UserMenu@.
                       Můžete stisknout Ins pro vložení, Del pro
-                      smazání a F4 pro úpravu záznamu.
+                      smazání, Ctrl+H pro zobrazení filtrovaných položek
+                      a F4 pro úpravu záznamu.
 
  #Závislosti souborů#   Zobrazí seznam ~závislosti souborů~@FileAssoc@.
                       Můžete stisknout Ins pro vložení, Del pro
@@ -2248,11 +2249,14 @@ přiřazenou danému příkazu.
 podmenu, nebo položku v menu můžete klávesou Ins. Upravit existující
 podmenu, nebo položku v menu můžete klávesou F4. Pokud chcete menu upravovat
 v podobě textového souboru stiskněte  Alt+F4.
+ Stiskněte #Ctrl+H# pro zobrazení položek menu skrytých ~maskou souboru~@FileMasks@.
 
  V uživatelském menu je možné použít jako zkratkové klávesy číslice,
 písmena a funkční klávezy (#F1#…#F24#). Pokud jsou použity  #F1# nebo #F4#, je
 jejich původní funkce v menu potlačena. Nicméně, můžete pro úpravu menu
 použít #Shift+F4#.
+
+ Volitelná ~maska souboru~@FileMasks@ umožňuje skrýt položku menu nevhodnou pro aktuální soubor.
 
  Když tvoříte, nebo upravujet položku v menu, měli byste zadat horkou
 klávesu, pro rychlý přístup k položce, popis položky, který bude v menu

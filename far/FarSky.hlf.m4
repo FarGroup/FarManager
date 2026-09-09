@@ -1526,7 +1526,8 @@ $ #Commands menu#
 
  #Úprava užívateľského# Umožní úpravu hlavného alebo lokálneho
  #menu#               ~užívateľského menu~@UserMenu@. Môžete použiť #Ins#
-                      pre vloženie, #Del# pre vymazanie a #F4# pre úpravu položiek menu.
+                      pre vloženie, #Del# pre vymazanie, #Ctrl+H# pre zobrazenie
+                      filtrovaných položiek a #F4# pre úpravu položiek menu.
 
  #Typy súborov#         Zobrazí ~typy súborov~@FileAssoc@.
                     Môžete použiť #Ins# pre vloženie, #Del# pre
@@ -2210,10 +2211,13 @@ názov a stlačením klávesy Enter alebo jemu priradenou klávesovou skratkou.
  Podmenu alebo položku menu môžete zrušiť klávesom #Del#, nové menu alebo
 položku môžete vložiť klávesom #Ins# a upraviť existujúce menu či položku
 možno klávesom #F4#. Po stlačení #Alt+F4# budete môcť menu editovať v textovej forme.
+ Stlačením #Ctrl+H# zobrazíte položky menu skryté ~maskou súboru~@FileMasks@.
 
  Ako klávesové skratky možno v menu použiť číslice, písmená a funkčné klávesy (#F1#…#F24#).
 Ak použijete #F1# alebo #F4#, znemožníte tým ich originálnu funkciu.
 Každopádne na úpravu môžete ešte vždy použiť kombináciu #Shift+F4#.
+
+ Voliteľná ~maska súboru~@FileMasks@ umožňuje skryť položku menu nevhodnú pre aktuálny súbor.
 
  Keď upravujete alebo vytvárate položku menu, mali by ste zadať klávesovú
 skratku pre rýchly prítup, názov príkazu, ktorý sa bude zobrazovať v menu,

@@ -1570,8 +1570,8 @@ $ #Menü Befehle#
  #Benutzermenü#         Erlaubt das Bearbeiten des Haupt- oder
  #bearbeiten#           lokalen ~Benutzermenüs~@UserMenu@.
                       Drücken Sie #Einfg# zum Einfügen, #Entf# zum
-                      Löschen und #F4# zum Bearbeiten von
-                      Menüeinträgen.
+                      Löschen, #Strg+H# zum Anzeigen gefilterter Einträge
+                      und #F4# zum Bearbeiten von Menüeinträgen.
 
  #Dateiverknüpfung#     Zeigt die Liste von ~Dateiverknüpfungen~@FileAssoc@.
                       Drücken Sie #Einfg# zum Einfügen, #Entf# zum
@@ -2289,10 +2289,13 @@ must switch to file mode with #Alt+F4# key.
  Menüpunkte oder Untermenüs können durch die Taste Entf gelöscht werden. Durch Einfg können neue Menüpunkte
 oder Untermenüs angelegt werden. Durch #F4# können existierende Menüpunkte und Untermenüs bearbeitet werden.
 Mit Alt+F4 kann ein Menü in Form einer Textdatei bearbeitet werden.
+ Mit #Strg+H# werden per ~Dateimaske~@FileMasks@ ausgeblendete Menüeinträge angezeigt.
 
  Es ist möglich, Zahlen, Buchstaben und Funktionstasten (#F1#…#F24#) als Hotkeys in Benutzermenüs einzusetzen.
 Bei Benutzung von #F1# oder #F4# wird deren originale Funktion im Benutzermenü übergangen.
 #Umsch+F4# können Sie trotzdem weiterhin als Bearbeitungsfunktion nutzen.
+
+ Eine optionale ~Dateimaske~@FileMasks@ ermöglicht das Ausblenden eines Menüeintrags, der für die aktuelle Datei nicht zutrifft.
 
  Wenn Sie einen Menüpunkt anlegen oder bearbeiten, geben Sie einen Hotkey für einen
 schnellen Zugriff an, einen Titel, welcher im Menü angezeigt wird sowie eine Befehlssequenz,
