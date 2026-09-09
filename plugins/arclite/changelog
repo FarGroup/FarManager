@@ -1,3 +1,7 @@
+MZK 2026-09-08 22:20:59-04:00 - build
+
+1. Use `curl` and `tar` instead of Powershell cmdlets
+
 drkns 2026-09-05 10:40:10+01:00 - build 356
 
 1. 7z.dll v26.03.

@@ -1,5 +1,5 @@
 @echo off
-  setlocal
+  setlocal enableextensions enabledelayedexpansion
   pushd "%~dp0"
   rem examples:
   rem ---------------------------------------------------------------
@@ -17,7 +17,7 @@
   set "deb_b=N"
   set "clean=N"& set "cleanonly=N"
   set "vcbld=msbuild"
-  set "vcver=16"
+  set "vcver=17"
 
   for %%a in (%*) do call :proc_param %%a
 
@@ -46,9 +46,10 @@ goto :EOF
   for %%p in (cleanonly) do if /i "%%p" == "%~1" set "clean=Y"& set "cleanonly=Y"
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set "deb_b=Y"
   for %%p in (msbuild) do if /i "%%p" == "%~1" set "vcbld=Msbuild"
-  for %%p in (mmake) do if /i "%%p" == "%~1" set "vcbld=nmake"
+  for %%p in (nmake) do if /i "%%p" == "%~1" set "vcbld=nmake"
   for %%p in (15 15.0 141 vc15 2017 vs2017) do if /i "%%p" == "%~1" set "vcver=15"
   for %%p in (16 16.0 142 vc16 2019 vs2019) do if /i "%%p" == "%~1" set "vcver=16"
+  for %%p in (17 17.0 143 vc17 2022 vs2022) do if /i "%%p" == "%~1" set "vcver=17"
 goto :EOF
 
 :init
@@ -90,6 +91,5 @@ goto :EOF
   set "vcmod=32"
   if "%~1" == "64" set "vcmod=64"
   if "%~1" == "arm64" set "vcmod=amd64_arm64"
-  if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
-  if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
+  call "!VS%vcver%0COMNTOOLS!\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
 goto :EOF

@@ -29,8 +29,11 @@
   <ItemDefinitionGroup>
     <PreBuildEvent>
       <Message>Downloading 7-Zip binaries</Message>
-      <Command>if not exist $(Release7ZDll) powershell -c "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(Version7Z).zip' -OutFile '7z\7z-$(Version7Z).zip'; Expand-Archive 7z\7z-$(Version7Z).zip -DestinationPath 7z\$(Version7Z)"
-</Command>
+      <Command>if not exist $(Release7ZDll) (
+md "7z\$(Version7Z)"
+curl -s --retry 3 -o "7z\7z-$(Version7Z).zip" "https://raw.githubusercontent.com/FarGroup/thirdparty/master/7z-$(Version7Z).zip"
+tar -xf "7z\7z-$(Version7Z).zip" -C "7z\$(Version7Z)"
+)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
 </Project>
