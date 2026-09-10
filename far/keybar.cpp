@@ -73,13 +73,6 @@ void KeyBar::DisplayObject()
 	CtrlState = IntKeyState.CtrlPressed();
 	ShiftState = IntKeyState.ShiftPressed();
 
-	int KeyWidth = (m_Where.width() - 2) / 12;
-
-	if (KeyWidth<8)
-		KeyWidth=8;
-
-	const auto LabelWidth = KeyWidth - 2;
-
 	static const std::array Mapping
 	{
 		std::pair{ &FarKeyboardState::NonePressed,             KBL_MAIN         },
@@ -94,14 +87,52 @@ void KeyBar::DisplayObject()
 
 	static_assert(std::size(Mapping) == KBL_GROUP_COUNT);
 
+	// 1Help  _ ... 12Screen_
+	// NLLLLLLB ... NNLLLLLLB
+	// 76543210 ... 876543210
+	const auto MinLabelWidth = 6;
+	const auto BackgroundSize = 1;
+
+	const size_t TotalAvailableWidth = m_Where.width();
+	const auto MinFullKeybarSize = (1 + MinLabelWidth + BackgroundSize) * KEY_COUNT + (KEY_COUNT - 9) - BackgroundSize;
+	auto ExtraSpaceToRedistribute = TotalAvailableWidth > MinFullKeybarSize? TotalAvailableWidth - MinFullKeybarSize : 0;
+
+	const auto print_and_continue = [&](PaletteColors const Color, string_view const Str, size_t const CellsAvailable)
+	{
+		SetColor(Color);
+		Text(Str, CellsAvailable);
+		return WhereX() <= m_Where.right;
+	};
+
+	m_KeyBoundariesSize = 0;
+
 	for (const auto i: std::views::iota(0uz, KEY_COUNT))
 	{
-		if (WhereX() + LabelWidth >= m_Where.right)
+		// extra space for 2-digit numbers 10, 11, 12
+		const size_t ExtraDigit = i + 1 > 9;
+
+		const auto MinKeyWidth = 1 + ExtraDigit + MinLabelWidth + BackgroundSize;
+
+		if (!print_and_continue(COL_KEYBARNUM, str(i + 1), 1 + ExtraDigit))
 			break;
 
-		SetColor(COL_KEYBARNUM);
-		Text(str(i + 1));
-		SetColor(COL_KEYBARTEXT);
+		const auto PrevBoundary = i == 0? 0 : m_KeyBoundaries[i - 1];
+
+		m_KeyBoundaries[i] = static_cast<unsigned short>(PrevBoundary + MinKeyWidth);
+		++m_KeyBoundariesSize;
+
+		if (ExtraSpaceToRedistribute)
+		{
+			if (const auto BoundaryUsingBresenhamStyle = (i + 1) * TotalAvailableWidth / KEY_COUNT; BoundaryUsingBresenhamStyle > m_KeyBoundaries[i])
+			{
+				const auto ExtraSpace = BoundaryUsingBresenhamStyle - m_KeyBoundaries[i];
+				ExtraSpaceToRedistribute -= ExtraSpace;
+				m_KeyBoundaries[i] += static_cast<unsigned short>(ExtraSpace);
+			}
+		}
+
+		const auto KeyWidth = m_KeyBoundaries[i] - PrevBoundary;
+		const auto LabelWidth = KeyWidth - BackgroundSize - 1 - ExtraDigit;
 
 		const auto State = std::ranges::find_if(Mapping, [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
@@ -127,17 +158,16 @@ void KeyBar::DisplayObject()
 			}
 
 			if (!Beginning.empty())
-			{
 				Label = concat(Beginning, Ending);
-			}
 		}
 
-		Text(pad_right(Label, LabelWidth), LabelWidth);
+		if (!print_and_continue(COL_KEYBARTEXT, pad_right(Label, LabelWidth), LabelWidth))
+			break;
 
 		if (i<KEY_COUNT-1)
 		{
-			SetColor(COL_KEYBARBACKGROUND);
-			Text(L' ');
+			if (!print_and_continue(COL_KEYBARBACKGROUND, L" "sv, 1))
+				break;
 		}
 	}
 
@@ -175,9 +205,9 @@ void KeyBar::SetLabels(lng StartIndex)
 	}
 }
 
-static int FnGroup(unsigned ControlState)
+static int FnGroup(unsigned ControlKey)
 {
-	switch (ControlState)
+	switch (ControlKey)
 	{
 	case NO_KEY:            return KBL_MAIN;
 	case KEY_ALT:           return KBL_ALT;
@@ -257,11 +287,24 @@ bool KeyBar::ProcessKey(const Manager::Key& Key)
 	return false;
 }
 
+static unsigned control_state_to_key(DWORD ControlState)
+{
+	unsigned Result{};
+
+	if (ControlState & (RIGHT_ALT_PRESSED | LEFT_ALT_PRESSED))
+		Result |= KEY_ALT;
+
+	if (ControlState & (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
+		Result |= KEY_CTRL;
+
+	if (ControlState & SHIFT_PRESSED)
+		Result |= KEY_SHIFT;
+
+	return Result;
+}
+
 bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	INPUT_RECORD rec;
-	size_t Key;
-
 	if (!IsVisible())
 		return false;
 
@@ -271,56 +314,40 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
-	int const KeyWidth = std::max(8, (m_Where.width() - 2) / 12);
+	if (!m_KeyBoundariesSize)
+		return false;
 
-	const auto X = MouseEvent->dwMousePosition.X - m_Where.left;
+	const auto PressedKeyIndex = [&](unsigned short const X)
+	{
+		const auto Boundaries = std::span(m_KeyBoundaries.data(), m_KeyBoundariesSize);
+		return static_cast<size_t>(std::ranges::upper_bound(Boundaries, X) - Boundaries.begin());
+	};
 
-	if (X<KeyWidth*9)
-		Key=X/KeyWidth;
-	else
-		Key=9+(X-KeyWidth*9)/(KeyWidth+1);
+	const auto KeyIndex = PressedKeyIndex(MouseEvent->dwMousePosition.X - m_Where.left);
 
 	for (;;)
 	{
+		INPUT_RECORD rec;
 		GetInputRecord(&rec);
 
-		if (rec.EventType==MOUSE_EVENT && !(rec.Event.MouseEvent.dwButtonState & 3))
+		if (rec.EventType == MOUSE_EVENT && !(rec.Event.MouseEvent.dwButtonState & 3)) // Release
+		{
+			const auto& NewEvent = rec.Event.MouseEvent;
+
+			if (!m_Where.contains(NewEvent.dwMousePosition))
+				return false;
+
+			if (const auto ReleaseKeyIndex = PressedKeyIndex(NewEvent.dwMousePosition.X - m_Where.left); KeyIndex != ReleaseKeyIndex)
+				return false;
+
 			break;
+		}
 	}
 
-	if (!m_Where.contains(MouseEvent->dwMousePosition))
-		return false;
+	auto Key = (KEY_F1 | control_state_to_key(MouseEvent->dwControlKeyState)) + KeyIndex;
 
-	const int NewX = MouseEvent->dwMousePosition.X - m_Where.left;
-	const size_t NewKey = NewX < KeyWidth * 9? NewX / KeyWidth : 9 + (NewX - KeyWidth * 9) / (KeyWidth + 1);
-
-	if (Key!=NewKey)
-		return false;
-
-	if (Key > F12)
-		Key = F12;
-
-	if (MouseEvent->dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED) ||
-	        (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
-	{
-		if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-			Key+=KEY_ALTSHIFTF1;
-		else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
-			Key+=KEY_CTRLALTF1;
-		else
-			Key+=KEY_ALTF1;
-	}
-	else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
-	{
-		if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-			Key+=KEY_CTRLSHIFTF1;
-		else
-			Key+=KEY_CTRLF1;
-	}
-	else if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-		Key+=KEY_SHIFTF1;
-	else
-		Key+=KEY_F1;
+	if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+		Key |= KEY_ALT;
 
 	Global->WindowManager->ProcessKey(Manager::Key(static_cast<int>(Key)));
 	return true;
@@ -334,7 +361,6 @@ void KeyBar::RedrawIfChanged()
 		IntKeyState.CtrlPressed() != CtrlState ||
 		IntKeyState.AltPressed() != AltState)
 	{
-		//_SVS("KeyBar::RedrawIfChanged()");
 		Redraw();
 	}
 }
@@ -352,20 +378,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 			continue;
 
 		const auto Pos = i.Key.VirtualKeyCode - VK_F1;
-
-		unsigned Shift = 0;
-		const auto Flags = i.Key.ControlKeyState;
-
-		if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
-			Shift |= KEY_CTRL;
-
-		if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
-			Shift |= KEY_ALT;
-
-		if (Flags & SHIFT_PRESSED)
-			Shift |= KEY_SHIFT;
-
-		const auto Group = FnGroup(Shift);
+		const auto Group = FnGroup(control_state_to_key(i.Key.ControlKeyState));
 		if (Group < 0)
 			continue;
 

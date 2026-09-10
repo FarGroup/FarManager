@@ -1593,7 +1593,7 @@ protected:
 			if (Was == Is)
 				continue;
 
-			append(Str, Is > Was? i.On : i.Off, L';');
+			append(Str, Is? i.On : i.Off, L';');
 		}
 
 		// We should only enter this function if the style has changed, and it should add or remove at least something,

@@ -124,6 +124,8 @@ private:
 	KEYBARAREA CustomArea{ KBA_SHELL };
 	bool AltState{}, CtrlState{}, ShiftState{};
 	bool CustomLabelsReaded{};
+	std::array<unsigned short, fkeys::KEY_COUNT> m_KeyBoundaries{};
+	size_t m_KeyBoundariesSize{};
 };
 
 #endif // KEYBAR_HPP_8575C258_EBCC_4620_8657_6C56564AD9DE
