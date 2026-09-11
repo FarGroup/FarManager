@@ -1,102 +1,103 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>Элементы диалога - Dialog API</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>Элементы диалога - Dialog API</h1>
 
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Dialog API поддерживает определённое множество управляющих элементов (перечисление FARDIALOGITEMTYPES).
 Каждый элемент управления описывается структурой <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 Массив этих структур передаётся в функции <a href="../../service_functions/dialoginit.html">DialogInit</a> для инициализации диалога.
 </div>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="30%">Элемент</th><th class="cont" width="10%">Значение</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_button.html">DI_BUTTON</a></td>
-<td class="cont" width="10%">7</td>
-<td class="cont" width="60%">кнопка (Push Button)</td>
+<tr><th>Элемент</th><th width="10%">Значение</th><th>Описание</th></tr>
+<tr>
+<td><a href="di_button.html">DI_BUTTON</a></td>
+<td>7</td>
+<td>кнопка (Push Button)</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_checkbox.html">DI_CHECKBOX</a></td>
-<td class="cont" width="10%">8</td>
-<td class="cont" width="60%">контрольный переключатель (Check Box)</td>
+<tr>
+<td><a href="di_checkbox.html">DI_CHECKBOX</a></td>
+<td>8</td>
+<td>контрольный переключатель (Check Box)</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="10%">10</td>
-<td class="cont" width="60%">комбинированный список</td>
+<tr>
+<td><a href="di_combobox.html">DI_COMBOBOX</a></td>
+<td>10</td>
+<td>комбинированный список</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_doublebox.html">DI_DOUBLEBOX</a></td>
-<td class="cont" width="10%">3</td>
-<td class="cont" width="60%">двойная рамка</td>
+<tr>
+<td><a href="di_doublebox.html">DI_DOUBLEBOX</a></td>
+<td>3</td>
+<td>двойная рамка</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="10%">4</td>
-<td class="cont" width="60%">поле ввода</td>
+<tr>
+<td><a href="di_edit.html">DI_EDIT</a></td>
+<td>4</td>
+<td>поле ввода</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="10%">6</td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td>
+<tr>
+<td><a href="di_fixedit.html">DI_FIXEDIT</a></td>
+<td>6</td>
+<td>поле ввода фиксированного размера</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="10%">11</td>
-<td class="cont" width="60%">окно списка</td>
+<tr>
+<td><a href="di_listbox.html">DI_LISTBOX</a></td>
+<td>11</td>
+<td>окно списка</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="10%">5</td>
-<td class="cont" width="60%">поле ввода пароля</td>
+<tr>
+<td><a href="di_pswedit.html">DI_PSWEDIT</a></td>
+<td>5</td>
+<td>поле ввода пароля</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_radiobutton.html">DI_RADIOBUTTON</a></td>
-<td class="cont" width="10%">9</td>
-<td class="cont" width="60%">селекторная кнопка (Radio Button)</td>
+<tr>
+<td><a href="di_radiobutton.html">DI_RADIOBUTTON</a></td>
+<td>9</td>
+<td>селекторная кнопка (Radio Button)</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_singlebox.html">DI_SINGLEBOX</a></td>
-<td class="cont" width="10%">2</td>
-<td class="cont" width="60%">одиночная рамка</td>
+<tr>
+<td><a href="di_singlebox.html">DI_SINGLEBOX</a></td>
+<td>2</td>
+<td>одиночная рамка</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_text.html">DI_TEXT</a></td>
-<td class="cont" width="10%">0</td>
-<td class="cont" width="60%">текстовая строка</td>
+<tr>
+<td><a href="di_text.html">DI_TEXT</a></td>
+<td>0</td>
+<td>текстовая строка</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_usercontrol.html">DI_USERCONTROL</a></td>
-<td class="cont" width="10%">255</td>
-<td class="cont" width="60%">элемент управления, определяемый программистом</td>
+<tr>
+<td><a href="di_usercontrol.html">DI_USERCONTROL</a></td>
+<td>255</td>
+<td>элемент управления, определяемый программистом</td>
 </tr>
-<tr class="cont">
-<td class="cont" width="30%"><a href="di_vtext.html">DI_VTEXT</a></td>
-<td class="cont" width="10%">1</td>
-<td class="cont" width="60%">вертикальная текстовая строка</td>
+<tr>
+<td><a href="di_vtext.html">DI_VTEXT</a></td>
+<td>1</td>
+<td>вертикальная текстовая строка</td>
 </tr>
 </table>
 
 <h3>Замечания</h3>
 
-<div class=descr>
+<div class="descr">
 При описании всех элементов использовалось схематичное представление структуры <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class="see">Смотрите также:</div><div class="seecont">
 <a href="../flags/index.html">Флаги элементов диалога</a>
 </div>
 

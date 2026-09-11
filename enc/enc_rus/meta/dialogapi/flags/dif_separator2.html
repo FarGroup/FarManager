@@ -1,48 +1,50 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DIF_SEPARATOR2</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DIF_SEPARATOR2</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index.html">флаги элементов диалога</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Текстовая строка <a href="../controls/di_text.html">DI_TEXT</a> с флагом <code>DIF_SEPARATOR2</code> отображается как двойная горизонтальная линия с двойными боковыми линиями.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 Флаг <code>DIF_SEPARATOR2</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_text.html">DI_TEXT</a></td>
-<td class="cont" width="60%">текстовая строка</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_vtext.html">DI_VTEXT</a></td>
-<td class="cont" width="60%">вертикальная текстовая строка</td></tr>
+<tr><th>Элемент</th><th>Описание</th></tr>
+<tr><td><a href="../controls/di_text.html">DI_TEXT</a></td>
+<td>текстовая строка</td></tr>
+<tr><td><a href="../controls/di_vtext.html">DI_VTEXT</a></td>
+<td>вертикальная текстовая строка</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
-<li>Координаты отрисовки разделительной линии (левый край диалога = 0): <code>X1 = X1_Диалога + N; X2 = X2_Диалога - N</code>,<br>
-    где <code>N</code> равно <code>3</code> или <code>0</code> (при вызове диалога с флагом <code>FDLG_SMALLDIALOG</code>).
-<li>Координата <code>X1</code> влияет только на позиционирование текстовой строки (отображается поверх разделительной линии) из <code>Data</code>.
-    Если вам нужна разделительная линия с центрированным текстом, то укажите <code>X1 = -1</code>, иначе текст будет отрисован с координаты X1.
-<li>Если <code>Data</code> содержит пустую строку, элемент отображается просто как разделительная линия.
+<li><p>Координаты отрисовки разделительной линии (левый край диалога = 0): <code>X1 = X1_Диалога + N; X2 = X2_Диалога - N</code>,<br>
+    где <code>N</code> равно <code>3</code> или <code>0</code> (при вызове диалога с флагом <code>FDLG_SMALLDIALOG</code>).</p>
+<li><p>Координата <code>X1</code> влияет только на позиционирование текстовой строки (отображается поверх разделительной линии) из <code>Data</code>.</p>
+    <p>Если вам нужна разделительная линия с центрированным текстом, то укажите <code>X1 = -1</code>, иначе текст будет отрисован с координаты X1.</p>
+<li><p>Если <code>Data</code> содержит пустую строку, элемент отображается просто как разделительная линия.</p>
+</ol>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="dif_separator.html">DIF_SEPARATOR</a>,
 <a href="dif_separatoruser.html">DIF_SEPARATORUSER</a>
 </div>
