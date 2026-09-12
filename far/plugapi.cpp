@@ -755,6 +755,9 @@ intptr_t WINAPI apiMenuFn(
 	return cpp_try(
 	[&]
 	{
+		if (BreakCode)
+			*BreakCode = -1;
+
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;
 
@@ -780,9 +783,6 @@ intptr_t WINAPI apiMenuFn(
 			{
 				FarMenu->SetId(*Id);
 			}
-
-			if (BreakCode)
-				*BreakCode=-1;
 
 			{
 				const auto Topic = help::make_topic(UuidToPlugin(PluginId), NullToEmpty(HelpTopic));
