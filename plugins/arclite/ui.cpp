@@ -1302,7 +1302,7 @@ public:
       });
       profile_names.emplace_back();
       label(Far::get_msg(MSG_UPDATE_DLG_PROFILE));
-      profile_ctrl_id = combo_box(profile_names, profile_idx, 30, DIF_DROPDOWNLIST);
+      profile_ctrl_id = combo_box(profile_names, profile_idx, 30, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
       spacer(1);
       save_profile_ctrl_id = button(Far::get_msg(MSG_UPDATE_DLG_SAVE_PROFILE), DIF_BTNNOCLOSE);
       spacer(1);
@@ -1372,7 +1372,7 @@ public:
         if (!main_formats.empty())
           spacer(1);
         other_formats_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_ARC_TYPE_OTHER), found);
-        combo_box(other_format_names, other_format_index, AUTO_SIZE, DIF_DROPDOWNLIST);
+        combo_box(other_format_names, other_format_index, AUTO_SIZE, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
       }
 
       new_line();
@@ -1386,7 +1386,7 @@ public:
       if (m_options.level == c_levels[i].value)
         level_sel = i;
     }
-    level_ctrl_id = combo_box(level_names, level_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
+    level_ctrl_id = combo_box(level_names, level_sel, AUTO_SIZE, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
     spacer(2);
 
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
@@ -1404,7 +1404,7 @@ public:
         method_name = Far::get_msg(c_methods[i].name_id);
       method_names.push_back(method_name);
     }
-    method_ctrl_id = combo_box(method_names, method_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
+    method_ctrl_id = combo_box(method_names, method_sel, AUTO_SIZE, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
     spacer(2);
 
     solid_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_SOLID), m_options.solid);

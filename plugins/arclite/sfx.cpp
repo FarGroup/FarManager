@@ -357,7 +357,7 @@ public:
       profile_names.push_back(profiles[i].name);
     }
     profile_names.emplace_back();
-    profile_ctrl_id = combo_box(profile_names, profiles.size(), 30, DIF_DROPDOWNLIST);
+    profile_ctrl_id = combo_box(profile_names, profiles.size(), 30, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
     new_line();
     separator();
     new_line();
@@ -374,7 +374,7 @@ public:
         name_width = name.size();
     });
     module_names.emplace_back();
-    module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(m_options.name), name_width + 6, DIF_DROPDOWNLIST);
+    module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(m_options.name), name_width + 6, DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT | DIF_LISTNOAMPERSAND);
     new_line();
 
     replace_icon_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_ICON), m_options.replace_icon);

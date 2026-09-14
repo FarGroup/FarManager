@@ -2,7 +2,7 @@ shmuel 2026-09-14 19:04:35+03:00 - build 944
 
 1. LuaFAR: add aliases fg, bg, ul for ForegroundColor, BackgroundColor, UnderlineColor.
 
-MZK 2026-09-08 22:20:59-04:00 - build
+MZK 2026-09-08 22:20:59-04:00
 
 1. Use `curl` and `tar` instead of Powershell cmdlets
 
