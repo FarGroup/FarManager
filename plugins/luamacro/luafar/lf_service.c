@@ -476,15 +476,33 @@ int SetKeyBar(lua_State *L, BOOL editor)
 	return 1;
 }
 
+static COLORREF GetFgBgFromTable(lua_State *L, const char *Names[2])
+{
+	COLORREF ret = 0;
+	for (int i = 0; i < 2; i++) {
+		lua_getfield(L, -1, Names[i]);
+		if (lua_isnumber(L, -1)) {
+			ret = (COLORREF)lua_tonumber(L, -1);
+			i = 2; //to end the loop
+		}
+		lua_pop(L, 1);
+	}
+	return ret;
+}
+
+static const char *FgNames[] = { "ForegroundColor", "fg" };
+static const char *BgNames[] = { "BackgroundColor", "bg" };
+static const char *UlNames[] = { "UnderlineColor",  "ul" };
+
 int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 {
 	if (lua_istable(L, pos))
 	{
 		lua_pushvalue(L, pos);
 		Color->Flags = CheckFlagsFromTable(L, -1, "Flags");
-		Color->Foreground.ForegroundColor = (COLORREF) GetOptNumFromTable(L, "ForegroundColor", 0);
-		Color->Background.BackgroundColor = (COLORREF) GetOptNumFromTable(L, "BackgroundColor", 0);
-		Color->Underline.UnderlineColor = (COLORREF) GetOptNumFromTable(L, "UnderlineColor", 0);
+		Color->Foreground.ForegroundColor = GetFgBgFromTable(L, FgNames);
+		Color->Background.BackgroundColor = GetFgBgFromTable(L, BgNames);
+		Color->Underline.UnderlineColor   = GetFgBgFromTable(L, UlNames);
 		Color->Reserved = 0;
 		lua_pop(L, 1);
 		return 1;
@@ -504,11 +522,14 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 
 void PushFarColor(lua_State *L, const struct FarColor* Color)
 {
-	lua_createtable(L, 0, 3);
+	lua_createtable(L, 0, 7);
 	PutFlagsToTable(L, "Flags", Color->Flags);
-	PutNumToTable(L, "ForegroundColor", Color->Foreground.ForegroundColor);
-	PutNumToTable(L, "BackgroundColor", Color->Background.BackgroundColor);
-	PutNumToTable(L, "UnderlineColor", Color->Underline.UnderlineColor);
+	for (int i=0; i < 2; i++)
+	{
+		PutNumToTable(L, FgNames[i], Color->Foreground.ForegroundColor);
+		PutNumToTable(L, BgNames[i], Color->Background.BackgroundColor);
+		PutNumToTable(L, UlNames[i], Color->Underline.UnderlineColor);
+	}
 }
 
 void GetOptGuid(lua_State *L, int pos, GUID* target, const GUID* source)
@@ -784,7 +805,7 @@ static int far_Menu(lua_State *L)
 		Items[SelectIndex-1].Flags |= MIF_SELECTED;
 
 	// Break Keys
-	intptr_t BreakCode = 0;
+	intptr_t BreakCode = -1;
 	int NumBreakCodes = 0;
 	struct FarKey *pBreakKeys = NULL;
 	intptr_t *pBreakCode = NULL;

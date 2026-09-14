@@ -6643,7 +6643,7 @@ article id=426 dt=Text ctime=3508525223 mtime=3602448047 nm=far.NameToInputRecor
 #_{farnametoinputrecord}: $(ENC_URL)/fsf/farnametoinputrecord.html
 #_
 
-article id=427 dt=Text ctime=3508689565 mtime=3955288580 nm=tFarColor
+article id=427 dt=Text ctime=3508689565 mtime=3998574563 nm=tFarColor
 #_<markdown>
 #_**`tFarColor`** is a table with the following predefined fields:
 #_
@@ -6652,6 +6652,11 @@ article id=427 dt=Text ctime=3508689565 mtime=3955288580 nm=tFarColor
 #_      BackgroundColor: integer
 #_      UnderlineColor:  integer
 #_
+#_#### Note
+#_LuaFAR functions duplicate the `ForegroundColor`, `BackgroundColor` and `UnderlineColor`
+#_fields as `fg`, `bg` and `ul` on output, and accept these aliases on input.
+#_This is provided as a convenience for those who prefer shorter names;
+#_however, on input, the full names take precedence over their shorter counterparts.
 #_
 
 article id=428 dt=Text ctime=3509050121 mtime=3509086519 nm=win.ShellExecute
