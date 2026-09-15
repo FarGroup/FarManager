@@ -20,12 +20,50 @@
 </div>
 
 <pre class=syntax>
+struct rgba
+{
+	unsigned char
+		r,
+		g,
+		b,
+		a;
+};
+
+struct color_index
+{
+	unsigned char
+		i,
+		reserved0,
+		reserved1,
+		a;
+};
+
 struct FarColor
 {
-  FARCOLORFLAGS Flags;
-  COLORREF ForegroundColor;
-  COLORREF BackgroundColor;
-  void *Reserved;
+	FARCOLORFLAGS Flags;
+	union
+	{
+		COLORREF ForegroundColor;
+		struct color_index ForegroundIndex;
+		struct rgba ForegroundRGBA;
+	};
+	union
+	{
+		COLORREF BackgroundColor;
+		struct color_index BackgroundIndex;
+		struct rgba BackgroundRGBA;
+	};
+	union
+	{
+		COLORREF UnderlineColor;
+		struct color_index UnderlineIndex;
+		struct rgba UnderlineRGBA;
+	};
+	DWORD Reserved;
+	// ...
+	UNDERLINE_STYLE GetUnderline() const  {/* ... */}
+	FarColor& SetUnderline(UNDERLINE_STYLE UnderlineStyle) {/* ... */}
+	// ... кроме того определён ряд других хелперов, полное определение см. в plugin.hpp
 };
 </pre>
 
@@ -34,37 +72,182 @@ struct FarColor
   <div class=dfn>Flags</div>
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_INDEX">FCF_FG_INDEX</a></td>
-    <td class="cont" width="60%">цвет символа задан индексом в стандартной палитре NT (0 - 15) или VT100 (16 - 255)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_INDEX">FCF_BG_INDEX</a></td>
-    <td class="cont" width="60%">цвет фона символа задан индексом в стандартной палитре NT (0 - 15) или VT100 (16 - 255)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "жирный" символ</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "наклонный" символ</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_UNDERLINE">FCF_FG_UNDERLINE</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "подчеркнутый" символ</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_NONE">FCF_NONE</a></td>
-    <td class="cont" width="60%">нулевой флаг</td></tr>
+      <tr>
+        <th>Флаг</th>
+        <th>Описание</th>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_INDEX">FCF_FG_INDEX</a></td>
+        <td>цвет символа задан индексом</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_BG_INDEX">FCF_BG_INDEX</a></td>
+        <td>цвет фона символа задан индексом</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_UNDERLINE_INDEX">FCF_FG_UNDERLINE_INDEX</a></td>
+        <td>цвет подчёркивания  задан индексом</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_INHERIT_STYLE">FCF_INHERIT_STYLE</a></td>
+        <td>
+          "Наследовать" расширенные атрибуты; используется в группах раскраски файлов, в цвете выделения, курсора,
+          и в раскраске редактора, потенциально - и в других местах
+        </td>
+      </tr>
+      <tr>
+        <td><a name="FCF_NONE">FCF_NONE</a></td>
+        <td>нулевой флаг</td>
+      </tr>
     </table>
     </div>
-  <div class=dfn>ForegroundColor</div>
-    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA0000FF</code>, если установлен флаг FCF_FG_INDEX.</div>
-  <div class=dfn>BackgroundColor</div>
-    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA0000FF</code>, если установлен флаг FCF_BG_INDEX.</div>
+    <div class=dfndescr>Расширенные атрибуты, задающие стиль (см. также <em>Замечания</em>):
+    <table class="cont">
+      <tr>
+        <th scope="col">Флаг</th>
+        <th scope="col">Описание</th>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_BLINK">FCF_FG_BLINK</a></td>
+        <td>"мигающий"</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
+        <td>"жирный" (или "яркий")</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_FAINT">FCF_FG_FAINT</a></td>
+        <td> "блёклый"</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_INVERSE">FCF_INVERSE</a></td>
+        <td>"инверсный" ("негатив")</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_INVISIBLE">FCF_FG_INVISIBLE</a></td>
+        <td>"невидимый" ("скрытый")</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
+        <td>"наклонный" ("курсив")</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_OVERLINE">FCF_FG_OVERLINE</a></td>
+        <td>"надчёркнутый"</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_STRIKEOUT">FCF_FG_INVISIBLE</a></td>
+        <td>"зачёркнутый"</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_U_DATA0">FCF_FG_U_DATA0</a>, <a name="FCF_FG_U_DATA1">FCF_FG_U_DATA1</a>,
+            <a name="FCF_FG_U_DATA2">FCF_FG_U_DATA2</a></td>
+        <td>
+          <p>"подчёркнутый"; стиль подчёркивания определяется комбинацией значений этих трёх битов.
+          <p>Для работы со стилями подчёркивания предусмотрены хелперы <a name="GetUnderline">GetUnderline()</a> и
+             <a name="SetUnderline">SetUnderline()</a>.
+          <p>Возможные стили подчёркивания (перечисление <a name="UNDERLINE_STYLE">UNDERLINE_STYLE</a>):
+            <a name="UNDERLINE_NONE">UNDERLINE_NONE</a>, <a name="UNDERLINE_SINGLE">UNDERLINE_SINGLE</a>,
+            <a name="UNDERLINE_DOUBLE">UNDERLINE_DOUBLE</a>, <a name="UNDERLINE_CURLY">UNDERLINE_CURLY</a>,
+            <a name="UNDERLINE_DOT">UNDERLINE_DOT</a>, <a name="UNDERLINE_DASH">UNDERLINE_DASH</a>.
+        </td>
+      </tr>
+    </table>
+    </div>
+    <div class=dfndescr>Маски:
+    <table class="cont">
+      <tr>
+        <th scope="col">Флаг</th>
+        <th scope="col">Описание</th>
+      </tr>
+      <tr>
+        <td><a name="FCF_INDEXMASK">FCF_INDEXMASK</a></td>
+        <td>FCF_FG_INDEX | FCF_BG_INDEX | FCF_FG_UNDERLINE_INDEX</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_FG_UNDERLINE_MASK">FCF_FG_UNDERLINE_MASK</a></td>
+        <td>FCF_FG_U_DATA0 | FCF_FG_U_DATA1 | FCF_FG_U_DATA2</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_RAWATTR_MASK">FCF_RAWATTR_MASK</a></td>
+        <td><a href="https://learn.microsoft.com/windows/console/char-info-str">LVB</a> console attributes</td>
+      </tr>
+      <tr>
+        <td><a name="FCF_STYLE_MASK">FCF_STYLE_MASK</a></td>
+        <td>объединение всех расширенных атрибутов</td>
+      </tr>
+    </table>
+    </div>
+  <div class=dfn>ForegroundIndex | ForegroundRGBA | ForegroundColor</div>
+    <div class=dfndescr>
+      Цвет символа может быть представлен в виде структур <code>color_index</code>, <code>rgba</code>
+      или типа <code>COLORREF</code>, в зависимости от флага FCF_FG_INDEX:
+      <ul>
+        <li>Если флаг установлен, то значение соответствует типу <code>color_index</code>,
+          где <code>i</code> это индекс в палитре (см. <em>Замечания</em>),
+          <code>a</code> - Alpha-канал, определяющий степень прозрачности,
+          от полностью прозрачного <code>00</code> до совсем непрозрачного <code>FF</code>.
+        </li>
+        <li>Если флаг снят, то значение соответствует типу <code>rgba</code>, где <code>a</code> - Alpha-канал,
+          а <code>r</code>, <code>g</code>, <code>b</code> - красный, зелёный, и синий каналы в цветовом пространстве RGB,
+          со значениями от <code>00</code> до <code>FF</code>.
+        </li>
+        <li>Значение типа <code>COLORREF</code> можно использовать в обоих случаях:
+          <ul>
+            <li>при установленном флаге: значение в формате <code>0xAA000000</code> - <code>0xAA0000FF</code>,
+              где младший байт представляет собой индекс в палитре, а старший (<code>AA</code>) - Alpha-канал.
+            </li>
+            <li>при снятом флаге: значение в формате <code>0xAABBGGRR</code>, где <code>AA</code> - Alpha-канал,
+              а <code>RR</code>, <code>GG</code>, <code>BB</code> - красный, зелёный, и синий каналы.
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <p class=note><img src="../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+      <ul class=note>
+        <li>В данный момент прозрачность поддерживается не везде.
+          Чтобы в будущем избежать неприятных сюрпризов, всегда устанавливайте Alpha-канал
+          (старший байт значения <code>COLORREF</code>) в <code>0xFF</code>.
+        </li>
+      </ul>
+      <p class=note><img src="../../images/note.gif" alt="Примечание" width="10" height="10"> Примечание</p>
+      <ul class=note>
+        <li>Для комфортной работы со структурами также предусмотрен ряд хелперов, см.
+          <a href="https://github.com/FarGroup/FarManager/blob/master/plugins/common/unicode/plugin.hpp">plugin.hpp</a>.
+        </li>
+      </ul>
+    </div>
+  <div class=dfn>BackgroundIndex | BackgroundRGBA | BackgroundColor</div>
+    <div class=dfndescr>Цвет фона символа, в зависимости от флага FCF_BG_INDEX, формат тот же что у Foreground*.</div>
+  <div class=dfn>UnderlineIndex | UnderlineRGBA | UnderlineColor</div>
+    <div class=dfndescr>Цвет подчёркивания, в зависимости от флага FCF_FG_UNDERLINE_INDEX, формат тот же что у Foreground*.</div>
   <div class=dfn>Reserved</div>
     <div class=dfndescr>Не используется и должен быть установлен в 0.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_INDEX</code> и <code>FCF_BG_INDEX</code>.
-</div>
+<p>При использовании цветов из палитры обязательно указывайте флаги <code>FCF_FG_INDEX</code>, <code>FCF_BG_INDEX</code>
+  (и <code>FCF_FG_UNDERLINE_INDEX</code>, если используется подчёркивание).
 
-<div class=descr>
-Старший байт в ForegroundColor и BackgroundColor определяет степень прозрачности цвета, от полностью прозрачного (00) до полностью непрозрачного (FF).
-В данный момент прозрачность поддерживается не везде. Во избежание неприятных сюрпризов в будущем всегда устанавливайте старший байт в <code>0xFF</code>.
+<p>Стандартные цвета консоли Windows представляют собой палитру из 16 цветов, с индексами 0 - 15.
+
+<p>Также можно использовать цвета из палитры VT100 (16 - 255).
+  В этом случае значения (16 - 231) кодируются как 36R+6G+B, где уровень каждого из основных цветов 0-5,
+  а последние 24 значения (232 - 255) используются для оттенков серого.
+
+<p class=note><img src="../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<ul class=note>
+  <li>Гарантированно везде работает только стандартная 16-цветная палитра.
+    Поддержка всего остального условна и определяется вашим терминалом.
+  </li>
+  <li>Расширенные (RGB) цвета и стили требуют рендеринга на основе
+    <a href="https://learn.microsoft.com/windows/console/classic-vs-vt">Virtual Terminal</a>, 
+    который можно включить в настройках интерфейса. Если он не включен или если ваш
+    терминал не поддерживает цвета RGB, то цвета будут аппроксимированы до ближайших 
+    индексов консольной палитры.
+  </li>
+</ul>
 </div>
 
 <div class=see>Смотрите также:</div>
