@@ -1,24 +1,25 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>FSF.MkLink</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>MkLink</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">стандартные функции</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>FSF.MkLink</code> создаёт жёсткие и символические ссылки, связи каталогов, а также монтирует локальные диски на файловую систему.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 BOOL WINAPI MkLink(
   const wchar_t *Target,
   const wchar_t *LinkName,
@@ -29,49 +30,49 @@ BOOL WINAPI MkLink(
 
 <h3>Параметры</h3>
 
-<div class=descr>
-  <div class=dfn>Target</div>
-    <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.</div>
-  <div class=dfn>LinkName</div>
-    <div class=dfndescr>Имя создаваемой ссылки.</div>
-  <div class=dfn>LinkType</div>
-    <div class=dfndescr>Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
+<div class="descr">
+  <div class="dfn">Target</div>
+    <div class="dfndescr">Имя файлового объекта, на который создаётся ссылка.</div>
+  <div class="dfn">LinkName</div>
+    <div class="dfndescr">Имя создаваемой ссылки.</div>
+  <div class="dfn">LinkType</div>
+    <div class="dfndescr">Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
-    <td class="cont" width="60%">создать жёсткую ссылку (hardlink)</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_JUNCTION">LINK_JUNCTION</a></td>
-    <td class="cont" width="60%">создать связь каталогов (junction)</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_VOLMOUNT">LINK_VOLMOUNT</a></td>
-    <td class="cont" width="60%">монтировать локальный диск на файловую систему</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKFILE">LINK_SYMLINKFILE</a></td>
-    <td class="cont" width="60%">создать символическую ссылку-файл</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKDIR">LINK_SYMLINKDIR</a></td>
-    <td class="cont" width="60%">создать символическую ссылку-каталог</td></tr>
-    <tr><td class="cont" width="40%"><a name="LINK_SYMLINK">LINK_SYMLINK</a></td>
-    <td class="cont" width="60%">автоматически выбрать тип создаваемой символической ссылки</td></tr>
+    <tr><th>Операция</th><th>Описание</th></tr>
+    <tr><td><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
+    <td>создать жёсткую ссылку (hardlink)</td></tr>
+    <tr><td><a name="LINK_JUNCTION">LINK_JUNCTION</a></td>
+    <td>создать связь каталогов (junction)</td></tr>
+    <tr><td><a name="LINK_VOLMOUNT">LINK_VOLMOUNT</a></td>
+    <td>монтировать локальный диск на файловую систему</td></tr>
+    <tr><td><a name="LINK_SYMLINKFILE">LINK_SYMLINKFILE</a></td>
+    <td>создать символическую ссылку-файл</td></tr>
+    <tr><td><a name="LINK_SYMLINKDIR">LINK_SYMLINKDIR</a></td>
+    <td>создать символическую ссылку-каталог</td></tr>
+    <tr><td><a name="LINK_SYMLINK">LINK_SYMLINK</a></td>
+    <td>автоматически выбрать тип создаваемой символической ссылки</td></tr>
     </table>
     </div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
-    <td class="cont" width="60%">выводить сообщения об ошибках</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
-    <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
-    <td class="cont" width="60%">для символических ссылок не конвертировать Target в полный путь</td></tr>
-    <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
-    <td class="cont" width="60%">нулевой флаг</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
+    <td>выводить сообщения об ошибках</td></tr>
+    <tr><td><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
+    <td>после создания ссылки не обновлять панели</td></tr>
+    <tr><td><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
+    <td>для символических ссылок не конвертировать Target в полный путь</td></tr>
+    <tr><td><a name="MLF_NONE">MLF_NONE</a></td>
+    <td>нулевой флаг</td></tr>
     </table>
     </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
-<p><code>1</code> - ссылка создана.
-<p><code>0</code> - ошибка при создании ссылки:
+<div class="descr">
+<p><code>1</code> - ссылка создана.</p>
+<p><code>0</code> - ошибка при создании ссылки:</p>
 <ul>
 <li>Для жёстких ссылок:
   <ul>
@@ -99,7 +100,7 @@ BOOL WINAPI MkLink(
 </div>
 
 <h3>Примечание</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Ссылки создаются по следующим правилам:
   <ul>
@@ -112,14 +113,15 @@ BOOL WINAPI MkLink(
 
 <li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела
 (т.н. <a href="../other/dict.html#mountpoints">Mount Points</a>). И уже из этой папки сделать нужную связь.
+</ol>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="getnumberoflinks.html">GetNumberOfLinks</a>
 </div>
 

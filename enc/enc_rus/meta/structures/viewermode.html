@@ -1,25 +1,26 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>ViewerMode</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>ViewerMode</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>ViewerMode</code> используется для получения дополнительной информации о текущем состоянии программы просмотра Far Manager.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct ViewerMode
 {
   uintptr_t CodePage;
@@ -29,33 +30,33 @@ struct ViewerMode
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>CodePage</div>
-    <div class=dfndescr>Кодовая страница символов.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (тип <a name="VIEWER_MODE_FLAGS">VIEWER_MODE_FLAGS</a>).
+<div class="descr">
+  <div class="dfn">CodePage</div>
+    <div class="dfndescr">Кодовая страница символов.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Комбинация следующих значений (тип <a name="VIEWER_MODE_FLAGS">VIEWER_MODE_FLAGS</a>).
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VMF_WRAP">VMF_WRAP</a></td>
-    <td class="cont" width="60%">Включена свёртка строк.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VMF_WORDWRAP">VMF_WORDWRAP</a></td>
-    <td class="cont" width="60%">При свертке используется перенос строк по словам, а не буквам.</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="VMF_WRAP">VMF_WRAP</a></td>
+    <td>Включена свёртка строк.</td></tr>
+    <tr><td><a name="VMF_WORDWRAP">VMF_WORDWRAP</a></td>
+    <td>При свертке используется перенос строк по словам, а не буквам.</td></tr>
     </table></div>
-  <div class=dfn>ViewMode</div>
-    <div class=dfndescr>Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
+  <div class="dfn">ViewMode</div>
+    <div class="dfndescr">Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VMT_TEXT">VMT_TEXT</a></td>
-    <td class="cont" width="60%">Текстовый.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VMT_HEX">VMT_HEX</a></td>
-    <td class="cont" width="60%">Hex-режим.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VMT_DUMP">VMT_DUMP</a></td>
-    <td class="cont" width="60%">Dump-режим.</td></tr>
+    <tr><th>Тип</th><th>Описание</th></tr>
+    <tr><td><a name="VMT_TEXT">VMT_TEXT</a></td>
+    <td>Текстовый.</td></tr>
+    <tr><td><a name="VMT_HEX">VMT_HEX</a></td>
+    <td>Hex-режим.</td></tr>
+    <tr><td><a name="VMT_DUMP">VMT_DUMP</a></td>
+    <td>Dump-режим.</td></tr>
     </table></div>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">Структуры</a>,
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>,
 <a href="viewerinfo.html">ViewerInfo</a>
