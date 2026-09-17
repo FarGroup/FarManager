@@ -4139,6 +4139,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 	multifilter Filter(this, FFT_SELECT);
 	bool bUseFilter = false;
+	bool SkipPath = true;
 	static auto strPrevMask = L"*.*"s;
 	/* $ 20.05.2002 IS
 	   При обработке маски, если работаем с именем файла на панели,
@@ -4166,82 +4167,97 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 	const auto DataLock = lock_data();
 	auto& m_ListData = *DataLock;
 
-	const auto& strCurName = PointToName(m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames));
-
-	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
+	switch (Mode)
 	{
-		const auto [Name, Ext] = name_ext(strCurName);
+	case SELECT_INVERT:
+	case SELECT_INVERTALL:
+	case SELECT_INVERTFILES:
+		break;
 
-		if (!Ext.empty())
+	case SELECT_ADDEXT:
+	case SELECT_REMOVEEXT:
 		{
-			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = far::format(L"\"*{}\""sv, Ext);
-			WrapBrackets=true;
-		}
-		else
-		{
-			strMask = L"*."sv;
-		}
-		Mode=(Mode==SELECT_ADDEXT)? SELECT_ADD:SELECT_REMOVE;
-	}
-	else
-	{
-		if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
-		{
-			// Учтем тот момент, что имя может содержать символы-разделители
+			const auto& strCurName = PointToName(m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames));
 			const auto [Name, Ext] = name_ext(strCurName);
-			strRawMask = far::format(L"\"{}.*\""sv, Name);
-			WrapBrackets=true;
-			Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
-		}
-		else
-		{
-			if (Mode==SELECT_ADD || Mode==SELECT_REMOVE)
+
+			if (!Ext.empty())
 			{
-				SelectDlg[sf_edit].strData = strPrevMask;
-				SelectDlg[sf_doublebox].strData = msg(Mode == SELECT_ADD? lng::MSelectTitle : lng::MUnselectTitle);
+				// Учтем тот момент, что расширение может содержать символы-разделители
+				strRawMask = far::format(L"\"*{}\""sv, Ext);
+				WrapBrackets = true;
+			}
+			else
+			{
+				strMask = L"*."sv;
+			}
+			Mode = Mode == SELECT_ADDEXT? SELECT_ADD : SELECT_REMOVE;
+		}
+		break;
 
+	case SELECT_ADDNAME:
+	case SELECT_REMOVENAME:
+		{
+			const auto& strCurName = PointToName(m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames));
+			const auto [Name, Ext] = name_ext(strCurName);
+			// Учтем тот момент, что имя может содержать символы-разделители
+			strRawMask = far::format(LR"("{}.*")"sv, Name);
+			WrapBrackets = true;
+			Mode = Mode == SELECT_ADDNAME? SELECT_ADD : SELECT_REMOVE;
+		}
+		break;
+
+	case SELECT_ADD:
+	case SELECT_REMOVE:
+		{
+			SkipPath = false;
+			SelectDlg[sf_edit].strData = strPrevMask;
+			SelectDlg[sf_doublebox].strData = msg(Mode == SELECT_ADD? lng::MSelectTitle : lng::MUnselectTitle);
+
+			{
+				const auto Dlg = Dialog::create(SelectDlg);
+				Dlg->SetHelp(L"SelectFiles"sv);
+				Dlg->SetPosition({ -1, -1, 55, 7 });
+				Dlg->SetId(Mode == SELECT_ADD? SelectDialogId : UnSelectDialogId);
+
+				for (;;)
 				{
-					const auto Dlg = Dialog::create(SelectDlg);
-					Dlg->SetHelp(L"SelectFiles"sv);
-					Dlg->SetPosition({ -1, -1, 55, 7 });
-					Dlg->SetId(Mode==SELECT_ADD?SelectDialogId:UnSelectDialogId);
+					Dlg->ClearDone();
+					Dlg->Process();
 
-					for (;;)
+					if (Dlg->GetExitCode() == sf_button_filter)
 					{
-						Dlg->ClearDone();
-						Dlg->Process();
+						filters::EditFilters(Filter.area(), Filter.panel());
+						//Рефреш текущему времени для фильтра сразу после выхода из диалога
+						Filter.UpdateCurrentTime();
+						bUseFilter = true;
+						break;
+					}
 
-						if (Dlg->GetExitCode() == sf_button_filter)
-						{
-							filters::EditFilters(Filter.area(), Filter.panel());
-							//Рефреш текущему времени для фильтра сразу после выхода из диалога
-							Filter.UpdateCurrentTime();
-							bUseFilter = true;
-							break;
-						}
+					if (Dlg->GetExitCode() != sf_button_ok)
+						return 0;
 
-						if (Dlg->GetExitCode() != sf_button_ok)
-							return 0;
+					strMask = SelectDlg[sf_edit].strData;
 
-						strMask = SelectDlg[sf_edit].strData;
-
-						if (FileMask.assign(strMask)) // Проверим вводимые пользователем маски на ошибки
-						{
-							strPrevMask = strMask;
-							break;
-						}
+					if (FileMask.assign(strMask)) // Проверим вводимые пользователем маски на ошибки
+					{
+						strPrevMask = strMask;
+						break;
 					}
 				}
 			}
-			else if (Mode==SELECT_ADDMASK || Mode==SELECT_REMOVEMASK || Mode==SELECT_INVERTMASK)
-			{
-				strMask = Mask;
-
-				if (!FileMask.assign(strMask)) // Проверим маски на ошибки
-					return 0;
-			}
 		}
+		break;
+
+	case SELECT_ADDMASK:
+	case SELECT_REMOVEMASK:
+	case SELECT_INVERTMASK:
+		{
+			strMask = Mask;
+
+			if (!FileMask.assign(strMask)) // Проверим маски на ошибки
+				return 0;
+		}
+		break;
 	}
 
 	SaveSelection();
@@ -4272,7 +4288,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 				Mode != SELECT_INVERT &&
 				Mode != SELECT_INVERTALL &&
 				Mode != SELECT_INVERTFILES &&
-				!(bUseFilter? Filter.FileInFilter(i) : FileMask.check(PointToName(i.AlternateOrNormal(m_ShowShortNames))))
+				!(bUseFilter? Filter.FileInFilter(i) : FileMask.check(SkipPath? PointToName(i.AlternateOrNormal(m_ShowShortNames)) : i.AlternateOrNormal(m_ShowShortNames)))
 			)
 				continue;
 
