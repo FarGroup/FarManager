@@ -4252,6 +4252,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 	case SELECT_REMOVEMASK:
 	case SELECT_INVERTMASK:
 		{
+			SkipPath = false;
 			strMask = Mask;
 
 			if (!FileMask.assign(strMask)) // Проверим маски на ошибки
