@@ -1215,13 +1215,19 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 			string_view StrItems = std::bit_cast<const wchar_t*>(Items);
 
 			// Plugins expect that the trailing \n is ignored here, even though it's not promised anywhere.
+			bool TrailingNewLine = false;
 			if (StrItems.ends_with(L'\n'))
+			{
 				StrItems.remove_suffix(1);
+				TrailingNewLine = true;
+			}
 
 			for (const auto& i: enum_tokens(StrItems, L"\n"sv))
-			{
 				Strings.emplace_back(i);
-			}
+
+			if (Strings.size() == 1 && TrailingNewLine)
+				Strings.emplace_back();
+
 			AssignStrings(std::move(Strings));
 		}
 		else

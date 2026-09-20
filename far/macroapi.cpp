@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 
 // Common:
+#include "common/enum_substrings.hpp"
 #include "common/from_string.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
@@ -1863,13 +1864,21 @@ void FarMacroApi::msgBoxFunc() const
 
 	auto Flags = static_cast<DWORD>(Params[2].asInteger());
 	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
-	Flags|=FMSG_ALLINONE;
 
 	if (!extract_integer<WORD, 1>(Flags) || extract_integer<WORD, 1>(Flags) > extract_integer<WORD, 1>(FMSG_MB_RETRYCANCEL))
 		Flags|=FMSG_MB_OK;
 
-	const auto TempBuf = concat(title, L'\n', text);
-	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, std::bit_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
+	std::vector<string> Items;
+	Items.emplace_back(title);
+
+	for (const auto& i: enum_tokens(text, L"\n"sv))
+		Items.emplace_back(i);
+
+	std::vector<const wchar_t*> RawItems;
+	RawItems.reserve(Items.size());
+	std::ranges::transform(Items, std::back_inserter(RawItems), [](const auto& Str){ return Str.c_str(); });
+
+	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, RawItems.data(), RawItems.size(), 0) + 1;
 	PushValue(Result);
 }
 
