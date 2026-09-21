@@ -2700,7 +2700,10 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		if (m_Mode != mode::m_default)
 			std::wcerr << Msg << std::endl;
 		else
-			m_Problems.emplace_back(Msg);
+		{
+			for (const auto& i: enum_tokens(Msg, L"\n"sv))
+				m_Problems.emplace_back(i);
+		}
 	};
 
 	try
