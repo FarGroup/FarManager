@@ -1,10 +1,11 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>Общие свойства и функции - Макросы</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
-<script language="javascript" src="../../../links.js" type="text/javascript"></script>
+<script src="../../../links.js"></script>
 </head>
 <body>
 
@@ -455,7 +456,7 @@
   <tr>
     <td>S=<dfn><a name="size2str">size2str</a></dfn>(Size,Flags[,Width])</td>
     <td><p>Функция форматирует число <var>Size</var> (например, размера файла) по заданным условиям, указанным в <var>Flags</var>, шириной <var>Width</var>.</p>
-      <p>Параметр <var>Flags</var> может быть комбинацией следующих значений:
+      <p>Параметр <var>Flags</var> может быть комбинацией следующих значений:</p>
       <table class="cont2 params lite tiny">
         <col class="value">
         <col>
@@ -489,7 +490,7 @@
            <p>Например, 0x0020000000000001 означает "<em>размер как минимум в мегабайтах</em>".</p></td>
         </tr>
       </table>
-    <p>Если <var>Width</var> не указан или равен 0, то подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать слева:
+    <p>Если <var>Width</var> не указан или равен 0, то подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать слева:</p>
       <table class="cont2 params lite tiny">
         <col>
         <col>
@@ -500,7 +501,6 @@
          <tr><td>Size2Str(123,0, 5)</td><td><code>'  123'</code></td></tr>
          <tr><td>Size2Str(123,0,-5)</td><td><code>'123  '</code></td></tr>
       </table>
-    </td>
     </td>
   </tr>
   <tr>
@@ -579,10 +579,10 @@
          <tr><td>strpad("Foo",10,"*",2)</td><td><code>'***Foo****'</code></td></tr>
          <tr><td>strpad("",10,"-*-",2)</td><td><code>'-*--*--*--'</code></td></tr>
          <tr><td>strpad(,10,"-*-")</td><td><code>'-*--*--*--'</code></td></tr>
-         <tr><td>strpad("Foo",10)</td><td><code>'Foo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10)</td><td><code class="pre">'Foo       '</code></td></tr>
          <tr><td>strpad("Foo",10,"-")</td><td><code>'Foo-------'</code></td></tr>
-         <tr><td>strpad("Foo",10,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
-         <tr><td>strpad("Foo",10,,2)</td><td><code>'&nbsp;&nbsp;&nbsp;Foo&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10,,1)</td><td><code class="pre">'       Foo'</code></td></tr>
+         <tr><td>strpad("Foo",10,,2)</td><td><code class="pre">'   Foo    '</code></td></tr>
          <tr><td>strpad("Foo",10,"1234567890",2)</td><td><code>'123Foo1234'</code></td></tr>
       </table>
 
@@ -848,7 +848,7 @@
       </table>
       Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную строку <code><span class="nobr">"%a %b %d %H:%M:%S %Z %Y"</span></code> (см.).
       <!--Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную
-      строку "%a&nbsp;%b&nbsp;%d&nbsp;%H:%M:%S&nbsp;%Z&nbsp;%Y" (см.).-->
+      строку "%a %b %d %H:%M:%S %Z %Y" (см.).-->
       </td>
   </tr>
 </table>
@@ -889,7 +889,7 @@
     <td>N=<dfn><a name="testfolder">testfolder</a></dfn>(S)</td>
     <td><p>Тестирует папку <var>S</var>.</p>
        <p>Возвращает:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Значение</th><th>Описание</th></tr>
@@ -943,7 +943,7 @@
        Маска исключения отделяется от основной маски символом |</p>
        <p> - регулярным выражением. Текст регулярного выражения должен быть окружён символами /</p>
        <p>Возвращает:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Значение</th><th>Описание</th></tr>
@@ -1031,7 +1031,7 @@
            <tr><td>0x00000002</td><td>Используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
            <tr><td>0x00000004</td><td>После успешного ввода, в результирующем значении <var>S</var> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '%TEMP%', то результат будет содержать 'C:\TEMP'.</td></tr>
            <tr><td>0x00000008</td><td>Не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <var>History</var>.</td></tr>
-           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp>[&nbsp;Ok&nbsp;]</samp> и <samp>[&nbsp;Cancel&nbsp;]</samp>.
+           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp class="pre nobr">[ Ok ]</samp> и <samp class="pre nobr">[ Cancel ]</samp>.
                                       Диалог увеличится на 2 строки.</p></td></tr>
            <tr><td>0x00000020</td><td>Не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
        </table>
@@ -1115,7 +1115,7 @@ Env("Foo",1,"")</code></pre>
       <p>Установить значение переменной среды Foo в "0"</p>
         <pre class="codesample"><code>Env("Foo",1,"0")
 Env("Foo",1,0)</code></pre>
-      <p>Если выбран английский язык интерфейса Far Manager, то <em>что-то делаем</em>
+      <p>Если выбран английский язык интерфейса Far Manager, то <em>что-то делаем</em></p>
       <pre class="codesample"><code>$if (Env("FARLANG") == "English") <em>что-то делаем</em> $end</code></pre>
     </td>
   </tr>
@@ -1135,7 +1135,7 @@ Env("Foo",1,0)</code></pre>
           <p>По умолчанию в операциях запоминания/вставки данных Far Manager работает с буфером обмена Windows.</p>
           <p>Функция '<code>clip(5)</code>' позволяет в пределах одного макроса переключать внутренние механизмы Far Manager для работы с/без использования буфера обмена Windows.</p>
           <p><var>Value</var> может быть одним из:</p>
-          <table class="cont2 params lite tiny">
+          <table class="cont2 params lite tiny ralign">
           <col class="value">
           <col>
           <tr><th><var>Value</var></th><th>Описание</th></tr>
@@ -1163,7 +1163,7 @@ $End</code></pre>
     <td>V=<dfn><a name="flock">flock</a></dfn>(Lkey,Action)</td>
     <td><p>Позволяет переключить состояние Lock-клавиш (<kbd>NumLock</kbd>, <kbd>CapsLock</kbd> и <kbd>ScrollLock</kbd>).</p>
     <p>Клавиша <var>Lkey</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Lkey</var></th><th>Описание</th></tr>
@@ -1172,7 +1172,7 @@ $End</code></pre>
         <tr><td>2</td><td><kbd>ScrollLock</kbd></td></tr>
        </table>
     Действие <var>Action</var>:
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Action</var></th><th>Описание</th></tr>
@@ -1189,7 +1189,7 @@ $End</code></pre>
     <td>N=<dfn><a name="kbdlayout">kbdlayout</a></dfn>([V])</td>
     <td><p>Управление раскладкой клавиатуры.</p>
       <p>Параметр <var>V</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>V</var></th><th>Описание</th></tr>
@@ -1277,7 +1277,7 @@ $End</code></pre>
     <td>V=<dfn><a name="far.cfg.get">Far.Cfg.Get</a></dfn>(Key,Name)</td>
     <td><p>Функция, позволяет получить основные текущие настройки Far Manager.</p>
     <p>Состояние ошибки (нет такого Key или Name или внутренняя ошибка) можно проверить с помощью макроконстанты <a href="#Far.Cfg.Err">Far.Cfg.Err</a>.</p>
-     <p>Например,
+     <p>Например,</p>
      <pre class="codesample"><code>Far.Cfg.Get("System.KnownIDs","Network")</code></pre>
      вернет значение "773B5051-7C5F-4920-A201-68051C4176A4", которое соответствует ID плагина Network.
      <pre class="codesample"><code>Far.Cfg.Get("KeyMacros","DateFormat")</code></pre>
@@ -1285,10 +1285,10 @@ $End</code></pre>
      <pre class="codesample"><code>Far.Cfg.Get("KeyMacros","TimeFormat")</code></pre>
      вернет вернут пустую строку и выставит Far.Cfg.Err=1, т.к. значения с именем "TimeFormat" не существует.
 
-     <p class=note><img src="../../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!<br><br></p>
-     <UL class=note><LI>В процессе разработки Far Manager настройки (имена ключей и имена значений) могут меняться, добавляться и удаляться,
+     <p class="note"><img src="../../../../images/note.gif" alt="Внимание!"> Внимание!<br><br></p>
+     <ul class="note"><li>В процессе разработки Far Manager настройки (имена ключей и имена значений) могут меняться, добавляться и удаляться,
      поэтому Вы используете функцию на свой страх и риск. Поддержка функционала (имена ключей и имена значений) со стороны разработчиков не гарантирована.
-     </LI></UL>
+     </li></ul>
     </td>
   </tr>
 
@@ -1378,7 +1378,7 @@ $End</code></pre>
           </td></tr>
         <tr><td>3</td><td>Проверить макропоследовательность, заданную строкой <var>S</var>,
           и вернуть строку-сообщение с ошибкой компиляции. Последовательность <var>S</var> исполняться не будет.
-          <p>Строка-сообщение будет пустой, если ошибок нет, или содержать 4 подстроки (разделенных символом '\n'):<ol>
+          <p>Строка-сообщение будет пустой, если ошибок нет, или содержать 4 подстроки (разделенных символом '\n'):</p><ol>
           <li>строка и позиция в строке (например, <code>Line 1, Pos 1</code>)
           <li>текст сообщения об ошибке (например, <code>Unrecognized keyword 'foo'</code>)
           <li>кусок проблемной макропоследовательности (например, <code>"foo"</code>)
@@ -1390,7 +1390,7 @@ $End</code></pre>
        </table>
 
      <p>Для всех режимов, кроме <var>Mode</var>=3, функция возвращает 0 в случае успешной компиляции последовательности <var>S</var> или код ошибки:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Ошибка</th><th>Описание</th></tr>
@@ -1466,8 +1466,8 @@ $End</code></pre>
        <tr><th><var>Action</var></th><th>Описание</th></tr>
         <tr><td>1</td><td>позволяет изменять режим перерисовки экрана во время проигрывания макропоследовательности (запрещает вывод)</td></tr>
         <tr><td>2</td><td>вернуть информацию (область и флаги) об условиях запуска исполняемой в данный момент макропоследовательности.
-        <p>Параметр <var>Value</var> игнорируется.
-        <p>Функция возвращает в младшем байте номер макрообласти, из которой стартовал макрос:
+        <p>Параметр <var>Value</var> игнорируется.</p>
+        <p>Функция возвращает в младшем байте номер макрообласти, из которой стартовал макрос:</p>
          <table class="cont2 params lite tiny">
          <col class="value">
          <col>
@@ -1491,8 +1491,8 @@ $End</code></pre>
           <tr><td> 16</td><td>Dialog.AutoCompletion - список автодополнения в диалогах</td></tr>
           <tr><td>255</td><td>Common - Общая область</td></tr>
          </table>
-         <p>Остальные значения - флаги условий запуска (в т.ч. некоторые служебные флаги).
-         <p>Условия запуска:
+         <p>Остальные значения - флаги условий запуска (в т.ч. некоторые служебные флаги).</p>
+         <p>Условия запуска:</p>
          <table class="cont2 params lite tiny">
          <col class="value">
          <col>
@@ -1517,7 +1517,7 @@ $End</code></pre>
           <tr><td>0x008000000</td><td>панель пассивная: запускать, если текущий объект "папка"</td></tr>
          </table>
 
-       <p>Дополнительная информация:
+       <p>Дополнительная информация:</p>
          <table class="cont2 params lite tiny">
          <col class="value">
          <col>
@@ -1533,7 +1533,7 @@ $End</code></pre>
 
         <tr><td>3</td><td><p>разрешает или запрещает исполнение макросов при вызове плагина макрофункцией <a href="#plugin.call">plugin.call</a>.</p>
          <p></p>
-         </p>Например, в редакторе с помощью плагина DrawLine нарисовать небольшой прямоугольник (макропоследовательность передается плагину, который отдает её в Far Manager):</p>
+         <p>Например, в редакторе с помощью плагина DrawLine нарисовать небольшой прямоугольник (макропоследовательность передается плагину, который отдает её в Far Manager):</p>
          <pre class="codesample"><code>mmode(3,1)
 plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
   "ShiftRight ShiftRight ShiftDown ShiftDown ShiftLeft ShiftLeft ShiftUp ShiftUp ShiftRight Esc") </code></pre>
@@ -1543,7 +1543,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
         </td></tr>
        </table>
       <p>Параметр <var>Value</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Value</var></th><th>Описание</th></tr>
@@ -1560,7 +1560,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
     <td>N=<dfn><a name="history.disable">history.disable</a></dfn>([State])</td>
     <td><p>Позволяет выключать добавление пунктов в истории во время воспроизведения текущего макроса.</p>
       <p>Необязательный параметр <var>State</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Бит</th><th>Описание</th></tr>
@@ -1574,7 +1574,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
        <p>Функция возвращает предыдущее значение.</p>
        <p>При старте макроса разрешено добавление во все истории.</p>
        <p>Примеры</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
         <col>
         <col>
         <tr>
@@ -1592,7 +1592,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
     <td>N=<dfn><a name="keybar.show">keybar.show</a></dfn>([Mode])</td>
     <td><p>Позволяет управлять видимостью линейки функциональных клавиш.</p>
       <p>Необязательный параметр <var>Mode</var>:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th><var>Mode</var></th><th>Описание</th></tr>
@@ -1602,7 +1602,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
         <tr><td>3</td><td>изменить состояние видимости на обратное</td></tr>
        </table>
        <p>Функция возвращает предыдущее состояние видимости линейки:</p>
-       <table class="cont2 params lite tiny">
+       <table class="cont2 params lite tiny ralign">
        <col class="value">
        <col>
        <tr><th>Value</th><th>Описание</th></tr>
@@ -1612,7 +1612,7 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
        </table>
        Действие функции актуально только для текущих панелей, редакторов, вьюеров.
 
-       <p>Например, Esc при погашенных панелях гасить и кейбар:
+       <p>Например, Esc при погашенных панелях гасить и кейбар:</p>
        <pre class="codesample"><code>CtrlO $if (APanel.Visible &amp;&amp; PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end</code></pre>
     </td>
   </tr>
@@ -1622,8 +1622,8 @@ plugin.call("C941E865-9C29-485C-99B3-0C710940F2D8",
     <td><p>Вызвать плагин, имеющий идентификатор <em>Guid</em> с параметром <em>param</em>.</p>
      <p>Plugin.call вызывает экспортируемую функцию <a href="../../../exported_functions/openw.html">OpenW</a> требуемого плагина.</p>
      <p>Параметр <em>param</em> может быть числом или строкой и будет передан плагину в
-     функцию OpenW как есть. Дальнейшие действия зависят от того, как плагин обработал этот параметр.<br>
-     Функция возвращает 0, если вызываемого плагина нет или плагин вернул 0. В других случаях функция возвращает значение, отличное от 0.<br>
+     функцию OpenW как есть. Дальнейшие действия зависят от того, как плагин обработал этот параметр.</p>
+     <p>Функция возвращает 0, если вызываемого плагина нет или плагин вернул 0. В других случаях функция возвращает значение, отличное от 0.</p>
     </td>
   </tr>
 
@@ -1697,7 +1697,7 @@ $If (%I==1) 5 $End</code></pre>
       <p>Необязательный параметр <var>Flags</var> - набор битов, управляющих поведением и отображением меню:</p>
                             <table class="cont2 params lite tiny">
                             <col class="widevalue">
-                            <tr><th>Бит<br>установлен(ы)</th></col><th>Описание</th></tr>
+                            <tr><th>Бит<br>установлен(ы)</th><th>Описание</th></tr>
                                             <tr><td><code>0-2</code></td><td>Тип рамки меню: (по умолчанию == 100)
                                                                 <table class="cont2 params lite tiny">
                                                                 <col class="widevalue">
@@ -1741,8 +1741,8 @@ $If (%I==1) 5 $End</code></pre>
                                        <tr><th>Тип</th><th>Описание</th></tr>
                                        <tr><td>пустая строка</td><td>выход из меню по <code>Esc</code>, <code>F10</code> или при клике вне меню</td></tr>
                                        <tr><td>число == 0 (если установлен бит 3)</td><td>выход из меню по <code>Esc</code>, <code>F10</code> или при клике вне меню</td></tr>
-                                       <tr><td>число > 0</td><td>индекс выбранного пункта</td></tr>
-                                       <tr><td>число < 0</td><td>если установлен бит 10, то индекс выбранного пункта со знаком минус</td></tr>
+                                       <tr><td>число &gt; 0</td><td>индекс выбранного пункта</td></tr>
+                                       <tr><td>число &lt; 0</td><td>если установлен бит 10, то индекс выбранного пункта со знаком минус</td></tr>
                                        <tr><td>строка</td><td>выбранный пункт меню.<br>Если установлен бит 4, то список отмеченных пунктов меню, разделённых \n.<br>Если установлены и бит 3 и бит 4, то список индексов отмеченных пунктов меню, разделённых \n</td></tr>
                                        </table>
       <p>В меню доступны следующие сочетания клавиш: (пометка возможна только при установленном бите 4)</p>

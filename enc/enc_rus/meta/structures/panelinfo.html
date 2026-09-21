@@ -1,25 +1,26 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>PanelInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>PanelInfo</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Структура <code>PanelInfo</code> содержит информацию о панели плагина или Far Manager. Используйте функцию <a href="../service_functions/panelcontrol.html">PanelControl</a> для её заполнения.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct PanelInfo
 {
   size_t StructSize;
@@ -38,85 +39,85 @@ struct PanelInfo
 </pre>
 
 <h3>Элементы</h3>
-<div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>PanelInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
-  <div class=dfn>PluginHandle</div>
-    <div class=dfndescr>Текущий описатель панели плагина, тот, что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
-  <div class=dfn>OwnerGuid</div>
-    <div class=dfndescr>GUID плагина, создавшего панель. <code>OwnerGuid</code> = <code>FarGuid</code> - если панель принадлежит Far Manager.</div>
-  <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
+<div class="descr">
+  <div class="dfn">StructSize</div>
+    <div class="dfndescr">Это поле должно содержать размер структуры <code>PanelInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class="dfn">PluginHandle</div>
+    <div class="dfndescr">Текущий описатель панели плагина, тот, что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class="dfn">OwnerGuid</div>
+    <div class="dfndescr">GUID плагина, создавшего панель. <code>OwnerGuid</code> = <code>FarGuid</code> - если панель принадлежит Far Manager.</div>
+  <div class="dfn">Flags</div>
+    <div class="dfndescr">Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHOWHIDDEN">PFLAGS_SHOWHIDDEN</a></td>
-    <td class="cont" width="60%">разрешён показ скрытых и системных файлов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_HIGHLIGHT">PFLAGS_HIGHLIGHT</a></td>
-    <td class="cont" width="60%">включена раскраска файлов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_REVERSESORTORDER">PFLAGS_REVERSESORTORDER</a></td>
-    <td class="cont" width="60%">включена обратная сортировка</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_USESORTGROUPS">PFLAGS_USESORTGROUPS</a></td>
-    <td class="cont" width="60%">используются группы сортировки</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SELECTEDFIRST">PFLAGS_SELECTEDFIRST</a></td>
-    <td class="cont" width="60%">показывать помеченные файлы первыми</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_REALNAMES">PFLAGS_REALNAMES</a></td>
-    <td class="cont" width="60%">элементы на панели плагина отображаются именами реальных файлов (см. также <a href="openpanelinfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a></td>
-    <td class="cont" width="60%">левая панель</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_DIRECTORIESFIRST">PFLAGS_DIRECTORIESFIRST</a></td>
-    <td class="cont" width="60%">каталоги отображаются в начале списка</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_USECRC32">PFLAGS_USECRC32</a></td>
-    <td class="cont" width="60%">плагин заполнил в элементах панели <a href="pluginpanelitem.html">PluginPanelItem</a> поле <code>CRC32</code></td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_PLUGIN">PFLAGS_PLUGIN</a></td>
-    <td class="cont" width="60%">панель поддерживается модулем плагина</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_VISIBLE">PFLAGS_VISIBLE</a></td>
-    <td class="cont" width="60%">панель видимая</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_FOCUS">PFLAGS_FOCUS</a></td>
-    <td class="cont" width="60%">панель активна</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_ALTERNATIVENAMES">PFLAGS_ALTERNATIVENAMES</a></td>
-    <td class="cont" width="60%">панель в режиме показа коротких имён файлов</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHORTCUT">PFLAGS_SHORTCUT</a></td>
-    <td class="cont" width="60%">разрешено помещение смены каталогов в историю Far Manager, а также назначение "быстрых каталогов".</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NONE">PFLAGS_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <tr><th>Флаг</th><th>Описание</th></tr>
+    <tr><td><a name="PFLAGS_SHOWHIDDEN">PFLAGS_SHOWHIDDEN</a></td>
+    <td>разрешён показ скрытых и системных файлов</td></tr>
+    <tr><td><a name="PFLAGS_HIGHLIGHT">PFLAGS_HIGHLIGHT</a></td>
+    <td>включена раскраска файлов</td></tr>
+    <tr><td><a name="PFLAGS_REVERSESORTORDER">PFLAGS_REVERSESORTORDER</a></td>
+    <td>включена обратная сортировка</td></tr>
+    <tr><td><a name="PFLAGS_USESORTGROUPS">PFLAGS_USESORTGROUPS</a></td>
+    <td>используются группы сортировки</td></tr>
+    <tr><td><a name="PFLAGS_SELECTEDFIRST">PFLAGS_SELECTEDFIRST</a></td>
+    <td>показывать помеченные файлы первыми</td></tr>
+    <tr><td><a name="PFLAGS_REALNAMES">PFLAGS_REALNAMES</a></td>
+    <td>элементы на панели плагина отображаются именами реальных файлов (см. также <a href="openpanelinfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>)</td></tr>
+    <tr><td><a name="PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a></td>
+    <td>левая панель</td></tr>
+    <tr><td><a name="PFLAGS_DIRECTORIESFIRST">PFLAGS_DIRECTORIESFIRST</a></td>
+    <td>каталоги отображаются в начале списка</td></tr>
+    <tr><td><a name="PFLAGS_USECRC32">PFLAGS_USECRC32</a></td>
+    <td>плагин заполнил в элементах панели <a href="pluginpanelitem.html">PluginPanelItem</a> поле <code>CRC32</code></td></tr>
+    <tr><td><a name="PFLAGS_PLUGIN">PFLAGS_PLUGIN</a></td>
+    <td>панель поддерживается модулем плагина</td></tr>
+    <tr><td><a name="PFLAGS_VISIBLE">PFLAGS_VISIBLE</a></td>
+    <td>панель видимая</td></tr>
+    <tr><td><a name="PFLAGS_FOCUS">PFLAGS_FOCUS</a></td>
+    <td>панель активна</td></tr>
+    <tr><td><a name="PFLAGS_ALTERNATIVENAMES">PFLAGS_ALTERNATIVENAMES</a></td>
+    <td>панель в режиме показа коротких имён файлов</td></tr>
+    <tr><td><a name="PFLAGS_SHORTCUT">PFLAGS_SHORTCUT</a></td>
+    <td>разрешено помещение смены каталогов в историю Far Manager, а также назначение "быстрых каталогов".</td></tr>
+    <tr><td><a name="PFLAGS_NONE">PFLAGS_NONE</a></td>
+    <td>Нулевой флаг.</td></tr>
     </table>
     </div>
-  <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Число элементов на панели.</div>
-  <div class=dfn>SelectedItemsNumber</div>
-    <div class=dfndescr>Число выделенных элементов на панели. Равно <code>1</code>, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <code>SelectedItemsNumber = 0</code>.</div>
-  <div class=dfn>PanelRect</div>
-    <div class=dfndescr>Геометрия панели - структура типа <a href="../winapi/rect.html">RECT</a>.</div>
-  <div class=dfn>CurrentItem</div>
-    <div class=dfndescr>Индекс текущего элемента на панели. Перед использованием убедитесь, что <code>ItemsNumber</code> больше <code>0</code>.</div>
-  <div class=dfn>TopPanelItem</div>
-    <div class=dfndescr>Элемент, находящийся в первой видимой позиции панели.</div>
-  <div class=dfn>ViewMode</div>
-    <div class=dfndescr>Номер режима просмотра панели.</div>
-  <div class=dfn>PanelType</div>
-    <div class=dfndescr>Может быть (перечисление <a name="PANELINFOTYPE">PANELINFOTYPE</a>):
+  <div class="dfn">ItemsNumber</div>
+    <div class="dfndescr">Число элементов на панели.</div>
+  <div class="dfn">SelectedItemsNumber</div>
+    <div class="dfndescr">Число выделенных элементов на панели. Равно <code>1</code>, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <code>SelectedItemsNumber = 0</code>.</div>
+  <div class="dfn">PanelRect</div>
+    <div class="dfndescr">Геометрия панели - структура типа <a href="../winapi/rect.html">RECT</a>.</div>
+  <div class="dfn">CurrentItem</div>
+    <div class="dfndescr">Индекс текущего элемента на панели. Перед использованием убедитесь, что <code>ItemsNumber</code> больше <code>0</code>.</div>
+  <div class="dfn">TopPanelItem</div>
+    <div class="dfndescr">Элемент, находящийся в первой видимой позиции панели.</div>
+  <div class="dfn">ViewMode</div>
+    <div class="dfndescr">Номер режима просмотра панели.</div>
+  <div class="dfn">PanelType</div>
+    <div class="dfndescr">Может быть (перечисление <a name="PANELINFOTYPE">PANELINFOTYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_FILEPANEL">PTYPE_FILEPANEL</a></td>
-    <td class="cont" width="60%">обычная файловая панель</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_TREEPANEL">PTYPE_TREEPANEL</a></td>
-    <td class="cont" width="60%">панель, отображающая дерево (Tree)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_QVIEWPANEL">PTYPE_QVIEWPANEL</a></td>
-    <td class="cont" width="60%">панель быстрого просмотра (Quick View)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_INFOPANEL">PTYPE_INFOPANEL</a></td>
-    <td class="cont" width="60%">панель информации (Information)</td></tr>
+    <tr><th>Тип</th><th>Описание</th></tr>
+    <tr><td><a name="PTYPE_FILEPANEL">PTYPE_FILEPANEL</a></td>
+    <td>обычная файловая панель</td></tr>
+    <tr><td><a name="PTYPE_TREEPANEL">PTYPE_TREEPANEL</a></td>
+    <td>панель, отображающая дерево (Tree)</td></tr>
+    <tr><td><a name="PTYPE_QVIEWPANEL">PTYPE_QVIEWPANEL</a></td>
+    <td>панель быстрого просмотра (Quick View)</td></tr>
+    <tr><td><a name="PTYPE_INFOPANEL">PTYPE_INFOPANEL</a></td>
+    <td>панель информации (Information)</td></tr>
     </table>
     </div>
-  <div class=dfn>SortMode</div>
-    <div class=dfndescr><a href="../defs/sortmetods.html">Режим сортировки</a> панели.</div>
+  <div class="dfn">SortMode</div>
+    <div class="dfndescr"><a href="../defs/sortmetods.html">Режим сортировки</a> панели.</div>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="index.html">структуры</a>
 </div>
 
