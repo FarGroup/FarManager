@@ -1991,6 +1991,10 @@ void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const Fi
 			Dlg->Show();
 		}
 	}
+	else
+	{
+		Dlg->Show();
+	}
 
 	console.SetTitle(strOldTitle);
 }
