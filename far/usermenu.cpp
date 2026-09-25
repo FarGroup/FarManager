@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "strmix.hpp"
 #include "filemasks.hpp"
+#include "common.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -164,41 +165,126 @@ static int PrepareHotKey(string &strHotKey)
 }
 
 static const auto LocalMenuFileName = L"FarMenu.ini"sv;
-static const auto MenuMasksPrefix = L"@Masks:"sv;
+static const auto MenuShowIfPrefix = L"@ShowIf:"sv;
 static const auto MenuSeparator = L"--"sv;
 
+enum class MenuItemShowIf
+{
+	Always,
+	HasSelection,
+	CurrentFile,
+	CurrentDir,
+};
+
+static constexpr MenuItemShowIf MenuShowIfOrder[]
+{
+	MenuItemShowIf::Always,
+	MenuItemShowIf::HasSelection,
+	MenuItemShowIf::CurrentFile,
+	MenuItemShowIf::CurrentDir,
+};
+
+static bool ShowIfUsesMask(MenuItemShowIf const ShowIf)
+{
+	return ShowIf == MenuItemShowIf::CurrentFile || ShowIf == MenuItemShowIf::CurrentDir;
+}
+
+static lng ShowIfTitleId(MenuItemShowIf const ShowIf)
+{
+	switch (ShowIf)
+	{
+	case MenuItemShowIf::HasSelection: return lng::MShowIfHasSelection;
+	case MenuItemShowIf::CurrentFile:  return lng::MShowIfCurrentFile;
+	case MenuItemShowIf::CurrentDir:   return lng::MShowIfCurrentDir;
+	case MenuItemShowIf::Always:
+	default:                           return lng::MShowIfAlways;
+	}
+}
+
+static string_view ShowIfToToken(MenuItemShowIf const ShowIf)
+{
+	switch (ShowIf)
+	{
+	case MenuItemShowIf::HasSelection: return L"HasSelection"sv;
+	case MenuItemShowIf::CurrentFile:  return L"CurrentFile"sv;
+	case MenuItemShowIf::CurrentDir:   return L"CurrentDir"sv;
+	case MenuItemShowIf::Always:
+	default:                           return L"Always"sv;
+	}
+}
+
+static bool TokenToShowIf(string_view const Token, MenuItemShowIf& ShowIf)
+{
+	for (const auto Value: MenuShowIfOrder)
+	{
+		if (equal_icase(Token, ShowIfToToken(Value)))
+		{
+			ShowIf = Value;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static int ShowIfToIndex(MenuItemShowIf const ShowIf)
+{
+	const auto Found = std::find(std::begin(MenuShowIfOrder), std::end(MenuShowIfOrder), ShowIf);
+	return Found == std::end(MenuShowIfOrder)? 0 : static_cast<int>(Found - std::begin(MenuShowIfOrder));
+}
+
+struct MenuFilterContext
+{
+	bool HasSelection{};
+	bool HasCurrent{};
+	bool CurrentIsDir{};
+	string strCurrentName;
+};
 
 struct UserMenu::UserMenuItem
 {
 	string strHotKey;
 	string strLabel;
+	MenuItemShowIf ShowIf{ MenuItemShowIf::Always };
 	string strMask;
 	std::list<string> Commands;
 	bool Submenu{};
 	menu_container Menu;
 };
 
-static bool ItemVisibleByMask(string_view const Mask, string_view const FileName, bool const ShowAllItems)
+static bool ItemVisible(MenuItemShowIf const ShowIf, string_view const Mask, MenuFilterContext const& Ctx, bool const ShowAllItems)
 {
-	if (ShowAllItems || Mask.empty())
+	if (ShowAllItems || ShowIf == MenuItemShowIf::Always)
+		return true;
+
+	if (ShowIf == MenuItemShowIf::HasSelection)
+		return Ctx.HasSelection;
+
+	if (!Ctx.HasCurrent || Ctx.CurrentIsDir != (ShowIf == MenuItemShowIf::CurrentDir))
+		return false;
+
+	if (Mask.empty())
 		return true;
 
 	filemasks FMask;
-	return FMask.assign(Mask, FMF_SILENT) && FMask.check(FileName);
+	if (!FMask.assign(Mask, FMF_SILENT))
+		return true;
+
+	return FMask.check(Ctx.strCurrentName);
 }
 
 static void AdjustSelectedItemForFilter(
 	UserMenu::menu_container& Menu,
 	UserMenu::menu_container::iterator& SelectedItem,
-	string_view const FileName,
+	MenuFilterContext const& Ctx,
 	bool const ShowAllItems)
 {
-	if (SelectedItem != Menu.end() && ItemVisibleByMask(SelectedItem->strMask, FileName, ShowAllItems))
+	if (SelectedItem != Menu.end() && ItemVisible(SelectedItem->ShowIf, SelectedItem->strMask, Ctx, ShowAllItems))
 		return;
 
 	for (auto i = Menu.begin(); i != Menu.end(); ++i)
 	{
-		if (ItemVisibleByMask(i->strMask, FileName, ShowAllItems))
+		if (ItemVisible(i->ShowIf, i->strMask, Ctx, ShowAllItems))
 		{
 			SelectedItem = i;
 			return;
@@ -220,8 +306,15 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 
 		const string Padding(HotkeyStr.size(), L' ');
 
-		if (!i.strMask.empty())
-			append(Result, Padding, MenuMasksPrefix, L' ', i.strMask, Eol);
+		if (i.ShowIf != MenuItemShowIf::Always)
+		{
+			append(Result, Padding, MenuShowIfPrefix, L' ', ShowIfToToken(i.ShowIf));
+
+			if (ShowIfUsesMask(i.ShowIf) && !i.strMask.empty())
+				append(Result, L' ', i.strMask);
+
+			append(Result, Eol);
+		}
 
 		if (i.Submenu)
 		{
@@ -292,9 +385,19 @@ static void ParseMenu(UserMenu::menu_container& Menu, std::ranges::subrange<enum
 		{
 			const auto CommandStr = trim_left(MenuStr);
 
-			if (starts_with_icase(CommandStr, MenuMasksPrefix))
+			if (starts_with_icase(CommandStr, MenuShowIfPrefix))
 			{
-				MenuItem->strMask = trim_left(CommandStr.substr(MenuMasksPrefix.size()));
+				const auto Rest = trim_left(string_view(CommandStr).substr(MenuShowIfPrefix.size()));
+				const auto SpacePos = Rest.find_first_of(L" \t"sv);
+				const auto Token = Rest.substr(0, SpacePos);
+
+				if (MenuItemShowIf ShowIf; TokenToShowIf(Token, ShowIf))
+				{
+					MenuItem->ShowIf = ShowIf;
+
+					if (ShowIfUsesMask(ShowIf) && SpacePos != string_view::npos)
+						MenuItem->strMask = trim_left(Rest.substr(SpacePos + 1));
+				}
 			}
 			else
 			{
@@ -589,7 +692,7 @@ static void FillUserMenu(
 	UserMenu::menu_container::iterator& SelectedItem,
 	fkey_to_pos_map& FuncPos,
 	const subst_context& SubstContext,
-	string_view const FileName,
+	MenuFilterContext const& FilterCtx,
 	bool const ShowAllItems)
 {
 	SCOPED_ACTION(Dialog::suppress_redraw)(&FarUserMenu);
@@ -602,7 +705,7 @@ static void FillUserMenu(
 
 	FOR_RANGE(Menu, MenuItem)
 	{
-		if (!ItemVisibleByMask(MenuItem->strMask, FileName, ShowAllItems))
+		if (!ItemVisible(MenuItem->ShowIf, MenuItem->strMask, FilterCtx, ShowAllItems))
 			continue;
 
 		menu_item_ex FarUserMenuItem;
@@ -655,10 +758,17 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 	for (;;)
 	{
 		string Names[2];
-		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(Names[0], Names[1]);
+		const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+		ActivePanel->GetCurName(Names[0], Names[1]);
 		const auto& strName = Names[0];
 		const auto& strShortName = Names[1];
 		const subst_context Context(strName, strShortName);
+
+		MenuFilterContext FilterCtx;
+		FilterCtx.HasSelection = ActivePanel->GetRealSelCount() != 0;
+		os::fs::attributes CurrentAttributes{};
+		FilterCtx.HasCurrent = ActivePanel->GetFileName(FilterCtx.strCurrentName, ActivePanel->GetCurrentPos(), CurrentAttributes);
+		FilterCtx.CurrentIsDir = FilterCtx.HasCurrent && os::fs::is_directory(CurrentAttributes);
 
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
@@ -671,8 +781,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 
 		fkey_to_pos_map FuncPos;
 
-		AdjustSelectedItemForFilter(Menu, SelectedItem, strName, ShowAllItems);
-		FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, strName, ShowAllItems);
+		AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
+		FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
 
 		const auto ExitCode = UserMenu->Run([&](const Manager::Key& RawKey)
 		{
@@ -729,8 +839,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 				case KEY_CTRLH:
 				case KEY_RCTRLH:
 					ShowAllItems = !ShowAllItems;
-					AdjustSelectedItemForFilter(Menu, SelectedItem, strName, ShowAllItems);
-					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, strName, ShowAllItems);
+					AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
+					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
 					break;
 
 				case KEY_NUMDEL:
@@ -743,9 +853,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 							break;
 
 						SelectedItem = NextItem;
-						AdjustSelectedItemForFilter(Menu, SelectedItem, strName, ShowAllItems);
+						AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
 						// BUGBUG update dynamically instead of full refill
-						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, strName, ShowAllItems);
+						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
 					}
 					break;
 
@@ -763,11 +873,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 					{
 						SelectedItem = TargetItem;
 
-						if (!ItemVisibleByMask(SelectedItem->strMask, strName, false))
+						if (!ItemVisible(SelectedItem->ShowIf, SelectedItem->strMask, FilterCtx, false))
 							ShowAllItems = true;
 
 						// BUGBUG update dynamically instead of full refill
-						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, strName, ShowAllItems);
+						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
 					}
 					break;
 				}
@@ -800,7 +910,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 					node_swap(Menu, *CurrentMenuItem, Other);
 					SelectedItem = *CurrentMenuItem;
 					// BUGBUG update dynamically instead of full refill
-					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, strName, ShowAllItems);
+					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
 				}
 				break;
 
@@ -975,6 +1085,8 @@ enum EditMenuItems
 	EM_HOTKEY_EDIT,
 	EM_LABEL_TEXT,
 	EM_LABEL_EDIT,
+	EM_SHOWIF_TEXT,
+	EM_SHOWIF_COMBO,
 	EM_MASK_TEXT,
 	EM_MASK_EDIT,
 	EM_SEPARATOR1,
@@ -1008,9 +1120,20 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 #ifdef PROJECT_DI_MEMOEDIT
 			if (Param1 == EM_MEMOEDIT)
 #else
-			if ((Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9) || Param1 == EM_MASK_EDIT)
+			if ((Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9) || any_of(Param1, EM_MASK_EDIT, EM_SHOWIF_COMBO))
 #endif
 				m_ItemChanged = true;
+			break;
+
+		case DN_LISTCHANGE:
+			if (Param1 == EM_SHOWIF_COMBO)
+			{
+				const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(std::bit_cast<intptr_t>(Param2)), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
+				const auto EnableMask = ShowIfUsesMask(ShowIf);
+				Dlg->SendMessage(DM_ENABLE, EM_MASK_TEXT, ToPtr(EnableMask));
+				Dlg->SendMessage(DM_ENABLE, EM_MASK_EDIT, ToPtr(EnableMask));
+				m_ItemChanged = true;
+			}
 			break;
 
 		case DN_CLOSE:
@@ -1021,6 +1144,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				const string_view HotKey = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
 				const string_view Label = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				const string_view Mask = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_MASK_EDIT, nullptr));
+				const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(Dlg->SendMessage(DM_LISTGETCURPOS, EM_SHOWIF_COMBO, nullptr)), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
 				int FocusPos=-1;
 
 				if (HotKey != MenuSeparator)
@@ -1041,7 +1165,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					}
 				}
 
-				if (FocusPos == -1 && !Mask.empty() && !filemasks().assign(Mask))
+				if (FocusPos == -1 && ShowIfUsesMask(ShowIf) && !Mask.empty() && !filemasks().assign(Mask))
 				{
 					Dlg->SendMessage(DM_SETFOCUS, EM_MASK_EDIT, nullptr);
 					return false;
@@ -1134,8 +1258,10 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		{ DI_FIXEDIT,   {{5,  3      }, {7,       3      }}, DIF_FOCUS, },
 		{ DI_TEXT,      {{5,  4      }, {0,       4      }}, DIF_NONE, msg(lng::MEditMenuLabel), },
 		{ DI_EDIT,      {{5,  5      }, {DLG_X-6, 5      }}, DIF_NONE, },
-		{ DI_TEXT,      {{5,  6      }, {0,       6      }}, DIF_NONE, msg(lng::MFileAssocMasks), },
-		{ DI_EDIT,      {{5,  7      }, {DLG_X-6, 7      }}, DIF_HISTORY, },
+		{ DI_TEXT,      {{5,  6      }, {0,       6      }}, DIF_NONE, msg(lng::MEditMenuShowIf), },
+		{ DI_COMBOBOX,  {{5,  7      }, {36,      7      }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND | DIF_LISTWRAPMODE, },
+		{ DI_TEXT,      {{40, 7      }, {0,       7      }}, DIF_NONE, msg(lng::MEditMenuMask), },
+		{ DI_EDIT,      {{50, 7      }, {DLG_X-6, 7      }}, DIF_HISTORY, },
 		{ DI_TEXT,      {{-1, 8      }, {0,       8      }}, DIF_SEPARATOR | State, },
 		{ DI_TEXT,      {{5,  9      }, {0,       9      }}, State, msg(lng::MEditMenuCommands), },
 #ifdef PROJECT_DI_MEMOEDIT
@@ -1161,7 +1287,23 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
 #endif
 
+	FarListItem ShowIfItems[std::size(MenuShowIfOrder)]{};
+	FarList ComboList{ sizeof(ComboList), std::size(ShowIfItems), ShowIfItems };
+
+	for (size_t i = 0; i != std::size(ShowIfItems); ++i)
+		ShowIfItems[i].Text = msg(ShowIfTitleId(MenuShowIfOrder[i])).c_str();
+
+	const auto InitialShowIf = Create? MenuItemShowIf::Always : MenuItem->ShowIf;
+	ShowIfItems[ShowIfToIndex(InitialShowIf)].Flags |= LIF_SELECTED;
+
+	EditDlg[EM_SHOWIF_COMBO].ListItems = &ComboList;
 	EditDlg[EM_MASK_EDIT].strHistory = L"Masks"sv;
+
+	if (!ShowIfUsesMask(InitialShowIf))
+	{
+		EditDlg[EM_MASK_TEXT].Flags |= DIF_DISABLE;
+		EditDlg[EM_MASK_EDIT].Flags |= DIF_DISABLE;
+	}
 
 	if (!Create)
 	{
@@ -1207,9 +1349,12 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	if (Create)
 		MenuItem = Menu.emplace(MenuItem, UserMenuItem());
 
+	const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(EditDlg[EM_SHOWIF_COMBO].ListPos), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
+
 	MenuItem->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
 	MenuItem->strLabel = EditDlg[EM_LABEL_EDIT].strData;
-	MenuItem->strMask = EditDlg[EM_MASK_EDIT].strData;
+	MenuItem->ShowIf = ShowIf;
+	MenuItem->strMask = ShowIfUsesMask(ShowIf)? EditDlg[EM_MASK_EDIT].strData : string{};
 	MenuItem->Submenu = SubMenu;
 
 	if (!SubMenu)

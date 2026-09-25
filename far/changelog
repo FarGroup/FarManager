@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
-olegfedko 2026-08-31 19:00:00+03:00
+olegfedko 2026-09-25 20:00:00+03:00
 
-1. User menu items can be filtered by file masks. Use Ctrl+H in the menu editor to show or hide filtered items.
+1. User menu items can be hidden by a "Show if" condition: always, has selection, current is a file or current is a folder (with an optional file mask for the last two). Use Ctrl+H in the menu editor to show or hide filtered items.
 
 2. User menu: keep selection on the item when moving it with Ctrl+Up/Ctrl+Down.
 
