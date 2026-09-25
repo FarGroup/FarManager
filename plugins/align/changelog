@@ -1,3 +1,7 @@
+shmuel 2026-09-25 16:46:32+03:00 - build 30
+
+1. Fix StructSize in EditorSetPosition.
+
 shmuel 2012-11-07 17:05:12+02:00 - build 29
 
 1. M#2190: При переформатировании блока теряется текст.

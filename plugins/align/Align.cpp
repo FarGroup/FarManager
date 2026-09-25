@@ -263,6 +263,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   free(TotalString);
 
   memset(&esp,-1,sizeof(esp));
+  esp.StructSize=sizeof(esp);
   esp.CurLine=ei.CurLine;
   esp.CurPos=ei.CurPos;
   PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
