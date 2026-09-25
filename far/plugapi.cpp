@@ -1222,6 +1222,9 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 				TrailingNewLine = true;
 			}
 
+			const auto LinesCount = std::ranges::count(StrItems, L'\n') + 1;
+			Strings.reserve(LinesCount == 1 && TrailingNewLine? 2 : LinesCount);
+
 			for (const auto& i: enum_tokens(StrItems, L"\n"sv))
 				Strings.emplace_back(i);
 

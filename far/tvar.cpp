@@ -57,197 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-enum TypeString
-{
-	tsStr,
-	tsInt,
-	tsFloat,
-};
-
-static TypeString checkTypeString(const string& TestStr)
-{
-	TypeString typeTestStr=tsStr;
-
-	if (!TestStr.empty())
-	{
-		auto ptrTestStr = TestStr.c_str();
-		wchar_t ch, ch2;
-		bool isNum     = true;
-		//bool isDec     = false;
-		bool isBegDec  = false;
-		//bool isHex     = false;
-		bool isBegHex  = false;
-		//bool isOct     = false;
-		bool isBegOct  = false;
-		//bool isE       = false;
-		bool isExp     = false;
-		bool isPoint   = false;
-		bool isSign    = false;
-		bool isExpSign = false;
-
-		if (*ptrTestStr == L'-' || *ptrTestStr == L'+')
-		{
-			isSign=true;
-			ptrTestStr++;
-		}
-
-		if (*ptrTestStr == L'.' && std::iswdigit(ptrTestStr[1]))
-		{
-			isPoint=true;
-			ptrTestStr++;
-		}
-
-		if (*ptrTestStr >= L'1' && *ptrTestStr <=L'9')
-			isBegDec=true;
-		else if (*ptrTestStr == L'0')
-		{
-			if ((ptrTestStr[1] == L'x' || ptrTestStr[1] == L'X') && std::iswxdigit(ptrTestStr[2]))
-			{
-				isBegHex=true;
-				ptrTestStr+=2;
-			}
-			else
-			{
-				if (std::iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'.')
-					isBegDec=true;
-				else if (!ptrTestStr[1])
-					return tsInt;
-				else
-					isBegOct=true;
-			}
-		}
-
-		while ((ch=*ptrTestStr++) != 0)
-		{
-			switch (ch)
-			{
-				case L'-':
-				case L'+':
-
-					if (ptrTestStr == TestStr.c_str() + 1)
-						isSign=true;
-					else if (isSign)
-					{
-						isNum=false;
-						break;
-					}
-
-					if (isExp)
-					{
-						if (isExpSign)
-						{
-							isNum=false;
-							break;
-						}
-
-						isExpSign=true;
-					}
-
-					break;
-				case L'.':
-
-					if (isPoint)
-					{
-						isNum=false;
-						break;
-					}
-
-					isPoint=true;
-
-					if (!(std::iswdigit(ptrTestStr[1]) || ptrTestStr[1] == L'e' || ptrTestStr[1] == L'E' || !ptrTestStr[1]))
-					{
-						isNum=false;
-						break;
-					}
-
-					break;
-				case L'e':
-				case L'E':
-					//isHex=true;
-					//isE=true;
-					ch2=*ptrTestStr++;
-
-					if (ch2 == L'-' || ch2 == L'+')  // E+D
-					{
-						if (isBegHex || isExpSign)  // начало hex или уже был знак у порядка?
-						{
-							isNum=false;
-							break;
-						}
-
-						isExpSign=true;
-						const auto ch3 = *ptrTestStr++;
-
-						if (!std::iswdigit(ch3))   // за знаком идет число?
-						{
-							isNum=false;
-							break;
-						}
-						else
-						{
-							isExp=true;
-						}
-					}
-					else if (!std::iswdigit(ch2))   // ED
-					{
-						if (isBegDec)
-						{
-							isNum=false;
-							break;
-						}
-
-						ptrTestStr--;
-					}
-					else
-					{
-						isExp=true;
-						ptrTestStr--;
-					}
-
-					break;
-				case L'a': case L'A': case L'b': case L'B': case L'c': case L'C': case L'd': case L'D': case L'f': case L'F':
-
-					if (isBegDec || isExp)
-					{
-						isNum=false;
-						break;
-					}
-
-					//isHex=true;
-					break;
-				case L'0': case L'1': case L'2': case L'3': case L'4': case L'5': case L'6': case L'7':
-					//isOct=true;
-				case L'8': case L'9':
-
-					if (isBegOct && (ch == L'8' || ch == L'9'))
-					{
-						isNum=false;
-						break;
-					}
-
-					//isDec=true;
-					break;
-				default:
-					isNum=false;
-			}
-
-			if (!isNum)
-				break;
-		}
-
-		if (isNum)
-		{
-			if (isBegDec && (isExp || isPoint))
-				typeTestStr=tsFloat;
-
-			if ((isBegDec || isBegHex || isBegOct) && !(isExp || isPoint))
-				typeTestStr=tsInt;
-		}
-	}
-
-	return typeTestStr;
-}
-
 TVar::TVar():
 	vType(Type::Unknown)
 {
@@ -256,6 +65,12 @@ TVar::TVar():
 TVar::TVar(long long v):
 	inum(v),
 	vType(Type::Integer)
+{
+}
+
+TVar::TVar(long long const v, Type const t):
+	inum(v),
+	vType(t)
 {
 }
 
@@ -317,14 +132,28 @@ double TVar::toDouble()
 
 const string& TVar::asString() const
 {
-	if (!isString())
+	switch (vType)
 	{
+	case Type::String:
+		break;
+
+	case Type::Integer:
+		str = ::str(inum);
+		break;
+
+	case Type::Double:
 		// str() is implemented in terms of fmt::to_wstring().
 		// For doubles fmt::to_wstring adds ".0" even if there's no fractional part
 		// (e.g. 1234.0 to "1234.0"), and it's a feature (see issue #1153).
 		// For historical reasons we prefer the shortest possible representation, hence "g".
-		str = isInteger()? ::str(inum) : far::format(L"{:.14g}"sv, dnum);
+		str = far::format(L"{:.14g}"sv, dnum);
+		break;
+
+	default:
+		str.clear();
+		break;
 	}
+
 	return str;
 }
 
@@ -334,7 +163,6 @@ long long TVar::asInteger() const
 	{
 	case Type::Integer:
 	case Type::Table:
-	case Type::Unknown:
 		return inum;
 
 	case Type::Double:
@@ -357,7 +185,6 @@ double TVar::asDouble() const
 	{
 	case Type::Integer:
 	case Type::Table:
-	case Type::Unknown:
 		return inum;
 
 	case Type::Double:
@@ -402,116 +229,57 @@ bool TVar::isNumber() const
 {
 	switch (type())
 	{
-		case Type::Unknown:
-		case Type::Integer:
-		case Type::Double:
-		case Type::Table:
-			return true;
-
-		case Type::String:
-			switch (checkTypeString(str))
-			{
-				case tsInt:
-				case tsFloat:
-					return true;
-				default:
-					return false;
-			}
-		case Type::Pointer:
-		case Type::Dialog:
-			return false;
-	}
-
-	return false;
-}
-
-TVar::Type TVar::ParseType() const
-{
-	if (vType != Type::String)
-		return vType;
-
-	switch(checkTypeString(str))
-	{
-	case tsInt:
-		return Type::Integer;
-
-	case tsFloat:
-		return Type::Double;
+	case Type::Integer:
+	case Type::Double:
+	case Type::Table:
+		return true;
 
 	default:
-		return Type::String;
+		return false;
 	}
 }
 
-bool TVar::operator<(const TVar& rhs) const
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("TVar")
 {
-	switch (type())
+	const auto
+		IntMin = std::numeric_limits<int64_t>::min(),
+		IntMax = std::numeric_limits<int64_t>::max();
+
+	static const struct tests
 	{
-	case Type::Unknown:
-	case Type::Integer:
-	case Type::Table:
-		switch (rhs.type())
-		{
-		case Type::Unknown:
-		case Type::Integer:
-		case Type::Table:
-			return asInteger() < rhs.asInteger();
-
-		case Type::Double:
-			return asDouble() < rhs.asDouble();
-
-		case Type::String:
-			switch (checkTypeString(rhs.asString()))
-			{
-			case tsStr:
-				return string_sort::less(asString(), rhs.asString());
-
-			case tsInt:
-				return asInteger() < rhs.asInteger();
-
-			case tsFloat:
-				return asDouble() < rhs.asDouble();
-			}
-			break;
-		case Type::Pointer:
-		case Type::Dialog:
-			break;
-		}
-		break;
-
-	case Type::Double:
-		switch (rhs.type())
-		{
-		case Type::Unknown:
-		case Type::Integer:
-		case Type::Table:
-		case Type::Double:
-			return asDouble() < rhs.asDouble();
-
-		case Type::String:
-			switch (checkTypeString(rhs.asString()))
-			{
-			case tsStr:
-				return string_sort::less(asString(), rhs.asString());
-
-			case tsInt:
-			case tsFloat:
-				return asDouble() < rhs.asDouble();
-			}
-			break;
-		case Type::Pointer:
-		case Type::Dialog:
-			break;
-		}
-		break;
-
-	case Type::String:
-		return string_sort::less(asString(), rhs.asString());
-
-	case Type::Pointer:
-	case Type::Dialog:
-		break;
+		TVar t;
+		TVar::Type Type;
+		bool IsNumber;
+		string_view sValue;
+		long long iValue;
+		double dValue;
 	}
+	Tests[]
+	{
+		{ TVar{},                                     TVar::Type::Unknown, false, {},                        {},     {} },
+		{ TVar{ 0 },                                  TVar::Type::Integer, true,  L"0"sv,                    {},     {} },
+		{ TVar{ IntMin },                             TVar::Type::Integer, true,  L"-9223372036854775808"sv, IntMin, static_cast<double>(IntMin) },
+		{ TVar{ IntMax },                             TVar::Type::Integer, true,  L"9223372036854775807"sv,  IntMax, static_cast<double>(IntMax) },
+		{ TVar{ 42.0 },                               TVar::Type::Double,  true,  L"42"sv,                   42,     42.0 },
+		{ TVar{ 42.123 },                             TVar::Type::Double,  true,  L"42.123"sv,               42,     42.123 },
+		{ TVar{ L"banana"sv },                        TVar::Type::String,  false, L"banana"sv,               {},     {} },
+		{ TVar{ L"Bamboléo" },                        TVar::Type::String,  false, L"Bamboléo"sv,             {},     {} },
+		{ TVar{ std::bit_cast<void*>(intptr_t{42}) }, TVar::Type::Pointer, false, L""sv,                     {},     {} },
+	};
 
-	return false;
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.t.type() == i.Type);
+		REQUIRE(i.t.isNumber() == i.IsNumber);
+		REQUIRE(i.t.asString() == i.sValue);
+		REQUIRE(i.t.asInteger() == i.iValue);
+		REQUIRE(i.t.asDouble() == i.dValue);
+	}
 }
+
+#endif
+

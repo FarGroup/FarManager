@@ -72,13 +72,14 @@ public:
 	MOVABLE(TVar);
 
 	explicit TVar();
-	explicit TVar(int);
-	explicit TVar(long long);
-	explicit TVar(string_view);
-	explicit TVar(const wchar_t*);
-	explicit TVar(double);
-	explicit TVar(void*);
-	explicit TVar(Dialog*);
+	explicit TVar(int v);
+	explicit TVar(long long v);
+	explicit TVar(long long v, Type t);
+	explicit TVar(string_view v);
+	explicit TVar(const wchar_t* v);
+	explicit TVar(double v);
+	explicit TVar(void* v);
+	explicit TVar(Dialog* v);
 
 	COPY_AND_MOVE(TVar, long long)
 	COPY_AND_MOVE(TVar, string_view)
@@ -88,14 +89,10 @@ public:
 	COPY_AND_MOVE(TVar, void*)
 	COPY_AND_MOVE(TVar, Dialog*)
 
-	bool operator<(const TVar&) const;
-
 	Type type() const { return vType; }
-	Type ParseType() const;
-	void SetType(Type newType) {vType=newType;}
 
 	bool isString()   const { return vType == Type::String; }
-	bool isInteger()  const { return vType == Type::Integer || vType == Type::Unknown; }
+	bool isInteger()  const { return vType == Type::Integer; }
 	bool isDouble()   const { return vType == Type::Double; }
 	bool isPointer()  const { return vType == Type::Pointer; }
 	bool isDialog()   const { return vType == Type::Dialog; }
