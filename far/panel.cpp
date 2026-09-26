@@ -1071,8 +1071,13 @@ bool Panel::ExecFolder(string_view const Folder, const UUID& PluginUuid, const s
 	if (ProcessPluginEvent(FE_CLOSE, nullptr))
 		return false;
 
+	if (SrcPanel->GetType() != panel_type::FILE_PANEL)
+		SrcPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
+
 	if (!SrcPanel->SetCurDir(Folder, true, true, Silent))
 		return false;
+
+	SrcPanel->Show();
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
 		Parent()->GetAnotherPanel(SrcPanel)->Show();
