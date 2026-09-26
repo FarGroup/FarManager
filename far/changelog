@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+BitoLabs 2026-09-26 19:58:45+01:00 - build 6740
+
+1. gh-1133: Fix Panel::ExecFolder() to ensure correct behavior for SameFolder plugin
+
+  * When passive panel is in non-file mode (Info, etc), SameFolder had no effect
+  * When passive panel is hidden (Ctrl+F1/F2), SameFolder did not un-hide it
+
+--------------------------------------------------------------------------------
 drkns 2026-09-25 18:58:09+01:00 - build 6739
 
 1. Refactoring, clean up tvar.*pp.
