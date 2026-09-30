@@ -1,46 +1,48 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>AnalyseW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>AnalyseW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
 
-<div class=shortdescr>
+<div class="shortdescr">
 Far Manager вызывает функцию <code>AnalyseW</code> для открытия панели плагина, эмулирующего файловую систему на базе переданного этой функции файла (например, архива).
 </div>
 
 
-<pre class=syntax>
+<pre class="syntax">
 HANDLE WINAPI AnalyseW(
   const struct AnalyseInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/analyseinfo.html">AnalyseInfo</a> -  информация, переданная Far Manager'ом, для анализа плагином содержимого файла.<br>
-    В начале функции проверьте, что поле <code>AnalyseInfo.StructSize >= sizeof(AnalyseInfo)</code>.</div>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/analyseinfo.html">AnalyseInfo</a> -  информация, переданная Far Manager'ом, для анализа плагином содержимого файла.</p>
+    <p>В начале функции проверьте, что поле <code>AnalyseInfo.StructSize &gt;= sizeof(AnalyseInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если плагин обрабатывает переданный файл и на базе него эмулирует файловую систему, то плагин должен возвращать описатель, отличный от <code>NULL</code> (<code>INVALID_HANDLE_VALUE</code> считается валидным описателем).
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
 <li>Возвращенный плагином описатель будет равен значению поля <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo.Handle</a> в функции <a href="openw.html">OpenW(OPEN_ANALYSE,...)</a>.
 <li>Плагин должен освободить память выделенную под описатель в функции <a href="closeanalysew.html">CloseAnalyseW</a> (значение поля <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo.Handle</a>).
@@ -52,15 +54,15 @@ HANDLE WINAPI AnalyseW(
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "TmpPanel".
-<pre class=code>
+<pre class="code">
 HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 {
-  if (Info->FileName == nullptr || !Info->BufferSize)
+  if (Info-&gt;FileName == nullptr || !Info-&gt;BufferSize)
     return nullptr;
 
-  if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
+  if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info-&gt;FileName, lstrlen(Info-&gt;FileName),PN_CMPNAMELIST))
     return nullptr;
 
   return HANDLE(1); // будем эмулировать панель на базе переданного Far Manager'ом файла
@@ -68,8 +70,8 @@ HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="closeanalysew.html">CloseAnalyseW</a>
 </div>
 
