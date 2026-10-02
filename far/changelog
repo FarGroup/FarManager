@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-10-02 17:19:44+01:00 - build 6741
+
+1. Add '*' shortcut to Attributes dialog.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 BitoLabs 2026-09-26 19:58:45+01:00 - build 6740
 
 1. gh-1133: Fix Panel::ExecFolder() to ensure correct behavior for SameFolder plugin
