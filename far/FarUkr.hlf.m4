@@ -4172,6 +4172,7 @@ If this information is not available, then the "#(data not available)#" message 
  Кнопка #Поточний# дозволяє заповнити поля часу файла поточним часом.
  Кнопка #Вихідний# заповнює поля часу файла оригінальними значеннями.
 Доступна для одиночного файлового об'єкта.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.

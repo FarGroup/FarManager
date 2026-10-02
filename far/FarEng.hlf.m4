@@ -4115,6 +4115,7 @@ unchanged.
  The #Current# button fills the file time fields with the current time.
  The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.

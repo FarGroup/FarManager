@@ -4110,6 +4110,7 @@ unchanged.
  Tlačítko #Súčasný# vyplní polia času súboru súčasným časom.
  The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.

@@ -608,6 +608,35 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 					Dlg->SendMessage(DM_SETFOCUS, Param1 + 1, nullptr);
 			}
 			break;
+
+		case SA_EDIT_WDATE:
+		case SA_EDIT_WTIME:
+		case SA_EDIT_CDATE:
+		case SA_EDIT_CTIME:
+		case SA_EDIT_ADATE:
+		case SA_EDIT_ATIME:
+		case SA_EDIT_XDATE:
+		case SA_EDIT_XTIME:
+			if (const auto& Record = *static_cast<INPUT_RECORD const*>(Param2); Record.EventType == KEY_EVENT && Record.Event.KeyEvent.bKeyDown && Record.Event.KeyEvent.uChar.UnicodeChar == L'*')
+			{
+				const auto& SelectedEntry = TimeMap[control_to_time_map_index(Param1)];
+
+				const auto
+					Date = get_dialog_item_text(Dlg, SelectedEntry.DateId),
+					Time = get_dialog_item_text(Dlg, SelectedEntry.TimeId);
+
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+				for (const auto& i: TimeMap)
+				{
+					if (&i == &SelectedEntry)
+						continue;
+
+					set_date_or_time(Dlg, i.DateId, Date, false);
+					set_date_or_time(Dlg, i.TimeId, Time, false);
+				}
+			}
+			break;
 		}
 		break;
 

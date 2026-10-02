@@ -4121,6 +4121,7 @@ lub tylko minuty. Wszystkie pozostałe składniki daty i czasu pozostaną niezmi
  Przycisk #Bieżący# wypełnia wszystkie pola bieżącą wartością daty i czasu.
  Przycisk #Oryginalny# przywraca oryginalne wartości daty i czasu. Opcja dostępna
 tylko wtedy, gdy funkcja zmiany daty/czasu została wywołana dla pojedynczego pliku.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  Przycisk #Właściwości systemu# wywołuje systemowe okno właściwości systemu dla wybranego obiektu.
 

@@ -4216,6 +4216,7 @@ eredeti értékei megmaradnak.
  Az #Eredeti# gomb a fájl vagy mappa eredeti időértékeivel tölti fel a
 dátum/idő mezőket. Csak egy kijelölt fájlra vagy mappára használható,
 csoportra nem.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.
