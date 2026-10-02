@@ -583,7 +583,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 			if (Param1 == EDITCP_OK)
 			{
-				strCodePageName = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
+				strCodePageName = get_dialog_item_text(Dlg, EDITCP_EDIT);
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (strCodePageName.empty())
@@ -751,7 +751,7 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 			{
 				FarListGetItem Item{ sizeof(Item), static_cast<intptr_t>(i) };
 				dialog->SendMessage(DM_LISTGETITEM, control, &Item);
-				dialog->SendMessage(DM_SETTEXTPTR, control, const_cast<wchar_t*>(Item.Item.Text));
+				set_dialog_item_text(dialog, control, Item.Item.Text);
 				FarListPos Pos{ sizeof(Pos), static_cast<intptr_t>(i), -1 };
 				dialog->SendMessage(DM_LISTSETCURPOS, control, &Pos);
 				break;

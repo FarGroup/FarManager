@@ -1229,7 +1229,7 @@ void regex_playground()
 		const auto update_status = [&](status const NewStatus, string const& Message)
 		{
 			Status = NewStatus;
-			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_status, UNSAFE_CSTR(Message));
+			set_dialog_item_text(Dlg, rp_edit_status, Message);
 		};
 
 		const auto update_substitution = [&]
@@ -1239,11 +1239,11 @@ void regex_playground()
 
 			string Result;
 
-			if (const auto ReplaceStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {})); *ReplaceStr)
+			if (const auto ReplaceStr = get_dialog_item_text(Dlg, rp_edit_substitution); !ReplaceStr.empty())
 			{
 				try
 				{
-					Result = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+					Result = get_dialog_item_text(Dlg, rp_edit_test);
 					const auto BakedReplaceStr = ReplaceBrackets(ReplaceStr, Result, Match.Matches, Regex.GetNamedGroups());
 					Result.replace(Result.begin() + Match.Matches[0].start, Result.begin() + Match.Matches[0].end, BakedReplaceStr);
 					update_status(status::normal, L"Replaced"s);
@@ -1255,7 +1255,7 @@ void regex_playground()
 				}
 			}
 
-			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Result));
+			set_dialog_item_text(Dlg, rp_edit_result, Result);
 		};
 
 		const auto update_matches = [&]
@@ -1274,12 +1274,12 @@ void regex_playground()
 
 		const auto update_cursor = [&](std::optional<size_t> const& Position = {})
 		{
-			Dlg->SendMessage(DM_SETTEXTPTR, rp_text_cursor, Position? UNSAFE_CSTR(string(*Position, L' ') + L'↑') : nullptr);
+			set_dialog_item_text(Dlg, rp_text_cursor, Position? string(*Position, L' ') + L'↑' : L""s);
 		};
 
 		const auto update_test = [&]
 		{
-			string_view const TestStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+			const auto TestStr = get_dialog_item_text(Dlg, rp_edit_test);
 
 			bool IsMatch;
 
@@ -1339,7 +1339,7 @@ void regex_playground()
 		{
 			try
 			{
-				const string_view RegexStr = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
+				const auto RegexStr = get_dialog_item_text(Dlg, rp_edit_regex);
 				Regex.Compile(RegexStr, RegexStr.starts_with(L'/')? OP_PERLSTYLE : 0);
 			}
 			catch (regex_exception const& e)
@@ -1497,15 +1497,15 @@ single_progress::single_progress(string_view const Title, string_view const Msg,
 
 void single_progress::update(string_view const Msg) const
 {
-	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+	set_dialog_item_text(m_Dialog.get(), single_progress_detail::items::pr_message, Msg);
 }
 
 void single_progress::update(size_t const Percent) const
 {
-	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_progress, UNSAFE_CSTR(make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true)));
+	set_dialog_item_text(m_Dialog.get(), single_progress_detail::items::pr_progress, make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true));
 
-	const auto Title = std::bit_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
-	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+	const auto Title = get_dialog_item_text(m_Dialog.get(), single_progress_detail::items::pr_doublebox);
+	set_dialog_item_text(m_Dialog.get(), single_progress_detail::items::pr_console_title, concat(L'{', str(Percent), L"%} "sv, Title));
 }
 
 struct dirinfo_progress_detail
@@ -1550,19 +1550,19 @@ dirinfo_progress::dirinfo_progress(string_view const Title)
 
 void dirinfo_progress::set_name(string_view const Msg) const
 {
-	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+	set_dialog_item_text(m_Dialog.get(), dirinfo_progress_detail::items::pr_message, Msg);
 }
 
 void dirinfo_progress::set_count(unsigned long long const Count) const
 {
 	const auto Str = copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Count, 0, false, copy_progress::CanvasWidth() - 5);
-	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_files, UNSAFE_CSTR(Str));
+	set_dialog_item_text(m_Dialog.get(), dirinfo_progress_detail::items::pr_files, Str);
 }
 
 void dirinfo_progress::set_size(unsigned long long const Size) const
 {
 	const auto Str = copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5);
-	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_bytes, UNSAFE_CSTR(Str));
+	set_dialog_item_text(m_Dialog.get(), dirinfo_progress_detail::items::pr_bytes, Str);
 }
 
 void error_lookup(error_state_ex const& ErrorState)

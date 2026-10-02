@@ -353,7 +353,7 @@ private:
 extern std::chrono::steady_clock::duration WaitUserTime;
 
 // Helper functions to abstract away a bit of Dialog madness
-string_view get_dialog_item_text(Dialog* Dlg, int Id);
-void set_dialog_item_text(Dialog* Dlg, int Id, string_view Text);
+string_view get_dialog_item_text(Dialog* Dlg, size_t Id);
+void set_dialog_item_text(Dialog* Dlg, size_t Id, string_view Text);
 
 #endif // DIALOG_HPP_7A9BE12B_EE5C_441F_84C9_64E9A63ABEFE

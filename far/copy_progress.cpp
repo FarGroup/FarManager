@@ -210,11 +210,11 @@ void copy_progress::Flush()
 
 	SCOPED_ACTION(Dialog::suppress_redraw)(m_Dialog.get());
 
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_src_name, UNSAFE_CSTR(m_Src));
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_dst_name, UNSAFE_CSTR(m_Dst));
+	set_dialog_item_text(m_Dialog.get(), progress_items::pr_src_name, m_Src);
+	set_dialog_item_text(m_Dialog.get(), progress_items::pr_dst_name, m_Dst);
 
 	const auto CurrentProgress = make_progressbar(GetWidth(progress_items::pr_current_progress), m_CurrentPercent, true, !m_Total);
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_current_progress, UNSAFE_CSTR(CurrentProgress));
+	set_dialog_item_text(m_Dialog.get(), progress_items::pr_current_progress, CurrentProgress);
 
 	if (m_FilesLastRendered != m_Files)
 	{
@@ -222,15 +222,15 @@ void copy_progress::Flush()
 		m_FilesLastRendered = m_Files;
 	}
 
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_files, UNSAFE_CSTR(m_FilesCopied));
+	set_dialog_item_text(m_Dialog.get(), progress_items::pr_total_files, m_FilesCopied);
 
 	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, m_BytesTotal.Copied, m_BytesTotal.Total, m_Total, GetWidth(progress_items::pr_total_bytes) - 5);
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_bytes, UNSAFE_CSTR(Result));
+	set_dialog_item_text(m_Dialog.get(), progress_items::pr_total_bytes, Result);
 
 	if (m_Total)
 	{
 		const auto TotalProgress = make_progressbar(GetWidth(progress_items::pr_total_progress), m_TotalPercent, true, true);
-		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_progress, UNSAFE_CSTR(TotalProgress));
+		set_dialog_item_text(m_Dialog.get(), progress_items::pr_total_progress, TotalProgress);
 	}
 
 	if (!m_Time.empty())
@@ -249,15 +249,15 @@ void copy_progress::Flush()
 			Width
 		);
 
-		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_stats, UNSAFE_CSTR(Stat));
+		set_dialog_item_text(m_Dialog.get(), progress_items::pr_stats, Stat);
 	}
 
 	if (m_Total || (m_Files.Total == 1))
 	{
-		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_console_title, UNSAFE_CSTR(concat(
+		set_dialog_item_text(m_Dialog.get(), progress_items::pr_console_title, concat(
 			L'{', str(m_Total? ToPercent(m_BytesTotal.Copied, m_BytesTotal.Total) : m_CurrentPercent), L"%} "sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
-		));
+		);
 	}
 }
 

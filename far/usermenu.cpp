@@ -936,8 +936,10 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				bool Result = true;
-				const string_view HotKey = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
-				const string_view Label = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
+				const auto
+					HotKey = get_dialog_item_text(Dlg, EM_HOTKEY_EDIT),
+					Label = get_dialog_item_text(Dlg, EM_LABEL_EDIT);
+
 				int FocusPos=-1;
 
 				if (HotKey != L"--"sv)

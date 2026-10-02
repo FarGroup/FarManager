@@ -154,23 +154,23 @@ public:
 
 	void set_wipe_percent(size_t const Percent) const
 	{
-		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_wipe_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+		set_dialog_item_text(m_Dialog.get(), items::pr_wipe_progress, make_progressbar(DlgW - 10, Percent, true, true));
 	}
 
 	void update(string_view const Name, progress const Files) const
 	{
-		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_file, UNSAFE_CSTR(null_terminated(Name)));
+		set_dialog_item_text(m_Dialog.get(), items::pr_file, Name);
 
 		if (Files.Total)
 		{
 			const auto Percent = ToPercent(Files.Value, Files.Total);
-			const auto Title = std::bit_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, items::pr_doublebox, {}));
-			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
-			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_total_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+			const auto Title = get_dialog_item_text(m_Dialog.get(), items::pr_doublebox);
+			set_dialog_item_text(m_Dialog.get(), items::pr_console_title, concat(L'{', str(Percent), L"%} "sv, Title));
+			set_dialog_item_text(m_Dialog.get(), items::pr_total_progress, make_progressbar(DlgW - 10, Percent, true, true));
 		}
 
 		const auto Str = copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Files.Value, Files.Total, Files.Total != 0, copy_progress::CanvasWidth() - 5);
-		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_total_files, UNSAFE_CSTR(Str));
+		set_dialog_item_text(m_Dialog.get(), items::pr_total_files, Str);
 	}
 };
 

@@ -513,7 +513,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			     в списке.
 			*/
 			const auto MultiCopy = Dlg->SendMessage(DM_GETCHECK, ID_SC_MULTITARGET, nullptr) == BSTATE_CHECKED;
-			string strOldFolder = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, nullptr));
+			string strOldFolder{ get_dialog_item_text(Dlg, ID_SC_TARGETEDIT) };
 			string strNewFolder;
 
 			if (AltF10 == 2)
@@ -564,7 +564,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						strNewFolder.insert(0, strOldFolder);
 					}
 
-					Dlg->SendMessage(DM_SETTEXTPTR,ID_SC_TARGETEDIT, UNSAFE_CSTR(strNewFolder));
+					set_dialog_item_text(Dlg, ID_SC_TARGETEDIT, strNewFolder);
 					Dlg->SendMessage(DM_SETFOCUS, ID_SC_TARGETEDIT, nullptr);
 				}
 			}

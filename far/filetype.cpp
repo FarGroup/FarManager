@@ -429,7 +429,7 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 			if (Param1==ETR_BUTTON_OK)
 			{
-				return filemasks().assign(std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
+				return filemasks().assign(get_dialog_item_text(Dlg, ETR_EDIT_MASKS));
 			}
 			break;
 
