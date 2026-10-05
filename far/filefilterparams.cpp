@@ -623,7 +623,7 @@ static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 		};
 
 		for (const auto& i: ItemsToClear)
-			Dlg->SendMessage(DM_SETTEXTPTR, i, {});
+			set_dialog_item_text(Dlg, i, {});
 	}
 }
 
@@ -671,11 +671,11 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				const auto db = relative? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				const auto da = relative? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 
-				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(Date));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(Time));
+				set_dialog_item_text(Dlg, da, Date);
+				set_dialog_item_text(Dlg, ID_FF_TIMEAFTEREDIT, Time);
 
-				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(Date));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(Time));
+				set_dialog_item_text(Dlg, db, Date);
+				set_dialog_item_text(Dlg, ID_FF_TIMEBEFOREEDIT, Time);
 
 				Dlg->SendMessage(DM_SETFOCUS, db, nullptr);
 
@@ -694,9 +694,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 				const auto Update = [&](int const DateId, int const TimeId)
 				{
-					string_view const
-						Date = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, DateId, {})),
-						Time = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, TimeId, {}));
+					const auto
+						Date = get_dialog_item_text(Dlg, DateId),
+						Time = get_dialog_item_text(Dlg, TimeId);
 
 					const auto MergedTime = merge_time({}, parse_time(Date, Time, static_cast<int>(locale.date_format())));
 
@@ -713,8 +713,8 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 						time_point_to_utc_string(TimePoint, 16, 2) :
 						time_point_to_localtime_string(TimePoint, 16, 2);
 
-					Dlg->SendMessage(DM_SETTEXTPTR, DateId, UNSAFE_CSTR(NewDate));
-					Dlg->SendMessage(DM_SETTEXTPTR, TimeId, UNSAFE_CSTR(NewTime));
+					set_dialog_item_text(Dlg, DateId, NewDate);
+					set_dialog_item_text(Dlg, TimeId, NewTime);
 				};
 
 				Update(ID_FF_DATEBEFOREEDIT, ID_FF_TIMEBEFOREEDIT);
@@ -725,9 +725,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
 				const auto& Context = view_as<ffp_context>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
+				set_dialog_item_text(Dlg, ID_FF_MASKEDIT, L"*");
+				set_dialog_item_text(Dlg, ID_FF_SIZEFROMEDIT, {});
+				set_dialog_item_text(Dlg, ID_FF_SIZETOEDIT, {});
 
 				for (auto& i: Context.Attributes)
 				{
@@ -813,7 +813,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			const block_ptr<FarDialogItem> Buffer(Size);
 			FarGetDialogItem gdi{ sizeof(gdi), Size, Buffer.data() };
 			Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
-			const auto Mark = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_HER_MARKEDIT, {}));
+			const auto Mark = get_dialog_item_text(Dlg, ID_HER_MARKEDIT);
 			Context.Colors->Mark.Mark = Mark;
 			Context.Colors->Mark.Inherit = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKINHERIT, nullptr) == BST_CHECKED;
 			HighlightDlgUpdateUserControl(matrix_view(gdi.Item->VBuf, ColorExampleSize.y, ColorExampleSize.x), *Context.Colors);
@@ -830,12 +830,12 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 		if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK, ID_FF_MATCHSIZE, nullptr))
 		{
-			string Size = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, nullptr));
-			bool Ok = Size.empty() || CheckFileSizeStringFormat(Size);
+			const auto SizeFrom = get_dialog_item_text(Dlg, ID_FF_SIZEFROMEDIT);
+			bool Ok = SizeFrom.empty() || CheckFileSizeStringFormat(SizeFrom);
 			if (Ok)
 			{
-				Size = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, nullptr));
-				Ok = Size.empty() || CheckFileSizeStringFormat(Size);
+				const auto SizeTo = get_dialog_item_text(Dlg, ID_FF_SIZETOEDIT);
+				Ok = SizeTo.empty() || CheckFileSizeStringFormat(SizeTo);
 			}
 			if (!Ok)
 			{

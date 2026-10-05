@@ -1141,9 +1141,10 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				bool Result = true;
-				const string_view HotKey = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
-				const string_view Label = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
-				const string_view Mask = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_MASK_EDIT, nullptr));
+				const auto
+					HotKey = get_dialog_item_text(Dlg, EM_HOTKEY_EDIT),
+					Label = get_dialog_item_text(Dlg, EM_LABEL_EDIT),
+					Mask = get_dialog_item_text(Dlg, EM_MASK_EDIT);
 				const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(Dlg->SendMessage(DM_LISTGETCURPOS, EM_SHOWIF_COMBO, nullptr)), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
 				int FocusPos=-1;
 

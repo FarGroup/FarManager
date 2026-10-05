@@ -24,12 +24,17 @@ local MT = {} -- "macrotest", this module
 local AF = "my assertion failed"
 local asrt = {}
 
-function asrt.eq(a,b,m)      assert(a == b, m or AF)               return true; end
-function asrt.neq(a,b,m)     assert(a ~= b, m or AF)               return true; end
-function asrt.lt(a,b,m)      assert(a < b,  m or AF)               return true; end
-function asrt.gt(a,b,m)      assert(a > b,  m or AF)               return true; end
-function asrt.lte(a,b,m)     assert(a <= b, m or AF)               return true; end
-function asrt.gte(a,b,m)     assert(a >= b, m or AF)               return true; end
+local function args2error(a, b, op, m)
+  local msg = ("%s: %s %s %s"):format(m or AF, tostring(a), op, tostring(b))
+  error(msg, 3)
+end
+
+function asrt.eq(a,b,m)      if a == b  then return true else args2error(a,b,"==",m) end; end
+function asrt.neq(a,b,m)     if a ~= b  then return true else args2error(a,b,"~=",m) end; end
+function asrt.lt(a,b,m)      if a < b   then return true else args2error(a,b,"<",m)  end; end
+function asrt.gt(a,b,m)      if a > b   then return true else args2error(a,b,">",m)  end; end
+function asrt.lte(a,b,m)     if a <= b  then return true else args2error(a,b,"<=",m) end; end
+function asrt.gte(a,b,m)     if a >= b  then return true else args2error(a,b,">=",m) end; end
 function asrt.num(v,m)       assert(type(v)=="number", m or AF)    return v; end
 function asrt.str(v,m)       assert(type(v)=="string", m or AF)    return v; end
 function asrt.table(v,m)     assert(type(v)=="table", m or AF)     return v; end
@@ -91,6 +96,13 @@ local function TestArea (area, k_before, k_after)
 end
 
 function MT.test_areas()
+  for _=1,2 do
+    if Area.Info then Keys("CtrlL")
+    elseif Area.QView then Keys("CtrlQ")
+    end
+    Keys("Tab")
+  end
+
   TestArea ("Shell")
   TestArea ("Grabber",    "AltIns",     "Esc")
   TestArea ("Desktop",    "F12 0",      "F12 1")
@@ -2241,6 +2253,10 @@ end
 local function test_Guids()
   asrt.table(far.Guids)
 
+  -- Work from TEMP directory to avoid read-only media, etc
+  local TmpDir = assert(win.GetEnv"TEMP" or win.GetEnv"TMP", "no temporary directory found")
+  asrt.istrue(panel.SetPanelDirectory(nil, 1, TmpDir))
+
   Keys("Esc"); print("far:config"); Keys("Enter")
   test_one_guid( "AdvancedConfigId")
 
@@ -2276,8 +2292,11 @@ local function test_Guids()
   test_one_guid( "EditorReplaceId",          nil, "ShiftF4 Del Enter CtrlF7", 2)
   test_one_guid( "EditorSearchId",           nil, "ShiftF4 Del Enter F7", 2)
   test_one_guid( "EditorCanNotEditDirectoryId", nil, "ShiftF4 . . Enter", 1)
-  test_one_guid( "SelectFromEditHistoryId",  nil, "ShiftF4 A Enter Esc ShiftF4 CtrlDown", 2)
   test_one_guid( "FarAskQuitId",             nil, "F10")
+
+  local h_old = Far.DisableHistory(0x07) -- disable all histories except dialog edit
+  test_one_guid( "SelectFromEditHistoryId", nil, "ShiftF4 A Enter Esc ShiftF4 CtrlDown", 2)
+  Far.DisableHistory(h_old) -- restore the old state
 
   local myMenu
   myMenu = function() mf.mainmenu("fileassociations") end

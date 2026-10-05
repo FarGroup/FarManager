@@ -220,16 +220,32 @@ TimeMap[]
 	{SA_EDIT_XDATE, SA_EDIT_XTIME, &os::fs::find_data::ChangeTime     },
 };
 
-static int label_to_time_map_index(int Id)
+static int control_to_time_map_index(int Id)
 {
 	static_assert(std::size(TimeMap) == 4);
 
 	switch (Id)
 	{
-	case SA_TEXT_LASTWRITE:    return 0;
-	case SA_TEXT_CREATION:     return 1;
-	case SA_TEXT_LASTACCESS:   return 2;
-	case SA_TEXT_CHANGE:       return 3;
+	case SA_TEXT_LASTWRITE:
+	case SA_EDIT_WDATE:
+	case SA_EDIT_WTIME:
+		return 0;
+
+	case SA_TEXT_CREATION:
+	case SA_EDIT_CDATE:
+	case SA_EDIT_CTIME:
+		return 1;
+
+	case SA_TEXT_LASTACCESS:
+	case SA_EDIT_ADATE:
+	case SA_EDIT_ATIME:
+		return 2;
+
+	case SA_TEXT_CHANGE:
+	case SA_EDIT_XDATE:
+	case SA_EDIT_XTIME:
+		return 3;
+
 	default:
 		std::unreachable();
 	}
@@ -328,9 +344,10 @@ static std::optional<os::chrono::time_point> construct_time_from_utc(
 	return {};
 }
 
-static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
+static void set_date_or_time(Dialog* const Dlg, int const Id, string_view const Value, bool const MakeUnchanged)
 {
-	Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(Value));
+	set_dialog_item_text(Dlg, Id, Value);
+
 	if (MakeUnchanged)
 		Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, Id, ToPtr(MakeUnchanged));
 }
@@ -454,9 +471,9 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 					set_original(); // Not touched, we can use initial UTC strings
 				else
 				{
-					string_view const
-						Date = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i.DateId, {})),
-						Time = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i.TimeId, {}));
+					const auto
+						Date = get_dialog_item_text(Dlg, i.DateId),
+						Time = get_dialog_item_text(Dlg, i.TimeId);
 
 					const auto Result = (ToUTC? construct_time_from_localtime : construct_time_from_utc)(State.InitialValue, Date, Time);
 
@@ -530,7 +547,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			if (!DlgParam.Owner.ChangedManually)
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR, SA_EDIT_OWNER, SubfoldersState == BSTATE_UNCHECKED? UNSAFE_CSTR(DlgParam.Owner.InitialValue) : nullptr);
+				set_dialog_item_text(Dlg, SA_EDIT_OWNER, SubfoldersState == BSTATE_UNCHECKED? DlgParam.Owner.InitialValue : L""s);
 				DlgParam.Owner.ChangedManually = false;
 			}
 		}
@@ -575,20 +592,51 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 	//BUGBUG: DefDlgProc вызывается дважды, второй раз Param1 может быть другим.
 	case DN_CONTROLINPUT:
+		switch (Param1)
 		{
-			if (Param1 != SA_TEXT_LASTWRITE && Param1 != SA_TEXT_CREATION && Param1 != SA_TEXT_LASTACCESS && Param1 != SA_TEXT_CHANGE)
-				break;
+		case SA_TEXT_LASTWRITE:
+		case SA_TEXT_CREATION:
+		case SA_TEXT_LASTACCESS:
+		case SA_TEXT_CHANGE:
+			if (const auto& Record = *static_cast<INPUT_RECORD const*>(Param2); Record.EventType == MOUSE_EVENT)
+			{
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			const auto& Record = *static_cast<INPUT_RECORD const*>(Param2);
-			if (Record.EventType != MOUSE_EVENT)
-				break;
+				if (Record.Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
+					set_dates_and_times(Dlg, TimeMap[control_to_time_map_index(Param1)], os::chrono::nt_clock::now());
+				else
+					Dlg->SendMessage(DM_SETFOCUS, Param1 + 1, nullptr);
+			}
+			break;
 
-			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+		case SA_EDIT_WDATE:
+		case SA_EDIT_WTIME:
+		case SA_EDIT_CDATE:
+		case SA_EDIT_CTIME:
+		case SA_EDIT_ADATE:
+		case SA_EDIT_ATIME:
+		case SA_EDIT_XDATE:
+		case SA_EDIT_XTIME:
+			if (const auto& Record = *static_cast<INPUT_RECORD const*>(Param2); Record.EventType == KEY_EVENT && Record.Event.KeyEvent.bKeyDown && Record.Event.KeyEvent.uChar.UnicodeChar == L'*')
+			{
+				const auto& SelectedEntry = TimeMap[control_to_time_map_index(Param1)];
 
-			if (Record.Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
-				set_dates_and_times(Dlg, TimeMap[label_to_time_map_index(Param1)], os::chrono::nt_clock::now());
-			else
-				Dlg->SendMessage(DM_SETFOCUS, Param1 + 1, nullptr);
+				const auto
+					Date = get_dialog_item_text(Dlg, SelectedEntry.DateId),
+					Time = get_dialog_item_text(Dlg, SelectedEntry.TimeId);
+
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+				for (const auto& i: TimeMap)
+				{
+					if (&i == &SelectedEntry)
+						continue;
+
+					set_date_or_time(Dlg, i.DateId, Date, false);
+					set_date_or_time(Dlg, i.TimeId, Time, false);
+				}
+			}
+			break;
 		}
 		break;
 
@@ -604,7 +652,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 					FarListInfo li{ sizeof(li) };
 					Dlg->SendMessage(DM_LISTINFO, Param1, &li);
 					const auto m = Param1 == SA_COMBO_HARDLINK ? lng::MSetAttrHardLinks : lng::MSetAttrDfsTargets;
-					Dlg->SendMessage(DM_SETTEXTPTR, Param1, UNSAFE_CSTR(concat(msg(m), L" ("sv, str(li.ItemsNumber), L')')));
+					set_dialog_item_text(Dlg, Param1, concat(msg(m), L" ("sv, str(li.ItemsNumber), L')'));
 				}
 				break;
 
@@ -616,14 +664,14 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			case SA_EDIT_CDATE:
 			case SA_EDIT_ADATE:
 			case SA_EDIT_XDATE:
-				DlgParam.Times[label_to_time_map_index(Param1 - 1)].Date.ChangedManually = true;
+				DlgParam.Times[control_to_time_map_index(Param1)].Date.ChangedManually = true;
 				break;
 
 			case SA_EDIT_WTIME:
 			case SA_EDIT_CTIME:
 			case SA_EDIT_ATIME:
 			case SA_EDIT_XTIME:
-				DlgParam.Times[label_to_time_map_index(Param1 - 2)].Time.ChangedManually = true;
+				DlgParam.Times[control_to_time_map_index(Param1)].Time.ChangedManually = true;
 				break;
 			}
 		}
@@ -637,7 +685,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (locale.date_format() != date_type::ymd)
 				break;
 
-			if (std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] != L' ')
+			if (!get_dialog_item_text(Dlg, Param1).starts_with(L' '))
 				break;
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -692,7 +740,7 @@ public:
 
 	void update(string_view const Msg) const
 	{
-		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+		set_dialog_item_text(m_Dialog.get(), items::pr_message, Msg);
 	}
 };
 
@@ -755,10 +803,10 @@ static bool process_single_file(
 
 		ESetFileTime(
 			Name,
-			Times[label_to_time_map_index(SA_TEXT_LASTWRITE)],
-			Times[label_to_time_map_index(SA_TEXT_CREATION)],
-			Times[label_to_time_map_index(SA_TEXT_LASTACCESS)],
-			Times[label_to_time_map_index(SA_TEXT_CHANGE)],
+			Times[control_to_time_map_index(SA_TEXT_LASTWRITE)],
+			Times[control_to_time_map_index(SA_TEXT_CREATION)],
+			Times[control_to_time_map_index(SA_TEXT_LASTACCESS)],
+			Times[control_to_time_map_index(SA_TEXT_CHANGE)],
 			SkipErrors
 		);
 	}

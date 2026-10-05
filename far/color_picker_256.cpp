@@ -406,7 +406,7 @@ intptr_t color_256_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 			const auto IsInverted = std::invoke(ZAxis, CubeA) > std::invoke(ZAxis, CubeB);
 			const auto Slice = IsInverted? cube_size - 1 - Cube.Slice : Cube.Slice;
 
-			Dlg->SendMessage(DM_SETTEXTPTR, cd_text_slice, UNSAFE_CSTR(channel_value(Slice)));
+			set_dialog_item_text(Dlg, cd_text_slice, channel_value(Slice));
 
 			Dlg->SendMessage(DM_ENABLE, cd_button_minus, ToPtr(Slice != (IsInverted? cube_size - 1 : 0)));
 			Dlg->SendMessage(DM_ENABLE, cd_button_plus, ToPtr(Slice != (IsInverted? 0 : cube_size - 1)));

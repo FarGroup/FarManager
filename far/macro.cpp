@@ -1088,13 +1088,13 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				const auto Sequence = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
-				if (*Sequence)
+				const auto Sequence = get_dialog_item_text(Dlg, MS_EDIT_SEQUENCE);
+				if (!Sequence.empty())
 				{
-					if (ParseMacroString(Sequence,KMFLAGS_LUA,true))
+					if (ParseMacroString(Sequence.data(), KMFLAGS_LUA, true)) // data is ok here
 					{
 						m_RecCode=Sequence;
-						m_RecDescription = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr));
+						m_RecDescription = get_dialog_item_text(Dlg, MS_EDIT_DESCR);
 						return TRUE;
 					}
 				}
@@ -1369,7 +1369,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			}
 		}
 
-		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
+		set_dialog_item_text(Dlg, 2, {});
 		// </Клавиши, которые нельзя ввести в диалоге назначения>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
@@ -1491,7 +1491,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		}
 
 		Recurse++;
-		Dlg->SendMessage(DM_SETTEXTPTR,2, UNSAFE_CSTR(strKeyText));
+		set_dialog_item_text(Dlg, 2, strKeyText);
 		Recurse--;
 		//if(key == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;

@@ -588,7 +588,7 @@ intptr_t color_rgb_state::GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Pa
 			const auto Slice = IsInverted? cube_size - 1 - Cube.Slice : Cube.Slice;
 			const auto Value = Slice * Multiplier;
 
-			Dlg->SendMessage(DM_SETTEXTPTR, cd_text_slice, UNSAFE_CSTR(channel_value(OuterValue + Value)));
+			set_dialog_item_text(Dlg, cd_text_slice, channel_value(OuterValue + Value));
 
 			Dlg->SendMessage(DM_ENABLE, cd_button_minus, ToPtr(Slice != (IsInverted? cube_size - 1 : 0)));
 			Dlg->SendMessage(DM_ENABLE, cd_button_plus, ToPtr(Slice != (IsInverted? 0 : cube_size - 1)));

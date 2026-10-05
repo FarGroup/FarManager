@@ -641,12 +641,9 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 	switch (Msg)
 	{
 		case DN_CLOSE:
-
 			if (Param1==AD_BUTTON_OK)
 			{
-				const auto Data = std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, AD_EDIT_SEARCHFIRST, nullptr));
-
-				if (Data && *Data && !CheckFileSizeStringFormat(Data))
+				if (const auto Data = get_dialog_item_text(Dlg, AD_EDIT_SEARCHFIRST); !Data.empty() && !CheckFileSizeStringFormat(Data))
 				{
 					Message(MSG_WARNING,
 						msg(lng::MFindFileAdvancedTitle),
@@ -706,7 +703,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		FarListPos Position{ sizeof(Position) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 		if (Position.SelectPos == TitlePosition)
-			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, UNSAFE_CSTR(Title));
+			set_dialog_item_text(Dlg, FAD_COMBOBOX_CP, Title);
 	};
 
 	switch (Msg)
@@ -723,7 +720,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!Hex));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(1));
-			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).c_str()));
+			set_dialog_item_text(Dlg, FAD_TEXT_CP, msg(lng::MFindFileCodePage));
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,ToPtr(CBET_KEY));
 			const auto BottomLine = KeysToLocalizedText(KEY_SPACE, KEY_INS);
 			FarListTitles Titles{ sizeof(Titles), 0, nullptr, 0, BottomLine.c_str() };
@@ -748,12 +745,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_BUTTON_FIND:
 				{
-					string Mask(std::bit_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr)));
-
-					if (Mask.empty())
-						Mask = AllFilesMask;
-
-					return FileMaskForFindFile->assign(Mask);
+					const auto Mask = get_dialog_item_text(Dlg, FAD_EDIT_MASK);
+					return FileMaskForFindFile->assign(Mask.empty()? AllFilesMask : Mask);
 				}
 				case FAD_BUTTON_DRIVE:
 				{
@@ -1443,11 +1436,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			const auto refresh_status = [&]
 			{
 				const auto strDataStr = far::vformat(msg(lng::MFindFileFound), m_FileCount, m_DirCount);
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
+				set_dialog_item_text(Dlg, FD_SEPARATOR1, strDataStr);
 
 				if (m_Searcher->Finished())
 				{
-					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, {});
+					set_dialog_item_text(Dlg, FD_TEXT_STATUS, {});
 				}
 				else
 				{
@@ -1463,14 +1456,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									: m_SearchDlgParams.SearchStr, 10)))
 							+ L' ' + strFM;
 
-						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(far::format(L"{:3}%"sv, m_Percent)));
+						set_dialog_item_text(Dlg, FD_TEXT_STATUS_PERCENTS, far::format(L"{:3}%"sv, m_Percent));
 					}
 
 					SMALL_RECT Rect;
 					Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
 
 					inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1);
-					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strFM));
+					set_dialog_item_text(Dlg, FD_TEXT_STATUS, strFM);
 				}
 
 				if (m_LastFoundNumber)
@@ -1511,10 +1504,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 				const auto strMessage = far::vformat(msg(lng::MFindFileDone), m_FileCount, m_DirCount);
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindFileCancel).c_str()));
+				set_dialog_item_text(Dlg, FD_SEPARATOR1, {});
+				set_dialog_item_text(Dlg, FD_TEXT_STATUS, strMessage);
+				set_dialog_item_text(Dlg, FD_TEXT_STATUS_PERCENTS, {});
+				set_dialog_item_text(Dlg, FD_BUTTON_STOP, msg(lng::MFindFileCancel));
 				ConsoleTitle::SetFarTitle(strMessage);
 
 				Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);

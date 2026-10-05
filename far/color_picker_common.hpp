@@ -338,7 +338,7 @@ namespace color_picker_common
 				}
 
 				ColorState.from_rgb(RGB);
-				Dlg->SendMessage(DM_SETTEXTPTR, Context.TextId, UNSAFE_CSTR(ColorState.channel_value(Channel)));
+				set_dialog_item_text(Dlg, Context.TextId, ColorState.channel_value(Channel));
 				Dlg->SendMessage(DM_SETCHECK, dialog_items::cd_cube_first, ToPtr(BSTATE_3STATE));
 				return true;
 			}
@@ -351,7 +351,7 @@ namespace color_picker_common
 	template<typename color_state>
 	void update_rgb_control_channel(Dialog* const Dlg, typename color_state::items const Id, uint8_t const Value)
 	{
-		Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(color_state::channel_value(Value)));
+		set_dialog_item_text(Dlg, Id, color_state::channel_value(Value));
 	}
 
 	template<typename color_state>

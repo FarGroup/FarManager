@@ -4154,6 +4154,7 @@ ostatní datumy a časy zůstanou nezměněny.
  Tlačítko #Současný# vyplní všechna pole aktuálním časem a datumem.
  Tlačítko #Originál# vyplní pole času souboru jeho originálními hodnotami.
 Tato volba je k dispozici jen tehdy, pokud je dialog vyvolán pro jeden souborový objekt.
+ You can also press #*# in date and time fields to copy their values into all the other date and time fields.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.

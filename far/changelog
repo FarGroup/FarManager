@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+drkns 2026-10-02 17:19:44+01:00 - build 6741
+
+1. Add '*' shortcut to Attributes dialog.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+BitoLabs 2026-09-26 19:58:45+01:00 - build 6740
+
+1. gh-1133: Fix Panel::ExecFolder() to ensure correct behavior for SameFolder plugin
+
+  * When passive panel is in non-file mode (Info, etc), SameFolder had no effect
+  * When passive panel is hidden (Ctrl+F1/F2), SameFolder did not un-hide it
+
+--------------------------------------------------------------------------------
 olegfedko 2026-09-25 20:00:00+03:00
 
 1. User menu items can be hidden by a "Show if" condition: always, has selection, current is a file or current is a folder (with an optional file mask for the last two). Use Ctrl+H in the menu editor to show or hide filtered items.

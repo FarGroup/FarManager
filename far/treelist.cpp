@@ -656,7 +656,7 @@ public:
 
 	void update(size_t const Count) const
 	{
-		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_dirs, UNSAFE_CSTR(str(Count)));
+		set_dialog_item_text(m_Dialog.get(), items::pr_dirs, str(Count));
 	}
 };
 

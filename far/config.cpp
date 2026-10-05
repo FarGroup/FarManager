@@ -1691,21 +1691,16 @@ intptr_t IntOption::EditProc(Dialog* const Dlg, intptr_t const Msg, intptr_t con
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			const auto set = [&](intptr_t const Id, string const& Value)
-			{
-				Dlg->SendMessage(DM_SETTEXTPTR, Id, UNSAFE_CSTR(Value));
-			};
-
 			const auto update = [&](unsigned long long Value)
 			{
 				if (Param1 != Ctx.SignedItem)
-					set(Ctx.SignedItem, str(as_signed(Value)));
+					set_dialog_item_text(Dlg, Ctx.SignedItem, str(as_signed(Value)));
 				if (Param1 != Ctx.UnsignedItem)
-					set(Ctx.UnsignedItem, str(as_unsigned(Value)));
+					set_dialog_item_text(Dlg, Ctx.UnsignedItem, str(as_unsigned(Value)));
 				if (Param1 != Ctx.HexItem)
-					set(Ctx.HexItem, far::format(L"0x{:016X}"sv, as_unsigned(Value)));
+					set_dialog_item_text(Dlg, Ctx.HexItem, far::format(L"0x{:016X}"sv, as_unsigned(Value)));
 				if (Param1 != Ctx.BinaryItem)
-					set(Ctx.BinaryItem, far::format(L"{0:064b}"sv, as_unsigned(Value)));
+					set_dialog_item_text(Dlg, Ctx.BinaryItem, far::format(L"{0:064b}"sv, as_unsigned(Value)));
 			};
 
 			if (Param1 == Ctx.SignedItem)

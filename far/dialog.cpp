@@ -6102,7 +6102,7 @@ Dialog::suppress_redraw::~suppress_redraw()
 	m_Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 }
 
-string_view get_dialog_item_text(Dialog* const Dlg, int const Id)
+string_view get_dialog_item_text(Dialog* const Dlg, size_t const Id)
 {
 	FarDialogItemData Item{ sizeof(Item) };
 	Dlg->SendMessage(DM_GETTEXT, Id, &Item);
@@ -6114,7 +6114,7 @@ string_view get_dialog_item_text(Dialog* const Dlg, int const Id)
 	};
 }
 
-void set_dialog_item_text(Dialog* const Dlg, int const Id, string_view const Text)
+void set_dialog_item_text(Dialog* const Dlg, size_t const Id, string_view const Text)
 {
 	FarDialogItemData Item
 	{

@@ -466,10 +466,7 @@ intptr_t single_color_state::GetSingleColorDlgProc(Dialog* Dlg, intptr_t Msg, in
 				{ lng::MSetColorBackIndex, lng::MSetColorBackAARRGGBB, lng::MSetColorBackDefault },
 			};
 
-			Dlg->SendMessage(DM_SETTEXTPTR,
-				Offset + cb::colorcode_text,
-				UNSAFE_CSTR(msg(Titles[Offset == cd::fg_first? 0 : 1][CurColor.IsIndex? IsDefault? 2 : 0 : 1]))
-			);
+			set_dialog_item_text(Dlg, Offset + cb::colorcode_text, msg(Titles[Offset == cd::fg_first? 0 : 1][CurColor.IsIndex? IsDefault? 2 : 0 : 1]));
 		}
 		return TRUE;
 
