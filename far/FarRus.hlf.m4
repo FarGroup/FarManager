@@ -4169,7 +4169,8 @@ $ #Файловые атрибуты#
  Кнопка #Current# (Текущее) позволяет заполнить поля времени файла текущим временем.
  Кнопка #Original# (Исходное) заполняет поля времени файла оригинальными
 значениями. Доступна для одиночного файлового объекта.
- You can also press #*# in date and time fields to copy their values into all the other date and time fields.
+ Нажатие #*# в полях даты и времени копирует их значения во все остальные
+поля даты и времени.
 
  The #System properties# button invoke the system properties dialog for
 selected objects.
