@@ -619,6 +619,9 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 		case SA_EDIT_XTIME:
 			if (const auto& Record = *static_cast<INPUT_RECORD const*>(Param2); Record.EventType == KEY_EVENT && Record.Event.KeyEvent.bKeyDown && Record.Event.KeyEvent.uChar.UnicodeChar == L'*')
 			{
+				if (FarDialogItem Item; !Dlg->SendMessage(DM_GETDLGITEMSHORT, Param1, &Item) || Item.Flags & DIF_READONLY)
+					break;
+
 				const auto& SelectedEntry = TimeMap[control_to_time_map_index(Param1)];
 
 				const auto
