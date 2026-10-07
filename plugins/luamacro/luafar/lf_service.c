@@ -2641,7 +2641,21 @@ static int far_DetectCodePage(lua_State *L)
 
 static int far_GetPluginId(lua_State *L)
 {
-	lua_pushlstring(L, (char*)GetPluginData(L)->PluginId, sizeof(UUID));
+	unsigned char *p, *q;
+	const UUID *PluginId = GetPluginData(L)->PluginId;
+	char Param = toupper(*luaL_optstring(L, 1, ""));
+	if ((Param == 'L' || Param == 'U') && UuidToStringA(PluginId, &p) == RPC_S_OK)
+	{
+		if (Param == 'U')
+		{
+			for (q=p; *q; q++) *q = toupper(*q);
+		}
+		lua_pushstring(L, (char*)p);
+		RpcStringFreeA(&p);
+	}
+	else
+		lua_pushlstring(L, (const char*)PluginId, sizeof(UUID));
+
 	return 1;
 }
 
