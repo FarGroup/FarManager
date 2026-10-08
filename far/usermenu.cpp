@@ -110,7 +110,7 @@ public:
 private:
 	void ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName);
 	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem) const;
-	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
+	bool EditMenu(menu_container& Menu, menu_container::iterator MenuItem, bool Create);
 	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, string_view MenuFileName, const string& Title);
 	void SaveMenu(string_view MenuFileName) const;
 	intptr_t EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -177,25 +177,25 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
 	const auto Eol = eol::system.str();
+	const string Padding("F24: "sv.size(), L' ');
 
 	for (const auto& i: Menu)
 	{
-		auto HotkeyStr = pad_right(i.strHotKey + L':', 5);
+		auto HotkeyStr = pad_right(i.strHotKey + L':', Padding.size());
 		append(Result, HotkeyStr, i.strLabel, Eol);
 
 		if (i.Submenu)
 		{
 			append(Result, L'{', Eol, SerializeMenu(i.Menu), L'}', Eol);
+			continue;
 		}
-		else
+
+		for (const auto& str: i.Commands)
 		{
-			const string Padding(HotkeyStr.size(), L' ');
-			for (const auto& str: i.Commands)
-			{
-				append(Result, Padding, str, Eol);
-			}
+			append(Result, Padding, str, Eol);
 		}
 	}
+
 	return Result;
 }
 
@@ -468,63 +468,58 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName)
 		// что было после вызова меню?
 		switch (ExitCode)
 		{
-				// Показать меню родительского каталога
-			case EC_PARENT_MENU:
+		// Показать меню родительского каталога
+		case EC_PARENT_MENU:
+			if (m_MenuMode == menu_mode::local || m_MenuMode == menu_mode::custom)
 			{
-				if (m_MenuMode == menu_mode::local || m_MenuMode == menu_mode::custom)
+				if (m_MenuMode == menu_mode::custom)
 				{
-					if (m_MenuMode == menu_mode::custom)
-					{
-						// Menu can be invoked from any file with any name
-						// Going up switches to standard names & logic
-						MenuFileName = {};
-					}
-
-					if (CutToParent(strMenuFilePath))
-					{
-						continue;
-					}
-
-					m_MenuMode = menu_mode::global;
-					strMenuFilePath = Global->Opt->GlobalUserMenuDir;
-				}
-				else
-				{
-					m_MenuMode = menu_mode::user;
-					strMenuFilePath = Global->Opt->ProfilePath;
+					// Menu can be invoked from any file with any name
+					// Going up switches to standard names & logic
+					MenuFileName = {};
 				}
 
+				if (CutToParent(strMenuFilePath))
+				{
+					continue;
+				}
+
+				m_MenuMode = menu_mode::global;
+				strMenuFilePath = Global->Opt->GlobalUserMenuDir;
+			}
+			else
+			{
+				m_MenuMode = menu_mode::user;
+				strMenuFilePath = Global->Opt->ProfilePath;
+			}
+			break;
+
+		// Показать главное меню
+		case EC_MAIN_MENU:
+			// $ 14.07.2000 VVM: Shift+F2 переключает Главное меню/локальное в цикле
+			switch (m_MenuMode)
+			{
+			case menu_mode::custom:
+				// Menu can be invoked from any file with any name
+				// Switching to global switches to standard names & logic
+				MenuFileName = {};
+				[[fallthrough]];
+			case menu_mode::local:
+				m_MenuMode = menu_mode::global;
+				strMenuFilePath = Global->Opt->GlobalUserMenuDir;
+				break;
+
+			case menu_mode::global:
+				m_MenuMode = menu_mode::user;
+				strMenuFilePath = Global->Opt->ProfilePath;
+				break;
+
+			case menu_mode::user:
+				strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
+				m_MenuMode = menu_mode::local;
 				break;
 			}
-			// Показать главное меню
-			case EC_MAIN_MENU:
-			{
-				// $ 14.07.2000 VVM: Shift+F2 переключает Главное меню/локальное в цикле
-				switch (m_MenuMode)
-				{
-					case menu_mode::custom:
-						// Menu can be invoked from any file with any name
-						// Switching to global switches to standard names & logic
-						MenuFileName = {};
-						[[fallthrough]];
-					case menu_mode::local:
-						m_MenuMode = menu_mode::global;
-						strMenuFilePath = Global->Opt->GlobalUserMenuDir;
-						break;
-
-					case menu_mode::global:
-						m_MenuMode = menu_mode::user;
-						strMenuFilePath = Global->Opt->ProfilePath;
-						break;
-
-					case menu_mode::user:
-						strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
-						m_MenuMode = menu_mode::local;
-						break;
-				}
-
-				break;
-			}
+			break;
 		}
 	}
 
@@ -684,7 +679,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (!IsNew && !CurrentMenuItem)
 						break;
 
-					EditMenu(Menu, CurrentMenuItem, IsNew);
+					EditMenu(Menu, CurrentMenuItem? *CurrentMenuItem : Menu.begin(), IsNew);
 					// BUGBUG update dynamically instead of full refill
 					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					break;
@@ -818,52 +813,51 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		// Цикл исполнения команд меню (CommandX)
 		for (const auto& str: (*CurrentMenuItem)->Commands)
 		{
-			auto strCommand = str;
+			if ((starts_with_icase(str, L"REM"sv) && (str.size() == 3 || std::iswblank(str[3]))) || str.starts_with(L"::"sv))
+				continue;
 
-			if (!((starts_with_icase(strCommand, L"REM"sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"sv)))
+			/*
+			  Осталось корректно обработать ситуацию, например:
+			  if exist !#!\!^!.! far:edit < diff -c -p !#!\!^!.! !\!.!
+			  Т.е. сначала "вычислить" кусок "if exist !#!\!^!.!", ну а если
+			  выполнится, то делать дальше.
+			  Или еще пример,
+			  if exist ..\a.bat D:\FAR\170\DIFF.MY\mkdiff.bat !?&Номер патча?!
+			  ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
+			  проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
+			*/
+			// if (!ExtractIfExistCommand(str))
+			//	continue;
+
+			// $ 01.05.2001 IS Отключим до лучших времен
+			/*
+			if (!PanelsHidden)
 			{
-				/*
-				  Осталось корректно обработать ситуацию, например:
-				  if exist !#!\!^!.! far:edit < diff -c -p !#!\!^!.! !\!.!
-				  Т.е. сначала "вычислить" кусок "if exist !#!\!^!.!", ну а если
-				  выполнится, то делать дальше.
-				  Или еще пример,
-				  if exist ..\a.bat D:\FAR\170\DIFF.MY\mkdiff.bat !?&Номер патча?!
-				  ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
-				  проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
-				*/
-				//if(ExtractIfExistCommand(Command))
-				{
-					/* $ 01.05.2001 IS Отключим до лучших времен */
-					/*
-					if (!PanelsHidden)
-					{
-						LeftVisible=Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
-						RightVisible=Global->CtrlObject->Cp()->RightPanel()->IsVisible();
-						Global->CtrlObject->Cp()->LeftPanel()->Hide();
-						Global->CtrlObject->Cp()->RightPanel()->Hide();
-						Global->CtrlObject->Cp()->LeftPanel()->SetUpdateMode(FALSE);
-						Global->CtrlObject->Cp()->RightPanel()->SetUpdateMode(FALSE);
-						PanelsHidden=TRUE;
-					}
-					*/
+				LeftVisible=Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
+				RightVisible=Global->CtrlObject->Cp()->RightPanel()->IsVisible();
+				Global->CtrlObject->Cp()->LeftPanel()->Hide();
+				Global->CtrlObject->Cp()->RightPanel()->Hide();
+				Global->CtrlObject->Cp()->LeftPanel()->SetUpdateMode(FALSE);
+				Global->CtrlObject->Cp()->RightPanel()->SetUpdateMode(FALSE);
+				PanelsHidden=TRUE;
+			}
+			*/
 
-					bool PreserveLFN = false;
-					if (!SubstFileName(strCommand, Context, &PreserveLFN, false, CurrentLabel))
-						return EC_CLOSE_MENU;
+			auto strCommand = str;
+			bool PreserveLFN = false;
+			if (!SubstFileName(strCommand, Context, &PreserveLFN, false, CurrentLabel))
+				return EC_CLOSE_MENU;
 
-					if (!strCommand.empty())
-					{
-						SCOPED_ACTION(PreserveLongName)(strName, PreserveLFN);
+			if (strCommand.empty())
+				continue;
 
-						execute_info Info;
-						Info.DisplayCommand = strCommand;
-						Info.Command = strCommand;
+			SCOPED_ACTION(PreserveLongName)(strName, PreserveLFN);
 
-						Global->CtrlObject->CmdLine()->ExecString(Info);
-					}
-				}
-			} // strCommand != "REM"
+			execute_info Info;
+			Info.DisplayCommand = strCommand;
+			Info.Command = strCommand;
+
+			Global->CtrlObject->CmdLine()->ExecString(Info);
 		}
 
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
@@ -922,80 +916,81 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 {
 	switch (Msg)
 	{
-		case DN_EDITCHANGE:
+	case DN_EDITCHANGE:
 #ifdef PROJECT_DI_MEMOEDIT
-			if (Param1 == EM_MEMOEDIT)
+		if (Param1 == EM_MEMOEDIT)
 #else
-			if (Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9)
+		if (Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9)
 #endif
-				m_ItemChanged = true;
-			break;
+			m_ItemChanged = true;
+		break;
 
-		case DN_CLOSE:
+	case DN_CLOSE:
 
-			if (Param1==EM_BUTTON_OK)
+		if (Param1==EM_BUTTON_OK)
+		{
+			bool Result = true;
+			const auto
+				HotKey = get_dialog_item_text(Dlg, EM_HOTKEY_EDIT),
+				Label = get_dialog_item_text(Dlg, EM_LABEL_EDIT);
+
+			int FocusPos=-1;
+
+			if (HotKey != L"--"sv)
 			{
-				bool Result = true;
-				const auto
-					HotKey = get_dialog_item_text(Dlg, EM_HOTKEY_EDIT),
-					Label = get_dialog_item_text(Dlg, EM_LABEL_EDIT);
-
-				int FocusPos=-1;
-
-				if (HotKey != L"--"sv)
+				if (Label.empty())
 				{
-					if (Label.empty())
-					{
-						FocusPos=EM_LABEL_EDIT;
-					}
-					else if (HotKey.size() > 1)
-					{
-						FocusPos=EM_HOTKEY_EDIT;
+					FocusPos=EM_LABEL_EDIT;
+				}
+				else if (HotKey.size() > 1)
+				{
+					FocusPos=EM_HOTKEY_EDIT;
 
-						if (upper(HotKey.front()) == L'F')
-						{
-							if (int Number; from_string(HotKey.substr(1), Number) && in_closed_range(1, Number, 24))
-								FocusPos=-1;
-						}
+					if (upper(HotKey.front()) == L'F')
+					{
+						if (int Number; from_string(HotKey.substr(1), Number) && in_closed_range(1, Number, 24))
+							FocusPos=-1;
 					}
 				}
-
-				if (FocusPos!=-1)
-				{
-					Message(MSG_WARNING,
-						msg(lng::MUserMenuTitle),
-						{
-							msg(Label.empty()? lng::MUserMenuInvalidInputLabel : lng::MUserMenuInvalidInputHotKey)
-						},
-						{ lng::MOk });
-					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
-					Result = false;
-				}
-
-				return Result;
 			}
-			else if (m_ItemChanged)
+
+			if (FocusPos!=-1)
 			{
-				switch(Message(MSG_WARNING,
+				Message(MSG_WARNING,
 					msg(lng::MUserMenuTitle),
 					{
-						msg(lng::MEditMenuConfirmation)
+						msg(Label.empty()? lng::MUserMenuInvalidInputLabel : lng::MUserMenuInvalidInputHotKey)
 					},
-					{ lng::MHYes, lng::MHNo, lng::MHCancel }))
-				{
-				case message_result::first_button:
-					Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
-					break;
-
-				case message_result::second_button:
-					return true;
-
-				default:
-					return false;
-				}
+					{ lng::MOk });
+				Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
+				Result = false;
 			}
 
-			break;
+			return Result;
+		}
+
+		if (m_ItemChanged)
+		{
+			switch(Message(MSG_WARNING,
+				msg(lng::MUserMenuTitle),
+				{
+					msg(lng::MEditMenuConfirmation)
+				},
+				{ lng::MHYes, lng::MHNo, lng::MHCancel }))
+			{
+			case message_result::first_button:
+				Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
+				break;
+
+			case message_result::second_button:
+				return true;
+
+			default:
+				return false;
+			}
+		}
+		break;
+
 		default:
 			break;
 	}
@@ -1004,7 +999,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 }
 
 
-bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create)
+bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator MenuItem, bool Create)
 {
 	m_ItemChanged = false;
 
@@ -1034,7 +1029,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	}
 	else
 	{
-		SubMenu = (*MenuItem)->Submenu;
+		SubMenu = MenuItem->Submenu;
 	}
 
 	const int DLG_X=76, DLG_Y=SubMenu?10:22;
@@ -1074,8 +1069,8 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 	if (!Create)
 	{
-		EditDlg[EM_HOTKEY_EDIT].strData = (*MenuItem)->strHotKey;
-		EditDlg[EM_LABEL_EDIT].strData = (*MenuItem)->strLabel;
+		EditDlg[EM_HOTKEY_EDIT].strData = MenuItem->strHotKey;
+		EditDlg[EM_LABEL_EDIT].strData = MenuItem->strLabel;
 #if defined(PROJECT_DI_MEMOEDIT)
 		/*
 			...
@@ -1092,7 +1087,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 		int CommandNumber=0;
-		for (const auto& i: (*MenuItem)->Commands)
+		for (const auto& i: MenuItem->Commands)
 		{
 			EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
 			if (++CommandNumber == DI_EDIT_COUNT)
@@ -1111,17 +1106,13 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		return false;
 
 	m_MenuModified = true;
-	auto NewItemIterator = Menu.end();
 
 	if (Create)
-	{
-		NewItemIterator = Menu.emplace(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
-		MenuItem = &NewItemIterator;
-	}
+		MenuItem = Menu.emplace(MenuItem, UserMenuItem());
 
-	(*MenuItem)->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
-	(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
-	(*MenuItem)->Submenu = SubMenu;
+	MenuItem->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
+	MenuItem->strLabel = EditDlg[EM_LABEL_EDIT].strData;
+	MenuItem->Submenu = SubMenu;
 
 	if (!SubMenu)
 	{
@@ -1140,14 +1131,14 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 				CommandNumber = i + 1;
 		}
 
-		(*MenuItem)->Commands.clear();
+		MenuItem->Commands.clear();
 
 		for (const auto i: std::views::iota(0uz, static_cast<size_t>(DI_EDIT_COUNT)))
 		{
 			if (static_cast<size_t>(i) >= CommandNumber)
 				break;
 
-			(*MenuItem)->Commands.emplace_back(EditDlg[i + EM_EDITLINE_0].strData);
+			MenuItem->Commands.emplace_back(EditDlg[i + EM_EDITLINE_0].strData);
 		}
 #endif
 	}

@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
 
 // External:
