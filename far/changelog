@@ -19,6 +19,13 @@ BitoLabs 2026-09-26 19:58:45+01:00 - build 6740
   * When passive panel is hidden (Ctrl+F1/F2), SameFolder did not un-hide it
 
 --------------------------------------------------------------------------------
+olegfedko 2026-09-25 20:00:00+03:00
+
+1. User menu items can be hidden by a "Show if" condition: always, has selection, current is a file or current is a folder (with an optional file mask for the last two). Use Ctrl+H in the menu editor to show or hide filtered items.
+
+2. User menu: keep selection on the item when moving it with Ctrl+Up/Ctrl+Down.
+
+--------------------------------------------------------------------------------
 drkns 2026-09-25 18:58:09+01:00 - build 6739
 
 1. Refactoring, clean up tvar.*pp.
