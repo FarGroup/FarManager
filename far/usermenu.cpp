@@ -165,7 +165,7 @@ static int PrepareHotKey(string &strHotKey)
 }
 
 static const auto LocalMenuFileName = L"FarMenu.ini"sv;
-static const auto MenuShowIfPrefix = L"@ShowIf:"sv;
+static const auto MenuShowIfPrefix = L"::ShowIf:"sv;
 static const auto MenuSeparator = L"--"sv;
 
 enum class MenuItemShowIf
