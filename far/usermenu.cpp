@@ -826,8 +826,10 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			  ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
 			  проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
 			*/
-			// if (!ExtractIfExistCommand(str))
-			//	continue;
+			/*
+			if (!ExtractIfExistCommand(str))
+				continue;
+			*/
 
 			// $ 01.05.2001 IS Отключим до лучших времен
 			/*
