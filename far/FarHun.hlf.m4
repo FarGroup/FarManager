@@ -2292,7 +2292,7 @@ gyorsbillentyű segítségével.
  Az #Ins# billentyűvel új menüelemeket, almenüket hozhatunk létre, az #F4#
 bilentyűvel szerkeszthetjük a jellemzőiket, a #Del#-lel pedig törölhetjük a
 menü elemeit. #Alt+F4#-gyel a menüket szövegfájl formátumban szerkeszthetjük.
- A #Ctrl+H# megmutatja a "Megjelenítés, ha" feltétel miatt elrejtett menüpontokat.
+ A #Ctrl+H# megmutatja a "Megjelenítés" mező miatt elrejtett menüpontokat.
 
  A felhasználói menü elemeinek gyorsbillentyűjeként megadhatunk számokat,
 betűket vagy funkcióbillentyűket (#F1#…#F24#), utóbbiakat csak beírás útján
@@ -2300,8 +2300,8 @@ fogadja el. Ha az #F1# vagy #F4# eredetileg más művelethez volt rendelve,
 a felhasználói menü felülbírálja eredeti funkcióikat, bár a #Shift+F4#-gyel
 ezután is szerkeszthetjük a menüt.
 
- A #Megjelenítés, ha# feltétel lehetővé teszi az adott helyzetben nem illő
-menüpont elrejtését: #Mindig#, #Van kijelölés#, #A jelenlegi fájl# vagy
+ A #Megjelenítés# mező csak akkor teszi láthatóvá a menüpontot, ha az illik az
+adott helyzethez: #Mindig#, #Van kijelölés#, #A jelenlegi fájl# vagy
 #A jelenlegi mappa#. Az utolsó kettőhöz opcionális ~fájlmaszk~@FileMasks@
 adható meg; a menüpont csak akkor jelenik meg, ha a kurzor alatti objektum neve
 illik a maszkra.

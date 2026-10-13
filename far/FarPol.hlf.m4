@@ -2216,13 +2216,13 @@ menu.
 podmenu lub pozycję menu za pomocą klawisza #Ins# lub edytować istniejące
 podmenu lub pozycję menu za pomocą klawisza #F4#. Należy wcisnąć klawisze #Alt+F4#,
 aby edytować menu w formie pliku tekstowego.
- Naciśnij #Ctrl+H#, aby pokazać pozycje menu ukryte przez warunek "Pokaż, jeżeli".
+ Naciśnij #Ctrl+H#, aby pokazać pozycje menu ukryte przez pole "Pokaż".
 
  Do klawiszy skrótu można użyć cyfr, liter i klawiszy funkcyjnych (#F1#…#F24#).
 Jeżeli użyto klawiszy #F1# lub #F4# - to zamieniona zostanie oryginalna funkcja
 tych klawiszy. Mimo to, skrót #Shift+F4# nadal może być użyty do edycji menu.
 
- Warunek #Pokaż, jeżeli# pozwala ukryć pozycję menu niepasującą do bieżącej
+ Pole #Pokaż# czyni pozycję menu widoczną tylko wtedy, gdy pasuje ona do bieżącej
 sytuacji: #Zawsze#, #Jest zaznaczenie#, #Bieżący to plik# lub #Bieżący to folder#.
 Dla dwóch ostatnich można podać opcjonalną ~maskę pliku~@FileMasks@; pozycja
 jest pokazywana tylko wtedy, gdy nazwa obiektu pod kursorem pasuje do maski.

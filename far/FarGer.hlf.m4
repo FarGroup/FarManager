@@ -2289,14 +2289,14 @@ must switch to file mode with #Alt+F4# key.
  Menüpunkte oder Untermenüs können durch die Taste Entf gelöscht werden. Durch Einfg können neue Menüpunkte
 oder Untermenüs angelegt werden. Durch #F4# können existierende Menüpunkte und Untermenüs bearbeitet werden.
 Mit Alt+F4 kann ein Menü in Form einer Textdatei bearbeitet werden.
- Mit #Strg+H# werden durch die Bedingung "Anzeigen wenn" ausgeblendete Menüeinträge angezeigt.
+ Mit #Strg+H# werden durch das Feld "Anzeigen" ausgeblendete Menüeinträge angezeigt.
 
  Es ist möglich, Zahlen, Buchstaben und Funktionstasten (#F1#…#F24#) als Hotkeys in Benutzermenüs einzusetzen.
 Bei Benutzung von #F1# oder #F4# wird deren originale Funktion im Benutzermenü übergangen.
 #Umsch+F4# können Sie trotzdem weiterhin als Bearbeitungsfunktion nutzen.
 
- Die Bedingung #Anzeigen wenn# ermöglicht das Ausblenden eines Menüeintrags, der
-in der aktuellen Situation nicht zutrifft: #Immer#, #Auswahl vorhanden#,
+ Das Feld #Anzeigen# macht einen Menüeintrag nur dann sichtbar, wenn er
+in der aktuellen Situation zutrifft: #Immer#, #Auswahl vorhanden#,
 #Aktuell ist eine Datei# oder #Aktuell ist ein Ordner#. Für die letzten beiden
 kann eine optionale ~Dateimaske~@FileMasks@ angegeben werden; der Eintrag wird
 nur angezeigt, wenn der Name des Objekts unter dem Cursor der Maske entspricht.

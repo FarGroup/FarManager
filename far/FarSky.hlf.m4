@@ -2211,14 +2211,14 @@ názov a stlačením klávesy Enter alebo jemu priradenou klávesovou skratkou.
  Podmenu alebo položku menu môžete zrušiť klávesom #Del#, nové menu alebo
 položku môžete vložiť klávesom #Ins# a upraviť existujúce menu či položku
 možno klávesom #F4#. Po stlačení #Alt+F4# budete môcť menu editovať v textovej forme.
- Stlačením #Ctrl+H# zobrazíte položky menu skryté podmienkou "Zobraziť, ak".
+ Stlačením #Ctrl+H# zobrazíte položky menu skryté poľom "Zobraziť".
 
  Ako klávesové skratky možno v menu použiť číslice, písmená a funkčné klávesy (#F1#…#F24#).
 Ak použijete #F1# alebo #F4#, znemožníte tým ich originálnu funkciu.
 Každopádne na úpravu môžete ešte vždy použiť kombináciu #Shift+F4#.
 
- Podmienka #Zobraziť, ak# umožňuje skryť položku menu nevhodnú v aktuálnej
-situácii: #Vždy#, #Existuje výber#, #Aktuálny je súbor# alebo
+ Pole #Zobraziť# zobrazí položku menu len vtedy, keď je v aktuálnej
+situácii vhodná: #Vždy#, #Existuje výber#, #Aktuálny je súbor# alebo
 #Aktuálny je priečinok#. Pre posledné dve možno zadať voliteľnú
 ~masku súboru~@FileMasks@; položka sa zobrazí, len ak názov objektu pod kurzorom
 zodpovedá maske.

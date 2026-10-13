@@ -68,7 +68,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "strmix.hpp"
 #include "filemasks.hpp"
-#include "common.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -76,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/from_string.hpp"
 #include "common/scope_exit.hpp"
 
@@ -112,7 +112,7 @@ public:
 private:
 	void ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName);
 	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem) const;
-	bool EditMenu(menu_container& Menu, menu_container::iterator& MenuItem, bool Create);
+	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(menu_container& Menu, menu_container& MenuRoot, string_view MenuFileName, const string& Title);
 	void SaveMenu(string_view MenuFileName) const;
 	intptr_t EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -168,58 +168,53 @@ static const auto LocalMenuFileName = L"FarMenu.ini"sv;
 static const auto MenuShowIfPrefix = L"::ShowIf:"sv;
 static const auto MenuSeparator = L"--"sv;
 
-enum class MenuItemShowIf
+enum class MenuItemVisibility
 {
 	Always,
 	HasSelection,
 	CurrentFile,
 	CurrentDir,
+
+	count
 };
 
-static constexpr MenuItemShowIf MenuShowIfOrder[]
+static bool VisibilityHasMask(MenuItemVisibility const Visibility)
 {
-	MenuItemShowIf::Always,
-	MenuItemShowIf::HasSelection,
-	MenuItemShowIf::CurrentFile,
-	MenuItemShowIf::CurrentDir,
-};
-
-static bool ShowIfUsesMask(MenuItemShowIf const ShowIf)
-{
-	return ShowIf == MenuItemShowIf::CurrentFile || ShowIf == MenuItemShowIf::CurrentDir;
+	return Visibility == MenuItemVisibility::CurrentFile || Visibility == MenuItemVisibility::CurrentDir;
 }
 
-static lng ShowIfTitleId(MenuItemShowIf const ShowIf)
+static lng VisibilityTitleId(MenuItemVisibility const Visibility)
 {
-	switch (ShowIf)
+	switch (Visibility)
 	{
-	case MenuItemShowIf::HasSelection: return lng::MShowIfHasSelection;
-	case MenuItemShowIf::CurrentFile:  return lng::MShowIfCurrentFile;
-	case MenuItemShowIf::CurrentDir:   return lng::MShowIfCurrentDir;
-	case MenuItemShowIf::Always:
-	default:                           return lng::MShowIfAlways;
+	case MenuItemVisibility::Always:       return lng::MShowIfAlways;
+	case MenuItemVisibility::HasSelection: return lng::MShowIfHasSelection;
+	case MenuItemVisibility::CurrentFile:  return lng::MShowIfCurrentFile;
+	case MenuItemVisibility::CurrentDir:   return lng::MShowIfCurrentDir;
+	default:                               std::unreachable();
 	}
 }
 
-static string_view ShowIfToToken(MenuItemShowIf const ShowIf)
+static string_view VisibilityToToken(MenuItemVisibility const Visibility)
 {
-	switch (ShowIf)
+	switch (Visibility)
 	{
-	case MenuItemShowIf::HasSelection: return L"HasSelection"sv;
-	case MenuItemShowIf::CurrentFile:  return L"CurrentFile"sv;
-	case MenuItemShowIf::CurrentDir:   return L"CurrentDir"sv;
-	case MenuItemShowIf::Always:
-	default:                           return L"Always"sv;
+	case MenuItemVisibility::Always:       return L"Always"sv;
+	case MenuItemVisibility::HasSelection: return L"HasSelection"sv;
+	case MenuItemVisibility::CurrentFile:  return L"CurrentFile"sv;
+	case MenuItemVisibility::CurrentDir:   return L"CurrentDir"sv;
+	default:                               std::unreachable();
 	}
 }
 
-static bool TokenToShowIf(string_view const Token, MenuItemShowIf& ShowIf)
+static bool TokenToVisibility(string_view const Token, MenuItemVisibility& Visibility)
 {
-	for (const auto Value: MenuShowIfOrder)
+	for (const auto Value: std::views::iota(0, std::to_underlying(MenuItemVisibility::count)))
 	{
-		if (equal_icase(Token, ShowIfToToken(Value)))
+		const auto Candidate = static_cast<MenuItemVisibility>(Value);
+		if (equal_icase(Token, VisibilityToToken(Candidate)))
 		{
-			ShowIf = Value;
+			Visibility = Candidate;
 			return true;
 		}
 	}
@@ -227,16 +222,16 @@ static bool TokenToShowIf(string_view const Token, MenuItemShowIf& ShowIf)
 	return false;
 }
 
-static int ShowIfToIndex(MenuItemShowIf const ShowIf)
+[[nodiscard]] static MenuItemVisibility VisibilityFromIndex(int const Index)
 {
-	const auto Found = std::find(std::begin(MenuShowIfOrder), std::end(MenuShowIfOrder), ShowIf);
-	return Found == std::end(MenuShowIfOrder)? 0 : static_cast<int>(Found - std::begin(MenuShowIfOrder));
+	const auto Valid = in_closed_range(0, Index, std::to_underlying(MenuItemVisibility::count) - 1);
+	assert(Valid);
+	return Valid? static_cast<MenuItemVisibility>(Index) : MenuItemVisibility::Always;
 }
 
-struct MenuFilterContext
+struct MenuContext
 {
 	bool HasSelection{};
-	bool HasCurrent{};
 	bool CurrentIsDir{};
 	string strCurrentName;
 };
@@ -245,22 +240,22 @@ struct UserMenu::UserMenuItem
 {
 	string strHotKey;
 	string strLabel;
-	MenuItemShowIf ShowIf{ MenuItemShowIf::Always };
+	MenuItemVisibility Visibility{ MenuItemVisibility::Always };
 	string strMask;
 	std::list<string> Commands;
 	bool Submenu{};
 	menu_container Menu;
 };
 
-static bool ItemVisible(MenuItemShowIf const ShowIf, string_view const Mask, MenuFilterContext const& Ctx, bool const ShowAllItems)
+static bool IsItemVisible(MenuItemVisibility const Visibility, string_view const Mask, MenuContext const& Ctx, bool const ShowAllItems)
 {
-	if (ShowAllItems || ShowIf == MenuItemShowIf::Always)
+	if (ShowAllItems || Visibility == MenuItemVisibility::Always)
 		return true;
 
-	if (ShowIf == MenuItemShowIf::HasSelection)
+	if (Visibility == MenuItemVisibility::HasSelection)
 		return Ctx.HasSelection;
 
-	if (!Ctx.HasCurrent || Ctx.CurrentIsDir != (ShowIf == MenuItemShowIf::CurrentDir))
+	if (Ctx.strCurrentName.empty() || Ctx.CurrentIsDir != (Visibility == MenuItemVisibility::CurrentDir))
 		return false;
 
 	if (Mask.empty())
@@ -276,15 +271,15 @@ static bool ItemVisible(MenuItemShowIf const ShowIf, string_view const Mask, Men
 static void AdjustSelectedItemForFilter(
 	UserMenu::menu_container& Menu,
 	UserMenu::menu_container::iterator& SelectedItem,
-	MenuFilterContext const& Ctx,
+	MenuContext const& Ctx,
 	bool const ShowAllItems)
 {
-	if (SelectedItem != Menu.end() && ItemVisible(SelectedItem->ShowIf, SelectedItem->strMask, Ctx, ShowAllItems))
+	if (SelectedItem != Menu.end() && IsItemVisible(SelectedItem->Visibility, SelectedItem->strMask, Ctx, ShowAllItems))
 		return;
 
 	for (auto i = Menu.begin(); i != Menu.end(); ++i)
 	{
-		if (ItemVisible(i->ShowIf, i->strMask, Ctx, ShowAllItems))
+		if (IsItemVisible(i->Visibility, i->strMask, Ctx, ShowAllItems))
 		{
 			SelectedItem = i;
 			return;
@@ -306,11 +301,11 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 
 		const string Padding(HotkeyStr.size(), L' ');
 
-		if (i.ShowIf != MenuItemShowIf::Always)
+		if (i.Visibility != MenuItemVisibility::Always)
 		{
-			append(Result, Padding, MenuShowIfPrefix, L' ', ShowIfToToken(i.ShowIf));
+			append(Result, Padding, MenuShowIfPrefix, L' ', VisibilityToToken(i.Visibility));
 
-			if (ShowIfUsesMask(i.ShowIf) && !i.strMask.empty())
+			if (VisibilityHasMask(i.Visibility) && !i.strMask.empty())
 				append(Result, L' ', i.strMask);
 
 			append(Result, Eol);
@@ -391,11 +386,11 @@ static void ParseMenu(UserMenu::menu_container& Menu, std::ranges::subrange<enum
 				const auto SpacePos = Rest.find_first_of(L" \t"sv);
 				const auto Token = Rest.substr(0, SpacePos);
 
-				if (MenuItemShowIf ShowIf; TokenToShowIf(Token, ShowIf))
+				if (MenuItemVisibility Visibility; TokenToVisibility(Token, Visibility))
 				{
-					MenuItem->ShowIf = ShowIf;
+					MenuItem->Visibility = Visibility;
 
-					if (ShowIfUsesMask(ShowIf) && SpacePos != string_view::npos)
+					if (VisibilityHasMask(Visibility) && SpacePos != string_view::npos)
 						MenuItem->strMask = trim_left(Rest.substr(SpacePos + 1));
 				}
 			}
@@ -692,7 +687,7 @@ static void FillUserMenu(
 	UserMenu::menu_container::iterator& SelectedItem,
 	fkey_to_pos_map& FuncPos,
 	const subst_context& SubstContext,
-	MenuFilterContext const& FilterCtx,
+	MenuContext const& Ctx,
 	bool const ShowAllItems)
 {
 	SCOPED_ACTION(Dialog::suppress_redraw)(&FarUserMenu);
@@ -703,9 +698,14 @@ static void FillUserMenu(
 	while (SelectedItem != Menu.end() && SelectedItem->strHotKey == MenuSeparator)
 		++SelectedItem;
 
+	bool HasFilteredItems = false;
+
 	FOR_RANGE(Menu, MenuItem)
 	{
-		if (!ItemVisible(MenuItem->ShowIf, MenuItem->strMask, FilterCtx, ShowAllItems))
+		if (MenuItem->Visibility != MenuItemVisibility::Always)
+			HasFilteredItems = true;
+
+		if (!IsItemVisible(MenuItem->Visibility, MenuItem->strMask, Ctx, ShowAllItems))
 			continue;
 
 		menu_item_ex FarUserMenuItem;
@@ -747,6 +747,10 @@ static void FillUserMenu(
 			FuncPos[FuncNum-1]=ItemPos;
 		}
 	}
+
+	FarUserMenu.SetBottomTitle(HasFilteredItems?
+		KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_CTRLH, KEY_F4, KEY_ALTF4, KEY_CTRLUP, KEY_CTRLDOWN) :
+		KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_ALTF4, KEY_CTRLUP, KEY_CTRLDOWN));
 }
 
 // обработка единичного меню
@@ -764,25 +768,24 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 		const auto& strShortName = Names[1];
 		const subst_context Context(strName, strShortName);
 
-		MenuFilterContext FilterCtx;
-		FilterCtx.HasSelection = ActivePanel->GetRealSelCount() != 0;
+		MenuContext MenuCtx;
+		MenuCtx.HasSelection = ActivePanel->GetRealSelCount() != 0;
 		os::fs::attributes CurrentAttributes{};
-		FilterCtx.HasCurrent = ActivePanel->GetFileName(FilterCtx.strCurrentName, ActivePanel->GetCurrentPos(), CurrentAttributes);
-		FilterCtx.CurrentIsDir = FilterCtx.HasCurrent && os::fs::is_directory(CurrentAttributes);
+		ActivePanel->GetFileName(MenuCtx.strCurrentName, ActivePanel->GetCurrentPos(), CurrentAttributes);
+		MenuCtx.CurrentIsDir = os::fs::is_directory(CurrentAttributes);
 
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
 		UserMenu->SetHelp(L"UserMenu"sv);
 		UserMenu->SetPosition({ -1, -1, 0, 0 });
-		UserMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_CTRLH, KEY_F4, KEY_ALTF4, KEY_CTRLUP, KEY_CTRLDOWN));
 		UserMenu->SetMacroMode(MACROAREA_USERMENU);
 
 		int ReturnCode=1;
 
 		fkey_to_pos_map FuncPos;
 
-		AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
-		FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
+		AdjustSelectedItemForFilter(Menu, SelectedItem, MenuCtx, ShowAllItems);
+		FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, MenuCtx, ShowAllItems);
 
 		const auto ExitCode = UserMenu->Run([&](const Manager::Key& RawKey)
 		{
@@ -839,8 +842,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 				case KEY_CTRLH:
 				case KEY_RCTRLH:
 					ShowAllItems = !ShowAllItems;
-					AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
-					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
+					AdjustSelectedItemForFilter(Menu, SelectedItem, MenuCtx, ShowAllItems);
+					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, MenuCtx, ShowAllItems);
 					break;
 
 				case KEY_NUMDEL:
@@ -853,9 +856,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 							break;
 
 						SelectedItem = NextItem;
-						AdjustSelectedItemForFilter(Menu, SelectedItem, FilterCtx, ShowAllItems);
+						AdjustSelectedItemForFilter(Menu, SelectedItem, MenuCtx, ShowAllItems);
 						// BUGBUG update dynamically instead of full refill
-						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
+						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, MenuCtx, ShowAllItems);
 					}
 					break;
 
@@ -869,15 +872,15 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 						break;
 
 					auto TargetItem = CurrentMenuItem? *CurrentMenuItem : SelectedItem;
-					if (EditMenu(Menu, TargetItem, IsNew))
+					if (EditMenu(Menu, &TargetItem, IsNew))
 					{
 						SelectedItem = TargetItem;
 
-						if (!ItemVisible(SelectedItem->ShowIf, SelectedItem->strMask, FilterCtx, false))
+						if (!IsItemVisible(SelectedItem->Visibility, SelectedItem->strMask, MenuCtx, false))
 							ShowAllItems = true;
 
 						// BUGBUG update dynamically instead of full refill
-						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
+						FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, MenuCtx, ShowAllItems);
 					}
 					break;
 				}
@@ -910,7 +913,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, std::list<UserMen
 					node_swap(Menu, *CurrentMenuItem, Other);
 					SelectedItem = *CurrentMenuItem;
 					// BUGBUG update dynamically instead of full refill
-					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, FilterCtx, ShowAllItems);
+					FillUserMenu(*UserMenu, Menu, SelectedItem, FuncPos, Context, MenuCtx, ShowAllItems);
 				}
 				break;
 
@@ -1120,7 +1123,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 #ifdef PROJECT_DI_MEMOEDIT
 			if (Param1 == EM_MEMOEDIT)
 #else
-			if ((Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9) || any_of(Param1, EM_MASK_EDIT, EM_SHOWIF_COMBO))
+			if ((Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9) || Param1 == EM_MASK_EDIT)
 #endif
 				m_ItemChanged = true;
 			break;
@@ -1128,8 +1131,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 		case DN_LISTCHANGE:
 			if (Param1 == EM_SHOWIF_COMBO)
 			{
-				const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(std::bit_cast<intptr_t>(Param2)), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
-				const auto EnableMask = ShowIfUsesMask(ShowIf);
+				const auto EnableMask = VisibilityHasMask(VisibilityFromIndex(static_cast<int>(std::bit_cast<intptr_t>(Param2))));
 				Dlg->SendMessage(DM_ENABLE, EM_MASK_TEXT, ToPtr(EnableMask));
 				Dlg->SendMessage(DM_ENABLE, EM_MASK_EDIT, ToPtr(EnableMask));
 				m_ItemChanged = true;
@@ -1145,7 +1147,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					HotKey = get_dialog_item_text(Dlg, EM_HOTKEY_EDIT),
 					Label = get_dialog_item_text(Dlg, EM_LABEL_EDIT),
 					Mask = get_dialog_item_text(Dlg, EM_MASK_EDIT);
-				const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(Dlg->SendMessage(DM_LISTGETCURPOS, EM_SHOWIF_COMBO, nullptr)), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
+				const auto Visibility = VisibilityFromIndex(static_cast<int>(Dlg->SendMessage(DM_LISTGETCURPOS, EM_SHOWIF_COMBO, nullptr)));
 				int FocusPos=-1;
 
 				if (HotKey != MenuSeparator)
@@ -1166,7 +1168,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					}
 				}
 
-				if (FocusPos == -1 && ShowIfUsesMask(ShowIf) && !Mask.empty() && !filemasks().assign(Mask))
+				if (FocusPos == -1 && VisibilityHasMask(Visibility) && !Mask.empty() && !filemasks().assign(Mask))
 				{
 					Dlg->SendMessage(DM_SETFOCUS, EM_MASK_EDIT, nullptr);
 					return false;
@@ -1216,7 +1218,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 }
 
 
-bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem, bool Create)
+bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create)
 {
 	m_ItemChanged = false;
 
@@ -1246,7 +1248,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	}
 	else
 	{
-		SubMenu = MenuItem->Submenu;
+		SubMenu = (*MenuItem)->Submenu;
 	}
 
 	const int DLG_X=76, DLG_Y=SubMenu?12:24;
@@ -1288,19 +1290,22 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
 #endif
 
-	FarListItem ShowIfItems[std::size(MenuShowIfOrder)]{};
-	FarList ComboList{ sizeof(ComboList), std::size(ShowIfItems), ShowIfItems };
+	std::array<FarListItem, std::to_underlying(MenuItemVisibility::count)> VisibilityItems{};
+	FarList ComboList{ sizeof(ComboList), VisibilityItems.size(), VisibilityItems.data() };
 
-	for (size_t i = 0; i != std::size(ShowIfItems); ++i)
-		ShowIfItems[i].Text = msg(ShowIfTitleId(MenuShowIfOrder[i])).c_str();
+	for (size_t i = 0; i != VisibilityItems.size(); ++i)
+		VisibilityItems[i].Text = msg(VisibilityTitleId(static_cast<MenuItemVisibility>(i))).c_str();
 
-	const auto InitialShowIf = Create? MenuItemShowIf::Always : MenuItem->ShowIf;
-	ShowIfItems[ShowIfToIndex(InitialShowIf)].Flags |= LIF_SELECTED;
+	const auto InitialVisibility = Create? MenuItemVisibility::Always : (*MenuItem)->Visibility;
+	VisibilityItems[std::to_underlying(InitialVisibility)].Flags |= LIF_SELECTED;
 
 	EditDlg[EM_SHOWIF_COMBO].ListItems = &ComboList;
 	EditDlg[EM_MASK_EDIT].strHistory = L"Masks"sv;
 
-	if (!ShowIfUsesMask(InitialShowIf))
+	EditDlg[EM_MASK_TEXT].X1 = EditDlg[EM_SHOWIF_COMBO].X2 + 3;
+	EditDlg[EM_MASK_EDIT].X1 = EditDlg[EM_MASK_TEXT].X1 + static_cast<int>(HiStrlen(msg(lng::MEditMenuMask))) + 1;
+
+	if (!VisibilityHasMask(InitialVisibility))
 	{
 		EditDlg[EM_MASK_TEXT].Flags |= DIF_DISABLE;
 		EditDlg[EM_MASK_EDIT].Flags |= DIF_DISABLE;
@@ -1308,9 +1313,9 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 	if (!Create)
 	{
-		EditDlg[EM_HOTKEY_EDIT].strData = MenuItem->strHotKey;
-		EditDlg[EM_LABEL_EDIT].strData = MenuItem->strLabel;
-		EditDlg[EM_MASK_EDIT].strData = MenuItem->strMask;
+		EditDlg[EM_HOTKEY_EDIT].strData = (*MenuItem)->strHotKey;
+		EditDlg[EM_LABEL_EDIT].strData = (*MenuItem)->strLabel;
+		EditDlg[EM_MASK_EDIT].strData = (*MenuItem)->strMask;
 #if defined(PROJECT_DI_MEMOEDIT)
 		/*
 			...
@@ -1327,7 +1332,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 		int CommandNumber=0;
-		for (const auto& i: MenuItem->Commands)
+		for (const auto& i: (*MenuItem)->Commands)
 		{
 			EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
 			if (++CommandNumber == DI_EDIT_COUNT)
@@ -1346,17 +1351,21 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		return false;
 
 	m_MenuModified = true;
+	auto NewItemIterator = Menu.end();
 
 	if (Create)
-		MenuItem = Menu.emplace(MenuItem, UserMenuItem());
+	{
+		NewItemIterator = Menu.emplace(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
+		*MenuItem = NewItemIterator;
+	}
 
-	const auto ShowIf = MenuShowIfOrder[std::clamp(static_cast<int>(EditDlg[EM_SHOWIF_COMBO].ListPos), 0, static_cast<int>(std::size(MenuShowIfOrder)) - 1)];
+	const auto Visibility = VisibilityFromIndex(static_cast<int>(EditDlg[EM_SHOWIF_COMBO].ListPos));
 
-	MenuItem->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
-	MenuItem->strLabel = EditDlg[EM_LABEL_EDIT].strData;
-	MenuItem->ShowIf = ShowIf;
-	MenuItem->strMask = ShowIfUsesMask(ShowIf)? EditDlg[EM_MASK_EDIT].strData : string{};
-	MenuItem->Submenu = SubMenu;
+	(*MenuItem)->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
+	(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
+	(*MenuItem)->Visibility = Visibility;
+	(*MenuItem)->strMask = VisibilityHasMask(Visibility)? EditDlg[EM_MASK_EDIT].strData : string{};
+	(*MenuItem)->Submenu = SubMenu;
 
 	if (!SubMenu)
 	{
@@ -1375,14 +1384,14 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 				CommandNumber = i + 1;
 		}
 
-		MenuItem->Commands.clear();
+		(*MenuItem)->Commands.clear();
 
 		for (const auto i: std::views::iota(0uz, static_cast<size_t>(DI_EDIT_COUNT)))
 		{
 			if (static_cast<size_t>(i) >= CommandNumber)
 				break;
 
-			MenuItem->Commands.emplace_back(EditDlg[i + EM_EDITLINE_0].strData);
+			(*MenuItem)->Commands.emplace_back(EditDlg[i + EM_EDITLINE_0].strData);
 		}
 #endif
 	}

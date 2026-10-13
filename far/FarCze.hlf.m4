@@ -2249,15 +2249,15 @@ přiřazenou danému příkazu.
 podmenu, nebo položku v menu můžete klávesou Ins. Upravit existující
 podmenu, nebo položku v menu můžete klávesou F4. Pokud chcete menu upravovat
 v podobě textového souboru stiskněte  Alt+F4.
- Stiskněte #Ctrl+H# pro zobrazení položek menu skrytých podmínkou "Zobrazit, pokud".
+ Stiskněte #Ctrl+H# pro zobrazení položek menu skrytých polem "Zobrazit".
 
  V uživatelském menu je možné použít jako zkratkové klávesy číslice,
 písmena a funkční klávezy (#F1#…#F24#). Pokud jsou použity  #F1# nebo #F4#, je
 jejich původní funkce v menu potlačena. Nicméně, můžete pro úpravu menu
 použít #Shift+F4#.
 
- Podmínka #Zobrazit, pokud# umožňuje skrýt položku menu nevhodnou v aktuální
-situaci: #Vždy#, #Existuje výběr#, #Aktuální je soubor# nebo #Aktuální je složka#.
+ Pole #Zobrazit# zobrazí položku menu pouze tehdy, když je v aktuální
+situaci vhodná: #Vždy#, #Existuje výběr#, #Aktuální je soubor# nebo #Aktuální je složka#.
 Pro poslední dvě lze zadat volitelnou ~masku souboru~@FileMasks@; položka se
 zobrazí, pouze pokud název objektu pod kurzorem odpovídá masce.
 
