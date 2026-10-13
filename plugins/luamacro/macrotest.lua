@@ -96,7 +96,7 @@ local function TestArea (area, k_before, k_after)
 end
 
 function MT.test_areas()
-  for _=1,2 do
+  for _=1,2 do -- ensure Area.Shell on both panels
     if Area.Info then Keys("CtrlL")
     elseif Area.QView then Keys("CtrlQ")
     end

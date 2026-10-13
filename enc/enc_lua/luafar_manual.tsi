@@ -10020,17 +10020,20 @@ article id=596 dt=Text ctime=3953542486 mtime=3954048850 nm=methods tfind, tfind
 #_[RegExpControl]: $(ENC_URL)/service_functions/regexpcontrol.html
 #_
 
-article id=597 dt=Text ctime=3959413921 mtime=3959414180 nm=far.GetPluginId
-#_PluginId = far.GetPluginId()
+article id=597 dt=Text ctime=3959413921 mtime=4000563682 nm=far.GetPluginId
+#_PluginId = far.GetPluginId ([case])
 #_
 #_**Parameters:**
-#_  none
+#_  case     : string (optional)
 #_
 #_**Returns:**
-#_  PluginId: string (a binary GUID)
+#_  PluginId : string
 #_
 #_**Description:**
-#_  Returns the calling plugin's identifier.
+#_  Returns the calling plugin's identifier represented as follows:
+#_    *case* == 'L' : lowercase text
+#_    *case* == 'U' : uppercase text
+#_    Otherwise   : binary
 #_
 #_@@@
 #_

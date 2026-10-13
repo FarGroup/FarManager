@@ -196,8 +196,7 @@ void InfoList::DisplayObject()
 	SetScreen({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE : COL_PANELTITLE);
 
-	const auto& strTitle = GetTitleForDisplay();
-	if (!strTitle.empty())
+	if (const auto& strTitle = GetTitleForDisplay(); !strTitle.empty())
 	{
 		GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTitle.size())) / 2, m_Where.top);
 		Text(strTitle);
