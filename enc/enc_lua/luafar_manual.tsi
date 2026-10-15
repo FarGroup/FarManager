@@ -8455,7 +8455,7 @@ article id=536 dt=Text ctime=3774941226 mtime=3774941499 nm=panel.EndSelection
 #_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 
-article id=537 dt=Text ctime=3776336119 mtime=4001080407 nm=The full author's page
+article id=537 dt=Text ctime=3776336119 mtime=4001241051 nm=The full author's page
 #_<markdown>
 #_
 #_# UTF-8 module for Lua 5.x
@@ -8470,9 +8470,10 @@ article id=537 dt=Text ctime=3776336119 mtime=4001080407 nm=The full author's pa
 #_character conversion and category checking.
 #_
 #_It is compatible with Lua's own string module and passes all
-#_string and pattern matching tests in the Lua test suite[2].
+#_string and pattern matching tests in the [Lua test suite][2].
 #_
 #_It also adds some useful routines for UTF-8 features, such as:
+#_
 #_- A convenient interface to escape Unicode sequences in strings
 #_- String insert/remove operations, since UTF-8 substring extraction may be expensive
 #_- Unicode width calculation, useful when implementing e.g. console emulators
@@ -8503,6 +8504,7 @@ article id=537 dt=Text ctime=3776336119 mtime=4001080407 nm=The full author's pa
 #_## Usage
 #_
 #_Many routines are the same as Lua's string module:
+#_
 #_- `utf8.byte`
 #_- `utf8.char`
 #_- `utf8.find`
@@ -8515,12 +8517,13 @@ article id=537 dt=Text ctime=3776336119 mtime=4001080407 nm=The full author's pa
 #_- `utf8.sub`
 #_- `utf8.upper`
 #_
-#_The documentation of these functions can be found in the Lua manual[3].
+#_The documentation of these functions can be found in the [Lua manual][3].
 #_
 #_[3]: https://www.lua.org/manual/5.4/manual.html#6.5
 #_
 #_
 #_Some routines in the string module don't need Unicode support:
+#_
 #_- `string.dump`
 #_- `string.format`
 #_- `string.rep`
@@ -8528,11 +8531,12 @@ article id=537 dt=Text ctime=3776336119 mtime=4001080407 nm=The full author's pa
 #_They are NOT in the `lua-utf8` module.
 #_
 #_Some routines are for compatibility with Lua's basic UTF-8 support library:
+#_
 #_- `utf8.offset`
 #_- `utf8.codepoint`
 #_- `utf8.codes`
 #_
-#_See the Lua manual[3] for usage.
+#_See the [Lua manual][3] for usage.
 #_
 #_Some routines are new, providing Unicode-specific functions:
 #_
