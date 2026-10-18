@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
-#include "common/uuid.hpp"
 
 // External:
 #include "format.hpp"
@@ -175,35 +174,32 @@ namespace
 		}
 	}
 
-	struct sqlite_version
+	class sqlite_version
 	{
-		constexpr explicit(false) sqlite_version(int const VersionNumber):
-			major(VersionNumber / 1000000),
-			minor(VersionNumber / 1000 % 1000),
-			patch(VersionNumber % 1000)
+	public:
+		constexpr explicit sqlite_version(int const VersionNumber):
+			m_VersionNumber(VersionNumber)
 		{
 		}
 
-		constexpr sqlite_version(unsigned const Major, unsigned const Minor, unsigned const Patch):
-			major(Major),
-			minor(Minor),
-			patch(Patch)
+		constexpr sqlite_version(uint16_t const Major, uint16_t const Minor, uint16_t const Patch):
+			sqlite_version(Major * 1000000 + Minor * 1000 + Patch)
 		{
-		}
-
-		constexpr explicit(false) operator int() const
-		{
-			return major * 1000000 + minor * 1000 + patch;
 		}
 
 		string to_string() const
 		{
-			return far::format(L"{}.{}.{}"sv, major, minor, patch);
+			return far::format(L"{}.{}.{}"sv,
+				m_VersionNumber / 1000000,
+				m_VersionNumber / 1000 % 1000,
+				m_VersionNumber % 1000
+			);
 		}
 
-		unsigned major;
-		unsigned minor;
-		unsigned patch;
+		constexpr auto operator<=>(sqlite_version const&) const = default;
+
+	private:
+		uint32_t m_VersionNumber;
 	};
 
 	SCOPED_ACTION(components::component)([]
@@ -246,13 +242,8 @@ bool far_sqlite_exception::is_constraint_unique() const
 static void check_version()
 {
 	sqlite_version constexpr
-		ApiVersion { SQLITE_VERSION_NUMBER },
-		MinVersion
-		{
-			3,
-			52,
-			0
-		};
+		ApiVersion{ SQLITE_VERSION_NUMBER },
+		MinVersion{ 3, 52, 0 };
 
 	static_assert(ApiVersion >= MinVersion);
 
@@ -772,3 +763,29 @@ void SQLiteDb::add_numeric_collation() const
 {
 	create_combined_collation(m_Db.get(), "numeric", &string_sort::ordinal::compare_numeric);
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("sqlite.version")
+{
+	sqlite_version constexpr
+		v0(0),
+		v1(4, 31, 3),
+		v2(5, 1, 2),
+		v3(2147483647),
+		v4(2147, 483, 647);
+
+	STATIC_REQUIRE(v1 > v0);
+	STATIC_REQUIRE(v2 > v1);
+	STATIC_REQUIRE(v3 > v2);
+	STATIC_REQUIRE(v4 == v3);
+
+	REQUIRE(v0.to_string() == L"0.0.0"sv);
+	REQUIRE(v1.to_string() == L"4.31.3"sv);
+	REQUIRE(v2.to_string() == L"5.1.2"sv);
+	REQUIRE(v3.to_string() == L"2147.483.647"sv);
+	REQUIRE(v4.to_string() == L"2147.483.647"sv);
+}
+#endif

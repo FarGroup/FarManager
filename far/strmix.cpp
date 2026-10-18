@@ -1532,23 +1532,27 @@ TEST_CASE("QuoteSpaceOnly")
 	}
 }
 
+namespace test_units
+{
+	constexpr uint64_t
+		K = binary::K,
+		M = binary::M,
+		G = binary::G,
+		T = binary::T,
+		P = binary::P,
+		E = binary::E,
+
+		k = decimal::K,
+		m = decimal::M,
+		g = decimal::G,
+		t = decimal::T,
+		p = decimal::P,
+		e = decimal::E;
+}
 
 TEST_CASE("ConvertFileSizeString")
 {
-	constexpr uint64_t
-		Ki = binary::K,
-		Mi = binary::M,
-		Gi = binary::G,
-		Ti = binary::T,
-		Pi = binary::P,
-		Ei = binary::E,
-
-		K = decimal::K,
-		M = decimal::M,
-		G = decimal::G,
-		T = decimal::T,
-		P = decimal::P,
-		E = decimal::E;
+	using namespace test_units;
 
 	static const struct
 	{
@@ -1557,30 +1561,30 @@ TEST_CASE("ConvertFileSizeString")
 	}
 	Tests[]
 	{
-		{ {},           0      },
-		{ L"Beep"sv,    0      },
-		{ L"a32K"sv,    0      },
-		{ L"32K+"sv,    0      },
-		{ L"0"sv,       0      },
-		{ L"1"sv,       1      },
-		{ L"32K"sv,    32 * Ki },
-		{ L"32k"sv,    32 * K  },
-		{ L"640K"sv,  640 * Ki },
-		{ L"640k"sv,  640 * K  },
-		{ L"1M"sv,      1 * Mi },
-		{ L"1m"sv,      1 * M  },
-		{ L"345M"sv,  345 * Mi },
-		{ L"345m"sv,  345 * M  },
-		{ L"2G"sv,      2 * Gi },
-		{ L"2g"sv,      2 * G  },
-		{ L"3T"sv,      3 * Ti },
-		{ L"3t"sv,      3 * T  },
-		{ L"42P"sv,    42 * Pi },
-		{ L"42p"sv,    42 * P  },
-		{ L"1E"sv,      1 * Ei },
-		{ L"1e"sv,      1 * E  },
-		{ L"18E"sv,    18 * Ei },
-		{ L"18e"sv,    18 * E  },
+		{ {},           0     },
+		{ L"Beep"sv,    0     },
+		{ L"a32K"sv,    0     },
+		{ L"32K+"sv,    0     },
+		{ L"0"sv,       0     },
+		{ L"1"sv,       1     },
+		{ L"32K"sv,    32 * K },
+		{ L"32k"sv,    32 * k },
+		{ L"640K"sv,  640 * K },
+		{ L"640k"sv,  640 * k },
+		{ L"1M"sv,      1 * M },
+		{ L"1m"sv,      1 * m },
+		{ L"345M"sv,  345 * M },
+		{ L"345m"sv,  345 * m },
+		{ L"2G"sv,      2 * G },
+		{ L"2g"sv,      2 * g },
+		{ L"3T"sv,      3 * T },
+		{ L"3t"sv,      3 * t },
+		{ L"42P"sv,    42 * P },
+		{ L"42p"sv,    42 * p },
+		{ L"1E"sv,      1 * E },
+		{ L"1e"sv,      1 * e },
+		{ L"18E"sv,    18 * E },
+		{ L"18e"sv,    18 * e },
 	};
 
 	for (const auto& i: Tests)
@@ -1697,14 +1701,9 @@ TEST_CASE("CanContainWholeWord")
 	}
 }
 
-static consteval auto mutiply(auto const Value, auto const Multiplier)
-{
-	return static_cast<unsigned long long>(Value * static_cast<decltype(Value)>(std::to_underlying(Multiplier)));
-}
-
 #define DEFINE_LITERAL(U) \
-static consteval auto operator ""_##U(unsigned long long const Value) { return mutiply(Value, binary::U); } \
-static consteval auto operator ""_##U(long double const Value)        { return mutiply(Value, binary::U); }
+static consteval auto operator ""_##U(unsigned long long const Value) { return Value * test_units::U; } \
+static consteval auto operator ""_##U(long double const Value)        { return static_cast<unsigned long long>(Value * test_units::U); }
 
 DEFINE_LITERAL(K)
 DEFINE_LITERAL(M)
@@ -1712,6 +1711,13 @@ DEFINE_LITERAL(G)
 DEFINE_LITERAL(T)
 DEFINE_LITERAL(P)
 DEFINE_LITERAL(E)
+
+DEFINE_LITERAL(k)
+DEFINE_LITERAL(m)
+DEFINE_LITERAL(g)
+DEFINE_LITERAL(t)
+DEFINE_LITERAL(p)
+DEFINE_LITERAL(e)
 
 #undef DEFINE_LITERAL
 
@@ -1770,19 +1776,19 @@ TEST_CASE("FileSizeToStrInvariant")
 		{ 10.14_K,    L"10.1 K"sv,   L"10.4 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 10.18_K,    L"10.2 K"sv,   L"10.4 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 100_K,      L"100 K"sv,    L"102 k"sv,      0, COLFLAGS_FLOATSIZE },
+
 		{ 1_K,        L"1.00 K"sv,   L"1.02 k"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_K,      L"1.00 K"sv,   L"1.02 k"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_k,        L"1000"sv,     L"1.00 k"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_M,        L"1.00 M"sv,   L"1.05 m"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_M,      L"1.00 M"sv,   L"1.05 m"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_m,        L"977 K"sv,    L"1.00 m"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_G,        L"1.00 G"sv,   L"1.07 g"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_G,      L"1.00 G"sv,   L"1.07 g"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_g,        L"954 M"sv,    L"1.00 g"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_T,        L"1.00 T"sv,   L"1.10 t"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_T,      L"1.00 T"sv,   L"1.10 t"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_t,        L"931 G"sv,    L"1.00 t"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_P,        L"1.00 P"sv,   L"1.13 p"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_P,      L"1.00 P"sv,   L"1.13 p"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_p,        L"909 T"sv,    L"1.00 p"sv,     0, COLFLAGS_FLOATSIZE },
 		{ 1_E,        L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
-		{ 1.0_E,      L"1.00 E"sv,   L"1.15 e"sv,     0, COLFLAGS_FLOATSIZE },
-		{ max,        L"16.0 E"sv,   L"18.4 e"sv,     0, COLFLAGS_FLOATSIZE },
+		{ 1_e,        L"888 P"sv,    L"1.00 e"sv,     0, COLFLAGS_FLOATSIZE },
 
 		{ max,        L"16.0 E"sv,   L"18.4 e"sv,     6, COLFLAGS_FLOATSIZE },
 		{ max,         L" 16 E"sv,    L" 18 e"sv,     5, COLFLAGS_FLOATSIZE },

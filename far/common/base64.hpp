@@ -32,7 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "algorithm.hpp"
 #include "bytes_view.hpp"
 #include "exception.hpp"
 
@@ -40,108 +39,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace base64
 {
-	namespace detail
-	{
-		using bits_set = uint_fast32_t;
-
-		inline auto byte_to_bits(std::byte const Byte, size_t const i) noexcept
-		{
-			return std::to_integer<bits_set>(Byte) << (8 * (2 - i));
-		}
-
-		template<size_t... I>
-		auto bytes_to_bits(std::forward_iterator auto& Iterator, std::index_sequence<I...>) noexcept
-		{
-			bits_set Result{};
-			(..., (Result |= byte_to_bits(*Iterator++, I)));
-			return Result;
-		}
-
-		inline auto bits_to_char(bits_set const Bits, size_t const i)
-		{
-			constexpr char EncodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-			return EncodingTable[(Bits & (0b111111 << (6 * (3 - i)))) >> (6 * (3 - i))];
-		}
-
-		template<size_t... I>
-		void bits_to_chars(bits_set const Bits, std::string& Str, std::index_sequence<I...>) noexcept
-		{
-			(..., Str.push_back(bits_to_char(Bits, I)));
-		}
-
-		template<size_t Bytes, typename iterator_t>
-		void encode(iterator_t& Iterator, std::string& Str) noexcept
-		{
-			bits_to_chars(bytes_to_bits(Iterator, std::make_index_sequence<Bytes>{}), Str, std::make_index_sequence<Bytes + 1>{});
-			Str.append(3 - Bytes, '=');
-		}
-
-
-		inline auto char_to_bits(char const Char, size_t const i)
-		{
-			static uint8_t constexpr no = -1, DecodingTable[]
-			{
-				no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
-				no, no, no, no, no, no, no, no, no, no, no, 62, no, no, no, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, no, no, no, no, no, no,
-				no,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, no, no, no, no, no,
-				no, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, no, no, no, no, no,
-			};
-
-			if (static_cast<size_t>(Char) >= std::size(DecodingTable))
-			{
-				using namespace std::string_literals;
-				throw_exception("Invalid base64 character "s + Char);
-			}
-
-			const auto Bits = DecodingTable[static_cast<size_t>(Char)];
-			if (Bits == no)
-			{
-				using namespace std::string_literals;
-				throw_exception("Invalid base64 character "s + Char);
-			}
-
-			return static_cast<bits_set>((Bits & 0b111111) << (6 * (3 - i)));
-		}
-
-		template<size_t... I>
-		auto chars_to_bits(std::forward_iterator auto& Iterator, std::index_sequence<I...>)
-		{
-			bits_set Result{};
-			(..., (Result |= char_to_bits(*Iterator++, I)));
-			return Result;
-		}
-
-		template<size_t... I>
-		void bits_to_bytes(bits_set const Bits, bytes& Str, std::index_sequence<I...>)
-		{
-			(..., Str.push_back(static_cast<std::byte>((Bits >> 8 * (2 - I)) & 0xFF)));
-		}
-
-		template<size_t Chars, typename iterator_t>
-		void decode(iterator_t& Iterator, bytes& Str)
-		{
-			bits_to_bytes(chars_to_bits(Iterator, std::make_index_sequence<Chars>{}), Str, std::make_index_sequence<Chars - 1>{});
-		}
-	}
-
 	inline auto encode(bytes_view const Data)
 	{
+		constexpr char EncodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 		std::string Result;
 		Result.reserve((Data.size() + 2) / 3 * 4);
 
-		auto Iterator = Data.cbegin();
-		auto const Chunks = Data.size() / 3;
+		uint_fast32_t Accumulator{};
+		size_t Bits{};
 
-		repeat(Chunks, [&]
+		for (const auto Byte: Data)
 		{
-			detail::encode<3>(Iterator, Result);
-		});
+			Accumulator = (Accumulator << CHAR_BIT) | std::to_integer<uint_fast32_t>(Byte);
+			Bits += CHAR_BIT;
 
-		switch (Data.size() - Chunks * 3)
-		{
-		case 1: detail::encode<1>(Iterator, Result); break;
-		case 2: detail::encode<2>(Iterator, Result); break;
+			while (Bits >= 6)
+			{
+				Bits -= 6;
+				Result.push_back(EncodingTable[(Accumulator >> Bits) & 0b111111]);
+			}
 		}
+
+		if (Bits)
+			Result.push_back(EncodingTable[(Accumulator << (6 - Bits)) & 0b111111]);
+
+		Result.resize((Result.size() + 3) / 4 * 4, '=');
 
 		return Result;
 	}
@@ -153,23 +76,37 @@ namespace base64
 		bytes Result;
 		Result.reserve((Data.size() + 3) / 4 * 3);
 
-		auto Iterator = Data.cbegin();
-		auto const Chunks = Data.size() / 4;
+		uint_fast32_t Accumulator{};
+		size_t Bits{};
 
-		repeat(Chunks, [&]
+		constexpr uint8_t no = -1, DecodingTable[]
 		{
-			detail::decode<4>(Iterator, Result);
-		});
+			no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+			no, no, no, no, no, no, no, no, no, no, no, 62, no, no, no, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, no, no, no, no, no, no,
+			no,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, no, no, no, no, no,
+			no, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, no, no, no, no, no,
+		};
 
-		switch (Data.size() - Chunks * 4)
+		for (const auto Char: Data)
 		{
-		case 1: detail::decode<1>(Iterator, Result); break;
-		case 2: detail::decode<2>(Iterator, Result); break;
-		case 3: detail::decode<3>(Iterator, Result); break;
+			size_t const Index = Char;
+			if (Index >= std::size(DecodingTable) || DecodingTable[Index] == no)
+			{
+				using namespace std::string_literals;
+				throw_exception("Invalid base64 character "s + Char);
+			}
+
+			Accumulator = (Accumulator << 6) | DecodingTable[Index];
+			Bits += 6;
+
+			if (Bits >= CHAR_BIT)
+			{
+				Bits -= CHAR_BIT;
+				Result.push_back(static_cast<std::byte>((Accumulator >> Bits) & 0xFF));
+			}
 		}
 
 		return Result;
 	}
 }
-
 #endif // BASE64_HPP_C0835DDC_DB5A_4C40_A84C_146D6CFE6BFD

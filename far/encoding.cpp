@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/io.hpp"
 
 // External:
-#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
