@@ -1,3 +1,8 @@
+shmuel 2026-10-19 22:07:59+03:00 - build 358
+
+1. Prevent a crash when the plugin panel is closed by a macro
+   while the "Add files to archive" dialog is open.
+
 drkns 2026-09-14 20:58:30+01:00 - build 357
 
 1. gh-1130: Enable hotkeys in UI comboboxes.
