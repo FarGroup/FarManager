@@ -907,8 +907,6 @@ public:
     bool res = update_dialog(new_arc, multifile, options, g_profiles);
     if (!res)
       FAIL(E_ABORT);
-    if (archive == nullptr) // the panel was closed by a macro while the dialog was on screen
-      FAIL(E_ABORT);
     if (ArcAPI::formats().count(options.arc_type) == 0)
       FAIL_MSG(Far::get_msg(MSG_ERROR_NO_FORMAT));
     if (new_arc) {
