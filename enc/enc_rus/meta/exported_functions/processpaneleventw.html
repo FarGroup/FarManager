@@ -1,55 +1,57 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>ProcessPanelEventW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>ProcessPanelEventW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>ProcessPanelEventW</code> сообщает плагину о разных событиях панели и позволяет обработать некоторые из них.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI ProcessPanelEventW(
   const struct ProcessPanelEventInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/processpaneleventinfo.html">ProcessPanelEventInfo</a>, Far Manager передает информацию о событии.<br>
-    В начале функции проверьте, что поле <code>ProcessPanelEventInfo.StructSize >= sizeof(ProcessPanelEventInfo)</code>.</div>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">
+    <p>Указатель на структуру <a href="../structures/processpaneleventinfo.html">ProcessPanelEventInfo</a>, Far Manager передает информацию о событии.</p>
+    <p>В начале функции проверьте, что поле <code>ProcessPanelEventInfo.StructSize &gt;= sizeof(ProcessPanelEventInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
-Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
-Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.
+<div class="descr">
+<p>Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.</p>
+<p>Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.</p>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "ProcList".
-<pre class=code>
+<pre class="code">
 intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
-  return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
+  return ((Plist *)Info-&gt;hPanel)-&gt;ProcessEvent(Info-&gt;Event,Info-&gt;Param);
 }
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 </div>
 
 </body>

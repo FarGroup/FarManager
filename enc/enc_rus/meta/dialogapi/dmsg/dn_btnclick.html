@@ -1,21 +1,22 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DN_BTNCLICK</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DN_BTNCLICK</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Сообщение <code>DN_BTNCLICK</code> приходит для элементов
 <a href="../controls/di_button.html">DI_BUTTON</a>,
 <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>,
@@ -24,54 +25,60 @@
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
-Состояние после нажатия:<br>
-<code><a href="../controls/di_button.html">DI_BUTTON</a> = 0</code><br>
-<code><a href="../controls/di_checkbox.html">DI_CHECKBOX</a> = 0</code> (снята пометка),
-<code>1</code> (установлена пометка) и <code>2</code> (третье состояние, если установлен флаг
-<a href="../flags/dif_3state.html">DIF_3STATE</a>)<br>
-<code><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0</code> - для предыдущего элемента в группе, <code> 1</code> - для активного элемента в группе.
+<div class="descr">
+Состояние после нажатия:
+<ul class="nomarker">
+  <li><code><a href="../controls/di_button.html">DI_BUTTON</a> = 0</code></li>
+  <li><code><a href="../controls/di_checkbox.html">DI_CHECKBOX</a> = 0</code> (снята пометка),
+    <code>1</code> (установлена пометка) и
+    <code>2</code> (третье состояние, если установлен флаг <a href="../flags/dif_3state.html">DIF_3STATE</a>)</li>
+  <li><code><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0</code> - для предыдущего элемента в группе, <code> 1</code> - для активного элемента в группе.</li>
+</ul>
 </div>
 
 
 <h3>Return</h3>
-<div class=descr>
-<p>Для <a href="../controls/di_button.html">DI_BUTTON</a>:
-<code>TRUE</code> - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.<br>
-<code>FALSE</code> - продолжить обработку ядром.
-<p>Для остальных элементов:
-<code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
-<code>FALSE</code> - запретить изменение.
+<div class="descr">
+Для <a href="../controls/di_button.html">DI_BUTTON</a>:
+<ul class="nomarker">
+  <li><code>TRUE</code> - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.</li>
+  <li><code>FALSE</code> - продолжить обработку ядром.</li>
+</ul>
+Для остальных элементов:
+<ul class="nomarker">
+  <li><code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)</li>
+  <li><code>FALSE</code> - запретить изменение.</li>
+</ul>
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_button.html">DI_BUTTON</a></td>
-<td class="cont" width="60%">Кнопка (Push Button).</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
-<td class="cont" width="60%">Контрольный переключатель (Check Box).</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
-<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td></tr>
+<tr><th>Элемент</th><th>Описание</th></tr>
+<tr><td><a href="../controls/di_button.html">DI_BUTTON</a></td>
+<td>Кнопка (Push Button).</td></tr>
+<tr><td><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
+<td>Контрольный переключатель (Check Box).</td></tr>
+<tr><td><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
+<td>Селекторная кнопка (Radio Button).</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

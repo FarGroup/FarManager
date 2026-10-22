@@ -18,20 +18,6 @@ BLOCKQUOTE
     MARGIN-TOP: 4pt;
     MARGIN-BOTTOM: 4pt
 }
-P.just
-{
-    MARGIN-TOP: 8pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
-P.justi
-{
-    MARGIN-TOP: 6pt;
-    MARGIN-BOTTOM: 4pt;
-    TEXT-INDENT: 2%;
-    TEXT-ALIGN: justify
-}
 PRE
 {
     COLOR: #101030;
@@ -43,33 +29,24 @@ P.plain
     MARGIN-TOP: 4pt;
     MARGIN-BOTTOM: 4pt
 }
-.gray
-{
-    FONT-SIZE: 80%;
-    BACKGROUND: #e0e0e0;
-    VERTICAL-ALIGN: top
-}
-.white
-{
-    FONT-SIZE: 80%;
-    BACKGROUND: #ffffff;
-    VERTICAL-ALIGN: top
-}
+
 TABLE
 {
 }
 TD
 {
-    FONT-SIZE: 80%;
-    VERTICAL-ALIGN: top
+    VERTICAL-ALIGN: top;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 TH
 {
-    FONT-SIZE: 80%;
     BACKGROUND: #b0b0b0;
     VERTICAL-ALIGN: bottom;
     COLOR: #000000;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica
+    FONT-FAMILY: verdana, tahoma, arial, helvetica;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 TABLE.cont
 {
@@ -78,31 +55,47 @@ TABLE.cont
     MARGIN-BOTTOM: 0.3em;
     WIDTH: 90%
 }
-TR.cont
+.cont th, .cont td
 {
-    VERTICAL-ALIGN: top
-}
-TH.cont
-{
-    PADDING-RIGHT: 8px;
     PADDING-LEFT: 8px;
-    FONT-SIZE: 70%;
-    BACKGROUND: #cccccc;
-    PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: bottom;
+    PADDING-RIGHT: 8px;
     PADDING-TOP: 4px;
-    TEXT-ALIGN: left
-}
-TD.cont
-{
-    PADDING-RIGHT: 8px;
-    PADDING-LEFT: 8px;
-    FONT-SIZE: 70%;
-    BACKGROUND: #ffffff;
     PADDING-BOTTOM: 4px;
-    VERTICAL-ALIGN: top;
-    PADDING-TOP: 4px
+    TEXT-ALIGN: left;
 }
+.cont th
+{
+    BACKGROUND: #cccccc;
+}
+.cont td
+{
+    BACKGROUND: #ffffff;
+    VERTICAL-ALIGN: top;
+}
+.cont td:last-child
+{
+    width: 60%;
+}
+
+table.striped
+{
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+.striped th
+{
+    text-align: left;
+}
+.striped td,th {
+    padding-bottom: 4px;
+    padding-top: 4px;
+    max-width: 40em;
+}
+.striped tr:nth-child(odd)
+{
+    background: #e0e0e0;
+}
+
 A.pre
 {
     FONT-WEIGHT: bold;
@@ -305,7 +298,8 @@ PRE.syntax
     CURSOR: text;
     COLOR: #101030;
     PADDING-TOP: 2pt;
-    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
+    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace;
+    tab-size: 2;
 }
 KBD
 {
@@ -329,38 +323,21 @@ P.note
 {
     CLEAR: both;
     MARGIN-TOP: 1em;
+    MARGIN-LEFT: 0.1em;
     FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -1.0em;
     FONT-FAMILY: tahoma, arial, helvetica;
-    MARGIN-LEFT: 0.1em
+    height: 13px;
 }
 UL.note
 {
-    MARGIN-LEFT: 1.5em;
     FONT-FAMILY: tahoma, arial, helvetica;
-    LIST-STYLE-TYPE: none
-}
-SPAN.faqq
-{
-    FONT-WEIGHT: bolder;
-    FONT-SIZE: larger;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    COLOR: #CC0000
-}
-SPAN.faqqb
-{
-    FONT-WEIGHT: bolder;
-    COLOR: black
-}
-SPAN.faqa
-{
-    FONT-WEIGHT: bolder;
-    FONT-SIZE: larger;
-    FONT-FAMILY: verdana, tahoma, arial, helvetica;
-    COLOR: #000080
+    LIST-STYLE-TYPE: none;
+    margin-top: 0;
+    padding-left: 1.5em;
 }
 
-.nobr { white-space:nowrap; }
+.nobr { white-space: nowrap; }
+.pre { white-space: pre; }
 
 table p { margin-top: 0em; margin-bottom: 0.364em}
 table ul { margin-top: 0.364em; margin-bottom: 0.364em}
@@ -413,7 +390,6 @@ table.cont2 th, table.cont2 td
 {
     border: 2px solid #999999;
     padding: 0.364em 0.727em;
-    font-size: 70%; /* обходим старые правила TD и TH */
 }
 
 table.cont2 th
@@ -468,6 +444,8 @@ table.tiny {width: auto}
 table.funcs   col.descr {width: 80%}
 table.params  col.value {width: 5%}
 table.params  col.widevalue {width: 25%}
+
+.ralign tr > td:first-child {text-align: right}
 
 /*
 http://riddle.pl/emcalc/

@@ -1,40 +1,42 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>PutFilesW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>PutFilesW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Функция <code>PutFilesW</code> вызывается Far Manager для перемещения файлов на панель эмулируемой файловой системы.<br>
 (Far Manager плагину: <em>"этот/эти файл(ы) для тебя, можешь поместить на свою панель"</em>).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI PutFilesW(
   const struct PutFilesInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на заполненную структуру <a href="../structures/putfilesinfo.html">PutFilesInfo</a>, содержит перемещаемые элементы.<br>
-    В начале функции проверьте, что поле <code>PutFilesInfo.StructSize >= sizeof(PutFilesInfo)</code>.</div>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">
+    <p>Указатель на заполненную структуру <a href="../structures/putfilesinfo.html">PutFilesInfo</a>, содержит перемещаемые элементы.</p>
+    <p>В начале функции проверьте, что поле <code>PutFilesInfo.StructSize &gt;= sizeof(PutFilesInfo)</code>.</p></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 <ul>
 <li>В случае удачи, функция должна возвращать <code>1</code> или <code>2</code>. Если плагин возвращает <code>1</code>, то Far Manager пытается установить курсор на последний по дате создания файл текущей
     панели. Если плагин возвращает <code>2</code>, то Far Manager никаких перемещений курсора не предпринимает.
@@ -44,27 +46,27 @@ intptr_t WINAPI PutFilesW(
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 <ol>
-<li>Если операция была прервана, но часть файлов всё же была скопирована, плагин может убрать выделение только с обработанных файлов. Для этого он должен 
+<li>Если операция была прервана, но часть файлов всё же была скопирована, плагин может убрать выделение только с обработанных файлов. Для этого он должен
 сбросить флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у соответствующих структур файлов, передаваемых в функцию через параметр <code>PutFilesInfo.PanelItem</code>.
 </ol>
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Пример из плагина "TmpPanel".
-<pre class=code>
+<pre class="code">
 intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 {
-  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-  return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
+  TmpPanel *Panel=(TmpPanel *)Info-&gt;hPanel;
+  return Panel-&gt;PutFiles(Info-&gt;PanelItem,Info-&gt;ItemsNumber,Info-&gt;Move,Info-&gt;SrcPath,Info-&gt;OpMode);
 }
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="getfilesw.html">GetFilesW</a>,
 <a href="../service_functions/getdirlist.html">GetDirList</a>,
 <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>
