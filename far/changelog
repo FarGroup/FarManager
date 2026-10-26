@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-olegfedko 2026-10-13 17:00:00+03:00 - build 6745
+olegfedko 2026-10-13 17:00:00+03:00 - build 6746
 
 1. User menu items can be hidden by a "Show" condition:
      * always
@@ -7,6 +7,11 @@ olegfedko 2026-10-13 17:00:00+03:00 - build 6745
      * current is a file  (with an optional file mask)
      * current is a folder (with an optional file mask)
    Use Ctrl+H in the menu to show or hide filtered items.
+
+--------------------------------------------------------------------------------
+yjh 2026-10-17 13:46:22+03:00 - build 6745
+
+1. SQlite v3.54.1
 
 --------------------------------------------------------------------------------
 yjh 2026-10-10 08:24:09+03:00 - build 6744

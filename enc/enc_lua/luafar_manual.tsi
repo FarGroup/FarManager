@@ -482,12 +482,31 @@ node lv=3 id=440 art=440 nm=win.SHGetFolderPath
 node lv=3 id=432 art=432 nm=win.Sleep
 node lv=3 id=508 art=508 nm=win.system
 node lv=3 id=399 art=399 nm=win.Uuid
-node lv=1 id=537 art=537 nm=luautf8
-node lv=2 id=539 art=539 nm=utf8.dump
-node lv=2 id=541 art=541 nm=utf8.format
-node lv=2 id=570 art=570 nm=utf8.reformat
-node lv=2 id=540 art=540 nm=utf8.rep
-node lv=2 id=487 art=487 nm=utf8.utf8valid
+node lv=1 id=669 art=669 nm=luautf8
+node lv=2 id=537 art=537 nm=The full author's page
+node lv=2 id=670 art=670 nm=Original functions
+node lv=3 id=672 art=672 nm=utf8.charpos
+node lv=3 id=683 art=683 nm=utf8.clean
+node lv=3 id=671 art=671 nm=utf8.escape
+node lv=3 id=687 art=687 nm=utf8.grapheme_indices
+node lv=3 id=674 art=674 nm=utf8.insert
+node lv=3 id=684 art=684 nm=utf8.invalidoffset
+node lv=3 id=685 art=685 nm=utf8.isnfc
+node lv=3 id=682 art=682 nm=utf8.isvalid
+node lv=3 id=681 art=681 nm=utf8.ncasecmp
+node lv=3 id=673 art=673 nm=utf8.next
+node lv=3 id=686 art=686 nm=utf8.normalize_nfc
+node lv=3 id=675 art=675 nm=utf8.remove
+node lv=3 id=680 art=680 nm=utf8.title, utf8.fold
+node lv=3 id=676 art=676 nm=utf8.width
+node lv=3 id=677 art=677 nm=utf8.widthindex
+node lv=3 id=678 art=678 nm=utf8.widthlimit
+node lv=2 id=668 art=668 nm=Additional functions
+node lv=3 id=539 art=539 nm=utf8.dump
+node lv=3 id=541 art=541 nm=utf8.format
+node lv=3 id=570 art=570 nm=utf8.reformat
+node lv=3 id=540 art=540 nm=utf8.rep
+node lv=3 id=487 art=487 nm=utf8.utf8valid
 node lv=1 id=593 art=593 nm=lpeg
 node lv=0 id=524 art=524 nm=Extensions
 node lv=1 id=525 art=525 nm=file:rawhandle
@@ -8436,7 +8455,7 @@ article id=536 dt=Text ctime=3774941226 mtime=3774941499 nm=panel.EndSelection
 #_{panelcontrol}: $(ENC_URL)/service_functions/panelcontrol.html
 #_
 
-article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
+article id=537 dt=Text ctime=3776336119 mtime=4001241051 nm=The full author's page
 #_<markdown>
 #_
 #_# UTF-8 module for Lua 5.x
@@ -8451,9 +8470,10 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_character conversion and category checking.
 #_
 #_It is compatible with Lua's own string module and passes all
-#_string and pattern matching tests in the Lua test suite[2].
+#_string and pattern matching tests in the [Lua test suite][2].
 #_
 #_It also adds some useful routines for UTF-8 features, such as:
+#_
 #_- A convenient interface to escape Unicode sequences in strings
 #_- String insert/remove operations, since UTF-8 substring extraction may be expensive
 #_- Unicode width calculation, useful when implementing e.g. console emulators
@@ -8484,6 +8504,7 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_## Usage
 #_
 #_Many routines are the same as Lua's string module:
+#_
 #_- `utf8.byte`
 #_- `utf8.char`
 #_- `utf8.find`
@@ -8496,12 +8517,13 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_- `utf8.sub`
 #_- `utf8.upper`
 #_
-#_The documentation of these functions can be found in the Lua manual[3].
+#_The documentation of these functions can be found in the [Lua manual][3].
 #_
 #_[3]: https://www.lua.org/manual/5.4/manual.html#6.5
 #_
 #_
 #_Some routines in the string module don't need Unicode support:
+#_
 #_- `string.dump`
 #_- `string.format`
 #_- `string.rep`
@@ -8509,11 +8531,12 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_They are NOT in the `lua-utf8` module.
 #_
 #_Some routines are for compatibility with Lua's basic UTF-8 support library:
+#_
 #_- `utf8.offset`
 #_- `utf8.codepoint`
 #_- `utf8.codes`
 #_
-#_See the Lua manual[3] for usage.
+#_See the [Lua manual][3] for usage.
 #_
 #_Some routines are new, providing Unicode-specific functions:
 #_
@@ -8698,7 +8721,6 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_`utf8.lower` and `utf8.upper` have the same extension.
 #_
 #_**Example:**
-#_
 #_```lua
 #_utf8.title("hello world")  -- "Hello World"
 #_utf8.fold("Stra?e")        -- "strasse" (for comparison)
@@ -8745,7 +8767,6 @@ article id=537 dt=Text ctime=3776336119 mtime=3995803942 nm=luautf8
 #_Returns the byte position `position` within `s` of the first invalid UTF-8 byte sequence (1 is the first byte of the string). If `s` is a valid UTF-8 string, returns `nil`. The default for `i` is 1. The optional numeric argument `i` specifies where to start the search and can be negative.
 #_
 #_**Example:**
-#_
 #_```lua
 #_local pos = utf8.invalidoffset("??\xFFworld")
 #_-- pos = 7 (first invalid byte)
@@ -11129,5 +11150,355 @@ article id=667 dt=Text ctime=3993926441 mtime=3993927212 nm=far.SetErrorMode
 #_
 #_**See also:**
 #_  `far.GetErrorMode`
+#_
+
+article id=668 dt=Text ctime=4001080265 mtime=4001080265 nm=Additional functions
+
+article id=669 dt=Text ctime=4001080310 mtime=4001080310 nm=luautf8
+
+article id=670 dt=Text ctime=4001080450 mtime=4001080667 nm=Original functions
+
+article id=671 dt=Text ctime=4001080450 mtime=4001080959 nm=utf8.escape
+#_<markdown>
+#_
+#_### `utf8.escape(s)`
+#_
+#_Escapes string `s` to UTF-8 format. Supports several escape formats:
+#_
+#_- `%ddd` - decimal number of any length: converts Unicode code point to UTF-8 format
+#_- `%{ddd}` - same as `%ddd` but with brackets
+#_- `%uddd` - same as `%ddd`, 'u' stands for Unicode
+#_- `%u{ddd}` - same as `%{ddd}`
+#_- `%xhhh` - hexadecimal version of `%ddd`
+#_- `%x{hhh}` - same as `%xhhh`
+#_- `%?` - '?' stands for any other character: escapes this character
+#_
+#_Returns the escaped UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_local u = utf8.escape
+#_print(u"%123%u123%{123}%u{123}%xABC%x{ABC}")
+#_print(u"%%123%?%d%%u")
+#_```
+#_
+
+article id=672 dt=Text ctime=4001080450 mtime=4001080954 nm=utf8.charpos
+#_<markdown>
+#_
+#_### `utf8.charpos(s [[, i], n]) --> position, codepoint`
+#_
+#_Converts UTF-8 character position `n` to byte offset `position`. If only `n` is given, returns the byte position where the encoding of the `n`-th character of `s` starts (counting from position 1). If both `i` and `n` are given, returns the byte position where the encoding of the `n`-th character after byte position `i` starts. A negative `n` gets characters before position `i`.
+#_
+#_Also returns the code point at the resulting position.
+#_
+#_This function assumes that `s` is a valid UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_local pos, code = utf8.charpos("??world", 3)
+#_-- pos=7 (byte position of 'w'), code=119 (code point of 'w')
+#_
+#_local pos, code = utf8.charpos("??world", 1, 2)
+#_-- pos=4 (2 characters after byte 1), code=22909 (code point of '?')
+#_```
+#_
+
+article id=673 dt=Text ctime=4001080450 mtime=4001080976 nm=utf8.next
+#_<markdown>
+#_
+#_### `utf8.next(s [, i [, n]]) --> position, codepoint`
+#_
+#_Iterates through the UTF-8 string `s`. If only `s` is given, it can be used as an iterator:
+#_```
+#_for pos, code in utf8.next, "utf8-string" do
+#_  -- ...
+#_end
+#_```
+#_
+#_If `s` and `i` are given, returns the byte position of the next UTF-8 character in the string after byte position `i`. If `i` and `n` are given, returns the byte position of the `n`-th UTF-8 character after byte position `i`. A negative `n` gets characters before position `i`.
+#_
+#_Also returns the code point at the resulting position.
+#_
+#_This function assumes that `s` is a valid UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_local pos, code = utf8.next("??", 1)
+#_-- pos=4, code=22909 (next character after byte 1 is '?')
+#_
+#_local pos, code = utf8.next("??world", 1, 2)
+#_-- pos=7, code=119 (2nd character after byte 1 is 'w')
+#_```
+#_
+
+article id=674 dt=Text ctime=4001080450 mtime=4001080963 nm=utf8.insert
+#_<markdown>
+#_
+#_### `utf8.insert(s [, n], substring) --> result`
+#_
+#_Inserts `substring` into `s`. If `n` is given, inserts the substring before the `n`-th character of `s`; otherwise, `substring` will be appended to `s`. `n` can be negative.
+#_
+#_Returns the resulting string.
+#_
+#_**Example:**
+#_```
+#_local result = utf8.insert("??", "world")
+#_-- result = "??world"
+#_
+#_local result = utf8.insert("??", 2, "!")
+#_-- result = "?!?"
+#_```
+#_
+
+article id=675 dt=Text ctime=4001080450 mtime=4001080981 nm=utf8.remove
+#_<markdown>
+#_
+#_### `utf8.remove(s [, i [, j]]) --> result`
+#_
+#_Deletes a substring from `s`. If neither `i` nor `j` is given, deletes the last UTF-8 character in `s`. If only `i` is given, deletes characters from position `i` to the end of `s`. If `j` is given, deletes characters from position `i` to `j` (both inclusive). `i` and `j` can be negative.
+#_
+#_Returns the resulting string.
+#_
+#_**Example:**
+#_```
+#_local result = utf8.remove("??world")
+#_-- result = "??worl" (last character removed)
+#_
+#_local result = utf8.remove("??world", 2, 3)
+#_-- result = "?rld" (characters 2-3 removed: '?w')
+#_```
+#_
+
+article id=676 dt=Text ctime=4001080450 mtime=4001080989 nm=utf8.width
+#_<markdown>
+#_
+#_### `utf8.width(s [, i [, j [, ambiwidth [, default]]]]) --> width`
+#_
+#_Calculates the display width of UTF-8 string `s` (or a substring from byte position `i` to `j`). The default for `i` is 1 and for `j` is `#s`. If `s` is a number, it is treated as a code point and the width of that code point is returned.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width (East Asian Ambiguous) will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_The width of fullwidth/doublewidth characters is 2, and the width of most other characters is 1.
+#_
+#_Returns the total display width in columns.
+#_
+#_**Example:**
+#_```
+#_utf8.width("hello")              -- 5
+#_utf8.width("??")                -- 4 (2 characters ? 2 width each)
+#_utf8.width("hello world", 1, 5)  -- 5 (substring "hello")
+#_utf8.width(0x4E2D)               -- 2 (code point for '?')
+#_```
+#_
+
+article id=677 dt=Text ctime=4001080450 mtime=4001080991 nm=utf8.widthindex
+#_<markdown>
+#_
+#_### `utf8.widthindex(s, width [, i [, j [, ambiwidth [, default]]]]) --> idx, offset, width`
+#_
+#_Returns the character index `idx` at a given display width `width` in string `s`, where `width` is in width units (columns). The default for `i` is 1 and for `j` is `#s`. This is the inverse operation of `utf8.width()`.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_If the requested `width` does not fall on a character boundary, `offset` will be greater than 1. Specifically, if the width is in the middle (second column) of a wide character, `offset` will be 2.
+#_
+#_Returns the character index `idx`, the offset `offset` within the character, and the width of the character at that index.
+#_
+#_**Example:**
+#_```
+#_local idx, offset, width = utf8.widthindex("??world", 3)
+#_-- idx=2 (second character '?'), offset=1, width=2
+#_
+#_local idx, offset, width = utf8.widthindex("??world", 4)
+#_-- idx=2, offset=2 (middle of '?'), width=2
+#_```
+#_
+
+article id=678 dt=Text ctime=4001080450 mtime=4001080994 nm=utf8.widthlimit
+#_<markdown>
+#_
+#_### `utf8.widthlimit(s, limit [, i [, j [, ambiwidth [, default]]]]) --> position, remain`
+#_
+#_Finds the byte position `position` where truncation should occur to fit within a display width `limit`.
+#_
+#_If `limit` is positive, truncates from the front (keeps prefix) and returns the ending byte position where the width limit is reached.
+#_
+#_If `limit` is negative, truncates from the back (keeps suffix) and returns the starting byte position where the width limit (using absolute value) is reached.
+#_
+#_The default for `i` is 1 and for `j` is `#s`.
+#_
+#_If `ambiwidth` is given, characters with ambiguous width will be treated as having width `ambiwidth` (1 or 2). The default for `ambiwidth` is 1.
+#_
+#_If `default` is given, it will be used as the width for unprintable characters. The default for `default` is 0.
+#_
+#_Returns the byte position `position` and the remaining width `remain`.  The `remain` value indicates the remaining width left unused after truncation. For a perfect fit, `remain` is 0. If the limit cannot be fully utilized, `remain` will be positive (for positive limit) or negative (for negative limit).
+#_
+#_Notice that if even one byte can not put into `limit` space, this routine returns `i-1` for empty string (if `limit` is positive) or `j+1` (if `limit` is negative).
+#_
+#_**Example:**
+#_```
+#_-- Truncate from front (keep prefix)
+#_local pos, remain = utf8.widthlimit("hello world", 5)
+#_-- pos=5, remain=0 (perfectly fits "hello")
+#_
+#_-- Truncate from back (keep suffix)
+#_local pos, remain = utf8.widthlimit("/path/to/file.lua", -8)
+#_-- pos=10, remain=0 (starts at byte 10, "file.lua")
+#_
+#_-- Truncate with remaining space
+#_local pos, remain = utf8.widthlimit("world??", 6)
+#_-- pos=5, remain=1 ("world" fits in 5 columns, 1 column unused)
+#_
+#_-- Substring truncation
+#_local pos, remain = utf8.widthlimit("??world", 3, 1, 11)
+#_-- pos=4, remain=1 (first character '?' has width 2, leaving 1 column unused)
+#_```
+#_
+
+article id=680 dt=Text ctime=4001080450 mtime=4001080985 nm=utf8.title, utf8.fold
+#_<markdown>
+#_
+#_### `utf8.title(s) --> result`
+#_
+#_### `utf8.fold(s) --> result`
+#_
+#_Converts UTF-8 string `s` to title-case (for `utf8.title`), or folded case (for `utf8.fold`, used for case-insensitive comparison). If `s` is a number, it is treated as a code point and a converted code point (number) is returned.
+#_
+#_Returns the converted string (or code point).
+#_
+#_`utf8.lower` and `utf8.upper` have the same extension.
+#_
+#_**Example:**
+#_```
+#_utf8.title("hello world")  -- "Hello World"
+#_utf8.fold("Stra?e")        -- "strasse" (for comparison)
+#_utf8.upper(0x61)           -- 0x41 (code point 'a' -> 'A')
+#_```
+#_
+
+article id=681 dt=Text ctime=4001080450 mtime=4001080974 nm=utf8.ncasecmp
+#_<markdown>
+#_
+#_### `utf8.ncasecmp(a, b) --> result`
+#_
+#_Compares strings `a` and `b` without case. Returns -1 if `a < b`, 0 if `a == b`, and 1 if `a > b`.
+#_
+#_**Example:**
+#_```
+#_utf8.ncasecmp("Hello", "hello")  -- 0
+#_utf8.ncasecmp("abc", "DEF")      -- -1
+#_```
+#_
+
+article id=682 dt=Text ctime=4001080450 mtime=4001080971 nm=utf8.isvalid
+#_<markdown>
+#_
+#_### `utf8.isvalid(s) --> boolean`
+#_
+#_Checks whether `s` is a valid UTF-8 string. Returns `true` if valid, `false` otherwise.
+#_
+#_**Example:**
+#_```
+#_utf8.isvalid("??")       -- true
+#_utf8.isvalid("\xFF\xFE")  -- false (invalid UTF-8)
+#_```
+#_
+
+article id=683 dt=Text ctime=4001080450 mtime=4001080957 nm=utf8.clean
+#_<markdown>
+#_
+#_### `utf8.clean(s [, replacement]) --> result, was_valid`
+#_
+#_Replaces any invalid UTF-8 byte sequences in `s` with the replacement string `replacement`. If no replacement string is provided, the default is "?" (REPLACEMENT CHARACTER U+FFFD). Any number of consecutive invalid bytes will be replaced by a single copy of the replacement string.
+#_
+#_Returns the cleaned string `result` and a boolean `was_valid` indicating whether the original string was valid (`true` if no replacements were made).
+#_
+#_**Example:**
+#_```
+#_local clean, valid = utf8.clean("??\xFFworld")
+#_-- clean = "???world", valid = false
+#_
+#_local clean, valid = utf8.clean("??")
+#_-- clean = "??", valid = true
+#_```
+#_
+
+article id=684 dt=Text ctime=4001080450 mtime=4001080966 nm=utf8.invalidoffset
+#_<markdown>
+#_
+#_### `utf8.invalidoffset(s [, i]) --> position`
+#_
+#_Returns the byte position `position` within `s` of the first invalid UTF-8 byte sequence (1 is the first byte of the string). If `s` is a valid UTF-8 string, returns `nil`. The default for `i` is 1. The optional numeric argument `i` specifies where to start the search and can be negative.
+#_
+#_**Example:**
+#_```
+#_local pos = utf8.invalidoffset("??\xFFworld")
+#_-- pos = 7 (first invalid byte)
+#_
+#_local pos = utf8.invalidoffset("??")
+#_-- pos = nil (valid string)
+#_```
+#_
+
+article id=685 dt=Text ctime=4001080450 mtime=4001080969 nm=utf8.isnfc
+#_<markdown>
+#_
+#_### `utf8.isnfc(s) --> boolean`
+#_
+#_Checks whether `s` is in Normal Form C.
+#_
+#_**Normal Form C** means that whenever possible, combining marks are combined with a preceding codepoint. For example, instead of U+0041 (LATIN CAPITAL LETTER A) U+00B4 (ACUTE ACCENT), an NFC string will use U+00C1 (LATIN CAPITAL LETTER A WITH ACUTE). Also, some deprecated codepoints are converted to the recommended replacements.
+#_
+#_Since the same sequence of characters can be represented in more than one way in Unicode, it is better to ensure strings are in Normal Form before comparing them.
+#_
+#_Returns `true` if `s` is in NFC, `false` otherwise. An error may be raised if `s` is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_utf8.isnfc("caf?")   -- true (if already NFC)
+#_utf8.isnfc("cafe\u{0301}")  -- false (combining accent)
+#_```
+#_
+
+article id=686 dt=Text ctime=4001080450 mtime=4001080978 nm=utf8.normalize_nfc
+#_<markdown>
+#_
+#_### `utf8.normalize_nfc(s) --> result, was_nfc`
+#_
+#_Converts `s` to Normal Form C.
+#_
+#_Returns the normalized string `result` and a boolean `was_nfc` indicating whether the original string was already in NFC (`true` if no modifications were made).
+#_
+#_An error will be raised if `s` is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_local normalized, was_nfc = utf8.normalize_nfc("cafe\u{0301}")
+#_-- normalized = "caf?", was_nfc = false
+#_```
+#_
+
+article id=687 dt=Text ctime=4001080450 mtime=4001080961 nm=utf8.grapheme_indices
+#_<markdown>
+#_
+#_### `utf8.grapheme_indices(s [, i [, j]]) --> iterator`
+#_
+#_Returns an iterator which yields the starting byte index `from` and ending byte index `to` of each successive grapheme cluster in `s`. This range of bytes is inclusive of the endpoints, so the yielded values can be passed to `string.sub` to extract the grapheme cluster.
+#_
+#_The default for `i` is 1 and for `j` is `#s`. If you provide `i` and `j` byte indices, then the iterator will only cover the requested byte range. `i` and `j` should fall on character boundaries, since an error will be raised if the requested byte range is not a valid UTF-8 string.
+#_
+#_**Example:**
+#_```
+#_local count = 1
+#_for from, to in utf8.grapheme_indices(s) do
+#_  print("grapheme cluster "..count.." is from byte "..from.." to byte "..to)
+#_  count = count + 1
+#_end
+#_```
 #_
 
