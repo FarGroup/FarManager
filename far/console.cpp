@@ -2560,7 +2560,13 @@ protected:
 		if (m_QueuedKeys.wRepeatCount)
 			m_QueuedKeys = {};
 
-		return FlushConsoleInputBuffer(GetInputHandle()) != FALSE;
+		if (!FlushConsoleInputBuffer(GetInputHandle()))
+		{
+			LOGERROR(L"FlushConsoleInputBuffer(): {}"sv, os::last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::GetNumberOfInputEvents(size_t& NumberOfEvents) const
@@ -2570,6 +2576,8 @@ protected:
 			NumberOfEvents = m_QueuedKeys.wRepeatCount + dwNumberOfEvents;
 			return true;
 		}
+		else
+			LOGERROR(L"GetNumberOfConsoleInputEvents: {}"sv, os::last_error());
 
 		if (!m_QueuedKeys.wRepeatCount)
 			return false;
