@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+shmuel 2026-10-30 19:58:27+02:00 - build 6748
+
+1. Fix FCTL_REDRAWPANEL when one of the panels is the QuickView panel.
+
+   When FCTL_REDRAWPANEL changed CurrentItem, the QuickView panel didn't update.
+   Test case: lua:panel.RedrawPanel(nil, 1, {CurrentItem=15})
+
+--------------------------------------------------------------------------------
 drkns 2026-10-27 20:23:58+00:00 - build 6747
 
 1. Correction of 6702.1.
