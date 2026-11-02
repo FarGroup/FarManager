@@ -446,7 +446,7 @@ private:
 	std::shared_ptr<PluginsListItem> m_ExpiringPluginPanel{};
 	std::optional<FileSystemWatcher> FSWatcher;
 	bool m_UpdatePending{};
-	long UpperFolderTopFile{};
+	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};
 	size_t m_SelFileCount{}; // both files and directories
 	size_t m_SelDirCount{}; // directories only
