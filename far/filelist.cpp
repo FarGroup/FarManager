@@ -6975,7 +6975,6 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	if (IsFocused())
 		Parent()->GetCmdLine()->SetCurDir(m_CurDir);
 
-	LastCurFile=-1;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 	AnotherPanel->QViewDelTempName();
 	size_t PrevSelFileCount=m_SelFileCount;
@@ -7480,7 +7479,6 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 	DizRead = false;
 	list_data OldData;
 	std::optional<string> strCurName, strNextCurName;
-	LastCurFile=-1;
 
 	const auto Item = GetPluginItem();
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(Item.lock()->m_Plugin.get(), &m_CachedOpenPanelInfo);
@@ -7852,11 +7850,8 @@ void FileList::ShowFileList(bool Fast)
 		Parent()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION | UPDATE_SECONDARY);
 	}
 
-	if (!ProcessingPluginCommand && LastCurFile != m_CurFile)
-	{
-		LastCurFile = m_CurFile;
+	if (!ProcessingPluginCommand)
 		UpdateViewPanel();
-	}
 
 	SetScreen({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 	Box(m_Where, colors::PaletteColorToFarColor(COL_PANELBOX), DOUBLE_BOX);

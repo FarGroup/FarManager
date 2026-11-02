@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+shmuel 2026-11-02 09:06:56+02:00 - build 6749
+
+1. Streamlined the QuickView update fix from build 6748.
+
+--------------------------------------------------------------------------------
 shmuel 2026-10-30 19:58:27+02:00 - build 6748
 
 1. Fix FCTL_REDRAWPANEL when one of the panels is the QuickView panel.
