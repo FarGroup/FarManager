@@ -3807,8 +3807,21 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 					const auto TabCurPos = CurPtr->GetTabCurPos();
 
-					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
-						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
+//					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
+//						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
+
+					//=========== new center screen ========================
+					const int ComfortWidth = ObjWidth() - std::max(8, ObjWidth() / 10); // 72 for 80x25 (margin 8 letters)
+
+					if (TabCurPos + SearchLength <= ComfortWidth)  // фрагмент в пределах ширины экрана (до 72 знака)
+					{
+						CurPtr->SetLeftPos(0);
+					}
+					else // фрагмент за экраном -> центруем
+					{
+						CurPtr->SetLeftPos(std::max<long long>(TabCurPos + SearchLength / 2 - ObjWidth() / 2, 0LL));
+					}
+					//========== end center screen ========================
 
 					const auto CurLineCopy = m_it_CurLine;
 
