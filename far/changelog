@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2026-11-09 23:38:27+00:00 - build 6751
+
+1. Fix Find file crash on really long strings.
+
+--------------------------------------------------------------------------------
 shmuel 2026-11-02 13:19:02+02:00 - build 6750
 
 1. Revert the previous commit. It caused stack overflow with picture.lua.
