@@ -1,47 +1,48 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>GetContentFieldsW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script src="../links.js"></script>
 </head>
 <body>
 
 <h1>GetContentFieldsW</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../index.html">главная</a> |
 <a href="index.html">экспортируемые функции</a> |
 <a href="../contentapi/index.html">TODO: Content API</a>
 </div>
 
-<div class=shortdescr>
-Функция <code>GetContentFieldsW</code> вызывается, чтобы узнать, есть ли в заданном списке типов
-контент-колонок хотя бы один тип, поддерживаемый данным плагином.<br>
-Вызов производится один раз перед каждым обновлением панели.
+<div class="shortdescr">
+<p>Функция <code>GetContentFieldsW</code> вызывается, чтобы узнать, есть ли в заданном списке типов
+контент-колонок хотя бы один тип, поддерживаемый данным плагином.</p>
+<p>Вызов производится один раз перед каждым обновлением панели.</p>
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 intptr_t WINAPI GetContentFieldsW(
   const struct GetContentFieldsInfo *Info
 );
 </pre>
 
 <h3>Параметры</h3>
-<div class=descr>
-  <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/getcontentfieldsinfo.html">GetContentFieldsInfo</a>, содержащую список типов колонок.<br>
+<div class="descr">
+  <div class="dfn">Info</div>
+    <div class="dfndescr">Указатель на структуру <a href="../structures/getcontentfieldsinfo.html">GetContentFieldsInfo</a>, содержащую список типов колонок.
   </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
-<div class=descr>
+<div class="descr">
 Если плагин поддерживает хотя бы один тип колонок из переданного списка, то верните <code>1</code>. В противном случае <code>0</code>.
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
-<pre class=code>
+<div class="descr">
+<pre class="code">
 FarStandardFunctions FSF; // assuming it is already initialized
 
 const wchar_t *SupportedColumns[] = {
@@ -64,14 +65,14 @@ intptr_t WINAPI GetContentFieldsW(const struct GetContentFieldsInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="getcontentdataw.html">GetContentDataW</a>,
 <a href="freecontentdataw.html">FreeContentDataW</a>
 </div>
 
 <h3>ПРИМЕЧАНИЕ</h3>
-<div class=descr>
+<div class="descr">
 Данное API не является окончательным и может быть изменено или удалено в любой момент.
 </div>
 

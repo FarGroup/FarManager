@@ -1,58 +1,59 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DN_RESIZECONSOLE</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DN_RESIZECONSOLE</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index_dn.html">события</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Событие <code>DN_RESIZECONSOLE</code> передаётся процедуре обработки диалога после изменения размера консоли (например, после того, как пользователь нажал <kbd>Alt</kbd>+<kbd>F9</kbd>).
 </div>
 
 <h3>Param1</h3>
-<div class=descr>
+<div class="descr">
 0
 </div>
 
 <h3>Param2</h3>
-<div class=descr>
+<div class="descr">
 Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой указаны текущие размеры консоли.
 </div>
 
 <h3>Return</h3>
-<div class=descr>
+<div class="descr">
 <code>TRUE</code>.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%">Диалог</td>
-<td class="cont" width="60%">сообщение затрагивает только диалог</td></tr>
+<tr><th>Элемент</th><th>Описание</th></tr>
+<tr><td>Диалог</td>
+<td>сообщение затрагивает только диалог</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Событие <code>DN_RESIZECONSOLE</code> полезно в том случае, когда плагин умеет подстраиваться под текущие размеры консоли. Пример работы данного события
 можно наблюдать в диалоге поиска файлов (<kbd>Alt</kbd>+<kbd>F7</kbd>).
 </div>
 
 <h3>Пример</h3>
-<div class=descr>
+<div class="descr">
 Изменение размеров диалога поиска (<kbd>Alt</kbd>+<kbd>F7</kbd>) при изменении размеров консоли.
-<pre class=code>
+<pre class="code">
 case DN_RESIZECONSOLE:
 {
   COORD coord=(*(COORD*)Param2);
@@ -98,8 +99,8 @@ case DN_RESIZECONSOLE:
 }</pre>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
