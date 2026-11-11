@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+shmuel 2026-11-11 22:53:35+02:00 - build 6752
+
+1. Editor: Advance past previous match in repeated search operations
+
+   The search starting point in repeated operations (Shift-F7, Alt-F7)
+   now takes the previous match length into consideration rather than
+   naively incrementing/decrementing the cursor position.
+
+--------------------------------------------------------------------------------
 drkns 2026-11-09 23:38:27+00:00 - build 6751
 
 1. Fix Find file crash on really long strings.

@@ -1157,19 +1157,21 @@ namespace
 
 		while (re.SearchEx(Source, pos, Match))
 		{
-			pos = Match.Matches[0].start;
-			if (pos > Position)
+			const auto MatchStart = static_cast<intptr_t>(Match.Matches[0].start);
+			const auto MatchEnd = static_cast<intptr_t>(Match.Matches[0].end);
+
+			if (MatchStart > Position)
 				break;
 
 			if (options.WholeWords && !CanContainWholeWord(Source, Match.Matches[0].start, Match.Matches[0].end - Match.Matches[0].start, WordDiv))
 			{
-				++pos;
+				pos = MatchStart + 1;
 				continue;
 			}
 
 			found = true;
 			FoundMatch.Matches = std::move(Match.Matches);
-			++pos;
+			pos = (MatchEnd > MatchStart) ? MatchEnd : MatchStart + 1;
 		}
 
 		if (found)
@@ -1236,22 +1238,20 @@ bool SearchAndReplaceString(
 	auto Position = CurPos;
 	const auto HaystackSize = static_cast<int>(Haystack.size());
 
+	if (options.Regex)
+	{
+		if (Position < 0 || Position > HaystackSize)
+			return false;
+
+		return SearchStringRegex(Haystack, re, Match, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
+	}
+
 	if (options.Reverse)
 	{
-		// MZK 2018-04-01 BUGBUG: regex reverse search: "^$" does not match empty string
 		Position = std::min(Position - 1, HaystackSize - 1);
 
 		if (Position < 0)
 			return false;
-	}
-
-	if (options.Regex)
-	{
-		// Empty Haystack is ok for regex search, e.g. ^$
-		if (Position > HaystackSize)
-			return false;
-
-		return SearchStringRegex(Haystack, re, Match, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
 	}
 
 	if (Position >= HaystackSize)
