@@ -4125,11 +4125,8 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 		}
 	}
 
-	if (!MatchFound)
+	if (!MatchFound && !UserBreak)
 	{
-		ResetLastSearch();
-
-		if (!UserBreak)
 		Message(MSG_WARNING,
 			msg(lng::MSearchReplaceSearchTitle),
 			{
