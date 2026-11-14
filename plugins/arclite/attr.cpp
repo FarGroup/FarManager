@@ -545,7 +545,7 @@ void Archive::load_update_props(const ArcType& arc_type) {
   m_method.clear();
   if (UInt32 NumberOfItems;
       (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) ||
-      (in_arc->GetNumberOfItems(&NumberOfItems) && NumberOfItems && in_arc->GetProperty(0, kpidMethod, prop.ref()) == S_OK && prop.is_str())
+      (in_arc->GetNumberOfItems(&NumberOfItems) == S_OK && NumberOfItems && in_arc->GetProperty(0, kpidMethod, prop.ref()) == S_OK && prop.is_str())
   ) {
     std::list<std::wstring> m_list = split(prop.get_str(), L' ');
 
