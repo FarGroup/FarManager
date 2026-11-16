@@ -64,6 +64,11 @@ in Dialog API 1.0.
 <li>The <dfn>DN_EDITCHANGE</dfn> event will not be sent in a response to the following messages:
 <a href="dm_settextptr.html">DM_SETTEXTPTR</a> and
 <a href="dm_settext.html">DM_SETTEXT</a>.
+<li>The <dfn>DN_EDITCHANGE</dfn> event is sent even when the item text is set to the
+same value (for example, when the current item is re-selected in a
+<a href="../controls/di_combobox.html">DI_COMBOBOX</a>). To detect a real change,
+compare the new text with the previous one; to detect a list position change, use
+<a href="dn_listchange.html">DN_LISTCHANGE</a>.
 </ol>
 </div>
 

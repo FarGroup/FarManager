@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+olegfedko 2026-10-13 17:00:00+03:00 - build 6754
+
+1. User menu items can be hidden by a "Show" condition:
+     * always
+     * has selection
+     * current is a file  (with an optional file mask)
+     * current is a folder (with an optional file mask)
+   Use Ctrl+H in the menu to show or hide filtered items.
+
+--------------------------------------------------------------------------------
 shmuel 2026-11-12 17:44:14+02:00 - build 6753
 
 1. Editor: Do not reset last search state when a match is not found
