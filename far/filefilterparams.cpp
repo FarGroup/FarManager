@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 
 // Internal:
-#include "farcolor.hpp"
 #include "filemasks.hpp"
 #include "dialog.hpp"
 #include "filelist.hpp"

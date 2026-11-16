@@ -450,6 +450,7 @@ private:
 	const unsigned long long SearchInFirst;
 	const FindFilesOptions& m_Options;
 	const SearchReplaceDlgParams& m_SearchDlgParams;
+	intptr_t StepBackOffset{};
 	const bool UseFilter;
 	const bool m_PluginMode;
 
@@ -484,17 +485,9 @@ struct background_searcher::CodePageInfo
 
 	void initialize()
 	{
-		if (IsUtf16CodePage(CodePage))
-			MaxCharSize = 2;
-		else
-		{
-			CPINFO cpi;
-
-			if (!GetCPInfo(CodePage, &cpi))
-				cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
-
-			MaxCharSize = cpi.MaxCharSize;
-		}
+		MaxCharSize = IsUtf16CodePage(CodePage)?
+			2 :
+			GetCodePageMaxCharSize(CodePage);
 
 		LastSymbol = 0;
 		WordFound = false;
@@ -505,12 +498,6 @@ void background_searcher::InitInFileSearch()
 {
 	if (m_SearchDlgParams.IsSearchPatternEmpty())
 		return;
-
-	// Инициализируем буферы чтения из файла
-	const size_t readBufferSize = 65536;
-
-	readBufferA.resize(readBufferSize);
-	readBuffer.resize(readBufferSize);
 
 	if (!m_SearchDlgParams.Hex.value())
 	{
@@ -552,6 +539,8 @@ void background_searcher::InitInFileSearch()
 		{
 			m_CodePages.emplace_back(CodePage);
 			m_Autodetection = CodePage == CP_DEFAULT;
+			if (m_Autodetection)
+				m_MaxCharSize = 3;
 		}
 
 		for (auto& i: m_CodePages)
@@ -565,6 +554,19 @@ void background_searcher::InitInFileSearch()
 		// Инициализируем данные для аглоритма поиска
 		m_HexSearcher.emplace(ALL_CONST_RANGE(m_SearchDlgParams.SearchBytes.value()));
 	}
+
+	// Step back a little more just in case (lengths of the pattern and the actually found string could be different)
+	const auto ArbitraryOverlapBytesCountJustInCase = 128;
+	static_assert(!(ArbitraryOverlapBytesCountJustInCase & 1));
+
+	StepBackOffset = m_SearchDlgParams.Hex.value()?
+		m_SearchDlgParams.SearchBytes.value().size() - 1 :
+		(m_MaxCharSize * m_SearchDlgParams.SearchStr.size()) + ArbitraryOverlapBytesCountJustInCase;
+
+	const auto ReadBufferSize = aligned_size(std::max(1uz, StepBackOffset * 2uz), 65536);
+
+	readBufferA.resize(ReadBufferSize);
+	readBuffer.resize(ReadBufferSize);
 }
 
 void background_searcher::ReleaseInFileSearch()
@@ -1006,22 +1008,12 @@ bool background_searcher::LookForString(string_view const FileName)
 	{
 		m_CodePages.front().CodePage = GetFileCodepage(File, encoding::codepage::real_ansi());
 		m_CodePages.front().initialize();
-		m_MaxCharSize = m_CodePages.front().MaxCharSize;
 	}
 
 	// Количество считанных из файла байт
 	size_t readBlockSize = 0;
 	// Количество прочитанных из файла байт
 	unsigned long long alreadyRead = 0;
-
-	// Step back a little more just in case (lengths of the pattern and the actually found string could be different)
-	const auto ArbitraryOverlapBytesCountJustInCase = 128;
-	static_assert(!(ArbitraryOverlapBytesCountJustInCase & 1));
-
-	// Смещение на которое мы отступили при переходе между блоками
-	const intptr_t StepBackOffset = m_SearchDlgParams.Hex.value()?
-		m_SearchDlgParams.SearchBytes.value().size() - 1 :
-		(m_MaxCharSize * m_SearchDlgParams.SearchStr.size()) + ArbitraryOverlapBytesCountJustInCase;
 
 	unsigned long long FileSize = 0;
 	// BUGBUG check result
@@ -1253,7 +1245,7 @@ bool background_searcher::LookForString(string_view const FileName)
 						// so everything else is the number of decoded bytes which can be safely skipped on the next iteration.
 
 						// * 2 To make sure that we can decode at least one
-						bytes_view const TestStr(readBufferA.data() + readBlockSize - StepBackOffset, m_MaxCharSize * 2);
+						bytes_view const TestStr(readBufferA.data() + readBlockSize - StepBackOffset, i.MaxCharSize * 2);
 
 						encoding::diagnostics Diagnostics{ encoding::diagnostics::not_enough_data };
 						const auto TestStrChars = encoding::get_chars(i.CodePage, TestStr, readBuffer, &Diagnostics);

@@ -127,6 +127,11 @@ static std::optional<cp_info> get_codepage_info(unsigned const Codepage, wchar_t
 {
 	if (CPINFOEX Info; GetCPInfoEx(Codepage, 0, &Info))
 	{
+		// GetCPInfoEx returns 4, which is technically correct, but can only happen for non-BMP,
+		// which we encode as 2 wchar_t, so it's never 1 to 4.
+		if (Codepage == CP_UTF8)
+			Info.MaxCharSize = 3;
+
 		return
 		{{
 			string(extract_codepage_name(Info.CodePageName)),
@@ -137,17 +142,14 @@ static std::optional<cp_info> get_codepage_info(unsigned const Codepage, wchar_t
 	if (const auto LastError = os::last_error(); LastError.Win32Error)
 		LOGDEBUG(L"GetCPInfoEx({}): {}"sv, Codepage, LastError);
 
-	if (CPINFO Info; GetCPInfo(Codepage, &Info))
+	if (const auto MaxCharSize = GetCodePageMaxCharSize(Codepage))
 	{
 		return
 		{{
 			CodepageStr,
-			static_cast<unsigned char>(Info.MaxCharSize)
+			static_cast<unsigned char>(MaxCharSize)
 		}};
 	}
-
-	if (const auto LastError = os::last_error(); LastError.Win32Error)
-		LOGWARNING(L"GetCPInfo({}): {}"sv, Codepage, LastError);
 
 	return {};
 }
@@ -207,6 +209,22 @@ const cp_map& InstalledCodepages()
 {
 	static const auto s_InstalledCodepages = get_installed_codepages();
 	return s_InstalledCodepages;
+}
+
+size_t GetCodePageMaxCharSize(uintptr_t cp)
+{
+	// GetCPInfo returns 4, which is technically correct, but can only happen for non-BMP,
+	// which we encode as 2 wchar_t, so it's never 1 to 4.
+	if (cp == CP_UTF8)
+		return 3;
+
+	if (CPINFO Info; GetCPInfo(cp, &Info))
+		return Info.MaxCharSize;
+
+	if (const auto LastError = os::last_error(); LastError.Win32Error)
+		LOGWARNING(L"GetCPInfo({}): {}"sv, cp, LastError);
+
+	return 0;
 }
 
 cp_info const* GetCodePageInfo(uintptr_t cp)

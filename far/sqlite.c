@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 /*
-SQLite > 3.54 uses GetTickCount64 to gather entropy for some randomness stuff.
+SQLite >= 3.54 uses GetTickCount64 to gather entropy for some randomness stuff.
 Unfortunately, they call it in a stupid way that prevents us from hooking it.
 Asking them to change it would be pointless, since they do not support < Vista anymore.
 So, a fallback implementation is provided here.
@@ -89,6 +89,7 @@ WARNING_PUSH(3)
 WARNING_DISABLE_MSC(4018) // '>': signed / unsigned mismatch
 WARNING_DISABLE_MSC(4391) // 'signature' : incorrect return type for intrinsic function, expected 'type'
 WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
+WARNING_DISABLE_MSC(4815) // 'object name': flexible array member in object will have no elements
 WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
 WARNING_DISABLE_MSC(4191) // 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
 WARNING_DISABLE_MSC(5262) // implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases

@@ -76,6 +76,11 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::info{ L"fmt"sv, far::format(L"{}.{}.{}"sv, FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
+		return components::info{ L"fmt"sv, far::format(
+			L"{}.{}.{}"sv,
+			FMT_VERSION / 10000,
+			FMT_VERSION / 100 % 100,
+			FMT_VERSION % 100
+		) };
 	});
 }

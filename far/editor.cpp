@@ -179,6 +179,7 @@ void Editor::FreeAllocatedData()
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
 	m_it_AnyBlockStart = m_it_LastGetLine = m_it_CurLine = m_it_TopScreen = EndIterator();
+	ResetLastSearch();
 }
 
 void Editor::SwapState(Editor& swap_state)
@@ -3420,13 +3421,13 @@ int Editor::CalculateSearchNextPositionInTheLine(const bool Backward, const bool
 		// Also fixed search forward in cursor-at-the-end mode, see https://github.com/FarGroup/FarManager/issues/660.
 		// Now search continues from the next character.
 		// Note: Regex search backwards steps back one character.
-		return m_FoundPos + (Backward ? 0 : 1);
+		return Backward ? m_FoundPos - 1 : m_FoundPos + std::max(m_FoundSize, 1);
 	}
 	else
 	{
 		// To find the next nearest match, include the entire last found match (minus one character)
 		// into the search range. Drop one character to ensure search progress.
-		return m_FoundPos + (Backward ? m_FoundSize - 1 : 1);
+		return m_FoundPos + (Backward ? m_FoundSize - 1 : std::max(m_FoundSize, 1));
 	}
 }
 
@@ -3975,12 +3976,19 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 					CurPos = m_it_CurLine->GetCurPos();
 					if (!Backward)
 					{
-						if ((Skip || !SearchLength) && m_it_CurLine == CurLineCopy)
+						if (Skip && m_it_CurLine == CurLineCopy)
+							CurPos += std::max(SearchLength, 1);
+						else if (!SearchLength && m_it_CurLine == CurLineCopy)
 							CurPos++;
 					}
 					else
 					{
-						if (!Skip || !SearchLength)
+						if (Skip)
+						{
+							if (m_SearchDlgParams.Regex.value())
+								CurPos = m_FoundPos - 1;
+						}
+						else if (!SearchLength)
 							(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
 					}
 				}
@@ -4118,6 +4126,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	}
 
 	if (!MatchFound && !UserBreak)
+	{
 		Message(MSG_WARNING,
 			msg(lng::MSearchReplaceSearchTitle),
 			{
@@ -4125,6 +4134,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				QuotedStr
 			},
 			{ lng::MOk });
+	}
 }
 
 void Editor::SelectFoundPattern(FindCoord coord)
@@ -4988,6 +4998,7 @@ void Editor::Undo(int redo)
 	if (level)
 		uend=ustart;
 
+	ResetLastSearch();
 	UnmarkBlock();
 	auto ud=ustart;
 	bool RefreshMe = false;
@@ -5669,6 +5680,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 			const auto DestLine = SetString->StringNumber != -1? SetString->StringNumber : m_it_CurLine.Number();
+
+
+			if (CurPtr == m_FoundLine)
+				ResetLastSearch();
 
 			AddUndoData(undo_type::edit, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 			const auto CurPos = CurPtr->GetCurPos();
@@ -7325,3 +7340,10 @@ TEST_CASE("radix10_formatted_width")
 }
 
 #endif
+
+void Editor::ResetLastSearch()
+{
+	m_FoundLine = EndIterator();
+	m_FoundPos = -1;
+	m_FoundSize = 0;
+}

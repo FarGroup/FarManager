@@ -380,6 +380,15 @@ TEST_CASE("base64.random.roundtrip")
 	REQUIRE(base64::decode(Encoded) == view_bytes(RandomInput));
 }
 
+TEST_CASE("base64.full.roundtrip")
+{
+	char Input[256];
+	std::ranges::iota(Input, 0);
+
+	const auto Encoded = base64::encode(view_bytes(Input));
+	REQUIRE(base64::decode(Encoded) == view_bytes(Input));
+}
+
 //----------------------------------------------------------------------------
 
 #include "common/bytes_view.hpp"

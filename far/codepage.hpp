@@ -77,6 +77,7 @@ using cp_map = std::unordered_map<unsigned, cp_info>;
 
 [[nodiscard]] const cp_map& InstalledCodepages();
 
+[[nodiscard]] size_t GetCodePageMaxCharSize(uintptr_t cp);
 [[nodiscard]] cp_info const* GetCodePageInfo(uintptr_t cp);
 [[nodiscard]] bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = static_cast<size_t>(-1));
 

@@ -164,17 +164,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sys: [mingw32, mingw64, ucrt64, clang64]
+        sys: [mingw64, ucrt64, clang64]
         compiler: [gcc, clang]
         build_type: [Release, Debug]
         exclude:
           - sys: clang64
             compiler: gcc
-          - sys: mingw32
-            compiler: clang
-          - sys: mingw32
-            compiler: gcc
-            build_type: Debug
 
     name: build-msys2_${{ matrix.sys }}_${{ matrix.compiler }}_${{ matrix.build_type }}
 

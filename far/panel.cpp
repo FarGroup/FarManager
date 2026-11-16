@@ -840,11 +840,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				m_CurFile=static_cast<int>(Info->CurrentItem);
 				m_CurTopFile=static_cast<int>(Info->TopPanelItem);
+				Global->WindowManager->RefreshWindow();
 			}
-
-			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущее окно
-			if (Parent()->IsTopWindow())
-				Redraw();
+			else
+			{
+				// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущее окно
+				if (Parent()->IsTopWindow())
+					Redraw();
+			}
 
 			Result=TRUE;
 			break;

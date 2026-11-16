@@ -1413,13 +1413,10 @@ static uintptr_t GetEditorCodePageA()
 {
 	EditorInfo info{ sizeof(info) };
 	pluginapi::apiEditorControl(-1, ECTL_GETINFO, 0, &info);
-	auto CodePage = info.CodePage;
-	CPINFO cpi;
 
-	if (!GetCPInfo(static_cast<unsigned>(CodePage), &cpi) || cpi.MaxCharSize > 1)
-		CodePage = encoding::codepage::real_ansi();
-
-	return CodePage;
+	return GetCodePageMaxCharSize(info.CodePage) == 1?
+		info.CodePage :
+		encoding::codepage::real_ansi();
 }
 
 static int GetEditorCodePageFavA()

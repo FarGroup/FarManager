@@ -892,6 +892,57 @@ static bool ProcessMouseEvent(MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro,
 
 static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey);
 
+static bool validate_input_state()
+{
+	static bool AttemptToFixBrokenInput = true;
+
+	if (size_t Count; console.GetNumberOfInputEvents(Count) && Count)
+	{
+		// Input's in its queue, all's right with the world.
+		// If our workaround failed previously for any reason, we can try again next time.
+		AttemptToFixBrokenInput = true;
+		// Let the caller know that it is a legit input event.
+		return true;
+	}
+
+	if (!AttemptToFixBrokenInput)
+	{
+		// We already tried what we can, but it did not work.
+		// No point in trying again and spamming the logs over and over,
+		// but we still need to do at least something, e.g. throttle the polling.
+		// Unlike the plain sleep_for, this will allow the background tasks to wake the thread earlier if needed.
+		os::handle::wait_any(200ms, wake_event::ref());
+		return false;
+	}
+
+	// See https://forum.farmanager.com/viewtopic.php?p=182399#p182399
+	// If you use Windows 10, open two documents in Excel one by one via ShellExecuteEx
+	// with hwnd set to GetConsoleWindow(), and your console window happens to be maximized,
+	// conhost goes haywire and reports the input handle as signaled without actually having any input events,
+	// which means that instead of waiting for input and basically sleeping we poll endlessly and heat the room.
+	// Setting hwnd to nullptr makes the issue disappear with Excel, but... not with Word.
+	// This is mental. What a mess. 🤦
+	// This was observed with conhost 10.0.19041.7663 in particular.
+	// A recent (1.27.2610.23001, 2026/10/24) OpenConsole works fine, so apparently it is already fixed in trunk,
+	// but, as usual, not backported to the version that ships with the OS.
+	LOGWARNING(L"Anomaly detected: input handle is signaled without input. Applying a workaround"sv);
+
+	// Technically this can drop a valid input, but the race window is tiny and only exists in the anomalous state.
+	console.FlushInputBuffer();
+
+	if (os::handle::is_signaled(console.GetInputHandle()))
+	{
+		LOGWARNING(L"Input handle is still signaled, the polling will be throttled."sv);
+		// If it did not help, no point in trying again and spamming the logs.
+		AttemptToFixBrokenInput = false;
+	}
+	else
+		LOGINFO(L"Input handle is no longer signaled"sv);
+
+	// Even though we fixed it, it is still a spurious wakeup.
+	return false;
+}
+
 static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
 	message_manager::instance().dispatch();
@@ -999,7 +1050,8 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 		else if (*Status == 0)
 		{
-			LastActivity = std::chrono::steady_clock::now();
+			if (validate_input_state())
+				LastActivity = std::chrono::steady_clock::now();
 		}
 	}
 

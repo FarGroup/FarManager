@@ -232,6 +232,7 @@ private:
 	void VCopy(int Append);
 	void VPaste(string_view Data);
 	void VBlockShift(int Left);
+	void ResetLastSearch();
 	numbered_iterator GetStringByNumber(int DestLine);
 	// Set the numbered bookmark (CtrlShift-0..9)
 	bool SetBookmark(int Pos);
