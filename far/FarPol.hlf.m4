@@ -5098,6 +5098,9 @@ do klasy, to nie może on być pierwszym znakiem lub musi być poprzedzony znaki
 
  Poza grupowaniem, nawiasy są używane także do następujących operacji:
  #(?:wzorzec)#  - ^<wrap>zwykłe grupowanie, ale nie obejmuje liczb.
+ #(?flagi)# - ^<wrap>flagi wbudowane o zasięgu lokalnym. Stosuje określone opcje (np. #(?i)# dla ignorowania wielkości liter, #(?-s)# aby wyłączyć tryb jednowierszowy lub #(?i-s)# aby je połączyć) do pozostałej części bieżącej grupy lub wyrażenia.
+ #(?flagi:wzorzec)# - ^<wrap>grupa nieprzechwytująca, która dopasowuje #wzorzec# z włączonymi lub wyłączonymi określonymi opcjami, przywracając poprzednie opcje po nawiasie zamykającym. Na przykład #(?i:abc)def# pasuje do "ABCdef", ale nie do "ABCDEF".
+ #(?>wzorzec)# - ^<wrap>grupa atomowa (bez nawrotów i bez przechwytywania). Gdy #wzorzec# zostanie dopasowany, wszystkie punkty nawrotu zapisane wewnątrz niej są odrzucane, więc silnik nie próbuje alternatywnych ścieżek wewnątrz #wzorzec#, jeśli reszta wyrażenia zawiedzie. Na przykład #(?>a+)ab# nie pasuje do "aaab".
  #(?=wzorzec)#  - ^<wrap>przeszukiwanie do przodu. Dopasowanie rozpoczyna się od tego
 samego miejsca, ale tylko gdy zgadza się wzorzec w nawiasach. Np. #\w+(?=\s)#
 dopasowuje wyraz, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach

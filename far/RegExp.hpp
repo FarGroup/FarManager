@@ -169,8 +169,6 @@ private:
 		int minlength{};
 
 		// options
-		int ignorecase{};
-
 		int bracketscount{};
 		int maxbackref{};
 		unordered_string_map<size_t> NamedGroups;
@@ -186,7 +184,7 @@ private:
 
 		void TrimTail(const wchar_t* start, const wchar_t*& strend) const;
 
-		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end) const;
+		int StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end, bool icase) const;
 
 	public:
 		//! Default constructor.

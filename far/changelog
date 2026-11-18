@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+shmuel 2026-11-18 21:59:53+02:00 - build 6754
+
+1. RegExp: support scoped inline modifiers and atomic groups.
+
+   Add scoped inline flag modifiers (?imsx-imsx) / (?imsx-imsx:pattern) and
+   non-backtracking atomic groups (?>pattern) to the RegExp engine.
+
+--------------------------------------------------------------------------------
 shmuel 2026-11-12 17:44:14+02:00 - build 6753
 
 1. Editor: Do not reset last search state when a match is not found

@@ -5091,6 +5091,9 @@ needs to be added to a class, then it must be either not the first one or escape
 
  Except grouping, the parentheses are used for the following operations:
  #(?:pattern)#  - ^<wrap>usual grouping, but it does not get a number.
+ #(?flags)# - ^<wrap>scoped inline flags. Applies the specified options (e.g. #(?i)# for case-insensitive, #(?-s)# to turn off single-line mode, or #(?i-s)# to combine them) to the remainder of the current group or expression.
+ #(?flags:pattern)# - ^<wrap>non-capturing group that matches #pattern# with the specified options enabled or disabled, restoring the previous options after the closing parenthesis. For example, #(?i:abc)def# matches "ABCdef" but not "ABCDEF".
+ #(?>pattern)# - ^<wrap>atomic (non-backtracking) non-capturing group. Once #pattern# matches, any backtracking positions saved inside it are discarded, so the engine will not retry alternative paths within #pattern# if the rest of the expression fails. For example, #(?>a+)ab# does not match "aaab".
  #(?=pattern)#  - ^<wrap>the forward lookup. The matching continues from
 the same place, but only if the pattern in these parentheses has matched. For
 example, #\w+(?=\s)# matches the word followed by space character, and the space
