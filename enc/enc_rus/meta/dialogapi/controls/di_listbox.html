@@ -1,25 +1,26 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+﻿<!DOCTYPE html>
+<html lang="ru">
 <head>
 <title>DI_LISTBOX</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<script src="../../links.js"></script>
 </head>
 <body>
 
 <h1>DI_LISTBOX</h1>
-<div class=navbar>
+<div class="navbar">
 <a href="../../index.html">главная</a> |
 <a href="index.html">элементы диалога</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
-<div class=shortdescr>
+<div class="shortdescr">
 Элемент диалога <code>DI_LISTBOX</code> описывает список.
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_LISTBOX</b>
@@ -33,59 +34,59 @@ struct FarDialogItem
 };
 </pre>
 
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class="note"><img src="../../../images/note.gif" alt="Внимание!"> Внимание!</p>
+<ul class="note"><li>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</li></ul>
 
 <h3>ListItems</h3>
-<div class=descr>Указатель на структуру <a href="../../structures/farlist.html">FarList</a>, описывающую пункты для начальной инициализации списка.</div>
+<div class="descr">Указатель на структуру <a href="../../structures/farlist.html">FarList</a>, описывающую пункты для начальной инициализации списка.</div>
 
 <h3>Флаги</h3>
-<div class=descr>
+<div class="descr">
 Для элемента <code>DI_LISTBOX</code> имеют значения следующие флаги (про флаги списка см. <a href="../../structures/farlistitem.html">FarListItem</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
-<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
-<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
-<td class="cont" width="60%">горячие клавиши будут назначены автоматически</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
-<td class="cont" width="60%">показывать горячие клавиши в списке</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
-<td class="cont" width="60%">"заворачивает" список при навигации по списку</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
-<td class="cont" width="60%">не закрывать диалог при выборе элемента в списке</td></tr>
-<tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouse.html">DIF_LISTTRACKMOUSE</a></td>
-<td class="cont" width="60%">реагировать на движение мыши в списке</td></tr>
-<tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouseinfocus.html">DIF_LISTTRACKMOUSEINFOCUS</a></td>
-<td class="cont" width="60%">реагировать на движение мыши в списке только если элемент находится в фокусе</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">элемент является недоступным</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
-<td class="cont" width="60%">отключает прорисовку рамки вокруг списка. В этом случае <code>Data</code> игнорируется</td></tr>
+<tr><th>Флаг</th><th>Описание</th></tr>
+<tr><td><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td>флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
+<tr><td><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td>определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
+<tr><td><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
+<td>горячие клавиши будут назначены автоматически</td></tr>
+<tr><td><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
+<td>показывать горячие клавиши в списке</td></tr>
+<tr><td><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
+<td>"заворачивает" список при навигации по списку</td></tr>
+<tr><td><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
+<td>не закрывать диалог при выборе элемента в списке</td></tr>
+<tr><td><a href="../flags/dif_listtrackmouse.html">DIF_LISTTRACKMOUSE</a></td>
+<td>реагировать на движение мыши в списке</td></tr>
+<tr><td><a href="../flags/dif_listtrackmouseinfocus.html">DIF_LISTTRACKMOUSEINFOCUS</a></td>
+<td>реагировать на движение мыши в списке только если элемент находится в фокусе</td></tr>
+<tr><td><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+<td>элемент является недоступным</td></tr>
+<tr><td><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+<td>управляющий элемент не получает клавиатурный фокус ввода</td></tr>
+<tr><td><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
+<td>отключает прорисовку рамки вокруг списка. В этом случае <code>Data</code> игнорируется</td></tr>
 </table>
 </div>
 
 <h3>События</h3>
-<div class=descr>
+<div class="descr">
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">начало отрисовки элемента</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки списка</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
-<td class="cont" width="60%">изменилась позиция в списке</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
-<td class="cont" width="60%">пользователь для смены пункта в списке воспользовался горячими клавишами</td></tr>
+<tr><th>Событие</th><th>Описание</th></tr>
+<tr><td><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td>начало отрисовки элемента</td></tr>
+<tr><td><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
+<td>запрос цветовых атрибутов для отрисовки списка</td></tr>
+<tr><td><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
+<td>изменилась позиция в списке</td></tr>
+<tr><td><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
+<td>пользователь для смены пункта в списке воспользовался горячими клавишами</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>
+<div class="descr">
 Работа со списками <code>DI_COMBOBOX</code> и <code>DI_LISTBOX</code> организована по следующей схеме:
 <ul>
 <li>Запуск DialogInit<br>
@@ -120,12 +121,12 @@ struct FarDialogItem
 </ul>
 </div>
 
-<div class=descr>
+<div class="descr">
 <p>Текстовый курсор после инициализации элемента - в режиме замены.</p>
 </div>
 
-<div class=see>Смотрите также:</div>
-<div class=seecont>
+<div class="see">Смотрите также:</div>
+<div class="seecont">
 <a href="di_combobox.html">DI_COMBOBOX</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>
