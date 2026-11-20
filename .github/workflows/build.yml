@@ -197,7 +197,7 @@ jobs:
         with:
           update: true
           msystem: ${{ matrix.sys }}
-          install: unzip
+          install: make unzip
           pacboy: toolchain:p
 
       - name: Setup clang build
@@ -218,13 +218,13 @@ jobs:
         working-directory: far
         run: |
           ${{ matrix.compiler }} --version
-          mingw32-make -j $(($(nproc)+1)) -f makefile_gcc
+          make -j $(($(nproc)+1)) -f makefile_gcc
 
       - name: Build plugins
         working-directory: plugins
         run: |
           ${{ matrix.compiler }} --version
-          mingw32-make -j $(($(nproc)+1)) -f makefile_all_gcc
+          make -j $(($(nproc)+1)) -f makefile_all_gcc
 
       - name: Perform CodeQL Analysis
         if: matrix.sys == 'ucrt64' && matrix.compiler == 'gcc' && matrix.build_type == 'Debug'
