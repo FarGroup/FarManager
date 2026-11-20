@@ -4236,11 +4236,11 @@ void Editor::PasteFromClipboard()
 	if (Clip->Open())
 	{
 		string data;
-		if (Clip->GetVText(data))
+		if (Clip->GetVText(data) && !data.empty())
 		{
 			VPaste(data);
 		}
-		else if (Clip->GetText(data))
+		else if (Clip->GetText(data) && !data.empty())
 		{
 			Paste(data);
 		}
