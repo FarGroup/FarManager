@@ -277,7 +277,10 @@ TEST_CASE("TVar")
 		REQUIRE(i.t.isNumber() == i.IsNumber);
 		REQUIRE(i.t.asString() == i.sValue);
 		REQUIRE(i.t.asInteger() == i.iValue);
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wfloat-equal")
 		REQUIRE(i.t.asDouble() == i.dValue);
+WARNING_POP()
 	}
 }
 

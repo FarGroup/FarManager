@@ -2725,7 +2725,10 @@ bool FindFiles::FindFilesProcess()
 			};
 
 			// BUGBUG
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wlifetime-safety-dangling-field")
 			m_Searcher = &BC;
+WARNING_POP()
 
 			// Надо бы показать диалог, а то инициализация элементов запаздывает
 			// иногда при поиске и первые элементы не добавляются

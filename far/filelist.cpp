@@ -5441,17 +5441,15 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 	}
 
 	auto hNewPlugin = OpenPluginForFile(FileName, 0, Type, StopProcessing);
-	const auto hNewPluginRawCopy = hNewPlugin.get();
+	if (!hNewPlugin)
+		return {};
 
-	if (hNewPlugin)
-	{
-		if (PushPrev)
-			PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
+	if (PushPrev)
+		PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
 
-		SetAndUpdateFilePlugin(FileName, std::move(hNewPlugin));
-	}
+	SetAndUpdateFilePlugin(FileName, std::move(hNewPlugin));
 
-	return hNewPluginRawCopy;
+	return PluginsList.back()->m_Plugin.get();
 }
 //
 void FileList::PushFilePlugin(const string& FileName, std::unique_ptr<plugin_panel>&& hNewPlugin)

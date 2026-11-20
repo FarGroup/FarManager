@@ -255,9 +255,8 @@ void clipboard_restorer::operator()(const clipboard* Clip) const noexcept
 
 std::unique_ptr<clipboard, clipboard_restorer> OverrideClipboard()
 {
-	auto ClipPtr = internal_clipboard::CreateInstance();
-	OverridenInternalClipboard = ClipPtr.get();
-	return std::unique_ptr<clipboard, clipboard_restorer>(ClipPtr.release());
+	OverridenInternalClipboard = internal_clipboard::CreateInstance().release();
+	return std::unique_ptr<clipboard, clipboard_restorer>(OverridenInternalClipboard);
 }
 
 clipboard& clipboard::GetInstance(clipboard_mode Mode)

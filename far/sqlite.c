@@ -69,6 +69,7 @@ static ULONGLONG WINAPI GetTickCount64_Wrapper(void)
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4191) // 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
+WARNING_DISABLE_GCC("-Wcast-function-type")
 	GetTickCount64Ptr = (ULONGLONG(WINAPI*)(void))GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetTickCount64");
 WARNING_POP()
 

@@ -4417,7 +4417,7 @@ static void update_auto_flags(DialogItemEx const& Item)
 
 	for (const auto& i: Item.Auto)
 	{
-		assert(Item.Selected < std::size(i.Flags));
+		assert(static_cast<size_t>(Item.Selected) < std::size(i.Flags));
 
 		const auto AutoFlags = i.Flags[Item.Selected];
 		i.Owner->Flags = (i.Owner->Flags & ~AutoFlags[1]) | AutoFlags[0];

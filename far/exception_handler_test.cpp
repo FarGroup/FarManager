@@ -615,7 +615,10 @@ namespace tests
 
 		{
 			volatile int i = 42;
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wlifetime-safety-use-after-scope")
 			Ptr = &i;
+WARNING_POP()
 		}
 
 		[[maybe_unused]]

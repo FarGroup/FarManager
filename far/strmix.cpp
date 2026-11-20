@@ -1702,8 +1702,8 @@ TEST_CASE("CanContainWholeWord")
 }
 
 #define DEFINE_LITERAL(U) \
-static consteval auto operator ""_##U(unsigned long long const Value) { return Value * test_units::U; } \
-static consteval auto operator ""_##U(long double const Value)        { return static_cast<unsigned long long>(Value * test_units::U); }
+[[maybe_unused]] static consteval auto operator ""_##U(unsigned long long const Value) { return Value * test_units::U; } \
+[[maybe_unused]] static consteval auto operator ""_##U(long double const Value)        { return static_cast<unsigned long long>(Value * test_units::U); }
 
 DEFINE_LITERAL(K)
 DEFINE_LITERAL(M)
