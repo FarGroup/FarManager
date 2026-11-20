@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2026-11-20 20:27:16+00:00 - build 6755
+
+1. Do not set editor state to modified when pasting from empty clipboard.
+
+2. Warnings.
+
+--------------------------------------------------------------------------------
 shmuel 2026-11-18 21:59:53+02:00 - build 6754
 
 1. RegExp: support scoped inline modifiers and atomic groups.
