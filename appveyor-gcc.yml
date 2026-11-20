@@ -42,11 +42,11 @@ build_script:
   - cd far
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE
   - set FARMANAGER_SCM_REVISION=%APPVEYOR_REPO_COMMIT%
-  - make -j4 %ADD_MAKE% -f makefile_gcc
+  - make -j2 %ADD_MAKE% -f makefile_gcc
   - cd ..
   #build Plugins
   - cd plugins
-  - make -j1 %ADD_MAKE% -f makefile_all_gcc
+  - make -j2 %ADD_MAKE% -f makefile_all_gcc
   - cd ..
 
 test: off
