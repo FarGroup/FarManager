@@ -1948,8 +1948,10 @@ protected:
 				// Saving, restoring and moving down seems to be more reliable.
 				// Words cannot describe how much I despise VT.
 
-				// Save cursor position
-				Str = CSI "m" ANSISYSSC L""sv;
+				Str =
+					CSI "m"         // Reset colors
+					ESC "#5"        // Anyone can screw up line dimensions at any time
+					ANSISYSSC ""sv; // Save cursor position
 
 				foreign_blocks_list ForeignBlocksList;
 
@@ -1961,6 +1963,8 @@ protected:
 							ANSISYSRC // Restore cursor position
 							CSI L"1B" // Move cursor down
 							ANSISYSSC // Save again
+
+							ESC "#5" // Anyone can screw up line dimensions at any time
 
 							// conhost used to preserve colors after ANSISYSRC, but it is not the case anymore (see terminal#14612)
 							// Explicitly reset them here for consistency across implementations.
