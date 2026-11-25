@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+olegfedko 2026-10-13 17:00:00+03:00 - build 6757
+
+1. User menu items can be hidden by a "Show" condition:
+     * always
+     * has selection
+     * current is a file  (with an optional file mask)
+     * current is a folder (with an optional file mask)
+   Use Ctrl+H in the menu to show or hide filtered items.
+
+--------------------------------------------------------------------------------
 drkns 2026-11-21 21:18:03+00:00 - build 6756
 
 1. 0004118: ANSI escape sequences in background mess up interface.
