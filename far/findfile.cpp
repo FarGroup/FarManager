@@ -996,6 +996,58 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 	return nResult;
 }
 
+static bool search_utf16(
+	bytes_view const Data,
+	std::span<wchar_t> Buffer,
+	bool const BigEndian,
+	i_searcher const& Searcher,
+	bool const WholeWords,
+	bool const FirstBlock,
+	bool const LastBlock,
+	auto IsDivider
+)
+{
+	static_assert(sizeof(wchar_t) == 2 && std::endian::native == std::endian::little);
+
+	for (size_t Alignment = 0; Alignment != 2 && Alignment < Data.size(); ++Alignment)
+	{
+		const auto ByteCount = (Data.size() - Alignment) / sizeof(wchar_t) * sizeof(wchar_t);
+		if (!ByteCount)
+			continue;
+
+		if (BigEndian)
+			swap_bytes(Data.data() + Alignment, Buffer.data(), ByteCount, sizeof(wchar_t));
+		else
+			std::memcpy(Buffer.data(), Data.data() + Alignment, ByteCount);
+
+		string_view const Text(Buffer.data(), ByteCount / sizeof(wchar_t));
+		auto Where = Text;
+
+		while (!Where.empty())
+		{
+			const auto Found = Searcher.find_in(Where);
+			if (!Found)
+				break;
+
+			if (!WholeWords)
+				return true;
+
+			const auto [Offset, Size] = *Found;
+			const auto Position = Text.size() - Where.size() + Offset;
+			// Overlapping reads cover matches whose surrounding characters are outside this block.
+			const auto StartIsDivider = Position? IsDivider(Text[Position - 1]) : FirstBlock;
+			const auto End = Position + Size;
+			const auto EndIsDivider = End < Text.size()? IsDivider(Text[End]) : LastBlock;
+			if (StartIsDivider && EndIsDivider)
+				return true;
+
+			Where.remove_prefix(Offset + 1);
+		}
+	}
+
+	return false;
+}
+
 bool background_searcher::LookForString(string_view const FileName)
 {
 	const os::fs::file File(FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
@@ -1099,33 +1151,19 @@ bool background_searcher::LookForString(string_view const FileName)
 				// Перегоняем буфер в UTF-16
 				if (IsUtf16CodePage(i.CodePage))
 				{
-					// Вычисляем размер буфера в UTF-16
-					bufferCount = readBlockSize/sizeof(wchar_t);
+					if (search_utf16(
+						{ readBufferA.data(), readBlockSize },
+						readBuffer,
+						i.CodePage == CP_UTF16BE,
+						*m_TextSearcher,
+						m_SearchDlgParams.WholeWords.value(),
+						alreadyRead == readBlockSize,
+						IsLastBlock || (SearchInFirst && alreadyRead >= SearchInFirst),
+						FindFiles::IsWordDiv
+					))
+						return true;
 
-					// Выходим, если размер буфера меньше длины строки поиска
-					if (bufferCount < m_SearchDlgParams.SearchStr.size())
-						continue;
-
-					// Копируем буфер чтения в буфер сравнения
-					if (i.CodePage== CP_UTF16BE)
-					{
-						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
-						static_assert(std::endian::native == std::endian::little, "No way");
-						const auto EvenSize = readBlockSize / sizeof(char16_t) * sizeof(char16_t);
-						swap_bytes(readBufferA.data(), readBuffer.data(), EvenSize, sizeof(char16_t));
-						if (readBlockSize & 1)
-						{
-							readBuffer[EvenSize / sizeof(char16_t)] = make_integer<char16_t>('\0', static_cast<char>(readBufferA[readBlockSize - 1]));
-							++bufferCount;
-						}
-						// Устанавливаем буфер сравнения
-						buffer = readBuffer.data();
-					}
-					else
-					{
-						// Если поиск в UTF-16 (little endian), то используем исходный буфер
-						buffer = std::bit_cast<wchar_t*>(readBufferA.data());
-					}
+					continue;
 				}
 				else
 				{
@@ -1228,12 +1266,6 @@ bool background_searcher::LookForString(string_view const FileName)
 
 				if (!IsLastBlock)
 				{
-					if (IsUtf16CodePage(i.CodePage))
-					{
-						i.LastSymbol = readBuffer[bufferCount - StepBackOffset / sizeof(wchar_t) - 1];
-					}
-					else
-					{
 						// HERE BE DRAGONS
 
 						// We can't just go back an arbitrary number of bytes in case of UTF-8, because we might land in the middle of a character.
@@ -1254,7 +1286,6 @@ bool background_searcher::LookForString(string_view const FileName)
 
 						// Запоминаем последний символ блока
 						i.LastSymbol = readBuffer[TestStrChars - Diagnostics.PartialOutput];
-					}
 				}
 			}
 		}
@@ -3240,3 +3271,119 @@ void find_files()
 {
 	FindFiles();
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("findfile.utf16_search")
+{
+	const auto IsDivider = [](wchar_t const Char) { return Char == L' '; };
+
+	for (const auto BigEndian: { false, true })
+	{
+		for (const auto Prefix: { 0uz, 1uz })
+		{
+			const auto Encode = [&](string_view const Text)
+			{
+				bytes Result(Prefix, std::byte{ 0x7f });
+
+				for (auto Char: Text)
+				{
+					if (BigEndian)
+						Char = std::byteswap(Char);
+
+					Result.push_back(extract_integer<std::byte, 0>(Char));
+					Result.push_back(extract_integer<std::byte, 1>(Char));
+				}
+
+				return Result;
+			};
+
+			exact_searcher const Searcher(L"abc"sv, false);
+
+			const auto Match = [&](bytes_view const Data, bool const WholeWords, bool const FirstBlock, bool const LastBlock)
+			{
+				std::vector<wchar_t> Buffer(Data.size());
+				return search_utf16(Data, Buffer, BigEndian, Searcher, WholeWords, FirstBlock, LastBlock, IsDivider);
+			};
+
+			{
+				const auto Text = Encode(L"  abc "sv);
+				REQUIRE(Match(Text, false, true, true));
+				REQUIRE(Match(Text, true, true, true));
+				REQUIRE_FALSE(Match(Text.substr(0, Text.size() - 3), false, true, false));
+				REQUIRE_FALSE(Match(Text.substr(0, Text.size() - 2), true, true, false));
+				REQUIRE(Match(Text.substr(1), true, false, true));
+
+				std::vector<wchar_t> Buffer(Text.size());
+
+				icase_searcher const IcaseSearcher(L"ABC"sv, false);
+				REQUIRE(search_utf16(Text, Buffer, BigEndian, IcaseSearcher, false, true, true, IsDivider));
+
+				fuzzy_ic_searcher const FuzzySearcher(L"ÄBÇ"sv, false);
+				REQUIRE(search_utf16(Text, Buffer, BigEndian, FuzzySearcher, true, true, true, IsDivider));
+			}
+
+			{
+				const auto AtEnd = Encode(L"abc"sv);
+				REQUIRE(Match(AtEnd, true, true, true));
+				REQUIRE_FALSE(Match(AtEnd.substr(Prefix), true, false, true));
+			}
+
+			{
+				const auto Embedded = Encode(L"xabcx"sv);
+				REQUIRE_FALSE(Match(Embedded, true, true, true));
+			}
+
+			{
+				const auto NoEndDelimiter = Encode(L" abcX"sv);
+				REQUIRE_FALSE(Match(NoEndDelimiter, true, true, true));
+			}
+
+			{
+				auto Partial = Encode(L"ab"sv);
+				Partial.push_back(std::byte{ 0x63 });
+				REQUIRE_FALSE(Match(Partial, false, true, true));
+			}
+		}
+	}
+}
+
+TEST_CASE("findfile.utf16_search_block_boundary")
+{
+	constexpr auto BlockSize = 65536uz;
+	const auto IsDivider = [](wchar_t const Char) { return Char == L' '; };
+	exact_searcher const Searcher(L"ですか"sv, false);
+
+	for (const auto BigEndian: { false, true })
+	{
+		for (const auto WordOffset: { BlockSize - 3, BlockSize - 4 })
+		{
+			for (const auto Overlap: { 134uz, 137uz })
+			{
+				std::vector Data(BlockSize + 10, std::byte{ 0x7f });
+				size_t Offset = WordOffset - 2;
+
+				for (auto Char: L" ですか "sv)
+				{
+					if (BigEndian)
+						Char = std::byteswap(Char);
+
+					Data[Offset++] = extract_integer<std::byte, 0>(Char);
+					Data[Offset++] = extract_integer<std::byte, 1>(Char);
+				}
+
+				std::vector<wchar_t> Buffer(BlockSize);
+
+				for (const auto WholeWords: { false, true })
+				{
+					REQUIRE_FALSE(search_utf16({ Data.data(), BlockSize }, Buffer, BigEndian, Searcher, WholeWords, true, false, IsDivider));
+					REQUIRE(search_utf16({ Data.data() + BlockSize - Overlap, Data.size() - BlockSize + Overlap }, Buffer, BigEndian, Searcher, WholeWords, false, true, IsDivider));
+				}
+			}
+		}
+	}
+}
+
+#endif

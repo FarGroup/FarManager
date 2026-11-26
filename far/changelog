@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 2026-11-26 20:41:15+00:00 - build 6758
+
+1. gh-1142: Improvements to Text Search in Files.
+   Look for unaligned UTF-16 text as well.
+
+--------------------------------------------------------------------------------
 olegfedko 2026-10-13 17:00:00+03:00 - build 6757
 
 1. User menu items can be hidden by a "Show" condition:
