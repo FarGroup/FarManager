@@ -397,7 +397,7 @@ local function Open_CommandLine (strCmdLine)
         local function errorhandler(err) win.OutputDebugString(debug.traceback(err)) end
         local function Quit(n) actl.Quit(n) Keys("Esc") end
         local OK, R
-        R = win.JoinPath(far.PluginStartupInfo().ModuleDir, "macrotest.lua")
+        R = win.JoinPath(far.PluginStartupInfo().ModuleDir, "test\\macrotest.lua")
         R = loadfile(R) or Quit(1)
         OK, R = pcall(R)
         OK = OK or Quit(2)

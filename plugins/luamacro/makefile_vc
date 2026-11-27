@@ -23,7 +23,7 @@ FAR_DIRNAME=Debug
 FAR_WORKDIR=$(FARDIR)\$(FAR_DIRNAME).$(DIRBIT).vc
 !endif
 
-ALL: lualib lualegacy
+ALL: lualib lualegacy luatest
 
 LINK_OBJS = $(INTDIR)\luaplug.obj
 
@@ -55,3 +55,8 @@ lualegacy:
 !else
 	@echo >nul
 !endif
+
+.PHONY: luatest
+luatest: dirs
+	@if not exist "$(OUTDIR)\test\$(NULL)" mkdir "$(OUTDIR)\test"
+	@copy /y test\*.lua "$(OUTDIR)\test" 1>nul

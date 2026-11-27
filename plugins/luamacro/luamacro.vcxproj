@@ -48,5 +48,14 @@
       <Project>{9ff87075-f1e1-410b-818c-2823396fe24f}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <LuaTestFiles Include="test\*.lua" />
+  </ItemGroup>
+  <Target Name="CopyLuaTest" AfterTargets="Build">
+    <Copy SourceFiles="@(LuaTestFiles)" DestinationFolder="$(OutDir)test" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CleanLuaTest" AfterTargets="Clean">
+    <RemoveDir Directories="$(OutDir)test" />
+  </Target>
   <Import Project="$(ProjectDir)..\..\_build\vc\config\common.targets" />
 </Project>

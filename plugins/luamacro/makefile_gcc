@@ -49,9 +49,7 @@ USERLIBS = \
 	$(OBJDIR)/luafar3.lib \
 	luasdk/$(VERSION_LUASDK)/$(BITPREFIX)$(DIRBIT)/lua51.lib \
 
-USERTARGETS = \
-	lualib \
-	lualegacy \
+USERTARGETS = lualib lualegacy luatest
 
 DEF_NAME = -
 
@@ -80,7 +78,13 @@ ifeq ($(DIRBIT),32)
 endif
 endif
 
+.PHONY: luatest
+luatest:
+	@$(MKDIR) $(DLLDIR)/test
+	@$(CP) test/*.lua $(DLLDIR)/test
+
 .PHONY: clean
 clean::
+	-@$(RM) $(DLLDIR)/test/*
 	@$(RM) $(OBJS) $(DEPS) $(DLLDIR)/*
 	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) clean
